@@ -11,9 +11,9 @@
     using Conventions = NServiceBus.Conventions;
 
     [TestFixture]
-    public class MessageSerializerResolverTests
+    public class MessageDeserializerResolverTests
     {
-        MessageSerializerResolver resolver;
+        MessageDeserializerResolver resolver;
 
         [SetUp]
         public void Setup()
@@ -24,7 +24,7 @@
             var bson = new BsonMessageSerializer(mapper);
             var binary = new BinaryMessageSerializer();
 
-            resolver = new MessageSerializerResolver(new IMessageSerializer[] { xml, json, bson, binary });
+            resolver = new MessageDeserializerResolver(xml, new IMessageSerializer[] { json, bson, binary });
         }
 
         [TestCase(ContentTypes.Xml, typeof(XmlMessageSerializer))]

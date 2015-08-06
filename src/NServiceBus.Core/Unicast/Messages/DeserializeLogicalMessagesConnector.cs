@@ -16,11 +16,11 @@
 
     class DeserializeLogicalMessagesConnector : StageConnector<PhysicalMessageProcessingStageBehavior.Context, LogicalMessagesProcessingStageBehavior.Context>
     {
-        readonly MessageSerializerResolver serializerResolver;
+        readonly MessageDeserializerResolver deserializerResolver;
 
-        public DeserializeLogicalMessagesConnector(MessageSerializerResolver serializerResolver)
+        public DeserializeLogicalMessagesConnector(MessageDeserializerResolver deserializerResolver)
         {
-            this.serializerResolver = serializerResolver;
+            this.deserializerResolver = deserializerResolver;
         }
 
         public UnicastBus UnicastBus { get; set; }
@@ -104,7 +104,7 @@
             using (var stream = new MemoryStream(physicalMessage.Body))
             {
                 var messageTypesToDeserialize = messageMetadata.Select(metadata => metadata.MessageType).ToList();
-                var messageSerializer = serializerResolver.Resolve(physicalMessage.Headers[Headers.ContentType]);
+                var messageSerializer = deserializerResolver.Resolve(physicalMessage.Headers[Headers.ContentType]);
                 return messageSerializer.Deserialize(stream, messageTypesToDeserialize)
                     .Select(x => LogicalMessageFactory.Create(x.GetType(), x))
                     .ToList();

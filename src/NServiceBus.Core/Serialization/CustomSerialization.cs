@@ -8,7 +8,7 @@
         public CustomSerialization()
         {
             EnableByDefault();
-            Prerequisite(this.ShouldSerializationFeatureBeEnabled, "CustomSerialization not enable since serialization definition not detected.");
+            Prerequisite(this.ShouldSerializationFeatureBeEnabled, "CustomSerialization not enabled since serialization definition not detected.");
         }
 
         protected internal override void Setup(FeatureConfigurationContext context)

@@ -11,7 +11,7 @@
         internal BinarySerialization()
         {
             EnableByDefault();
-            Prerequisite(this.ShouldSerializationFeatureBeEnabled, "BinarySerialization not enable since serialization definition not detected.");
+            Prerequisite(this.ShouldSerializationFeatureBeEnabled, "BinarySerialization not enabled since serialization definition not detected.");
         }
         /// <summary>
         /// See <see cref="Feature.Setup"/>.

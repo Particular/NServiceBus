@@ -14,7 +14,7 @@
         internal XmlSerialization()
         {
             EnableByDefault();
-            Prerequisite(this.ShouldSerializationFeatureBeEnabled, "XmlSerialization not enable since serialization definition not detected.");
+            Prerequisite(this.ShouldSerializationFeatureBeEnabled, "XmlSerialization not enabled since serialization definition not detected.");
             RegisterStartupTask<MessageTypesInitializer>();
         }
 
