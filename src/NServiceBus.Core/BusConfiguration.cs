@@ -246,7 +246,7 @@ namespace NServiceBus
 
             Settings.SetDefault<Conventions>(conventionsBuilder.Conventions);
 
-            return new Configure(Settings, container, registrations, Pipeline, pipelineCollection);
+            return new Configure(Settings, container, registrations, pipelineCollection);
         }
 
         List<Type> GetAllowedTypes(string path)
