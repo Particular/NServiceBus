@@ -84,7 +84,7 @@ namespace NServiceBus
         {
             WireUpConfigSectionOverrides();
 
-            var featureActivator = new FeatureActivator(Settings);
+            var featureActivator = new FeatureActivator(Settings, container);
 
             container.RegisterSingleton(featureActivator);
 
@@ -94,7 +94,7 @@ namespace NServiceBus
 
             ActivateAndInvoke<IWantToRunBeforeConfigurationIsFinalized>(TypesToScan, t => t.Run(this));
 
-            var featureStats = featureActivator.SetupFeatures(new FeatureConfigurationContext(this));
+            var featureStats = featureActivator.SetupFeatures();
 
             pipelineConfiguration.RegisterBehaviorsInContainer(Settings, container);
 

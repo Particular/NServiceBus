@@ -3,6 +3,8 @@
     using System.Collections.Generic;
     using System.Linq;
     using NServiceBus.Features;
+    using NServiceBus.ObjectBuilder.Common;
+    using NServiceBus.Pipeline;
     using NUnit.Framework;
     using Settings;
 
@@ -41,12 +43,13 @@
         {
             var featureThatIsEnabledByAnother = new FeatureThatIsEnabledByAnother();
             var settings = new SettingsHolder();
-            var featureSettings = new FeatureActivator(settings);
+            settings.Set<PipelineConfiguration>(new PipelineConfiguration(new PipelineModificationsBuilder()));
+            var featureSettings = new FeatureActivator(settings, new CommonObjectBuilder());
             //the orders matter here to expose a bug
             featureSettings.Add(featureThatIsEnabledByAnother);
             featureSettings.Add(new FeatureThatEnablesAnother());
 
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(null));
+            featureSettings.SetupFeatures();
 
             Assert.True(featureThatIsEnabledByAnother.DefaultCalled, "FeatureThatIsEnabledByAnother wasn't activated");
         }
@@ -74,14 +77,15 @@
             };
 
             var settings = new SettingsHolder();
-            var featureSettings = new FeatureActivator(settings);
+            settings.Set<PipelineConfiguration>(new PipelineConfiguration(new PipelineModificationsBuilder()));
+            var featureSettings = new FeatureActivator(settings, new CommonObjectBuilder());
 
             //the orders matter here to expose a bug
             featureSettings.Add(level3);
             featureSettings.Add(level2);
             featureSettings.Add(level1);
 
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(null));
+            featureSettings.SetupFeatures();
 
             Assert.True(level1.IsActive, "Activate1 wasn't activated");
             Assert.True(level2.IsActive, "Activate2 wasn't activated");
@@ -109,14 +113,15 @@
             };
 
             var settings = new SettingsHolder();
-            var featureSettings = new FeatureActivator(settings);
+            settings.Set<PipelineConfiguration>(new PipelineConfiguration(new PipelineModificationsBuilder()));
+            var featureSettings = new FeatureActivator(settings, new CommonObjectBuilder());
 
             featureSettings.Add(dependingFeature);
             featureSettings.Add(feature);
 
             settings.EnableFeatureByDefault<MyFeature1>();
 
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(null));
+            featureSettings.SetupFeatures();
 
             Assert.True(dependingFeature.IsActive);
 
@@ -146,7 +151,8 @@
             };
 
             var settings = new SettingsHolder();
-            var featureSettings = new FeatureActivator(settings);
+            settings.Set<PipelineConfiguration>(new PipelineConfiguration(new PipelineModificationsBuilder()));
+            var featureSettings = new FeatureActivator(settings, new CommonObjectBuilder());
 
             featureSettings.Add(dependingFeature);
             featureSettings.Add(feature);
@@ -157,7 +163,7 @@
             settings.EnableFeatureByDefault<MyFeature2>();
             settings.EnableFeatureByDefault<MyFeature3>();
 
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(null));
+            featureSettings.SetupFeatures();
 
             Assert.True(dependingFeature.IsActive);
 
@@ -185,14 +191,15 @@
             };
 
             var settings = new SettingsHolder();
-            var featureSettings = new FeatureActivator(settings);
+            settings.Set<PipelineConfiguration>(new PipelineConfiguration(new PipelineModificationsBuilder()));
+            var featureSettings = new FeatureActivator(settings, new CommonObjectBuilder());
 
             //the orders matter here to expose a bug
             featureSettings.Add(level3);
             featureSettings.Add(level2);
             featureSettings.Add(level1);
 
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(null));
+            featureSettings.SetupFeatures();
 
             Assert.True(level1.IsActive, "Level1 wasn't activated");
             Assert.True(level2.IsActive, "Level2 wasn't activated");

@@ -33,7 +33,7 @@
             context.Container.ConfigureComponent(b =>
             {
                 var pipelinesCollection = context.Settings.Get<PipelineConfiguration>();
-                var pipeline = new PipelineBase<ForwardingContext>(b, context.Settings, pipelinesCollection.MainPipeline);
+                var pipeline = new PipelineBase<ForwardingContext>(b, context.Settings, pipelinesCollection.CreateMainPipeline());
 
                 return new InvokeForwardingPipelineBehavior(pipeline, forwardReceivedMessagesQueue);
             }, DependencyLifecycle.InstancePerCall);

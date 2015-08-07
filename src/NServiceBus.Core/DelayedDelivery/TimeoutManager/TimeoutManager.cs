@@ -44,19 +44,17 @@
             var dispatcherAddress = selectedTransportDefinition.GetSubScope(localAddress,"TimeoutsDispatcher");
             var inputAddress = selectedTransportDefinition.GetSubScope(localAddress, "Timeouts");
 
-            var messageProcessorPipeline = context.AddSatellitePipeline("Timeout Message Processor", inputAddress);
-            messageProcessorPipeline.Register<MoveFaultsToErrorQueueBehavior.Registration>();
-            messageProcessorPipeline.Register<FirstLevelRetriesBehavior.Registration>();
-            messageProcessorPipeline.Register<TimeoutMessageProcessorBehavior.Registration>();
+            var messageProcessorPipeline = context.AddSatellitePipeline("Timeout Message Processor", inputAddress, new TimeoutMessageProcessorBehavior.Registration());
+            messageProcessorPipeline.EnableFeature<StoreFaultsInErrorQueue>();
+            messageProcessorPipeline.EnableFeature<FirstLevelRetries>();
 
             context.Container.ConfigureComponent<TimeoutMessageProcessorBehavior>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(t => t.InputAddress, inputAddress)
                 .ConfigureProperty(t => t.EndpointName, context.Settings.EndpointName());
 
-            var dispatcherProcessorPipeline = context.AddSatellitePipeline("Timeout Dispatcher Processor", dispatcherAddress);
-            dispatcherProcessorPipeline.Register<MoveFaultsToErrorQueueBehavior.Registration>();
-            dispatcherProcessorPipeline.Register<FirstLevelRetriesBehavior.Registration>();
-            dispatcherProcessorPipeline.Register<TimeoutDispatcherProcessorBehavior.Registration>();
+            var dispatcherProcessorPipeline = context.AddSatellitePipeline("Timeout Dispatcher Processor", dispatcherAddress, new TimeoutDispatcherProcessorBehavior.Registration());
+            dispatcherProcessorPipeline.EnableFeature<StoreFaultsInErrorQueue>();
+            dispatcherProcessorPipeline.EnableFeature<FirstLevelRetries>();
 
             context.Container.ConfigureComponent<TimeoutDispatcherProcessorBehavior>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(t => t.InputAddress, dispatcherAddress);

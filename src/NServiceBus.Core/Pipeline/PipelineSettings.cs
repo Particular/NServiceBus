@@ -13,7 +13,7 @@ namespace NServiceBus.Pipeline
         /// <summary>
         /// Initializes a new instance of <see cref="PipelineSettings"/>.
         /// </summary>
-        internal PipelineSettings(PipelineModifications modifications)
+        internal PipelineSettings(PipelineModificationsBuilder modifications)
         {
             this.modifications = modifications;
         }
@@ -27,7 +27,7 @@ namespace NServiceBus.Pipeline
             // I can only remove a behavior that is registered and other behaviors do not depend on, eg InsertBefore/After
             Guard.AgainstNullAndEmpty("stepId", stepId);
 
-            modifications.Removals.Add(new RemoveStep(stepId));
+            modifications.AddRemoval(new RemoveStep(stepId));
         }
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace NServiceBus.Pipeline
             Guard.AgainstNullAndEmpty("stepId", stepId);
 
             registeredBehaviors.Add(newBehavior);
-            modifications.Replacements.Add(new ReplaceBehavior(stepId, newBehavior, description));
+            modifications.AddReplacement(new ReplaceBehavior(stepId, newBehavior, description));
         }
 
         /// <summary>
@@ -138,13 +138,13 @@ namespace NServiceBus.Pipeline
         {
             registeredSteps.Add(step);
 
-            modifications.Additions.Add(step);
+            modifications.AddAddition(step);
         }
 
         List<RegisterStep> registeredSteps = new List<RegisterStep>();
         List<Type> registeredBehaviors = new List<Type>();
 
-        PipelineModifications modifications;
+        PipelineModificationsBuilder modifications;
 
 
         internal void RegisterConnector<T>(string description) where T : IStageConnector

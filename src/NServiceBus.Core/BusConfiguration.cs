@@ -33,9 +33,13 @@ namespace NServiceBus
         {
             configurationSourceToUse = new DefaultConfigurationSource();
 
-            pipelineCollection = new PipelineConfiguration();
+            var userDefinedBehaviors = new PipelineModificationsBuilder();
+            pipelineCollection = new PipelineConfiguration(userDefinedBehaviors);
             Settings.Set<PipelineConfiguration>(pipelineCollection);
-            Pipeline = new PipelineSettings(pipelineCollection.MainPipeline);
+            Pipeline = new PipelineSettings(userDefinedBehaviors);
+
+            var satellites = new SatelliteCollection();
+            Settings.Set<SatelliteCollection>(satellites);
 
             Settings.Set<QueueBindings>(new QueueBindings());
 

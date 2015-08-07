@@ -2,6 +2,7 @@ namespace NServiceBus.Serializers.Json.Tests
 {
     using System.Text;
     using Features;
+    using NServiceBus.Pipeline;
     using NUnit.Framework;
 
     [TestFixture]
@@ -16,7 +17,7 @@ namespace NServiceBus.Serializers.Json.Tests
 
             var config = builder.BuildConfiguration();
 
-            var context = new FeatureConfigurationContext(config);
+            var context = new FeatureConfigurationContext(config.container, config.Settings, new PipelineModificationsBuilder());
             new JsonSerialization().SetupFeature(context);
 
             var serializer = config.Builder.Build<JsonMessageSerializer>();

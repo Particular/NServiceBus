@@ -1,23 +1,31 @@
 ﻿namespace NServiceBus.Pipeline
 {
-    using System.Collections.Generic;
-
     class PipelineModifications
     {
-        public List<RegisterStep> Additions = new List<RegisterStep>();
-        public List<RemoveStep> Removals = new List<RemoveStep>();
-        public List<ReplaceBehavior> Replacements = new List<ReplaceBehavior>();
-    }
+        readonly RegisterStep[] additions;
+        readonly RemoveStep[] removals;
+        readonly ReplaceBehavior[] replacements;
 
-    class SatellitePipelineModifications : PipelineModifications
-    {
-        public readonly string Name;
-        public readonly string ReceiveAddress;
-
-        public SatellitePipelineModifications(string name, string receiveAddress)
+        public PipelineModifications(RegisterStep[] additions, RemoveStep[] removals, ReplaceBehavior[] replacements)
         {
-            Name = name;
-            ReceiveAddress = receiveAddress;
+            this.additions = additions;
+            this.removals = removals;
+            this.replacements = replacements;
+        }
+
+        public RegisterStep[] Additions
+        {
+            get { return additions; }
+        }
+
+        public RemoveStep[] Removals
+        {
+            get { return removals; }
+        }
+
+        public ReplaceBehavior[] Replacements
+        {
+            get { return replacements; }
         }
     }
 }

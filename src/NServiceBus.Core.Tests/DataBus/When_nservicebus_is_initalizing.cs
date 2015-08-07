@@ -6,6 +6,7 @@ namespace NServiceBus.Core.Tests.DataBus
     using NServiceBus.DataBus;
     using NServiceBus.DataBus.InMemory;
     using NServiceBus.Features;
+    using NServiceBus.Pipeline;
     using NUnit.Framework;
 
     [TestFixture]
@@ -22,7 +23,7 @@ namespace NServiceBus.Core.Tests.DataBus
             
             var config = builder.BuildConfiguration();
 
-            Assert.True(new DataBusFileBased().CheckPrerequisites(new FeatureConfigurationContext(config)).IsSatisfied);
+            Assert.True(new DataBusFileBased().CheckPrerequisites(new FeatureConfigurationContext(config.container, config.Settings, new PipelineModificationsBuilder())).IsSatisfied);
         }
 
         [Test]
@@ -42,8 +43,9 @@ namespace NServiceBus.Core.Tests.DataBus
             builder.Conventions().DefiningDataBusPropertiesAs(p => p.Name.EndsWith("DataBus"));
             
             var feature = new DataBusFileBased();
+            var configure = builder.BuildConfiguration();
 
-            Assert.Throws<InvalidOperationException>(() => feature.CheckPrerequisites(new FeatureConfigurationContext(builder.BuildConfiguration())));
+            Assert.Throws<InvalidOperationException>(() => feature.CheckPrerequisites(new FeatureConfigurationContext(configure.container, configure.Settings, new PipelineModificationsBuilder())));
         }
 
         [Test]
@@ -70,7 +72,7 @@ namespace NServiceBus.Core.Tests.DataBus
             var config = builder.BuildConfiguration();
             var feature = new DataBusFileBased();
 
-            Assert.DoesNotThrow(() => feature.CheckPrerequisites(new FeatureConfigurationContext(config)));
+            Assert.DoesNotThrow(() => feature.CheckPrerequisites(new FeatureConfigurationContext(config.container, config.Settings, new PipelineModificationsBuilder())));
         }
 
         class MyDataBusSerializer : IDataBusSerializer

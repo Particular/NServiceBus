@@ -11,27 +11,31 @@
     /// </summary>
     public class FeatureConfigurationContext
     {
-        Configure config;
+        readonly IConfigureComponents configureComponents;
+        readonly ReadOnlySettings settings;
+        readonly PipelineSettings pipelineSettings;
 
-        internal FeatureConfigurationContext(Configure config)
+        internal FeatureConfigurationContext(IConfigureComponents configureComponents, ReadOnlySettings settings, PipelineModificationsBuilder pipelineModificationsBuilder)
         {
-            this.config = config;            
+            this.configureComponents = configureComponents;
+            this.settings = settings;
+            pipelineSettings = new PipelineSettings(pipelineModificationsBuilder);
         }
 
         /// <summary>
         /// A read only copy of the settings.
         /// </summary>
-        public ReadOnlySettings Settings { get { return config.Settings; } }
+        public ReadOnlySettings Settings { get { return settings; } }
         
         /// <summary>
         /// Access to the container to allow for registrations.
         /// </summary>
-        public IConfigureComponents Container { get { return config.container; } }
-        
+        public IConfigureComponents Container { get { return configureComponents; } }
+
         /// <summary>
         /// Access to the pipeline in order to customize it.
         /// </summary>
-        public PipelineSettings Pipeline { get { return config.pipelineSettings; } }
+        public PipelineSettings Pipeline { get { return pipelineSettings; } }
 
         /// <summary>
         /// Registers the receive behavior to use for that endpoint.
@@ -40,23 +44,20 @@
         {
             var receiveBehavior = new ReceiveBehavior.Registration();
             receiveBehavior.ContainerRegistration((b, s) => receiveBehaviorFactory(b));
-            config.Settings.Get<PipelineConfiguration>().ReceiveBehavior = receiveBehavior;
+            settings.Get<PipelineConfiguration>().ReceiveBehavior = receiveBehavior;
         }
 
         /// <summary>
         /// Creates a new satellite processing pipeline.
         /// </summary>
-        public PipelineSettings AddSatellitePipeline(string name, string receiveAddress)
+        public SatelliteRegistration AddSatellitePipeline(string name, string receiveAddress, RegisterStep pipelineBehaviorRegistration)
         {
-            var pipelineModifications = new SatellitePipelineModifications(name, receiveAddress);
-            config.Settings.Get<PipelineConfiguration>().SatellitePipelines.Add(pipelineModifications);
-            var newPipeline = new PipelineSettings(pipelineModifications);
+            var satellite = new Satellite(name, receiveAddress, pipelineBehaviorRegistration);
 
-            newPipeline.RegisterConnector<TransportReceiveToPhysicalMessageProcessingConnector>("Allows to abort processing the message");
+            settings.Get<SatelliteCollection>().Register(satellite);
+            settings.Get<QueueBindings>().BindReceiving(receiveAddress);
 
-            config.Settings.Get<QueueBindings>().BindReceiving(receiveAddress);
-
-            return newPipeline;
+            return new SatelliteRegistration(satellite);
         }
     }
 }

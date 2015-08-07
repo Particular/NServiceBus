@@ -68,7 +68,8 @@
 
                     if (called)
                     {
-                        Console.Out.WriteLine("Called once, skipping next");
+                        Console.Out.WriteLine("Called once, proceeding without exception");
+                        next();
                         return;
 
                     }

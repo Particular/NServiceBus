@@ -3,6 +3,8 @@
     using System;
     using System.Linq;
     using NServiceBus.Features;
+    using NServiceBus.ObjectBuilder.Common;
+    using NServiceBus.Pipeline;
     using NUnit.Framework;
     using Settings;
 
@@ -15,13 +17,15 @@
             var featureWithTrueCondition = new MyFeatureWithSatisfiedPrerequisite();
             var featureWithFalseCondition = new MyFeatureWithUnsatisfiedPrerequisite();
 
-            var featureSettings = new FeatureActivator(new SettingsHolder());
+            var settings = new SettingsHolder();
+            settings.Set<PipelineConfiguration>(new PipelineConfiguration(new PipelineModificationsBuilder()));
+            var featureSettings = new FeatureActivator(settings, new CommonObjectBuilder());
 
             featureSettings.Add(featureWithTrueCondition);
             featureSettings.Add(featureWithFalseCondition);
 
 
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(null));
+            featureSettings.SetupFeatures();
 
             Assert.True(featureWithTrueCondition.IsActive);
             Assert.False(featureWithFalseCondition.IsActive);
@@ -33,11 +37,12 @@
         public void Should_register_defaults_if_feature_is_activated()
         {
             var settings = new SettingsHolder();
-            var featureSettings = new FeatureActivator(settings);
+            settings.Set<PipelineConfiguration>(new PipelineConfiguration(new PipelineModificationsBuilder()));
+            var featureSettings = new FeatureActivator(settings, new CommonObjectBuilder());
 
             featureSettings.Add(new MyFeatureWithDefaults());
 
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(null));
+            featureSettings.SetupFeatures();
 
             Assert.True(settings.HasSetting("Test1"));
         }
@@ -46,12 +51,12 @@
         public void Should_not_register_defaults_if_feature_is_not_activated()
         {
             var settings = new SettingsHolder();
-            var featureSettings = new FeatureActivator(settings);
+            var featureSettings = new FeatureActivator(settings, new CommonObjectBuilder());
 
             featureSettings.Add(new MyFeatureWithDefaultsNotActive());
             featureSettings.Add(new MyFeatureWithDefaultsNotActiveDueToUnsatisfiedPrerequisite());
 
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(null));
+            featureSettings.SetupFeatures();
 
             Assert.False(settings.HasSetting("Test1"));
             Assert.False(settings.HasSetting("Test2"));

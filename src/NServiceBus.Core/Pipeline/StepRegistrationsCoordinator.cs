@@ -6,7 +6,7 @@ namespace NServiceBus.Pipeline
 
     class StepRegistrationsCoordinator
     {
-        public StepRegistrationsCoordinator(List<RemoveStep> removals, List<ReplaceBehavior> replacements)
+        public StepRegistrationsCoordinator(IList<RemoveStep> removals, IList<ReplaceBehavior> replacements)
         {
             this.removals = removals;
             this.replacements = replacements;
@@ -38,7 +38,7 @@ namespace NServiceBus.Pipeline
             return piplineModelBuilder.Build();
         }
 
-        static IEnumerable<Type> ContextsReachableFrom<TRootContext>(List<RegisterStep> registerSteps)
+        static IEnumerable<Type> ContextsReachableFrom<TRootContext>(IEnumerable<RegisterStep> registerSteps)
         {
             var stageConnectors = registerSteps.Where(s => s.IsStageConnector())
                 .ToList();
@@ -58,20 +58,14 @@ namespace NServiceBus.Pipeline
             }
         }
 
-        static Type GetInputType(Type behaviorType)
-        {
-            var behaviorInterface = GetBehaviorInterface(behaviorType);
-            return behaviorInterface.GetGenericArguments()[0];
-        }
-
         static Type GetBehaviorInterface(Type behaviorType)
         {
             var behaviorInterface = behaviorType.GetInterfaces().First(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IBehavior<,>));
             return behaviorInterface;
         }
 
-        List<RegisterStep> additions = new List<RegisterStep>();
-        List<RemoveStep> removals;
-        List<ReplaceBehavior> replacements;
+        IList<RegisterStep> additions = new List<RegisterStep>();
+        IList<RemoveStep> removals;
+        IList<ReplaceBehavior> replacements;
     }
 }
