@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Reliability.Outbox
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using NServiceBus.AcceptanceTesting;
@@ -16,9 +17,9 @@
         public void Should_record_the_request_to_clear_in_outbox()
         {
             var context = new Context();
-            
+
             Scenario.Define(context)
-                .WithEndpoint<NonDtcReceivingEndpoint>(b => b.Given(bus => bus.SendLocal(new PlaceOrder())))
+                .WithEndpoint<NonDtcReceivingEndpoint>(b => b.Given(bus => bus.SendLocal(new PlaceOrder { DataId = Guid.NewGuid() })))
                 .AllowExceptions()
                 .Done(c => c.Done)
                 .Run();
@@ -44,7 +45,7 @@
                         b.GetSettings().Set("DisableOutboxTransportCheck", true);
                         b.EnableOutbox();
                         b.UsePersistence<FakeOutboxPersistence>();
-                        b.RegisterComponents(c=>c.ConfigureComponent<FakeOutbox>(DependencyLifecycle.SingleInstance));
+                        b.RegisterComponents(c => c.ConfigureComponent<FakeOutbox>(DependencyLifecycle.SingleInstance));
                     });
             }
 
@@ -54,55 +55,62 @@
 
                 public void Handle(PlaceOrder message)
                 {
-                    MarkAsComplete();
+                    Data.DataId = message.DataId;
 
+                    MarkAsComplete();
                     Context.Done = true;
                 }
+
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<PlaceOrderSagaData> mapper)
                 {
-                    
+                    mapper.ConfigureMapping<PlaceOrderSagaData>(m => m.DataId).ToSaga(s => s.DataId);
                 }
+
                 public class PlaceOrderSagaData : ContainSagaData
                 {
-                }  
+                    public virtual Guid DataId { get; set; }
+                }
             }
         }
 
-     class FakeOutbox:IOutboxStorage
-     {
-         readonly Context context;
+        class FakeOutbox : IOutboxStorage
+        {
+            readonly Context context;
 
-         public FakeOutbox(Context context)
-         {
-             this.context = context;
-         }
+            public FakeOutbox(Context context)
+            {
+                this.context = context;
+            }
 
-         public bool TryGet(string messageId, out OutboxMessage message)
-         {
-             message = null;
-             return false;
-         }
+            public bool TryGet(string messageId, out OutboxMessage message)
+            {
+                message = null;
+                return false;
+            }
 
-         public void Store(string messageId, IEnumerable<TransportOperation> transportOperations)
-         {
-             context.NumberOfOps = transportOperations.Count();
-         }
+            public void Store(string messageId, IEnumerable<TransportOperation> transportOperations)
+            {
+                context.NumberOfOps = transportOperations.Count();
+            }
 
-         public void SetAsDispatched(string messageId)
-         {
-           
-         }
-     }
+            public void SetAsDispatched(string messageId)
+            {
+
+            }
+        }
 
 
-        public class PlaceOrder : ICommand { }
+        public class PlaceOrder : ICommand
+        {
+            public Guid DataId { get; set; }
+        }
     }
 
-    public class FakeOutboxPersistence:PersistenceDefinition
+    public class FakeOutboxPersistence : PersistenceDefinition
     {
-        public  FakeOutboxPersistence()
+        public FakeOutboxPersistence()
         {
-            Supports<StorageType.Outbox>(s => {});
+            Supports<StorageType.Outbox>(s => { });
         }
     }
 }

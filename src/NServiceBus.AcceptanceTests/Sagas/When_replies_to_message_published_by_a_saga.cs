@@ -64,7 +64,7 @@
 
                 public void Handle(DidSomething message)
                 {
-                    Bus.Reply(new DidSomethingResponse { DataId = message.DataId });
+                    Bus.Reply(new DidSomethingResponse { ReceivedDataId = message.DataId });
                 }
             }
         }
@@ -91,12 +91,13 @@
 
                 public void Handle(DidSomethingResponse message)
                 {
-                    Context.DidSagaReplyMessageGetCorrelated = message.DataId == Data.DataId;
+                    Context.DidSagaReplyMessageGetCorrelated = message.ReceivedDataId == Data.DataId;
                     MarkAsComplete();
                 }
                 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySaga2Data> mapper)
                 {
+                    mapper.ConfigureMapping<StartSaga>(m => m.DataId).ToSaga(s => s.DataId);
                 }
 
                 public class MySaga2Data : ContainSagaData
@@ -121,7 +122,7 @@
         [Serializable]
         public class DidSomethingResponse : IMessage
         {
-            public Guid DataId { get; set; }
+            public Guid ReceivedDataId { get; set; }
         }
     }
 }

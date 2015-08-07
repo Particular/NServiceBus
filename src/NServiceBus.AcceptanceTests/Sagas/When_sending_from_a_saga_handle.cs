@@ -80,10 +80,12 @@ namespace NServiceBus.AcceptanceTests.Sagas
 
                 public class Saga2Data : ContainSagaData
                 {
+                    public Guid DataId { get; set; }
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Saga2Data> mapper)
                 {
+                    mapper.ConfigureMapping<StartSaga2>(m => m.DataId).ToSaga(s => s.DataId);
                 }
             }
 
@@ -100,6 +102,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
         [Serializable]
         public class StartSaga2 : ICommand
         {
+            public Guid DataId { get; set; }
         }
         public class MessageSaga1WillHandle : IMessage
         {

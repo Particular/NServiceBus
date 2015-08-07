@@ -26,6 +26,7 @@
             public class TestSaga : Saga<TestSaga.TestSagaData>, IAmStartedByMessages<StartSagaMessage>
             {
                 public SagaEndpointContext Context { get; set; }
+
                 public void Handle(StartSagaMessage message)
                 {
                     Context.SagaStarted = true;
@@ -34,8 +35,8 @@
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
                 {
-                    mapper.ConfigureMapping<StartSagaMessage>(m=>m.SomeId)
-                        .ToSaga(s=>s.SomeId);
+                    mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
+                        .ToSaga(s => s.SomeId);
                 }
 
                 public class TestSagaData : ContainSagaData

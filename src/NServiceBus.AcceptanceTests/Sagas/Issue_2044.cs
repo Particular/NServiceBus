@@ -6,6 +6,7 @@
     using NUnit.Framework;
     using Saga;
 
+    // TODO Tim: can we rename this test? (e.g. when_reply_from_saga_not_found_handler?)
     public class Issue_2044 : NServiceBusAcceptanceTest
     {
         [Test]
@@ -59,6 +60,7 @@
 
                 public void Handle(StartSaga1 message)
                 {
+                    Data.ContextId = message.ContextId;
                 }
 
                 public void Handle(MessageToSaga message)
@@ -67,10 +69,15 @@
 
                 public class Saga1Data : ContainSagaData
                 {
+                    public Guid ContextId { get; set; }
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Saga1Data> mapper)
                 {
+                    mapper.ConfigureMapping<StartSaga1>(m => m.ContextId)
+                        .ToSaga(s => s.ContextId);
+                    mapper.ConfigureMapping<MessageToSaga>(m => m.ContextId)
+                        .ToSaga(s => s.ContextId);
                 }
             }
 
@@ -88,11 +95,13 @@
         [Serializable]
         public class StartSaga1 : ICommand
         {
+            public Guid ContextId { get; set; }
         }
 
         [Serializable]
         public class MessageToSaga : ICommand
         {
+            public Guid ContextId { get; set; }
         }
 
         [Serializable]

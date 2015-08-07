@@ -59,7 +59,7 @@
                     options.DelayDeliveryWith(TimeSpan.FromSeconds(10));
                     options.RouteToLocalEndpointInstance();
 
-                    Bus.Send(new FinishMessage(),options);
+                    Bus.Send(new FinishMessage(), options);
                 }
             }
 
@@ -78,6 +78,7 @@
 
                 public void Handle(StartSaga message)
                 {
+                    Data.MessageId = message.Id;
                 }
 
                 public void Handle(MessageToSaga message)
@@ -86,10 +87,13 @@
 
                 public class Saga1Data : ContainSagaData
                 {
+                    public Guid MessageId { get; set; }
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Saga1Data> mapper)
                 {
+                    mapper.ConfigureMapping<StartSaga>(m => m.Id).ToSaga(s => s.MessageId);
+                    mapper.ConfigureMapping<MessageToSaga>(m => m.Id).ToSaga(s => s.MessageId);
                 }
             }
 
@@ -98,6 +102,7 @@
 
                 public void Handle(StartSaga message)
                 {
+                    Data.MessageId = message.Id;
                 }
 
                 public void Handle(MessageToSaga message)
@@ -106,10 +111,13 @@
 
                 public class Saga2Data : ContainSagaData
                 {
+                    public Guid MessageId { get; set; }
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Saga2Data> mapper)
                 {
+                    mapper.ConfigureMapping<StartSaga>(m => m.Id).ToSaga(s => s.MessageId);
+                    mapper.ConfigureMapping<MessageToSaga>(m => m.Id).ToSaga(s => s.MessageId);
                 }
             }
 
@@ -164,6 +172,7 @@
             {
                 public void Handle(StartSaga message)
                 {
+                    Data.MessageId = message.Id;
                 }
 
                 public void Handle(MessageToSaga message)
@@ -172,10 +181,13 @@
 
                 public class Saga1Data : ContainSagaData
                 {
+                    public Guid MessageId { get; set; }
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Saga1Data> mapper)
                 {
+                    mapper.ConfigureMapping<StartSaga>(m => m.Id).ToSaga(s => s.MessageId);
+                    mapper.ConfigureMapping<MessageToSaga>(m => m.Id).ToSaga(s => s.MessageId);
                 }
             }
 
@@ -183,6 +195,7 @@
             {
                 public void Handle(StartSaga message)
                 {
+                    Data.MessageId = message.Id;
                 }
 
                 public void Handle(MessageToSaga message)
@@ -191,10 +204,13 @@
 
                 public class Saga2Data : ContainSagaData
                 {
+                    public Guid MessageId { get; set; }
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Saga2Data> mapper)
                 {
+                    mapper.ConfigureMapping<StartSaga>(m => m.Id).ToSaga(s => s.MessageId);
+                    mapper.ConfigureMapping<MessageToSaga>(m => m.Id).ToSaga(s => s.MessageId);
                 }
             }
 
@@ -211,6 +227,12 @@
         [Serializable]
         public class StartSaga : ICommand
         {
+            public StartSaga()
+            {
+                Id = Guid.NewGuid();
+            }
+
+            public Guid Id { get; private set; }
         }
 
         [Serializable]
@@ -221,6 +243,12 @@
         [Serializable]
         public class MessageToSaga : ICommand
         {
+            public MessageToSaga()
+            {
+                Id = Guid.NewGuid();
+            }
+
+            public Guid Id { get; private set; }
         }
     }
 }

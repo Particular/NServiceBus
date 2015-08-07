@@ -26,9 +26,10 @@
                 .Run();
 
             Assert.False(context.NotFoundHandlerCalled);
-            Assert.True(context.OtherSagaStarted);
+            Assert.True(context.OtherSagaStarted); 
             Assert.False(context.MessageHandlerCalled);
             Assert.False(context.TimeoutHandlerCalled);
+            //TODO Tim: It seems like test naming and assertions don't match?
         }
 
         class MySaga : Saga<MySaga.SagaData>, IAmStartedByMessages<MessageWithSagaId>,

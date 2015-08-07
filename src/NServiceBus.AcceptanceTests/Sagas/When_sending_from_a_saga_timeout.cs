@@ -14,7 +14,7 @@
         public void Should_match_different_saga()
         {
             Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new StartSaga1())))
+                    .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new StartSaga1 { DataId = Guid.NewGuid() })))
                     .Done(c => c.DidSaga2ReceiveMessage)
                     .Repeat(r => r.For(Transports.Default))
                     .Should(c => Assert.True(c.DidSaga2ReceiveMessage))
@@ -40,6 +40,7 @@
 
                 public void Handle(StartSaga1 message)
                 {
+                    Data.DataId = message.DataId;
                     RequestTimeout(TimeSpan.FromSeconds(1), new Saga1Timeout());
                 }
 
@@ -50,10 +51,12 @@
                 }
                 public class Saga1Data : ContainSagaData
                 {
+                    public Guid DataId { get; set; }
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Saga1Data> mapper)
                 {
+                    mapper.ConfigureMapping<StartSaga1>(m => m.DataId).ToSaga(s => s.DataId);
                 }
             }
 
@@ -63,15 +66,18 @@
 
                 public void Handle(StartSaga2 message)
                 {
+                    Data.DataId = message.DataId;
                     Context.DidSaga2ReceiveMessage = true;
                 }
 
                 public class Saga2Data : ContainSagaData
                 {
+                    public Guid DataId { get; set; }
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Saga2Data> mapper)
                 {
+                    mapper.ConfigureMapping<StartSaga2>(m => m.DataId).ToSaga(s => s.DataId);
                 }
             }
 
@@ -81,11 +87,13 @@
         [Serializable]
         public class StartSaga1 : ICommand
         {
+            public Guid DataId { get; set; }
         }
 
         [Serializable]
         public class StartSaga2 : ICommand
         {
+            public Guid DataId { get; set; }
         }
 
         public class Saga1Timeout : IMessage

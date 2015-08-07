@@ -15,7 +15,7 @@
             var context = new Context();
 
             Scenario.Define(context)
-                .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new InitiateRequestingSaga())))
+                .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new InitiateRequestingSaga { SomeCorrelationId = Guid.NewGuid() })))
                 .Done(c => c.Done)
                 .Run();
 
@@ -44,7 +44,7 @@
 
                 public void Handle(InitiateRequestingSaga message)
                 {
-                    Data.CorrIdForResponse = Guid.NewGuid(); //wont be needed in the future
+                    Data.CorrIdForResponse = message.SomeCorrelationId; //wont be needed in the future
 
                     Bus.SendLocal(new AnotherRequest
                     {
@@ -60,9 +60,10 @@
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestingSagaData> mapper)
                 {
-                    //if this line is un-commented the timeout and secondary handler tests will start to fail
-                    // for more info and discussion see TBD
-                    mapper.ConfigureMapping<AnotherRequest>(m => m.SomeCorrelationId).ToSaga(s => s.CorrIdForResponse);
+                    mapper.ConfigureMapping<InitiateRequestingSaga>(m => m.SomeCorrelationId)
+                        .ToSaga(s => s.CorrIdForResponse);
+                    mapper.ConfigureMapping<AnotherRequest>(m => m.SomeCorrelationId)
+                        .ToSaga(s => s.CorrIdForResponse);
                 }
                 public class RequestingSagaData : ContainSagaData
                 {
@@ -83,7 +84,10 @@
             }
         }
 
-        public class InitiateRequestingSaga : ICommand { }
+        public class InitiateRequestingSaga : ICommand
+        {
+            public Guid SomeCorrelationId { get; set; }
+        }
 
         public class AnotherRequest : ICommand
         {
