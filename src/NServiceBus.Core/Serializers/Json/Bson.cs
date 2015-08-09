@@ -16,13 +16,5 @@ namespace NServiceBus
         {
             return typeof(BsonSerialization);
         }
-
-        /// <summary>
-        /// Gets the content type into which this serializer serializes the content to.
-        /// </summary>
-        public override string ContentType
-        {
-            get { return ContentTypes.Bson; }
-        }
     }
 }

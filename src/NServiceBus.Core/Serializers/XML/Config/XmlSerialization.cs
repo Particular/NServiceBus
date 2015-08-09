@@ -4,6 +4,7 @@
     using NServiceBus.MessageInterfaces;
     using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
     using NServiceBus.ObjectBuilder;
+    using NServiceBus.Serializers;
     using NServiceBus.Serializers.XML;
 
     /// <summary>
@@ -35,6 +36,7 @@
             public IMessageMapper Mapper { get; set; }
             public XmlMessageSerializer Serializer { get; set; }
             public Configure Config { get; set; }
+            public MessageDeserializerResolver Resolver { get; set; }
 
             protected override void OnStart()
             {
@@ -47,6 +49,7 @@
 
                 Mapper.Initialize(messageTypes);
                 Serializer.Initialize(messageTypes);
+                Resolver.Register<XmlSerializer>(Serializer);
             }
         }
 

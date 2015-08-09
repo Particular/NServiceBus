@@ -97,11 +97,6 @@
             {
                 return typeof(MySuperSerializerFeature);
             }
-
-            public override string ContentType
-            {
-                get { return "MyCustomSerializer"; }
-            }
         }
 
         class MySuperSerializerFeature : Feature
@@ -142,6 +137,11 @@
                 {
                     msg
                 };
+            }
+
+            public string ContentType
+            {
+                get { return "MyCustomSerializer"; }
             }
         }
     }

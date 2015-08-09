@@ -253,8 +253,9 @@
     <Compile Include="Satellites\SatelliteBehavior.cs" />
     <Compile Include="SendOptions.cs" />
     <Compile Include="Sagas\ActiveSagaInstance_obsolete.cs" />
-    <Compile Include="Serializers\AdditionalDeserializersSupport.cs" />
+    <Compile Include="Serializers\AdditionalDesirealizersSupport.cs" />
     <Compile Include="Serializers\MessageDeserializerResolver.cs" />
+    <Compile Include="Serializers\SerializerRegistry.cs" />
     <Compile Include="StaticHeaders\ApplyStaticHeadersBehavior.cs" />
     <Compile Include="StaticHeaders\StaticHeadersConfigExtensions.cs" />
     <Compile Include="StaticHeaders\CurrentStaticHeaders.cs" />

@@ -138,6 +138,7 @@
     <Compile Include="Serializers\MessageSerializerResolverTests.cs" />
     <Compile Include="Serializers\MessageDeserializerResolverTests.cs" />
     <Compile Include="Serializers\SerializationExtensionsTests.cs" />
+    <Compile Include="Serializers\SerializersRegistryTests.cs" />
     <Compile Include="TransportDispatch\HeaderAssertHelpers.cs" />
     <Compile Include="Performance\TimeToBeReceived\TimeToBeReceivedAttributeTests.cs" />
     <Compile Include="Config\TestConfigurationSection.cs" />

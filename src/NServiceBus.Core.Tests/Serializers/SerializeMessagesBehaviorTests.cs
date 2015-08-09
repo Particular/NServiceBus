@@ -19,7 +19,7 @@
             registry.RegisterMessageType(typeof(MyMessage));
 
             var context = ContextHelpers.GetOutgoingContext(new MyMessage());
-            var behavior = new SerializeMessagesBehavior(new FakeSerializer("myContentType"), registry, context.Builder.Build<ReadOnlySettings>());
+            var behavior = new SerializeMessagesBehavior(new FakeSerializer("myContentType"), registry);
             
             behavior.Invoke(context, c => { });
 
@@ -28,6 +28,13 @@
 
         public class FakeSerializer : IMessageSerializer
         {
+            readonly string contentType;
+
+            public FakeSerializer(string contentType)
+            {
+                this.contentType = contentType;
+            }
+
             public void Serialize(object message, Stream stream)
             {
                 
@@ -36,6 +43,11 @@
             public object[] Deserialize(Stream stream, IList<Type> messageTypes = null)
             {
                 throw new NotImplementedException();
+            }
+
+            public string ContentType
+            {
+                get { return contentType; }
             }
         }
 

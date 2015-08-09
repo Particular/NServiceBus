@@ -2,9 +2,9 @@
 {
     using NServiceBus.Features;
 
-    class AdditionalDeserializersSupport : Feature
+    class AdditionalDesirealizersSupport : Feature
     {
-        public AdditionalDeserializersSupport()
+        public AdditionalDesirealizersSupport()
         {
             EnableByDefault();
         }

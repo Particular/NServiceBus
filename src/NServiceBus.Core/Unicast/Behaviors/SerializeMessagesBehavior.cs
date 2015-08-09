@@ -15,13 +15,11 @@
     {
         readonly IMessageSerializer messageSerializer;
         readonly MessageMetadataRegistry messageMetadataRegistry;
-        readonly ReadOnlySettings settings;
 
-        public SerializeMessagesBehavior(IMessageSerializer messageSerializer, MessageMetadataRegistry messageMetadataRegistry, ReadOnlySettings settings)
+        public SerializeMessagesBehavior(IMessageSerializer messageSerializer, MessageMetadataRegistry messageMetadataRegistry)
         {
             this.messageSerializer = messageSerializer;
             this.messageMetadataRegistry = messageMetadataRegistry;
-            this.settings = settings;
         }
 
         public override void Invoke(OutgoingContext context, Action<PhysicalOutgoingContextStageBehavior.Context> next)
@@ -36,8 +34,7 @@
             {
                 messageSerializer.Serialize(context.GetMessageInstance(), ms);
 
-                var serializerDefinition = settings.GetSelectedSerializer();
-                context.SetHeader(Headers.ContentType, serializerDefinition.ContentType);
+                context.SetHeader(Headers.ContentType, messageSerializer.ContentType);
 
                 context.SetHeader(Headers.EnclosedMessageTypes, SerializeEnclosedMessageTypes(context.GetMessageType()));
                 next(new PhysicalOutgoingContextStageBehavior.Context(ms.ToArray(), context));

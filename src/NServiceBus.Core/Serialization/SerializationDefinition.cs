@@ -59,10 +59,5 @@
         /// The feature to enable when this serializer is selected.
         /// </summary>
         protected internal abstract Type ProvidedByFeature();
-
-        /// <summary>
-        /// Gets the content type into which this serializer serializes the content to.
-        /// </summary>
-        public abstract string ContentType { get; }
     }
 }
