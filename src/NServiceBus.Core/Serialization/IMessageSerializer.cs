@@ -23,10 +23,5 @@ namespace NServiceBus.Serialization
         /// <param name="messageTypes">The list of message types to deserialize. If null the types must be inferred from the serialized data.</param>
         /// <returns>Deserialized messages.</returns>
         object[] Deserialize(Stream stream, IList<Type> messageTypes = null);
-
-        /// <summary>
-        /// Gets the content type into which this serializer serializes the content to.
-        /// </summary>
-        string ContentType { get; }
     }
 }

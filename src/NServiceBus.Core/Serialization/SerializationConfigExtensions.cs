@@ -82,7 +82,7 @@
                 return selectedSerializer;
             }
 
-            return new XmlSerializer();
+            return settings.Get<SerializationDefinition>("DefaultSerializer");
         }
     }
 }

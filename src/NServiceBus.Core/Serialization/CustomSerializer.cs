@@ -10,5 +10,10 @@
         {
             return typeof(CustomSerialization);
         }
+
+        public override string ContentType
+        {
+            get { return null; }
+        }
     }
 }

@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.IO;
     using NServiceBus.Serialization;
+    using NServiceBus.Settings;
     using NServiceBus.Unicast.Messages;
     using NUnit.Framework;
     using Conventions = NServiceBus.Conventions;
@@ -17,24 +18,16 @@
 
             registry.RegisterMessageType(typeof(MyMessage));
 
-            var behavior = new SerializeMessagesBehavior(new FakeSerializer("myContentType"),registry);
-
             var context = ContextHelpers.GetOutgoingContext(new MyMessage());
-            behavior.Invoke(context, c =>
-            {
-                
-            });
+            var behavior = new SerializeMessagesBehavior(new FakeSerializer("myContentType"), registry, context.Builder.Build<ReadOnlySettings>());
+            
+            behavior.Invoke(context, c => { });
 
             Assert.AreEqual("myContentType", context.GetOrCreate<DispatchMessageToTransportConnector.State>().Headers[Headers.ContentType]);
         }
 
         public class FakeSerializer : IMessageSerializer
         {
-            public FakeSerializer(string contentType)
-            {
-                ContentType = contentType;
-            }
-
             public void Serialize(object message, Stream stream)
             {
                 
@@ -44,8 +37,6 @@
             {
                 throw new NotImplementedException();
             }
-
-            public string ContentType { get; private set; }
         }
 
         class MyMessage { }

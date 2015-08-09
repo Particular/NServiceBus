@@ -3,27 +3,20 @@
     using System.Collections.Generic;
     using System.Linq;
     using NServiceBus.Serialization;
+    using NServiceBus.Settings;
 
     class MessageDeserializerResolver
     {
-        // :cl
+        readonly IEnumerable<IMessageSerializer> configuredSerializers;
 
-        readonly IDictionary<string, IMessageSerializer> serializersMap; 
-
-        public MessageDeserializerResolver(IMessageSerializer defaultSerializer, IEnumerable<IMessageSerializer> additionalDeserializers)
+        public MessageDeserializerResolver(ReadOnlySettings settings, IEnumerable<IMessageSerializer> configuredSerializers)
         {
-            serializersMap = additionalDeserializers.ToDictionary(serializer => serializer.ContentType, serializer => serializer);
+            this.configuredSerializers = configuredSerializers;
         }
 
         public IMessageSerializer Resolve(string contentType)
         {
-            IMessageSerializer messageSerializer;
-            if (!serializersMap.TryGetValue(contentType, out messageSerializer))
-            {
-                 return null;
-            }
-
-            return messageSerializer;
+            return configuredSerializers.First();
         }
     }
 }

@@ -5,7 +5,7 @@
     /// <summary>
     /// Implemented by serializers to provide their capabilities.
     /// </summary>
-    public abstract class SerializationDefinition : IEquatable<SerializationDefinition>
+    public abstract class SerializationDefinition
     {
         /// <summary>
         /// Indicates whether the current serialization definition is equal to another.
@@ -14,7 +14,7 @@
         /// true if the current definition is equal to the <paramref name="other"/>; otherwise, false.
         /// </returns>
         /// <param name="other">A serialization definition to compare with this one.</param>
-        public bool Equals(SerializationDefinition other)
+        bool Equals(SerializationDefinition other)
         {
             return ProvidedByFeature() == other.ProvidedByFeature();
         }
@@ -59,5 +59,10 @@
         /// The feature to enable when this serializer is selected.
         /// </summary>
         protected internal abstract Type ProvidedByFeature();
+
+        /// <summary>
+        /// Gets the content type into which this serializer serializes the content to.
+        /// </summary>
+        public abstract string ContentType { get; }
     }
 }

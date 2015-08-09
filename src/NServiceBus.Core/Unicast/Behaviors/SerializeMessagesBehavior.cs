@@ -7,18 +7,21 @@
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Serialization;
+    using NServiceBus.Settings;
     using NServiceBus.TransportDispatch;
     using NServiceBus.Unicast.Messages;
 
     class SerializeMessagesBehavior : StageConnector<OutgoingContext, PhysicalOutgoingContextStageBehavior.Context>
     {
-        IMessageSerializer messageSerializer;
-        MessageMetadataRegistry messageMetadataRegistry;
+        readonly IMessageSerializer messageSerializer;
+        readonly MessageMetadataRegistry messageMetadataRegistry;
+        readonly ReadOnlySettings settings;
 
-        public SerializeMessagesBehavior(IMessageSerializer messageSerializer, MessageMetadataRegistry messageMetadataRegistry)
+        public SerializeMessagesBehavior(IMessageSerializer messageSerializer, MessageMetadataRegistry messageMetadataRegistry, ReadOnlySettings settings)
         {
             this.messageSerializer = messageSerializer;
             this.messageMetadataRegistry = messageMetadataRegistry;
+            this.settings = settings;
         }
 
         public override void Invoke(OutgoingContext context, Action<PhysicalOutgoingContextStageBehavior.Context> next)
@@ -33,7 +36,8 @@
             {
                 messageSerializer.Serialize(context.GetMessageInstance(), ms);
 
-                context.SetHeader(Headers.ContentType, messageSerializer.ContentType);
+                var serializerDefinition = settings.GetSelectedSerializer();
+                context.SetHeader(Headers.ContentType, serializerDefinition.ContentType);
 
                 context.SetHeader(Headers.EnclosedMessageTypes, SerializeEnclosedMessageTypes(context.GetMessageType()));
                 next(new PhysicalOutgoingContextStageBehavior.Context(ms.ToArray(), context));

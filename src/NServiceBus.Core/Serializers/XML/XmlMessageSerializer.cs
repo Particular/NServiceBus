@@ -77,14 +77,6 @@ namespace NServiceBus.Serializers.XML
         }
 
         /// <summary>
-        ///     Supported content type.
-        /// </summary>
-        public string ContentType
-        {
-            get { return ContentTypes.Xml; }
-        }
-
-        /// <summary>
         ///     Scans the given type storing maps to fields and properties to save on reflection at runtime.
         /// </summary>
         public void InitType(Type t)
