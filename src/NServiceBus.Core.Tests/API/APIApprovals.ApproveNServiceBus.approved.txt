@@ -1966,7 +1966,6 @@ namespace NServiceBus.Saga
             where TSagaData : NServiceBus.Saga.IContainSagaData;
         TSagaData Get<TSagaData>(string propertyName, object propertyValue, NServiceBus.Saga.SagaPersistenceOptions options)
             where TSagaData : NServiceBus.Saga.IContainSagaData;
-        void Initialize(NServiceBus.Saga.SagaMetadataCollection allSagas);
         void Save(NServiceBus.Saga.IContainSagaData saga, NServiceBus.Saga.SagaPersistenceOptions options);
         void Update(NServiceBus.Saga.IContainSagaData saga, NServiceBus.Saga.SagaPersistenceOptions options);
     }

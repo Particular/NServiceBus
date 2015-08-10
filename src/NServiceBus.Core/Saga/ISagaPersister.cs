@@ -38,12 +38,9 @@ namespace NServiceBus.Saga
         TSagaData Get<TSagaData>(string propertyName, object propertyValue, SagaPersistenceOptions options) where TSagaData : IContainSagaData;
 
         /// <summary>
-        /// Implementers can initialize the persistence with the given meta model.
         /// Sets a saga as completed and removes it from the active saga list
         /// in the persistence store.
         /// </summary>
-        /// <param name="allSagas">Metadata for all saga types found.</param>
-        void Initialize(SagaMetadataCollection allSagas);
         /// <param name="saga">The saga to complete.</param>
         /// <param name="options">The saga persistence options.</param>
         void Complete(IContainSagaData saga, SagaPersistenceOptions options);

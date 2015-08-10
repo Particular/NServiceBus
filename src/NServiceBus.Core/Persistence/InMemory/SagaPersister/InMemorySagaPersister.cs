@@ -23,11 +23,6 @@ namespace NServiceBus.InMemory.SagaPersister
             data.TryRemove(saga.Id, out value);
         }
 
-        public void Initialize(SagaMetadataCollection allSagas)
-        {
-            // No special setup required for in-memory persistence
-        }
-
         public TSagaData Get<TSagaData>(string propertyName, object propertyValue, SagaPersistenceOptions options) where TSagaData : IContainSagaData
         {
             var values = data.Values.Where(x => x.SagaEntity is TSagaData);
