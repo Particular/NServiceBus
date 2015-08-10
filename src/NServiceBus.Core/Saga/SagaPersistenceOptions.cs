@@ -3,7 +3,7 @@ namespace NServiceBus.Saga
     using NServiceBus.Extensibility;
 
     /// <summary>
-    /// Contains details about the to be persisted saga
+    /// Contains details about the to be persisted saga.
     /// </summary>
     public class SagaPersistenceOptions
     {
