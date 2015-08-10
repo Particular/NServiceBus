@@ -283,8 +283,16 @@ namespace NServiceBus.Settings
         /// </summary>
         public void ApplyTo<T>(IComponentConfig config)
         {
+            ApplyTo(typeof(T), config);
+        }
+
+        /// <summary>
+        /// Setup property injection for the given type based on convention.
+        /// </summary>
+        public void ApplyTo(Type componentType, IComponentConfig config)
+        {
             Guard.AgainstNull("config", config);
-            var targetType = typeof(T);
+            var targetType = componentType;
 
             foreach (var property in targetType.GetProperties())
             {

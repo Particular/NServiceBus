@@ -7,7 +7,6 @@
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Serialization;
-    using NServiceBus.Settings;
     using NServiceBus.TransportDispatch;
     using NServiceBus.Unicast.Messages;
 

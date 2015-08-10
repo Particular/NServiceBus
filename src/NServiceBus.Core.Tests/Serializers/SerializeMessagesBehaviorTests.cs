@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.IO;
     using NServiceBus.Serialization;
-    using NServiceBus.Settings;
     using NServiceBus.Unicast.Messages;
     using NUnit.Framework;
     using Conventions = NServiceBus.Conventions;

@@ -2,6 +2,7 @@
 {
     using System;
     using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
+    using NServiceBus.Serialization;
     using NServiceBus.Serializers;
     using NServiceBus.Serializers.Binary;
     using NServiceBus.Serializers.Json;
@@ -23,7 +24,8 @@
             var bson = new BsonMessageSerializer(mapper);
             var binary = new BinaryMessageSerializer();
 
-            //resolver = new MessageDeserializerResolver(xml, new IMessageSerializer[] { json, bson, binary });
+            resolver = new MessageDeserializerResolver(new IMessageSerializer[] { json, bson, binary });
+            resolver.DefaultSerializer = xml;
         }
 
         [TestCase(ContentTypes.Xml, typeof(XmlMessageSerializer))]

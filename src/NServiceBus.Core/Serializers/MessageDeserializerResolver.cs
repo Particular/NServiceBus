@@ -1,44 +1,29 @@
 ﻿namespace NServiceBus.Serializers
 {
-    using System;
     using System.Collections.Generic;
+    using System.Linq;
     using NServiceBus.Serialization;
-    using NServiceBus.Settings;
 
     class MessageDeserializerResolver
     {
-        readonly ReadOnlySettings settings;
-        readonly HashSet<SerializerEntry> registeredSerializers = new HashSet<SerializerEntry>();
+        public IMessageSerializer DefaultSerializer { get; set; }
 
-        public MessageDeserializerResolver(ReadOnlySettings settings, SerializerRegistry registry)
+        readonly IDictionary<string, IMessageSerializer> serializersMap;
+
+        public MessageDeserializerResolver(IEnumerable<IMessageSerializer> messageSerializers)
         {
-            this.settings = settings;
+            serializersMap = messageSerializers.ToDictionary(key => key.ContentType, value => value);
         }
 
         public IMessageSerializer Resolve(string contentType)
         {
-            return null;
-        }
-
-        internal void Register<T>(IMessageSerializer serializer) where T : SerializationDefinition
-        {
-            var entry = new SerializerEntry
+            IMessageSerializer serializer;
+            if (serializersMap.TryGetValue(contentType, out serializer))
             {
-                DefinitionType = typeof(T),
-                ContentType = serializer.ContentType,
-                Serializer = serializer
-            };
+                return serializer;
+            }
 
-            registeredSerializers.Add(entry);
+            return DefaultSerializer;
         }
-
-
-        class SerializerEntry
-        {
-            public string ContentType { get; set; }
-            public IMessageSerializer Serializer { get; set; }
-            public Type DefinitionType { get; set; }
-        }
-
     }
 }
