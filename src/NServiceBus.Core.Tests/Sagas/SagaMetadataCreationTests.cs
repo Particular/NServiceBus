@@ -96,7 +96,7 @@
 
             public class Finder : IFindSagas<SagaData>.Using<StartSagaMessage>
             {
-                public SagaData FindBy(StartSagaMessage message)
+                public SagaData FindBy(StartSagaMessage message, SagaPersistenceOptions options)
                 {
                     return null;
                 }
@@ -143,7 +143,7 @@
 
             public class Finder : IFindSagas<SagaData>.Using<StartSagaMessage>
             {
-                public SagaData FindBy(StartSagaMessage message)
+                public SagaData FindBy(StartSagaMessage message, SagaPersistenceOptions options)
                 {
                     return null;
                 }
@@ -412,7 +412,7 @@
 
             internal class CustomFinder : IFindSagas<SagaData>.Using<SomeMessage>
             {
-                public SagaData FindBy(SomeMessage message)
+                public SagaData FindBy(SomeMessage message, SagaPersistenceOptions options)
                 {
                     return null;
                 }

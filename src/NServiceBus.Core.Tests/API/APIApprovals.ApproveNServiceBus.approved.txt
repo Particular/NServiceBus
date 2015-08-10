@@ -1948,7 +1948,7 @@ namespace NServiceBus.Saga
         public interface Using<T, M> : NServiceBus.Saga.IFinder
             where T : NServiceBus.Saga.IContainSagaData
         {
-            T FindBy(M message);
+            T FindBy(M message, NServiceBus.Saga.SagaPersistenceOptions options);
         }
     }
     public interface IHandleSagaNotFound

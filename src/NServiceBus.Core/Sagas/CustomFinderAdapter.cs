@@ -12,7 +12,7 @@ namespace NServiceBus.Saga
             var finder = (IFindSagas<TSagaData>.Using<TMessage>)builder.Build(customFinderType);
 
             // TODO Daniel: The options might also need to flow into the user's finders?
-            return finder.FindBy((TMessage) message);
+            return finder.FindBy((TMessage) message, options);
         }
     }
 }
