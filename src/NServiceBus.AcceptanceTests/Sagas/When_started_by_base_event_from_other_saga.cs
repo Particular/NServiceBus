@@ -75,7 +75,7 @@
 
                 public class SagaData : ContainSagaData
                 {
-                    public Guid DataId { get; set; }
+                    public virtual Guid DataId { get; set; }
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)

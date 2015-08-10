@@ -65,6 +65,7 @@
                     mapper.ConfigureMapping<AnotherRequest>(m => m.SomeCorrelationId)
                         .ToSaga(s => s.CorrIdForResponse);
                 }
+
                 public class RequestingSagaData : ContainSagaData
                 {
                     public virtual Guid CorrIdForResponse { get; set; } //wont be needed in the future

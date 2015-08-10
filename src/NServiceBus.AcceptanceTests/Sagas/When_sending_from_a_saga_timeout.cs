@@ -49,9 +49,10 @@
                     Bus.SendLocal(new StartSaga2());
                     MarkAsComplete();
                 }
+
                 public class Saga1Data : ContainSagaData
                 {
-                    public Guid DataId { get; set; }
+                    public virtual Guid DataId { get; set; }
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Saga1Data> mapper)
@@ -72,7 +73,7 @@
 
                 public class Saga2Data : ContainSagaData
                 {
-                    public Guid DataId { get; set; }
+                    public virtual Guid DataId { get; set; }
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Saga2Data> mapper)

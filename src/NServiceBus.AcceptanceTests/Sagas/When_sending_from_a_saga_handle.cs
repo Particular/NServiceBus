@@ -91,7 +91,6 @@ namespace NServiceBus.AcceptanceTests.Sagas
 
         }
 
-
         [Serializable]
         public class StartSaga1 : ICommand
         {

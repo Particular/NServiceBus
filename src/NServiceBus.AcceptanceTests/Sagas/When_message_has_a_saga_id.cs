@@ -44,7 +44,6 @@
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
             {
-
             }
 
             public void Handle(MessageWithSagaId message)
@@ -73,7 +72,6 @@
             }
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
             {
-
             }
 
             public class SagaData : ContainSagaData
