@@ -7,7 +7,6 @@
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Features;
-    using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
     using NServiceBus.Serialization;
     using NUnit.Framework;
 
@@ -99,17 +98,17 @@
             }
         }
 
-        class MySuperSerializerFeature : Feature
+        class MySuperSerializerFeature : ConfigureSerialization
         {
             public MySuperSerializerFeature()
             {
                 EnableByDefault();
             }
 
-            protected override void Setup(FeatureConfigurationContext context)
+
+            protected override Type GetSerializerType(FeatureConfigurationContext context)
             {
-                context.Container.ConfigureComponent<MessageMapper>(DependencyLifecycle.SingleInstance);
-                context.Container.ConfigureComponent<MyCustomSerializer>(DependencyLifecycle.SingleInstance);
+                return typeof(MyCustomSerializer);
             }
         }
 
