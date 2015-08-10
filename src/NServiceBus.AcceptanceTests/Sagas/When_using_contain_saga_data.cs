@@ -7,8 +7,7 @@
     using NServiceBus.Saga;
     using NUnit.Framework;
 
-    // Repro for #SB-191
-    public class When_using_contain_saga_data : NServiceBusAcceptanceTest //TODO Tim: what's #SB-191? can we remove this comment?
+    public class When_using_contain_saga_data : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_handle_timeouts_properly()

@@ -7,11 +7,11 @@
     using NUnit.Framework;
     using Saga;
 
-    // TODO Tim: can we rename this test? (e.g. when_saga_receives_timeout_after_completion?)
-    public class Issue_1819 : NServiceBusAcceptanceTest
+    public class when_receiving_multiple_timeouts : NServiceBusAcceptanceTest
     {
+        // realted to NSB issue #1819
         [Test]
-        public void Run()
+        public void It_should_not_invoke_SagaNotFound_handler()
         {
             var context = new Context { Id = Guid.NewGuid() };
 

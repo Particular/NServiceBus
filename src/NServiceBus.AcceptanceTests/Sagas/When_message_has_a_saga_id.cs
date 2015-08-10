@@ -29,7 +29,6 @@
             Assert.True(context.OtherSagaStarted); 
             Assert.False(context.MessageHandlerCalled);
             Assert.False(context.TimeoutHandlerCalled);
-            //TODO Tim: It seems like test naming and assertions don't match?
         }
 
         class MySaga : Saga<MySaga.SagaData>, IAmStartedByMessages<MessageWithSagaId>,
@@ -68,16 +67,19 @@
 
             public void Handle(MessageWithSagaId message)
             {
+                Data.DataId = message.DataId;
+
                 Context.OtherSagaStarted = true;
             }
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
             {
+                mapper.ConfigureMapping<MessageWithSagaId>(m => m.DataId).ToSaga(s => s.DataId);
             }
 
             public class SagaData : ContainSagaData
             {
+                public virtual Guid DataId { get; set; }
             }
-
         }
 
 
@@ -99,6 +101,7 @@
 
         public class MessageWithSagaId : IMessage
         {
+            public Guid DataId { get; set; }
         }
     }
 }

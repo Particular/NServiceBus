@@ -6,11 +6,11 @@
     using NUnit.Framework;
     using Saga;
 
-    // TODO Tim: can we rename this test? (e.g. when_reply_from_saga_not_found_handler?)
-    public class Issue_2044 : NServiceBusAcceptanceTest
+    public class when_reply_from_saga_not_found_handler : NServiceBusAcceptanceTest
     {
+        // related to NSB issue #2044
         [Test]
-        public void Run()
+        public void It_should_invoke_message_handler()
         {
             var context = new Context();
 

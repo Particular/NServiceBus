@@ -221,9 +221,9 @@
     <Compile Include="Recoverability\Retries\When_fails_flr.cs" />
     <Compile Include="Recoverability\Retries\When_fails_with_retries_set_to_0.cs" />
     <Compile Include="Recoverability\Retries\When_doing_flr_with_default_settings.cs" />
-    <Compile Include="Sagas\Issue_2044.cs" />
+    <Compile Include="Sagas\when_reply_from_saga_not_found_handler.cs" />
     <Compile Include="Sagas\When_doing_request_response_between_sagas.cs" />
-    <Compile Include="Sagas\Issue_1819.cs" />
+    <Compile Include="Sagas\when_receiving_multiple_timeouts.cs" />
     <Compile Include="Sagas\When_saga_is_mapped_to_complex_expression.cs" />
     <Compile Include="Sagas\When_saga_has_a_non_empty_constructor.cs" />
     <Compile Include="Sagas\When_sending_from_a_saga_timeout.cs" />
