@@ -7,19 +7,19 @@
     [TestFixture]
     class When_saga_not_found_return_default
     {
-        SagaMetadata metadata;
+        SagaPersistenceOptions options;
 
         [SetUp]
         public void SetUp()
         {
-            metadata = SagaMetadata.Create(typeof(SimpleSagaEntitySaga));
+            options = new SagaPersistenceOptions(SagaMetadata.Create(typeof(SimpleSagaEntitySaga)));
         }
 
         [Test]
         public void Should_return_default_when_using_finding_saga_with_property()
         {
             var persister = InMemoryPersisterBuilder.Build<SimpleSagaEntitySaga>();
-            var simpleSageEntity = persister.Get<SimpleSagaEntity>(metadata, "propertyNotFound", null);
+            var simpleSageEntity = persister.Get<SimpleSagaEntity>("propertyNotFound", null, options);
             Assert.IsNull(simpleSageEntity);
         }
 
@@ -27,7 +27,7 @@
         public void Should_return_default_when_using_finding_saga_with_id()
         {
             var persister = InMemoryPersisterBuilder.Build<SimpleSagaEntitySaga>();
-            var simpleSageEntity = persister.Get<SimpleSagaEntity>(metadata, Guid.Empty);
+            var simpleSageEntity = persister.Get<SimpleSagaEntity>(Guid.Empty, options);
             Assert.IsNull(simpleSageEntity);
         }
 
@@ -41,9 +41,9 @@
                 OrderSource = "CA"
             };
             var persister = InMemoryPersisterBuilder.Build<SimpleSagaEntitySaga>();
-            persister.Save(metadata, simpleSagaEntity);
+            persister.Save(simpleSagaEntity, options);
 
-            var anotherSagaEntity = persister.Get<AnotherSimpleSagaEntity>(metadata, id);
+            var anotherSagaEntity = persister.Get<AnotherSimpleSagaEntity>(id, options);
             Assert.IsNull(anotherSagaEntity);
         }
     }

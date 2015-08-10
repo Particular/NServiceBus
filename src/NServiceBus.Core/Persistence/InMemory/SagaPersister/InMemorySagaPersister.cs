@@ -17,7 +17,7 @@ namespace NServiceBus.InMemory.SagaPersister
         JsonMessageSerializer serializer = new JsonMessageSerializer(null);
         ConcurrentDictionary<Guid, VersionedSagaEntity> data = new ConcurrentDictionary<Guid, VersionedSagaEntity>();
 
-        public void Complete(SagaMetadata metadata, IContainSagaData saga)
+        public void Complete(IContainSagaData saga, SagaPersistenceOptions options)
         {
             VersionedSagaEntity value;
             data.TryRemove(saga.Id, out value);
@@ -28,7 +28,7 @@ namespace NServiceBus.InMemory.SagaPersister
             // No special setup required for in-memory persistence
         }
 
-        public TSagaData Get<TSagaData>(SagaMetadata metadata, string propertyName, object propertyValue) where TSagaData : IContainSagaData
+        public TSagaData Get<TSagaData>(string propertyName, object propertyValue, SagaPersistenceOptions options) where TSagaData : IContainSagaData
         {
             var values = data.Values.Where(x => x.SagaEntity is TSagaData);
             foreach (var entity in values)
@@ -49,7 +49,7 @@ namespace NServiceBus.InMemory.SagaPersister
             return default(TSagaData);
         }
 
-        public TSagaData Get<TSagaData>(SagaMetadata metadata, Guid sagaId) where TSagaData : IContainSagaData
+        public TSagaData Get<TSagaData>(Guid sagaId, SagaPersistenceOptions options) where TSagaData : IContainSagaData
         {
             VersionedSagaEntity result;
             if (data.TryGetValue(sagaId, out result) && (result != null) && (result.SagaEntity is TSagaData))
@@ -61,9 +61,9 @@ namespace NServiceBus.InMemory.SagaPersister
             return default(TSagaData);
         }
 
-        public void Save(SagaMetadata metadata, IContainSagaData saga)
+        public void Save(IContainSagaData saga, SagaPersistenceOptions options)
         {
-            ValidateUniqueProperties(metadata, saga);
+            ValidateUniqueProperties(options.Metadata, saga);
 
             VersionedSagaEntity sagaEntity;
             if (data.TryGetValue(saga.Id, out sagaEntity))
@@ -76,9 +76,9 @@ namespace NServiceBus.InMemory.SagaPersister
             Interlocked.Increment(ref version);
         }
 
-        public void Update(SagaMetadata metadata, IContainSagaData saga)
+        public void Update(IContainSagaData saga, SagaPersistenceOptions options)
         {
-            Save(metadata, saga);
+            Save(saga, options);
         }
 
         void ValidateUniqueProperties(SagaMetadata sagaMetaData, IContainSagaData saga)

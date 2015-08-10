@@ -14,16 +14,16 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
             var saga2 = new SagaWithUniquePropertyData {Id = Guid.NewGuid(), UniqueString = "whatever"};
 
             var persister = InMemoryPersisterBuilder.Build(typeof(SagaWithUniqueProperty), typeof(SagaWithTwoUniqueProperties));
-            var metadata = SagaMetadata.Create(typeof(SagaWithUniqueProperty));
+            var options = new SagaPersistenceOptions(SagaMetadata.Create(typeof(SagaWithUniqueProperty)));
 
-            persister.Save(metadata, saga1);
-            persister.Save(metadata, saga2);
+            persister.Save(saga1, options);
+            persister.Save(saga2, options);
 
             Assert.Throws<InvalidOperationException>(() => 
             {
-                var saga = persister.Get<SagaWithUniquePropertyData>(metadata, saga2.Id);
+                var saga = persister.Get<SagaWithUniquePropertyData>(saga2.Id, options);
                 saga.UniqueString = "whatever1";
-                persister.Update(metadata, saga);
+                persister.Update(saga, options);
             });
         }
 
@@ -34,16 +34,16 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
             var saga2 = new SagaWithTwoUniquePropertiesData { Id = Guid.NewGuid(), UniqueString = "whatever", UniqueInt = 37};
 
             var persister = InMemoryPersisterBuilder.Build(typeof(SagaWithUniqueProperty), typeof(SagaWithTwoUniqueProperties));
-            var metadata = SagaMetadata.Create(typeof(SagaWithTwoUniqueProperties));
+            var options = new SagaPersistenceOptions(SagaMetadata.Create(typeof(SagaWithTwoUniqueProperties)));
 
-            persister.Save(metadata, saga1);
-            persister.Save(metadata, saga2);
+            persister.Save(saga1, options);
+            persister.Save(saga2, options);
 
             Assert.Throws<InvalidOperationException>(() =>
             {
-                var saga = persister.Get<SagaWithTwoUniquePropertiesData>(metadata, saga2.Id);
+                var saga = persister.Get<SagaWithTwoUniquePropertiesData>(saga2.Id, options);
                 saga.UniqueInt = 5;
-                persister.Update(metadata, saga);
+                persister.Update(saga, options);
             });
         }
     }

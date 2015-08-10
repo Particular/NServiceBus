@@ -41,12 +41,13 @@
             }
 
             var sagaMetadata = sagaMetadataCollection.Find(context.MessageHandler.Instance.GetType());
+            var sagaPersistenceOptions = new SagaPersistenceOptions(sagaMetadata, context);
             var sagaInstanceState = new ActiveSagaInstance(saga, sagaMetadata);
 
             //so that other behaviors can access the saga
             context.Set(sagaInstanceState);
 
-            var loadedEntity = TryLoadSagaEntity(sagaMetadata, context);
+            var loadedEntity = TryLoadSagaEntity(sagaPersistenceOptions, context);
 
             if (loadedEntity == null)
             {
@@ -95,7 +96,7 @@
             {
                 if (!sagaInstanceState.IsNew)
                 {
-                    sagaPersister.Complete(sagaMetadata, saga.Entity);
+                    sagaPersister.Complete(saga.Entity, sagaPersistenceOptions);
                 }
 
                 if (saga.Entity.Id != Guid.Empty)
@@ -109,11 +110,11 @@
             {
                 if (sagaInstanceState.IsNew)
                 {
-                    sagaPersister.Save(sagaMetadata, saga.Entity);
+                    sagaPersister.Save(saga.Entity, sagaPersistenceOptions);
                 }
                 else
                 {
-                    sagaPersister.Update(sagaMetadata, saga.Entity);
+                    sagaPersister.Update(saga.Entity, sagaPersistenceOptions);
                 }
             }
         }
@@ -205,9 +206,10 @@
             return true;
         }
 
-        IContainSagaData TryLoadSagaEntity(SagaMetadata metadata, Context context)
+        IContainSagaData TryLoadSagaEntity(SagaPersistenceOptions options, Context context)
         {
             string sagaId;
+            var metadata = options.Metadata;
 
             if (context.Headers.TryGetValue(Headers.SagaId, out sagaId) && !string.IsNullOrEmpty(sagaId))
             {
@@ -218,7 +220,7 @@
 
                 var loader = (SagaLoader)Activator.CreateInstance(loaderType);
 
-                return loader.Load(sagaPersister, metadata, sagaId);
+                return loader.Load(sagaPersister, sagaId, options);
             }
 
             SagaFinderDefinition finderDefinition = null;
@@ -241,7 +243,7 @@
 
             var finder = currentContext.Builder.Build(finderType);
 
-            return ((SagaFinder)finder).Find(currentContext.Builder, finderDefinition, context.MessageBeingHandled);
+            return ((SagaFinder)finder).Find(currentContext.Builder, finderDefinition, options, context.MessageBeingHandled);
         }
 
         IContainSagaData CreateNewSagaEntity(SagaMetadata metadata, Context context)

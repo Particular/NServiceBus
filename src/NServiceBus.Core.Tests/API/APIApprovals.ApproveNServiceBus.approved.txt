@@ -1961,14 +1961,14 @@ namespace NServiceBus.Saga
     }
     public interface ISagaPersister
     {
-        void Complete(NServiceBus.Saga.SagaMetadata metadata, NServiceBus.Saga.IContainSagaData saga);
-        TSagaData Get<TSagaData>(NServiceBus.Saga.SagaMetadata metadata, System.Guid sagaId)
+        void Complete(NServiceBus.Saga.IContainSagaData saga, NServiceBus.Saga.SagaPersistenceOptions options);
+        TSagaData Get<TSagaData>(System.Guid sagaId, NServiceBus.Saga.SagaPersistenceOptions options)
             where TSagaData : NServiceBus.Saga.IContainSagaData;
-        TSagaData Get<TSagaData>(NServiceBus.Saga.SagaMetadata metadata, string propertyName, object propertyValue)
+        TSagaData Get<TSagaData>(string propertyName, object propertyValue, NServiceBus.Saga.SagaPersistenceOptions options)
             where TSagaData : NServiceBus.Saga.IContainSagaData;
         void Initialize(NServiceBus.Saga.SagaMetadataCollection allSagas);
-        void Save(NServiceBus.Saga.SagaMetadata metadata, NServiceBus.Saga.IContainSagaData saga);
-        void Update(NServiceBus.Saga.SagaMetadata metadata, NServiceBus.Saga.IContainSagaData saga);
+        void Save(NServiceBus.Saga.IContainSagaData saga, NServiceBus.Saga.SagaPersistenceOptions options);
+        void Update(NServiceBus.Saga.IContainSagaData saga, NServiceBus.Saga.SagaPersistenceOptions options);
     }
     public abstract class Saga
     {
@@ -2044,6 +2044,12 @@ namespace NServiceBus.Saga
         public System.Collections.Generic.IEnumerator<NServiceBus.Saga.SagaMetadata> GetEnumerator() { }
         public void Initialize(System.Collections.Generic.IEnumerable<System.Type> availableTypes) { }
         public void Initialize(System.Collections.Generic.IEnumerable<System.Type> availableTypes, NServiceBus.Conventions conventions) { }
+    }
+    public class SagaPersistenceOptions
+    {
+        public SagaPersistenceOptions(NServiceBus.Saga.SagaMetadata sagaMetadata, NServiceBus.Extensibility.ContextBag context = null) { }
+        public NServiceBus.Extensibility.ContextBag Context { get; }
+        public NServiceBus.Saga.SagaMetadata Metadata { get; }
     }
     public class SagaPropertyMapper<TSagaData>
         where TSagaData : NServiceBus.Saga.IContainSagaData

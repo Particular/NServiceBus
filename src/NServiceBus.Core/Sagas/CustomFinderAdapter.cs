@@ -5,12 +5,13 @@ namespace NServiceBus.Saga
 
     class CustomFinderAdapter<TSagaData,TMessage> : SagaFinder where TSagaData : IContainSagaData
     {
-        internal override IContainSagaData Find(IBuilder builder,SagaFinderDefinition finderDefinition, object message)
+        internal override IContainSagaData Find(IBuilder builder, SagaFinderDefinition finderDefinition, SagaPersistenceOptions options, object message)
         {
             var customFinderType = (Type)finderDefinition.Properties["custom-finder-clr-type"];
 
             var finder = (IFindSagas<TSagaData>.Using<TMessage>)builder.Build(customFinderType);
 
+            // TODO Daniel: The options might also need to flow into the user's finders?
             return finder.FindBy((TMessage) message);
         }
     }
