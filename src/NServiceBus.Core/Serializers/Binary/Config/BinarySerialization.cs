@@ -9,6 +9,10 @@
     /// </summary>
     public class BinarySerialization : ConfigureSerialization
     {
+        internal BinarySerialization()
+        {
+        }
+
         /// <summary>
         /// Specify the concrete implementation of <see cref="IMessageSerializer"/> type.
         /// </summary>
@@ -17,9 +21,7 @@
             return typeof(BinaryMessageSerializer);
         }
 
-        /// <summary>
-        /// Registeres the specified implementation of <see cref="IMessageSerializer"/>
-        /// </summary>
+        /// <inheritdoc />
         protected override void RegisterSerializer(FeatureConfigurationContext context, Type serializerType)
         {
             base.RegisterSerializer(context, serializerType);

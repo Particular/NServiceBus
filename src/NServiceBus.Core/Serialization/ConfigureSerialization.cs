@@ -46,7 +46,7 @@
         protected abstract Type GetSerializerType(FeatureConfigurationContext context);
 
         /// <summary>
-        /// Registeres the specified implementation of <see cref="IMessageSerializer"/>
+        /// Registeres the specified implementation of <see cref="IMessageSerializer"/>.
         /// </summary>
         protected virtual void RegisterSerializer(FeatureConfigurationContext context, Type serializerType)
         {

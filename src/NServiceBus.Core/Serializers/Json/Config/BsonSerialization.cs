@@ -9,6 +9,10 @@
     /// </summary>
     public class BsonSerialization : ConfigureSerialization
     {
+        internal BsonSerialization()
+        {
+        }
+
         /// <summary>
         /// Specify the concrete implementation of <see cref="IMessageSerializer"/> type.
         /// </summary>

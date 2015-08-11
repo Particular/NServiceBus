@@ -661,6 +661,8 @@ namespace NServiceBus
     }
     public class static SerializationConfigExtensions
     {
+        public static void AddDeserializer<T>(this NServiceBus.BusConfiguration config)
+            where T : NServiceBus.Serialization.SerializationDefinition { }
         public static NServiceBus.Serialization.SerializationExtentions<T> UseSerialization<T>(this NServiceBus.BusConfiguration config)
             where T : NServiceBus.Serialization.SerializationDefinition { }
         public static void UseSerialization(this NServiceBus.BusConfiguration config, System.Type serializerType) { }
@@ -1161,13 +1163,14 @@ namespace NServiceBus.Features
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
-    public class BinarySerialization : NServiceBus.Features.Feature
+    public class BinarySerialization : NServiceBus.Serialization.ConfigureSerialization
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected override System.Type GetSerializerType(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected override void RegisterSerializer(NServiceBus.Features.FeatureConfigurationContext context, System.Type serializerType) { }
     }
-    public class BsonSerialization : NServiceBus.Features.Feature
+    public class BsonSerialization : NServiceBus.Serialization.ConfigureSerialization
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected override System.Type GetSerializerType(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class CriticalTimeMonitoring : NServiceBus.Features.Feature
     {
@@ -1270,9 +1273,9 @@ namespace NServiceBus.Features
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
-    public class JsonSerialization : NServiceBus.Features.Feature
+    public class JsonSerialization : NServiceBus.Serialization.ConfigureSerialization
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected override System.Type GetSerializerType(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class MessageDrivenSubscriptions : NServiceBus.Features.Feature
     {
@@ -1312,7 +1315,8 @@ namespace NServiceBus.Features
     }
     public class static SerializationFeatureHelper
     {
-        public static bool ShouldSerializationFeatureBeEnabled(this NServiceBus.Features.Feature serializationFeature, NServiceBus.Features.FeatureConfigurationContext context) { }
+        public static bool IsAdditionalDeserializer(this NServiceBus.Serialization.ConfigureSerialization serializationFeature, NServiceBus.Features.FeatureConfigurationContext context) { }
+        public static bool IsDefaultSerializer(this NServiceBus.Serialization.ConfigureSerialization serializationFeature, NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class static SettingsExtentions
     {
@@ -1340,9 +1344,9 @@ namespace NServiceBus.Features
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
-    public class XmlSerialization : NServiceBus.Features.Feature
+    public class XmlSerialization : NServiceBus.Serialization.ConfigureSerialization
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected override System.Type GetSerializerType(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
 }
 namespace NServiceBus.Gateway.Deduplication
@@ -2126,6 +2130,13 @@ namespace NServiceBus.SecondLevelRetries.Config
 }
 namespace NServiceBus.Serialization
 {
+    public abstract class ConfigureSerialization : NServiceBus.Features.Feature
+    {
+        protected ConfigureSerialization() { }
+        protected abstract System.Type GetSerializerType(NServiceBus.Features.FeatureConfigurationContext context);
+        protected virtual void RegisterSerializer(NServiceBus.Features.FeatureConfigurationContext context, System.Type serializerType) { }
+        protected internal void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+    }
     public interface IMessageSerializer
     {
         string ContentType { get; }
@@ -2135,6 +2146,8 @@ namespace NServiceBus.Serialization
     public abstract class SerializationDefinition
     {
         protected SerializationDefinition() { }
+        public override bool Equals(object obj) { }
+        public override int GetHashCode() { }
         protected internal abstract System.Type ProvidedByFeature();
     }
     public class SerializationExtentions<T> : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
@@ -2222,6 +2235,7 @@ namespace NServiceBus.Settings
     public interface ReadOnlySettings
     {
         void ApplyTo<T>(NServiceBus.ObjectBuilder.IComponentConfig config);
+        void ApplyTo(System.Type componentType, NServiceBus.ObjectBuilder.IComponentConfig config);
         T Get<T>();
         T Get<T>(string key);
         object Get(string key);
@@ -2244,6 +2258,7 @@ namespace NServiceBus.Settings
     {
         public SettingsHolder() { }
         public void ApplyTo<T>(NServiceBus.ObjectBuilder.IComponentConfig config) { }
+        public void ApplyTo(System.Type componentType, NServiceBus.ObjectBuilder.IComponentConfig config) { }
         public T Get<T>(string key) { }
         public T Get<T>() { }
         public object Get(string key) { }

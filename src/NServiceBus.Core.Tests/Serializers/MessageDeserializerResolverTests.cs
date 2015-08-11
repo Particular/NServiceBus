@@ -24,7 +24,7 @@
             var bson = new BsonMessageSerializer(mapper);
             var binary = new BinaryMessageSerializer();
 
-            resolver = new MessageDeserializerResolver(new IMessageSerializer[] { json, bson, binary });
+            resolver = new MessageDeserializerResolver(new IMessageSerializer[] { xml, json, bson, binary });
             resolver.DefaultSerializerType = xml.GetType();
         }
 

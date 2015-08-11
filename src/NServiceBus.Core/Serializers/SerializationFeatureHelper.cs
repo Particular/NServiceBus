@@ -10,7 +10,7 @@
     public static class SerializationFeatureHelper
     {
         /// <summary>
-        /// Allows serialization features to verify their <see cref="Feature"/> Prerequisites.
+        /// Allows serialization features to verify their <see cref="ConfigureSerialization"/> Prerequisites.
         /// </summary>
         public static bool IsDefaultSerializer(this ConfigureSerialization serializationFeature, FeatureConfigurationContext context)
         {
@@ -22,7 +22,7 @@
         }
 
         /// <summary>
-        /// Allows serialization features to check whether a given <see cref="ConfigureSerialization">feature</see> is configured as an additional deserializer
+        /// Allows serialization features to check whether a given <see cref="ConfigureSerialization">feature</see> is configured as an additional deserializer.
         /// </summary>
         public static bool IsAdditionalDeserializer(this ConfigureSerialization serializationFeature, FeatureConfigurationContext context)
         {
