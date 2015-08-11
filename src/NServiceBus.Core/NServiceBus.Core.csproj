@@ -220,6 +220,7 @@
     <Compile Include="Routing\RoutingContextExtensions.cs" />
     <Compile Include="Sagas\AutoCorrelationFeature.cs" />
     <Compile Include="Sagas\PopulateAutoCorrelationHeadersForRepliesBehavior.cs" />
+    <Compile Include="Saga\SagaPersistenceOptions.cs" />
     <Compile Include="Satellites\IAdvancedSatellite.cs" />
     <Compile Include="Satellites\ISatellite.cs" />
     <Compile Include="Routing\DetermineRouteForReplyBehavior.cs" />

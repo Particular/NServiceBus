@@ -29,8 +29,6 @@
             Defaults(s => s.Set<SagaMetadataCollection>(new SagaMetadataCollection()));
 
             Prerequisite(config => config.Settings.GetAvailableTypes().Any(IsSagaType), "No sagas was found in scanned types");
-
-            RegisterStartupTask<CallISagaPersisterInitializeMethod>();
         }
 
         /// <summary>
@@ -98,22 +96,5 @@
         }
 
         Conventions conventions;
-
-        class CallISagaPersisterInitializeMethod : FeatureStartupTask
-        {
-            ISagaPersister persister;
-            SagaMetadataCollection model;
-
-            public CallISagaPersisterInitializeMethod(ISagaPersister persister, SagaMetadataCollection model)
-            {
-                this.persister = persister;
-                this.model = model;
-            }
-
-            protected override void OnStart()
-            {
-                persister.Initialize(model);
-            }
-        }
     }
 }

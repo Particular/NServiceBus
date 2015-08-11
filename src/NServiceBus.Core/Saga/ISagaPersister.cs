@@ -8,48 +8,41 @@ namespace NServiceBus.Saga
     /// </summary>
     public interface ISagaPersister
     {
-		/// <summary>
-		/// Saves the saga entity to the persistence store.
+        /// <summary>
+        /// Saves the saga entity to the persistence store.
         /// </summary>
-        /// <param name="metadata">Metadata describing the saga being saved.</param>
-		/// <param name="saga">The saga entity to save.</param>
-        void Save(SagaMetadata metadata, IContainSagaData saga);
+        /// <param name="saga">The saga entity to save.</param>
+        /// <param name="options">The saga persistence options.</param>
+        void Save(IContainSagaData saga, SagaPersistenceOptions options);
 
         /// <summary>
         /// Updates an existing saga entity in the persistence store.
         /// </summary>
-        /// <param name="metadata">Metadata describing the saga being updated.</param>
         /// <param name="saga">The saga entity to updated.</param>
-        void Update(SagaMetadata metadata, IContainSagaData saga);
+        /// <param name="options">The saga persistence options.</param>
+        void Update(IContainSagaData saga, SagaPersistenceOptions options);
 
-		/// <summary>
-		/// Gets a saga entity from the persistence store by its Id.
+        /// <summary>
+        /// Gets a saga entity from the persistence store by its Id.
         /// </summary>
-        /// <param name="metadata">Metadata describing the saga being retrieved.</param>
-		/// <param name="sagaId">The Id of the saga entity to get.</param>
-        TSagaData Get<TSagaData>(SagaMetadata metadata, Guid sagaId) where TSagaData : IContainSagaData;
+        /// <param name="sagaId">The Id of the saga entity to get.</param>
+        /// <param name="options">The saga persistence options.</param>
+        TSagaData Get<TSagaData>(Guid sagaId, SagaPersistenceOptions options) where TSagaData : IContainSagaData;
 
         /// <summary>
         /// Looks up a saga entity by a given property.
         /// </summary>
-        /// <param name="metadata">Metadata describing the saga being completed.</param>
         /// <param name="propertyName">From the data store, analyze this property.</param>
         /// <param name="propertyValue">From the data store, look for this value in the identified property.</param>
-        TSagaData Get<TSagaData>(SagaMetadata metadata, string propertyName, object propertyValue) where TSagaData : IContainSagaData;
-
-		/// <summary>
-        /// Sets a saga as completed and removes it from the active saga list
-		/// in the persistence store.
-		/// </summary>
-		/// <param name="metadata">Metadata describing the saga being completed.</param>
-		/// <param name="saga">The saga to complete.</param>
-        void Complete(SagaMetadata metadata, IContainSagaData saga);
+        /// <param name="options">The saga persistence options.</param>
+        TSagaData Get<TSagaData>(string propertyName, object propertyValue, SagaPersistenceOptions options) where TSagaData : IContainSagaData;
 
         /// <summary>
-        /// Implementers can initialize the persistence with the given meta model.
+        /// Sets a saga as completed and removes it from the active saga list
+        /// in the persistence store.
         /// </summary>
-        /// <param name="allSagas">Metadata for all saga types found.</param>
-        void Initialize(SagaMetadataCollection allSagas);
+        /// <param name="saga">The saga to complete.</param>
+        /// <param name="options">The saga persistence options.</param>
+        void Complete(IContainSagaData saga, SagaPersistenceOptions options);
     }
-
 }

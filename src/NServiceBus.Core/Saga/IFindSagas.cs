@@ -15,7 +15,7 @@ namespace NServiceBus.Saga
             /// <summary>
             /// Finds a saga entity of the type T using a message of type M.
             /// </summary>
-            T FindBy(M message);
+            T FindBy(M message, SagaPersistenceOptions options);
         }
     }
 }

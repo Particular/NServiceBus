@@ -34,7 +34,7 @@
             class CustomFinder : IFindSagas<TestSaga.SagaData>.Using<StartSagaMessage>
             {
                 public Context Context { get; set; }
-                public TestSaga.SagaData FindBy(StartSagaMessage message)
+                public TestSaga.SagaData FindBy(StartSagaMessage message, SagaPersistenceOptions options)
                 {
                     Context.FinderUsed = true;
                     return null;
