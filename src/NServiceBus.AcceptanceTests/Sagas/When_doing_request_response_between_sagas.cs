@@ -132,7 +132,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 Id = Guid.NewGuid();
             }
 
-            public Guid Id { get; private set; }
+            public Guid Id { get; set; }
         }
 
         public class RequestToRespondingSaga : ICommand

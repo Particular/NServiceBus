@@ -15,7 +15,7 @@
             var context = new Context();
 
             Scenario.Define(context)
-                    .WithEndpoint<ReceiverWithSagas>(b => b.Given((bus, c) => bus.SendLocal(new MessageToSaga())))
+                    .WithEndpoint<ReceiverWithSagas>(b => b.Given((bus, c) => bus.SendLocal(new MessageToSaga { Id = Guid.NewGuid() })))
                     .Done(c => c.Done)
                     .Run();
 
@@ -28,7 +28,7 @@
             var context = new Context();
 
             Scenario.Define(context)
-                    .WithEndpoint<ReceiverWithOrderedSagas>(b => b.Given((bus, c) => bus.SendLocal(new MessageToSaga())))
+                    .WithEndpoint<ReceiverWithOrderedSagas>(b => b.Given((bus, c) => bus.SendLocal(new MessageToSaga { Id = Guid.NewGuid() })))
                     .Done(c => c.Done)
                     .Run();
 
@@ -63,7 +63,7 @@
                 }
             }
 
-            public class FinishHandler: IHandleMessages<FinishMessage>
+            public class FinishHandler : IHandleMessages<FinishMessage>
             {
                 public Context Context { get; set; }
 
@@ -142,7 +142,7 @@
                     c.ExecuteTheseHandlersFirst(typeof(Saga1), typeof(Saga2));
                 });
             }
-            
+
             public class MessageToSagaHandler : IHandleMessages<MessageToSaga>
             {
                 public IBus Bus { get; set; }
@@ -154,7 +154,7 @@
                     options.DelayDeliveryWith(TimeSpan.FromSeconds(10));
                     options.RouteToLocalEndpointInstance();
 
-                    Bus.Send(new FinishMessage(),options);
+                    Bus.Send(new FinishMessage(), options);
                 }
             }
 
@@ -224,15 +224,11 @@
                 }
             }
         }
+
         [Serializable]
         public class StartSaga : ICommand
         {
-            public StartSaga()
-            {
-                Id = Guid.NewGuid();
-            }
-
-            public Guid Id { get; private set; }
+            public Guid Id { get; set; }
         }
 
         [Serializable]
@@ -243,12 +239,7 @@
         [Serializable]
         public class MessageToSaga : ICommand
         {
-            public MessageToSaga()
-            {
-                Id = Guid.NewGuid();
-            }
-
-            public Guid Id { get; private set; }
+            public Guid Id { get; set; }
         }
     }
 }
