@@ -10,36 +10,28 @@
     using NServiceBus.Serialization;
     using NUnit.Framework;
 
-    public class When_registering_custom_serializer : NServiceBusAcceptanceTest
+    public class When_registering_additional_deserializers : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_register_via_type()
+        public void Should_compose_with_default_serializer()
         {
             var context = new Context();
 
             Scenario.Define(context)
-                .WithEndpoint<EndpointViaType>(b => b.Given(
-                    (bus, c) => bus.SendLocal(new MyRequest())))
-                .Done(c => c.HandlerGotTheRequest)
+                .WithEndpoint<CustomSerializationSender>(b => b.Given(
+                    (bus, c) =>
+                    {
+                        var sendOptions = new SendOptions();
+
+                        sendOptions.SetHeader("ContentType", "MyCustomSerializer");
+
+                        bus.Send(new MyRequest());
+                    }))
+                .WithEndpoint<XmlCustomSerializationReceiver>()
+                .Done(c => c.DeserializeCalled)
                 .Run();
-
-            Assert.IsTrue(context.SerializeCalled);
-            Assert.IsTrue(context.DeserializeCalled);
-        }
-
-        [Test]
-        public void Should_register_via_definition()
-        {
-            var context = new Context();
-
-            Scenario.Define(context)
-                .WithEndpoint<EndpointViaDefinition>(b => b.Given(
-                    (bus, c) => bus.SendLocal(new MyRequest())))
-                .Done(c => c.HandlerGotTheRequest)
-                .Run();
-
-            Assert.IsTrue(context.SerializeCalled);
-            Assert.IsTrue(context.DeserializeCalled);
+            
+            Assert.True(context.DeserializeCalled);
         }
 
         public class Context : ScenarioContext
@@ -49,29 +41,24 @@
             public bool DeserializeCalled { get; set; }
         }
 
-        public class EndpointViaType : EndpointConfigurationBuilder
+        public class CustomSerializationSender : EndpointConfigurationBuilder
         {
-            public EndpointViaType()
+            public CustomSerializationSender()
             {
-                EndpointSetup<DefaultServer>(c => c.UseSerialization(typeof(MyCustomSerializer)));
-            }
-
-            public class MyRequestHandler : IHandleMessages<MyRequest>
-            {
-                public Context Context { get; set; }
-
-                public void Handle(MyRequest request)
-                {
-                    Context.HandlerGotTheRequest = true;
-                }
+                EndpointSetup<DefaultServer>(c => c.UseSerialization<MyCustomSerializer>())
+                    .AddMapping<MyRequest>(typeof(XmlCustomSerializationReceiver));
             }
         }
 
-        public class EndpointViaDefinition : EndpointConfigurationBuilder
+        public class XmlCustomSerializationReceiver : EndpointConfigurationBuilder
         {
-            public EndpointViaDefinition()
+            public XmlCustomSerializationReceiver()
             {
-                EndpointSetup<DefaultServer>(c => c.UseSerialization(typeof(MySuperSerializer)));
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    c.UseSerialization<XmlSerializer>();
+                    c.AddDeserializer<MyCustomSerializer>();
+                });
             }
 
             public class MyRequestHandler : IHandleMessages<MyRequest>
@@ -90,28 +77,28 @@
         {
         }
 
-        class MySuperSerializer : SerializationDefinition
+        class MyCustomSerializer : SerializationDefinition
         {
             protected override Type ProvidedByFeature()
             {
-                return typeof(MySuperSerializerFeature);
+                return typeof(MyCustomSerialization);
             }
         }
 
-        class MySuperSerializerFeature : ConfigureSerialization
+        class MyCustomSerialization : ConfigureSerialization
         {
-            public MySuperSerializerFeature()
+            public MyCustomSerialization()
             {
                 EnableByDefault();
             }
 
             protected override Type GetSerializerType(FeatureConfigurationContext context)
             {
-                return typeof(MyCustomSerializer);
+                return typeof(MyCustomMessageSerializer);
             }
         }
 
-        class MyCustomSerializer : IMessageSerializer
+        class MyCustomMessageSerializer : IMessageSerializer
         {
             public Context Context { get; set; }
 

@@ -20,9 +20,9 @@
         /// <summary>
         /// Registeres the specified implementation of <see cref="IMessageSerializer"/>
         /// </summary>
-        protected override void RegisterSerializer(FeatureConfigurationContext context)
+        protected override void RegisterSerializer(FeatureConfigurationContext context, Type serializerType)
         {
-            base.RegisterSerializer(context);
+            base.RegisterSerializer(context, serializerType);
 
             context.Container.ConfigureComponent<SimpleMessageMapper>(DependencyLifecycle.SingleInstance);
         }

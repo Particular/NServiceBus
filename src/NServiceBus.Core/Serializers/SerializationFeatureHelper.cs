@@ -12,16 +12,13 @@
         /// <summary>
         /// Allows serialization features to verify their <see cref="Feature"/> Prerequisites.
         /// </summary>
-        public static bool ShouldSerializationFeatureBeEnabled(this ConfigureSerialization serializationFeature, FeatureConfigurationContext context)
+        public static bool IsDefaultSerializer(this ConfigureSerialization serializationFeature, FeatureConfigurationContext context)
         {
             Guard.AgainstNull("serializationFeature", serializationFeature);
             Guard.AgainstNull("context", context);
 
             var serializationDefinition = context.Settings.GetSelectedSerializer();
-            if (serializationDefinition.ProvidedByFeature() == serializationFeature.GetType())
-                return true;
-
-            return IsAdditionalDeserializer(serializationFeature, context);
+            return serializationDefinition.ProvidedByFeature() == serializationFeature.GetType();
         }
 
         /// <summary>

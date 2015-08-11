@@ -14,7 +14,8 @@
         protected ConfigureSerialization()
         {
             EnableByDefault();
-            Prerequisite(this.ShouldSerializationFeatureBeEnabled, string.Format("{0} not enabled since serialization definition not detected.", GetType()));
+            Prerequisite(context => this.IsDefaultSerializer(context) || this.IsAdditionalDeserializer(context), 
+                string.Format("{0} not enabled since serialization definition not detected.", GetType()));
         }
 
         /// <summary>
@@ -25,7 +26,18 @@
             context.Container.ConfigureComponent<MessageDeserializerResolver>(DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent<MessageMapper>(DependencyLifecycle.SingleInstance);
 
-            RegisterSerializer(context);
+            var serializerType = GetSerializerType(context);
+            if (serializerType == null)
+            {
+                return;
+            }
+
+            RegisterSerializer(context, serializerType);
+
+            if (this.IsDefaultSerializer(context))
+            {
+                context.Container.ConfigureProperty<MessageDeserializerResolver>(resolver => resolver.DefaultSerializerType, serializerType);
+            }
         }
 
         /// <summary>
@@ -36,14 +48,8 @@
         /// <summary>
         /// Registeres the specified implementation of <see cref="IMessageSerializer"/>
         /// </summary>
-        protected virtual void RegisterSerializer(FeatureConfigurationContext context)
+        protected virtual void RegisterSerializer(FeatureConfigurationContext context, Type serializerType)
         {
-            var serializerType = GetSerializerType(context);
-            if (serializerType == null)
-            {
-                return;
-            }
-
             if (!typeof(IMessageSerializer).IsAssignableFrom(serializerType))
             {
                 throw new InvalidOperationException("The type needs to implement IMessageSerializer.");

@@ -25,7 +25,7 @@
             var binary = new BinaryMessageSerializer();
 
             resolver = new MessageDeserializerResolver(new IMessageSerializer[] { json, bson, binary });
-            resolver.DefaultSerializer = xml;
+            resolver.DefaultSerializerType = xml.GetType();
         }
 
         [TestCase(ContentTypes.Xml, typeof(XmlMessageSerializer))]
