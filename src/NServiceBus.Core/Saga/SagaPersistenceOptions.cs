@@ -15,6 +15,7 @@ namespace NServiceBus.Saga
         public SagaPersistenceOptions(SagaMetadata sagaMetadata, ContextBag context = null)
         {
             Metadata = sagaMetadata;
+            Context = context;
 
             if (context == null)
             {
