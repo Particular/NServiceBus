@@ -1582,8 +1582,8 @@ namespace NServiceBus.Outbox
     }
     public class OutboxStorageOptions
     {
-        public OutboxStorageOptions(NServiceBus.Extensibility.ContextBag context) { }
-        public NServiceBus.Extensibility.ContextBag Context { get; set; }
+        public OutboxStorageOptions(NServiceBus.Extensibility.ReadOnlyContextBag context) { }
+        public NServiceBus.Extensibility.ReadOnlyContextBag Context { get; set; }
     }
     public class TransportOperation
     {
@@ -2056,8 +2056,8 @@ namespace NServiceBus.Saga
     }
     public class SagaPersistenceOptions
     {
-        public SagaPersistenceOptions(NServiceBus.Saga.SagaMetadata sagaMetadata, NServiceBus.Extensibility.ContextBag context = null) { }
-        public NServiceBus.Extensibility.ContextBag Context { get; }
+        public SagaPersistenceOptions(NServiceBus.Saga.SagaMetadata sagaMetadata, NServiceBus.Extensibility.ReadOnlyContextBag context = null) { }
+        public NServiceBus.Extensibility.ReadOnlyContextBag Context { get; }
         public NServiceBus.Saga.SagaMetadata Metadata { get; }
     }
     public class SagaPropertyMapper<TSagaData>

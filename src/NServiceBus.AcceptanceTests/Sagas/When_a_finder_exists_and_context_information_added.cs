@@ -28,7 +28,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
         {
             public bool FinderUsed { get; set; }
             public SagaMetadata Metadata { get; set; }
-            public ContextBag ContextBag { get; set; }
+            public ReadOnlyContextBag ContextBag { get; set; }
         }
 
         public class SagaEndpoint : EndpointConfigurationBuilder
