@@ -138,7 +138,7 @@
     <Compile Include="BusNotifications.cs" />
     <Compile Include="Extensibility\ExtendableOptions.cs" />
     <Compile Include="Extensibility\ExtendableOptionsExtensions.cs" />
-    <Compile Include="Extensibility\ReadonlyContextBag.cs" />
+    <Compile Include="Extensibility\ReadOnlyContextBag.cs" />
     <Compile Include="Faults\ConfigureError.cs" />
     <Compile Include="Faults\FailedMessage.cs" />
     <Compile Include="Faults\ErrorsNotifications.cs" />

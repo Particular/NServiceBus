@@ -1072,7 +1072,7 @@ namespace NServiceBus.Encryption
 }
 namespace NServiceBus.Extensibility
 {
-    public class ContextBag : NServiceBus.Extensibility.ReadonlyContextBag
+    public class ContextBag : NServiceBus.Extensibility.ReadOnlyContextBag
     {
         public ContextBag(NServiceBus.Extensibility.ContextBag parentBag = null) { }
         public T Get<T>() { }
@@ -1091,7 +1091,7 @@ namespace NServiceBus.Extensibility
     {
         public static NServiceBus.Extensibility.ContextBag GetExtensions(this NServiceBus.Extensibility.ExtendableOptions options) { }
     }
-    public interface ReadonlyContextBag
+    public interface ReadOnlyContextBag
     {
         T Get<T>();
         bool TryGet<T>(out T result);

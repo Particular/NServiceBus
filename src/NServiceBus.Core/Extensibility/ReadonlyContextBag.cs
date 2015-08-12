@@ -3,7 +3,7 @@ namespace NServiceBus.Extensibility
     /// <summary>
     /// Context bag which is readonly.
     /// </summary>
-    public interface ReadonlyContextBag
+    public interface ReadOnlyContextBag
     {
         /// <summary>
         /// Retrieves the specified type from the context.
