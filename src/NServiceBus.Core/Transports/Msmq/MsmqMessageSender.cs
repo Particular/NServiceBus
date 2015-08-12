@@ -31,7 +31,7 @@ namespace NServiceBus.Transports.Msmq
         public void Dispatch(OutgoingMessage message, DispatchOptions dispatchOptions)
         {
             Guard.AgainstNull("message", message);
-            Guard.AgainstNull("sendOptions", dispatchOptions);
+            Guard.AgainstNull("dispatchOptions", dispatchOptions);
             
             var routingStrategy = dispatchOptions.RoutingStrategy as DirectToTargetDestination;
 
