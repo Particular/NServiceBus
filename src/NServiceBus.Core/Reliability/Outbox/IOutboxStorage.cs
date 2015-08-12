@@ -10,17 +10,16 @@
         /// <summary>
         /// Tries to find the given message in the outbox.
         /// </summary>
-        bool TryGet(string messageId, out OutboxMessage message);
+        bool TryGet(string messageId, OutboxStorageOptions options, out OutboxMessage message);
 
         /// <summary>
         /// Stores.
         /// </summary>
-        void Store(string messageId, IEnumerable<TransportOperation> transportOperations);
-        
-        
+        void Store(string messageId, IEnumerable<TransportOperation> transportOperations, OutboxStorageOptions options);
+
         /// <summary>
         /// Tells the storage that the message has been dispatched and its now safe to clean up the transport operations.
         /// </summary>
-        void SetAsDispatched(string messageId);
+        void SetAsDispatched(string messageId, OutboxStorageOptions options);
     }
 }

@@ -194,6 +194,7 @@
     <Compile Include="Performance\TimeToBeReceived\DiscardIfNotReceivedBefore.cs" />
     <Compile Include="DeliveryConstraints\DeliveryConstraint.cs" />
     <Compile Include="DelayedDelivery\DelayDeliveryWith.cs" />
+    <Compile Include="Reliability\Outbox\OutboxStorageOptions.cs" />
     <Compile Include="Routing\DetermineRouteForPublishBehavior.cs" />
     <Compile Include="Routing\DetermineRouteForSendBehavior.cs" />
     <Compile Include="Routing\DirectToTargetDestination.cs" />

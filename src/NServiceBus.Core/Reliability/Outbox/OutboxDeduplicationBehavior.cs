@@ -27,10 +27,11 @@
 
         public override void Invoke(Context context, Action next)
         {
+            var options = new OutboxStorageOptions(context);
             var messageId = context.GetPhysicalMessage().Id;
             OutboxMessage outboxMessage;
 
-            if (!outboxStorage.TryGet(messageId, out outboxMessage))
+            if (!outboxStorage.TryGet(messageId, options, out outboxMessage))
             {
                 outboxMessage = new OutboxMessage(messageId);
 
@@ -50,12 +51,12 @@
                     return;
                 }
 
-                outboxStorage.Store(messageId, outboxMessage.TransportOperations);
+                outboxStorage.Store(messageId, outboxMessage.TransportOperations, options);
             }
 
             DispatchOperationToTransport(outboxMessage.TransportOperations, context);
 
-            outboxStorage.SetAsDispatched(messageId);
+            outboxStorage.SetAsDispatched(messageId, options);
         }
 
         void DispatchOperationToTransport(IEnumerable<TransportOperation> operations, Context context)

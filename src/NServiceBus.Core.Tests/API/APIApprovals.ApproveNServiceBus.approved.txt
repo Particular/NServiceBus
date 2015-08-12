@@ -1564,9 +1564,9 @@ namespace NServiceBus.Outbox
 {
     public interface IOutboxStorage
     {
-        void SetAsDispatched(string messageId);
-        void Store(string messageId, System.Collections.Generic.IEnumerable<NServiceBus.Outbox.TransportOperation> transportOperations);
-        bool TryGet(string messageId, out NServiceBus.Outbox.OutboxMessage message);
+        void SetAsDispatched(string messageId, NServiceBus.Outbox.OutboxStorageOptions options);
+        void Store(string messageId, System.Collections.Generic.IEnumerable<NServiceBus.Outbox.TransportOperation> transportOperations, NServiceBus.Outbox.OutboxStorageOptions options);
+        bool TryGet(string messageId, NServiceBus.Outbox.OutboxStorageOptions options, out NServiceBus.Outbox.OutboxMessage message);
     }
     public class OutboxMessage
     {
@@ -1579,6 +1579,11 @@ namespace NServiceBus.Outbox
         [System.ObsoleteAttribute("Please use `InMemoryOutboxSettingsExtensions.TimeToKeepDeduplicationData(TimeSpan" +
             " time)` instead. Will be removed in version 7.0.0.", true)]
         public void TimeToKeepDeduplicationData(System.TimeSpan time) { }
+    }
+    public class OutboxStorageOptions
+    {
+        public OutboxStorageOptions(NServiceBus.Extensibility.ContextBag context) { }
+        public NServiceBus.Extensibility.ContextBag Context { get; set; }
     }
     public class TransportOperation
     {
