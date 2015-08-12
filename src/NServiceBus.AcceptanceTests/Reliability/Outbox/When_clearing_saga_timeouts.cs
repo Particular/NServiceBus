@@ -77,18 +77,18 @@
              this.context = context;
          }
 
-         public bool TryGet(string messageId, out OutboxMessage message)
+         public bool TryGet(string messageId, OutboxStorageOptions options, out OutboxMessage message)
          {
              message = null;
              return false;
          }
 
-         public void Store(string messageId, IEnumerable<TransportOperation> transportOperations)
+         public void Store(string messageId, IEnumerable<TransportOperation> transportOperations, OutboxStorageOptions options)
          {
              context.NumberOfOps = transportOperations.Count();
          }
 
-         public void SetAsDispatched(string messageId)
+         public void SetAsDispatched(string messageId, OutboxStorageOptions options)
          {
            
          }
