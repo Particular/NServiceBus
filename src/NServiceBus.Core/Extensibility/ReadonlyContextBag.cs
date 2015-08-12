@@ -1,7 +1,7 @@
 namespace NServiceBus.Extensibility
 {
     /// <summary>
-    /// Context bag which is readonly
+    /// Context bag which is readonly.
     /// </summary>
     public interface ReadonlyContextBag
     {
