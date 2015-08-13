@@ -2366,9 +2366,9 @@ namespace NServiceBus.Transports
     }
     public class DispatchOptions
     {
-        public DispatchOptions(NServiceBus.Routing.RoutingStrategy routingStrategy, NServiceBus.ConsistencyGuarantees.ConsistencyGuarantee minimumConsistencyGuarantee, System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints, NServiceBus.Extensibility.ContextBag context = null) { }
-        public DispatchOptions(string destination, NServiceBus.ConsistencyGuarantees.ConsistencyGuarantee minimumConsistencyGuarantee, System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints, NServiceBus.Extensibility.ContextBag context = null) { }
-        public NServiceBus.Extensibility.ContextBag Context { get; }
+        public DispatchOptions(NServiceBus.Routing.RoutingStrategy routingStrategy, NServiceBus.ConsistencyGuarantees.ConsistencyGuarantee minimumConsistencyGuarantee, System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints, NServiceBus.Extensibility.ContextBag context) { }
+        public DispatchOptions(string destination, NServiceBus.ConsistencyGuarantees.ConsistencyGuarantee minimumConsistencyGuarantee, System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints, NServiceBus.Extensibility.ContextBag context) { }
+        public NServiceBus.Extensibility.ReadOnlyContextBag Context { get; }
         public System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> DeliveryConstraints { get; }
         public NServiceBus.ConsistencyGuarantees.ConsistencyGuarantee MinimumConsistencyGuarantee { get; }
         public NServiceBus.Routing.RoutingStrategy RoutingStrategy { get; set; }

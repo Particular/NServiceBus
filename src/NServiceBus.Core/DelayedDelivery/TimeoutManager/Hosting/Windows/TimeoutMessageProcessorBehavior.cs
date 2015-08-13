@@ -4,6 +4,7 @@ namespace NServiceBus
     using System.Collections.Generic;
     using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.DeliveryConstraints;
+    using NServiceBus.Extensibility;
     using NServiceBus.Pipeline;
     using NServiceBus.Timeout;
     using NServiceBus.Timeout.Core;
@@ -52,7 +53,7 @@ namespace NServiceBus
             }
 
             TimeoutManager.RemoveTimeout(timeoutId);
-            MessageSender.Dispatch(new OutgoingMessage(message.Id, message.Headers, message.Body), new DispatchOptions(destination, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>()));
+            MessageSender.Dispatch(new OutgoingMessage(message.Id,message.Headers, message.Body), new DispatchOptions(destination,new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), new ContextBag()));
         }
 
         void HandleInternal(TransportMessage message)

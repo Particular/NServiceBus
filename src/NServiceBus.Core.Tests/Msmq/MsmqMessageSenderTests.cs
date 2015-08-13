@@ -5,6 +5,7 @@
     using System.Messaging;
     using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.DeliveryConstraints;
+    using NServiceBus.Extensibility;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
     using NServiceBus.Transports;
@@ -40,7 +41,7 @@
                 };
                 var headers = new Dictionary<string, string>();
                 var outgoingMessage = new OutgoingMessage("1", headers, bytes);
-                var dispatchOptions = new DispatchOptions(new DirectToTargetDestination(queueName),new AtomicWithReceiveOperation(), new List<DeliveryConstraint>() );
+                var dispatchOptions = new DispatchOptions(new DirectToTargetDestination(queueName),new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), new ContextBag());
                 messageSender.Dispatch(outgoingMessage, dispatchOptions);
                 var messageLabel = ReadMessageLabel(path);
                 Assert.AreEqual("mylabel", messageLabel);
@@ -68,7 +69,7 @@
                 };
                 var headers = new Dictionary<string, string>();
                 var outgoingMessage = new OutgoingMessage("1", headers, bytes);
-                var dispatchOptions = new DispatchOptions(new DirectToTargetDestination(queueName), new AtomicWithReceiveOperation(), new List<DeliveryConstraint>());
+                var dispatchOptions = new DispatchOptions(new DirectToTargetDestination(queueName), new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), new ContextBag());
                 messageSender.Dispatch(outgoingMessage, dispatchOptions);
                 var messageLabel = ReadMessageLabel(path);
                 Assert.IsEmpty(messageLabel);

@@ -5,6 +5,7 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.DeliveryConstraints;
+    using NServiceBus.Extensibility;
     using NServiceBus.Pipeline;
     using NServiceBus.Timeout.Core;
     using NServiceBus.Timeout.Hosting.Windows;
@@ -26,7 +27,7 @@ namespace NServiceBus
 
             if (TimeoutsPersister.TryRemove(timeoutId, out timeoutData))
             {
-                var sendOptions = new DispatchOptions(timeoutData.Destination, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>());
+                var sendOptions = new DispatchOptions(timeoutData.Destination,new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), new ContextBag());
 
                 timeoutData.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
                 timeoutData.Headers["NServiceBus.RelatedToTimeoutId"] = timeoutData.Id;
