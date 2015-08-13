@@ -21,7 +21,7 @@ namespace NServiceBus
 
         public string EndpointName { get; set; }
 
-        public override void Terminate(SatelliteContext context)
+        public override void Terminate(PhysicalMessageProcessingStageBehavior.Context context)
         {
             var message = context.GetPhysicalMessage();         
             //dispatch request will arrive at the same input so we need to make sure to call the correct handler

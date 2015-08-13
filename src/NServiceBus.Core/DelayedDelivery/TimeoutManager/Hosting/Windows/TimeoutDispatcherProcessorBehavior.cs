@@ -18,7 +18,7 @@ namespace NServiceBus
         public Configure Configure { get; set; }
         public string InputAddress { get; set; }
 
-        public override void Terminate(SatelliteContext context)
+        public override void Terminate(PhysicalMessageProcessingStageBehavior.Context context)
         {
             var message = context.GetPhysicalMessage();
             var timeoutId = message.Headers["Timeout.Id"];

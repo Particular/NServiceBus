@@ -234,9 +234,6 @@
     <Compile Include="Routing\RoutingStrategyFactory.cs" />
     <Compile Include="Routing\ToAllSubscribers.cs" />
     <Compile Include="Satellites\SatelliteBehavior.cs" />
-    <Compile Include="Satellites\SatelliteContext.cs" />
-    <Compile Include="Satellites\SatelliteFeature.cs" />
-    <Compile Include="Satellites\SatelliteToTransportConnector.cs" />
     <Compile Include="SendOptions.cs" />
     <Compile Include="Sagas\ActiveSagaInstance_obsolete.cs" />
     <Compile Include="StaticHeaders\ApplyStaticHeadersBehavior.cs" />
