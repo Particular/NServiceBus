@@ -18,22 +18,21 @@ namespace NServiceBus
         public Configure Configure { get; set; }
         public string InputAddress { get; set; }
 
-        protected override bool Handle(TransportMessage message)
+        public override void Terminate(PhysicalMessageProcessingStageBehavior.Context context)
         {
+            var message = context.GetPhysicalMessage();
             var timeoutId = message.Headers["Timeout.Id"];
             TimeoutData timeoutData;
 
             if (TimeoutsPersister.TryRemove(timeoutId, out timeoutData))
             {
-                var sendOptions = new DispatchOptions(timeoutData.Destination,new AtomicWithReceiveOperation(), new List<DeliveryConstraint>());
+                var sendOptions = new DispatchOptions(timeoutData.Destination, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>());
 
                 timeoutData.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
                 timeoutData.Headers["NServiceBus.RelatedToTimeoutId"] = timeoutData.Id;
 
-                MessageSender.Dispatch(new OutgoingMessage(message.Id,timeoutData.Headers, timeoutData.State), sendOptions);
+                MessageSender.Dispatch(new OutgoingMessage(message.Id, timeoutData.Headers, timeoutData.State), sendOptions);
             }
-
-            return true;
         }
 
         public override Task Warmup()

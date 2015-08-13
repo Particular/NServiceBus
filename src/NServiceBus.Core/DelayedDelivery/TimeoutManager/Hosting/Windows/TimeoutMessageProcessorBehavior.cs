@@ -19,10 +19,11 @@ namespace NServiceBus
 
         public Configure Configure { get; set; }
 
-        public string EndpointName{ get; set; }
+        public string EndpointName { get; set; }
 
-        protected override bool Handle(TransportMessage message)
+        public override void Terminate(PhysicalMessageProcessingStageBehavior.Context context)
         {
+            var message = context.GetPhysicalMessage();         
             //dispatch request will arrive at the same input so we need to make sure to call the correct handler
             if (message.Headers.ContainsKey(TimeoutIdToDispatchHeader))
             {
@@ -32,8 +33,6 @@ namespace NServiceBus
             {
                 HandleInternal(message);
             }
-
-            return true;
         }
 
         void HandleBackwardsCompatibility(TransportMessage message)
@@ -53,7 +52,7 @@ namespace NServiceBus
             }
 
             TimeoutManager.RemoveTimeout(timeoutId);
-            MessageSender.Dispatch(new OutgoingMessage(message.Id,message.Headers, message.Body), new DispatchOptions(destination,new AtomicWithReceiveOperation(), new List<DeliveryConstraint>()));
+            MessageSender.Dispatch(new OutgoingMessage(message.Id, message.Headers, message.Body), new DispatchOptions(destination, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>()));
         }
 
         void HandleInternal(TransportMessage message)
@@ -88,7 +87,7 @@ namespace NServiceBus
                 {
                     destination = routeExpiredTimeoutTo;
                 }
-                
+
                 var data = new TimeoutData
                 {
                     Destination = destination,
@@ -99,13 +98,14 @@ namespace NServiceBus
                     OwningTimeoutManager = EndpointName
                 };
 
-            
+
 
                 TimeoutManager.PushTimeout(data);
             }
         }
 
         const string TimeoutDestinationHeader = "NServiceBus.Timeout.Destination";
+
         const string TimeoutIdToDispatchHeader = "NServiceBus.Timeout.TimeoutIdToDispatch";
 
         public class Registration : RegisterStep
