@@ -23,6 +23,7 @@ namespace NServiceBus
         {
             var message = context.GetPhysicalMessage();
             var timeoutId = message.Headers["Timeout.Id"];
+            var options = new TimeoutPersistenceOptions();
             TimeoutData timeoutData;
 
             if (TimeoutsPersister.TryRemove(timeoutId, out timeoutData))

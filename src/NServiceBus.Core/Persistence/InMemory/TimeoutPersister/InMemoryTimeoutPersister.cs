@@ -10,7 +10,7 @@ namespace NServiceBus.InMemory.TimeoutPersister
         List<TimeoutData> storage = new List<TimeoutData>();
         ReaderWriterLockSlim readerWriterLock = new ReaderWriterLockSlim();
 
-        public IEnumerable<Tuple<string, DateTime>> GetNextChunk(DateTime startSlice, out DateTime nextTimeToRunQuery)
+        public IEnumerable<Tuple<string, DateTime>> GetNextChunk(DateTime startSlice, TimeoutPersistenceOptions options, out DateTime nextTimeToRunQuery)
         {
             var now = DateTime.UtcNow;
             nextTimeToRunQuery = DateTime.MaxValue;
@@ -44,7 +44,7 @@ namespace NServiceBus.InMemory.TimeoutPersister
             return tuples;
         }
 
-        public void Add(TimeoutData timeout)
+        public void Add(TimeoutData timeout, TimeoutPersistenceOptions options)
         {
             timeout.Id = Guid.NewGuid().ToString();
             try
@@ -58,7 +58,7 @@ namespace NServiceBus.InMemory.TimeoutPersister
             }
         }
 
-        public bool TryRemove(string timeoutId, out TimeoutData timeoutData)
+        public bool TryRemove(string timeoutId, TimeoutPersistenceOptions options, out TimeoutData timeoutData)
         {
             try
             {
@@ -84,7 +84,7 @@ namespace NServiceBus.InMemory.TimeoutPersister
             }
         }
 
-        public void RemoveTimeoutBy(Guid sagaId)
+        public void RemoveTimeoutBy(Guid sagaId, TimeoutPersistenceOptions options)
         {
             try
             {
