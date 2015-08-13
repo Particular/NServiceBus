@@ -23,10 +23,11 @@ namespace NServiceBus
         {
             var message = context.GetPhysicalMessage();
             var timeoutId = message.Headers["Timeout.Id"];
-            var options = new TimeoutPersistenceOptions();
+            // TODO Daniel; Change when SatelliteTerminator PR is merged
+            var options = new TimeoutPersistenceOptions(new ContextBag());
             TimeoutData timeoutData;
 
-            if (TimeoutsPersister.TryRemove(timeoutId, out timeoutData))
+            if (TimeoutsPersister.TryRemove(timeoutId, options, out timeoutData))
             {
                 var sendOptions = new DispatchOptions(timeoutData.Destination,new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), new ContextBag());
 

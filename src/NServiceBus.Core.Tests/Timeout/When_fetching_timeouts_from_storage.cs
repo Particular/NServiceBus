@@ -4,28 +4,21 @@ namespace NServiceBus.Core.Tests.Timeout
     using System.Collections.Generic;
     using System.Linq;
     using InMemory.TimeoutPersister;
+    using NServiceBus.Extensibility;
     using NServiceBus.Timeout.Core;
     using NUnit.Framework;
 
     [TestFixture]
-    public class When_fetching_timeouts_from_storage_with_inMemory : When_fetching_timeouts_from_storage
+    public class When_fetching_timeouts_from_storage_with_inMemory
     {
-        protected override IPersistTimeouts CreateTimeoutPersister()
-        {
-            return new InMemoryTimeoutPersister();
-        }
-    }
-
-    public abstract class When_fetching_timeouts_from_storage
-    {
-        protected IPersistTimeouts persister;
-
-        protected abstract IPersistTimeouts CreateTimeoutPersister();
+        InMemoryTimeoutPersister persister;
+        TimeoutPersistenceOptions options;
 
         [SetUp]
         public void Setup()
         {
-            persister = CreateTimeoutPersister();
+            options = new TimeoutPersistenceOptions(new ContextBag());
+            persister = new InMemoryTimeoutPersister();
         }
 
         [Test]
@@ -39,7 +32,7 @@ namespace NServiceBus.Core.Tests.Timeout
                 {
                     OwningTimeoutManager = String.Empty,
                     Time = DateTime.UtcNow.AddHours(-1)
-                });
+                }, options);
             }
 
             for (var i = 0; i < numberOfTimeoutsToAdd; i++)
@@ -48,9 +41,9 @@ namespace NServiceBus.Core.Tests.Timeout
                 {
                     OwningTimeoutManager = String.Empty,
                     Time = DateTime.UtcNow.AddHours(1)
-                });
+                }, options);
             }
-            
+
             Assert.AreEqual(numberOfTimeoutsToAdd, GetNextChunk().Count());
         }
 
@@ -67,7 +60,7 @@ namespace NServiceBus.Core.Tests.Timeout
                     OwningTimeoutManager = "MyEndpoint"
                 };
 
-                persister.Add(d);
+                persister.Add(d, options);
             }
 
             var expected = DateTime.UtcNow.AddHours(1);
@@ -75,7 +68,7 @@ namespace NServiceBus.Core.Tests.Timeout
             {
                 Time = expected,
                 OwningTimeoutManager = String.Empty,
-            });
+            }, options);
 
             DateTime nextTimeToRunQuery;
             persister.GetNextChunk(DateTime.UtcNow.AddYears(-3), out nextTimeToRunQuery);
@@ -85,7 +78,7 @@ namespace NServiceBus.Core.Tests.Timeout
             Assert.True(totalMilliseconds < 200);
         }
 
-        protected IEnumerable<Tuple<string, DateTime>> GetNextChunk()
+        IEnumerable<Tuple<string, DateTime>> GetNextChunk()
         {
             DateTime nextTimeToRunQuery;
             return persister.GetNextChunk(DateTime.UtcNow.AddYears(-3), out nextTimeToRunQuery);

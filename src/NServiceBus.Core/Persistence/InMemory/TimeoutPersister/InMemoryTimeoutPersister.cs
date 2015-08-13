@@ -5,12 +5,12 @@ namespace NServiceBus.InMemory.TimeoutPersister
     using System.Threading;
     using Timeout.Core;
 
-    class InMemoryTimeoutPersister : IPersistTimeouts, IDisposable
+    class InMemoryTimeoutPersister : IPersistTimeouts, IQueryTimeouts, IDisposable
     {
         List<TimeoutData> storage = new List<TimeoutData>();
         ReaderWriterLockSlim readerWriterLock = new ReaderWriterLockSlim();
 
-        public IEnumerable<Tuple<string, DateTime>> GetNextChunk(DateTime startSlice, TimeoutPersistenceOptions options, out DateTime nextTimeToRunQuery)
+        public IEnumerable<Tuple<string, DateTime>> GetNextChunk(DateTime startSlice, out DateTime nextTimeToRunQuery)
         {
             var now = DateTime.UtcNow;
             nextTimeToRunQuery = DateTime.MaxValue;

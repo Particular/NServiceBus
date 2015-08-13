@@ -25,18 +25,20 @@ namespace NServiceBus
         public override void Terminate(PhysicalMessageProcessingStageBehavior.Context context)
         {
             var message = context.GetPhysicalMessage();         
+            // TODO Daniel; Change when SatelliteTerminator PR is merged
+            var options = new TimeoutPersistenceOptions(new ContextBag());
             //dispatch request will arrive at the same input so we need to make sure to call the correct handler
             if (message.Headers.ContainsKey(TimeoutIdToDispatchHeader))
             {
-                HandleBackwardsCompatibility(message);
+                HandleBackwardsCompatibility(message, options);
             }
             else
             {
-                HandleInternal(message);
+                HandleInternal(message, options);
             }
         }
 
-        void HandleBackwardsCompatibility(TransportMessage message)
+        void HandleBackwardsCompatibility(TransportMessage message, TimeoutPersistenceOptions options)
         {
             var timeoutId = message.Headers[TimeoutIdToDispatchHeader];
 
@@ -52,11 +54,11 @@ namespace NServiceBus
                 destination = routeExpiredTimeoutTo;
             }
 
-            TimeoutManager.RemoveTimeout(timeoutId);
-            MessageSender.Dispatch(new OutgoingMessage(message.Id,message.Headers, message.Body), new DispatchOptions(destination,new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), new ContextBag()));
+            TimeoutManager.RemoveTimeout(timeoutId, options);
+            MessageSender.Dispatch(new OutgoingMessage(message.Id, message.Headers, message.Body), new DispatchOptions(destination, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), new ContextBag()));
         }
 
-        void HandleInternal(TransportMessage message)
+        void HandleInternal(TransportMessage message, TimeoutPersistenceOptions options)
         {
             var sagaId = Guid.Empty;
 
@@ -71,7 +73,7 @@ namespace NServiceBus
                 if (sagaId == Guid.Empty)
                     throw new InvalidOperationException("Invalid saga id specified, clear timeouts is only supported for saga instances");
 
-                TimeoutManager.RemoveTimeoutBy(sagaId);
+                TimeoutManager.RemoveTimeoutBy(sagaId, options);
             }
             else
             {
@@ -99,9 +101,7 @@ namespace NServiceBus
                     OwningTimeoutManager = EndpointName
                 };
 
-
-
-                TimeoutManager.PushTimeout(data);
+                TimeoutManager.PushTimeout(data, options);
             }
         }
 
