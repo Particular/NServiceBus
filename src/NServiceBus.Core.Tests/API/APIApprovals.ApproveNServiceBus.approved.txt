@@ -634,11 +634,13 @@ namespace NServiceBus
         public static void RouteToLocalEndpointInstance(this NServiceBus.SendOptions option) { }
         public static void SetDestination(this NServiceBus.SendOptions option, string destination) { }
     }
-    public abstract class SatelliteBehavior : NServiceBus.PhysicalMessageProcessingStageBehavior
+    public abstract class SatelliteBehavior : NServiceBus.Pipeline.PipelineTerminator<NServiceBus.SatelliteContext>
     {
         protected SatelliteBehavior() { }
-        protected abstract bool Handle(NServiceBus.TransportMessage physicalMessage);
-        public override void Invoke(NServiceBus.PhysicalMessageProcessingStageBehavior.Context context, System.Action next) { }
+    }
+    public class SatelliteContext : NServiceBus.Pipeline.Contexts.TransportReceiveContext
+    {
+        public SatelliteContext(NServiceBus.Pipeline.BehaviorContext context) { }
     }
     public class static ScaleOutExtentions
     {
