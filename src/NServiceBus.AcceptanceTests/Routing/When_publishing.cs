@@ -1,11 +1,11 @@
-﻿namespace NServiceBus.AcceptanceTests.PubSub
+﻿namespace NServiceBus.AcceptanceTests.Routing
 {
     using System;
-    using EndpointTemplates;
-    using AcceptanceTesting;
-    using Features;
+    using NServiceBus.AcceptanceTesting;
+    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
+    using NServiceBus.Features;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_publishing : NServiceBusAcceptanceTest
     {

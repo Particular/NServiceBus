@@ -45,26 +45,6 @@
             throw new NotImplementedException();
         }
 
-        public void Subscribe(Type messageType)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Subscribe<T>()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Unsubscribe(Type messageType)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Unsubscribe<T>()
-        {
-            throw new NotImplementedException();
-        }
-
         public void Send(object message, SendOptions options)
         {
             ApplyDelayedDeliveryConstraintBehavior.State state;
@@ -142,6 +122,16 @@
         }
 
         public void Reply<T>(Action<T> messageConstructor, ReplyOptions options)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Subscribe(Type eventType, SubscribeOptions options)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Unsubscribe(Type eventType, UnsubscribeOptions options)
         {
             throw new NotImplementedException();
         }

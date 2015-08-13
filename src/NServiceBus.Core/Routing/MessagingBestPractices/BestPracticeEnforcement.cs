@@ -25,6 +25,9 @@ namespace NServiceBus.Features
             context.Pipeline.Register("EnforceSendBestPractices", typeof(EnforceSendBestPracticesBehavior), "Enforces send messaging best practices");
             context.Pipeline.Register("EnforceReplyBestPractices", typeof(EnforceReplyBestPracticesBehavior), "Enforces reply messaging best practices");
             context.Pipeline.Register("EnforcePublishBestPractices", typeof(EnforcePublishBestPracticesBehavior), "Enforces publish messaging best practices");
+
+            context.Pipeline.Register("EnforceSubscribeBestPractices", typeof(EnforceSubscribeBestPracticesBehavior), "Enforces subscription messaging best practices");
+            context.Pipeline.Register("EnforceUnsubscribeBestPractices", typeof(EnforceUnsubscribeBestPracticesBehavior), "Enforces subscription messaging best practices");
         }
 
     }

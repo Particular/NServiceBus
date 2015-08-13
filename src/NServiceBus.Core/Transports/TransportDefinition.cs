@@ -39,7 +39,7 @@ namespace NServiceBus.Transports
         /// </summary>
         protected internal virtual void Configure(BusConfiguration config)
         {
-            
+
         }
 
         /// <summary>
@@ -57,5 +57,10 @@ namespace NServiceBus.Transports
         /// Returns the consistency guarantee to use if no specific guarantee is specified.
         /// </summary>
         public abstract ConsistencyGuarantee GetDefaultConsistencyGuarantee();
+
+        /// <summary>
+        /// Will be called if the transport has indicated that it has native support for pub sub.
+        /// </summary>
+        public abstract IManageSubscriptions GetSubscriptionManager();
     }
 }

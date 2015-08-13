@@ -1,9 +1,9 @@
-﻿namespace NServiceBus.AcceptanceTests.PubSub
+﻿namespace NServiceBus.AcceptanceTests.Routing
 {
     using System;
-    using AcceptanceTesting;
-    using EndpointTemplates;
-    using Features;
+    using NServiceBus.AcceptanceTesting;
+    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using NServiceBus.Features;
     using NUnit.Framework;
 
     public class When_multi_subscribing_to_a_polymorphic_event : NServiceBusAcceptanceTest

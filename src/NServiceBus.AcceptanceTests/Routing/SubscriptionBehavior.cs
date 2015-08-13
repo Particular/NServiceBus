@@ -1,9 +1,9 @@
-﻿namespace NServiceBus.AcceptanceTests.PubSub
+﻿namespace NServiceBus.AcceptanceTests.Routing
 {
     using System;
     using System.Linq;
     using NServiceBus.AcceptanceTesting;
-    using Pipeline;
+    using NServiceBus.Pipeline;
 
     static class SubscriptionBehaviorExtensions
     {

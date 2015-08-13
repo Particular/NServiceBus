@@ -3,7 +3,7 @@
     using System;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.PubSub;
+    using NServiceBus.AcceptanceTests.Routing;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NServiceBus.Extensibility;
     using NServiceBus.Features;
