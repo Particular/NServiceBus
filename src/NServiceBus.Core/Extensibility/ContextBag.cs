@@ -5,7 +5,7 @@ namespace NServiceBus.Extensibility
     /// <summary>
     /// A string object bag of context objects.
     /// </summary>
-    public class ContextBag
+    public class ContextBag : ReadOnlyContextBag
     {
         /// <summary>
         /// Initialized a new instance of <see cref="ContextBag"/>.

@@ -1072,7 +1072,7 @@ namespace NServiceBus.Encryption
 }
 namespace NServiceBus.Extensibility
 {
-    public class ContextBag
+    public class ContextBag : NServiceBus.Extensibility.ReadOnlyContextBag
     {
         public ContextBag(NServiceBus.Extensibility.ContextBag parentBag = null) { }
         public T Get<T>() { }
@@ -1090,6 +1090,11 @@ namespace NServiceBus.Extensibility
     public class static ExtendableOptionsExtensions
     {
         public static NServiceBus.Extensibility.ContextBag GetExtensions(this NServiceBus.Extensibility.ExtendableOptions options) { }
+    }
+    public interface ReadOnlyContextBag
+    {
+        T Get<T>();
+        bool TryGet<T>(out T result);
     }
 }
 namespace NServiceBus.Faults
@@ -1577,8 +1582,8 @@ namespace NServiceBus.Outbox
     }
     public class OutboxStorageOptions
     {
-        public OutboxStorageOptions(NServiceBus.Extensibility.ContextBag context) { }
-        public NServiceBus.Extensibility.ContextBag Context { get; set; }
+        public OutboxStorageOptions(NServiceBus.Extensibility.ReadOnlyContextBag context) { }
+        public NServiceBus.Extensibility.ReadOnlyContextBag Context { get; set; }
     }
     public class TransportOperation
     {
@@ -2051,8 +2056,8 @@ namespace NServiceBus.Saga
     }
     public class SagaPersistenceOptions
     {
-        public SagaPersistenceOptions(NServiceBus.Saga.SagaMetadata sagaMetadata, NServiceBus.Extensibility.ContextBag context = null) { }
-        public NServiceBus.Extensibility.ContextBag Context { get; }
+        public SagaPersistenceOptions(NServiceBus.Saga.SagaMetadata sagaMetadata, NServiceBus.Extensibility.ReadOnlyContextBag context = null) { }
+        public NServiceBus.Extensibility.ReadOnlyContextBag Context { get; }
         public NServiceBus.Saga.SagaMetadata Metadata { get; }
     }
     public class SagaPropertyMapper<TSagaData>

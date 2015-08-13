@@ -11,7 +11,7 @@
         /// Creates a new instance of the OutboxStorageOptions class.
         /// </summary>
         /// <param name="context">The context.</param>
-        public OutboxStorageOptions(ContextBag context)
+        public OutboxStorageOptions(ReadOnlyContextBag context)
         {
             Context = context;
         }
@@ -19,6 +19,6 @@
         /// <summary>
         /// Access to the behavior context.
         /// </summary>
-        public ContextBag Context { get; set; }
+        public ReadOnlyContextBag Context { get; set; }
     }
 }

@@ -12,7 +12,7 @@ namespace NServiceBus.Saga
         /// </summary>
         /// <param name="sagaMetadata">The saga metadata representing the to be persisted saga.</param>
         /// <param name="context">The context.</param>
-        public SagaPersistenceOptions(SagaMetadata sagaMetadata, ContextBag context = null)
+        public SagaPersistenceOptions(SagaMetadata sagaMetadata, ReadOnlyContextBag context = null)
         {
             Metadata = sagaMetadata;
             Context = context;
@@ -31,6 +31,6 @@ namespace NServiceBus.Saga
         /// <summary>
         /// Access to the behavior context.
         /// </summary>
-        public ContextBag Context { get; private set; }
+        public ReadOnlyContextBag Context { get; private set; }
     }
 }
