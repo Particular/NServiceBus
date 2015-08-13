@@ -144,6 +144,7 @@
     <Compile Include="Persistence\PersistenceStorageMergerTests.cs" />
     <Compile Include="Sagas\SagaModelTests.cs" />
     <Compile Include="Sagas\TypeBasedSagaMetaModelTests.cs" />
+    <Compile Include="Serializers\XML\Issue_2796.cs" />
     <Compile Include="StandardsTests.cs" />
     <Compile Include="Encryption\ConfigureRijndaelEncryptionServiceTests.cs" />
     <Compile Include="Encryption\RijndaelEncryptionServiceTest.cs" />
@@ -300,7 +301,7 @@
       <Project>{dd48b2d0-e996-412d-9157-821ed8b17a9d}</Project>
       <Name>NServiceBus.Core</Name>
     </ProjectReference>
-  </ItemGroup> 
+  </ItemGroup>
   <ItemGroup>
     <Content Include="TestDlls\dotNet.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
