@@ -111,7 +111,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
                     dispatchRequest.Headers["Timeout.Id"] = timeoutData.Item1;
 
-                    messageSender.Dispatch(dispatchRequest, new DispatchOptions(DispatcherAddress, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>()));
+                    messageSender.Dispatch(dispatchRequest, new DispatchOptions(DispatcherAddress, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), new ContextBag()));
                 }
 
                 lock (lockObject)

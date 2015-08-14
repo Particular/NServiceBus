@@ -12,14 +12,19 @@ namespace NServiceBus
 
     class TimeoutMessageProcessorBehavior : SatelliteBehavior
     {
-        public IDispatchMessages MessageSender { get; set; }
+        readonly DefaultTimeoutManager defaultTimeoutManager;
+        readonly IDispatchMessages dispatchMessages;
 
+        public TimeoutMessageProcessorBehavior(IDispatchMessages dispatcher, DefaultTimeoutManager timeoutManager)
+        {
+            dispatchMessages = dispatcher;
+            defaultTimeoutManager = timeoutManager;
+        }
+
+        // ReSharper disable once UnusedAutoPropertyAccessor.Global
         public string InputAddress { get; set; }
 
-        public DefaultTimeoutManager TimeoutManager { get; set; }
-
-        public Configure Configure { get; set; }
-
+        // ReSharper disable once UnusedAutoPropertyAccessor.Global
         public string EndpointName { get; set; }
 
         public override void Terminate(PhysicalMessageProcessingStageBehavior.Context context)
@@ -53,8 +58,8 @@ namespace NServiceBus
                 destination = routeExpiredTimeoutTo;
             }
 
-            TimeoutManager.RemoveTimeout(timeoutId, options);
-            MessageSender.Dispatch(new OutgoingMessage(message.Id, message.Headers, message.Body), new DispatchOptions(destination, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), new ContextBag()));
+            defaultTimeoutManager.RemoveTimeout(timeoutId, options);
+            dispatchMessages.Dispatch(new OutgoingMessage(message.Id, message.Headers, message.Body), new DispatchOptions(destination, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), new ContextBag()));
         }
 
         void HandleInternal(TransportMessage message, TimeoutPersistenceOptions options)
@@ -72,7 +77,7 @@ namespace NServiceBus
                 if (sagaId == Guid.Empty)
                     throw new InvalidOperationException("Invalid saga id specified, clear timeouts is only supported for saga instances");
 
-                TimeoutManager.RemoveTimeoutBy(sagaId, options);
+                defaultTimeoutManager.RemoveTimeoutBy(sagaId, options);
             }
             else
             {
@@ -100,7 +105,7 @@ namespace NServiceBus
                     OwningTimeoutManager = EndpointName
                 };
 
-                TimeoutManager.PushTimeout(data, options);
+                defaultTimeoutManager.PushTimeout(data, options);
             }
         }
 
