@@ -12,17 +12,12 @@ namespace NServiceBus
         FirstLevelRetryPolicy retryPolicy;
         BusNotifications notifications;
 
-        public FirstLevelRetriesBehavior(FirstLevelRetryPolicy retryPolicy, BusNotifications notifications)
-            : this(new FlrStatusStorage(), retryPolicy, notifications)
-        {
-        }
-
         public static FirstLevelRetriesBehavior CreateForTests(FlrStatusStorage storage, FirstLevelRetryPolicy retryPolicy, BusNotifications notifications)
         {
             return new FirstLevelRetriesBehavior(storage, retryPolicy, notifications);
         }
 
-        FirstLevelRetriesBehavior(FlrStatusStorage storage, FirstLevelRetryPolicy retryPolicy, BusNotifications notifications)
+        public FirstLevelRetriesBehavior(FlrStatusStorage storage, FirstLevelRetryPolicy retryPolicy, BusNotifications notifications)
         {
             this.storage = storage;
             this.retryPolicy = retryPolicy;
@@ -53,7 +48,7 @@ namespace NServiceBus
                     throw;
                 }
 
-                storage.IncrementFailuresForMessage(messageId, ex);
+                storage.IncrementFailuresForMessage(messageId);
 
                 //question: should we invoke this the first time around? feels like the naming is off?
                 notifications.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(numberOfRetries,context.GetPhysicalMessage(),ex);

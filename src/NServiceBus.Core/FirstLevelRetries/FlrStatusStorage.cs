@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.FirstLevelRetries
 {
-    using System;
     using System.Collections.Concurrent;
 
     class FlrStatusStorage
@@ -11,21 +10,20 @@
             failuresPerMessage.TryRemove(messageId, out e);
         }
 
-        public void IncrementFailuresForMessage(string messageId, Exception e)
+        public void IncrementFailuresForMessage(string messageId)
         {
-            failuresPerMessage.AddOrUpdate(messageId,1,
-                (s, i) => i + 1);
+            failuresPerMessage.AddOrUpdate(messageId, 1, (s, i) => i + 1);
         }
 
         public int GetRetriesForMessage(string messageId)
         {
             int e;
+            return !failuresPerMessage.TryGetValue(messageId, out e) ? 0 : e;
+        }
 
-            if (!failuresPerMessage.TryGetValue(messageId, out e))
-            {
-                return 0;
-            }
-            return e;
+        public void Clear()
+        {
+            failuresPerMessage.Clear();
         }
 
         ConcurrentDictionary<string, int> failuresPerMessage = new ConcurrentDictionary<string, int>();

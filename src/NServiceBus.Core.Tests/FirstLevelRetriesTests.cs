@@ -58,7 +58,7 @@
             var storage = new FlrStatusStorage();
             var behavior = FirstLevelRetriesBehavior.CreateForTests(storage, new FirstLevelRetryPolicy(1), new BusNotifications());
 
-            storage.IncrementFailuresForMessage("someid", new Exception(""));
+            storage.IncrementFailuresForMessage("someid");
 
             Assert.Throws<Exception>(() => behavior.Invoke(CreateContext("someid"), () =>
             {
