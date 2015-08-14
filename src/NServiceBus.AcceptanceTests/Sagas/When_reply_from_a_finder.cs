@@ -46,7 +46,7 @@
                 public IBus Bus { get; set; }
                 public Context Context { get; set; }
 
-                public TestSagaWithCustomFinder.SagaData FindBy(StartSagaMessage message)
+                public TestSagaWithCustomFinder.SagaData FindBy(StartSagaMessage message, SagaPersistenceOptions options)
                 {
                     Bus.Reply(new SagaNotFoundMessage
                               {

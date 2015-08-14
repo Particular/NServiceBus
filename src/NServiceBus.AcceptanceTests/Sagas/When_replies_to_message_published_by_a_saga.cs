@@ -4,9 +4,9 @@
     using EndpointTemplates;
     using AcceptanceTesting;
     using Features;
+    using NServiceBus.AcceptanceTests.Routing;
     using NServiceBus.Config;
     using NUnit.Framework;
-    using PubSub;
     using Saga;
     using ScenarioDescriptors;
 

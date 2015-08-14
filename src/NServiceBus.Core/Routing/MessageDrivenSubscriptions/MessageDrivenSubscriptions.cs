@@ -1,6 +1,5 @@
 namespace NServiceBus.Features
 {
-    using NServiceBus.Routing.MessageDrivenSubscriptions;
     using NServiceBus.Transports;
 
     /// <summary>
@@ -21,15 +20,6 @@ namespace NServiceBus.Features
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             context.Pipeline.Register<SubscriptionReceiverBehavior.Registration>();
-
-            string replyToAddress;
-
-            if (!context.Settings.TryGet("PublicReturnAddress", out replyToAddress))
-            {
-                replyToAddress = context.Settings.LocalAddress();
-            }
-
-            context.Container.ConfigureComponent(builder => new SubscriptionManager(replyToAddress, builder.Build<IDispatchMessages>()), DependencyLifecycle.SingleInstance);
         }
     }
 }

@@ -1,8 +1,8 @@
-﻿namespace NServiceBus.AcceptanceTests.PubSub
+﻿namespace NServiceBus.AcceptanceTests.Routing
 {
     using System;
-    using EndpointTemplates;
-    using AcceptanceTesting;
+    using NServiceBus.AcceptanceTesting;
+    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
     public class When_base_event_from_2_publishers : NServiceBusAcceptanceTest

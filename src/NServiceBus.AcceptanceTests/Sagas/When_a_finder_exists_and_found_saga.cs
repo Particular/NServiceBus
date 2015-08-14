@@ -37,7 +37,7 @@
                 // ReSharper disable once MemberCanBePrivate.Global
                 public Context Context { get; set; }
 
-                public TestSaga.SagaData FindBy(SomeOtherMessage message)
+                public TestSaga.SagaData FindBy(SomeOtherMessage message, SagaPersistenceOptions options)
                 {
                     Context.FinderUsed = true;
                     return new TestSaga.SagaData

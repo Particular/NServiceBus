@@ -66,5 +66,13 @@ namespace NServiceBus
         {
             return new AtomicWithReceiveOperation();
         }
+
+        /// <summary>
+        /// Not used by the msmq transport.
+        /// </summary>
+        public override IManageSubscriptions GetSubscriptionManager()
+        {
+            throw new NotSupportedException("Msmq don't support native pub sub");
+        }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.PubSub
+﻿namespace NServiceBus.AcceptanceTests.Routing
 {
     public class SubscriptionEventArgs
     {

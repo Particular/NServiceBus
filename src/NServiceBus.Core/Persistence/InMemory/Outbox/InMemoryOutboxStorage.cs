@@ -8,7 +8,7 @@
 
     class InMemoryOutboxStorage : IOutboxStorage
     {
-        public bool TryGet(string messageId, out OutboxMessage message)
+        public bool TryGet(string messageId, OutboxStorageOptions options, out OutboxMessage message)
         {
             StoredMessage storedMessage;
             message = null;
@@ -24,7 +24,7 @@
             return true;
         }
 
-        public void Store(string messageId, IEnumerable<TransportOperation> transportOperations)
+        public void Store(string messageId, IEnumerable<TransportOperation> transportOperations, OutboxStorageOptions options)
         {
             if (!storage.TryAdd(messageId, new StoredMessage(messageId, transportOperations.ToList())))
             {
@@ -32,7 +32,7 @@
             }
         }
 
-        public void SetAsDispatched(string messageId)
+        public void SetAsDispatched(string messageId, OutboxStorageOptions options)
         {
             StoredMessage storedMessage;
 

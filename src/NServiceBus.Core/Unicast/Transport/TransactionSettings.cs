@@ -5,7 +5,7 @@
     using Settings;
 
     /// <summary>
-    /// Settings relates to transactions.
+    /// Settings related to transactions.
     /// </summary>
     public class TransactionSettings
     {

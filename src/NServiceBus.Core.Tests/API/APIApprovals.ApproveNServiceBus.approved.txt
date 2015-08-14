@@ -380,10 +380,8 @@ namespace NServiceBus
         void Reply<T>(System.Action<T> messageConstructor, NServiceBus.ReplyOptions options);
         [System.ObsoleteAttribute("Replaced by NServiceBus.Callbacks package. Will be removed in version 7.0.0.", true)]
         void Return<T>(T errorEnum);
-        void Subscribe(System.Type messageType);
-        void Subscribe<T>();
-        void Unsubscribe(System.Type messageType);
-        void Unsubscribe<T>();
+        void Subscribe(System.Type eventType, NServiceBus.SubscribeOptions options);
+        void Unsubscribe(System.Type eventType, NServiceBus.UnsubscribeOptions options);
     }
     public class static IBusExtensions
     {
@@ -391,6 +389,10 @@ namespace NServiceBus
         public static void Reply<T>(this NServiceBus.IBus bus, System.Action<T> messageConstructor) { }
         public static void SendLocal(this NServiceBus.IBus bus, object message) { }
         public static void SendLocal<T>(this NServiceBus.IBus bus, System.Action<T> messageConstructor) { }
+        public static void Subscribe(this NServiceBus.IBus bus, System.Type messageType) { }
+        public static void Subscribe<T>(this NServiceBus.IBus bus) { }
+        public static void Unsubscribe(this NServiceBus.IBus bus, System.Type messageType) { }
+        public static void Unsubscribe<T>(this NServiceBus.IBus bus) { }
     }
     [System.ObsoleteAttribute("Replaced by NServiceBus.Callbacks package. Will be removed in version 7.0.0.", true)]
     public interface ICallback
@@ -556,6 +558,7 @@ namespace NServiceBus
         protected internal override void Configure(NServiceBus.BusConfiguration config) { }
         public override NServiceBus.ConsistencyGuarantees.ConsistencyGuarantee GetDefaultConsistencyGuarantee() { }
         public override string GetSubScope(string address, string qualifier) { }
+        public override NServiceBus.Transports.IManageSubscriptions GetSubscriptionManager() { }
         public override System.Collections.Generic.IEnumerable<System.Type> GetSupportedDeliveryConstraints() { }
     }
     public class NonDurableDelivery : NServiceBus.DeliveryConstraints.DeliveryConstraint
@@ -634,11 +637,9 @@ namespace NServiceBus
         public static void RouteToLocalEndpointInstance(this NServiceBus.SendOptions option) { }
         public static void SetDestination(this NServiceBus.SendOptions option, string destination) { }
     }
-    public abstract class SatelliteBehavior : NServiceBus.PhysicalMessageProcessingStageBehavior
+    public abstract class SatelliteBehavior : NServiceBus.Pipeline.PipelineTerminator<NServiceBus.PhysicalMessageProcessingStageBehavior.Context>
     {
         protected SatelliteBehavior() { }
-        protected abstract bool Handle(NServiceBus.TransportMessage physicalMessage);
-        public override void Invoke(NServiceBus.PhysicalMessageProcessingStageBehavior.Context context, System.Action next) { }
     }
     public class static ScaleOutExtentions
     {
@@ -684,6 +685,10 @@ namespace NServiceBus
     public class static StaticHeadersConfigExtensions
     {
         public static void AddHeaderToAllOutgoingMessages(this NServiceBus.BusConfiguration config, string key, string value) { }
+    }
+    public class SubscribeOptions : NServiceBus.Extensibility.ExtendableOptions
+    {
+        public SubscribeOptions() { }
     }
     public class static ThrottlingSettingsExtensions
     {
@@ -741,6 +746,10 @@ namespace NServiceBus
             "n 7.0.0.", true)]
         public System.TimeSpan TimeToBeReceived { get; set; }
     }
+    public class UnsubscribeOptions : NServiceBus.Extensibility.ExtendableOptions
+    {
+        public UnsubscribeOptions() { }
+    }
     public class static UseDataBusExtensions
     {
         public static NServiceBus.DataBus.DataBusExtentions<T> UseDataBus<T>(this NServiceBus.BusConfiguration config)
@@ -794,6 +803,8 @@ namespace NServiceBus.AutomaticSubscriptions.Config
     {
         public void AutoSubscribePlainMessages() { }
         public void DoNotAutoSubscribeSagas() { }
+        [System.ObsoleteAttribute("Transports with support for centralized pubsub will default this to true. Can saf" +
+            "ely be removed. Will be removed in version 7.0.0.", true)]
         public void DoNotRequireExplicitRouting() { }
     }
 }
@@ -1072,7 +1083,7 @@ namespace NServiceBus.Encryption
 }
 namespace NServiceBus.Extensibility
 {
-    public class ContextBag
+    public class ContextBag : NServiceBus.Extensibility.ReadOnlyContextBag
     {
         public ContextBag(NServiceBus.Extensibility.ContextBag parentBag = null) { }
         public T Get<T>() { }
@@ -1090,6 +1101,11 @@ namespace NServiceBus.Extensibility
     public class static ExtendableOptionsExtensions
     {
         public static NServiceBus.Extensibility.ContextBag GetExtensions(this NServiceBus.Extensibility.ExtendableOptions options) { }
+    }
+    public interface ReadOnlyContextBag
+    {
+        T Get<T>();
+        bool TryGet<T>(out T result);
     }
 }
 namespace NServiceBus.Faults
@@ -1559,9 +1575,9 @@ namespace NServiceBus.Outbox
 {
     public interface IOutboxStorage
     {
-        void SetAsDispatched(string messageId);
-        void Store(string messageId, System.Collections.Generic.IEnumerable<NServiceBus.Outbox.TransportOperation> transportOperations);
-        bool TryGet(string messageId, out NServiceBus.Outbox.OutboxMessage message);
+        void SetAsDispatched(string messageId, NServiceBus.Outbox.OutboxStorageOptions options);
+        void Store(string messageId, System.Collections.Generic.IEnumerable<NServiceBus.Outbox.TransportOperation> transportOperations, NServiceBus.Outbox.OutboxStorageOptions options);
+        bool TryGet(string messageId, NServiceBus.Outbox.OutboxStorageOptions options, out NServiceBus.Outbox.OutboxMessage message);
     }
     public class OutboxMessage
     {
@@ -1574,6 +1590,11 @@ namespace NServiceBus.Outbox
         [System.ObsoleteAttribute("Please use `InMemoryOutboxSettingsExtensions.TimeToKeepDeduplicationData(TimeSpan" +
             " time)` instead. Will be removed in version 7.0.0.", true)]
         public void TimeToKeepDeduplicationData(System.TimeSpan time) { }
+    }
+    public class OutboxStorageOptions
+    {
+        public OutboxStorageOptions(NServiceBus.Extensibility.ReadOnlyContextBag context) { }
+        public NServiceBus.Extensibility.ReadOnlyContextBag Context { get; set; }
     }
     public class TransportOperation
     {
@@ -1885,11 +1906,21 @@ namespace NServiceBus.Routing
         protected RoutingStrategy() { }
         public abstract void Serialize(System.Collections.Generic.Dictionary<string, string> options);
     }
+    public class SubscribeContext : NServiceBus.Pipeline.BehaviorContext
+    {
+        public SubscribeContext(NServiceBus.Pipeline.BehaviorContext parentContext, System.Type eventType, NServiceBus.SubscribeOptions options) { }
+        public System.Type EventType { get; }
+    }
     public class ToAllSubscribers : NServiceBus.Routing.RoutingStrategy
     {
         public ToAllSubscribers(System.Type eventType) { }
         public System.Type EventType { get; }
         public override void Serialize(System.Collections.Generic.Dictionary<string, string> options) { }
+    }
+    public class UnsubscribeContext : NServiceBus.Pipeline.BehaviorContext
+    {
+        public UnsubscribeContext(NServiceBus.Pipeline.BehaviorContext parentContext, System.Type eventType, NServiceBus.UnsubscribeOptions options) { }
+        public System.Type EventType { get; }
     }
 }
 namespace NServiceBus.Routing.StorageDrivenPublishing
@@ -1948,7 +1979,7 @@ namespace NServiceBus.Saga
         public interface Using<T, M> : NServiceBus.Saga.IFinder
             where T : NServiceBus.Saga.IContainSagaData
         {
-            T FindBy(M message);
+            T FindBy(M message, NServiceBus.Saga.SagaPersistenceOptions options);
         }
     }
     public interface IHandleSagaNotFound
@@ -1961,14 +1992,13 @@ namespace NServiceBus.Saga
     }
     public interface ISagaPersister
     {
-        void Complete(NServiceBus.Saga.SagaMetadata metadata, NServiceBus.Saga.IContainSagaData saga);
-        TSagaData Get<TSagaData>(NServiceBus.Saga.SagaMetadata metadata, System.Guid sagaId)
+        void Complete(NServiceBus.Saga.IContainSagaData saga, NServiceBus.Saga.SagaPersistenceOptions options);
+        TSagaData Get<TSagaData>(System.Guid sagaId, NServiceBus.Saga.SagaPersistenceOptions options)
             where TSagaData : NServiceBus.Saga.IContainSagaData;
-        TSagaData Get<TSagaData>(NServiceBus.Saga.SagaMetadata metadata, string propertyName, object propertyValue)
+        TSagaData Get<TSagaData>(string propertyName, object propertyValue, NServiceBus.Saga.SagaPersistenceOptions options)
             where TSagaData : NServiceBus.Saga.IContainSagaData;
-        void Initialize(NServiceBus.Saga.SagaMetadataCollection allSagas);
-        void Save(NServiceBus.Saga.SagaMetadata metadata, NServiceBus.Saga.IContainSagaData saga);
-        void Update(NServiceBus.Saga.SagaMetadata metadata, NServiceBus.Saga.IContainSagaData saga);
+        void Save(NServiceBus.Saga.IContainSagaData saga, NServiceBus.Saga.SagaPersistenceOptions options);
+        void Update(NServiceBus.Saga.IContainSagaData saga, NServiceBus.Saga.SagaPersistenceOptions options);
     }
     public abstract class Saga
     {
@@ -2044,6 +2074,12 @@ namespace NServiceBus.Saga
         public System.Collections.Generic.IEnumerator<NServiceBus.Saga.SagaMetadata> GetEnumerator() { }
         public void Initialize(System.Collections.Generic.IEnumerable<System.Type> availableTypes) { }
         public void Initialize(System.Collections.Generic.IEnumerable<System.Type> availableTypes, NServiceBus.Conventions conventions) { }
+    }
+    public class SagaPersistenceOptions
+    {
+        public SagaPersistenceOptions(NServiceBus.Saga.SagaMetadata sagaMetadata, NServiceBus.Extensibility.ReadOnlyContextBag context = null) { }
+        public NServiceBus.Extensibility.ReadOnlyContextBag Context { get; }
+        public NServiceBus.Saga.SagaMetadata Metadata { get; }
     }
     public class SagaPropertyMapper<TSagaData>
         where TSagaData : NServiceBus.Saga.IContainSagaData
@@ -2366,8 +2402,8 @@ namespace NServiceBus.Transports
     }
     public interface IManageSubscriptions
     {
-        void Subscribe(System.Type eventType, string publisherAddress);
-        void Unsubscribe(System.Type eventType, string publisherAddress);
+        void Subscribe(System.Type eventType, NServiceBus.Extensibility.ContextBag context);
+        void Unsubscribe(System.Type eventType, NServiceBus.Extensibility.ContextBag context);
     }
     public class IncomingMessage
     {
@@ -2432,6 +2468,7 @@ namespace NServiceBus.Transports
         protected internal void Configure(NServiceBus.BusConfiguration config) { }
         public abstract NServiceBus.ConsistencyGuarantees.ConsistencyGuarantee GetDefaultConsistencyGuarantee();
         public abstract string GetSubScope(string address, string qualifier);
+        public abstract NServiceBus.Transports.IManageSubscriptions GetSubscriptionManager();
         public abstract System.Collections.Generic.IEnumerable<System.Type> GetSupportedDeliveryConstraints();
     }
     public class TransportPublishOptions
@@ -2655,11 +2692,13 @@ namespace NServiceBus.Unicast
         public void Subscribe(System.Type messageType) { }
         [System.ObsoleteAttribute("Please use `IBus.Subscribe<T>()` instead. Will be removed in version 7.0.0.", true)]
         public void Subscribe<T>() { }
+        public void Subscribe(System.Type eventType, NServiceBus.SubscribeOptions options) { }
         [System.ObsoleteAttribute("Please use `IBus.Unsubscribe(Type messageType)` instead. Will be removed in versi" +
             "on 7.0.0.", true)]
         public void Unsubscribe(System.Type messageType) { }
         [System.ObsoleteAttribute("Please use `IBus.Unsubscribe<T>()` instead. Will be removed in version 7.0.0.", true)]
         public void Unsubscribe<T>() { }
+        public void Unsubscribe(System.Type eventType, NServiceBus.UnsubscribeOptions options) { }
     }
 }
 namespace NServiceBus.Unicast.Messages
@@ -2717,6 +2756,7 @@ namespace NServiceBus.Unicast.Queuing
 }
 namespace NServiceBus.Unicast.Routing
 {
+    [System.ObsoleteAttribute("No longer used, safe to remove. Will be removed in version 7.0.0.", true)]
     public class StaticMessageRouter
     {
         public StaticMessageRouter(System.Collections.Generic.IEnumerable<System.Type> knownMessages) { }

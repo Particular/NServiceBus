@@ -12,11 +12,12 @@
         {
             var saga = new TestSagaData { Id = Guid.NewGuid() };
             var persister = InMemoryPersisterBuilder.Build<TestSaga>();
-            var metadata = SagaMetadata.Create(typeof(TestSaga));
-            persister.Save(metadata, saga);
-            Assert.NotNull(persister.Get<TestSagaData>(metadata, saga.Id));
-            persister.Complete(metadata, saga);
-            Assert.Null(persister.Get<TestSagaData>(metadata, saga.Id));
+            var options = new SagaPersistenceOptions(SagaMetadata.Create(typeof(TestSaga)));
+
+            persister.Save(saga, options);
+            Assert.NotNull(persister.Get<TestSagaData>(saga.Id, options));
+            persister.Complete(saga, options);
+            Assert.Null(persister.Get<TestSagaData>(saga.Id, options));
         }
     }
 }

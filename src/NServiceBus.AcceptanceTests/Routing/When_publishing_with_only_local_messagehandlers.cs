@@ -1,10 +1,10 @@
-﻿namespace NServiceBus.AcceptanceTests.PubSub
+﻿namespace NServiceBus.AcceptanceTests.Routing
 {
     using System;
-    using AcceptanceTesting;
-    using EndpointTemplates;
+    using NServiceBus.AcceptanceTesting;
+    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_publishing_with_only_local_messagehandlers : NServiceBusAcceptanceTest
     {

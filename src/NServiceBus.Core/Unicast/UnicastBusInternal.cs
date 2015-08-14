@@ -16,7 +16,6 @@ namespace NServiceBus.Unicast
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Settings;
     using NServiceBus.Transports;
-    using NServiceBus.Unicast.Routing;
     using NServiceBus.Unicast.Transport;
 
     /// <summary>
@@ -33,12 +32,8 @@ namespace NServiceBus.Unicast
             CriticalError criticalError,
             IMessageMapper messageMapper, 
             IBuilder builder, 
-            Configure configure, 
-            IManageSubscriptions subscriptionManager, 
             ReadOnlySettings settings,
-            TransportDefinition transportDefinition,
-            IDispatchMessages messageSender,
-            StaticMessageRouter messageRouter)
+            IDispatchMessages dispatcher)
         {
             this.executor = executor;
             this.criticalError = criticalError;
@@ -49,12 +44,8 @@ namespace NServiceBus.Unicast
                 contextStacker,
                 messageMapper, 
                 builder, 
-                configure,
-                subscriptionManager, 
                 settings,
-                transportDefinition,
-                messageSender,
-                messageRouter);
+                dispatcher);
         }
 
         /// <summary>

@@ -495,7 +495,7 @@ namespace NServiceBus.Unicast
             TreatAsErrorFromVersion = "6.0")]
         public IMessageContext CurrentMessageContext
         {
-            get {  throw new NotImplementedException(); } 
+            get { throw new NotImplementedException(); }
         }
 
         [ObsoleteEx(
@@ -525,10 +525,10 @@ namespace NServiceBus.Unicast
             throw new NotImplementedException();
         }
 
-         [ObsoleteEx(
-            ReplacementTypeOrMember = "Send(object message, SendOptions options)",
-            RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0")]
+        [ObsoleteEx(
+           ReplacementTypeOrMember = "Send(object message, SendOptions options)",
+           RemoveInVersion = "7.0",
+           TreatAsErrorFromVersion = "6.0")]
         public ICallback Send(Address address, string correlationId, object message)
         {
             throw new NotImplementedException();
@@ -650,6 +650,16 @@ namespace NServiceBus.Unicast
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public void Reply<T>(Action<T> messageConstructor, NServiceBus.ReplyOptions options)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Subscribe(Type eventType, SubscribeOptions options)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Unsubscribe(Type eventType, UnsubscribeOptions options)
         {
             throw new NotImplementedException();
         }
@@ -909,5 +919,53 @@ namespace NServiceBus.Unicast.Subscriptions
         public string SubscriberReturnAddress { get; set; }
 
         public string MessageType { get; set; }
+    }
+}
+
+
+namespace NServiceBus.Unicast.Routing
+{
+    using System;
+    using System.Collections.Generic;
+
+    [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "No longer used, safe to remove")]
+    public class StaticMessageRouter
+    {
+        public StaticMessageRouter(IEnumerable<Type> knownMessages)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<string> GetDestinationFor(Type messageType)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RegisterEventRoute(Type eventType, string endpointAddress)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RegisterMessageRoute(Type messageType, string endpointAddress)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "config.AutoSubscribe().AutoSubscribePlainMessages()")]
+        public bool SubscribeToPlainMessages { get; set; }
+    }
+}
+
+namespace NServiceBus.AutomaticSubscriptions.Config
+{
+    using System;
+
+    public partial class AutoSubscribeSettings
+    {
+        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", Message = "Transports with support for centralized pubsub will default this to true. Can safely be removed")]
+        public void DoNotRequireExplicitRouting()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

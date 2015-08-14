@@ -7,12 +7,12 @@
     [TestFixture]
     class When_completing_a_saga_with_unique_property_with_InMemory_persister
     {
-        SagaMetadata metadata;
+        SagaPersistenceOptions options;
 
         [SetUp]
         public void SetUp()
         {
-            metadata = SagaMetadata.Create(typeof(SagaWithUniqueProperty));
+            options = new SagaPersistenceOptions(SagaMetadata.Create(typeof(SagaWithUniqueProperty)));
         }
 
         [Test]
@@ -21,10 +21,10 @@
             var saga = new SagaWithUniquePropertyData { Id = Guid.NewGuid(), UniqueString = "whatever" };
 
             var persister = InMemoryPersisterBuilder.Build<SagaWithUniqueProperty>();
-            persister.Save(metadata, saga);
-            Assert.NotNull(persister.Get<SagaWithUniquePropertyData>(metadata, saga.Id));
-            persister.Complete(metadata, saga);
-            Assert.Null(persister.Get<SagaWithUniquePropertyData>(metadata, saga.Id));
+            persister.Save(saga, options);
+            Assert.NotNull(persister.Get<SagaWithUniquePropertyData>(saga.Id, options));
+            persister.Complete(saga, options);
+            Assert.Null(persister.Get<SagaWithUniquePropertyData>(saga.Id, options));
         }
     }
 }

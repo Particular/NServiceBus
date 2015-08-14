@@ -8,32 +8,6 @@ namespace NServiceBus
     public partial interface IBus : ISendOnlyBus
     {
         /// <summary>
-        /// Subscribes to receive published messages of the specified type.
-        /// This method is only necessary if you turned off auto-subscribe.
-        /// </summary>
-        /// <param name="messageType">The type of message to subscribe to.</param>
-        void Subscribe(Type messageType);
-
-        /// <summary>
-        /// Subscribes to receive published messages of type T.
-        /// This method is only necessary if you turned off auto-subscribe.
-        /// </summary>
-        /// <typeparam name="T">The type of message to subscribe to.</typeparam>
-        void Subscribe<T>();
-
-        /// <summary>
-        /// Unsubscribes from receiving published messages of the specified type.
-        /// </summary>
-        /// <param name="messageType">The type of message to subscribe to.</param>
-        void Unsubscribe(Type messageType);
-
-        /// <summary>
-        /// Unsubscribes from receiving published messages of the specified type.
-        /// </summary>
-        /// <typeparam name="T">The type of message to unsubscribe from.</typeparam>
-        void Unsubscribe<T>();
-
-        /// <summary>
         /// Sends the message to the endpoint which sent the message currently being handled on this thread.
         /// </summary>
         /// <param name="message">The message to send.</param>
@@ -47,6 +21,22 @@ namespace NServiceBus
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
         /// <param name="options">Options for this reply.</param>
         void Reply<T>(Action<T> messageConstructor, ReplyOptions options);
+
+        /// <summary>
+        /// Subscribes to receive published messages of the specified type.
+        /// This method is only necessary if you turned off auto-subscribe.
+        /// </summary>
+        /// <param name="eventType">The type of event to subscribe to.</param>
+        /// <param name="options">Options for the subscribe.</param>
+        void Subscribe(Type eventType, SubscribeOptions options);
+
+        /// <summary>
+        /// Subscribes to receive published messages of the specified type.
+        /// This method is only necessary if you turned off auto-subscribe.
+        /// </summary>
+        /// <param name="eventType">The type of event to unsubscribe from.</param>
+        /// <param name="options">Options for the unsubscribe operation.</param>
+        void Unsubscribe(Type eventType, UnsubscribeOptions options);
 
         /// <summary>
         /// Moves the message being handled to the back of the list of available 

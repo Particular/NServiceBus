@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using NServiceBus.Extensibility;
     using NServiceBus.InMemory.Outbox;
     using NUnit.Framework;
     using Outbox;
@@ -18,13 +19,13 @@
 
             var messageId = "myId";
     
-            storage.Store(messageId,new List<TransportOperation>{new TransportOperation("x",null,null,null)});
+            storage.Store(messageId,new List<TransportOperation>{new TransportOperation("x",null,null,null)}, new OutboxStorageOptions(new ContextBag()));
 
             OutboxMessage message;
 
-            storage.SetAsDispatched(messageId);
+            storage.SetAsDispatched(messageId, new OutboxStorageOptions(new ContextBag()));
 
-            storage.TryGet(messageId, out message);
+            storage.TryGet(messageId, new OutboxStorageOptions(new ContextBag()), out message);
 
 
             Assert.False(message.TransportOperations.Any());
@@ -38,13 +39,13 @@
 
             var messageId = "myId";
 
-            storage.Store(messageId, new List<TransportOperation> { new TransportOperation("x", null, null, null) });
+            storage.Store(messageId, new List<TransportOperation> { new TransportOperation("x", null, null, null) }, new OutboxStorageOptions(new ContextBag()));
 
             OutboxMessage message;
 
             storage.RemoveEntriesOlderThan(DateTime.UtcNow);
 
-            Assert.True(storage.TryGet(messageId, out message));
+            Assert.True(storage.TryGet(messageId, new OutboxStorageOptions(new ContextBag()), out message));
         }
 
 
@@ -57,19 +58,19 @@
 
             var beforeStore = DateTime.UtcNow;
 
-            storage.Store(messageId, new List<TransportOperation> { new TransportOperation("x", null, null, null) });
+            storage.Store(messageId, new List<TransportOperation> { new TransportOperation("x", null, null, null) }, new OutboxStorageOptions(new ContextBag()));
 
             OutboxMessage message;
 
-            storage.SetAsDispatched(messageId);
+            storage.SetAsDispatched(messageId, new OutboxStorageOptions(new ContextBag()));
 
             storage.RemoveEntriesOlderThan(beforeStore);
             
-            Assert.True(storage.TryGet(messageId, out message));
+            Assert.True(storage.TryGet(messageId, new OutboxStorageOptions(new ContextBag()), out message));
 
             storage.RemoveEntriesOlderThan(DateTime.UtcNow);
 
-            Assert.False(storage.TryGet(messageId, out message));
+            Assert.False(storage.TryGet(messageId, new OutboxStorageOptions(new ContextBag()), out message));
         }
     }
 }

@@ -14,14 +14,14 @@
             var saga2 = new SagaWithUniquePropertyData { Id = Guid.NewGuid(), UniqueString = "whatever" };
 
             var persister = InMemoryPersisterBuilder.Build<SagaWithUniqueProperty>();
-            var metadata = SagaMetadata.Create(typeof(SagaWithUniqueProperty));
+            var options = new SagaPersistenceOptions(SagaMetadata.Create(typeof(SagaWithUniqueProperty)));
 
-            persister.Save(metadata, saga1);
-            persister.Complete(metadata, saga1);
-            persister.Save(metadata, saga2);
-            persister.Complete(metadata, saga2);
-            persister.Save(metadata, saga1);
-            persister.Complete(metadata, saga1);
+            persister.Save(saga1, options);
+            persister.Complete(saga1, options);
+            persister.Save(saga2, options);
+            persister.Complete(saga2, options);
+            persister.Save(saga1, options);
+            persister.Complete(saga1, options);
         }
     }
 }

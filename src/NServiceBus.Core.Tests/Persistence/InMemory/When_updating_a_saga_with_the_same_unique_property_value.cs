@@ -16,11 +16,11 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
                     UniqueString = "whatever"
                 };
             var persister = InMemoryPersisterBuilder.Build<SagaWithUniqueProperty>();
-            var metadata = SagaMetadata.Create(typeof(SagaWithUniqueProperty));
+            var options = new SagaPersistenceOptions(SagaMetadata.Create(typeof(SagaWithUniqueProperty)));
 
-            persister.Save(metadata, saga1);
-            saga1 = persister.Get<SagaWithUniquePropertyData>(metadata, saga1.Id);
-            persister.Update(metadata, saga1);
+            persister.Save(saga1, options);
+            saga1 = persister.Get<SagaWithUniquePropertyData>(saga1.Id, options);
+            persister.Update(saga1, options);
         }
     }
 }
