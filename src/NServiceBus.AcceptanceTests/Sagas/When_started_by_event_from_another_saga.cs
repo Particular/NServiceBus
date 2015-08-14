@@ -115,7 +115,7 @@
 
                 public void Handle(SomethingHappenedEvent message)
                 {
-
+                    Data.DataId = message.DataId;
                     //Request a timeout
                     RequestTimeout<Saga2Timeout>(TimeSpan.FromSeconds(5));
                 }
@@ -128,6 +128,7 @@
 
                 public class Saga2Data : ContainSagaData
                 {
+                    public virtual Guid DataId { get; set; }
                 }
 
                 public class Saga2Timeout
@@ -136,6 +137,7 @@
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Saga2Data> mapper)
                 {
+                    mapper.ConfigureMapping<SomethingHappenedEvent>(m => m.DataId).ToSaga(s => s.DataId);
                 }
             }
         }

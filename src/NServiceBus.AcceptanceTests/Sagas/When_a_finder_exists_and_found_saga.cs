@@ -60,6 +60,7 @@
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
                 {
+                    // not required because of CustomFinder
                 }
 
                 public class SagaData : ContainSagaData

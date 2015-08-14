@@ -7,10 +7,11 @@
     using NUnit.Framework;
     using Saga;
 
-    public class Issue_1819 : NServiceBusAcceptanceTest
+    public class when_receiving_multiple_timeouts : NServiceBusAcceptanceTest
     {
+        // realted to NSB issue #1819
         [Test]
-        public void Run()
+        public void It_should_not_invoke_SagaNotFound_handler()
         {
             var context = new Context { Id = Guid.NewGuid() };
 
@@ -51,6 +52,8 @@
                 {
                     if (message.ContextId != Context.Id) return;
 
+                    Data.ContextId = message.ContextId;
+
                     RequestTimeout(TimeSpan.FromSeconds(5), new Saga1Timeout { ContextId = Context.Id });
                     RequestTimeout(TimeSpan.FromMilliseconds(10), new Saga2Timeout { ContextId = Context.Id });
                 }
@@ -71,10 +74,13 @@
 
                 public class Saga1Data : ContainSagaData
                 {
+                    public virtual Guid ContextId { get; set; }
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Saga1Data> mapper)
                 {
+                    mapper.ConfigureMapping<StartSaga1>(m => m.ContextId)
+                        .ToSaga(s => s.Id);
                 }
             }
 

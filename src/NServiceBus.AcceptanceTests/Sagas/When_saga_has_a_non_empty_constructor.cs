@@ -18,7 +18,7 @@
                     .WithEndpoint<SagaEndpoint>(b => b.Given(bus =>
                         {
                             bus.SendLocal(new StartSagaMessage { SomeId = IdThatSagaIsCorrelatedOn });
-                            bus.SendLocal(new OtherMessage { SomeId = IdThatSagaIsCorrelatedOn });                                    
+                            bus.SendLocal(new OtherMessage { SomeId = IdThatSagaIsCorrelatedOn });
                         }))
                     .Done(c => c.SecondMessageReceived)
                     .Repeat(r => r.For(Persistence.Default))
@@ -36,7 +36,7 @@
             public SagaEndpoint()
             {
                 EndpointSetup<DefaultServer>(
-                    
+
                     builder => builder.Transactions().DoNotWrapHandlersExecutionInATransactionScope());
             }
 
@@ -46,7 +46,7 @@
                 Context context;
 
                 // ReSharper disable once UnusedParameter.Local
-                public TestSaga(IBus bus,Context context)
+                public TestSaga(IBus bus, Context context)
                 {
                     this.context = context;
                 }
@@ -58,8 +58,10 @@
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
                 {
+                    mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
+                        .ToSaga(s => s.SomeId);
                     mapper.ConfigureMapping<OtherMessage>(m => m.SomeId)
-                        .ToSaga(s=>s.SomeId);
+                        .ToSaga(s => s.SomeId);
                 }
 
                 public void Handle(OtherMessage message)

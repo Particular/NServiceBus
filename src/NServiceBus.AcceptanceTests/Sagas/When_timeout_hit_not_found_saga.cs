@@ -19,7 +19,6 @@
 
 
             Assert.False(context.NotFoundHandlerCalledForTimeout);
-
         }
 
         public class Context : ScenarioContext
@@ -44,15 +43,19 @@
 
                 public void Handle(StartSaga message)
                 {
+                    Data.DataId = message.DataId;
+
                     //this will cause the message to be delivered right away
                     RequestTimeout<MyTimeout>(TimeSpan.Zero);
-                    Bus.SendLocal(new SomeOtherMessage());
+                    Bus.SendLocal(new SomeOtherMessage { DataId = Guid.NewGuid() });
 
                     MarkAsComplete();
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper)
                 {
+                    mapper.ConfigureMapping<StartSaga>(m => m.DataId).ToSaga(s => s.DataId);
+                    mapper.ConfigureMapping<SomeOtherMessage>(m => m.DataId).ToSaga(s => s.DataId);
                 }
 
                 public class MySagaData : ContainSagaData
@@ -79,17 +82,22 @@
 
                 public void Handle(SomeOtherMessage message)
                 {
-
                 }
 
                 public void Timeout(MyTimeout state)
                 {
-
                 }
             }
         }
 
-        public class StartSaga : IMessage { }
-        public class SomeOtherMessage : IMessage { }
+        public class StartSaga : IMessage
+        {
+            public Guid DataId { get; set; }
+        }
+
+        public class SomeOtherMessage : IMessage
+        {
+            public Guid DataId { get; set; }
+        }
     }
 }

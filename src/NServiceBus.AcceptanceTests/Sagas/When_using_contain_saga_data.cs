@@ -7,7 +7,6 @@
     using NServiceBus.Saga;
     using NUnit.Framework;
 
-    // Repro for #SB-191
     public class When_using_contain_saga_data : NServiceBusAcceptanceTest
     {
         [Test]

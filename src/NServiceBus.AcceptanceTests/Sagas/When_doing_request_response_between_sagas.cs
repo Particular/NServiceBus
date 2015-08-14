@@ -32,7 +32,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
 
                 public void Handle(InitiateRequestingSaga message)
                 {
-                    Data.CorrIdForResponse = Guid.NewGuid(); //wont be needed in the future
+                    Data.CorrIdForResponse = message.Id;
 
                     Bus.SendLocal(new RequestToRespondingSaga
                     {
@@ -48,8 +48,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestingSagaData> mapper)
                 {
-                    //if this line is un-commented the timeout and secondary handler tests will start to fail
-                    // for more info and discussion see TBD
+                    mapper.ConfigureMapping<InitiateRequestingSaga>(m => m.Id).ToSaga(s => s.CorrIdForResponse);
                     mapper.ConfigureMapping<ResponseFromOtherSaga>(m => m.SomeCorrelationId).ToSaga(s => s.CorrIdForResponse);
                 }
                 public class RequestingSagaData : ContainSagaData
@@ -92,6 +91,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RespondingSagaData> mapper)
                 {
+                    mapper.ConfigureMapping<RequestToRespondingSaga>(m => m.SomeIdThatTheResponseSagaCanCorrelateBackToUs).ToSaga(s => s.CorrIdForRequest);
                     //this line is just needed so we can test the non initiating handler case
                     mapper.ConfigureMapping<SendReplyFromNonInitiatingHandler>(m => m.SagaIdSoWeCanCorrelate).ToSaga(s => s.Id);
                 }
@@ -125,7 +125,15 @@ namespace NServiceBus.AcceptanceTests.Sagas
             }
         }
 
-        public class InitiateRequestingSaga : ICommand { }
+        public class InitiateRequestingSaga : ICommand
+        {
+            public InitiateRequestingSaga()
+            {
+                Id = Guid.NewGuid();
+            }
+
+            public Guid Id { get; set; }
+        }
 
         public class RequestToRespondingSaga : ICommand
         {
