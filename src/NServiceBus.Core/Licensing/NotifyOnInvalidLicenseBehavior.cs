@@ -2,6 +2,7 @@
 {
     using System;
     using System.Diagnostics;
+    using System.Threading.Tasks;
     using Logging;
     using NServiceBus.Audit;
     using Pipeline;
@@ -13,11 +14,11 @@
             this.licenseExpired = licenseExpired;
         }
 
-        public override void Invoke(AuditContext context, Action next)
+        public override async Task Invoke(Context context, Func<Task> next)
         {
             context.AddAuditData(Headers.HasLicenseExpired,licenseExpired.ToString().ToLower());
 
-            next();
+            await next().ConfigureAwait(false);
 
             if (licenseExpired && Debugger.IsAttached)
             {

@@ -1,10 +1,11 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing
 {
     using System;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
+    using System.Threading.Tasks;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
+    using ScenarioDescriptors;
 
     public class When_publishing_with_only_local_messagehandlers : NServiceBusAcceptanceTest
     {
@@ -26,7 +27,11 @@
             Scenario.Define<Context>()
                        .WithEndpoint<CentralizedStoragePublisher>(b =>
                        {
-                           b.Given(bus => bus.Subscribe<EventHandledByLocalEndpoint>());
+                           b.Given(bus =>
+                           {
+                               bus.Subscribe<EventHandledByLocalEndpoint>();
+                               return Task.FromResult(true);
+                           });
                            b.When(c => c.EndpointsStarted, (bus, context) => bus.Publish(new EventHandledByLocalEndpoint()));
                        })
                        .Done(c => c.CatchAllHandlerGotTheMessage)

@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.Hosting;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
@@ -18,13 +19,13 @@
             this.endpointName = endpointName;
         }
 
-        public override void Invoke(OutgoingContext context, Action next)
+        public override Task Invoke(OutgoingContext context, Func<Task> next)
         {
             context.SetHeader(Headers.OriginatingMachine, RuntimeEnvironment.MachineName);
             context.SetHeader(Headers.OriginatingEndpoint, endpointName);
             context.SetHeader(Headers.OriginatingHostId, hostInformation.HostId.ToString("N"));
 
-            next();
+            return next();
         }
     }
 }

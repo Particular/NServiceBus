@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.Audit;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
@@ -14,9 +15,9 @@
             this.auditAddress = auditAddress;
         }
 
-        public override void Invoke(Context context, Action next)
+        public override async Task Invoke(Context context, Func<Task> next)
         {
-            next();
+            await next();
 
             context.GetPhysicalMessage().RevertToOriginalBodyIfNeeded();
 
@@ -27,7 +28,7 @@
             context.Set(processedMessage);
             context.Set<RoutingStrategy>(new DirectToTargetDestination(auditAddress));
 
-            auditPipeline.Invoke(auditContext);
+            await auditPipeline.Invoke(auditContext);
         }
 
         PipelineBase<AuditContext> auditPipeline;

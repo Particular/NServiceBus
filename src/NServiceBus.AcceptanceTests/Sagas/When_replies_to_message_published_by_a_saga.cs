@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
+    using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
     using Features;
@@ -29,6 +30,8 @@
                     {
                         context.Subscribed = true;
                     }
+
+                    return Task.FromResult(true);
                 }))
                 .Done(c => c.DidSagaReplyMessageGetCorrelated)
                 .Repeat(r => r.For(Transports.Default))

@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using NServiceBus.Logging;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
@@ -26,7 +27,7 @@
             this.sagaMetadataCollection = sagaMetadataCollection;
         }
 
-        public override void Invoke(Context context, Action next)
+        public override async Task Invoke(Context context, Func<Task> next)
         {
             currentContext = context;
 
@@ -36,7 +37,7 @@
 
             if (saga == null)
             {
-                next();
+                await next().ConfigureAwait(false);
                 return;
             }
 
@@ -84,7 +85,7 @@
                 context.MessageHandler.Invocation = messageHandlerRegistry.InvokeTimeout;
             }
 
-            next();
+            await next().ConfigureAwait(false);
 
             if (sagaInstanceState.NotFound)
             {

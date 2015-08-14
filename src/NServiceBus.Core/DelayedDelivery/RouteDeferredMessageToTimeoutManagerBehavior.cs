@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.DelayedDelivery;
     using NServiceBus.DeliveryConstraints;
     using NServiceBus.Performance.TimeToBeReceived;
@@ -17,7 +18,7 @@ namespace NServiceBus
         }
 
 
-        public override void Invoke(DispatchContext context, Action next)
+        public override Task Invoke(DispatchContext context, Func<Task> next)
         {
             DelayedDeliveryConstraint constraint;
 
@@ -56,7 +57,7 @@ namespace NServiceBus
                 context.RemoveDeliveryConstaint(constraint);
             }
 
-            next();
+            return next();
         }
 
         readonly string timeoutManagerAddress;

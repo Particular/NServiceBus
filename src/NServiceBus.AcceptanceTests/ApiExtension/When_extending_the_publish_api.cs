@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.ApiExtension
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.Routing;
@@ -24,7 +25,7 @@
 
                             options.GetExtensions().Set(new Publisher.PublishExtensionBehavior.Context { SomeProperty = "ItWorks" });
 
-                            bus.Publish(new MyEvent(), options);
+                            return bus.Publish(new MyEvent(), options);
                         })
                      )
                     .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
@@ -33,6 +34,8 @@
 
                             if (context.HasNativePubSubSupport)
                                 context.Subscriber1Subscribed = true;
+
+                            return Task.FromResult(true);
                         }))
                     .Done(c => c.Subscriber1GotTheEvent)
                     .Repeat(r => r.For(Transports.Default))
@@ -64,7 +67,7 @@
 
             public class PublishExtensionBehavior : Behavior<OutgoingContext>
             {
-                public override void Invoke(OutgoingContext context, Action next)
+                public override Task Invoke(OutgoingContext context, Func<Task> next)
                 {
                     Context data;
 
@@ -77,7 +80,7 @@
                         Assert.Fail("Expected to find the data!");
                     }
 
-                    next();
+                    return next();
                 }
 
                public  class Context

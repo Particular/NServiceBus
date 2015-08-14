@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.ApiExtension
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Extensibility;
@@ -24,7 +25,7 @@
                         options.GetExtensions().Set(new SendOptionsExtensions.TestingSendOptionsExtensionBehavior.Context { SomeValue = "I did it!" });
                         options.RouteToLocalEndpointInstance();
 
-                        bus.Send(new SendMessage(), options);
+                        return bus.Send(new SendMessage(), options);
                     }))
                     .Done(c => c.WasCalled)
                     .Run();
@@ -60,7 +61,7 @@
 
             public class TestingSendOptionsExtensionBehavior : Behavior<OutgoingContext>
             {
-                public override void Invoke(OutgoingContext context, Action next)
+                public override Task Invoke(OutgoingContext context, Func<Task> next)
                 {
                     Context data;
                     if (context.TryGet(out data))
@@ -68,7 +69,7 @@
                         context.UpdateMessageInstance(new SendMessage { Secret = data.SomeValue });
                     }
 
-                    next();
+                    return next();
                 }
 
                 public class Context

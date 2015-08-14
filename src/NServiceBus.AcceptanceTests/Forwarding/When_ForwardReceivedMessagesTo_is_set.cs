@@ -14,10 +14,7 @@
                 var context = new Context();
 
                 Scenario.Define(context)
-                    .WithEndpoint<EndpointThatForwards>(b => b.Given((bus, c) =>
-                    {
-                        bus.SendLocal(new MessageToForward());
-                    }))
+                    .WithEndpoint<EndpointThatForwards>(b => b.Given((bus, c) => bus.SendLocal(new MessageToForward())))
                     .WithEndpoint<ForwardReceiver>()
                     .Done(c => c.GotForwardedMessage)
                     .Run();

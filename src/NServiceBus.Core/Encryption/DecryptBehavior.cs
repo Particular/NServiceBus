@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.Encryption;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
@@ -14,17 +15,17 @@ namespace NServiceBus
         {
             this.messageMutator = messageMutator;
         }
-        public override void Invoke(Context context, Action next)
+        public override async Task Invoke(Context context, Func<Task> next)
         {
             if (TransportMessageExtensions.IsControlMessage(context.Headers))
             {
-                next();
+                await next().ConfigureAwait(false);
                 return;
             }
             var current = context.GetLogicalMessage().Instance;
             current = messageMutator.MutateIncoming(current);
             context.GetLogicalMessage().UpdateMessageInstance(current);
-            next();
+            await next().ConfigureAwait(false);
         }
 
         public class DecryptRegistration : RegisterStep

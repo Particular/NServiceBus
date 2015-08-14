@@ -23,7 +23,7 @@ namespace NServiceBus.Pipeline
                 Logger.DebugFormat("Starting {0} pipeline", pipeline.Id);
                 try
                 {
-                    await pipeline.Start();
+                    await pipeline.Start().ConfigureAwait(false);
                     Logger.InfoFormat("Started {0} pipeline", pipeline.Id);
                 }
                 catch (Exception ex)
@@ -39,7 +39,7 @@ namespace NServiceBus.Pipeline
             foreach (var pipeline in pipelines)
             {
                 Logger.DebugFormat("Stopping {0} pipeline", pipeline.Id);
-                await pipeline.Stop();
+                await pipeline.Stop().ConfigureAwait(false);
                 Logger.InfoFormat("Stopped {0} pipeline", pipeline.Id);
             }
         }

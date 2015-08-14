@@ -117,7 +117,7 @@
 
                 Statistics.StartTime = DateTime.Now;
 
-                startableBus.Start();
+                startableBus.StartAsync();
 
                 while (Interlocked.Read(ref Statistics.NumberOfMessages) < numberOfMessages)
                     Thread.Sleep(1000);

@@ -49,9 +49,9 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IStartableBus.Start()"/>.
+        /// <see cref="IStartableBus.StartAsync"/>
         /// </summary>
-        public IBus Start()
+        public async Task<IBus> StartAsync()
         {
             LicenseManager.PromptUserForLicenseIfTrialHasExpired();
 
@@ -60,7 +60,7 @@ namespace NServiceBus.Unicast
                 return this;
             }
 
-            lock (startLocker)
+            using (await startLocker.LockAsync().ConfigureAwait(false))
             {
                 if (started)
                 {
@@ -72,7 +72,7 @@ namespace NServiceBus.Unicast
                 executor.Start(pipelines.Select(x => x.Id).ToArray());
 
                 pipelineCollection = new PipelineCollection(pipelines);
-                pipelineCollection.Start().GetAwaiter().GetResult();
+                await pipelineCollection.Start().ConfigureAwait(false);
 
                 started = true;
             }
@@ -187,7 +187,7 @@ namespace NServiceBus.Unicast
 
 
         volatile bool started;
-        object startLocker = new object();
+        AsyncLock startLocker = new AsyncLock();
 
         static ILog Log = LogManager.GetLogger<UnicastBus>();
 

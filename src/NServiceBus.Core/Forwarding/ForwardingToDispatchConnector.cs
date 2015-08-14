@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.Forwarding;
     using NServiceBus.Pipeline;
     using NServiceBus.TransportDispatch;
@@ -8,9 +9,9 @@ namespace NServiceBus
 
     class ForwardingToDispatchConnector:StageConnector<ForwardingContext,DispatchContext>
     {
-        public override void Invoke(ForwardingContext context, Action<DispatchContext> next)
+        public override Task Invoke(ForwardingContext context, Func<DispatchContext, Task> next)
         {
-            next(new DispatchContext(context.Get<OutgoingMessage>(),context));
+            return next(new DispatchContext(context.Get<OutgoingMessage>(),context));
         }
     }
 }

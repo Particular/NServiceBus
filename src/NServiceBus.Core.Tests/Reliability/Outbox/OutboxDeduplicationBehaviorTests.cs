@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Threading.Tasks;
     using System.Transactions;
     using NServiceBus.Core.Tests.Timeout;
     using NServiceBus.Outbox;
@@ -16,26 +17,26 @@
     {
 
         [Test]
-        public void Should_shortcut_the_pipeline_if_existing_message_is_found()
+        public async void Should_shortcut_the_pipeline_if_existing_message_is_found()
         {
             fakeOutbox.ExistingMessage = new OutboxMessage("id");
 
             var context = new PhysicalMessageProcessingStageBehavior.Context(new TransportReceiveContext(new IncomingMessage("id", new Dictionary<string, string>(), new MemoryStream()), null));
 
-            Invoke(context);
+            await Invoke(context);
 
             Assert.Null(fakeOutbox.StoredMessage);
         }
 
         [Test]
-        public void Should_not_dispatch_the_message_if_handle_current_message_later_was_called()
+        public async void Should_not_dispatch_the_message_if_handle_current_message_later_was_called()
         {
             var context = new PhysicalMessageProcessingStageBehavior.Context(new TransportReceiveContext(new IncomingMessage("id", new Dictionary<string, string>(), new MemoryStream()), null))
             {
                 handleCurrentMessageLaterWasCalled = true
             };
 
-            Invoke(context);
+            await Invoke(context);
 
             Assert.False(fakeOutbox.WasDispatched);
         }
@@ -52,14 +53,16 @@
             }, new FakeMessageSender(),new DefaultDispatchStrategy());
         }
 
-        void Invoke(PhysicalMessageProcessingStageBehavior.Context context, bool shouldAbort = false)
+        Task Invoke(PhysicalMessageProcessingStageBehavior.Context context, bool shouldAbort = false)
         {
-            behavior.Invoke(context, () =>
+            return behavior.Invoke(context, () =>
             {
                 if (shouldAbort)
                 {
                     Assert.Fail("Pipeline should be aborted");
                 }
+
+                return Task.FromResult(true);
             });
         }
 

@@ -17,7 +17,7 @@
         protected PipelineInfo PipelineInfo { get; private set; }
 
         /// <inheritdoc />
-        public abstract void Invoke(TFrom context, Action<TTo> next);
+        public abstract Task Invoke(TFrom context, Func<TTo, Task> next);
 
         /// <inheritdoc />
         public void Initialize(PipelineInfo pipelineInfo)

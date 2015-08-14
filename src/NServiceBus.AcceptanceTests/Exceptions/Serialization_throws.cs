@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Exceptions
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Config;
@@ -71,10 +72,10 @@
 
             class CorruptionBehavior : PhysicalMessageProcessingStageBehavior
             {
-                public override void Invoke(Context context, Action next)
+                public override Task Invoke(Context context, Func<Task> next)
                 {
                     context.GetPhysicalMessage().Body[1]++;
-                    next();
+                    return next();
                 }
             }
 

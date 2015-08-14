@@ -3,6 +3,7 @@
     using System;
     using System.Diagnostics;
     using System.Linq;
+    using System.Threading.Tasks;
     using Logging;
     using NServiceBus.Pipeline;
     using NServiceBus.Unicast.Subscriptions;
@@ -15,7 +16,7 @@
             this.subscriptionStorage = subscriptionStorage;
         }
 
-        public override void Invoke(Context context, Action next)
+        public override async Task Invoke(Context context, Func<Task> next)
         {
             var transportMessage = context.GetPhysicalMessage();
             var messageTypeString = GetSubscriptionMessageTypeFrom(transportMessage);
@@ -24,7 +25,7 @@
 
             if (string.IsNullOrEmpty(messageTypeString) && intent != MessageIntentEnum.Subscribe && intent != MessageIntentEnum.Unsubscribe)
             {
-                next();
+                await next().ConfigureAwait(false);
                 return;
             }
 

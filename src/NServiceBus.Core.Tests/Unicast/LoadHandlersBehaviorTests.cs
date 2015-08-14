@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Unicast.Messages;
     using NUnit.Framework;
@@ -17,7 +18,7 @@
             var context = new LogicalMessageProcessingStageBehavior.Context(
                 new LogicalMessage(new MessageMetadata(typeof(string)),null, null),new Dictionary<string, string>(),typeof(MyMessage),  null);
 
-            Assert.Throws<InvalidOperationException>(() => behavior.Invoke(context, c => { }));
+            Assert.Throws<InvalidOperationException>(async () => await behavior.Invoke(context, c => Task.FromResult(true)));
         }
 
         class MyMessage { }

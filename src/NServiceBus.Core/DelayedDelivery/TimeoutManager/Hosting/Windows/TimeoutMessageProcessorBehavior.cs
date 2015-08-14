@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.DeliveryConstraints;
     using NServiceBus.Extensibility;
@@ -22,21 +23,21 @@ namespace NServiceBus
 
         public string EndpointName { get; set; }
 
-        public override void Terminate(PhysicalMessageProcessingStageBehavior.Context context)
+        public override async Task Terminate(PhysicalMessageProcessingStageBehavior.Context context)
         {
             var message = context.GetPhysicalMessage();         
             //dispatch request will arrive at the same input so we need to make sure to call the correct handler
             if (message.Headers.ContainsKey(TimeoutIdToDispatchHeader))
             {
-                HandleBackwardsCompatibility(message);
+                await HandleBackwardsCompatibility(message);
             }
             else
             {
-                HandleInternal(message);
+                await HandleInternal(message);
             }
         }
 
-        void HandleBackwardsCompatibility(TransportMessage message)
+        Task HandleBackwardsCompatibility(TransportMessage message)
         {
             var timeoutId = message.Headers[TimeoutIdToDispatchHeader];
 
@@ -53,10 +54,10 @@ namespace NServiceBus
             }
 
             TimeoutManager.RemoveTimeout(timeoutId);
-            MessageSender.Dispatch(new OutgoingMessage(message.Id,message.Headers, message.Body), new DispatchOptions(destination,new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), new ContextBag()));
+            return MessageSender.Dispatch(new OutgoingMessage(message.Id,message.Headers, message.Body), new DispatchOptions(destination,new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), new ContextBag()));
         }
 
-        void HandleInternal(TransportMessage message)
+        Task HandleInternal(TransportMessage message)
         {
             var sagaId = Guid.Empty;
 
@@ -103,6 +104,8 @@ namespace NServiceBus
 
                 TimeoutManager.PushTimeout(data);
             }
+
+            return Task.FromResult(true);
         }
 
         const string TimeoutDestinationHeader = "NServiceBus.Timeout.Destination";

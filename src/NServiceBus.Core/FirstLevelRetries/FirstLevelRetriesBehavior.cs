@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using NServiceBus.Features;
+    using System.Threading.Tasks;
     using NServiceBus.FirstLevelRetries;
     using NServiceBus.Pipeline;
     using NServiceBus.Settings;
@@ -29,11 +30,11 @@ namespace NServiceBus
             this.notifications = notifications;
         }
 
-        public override void Invoke(Context context, Action next)
+        public override async Task Invoke(Context context, Func<Task> next)
         {
             try
             {
-                next();
+                await next().ConfigureAwait(false);
             }
             catch (MessageDeserializationException)
             {

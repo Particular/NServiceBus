@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Pipeline
 {
+    using System.Threading.Tasks;
     using System.Transactions;
     using NUnit.Framework;
 
@@ -7,7 +8,7 @@
     public class HandlerTransactionScopeWrapperBehaviorTests
     {
         [Test]
-        public void ShouldNotInterfereWithExistingScope()
+        public async void ShouldNotInterfereWithExistingScope()
         {
             var behavior = new HandlerTransactionScopeWrapperBehavior(new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted });
 
@@ -16,16 +17,20 @@
                 IsolationLevel = IsolationLevel.Serializable
             }, TransactionScopeAsyncFlowOption.Enabled))
             {
-                behavior.Invoke(null, () => { });
+                await behavior.Invoke(null, () => Task.FromResult(true));
             }
         }
 
         [Test]
-        public void ShouldWrapInnerBehaviorsIfNoAmbientExists()
+        public async void ShouldWrapInnerBehaviorsIfNoAmbientExists()
         {
             var behavior = new HandlerTransactionScopeWrapperBehavior(new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted });
 
-            behavior.Invoke(null, () => Assert.NotNull(Transaction.Current));
+            await behavior.Invoke(null, () =>
+            {
+                Assert.NotNull(Transaction.Current);
+                return Task.FromResult(true);
+            });
 
         }
     }

@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Defines a bus to be used with NServiceBus.
@@ -12,7 +13,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="message">The message to send.</param>
         /// <param name="options">Options for this reply.</param>
-        void Reply(object message,ReplyOptions options);
+        Task Reply(object message,ReplyOptions options);
 
         /// <summary>
         /// Instantiates a message of type T and performs a regular <see cref="Reply(object,ReplyOptions)"/>.
@@ -20,7 +21,7 @@ namespace NServiceBus
         /// <typeparam name="T">The type of message, usually an interface.</typeparam>
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
         /// <param name="options">Options for this reply.</param>
-        void Reply<T>(Action<T> messageConstructor, ReplyOptions options);
+        Task Reply<T>(Action<T> messageConstructor, ReplyOptions options);
 
         /// <summary>
         /// Subscribes to receive published messages of the specified type.
@@ -42,13 +43,13 @@ namespace NServiceBus
         /// Moves the message being handled to the back of the list of available 
         /// messages so it can be handled later.
         /// </summary>
-        void HandleCurrentMessageLater();
+        Task HandleCurrentMessageLater();
 
         /// <summary>
         /// Forwards the current message being handled to the destination maintaining
         /// all of its transport-level properties and headers.
         /// </summary>
-        void ForwardCurrentMessageTo(string destination);
+        Task ForwardCurrentMessageTo(string destination);
 
         /// <summary>
         /// Tells the bus to stop dispatching the current message to additional

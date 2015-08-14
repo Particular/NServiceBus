@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Syntactic sugar for <see cref="ISendOnlyBus"/>.
@@ -13,9 +14,9 @@ namespace NServiceBus
         /// </summary>
         /// <param name="bus">The instance of <see cref="ISendOnlyBus"/> to use for the action.</param>
         /// <param name="message">The message to publish.</param>
-        public static void Publish(this ISendOnlyBus bus, object message)
+        public static Task Publish(this ISendOnlyBus bus, object message)
         {
-            bus.Publish(message, new PublishOptions());
+            return bus.Publish(message, new PublishOptions());
         }
 
        
@@ -24,9 +25,9 @@ namespace NServiceBus
         /// </summary>
         /// <param name="bus">The instance of <see cref="ISendOnlyBus"/> to use for the action.</param>
         /// <typeparam name="T">The message type.</typeparam>
-        public static void Publish<T>(this ISendOnlyBus bus)
+        public static Task Publish<T>(this ISendOnlyBus bus)
         {
-            bus.Publish<T>(_=>{},new PublishOptions());
+            return bus.Publish<T>(_=>{},new PublishOptions());
         }
 
         /// <summary>
@@ -35,9 +36,9 @@ namespace NServiceBus
         /// <typeparam name="T">The type of message, usually an interface.</typeparam>
         /// <param name="bus">The instance of <see cref="ISendOnlyBus"/> to use for the action.</param>
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
-        public static void Publish<T>(this ISendOnlyBus bus, Action<T> messageConstructor)
+        public static Task Publish<T>(this ISendOnlyBus bus, Action<T> messageConstructor)
         {
-            bus.Publish(messageConstructor,new PublishOptions());
+            return bus.Publish(messageConstructor,new PublishOptions());
         }
 
         /// <summary>
@@ -45,12 +46,12 @@ namespace NServiceBus
         /// </summary>
         /// <param name="bus">The instance of <see cref="ISendOnlyBus"/> to use for the action.</param>
         /// <param name="message">The message to send.</param>
-        public static void Send(this ISendOnlyBus bus, object message)
+        public static Task Send(this ISendOnlyBus bus, object message)
         {
             Guard.AgainstNull("bus", bus);
             Guard.AgainstNull("message", message);
 
-            bus.Send(message, new SendOptions());
+            return bus.Send(message, new SendOptions());
         }
 
         /// <summary>
@@ -62,12 +63,12 @@ namespace NServiceBus
         /// <remarks>
         /// The message will be sent to the destination configured for <typeparamref name="T"/>.
         /// </remarks>
-        public static void Send<T>(this ISendOnlyBus bus, Action<T> messageConstructor)
+        public static Task Send<T>(this ISendOnlyBus bus, Action<T> messageConstructor)
         {
             Guard.AgainstNull("bus", bus);
             Guard.AgainstNull("messageConstructor", messageConstructor);
 
-            bus.Send(messageConstructor, new SendOptions());
+            return bus.Send(messageConstructor, new SendOptions());
         }
 
         /// <summary>
@@ -76,7 +77,7 @@ namespace NServiceBus
         /// <param name="bus">The instance of <see cref="ISendOnlyBus"/> to use for the action.</param>
         /// <param name="destination">The address of the destination to which the message will be sent.</param>
         /// <param name="message">The message to send.</param>
-        public static void Send(this ISendOnlyBus bus, string destination, object message)
+        public static Task Send(this ISendOnlyBus bus, string destination, object message)
         {
             Guard.AgainstNull("bus", bus);
             Guard.AgainstNullAndEmpty("destination", destination);
@@ -86,7 +87,7 @@ namespace NServiceBus
 
             options.SetDestination(destination);
 
-            bus.Send(message, options);
+            return bus.Send(message, options);
         }
 
         /// <summary>
@@ -96,7 +97,7 @@ namespace NServiceBus
         /// <param name="bus">The instance of <see cref="ISendOnlyBus"/> to use for the action.</param>
         /// <param name="destination">The destination to which the message will be sent.</param>
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
-        public static void Send<T>(this ISendOnlyBus bus, string destination, Action<T> messageConstructor)
+        public static Task Send<T>(this ISendOnlyBus bus, string destination, Action<T> messageConstructor)
         {
             Guard.AgainstNull("bus", bus);
             Guard.AgainstNullAndEmpty("destination", destination);
@@ -106,7 +107,7 @@ namespace NServiceBus
 
             options.SetDestination(destination);
 
-            bus.Send(messageConstructor, options);
+            return bus.Send(messageConstructor, options);
         }
     }
 }

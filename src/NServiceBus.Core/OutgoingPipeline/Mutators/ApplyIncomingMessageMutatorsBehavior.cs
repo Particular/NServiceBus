@@ -1,13 +1,14 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.MessageMutator;
     using NServiceBus.Pipeline.Contexts;
 
 
     class ApplyIncomingMessageMutatorsBehavior : LogicalMessageProcessingStageBehavior
     {
-        public override void Invoke(Context context, Action next)
+        public override Task Invoke(Context context, Func<Task> next)
         {
             var current = context.GetLogicalMessage().Instance;
 
@@ -18,7 +19,7 @@
             }
 
             context.MessageType = context.GetLogicalMessage().Metadata.MessageType;
-            next();
+            return next();
         }
     }
 }

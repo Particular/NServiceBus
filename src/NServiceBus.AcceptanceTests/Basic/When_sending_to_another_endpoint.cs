@@ -24,7 +24,7 @@
                         sendOptions.SetHeader("MyHeader", "MyHeaderValue");
                         sendOptions.SetMessageId("MyMessageId");
                         
-                        bus.Send(new MyMessage{Id = c.Id}, sendOptions);
+                        return bus.Send(new MyMessage{Id = c.Id}, sendOptions);
                     }))
                     .WithEndpoint<Receiver>()
                     .Done(c => c.WasCalled)

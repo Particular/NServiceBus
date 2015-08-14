@@ -1,6 +1,8 @@
 namespace NServiceBus
 {
     using System;
+    using System.Runtime.ExceptionServices;
+    using System.Threading.Tasks;
     using NServiceBus.Hosting;
     using NServiceBus.Logging;
     using NServiceBus.Pipeline;
@@ -19,13 +21,20 @@ namespace NServiceBus
             this.errorQueueAddress = errorQueueAddress;
         }
 
-        public override void Invoke(Context context, Action next)
+        public override async Task Invoke(Context context, Func<Task> next)
         {
+            ExceptionDispatchInfo exceptionInfo = null;
             try
             {
-                next();
+                await next().ConfigureAwait(false);
             }
             catch (Exception exception)
+            {
+                // Need to do it like that until we have CSharp 6 support. Cannot wait inside catch
+                exceptionInfo = ExceptionDispatchInfo.Capture(exception);
+            }
+
+            if (exceptionInfo != null)
             {
                 try
                 {
@@ -47,9 +56,9 @@ namespace NServiceBus
 
                     context.Set<RoutingStrategy>(new DirectToTargetDestination(errorQueueAddress));
                     
-                    dispatchPipeline.Invoke(dispatchContext);
+                    await dispatchPipeline.Invoke(dispatchContext);
 
-                    notifications.Errors.InvokeMessageHasBeenSentToErrorQueue(message,exception);
+                    notifications.Errors.InvokeMessageHasBeenSentToErrorQueue(message, exception);
                 }
                 catch (Exception ex)
                 {

@@ -1,21 +1,22 @@
 namespace NServiceBus.AcceptanceTesting.Support
 {
     using System;
+    using System.Threading.Tasks;
 
     [Serializable]
     public class GivenDefinition<TContext> : IGivenDefinition where TContext : ScenarioContext
     {
-        public GivenDefinition(Action<IBus> action)
+        public GivenDefinition(Func<IBus, Task> func)
         {
-            givenAction2 = action;
+            givenAction2 = func;
         }
 
-        public GivenDefinition(Action<IBus, TContext> action)
+        public GivenDefinition(Func<IBus, TContext, Task> func)
         {
-            givenAction = action;
+            givenAction = func;
         }
 
-        public Action<IBus> GetAction(ScenarioContext context)
+        public Func<IBus, Task> GetFunction(ScenarioContext context)
         {
             if (givenAction2 != null)
                 return bus => givenAction2(bus);
@@ -23,8 +24,8 @@ namespace NServiceBus.AcceptanceTesting.Support
             return bus => givenAction(bus, (TContext)context);
         }
 
-        Action<IBus, TContext> givenAction;
-        Action<IBus> givenAction2;
+        readonly Func<IBus, TContext, Task> givenAction;
+        readonly Func<IBus, Task> givenAction2;
 
     }
 }

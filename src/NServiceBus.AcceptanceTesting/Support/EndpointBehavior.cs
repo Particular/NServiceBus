@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Threading;
+    using System.Threading.Tasks;
 
     [Serializable]
     public class EndpointBehavior : MarshalByRefObject
@@ -25,14 +26,14 @@
     [Serializable]
     public class WhenDefinition<TContext> : IWhenDefinition where TContext : ScenarioContext
     {
-        public WhenDefinition(Predicate<TContext> condition, Action<IBus> action)
+        public WhenDefinition(Predicate<TContext> condition, Func<IBus, Task> action)
         {
             Id = Guid.NewGuid();
             this.condition = condition;
             busAction = action;
         }
 
-        public WhenDefinition(Predicate<TContext> condition, Action<IBus, TContext> actionWithContext)
+        public WhenDefinition(Predicate<TContext> condition, Func<IBus, TContext, Task> actionWithContext)
         {
             Id = Guid.NewGuid();
             this.condition = condition;
@@ -41,7 +42,7 @@
 
         public Guid Id { get; private set; }
 
-        public bool ExecuteAction(ScenarioContext context, IBus bus)
+        public async Task<bool> ExecuteAction(ScenarioContext context, IBus bus)
         {
             var c = (TContext)context;
 
@@ -53,11 +54,11 @@
 
             if (busAction != null)
             {
-                busAction(bus);
+                await busAction(bus);
             }
             else
             {
-                busAndContextAction(bus, c);
+                await busAndContextAction(bus, c);
           
             }
 
@@ -67,19 +68,19 @@
         }
 
         Predicate<TContext> condition;
-        Action<IBus> busAction;
-        Action<IBus, TContext> busAndContextAction;
+        readonly Func<IBus, Task> busAction;
+        readonly Func<IBus, TContext, Task> busAndContextAction;
     }
 
     public interface IGivenDefinition
     {
-        Action<IBus> GetAction(ScenarioContext context);
+        Func<IBus, Task> GetFunction(ScenarioContext context);
     }
 
 
     public interface IWhenDefinition
     {
-        bool ExecuteAction(ScenarioContext context, IBus bus);
+        Task<bool> ExecuteAction(ScenarioContext context, IBus bus);
 
         Guid Id { get; }
     }

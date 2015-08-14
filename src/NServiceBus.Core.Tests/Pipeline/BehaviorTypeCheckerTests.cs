@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.Pipeline
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NUnit.Framework;
@@ -16,8 +17,9 @@
 
         class ValidBehavior : Behavior<RootContext>
         {
-            public override void Invoke(RootContext context, Action next)
+            public override Task Invoke(RootContext context, Func<Task> next)
             {
+                return Task.FromResult(true);
             }
         }
 
@@ -41,8 +43,9 @@
 
         class GenericBehavior<T> : Behavior<RootContext>
         {
-            public override void Invoke(RootContext context, Action next)
+            public override Task Invoke(RootContext context, Func<Task> next)
             {
+                return Task.FromResult(true);
             }
         }
     }

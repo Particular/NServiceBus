@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Versioning
 {
+    using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
     using NServiceBus.AcceptanceTests.Routing;
@@ -23,12 +24,16 @@
                             bus.Subscribe<V1Event>();
                             if (c.HasNativePubSubSupport)
                                 c.V1Subscribed = true;
+
+                            return Task.FromResult(true);
                         }))
                     .WithEndpoint<V2Subscriber>(b => b.Given((bus,c) =>
                         {
                             bus.Subscribe<V2Event>();
                             if (c.HasNativePubSubSupport)
                                 c.V2Subscribed = true;
+
+                            return Task.FromResult(true);
                         }))
                     .Done(c => c.V1SubscriberGotTheMessage && c.V2SubscriberGotTheMessage)
                     .Run();

@@ -1,17 +1,18 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline;
     using NServiceBus.TransportDispatch;
 
-    class AttachCausationHeadersBehavior :PhysicalOutgoingContextStageBehavior
+    class AttachCausationHeadersBehavior : PhysicalOutgoingContextStageBehavior
     {
-        public override void Invoke(Context context, Action next)
+        public override Task Invoke(Context context, Func<Task> next)
         {
             ApplyHeaders(context);
 
-            next();
+            return next();
          }
 
         void ApplyHeaders(Context context)

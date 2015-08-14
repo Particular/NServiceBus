@@ -19,7 +19,7 @@ namespace NServiceBus
         public Configure Configure { get; set; }
         public string InputAddress { get; set; }
 
-        public override void Terminate(PhysicalMessageProcessingStageBehavior.Context context)
+        public override Task Terminate(PhysicalMessageProcessingStageBehavior.Context context)
         {
             var message = context.GetPhysicalMessage();
             var timeoutId = message.Headers["Timeout.Id"];
@@ -32,8 +32,10 @@ namespace NServiceBus
                 timeoutData.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
                 timeoutData.Headers["NServiceBus.RelatedToTimeoutId"] = timeoutData.Id;
 
-                MessageSender.Dispatch(new OutgoingMessage(message.Id, timeoutData.Headers, timeoutData.State), sendOptions);
+                return MessageSender.Dispatch(new OutgoingMessage(message.Id, timeoutData.Headers, timeoutData.State), sendOptions);
             }
+
+            return Task.FromResult(true);
         }
 
         public override Task Warmup()

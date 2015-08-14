@@ -14,10 +14,10 @@
         public void Should_hydrate_and_invoke_the_existing_instance()
         {
             Scenario.Define<Context>()
-                    .WithEndpoint<SagaEndpoint>(b => b.Given(bus =>
+                    .WithEndpoint<SagaEndpoint>(b => b.Given(async bus =>
                         {
-                            bus.SendLocal(new StartSagaMessage { Key = "Part1_Part2"});
-                            bus.SendLocal(new OtherMessage { Part1 = "Part1", Part2 = "Part2" });                                    
+                            await bus.SendLocal(new StartSagaMessage { Key = "Part1_Part2"});
+                            await bus.SendLocal(new OtherMessage { Part1 = "Part1", Part2 = "Part2" });                                    
                         }))
                     .Done(c => c.SecondMessageReceived)
                     .Repeat(r => r.For(Persistence.Default))

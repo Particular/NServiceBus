@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.Forwarding;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
@@ -14,9 +15,9 @@
             this.forwardingAddress = forwardingAddress;
         }
 
-        public override void Invoke(Context context, Action next)
+        public override async Task Invoke(Context context, Func<Task> next)
         {
-            next();
+            await next();
 
             context.GetPhysicalMessage().RevertToOriginalBodyIfNeeded();
 
@@ -26,7 +27,7 @@
 
             context.Set<RoutingStrategy>(new DirectToTargetDestination(forwardingAddress));
 
-            forwardingPipeline.Invoke(forwardingContext);
+            await forwardingPipeline.Invoke(forwardingContext);
         }
 
         IPipelineBase<ForwardingContext> forwardingPipeline;

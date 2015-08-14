@@ -43,7 +43,7 @@
         {
             foreach (var result in behaviors.Select(x => x.Warmup()))
             {
-                await result;
+                await result.ConfigureAwait(false);
             }
         }
 
@@ -51,15 +51,15 @@
         {
             foreach (var result in behaviors.Select(x => x.Cooldown()))
             {
-                await result;
+                await result.ConfigureAwait(false);
             }
         }
 
-        public void Invoke(T context)
+        public Task Invoke(T context)
         {
             var lookupSteps = steps.ToDictionary(rs => rs.BehaviorType, ss => ss.StepId);
             var pipeline = new BehaviorChain(behaviors, lookupSteps, busNotifications);
-            pipeline.Invoke(context);
+            return pipeline.Invoke(context);
         }
 
         BehaviorInstance[] behaviors;
@@ -69,6 +69,6 @@
 
     interface IPipelineBase<T>
     {
-        void Invoke(T context);
+        Task Invoke(T context);
     }
 }

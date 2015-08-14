@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Threading;
+    using System.Threading.Tasks;
     using NServiceBus.DelayedDelivery;
     using NServiceBus.Extensibility;
 
@@ -35,17 +36,17 @@
             get { throw new NotImplementedException(); }
         }
 
-        public void Publish(object message, PublishOptions options)
+        public Task Publish(object message, PublishOptions options)
         {
             throw new NotImplementedException();
         }
 
-        public void Publish<T>(Action<T> messageConstructor, PublishOptions options)
+        public Task Publish<T>(Action<T> messageConstructor, PublishOptions options)
         {
             throw new NotImplementedException();
         }
 
-        public void Send(object message, SendOptions options)
+        public Task Send(object message, SendOptions options)
         {
             ApplyDelayedDeliveryConstraintBehavior.State state;
 
@@ -62,7 +63,7 @@
             }
         }
 
-        public void Send<T>(Action<T> messageConstructor, SendOptions options)
+        public Task Send<T>(Action<T> messageConstructor, SendOptions options)
         {
             throw new NotImplementedException();
         }
@@ -108,6 +109,8 @@
         public ICallback Defer(TimeSpan delay, object message)
         {
             throw new NotImplementedException();
+
+            return Task.FromResult(true);
         }
 
         [Obsolete("", true)]
@@ -116,12 +119,12 @@
             throw new NotImplementedException();
         }
 
-        public void Reply(object message, ReplyOptions options)
+        public Task Reply(object message, ReplyOptions options)
         {
             throw new NotImplementedException();
         }
 
-        public void Reply<T>(Action<T> messageConstructor, ReplyOptions options)
+        public Task Reply<T>(Action<T> messageConstructor, ReplyOptions options)
         {
             throw new NotImplementedException();
         }
@@ -142,12 +145,12 @@
             throw new NotImplementedException();
         }
 
-        public void HandleCurrentMessageLater()
+        public Task HandleCurrentMessageLater()
         {
             throw new NotImplementedException();
         }
 
-        public void ForwardCurrentMessageTo(string destination)
+        public Task ForwardCurrentMessageTo(string destination)
         {
             throw new NotImplementedException();
         }

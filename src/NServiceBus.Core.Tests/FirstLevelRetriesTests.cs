@@ -17,19 +17,19 @@
         {
             var behavior = FirstLevelRetriesBehavior.CreateForTests(null, new FirstLevelRetryPolicy(0), new BusNotifications());
 
-            Assert.Throws<MessageDeserializationException>(() => behavior.Invoke(null, () =>
+            Assert.Throws<MessageDeserializationException>(async () => await behavior.Invoke(null, () =>
             {
                 throw new MessageDeserializationException("test");
             }));
         }
 
         [Test]
-        public void ShouldPerformFLRIfThereAreRetriesLeftToDo()
+        public async void ShouldPerformFLRIfThereAreRetriesLeftToDo()
         {
             var behavior = FirstLevelRetriesBehavior.CreateForTests(new FlrStatusStorage(), new FirstLevelRetryPolicy(1), new BusNotifications());
             var context = CreateContext("someid");
 
-            behavior.Invoke(context, () =>
+            await behavior.Invoke(context, () =>
             {
                 throw new Exception("test"); 
             });
@@ -43,7 +43,7 @@
             var behavior = FirstLevelRetriesBehavior.CreateForTests(new FlrStatusStorage(), new FirstLevelRetryPolicy(0), new BusNotifications());
             var context = CreateContext("someid");
 
-            Assert.Throws<Exception>(() => behavior.Invoke(context, () =>
+            Assert.Throws<Exception>(async () => await behavior.Invoke(context, () =>
             {
                 throw new Exception("test");
             }));
@@ -60,7 +60,7 @@
 
             storage.IncrementFailuresForMessage("someid", new Exception(""));
 
-            Assert.Throws<Exception>(() => behavior.Invoke(CreateContext("someid"), () =>
+            Assert.Throws<Exception>(async () => await behavior.Invoke(CreateContext("someid"), () =>
             {
                 throw new Exception("test");
             }));
@@ -69,23 +69,22 @@
             Assert.AreEqual(0, storage.GetRetriesForMessage("someid"));
         }
         [Test]
-        public void ShouldRememberRetryCountBetweenRetries()
+        public async void ShouldRememberRetryCountBetweenRetries()
         {
             var storage = new FlrStatusStorage();
             var behavior = FirstLevelRetriesBehavior.CreateForTests(storage, new FirstLevelRetryPolicy(1), new BusNotifications());
 
-            behavior.Invoke(CreateContext("someid"), () =>
+            await behavior.Invoke(CreateContext("someid"), () =>
             {
                 throw new Exception("test");
             });
-
 
             Assert.AreEqual(1, storage.GetRetriesForMessage("someid"));
         }
 
 
         [Test]
-        public void ShouldRaiseBusNotificationsForFLR()
+        public async void ShouldRaiseBusNotificationsForFLR()
         {
             var notifications = new BusNotifications();
             var storage = new FlrStatusStorage();
@@ -102,11 +101,10 @@
                 notificationFired = true;
             })
                 ;
-            behavior.Invoke(CreateContext("someid"), () =>
+            await behavior.Invoke(CreateContext("someid"), () =>
             {
                 throw new Exception("test");
             });
-
 
             Assert.True(notificationFired);
         }

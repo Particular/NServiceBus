@@ -3,6 +3,7 @@ namespace NServiceBus.Core.Tests
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Threading.Tasks;
     using NServiceBus.Core.Tests.Features;
     using NServiceBus.Faults;
     using NServiceBus.Hosting;
@@ -52,7 +53,7 @@ namespace NServiceBus.Core.Tests
             behavior.Initialize(new PipelineInfo("Test", "public-receive-address"));
 
             //the ex should bubble to force the transport to rollback. If not the message will be lost
-            Assert.Throws<Exception>(() => behavior.Invoke(CreateContext("someid"), () =>
+            Assert.Throws<Exception>(async () => await behavior.Invoke(CreateContext("someid"), () =>
             {
                 throw new Exception("testex");
             }));
