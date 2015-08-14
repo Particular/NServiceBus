@@ -154,7 +154,5 @@ namespace NServiceBus.Core.Tests
 
             public bool ErrorRaised { get; private set; }
         }
-
-                return Task.FromResult(true);
     }
 }

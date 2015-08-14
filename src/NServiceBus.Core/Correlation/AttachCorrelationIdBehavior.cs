@@ -1,13 +1,14 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.TransportDispatch;
 
     class AttachCorrelationIdBehavior : Behavior<OutgoingContext>
     {
-        public override void Invoke(OutgoingContext context, Action next)
+        public override Task Invoke(OutgoingContext context, Func<Task> next)
         {
             var correlationId = context.GetOrCreate<State>().CustomCorrelationId;
        
@@ -35,7 +36,7 @@
             }
 
             context.SetHeader(Headers.CorrelationId, correlationId);
-            next();
+            return next();
         }
 
         public class State

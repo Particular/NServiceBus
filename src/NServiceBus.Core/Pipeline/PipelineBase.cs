@@ -69,6 +69,6 @@
 
     interface IPipelineBase<T>
     {
-        void Invoke(T context);
+        Task Invoke(T context);
     }
 }

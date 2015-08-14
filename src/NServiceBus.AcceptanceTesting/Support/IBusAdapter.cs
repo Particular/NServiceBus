@@ -73,12 +73,12 @@
             throw new NotImplementedException();
         }
 
-        public void Reply(object message, ReplyOptions options)
+        public Task Reply(object message, ReplyOptions options)
         {
             throw new NotImplementedException();
         }
 
-        public void Reply<T>(Action<T> messageConstructor, ReplyOptions options)
+        public Task Reply<T>(Action<T> messageConstructor, ReplyOptions options)
         {
             throw new NotImplementedException();
         }

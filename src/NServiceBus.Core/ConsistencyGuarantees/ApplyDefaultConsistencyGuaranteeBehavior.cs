@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.Pipeline;
     using NServiceBus.TransportDispatch;
@@ -13,7 +14,7 @@ namespace NServiceBus
             this.transportDefault = transportDefault;
         }
 
-        public override void Invoke(DispatchContext context, Action next)
+        public override Task Invoke(DispatchContext context, Func<Task> next)
         {
             ConsistencyGuarantee explicitGuarantee;
 
@@ -22,7 +23,7 @@ namespace NServiceBus
                 context.Set(transportDefault);
             }
 
-            next();
+            return next();
         }
 
         readonly ConsistencyGuarantee transportDefault;

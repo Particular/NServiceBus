@@ -1,5 +1,7 @@
 namespace NServiceBus.Transports
 {
+    using System.Threading.Tasks;
+
     /// <summary>
     /// Abstraction of the capability to dispatch messages.
     /// </summary>
@@ -8,6 +10,6 @@ namespace NServiceBus.Transports
         /// <summary>
         /// Sends the given <paramref name="message"/>.
         /// </summary>
-        void Dispatch(OutgoingMessage message, DispatchOptions dispatchOptions);
+        Task Dispatch(OutgoingMessage message, DispatchOptions dispatchOptions);
     }
 }

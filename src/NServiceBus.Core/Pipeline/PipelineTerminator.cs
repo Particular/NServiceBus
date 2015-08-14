@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Pipeline
 {
     using System;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Marks the inner most behavior of the pipeline.
@@ -13,7 +14,7 @@
         /// This method will be the final one to be called before the pipeline starts to travers back up the "stack".
         /// </summary>
         /// <param name="context">The current context.</param>
-        public abstract void Terminate(T context);
+        public abstract Task Terminate(T context);
 
 
         /// <summary>
@@ -21,11 +22,11 @@
         /// </summary>
         /// <param name="context">Context object.</param>
         /// <param name="next">Ignored since there by definition is no next behavior to call.</param>
-        public override void Invoke(T context, Action<TerminatingContext> next)
+        public override Task Invoke(T context, Func<TerminatingContext, Task> next)
         {
             Guard.AgainstNull("next", next);
 
-            Terminate(context);
+            return Terminate(context);
         }
 
         /// <summary>

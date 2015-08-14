@@ -18,7 +18,7 @@
             itemDescriptors = behaviorList.ToArray();
         }
 
-        public async Task Invoke(BehaviorContextStacker contextStacker)
+        public async Task Invoke(BehaviorContext context)
         {
             var contextStacker = context.Builder.Build<BehaviorContextStacker>();
             

@@ -1,5 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.PubSub
-namespace NServiceBus.AcceptanceTests.Routing
+﻿namespace NServiceBus.AcceptanceTests.Routing
 {
     using System;
     using System.Threading.Tasks;
