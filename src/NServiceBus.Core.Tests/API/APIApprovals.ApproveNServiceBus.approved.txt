@@ -1993,7 +1993,7 @@ namespace NServiceBus.Saga
     public interface ISagaPersister
     {
         void Complete(NServiceBus.Saga.IContainSagaData saga, NServiceBus.Saga.SagaPersistenceOptions options);
-        TSagaData Get<TSagaData>(System.Guid sagaId, NServiceBus.Saga.SagaPersistenceOptions options)
+        TSagaData Get<TSagaData>(string sagaId, NServiceBus.Saga.SagaPersistenceOptions options)
             where TSagaData : NServiceBus.Saga.IContainSagaData;
         TSagaData Get<TSagaData>(string propertyName, object propertyValue, NServiceBus.Saga.SagaPersistenceOptions options)
             where TSagaData : NServiceBus.Saga.IContainSagaData;

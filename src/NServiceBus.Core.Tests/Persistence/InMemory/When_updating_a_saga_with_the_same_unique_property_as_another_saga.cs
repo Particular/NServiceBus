@@ -21,7 +21,7 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
 
             Assert.Throws<InvalidOperationException>(() => 
             {
-                var saga = persister.Get<SagaWithUniquePropertyData>(saga2.Id, options);
+                var saga = persister.Get<SagaWithUniquePropertyData>(saga2.Id.ToString(), options);
                 saga.UniqueString = "whatever1";
                 persister.Update(saga, options);
             });
@@ -41,7 +41,7 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
 
             Assert.Throws<InvalidOperationException>(() =>
             {
-                var saga = persister.Get<SagaWithTwoUniquePropertiesData>(saga2.Id, options);
+                var saga = persister.Get<SagaWithTwoUniquePropertiesData>(saga2.Id.ToString(), options);
                 saga.UniqueInt = 5;
                 persister.Update(saga, options);
             });

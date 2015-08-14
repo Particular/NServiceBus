@@ -24,7 +24,7 @@ namespace NServiceBus.Saga
 
             if (sagaPropertyName.ToLower() == "id")
             {
-                return sagaPersister.Get<TSagaData>((Guid)propertyValue, options);
+                return sagaPersister.Get<TSagaData>(propertyValue.ToString(), options);
             }
 
             return sagaPersister.Get<TSagaData>(sagaPropertyName, propertyValue, options);

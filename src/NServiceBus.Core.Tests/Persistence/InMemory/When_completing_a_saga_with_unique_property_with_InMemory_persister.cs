@@ -22,9 +22,9 @@
 
             var persister = InMemoryPersisterBuilder.Build<SagaWithUniqueProperty>();
             persister.Save(saga, options);
-            Assert.NotNull(persister.Get<SagaWithUniquePropertyData>(saga.Id, options));
+            Assert.NotNull(persister.Get<SagaWithUniquePropertyData>(saga.Id.ToString(), options));
             persister.Complete(saga, options);
-            Assert.Null(persister.Get<SagaWithUniquePropertyData>(saga.Id, options));
+            Assert.Null(persister.Get<SagaWithUniquePropertyData>(saga.Id.ToString(), options));
         }
     }
 }

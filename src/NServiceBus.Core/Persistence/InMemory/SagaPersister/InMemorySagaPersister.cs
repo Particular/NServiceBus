@@ -15,12 +15,12 @@ namespace NServiceBus.InMemory.SagaPersister
     {
         int version;
         JsonMessageSerializer serializer = new JsonMessageSerializer(null);
-        ConcurrentDictionary<Guid, VersionedSagaEntity> data = new ConcurrentDictionary<Guid, VersionedSagaEntity>();
+        ConcurrentDictionary<string, VersionedSagaEntity> data = new ConcurrentDictionary<string, VersionedSagaEntity>();
 
         public void Complete(IContainSagaData saga, SagaPersistenceOptions options)
         {
             VersionedSagaEntity value;
-            data.TryRemove(saga.Id, out value);
+            data.TryRemove(saga.Id.ToString(), out value);
         }
 
         public TSagaData Get<TSagaData>(string propertyName, object propertyValue, SagaPersistenceOptions options) where TSagaData : IContainSagaData
@@ -44,7 +44,7 @@ namespace NServiceBus.InMemory.SagaPersister
             return default(TSagaData);
         }
 
-        public TSagaData Get<TSagaData>(Guid sagaId, SagaPersistenceOptions options) where TSagaData : IContainSagaData
+        public TSagaData Get<TSagaData>(string sagaId, SagaPersistenceOptions options) where TSagaData : IContainSagaData
         {
             VersionedSagaEntity result;
             if (data.TryGetValue(sagaId, out result) && (result != null) && (result.SagaEntity is TSagaData))
@@ -61,12 +61,12 @@ namespace NServiceBus.InMemory.SagaPersister
             ValidateUniqueProperties(options.Metadata, saga);
 
             VersionedSagaEntity sagaEntity;
-            if (data.TryGetValue(saga.Id, out sagaEntity))
+            if (data.TryGetValue(saga.Id.ToString(), out sagaEntity))
             {
                 sagaEntity.ConcurrencyCheck(saga, version);
             }
 
-            data.AddOrUpdate(saga.Id, id => new VersionedSagaEntity { SagaEntity = DeepClone(saga) }, (id, original) => new VersionedSagaEntity { SagaEntity = DeepClone(saga), VersionCache = original.VersionCache });
+            data.AddOrUpdate(saga.Id.ToString(), id => new VersionedSagaEntity { SagaEntity = DeepClone(saga) }, (id, original) => new VersionedSagaEntity { SagaEntity = DeepClone(saga), VersionCache = original.VersionCache });
 
             Interlocked.Increment(ref version);
         }
@@ -80,7 +80,7 @@ namespace NServiceBus.InMemory.SagaPersister
         {
             var sagaType = saga.GetType();
             var existingSagas = (from s in data
-                where s.Value.SagaEntity.GetType() == sagaType && (s.Key != saga.Id)
+                where s.Value.SagaEntity.GetType() == sagaType && (s.Key != saga.Id.ToString())
                 select s.Value)
                 .ToList();
             foreach (var correlationProperty in sagaMetaData.CorrelationProperties)
