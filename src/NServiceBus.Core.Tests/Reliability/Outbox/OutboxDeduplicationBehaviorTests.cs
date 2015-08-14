@@ -49,7 +49,7 @@
             {
                 IsolationLevel = IsolationLevel.ReadCommitted,
                 Timeout = TimeSpan.FromSeconds(30)
-            }, new FakeMessageSender(),new DefaultDispatchStrategy());
+            }, new FakeMessageDispatcher(), new DefaultDispatchStrategy());
         }
 
         void Invoke(PhysicalMessageProcessingStageBehavior.Context context, bool shouldAbort = false)

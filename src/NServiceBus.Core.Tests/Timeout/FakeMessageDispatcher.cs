@@ -2,7 +2,7 @@ namespace NServiceBus.Core.Tests.Timeout
 {
     using NServiceBus.Transports;
 
-    public class FakeMessageSender : IDispatchMessages
+    public class FakeMessageDispatcher : IDispatchMessages
     {
         private volatile int messagesSent;
 

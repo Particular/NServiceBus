@@ -2,47 +2,52 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using NServiceBus.ConsistencyGuarantees;
+    using NServiceBus.DelayedDelivery.TimeoutManager;
     using NServiceBus.DeliveryConstraints;
-    using NServiceBus.Extensibility;
     using NServiceBus.Pipeline;
-    using NServiceBus.Timeout;
     using NServiceBus.Timeout.Core;
     using NServiceBus.Transports;
 
-    class TimeoutMessageProcessorBehavior : SatelliteBehavior
+    class StoreTimeoutBehavior : SatelliteBehavior
     {
-        readonly DefaultTimeoutManager defaultTimeoutManager;
-        readonly IDispatchMessages dispatchMessages;
-
-        public TimeoutMessageProcessorBehavior(IDispatchMessages dispatcher, DefaultTimeoutManager timeoutManager)
+        public StoreTimeoutBehavior(ExpiredTimeoutsPoller poller, IDispatchMessages dispatcher, IPersistTimeouts persister, string owningTimeoutManager)
         {
-            dispatchMessages = dispatcher;
-            defaultTimeoutManager = timeoutManager;
+            this.poller = poller;
+            this.dispatcher = dispatcher;
+            this.persister = persister;
+            this.owningTimeoutManager = owningTimeoutManager;
         }
-
-        // ReSharper disable once UnusedAutoPropertyAccessor.Global
-        public string InputAddress { get; set; }
-
-        // ReSharper disable once UnusedAutoPropertyAccessor.Global
-        public string EndpointName { get; set; }
 
         public override void Terminate(PhysicalMessageProcessingStageBehavior.Context context)
         {
-            var message = context.GetPhysicalMessage();         
-            var options = new TimeoutPersistenceOptions(context);
+            var message = context.GetPhysicalMessage();
+
             //dispatch request will arrive at the same input so we need to make sure to call the correct handler
             if (message.Headers.ContainsKey(TimeoutIdToDispatchHeader))
             {
-                HandleBackwardsCompatibility(message, options);
+                HandleBackwardsCompatibility(message, context);
             }
             else
             {
-                HandleInternal(message, options);
+                HandleInternal(message, context);
             }
         }
 
-        void HandleBackwardsCompatibility(TransportMessage message, TimeoutPersistenceOptions options)
+        public override Task Warmup()
+        {
+            poller.Start();
+            return base.Warmup();
+        }
+
+        public override Task Cooldown()
+        {
+            poller.Stop();
+            return base.Cooldown();
+        }
+
+        void HandleBackwardsCompatibility(TransportMessage message, PhysicalMessageProcessingStageBehavior.Context context)
         {
             var timeoutId = message.Headers[TimeoutIdToDispatchHeader];
 
@@ -58,11 +63,17 @@ namespace NServiceBus
                 destination = routeExpiredTimeoutTo;
             }
 
-            defaultTimeoutManager.RemoveTimeout(timeoutId, options);
-            dispatchMessages.Dispatch(new OutgoingMessage(message.Id, message.Headers, message.Body), new DispatchOptions(destination, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), new ContextBag()));
+            TimeoutData timeoutData;
+
+            if (!persister.TryRemove(timeoutId, new TimeoutPersistenceOptions(context), out timeoutData))
+            {
+                return;
+            }
+
+            dispatcher.Dispatch(new OutgoingMessage(message.Id, message.Headers, message.Body), new DispatchOptions(destination, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), context));
         }
 
-        void HandleInternal(TransportMessage message, TimeoutPersistenceOptions options)
+        void HandleInternal(TransportMessage message, PhysicalMessageProcessingStageBehavior.Context context)
         {
             var sagaId = Guid.Empty;
 
@@ -77,7 +88,7 @@ namespace NServiceBus
                 if (sagaId == Guid.Empty)
                     throw new InvalidOperationException("Invalid saga id specified, clear timeouts is only supported for saga instances");
 
-                defaultTimeoutManager.RemoveTimeoutBy(sagaId, options);
+                persister.RemoveTimeoutBy(sagaId, new TimeoutPersistenceOptions(context));
             }
             else
             {
@@ -102,21 +113,37 @@ namespace NServiceBus
                     State = message.Body,
                     Time = DateTimeExtensions.ToUtcDateTime(expire),
                     Headers = message.Headers,
-                    OwningTimeoutManager = EndpointName
+                    OwningTimeoutManager = owningTimeoutManager
                 };
 
-                defaultTimeoutManager.PushTimeout(data, options);
+                if (data.Time.AddSeconds(-1) <= DateTime.UtcNow)
+                {
+                    var sendOptions = new DispatchOptions(data.Destination, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), context);
+                    var outgoingMessage = new OutgoingMessage(data.Headers[Headers.MessageId], data.Headers, data.State);
+
+                    dispatcher.Dispatch(outgoingMessage, sendOptions);
+                    return;
+                }
+
+
+                persister.Add(data, new TimeoutPersistenceOptions(context));
+
+                poller.NewTimeoutRegistered(data.Time);
             }
         }
 
-        const string TimeoutDestinationHeader = "NServiceBus.Timeout.Destination";
+        ExpiredTimeoutsPoller poller;
+        IDispatchMessages dispatcher;
+        IPersistTimeouts persister;
+        string owningTimeoutManager;
 
+        const string TimeoutDestinationHeader = "NServiceBus.Timeout.Destination";
         const string TimeoutIdToDispatchHeader = "NServiceBus.Timeout.TimeoutIdToDispatch";
 
         public class Registration : RegisterStep
         {
             public Registration()
-                : base("TimeoutMessageProcessor", typeof(TimeoutMessageProcessorBehavior), "Processes timeout messages")
+                : base("TimeoutMessageProcessor", typeof(StoreTimeoutBehavior), "Processes timeout messages")
             {
                 InsertBeforeIfExists("FirstLevelRetries");
                 InsertBeforeIfExists("ReceivePerformanceDiagnosticsBehavior");

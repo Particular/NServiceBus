@@ -3,11 +3,11 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using NServiceBus.DelayedDelivery.TimeoutManager;
     using NServiceBus.Logging;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Saga;
-    using NServiceBus.Timeout;
     using NServiceBus.Transports;
     using NServiceBus.Unicast;
 

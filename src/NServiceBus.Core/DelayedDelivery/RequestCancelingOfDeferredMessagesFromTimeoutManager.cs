@@ -1,8 +1,8 @@
 ﻿namespace NServiceBus.DelayedDelivery
 {
+    using NServiceBus.DelayedDelivery.TimeoutManager;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
-    using NServiceBus.Timeout;
     using NServiceBus.TransportDispatch;
     using NServiceBus.Transports;
     using NServiceBus.Unicast.Transport;

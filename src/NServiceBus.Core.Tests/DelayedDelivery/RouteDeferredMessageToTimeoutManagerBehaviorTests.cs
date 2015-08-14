@@ -3,10 +3,10 @@
     using System;
     using System.Collections.Generic;
     using NServiceBus.DelayedDelivery;
+    using NServiceBus.DelayedDelivery.TimeoutManager;
     using NServiceBus.DeliveryConstraints;
     using NServiceBus.Performance.TimeToBeReceived;
     using NServiceBus.Routing;
-    using NServiceBus.Timeout;
     using NServiceBus.TransportDispatch;
     using NServiceBus.Transports;
     using NUnit.Framework;
