@@ -33,9 +33,13 @@ namespace NServiceBus
         {
             configurationSourceToUse = new DefaultConfigurationSource();
 
-            pipelineCollection = new PipelineConfiguration();
+            var userDefinedBehaviors = new PipelineModificationsBuilder();
+            pipelineCollection = new PipelineConfiguration(userDefinedBehaviors);
             Settings.Set<PipelineConfiguration>(pipelineCollection);
-            Pipeline = new PipelineSettings(pipelineCollection.MainPipeline);
+            Pipeline = new PipelineSettings(userDefinedBehaviors);
+
+            var satellites = new SatelliteCollection();
+            Settings.Set<SatelliteCollection>(satellites);
 
             Settings.Set<QueueBindings>(new QueueBindings());
 
@@ -242,7 +246,7 @@ namespace NServiceBus
 
             Settings.SetDefault<Conventions>(conventionsBuilder.Conventions);
 
-            return new Configure(Settings, container, registrations, Pipeline, pipelineCollection);
+            return new Configure(Settings, container, registrations, pipelineCollection);
         }
 
         List<Type> GetAllowedTypes(string path)

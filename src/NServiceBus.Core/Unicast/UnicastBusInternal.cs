@@ -93,13 +93,15 @@ namespace NServiceBus.Unicast
 
         IEnumerable<TransportReceiver> BuildPipelines()
         {
-            var pipelinesCollection = settings.Get<PipelineConfiguration>();
+            var pipelineConfiguration = settings.Get<PipelineConfiguration>();
+            var satelliteCollection = settings.Get<SatelliteCollection>();
 
-            yield return BuildPipelineInstance(pipelinesCollection.MainPipeline, pipelinesCollection.ReceiveBehavior, "Main", settings.LocalAddress());
+            yield return BuildPipelineInstance(pipelineConfiguration.CreateMainPipeline(), pipelineConfiguration.ReceiveBehavior, "Main", settings.LocalAddress());
 
-            foreach (var satellite in pipelinesCollection.SatellitePipelines)
+            foreach (var satellite in satelliteCollection.Satellites)
             {
-                yield return BuildPipelineInstance(satellite, pipelinesCollection.ReceiveBehavior, satellite.Name, satellite.ReceiveAddress);
+                var pipeline = pipelineConfiguration.CreateSatellitePipeline(satellite);
+                yield return BuildPipelineInstance(pipeline, pipelineConfiguration.ReceiveBehavior, satellite.Name, satellite.ReceiveAddress);
             }
         }
 

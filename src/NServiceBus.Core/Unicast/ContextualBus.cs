@@ -51,7 +51,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public void Publish(object message, NServiceBus.PublishOptions options)
         {
-            var pipeline = new PipelineBase<OutgoingPublishContext>(builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
+            var pipeline = new PipelineBase<OutgoingPublishContext>(builder, settings, settings.Get<PipelineConfiguration>().CreateMainPipeline());
          
             var publishContext = new OutgoingPublishContext(
                 incomingContext,
@@ -99,7 +99,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public void Reply(object message, NServiceBus.ReplyOptions options)
         {
-            var pipeline = new PipelineBase<OutgoingReplyContext>(builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
+            var pipeline = new PipelineBase<OutgoingReplyContext>(builder, settings, settings.Get<PipelineConfiguration>().CreateMainPipeline());
 
             var outgoingContext = new OutgoingReplyContext(
                 incomingContext,
@@ -148,7 +148,7 @@ namespace NServiceBus.Unicast
 
         void SendMessage(Type messageType, object message, NServiceBus.SendOptions options)
         {
-            var pipeline = new PipelineBase<OutgoingSendContext>(builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
+            var pipeline = new PipelineBase<OutgoingSendContext>(builder, settings, settings.Get<PipelineConfiguration>().CreateMainPipeline());
 
             var outgoingContext = new OutgoingSendContext(
                 incomingContext,

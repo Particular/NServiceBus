@@ -29,7 +29,7 @@
                 {
                     var pipelinesCollection = context.Settings.Get<PipelineConfiguration>();
 
-                    var dispatchPipeline = new PipelineBase<DispatchContext>(b, context.Settings, pipelinesCollection.MainPipeline);
+                    var dispatchPipeline = new PipelineBase<DispatchContext>(b, context.Settings, pipelinesCollection.CreateMainPipeline());
 
                     return new RequestCancelingOfDeferredMessagesFromTimeoutManager(timeoutManagerAddress, dispatchPipeline);
                 }, DependencyLifecycle.SingleInstance);

@@ -3,6 +3,8 @@
     using System;
     using System.Collections.Generic;
     using NServiceBus.Features;
+    using NServiceBus.ObjectBuilder.Common;
+    using NServiceBus.Pipeline;
     using NUnit.Framework;
     using ObjectBuilder;
     using Settings;
@@ -14,14 +16,16 @@
         public void Should_start_and_stop_features()
         {
             var feature = new FeatureWithStartupTask();
-       
-            var featureSettings = new FeatureActivator(new SettingsHolder());
+
+            var settings = new SettingsHolder();
+            settings.Set<PipelineConfiguration>(new PipelineConfiguration(new PipelineModificationsBuilder()));
+            var featureSettings = new FeatureActivator(settings, new CommonObjectBuilder());
 
             featureSettings.Add(feature);
 
             var builder = new FakeBuilder(typeof(FeatureWithStartupTask.Runner));
 
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(null));
+            featureSettings.SetupFeatures();
 
             featureSettings.StartFeatures(builder);
             featureSettings.StopFeatures(builder);
@@ -35,13 +39,15 @@
         {
             var feature = new FeatureWithStartupTaskWhichIsDisposable();
 
-            var featureSettings = new FeatureActivator(new SettingsHolder());
+            var settings = new SettingsHolder();
+            settings.Set<PipelineConfiguration>(new PipelineConfiguration(new PipelineModificationsBuilder()));
+            var featureSettings = new FeatureActivator(settings, new CommonObjectBuilder());
 
             featureSettings.Add(feature);
 
             var builder = new FakeBuilder(typeof(FeatureWithStartupTaskWhichIsDisposable.Runner));
 
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(null));
+            featureSettings.SetupFeatures();
 
             featureSettings.StartFeatures(builder);
             featureSettings.StopFeatures(builder);

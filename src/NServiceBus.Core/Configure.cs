@@ -19,10 +19,9 @@ namespace NServiceBus
         /// <summary>
         ///     Creates a new instance of <see cref="Configure"/>.
         /// </summary>
-        internal Configure(SettingsHolder settings, IContainer container, List<Action<IConfigureComponents>> registrations, PipelineSettings pipelineSettings, PipelineConfiguration pipelineConfiguration)
+        internal Configure(SettingsHolder settings, IContainer container, List<Action<IConfigureComponents>> registrations, PipelineConfiguration pipelineConfiguration)
         {
             Settings = settings;
-            this.pipelineSettings = pipelineSettings;
             this.pipelineConfiguration = pipelineConfiguration;
 
             RegisterContainerAdapter(container);
@@ -84,7 +83,7 @@ namespace NServiceBus
         {
             WireUpConfigSectionOverrides();
 
-            var featureActivator = new FeatureActivator(Settings);
+            var featureActivator = new FeatureActivator(Settings, container);
 
             container.RegisterSingleton(featureActivator);
 
@@ -94,7 +93,7 @@ namespace NServiceBus
 
             ActivateAndInvoke<IWantToRunBeforeConfigurationIsFinalized>(TypesToScan, t => t.Run(this));
 
-            var featureStats = featureActivator.SetupFeatures(new FeatureConfigurationContext(this));
+            var featureStats = featureActivator.SetupFeatures();
 
             pipelineConfiguration.RegisterBehaviorsInContainer(Settings, container);
 
@@ -159,7 +158,6 @@ namespace NServiceBus
         }
 
         internal IConfigureComponents container;
-        internal PipelineSettings pipelineSettings;
         PipelineConfiguration pipelineConfiguration;
     }
 }

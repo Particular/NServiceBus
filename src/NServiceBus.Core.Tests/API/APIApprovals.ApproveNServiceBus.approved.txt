@@ -1206,7 +1206,7 @@ namespace NServiceBus.Features
         public NServiceBus.ObjectBuilder.IConfigureComponents Container { get; }
         public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
         public NServiceBus.Settings.ReadOnlySettings Settings { get; }
-        public NServiceBus.Pipeline.PipelineSettings AddSatellitePipeline(string name, string receiveAddress) { }
+        public NServiceBus.Features.SatelliteRegistration AddSatellitePipeline(string name, string receiveAddress, NServiceBus.Pipeline.RegisterStep pipelineBehaviorRegistration) { }
         public void RegisterReceiveBehavior(System.Func<NServiceBus.ObjectBuilder.IBuilder, NServiceBus.Transports.ReceiveBehavior> receiveBehaviorFactory) { }
     }
     public class FeatureDiagnosticData
@@ -1301,6 +1301,13 @@ namespace NServiceBus.Features
     public class Sagas : NServiceBus.Features.Feature
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+    }
+    public class SatelliteRegistration
+    {
+        public NServiceBus.Pipeline.PipelineSettings SpecificBehaviors { get; }
+        public void EnableFeature(System.Type featureType) { }
+        public void EnableFeature<T>()
+            where T : NServiceBus.Features.Feature { }
     }
     public class Scheduler : NServiceBus.Features.Feature
     {

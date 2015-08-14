@@ -4,6 +4,8 @@
     using System.Collections.Generic;
     using System.Linq;
     using NServiceBus.Features;
+    using NServiceBus.ObjectBuilder.Common;
+    using NServiceBus.Pipeline;
     using NUnit.Framework;
     using Settings;
 
@@ -54,12 +56,14 @@
         [TestCaseSource("FeatureCombinationsForTests")]
         public void Should_only_activate_features_if_dependencies_are_met(FeatureCombinations setup)
         {
-            var featureSettings = new FeatureActivator(new SettingsHolder());
+            var settingsHolder = new SettingsHolder();
+            settingsHolder.Set<PipelineConfiguration>(new PipelineConfiguration(new PipelineModificationsBuilder()));
+            var featureSettings = new FeatureActivator(settingsHolder, new CommonObjectBuilder());
             var dependingFeature = setup.DependingFeature;
             featureSettings.Add(dependingFeature);
             Array.ForEach(setup.AvailableFeatures, featureSettings.Add);
 
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(null));
+            featureSettings.SetupFeatures();
 
             Assert.AreEqual(setup.ShouldBeActive, dependingFeature.IsActive);
         }
@@ -79,14 +83,15 @@
             };
 
             var settings = new SettingsHolder();
-            var featureSettings = new FeatureActivator(settings);
+            settings.Set<PipelineConfiguration>(new PipelineConfiguration(new PipelineModificationsBuilder()));
+            var featureSettings = new FeatureActivator(settings, new CommonObjectBuilder());
 
             featureSettings.Add(dependingFeature);
             featureSettings.Add(feature);
 
             settings.EnableFeatureByDefault<MyFeature1>();
 
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(null));
+            featureSettings.SetupFeatures();
 
             Assert.True(dependingFeature.IsActive);
 
@@ -116,7 +121,8 @@
             };
 
             var settings = new SettingsHolder();
-            var featureSettings = new FeatureActivator(settings);
+            settings.Set<PipelineConfiguration>(new PipelineConfiguration(new PipelineModificationsBuilder()));
+            var featureSettings = new FeatureActivator(settings, new CommonObjectBuilder());
 
             featureSettings.Add(dependingFeature);
             featureSettings.Add(feature);
@@ -127,7 +133,7 @@
             settings.EnableFeatureByDefault<MyFeature2>();
             settings.EnableFeatureByDefault<MyFeature3>();
 
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(null));
+            featureSettings.SetupFeatures();
 
             Assert.True(dependingFeature.IsActive);
 
@@ -156,14 +162,15 @@
             };
 
             var settings = new SettingsHolder();
-            var featureSettings = new FeatureActivator(settings);
+            settings.Set<PipelineConfiguration>(new PipelineConfiguration(new PipelineModificationsBuilder()));
+            var featureSettings = new FeatureActivator(settings, new CommonObjectBuilder());
 
             //the orders matter here to expose a bug
             featureSettings.Add(level3);
             featureSettings.Add(level2);
             featureSettings.Add(level1);
 
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(null));
+            featureSettings.SetupFeatures();
 
 
             Assert.True(level1.IsActive, "Level1 wasn't activated");

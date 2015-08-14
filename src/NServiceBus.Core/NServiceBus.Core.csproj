@@ -147,6 +147,7 @@
     <Compile Include="Faults\ErrorSubscribers.cs" />
     <Compile Include="Features\FeatureRunner.cs" />
     <Compile Include="Features\FeatureState.cs" />
+    <Compile Include="Features\SatelliteRegistration.cs" />
     <Compile Include="FirstLevelRetries\FirstLevelRetry.cs" />
     <Compile Include="Faults\ErrorQueueSettings.cs" />
     <Compile Include="Faults\StoreFaultsInErrorQueue.cs" />
@@ -179,9 +180,14 @@
     <Compile Include="Pipeline\Contexts\LogicalMessagesContextExtensions.cs" />
     <Compile Include="OutgoingPipeline\OutgoingPublishContext.cs" />
     <Compile Include="Pipeline\Contexts\TransportMessageContextExtensions.cs" />
+    <Compile Include="Pipeline\FeatureBehaviorsRegistration.cs" />
     <Compile Include="Pipeline\IPipelineTerminator.cs" />
     <Compile Include="Pipeline\IStageConnector.cs" />
     <Compile Include="Pipeline\PipelineDiagnostics.cs" />
+    <Compile Include="Pipeline\PipelineModifications.cs" />
+    <Compile Include="Pipeline\PipelineModificationsComposer.cs" />
+    <Compile Include="Pipeline\Satellite.cs" />
+    <Compile Include="Pipeline\SatelliteCollection.cs" />
     <Compile Include="Reliability\Outbox\DeliveryConstraintsFactory.cs" />
     <Compile Include="Reliability\Outbox\OutboxDispatchStrategy.cs" />
     <Compile Include="Performance\ReceiveStatisticsFeature.cs" />
@@ -379,7 +385,7 @@
     <Compile Include="Persistence\Storage.cs" />
     <Compile Include="Persistence\StorageType.cs" />
     <Compile Include="Pipeline\HardcodedPipelineSteps.cs" />
-    <Compile Include="Pipeline\PipelineModifications.cs" />
+    <Compile Include="Pipeline\PipelineModificationsBuilder.cs" />
     <Compile Include="Sagas\CorrelationProperty.cs" />
     <Compile Include="Sagas\CustomFinderAdapter.cs" />
     <Compile Include="Sagas\LoadSagaByIdWrapper.cs" />

@@ -4,6 +4,7 @@ namespace NServiceBus.Features
     using System.Collections.Generic;
     using System.Linq;
     using NServiceBus.ObjectBuilder;
+    using NServiceBus.Pipeline;
     using NServiceBus.Settings;
 
     /// <summary>
@@ -70,9 +71,10 @@ namespace NServiceBus.Features
 
     class FeatureActivator
     {
-        public FeatureActivator(SettingsHolder settings)
+        public FeatureActivator(SettingsHolder settings, IConfigureComponents container)
         {
             this.settings = settings;
+            this.container = container;
         }
 
         internal List<FeatureDiagnosticData> Status
@@ -97,7 +99,7 @@ namespace NServiceBus.Features
             }));
         }
 
-        public FeaturesReport SetupFeatures(FeatureConfigurationContext context)
+        public FeaturesReport SetupFeatures()
         {
             // featuresToActivate is enumerated twice because after setting defaults some new features might got activated.
             var sourceFeatures = Sort(features);
@@ -120,7 +122,10 @@ namespace NServiceBus.Features
 
             foreach (var feature in enabledFeatures)
             {
+                var pipelineModificationsBuilder = new PipelineModificationsBuilder();
+                var context = new FeatureConfigurationContext(container, settings, pipelineModificationsBuilder);
                 ActivateFeature(feature, enabledFeatures, context);
+                settings.Get<PipelineConfiguration>().RegisterFeatureBehaviors(feature.Feature.GetType(), pipelineModificationsBuilder);
             }
             settings.PreventChanges();
 
@@ -265,6 +270,7 @@ namespace NServiceBus.Features
 
         List<FeatureInfo> features = new List<FeatureInfo>();
         SettingsHolder settings;
+        readonly IConfigureComponents container;
 
         class FeatureInfo
         {
