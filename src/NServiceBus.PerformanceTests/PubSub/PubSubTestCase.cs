@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Transactions;
 using NServiceBus;
 using NServiceBus.Configuration.AdvanceExtensibility;
+using NServiceBus.Extensibility;
 using NServiceBus.Features;
 using NServiceBus.Settings;
 using NServiceBus.Transports.Msmq;
@@ -65,7 +66,7 @@ public class PubSubTestCase : TestCase
                 break;
         }
 
-        
+
         using (var bus = Bus.Create(configuration))
         {
             Parallel.For(
@@ -108,9 +109,9 @@ public class PrimeSubscriptionStorage : Feature
 
         public ReadOnlySettings Settings { get; set; }
 
-        public ISubscriptionStorage SubscriptionStorage { get; set; }
+        public IInitializableSubscriptionStorage SubscriptionStorage { get; set; }
 
-        void PrimeSubscriptionStorage(ISubscriptionStorage subscriptionStorage)
+        void PrimeSubscriptionStorage(IInitializableSubscriptionStorage subscriptionStorage)
         {
             var testEventMessage = new MessageType(typeof(TestEvent));
 
@@ -135,7 +136,7 @@ public class PrimeSubscriptionStorage : Feature
                     subscriptionStorage.Subscribe(subscriberAddress, new List<MessageType>
                 {
                     testEventMessage
-                });
+                }, new SubscriptionStorageOptions(new ContextBag()));
 
                     tx.Complete();
                 }

@@ -33,7 +33,7 @@
             }
             else
             {
-                context.Container.ConfigureComponent<DispatchStrategy>(b => new StorageDrivenDispatcher(b.Build<ISubscriptionStorage>(), b.Build<MessageMetadataRegistry>()), DependencyLifecycle.SingleInstance);
+                context.Container.ConfigureComponent<DispatchStrategy>(b => new StorageDrivenDispatcher(b.Build<IQuerySubscriptions>(), b.Build<MessageMetadataRegistry>()), DependencyLifecycle.SingleInstance);
             }
 
             context.Pipeline.Register("DetermineRouteForSend", typeof(DetermineRouteForSendBehavior), "Determines how the message being sent should be routed");

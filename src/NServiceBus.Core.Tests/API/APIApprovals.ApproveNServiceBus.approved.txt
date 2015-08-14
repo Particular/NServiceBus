@@ -2770,12 +2770,23 @@ namespace NServiceBus.Unicast.Routing
 }
 namespace NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions
 {
-    public interface ISubscriptionStorage
+    public interface IInitializableSubscriptionStorage : NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.ISubscriptionStorage
+    {
+        void Init();
+    }
+    public interface IQuerySubscriptions
     {
         System.Collections.Generic.IEnumerable<string> GetSubscriberAddressesForMessage(System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Subscriptions.MessageType> messageTypes);
-        void Init();
-        void Subscribe(string client, System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Subscriptions.MessageType> messageTypes);
-        void Unsubscribe(string client, System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Subscriptions.MessageType> messageTypes);
+    }
+    public interface ISubscriptionStorage
+    {
+        void Subscribe(string client, System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Subscriptions.MessageType> messageTypes, NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.SubscriptionStorageOptions options);
+        void Unsubscribe(string client, System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Subscriptions.MessageType> messageTypes, NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.SubscriptionStorageOptions options);
+    }
+    public class SubscriptionStorageOptions
+    {
+        public SubscriptionStorageOptions(NServiceBus.Extensibility.ContextBag context) { }
+        public NServiceBus.Extensibility.ReadOnlyContextBag Context { get; }
     }
 }
 namespace NServiceBus.Unicast.Subscriptions
