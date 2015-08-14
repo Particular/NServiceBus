@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Core.Tests
+﻿namespace NServiceBus.Core.Tests.FirstLevelRetries
 {
     using System;
     using System.Collections.Generic;
@@ -31,7 +31,7 @@
 
             behavior.Invoke(context, () =>
             {
-                throw new Exception("test"); 
+                throw new Exception("test");
             });
 
             Assert.True(context.AbortReceiveOperation);
@@ -65,9 +65,9 @@
                 throw new Exception("test");
             }));
 
-
             Assert.AreEqual(0, storage.GetRetriesForMessage("someid"));
         }
+
         [Test]
         public void ShouldRememberRetryCountBetweenRetries()
         {
@@ -79,10 +79,8 @@
                 throw new Exception("test");
             });
 
-
             Assert.AreEqual(1, storage.GetRetriesForMessage("someid"));
         }
-
 
         [Test]
         public void ShouldRaiseBusNotificationsForFLR()
@@ -100,16 +98,16 @@
                 Assert.AreEqual("someid", flr.Headers[Headers.MessageId]);
 
                 notificationFired = true;
-            })
-                ;
+            });
+
             behavior.Invoke(CreateContext("someid"), () =>
             {
                 throw new Exception("test");
             });
 
-
             Assert.True(notificationFired);
         }
+
         PhysicalMessageProcessingStageBehavior.Context CreateContext(string messageId)
         {
             var context = new PhysicalMessageProcessingStageBehavior.Context(new TransportReceiveContext(new IncomingMessage(messageId, new Dictionary<string, string>(), new MemoryStream()), null));

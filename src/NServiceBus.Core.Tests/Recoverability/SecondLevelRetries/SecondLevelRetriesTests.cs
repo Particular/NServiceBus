@@ -31,15 +31,13 @@
 
             var slrNotification = new SecondLevelRetry();
 
-            notifications.Errors.MessageHasBeenSentToSecondLevelRetries.Subscribe(slr =>
-            {
-                slrNotification = slr; });
+            notifications.Errors.MessageHasBeenSentToSecondLevelRetries.Subscribe(slr => { slrNotification = slr; });
 
             behavior.Invoke(CreateContext("someid", 1), () => { throw new Exception("testex"); });
 
             Assert.AreEqual("someid", fakeDispatchPipeline.DispatchContext.Get<OutgoingMessage>().Headers[Headers.MessageId]);
-            Assert.AreEqual(delay, ((DelayDeliveryWith)fakeDispatchPipeline.DispatchContext.GetDeliveryConstraints().Single(c=>c is DelayDeliveryWith)).Delay);
-            Assert.AreEqual("test-address-for-this-pipeline", ((DirectToTargetDestination)fakeDispatchPipeline.DispatchContext.Get<RoutingStrategy>()).Destination);
+            Assert.AreEqual(delay, ((DelayDeliveryWith) fakeDispatchPipeline.DispatchContext.GetDeliveryConstraints().Single(c => c is DelayDeliveryWith)).Delay);
+            Assert.AreEqual("test-address-for-this-pipeline", ((DirectToTargetDestination) fakeDispatchPipeline.DispatchContext.Get<RoutingStrategy>()).Destination);
             Assert.AreEqual("testex", slrNotification.Exception.Message);
         }
 
@@ -68,6 +66,7 @@
 
             Assert.False(context.GetPhysicalMessage().Headers.ContainsKey(Headers.Retries));
         }
+
         [Test]
         public void ShouldSkipRetryForDeserializationErrors()
         {
@@ -104,7 +103,6 @@
 
             context.GetPhysicalMessage().Headers.Clear();
 
-
             var fakeDispatchPipeline = new FakeDispatchPipeline();
             var behavior = new SecondLevelRetriesBehavior(fakeDispatchPipeline, retryPolicy, new BusNotifications());
             behavior.Initialize(new PipelineInfo("Test", "test-address-for-this-pipeline"));
@@ -115,10 +113,12 @@
             Assert.AreEqual("1", fakeDispatchPipeline.DispatchContext.Get<OutgoingMessage>().Headers[Headers.Retries]);
         }
 
-
         PhysicalMessageProcessingStageBehavior.Context CreateContext(string messageId, int currentRetryCount)
         {
-            var context = new PhysicalMessageProcessingStageBehavior.Context(new TransportReceiveContext(new IncomingMessage(messageId, new Dictionary<string, string> { { Headers.Retries, currentRetryCount.ToString() } }, new MemoryStream()), null));
+            var context = new PhysicalMessageProcessingStageBehavior.Context(new TransportReceiveContext(new IncomingMessage(messageId, new Dictionary<string, string>
+            {
+                {Headers.Retries, currentRetryCount.ToString()}
+            }, new MemoryStream()), null));
             return context;
         }
     }
@@ -135,12 +135,10 @@
 
     class FakePolicy : SecondLevelRetryPolicy
     {
-        TimeSpan? delayToReturn;
-
         public FakePolicy()
         {
-
         }
+
         public FakePolicy(TimeSpan delayToReturn)
         {
             this.delayToReturn = delayToReturn;
@@ -160,5 +158,7 @@
             delay = delayToReturn.Value;
             return true;
         }
+
+        TimeSpan? delayToReturn;
     }
 }

@@ -145,7 +145,7 @@
     <Compile Include="Faults\ErrorSubscribers.cs" />
     <Compile Include="Features\FeatureRunner.cs" />
     <Compile Include="Features\FeatureState.cs" />
-    <Compile Include="FirstLevelRetries\FirstLevelRetry.cs" />
+    <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetry.cs" />
     <Compile Include="Faults\ErrorQueueSettings.cs" />
     <Compile Include="Faults\StoreFaultsInErrorQueue.cs" />
     <Compile Include="Forwarding\ForwardingContext.cs" />
@@ -284,8 +284,8 @@
     <Compile Include="Features\DisplayDiagnosticsForFeatures.cs" />
     <Compile Include="Features\ExposeSettings.cs" />
     <Compile Include="Features\PrerequisiteStatus.cs" />
-    <Compile Include="FirstLevelRetries\FirstLevelRetries.cs" />
-    <Compile Include="FirstLevelRetries\FirstLevelRetryPolicy.cs" />
+    <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetries.cs" />
+    <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetryPolicy.cs" />
     <Compile Include="Pipeline\BehaviorInstance.cs" />
     <Compile Include="Pipeline\IExecutor.cs" />
     <Compile Include="Pipeline\IndividualLimitThreadPoolExecutor.cs" />
@@ -412,7 +412,7 @@
     <Compile Include="Transports\Msmq\MsmqReceiveWithTransactionScopeBehavior.cs" />
     <Compile Include="Transports\ReceiveOptions.cs" />
     <Compile Include="Forwarding\ForwardReceivedMessages.cs" />
-    <Compile Include="FirstLevelRetries\FirstLevelRetriesBehavior.cs" />
+    <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetriesBehavior.cs" />
     <Compile Include="Pipeline\Contexts\HandlingContext.cs" />
     <Compile Include="Unicast\Behaviors\MessageProcessingAbortedException.cs" />
     <Compile Include="Unicast\Config\RegisterHandlersInOrder.cs" />
@@ -682,7 +682,7 @@
     <Compile Include="Unicast\Transport\ControlMessageFactory.cs" />
     <Compile Include="Unicast\Transport\FailedMessageProcessingEventArgs.cs" />
     <Compile Include="Unicast\Transport\Config\UseTransportExtensions.cs" />
-    <Compile Include="FirstLevelRetries\FlrStatusStorage.cs" />
+    <Compile Include="Recoverability\FirstLevelRetries\FlrStatusStorage.cs" />
     <Compile Include="Unicast\Transport\ThroughputLimiter.cs" />
     <Compile Include="Unicast\Transport\TransportReceiver.cs" />
     <Compile Include="Unicast\Transport\TransactionSettings.cs" />

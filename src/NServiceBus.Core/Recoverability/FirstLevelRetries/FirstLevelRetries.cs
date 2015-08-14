@@ -60,6 +60,7 @@ namespace NServiceBus.Features
             {
                 this.statusStorage = statusStorage;
 
+                //TODO: make interval configurable? default value?
                 timer = new Timer
                 {
                     Interval = TimeSpan.FromSeconds(10).TotalMilliseconds,
