@@ -13,12 +13,11 @@
 
     class StorageDrivenDispatcher : DispatchStrategy
     {
-        public StorageDrivenDispatcher(ISubscriptionStorage subscriptionStorage, MessageMetadataRegistry messageMetadataRegistry)
+        public StorageDrivenDispatcher(IQuerySubscriptions querySubscriptions, MessageMetadataRegistry messageMetadataRegistry)
         {
-            this.subscriptionStorage = subscriptionStorage;
+            this.querySubscriptions = querySubscriptions;
             this.messageMetadataRegistry = messageMetadataRegistry;
         }
-
 
         public override void Dispatch(IDispatchMessages dispatcher, OutgoingMessage message, RoutingStrategy routingStrategy, ConsistencyGuarantee minimumConsistencyGuarantee, IEnumerable<DeliveryConstraint> constraints, BehaviorContext currentContext)
         {
@@ -44,7 +43,7 @@
                 .Distinct()
                 .ToList();
 
-            var subscribers = subscriptionStorage.GetSubscriberAddressesForMessage(eventTypesToPublish.Select(t => new MessageType(t))).ToList();
+            var subscribers = querySubscriptions.GetSubscriberAddressesForMessage(eventTypesToPublish.Select(t => new MessageType(t))).ToList();
 
 
             currentContext.Set(new SubscribersForEvent(subscribers, eventType));
@@ -64,7 +63,7 @@
             }
         }
 
-        readonly ISubscriptionStorage subscriptionStorage;
+        readonly IQuerySubscriptions querySubscriptions;
         readonly MessageMetadataRegistry messageMetadataRegistry;
     }
 }

@@ -80,20 +80,13 @@
         {
             protected override void Setup(FeatureConfigurationContext context)
             {
-                context.Container.ConfigureComponent<HardCodedPersistenceImpl>(DependencyLifecycle.SingleInstance);
+                context.Container.ConfigureComponent<HardcodedSubscriptionQuery>(DependencyLifecycle.SingleInstance);
+                context.Container.ConfigureComponent<NoOpSubscriptionManager>(DependencyLifecycle.SingleInstance);
             }
         }
 
-        public class HardCodedPersistenceImpl : ISubscriptionStorage
+        public class HardcodedSubscriptionQuery : IQuerySubscriptions
         {
-            public void Subscribe(string client, IEnumerable<MessageType> messageTypes)
-            {
-            }
-
-            public void Unsubscribe(string client, IEnumerable<MessageType> messageTypes)
-            {
-            }
-
             public IEnumerable<string> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes)
             {
                 return new[]
@@ -101,8 +94,15 @@
                     "publishingfromsendonly.subscriber"
                 };
             }
+        }
 
-            public void Init()
+        public class NoOpSubscriptionManager : ISubscriptionStorage
+        {
+            public void Subscribe(string client, IEnumerable<MessageType> messageTypes, SubscriptionStorageOptions options)
+            {
+            }
+
+            public void Unsubscribe(string client, IEnumerable<MessageType> messageTypes, SubscriptionStorageOptions options)
             {
             }
         }

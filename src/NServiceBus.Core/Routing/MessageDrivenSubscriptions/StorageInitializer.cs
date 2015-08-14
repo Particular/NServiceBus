@@ -12,7 +12,7 @@
 
         class CallInit : FeatureStartupTask
         {
-            public ISubscriptionStorage SubscriptionStorage { get; set; }
+            public IInitializableSubscriptionStorage SubscriptionStorage { get; set; }
 
             protected override void OnStart()
             {
@@ -25,7 +25,6 @@
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            
         }
     }
 }

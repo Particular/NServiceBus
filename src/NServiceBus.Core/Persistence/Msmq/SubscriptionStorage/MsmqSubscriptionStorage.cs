@@ -15,7 +15,7 @@ namespace NServiceBus.Persistence.SubscriptionStorage
     /// Provides functionality for managing message subscriptions
     /// using MSMQ.
     /// </summary>
-    class MsmqSubscriptionStorage : ISubscriptionStorage, IDisposable
+    class MsmqSubscriptionStorage : IInitializableSubscriptionStorage, IQuerySubscriptions, IDisposable
     {
         public bool TransactionsEnabled { get; set; }
 
@@ -79,7 +79,7 @@ namespace NServiceBus.Persistence.SubscriptionStorage
             }
         }
 
-        public void Subscribe(string address, IEnumerable<MessageType> messageTypes)
+        public void Subscribe(string address, IEnumerable<MessageType> messageTypes, SubscriptionStorageOptions options)
         {
             lock (locker)
             {
@@ -113,7 +113,7 @@ namespace NServiceBus.Persistence.SubscriptionStorage
             }
         }
 
-        public void Unsubscribe(string address, IEnumerable<MessageType> messageTypes)
+        public void Unsubscribe(string address, IEnumerable<MessageType> messageTypes, SubscriptionStorageOptions options)
         {
             lock (locker)
             {

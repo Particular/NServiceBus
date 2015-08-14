@@ -58,6 +58,7 @@
                 return;
             }
 
+            var options = new SubscriptionStorageOptions(context);
             if (transportMessage.MessageIntent == MessageIntentEnum.Subscribe)
             {
                 Logger.Info("Subscribing " + subscriberAddress + " to message type " + messageTypeString);
@@ -67,7 +68,7 @@
                 subscriptionStorage.Subscribe(transportMessage.ReplyToAddress, new[]
                 {
                     mt
-                });
+                }, options);
 
                 return;
             }
@@ -76,7 +77,7 @@
             subscriptionStorage.Unsubscribe(subscriberAddress, new[]
             {
                 new MessageType(messageTypeString)
-            });
+            }, options);
         }
 
 

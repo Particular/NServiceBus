@@ -201,10 +201,13 @@
     <Compile Include="Routing\DetermineRouteForPublishBehavior.cs" />
     <Compile Include="Routing\DetermineRouteForSendBehavior.cs" />
     <Compile Include="Routing\DirectToTargetDestination.cs" />
+    <Compile Include="Routing\MessageDrivenSubscriptions\IInitializableSubscriptionStorage.cs" />
+    <Compile Include="Routing\MessageDrivenSubscriptions\IQuerySubscriptions.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\MessageDrivenUnsubscribeTerminator.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\MessageDrivenSubscribeTerminator.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\MessageDrivenSubscriptions.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\SubscriptionRouter.cs" />
+    <Compile Include="Routing\MessageDrivenSubscriptions\SubscriptionStorageOptions.cs" />
     <Compile Include="Routing\MessageRouter.cs" />
     <Compile Include="Routing\MessagingBestPractices\BestPracticeEnforcement.cs" />
     <Compile Include="Routing\MessagingBestPractices\EnforceBestPracticesOptions.cs" />

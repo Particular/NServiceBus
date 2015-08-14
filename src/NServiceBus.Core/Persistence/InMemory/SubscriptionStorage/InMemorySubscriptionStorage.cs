@@ -9,9 +9,9 @@ namespace NServiceBus.InMemory.SubscriptionStorage
     /// <summary>
     ///     In memory implementation of the subscription storage
     /// </summary>
-    class InMemorySubscriptionStorage : ISubscriptionStorage
+    class InMemorySubscriptionStorage : ISubscriptionStorage, IQuerySubscriptions
     {
-        public void Subscribe(string address, IEnumerable<MessageType> messageTypes)
+        public void Subscribe(string address, IEnumerable<MessageType> messageTypes, SubscriptionStorageOptions options)
         {
             foreach (var m in messageTypes)
             {
@@ -21,7 +21,7 @@ namespace NServiceBus.InMemory.SubscriptionStorage
             }
         }
 
-        public void Unsubscribe(string address, IEnumerable<MessageType> messageTypes)
+        public void Unsubscribe(string address, IEnumerable<MessageType> messageTypes, SubscriptionStorageOptions options)
         {
             foreach (var m in messageTypes)
             {
@@ -46,10 +46,6 @@ namespace NServiceBus.InMemory.SubscriptionStorage
                 }
             }
             return result;
-        }
-
-        public void Init()
-        {
         }
 
         ConcurrentDictionary<MessageType, ConcurrentDictionary<string, object>> storage = new ConcurrentDictionary<MessageType, ConcurrentDictionary<string, object>>();
