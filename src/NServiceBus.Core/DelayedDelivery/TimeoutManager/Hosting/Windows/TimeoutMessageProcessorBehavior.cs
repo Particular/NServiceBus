@@ -25,8 +25,7 @@ namespace NServiceBus
         public override void Terminate(PhysicalMessageProcessingStageBehavior.Context context)
         {
             var message = context.GetPhysicalMessage();         
-            // TODO Daniel; Change when SatelliteTerminator PR is merged
-            var options = new TimeoutPersistenceOptions(new ContextBag());
+            var options = new TimeoutPersistenceOptions(context);
             //dispatch request will arrive at the same input so we need to make sure to call the correct handler
             if (message.Headers.ContainsKey(TimeoutIdToDispatchHeader))
             {
