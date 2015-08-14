@@ -5,7 +5,7 @@ namespace NServiceBus.InMemory.TimeoutPersister
     using System.Threading;
     using Timeout.Core;
 
-    class InMemoryTimeoutPersister : IPersistTimeouts, IDisposable
+    class InMemoryTimeoutPersister : IPersistTimeouts, IQueryTimeouts, IDisposable
     {
         List<TimeoutData> storage = new List<TimeoutData>();
         ReaderWriterLockSlim readerWriterLock = new ReaderWriterLockSlim();
@@ -44,7 +44,7 @@ namespace NServiceBus.InMemory.TimeoutPersister
             return tuples;
         }
 
-        public void Add(TimeoutData timeout)
+        public void Add(TimeoutData timeout, TimeoutPersistenceOptions options)
         {
             timeout.Id = Guid.NewGuid().ToString();
             try
@@ -58,7 +58,7 @@ namespace NServiceBus.InMemory.TimeoutPersister
             }
         }
 
-        public bool TryRemove(string timeoutId, out TimeoutData timeoutData)
+        public bool TryRemove(string timeoutId, TimeoutPersistenceOptions options, out TimeoutData timeoutData)
         {
             try
             {
@@ -84,7 +84,7 @@ namespace NServiceBus.InMemory.TimeoutPersister
             }
         }
 
-        public void RemoveTimeoutBy(Guid sagaId)
+        public void RemoveTimeoutBy(Guid sagaId, TimeoutPersistenceOptions options)
         {
             try
             {

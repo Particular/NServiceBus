@@ -15,11 +15,20 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
     class TimeoutPersisterReceiver : IDisposable
     {
-        public IPersistTimeouts TimeoutsPersister { get; set; }
-        public IDispatchMessages MessageSender { get; set; }
-        public int SecondsToSleepBetweenPolls { get; set; }
-        public DefaultTimeoutManager TimeoutManager { get; set; }
+        IQueryTimeouts timeoutsQuery;
+        DefaultTimeoutManager timeoutManager;
+        IDispatchMessages messageSender;
+
         public CriticalError CriticalError { get; set; }
+
+        public TimeoutPersisterReceiver(IQueryTimeouts queryTimeouts, IDispatchMessages dispatchMessages, DefaultTimeoutManager timeoutManager, CriticalError criticalError)
+        {
+            timeoutsQuery = queryTimeouts;
+            messageSender = dispatchMessages;
+            this.timeoutManager = timeoutManager;
+        }
+
+        public int SecondsToSleepBetweenPolls { get; set; }
         public string DispatcherAddress { get; set; }
         public TimeSpan TimeToWaitBeforeTriggeringCriticalError { get; set; }
 
@@ -34,7 +43,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
                 ex =>
                     CriticalError.Raise("Repeated failures when fetching timeouts from storage, endpoint will be terminated.", ex));
 
-            TimeoutManager.TimeoutPushed = TimeoutsManagerOnTimeoutPushed;
+            timeoutManager.TimeoutPushed = TimeoutsManagerOnTimeoutPushed;
 
             SecondsToSleepBetweenPolls = 1;
 
@@ -45,7 +54,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         public void Stop()
         {
-            TimeoutManager.TimeoutPushed = null;
+            timeoutManager.TimeoutPushed = null;
             tokenSource.Cancel();
             resetEvent.WaitOne();
         }
@@ -88,7 +97,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
                 Logger.DebugFormat("Polling for timeouts at {0}.", DateTime.Now);
 
                 DateTime nextExpiredTimeout;
-                var timeoutDatas = TimeoutsPersister.GetNextChunk(startSlice, out nextExpiredTimeout);
+                var timeoutDatas = timeoutsQuery.GetNextChunk(startSlice, out nextExpiredTimeout);
 
                 foreach (var timeoutData in timeoutDatas)
                 {
@@ -102,7 +111,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
                     dispatchRequest.Headers["Timeout.Id"] = timeoutData.Item1;
 
-                    MessageSender.Dispatch(dispatchRequest, new DispatchOptions(DispatcherAddress, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), new ContextBag()));
+                    messageSender.Dispatch(dispatchRequest, new DispatchOptions(DispatcherAddress, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), new ContextBag()));
                 }
 
                 lock (lockObject)

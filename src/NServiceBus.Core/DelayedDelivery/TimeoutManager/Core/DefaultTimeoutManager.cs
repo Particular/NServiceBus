@@ -9,25 +9,30 @@ namespace NServiceBus.Timeout.Core
 
     class DefaultTimeoutManager
     {
-        public IPersistTimeouts TimeoutsPersister { get; set; }
+        readonly IPersistTimeouts persistTimeouts;
+        readonly IDispatchMessages dispatchMessages;
 
-        public IDispatchMessages MessageSender { get; set; }
+        public DefaultTimeoutManager(IPersistTimeouts timeoutsPersister, IDispatchMessages messageDispatcher)
+        {
+            dispatchMessages = messageDispatcher;
+            persistTimeouts = timeoutsPersister;
+        }
 
         public Action<TimeoutData> TimeoutPushed;
 
-        public void PushTimeout(TimeoutData timeout)
+        public void PushTimeout(TimeoutData timeout, TimeoutPersistenceOptions options)
         {
             if (timeout.Time.AddSeconds(-1) <= DateTime.UtcNow)
             {
                 var sendOptions = new DispatchOptions(timeout.Destination,new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), new ContextBag());
                 var message = new OutgoingMessage(timeout.Headers[Headers.MessageId],timeout.Headers, timeout.State);
 
-                MessageSender.Dispatch(message, sendOptions);
+                dispatchMessages.Dispatch(message, sendOptions);
                 return;
             }
 
 
-            TimeoutsPersister.Add(timeout);
+            persistTimeouts.Add(timeout, options);
 
             if (TimeoutPushed != null)
             {
@@ -35,16 +40,16 @@ namespace NServiceBus.Timeout.Core
             }
         }
 
-        public void RemoveTimeout(string timeoutId)
+        public void RemoveTimeout(string timeoutId, TimeoutPersistenceOptions options)
         {
             TimeoutData timeoutData;
 
-            TimeoutsPersister.TryRemove(timeoutId, out timeoutData);
+            persistTimeouts.TryRemove(timeoutId, options, out timeoutData);
         }
 
-        public void RemoveTimeoutBy(Guid sagaId)
+        public void RemoveTimeoutBy(Guid sagaId, TimeoutPersistenceOptions options)
         {
-            TimeoutsPersister.RemoveTimeoutBy(sagaId);
+            persistTimeouts.RemoveTimeoutBy(sagaId, options);
         }
     }
 }

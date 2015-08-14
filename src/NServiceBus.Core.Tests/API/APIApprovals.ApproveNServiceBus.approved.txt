@@ -2298,10 +2298,13 @@ namespace NServiceBus.Timeout.Core
 {
     public interface IPersistTimeouts
     {
-        void Add(NServiceBus.Timeout.Core.TimeoutData timeout);
+        void Add(NServiceBus.Timeout.Core.TimeoutData timeout, NServiceBus.Timeout.Core.TimeoutPersistenceOptions options);
+        void RemoveTimeoutBy(System.Guid sagaId, NServiceBus.Timeout.Core.TimeoutPersistenceOptions options);
+        bool TryRemove(string timeoutId, NServiceBus.Timeout.Core.TimeoutPersistenceOptions options, out NServiceBus.Timeout.Core.TimeoutData timeoutData);
+    }
+    public interface IQueryTimeouts
+    {
         System.Collections.Generic.IEnumerable<System.Tuple<string, System.DateTime>> GetNextChunk(System.DateTime startSlice, out System.DateTime nextTimeToRunQuery);
-        void RemoveTimeoutBy(System.Guid sagaId);
-        bool TryRemove(string timeoutId, out NServiceBus.Timeout.Core.TimeoutData timeoutData);
     }
     public class TimeoutData
     {
@@ -2323,6 +2326,11 @@ namespace NServiceBus.Timeout.Core
         [System.ObsoleteAttribute("Use new OutgoingMessage(timeoutData.State) instead. Will be removed in version 7." +
             "0.0.", true)]
         public NServiceBus.TransportMessage ToTransportMessage() { }
+    }
+    public class TimeoutPersistenceOptions
+    {
+        public TimeoutPersistenceOptions(NServiceBus.Extensibility.ReadOnlyContextBag context) { }
+        public NServiceBus.Extensibility.ReadOnlyContextBag Context { get; set; }
     }
 }
 namespace NServiceBus.TransportDispatch

@@ -12,31 +12,37 @@ namespace NServiceBus
 
     class TimeoutMessageProcessorBehavior : SatelliteBehavior
     {
-        public IDispatchMessages MessageSender { get; set; }
+        readonly DefaultTimeoutManager defaultTimeoutManager;
+        readonly IDispatchMessages dispatchMessages;
 
+        public TimeoutMessageProcessorBehavior(IDispatchMessages dispatcher, DefaultTimeoutManager timeoutManager)
+        {
+            dispatchMessages = dispatcher;
+            defaultTimeoutManager = timeoutManager;
+        }
+
+        // ReSharper disable once UnusedAutoPropertyAccessor.Global
         public string InputAddress { get; set; }
 
-        public DefaultTimeoutManager TimeoutManager { get; set; }
-
-        public Configure Configure { get; set; }
-
+        // ReSharper disable once UnusedAutoPropertyAccessor.Global
         public string EndpointName { get; set; }
 
         public override void Terminate(PhysicalMessageProcessingStageBehavior.Context context)
         {
             var message = context.GetPhysicalMessage();         
+            var options = new TimeoutPersistenceOptions(context);
             //dispatch request will arrive at the same input so we need to make sure to call the correct handler
             if (message.Headers.ContainsKey(TimeoutIdToDispatchHeader))
             {
-                HandleBackwardsCompatibility(message);
+                HandleBackwardsCompatibility(message, options);
             }
             else
             {
-                HandleInternal(message);
+                HandleInternal(message, options);
             }
         }
 
-        void HandleBackwardsCompatibility(TransportMessage message)
+        void HandleBackwardsCompatibility(TransportMessage message, TimeoutPersistenceOptions options)
         {
             var timeoutId = message.Headers[TimeoutIdToDispatchHeader];
 
@@ -52,11 +58,11 @@ namespace NServiceBus
                 destination = routeExpiredTimeoutTo;
             }
 
-            TimeoutManager.RemoveTimeout(timeoutId);
-            MessageSender.Dispatch(new OutgoingMessage(message.Id,message.Headers, message.Body), new DispatchOptions(destination,new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), new ContextBag()));
+            defaultTimeoutManager.RemoveTimeout(timeoutId, options);
+            dispatchMessages.Dispatch(new OutgoingMessage(message.Id, message.Headers, message.Body), new DispatchOptions(destination, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), new ContextBag()));
         }
 
-        void HandleInternal(TransportMessage message)
+        void HandleInternal(TransportMessage message, TimeoutPersistenceOptions options)
         {
             var sagaId = Guid.Empty;
 
@@ -71,7 +77,7 @@ namespace NServiceBus
                 if (sagaId == Guid.Empty)
                     throw new InvalidOperationException("Invalid saga id specified, clear timeouts is only supported for saga instances");
 
-                TimeoutManager.RemoveTimeoutBy(sagaId);
+                defaultTimeoutManager.RemoveTimeoutBy(sagaId, options);
             }
             else
             {
@@ -99,9 +105,7 @@ namespace NServiceBus
                     OwningTimeoutManager = EndpointName
                 };
 
-
-
-                TimeoutManager.PushTimeout(data);
+                defaultTimeoutManager.PushTimeout(data, options);
             }
         }
 

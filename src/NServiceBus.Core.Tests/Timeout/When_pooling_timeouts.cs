@@ -4,52 +4,38 @@ namespace NServiceBus.Core.Tests.Timeout
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
-    using InMemory.TimeoutPersister;
+    using NServiceBus.Extensibility;
+    using NServiceBus.InMemory.TimeoutPersister;
     using NServiceBus.Timeout.Core;
     using NServiceBus.Timeout.Hosting.Windows;
     using NUnit.Framework;
 
     [TestFixture]
     [Explicit]
-    class When_pooling_timeouts_with_inMemory : When_pooling_timeouts
-    {
-        protected override IPersistTimeouts CreateTimeoutPersister()
-        {
-            return new InMemoryTimeoutPersister();
-        }
-    }
-
-    abstract class When_pooling_timeouts
+    class When_pooling_timeouts_with_inMemory
     {
         DefaultTimeoutManager manager;
         FakeMessageSender messageSender;
         Random rand = new Random();
         int expected;
 
-        IPersistTimeouts persister;
+        InMemoryTimeoutPersister persister;
         TimeoutPersisterReceiver receiver;
-
-        protected abstract IPersistTimeouts CreateTimeoutPersister();
+        TimeoutPersistenceOptions options;
 
         [SetUp]
         public void Setup()
         {
-            persister = CreateTimeoutPersister();
+            options = new TimeoutPersistenceOptions(new ContextBag());
+            persister = new InMemoryTimeoutPersister();
             messageSender = new FakeMessageSender();
 
-            manager = new DefaultTimeoutManager
-                {
-                    TimeoutsPersister = persister,
-                    MessageSender = messageSender,
-                };
+            manager = new DefaultTimeoutManager(persister, messageSender);
 
-            receiver = new TimeoutPersisterReceiver
-                {
-                    TimeoutManager = manager,
-                    TimeoutsPersister = persister,
-                    MessageSender = messageSender,
-                    SecondsToSleepBetweenPolls = 1,
-                };
+            receiver = new TimeoutPersisterReceiver(persister, messageSender, manager, null)
+            {
+                SecondsToSleepBetweenPolls = 1,
+            };
         }
 
         [Test]
@@ -58,7 +44,7 @@ namespace NServiceBus.Core.Tests.Timeout
             expected = 50;
 
             for (var i = 0; i < expected; i++)
-                persister.Add(CreateData(DateTime.UtcNow.AddSeconds(-5)));
+                persister.Add(CreateData(DateTime.UtcNow.AddSeconds(-5)), options);
 
             StartAndStopReceiver();
 
@@ -70,7 +56,7 @@ namespace NServiceBus.Core.Tests.Timeout
         {
             expected = 1;
 
-            manager.PushTimeout(CreateData(DateTime.UtcNow.AddSeconds(2)));
+            manager.PushTimeout(CreateData(DateTime.UtcNow.AddSeconds(2)), options);
 
             StartAndStopReceiver(5);
 
@@ -108,10 +94,10 @@ namespace NServiceBus.Core.Tests.Timeout
             receiver.Start();
 
             Task.Factory.StartNew(() =>
-                {
-                    Thread.Sleep(TimeSpan.FromSeconds(1));
-                    Push(50, DateTime.UtcNow.AddSeconds(rand.Next(0, 5)));
-                });
+            {
+                Thread.Sleep(TimeSpan.FromSeconds(1));
+                Push(50, DateTime.UtcNow.AddSeconds(rand.Next(0, 5)));
+            });
 
             Push(50, DateTime.UtcNow.AddSeconds(1));
 
@@ -152,7 +138,7 @@ namespace NServiceBus.Core.Tests.Timeout
         private void Push(int total, DateTime time)
         {
             for (var i = 0; i < total; i++)
-                manager.PushTimeout(CreateData(time));
+                manager.PushTimeout(CreateData(time), options);
         }
 
         private void StartAndStopReceiver(int secondsToWaitBeforeCallingStop = 1)
@@ -165,11 +151,11 @@ namespace NServiceBus.Core.Tests.Timeout
         private static TimeoutData CreateData(DateTime time)
         {
             return new TimeoutData
-                {
-                    OwningTimeoutManager = "MyEndpoint",
-                    Time = time,
-                    Headers = new Dictionary<string, string>(),
-                };
+            {
+                OwningTimeoutManager = "MyEndpoint",
+                Time = time,
+                Headers = new Dictionary<string, string>(),
+            };
         }
 
         private void WaitForMessagesThenAssert(int maxSecondsToWait)
