@@ -18,17 +18,12 @@ namespace NServiceBus.Transports
         /// <param name="minimumConsistencyGuarantee">The level of consistency that's required for this operation.</param>
         /// <param name="deliveryConstraints">The delivery constraints that must be honored by the transport.</param>
         /// <param name="context">The pipeline context if present.</param>
-        public DispatchOptions(RoutingStrategy routingStrategy, ConsistencyGuarantee minimumConsistencyGuarantee, IEnumerable<DeliveryConstraint> deliveryConstraints, ContextBag context = null)
+        public DispatchOptions(RoutingStrategy routingStrategy, ConsistencyGuarantee minimumConsistencyGuarantee, IEnumerable<DeliveryConstraint> deliveryConstraints, ContextBag context)
         {
             RoutingStrategy = routingStrategy;
             MinimumConsistencyGuarantee = minimumConsistencyGuarantee;
             DeliveryConstraints = deliveryConstraints;
             Context = context;
-
-            if (context == null)
-            {
-                Context = new ContextBag();
-            }
         }
 
         /// <summary>
@@ -38,11 +33,11 @@ namespace NServiceBus.Transports
         /// <param name="minimumConsistencyGuarantee">The level of consistency that's required for this operation.</param>
         /// <param name="deliveryConstraints">The delivery constraints that must be honored by the transport.</param>
         /// <param name="context">The pipeline context if present.</param>
-        public DispatchOptions(string destination, ConsistencyGuarantee minimumConsistencyGuarantee, IEnumerable<DeliveryConstraint> deliveryConstraints, ContextBag context = null)
+        public DispatchOptions(string destination, ConsistencyGuarantee minimumConsistencyGuarantee, IEnumerable<DeliveryConstraint> deliveryConstraints, ContextBag context)
             : this(new DirectToTargetDestination(destination), minimumConsistencyGuarantee,deliveryConstraints,context)
         {
-          
         }
+
         /// <summary>
         /// The strategy to use when routing this message.
         /// </summary>
@@ -61,6 +56,6 @@ namespace NServiceBus.Transports
         /// <summary>
         /// Access to the behavior context.
         /// </summary>
-        public ContextBag Context { get; private set; }
+        public ReadOnlyContextBag Context { get; private set; }
     }
 }

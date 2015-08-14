@@ -7,6 +7,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
     using NServiceBus.CircuitBreakers;
     using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.DeliveryConstraints;
+    using NServiceBus.Extensibility;
     using NServiceBus.Logging;
     using NServiceBus.Timeout.Core;
     using NServiceBus.Transports;
@@ -101,7 +102,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
                     dispatchRequest.Headers["Timeout.Id"] = timeoutData.Item1;
 
-                    MessageSender.Dispatch(dispatchRequest, new DispatchOptions(DispatcherAddress, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>()));
+                    MessageSender.Dispatch(dispatchRequest, new DispatchOptions(DispatcherAddress, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), new ContextBag()));
                 }
 
                 lock (lockObject)

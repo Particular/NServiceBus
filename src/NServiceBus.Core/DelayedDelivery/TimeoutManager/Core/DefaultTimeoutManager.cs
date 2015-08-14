@@ -4,6 +4,7 @@ namespace NServiceBus.Timeout.Core
     using System.Collections.Generic;
     using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.DeliveryConstraints;
+    using NServiceBus.Extensibility;
     using NServiceBus.Transports;
 
     class DefaultTimeoutManager
@@ -18,7 +19,7 @@ namespace NServiceBus.Timeout.Core
         {
             if (timeout.Time.AddSeconds(-1) <= DateTime.UtcNow)
             {
-                var sendOptions = new DispatchOptions(timeout.Destination,new AtomicWithReceiveOperation(), new List<DeliveryConstraint>());
+                var sendOptions = new DispatchOptions(timeout.Destination,new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), new ContextBag());
                 var message = new OutgoingMessage(timeout.Headers[Headers.MessageId],timeout.Headers, timeout.State);
 
                 MessageSender.Dispatch(message, sendOptions);

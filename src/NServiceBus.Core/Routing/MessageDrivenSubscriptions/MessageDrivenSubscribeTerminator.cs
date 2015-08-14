@@ -6,6 +6,7 @@
     using System.Threading;
     using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.DeliveryConstraints;
+    using NServiceBus.Extensibility;
     using NServiceBus.Logging;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
@@ -55,7 +56,7 @@
         {
             try
             {
-                dispatcher.Dispatch(subscriptionMessage, new DispatchOptions(destination, new AtLeastOnce(), new List<DeliveryConstraint>()));
+                dispatcher.Dispatch(subscriptionMessage, new DispatchOptions(destination, new AtLeastOnce(), new List<DeliveryConstraint>(), new ContextBag()));
             }
             catch (QueueNotFoundException ex)
             {

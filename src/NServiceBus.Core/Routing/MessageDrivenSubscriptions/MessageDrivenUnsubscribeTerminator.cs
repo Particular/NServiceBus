@@ -5,6 +5,7 @@
     using System.Linq;
     using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.DeliveryConstraints;
+    using NServiceBus.Extensibility;
     using NServiceBus.Logging;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
@@ -43,7 +44,7 @@
                 subscriptionMessage.Headers[Headers.ReplyToAddress] = replyToAddress;
 
 
-                dispatcher.Dispatch(subscriptionMessage, new DispatchOptions(publisherAddress, new AtLeastOnce(), new List<DeliveryConstraint>()));
+                dispatcher.Dispatch(subscriptionMessage, new DispatchOptions(publisherAddress, new AtLeastOnce(), new List<DeliveryConstraint>(), new ContextBag()));
             }
         }
 

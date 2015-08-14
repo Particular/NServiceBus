@@ -5,6 +5,7 @@ namespace NServiceBus.Unicast
     using Janitor;
     using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.DeliveryConstraints;
+    using NServiceBus.Extensibility;
     using NServiceBus.MessageInterfaces;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.OutgoingPipeline;
@@ -118,7 +119,7 @@ namespace NServiceBus.Unicast
                 return;
             }
 
-            dispatcher.Dispatch(new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new DispatchOptions(sendLocalAddress, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>()));
+            dispatcher.Dispatch(new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new DispatchOptions(sendLocalAddress, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), new ContextBag()));
 
             incomingContext.handleCurrentMessageLaterWasCalled = true;
 
@@ -130,7 +131,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public void ForwardCurrentMessageTo(string destination)
         {
-            dispatcher.Dispatch(new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new DispatchOptions(destination, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>()));
+            dispatcher.Dispatch(new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new DispatchOptions(destination, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), new ContextBag()));
         }
 
         public void Send<T>(Action<T> messageConstructor, NServiceBus.SendOptions options)
