@@ -16,7 +16,7 @@
         const string BASETYPE = "baseType";
 
         string nameSpace = "http://tempuri.net";
-        List<Type> namespacesToAdd;
+        List<Type> namespacesToAdd = new List<Type>();
 
         readonly IMessageMapper mapper;
         readonly Conventions conventions;
@@ -39,17 +39,12 @@
 
         public byte[] Serialize(object message)
         {
-            InitializeNamespaces(message);
-            var messageBuilder = SerializeMessage(message);
+            var serializedMessage = SerializeMessage(message);
 
-            var builder = new StringBuilder();
-            builder.AppendLine("<?xml version=\"1.0\" ?>");
-
-            builder.Append(messageBuilder);
-            return Encoding.UTF8.GetBytes(builder.ToString());
+            return Encoding.UTF8.GetBytes(serializedMessage);
         }
 
-        string InitializeNamespaces(object message)
+        string InitializeNamespace(object message)
         {
             namespacesToAdd = new List<Type>();
 
@@ -62,14 +57,28 @@
             return mapper.GetMappedTypeFor(message.GetType()).Namespace;
         }
 
-        StringBuilder SerializeMessage(object message)
+        string SerializeMessage(object message)
         {
             var messageBuilder = new StringBuilder();
+
+            messageBuilder.AppendLine("<?xml version=\"1.0\" ?>");
+
             var t = mapper.GetMappedTypeFor(message.GetType());
+            var baseTypes = GetBaseTypes(message);
 
-            WriteObject(t.SerializationFriendlyName(), t, message, messageBuilder, true);
+            var objectBuilder = new StringBuilder();
+            var elementName = t.SerializationFriendlyName();
 
-            return messageBuilder;
+            WriteObject(elementName, t, message, objectBuilder);
+
+            var startElementBuilder = new StringBuilder();
+            var ns = GetNamespace(message);
+            WriteElementWithNamespaces(ns, baseTypes, startElementBuilder, elementName);
+
+            objectBuilder.Replace(string.Format("<{0}>", elementName), startElementBuilder.ToString());
+            messageBuilder.AppendLine(objectBuilder.ToString().TrimEnd());
+
+            return messageBuilder.ToString();
         }
 
         static string FormatAsString(object value)
@@ -326,7 +335,7 @@
             return result;
         }
 
-        void WriteObject(string name, Type type, object value, StringBuilder builder, bool useNS = false)
+        void WriteObject(string name, Type type, object value, StringBuilder builder)
         {
             var element = name;
 
@@ -343,17 +352,8 @@
 
                 return;
             }
-
-            if (useNS)
-            {
-                var @namespace = InitializeNamespaces(value);
-                var baseTypes = GetBaseTypes(value);
-                CreateStartElementWithNamespaces(@namespace, baseTypes, builder, element);
-            }
-            else
-            {
-                builder.AppendFormat("<{0}>\n", element);
-            }
+            
+            builder.AppendFormat("<{0}>\n", element);
 
             Write(builder, type, value);
 
@@ -518,7 +518,7 @@
             });
         }
 
-        void CreateStartElementWithNamespaces(string messageNamespace, List<string> baseTypes, StringBuilder builder, string element)
+        void WriteElementWithNamespaces(string messageNamespace, List<string> baseTypes, StringBuilder builder, string element)
         {
             builder.AppendFormat(
                 "<{0} xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"",
@@ -542,7 +542,7 @@
                 builder.AppendFormat(" xmlns:{0}=\"{1}\"", prefix, baseTypes[i]);
             }
 
-            builder.Append(">\n");
+            builder.Append(">");
         }
     }
 }
