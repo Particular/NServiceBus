@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Core.Tests.SecondLevelRetries
+﻿namespace NServiceBus.Core.Tests.Recoverability.SecondLevelRetries
 {
     using System;
     using System.Collections.Generic;
@@ -9,8 +9,8 @@
     using NServiceBus.Faults;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Recoverability.SecondLevelRetries;
     using NServiceBus.Routing;
-    using NServiceBus.SecondLevelRetries;
     using NServiceBus.TransportDispatch;
     using NServiceBus.Transports;
     using NServiceBus.Unicast.Transport;

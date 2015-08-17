@@ -1,9 +1,9 @@
 namespace NServiceBus.Features
 {
     using System;
-    using System.Timers;
+    using System.Threading;
     using Config;
-    using NServiceBus.FirstLevelRetries;
+    using NServiceBus.Recoverability.FirstLevelRetries;
     using NServiceBus.Settings;
 
     /// <summary>
@@ -53,38 +53,32 @@ namespace NServiceBus.Features
 
         class FlrStatusStorageCleaner : FeatureStartupTask
         {
-            FlrStatusStorage statusStorage;
-            Timer timer;
-
             public FlrStatusStorageCleaner(FlrStatusStorage statusStorage)
             {
                 this.statusStorage = statusStorage;
-
-                //TODO: make interval configurable? default value?
-                timer = new Timer
-                {
-                    Interval = TimeSpan.FromSeconds(10).TotalMilliseconds,
-                    AutoReset = true,
-                    SynchronizingObject = null
-                };
-                timer.Elapsed += ClearFlrStatusStorage;
             }
 
             protected override void OnStart()
             {
-                timer.Start();
+                timer = new Timer(ClearFlrStatusStorage, null, ClearingInterval, ClearingInterval);
             }
 
             protected override void OnStop()
             {
-                timer.Stop();
-                //TODO: can't implement IDisposable in nested class bc. Fody.Janitor
+                if (timer != null)
+                {
+                    timer.Dispose();
+                }
             }
 
-            void ClearFlrStatusStorage(object sender, ElapsedEventArgs e)
+            void ClearFlrStatusStorage(object state)
             {
                 statusStorage.Clear();
             }
+
+            static readonly TimeSpan ClearingInterval = TimeSpan.FromMinutes(5);
+            FlrStatusStorage statusStorage;
+            Timer timer;
         }
 
     }

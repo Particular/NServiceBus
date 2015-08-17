@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.FirstLevelRetries
+﻿namespace NServiceBus.Recoverability.FirstLevelRetries
 {
     using System.Collections.Concurrent;
 

@@ -2,7 +2,7 @@ namespace NServiceBus.Config
 {
     using System;
     using System.Configuration;
-    using NServiceBus.SecondLevelRetries;
+    using NServiceBus.Recoverability.SecondLevelRetries;
 
     /// <summary>
     /// Configuration options for the SLR feature.

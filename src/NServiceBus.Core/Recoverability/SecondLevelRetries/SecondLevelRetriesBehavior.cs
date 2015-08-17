@@ -5,8 +5,8 @@ namespace NServiceBus
     using NServiceBus.DelayedDelivery;
     using NServiceBus.DeliveryConstraints;
     using NServiceBus.Pipeline;
+    using NServiceBus.Recoverability.SecondLevelRetries;
     using NServiceBus.Routing;
-    using NServiceBus.SecondLevelRetries;
     using NServiceBus.TransportDispatch;
     using NServiceBus.Transports;
 

@@ -1,8 +1,8 @@
-﻿namespace NServiceBus.Core.Tests.SecondLevelRetries
+﻿namespace NServiceBus.Core.Tests.Recoverability.SecondLevelRetries
 {
     using System;
     using System.Collections.Generic;
-    using NServiceBus.SecondLevelRetries;
+    using NServiceBus.Recoverability.SecondLevelRetries;
     using NUnit.Framework;
 
     [TestFixture]

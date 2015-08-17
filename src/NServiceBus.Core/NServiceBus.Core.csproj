@@ -703,9 +703,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Recoverability\SecondLevelRetries\Helpers\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Compile Include="Properties\Resharper.Annotations.g.cs" />
     <None Include="Resources\NServiceBus_Logo-  white.png" />

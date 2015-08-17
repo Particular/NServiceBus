@@ -2,8 +2,8 @@ namespace NServiceBus
 {
     using System;
     using NServiceBus.Features;
-    using NServiceBus.FirstLevelRetries;
     using NServiceBus.Pipeline;
+    using NServiceBus.Recoverability.FirstLevelRetries;
     using NServiceBus.Settings;
 
     class FirstLevelRetriesBehavior : PhysicalMessageProcessingStageBehavior
@@ -11,11 +11,6 @@ namespace NServiceBus
         FlrStatusStorage storage;
         FirstLevelRetryPolicy retryPolicy;
         BusNotifications notifications;
-
-        public static FirstLevelRetriesBehavior CreateForTests(FlrStatusStorage storage, FirstLevelRetryPolicy retryPolicy, BusNotifications notifications)
-        {
-            return new FirstLevelRetriesBehavior(storage, retryPolicy, notifications);
-        }
 
         public FirstLevelRetriesBehavior(FlrStatusStorage storage, FirstLevelRetryPolicy retryPolicy, BusNotifications notifications)
         {
@@ -36,6 +31,7 @@ namespace NServiceBus
             }
             catch (Exception ex)
             {
+                // TODO should we add piplineInfo.Name to the messageId?
                 var messageId = context.GetPhysicalMessage().Id;
 
                 var numberOfRetries = storage.GetRetriesForMessage(messageId);
@@ -68,7 +64,7 @@ namespace NServiceBus
 
             public override bool IsEnabled(ReadOnlySettings settings)
             {
-                return settings.IsFeatureActive(typeof(Features.FirstLevelRetries));
+                return settings.IsFeatureActive(typeof(FirstLevelRetries));
             }
         }
 
