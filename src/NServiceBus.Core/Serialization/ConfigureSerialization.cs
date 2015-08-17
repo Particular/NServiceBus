@@ -23,7 +23,6 @@
         /// </summary>
         protected internal sealed override void Setup(FeatureConfigurationContext context)
         {
-            context.Container.ConfigureComponent<MessageDeserializerResolver>(DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent<MessageMapper>(DependencyLifecycle.SingleInstance);
 
             var serializerType = GetSerializerType(context);
@@ -36,7 +35,7 @@
 
             if (this.IsDefaultSerializer(context))
             {
-                context.Container.ConfigureProperty<MessageDeserializerResolver>(resolver => resolver.DefaultSerializerType, serializerType);
+                context.Container.ConfigureComponent(b => new MessageDeserializerResolver(b.BuildAll<IMessageSerializer>(), serializerType), DependencyLifecycle.SingleInstance);
             }
         }
 

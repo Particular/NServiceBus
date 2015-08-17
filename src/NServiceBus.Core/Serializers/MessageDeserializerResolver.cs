@@ -7,22 +7,19 @@
 
     class MessageDeserializerResolver
     {
-        public Type DefaultSerializerType { get; set; }
-        IMessageSerializer defaultSerializer;
         readonly IDictionary<string, IMessageSerializer> serializersMap;
+        readonly IMessageSerializer defaultSerializer;
 
-        public MessageDeserializerResolver(IEnumerable<IMessageSerializer> messageSerializers)
+        public MessageDeserializerResolver(IEnumerable<IMessageSerializer> messageSerializers, Type defaultSerializerType)
         {
+            Guard.AgainstNull("defaultSerializerType", defaultSerializerType);
+
             serializersMap = messageSerializers.ToDictionary(key => key.ContentType, value => value);
+            defaultSerializer = serializersMap.Values.Single(serializer => serializer.GetType() == defaultSerializerType);
         }
 
         public IMessageSerializer Resolve(string contentType)
         {
-            if (DefaultSerializerType != null)
-            {
-                defaultSerializer = serializersMap.Values.First(s => s.GetType() == DefaultSerializerType);
-            }
-
             IMessageSerializer serializer;
             if (serializersMap.TryGetValue(contentType, out serializer))
             {

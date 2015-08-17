@@ -14,7 +14,7 @@
             var config = new BusConfiguration();
             config.AddDeserializer<JsonSerializer>();
 
-            var deserializers = (HashSet<SerializationDefinition>) config.Settings.Get("AdditionalDeserializers");
+            var deserializers = config.Settings.Get<HashSet<SerializationDefinition>>("AdditionalDeserializers");
             Assert.AreEqual(1, deserializers.Count);
             Assert.IsInstanceOf<JsonSerializer>(deserializers.First());
         }
@@ -26,7 +26,7 @@
             config.AddDeserializer<JsonSerializer>();
             config.AddDeserializer<JsonSerializer>();
 
-            var deserializers = (HashSet<SerializationDefinition>)config.Settings.Get("AdditionalDeserializers");
+            var deserializers = config.Settings.Get<HashSet<SerializationDefinition>>("AdditionalDeserializers");
             Assert.AreEqual(1, deserializers.Count);
         }
     }
