@@ -73,7 +73,7 @@ namespace NServiceBus.Features
 
             void ClearFlrStatusStorage(object state)
             {
-                statusStorage.Clear();
+                statusStorage.ClearAllFailures();
             }
 
             static readonly TimeSpan ClearingInterval = TimeSpan.FromMinutes(5);

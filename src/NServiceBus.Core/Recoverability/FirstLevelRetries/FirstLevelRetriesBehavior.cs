@@ -31,23 +31,22 @@ namespace NServiceBus
             }
             catch (Exception ex)
             {
-                // TODO should we add piplineInfo.Name to the messageId?
-                var messageId = context.GetPhysicalMessage().Id;
+                var messageId = PipelineInfo.Name + context.GetPhysicalMessage().Id;
 
-                var numberOfRetries = storage.GetRetriesForMessage(messageId);
+                var numberOfFailures = storage.GetFailuresForMessage(messageId);
 
-                if (retryPolicy.ShouldGiveUp(numberOfRetries))
+                if (retryPolicy.ShouldGiveUp(numberOfFailures))
                 {
                     storage.ClearFailuresForMessage(messageId);
-                    context.GetPhysicalMessage().Headers[Headers.FLRetries] = numberOfRetries.ToString();
-                    notifications.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(numberOfRetries, context.GetPhysicalMessage(), ex);
+                    context.GetPhysicalMessage().Headers[Headers.FLRetries] = numberOfFailures.ToString();
+                    notifications.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(numberOfFailures, context.GetPhysicalMessage(), ex);
                     throw;
                 }
 
                 storage.IncrementFailuresForMessage(messageId);
 
                 //question: should we invoke this the first time around? feels like the naming is off?
-                notifications.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(numberOfRetries,context.GetPhysicalMessage(),ex);
+                notifications.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(numberOfFailures,context.GetPhysicalMessage(),ex);
 
                 context.AbortReceiveOperation = true;
             }
