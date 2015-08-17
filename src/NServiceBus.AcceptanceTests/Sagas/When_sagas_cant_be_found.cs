@@ -87,7 +87,7 @@
 
                 public class Saga1Data : ContainSagaData
                 {
-                    public Guid MessageId { get; set; }
+                    public virtual Guid MessageId { get; set; }
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Saga1Data> mapper)
@@ -111,7 +111,7 @@
 
                 public class Saga2Data : ContainSagaData
                 {
-                    public Guid MessageId { get; set; }
+                    public virtual Guid MessageId { get; set; }
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Saga2Data> mapper)
