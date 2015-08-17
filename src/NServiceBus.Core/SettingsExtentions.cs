@@ -21,7 +21,8 @@ namespace NServiceBus
             var configurationSource = settings.Get<IConfigurationSource>();
 
             // ReSharper disable HeapView.SlowDelegateCreation
-            var sectionOverrideType = typesToScan.FirstOrDefault(t => typeof(IProvideConfiguration<T>).IsAssignableFrom(t));
+            var sectionOverrideType = typesToScan.Where(t => !t.IsAbstract)
+                .FirstOrDefault(t => typeof(IProvideConfiguration<T>).IsAssignableFrom(t));
             // ReSharper restore HeapView.SlowDelegateCreation
 
             if (sectionOverrideType == null)
