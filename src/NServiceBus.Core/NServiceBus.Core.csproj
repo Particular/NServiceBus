@@ -127,8 +127,8 @@
     <Compile Include="DelayedDelivery\NoOpCanceling.cs" />
     <Compile Include="DelayedDelivery\RequestCancelingOfDeferredMessagesFromTimeoutManager.cs" />
     <Compile Include="DelayedDelivery\RouteDeferredMessageToTimeoutManagerBehavior.cs" />
-    <Compile Include="DelayedDelivery\TimeoutManager\Core\IQueryTimeouts.cs" />
-    <Compile Include="DelayedDelivery\TimeoutManager\Core\TimeoutPersistenceOptions.cs" />
+    <Compile Include="DelayedDelivery\TimeoutManager\Persistence\IQueryTimeouts.cs" />
+    <Compile Include="DelayedDelivery\TimeoutManager\Persistence\TimeoutPersistenceOptions.cs" />
     <Compile Include="DeliveryConstraints\DeliveryConstraintContextExtensions.cs" />
     <Compile Include="Encryption\DecryptBehavior.cs" />
     <Compile Include="Encryption\EncryptBehavior.cs" />
@@ -646,14 +646,13 @@
     <Compile Include="Serializers\XML\XmlMessageSerializer.cs" />
     <Compile Include="Serializers\XML\XmlSanitizingStream.cs" />
     <Compile Include="Settings\TransactionSettings.cs" />
-    <Compile Include="DelayedDelivery\TimeoutManager\Core\DefaultTimeoutManager.cs" />
-    <Compile Include="DelayedDelivery\TimeoutManager\Core\IPersistTimeouts.cs" />
-    <Compile Include="DelayedDelivery\TimeoutManager\Core\TimeoutData.cs" />
+    <Compile Include="DelayedDelivery\TimeoutManager\Persistence\IPersistTimeouts.cs" />
+    <Compile Include="DelayedDelivery\TimeoutManager\Persistence\TimeoutData.cs" />
     <Compile Include="Persistence\InMemory\TimeoutPersister\InMemoryTimeoutPersister.cs" />
-    <Compile Include="DelayedDelivery\TimeoutManager\Hosting\Windows\TimeoutDispatcherProcessorBehavior.cs" />
-    <Compile Include="DelayedDelivery\TimeoutManager\Hosting\Windows\TimeoutMessageProcessorBehavior.cs" />
-    <Compile Include="DelayedDelivery\TimeoutManager\Hosting\Windows\TimeoutPersisterReceiver.cs" />
-    <Compile Include="DelayedDelivery\TimeoutManager\Core\TimeoutManagerHeaders.cs" />
+    <Compile Include="DelayedDelivery\TimeoutManager\DispatchTimeoutBehavior.cs" />
+    <Compile Include="DelayedDelivery\TimeoutManager\StoreTimeoutBehavior.cs" />
+    <Compile Include="DelayedDelivery\TimeoutManager\ExpiredTimeoutsPoller.cs" />
+    <Compile Include="DelayedDelivery\TimeoutManager\TimeoutManagerHeaders.cs" />
     <Compile Include="TransportMessage.cs" />
     <Compile Include="Licensing\LicenseExpiredForm.cs">
       <SubType>Form</SubType>

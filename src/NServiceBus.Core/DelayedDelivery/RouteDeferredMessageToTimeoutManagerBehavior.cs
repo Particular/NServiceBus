@@ -2,11 +2,11 @@ namespace NServiceBus
 {
     using System;
     using NServiceBus.DelayedDelivery;
+    using NServiceBus.DelayedDelivery.TimeoutManager;
     using NServiceBus.DeliveryConstraints;
     using NServiceBus.Performance.TimeToBeReceived;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
-    using NServiceBus.Timeout;
     using NServiceBus.TransportDispatch;
 
     class RouteDeferredMessageToTimeoutManagerBehavior : Behavior<DispatchContext>
