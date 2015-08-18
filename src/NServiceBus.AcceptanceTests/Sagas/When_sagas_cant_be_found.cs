@@ -73,7 +73,7 @@
                 }
             }
 
-            public class Saga1 : Saga<Saga1.Saga1Data>, IAmStartedByMessages<StartSaga>, IHandleMessages<MessageToSaga>
+            public class CantBeFoundSaga1 : Saga<CantBeFoundSaga1.CantBeFoundSaga1Data>, IAmStartedByMessages<StartSaga>, IHandleMessages<MessageToSaga>
             {
 
                 public void Handle(StartSaga message)
@@ -85,19 +85,19 @@
                 {
                 }
 
-                public class Saga1Data : ContainSagaData
+                public class CantBeFoundSaga1Data : ContainSagaData
                 {
                     public virtual Guid MessageId { get; set; }
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Saga1Data> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<CantBeFoundSaga1Data> mapper)
                 {
                     mapper.ConfigureMapping<StartSaga>(m => m.Id).ToSaga(s => s.MessageId);
                     mapper.ConfigureMapping<MessageToSaga>(m => m.Id).ToSaga(s => s.MessageId);
                 }
             }
 
-            public class Saga2 : Saga<Saga2.Saga2Data>, IAmStartedByMessages<StartSaga>, IHandleMessages<MessageToSaga>
+            public class CantBeFoundSaga2 : Saga<CantBeFoundSaga2.CantBeFoundSaga2Data>, IAmStartedByMessages<StartSaga>, IHandleMessages<MessageToSaga>
             {
 
                 public void Handle(StartSaga message)
@@ -109,12 +109,12 @@
                 {
                 }
 
-                public class Saga2Data : ContainSagaData
+                public class CantBeFoundSaga2Data : ContainSagaData
                 {
                     public virtual Guid MessageId { get; set; }
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Saga2Data> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<CantBeFoundSaga2Data> mapper)
                 {
                     mapper.ConfigureMapping<StartSaga>(m => m.Id).ToSaga(s => s.MessageId);
                     mapper.ConfigureMapping<MessageToSaga>(m => m.Id).ToSaga(s => s.MessageId);
@@ -139,7 +139,7 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.EnableFeature<TimeoutManager>();
-                    c.ExecuteTheseHandlersFirst(typeof(Saga1), typeof(Saga2));
+                    c.ExecuteTheseHandlersFirst(typeof(ReceiverWithOrderedSagasSaga1), typeof(ReceiverWithOrderedSagasSaga2));
                 });
             }
 
@@ -168,7 +168,7 @@
                 }
             }
 
-            public class Saga1 : Saga<Saga1.Saga1Data>, IAmStartedByMessages<StartSaga>, IHandleMessages<MessageToSaga>
+            public class ReceiverWithOrderedSagasSaga1 : Saga<ReceiverWithOrderedSagasSaga1.ReceiverWithOrderedSagasSaga1Data>, IAmStartedByMessages<StartSaga>, IHandleMessages<MessageToSaga>
             {
                 public void Handle(StartSaga message)
                 {
@@ -179,19 +179,19 @@
                 {
                 }
 
-                public class Saga1Data : ContainSagaData
+                public class ReceiverWithOrderedSagasSaga1Data : ContainSagaData
                 {
                     public virtual Guid MessageId { get; set; }
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Saga1Data> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ReceiverWithOrderedSagasSaga1Data> mapper)
                 {
                     mapper.ConfigureMapping<StartSaga>(m => m.Id).ToSaga(s => s.MessageId);
                     mapper.ConfigureMapping<MessageToSaga>(m => m.Id).ToSaga(s => s.MessageId);
                 }
             }
 
-            public class Saga2 : Saga<Saga2.Saga2Data>, IHandleMessages<StartSaga>, IAmStartedByMessages<MessageToSaga>
+            public class ReceiverWithOrderedSagasSaga2 : Saga<ReceiverWithOrderedSagasSaga2.ReceiverWithOrderedSagasSaga2Data>, IHandleMessages<StartSaga>, IAmStartedByMessages<MessageToSaga>
             {
                 public void Handle(StartSaga message)
                 {
@@ -202,12 +202,12 @@
                 {
                 }
 
-                public class Saga2Data : ContainSagaData
+                public class ReceiverWithOrderedSagasSaga2Data : ContainSagaData
                 {
                     public virtual Guid MessageId { get; set; }
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Saga2Data> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ReceiverWithOrderedSagasSaga2Data> mapper)
                 {
                     mapper.ConfigureMapping<StartSaga>(m => m.Id).ToSaga(s => s.MessageId);
                     mapper.ConfigureMapping<MessageToSaga>(m => m.Id).ToSaga(s => s.MessageId);

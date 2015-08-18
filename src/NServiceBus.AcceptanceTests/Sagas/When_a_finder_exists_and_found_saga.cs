@@ -32,22 +32,22 @@
                 EndpointSetup<DefaultServer>();
             }
 
-            public class CustomFinder : IFindSagas<TestSaga.SagaData>.Using<SomeOtherMessage>
+            public class CustomFinder : IFindSagas<TestSaga08.SagaData08>.Using<SomeOtherMessage>
             {
                 // ReSharper disable once MemberCanBePrivate.Global
                 public Context Context { get; set; }
 
-                public TestSaga.SagaData FindBy(SomeOtherMessage message, SagaPersistenceOptions options)
+                public TestSaga08.SagaData08 FindBy(SomeOtherMessage message, SagaPersistenceOptions options)
                 {
                     Context.FinderUsed = true;
-                    return new TestSaga.SagaData
+                    return new TestSaga08.SagaData08
                            {
                                Property = "jfbsjdfbsdjh"
                            };
                 }
             }
 
-            public class TestSaga : Saga<TestSaga.SagaData>,
+            public class TestSaga08 : Saga<TestSaga08.SagaData08>,
                 IAmStartedByMessages<StartSagaMessage>,
                 IHandleMessages<SomeOtherMessage>
             {
@@ -58,12 +58,12 @@
                     Bus.SendLocal(new SomeOtherMessage());
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData08> mapper)
                 {
                     // not required because of CustomFinder
                 }
 
-                public class SagaData : ContainSagaData
+                public class SagaData08 : ContainSagaData
                 {
                     public virtual string Property { get; set; }
                 }

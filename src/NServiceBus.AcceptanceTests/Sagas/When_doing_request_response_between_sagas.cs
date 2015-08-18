@@ -24,7 +24,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 EndpointSetup<DefaultServer>(config => config.EnableFeature<TimeoutManager>());
             }
 
-            public class RequestingSaga : Saga<RequestingSaga.RequestingSagaData>,
+            public class RequestResponseRequestingSaga : Saga<RequestResponseRequestingSaga.RequestResponseRequestingSagaData>,
                 IAmStartedByMessages<InitiateRequestingSaga>,
                 IHandleMessages<ResponseFromOtherSaga>
             {
@@ -46,21 +46,21 @@ namespace NServiceBus.AcceptanceTests.Sagas
                     MarkAsComplete();
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestingSagaData> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestResponseRequestingSagaData> mapper)
                 {
                     mapper.ConfigureMapping<InitiateRequestingSaga>(m => m.Id).ToSaga(s => s.CorrIdForResponse);
                     mapper.ConfigureMapping<ResponseFromOtherSaga>(m => m.SomeCorrelationId).ToSaga(s => s.CorrIdForResponse);
                 }
-                public class RequestingSagaData : ContainSagaData
+                public class RequestResponseRequestingSagaData : ContainSagaData
                 {
                     public virtual Guid CorrIdForResponse { get; set; } //wont be needed in the future
                 }
 
             }
 
-            public class RespondingSaga : Saga<RespondingSaga.RespondingSagaData>,
+            public class RequestResponseRespondingSaga : Saga<RequestResponseRespondingSaga.RequestResponseRespondingSagaData>,
                 IAmStartedByMessages<RequestToRespondingSaga>,
-                IHandleTimeouts<RespondingSaga.DelayReply>,
+                IHandleTimeouts<RequestResponseRespondingSaga.DelayReply>,
                 IHandleMessages<SendReplyFromNonInitiatingHandler>
             {
                 public Context Context { get; set; }
@@ -89,14 +89,14 @@ namespace NServiceBus.AcceptanceTests.Sagas
                     Bus.Reply(new ResponseFromOtherSaga());
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RespondingSagaData> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestResponseRespondingSagaData> mapper)
                 {
                     mapper.ConfigureMapping<RequestToRespondingSaga>(m => m.SomeIdThatTheResponseSagaCanCorrelateBackToUs).ToSaga(s => s.CorrIdForRequest);
                     //this line is just needed so we can test the non initiating handler case
                     mapper.ConfigureMapping<SendReplyFromNonInitiatingHandler>(m => m.SagaIdSoWeCanCorrelate).ToSaga(s => s.Id);
                 }
 
-                public class RespondingSagaData : ContainSagaData
+                public class RequestResponseRespondingSagaData : ContainSagaData
                 {
                     public virtual Guid CorrIdForRequest { get; set; }
                 }

@@ -34,7 +34,7 @@
                 EndpointSetup<DefaultServer>(config => config.EnableFeature<TimeoutManager>());
             }
 
-            public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartSagaMessage>, IHandleTimeouts<StartSagaMessage>
+            public class TestSaga01 : Saga<TestSagaData01>, IAmStartedByMessages<StartSagaMessage>, IHandleTimeouts<StartSagaMessage>
             {
                 public Context Context { get; set; }
 
@@ -44,7 +44,7 @@
                     RequestTimeout(TimeSpan.FromMilliseconds(100), message);
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData01> mapper)
                 {
                     mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
                         .ToSaga(s => s.SomeId);
@@ -57,7 +57,7 @@
                 }
             }
 
-            public class TestSagaData : IContainSagaData
+            public class TestSagaData01 : IContainSagaData
             {
                 public virtual Guid Id { get; set; }
                 public virtual string Originator { get; set; }

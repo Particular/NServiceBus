@@ -27,7 +27,7 @@
                 .Repeat(r => r.For(Transports.Default))
                 .Run();
 
-            Debug.WriteLine(context.ExceptionMessage, "A modification of IContainSagaData.Id has been detected. This property is for infrastructure purposes only and should not be modified. SagaType: " + typeof(Endpoint.MySaga));
+            Debug.WriteLine(context.ExceptionMessage, "A modification of IContainSagaData.Id has been detected. This property is for infrastructure purposes only and should not be modified. SagaType: " + typeof(Endpoint.SagaIdChangedSaga));
         }
 
         public class Context : ScenarioContext
@@ -47,7 +47,7 @@
                     });
             }
 
-            public class MySaga : Saga<MySaga.MySagaData>,
+            public class SagaIdChangedSaga : Saga<SagaIdChangedSaga.SagaIdChangedSagaData>,
                 IAmStartedByMessages<StartSaga>
             {
                 public Context Context { get; set; }
@@ -58,12 +58,12 @@
                     Data.Id = Guid.NewGuid();
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaIdChangedSagaData> mapper)
                 {
                     mapper.ConfigureMapping<StartSaga>(m => m.DataId).ToSaga(s => s.DataId);
                 }
 
-                public class MySagaData : ContainSagaData
+                public class SagaIdChangedSagaData : ContainSagaData
                 {
                     public virtual Guid DataId { get; set; }
                 }

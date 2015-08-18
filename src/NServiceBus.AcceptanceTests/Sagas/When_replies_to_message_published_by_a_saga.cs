@@ -79,7 +79,7 @@
                 }));
             }
 
-            public class Saga2 : Saga<Saga2.MySaga2Data>, IAmStartedByMessages<StartSaga>, IHandleMessages<DidSomethingResponse>
+            public class ReplyToPubMsgSaga : Saga<ReplyToPubMsgSaga.ReplyToPubMsgSagaData>, IAmStartedByMessages<StartSaga>, IHandleMessages<DidSomethingResponse>
             {
                 public Context Context { get; set; }
 
@@ -95,12 +95,12 @@
                     MarkAsComplete();
                 }
                 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySaga2Data> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ReplyToPubMsgSagaData> mapper)
                 {
                     mapper.ConfigureMapping<StartSaga>(m => m.DataId).ToSaga(s => s.DataId);
                 }
 
-                public class MySaga2Data : ContainSagaData
+                public class ReplyToPubMsgSagaData : ContainSagaData
                 {
                     public virtual Guid DataId { get; set; }
                 }

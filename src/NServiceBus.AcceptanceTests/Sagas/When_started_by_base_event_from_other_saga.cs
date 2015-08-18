@@ -62,7 +62,7 @@
                     .AddMapping<BaseEvent>(typeof(Publisher));
             }
 
-            public class SagaStartedByBaseEvent : Saga<SagaStartedByBaseEvent.SagaData>, IAmStartedByMessages<BaseEvent>
+            public class SagaStartedByBaseEvent : Saga<SagaStartedByBaseEvent.SagaStartedByBaseEventSagaData>, IAmStartedByMessages<BaseEvent>
             {
                 public SagaContext Context { get; set; }
 
@@ -73,12 +73,12 @@
                     Context.DidSagaComplete = true;
                 }
 
-                public class SagaData : ContainSagaData
+                public class SagaStartedByBaseEventSagaData : ContainSagaData
                 {
                     public virtual Guid DataId { get; set; }
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaStartedByBaseEventSagaData> mapper)
                 {
                     mapper.ConfigureMapping<StartSaga>(m => m.DataId).ToSaga(s => s.DataId);
                 }

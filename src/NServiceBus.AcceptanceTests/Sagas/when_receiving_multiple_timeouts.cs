@@ -44,7 +44,7 @@
                 });
             }
 
-            public class Saga1 : Saga<Saga1.Saga1Data>, IAmStartedByMessages<StartSaga1>, IHandleTimeouts<Saga1Timeout>, IHandleTimeouts<Saga2Timeout>
+            public class MultTimeoutsSaga1 : Saga<MultTimeoutsSaga1.MultTimeoutsSaga1Data>, IAmStartedByMessages<StartSaga1>, IHandleTimeouts<Saga1Timeout>, IHandleTimeouts<Saga2Timeout>
             {
                 public Context Context { get; set; }
 
@@ -72,12 +72,12 @@
                     Context.Saga2TimeoutFired = true;
                 }
 
-                public class Saga1Data : ContainSagaData
+                public class MultTimeoutsSaga1Data : ContainSagaData
                 {
                     public virtual Guid ContextId { get; set; }
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Saga1Data> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MultTimeoutsSaga1Data> mapper)
                 {
                     mapper.ConfigureMapping<StartSaga1>(m => m.ContextId)
                         .ToSaga(s => s.Id);

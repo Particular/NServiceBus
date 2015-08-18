@@ -34,7 +34,7 @@
                 EndpointSetup<DefaultServer>(config => config.EnableFeature<TimeoutManager>());
             }
 
-            public class Saga1 : Saga<Saga1.Saga1Data>, IAmStartedByMessages<StartSaga1>, IHandleTimeouts<Saga1Timeout>
+            public class SendFromTimeoutSaga1 : Saga<SendFromTimeoutSaga1.SendFromTimeoutSaga1Data>, IAmStartedByMessages<StartSaga1>, IHandleTimeouts<Saga1Timeout>
             {
                 public Context Context { get; set; }
 
@@ -50,18 +50,18 @@
                     MarkAsComplete();
                 }
 
-                public class Saga1Data : ContainSagaData
+                public class SendFromTimeoutSaga1Data : ContainSagaData
                 {
                     public virtual Guid DataId { get; set; }
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Saga1Data> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SendFromTimeoutSaga1Data> mapper)
                 {
                     mapper.ConfigureMapping<StartSaga1>(m => m.DataId).ToSaga(s => s.DataId);
                 }
             }
 
-            public class Saga2 : Saga<Saga2.Saga2Data>, IAmStartedByMessages<StartSaga2>
+            public class SendFromTimeoutSaga2 : Saga<SendFromTimeoutSaga2.SendFromTimeoutSaga2Data>, IAmStartedByMessages<StartSaga2>
             {
                 public Context Context { get; set; }
 
@@ -71,12 +71,12 @@
                     Context.DidSaga2ReceiveMessage = true;
                 }
 
-                public class Saga2Data : ContainSagaData
+                public class SendFromTimeoutSaga2Data : ContainSagaData
                 {
                     public virtual Guid DataId { get; set; }
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Saga2Data> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SendFromTimeoutSaga2Data> mapper)
                 {
                     mapper.ConfigureMapping<StartSaga2>(m => m.DataId).ToSaga(s => s.DataId);
                 }

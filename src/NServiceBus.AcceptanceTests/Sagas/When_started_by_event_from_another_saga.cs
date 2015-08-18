@@ -59,7 +59,7 @@
                 });
             }
 
-            public class Saga1 : Saga<Saga1.Saga1Data>, IAmStartedByMessages<StartSaga>, IHandleTimeouts<Saga1.Timeout1>
+            public class EventFromOtherSaga1 : Saga<EventFromOtherSaga1.EventFromOtherSaga1Data>, IAmStartedByMessages<StartSaga>, IHandleTimeouts<EventFromOtherSaga1.Timeout1>
             {
                 public Context Context { get; set; }
 
@@ -80,7 +80,7 @@
                     Context.DidSaga1Complete = true;
                 }
 
-                public class Saga1Data : ContainSagaData
+                public class EventFromOtherSaga1Data : ContainSagaData
                 {
                     public virtual Guid DataId { get; set; }
                 }
@@ -89,7 +89,7 @@
                 {
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Saga1Data> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<EventFromOtherSaga1Data> mapper)
                 {
                     mapper.ConfigureMapping<StartSaga>(m => m.DataId).ToSaga(s => s.DataId);
                 }
@@ -109,7 +109,7 @@
 
             }
 
-            public class Saga2 : Saga<Saga2.Saga2Data>, IAmStartedByMessages<SomethingHappenedEvent>, IHandleTimeouts<Saga2.Saga2Timeout>
+            public class EventFromOtherSaga2 : Saga<EventFromOtherSaga2.EventFromOtherSaga2Data>, IAmStartedByMessages<SomethingHappenedEvent>, IHandleTimeouts<EventFromOtherSaga2.Saga2Timeout>
             {
                 public Context Context { get; set; }
 
@@ -126,7 +126,7 @@
                     Context.DidSaga2Complete = true;
                 }
 
-                public class Saga2Data : ContainSagaData
+                public class EventFromOtherSaga2Data : ContainSagaData
                 {
                     public virtual Guid DataId { get; set; }
                 }
@@ -135,7 +135,7 @@
                 {
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Saga2Data> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<EventFromOtherSaga2Data> mapper)
                 {
                     mapper.ConfigureMapping<SomethingHappenedEvent>(m => m.DataId).ToSaga(s => s.DataId);
                 }
