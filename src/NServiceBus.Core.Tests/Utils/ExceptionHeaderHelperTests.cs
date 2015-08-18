@@ -17,12 +17,11 @@ namespace NServiceBus.Core.Tests.Utils
 
             var failedQueue = "TheErrorQueue@TheErrorQueueMachine";
             ExceptionHeaderHelper.SetExceptionHeaders(dictionary, exception, failedQueue, "The reason", false);
+
             Assert.AreEqual("The reason", dictionary["NServiceBus.ExceptionInfo.Reason"]);
             Assert.AreEqual("System.AggregateException", dictionary["NServiceBus.ExceptionInfo.ExceptionType"]);
-            var stackTrace = dictionary["NServiceBus.ExceptionInfo.StackTrace"];
-            Assert.IsTrue(stackTrace.StartsWith(@"System.AggregateException: My Exception ---> System.Exception: My Inner Exception
-   at NServiceBus.Core.Tests.Utils.ExceptionHeaderHelperTests.MethodThatThrows2() in "));
-            Assert.AreEqual("TheErrorQueue@TheErrorQueueMachine", dictionary[FaultsHeaderKeys.FailedQ]);
+            Assert.AreEqual(exception.ToString(), dictionary["NServiceBus.ExceptionInfo.StackTrace"]);
+            Assert.AreEqual(failedQueue, dictionary[FaultsHeaderKeys.FailedQ]);
             Assert.IsTrue(dictionary.ContainsKey("NServiceBus.TimeOfFailure"));
 
             Assert.AreEqual("System.Exception", dictionary["NServiceBus.ExceptionInfo.InnerExceptionType"]);
@@ -40,11 +39,11 @@ namespace NServiceBus.Core.Tests.Utils
 
             var failedQueue = "TheErrorQueue@TheErrorQueueMachine";
             ExceptionHeaderHelper.SetExceptionHeaders(dictionary, exception, failedQueue, "The reason", true);
+
             Assert.AreEqual("The reason", dictionary["NServiceBus.ExceptionInfo.Reason"]);
             Assert.AreEqual("System.AggregateException", dictionary["NServiceBus.ExceptionInfo.ExceptionType"]);
-            var stackTrace = dictionary["NServiceBus.ExceptionInfo.StackTrace"];
-            Assert.IsTrue(stackTrace.StartsWith(@"   at NServiceBus.Core.Tests.Utils.ExceptionHeaderHelperTests.MethodThatThrows1() in "));
-            Assert.AreEqual("TheErrorQueue@TheErrorQueueMachine", dictionary[FaultsHeaderKeys.FailedQ]);
+            Assert.AreEqual(exception.StackTrace, dictionary["NServiceBus.ExceptionInfo.StackTrace"]);
+            Assert.AreEqual(failedQueue, dictionary[FaultsHeaderKeys.FailedQ]);
             Assert.IsTrue(dictionary.ContainsKey("NServiceBus.TimeOfFailure"));
 
             Assert.AreEqual("System.Exception", dictionary["NServiceBus.ExceptionInfo.InnerExceptionType"]);
