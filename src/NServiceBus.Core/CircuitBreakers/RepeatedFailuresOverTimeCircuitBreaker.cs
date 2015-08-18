@@ -26,7 +26,7 @@ namespace NServiceBus.CircuitBreakers
         {
             Guard.AgainstNullAndEmpty("name", name);
             Guard.AgainstNull("triggerAction", triggerAction);
-            Guard.AgainstNegative("delayAfterFailure", timeToWaitBeforeTriggering);
+            Guard.AgainstNegative("timeToWaitBeforeTriggering", timeToWaitBeforeTriggering);
             Guard.AgainstNegative("delayAfterFailure", delayAfterFailure);
             this.name = name;
             this.delayAfterFailure = delayAfterFailure;
