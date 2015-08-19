@@ -26,22 +26,10 @@
             Assert.AreEqual("My Inner Exception", context.InnerExceptionMessage);
 
             StackTraceAssert.StartsWith(
-                @"at NServiceBus.AcceptanceTests.Exceptions.Handler_throws_AggregateEx.Endpoint.Handler.Handle(Message message)
-at NServiceBus.Unicast.MessageHandlerRegistry.Invoke(Object handler, Object message, Dictionary`2 dictionary)
-at NServiceBus.InvokeHandlersBehavior.Invoke(Context context, Action next)
-at NServiceBus.HandlerTransactionScopeWrapperBehavior.Invoke(Context context, Action next)
-at NServiceBus.LoadHandlersConnector.Invoke(Context context, Action`1 next)
-at NServiceBus.ApplyIncomingMessageMutatorsBehavior.Invoke(Context context, Action next)
-at NServiceBus.ExecuteLogicalMessagesConnector.Invoke(Context context, Action`1 next)
-at NServiceBus.ApplyIncomingTransportMessageMutatorsBehavior.Invoke(Context context, Action next)
-at NServiceBus.SubscriptionReceiverBehavior.Invoke(Context context, Action next)
-at NServiceBus.UnitOfWorkBehavior.Invoke(Context context, Action next)
-at NServiceBus.ProcessingStatisticsBehavior.Invoke(Context context, Action next)
-at NServiceBus.MoveFaultsToErrorQueueBehavior.Invoke(Context context, Action next)", context.StackTrace);
+                @"at NServiceBus.AcceptanceTests.Exceptions.Handler_throws_AggregateEx.Endpoint.Handler.Handle(Message message)", context.StackTrace);
 
             StackTraceAssert.StartsWith(
-                @"at NServiceBus.AcceptanceTests.Exceptions.Handler_throws_AggregateEx.Endpoint.Handler.MethodThatThrows()
-at NServiceBus.AcceptanceTests.Exceptions.Handler_throws_AggregateEx.Endpoint.Handler.Handle(Message message)", context.InnerStackTrace);
+                @"at NServiceBus.AcceptanceTests.Exceptions.Handler_throws_AggregateEx.Endpoint.Handler.MethodThatThrows()", context.InnerStackTrace);
         }
 
         public class Context : ScenarioContext

@@ -24,9 +24,7 @@
 
             Assert.AreEqual(typeof(BeginException), context.ExceptionType);
             StackTraceAssert.StartsWith(
-@"at NServiceBus.AcceptanceTests.Exceptions.Uow_Begin_throws.Endpoint.UnitOfWorkThatThrowsInBegin.Begin()
-at NServiceBus.UnitOfWorkBehavior.Invoke(Context context, Action next)
-at NServiceBus.ProcessingStatisticsBehavior.Invoke(Context context, Action next)", context.StackTrace);
+@"at NServiceBus.AcceptanceTests.Exceptions.Uow_Begin_throws.Endpoint.UnitOfWorkThatThrowsInBegin.Begin()", context.StackTrace);
         }
 
         public class Context : ScenarioContext

@@ -26,12 +26,10 @@
             Assert.AreEqual(typeof(EndException), context.InnerExceptionTwoType);
 
             StackTraceAssert.StartsWith(
-@"at NServiceBus.UnitOfWorkBehavior.Invoke(Context context, Action next)
-at NServiceBus.ProcessingStatisticsBehavior.Invoke(Context context, Action next)", context.StackTrace);
+@"at NServiceBus.UnitOfWorkBehavior.Invoke(Context context, Action next)", context.StackTrace);
 
             StackTraceAssert.StartsWith(
-string.Format(@"at NServiceBus.AcceptanceTests.Exceptions.Uow_Begin_and_diff_End_throws.Endpoint.{0}.End(Exception ex)
-at NServiceBus.UnitOfWorkBehavior.AppendEndExceptionsAndRethrow(Exception initialException)", context.TypeName), context.InnerExceptionTwoStackTrace);
+string.Format(@"at NServiceBus.AcceptanceTests.Exceptions.Uow_Begin_and_diff_End_throws.Endpoint.{0}.End(Exception ex)", context.TypeName), context.InnerExceptionTwoStackTrace);
 
         }
 

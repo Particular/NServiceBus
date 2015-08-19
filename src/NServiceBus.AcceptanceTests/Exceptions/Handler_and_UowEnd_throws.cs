@@ -27,24 +27,13 @@
 
 
             StackTraceAssert.StartsWith(
-@"at NServiceBus.UnitOfWorkBehavior.Invoke(Context context, Action next)
-at NServiceBus.ProcessingStatisticsBehavior.Invoke(Context context, Action next)", context.StackTrace);
+@"at NServiceBus.UnitOfWorkBehavior.Invoke(Context context, Action next)", context.StackTrace);
 
             StackTraceAssert.StartsWith(
-@"at NServiceBus.AcceptanceTests.Exceptions.Handler_and_UowEnd_throws.Endpoint.Handler.Handle(Message message)
-at NServiceBus.Unicast.MessageHandlerRegistry.Invoke(Object handler, Object message, Dictionary`2 dictionary)
-at NServiceBus.InvokeHandlersBehavior.Invoke(Context context, Action next)
-at NServiceBus.HandlerTransactionScopeWrapperBehavior.Invoke(Context context, Action next)
-at NServiceBus.LoadHandlersConnector.Invoke(Context context, Action`1 next)
-at NServiceBus.ApplyIncomingMessageMutatorsBehavior.Invoke(Context context, Action next)
-at NServiceBus.ExecuteLogicalMessagesConnector.Invoke(Context context, Action`1 next)
-at NServiceBus.ApplyIncomingTransportMessageMutatorsBehavior.Invoke(Context context, Action next)
-at NServiceBus.SubscriptionReceiverBehavior.Invoke(Context context, Action next)
-at NServiceBus.UnitOfWorkBehavior.Invoke(Context context, Action next)", context.InnerExceptionOneStackTrace);
+@"at NServiceBus.AcceptanceTests.Exceptions.Handler_and_UowEnd_throws.Endpoint.Handler.Handle(Message message)", context.InnerExceptionOneStackTrace);
 
             StackTraceAssert.StartsWith(
-string.Format(@"at NServiceBus.AcceptanceTests.Exceptions.Handler_and_UowEnd_throws.Endpoint.{0}.End(Exception ex)
-at NServiceBus.UnitOfWorkBehavior.AppendEndExceptionsAndRethrow(Exception initialException)", context.TypeName), context.InnerExceptionTwoStackTrace);
+string.Format(@"at NServiceBus.AcceptanceTests.Exceptions.Handler_and_UowEnd_throws.Endpoint.{0}.End(Exception ex)", context.TypeName), context.InnerExceptionTwoStackTrace);
 
         }
 
