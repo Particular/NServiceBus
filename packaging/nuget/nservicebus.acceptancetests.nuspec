@@ -29,6 +29,9 @@
 	</frameworkAssemblies>	
   </metadata>
   <files>
-    <file src="..\..\src\NServiceBus.AcceptanceTests\**\*.cs" target="content\App_Packages\NSB.AcceptanceTests.$version$" exclude="**\bin\**\*.*;**\obj\**\*.*" />
+    <file 
+      src="..\..\src\NServiceBus.AcceptanceTests\**\*.cs" 
+      target="content\App_Packages\NSB.AcceptanceTests.$version$" 
+      exclude="**\bin\**\*.*;**\obj\**\*.*;..\..\src\NServiceBus.AcceptanceTests\Exceptions\**\*.cs" />
   </files>
 </package>
