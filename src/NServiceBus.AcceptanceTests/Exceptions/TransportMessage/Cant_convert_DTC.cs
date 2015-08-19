@@ -7,13 +7,13 @@ namespace NServiceBus.AcceptanceTests.Exceptions
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NUnit.Framework;
 
-    public class Cant_convert_DTC : Cant_convert
+    public class Cant_convert_DTC : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_send_message_to_error_queue()
         {
             Scenario.Define<Context>()
-                .WithEndpoint<Receiver>(b => b.Given(bus => SendCorruptedMessage("CantConvertDTC.Receiver")))
+                .WithEndpoint<Receiver>(b => b.Given(bus => CorruptedMessageSender.SendCorruptedMessage("CantConvertDTC.Receiver")))
                 .AllowExceptions()
                 .Done(c =>
                 {

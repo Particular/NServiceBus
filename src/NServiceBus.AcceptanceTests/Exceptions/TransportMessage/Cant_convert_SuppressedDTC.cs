@@ -7,13 +7,13 @@
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NUnit.Framework;
 
-    public class Cant_convert_SuppressedDTC : Cant_convert
+    public class Cant_convert_SuppressedDTC : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_send_message_to_error_queue()
         {
             Scenario.Define<Context>()
-                    .WithEndpoint<Receiver>(b => b.Given(bus => SendCorruptedMessage("CantConvertSuppressedDTC.Receiver")))
+                    .WithEndpoint<Receiver>(b => b.Given(bus => CorruptedMessageSender.SendCorruptedMessage("CantConvertSuppressedDTC.Receiver")))
                     .AllowExceptions()
                     .Done(c => c.Logs.Any(l=>l.Level == "error"))
                     .Repeat(r => r.For<MsmqOnly>())

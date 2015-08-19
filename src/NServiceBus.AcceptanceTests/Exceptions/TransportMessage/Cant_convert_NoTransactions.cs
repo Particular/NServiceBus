@@ -7,13 +7,13 @@
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NUnit.Framework;
 
-    public class Cant_convert_NoTransactions : Cant_convert
+    public class Cant_convert_NoTransactions : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_send_message_to_error_queue()
         {
             Scenario.Define<Context>()
-                    .WithEndpoint<Receiver>(b => b.Given(bus => SendCorruptedMessage("CantConvertNoTransactions.Receiver")))
+                    .WithEndpoint<Receiver>(b => b.Given(bus => CorruptedMessageSender.SendCorruptedMessage("CantConvertNoTransactions.Receiver")))
                     .AllowExceptions()
                     .Done(c =>
                     {

@@ -144,7 +144,7 @@
     <Compile Include="MessageId\When_message_has_no_id_header.cs" />
     <Compile Include="Hosting\When_feature_overrides_hostinfo.cs" />
     <Compile Include="Sagas\When_reply_from_a_finder.cs" />
-    <Compile Include="Exceptions\TransportMessage\Cant_convert.cs" />
+    <Compile Include="Exceptions\TransportMessage\CorruptedMessageSender.cs" />
     <Compile Include="Sagas\When_message_has_a_saga_id.cs" />
     <Compile Include="Recoverability\Retries\When_Subscribing_to_errors.cs" />
     <Compile Include="Sagas\When_timeout_hit_not_found_saga.cs" />

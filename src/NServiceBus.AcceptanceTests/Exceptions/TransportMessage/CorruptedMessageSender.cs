@@ -3,9 +3,9 @@
     using System.Messaging;
     using System.Text;
 
-    public class Cant_convert : NServiceBusAcceptanceTest
+    public class CorruptedMessageSender 
     {
-        protected void SendCorruptedMessage(string queueName)
+        public static void SendCorruptedMessage(string queueName)
         {
             var path = string.Format(@".\private$\{0}", queueName);
             using (var queue = new MessageQueue(path))
