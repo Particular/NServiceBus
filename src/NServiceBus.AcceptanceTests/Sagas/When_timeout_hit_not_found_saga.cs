@@ -34,9 +34,9 @@
                 EndpointSetup<DefaultServer>(config => config.EnableFeature<TimeoutManager>());
             }
 
-            public class MySaga : Saga<MySaga.MySagaData>,
+            public class TimeoutHitsNotFoundSaga : Saga<TimeoutHitsNotFoundSaga.TimeoutHitsNotFoundSagaData>,
                 IAmStartedByMessages<StartSaga>, IHandleSagaNotFound,
-                IHandleTimeouts<MySaga.MyTimeout>,
+                IHandleTimeouts<TimeoutHitsNotFoundSaga.MyTimeout>,
                 IHandleMessages<SomeOtherMessage>
             {
                 public Context Context { get; set; }
@@ -52,13 +52,13 @@
                     MarkAsComplete();
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TimeoutHitsNotFoundSagaData> mapper)
                 {
                     mapper.ConfigureMapping<StartSaga>(m => m.DataId).ToSaga(s => s.DataId);
                     mapper.ConfigureMapping<SomeOtherMessage>(m => m.DataId).ToSaga(s => s.DataId);
                 }
 
-                public class MySagaData : ContainSagaData
+                public class TimeoutHitsNotFoundSagaData : ContainSagaData
                 {
                     public virtual Guid DataId { get; set; }
                 }

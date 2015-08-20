@@ -81,10 +81,10 @@
         {
             public SagaEndpoint()
             {
-                EndpointSetup<DefaultServer>(b => b.ExecuteTheseHandlersFirst(typeof(TestSaga)));
+                EndpointSetup<DefaultServer>(b => b.ExecuteTheseHandlersFirst(typeof(TestSaga10)));
             }
 
-            public class TestSaga : Saga<TestSagaData>, 
+            public class TestSaga10 : Saga<TestSagaData10>, 
                 IAmStartedByMessages<StartSagaMessage>, 
                 IHandleMessages<CompleteSagaMessage>, 
                 IHandleMessages<AnotherMessage>
@@ -113,7 +113,7 @@
                     Context.SagaReceivedAnotherMessage = true;
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData10> mapper)
                 {
                     mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
                         .ToSaga(s => s.SomeId);
@@ -124,7 +124,7 @@
                 }
             }
 
-            public class TestSagaData : IContainSagaData
+            public class TestSagaData10 : IContainSagaData
             {
                 public virtual Guid Id { get; set; }
                 public virtual string Originator { get; set; }

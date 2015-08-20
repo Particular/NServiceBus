@@ -76,7 +76,7 @@
             }
 
 
-            public class Saga2 : Saga<Saga2.MySaga2Data>, IAmStartedByMessages<StartSaga>, IHandleMessages<DoSomethingResponse>
+            public class CorrelationTestSaga : Saga<CorrelationTestSaga.CorrelationTestSagaData>, IAmStartedByMessages<StartSaga>, IHandleMessages<DoSomethingResponse>
             {
                 public Context Context { get; set; }
 
@@ -93,13 +93,13 @@
                     MarkAsComplete();
                 }
                 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySaga2Data> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<CorrelationTestSagaData> mapper)
                 {
                     mapper.ConfigureMapping<StartSaga>(m => m.RunId).ToSaga(s => s.RunId);
                     mapper.ConfigureMapping<DoSomethingResponse>(m => m.RunId).ToSaga(s => s.RunId);
                 }
 
-                public class MySaga2Data : ContainSagaData
+                public class CorrelationTestSagaData : ContainSagaData
                 {
                     public virtual Guid RunId { get; set; }
                 }

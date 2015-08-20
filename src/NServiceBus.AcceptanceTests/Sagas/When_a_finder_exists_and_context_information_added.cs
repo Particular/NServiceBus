@@ -20,7 +20,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 .Run();
 
             Assert.True(context.FinderUsed);
-            Assert.AreEqual(typeof(SagaEndpoint.TestSaga), context.Metadata.SagaType);
+            Assert.AreEqual(typeof(SagaEndpoint.TestSaga07), context.Metadata.SagaType);
             Assert.AreEqual("SomeData", context.ContextBag.Get<SagaEndpoint.BehaviorWhichAddsThingsToTheContext.State>().SomeData);
         }
 
@@ -38,10 +38,10 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 EndpointSetup<DefaultServer>(c => c.Pipeline.Register<BehaviorWhichAddsThingsToTheContext.Registration>());
             }
 
-            class CustomFinder : IFindSagas<TestSaga.SagaData>.Using<StartSagaMessage>
+            class CustomFinder : IFindSagas<TestSaga07.SagaData07>.Using<StartSagaMessage>
             {
                 public Context Context { get; set; }
-                public TestSaga.SagaData FindBy(StartSagaMessage message, SagaPersistenceOptions options)
+                public TestSaga07.SagaData07 FindBy(StartSagaMessage message, SagaPersistenceOptions options)
                 {
                     Context.Metadata = options.Metadata;
                     Context.ContextBag = options.Context;
@@ -50,7 +50,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 }
             }
 
-            public class TestSaga : Saga<TestSaga.SagaData>, IAmStartedByMessages<StartSagaMessage>
+            public class TestSaga07 : Saga<TestSaga07.SagaData07>, IAmStartedByMessages<StartSagaMessage>
             {
                 public Context Context { get; set; }
 
@@ -58,11 +58,11 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 {
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData07> mapper)
                 {
                 }
 
-                public class SagaData : ContainSagaData
+                public class SagaData07 : ContainSagaData
                 {
                 }
             }

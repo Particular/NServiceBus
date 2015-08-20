@@ -44,7 +44,7 @@
                     builder => builder.Transactions().DoNotWrapHandlersExecutionInATransactionScope());
             }
 
-            public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartSagaMessage>
+            public class TestSaga05 : Saga<TestSagaData05>, IAmStartedByMessages<StartSagaMessage>
             {
                 public Context Context { get; set; }
                 public void Handle(StartSagaMessage message)
@@ -62,7 +62,7 @@
                     }
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData05> mapper)
                 {
                     mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
                         .ToSaga(s=>s.SomeId);
@@ -70,7 +70,7 @@
 
             }
 
-            public class TestSagaData : IContainSagaData
+            public class TestSagaData05 : IContainSagaData
             {
                 public virtual Guid Id { get; set; }
                 public virtual string Originator { get; set; }

@@ -40,13 +40,13 @@
                     builder => builder.Transactions().DoNotWrapHandlersExecutionInATransactionScope());
             }
 
-            public class TestSaga : Saga<TestSagaData>,
+            public class TestSaga11 : Saga<TestSagaData11>,
                 IAmStartedByMessages<StartSagaMessage>, IHandleMessages<OtherMessage>
             {
                 Context context;
 
                 // ReSharper disable once UnusedParameter.Local
-                public TestSaga(IBus bus, Context context)
+                public TestSaga11(IBus bus, Context context)
                 {
                     this.context = context;
                 }
@@ -56,7 +56,7 @@
                     Data.SomeId = message.SomeId;
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData11> mapper)
                 {
                     mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
                         .ToSaga(s => s.SomeId);
@@ -70,7 +70,7 @@
                 }
             }
 
-            public class TestSagaData : IContainSagaData
+            public class TestSagaData11 : IContainSagaData
             {
                 public virtual Guid Id { get; set; }
                 public virtual string Originator { get; set; }

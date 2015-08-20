@@ -38,7 +38,7 @@
                     builder => builder.Transactions().DoNotWrapHandlersExecutionInATransactionScope());
             }
 
-            public class TestSaga : Saga<TestSagaData>,
+            public class TestSaga02 : Saga<TestSagaData02>,
                 IAmStartedByMessages<StartSagaMessage>, IHandleMessages<OtherMessage>
             {
                 public Context Context { get; set; }
@@ -47,7 +47,7 @@
                     Data.KeyValue = message.Key;
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData02> mapper)
                 {
                     mapper.ConfigureMapping<OtherMessage>(m => m.Part1 + "_" + m.Part2)
                         .ToSaga(s => s.KeyValue);
@@ -59,7 +59,7 @@
                 }
             }
 
-            public class TestSagaData : IContainSagaData
+            public class TestSagaData02 : IContainSagaData
             {
                 public virtual Guid Id { get; set; }
                 public virtual string Originator { get; set; }

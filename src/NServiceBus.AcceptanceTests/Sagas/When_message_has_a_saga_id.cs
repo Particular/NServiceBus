@@ -18,7 +18,7 @@
                     var options = new SendOptions();
 
                     options.SetHeader(Headers.SagaId, Guid.NewGuid().ToString());
-                    options.SetHeader(Headers.SagaType, typeof(MySaga).AssemblyQualifiedName);
+                    options.SetHeader(Headers.SagaType, typeof(MessageWithSagaIdSaga).AssemblyQualifiedName);
                     options.RouteToLocalEndpointInstance();
                     bus.Send(message,options);
                 }))
@@ -31,17 +31,17 @@
             Assert.False(context.TimeoutHandlerCalled);
         }
 
-        class MySaga : Saga<MySaga.SagaData>, IAmStartedByMessages<MessageWithSagaId>,
+        class MessageWithSagaIdSaga : Saga<MessageWithSagaIdSaga.MessageWithSagaIdSagaData>, IAmStartedByMessages<MessageWithSagaId>,
             IHandleTimeouts<MessageWithSagaId>,
             IHandleSagaNotFound
         {
             public Context Context { get; set; }
 
-            public class SagaData : ContainSagaData
+            public class MessageWithSagaIdSagaData : ContainSagaData
             {
             }
 
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MessageWithSagaIdSagaData> mapper)
             {
             }
 

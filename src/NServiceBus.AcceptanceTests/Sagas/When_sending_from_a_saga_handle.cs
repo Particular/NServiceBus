@@ -35,7 +35,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 EndpointSetup<DefaultServer>(config => config.EnableFeature<TimeoutManager>());
             }
 
-            public class Saga1 : Saga<Saga1Data>, IAmStartedByMessages<StartSaga1>, IHandleMessages<MessageSaga1WillHandle>
+            public class TwoSaga1Saga1 : Saga<TwoSaga1Saga1Data>, IAmStartedByMessages<StartSaga1>, IHandleMessages<MessageSaga1WillHandle>
             {
                 public Context Context { get; set; }
 
@@ -55,7 +55,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
                     MarkAsComplete();
                 }
                 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Saga1Data> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TwoSaga1Saga1Data> mapper)
                 {
                     mapper.ConfigureMapping<MessageSaga1WillHandle>(m => m.DataId).ToSaga(s => s.DataId);
                     mapper.ConfigureMapping<StartSaga1>(m => m.DataId).ToSaga(s => s.DataId);
@@ -63,13 +63,13 @@ namespace NServiceBus.AcceptanceTests.Sagas
 
             }
 
-            public class Saga1Data : ContainSagaData
+            public class TwoSaga1Saga1Data : ContainSagaData
             {
                 public virtual Guid DataId { get; set; }
             }
 
 
-            public class Saga2 : Saga<Saga2.Saga2Data>, IAmStartedByMessages<StartSaga2>
+            public class TwoSaga1Saga2 : Saga<TwoSaga1Saga2.TwoSaga1Saga2Data>, IAmStartedByMessages<StartSaga2>
             {
                 public Context Context { get; set; }
 
@@ -78,12 +78,12 @@ namespace NServiceBus.AcceptanceTests.Sagas
                     Context.DidSaga2ReceiveMessage = true;
                 }
 
-                public class Saga2Data : ContainSagaData
+                public class TwoSaga1Saga2Data : ContainSagaData
                 {
                     public virtual Guid DataId { get; set; }
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Saga2Data> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TwoSaga1Saga2Data> mapper)
                 {
                     mapper.ConfigureMapping<StartSaga2>(m => m.DataId).ToSaga(s => s.DataId);
                 }

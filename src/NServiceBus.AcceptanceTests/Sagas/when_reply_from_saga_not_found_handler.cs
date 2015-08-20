@@ -55,7 +55,7 @@
                 EndpointSetup<DefaultServer>();
             }
 
-            public class Saga1 : Saga<Saga1.Saga1Data>, IAmStartedByMessages<StartSaga1>, IHandleMessages<MessageToSaga>
+            public class NotFoundHandlerSaga1 : Saga<NotFoundHandlerSaga1.NotFoundHandlerSaga1Data>, IAmStartedByMessages<StartSaga1>, IHandleMessages<MessageToSaga>
             {
 
                 public void Handle(StartSaga1 message)
@@ -67,12 +67,12 @@
                 {
                 }
 
-                public class Saga1Data : ContainSagaData
+                public class NotFoundHandlerSaga1Data : ContainSagaData
                 {
                     public virtual Guid ContextId { get; set; }
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Saga1Data> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NotFoundHandlerSaga1Data> mapper)
                 {
                     mapper.ConfigureMapping<StartSaga1>(m => m.ContextId)
                         .ToSaga(s => s.ContextId);

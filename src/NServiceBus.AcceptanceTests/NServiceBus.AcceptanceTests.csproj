@@ -153,7 +153,7 @@
     <Compile Include="Sagas\When_a_finder_exists.cs" />
     <Compile Include="ScenarioDescriptors\AllTransactionSettings.cs" />
     <Compile Include="ScenarioDescriptors\TransactionSettings.cs" />
-    <Compile Include="SelfVerification\When_running_acceptance_tests.cs" />
+    <Compile Include="SelfVerification\When_running_saga_tests.cs" />
     <Compile Include="Tx\Issue_2481.cs" />
     <Compile Include="Tx\When_receiving_with_native_multi_queue_transaction.cs" />
     <Compile Include="UnitOfWork\When_a_subscription_message_arrives.cs" />

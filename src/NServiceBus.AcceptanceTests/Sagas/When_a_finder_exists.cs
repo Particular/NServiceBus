@@ -31,17 +31,17 @@
                 EndpointSetup<DefaultServer>();
             }
 
-            class CustomFinder : IFindSagas<TestSaga.SagaData>.Using<StartSagaMessage>
+            class CustomFinder : IFindSagas<TestSaga06.SagaData06>.Using<StartSagaMessage>
             {
                 public Context Context { get; set; }
-                public TestSaga.SagaData FindBy(StartSagaMessage message, SagaPersistenceOptions options)
+                public TestSaga06.SagaData06 FindBy(StartSagaMessage message, SagaPersistenceOptions options)
                 {
                     Context.FinderUsed = true;
                     return null;
                 }
             }
 
-            public class TestSaga : Saga<TestSaga.SagaData>, IAmStartedByMessages<StartSagaMessage>
+            public class TestSaga06 : Saga<TestSaga06.SagaData06>, IAmStartedByMessages<StartSagaMessage>
             {
                 public Context Context { get; set; }
 
@@ -49,12 +49,12 @@
                 {
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData06> mapper)
                 {
                     // not required because of CustomFinder
                 }
 
-                public class SagaData : ContainSagaData
+                public class SagaData06 : ContainSagaData
                 {
                 }
             }
