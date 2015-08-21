@@ -22,16 +22,15 @@
                     .Done(c => c.ExceptionReceived)
                     .Run();
 
-            Assert.AreEqual(typeof(BeginException), context.ExceptionType);
+            Assert.AreEqual(typeof(BeginException), context.Exception.GetType());
             StackTraceAssert.StartsWith(
-@"at NServiceBus.AcceptanceTests.Exceptions.Uow_Begin_throws.Endpoint.UnitOfWorkThatThrowsInBegin.Begin()", context.StackTrace);
+@"at NServiceBus.AcceptanceTests.Exceptions.Uow_Begin_throws.Endpoint.UnitOfWorkThatThrowsInBegin.Begin()", context.Exception);
         }
 
         public class Context : ScenarioContext
         {
             public bool ExceptionReceived { get; set; }
-            public string StackTrace { get; set; }
-            public Type ExceptionType { get; set; }
+            public Exception Exception { get; set; }
             public bool Subscribed { get; set; }
         }
 
@@ -63,8 +62,7 @@
                 {
                     BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e =>
                     {
-                        Context.ExceptionType = e.Exception.GetType();
-                        Context.StackTrace = e.Exception.StackTrace;
+                        Context.Exception = e.Exception;
                         Context.ExceptionReceived = true;
                     });
 

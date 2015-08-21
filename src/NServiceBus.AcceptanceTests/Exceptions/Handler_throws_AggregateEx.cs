@@ -20,27 +20,24 @@
                     .AllowExceptions()
                 .Done(c => c.ExceptionReceived)
                 .Run();
-            Assert.AreEqual(typeof(AggregateException), context.ExceptionType);
-            Assert.AreEqual(typeof(Exception), context.InnerExceptionType);
-            Assert.AreEqual("My Exception", context.ExceptionMessage);
-            Assert.AreEqual("My Inner Exception", context.InnerExceptionMessage);
+
+            Assert.AreEqual(typeof(AggregateException), context.Exception.GetType());
+            Assert.IsNotNull(context.Exception.InnerException);
+            Assert.AreEqual(typeof(Exception), context.Exception.InnerException.GetType());
+            Assert.AreEqual("My Exception", context.Exception.Message);
+            Assert.AreEqual("My Inner Exception", context.Exception.InnerException.Message);
 
             StackTraceAssert.StartsWith(
-                @"at NServiceBus.AcceptanceTests.Exceptions.Handler_throws_AggregateEx.Endpoint.Handler.Handle(Message message)", context.StackTrace);
+                @"at NServiceBus.AcceptanceTests.Exceptions.Handler_throws_AggregateEx.Endpoint.Handler.Handle(Message message)", context.Exception);
 
             StackTraceAssert.StartsWith(
-                @"at NServiceBus.AcceptanceTests.Exceptions.Handler_throws_AggregateEx.Endpoint.Handler.MethodThatThrows()", context.InnerStackTrace);
+                @"at NServiceBus.AcceptanceTests.Exceptions.Handler_throws_AggregateEx.Endpoint.Handler.MethodThatThrows()", context.Exception.InnerException);
         }
 
         public class Context : ScenarioContext
         {
             public bool ExceptionReceived { get; set; }
-            public string StackTrace { get; set; }
-            public string InnerStackTrace { get; set; }
-            public Type InnerExceptionType { get; set; }
-            public string ExceptionMessage { get; set; }
-            public string InnerExceptionMessage { get; set; }
-            public Type ExceptionType { get; set; }
+            public Exception Exception { get; set; }
             public bool Subscribed { get; set; }
         }
 
@@ -69,15 +66,7 @@
                 {
                     BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e =>
                     {
-                        Context.ExceptionMessage = e.Exception.Message;
-                        Context.StackTrace = e.Exception.StackTrace;
-                        Context.ExceptionType = e.Exception.GetType();
-                        if (e.Exception.InnerException != null)
-                        {
-                            Context.InnerExceptionMessage = e.Exception.InnerException.Message;
-                            Context.InnerExceptionType = e.Exception.InnerException.GetType();
-                            Context.InnerStackTrace = e.Exception.InnerException.StackTrace;
-                        }
+                        Context.Exception = e.Exception;
                         Context.ExceptionReceived = true;
                     });
 

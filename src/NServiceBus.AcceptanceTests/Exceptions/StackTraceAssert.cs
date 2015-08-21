@@ -1,79 +1,33 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
-using NUnit.Framework;
-
-namespace NServiceBus.AcceptanceTests.Exceptions
+﻿namespace NServiceBus.AcceptanceTests.Exceptions
 {
+    using System;
+    using System.Diagnostics;
+    using System.Globalization;
+    using System.Linq;
+    using System.Threading;
+    using NUnit.Framework;
+
     static class StackTraceAssert
     {
-        public static void StartsWith(string expected, string actual)
+        public static void StartsWith(string expected, Exception exception)
         {
-            if (actual == null)
-            {
-                Assert.Fail();
-            }
-            else
-            {
-                var cleanStackTrace = CleanStackTrace(actual);
+            var translatedStackTrace = string.Empty;
 
-                var reader = new StringReader(cleanStackTrace);
-
-                var stringBuilder = new StringBuilder();
-                while (true)
-                {
-                    var actualLine = reader.ReadLine();
-                    if (actualLine == null)
-                    {
-                        break;
-                    }
-                    if (expected.Contains(actualLine))
-                    {
-                        stringBuilder.AppendLine(actualLine);
-                    }
-                }
-
-                try
-                {
-                    actual = stringBuilder.ToString().TrimEnd();
-                    Assert.AreEqual(expected, actual);
-                }
-                catch (Exception)
-                {
-                    Trace.WriteLine(cleanStackTrace);
-                    throw;
-                }
-            }
-        }
-        static string CleanStackTrace(string stackTrace)
-        {
-            if (stackTrace == null)
+            var thread = new Thread(() =>
             {
-                return string.Empty;
-            }
-            using (var stringReader = new StringReader(stackTrace))
-            {
-                var stringBuilder = new StringBuilder();
-                while (true)
-                {
-                    var line = stringReader.ReadLine();
-                    if (line == null)
-                    {
-                        break;
-                    }
-                    if (line.StartsWith("at lambda_method("))
-                    {
-                        continue;
-                    }
-                    stringBuilder.AppendLine(line.Split(new[]
-                    {
-                        " in "
-                    }, StringSplitOptions.RemoveEmptyEntries).First().Trim());
-                }
-                return stringBuilder.ToString().Trim();
-            }
+                // StackTrace strips away file names and line numbers
+                translatedStackTrace = new StackTrace(exception, false).ToString();
+            });
+            thread.CurrentUICulture = new CultureInfo("en");
+            thread.Start();
+            thread.Join();
+
+            var filteredStackTrace = string.Join(Environment.NewLine, translatedStackTrace
+                .Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(line => line.Trim())
+                .Where(expected.Contains));
+
+            Assert.AreEqual(expected, filteredStackTrace);
         }
     }
 }

@@ -22,26 +22,21 @@
                     .Done(c => c.ExceptionReceived)
                     .Run();
 
-            Assert.AreEqual(typeof(BeginException), context.InnerExceptionOneType);
-            Assert.AreEqual(typeof(EndException), context.InnerExceptionTwoType);
+            Assert.AreEqual(typeof(BeginException), context.Exception.InnerExceptions[0].GetType());
+            Assert.AreEqual(typeof(EndException), context.Exception.InnerExceptions[1].GetType());
 
             StackTraceAssert.StartsWith(
-@"at NServiceBus.UnitOfWorkBehavior.Invoke(Context context, Action next)", context.StackTrace);
+@"at NServiceBus.UnitOfWorkBehavior.Invoke(Context context, Action next)", context.Exception);
 
             StackTraceAssert.StartsWith(
-string.Format(@"at NServiceBus.AcceptanceTests.Exceptions.Uow_Begin_and_diff_End_throws.Endpoint.{0}.End(Exception ex)", context.TypeName), context.InnerExceptionTwoStackTrace);
+string.Format(@"at NServiceBus.AcceptanceTests.Exceptions.Uow_Begin_and_diff_End_throws.Endpoint.{0}.End(Exception ex)", context.TypeName), context.Exception.InnerExceptions[1]);
 
         }
 
         public class Context : ScenarioContext
         {
             public bool ExceptionReceived { get; set; }
-            public string StackTrace { get; set; }
-            public Type ExceptionType { get; set; }
-            public string InnerExceptionOneStackTrace { get; set; }
-            public string InnerExceptionTwoStackTrace { get; set; }
-            public Type InnerExceptionOneType { get; set; }
-            public Type InnerExceptionTwoType { get; set; }
+            public AggregateException Exception { get; set; }
             public bool FirstOneExecuted { get; set; }
             public string TypeName { get; set; }
             public bool Subscribed { get; set; }
@@ -78,12 +73,7 @@ string.Format(@"at NServiceBus.AcceptanceTests.Exceptions.Uow_Begin_and_diff_End
                     BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e =>
                     {
                         var aggregateException = (AggregateException)e.Exception;
-                        Context.StackTrace = aggregateException.StackTrace;
-                        var innerExceptions = aggregateException.InnerExceptions;
-                        Context.InnerExceptionOneStackTrace = innerExceptions[0].StackTrace;
-                        Context.InnerExceptionTwoStackTrace = innerExceptions[1].StackTrace;
-                        Context.InnerExceptionOneType = innerExceptions[0].GetType();
-                        Context.InnerExceptionTwoType = innerExceptions[1].GetType();
+                        Context.Exception = aggregateException;
                         Context.ExceptionReceived = true;
                     });
 
