@@ -662,9 +662,9 @@ namespace NServiceBus
     public class static SerializationConfigExtensions
     {
         public static void AddDeserializer<T>(this NServiceBus.BusConfiguration config)
-            where T : NServiceBus.Serialization.SerializationDefinition { }
+            where T : NServiceBus.Serialization.SerializationDefinition, new () { }
         public static NServiceBus.Serialization.SerializationExtentions<T> UseSerialization<T>(this NServiceBus.BusConfiguration config)
-            where T : NServiceBus.Serialization.SerializationDefinition { }
+            where T : NServiceBus.Serialization.SerializationDefinition, new () { }
         public static void UseSerialization(this NServiceBus.BusConfiguration config, System.Type serializerType) { }
     }
     public class static SerializationContextExtensions
