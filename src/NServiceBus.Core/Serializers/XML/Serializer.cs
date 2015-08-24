@@ -6,7 +6,6 @@
     using System.IO;
     using System.Linq;
     using System.Reflection;
-    using System.Text;
     using System.Xml;
     using System.Xml.Linq;
     using NServiceBus.Utils.Reflection;
@@ -63,13 +62,11 @@
         {
             var doc = new XDocument(new XDeclaration("1.0", null, null));
             
-            var t = mapper.GetMappedTypeFor(message.GetType());
-
-            var elementName = t.SerializationFriendlyName();
+            var elementName = messageType.SerializationFriendlyName();
             doc.Add(new XElement(elementName));
-            WriteObject(doc.Root, elementName, t, message, true);
+            WriteObject(doc.Root, elementName, messageType, message, true);
 
-            SetDefaultNamespace(doc.Root, string.Format("{0}/{1}", @namespace, GetNamespace(message)));
+            SetDefaultNamespace(doc.Root, $"{@namespace}/{messageType.Namespace}");
             ForceEmptyTagsWithNewlines(doc);
 
             doc.WriteTo(writer);
@@ -103,228 +100,6 @@
             }
         }
 
-
-        static string FormatAsString(object value)
-        {
-            if (value == null)
-            {
-                return "null";
-            }
-            if (value is bool)
-            {
-                return XmlConvert.ToString((bool)value);
-            }
-            if (value is byte)
-            {
-                return XmlConvert.ToString((byte)value);
-            }
-            if (value is char)
-            {
-                return Escape((char)value);
-            }
-            if (value is double)
-            {
-                return XmlConvert.ToString((double)value);
-            }
-            if (value is ulong)
-            {
-                return XmlConvert.ToString((ulong)value);
-            }
-            if (value is uint)
-            {
-                return XmlConvert.ToString((uint)value);
-            }
-            if (value is ushort)
-            {
-                return XmlConvert.ToString((ushort)value);
-            }
-            if (value is long)
-            {
-                return XmlConvert.ToString((long)value);
-            }
-            if (value is int)
-            {
-                return XmlConvert.ToString((int)value);
-            }
-            if (value is short)
-            {
-                return XmlConvert.ToString((short)value);
-            }
-            if (value is sbyte)
-            {
-                return XmlConvert.ToString((sbyte)value);
-            }
-            if (value is decimal)
-            {
-                return XmlConvert.ToString((decimal)value);
-            }
-            if (value is float)
-            {
-                return XmlConvert.ToString((float)value);
-            }
-            if (value is Guid)
-            {
-                return XmlConvert.ToString((Guid)value);
-            }
-            if (value is DateTime)
-            {
-                return XmlConvert.ToString((DateTime)value, XmlDateTimeSerializationMode.RoundtripKind);
-            }
-            if (value is DateTimeOffset)
-            {
-                return XmlConvert.ToString((DateTimeOffset)value);
-            }
-            if (value is TimeSpan)
-            {
-                return XmlConvert.ToString((TimeSpan)value);
-            }
-            if (value is string)
-            {
-                return (string) value;
-            }
-
-            return Escape(value.ToString());
-        }
-
-#pragma warning disable 652
-
-        static string Escape(char c)
-        {
-            if (c == 0x9 || c == 0xA || c == 0xD
-                || (0x20 <= c && c <= 0xD7FF)
-                || (0xE000 <= c && c <= 0xFFFD)
-                || (0x10000 <= c && c <= 0x10ffff)
-                )
-            {
-                string ss = null;
-                switch (c)
-                {
-                    case '<':
-                        ss = "&lt;";
-                        break;
-
-                    case '>':
-                        ss = "&gt;";
-                        break;
-
-                    case '"':
-                        ss = "&quot;";
-                        break;
-
-                    case '\'':
-                        ss = "&apos;";
-                        break;
-
-                    case '&':
-                        ss = "&amp;";
-                        break;
-                }
-                if (ss != null)
-                {
-                    return ss;
-                }
-            }
-            else
-            {
-                return String.Format("<![CDATA[&#x{0:X}]]>;", (int)c);
-            }
-
-            //Should not get here but just in case!
-            return c.ToString();
-        }
-
-        static string Escape(string stringToEscape)
-        {
-
-
-            if (string.IsNullOrEmpty(stringToEscape))
-            {
-                return stringToEscape;
-            }
-
-            StringBuilder builder = null; // initialize if we need it
-
-            var startIndex = 0;
-            for (var i = 0; i < stringToEscape.Length; ++i)
-            {
-                var c = stringToEscape[i];
-                if (c == 0x9 || c == 0xA || c == 0xD
-                    || (0x20 <= c && c <= 0xD7FF)
-                    || (0xE000 <= c && c <= 0xFFFD)
-                    || (0x10000 <= c && c <= 0x10ffff)
-                    )
-                {
-                    string ss = null;
-                    switch (c)
-                    {
-                        case '<':
-                            ss = "&lt;";
-                            break;
-
-                        case '>':
-                            ss = "&gt;";
-                            break;
-
-                        case '"':
-                            ss = "&quot;";
-                            break;
-
-                        case '\'':
-                            ss = "&apos;";
-                            break;
-
-                        case '&':
-                            ss = "&amp;";
-                            break;
-                    }
-                    if (ss != null)
-                    {
-                        if (builder == null)
-                        {
-                            builder = new StringBuilder(stringToEscape.Length + ss.Length);
-                        }
-                        if (startIndex < i)
-                        {
-                            builder.Append(stringToEscape, startIndex, i - startIndex);
-                        }
-                        startIndex = i + 1;
-                        builder.Append(ss);
-                    }
-                }
-                else
-                {
-                    // invalid characters
-                    if (builder == null)
-                    {
-                        builder = new StringBuilder(stringToEscape.Length + 8);
-                    }
-                    if (startIndex < i)
-                    {
-                        builder.Append(stringToEscape, startIndex, i - startIndex);
-                    }
-                    startIndex = i + 1;
-                    builder.AppendFormat("&#x{0:X};", (int)c);
-                }
-            }
-
-            if (startIndex < stringToEscape.Length)
-            {
-                if (builder == null)
-                {
-                    return stringToEscape;
-                }
-                builder.Append(stringToEscape, startIndex, stringToEscape.Length - startIndex);
-            }
-
-            if (builder != null)
-            {
-                return builder.ToString();
-            }
-
-            //Should not get here but just in case!
-            return stringToEscape;
-        }
-#pragma warning restore 652
 
         List<string> GetBaseTypes()
         {
@@ -376,7 +151,7 @@
 
             if (useNS)
             {
-                var baseTypes = GetBaseTypes(value);
+                var baseTypes = GetBaseTypes();
                 WriteElementNamespaces(elem, baseTypes);
             }
             else
