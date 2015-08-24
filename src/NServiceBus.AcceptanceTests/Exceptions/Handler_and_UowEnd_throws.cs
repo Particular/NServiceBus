@@ -22,29 +22,24 @@
                     .Done(c => c.ExceptionReceived)
                     .Run();
 
-            Assert.AreEqual(typeof(HandlerException), context.InnerExceptionOneType);
-            Assert.AreEqual(typeof(EndException), context.InnerExceptionTwoType);
-
-
-            StackTraceAssert.StartsWith(
-@"at NServiceBus.UnitOfWorkBehavior.Invoke(Context context, Action next)", context.StackTrace);
+            Assert.AreEqual(typeof(HandlerException), context.AggregateException.InnerExceptions[0].GetType());
+            Assert.AreEqual(typeof(EndException), context.AggregateException.InnerExceptions[1].GetType());
 
             StackTraceAssert.StartsWith(
-@"at NServiceBus.AcceptanceTests.Exceptions.Handler_and_UowEnd_throws.Endpoint.Handler.Handle(Message message)", context.InnerExceptionOneStackTrace);
+@"at NServiceBus.UnitOfWorkBehavior.Invoke(Context context, Action next)", context.AggregateException);
 
             StackTraceAssert.StartsWith(
-string.Format(@"at NServiceBus.AcceptanceTests.Exceptions.Handler_and_UowEnd_throws.Endpoint.{0}.End(Exception ex)", context.TypeName), context.InnerExceptionTwoStackTrace);
+@"at NServiceBus.AcceptanceTests.Exceptions.Handler_and_UowEnd_throws.Endpoint.Handler.Handle(Message message)", context.AggregateException.InnerExceptions[0]);
+
+            StackTraceAssert.StartsWith(
+string.Format(@"at NServiceBus.AcceptanceTests.Exceptions.Handler_and_UowEnd_throws.Endpoint.{0}.End(Exception ex)", context.TypeName), context.AggregateException.InnerExceptions[1]);
 
         }
 
         public class Context : ScenarioContext
         {
             public bool ExceptionReceived { get; set; }
-            public string StackTrace { get; set; }
-            public string InnerExceptionOneStackTrace { get; set; }
-            public string InnerExceptionTwoStackTrace { get; set; }
-            public Type InnerExceptionOneType { get; set; }
-            public Type InnerExceptionTwoType { get; set; }
+            public AggregateException AggregateException { get; set; }
             public bool FirstOneExecuted { get; set; }
             public string TypeName { get; set; }
             public bool Enabled { get; set; }
@@ -81,13 +76,7 @@ string.Format(@"at NServiceBus.AcceptanceTests.Exceptions.Handler_and_UowEnd_thr
                 {
                     BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e =>
                     {
-                        var aggregateException = (AggregateException)e.Exception;
-                        Context.StackTrace = aggregateException.StackTrace;
-                        var exceptions = aggregateException.InnerExceptions;
-                        Context.InnerExceptionOneStackTrace = exceptions[0].StackTrace;
-                        Context.InnerExceptionTwoStackTrace = exceptions[1].StackTrace;
-                        Context.InnerExceptionOneType = exceptions[0].GetType();
-                        Context.InnerExceptionTwoType = exceptions[1].GetType();
+                        Context.AggregateException = (AggregateException)e.Exception;
                         Context.ExceptionReceived = true;
                     });
 

@@ -51,11 +51,13 @@
                 var propertyInfo = Reflect<Target1>.GetProperty(target => target.Property1.Property2);
                 Assert.AreEqual("Property2", propertyInfo.Name);
             }
+
             [Test]
             public void Should_throw_when_dots_not_allowed()
             {
                 var argumentException = Assert.Throws<ArgumentException>(() => Reflect<Target1>.GetProperty(target => target.Property1.Property2, true));
-                Assert.AreEqual("Argument passed contains more than a single dot which is not allowed: target => target.Property1.Property2\r\nParameter name: member", argumentException.Message);
+                StringAssert.StartsWith("Argument passed contains more than a single dot which is not allowed: target => target.Property1.Property2", argumentException.Message);
+                Assert.AreEqual("member", argumentException.ParamName);
             }
 
             public class Target1

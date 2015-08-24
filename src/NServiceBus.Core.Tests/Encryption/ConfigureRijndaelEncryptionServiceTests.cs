@@ -82,7 +82,8 @@
                 "key1"
             };
             var exception = Assert.Throws<ArgumentException>(() => ConfigureRijndaelEncryptionService.VerifyKeys(keys));
-            Assert.AreEqual("Overlapping keys defined. Please ensure that no keys overlap.\r\nParameter name: expiredKeys", exception.Message);
+            StringAssert.StartsWith("Overlapping keys defined. Please ensure that no keys overlap.", exception.Message);
+            Assert.AreEqual("expiredKeys", exception.ParamName);
         }
 
         [Test]
@@ -95,7 +96,8 @@
                 "key2"
             };
             var exception = Assert.Throws<ArgumentException>(() => ConfigureRijndaelEncryptionService.VerifyKeys(keys));
-            Assert.AreEqual("Empty encryption key detected in position 1.\r\nParameter name: expiredKeys", exception.Message);
+            StringAssert.StartsWith("Empty encryption key detected in position 1.", exception.Message);
+            Assert.AreEqual("expiredKeys", exception.ParamName);
         }
 
         [Test]
@@ -108,7 +110,8 @@
                 "key2"
             };
             var exception = Assert.Throws<ArgumentException>(() => ConfigureRijndaelEncryptionService.VerifyKeys(keys));
-            Assert.AreEqual("Empty encryption key detected in position 1.\r\nParameter name: expiredKeys", exception.Message);
+            StringAssert.StartsWith("Empty encryption key detected in position 1.", exception.Message);
+            Assert.AreEqual("expiredKeys", exception.ParamName);
         }
 
         [Test]
