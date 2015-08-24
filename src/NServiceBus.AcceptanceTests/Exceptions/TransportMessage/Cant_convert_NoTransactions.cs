@@ -17,14 +17,12 @@
                     .AllowExceptions()
                     .Done(c =>
                     {
-                        var logs = c.Logs;
-                        return logs.Any(l => l.Level == "error");
+                        return c.Logs.Any(l => l.Level == "error");
                     })
                     .Repeat(r => r.For<MsmqOnly>())
                     .Should(c =>
                     {
-                        var logs = c.Logs;
-                        Assert.True(logs.Any(l => l.Message.Contains("is corrupt and will be moved to")));
+                        Assert.True(c.Logs.Any(l => l.Message.Contains("is corrupt and will be moved to")));
                     })
                     .Run();
         }

@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTesting
 {
     using System;
-    using System.Collections.Generic;
+    using System.Collections.Concurrent;
 
     public abstract class ScenarioContext
     {
@@ -19,14 +19,14 @@
 
         public void RecordEndpointLog(string level, string message)
         {
-            Logs.Add(new LogItem
+            Logs.Enqueue(new LogItem
             {
                 Level = level,
                 Message = message
             });
         }
 
-        public readonly List<LogItem> Logs = new List<LogItem>();
+        public ConcurrentQueue<LogItem> Logs = new ConcurrentQueue<LogItem>();
 
         public class LogItem
         {
