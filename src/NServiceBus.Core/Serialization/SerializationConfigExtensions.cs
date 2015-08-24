@@ -15,7 +15,7 @@
         /// </summary>
         /// <typeparam name="T">The serializer definition eg <see cref="JsonSerializer"/>, <see cref="XmlSerializer"/>, etc.</typeparam>
         /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
-        public static SerializationExtentions<T> UseSerialization<T>(this BusConfiguration config) where T : SerializationDefinition
+        public static SerializationExtentions<T> UseSerialization<T>(this BusConfiguration config) where T : SerializationDefinition, new()
         {
             Guard.AgainstNull("config", config);
             var type = typeof(SerializationExtentions<>).MakeGenericType(typeof(T));
@@ -58,7 +58,7 @@
         /// </summary>
         /// <typeparam name="T">The serializer definition eg <see cref="JsonSerializer"/>, <see cref="XmlSerializer"/>, etc.</typeparam>
         /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
-        public static void AddDeserializer<T>(this BusConfiguration config) where T : SerializationDefinition
+        public static void AddDeserializer<T>(this BusConfiguration config) where T : SerializationDefinition, new()
         {
             Guard.AgainstNull("config", config);
 

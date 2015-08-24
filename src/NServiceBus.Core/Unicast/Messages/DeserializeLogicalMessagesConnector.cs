@@ -16,7 +16,7 @@
 
     class DeserializeLogicalMessagesConnector : StageConnector<PhysicalMessageProcessingStageBehavior.Context, LogicalMessagesProcessingStageBehavior.Context>
     {
-        readonly MessageDeserializerResolver deserializerResolver;
+        MessageDeserializerResolver deserializerResolver;
 
         public DeserializeLogicalMessagesConnector(MessageDeserializerResolver deserializerResolver)
         {
