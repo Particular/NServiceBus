@@ -243,7 +243,7 @@ namespace NServiceBus.Serializers.XML.Test
             var serializer = SerializerFactory.Create<EmptyMessage>();
             var msg = new EmptyMessage();
 
-            var expected = @"<EmptyMessage xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://tempuri.net/NServiceBus.Serializers.XML.Test"">";
+            var expected = @"<EmptyMessage xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://tempuri.net/NServiceBus.Serializers.XML.Test""></EmptyMessage>";
 
             AssertSerializedEquals(serializer, msg, expected);
         }
@@ -255,7 +255,7 @@ namespace NServiceBus.Serializers.XML.Test
             serializer.Namespace = "http://super.com";
             var msg = new EmptyMessage();
 
-            var expected = @"<EmptyMessage xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://super.com/NServiceBus.Serializers.XML.Test"">";
+            var expected = @"<EmptyMessage xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://super.com/NServiceBus.Serializers.XML.Test""></EmptyMessage>";
 
             AssertSerializedEquals(serializer, msg, expected);
         }
@@ -267,7 +267,7 @@ namespace NServiceBus.Serializers.XML.Test
             serializer.Namespace = "http://super.com///";
             var msg = new EmptyMessage();
 
-            var expected = @"<EmptyMessage xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://super.com/NServiceBus.Serializers.XML.Test"">";
+            var expected = @"<EmptyMessage xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://super.com/NServiceBus.Serializers.XML.Test""></EmptyMessage>";
 
             AssertSerializedEquals(serializer, msg, expected);
         }
@@ -282,8 +282,7 @@ namespace NServiceBus.Serializers.XML.Test
                 string result;
                 using (var reader = new StreamReader(stream))
                 {
-                    reader.ReadLine();
-                    result = reader.ReadLine();
+                    result = XDocument.Load(reader).ToString();
                 }
 
                 Assert.AreEqual(expected, result);
@@ -808,7 +807,7 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void When_Using_Property_WithXContainerAssignable_should_preserve_xml()
         {
-            const string XmlElement = "<SomeClass xmlns=\"http://nservicebus.com\"><SomeProperty value=\"Bar\" /></SomeClass>";
+            const string XmlElement = "<SomeClass xmlns=\"http://nservicebus.com\"><SomeProperty value=\"Bar\" ></SomeProperty></SomeClass>";
             const string XmlDocument = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>" + XmlElement;
 
             var messageWithXDocument = new MessageWithXDocument { Document = XDocument.Load(new StringReader(XmlDocument)) };
