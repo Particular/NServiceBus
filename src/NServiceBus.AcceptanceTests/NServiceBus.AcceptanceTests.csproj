@@ -72,6 +72,7 @@
     <Compile Include="Basic\When_deferring_to_non_local.cs" />
     <Compile Include="Exceptions\TransportMessage\Cant_convert_DTC.cs" />
     <Compile Include="Basic\When_starting_up_the_endpoint.cs" />
+    <Compile Include="Mutators\When_using_outgoing_tm_mutator.cs" />
     <Compile Include="Recoverability\When_error_is_overridden_in_code.cs" />
     <Compile Include="BestPractices\When_bestpractices_is_disabled_for_message.cs" />
     <Compile Include="BestPractices\When_bestpractices_is_disabled.cs" />
