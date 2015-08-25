@@ -10,18 +10,21 @@
     {
         public override void Invoke(Context context, Action next)
         {
-            var headersSetByMutators = new Dictionary<string,string>();
+            var headersSetByMutators = new Dictionary<string, string>();
 
             foreach (var mutator in context.Builder.BuildAll<IMutateOutgoingTransportMessages>())
             {
-                mutator.MutateOutgoing(new MutateOutgoingTransportMessagesContext(context.Body, headersSetByMutators));
+                var mutatorContext = new MutateOutgoingTransportMessagesContext(context.Body, headersSetByMutators);
+
+                mutator.MutateOutgoing(mutatorContext);
+
+                context.Body = mutatorContext.Body;
             }
 
             foreach (var header in headersSetByMutators)
             {
-                context.SetHeader(header.Key,header.Value);
+                context.SetHeader(header.Key, header.Value);
             }
-            
 
             next();
         }
