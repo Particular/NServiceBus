@@ -27,7 +27,7 @@ namespace NServiceBus.Features
                     statusText.Append("Deactivation reason: ");
                     if (diagnosticData.PrerequisiteStatus != null && !diagnosticData.PrerequisiteStatus.IsSatisfied)
                     {
-                        statusText.AppendLine(string.Format("Did not fulfill its Prerequisites:"));
+                        statusText.AppendLine("Did not fulfill its Prerequisites:");
 
                         foreach (var reason in diagnosticData.PrerequisiteStatus.Reasons)
                         {
