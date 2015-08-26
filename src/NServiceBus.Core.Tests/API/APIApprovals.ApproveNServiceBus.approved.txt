@@ -1313,11 +1313,9 @@ namespace NServiceBus.Features
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
-    public class static SerializationFeatureHelper
-    {
-        public static bool IsAdditionalDeserializer(this NServiceBus.Serialization.ConfigureSerialization serializationFeature, NServiceBus.Features.FeatureConfigurationContext context) { }
-        public static bool IsDefaultSerializer(this NServiceBus.Serialization.ConfigureSerialization serializationFeature, NServiceBus.Features.FeatureConfigurationContext context) { }
-    }
+    [System.ObsoleteAttribute("Use the ConfigureSerialization Feature class instead. Please use `ConfigureSerial" +
+        "ization` instead. Will be removed in version 7.0.0.", true)]
+    public class static SerializationFeatureHelper { }
     public class static SettingsExtentions
     {
         public static NServiceBus.Settings.SettingsHolder EnableFeatureByDefault<T>(this NServiceBus.Settings.SettingsHolder settings)
