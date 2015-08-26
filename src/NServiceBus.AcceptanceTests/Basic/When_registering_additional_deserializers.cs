@@ -13,7 +13,7 @@
     public class When_registering_additional_deserializers : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_compose_with_default_serializer()
+        public void Two_endpoints_with_different_serializers_should_deserialize_the_message()
         {
             var context = new Context();
 
