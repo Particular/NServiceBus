@@ -32,7 +32,7 @@
             return this;
         }
 
-        public bool IsDebugEnabled { get { return true; } }
+        public bool IsDebugEnabled { get { return false; } }
         public bool IsInfoEnabled { get { return true; } }
         public bool IsWarnEnabled { get { return true; } }
         public bool IsErrorEnabled { get { return true; } }
@@ -63,23 +63,17 @@
 
         public void Debug(string message)
         {
-            Trace.WriteLine(message);
-            RecordLog(message, "debug");
+            //we don't care about debug logs
         }
 
         public void Debug(string message, Exception exception)
         {
-            var fullMessage = string.Format("{0} {1}", message, exception);
-            Trace.WriteLine(fullMessage);
             AppendException(exception);
-            RecordLog(fullMessage, "debug");
         }
 
         public void DebugFormat(string format, params object[] args)
         {
-            var fullMessage = string.Format(format, args);
-            Trace.WriteLine(fullMessage);
-            RecordLog(fullMessage, "debug");
+            //we don't care about debug logs
         }
 
         public void Info(string message)
