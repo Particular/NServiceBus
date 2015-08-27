@@ -18,7 +18,8 @@ namespace NServiceBus
         Local = 0,
         Remote = 1,
     }
-    [System.ObsoleteAttribute("Please use `config.ExcludeAssemblies` instead. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Please use `BusConfiguration.ExcludeAssemblies` instead. Will be removed in versi" +
+        "on 7.0.0.", true)]
     public class AllAssemblies : NServiceBus.IExcludesBuilder, NServiceBus.IIncludesBuilder
     {
         public AllAssemblies() { }
@@ -117,7 +118,8 @@ namespace NServiceBus
     public class Configure
     {
         public NServiceBus.ObjectBuilder.IBuilder Builder { get; }
-        [System.ObsoleteAttribute("Please use `settings.LocalAddress()` instead. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Please use `ReadOnlySettings.LocalAddress()` instead. Will be removed in version " +
+            "7.0.0.", true)]
         public string LocalAddress { get; }
         [System.ObsoleteAttribute("Static headers is no longer accessible via this object. Will be removed in versio" +
             "n 7.0.0.", true)]
