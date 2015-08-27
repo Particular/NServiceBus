@@ -14,25 +14,35 @@ namespace NServiceBus.MessagingBestPractices
 
         public void AssertIsValidForSend(Type messageType)
         {
-            if (conventions.IsEventType(messageType))
+            if (conventions.IsInSystemConventionList(messageType))
             {
-                throw new InvalidOperationException("Events can have multiple recipient so they should be published");
+                return;
             }
+            if (!conventions.IsEventType(messageType))
+            {
+                return;
+            }
+            throw new Exception("Events can have multiple recipient so they should be published.");
         }
 
         public void AssertIsValidForReply(Type messageType)
         {
-            if (conventions.IsCommandType(messageType) || conventions.IsEventType(messageType))
+            if (conventions.IsInSystemConventionList(messageType))
             {
-                throw new InvalidOperationException("Reply is neither supported for Commands nor Events. Commands should be sent to their logical owner using bus.Send and bus. Events should be Published with bus.Publish.");
+                return;
             }
+            if (!conventions.IsCommandType(messageType) && !conventions.IsEventType(messageType))
+            {
+                return;
+            }
+            throw new Exception("Reply is neither supported for Commands nor Events. Commands should be sent to their logical owner using bus.Send and bus. Events should be Published with bus.Publish.");
         }
 
         public void AssertIsValidForPubSub(Type messageType)
         {
             if (conventions.IsCommandType(messageType))
             {
-                throw new InvalidOperationException("Pub/Sub is not supported for Commands. They should be be sent direct to their logical owner.");
+                throw new Exception("Pub/Sub is not supported for Commands. They should be be sent direct to their logical owner.");
             }
 
             if (!conventions.IsEventType(messageType))
@@ -42,7 +52,6 @@ namespace NServiceBus.MessagingBestPractices
         }
 
         
-
         static ILog Log = LogManager.GetLogger<Validations>();
     }
 }
