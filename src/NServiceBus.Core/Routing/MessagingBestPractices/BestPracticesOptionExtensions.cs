@@ -1,6 +1,8 @@
 ﻿namespace NServiceBus
 {
     using NServiceBus.Extensibility;
+    using NServiceBus.OutgoingPipeline;
+    using NServiceBus.Routing;
     using NServiceBus.Routing.MessagingBestPractices;
 
     /// <summary>
@@ -13,7 +15,56 @@
         /// </summary>
         public static void DoNotEnforceBestPractices(this ExtendableOptions options)
         {
-            options.Context.Set(new EnforceBestPracticesOptions{Enabled = false});
+            options.Context.SetDoNotEnforceBestPractices();
+        }
+
+        /// <summary>
+        /// Turns off the best practice enforcement for the given context.
+        /// </summary>
+        public static void DoNotEnforceBestPractices(this OutgoingReplyContext context)
+        {
+            context.SetDoNotEnforceBestPractices();
+        }
+
+        /// <summary>
+        /// Turns off the best practice enforcement for the given context.
+        /// </summary>
+        public static void DoNotEnforceBestPractices(this OutgoingSendContext context)
+        {
+            context.SetDoNotEnforceBestPractices();
+        }
+
+        /// <summary>
+        /// Turns off the best practice enforcement for the given context.
+        /// </summary>
+        public static void DoNotEnforceBestPractices(this SubscribeContext context)
+        {
+            context.SetDoNotEnforceBestPractices();
+        }
+
+        /// <summary>
+        /// Turns off the best practice enforcement for the given context.
+        /// </summary>
+        public static void DoNotEnforceBestPractices(this OutgoingPublishContext context)
+        {
+            context.SetDoNotEnforceBestPractices();
+        }
+
+        /// <summary>
+        /// Turns off the best practice enforcement for the given context.
+        /// </summary>
+        public static void DoNotEnforceBestPractices(this UnsubscribeContext context)
+        {
+            context.SetDoNotEnforceBestPractices();
+        }
+
+        static void SetDoNotEnforceBestPractices(this ContextBag context)
+        {
+            var bestPracticesOptions = new EnforceBestPracticesOptions
+            {
+                Enabled = false
+            };
+            context.Set(bestPracticesOptions);
         }
     }
 }

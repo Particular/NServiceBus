@@ -30,6 +30,11 @@ namespace NServiceBus
     public class static BestPracticesOptionExtensions
     {
         public static void DoNotEnforceBestPractices(this NServiceBus.Extensibility.ExtendableOptions options) { }
+        public static void DoNotEnforceBestPractices(this NServiceBus.OutgoingPipeline.OutgoingReplyContext context) { }
+        public static void DoNotEnforceBestPractices(this NServiceBus.OutgoingPipeline.OutgoingSendContext context) { }
+        public static void DoNotEnforceBestPractices(this NServiceBus.Routing.SubscribeContext context) { }
+        public static void DoNotEnforceBestPractices(this NServiceBus.OutgoingPipeline.OutgoingPublishContext context) { }
+        public static void DoNotEnforceBestPractices(this NServiceBus.Routing.UnsubscribeContext context) { }
     }
     public class BinarySerializer : NServiceBus.Serialization.SerializationDefinition
     {
