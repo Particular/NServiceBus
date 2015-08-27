@@ -16,7 +16,7 @@
         protected ConfigureSerialization()
         {
             EnableByDefault();
-            Prerequisite(context => this.IsDefaultSerializer(context) || this.IsAdditionalDeserializer(context), 
+            Prerequisite(context => IsDefaultSerializer(context) || IsAdditionalDeserializer(context), 
                 string.Format("{0} not enabled since serialization definition not detected.", GetType()));
         }
 
@@ -35,7 +35,7 @@
 
             RegisterSerializer(context, serializerType);
 
-            if (this.IsDefaultSerializer(context))
+            if (IsDefaultSerializer(context))
             {
                 context.Container.ConfigureComponent(b => new MessageDeserializerResolver(b.BuildAll<IMessageSerializer>(), serializerType), DependencyLifecycle.SingleInstance);
             }
