@@ -208,7 +208,7 @@
             return routingTable;
         }
 
-        private static void PrintSettings(IEnumerable<KeyValuePair<string, string>> settings)
+        static void PrintSettings(IEnumerable<KeyValuePair<string, string>> settings)
         {
             Console.WriteLine();
             Console.WriteLine("Using settings:");

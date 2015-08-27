@@ -60,7 +60,7 @@
             context.Settings.ApplyTo(serializerType, c);
         }
 
-        private bool IsDefaultSerializer(FeatureConfigurationContext context)
+        bool IsDefaultSerializer(FeatureConfigurationContext context)
         {
             Guard.AgainstNull("context", context);
 
@@ -68,7 +68,7 @@
             return serializationDefinition.ProvidedByFeature() == GetType();
         }
 
-        private bool IsAdditionalDeserializer(FeatureConfigurationContext context)
+        bool IsAdditionalDeserializer(FeatureConfigurationContext context)
         {
             Guard.AgainstNull("context", context);
 

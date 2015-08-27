@@ -6,7 +6,7 @@ namespace NServiceBus.Serializers.Binary
 
     class XContainerSurrogate : ISerializationSurrogate
     {
-        private const string FieldName = "_XDocument";
+        const string FieldName = "_XDocument";
 
         public void GetObjectData(object obj, SerializationInfo info, StreamingContext context)
         {

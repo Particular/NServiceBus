@@ -8,7 +8,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
     [TestFixture]
     public class When_scanning_for_dlls_only
     {
-        static readonly string BaseDirectoryToScan = Path.Combine(Path.GetTempPath(), "empty");
+        static string BaseDirectoryToScan = Path.Combine(Path.GetTempPath(), "empty");
 
         AssemblyScannerResults results;
 

@@ -33,12 +33,12 @@
             
         }
 
-        private class TestMessageWithPrimitives
+        class TestMessageWithPrimitives
         {
             public int?[] Data;
         }
 
-        private class TestMessageWithObjects
+        class TestMessageWithObjects
         {
             public object[] Data;
         }

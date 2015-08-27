@@ -7,8 +7,8 @@
     /// </summary>
     public class QueueBindings
     {
-        readonly List<string> receiveAddresses = new List<string>();
-        readonly List<string> sendingAddresses = new List<string>();
+        List<string> receiveAddresses = new List<string>();
+        List<string> sendingAddresses = new List<string>();
 
         /// <summary>
         /// Declares that this endpoint will be using queue with address <paramref name="address"/> for receiving.

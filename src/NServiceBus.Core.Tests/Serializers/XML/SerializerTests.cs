@@ -23,8 +23,8 @@ namespace NServiceBus.Serializers.XML.Test
     [TestFixture]
     public class SerializerTests
     {
-        private int number = 1;
-        private int numberOfIterations = 100;
+        int number = 1;
+        int numberOfIterations = 100;
 
         [Test]
         public void SerializeInvalidCharacters()
@@ -624,7 +624,7 @@ namespace NServiceBus.Serializers.XML.Test
         }
 
 
-        private void DataContractSerialize(XmlWriterSettings xmlWriterSettings, DataContractSerializer dataContractSerializer, IMessage[] messages, Stream stream)
+        void DataContractSerialize(XmlWriterSettings xmlWriterSettings, DataContractSerializer dataContractSerializer, IMessage[] messages, Stream stream)
         {
             var o = new ArrayList(messages);
             using (var xmlWriter = XmlWriter.Create(stream, xmlWriterSettings))
@@ -690,7 +690,7 @@ namespace NServiceBus.Serializers.XML.Test
             return o;
         }
 
-        private void Time(object message, IMessageSerializer serializer)
+        void Time(object message, IMessageSerializer serializer)
         {
             var watch = new Stopwatch();
             watch.Start();

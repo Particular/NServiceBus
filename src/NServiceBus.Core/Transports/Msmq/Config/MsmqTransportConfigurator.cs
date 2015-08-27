@@ -30,7 +30,7 @@
 
         class CheckQueuePermissions : FeatureStartupTask
         {
-            readonly IBuilder builder;
+            IBuilder builder;
 
             public CheckQueuePermissions(IBuilder builder)
             {

@@ -8,7 +8,7 @@
 
     class TestMessageHandler:IHandleMessages<TestMessage>
     {
-        private static TwoPhaseCommitEnlistment enlistment = new TwoPhaseCommitEnlistment();
+        static TwoPhaseCommitEnlistment enlistment = new TwoPhaseCommitEnlistment();
 
         public void Handle(TestMessage message)
         {

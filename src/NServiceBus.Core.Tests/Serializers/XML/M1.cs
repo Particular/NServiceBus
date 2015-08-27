@@ -23,7 +23,7 @@
             get { return lookup_float_string[key]; }
             set { lookup_float_string[key] = value; }
         }
-        private Dictionary<int, string> lookup_int_string = new Dictionary<int, string>();
-        private Dictionary<float, string> lookup_float_string = new Dictionary<float, string>();
+        Dictionary<int, string> lookup_int_string = new Dictionary<int, string>();
+        Dictionary<float, string> lookup_float_string = new Dictionary<float, string>();
     }
 }

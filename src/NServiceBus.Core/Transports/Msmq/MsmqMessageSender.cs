@@ -139,6 +139,6 @@ namespace NServiceBus.Transports.Msmq
         }
 
         MsmqSettings settings;
-        readonly MsmqLabelGenerator messageLabelGenerator;
+        MsmqLabelGenerator messageLabelGenerator;
     }
 }

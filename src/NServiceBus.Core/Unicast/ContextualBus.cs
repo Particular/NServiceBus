@@ -214,7 +214,7 @@ namespace NServiceBus.Unicast
         }
 
         IMessageMapper messageMapper;
-        readonly BehaviorContextStacker contextStacker;
+        BehaviorContextStacker contextStacker;
         IBuilder builder;
         IDispatchMessages dispatcher;
         string sendLocalAddress;

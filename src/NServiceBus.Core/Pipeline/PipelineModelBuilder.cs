@@ -299,10 +299,10 @@ namespace NServiceBus.Pipeline
                 OutputContext = registerStep.GetOutputContext();
             }
 
-            public readonly string StepId;
+            public string StepId;
             RegisterStep rego;
-            public readonly IList<Dependency> Befores;
-            public readonly IList<Dependency> Afters;
+            public IList<Dependency> Befores;
+            public IList<Dependency> Afters;
             internal List<Node> previous = new List<Node>();
             bool visited;
             public Type OutputContext { get; private set; }

@@ -44,7 +44,7 @@ namespace NServiceBus.MessageMutator
             Headers[key] = value;
         }
 
-        internal readonly Dictionary<string, string> Headers;
+        internal Dictionary<string, string> Headers;
 
         internal bool MessageInstanceChanged; 
         

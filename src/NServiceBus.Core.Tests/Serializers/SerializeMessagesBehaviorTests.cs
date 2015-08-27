@@ -27,7 +27,7 @@
 
         public class FakeSerializer : IMessageSerializer
         {
-            readonly string contentType;
+            string contentType;
 
             public FakeSerializer(string contentType)
             {

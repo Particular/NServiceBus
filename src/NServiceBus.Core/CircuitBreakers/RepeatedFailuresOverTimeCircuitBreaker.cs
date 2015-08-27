@@ -89,7 +89,7 @@ namespace NServiceBus.CircuitBreakers
             }
         }
 
-        static readonly TimeSpan NoPeriodicTriggering = TimeSpan.FromMilliseconds(-1);
+        static TimeSpan NoPeriodicTriggering = TimeSpan.FromMilliseconds(-1);
         static ILog Logger = LogManager.GetLogger<RepeatedFailuresOverTimeCircuitBreaker>();
 
         TimeSpan delayAfterFailure;

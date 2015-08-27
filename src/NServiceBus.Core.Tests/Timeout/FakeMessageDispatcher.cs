@@ -4,7 +4,7 @@ namespace NServiceBus.Core.Tests.Timeout
 
     public class FakeMessageDispatcher : IDispatchMessages
     {
-        private volatile int messagesSent;
+        volatile int messagesSent;
 
         public int MessagesSent
         {

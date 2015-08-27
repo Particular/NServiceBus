@@ -7,8 +7,8 @@
 
     class MessageDeserializerResolver
     {
-        readonly IDictionary<string, IMessageSerializer> serializersMap;
-        readonly IMessageSerializer defaultSerializer;
+        IDictionary<string, IMessageSerializer> serializersMap;
+        IMessageSerializer defaultSerializer;
 
         public MessageDeserializerResolver(IEnumerable<IMessageSerializer> messageSerializers, Type defaultSerializerType)
         {

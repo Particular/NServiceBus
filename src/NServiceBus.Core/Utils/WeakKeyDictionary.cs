@@ -27,7 +27,7 @@ namespace NServiceBus.Utils
     {
         public static readonly WeakNullReference<T> Singleton = new WeakNullReference<T>();
 
-        private WeakNullReference()
+        WeakNullReference()
             : base(null)
         {
         }
@@ -55,7 +55,7 @@ namespace NServiceBus.Utils
     internal sealed class WeakKeyComparer<T> : IEqualityComparer<object>
     where T : class
     {
-        private IEqualityComparer<T> comparer;
+        IEqualityComparer<T> comparer;
 
         internal WeakKeyComparer(IEqualityComparer<T> comparer)
         {
@@ -105,7 +105,7 @@ namespace NServiceBus.Utils
             return comparer.Equals(first, second);
         }
 
-        private static T GetTarget(object obj, out bool isDead)
+        static T GetTarget(object obj, out bool isDead)
         {
             var weakKeyReference = obj as WeakKeyReference<T>;
             T target;
@@ -126,8 +126,8 @@ namespace NServiceBus.Utils
     internal sealed class WeakKeyDictionary<TKey, TValue> : BaseDictionary<TKey, TValue>
         where TKey : class
     {
-        private Dictionary<object, TValue> dictionary;
-        private WeakKeyComparer<TKey> comparer;
+        Dictionary<object, TValue> dictionary;
+        WeakKeyComparer<TKey> comparer;
 
         public WeakKeyDictionary()
             : this(0, null) { }

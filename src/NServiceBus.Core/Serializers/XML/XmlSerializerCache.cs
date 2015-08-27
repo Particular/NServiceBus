@@ -198,11 +198,11 @@ namespace NServiceBus.Serializers.XML
             return t.GetFields(BindingFlags.FlattenHierarchy | BindingFlags.Instance | BindingFlags.Public);
         }
 
-        public readonly ConcurrentDictionary<Type, IEnumerable<FieldInfo>> typeToFields = new ConcurrentDictionary<Type, IEnumerable<FieldInfo>>();
-        public readonly ConcurrentDictionary<Type, IEnumerable<PropertyInfo>> typeToProperties = new ConcurrentDictionary<Type, IEnumerable<PropertyInfo>>();
+        public ConcurrentDictionary<Type, IEnumerable<FieldInfo>> typeToFields = new ConcurrentDictionary<Type, IEnumerable<FieldInfo>>();
+        public ConcurrentDictionary<Type, IEnumerable<PropertyInfo>> typeToProperties = new ConcurrentDictionary<Type, IEnumerable<PropertyInfo>>();
         List<Type> typesBeingInitialized = new List<Type>();
-        public readonly ConcurrentDictionary<Type, Type> typesToCreateForArrays = new ConcurrentDictionary<Type, Type>();
-        public readonly ConcurrentDictionary<Type, Type> typesToCreateForEnumerables = new ConcurrentDictionary<Type, Type>();
+        public ConcurrentDictionary<Type, Type> typesToCreateForArrays = new ConcurrentDictionary<Type, Type>();
+        public ConcurrentDictionary<Type, Type> typesToCreateForEnumerables = new ConcurrentDictionary<Type, Type>();
 
         static ILog logger = LogManager.GetLogger<XmlSerializerCache>();
     }

@@ -6,7 +6,7 @@ namespace NServiceBus.Serializers.Binary
 
     class XElementSurrogate : ISerializationSurrogate
     {
-        private const string FieldName = "_XElement";
+        const string FieldName = "_XElement";
 
         public void GetObjectData(object obj, SerializationInfo info, StreamingContext context)
         {

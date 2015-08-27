@@ -59,9 +59,8 @@ namespace NServiceBus
             next();
         }
 
-        readonly string timeoutManagerAddress;
-
-
+        string timeoutManagerAddress;
+        
         public class Registration : RegisterStep
         {
             public Registration()

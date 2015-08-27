@@ -11,8 +11,8 @@
 
     class SatellitePipelineModifications : PipelineModifications
     {
-        public readonly string Name;
-        public readonly string ReceiveAddress;
+        public string Name;
+        public string ReceiveAddress;
 
         public SatellitePipelineModifications(string name, string receiveAddress)
         {

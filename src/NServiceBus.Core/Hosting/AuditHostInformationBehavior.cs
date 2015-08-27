@@ -26,7 +26,7 @@
             next();
         }
 
-        readonly HostInformation hostInfo;
-        readonly string endpointName;
+        HostInformation hostInfo;
+        string endpointName;
     }
 }

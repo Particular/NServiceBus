@@ -85,9 +85,9 @@ namespace NServiceBus
         }
 
 
-        readonly IPipelineBase<DispatchContext> dispatchPipeline;
-        readonly SecondLevelRetryPolicy retryPolicy;
-        readonly BusNotifications notifications;
+        IPipelineBase<DispatchContext> dispatchPipeline;
+        SecondLevelRetryPolicy retryPolicy;
+        BusNotifications notifications;
 
         public const string RetriesTimestamp = "NServiceBus.Retries.Timestamp";
 

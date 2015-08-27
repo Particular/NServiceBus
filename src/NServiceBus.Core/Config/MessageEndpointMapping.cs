@@ -176,7 +176,7 @@ namespace NServiceBus.Config
                 mapTypeToEndpoint(t, address);
         }
 
-        private static Assembly GetMessageAssembly(string assemblyName)
+        static Assembly GetMessageAssembly(string assemblyName)
         {
             try
             {
@@ -224,7 +224,7 @@ namespace NServiceBus.Config
             return -1;
         }
 
-        private static bool HaveMessagesMappingWithType(MessageEndpointMapping mapping)
+        static bool HaveMessagesMappingWithType(MessageEndpointMapping mapping)
         {
             if (String.IsNullOrWhiteSpace(mapping.Messages))
                 return false;

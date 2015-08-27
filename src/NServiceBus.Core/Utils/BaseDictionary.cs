@@ -5,16 +5,17 @@ namespace NServiceBus.Utils
 {
     using System.Collections;
     using System.Diagnostics;
+    using System.Linq;
 
     [DebuggerDisplay("Count = {Count}")]
     [DebuggerTypeProxy(PREFIX + "DictionaryDebugView`2" + SUFFIX)]
     internal abstract class BaseDictionary<TKey, TValue> : IDictionary<TKey, TValue>
     {
-        private const string PREFIX = "System.Collections.Generic.Mscorlib_";
-        private const string SUFFIX = ",mscorlib,Version=2.0.0.0,Culture=neutral,PublicKeyToken=b77a5c561934e089";
+        const string PREFIX = "System.Collections.Generic.Mscorlib_";
+        const string SUFFIX = ",mscorlib,Version=2.0.0.0,Culture=neutral,PublicKeyToken=b77a5c561934e089";
 
-        private KeyCollection keys;
-        private ValueCollection values;
+        KeyCollection keys;
+        ValueCollection values;
 
         public abstract int Count { get; }
         public abstract void Clear();
@@ -100,7 +101,7 @@ namespace NServiceBus.Utils
             return GetEnumerator();
         }
 
-        private abstract class Collection<T> : ICollection<T>
+        abstract class Collection<T> : ICollection<T>
         {
             protected readonly IDictionary<TKey, TValue> dictionary;
 
@@ -134,8 +135,7 @@ namespace NServiceBus.Utils
 
             public IEnumerator<T> GetEnumerator()
             {
-                foreach (var pair in dictionary)
-                    yield return GetItem(pair);
+                return dictionary.Select(GetItem).GetEnumerator();
             }
 
             protected abstract T GetItem(KeyValuePair<TKey, TValue> pair);
@@ -163,7 +163,7 @@ namespace NServiceBus.Utils
 
         [DebuggerDisplay("Count = {Count}")]
         [DebuggerTypeProxy(PREFIX + "DictionaryKeyCollectionDebugView`2" + SUFFIX)]
-        private class KeyCollection : Collection<TKey>
+        class KeyCollection : Collection<TKey>
         {
             public KeyCollection(IDictionary<TKey, TValue> dictionary)
                 : base(dictionary) { }
@@ -180,7 +180,7 @@ namespace NServiceBus.Utils
 
         [DebuggerDisplay("Count = {Count}")]
         [DebuggerTypeProxy(PREFIX + "DictionaryValueCollectionDebugView`2" + SUFFIX)]
-        private class ValueCollection : Collection<TValue>
+        class ValueCollection : Collection<TValue>
         {
             public ValueCollection(IDictionary<TKey, TValue> dictionary)
                 : base(dictionary) { }
@@ -191,7 +191,7 @@ namespace NServiceBus.Utils
             }
         }
 
-        private static void Copy<T>(ICollection<T> source, T[] array, int arrayIndex)
+        static void Copy<T>(ICollection<T> source, T[] array, int arrayIndex)
         {
             Guard.AgainstNull("array", array);
 

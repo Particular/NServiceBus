@@ -31,7 +31,7 @@
             Assert.AreEqual("John", result.Name);
         }
 
-        private class TestMessageWithSets
+        class TestMessageWithSets
         {
             public string Name { get; set; }
 
@@ -54,7 +54,7 @@
             }
         }
 
-        private class TestMessageWithGets
+        class TestMessageWithGets
         {
             public string Name { get; set; }
 

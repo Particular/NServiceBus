@@ -102,7 +102,7 @@
             }
         }
 
-        private static MessageQueueAccessRights GetPermissions(string formatName, string sid)
+        static MessageQueueAccessRights GetPermissions(string formatName, string sid)
         {
             var SecurityDescriptor = new byte[100];
             

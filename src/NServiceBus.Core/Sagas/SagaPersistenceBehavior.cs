@@ -119,7 +119,7 @@
             }
         }
 
-        private static void RemoveSagaHeadersIfProcessingAEvent(Context context)
+        static void RemoveSagaHeadersIfProcessingAEvent(Context context)
         {
 
             // We need this for backwards compatibility because in v4.0.0 we still have this headers being sent as part of the message even if MessageIntent == MessageIntentEnum.Publish

@@ -10,7 +10,7 @@
     [TestFixture]
     public class BinarySerializerTest
     {
-        private BinaryMessageSerializer serializer;
+        BinaryMessageSerializer serializer;
 
         [SetUp]
         public void SetUp()

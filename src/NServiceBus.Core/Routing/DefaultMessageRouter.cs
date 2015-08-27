@@ -14,6 +14,6 @@ namespace NServiceBus.Routing
             return routes.TryGet(messageType, out destination);
         }
 
-        readonly StaticRoutes routes;
+        StaticRoutes routes;
     }
 }

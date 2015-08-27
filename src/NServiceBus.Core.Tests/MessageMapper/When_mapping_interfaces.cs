@@ -182,7 +182,7 @@ namespace MessageMapperTests
             public int MyAge { get; set; }
         }
         
-        private bool PropertyContainsAttribute(string propertyName, Type attributeType, object obj)
+        bool PropertyContainsAttribute(string propertyName, Type attributeType, object obj)
         {
             return obj.GetType().GetProperty(propertyName).GetCustomAttributes(attributeType,true).Length > 0;
         }

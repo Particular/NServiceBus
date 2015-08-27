@@ -9,8 +9,8 @@ namespace NServiceBus
 
     class DetermineRouteForSendBehavior : Behavior<OutgoingSendContext>
     {
-        readonly string localAddress;
-        readonly MessageRouter messageRouter;
+        string localAddress;
+        MessageRouter messageRouter;
 
         public DetermineRouteForSendBehavior(string localAddress, MessageRouter messageRouter)
         {

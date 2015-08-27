@@ -25,7 +25,7 @@ namespace NServiceBus
             next();
         }
 
-        readonly ConsistencyGuarantee transportDefault;
+        ConsistencyGuarantee transportDefault;
 
     }
 }

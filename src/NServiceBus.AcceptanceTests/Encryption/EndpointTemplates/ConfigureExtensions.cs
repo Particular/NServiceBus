@@ -90,7 +90,7 @@
             config.UsePersistence(persistenceType);
         }
 
-        private class Cleaner
+        class Cleaner
         {
             public void Cleanup()
             {

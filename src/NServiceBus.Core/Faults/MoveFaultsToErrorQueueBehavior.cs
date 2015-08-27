@@ -60,7 +60,7 @@ namespace NServiceBus
         }
 
         CriticalError criticalError;
-        readonly IPipelineBase<DispatchContext> dispatchPipeline;
+        IPipelineBase<DispatchContext> dispatchPipeline;
         HostInformation hostInformation;
         BusNotifications notifications;
         string errorQueueAddress;

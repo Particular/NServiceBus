@@ -9,7 +9,7 @@ namespace NServiceBus
     /// </summary>
     public static class UseTransportExtensions
     {
-        private const string TransportDefinitionTypeKey = "transportDefinitionType";
+        const string TransportDefinitionTypeKey = "transportDefinitionType";
 
         /// <summary>
         /// Configures NServiceBus to use the given transport.

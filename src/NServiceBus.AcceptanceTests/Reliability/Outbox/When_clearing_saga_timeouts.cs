@@ -73,7 +73,7 @@
 
         class FakeOutbox : IOutboxStorage
         {
-            readonly Context context;
+            Context context;
 
             public FakeOutbox(Context context)
             {

@@ -63,7 +63,7 @@
             }
         }
 
-        readonly IQuerySubscriptions querySubscriptions;
-        readonly MessageMetadataRegistry messageMetadataRegistry;
+        IQuerySubscriptions querySubscriptions;
+        MessageMetadataRegistry messageMetadataRegistry;
     }
 }

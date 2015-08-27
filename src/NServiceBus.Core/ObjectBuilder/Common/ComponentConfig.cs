@@ -6,8 +6,8 @@ namespace NServiceBus.ObjectBuilder.Common
 
     class ComponentConfig : IComponentConfig
     {
-        private Type component;
-        private IContainer container;
+        Type component;
+        IContainer container;
 
         public ComponentConfig(Type component, IContainer container)
         {

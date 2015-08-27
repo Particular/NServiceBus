@@ -98,7 +98,7 @@
                 }
             }
 
-            readonly IEnumerable<Type> eventsToSubscribe;
+            IEnumerable<Type> eventsToSubscribe;
             IBus bus;
 
             static ILog Logger = LogManager.GetLogger<ApplySubscriptions>();

@@ -8,7 +8,7 @@ namespace NServiceBus.Serializers.XML {
 	/// </summary>
 	class XmlSanitizingStream : StreamReader
 	{
-		private const int EOF = -1;
+		const int EOF = -1;
 	
 		public XmlSanitizingStream(Stream streamToSanitize)
 			: base(streamToSanitize, true)

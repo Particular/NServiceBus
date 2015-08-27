@@ -29,6 +29,6 @@ namespace NServiceBus
             next();
         }
 
-        readonly Dictionary<Type, bool> durabilitySettings;
+        Dictionary<Type, bool> durabilitySettings;
     }
 }

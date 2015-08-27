@@ -8,10 +8,10 @@ namespace NServiceBus.Utils.Reflection
     
 	static class DelegateFactory
 	{
-        static readonly ConcurrentDictionary<PropertyInfo, Func<object, object>> PropertyInfoToLateBoundProperty = new ConcurrentDictionary<PropertyInfo, Func<object, object>>();
-        static readonly ConcurrentDictionary<FieldInfo, Func<object, object>> FieldInfoToLateBoundField = new ConcurrentDictionary<FieldInfo, Func<object, object>>();
-        static readonly ConcurrentDictionary<PropertyInfo, Action<object, object>> PropertyInfoToLateBoundPropertySet = new ConcurrentDictionary<PropertyInfo, Action<object, object>>();
-        static readonly ConcurrentDictionary<FieldInfo, Action<object, object>> FieldInfoToLateBoundFieldSet = new ConcurrentDictionary<FieldInfo, Action<object, object>>();
+        static ConcurrentDictionary<PropertyInfo, Func<object, object>> PropertyInfoToLateBoundProperty = new ConcurrentDictionary<PropertyInfo, Func<object, object>>();
+        static ConcurrentDictionary<FieldInfo, Func<object, object>> FieldInfoToLateBoundField = new ConcurrentDictionary<FieldInfo, Func<object, object>>();
+        static ConcurrentDictionary<PropertyInfo, Action<object, object>> PropertyInfoToLateBoundPropertySet = new ConcurrentDictionary<PropertyInfo, Action<object, object>>();
+        static ConcurrentDictionary<FieldInfo, Action<object, object>> FieldInfoToLateBoundFieldSet = new ConcurrentDictionary<FieldInfo, Action<object, object>>();
 
         public static Func<object, object> CreateGet(PropertyInfo property)
         {

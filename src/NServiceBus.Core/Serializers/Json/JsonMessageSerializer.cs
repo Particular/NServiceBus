@@ -11,7 +11,7 @@ namespace NServiceBus.Serializers.Json
     /// </summary>
     public class JsonMessageSerializer : JsonMessageSerializerBase
     {
-        private Encoding encoding = Encoding.UTF8;
+        Encoding encoding = Encoding.UTF8;
 
         /// <summary>
         /// Initializes a new instance of <see cref="JsonMessageSerializer"/>.

@@ -21,12 +21,12 @@
             Assert.True(result.Options.ContainsKey(TestEnum.EnumValue1));
         }
 
-        private enum TestEnum
+        enum TestEnum
         {
             EnumValue1
         }
 
-        private class TestOptions
+        class TestOptions
         {
             Dictionary<TestEnum, Dictionary<string, string>> dictionary = new Dictionary<TestEnum, Dictionary<string, string>>();
             public Dictionary<TestEnum, Dictionary<string, string>> Dictionary { get { return dictionary; } }
@@ -49,7 +49,7 @@
             }
         }
 
-        private class TestDto
+        class TestDto
         {
             public TestDto()
             {

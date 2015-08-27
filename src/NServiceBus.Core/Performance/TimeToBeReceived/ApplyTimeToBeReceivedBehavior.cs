@@ -28,6 +28,6 @@
             next();
         }
 
-        readonly TimeToBeReceivedMappings timeToBeReceivedMappings;
+        TimeToBeReceivedMappings timeToBeReceivedMappings;
     }
 }

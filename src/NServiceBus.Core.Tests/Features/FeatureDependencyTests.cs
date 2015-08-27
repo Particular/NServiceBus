@@ -10,7 +10,7 @@
     [TestFixture]
     public class FeatureDependencyTests
     {
-        private IEnumerable<FeatureCombinations> FeatureCombinationsForTests
+        IEnumerable<FeatureCombinations> FeatureCombinationsForTests
         {
             get
             {
