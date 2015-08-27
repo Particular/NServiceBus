@@ -30,6 +30,11 @@ namespace NServiceBus
     public class static BestPracticesOptionExtensions
     {
         public static void DoNotEnforceBestPractices(this NServiceBus.Extensibility.ExtendableOptions options) { }
+        public static void DoNotEnforceBestPractices(this NServiceBus.OutgoingPipeline.OutgoingReplyContext context) { }
+        public static void DoNotEnforceBestPractices(this NServiceBus.OutgoingPipeline.OutgoingSendContext context) { }
+        public static void DoNotEnforceBestPractices(this NServiceBus.Routing.SubscribeContext context) { }
+        public static void DoNotEnforceBestPractices(this NServiceBus.OutgoingPipeline.OutgoingPublishContext context) { }
+        public static void DoNotEnforceBestPractices(this NServiceBus.Routing.UnsubscribeContext context) { }
     }
     public class BinarySerializer : NServiceBus.Serialization.SerializationDefinition
     {
@@ -1821,7 +1826,11 @@ namespace NServiceBus.Pipeline
         [System.ObsoleteAttribute("The dispatch step is the terminating step in v6 so any dependency on it can safel" +
             "y be removed. Will be removed in version 7.0.0.", true)]
         public static readonly NServiceBus.Pipeline.WellKnownStep DispatchMessageToTransport;
-        public static readonly NServiceBus.Pipeline.WellKnownStep EnforceBestPractices;
+        public static readonly NServiceBus.Pipeline.WellKnownStep EnforcePublishBestPractices;
+        public static readonly NServiceBus.Pipeline.WellKnownStep EnforceReplyBestPractices;
+        public static readonly NServiceBus.Pipeline.WellKnownStep EnforceSendBestPractices;
+        public static readonly NServiceBus.Pipeline.WellKnownStep EnforceSubscribeBestPractices;
+        public static readonly NServiceBus.Pipeline.WellKnownStep EnforceUnsubscribeBestPractices;
         public static readonly NServiceBus.Pipeline.WellKnownStep ExecuteUnitOfWork;
         public static NServiceBus.Pipeline.WellKnownStep HostInformation;
         public static readonly NServiceBus.Pipeline.WellKnownStep InvokeHandlers;

@@ -40,7 +40,7 @@ namespace NServiceBus.Pipeline
         /// Statistics analysis.
         /// </summary>
         public static WellKnownStep ProcessingStatistics = new WellKnownStep("ProcessingStatistics");
-        
+
         /// <summary>
         /// Auditing.
         /// </summary>
@@ -86,10 +86,6 @@ namespace NServiceBus.Pipeline
         public static readonly WellKnownStep InvokeSaga = new WellKnownStep("InvokeSaga");
 
         /// <summary>
-        /// Ensures best practices are met.
-        /// </summary>
-        public static readonly WellKnownStep EnforceBestPractices = new WellKnownStep("EnforceBestPractices");
-        /// <summary>
         /// Runs outgoing mutation for each logical message.
         /// </summary>
         public static readonly WellKnownStep MutateOutgoingMessages = new WellKnownStep("MutateOutgoingMessages");
@@ -98,5 +94,30 @@ namespace NServiceBus.Pipeline
         /// Runs outgoing mutation for <see cref="TransportMessage"/>.
         /// </summary>
         public static readonly WellKnownStep MutateOutgoingTransportMessage = new WellKnownStep("MutateOutgoingTransportMessage");
+
+        /// <summary>
+        /// Enforces send messaging best practices.
+        /// </summary>
+        public static readonly WellKnownStep EnforceSendBestPractices = new WellKnownStep("EnforceSendBestPractices");
+
+        /// <summary>
+        /// Enforces reply messaging best practices.
+        /// </summary>
+        public static readonly WellKnownStep EnforceReplyBestPractices = new WellKnownStep("EnforceReplyBestPractices");
+
+        /// <summary>
+        /// Enforces publish messaging best practices.
+        /// </summary>
+        public static readonly WellKnownStep EnforcePublishBestPractices = new WellKnownStep("EnforcePublishBestPractices");
+
+        /// <summary>
+        /// Enforces subscribe messaging best practices.
+        /// </summary>
+        public static readonly WellKnownStep EnforceSubscribeBestPractices = new WellKnownStep("EnforceSubscribeBestPractices");
+
+        /// <summary>
+        /// Enforces unsubscribe messaging best practices.
+        /// </summary>
+        public static readonly WellKnownStep EnforceUnsubscribeBestPractices = new WellKnownStep("EnforceUnsubscribeBestPractices");
     }
 }
