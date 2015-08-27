@@ -6,7 +6,6 @@
     public abstract class ScenarioContext
     {
         public bool EndpointsStarted { get; set; }
-        public string Exceptions { get; set; }
 
         public bool HasNativePubSubSupport { get; set; }
 
@@ -17,14 +16,7 @@
             Trace += String.Format("{0:HH:mm:ss.ffffff} - {1}{2}", DateTime.Now, trace, Environment.NewLine);
         }
 
-        public void RecordEndpointLog(string level, string message)
-        {
-            Logs.Enqueue(new LogItem
-            {
-                Level = level,
-                Message = message
-            });
-        }
+        public ConcurrentQueue<Exception> Exceptions = new ConcurrentQueue<Exception>();
 
         public ConcurrentQueue<LogItem> Logs = new ConcurrentQueue<LogItem>();
 
