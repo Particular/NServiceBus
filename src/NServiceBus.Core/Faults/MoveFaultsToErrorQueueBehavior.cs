@@ -31,7 +31,8 @@ namespace NServiceBus
                 {
                     var message = context.GetPhysicalMessage();
 
-                    Logger.Error("Failed to process message with ID: " + message.Id, exception);
+                    Logger.Error(string.Format("Failed to process message '{0}'. Moving message to error queue ({1}). Exception:", message.Id, errorQueueAddress), exception);
+
                     message.RevertToOriginalBodyIfNeeded();
 
                     message.SetExceptionHeaders(exception, PipelineInfo.PublicAddress);

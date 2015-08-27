@@ -4,6 +4,7 @@ namespace NServiceBus
     using System.Collections.Generic;
     using NServiceBus.DelayedDelivery;
     using NServiceBus.DeliveryConstraints;
+    using NServiceBus.Logging;
     using NServiceBus.Pipeline;
     using NServiceBus.Recoverability.SecondLevelRetries;
     using NServiceBus.Routing;
@@ -55,6 +56,7 @@ namespace NServiceBus
                         new DelayDeliveryWith(delay)
                     });
 
+                    Logger.Warn(string.Format("Second Level Retry will retry message '{0}' after a delay of {1} because of an exception:", message.Id, delay), ex);
                     dispatchPipeline.Invoke(dispatchContext);
 
              
@@ -64,7 +66,7 @@ namespace NServiceBus
                 }
 
                 message.Headers.Remove(Headers.Retries);
-
+                Logger.WarnFormat("Giving up Second Level Retries for message '{0}'.", message.Id);
                 throw;
             }
 
@@ -88,6 +90,8 @@ namespace NServiceBus
         IPipelineBase<DispatchContext> dispatchPipeline;
         SecondLevelRetryPolicy retryPolicy;
         BusNotifications notifications;
+
+        static ILog Logger = LogManager.GetLogger<SecondLevelRetriesBehavior>();
 
         public const string RetriesTimestamp = "NServiceBus.Retries.Timestamp";
 

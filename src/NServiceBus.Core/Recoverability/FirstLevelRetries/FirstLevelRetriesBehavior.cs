@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using NServiceBus.Features;
+    using NServiceBus.Logging;
     using NServiceBus.Pipeline;
     using NServiceBus.Recoverability.FirstLevelRetries;
     using NServiceBus.Settings;
@@ -31,27 +32,35 @@ namespace NServiceBus
             }
             catch (Exception ex)
             {
-                var messageId = PipelineInfo.Name + context.GetPhysicalMessage().Id;
+                var messageId = context.GetPhysicalMessage().Id;
+                var pipelineUniqueMessageId = PipelineInfo.Name + messageId;
 
-                var numberOfFailures = storage.GetFailuresForMessage(messageId);
+                
+
+                var numberOfFailures = storage.GetFailuresForMessage(pipelineUniqueMessageId);
 
                 if (retryPolicy.ShouldGiveUp(numberOfFailures))
                 {
-                    storage.ClearFailuresForMessage(messageId);
+                    storage.ClearFailuresForMessage(pipelineUniqueMessageId);
                     context.GetPhysicalMessage().Headers[Headers.FLRetries] = numberOfFailures.ToString();
                     notifications.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(numberOfFailures, context.GetPhysicalMessage(), ex);
+                    Logger.InfoFormat("Giving up First Level Retries for message '{0}'.", messageId);
                     throw;
                 }
 
-                storage.IncrementFailuresForMessage(messageId);
+                storage.IncrementFailuresForMessage(pipelineUniqueMessageId);
 
+                Logger.Info(string.Format("First Level Retry is going to retry message '{0}' because of an exception:", messageId), ex);
                 //question: should we invoke this the first time around? feels like the naming is off?
                 notifications.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(numberOfFailures,context.GetPhysicalMessage(),ex);
 
                 context.AbortReceiveOperation = true;
             }
 
+            
         }
+
+        static ILog Logger = LogManager.GetLogger<FirstLevelRetriesBehavior>();
 
         public class Registration : RegisterStep
         {
@@ -66,6 +75,5 @@ namespace NServiceBus
                 return settings.IsFeatureActive(typeof(FirstLevelRetries));
             }
         }
-
     }
 }
