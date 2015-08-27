@@ -214,13 +214,13 @@
         {
             var endpoints = runners.Select(r => r.Instance).ToList();
 
-            await StartEndpoints(endpoints).ConfigureAwait(false);
+            await StartEndpoints(endpoints, allowedExceptions).ConfigureAwait(false);
 
             runDescriptor.ScenarioContext.EndpointsStarted = true;
 
             var startTime = DateTime.UtcNow;
             var maxTime = runDescriptor.TestExecutionTimeout;
-            
+
             try
             {
                 // ReSharper disable once LoopVariableIsNeverChangedInsideLoop
@@ -264,14 +264,16 @@
             return sb.ToString();
         }
 
-        static async Task StartEndpoints(IEnumerable<EndpointRunner> endpoints)
+        static async Task StartEndpoints(IEnumerable<EndpointRunner> endpoints, Func<Exception, bool> allowedExceptions)
         {
             var tasks = endpoints.Select(endpoint => Task.Run(async () =>
             {
                 var result = await endpoint.Start().ConfigureAwait(false);
 
-                if (result.Failed)
+                if (result.Failed && !allowedExceptions(result.Exception))
+                {
                     throw new ScenarioException("Endpoint failed to start", result.Exception);
+                }
             })).ToArray();
 
             var whenAll = Task.WhenAll(tasks);
@@ -320,7 +322,7 @@
 
                 if (endpointName.Length > 77)
                 {
-                    throw new Exception(string.Format("Endpoint name '{0}' is larger than 77 characters and will cause issues with MSMQ queue names. Please rename your test class or endpoint.",endpointName));
+                    throw new Exception(string.Format("Endpoint name '{0}' is larger than 77 characters and will cause issues with MSMQ queue names. Please rename your test class or endpoint.", endpointName));
                 }
 
                 var runner = new ActiveRunner

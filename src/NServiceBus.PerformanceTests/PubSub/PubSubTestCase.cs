@@ -117,7 +117,7 @@ public class PrimeSubscriptionStorage : Feature
 
             subscriptionStorage.Init();
 
-            var creator = new MsmqQueueCreator
+            var creator = new QueueCreator
             {
                 Settings = new MsmqSettings
                 {

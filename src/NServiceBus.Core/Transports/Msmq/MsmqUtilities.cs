@@ -30,15 +30,15 @@ namespace NServiceBus
             IPAddress ipAddress;
             if (IPAddress.TryParse(value.Machine, out ipAddress))
             {
-                return PREFIX_TCP + MsmqQueueCreator.GetFullPathWithoutPrefix(value);
+                return PREFIX_TCP + QueueCreator.GetFullPathWithoutPrefix(value);
             }
 
-            return PREFIX + MsmqQueueCreator.GetFullPathWithoutPrefix(value);
+            return PREFIX + QueueCreator.GetFullPathWithoutPrefix(value);
         }
 
         public static string GetFullPath(string queue)
         {
-            return PREFIX + MsmqQueueCreator.GetFullPathWithoutPrefix(queue, RuntimeEnvironment.MachineName);
+            return PREFIX + QueueCreator.GetFullPathWithoutPrefix(queue, RuntimeEnvironment.MachineName);
         }
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace NServiceBus
                 return PREFIX_TCP + localIp + PRIVATE + replyToAddress.Queue;
             }
 
-            return PREFIX + MsmqQueueCreator.GetFullPathWithoutPrefix(replyToAddress);
+            return PREFIX + QueueCreator.GetFullPathWithoutPrefix(replyToAddress);
         }
 
         static string LocalIpAddress(IPAddress targetIpAddress)

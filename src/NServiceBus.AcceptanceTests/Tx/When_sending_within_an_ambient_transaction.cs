@@ -33,7 +33,7 @@
                         }))
                     .Done(c => c.MessageThatIsNotEnlistedHandlerWasCalled && c.TimesCalled >= 2)
                     .Repeat(r => r.For<AllDtcTransports>())
-                    .Should(c => Assert.AreEqual(1, c.SequenceNumberOfFirstMessage,"The transport should preserve the order in which the transactional messages are delivered to the queuing system"))
+                    .Should(c => Assert.AreEqual(1, c.SequenceNumberOfFirstMessage, "The transport should preserve the order in which the transactional messages are delivered to the queuing system"))
                     .Run();
         }
 
@@ -75,7 +75,7 @@
         {
             public TransactionalEndpoint()
             {
-                EndpointSetup<DefaultServer>()
+                EndpointSetup<DefaultServer>(c => c.LimitMessageProcessingConcurrencyTo(1))
                     .AddMapping<MessageThatIsEnlisted>(typeof(TransactionalEndpoint))
                     .AddMapping<MessageThatIsNotEnlisted>(typeof(TransactionalEndpoint));
             }

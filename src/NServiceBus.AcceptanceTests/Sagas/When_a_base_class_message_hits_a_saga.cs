@@ -21,10 +21,6 @@
                        {
                            SomeId = correlationId
                        });
-                       bus.SendLocal(new StartSagaMessage
-                       {
-                           SomeId = correlationId
-                       });
                        return Task.FromResult(0);
                    }))
                    .Done(c => c.SecondMessageFoundExistingSaga)
@@ -58,6 +54,11 @@
                     else
                     {
                         Data.SomeId = message.SomeId;
+
+                        Bus.SendLocal(new StartSagaMessage
+                        {
+                            SomeId = message.SomeId
+                        });
                     }
                 }
 

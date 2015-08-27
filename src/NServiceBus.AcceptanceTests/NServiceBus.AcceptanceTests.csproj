@@ -78,6 +78,14 @@
     <Compile Include="BestPractices\When_sending_events_bestpractices_disabled.cs" />
     <Compile Include="BestPractices\When_subscribing_to_command_bestpractices_disabled_on_endpoint.cs" />
     <Compile Include="Mutators\When_using_outgoing_tm_mutator.cs" />
+    <Compile Include="FakeTransport\FakeDispatcher.cs" />
+    <Compile Include="FakeTransport\FakeQueueCreator.cs" />
+    <Compile Include="FakeTransport\FakeReceiver.cs" />
+    <Compile Include="FakeTransport\FakeTransport.cs" />
+    <Compile Include="FakeTransport\FakeTransportConfigurator.cs" />
+    <Compile Include="FakeTransport\FakeTransportContext.cs" />
+    <Compile Include="Performance\ProcessingOptimizations\When_limiting_concurrency_via_both_api_and_config.cs" />
+    <Compile Include="Performance\ProcessingOptimizations\When_using_concurrency_limit.cs" />
     <Compile Include="Recoverability\Retries\When_message_fails_retries.cs" />
     <Compile Include="Recoverability\When_error_is_overridden_in_code.cs" />
     <Compile Include="BestPractices\When_publishing_command_bestpractices_disabled.cs" />
@@ -119,6 +127,7 @@
     <Compile Include="Config\When_overriding_public_return_address.cs" />    
     <Compile Include="PerfMon\CriticalTime\When_deferring_a_message.cs" />
     <Compile Include="Audit\When_audit_is_overridden_in_code.cs" />
+    <Compile Include="Reliability\Outbox\When_receiving_messages_already_dispatched.cs" />
     <Compile Include="Routing\AutomaticSubscriptions\When_starting_an_endpoint_with_a_saga.cs" />
     <Compile Include="Routing\AutomaticSubscriptions\When_starting_an_endpoint_with_a_saga_autosubscribe_disabled.cs" />
     <Compile Include="Routing\AutomaticSubscriptions\When_starting_an_endpoint_with_autoSubscribe.cs">

@@ -11,14 +11,14 @@ namespace NServiceBus.Unicast.Transport
     /// <summary>
     ///     Default implementation of a NServiceBus transport.
     /// </summary>
-    public class TransportReceiver : IObserver<MessageAvailable>
+    public class TransportReceiver
     {
-        internal TransportReceiver(string id, IBuilder builder, IDequeueMessages receiver, DequeueSettings dequeueSettings, PipelineBase<IncomingContext> pipeline, IExecutor executor)
+        internal TransportReceiver(string id, IBuilder builder, IPushMessages receiver, PushSettings pushSettings, PipelineBase<TransportReceiveContext> pipeline,PushRuntimeSettings pushRuntimeSettings)
         {
             Id = id;
             this.pipeline = pipeline;
-            this.executor = executor;
-            this.dequeueSettings = dequeueSettings;
+            this.pushRuntimeSettings = pushRuntimeSettings;
+            this.pushSettings = pushSettings;
             this.receiver = receiver;
             this.builder = builder;
         }
@@ -29,57 +29,24 @@ namespace NServiceBus.Unicast.Transport
         /// </summary>
         public string Id { get; private set; }
 
-
-        void IObserver<MessageAvailable>.OnNext(MessageAvailable value)
+        void InvokePipeline(PushContext pushContext)
         {
-            InvokePipeline(value);
-            //TODO: I think I need to do some logging here, if a behavior can't be instantiated no error message is shown!
-            //todo: I want to start a new instance of a pipeline and not use thread statics 
-            //todo: Szymon: removing the try as it impedes testing
-        }
-
-        void InvokePipeline(MessageAvailable messageAvailable)
-        {
-            executor.Execute(Id, () =>
+            using (var childBuilder = builder.CreateChildBuilder())
             {
-                try
-                {
-                    using (var childBuilder = builder.CreateChildBuilder())
-                    {
-                        var configurer = (IConfigureComponents)childBuilder;
-                        var behaviorContextStacker = new BehaviorContextStacker(childBuilder);
-                        configurer.RegisterSingleton(behaviorContextStacker);
-                        configurer.ConfigureComponent<ContextualBus>(DependencyLifecycle.SingleInstance);
+                var configurer = (IConfigureComponents)childBuilder;
+                var behaviorContextStacker = new BehaviorContextStacker(childBuilder);
+                configurer.RegisterSingleton(behaviorContextStacker);
+                configurer.ConfigureComponent<ContextualBus>(DependencyLifecycle.SingleInstance);
 
-                        var context = new IncomingContext(behaviorContextStacker.Root);
-                        messageAvailable.InitializeContext(context);
-                        SetContext(context);
+                var context = new TransportReceiveContext(pushContext.Message, behaviorContextStacker.Root);
 
-                        pipeline.Invoke(context);
-                    }
-                }
-                catch (MessageProcessingAbortedException)
-                {
-                    //We swallow this one because it is used to signal aborting of processing.
-                }
-            });
+                context.Merge(pushContext.Context);
+
+                pipeline.Invoke(context);
+            }
+
         }
-
-        /// <summary>
-        /// Sets the context for processing an incoming message.
-        /// </summary>
-        protected virtual void SetContext(IncomingContext context)
-        {
-        }
-
-        void IObserver<MessageAvailable>.OnError(Exception error)
-        {
-        }
-
-        void IObserver<MessageAvailable>.OnCompleted()
-        {
-        }
-
+        
         /// <summary>
         ///     Starts the transport listening for messages on the given local address.
         /// </summary>
@@ -90,14 +57,14 @@ namespace NServiceBus.Unicast.Transport
                 throw new InvalidOperationException("The transport is already started");
             }
 
-            Logger.DebugFormat("Pipeline {0} is starting receiver for queue {1}.", Id, dequeueSettings.QueueName);
+            Logger.DebugFormat("Pipeline {0} is starting receiver for queue {1}.", Id, pushSettings.InputQueue);
 
-            var dequeueInfo = receiver.Init(dequeueSettings);
+            var dequeueInfo = receiver.Init(InvokePipeline, pushSettings);
             pipeline.Initialize(new PipelineInfo(Id, dequeueInfo.PublicAddress));
             await pipeline.Warmup();
 
-            StartReceiver();
-
+            receiver.Start(pushRuntimeSettings);
+   
             isStarted = true;
         }
 
@@ -117,20 +84,14 @@ namespace NServiceBus.Unicast.Transport
             isStarted = false;
         }
 
-        void StartReceiver()
-        {
-            receiver.Subscribe(this);
-            receiver.Start();
-        }
-
         static ILog Logger = LogManager.GetLogger<TransportReceiver>();
 
         IBuilder builder;
-        PipelineBase<IncomingContext> pipeline;
-        IExecutor executor;
-        IDequeueMessages receiver;
+        PipelineBase<TransportReceiveContext> pipeline;
+        PushRuntimeSettings pushRuntimeSettings;
+        IPushMessages receiver;
 
         bool isStarted;
-        DequeueSettings dequeueSettings;
+        PushSettings pushSettings;
     }
 }

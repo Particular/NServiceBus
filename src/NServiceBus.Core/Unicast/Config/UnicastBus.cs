@@ -3,58 +3,23 @@ namespace NServiceBus.Features
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using NServiceBus.Config;
     using NServiceBus.Logging;
     using NServiceBus.Pipeline;
-    using NServiceBus.Settings.Concurrency;
-    using NServiceBus.Settings.Throttling;
     using NServiceBus.Unicast;
     using NServiceBus.Unicast.Messages;
-    using TransactionSettings = NServiceBus.Unicast.Transport.TransactionSettings;
+    using NServiceBus.Unicast.Transport;
 
     class UnicastBus : Feature
     {
         internal UnicastBus()
         {
             EnableByDefault();
-
-            Defaults(s =>
-            {
-                s.SetDefault<IConcurrencyConfig>(new SharedConcurrencyConfig(null));
-                s.SetDefault<IThrottlingConfig>(new NoLimitThrottlingConfig());
-            });
         }
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             context.Container.ConfigureComponent<BusNotifications>(DependencyLifecycle.SingleInstance);
-
-
-            var concurrencyConfig = context.Settings.Get<IConcurrencyConfig>();
-            var throttlingConfig = context.Settings.Get<IThrottlingConfig>();
-
-            var transportConfig = context.Settings.GetConfigSection<TransportConfig>();
-
-            if (transportConfig != null)
-            {
-                if (transportConfig.MaximumConcurrencyLevel != 0)
-                {
-                    concurrencyConfig = new SharedConcurrencyConfig(transportConfig.MaximumConcurrencyLevel);
-                }
-                if (transportConfig.MaximumMessageThroughputPerSecond == 0)
-                {
-                    throttlingConfig = new NoLimitThrottlingConfig();
-                }
-                else if (transportConfig.MaximumMessageThroughputPerSecond != -1)
-                {
-                    throttlingConfig = new SharedLimitThrottlingConfig(transportConfig.MaximumConcurrencyLevel);
-                }
-            }
-
-            context.Container.ConfigureComponent(b => throttlingConfig.WrapExecutor(concurrencyConfig.BuildExecutor()), DependencyLifecycle.SingleInstance);
-
             context.Container.ConfigureComponent<BehaviorContextStacker>(DependencyLifecycle.SingleInstance);
-
             context.Container.ConfigureComponent(b => b.Build<BehaviorContextStacker>().GetCurrentOrRootContext(), DependencyLifecycle.InstancePerCall);
 
             //Hack because we can't register as IStartableBus because it would automatically register as IBus and overrode the proper IBus registration.

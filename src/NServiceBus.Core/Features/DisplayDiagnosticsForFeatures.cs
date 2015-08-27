@@ -43,8 +43,8 @@ namespace NServiceBus.Features
                 }
                 else
                 {
-                    statusText.AppendLine(string.Format("Dependencies: {0}", diagnosticData.Dependencies.Count == 0 ? "None" : String.Join(",", diagnosticData.Dependencies.Select(t => "[" + String.Join(",", t.Select(t1 => t1)) + "]"))));
-                    statusText.AppendLine(string.Format("Startup Tasks: {0}", diagnosticData.StartupTasks.Count == 0 ? "None" : String.Join(",", diagnosticData.StartupTasks.Select(t => t.Name))));
+                    statusText.AppendLine(string.Format("Dependencies: {0}", diagnosticData.Dependencies.Count == 0 ? "Default" : String.Join(",", diagnosticData.Dependencies.Select(t => "[" + String.Join(",", t.Select(t1 => t1)) + "]"))));
+                    statusText.AppendLine(string.Format("Startup Tasks: {0}", diagnosticData.StartupTasks.Count == 0 ? "Default" : String.Join(",", diagnosticData.StartupTasks.Select(t => t.Name))));
                 }
 
                 statusText.AppendLine();
