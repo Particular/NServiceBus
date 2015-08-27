@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using NServiceBus.Settings;
     using Serialization;
 
@@ -14,7 +15,7 @@
         /// </summary>
         /// <typeparam name="T">The serializer definition eg <see cref="JsonSerializer"/>, <see cref="XmlSerializer"/>, etc.</typeparam>
         /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
-        public static SerializationExtentions<T> UseSerialization<T>(this BusConfiguration config) where T : SerializationDefinition
+        public static SerializationExtentions<T> UseSerialization<T>(this BusConfiguration config) where T : SerializationDefinition, new()
         {
             Guard.AgainstNull("config", config);
             var type = typeof(SerializationExtentions<>).MakeGenericType(typeof(T));
@@ -52,6 +53,27 @@
             config.Settings.Set("CustomSerializerType", serializerType);
         }
 
+        /// <summary>
+        /// Configures additional deserializers to be considered when processing messages. Can be called multiple times.
+        /// </summary>
+        /// <typeparam name="T">The serializer definition eg <see cref="JsonSerializer"/>, <see cref="XmlSerializer"/>, etc.</typeparam>
+        /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
+        public static void AddDeserializer<T>(this BusConfiguration config) where T : SerializationDefinition, new()
+        {
+            Guard.AgainstNull("config", config);
+
+            HashSet<SerializationDefinition> deserializers;
+            if (!config.Settings.TryGet("AdditionalDeserializers", out deserializers))
+            {
+                deserializers = new HashSet<SerializationDefinition>();
+            }
+
+            var instance = Activator.CreateInstance<T>();
+            deserializers.Add(instance);
+
+            config.Settings.Set("AdditionalDeserializers", deserializers);
+        }
+
         internal static SerializationDefinition GetSelectedSerializer(this ReadOnlySettings settings)
         {
             SerializationDefinition selectedSerializer;
@@ -60,7 +82,7 @@
                 return selectedSerializer;
             }
 
-            return new XmlSerializer();
+            return settings.Get<SerializationDefinition>("DefaultSerializer");
         }
     }
 }

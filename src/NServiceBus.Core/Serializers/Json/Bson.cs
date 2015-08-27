@@ -16,6 +16,5 @@ namespace NServiceBus
         {
             return typeof(BsonSerialization);
         }
-
     }
 }

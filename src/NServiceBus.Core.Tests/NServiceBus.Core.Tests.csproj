@@ -135,6 +135,8 @@
     <Compile Include="Routing\DetermineRouteForPublishBehaviorTests.cs" />
     <Compile Include="Routing\DetermineRouteForSendBehaviorTests.cs" />
     <Compile Include="Routing\SubscriptionRouterTests.cs" />
+    <Compile Include="Serializers\MessageDeserializerResolverTests.cs" />
+    <Compile Include="Serializers\SerializationExtensionsTests.cs" />
     <Compile Include="TransportDispatch\HeaderAssertHelpers.cs" />
     <Compile Include="Performance\TimeToBeReceived\TimeToBeReceivedAttributeTests.cs" />
     <Compile Include="Config\TestConfigurationSection.cs" />

@@ -17,22 +17,21 @@
 
             registry.RegisterMessageType(typeof(MyMessage));
 
-            var behavior = new SerializeMessagesBehavior(new FakeSerializer("myContentType"),registry);
-
             var context = ContextHelpers.GetOutgoingContext(new MyMessage());
-            behavior.Invoke(context, c =>
-            {
-                
-            });
+            var behavior = new SerializeMessagesBehavior(new FakeSerializer("myContentType"), registry);
+            
+            behavior.Invoke(context, c => { });
 
             Assert.AreEqual("myContentType", context.GetOrCreate<DispatchMessageToTransportConnector.State>().Headers[Headers.ContentType]);
         }
 
         public class FakeSerializer : IMessageSerializer
         {
+            readonly string contentType;
+
             public FakeSerializer(string contentType)
             {
-                ContentType = contentType;
+                this.contentType = contentType;
             }
 
             public void Serialize(object message, Stream stream)
@@ -45,7 +44,10 @@
                 throw new NotImplementedException();
             }
 
-            public string ContentType { get; private set; }
+            public string ContentType
+            {
+                get { return contentType; }
+            }
         }
 
         class MyMessage { }

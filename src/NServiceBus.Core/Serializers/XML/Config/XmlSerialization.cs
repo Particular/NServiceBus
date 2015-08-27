@@ -1,30 +1,27 @@
 ﻿namespace NServiceBus.Features
 {
+    using System;
     using System.Linq;
     using NServiceBus.MessageInterfaces;
-    using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
-    using NServiceBus.ObjectBuilder;
+    using NServiceBus.Serialization;
     using NServiceBus.Serializers.XML;
 
     /// <summary>
     /// Used to configure xml as a message serializer.
     /// </summary>
-    public class XmlSerialization : Feature
+    public class XmlSerialization : ConfigureSerialization
     {
-        internal XmlSerialization()
+        internal XmlSerialization() 
         {
-            EnableByDefault();
-            Prerequisite(this.ShouldSerializationFeatureBeEnabled, "XmlSerialization not enable since serialization definition not detected.");
             RegisterStartupTask<MessageTypesInitializer>();
         }
 
-        /// <inheritdoc />
-        protected internal override void Setup(FeatureConfigurationContext context)
+        /// <summary>
+        /// Specify the concrete implementation of <see cref="IMessageSerializer"/> type.
+        /// </summary>
+        protected override Type GetSerializerType(FeatureConfigurationContext context)
         {
-            context.Container.ConfigureComponent<MessageMapper>(DependencyLifecycle.SingleInstance);
-            var c = context.Container.ConfigureComponent<XmlMessageSerializer>(DependencyLifecycle.SingleInstance);
-
-            context.Settings.ApplyTo<XmlMessageSerializer>((IComponentConfig)c);
+            return typeof(XmlMessageSerializer);
         }
 
         /// <summary>
@@ -49,6 +46,5 @@
                 Serializer.Initialize(messageTypes);
             }
         }
-
     }
 }

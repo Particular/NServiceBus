@@ -24,7 +24,7 @@ namespace NServiceBus.Serializers.Binary
 
             binaryFormatter.SurrogateSelector = surrogateSelector;
         }
-        
+
         /// <summary>
         /// Serializes the given set of messages into the given stream.
         /// </summary>
@@ -34,7 +34,10 @@ namespace NServiceBus.Serializers.Binary
         {
             Guard.AgainstNull("message", message);
             Guard.AgainstNull("stream", stream);
-            binaryFormatter.Serialize(stream, new List<object> { message });
+            binaryFormatter.Serialize(stream, new List<object>
+            {
+                message
+            });
         }
 
         /// <summary>
@@ -65,7 +68,10 @@ namespace NServiceBus.Serializers.Binary
         /// <summary>
         /// Gets the content type into which this serializer serializes the content to.
         /// </summary>
-        public string ContentType { get{ return ContentTypes.Binary;}}
+        public string ContentType
+        {
+            get { return ContentTypes.Binary; }
+        }
 
         BinaryFormatter binaryFormatter = new BinaryFormatter();
     }

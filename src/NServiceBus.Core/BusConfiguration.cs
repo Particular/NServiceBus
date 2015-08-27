@@ -45,6 +45,7 @@ namespace NServiceBus
             Settings.SetDefault("Transactions.DefaultTimeout", TransactionManager.DefaultTimeout);
             Settings.SetDefault("Transactions.SuppressDistributedTransactions", false);
             Settings.SetDefault("Transactions.DoNotWrapHandlersExecutionInATransactionScope", false);
+            Settings.SetDefault("DefaultSerializer", new XmlSerializer());
 
             conventionsBuilder = new ConventionsBuilder(Settings);
         }

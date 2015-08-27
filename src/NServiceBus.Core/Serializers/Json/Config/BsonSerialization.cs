@@ -1,27 +1,24 @@
 ﻿namespace NServiceBus.Features
 {
-    using MessageInterfaces.MessageMapper.Reflection;
+    using System;
+    using NServiceBus.Serialization;
     using Serializers.Json;
 
     /// <summary>
     /// Uses Bson as the message serialization.
     /// </summary>
-    public class BsonSerialization : Feature
+    public class BsonSerialization : ConfigureSerialization
     {
-        
         internal BsonSerialization()
         {
-            EnableByDefault();
-            Prerequisite(this.ShouldSerializationFeatureBeEnabled, "BsonSerialization not enable since serialization definition not detected.");
         }
 
         /// <summary>
-        /// See <see cref="Feature.Setup"/>.
+        /// Specify the concrete implementation of <see cref="IMessageSerializer"/> type.
         /// </summary>
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected override Type GetSerializerType(FeatureConfigurationContext context)
         {
-            context.Container.ConfigureComponent<MessageMapper>(DependencyLifecycle.SingleInstance);
-            context.Container.ConfigureComponent<BsonMessageSerializer>(DependencyLifecycle.SingleInstance);
+            return typeof(BsonMessageSerializer);
         }
     }
 }

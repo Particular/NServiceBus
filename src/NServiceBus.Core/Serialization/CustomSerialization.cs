@@ -1,20 +1,16 @@
 ﻿namespace NServiceBus.Features
 {
     using System;
-    using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
+    using NServiceBus.Serialization;
 
-    class CustomSerialization : Feature
+    class CustomSerialization : ConfigureSerialization
     {
-        public CustomSerialization()
+        /// <summary>
+        /// Specify the concrete implementation of <see cref="IMessageSerializer"/> type.
+        /// </summary>
+        protected override Type GetSerializerType(FeatureConfigurationContext context)
         {
-            EnableByDefault();
-            Prerequisite(this.ShouldSerializationFeatureBeEnabled, "CustomSerialization not enable since serialization definition not detected.");
-        }
-
-        protected internal override void Setup(FeatureConfigurationContext context)
-        {
-            context.Container.ConfigureComponent<MessageMapper>(DependencyLifecycle.SingleInstance);
-            context.Container.ConfigureComponent(context.Settings.Get<Type>("CustomSerializerType"), DependencyLifecycle.SingleInstance);
+            return context.Settings.Get<Type>("CustomSerializerType");
         }
     }
 }

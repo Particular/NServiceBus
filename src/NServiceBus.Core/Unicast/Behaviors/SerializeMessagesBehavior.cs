@@ -12,11 +12,10 @@
 
     class SerializeMessagesBehavior : StageConnector<OutgoingContext, PhysicalOutgoingContextStageBehavior.Context>
     {
-
         IMessageSerializer messageSerializer;
         MessageMetadataRegistry messageMetadataRegistry;
 
-        public SerializeMessagesBehavior(IMessageSerializer messageSerializer,MessageMetadataRegistry messageMetadataRegistry)
+        public SerializeMessagesBehavior(IMessageSerializer messageSerializer, MessageMetadataRegistry messageMetadataRegistry)
         {
             this.messageSerializer = messageSerializer;
             this.messageMetadataRegistry = messageMetadataRegistry;
@@ -32,10 +31,9 @@
 
             using (var ms = new MemoryStream())
             {
-
                 messageSerializer.Serialize(context.GetMessageInstance(), ms);
 
-                context.SetHeader(Headers.ContentType,messageSerializer.ContentType);
+                context.SetHeader(Headers.ContentType, messageSerializer.ContentType);
 
                 context.SetHeader(Headers.EnclosedMessageTypes, SerializeEnclosedMessageTypes(context.GetMessageType()));
                 next(new PhysicalOutgoingContextStageBehavior.Context(ms.ToArray(), context));

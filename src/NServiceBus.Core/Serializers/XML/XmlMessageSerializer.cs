@@ -66,6 +66,14 @@ namespace NServiceBus.Serializers.XML
         }
 
         /// <summary>
+        /// Gets the content type into which this serializer serializes the content to.
+        /// </summary>
+        public string ContentType
+        {
+            get { return ContentTypes.Xml; }
+        }
+
+        /// <summary>
         ///     Serializes the given messages to the given stream.
         /// </summary>
         public void Serialize(object message, Stream stream)
@@ -74,14 +82,6 @@ namespace NServiceBus.Serializers.XML
             {
                 serializer.Serialize();
             }
-        }
-
-        /// <summary>
-        ///     Supported content type.
-        /// </summary>
-        public string ContentType
-        {
-            get { return ContentTypes.Xml; }
         }
 
         /// <summary>

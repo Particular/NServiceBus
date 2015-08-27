@@ -68,6 +68,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Basic\When_registering_additional_deserializers.cs" />
     <Compile Include="Basic\When_setting_msmq_label_generator.cs" />
     <Compile Include="Basic\When_deferring_to_non_local.cs" />
     <Compile Include="Exceptions\TransportMessage\Cant_convert_DTC.cs" />

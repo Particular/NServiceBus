@@ -9,13 +9,16 @@
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Scheduling.Messages;
-    using NServiceBus.Serialization;
+    using NServiceBus.Serializers;
+    using NServiceBus.Unicast;
     using NServiceBus.Unicast.Messages;
     using NServiceBus.Unicast.Transport;
 
     class DeserializeLogicalMessagesConnector : StageConnector<PhysicalMessageProcessingStageBehavior.Context, LogicalMessagesProcessingStageBehavior.Context>
     {
-        public IMessageSerializer MessageSerializer { get; set; }
+        public MessageDeserializerResolver DeserializerResolver { get; set; }
+
+        public UnicastBus UnicastBus { get; set; }
 
         public LogicalMessageFactory LogicalMessageFactory { get; set; }
 
@@ -96,7 +99,8 @@
             using (var stream = new MemoryStream(physicalMessage.Body))
             {
                 var messageTypesToDeserialize = messageMetadata.Select(metadata => metadata.MessageType).ToList();
-                return MessageSerializer.Deserialize(stream, messageTypesToDeserialize)
+                var messageSerializer = DeserializerResolver.Resolve(physicalMessage.Headers[Headers.ContentType]);
+                return messageSerializer.Deserialize(stream, messageTypesToDeserialize)
                     .Select(x => LogicalMessageFactory.Create(x.GetType(), x))
                     .ToList();
 

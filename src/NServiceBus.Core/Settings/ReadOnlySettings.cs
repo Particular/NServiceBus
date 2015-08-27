@@ -1,5 +1,6 @@
 namespace NServiceBus.Settings
 {
+    using System;
     using ObjectBuilder;
 
     /// <summary>
@@ -83,5 +84,10 @@ namespace NServiceBus.Settings
         /// Setup property injection for the given type based on convention.
         /// </summary>
         void ApplyTo<T>(IComponentConfig config);
+        
+        /// <summary>
+        /// Setup property injection for the given type based on convention.
+        /// </summary>
+        void ApplyTo(Type componentType, IComponentConfig config);
     }
 }
