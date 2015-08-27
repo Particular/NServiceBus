@@ -1,6 +1,7 @@
 namespace NServiceBus.Features
 {
     using NServiceBus.MessagingBestPractices;
+    using NServiceBus.Pipeline;
 
     /// <summary>
     /// Makes sure that messaging best practices are followed.
@@ -14,6 +15,7 @@ namespace NServiceBus.Features
         {
             EnableByDefault();
         }
+
         /// <summary>
         /// Initializes the feature.
         /// </summary>
@@ -22,12 +24,30 @@ namespace NServiceBus.Features
         {
             context.Container.ConfigureComponent<Validations>(DependencyLifecycle.SingleInstance);
 
-            context.Pipeline.Register("EnforceSendBestPractices", typeof(EnforceSendBestPracticesBehavior), "Enforces send messaging best practices");
-            context.Pipeline.Register("EnforceReplyBestPractices", typeof(EnforceReplyBestPracticesBehavior), "Enforces reply messaging best practices");
-            context.Pipeline.Register("EnforcePublishBestPractices", typeof(EnforcePublishBestPracticesBehavior), "Enforces publish messaging best practices");
+            context.Pipeline.Register(
+                WellKnownStep.EnforceSendBestPractices,
+                typeof(EnforceSendBestPracticesBehavior),
+                "Enforces send messaging best practices");
 
-            context.Pipeline.Register("EnforceSubscribeBestPractices", typeof(EnforceSubscribeBestPracticesBehavior), "Enforces subscription messaging best practices");
-            context.Pipeline.Register("EnforceUnsubscribeBestPractices", typeof(EnforceUnsubscribeBestPracticesBehavior), "Enforces subscription messaging best practices");
+            context.Pipeline.Register(
+                WellKnownStep.EnforceReplyBestPractices,
+                typeof(EnforceReplyBestPracticesBehavior),
+                "Enforces reply messaging best practices");
+
+            context.Pipeline.Register(
+                WellKnownStep.EnforcePublishBestPractices,
+                typeof(EnforcePublishBestPracticesBehavior),
+                "Enforces publish messaging best practices");
+
+            context.Pipeline.Register(
+                WellKnownStep.EnforceSubscribeBestPractices,
+                typeof(EnforceSubscribeBestPracticesBehavior),
+                "Enforces subscribe messaging best practices");
+
+            context.Pipeline.Register(
+                WellKnownStep.EnforceUnsubscribeBestPractices,
+                typeof(EnforceUnsubscribeBestPracticesBehavior),
+                "Enforces unsubscribe messaging best practices");
         }
 
     }
