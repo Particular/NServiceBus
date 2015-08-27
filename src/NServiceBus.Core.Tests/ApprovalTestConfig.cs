@@ -1,6 +1,6 @@
 ﻿using ApprovalTests.Reporters;
 #if(DEBUG)
-[assembly: UseReporter(typeof(AllFailingTestsClipboardReporter), typeof(DiffReporter))]
+[assembly: UseReporter(typeof(DiffReporter), typeof(AllFailingTestsClipboardReporter))]
 #else
 [assembly: UseReporter(typeof(DiffReporter))]
 #endif
