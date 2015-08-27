@@ -173,7 +173,7 @@
                         }
                     }
                     return done(runDescriptor.ScenarioContext);
-                });
+                }, allowedExceptions);
 
                 runTimer.Stop();
 
@@ -219,7 +219,7 @@
             Console.WriteLine();
         }
 
-        static void PerformScenarios(RunDescriptor runDescriptor, IEnumerable<ActiveRunner> runners, Func<bool> done)
+        static void PerformScenarios(RunDescriptor runDescriptor, IEnumerable<ActiveRunner> runners, Func<bool> done, Func<Exception, bool> allowedExceptions)
         {
             var endpoints = runners.Select(r => r.Instance).ToList();
 
@@ -229,7 +229,7 @@
 
             var startTime = DateTime.UtcNow;
             var maxTime = runDescriptor.TestExecutionTimeout;
-
+            
             try
             {
                 Task.WaitAll(endpoints.Select(endpoint => Task.Factory.StartNew(() => SpinWait.SpinUntil(done, maxTime))).Cast<Task>().ToArray(), maxTime);
@@ -242,6 +242,15 @@
             finally
             {
                 StopEndpoints(endpoints);
+
+                if (!string.IsNullOrEmpty(runDescriptor.ScenarioContext.Exceptions))
+                {
+                    var ex = new Exception(runDescriptor.ScenarioContext.Exceptions);
+                    if (!allowedExceptions(ex))
+                    {
+                        throw new Exception(string.Format("Exception occured while processing message: {0}", ex));
+                    }
+                }
             }
         }
 
