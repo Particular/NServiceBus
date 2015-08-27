@@ -2155,8 +2155,6 @@ namespace NServiceBus.Serialization
     public abstract class SerializationDefinition
     {
         protected SerializationDefinition() { }
-        public override bool Equals(object obj) { }
-        public override int GetHashCode() { }
         protected internal abstract System.Type ProvidedByFeature();
     }
     public class SerializationExtentions<T> : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings

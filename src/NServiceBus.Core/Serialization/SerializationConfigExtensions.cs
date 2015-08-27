@@ -62,16 +62,21 @@
         {
             Guard.AgainstNull("config", config);
 
-            HashSet<SerializationDefinition> deserializers;
-            if (!config.Settings.TryGet("AdditionalDeserializers", out deserializers))
-            {
-                deserializers = new HashSet<SerializationDefinition>();
-            }
-
+            Dictionary<RuntimeTypeHandle, SerializationDefinition> deserializers;
             var instance = Activator.CreateInstance<T>();
-            deserializers.Add(instance);
-
-            config.Settings.Set("AdditionalDeserializers", deserializers);
+            var typeHandle = instance.ProvidedByFeature().TypeHandle;
+            if (config.Settings.TryGet("AdditionalDeserializers", out deserializers))
+            {
+                deserializers[typeHandle] = instance;
+            }
+            else
+            {
+                deserializers = new Dictionary<RuntimeTypeHandle, SerializationDefinition>
+                {
+                    {typeHandle, instance}
+                };
+                config.Settings.Set("AdditionalDeserializers", deserializers);
+            }
         }
 
         internal static SerializationDefinition GetSelectedSerializer(this ReadOnlySettings settings)

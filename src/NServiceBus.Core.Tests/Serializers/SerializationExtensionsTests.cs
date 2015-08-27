@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Serializers
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using NServiceBus.Serialization;
@@ -14,9 +15,9 @@
             var config = new BusConfiguration();
             config.AddDeserializer<JsonSerializer>();
 
-            var deserializers = config.Settings.Get<HashSet<SerializationDefinition>>("AdditionalDeserializers");
+            var deserializers = config.Settings.Get<Dictionary<RuntimeTypeHandle,SerializationDefinition>>("AdditionalDeserializers");
             Assert.AreEqual(1, deserializers.Count);
-            Assert.IsInstanceOf<JsonSerializer>(deserializers.First());
+            Assert.IsInstanceOf<JsonSerializer>(deserializers.First().Value);
         }
 
         [Test]
@@ -26,7 +27,7 @@
             config.AddDeserializer<JsonSerializer>();
             config.AddDeserializer<JsonSerializer>();
 
-            var deserializers = config.Settings.Get<HashSet<SerializationDefinition>>("AdditionalDeserializers");
+            var deserializers = config.Settings.Get<Dictionary<RuntimeTypeHandle, SerializationDefinition>>("AdditionalDeserializers");
             Assert.AreEqual(1, deserializers.Count);
         }
     }

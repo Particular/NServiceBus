@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using NServiceBus.Features;
     using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
     using NServiceBus.Serializers;
@@ -72,13 +71,13 @@
         {
             Guard.AgainstNull("context", context);
 
-            HashSet<SerializationDefinition> deserializers;
+            Dictionary<RuntimeTypeHandle, SerializationDefinition> deserializers;
             if (!context.Settings.TryGet("AdditionalDeserializers", out deserializers))
             {
                 return false;
             }
 
-            return deserializers.Any(definition => definition.ProvidedByFeature() == GetType());
+            return deserializers.ContainsKey(GetType().TypeHandle);
         }
     }
 }
