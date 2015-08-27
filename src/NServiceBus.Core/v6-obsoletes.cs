@@ -82,7 +82,7 @@ namespace NServiceBus
             }
         }
 
-        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "settings.LocalAddress()")]
+        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "ReadOnlySettings.LocalAddress()")]
         public string LocalAddress
         {
             get
@@ -92,7 +92,7 @@ namespace NServiceBus
         }
     }
 
-    [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "config.ExcludeAssemblies")]
+    [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "BusConfiguration.ExcludeAssemblies")]
     public class AllAssemblies : IExcludesBuilder, IIncludesBuilder
     {
     }
