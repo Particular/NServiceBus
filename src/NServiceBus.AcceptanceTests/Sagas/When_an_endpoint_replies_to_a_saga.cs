@@ -20,7 +20,7 @@
 
             Scenario.Define(context)
                     .WithEndpoint<EndpointThatHostsASaga>(b => b.Given((bus, ctx) => bus.SendLocal(new StartSaga { RunId = ctx.RunId })))
-                    .WithEndpoint<EndpointThatHandlesAMessageFromSagaAndReplies>()
+                    .WithEndpoint<EndpointThatRepliesToSagaMessage>()
                     .Done(c => c.Done)
                     .Run();
 
@@ -34,9 +34,9 @@
             public bool DidSagaReplyMessageGetCorrelated { get; set; }
         }
 
-        public class EndpointThatHandlesAMessageFromSagaAndReplies : EndpointConfigurationBuilder
+        public class EndpointThatRepliesToSagaMessage : EndpointConfigurationBuilder
         {
-            public EndpointThatHandlesAMessageFromSagaAndReplies()
+            public EndpointThatRepliesToSagaMessage()
             {
                 EndpointSetup<DefaultServer>();
             }
@@ -57,7 +57,7 @@
             public EndpointThatHostsASaga()
             {
                 EndpointSetup<DefaultServer>()
-                    .AddMapping<DoSomething>(typeof (EndpointThatHandlesAMessageFromSagaAndReplies));
+                    .AddMapping<DoSomething>(typeof (EndpointThatRepliesToSagaMessage));
 
             }
 
