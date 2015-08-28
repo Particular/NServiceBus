@@ -9,8 +9,6 @@
     /// </summary>
     class ContextAppender : ILoggerFactory, ILog
     {
-        static object contextLocker = new object();
-
         /// <summary>
         /// Because ILoggerFactory interface methods are only used in a static context. This is the only way to set the currently executing context.
         /// </summary>
@@ -41,23 +39,21 @@
 
         static void RecordLog(string message, string level)
         {
-            lock (contextLocker)
+            if (context != null)
             {
-                if (context != null)
+                context.Logs.Enqueue(new ScenarioContext.LogItem
                 {
-                    context.RecordEndpointLog(level, message);
-                }
+                    Level = level,
+                    Message = message
+                });
             }
         }
 
         static void AppendException(Exception exception)
         {
-            lock (contextLocker)
+            if (context != null)
             {
-                if (context != null)
-                {
-                    context.Exceptions += exception + Environment.NewLine;
-                }
+                context.Exceptions.Enqueue(exception);
             }
         }
 

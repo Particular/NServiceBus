@@ -29,7 +29,7 @@
                     .AllowExceptions()
                     .Run();
 
-            Assert.IsInstanceOf<InvalidOperationException>(context.Exception);
+            Assert.IsInstanceOf<Exception>(context.Exception);
         }
 
         public class Context : ScenarioContext

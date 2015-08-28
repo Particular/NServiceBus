@@ -164,14 +164,15 @@
 
                 PerformScenarios(runDescriptor, runners, () =>
                 {
-                    if (!string.IsNullOrEmpty(runDescriptor.ScenarioContext.Exceptions))
+                    var exceptions = runDescriptor.ScenarioContext.Exceptions
+                        .Where(ex => !allowedExceptions(ex))
+                        .ToList();
+
+                    if (exceptions.Any())
                     {
-                        var ex = new Exception(runDescriptor.ScenarioContext.Exceptions);
-                        if (!allowedExceptions(ex))
-                        {
-                            throw new Exception("Failures in endpoints");
-                        }
+                        throw new AggregateException(exceptions);
                     }
+
                     return done(runDescriptor.ScenarioContext);
                 }, allowedExceptions);
 
@@ -243,13 +244,13 @@
             {
                 StopEndpoints(endpoints);
 
-                if (!string.IsNullOrEmpty(runDescriptor.ScenarioContext.Exceptions))
+                var exceptions = runDescriptor.ScenarioContext.Exceptions
+                        .Where(ex => !allowedExceptions(ex))
+                        .ToList();
+
+                if (exceptions.Any())
                 {
-                    var ex = new Exception(runDescriptor.ScenarioContext.Exceptions);
-                    if (!allowedExceptions(ex))
-                    {
-                        throw new Exception(string.Format("Exception occured while processing message: {0}", ex));
-                    }
+                    throw new AggregateException(exceptions);
                 }
             }
         }
