@@ -18,6 +18,7 @@
             Scenario.Define(context)
                     .WithEndpoint<EndpointWithAuditOn>(b => b.Given(bus => bus.SendLocal(new MessageToBeAudited())))
                     .WithEndpoint<AuditSpyEndpoint>()
+                    .AllowExceptions(e => e is EndpointWithAuditOn.BlowUpAfterDispatchBehavior.FakeException)
                     .Done(c => c.Done)
                     .Run();
             Assert.True(context.Done);
@@ -79,7 +80,11 @@
 
                     called = true;
 
-                    throw new Exception("Fake ex after dispatch");
+                    throw new FakeException();
+                }
+
+                public class FakeException : Exception
+                {
                 }
 
                 static bool called;
