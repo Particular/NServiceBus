@@ -162,19 +162,7 @@
 
                 runResult.ActiveEndpoints = runners.Select(r => r.EndpointName).ToList();
 
-                PerformScenarios(runDescriptor, runners, () =>
-                {
-                    var exceptions = runDescriptor.ScenarioContext.Exceptions
-                        .Where(ex => !allowedExceptions(ex))
-                        .ToList();
-
-                    if (exceptions.Any())
-                    {
-                        throw new AggregateException(exceptions);
-                    }
-
-                    return done(runDescriptor.ScenarioContext);
-                }, allowedExceptions);
+                PerformScenarios(runDescriptor, runners, () => done(runDescriptor.ScenarioContext), allowedExceptions);
 
                 runTimer.Stop();
 
