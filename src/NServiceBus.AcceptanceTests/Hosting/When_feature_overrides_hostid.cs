@@ -11,11 +11,10 @@ namespace NServiceBus.AcceptanceTests.Hosting
     public class When_feature_overrides_hostid : NServiceBusAcceptanceTest
     {
 
+        static Context context = new Context();
         [Test]
         public void MD5_should_not_be_used()
         {
-            var context = new Context();
-
             Scenario.Define(context)
                 .WithEndpoint<MyEndpoint>(e => e.Given(b => b.SendLocal(new MyMessage())))
                 .Done(c => c.Done)
@@ -34,7 +33,6 @@ namespace NServiceBus.AcceptanceTests.Hosting
 
         public class MyFeatureThatOverridesHostInformationDefaults : Feature
         {
-            bool notSet;
 
             public MyFeatureThatOverridesHostInformationDefaults()
             {
@@ -49,17 +47,15 @@ namespace NServiceBus.AcceptanceTests.Hosting
                     dictionary.TryRemove("NServiceBus.HostInformation.HostId", out s2);
 
                     // Try to get value, setting should not exist
-                    notSet = !s.HasSetting("NServiceBus.HostInformation.HostId");
+                    context.NotSet = !s.HasSetting("NServiceBus.HostInformation.HostId");
 
                     // Set override again so we have something
                     s.Set("NServiceBus.HostInformation.HostId", Guid.NewGuid());
-
                 });
             }
 
             protected override void Setup(FeatureConfigurationContext context)
             {
-                context.Container.ConfigureProperty<Context>(c => c.NotSet, notSet);
             }
         }
 
