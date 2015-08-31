@@ -50,7 +50,7 @@ namespace NServiceBus.Features
                 statusText.AppendLine();
             }
 
-            Logger.Info(statusText.ToString());
+            Logger.Debug(statusText.ToString());
         }
 
         static ILog Logger = LogManager.GetLogger<DisplayDiagnosticsForFeatures>();

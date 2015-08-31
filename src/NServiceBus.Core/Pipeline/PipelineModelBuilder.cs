@@ -199,7 +199,7 @@ namespace NServiceBus.Pipeline
 
                             if (!beforeReference.Enforce)
                             {
-                                Logger.Info(message);
+                                Logger.Debug(message);
                             }
                             else
                             {
@@ -224,7 +224,7 @@ namespace NServiceBus.Pipeline
 
                             if (!afterReference.Enforce)
                             {
-                                Logger.Info(message);
+                                Logger.Debug(message);
                             }
                             else
                             {
