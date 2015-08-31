@@ -11,11 +11,16 @@
     {
         public static string GetTestAssemblyDirectory()
         {
+            var directoryName = GetAssemblyDirectory();
+            return Path.Combine(directoryName, "TestDlls");
+        }
+
+        public static string GetAssemblyDirectory()
+        {
             var codeBase = Assembly.GetExecutingAssembly().CodeBase;
             var uri = new UriBuilder(codeBase);
             var path = Uri.UnescapeDataString(uri.Path);
-            var directoryName = Path.GetDirectoryName(path);
-            return Path.Combine(directoryName, "TestDlls");
+            return Path.GetDirectoryName(path);
         }
 
         [Test]
@@ -36,6 +41,13 @@
         public void ReferencesNServiceBus_returns_true_for_indirect_reference()
         {
             var combine = Path.Combine(GetTestAssemblyDirectory(),"AssemblyWithNoDirectReference.dll");
+            Assert.IsTrue(AssemblyScanner.ReferencesNServiceBus(combine));
+        }
+
+        [Test]
+        public void ReferencesNServiceBus_requires_binding_redirect()
+        {
+            var combine = Path.Combine(GetTestAssemblyDirectory(), "AssemblyWithRefToSN.dll");
             Assert.IsTrue(AssemblyScanner.ReferencesNServiceBus(combine));
         }
 

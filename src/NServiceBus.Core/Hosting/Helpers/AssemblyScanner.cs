@@ -407,10 +407,12 @@ namespace NServiceBus.Hosting.Helpers
                 {
                     continue;
                 }
+                //We need to do a ApplyPolicy, and use the result, so as to respect the current binding redirects 
+                var afterPolicyName = AppDomain.CurrentDomain.ApplyPolicy(assemblyName.FullName);
                 Assembly refAssembly;
                 try
                 {
-                    refAssembly = Assembly.ReflectionOnlyLoad(assemblyName.FullName);
+                    refAssembly = Assembly.ReflectionOnlyLoad(afterPolicyName);
                 }
                 catch (FileNotFoundException)
                 {
