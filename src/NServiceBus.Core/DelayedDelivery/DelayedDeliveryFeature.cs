@@ -24,6 +24,7 @@
                 if (timeoutMgrDisabled)
                 {
                     DoNotClearTimeouts(context);
+                    context.Pipeline.Register<ThrowIfCannotDeferMessageBehavior.Registration>();
                 }
                 else
                 {
@@ -46,6 +47,7 @@
             else
             {
                 DoNotClearTimeouts(context);
+
             }
 
             context.Pipeline.Register("ApplyDelayedDeliveryConstraint", typeof(ApplyDelayedDeliveryConstraintBehavior), "Applied relevant delayed delivery constraints requested by the user");

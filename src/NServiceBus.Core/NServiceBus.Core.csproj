@@ -128,6 +128,7 @@
     <Compile Include="DelayedDelivery\NoOpCanceling.cs" />
     <Compile Include="DelayedDelivery\RequestCancelingOfDeferredMessagesFromTimeoutManager.cs" />
     <Compile Include="DelayedDelivery\RouteDeferredMessageToTimeoutManagerBehavior.cs" />
+    <Compile Include="DelayedDelivery\ThrowIfCannotDeferMessageBehavior.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\Persistence\IQueryTimeouts.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\Persistence\TimeoutPersistenceOptions.cs" />
     <Compile Include="DeliveryConstraints\DeliveryConstraintContextExtensions.cs" />
