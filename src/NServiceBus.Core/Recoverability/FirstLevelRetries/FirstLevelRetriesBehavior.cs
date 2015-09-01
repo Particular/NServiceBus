@@ -35,8 +35,6 @@ namespace NServiceBus
                 var messageId = context.GetPhysicalMessage().Id;
                 var pipelineUniqueMessageId = PipelineInfo.Name + messageId;
 
-                
-
                 var numberOfFailures = storage.GetFailuresForMessage(pipelineUniqueMessageId);
 
                 if (retryPolicy.ShouldGiveUp(numberOfFailures))

@@ -22,8 +22,8 @@
                     .Repeat(r => r.For(Transports.Default))
                     .Should(context =>
                         {
-                            Assert.GreaterOrEqual(1,context.NumberOfSlrRetriesPerformed, "The SLR should only do one retry");
-                            Assert.GreaterOrEqual(context.TimeOfSecondAttempt - context.TimeOfFirstAttempt,SlrDelay , "The SLR should delay the retry");
+                            Assert.GreaterOrEqual(1, context.NumberOfSlrRetriesPerformed, "The SLR should only do one retry");
+                            Assert.GreaterOrEqual(context.TimeOfSecondAttempt - context.TimeOfFirstAttempt, SlrDelay, "The SLR should delay the retry");
                         })
                     .Run();
         }
@@ -50,18 +50,18 @@
                     config.EnableFeature<SecondLevelRetries>();
                 })
                     .WithConfig<TransportConfig>(c =>
-                        {
-                            c.MaxRetries = 0; //to skip the FLR
-                        })
-                        .WithConfig<SecondLevelRetriesConfig>(c =>
-                        {
-                            c.NumberOfRetries = 1;
-                            c.TimeIncrease = SlrDelay;
-                        });
+                    {
+                        c.MaxRetries = 0; //to skip the FLR
+                    })
+                    .WithConfig<SecondLevelRetriesConfig>(c =>
+                    {
+                        c.NumberOfRetries = 1;
+                        c.TimeIncrease = SlrDelay;
+                    });
             }
 
 
-            class MessageToBeRetriedHandler:IHandleMessages<MessageToBeRetried>
+            class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
             {
                 public Context Context { get; set; }
 
@@ -83,12 +83,12 @@
 
                     string retries;
 
-                    if (Bus.CurrentMessageContext.Headers.TryGetValue(Headers.Retries,out retries))
+                    if (Bus.CurrentMessageContext.Headers.TryGetValue(Headers.Retries, out retries))
                     {
-                        Context.NumberOfSlrRetriesPerformed = int.Parse(retries);     
+                        Context.NumberOfSlrRetriesPerformed = int.Parse(retries);
                     }
-                    
-                        
+
+
                     throw new Exception("Simulated exception");
                 }
             }

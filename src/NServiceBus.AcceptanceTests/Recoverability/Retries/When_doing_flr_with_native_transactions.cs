@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Recoverability.Retries
 {
     using System;
+    using System.Linq;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
@@ -14,9 +15,16 @@
             Scenario.Define(() => new Context { Id = Guid.NewGuid() })
                     .WithEndpoint<RetryEndpoint>(b => b.Given((bus, context) => bus.SendLocal(new MessageToBeRetried { Id = context.Id })))
                     .AllowExceptions()
-                    .Done(c => c.ForwardedToErrorQueue || c.NumberOfTimesInvoked > 5)
+                    .Done(c => c.ForwardedToErrorQueue)
                     .Repeat(r => r.For(Transports.Default))
-                    .Should(c => Assert.AreEqual(5+1, c.NumberOfTimesInvoked, "The FLR should by default retry 5 times"))
+                    .Should(c =>
+                    {
+                        Assert.AreEqual(5 + 1, c.NumberOfTimesInvoked, "The FLR should by default retry 5 times");
+                        Assert.AreEqual(5, c.Logs.Count(l => l.Message
+                            .StartsWith(string.Format("First Level Retry is going to retry message '{0}' because of an exception:", c.PhysicalMessageId))));
+                        Assert.AreEqual(1, c.Logs.Count(l => l.Message
+                            .StartsWith(string.Format("Giving up First Level Retries for message '{0}'.", c.PhysicalMessageId))));
+                    })
                     .Run();
 
         }
@@ -28,6 +36,8 @@
             public int NumberOfTimesInvoked { get; set; }
 
             public bool ForwardedToErrorQueue { get; set; }
+
+            public string PhysicalMessageId { get; set; }
         }
 
         public class RetryEndpoint : EndpointConfigurationBuilder
@@ -57,16 +67,19 @@
 
                 public void Stop() { }
             }
-           
+
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
             {
+                public IBus Bus { get; set; }
+
                 public Context Context { get; set; }
 
                 public void Handle(MessageToBeRetried message)
                 {
                     if (message.Id != Context.Id) return; // messages from previous test runs must be ignored
 
+                    Context.PhysicalMessageId = Bus.CurrentMessageContext.Id;
                     Context.NumberOfTimesInvoked++;
 
                     throw new Exception("Simulated exception");

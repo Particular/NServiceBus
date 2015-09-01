@@ -47,8 +47,7 @@ namespace NServiceBus
                     messageToRetry.Headers[Headers.Retries] = currentRetry.ToString();
                     messageToRetry.Headers[RetriesTimestamp] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
 
-
-                    var dispatchContext = new DispatchContext(messageToRetry,context);
+                    var dispatchContext = new DispatchContext(messageToRetry, context);
 
                     context.Set<RoutingStrategy>(new DirectToTargetDestination(receiveAddress));
                     context.Set(new List<DeliveryConstraint>
@@ -56,7 +55,7 @@ namespace NServiceBus
                         new DelayDeliveryWith(delay)
                     });
 
-                    Logger.Warn(string.Format("Second Level Retry will retry message '{0}' after a delay of {1} because of an exception:", message.Id, delay), ex);
+                    Logger.Warn(string.Format("Second Level Retry will reschedule message '{0}' after a delay of {1} because of an exception:", message.Id, delay), ex);
                     dispatchPipeline.Invoke(dispatchContext);
 
              
