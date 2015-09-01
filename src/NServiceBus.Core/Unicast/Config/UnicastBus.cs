@@ -104,7 +104,7 @@ namespace NServiceBus.Features
 
             var messageDefinitions = messageRegistry.GetAllMessages().ToList();
 
-            Logger.InfoFormat("Number of messages found: {0}", messageDefinitions.Count());
+            Logger.DebugFormat("Number of messages found: {0}", messageDefinitions.Count());
 
             if (!Logger.IsDebugEnabled)
             {

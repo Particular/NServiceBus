@@ -71,7 +71,6 @@
     <Compile Include="Basic\When_registering_additional_deserializers.cs" />
     <Compile Include="Basic\When_setting_msmq_label_generator.cs" />
     <Compile Include="Basic\When_deferring_to_non_local.cs" />
-    <Compile Include="Exceptions\TransportMessage\Cant_convert_DTC.cs" />
     <Compile Include="Basic\When_starting_up_the_endpoint.cs" />
     <Compile Include="Mutators\When_using_outgoing_tm_mutator.cs" />
     <Compile Include="Recoverability\When_error_is_overridden_in_code.cs" />
@@ -140,13 +139,9 @@
     <Compile Include="CriticalError\When_registering_a_custom_criticalErrorHandler.cs" />
     <Compile Include="DataBus\When_using_custom_IDataBus.cs" />
     <Compile Include="DeterministicGuid.cs" />
-    <Compile Include="Exceptions\TransportMessage\Cant_convert_NoTransactions.cs" />
-    <Compile Include="Exceptions\TransportMessage\Cant_convert_SuppressedDTC.cs" />
-    <Compile Include="Exceptions\Handler_throws_SerializationEx.cs" />
     <Compile Include="MessageId\When_message_has_no_id_header.cs" />
     <Compile Include="Hosting\When_feature_overrides_hostinfo.cs" />
     <Compile Include="Sagas\When_reply_from_a_finder.cs" />
-    <Compile Include="Exceptions\TransportMessage\CorruptedMessageSender.cs" />
     <Compile Include="Sagas\When_message_has_a_saga_id.cs" />
     <Compile Include="Recoverability\Retries\When_Subscribing_to_errors.cs" />
     <Compile Include="Sagas\When_timeout_hit_not_found_saga.cs" />
@@ -164,28 +159,6 @@
     <Compile Include="Encryption\When_using_Rijndael_with_custom.cs" />
     <Compile Include="Encryption\When_using_Rijndael_with_config.cs" />
     <Compile Include="Encryption\EndpointTemplates\DefaultPublisher.cs" />
-    <Compile Include="Exceptions\StackTraceAssert.cs" />
-    <Compile Include="Exceptions\Handler_and_UowEnd_throws.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Exceptions\Handler_throws.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Exceptions\Handler_throws_AggregateEx.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Exceptions\Serialization_throws.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Exceptions\Uow_Begin_and_diff_End_throws.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Exceptions\Uow_Begin_throws.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Exceptions\Uow_End_throws.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Mutators\Issue_1980.cs" />
     <Compile Include="Mutators\When_outgoing_mutator_replaces_instance.cs" />
     <Compile Include="Mutators\When_defining_outgoing_message_mutators.cs" />

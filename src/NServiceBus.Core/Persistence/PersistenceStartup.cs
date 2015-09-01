@@ -39,7 +39,7 @@
 
                 foreach (var storageType in definition.SelectedStorages)
                 {
-                    Logger.InfoFormat("Activating persistence '{0}' to provide storage for '{1}' storage.", definition.DefinitionType.Name, storageType);
+                    Logger.DebugFormat("Activating persistence '{0}' to provide storage for '{1}' storage.", definition.DefinitionType.Name, storageType);
                     persistenceDefinition.ApplyActionForStorage(storageType, settings);
                     resultingSupportedStorages.Add(storageType);
                 }

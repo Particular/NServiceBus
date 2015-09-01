@@ -72,7 +72,6 @@ namespace NServiceBus
             public Registration()
                 : base("MoveFaultsToErrorQueue", typeof(MoveFaultsToErrorQueueBehavior), "Moved failing messages to the configured error queue")
             {
-                InsertBeforeIfExists("HandlerTransactionScopeWrapper");
                 InsertBeforeIfExists("FirstLevelRetries");
                 InsertBeforeIfExists("SecondLevelRetries");
             }
