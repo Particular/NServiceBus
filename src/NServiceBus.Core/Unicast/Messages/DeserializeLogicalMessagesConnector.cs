@@ -98,9 +98,9 @@
 
             using (var stream = new MemoryStream(physicalMessage.Body))
             {
-                var messageTypesToDeserialize = messageMetadata.Select(metadata => metadata.MessageType).ToList();
+                var messageTypes = messageMetadata.Select(metadata => metadata.MessageType).ToList();
                 var messageSerializer = DeserializerResolver.Resolve(physicalMessage.Headers[Headers.ContentType]);
-                return messageSerializer.Deserialize(stream, messageTypesToDeserialize)
+                return messageSerializer.Deserialize(stream, messageTypes)
                     .Select(x => LogicalMessageFactory.Create(x.GetType(), x))
                     .ToList();
 

@@ -29,14 +29,19 @@
                 return;
             }
 
+            context.SetHeader(Headers.ContentType, messageSerializer.ContentType);
+            context.SetHeader(Headers.EnclosedMessageTypes, SerializeEnclosedMessageTypes(context.GetMessageType()));
+
+            var array = Serialize(context);
+            next(new PhysicalOutgoingContextStageBehavior.Context(array, context));
+        }
+
+        byte[] Serialize(OutgoingContext context)
+        {
             using (var ms = new MemoryStream())
             {
                 messageSerializer.Serialize(context.GetMessageInstance(), ms);
-
-                context.SetHeader(Headers.ContentType, messageSerializer.ContentType);
-
-                context.SetHeader(Headers.EnclosedMessageTypes, SerializeEnclosedMessageTypes(context.GetMessageType()));
-                next(new PhysicalOutgoingContextStageBehavior.Context(ms.ToArray(), context));
+                return ms.ToArray();
             }
         }
 
@@ -44,7 +49,6 @@
         {
             var metadata = messageMetadataRegistry.GetMessageMetadata(messageType);
             var distinctTypes = metadata.MessageHierarchy.Distinct();
-
             return string.Join(";", distinctTypes.Select(t => t.AssemblyQualifiedName));
         }
 
