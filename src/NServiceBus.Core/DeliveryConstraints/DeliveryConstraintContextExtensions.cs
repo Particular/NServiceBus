@@ -9,43 +9,61 @@ namespace NServiceBus.DeliveryConstraints
     using NServiceBus.TransportDispatch;
     using NServiceBus.Transports;
 
-    static class DeliveryConstraintContextExtensions
+    /// <summary>
+    /// Gives access to <see cref="DeliveryConstraint"/>s that exist in the various <see cref="BehaviorContext"/>s.
+    /// </summary>
+    public static class DeliveryConstraintContextExtensions
     {
+        /// <summary>
+        /// Adds a <see cref="DeliveryConstraint"/> to a <see cref="DispatchContext"/>.
+        /// </summary>
         public static void AddDeliveryConstraint(this DispatchContext context, DeliveryConstraint constraint)
         {
             AddDeliveryConstraintInternal(context, constraint);
         }
 
+        /// <summary>
+        /// Adds a <see cref="DeliveryConstraint"/> to a <see cref="OutgoingContext"/>.
+        /// </summary>
         public static void AddDeliveryConstraint(this OutgoingContext context, DeliveryConstraint constraint)
         {
             AddDeliveryConstraintInternal(context, constraint);
         }
 
 
-        public static bool TryGetDeliveryConstraint<T>(this DispatchContext context, out  T constraint) where T : DeliveryConstraint
+        /// <summary>
+        /// Tries to retrieves an instance of <typeparamref name="T"/> from a <see cref="DispatchContext"/>.
+        /// </summary>
+        public static bool TryGetDeliveryConstraint<T>(this DispatchContext context, out T constraint) where T : DeliveryConstraint
         {
             List<DeliveryConstraint> constraints;
 
-            if (!context.TryGet(out constraints))
+            if (context.TryGet(out constraints))
             {
-                constraints = new List<DeliveryConstraint>();
+                return constraints.TryGet(out constraint);
             }
-
-            return constraints.TryGet(out constraint);
+            constraint = null;
+            return false;
         }
-        public static bool TryGetDeliveryConstraint<T>(this OutgoingContext context, out  T constraint) where T : DeliveryConstraint
+
+        /// <summary>
+        /// Tries to retrieves an instance of <typeparamref name="T"/> from a <see cref="OutgoingContext"/>.
+        /// </summary>
+        public static bool TryGetDeliveryConstraint<T>(this OutgoingContext context, out T constraint) where T : DeliveryConstraint
         {
             List<DeliveryConstraint> constraints;
 
-            if (!context.TryGet(out constraints))
+            if (context.TryGet(out constraints))
             {
-                constraint = null;
-                return false;
+                return constraints.TryGet(out constraint);
             }
-
-            return constraints.TryGet(out constraint);
+            constraint = null;
+            return false;
         }
 
+        /// <summary>
+        /// Removes a <see cref="DeliveryConstraint"/> to a <see cref="DispatchContext"/>.
+        /// </summary>
         public static void RemoveDeliveryConstaint(this DispatchContext context, DeliveryConstraint constraint)
         {
             List<DeliveryConstraint> constraints;
@@ -57,6 +75,10 @@ namespace NServiceBus.DeliveryConstraints
 
             constraints.Remove(constraint);
         }
+
+        /// <summary>
+        /// Removes a <see cref="DeliveryConstraint"/> to a <see cref="DispatchContext"/>.
+        /// </summary>
         public static IEnumerable<DeliveryConstraint> GetDeliveryConstraints(this DispatchContext context)
         {
             List<DeliveryConstraint> constraints;
@@ -69,16 +91,17 @@ namespace NServiceBus.DeliveryConstraints
             return new List<DeliveryConstraint>();
         }
 
-        public static bool TryGet<T>(this IEnumerable<DeliveryConstraint> list, out T constraint) where T : DeliveryConstraint
+        internal static bool TryGet<T>(this IEnumerable<DeliveryConstraint> list, out T constraint) where T : DeliveryConstraint
         {
-            constraint = list.SingleOrDefault(c => c is T) as T;
+            constraint = list.OfType<T>().FirstOrDefault();
 
             return constraint != null;
         }
 
-        public static bool DoesTransportSupportConstraint<T>(this FeatureConfigurationContext context) where T : DeliveryConstraint
+        internal static bool DoesTransportSupportConstraint<T>(this FeatureConfigurationContext context) where T : DeliveryConstraint
         {
-            return context.Settings.Get<TransportDefinition>().GetSupportedDeliveryConstraints().Any(t => t == typeof(T));
+            return context.Settings.Get<TransportDefinition>()
+                .GetSupportedDeliveryConstraints().Any(t => t == typeof(T));
         }
 
         static void AddDeliveryConstraintInternal(BehaviorContext context, DeliveryConstraint constraint)

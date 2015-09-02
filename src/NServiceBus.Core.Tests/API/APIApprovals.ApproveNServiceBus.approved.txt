@@ -1081,6 +1081,17 @@ namespace NServiceBus.DeliveryConstraints
         protected DeliveryConstraint() { }
         public abstract void Serialize(System.Collections.Generic.Dictionary<string, string> options);
     }
+    public class static DeliveryConstraintContextExtensions
+    {
+        public static void AddDeliveryConstraint(this NServiceBus.TransportDispatch.DispatchContext context, NServiceBus.DeliveryConstraints.DeliveryConstraint constraint) { }
+        public static void AddDeliveryConstraint(this NServiceBus.Pipeline.Contexts.OutgoingContext context, NServiceBus.DeliveryConstraints.DeliveryConstraint constraint) { }
+        public static System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> GetDeliveryConstraints(this NServiceBus.TransportDispatch.DispatchContext context) { }
+        public static void RemoveDeliveryConstaint(this NServiceBus.TransportDispatch.DispatchContext context, NServiceBus.DeliveryConstraints.DeliveryConstraint constraint) { }
+        public static bool TryGetDeliveryConstraint<T>(this NServiceBus.TransportDispatch.DispatchContext context, out T constraint)
+            where T : NServiceBus.DeliveryConstraints.DeliveryConstraint { }
+        public static bool TryGetDeliveryConstraint<T>(this NServiceBus.Pipeline.Contexts.OutgoingContext context, out T constraint)
+            where T : NServiceBus.DeliveryConstraints.DeliveryConstraint { }
+    }
 }
 namespace NServiceBus.Encryption
 {
