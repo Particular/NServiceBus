@@ -6,7 +6,6 @@
     using AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Configuration.AdvanceExtensibility;
-    using NServiceBus.Settings;
     using NUnit.Framework;
     using ScenarioDescriptors;
     using IMessage = NServiceBus.IMessage;
@@ -68,16 +67,14 @@
             class AfterConfigIsComplete : IWantToRunWhenBusStartsAndStops
             {
                 public Context Context { get; set; }
-
-                public ReadOnlySettings Settings { get; set; }
-
-                public void Start()
+                public Task StartAsync()
                 {
                     throw new Exception("ExceptionInBusStarts");
                 }
 
-                public void Stop()
+                public Task StopAsync()
                 {
+                    return Task.FromResult(0);
                 }
             }
         }

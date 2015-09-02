@@ -43,17 +43,19 @@
                 public ReadOnlySettings Settings { get; set; }
 
 
-                public void Start()
+                public Task StartAsync()
                 {
                     Context.ConfigureIsAvailable = Configure != null;
 
                     Context.SettingIsAvailable = Settings != null;
 
                     Context.IsDone = true;
+                    return Task.FromResult(0);
                 }
 
-                public void Stop()
+                public Task StopAsync()
                 {
+                    return Task.FromResult(0);
                 }
             }
         }

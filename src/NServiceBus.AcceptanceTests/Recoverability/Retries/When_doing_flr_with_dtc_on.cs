@@ -62,15 +62,19 @@
 
                 public BusNotifications BusNotifications { get; set; }
 
-                public void Start()
+                public Task StartAsync()
                 {
                     BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e =>
                     {
                         Context.GaveUpOnRetries = true;
                     });
+                    return Task.FromResult(0);
                 }
 
-                public void Stop() { }
+                public Task StopAsync()
+                {
+                    return Task.FromResult(0);
+                }
             }
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>

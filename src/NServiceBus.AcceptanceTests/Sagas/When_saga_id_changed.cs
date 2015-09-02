@@ -84,17 +84,19 @@
 
                 public BusNotifications BusNotifications { get; set; }
 
-                public void Start()
+                public Task StartAsync()
                 {
                     BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e =>
                     {
                         Context.ExceptionMessage = e.Exception.Message;
                         Context.MessageFailed = true;
                     });
+                    return Task.FromResult(0);
                 }
 
-                public void Stop()
+                public Task StopAsync()
                 {
+                    return Task.FromResult(0);
                 }
             }
         }

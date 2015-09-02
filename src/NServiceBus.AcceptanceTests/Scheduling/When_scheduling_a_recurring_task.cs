@@ -42,7 +42,7 @@
             {
                 public Schedule Schedule { get; set; }
                 public Context Context { get; set; }
-                public void Start()
+                public Task StartAsync()
                 {
                     Context.RequestedAt = DateTime.UtcNow;
 
@@ -50,10 +50,12 @@
                     {
                         Context.InvokedAt = DateTime.UtcNow;
                     });
+                    return Task.FromResult(0);
                 }
 
-                public void Stop()
+                public Task StopAsync()
                 {
+                    return Task.FromResult(0);
                 }
             }
         }

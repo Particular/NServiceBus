@@ -97,13 +97,15 @@
                     this.bus = bus;
                 }
 
-                public void Start()
+                public Task StartAsync()
                 {
                     bus.SendLocal(new Message());
+                    return Task.FromResult(0);
                 }
 
-                public void Stop()
+                public Task StopAsync()
                 {
+                    return Task.FromResult(0);
                 }
             }
 
