@@ -4,6 +4,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
     using NServiceBus.AcceptanceTesting;
     using NUnit.Framework;
 
+    [Ignore]
     public class When_performing_slr_with_regular_exception : When_performing_slr
     {
         [Test]
@@ -13,7 +14,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
 
             Scenario.Define(context)
                 .WithEndpoint<RetryEndpoint>(b => b.Given(bus => bus.SendLocal(new MessageToBeRetried())))
-                .AllowExceptions()
+                .AllowExceptions(e => e is SimulatedException)
                 .Done(c => c.SlrChecksum != default(byte))
                 .Run();
 
@@ -27,7 +28,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
 
             Scenario.Define(context)
                 .WithEndpoint<RetryEndpoint>(b => b.Given(bus => bus.SendLocal(new MessageToBeRetried())))
-                .AllowExceptions()
+                .AllowExceptions(e => e is SimulatedException)
                 .Done(c => c.ForwardedToErrorQueue)
                 .Run();
 

@@ -103,13 +103,17 @@
                 public void Handle(MessageToBeRetried message)
                 {
                     Context.PhysicalMessageId = Bus.CurrentMessageContext.Id;
-                    throw new Exception("Simulated exception");
+                    throw new SimulatedException();
                 }
             }
         }
 
         [Serializable]
         public class MessageToBeRetried : IMessage
+        {
+        }
+
+        public class SimulatedException : Exception
         {
         }
     }

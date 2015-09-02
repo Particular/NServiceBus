@@ -84,7 +84,6 @@
             public string PhysicalMessageId { get; set; }
         }
 
-        [Serializable]
         public class MessageWhichFailsRetries : IMessage
         {
         }
