@@ -163,23 +163,27 @@ namespace NServiceBus.Unicast
             // Ensuring IWantToRunWhenBusStartsAndStops.Start has been called.
             startCompletedEvent.WaitOne();
 
-            var tasksToStop = Interlocked.Exchange(ref thingsRanAtStartup, new ConcurrentBag<IWantToRunWhenBusStartsAndStops>());
-            if (!tasksToStop.Any())
+            var stoppables = Interlocked.Exchange(ref thingsRanAtStartup, new ConcurrentBag<IWantToRunWhenBusStartsAndStops>());
+            if (!stoppables.Any())
             {
                 return;
             }
 
-            ProcessStartupItems(
-                tasksToStop,
-                toRun =>
+            var stoppableTasks = stoppables.Select(s => Task.Run(async () =>
+            {
+                try
                 {
-                    toRun.Stop();
-                    Log.DebugFormat("Stopped {0}.", toRun.GetType().AssemblyQualifiedName);
-                },
-                ex => Log.Fatal("Startup task failed to stop.", ex),
-                stopCompletedEvent);
+                    await s.StopAsync();
+                    thingsRanAtStartup.Add(s);
+                    Log.DebugFormat("Stopped {0}.", s.GetType().AssemblyQualifiedName);
+                }
+                catch (Exception ex)
+                {
+                    Log.Fatal("Startup task failed to stop.", ex);
+                }
+            })).ToArray();
 
-            stopCompletedEvent.WaitOne();
+            Task.WaitAll(stoppableTasks);
         }
 
         /// <summary>
@@ -233,7 +237,6 @@ namespace NServiceBus.Unicast
 
         ConcurrentBag<IWantToRunWhenBusStartsAndStops> thingsRanAtStartup = new ConcurrentBag<IWantToRunWhenBusStartsAndStops>();
         ManualResetEvent startCompletedEvent = new ManualResetEvent(false);
-        ManualResetEvent stopCompletedEvent = new ManualResetEvent(true);
 
         PipelineCollection pipelineCollection;
         ContextualBus busImpl;
