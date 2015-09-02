@@ -305,7 +305,7 @@
 
                 if (endpointName.Length > 77)
                 {
-                    throw new Exception(string.Format("Endpoint name '{0}' is larger than 77 characters and will cause issues with MSMQ queue names. Please rename your test class or endpoint!",endpointName));
+                    throw new Exception(string.Format("Endpoint name '{0}' is larger than 77 characters and will cause issues with MSMQ queue names. Please rename your test class or endpoint.",endpointName));
                 }
 
                 var runner = new ActiveRunner

@@ -74,7 +74,7 @@
                     }
                     else
                     {
-                        Assert.Fail("Expected to find the data!");
+                        Assert.Fail("Expected to find the data");
                     }
 
                     next();

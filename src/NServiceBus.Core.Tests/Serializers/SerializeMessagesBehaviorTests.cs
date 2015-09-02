@@ -27,11 +27,9 @@
 
         public class FakeSerializer : IMessageSerializer
         {
-            string contentType;
-
             public FakeSerializer(string contentType)
             {
-                this.contentType = contentType;
+                ContentType = contentType;
             }
 
             public void Serialize(object message, Stream stream)
@@ -44,10 +42,7 @@
                 throw new NotImplementedException();
             }
 
-            public string ContentType
-            {
-                get { return contentType; }
-            }
+            public string ContentType { get; private set; }
         }
 
         class MyMessage { }

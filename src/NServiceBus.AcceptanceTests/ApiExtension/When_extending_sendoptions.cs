@@ -21,7 +21,7 @@
                     {
                         var options = new SendOptions();
 
-                        options.GetExtensions().Set(new SendOptionsExtensions.TestingSendOptionsExtensionBehavior.Context { SomeValue = "I did it!" });
+                        options.GetExtensions().Set(new SendOptionsExtensions.TestingSendOptionsExtensionBehavior.Context { SomeValue = "I did it" });
                         options.RouteToLocalEndpointInstance();
 
                         bus.Send(new SendMessage(), options);
@@ -29,7 +29,7 @@
                     .Done(c => c.WasCalled)
                     .Run();
 
-            Assert.AreEqual("I did it!", context.Secret);
+            Assert.AreEqual("I did it", context.Secret);
         }
 
         public class Context : ScenarioContext

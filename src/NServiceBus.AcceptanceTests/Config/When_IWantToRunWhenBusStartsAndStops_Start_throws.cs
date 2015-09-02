@@ -22,7 +22,7 @@
             var inner1 = ex.InnerException;
             Assert.IsInstanceOf<AggregateException>(inner1);
             var inner2 = inner1.InnerException;
-            Assert.AreEqual("Boom!", inner2.Message);
+            Assert.AreEqual("Boom", inner2.Message);
         }
 
         class Context : ScenarioContext
@@ -40,7 +40,7 @@
             {
                 public void Start()
                 {
-                    throw new Exception("Boom!");
+                    throw new Exception("Boom");
                 }
 
                 public void Stop()

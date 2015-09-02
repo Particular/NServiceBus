@@ -363,7 +363,7 @@ namespace NServiceBus.Saga
                 {
                     throw new ArgumentException(
                         String.Format(
-                            "Only public properties are supported for mapping Sagas. The lambda expression provided '{0}' is not mapping to a Property!",
+                            "Only public properties are supported for mapping Sagas. The lambda expression provided '{0}' is not mapping to a Property.",
                             expression.Body));
                 }
             }

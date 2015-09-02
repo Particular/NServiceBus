@@ -30,19 +30,19 @@
 
             if (string.IsNullOrEmpty(messageTypeString))
             {
-                throw new InvalidOperationException("Message intent is Subscribe, but the subscription message type header is missing!");
+                throw new InvalidOperationException("Message intent is Subscribe, but the subscription message type header is missing.");
             }
 
             if (intent != MessageIntentEnum.Subscribe && intent != MessageIntentEnum.Unsubscribe)
             {
-                throw new InvalidOperationException("Subscription messages need to have intent set to Subscribe/Unsubscribe");
+                throw new InvalidOperationException("Subscription messages need to have intent set to Subscribe/Unsubscribe.");
             }
 
             var subscriberAddress = transportMessage.ReplyToAddress;
 
             if (subscriberAddress == null)
             {
-                throw new InvalidOperationException("Subscription message arrived without a valid ReplyToAddress");
+                throw new InvalidOperationException("Subscription message arrived without a valid ReplyToAddress.");
             }
 
             if (subscriptionStorage == null)

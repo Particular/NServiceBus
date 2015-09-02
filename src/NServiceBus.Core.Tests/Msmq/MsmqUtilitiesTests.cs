@@ -20,7 +20,7 @@
         [Test]
         public void Should_convert_a_message_back_even_if_special_characters_are_contained_in_the_headers()
         {
-            var expected = String.Format("Can u see this '{0}' character!", (char)0x19);
+            var expected = String.Format("Can u see this '{0}' character.", (char)0x19);
             
             var options = new DispatchOptions("destination", new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), new ContextBag());
 
@@ -34,7 +34,7 @@
         [Test]
         public void Should_convert_message_headers_that_contain_nulls_at_the_end()
         {
-            var expected = "Hello World!";
+            var expected = "Hello World";
             var options = new DispatchOptions("destination", new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), new ContextBag());
 
             Console.Out.WriteLine(sizeof(char));

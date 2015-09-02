@@ -41,7 +41,7 @@ namespace NServiceBus.Pipeline
                     continue;
                 }
 
-                var message = string.Format("Step registration with id '{0}' is already registered for '{1}'", metadata.StepId, registrations[metadata.StepId].BehaviorType);
+                var message = string.Format("Step registration with id '{0}' is already registered for '{1}'.", metadata.StepId, registrations[metadata.StepId].BehaviorType);
                 throw new Exception(message);
             }
 
@@ -50,7 +50,7 @@ namespace NServiceBus.Pipeline
             {
                 if (!registrations.ContainsKey(metadata.ReplaceId))
                 {
-                    var message = string.Format("You can only replace an existing step registration, '{0}' registration does not exist!", metadata.ReplaceId);
+                    var message = string.Format("You can only replace an existing step registration, '{0}' registration does not exist.", metadata.ReplaceId);
                     throw new Exception(message);
                 }
 
@@ -66,7 +66,7 @@ namespace NServiceBus.Pipeline
             {
                 if (!registrations.ContainsKey(metadata.RemoveId))
                 {
-                    var message = string.Format("You cannot remove step registration with id '{0}', registration does not exist!", metadata.RemoveId);
+                    var message = string.Format("You cannot remove step registration with id '{0}', registration does not exist.", metadata.RemoveId);
                     throw new Exception(message);
                 }
 
@@ -75,7 +75,7 @@ namespace NServiceBus.Pipeline
                     var add = additions.First(mr => (mr.Befores != null && mr.Befores.Select(b => b.DependsOnId).Contains(metadata.RemoveId, StringComparer.CurrentCultureIgnoreCase)) ||
                                                     (mr.Afters != null && mr.Afters.Select(b => b.DependsOnId).Contains(metadata.RemoveId, StringComparer.CurrentCultureIgnoreCase)));
 
-                    var message = string.Format("You cannot remove step registration with id '{0}', registration with id {1} depends on it!", metadata.RemoveId, add.StepId);
+                    var message = string.Format("You cannot remove step registration with id '{0}', registration with id '{1}' depends on it.", metadata.RemoveId, add.StepId);
                     throw new Exception(message);
                 }
 
@@ -195,7 +195,7 @@ namespace NServiceBus.Pipeline
                         }
                         else
                         {
-                            var message = string.Format("Registration '{0}' specified in the insertbefore of the '{1}' step does not exist in this stage!", beforeReference.DependsOnId, node.StepId);
+                            var message = string.Format("Registration '{0}' specified in the insertbefore of the '{1}' step does not exist in this stage.", beforeReference.DependsOnId, node.StepId);
 
                             if (!beforeReference.Enforce)
                             {
@@ -220,7 +220,7 @@ namespace NServiceBus.Pipeline
                         }
                         else
                         {
-                            var message = string.Format("Registration '{0}' specified in the insertafter of the '{1}' step does not exist!", afterReference.DependsOnId, node.StepId);
+                            var message = string.Format("Registration '{0}' specified in the insertafter of the '{1}' step does not exist.", afterReference.DependsOnId, node.StepId);
 
                             if (!afterReference.Enforce)
                             {
