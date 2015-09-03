@@ -32,12 +32,7 @@
            ReplacementTypeOrMember = "Supports<T>()")]
         protected void Supports(Storage storage, Action<SettingsHolder> action)
         {
-            var storageType = StorageType.FromEnum(storage);
-            if (storageToActionMap.ContainsKey(storageType))
-            {
-                throw new Exception(string.Format("Action for {0} already defined.", storage));
-            }
-            storageToActionMap[storageType] = action;
+            throw new NotImplementedException();
         }
 
         /// <summary>

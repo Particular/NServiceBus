@@ -49,7 +49,8 @@ namespace NServiceBus.Pipeline
         /// <summary>
         /// Child Container creator.
         /// </summary>
-        [ObsoleteExAttribute(Message = "The child container creation is now an integral part of the pipeline invocation and no longer a separate behavior.",
+        [ObsoleteExAttribute(
+            Message = "The child container creation is now an integral part of the pipeline invocation and no longer a separate behavior.",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public static readonly WellKnownStep CreateChildContainer = new WellKnownStep("CreateChildContainer");

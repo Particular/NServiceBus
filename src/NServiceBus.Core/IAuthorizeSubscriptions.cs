@@ -9,7 +9,10 @@
     /// 
     /// Infrastructure automatically registers one implementing type in the container as a singleton.
     /// </summary>
-    [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "This feature has been removed. To support authorization on a per subscription message type use a pipeline step instead.")]
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0", 
+        Message = "This feature has been removed. To support authorization on a per subscription message type use a pipeline step instead.")]
     public interface IAuthorizeSubscriptions
     {
         /// <summary>

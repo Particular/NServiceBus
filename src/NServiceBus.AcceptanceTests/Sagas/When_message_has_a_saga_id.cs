@@ -20,13 +20,13 @@
                     options.SetHeader(Headers.SagaId, Guid.NewGuid().ToString());
                     options.SetHeader(Headers.SagaType, typeof(MessageWithSagaIdSaga).AssemblyQualifiedName);
                     options.RouteToLocalEndpointInstance();
-                    bus.Send(message,options);
+                    bus.Send(message, options);
                 }))
                 .Done(c => c.OtherSagaStarted)
                 .Run();
 
             Assert.False(context.NotFoundHandlerCalled);
-            Assert.True(context.OtherSagaStarted); 
+            Assert.True(context.OtherSagaStarted);
             Assert.False(context.MessageHandlerCalled);
             Assert.False(context.TimeoutHandlerCalled);
         }

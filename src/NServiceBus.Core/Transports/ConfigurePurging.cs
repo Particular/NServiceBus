@@ -24,7 +24,8 @@ namespace NServiceBus
         /// <summary>
         /// Retrieves whether to purge the queues at startup or not.
         /// </summary>
-        [ObsoleteEx(TreatAsErrorFromVersion = "6")]
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6")]
 // ReSharper disable once UnusedParameter.Global
         public static bool PurgeOnStartup(this Configure config)
         {

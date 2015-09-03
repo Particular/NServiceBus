@@ -23,10 +23,13 @@ namespace NServiceBus.Saga
         /// <summary>
         /// The type of the saga.
         /// </summary>
-        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = ".Metadata.SagaType")]
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6", 
+            RemoveInVersion = "7", 
+            ReplacementTypeOrMember = ".Metadata.SagaType")]
         public Type SagaType 
         {
-            get { return Metadata.SagaType; }
+            get { throw new NotImplementedException(); }
         }
 
         /// <summary>
@@ -37,7 +40,10 @@ namespace NServiceBus.Saga
         /// <summary>
         /// The actual saga instance.
         /// </summary>
-        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "context.MessageHandler.Instance")]
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
+            ReplacementTypeOrMember = "context.MessageHandler.Instance")]
         public Saga Instance { get; private set; }
         
         /// <summary>
@@ -81,7 +87,7 @@ namespace NServiceBus.Saga
         {
             if (sagaId != Instance.Entity.Id)
             {
-                throw new Exception("A modification of IContainSagaData.Id has been detected. This property is for infrastructure purposes only and should not be modified. SagaType: " + SagaType.FullName);
+                throw new Exception("A modification of IContainSagaData.Id has been detected. This property is for infrastructure purposes only and should not be modified. SagaType: " + Metadata.SagaType.FullName);
             }
         }
     }

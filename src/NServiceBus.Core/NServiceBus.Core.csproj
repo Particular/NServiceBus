@@ -241,8 +241,6 @@
     <Compile Include="Sagas\AutoCorrelationFeature.cs" />
     <Compile Include="Sagas\PopulateAutoCorrelationHeadersForRepliesBehavior.cs" />
     <Compile Include="Saga\SagaPersistenceOptions.cs" />
-    <Compile Include="Satellites\IAdvancedSatellite.cs" />
-    <Compile Include="Satellites\ISatellite.cs" />
     <Compile Include="Routing\DetermineRouteForReplyBehavior.cs" />
     <Compile Include="ConsistencyGuarantees\AtLeastOnce.cs" />
     <Compile Include="Routing\NonDurableDelivery.cs" />
@@ -253,7 +251,6 @@
     <Compile Include="Routing\ToAllSubscribers.cs" />
     <Compile Include="Satellites\SatelliteBehavior.cs" />
     <Compile Include="SendOptions.cs" />
-    <Compile Include="Sagas\ActiveSagaInstance_obsolete.cs" />
     <Compile Include="Serialization\ConfigureSerialization.cs" />
     <Compile Include="Serializers\MessageDeserializerResolver.cs" />
     <Compile Include="StaticHeaders\ApplyStaticHeadersBehavior.cs" />
@@ -333,13 +330,11 @@
     <Compile Include="Performance\Statistics\CriticalTime\CriticalTimeMonitoring.cs" />
     <Compile Include="Performance\Statistics\SLA\SLAMonitoringConfig.cs" />
     <Compile Include="Observable.cs" />
-    <Compile Include="Address.cs" />
     <Compile Include="AddressMode.cs" />
     <Compile Include="Audit\Audit.cs" />
     <Compile Include="Routing\AutomaticSubscriptions\AutoSubscribe.cs" />
     <Compile Include="Routing\AutomaticSubscriptions\AutoSubscribeSettingsExtensions.cs" />
     <Compile Include="Routing\AutomaticSubscriptions\AutoSubscribeSettings.cs" />
-    <Compile Include="CompletionResult.cs" />
     <Compile Include="Configure.cs" />
     <Compile Include="Config\AuditConfig.cs" />
     <Compile Include="ContentTypes.cs" />
@@ -355,16 +350,12 @@
     <Compile Include="Features\FeatureStartupTask.cs" />
     <Compile Include="Features\SettingsExtentions.cs" />
     <Compile Include="GitFlowVersion.cs" />
-    <Compile Include="HandlerOrdering\First.cs" />
-    <Compile Include="HandlerOrdering\ISpecifyMessageHandlerOrdering.cs" />
-    <Compile Include="HandlerOrdering\Order.cs" />
     <Compile Include="Headers.cs" />
     <Compile Include="Hosting\Helpers\Image.cs" />
     <Compile Include="Hosting\Helpers\SkippedFile.cs" />
     <Compile Include="Hosting\HostInformation.cs" />
     <Compile Include="IAuthorizeSubscriptions.cs" />
     <Compile Include="IBus.cs" />
-    <Compile Include="ICallback.cs" />
     <Compile Include="ICommand.cs" />
     <Compile Include="IdGeneration\CombGuid.cs" />
     <Compile Include="IEvent.cs" />
@@ -379,7 +370,6 @@
     <Compile Include="Persistence\PersistenceExtentions.cs" />
     <Compile Include="Persistence\PersistenceStartup.cs" />
     <Compile Include="Persistence\PersistenceStorageMerger.cs" />
-    <Compile Include="Persistence\Storage.cs" />
     <Compile Include="Persistence\StorageType.cs" />
     <Compile Include="Pipeline\HardcodedPipelineSteps.cs" />
     <Compile Include="Pipeline\PipelineModifications.cs" />
@@ -406,7 +396,6 @@
     <Compile Include="Serialization\SerializationExtentions.cs" />
     <Compile Include="Serializers\Binary\Binary.cs" />
     <Compile Include="Serializers\Json\Bson.cs" />
-    <Compile Include="Serializers\SerializationFeatureHelper.cs" />
     <Compile Include="Serializers\Json\Json.cs" />
     <Compile Include="Serializers\XML\Config\Xml.cs" />
     <Compile Include="Serializers\XML\Config\XmlSerializationExtentions.cs" />
@@ -432,7 +421,6 @@
     <Compile Include="MessageDeserializationException.cs" />
     <Compile Include="Hosting\AuditHostInformationBehavior.cs" />
     <Compile Include="Unicast\IContextualBus.cs" />
-    <Compile Include="Unicast\Queuing\IWantQueueCreated.cs" />
     <Compile Include="Unicast\IRealBus.cs" />
     <Compile Include="Unicast\Transport\PipelineInfo.cs" />
     <Compile Include="Unicast\UnicastBusInternal_RemoveInV7.cs" />
@@ -512,7 +500,6 @@
     <Compile Include="Saga\SagaPropertyMapper.cs" />
     <Compile Include="Saga\SagaT.cs" />
     <Compile Include="Saga\ToSagaExpression.cs" />
-    <Compile Include="Saga\UniqueAttribute_obsolete.cs" />
     <Compile Include="Serialization\IMessageSerializer.cs" />
     <Compile Include="SettingsExtentions.cs" />
     <Compile Include="Settings\ReadOnlySettings.cs" />
@@ -547,7 +534,6 @@
     <Compile Include="Serializers\Binary\Config\BinarySerialization.cs" />
     <Compile Include="CriticalError\ConfigureCriticalErrorAction.cs" />
     <Compile Include="DataBus\ConfigureFileShareDataBus.cs" />
-    <Compile Include="ConfigureInMemoryFaultManagement.cs" />
     <Compile Include="Features\FeatureActivator.cs" />
     <Compile Include="Recoverability\SecondLevelRetries\Config\SecondLevelRetriesConfigExtensions.cs" />
     <Compile Include="Recoverability\SecondLevelRetries\Config\SecondLevelRetriesSettings.cs" />
@@ -567,7 +553,6 @@
     <Compile Include="Config\ConfigurationSource\DefaultConfigurationSource.cs" />
     <Compile Include="Config\ConfigurationSource\IConfigurationSource.cs" />
     <Compile Include="Config\Conventions\EndpointHelper.cs" />
-    <Compile Include="Config\IWantToRunWhenConfigurationIsComplete.cs" />
     <Compile Include="Logging\Logging.cs" />
     <Compile Include="Distributor\MasterNode\MasterNodeConfig.cs" />
     <Compile Include="Config\MessageEndpointMapping.cs" />
@@ -603,7 +588,6 @@
     <Compile Include="Encryption\EncryptionMutator.cs" />
     <Compile Include="Encryption\IEncryptionService.cs" />
     <Compile Include="Faults\FaultsHeaderKeys.cs" />
-    <Compile Include="Faults\IManageMessageFailures.cs" />
     <Compile Include="Hosting\Helpers\AssemblyScanner.cs" />
     <Compile Include="Hosting\Helpers\AssemblyScannerResults.cs" />
     <Compile Include="InternalsVisibleTo.cs" />
@@ -678,7 +662,6 @@
     <Compile Include="Routing\StorageDrivenPublishing\StorageDrivenDispatcher.cs" />
     <Compile Include="Unicast\Queuing\QueueNotFoundException.cs" />
     <Compile Include="Unicast\Queuing\QueuesCreator.cs" />
-    <Compile Include="Unicast\IMessageHandlerRegistry.cs" />
     <Compile Include="Unicast\MessageHandlerRegistry.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\SubscriptionReceiverBehavior.cs" />
     <Compile Include="Persistence\InMemory\SubscriptionStorage\InMemorySubscriptionStorage.cs" />
@@ -705,7 +688,7 @@
     <Compile Include="Utils\Reflection\Reflect.cs" />
     <Compile Include="Utils\RegistryReader.cs" />
     <Compile Include="Encryption\WireEncryptedString.cs" />
-    <Compile Include="v6-obsoletes.cs" />
+    <Compile Include="obsoletes.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

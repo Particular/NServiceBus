@@ -10,7 +10,7 @@
         {
             ActiveSagaInstance saga;
 
-            if (context.TryGet(out saga) && saga.NotFound && saga.SagaType == context.MessageHandler.Instance.GetType())
+            if (context.TryGet(out saga) && saga.NotFound && saga.Metadata.SagaType == context.MessageHandler.Instance.GetType())
             {
                 next();
                 return;

@@ -72,7 +72,10 @@ namespace NServiceBus.Hosting.Helpers
         /// <summary>
         ///     Tells the scanner to only include assemblies that reference one of the given assemblies.
         /// </summary>
-        [ObsoleteEx(Message = "This method is no longer required since deep scanning of assemblies is done to detect an NServiceBus reference.", RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0")]
+        [ObsoleteEx(
+            Message = "This method is no longer required since deep scanning of assemblies is done to detect an NServiceBus reference.", 
+            RemoveInVersion = "7.0", 
+            TreatAsErrorFromVersion = "6.0")]
         public List<Assembly> MustReferenceAtLeastOneAssembly
         {
             get { throw new NotImplementedException(); }
