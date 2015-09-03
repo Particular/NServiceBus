@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Runtime.Remoting.Lifetime;
     using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.Configuration.AdvanceExtensibility;
@@ -10,17 +9,14 @@
     using NServiceBus.Support;
     using NServiceBus.Transports;
 
-    [Serializable]
-    public class EndpointRunner : MarshalByRefObject
+    public class EndpointRunner
     {
         static ILog Logger = LogManager.GetLogger<EndpointRunner>();
-        SemaphoreSlim contextChanged = new SemaphoreSlim(0);
         CancellationTokenSource stopSource = new CancellationTokenSource();
         EndpointBehavior behavior;
         IStartableBus bus;
         ISendOnlyBus sendOnlyBus;
         EndpointConfiguration configuration;
-        Task executeWhens;
         ScenarioContext scenarioContext;
         BusConfiguration busConfiguration;
         CancellationToken stopToken;
@@ -61,44 +57,6 @@
 
                 stopToken = stopSource.Token;
 
-                if (behavior.Whens.Count == 0)
-                {
-                    executeWhens = Task.FromResult(0);
-                }
-                else
-                {
-                    executeWhens = Task.Factory.StartNew(async () =>
-                    {
-                        var executedWhens = new List<Guid>();
-
-                        while (!stopToken.IsCancellationRequested)
-                        {
-                            if (executedWhens.Count == behavior.Whens.Count)
-                            {
-                                break;
-                            }
-
-                            //we spin around each 5s since the callback mechanism seems to be shaky
-                            await contextChanged.WaitAsync(TimeSpan.FromSeconds(5), stopToken);
-
-                            if (stopToken.IsCancellationRequested)
-                                break;
-
-                            foreach (var when in behavior.Whens)
-                            {
-                                if (executedWhens.Contains(when.Id))
-                                {
-                                    continue;
-                                }
-
-                                if (when.ExecuteAction(scenarioContext, bus))
-                                {
-                                    executedWhens.Add(when.Id);
-                                }
-                            }
-                        }
-                    }, stopToken).Unwrap();
-                }
                 return Result.Success();
             }
             catch (Exception ex)
@@ -132,6 +90,41 @@
                     bus.Start();
                 }
 
+                if (behavior.Whens.Count != 0)
+                {
+                    Task.Factory.StartNew(() =>
+                    {
+                        var executedWhens = new List<Guid>();
+
+                        while (!stopToken.IsCancellationRequested)
+                        {
+                            if (executedWhens.Count == behavior.Whens.Count)
+                            {
+                                break;
+                            }
+
+                            if (stopToken.IsCancellationRequested)
+                            {
+                                break;
+                            }
+
+                            foreach (var when in behavior.Whens)
+                            {
+                                if (executedWhens.Contains(when.Id))
+                                {
+                                    continue;
+                                }
+
+                                if (when.ExecuteAction(scenarioContext, bus))
+                                {
+                                    executedWhens.Add(when.Id);
+                                }
+                            }
+                        }
+                    }, stopToken)
+                    .Wait(stopToken);
+                }
+
                 return Result.Success();
             }
             catch (Exception ex)
@@ -147,8 +140,6 @@
             try
             {
                 stopSource.Cancel();
-                executeWhens.Wait();
-                contextChanged.Dispose();
 
                 if (configuration.SendOnly)
                 {
@@ -191,19 +182,6 @@
             return configuration.EndpointName;
         }
 
-        public override object InitializeLifetimeService()
-        {
-            var lease = (ILease)base.InitializeLifetimeService();
-            if (lease.CurrentState == LeaseState.Initial)
-            {
-                lease.InitialLeaseTime = TimeSpan.FromMinutes(2);
-                lease.SponsorshipTimeout = TimeSpan.FromMinutes(2);
-                lease.RenewOnCallTime = TimeSpan.FromSeconds(2);
-            }
-            return lease;
-        }
-
-        [Serializable]
         public class Result
         {
             public Exception Exception { get; set; }
