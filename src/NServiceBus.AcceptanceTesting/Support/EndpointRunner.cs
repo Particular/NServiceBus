@@ -19,7 +19,6 @@
         IStartableBus bus;
         ISendOnlyBus sendOnlyBus;
         EndpointConfiguration configuration;
-        Task executeWhens;
         ScenarioContext scenarioContext;
         BusConfiguration busConfiguration;
         CancellationToken stopToken;
@@ -60,41 +59,6 @@
 
                 stopToken = stopSource.Token;
 
-                if (behavior.Whens.Count == 0)
-                {
-                    executeWhens = Task.FromResult(0);
-                }
-                else
-                {
-                    executeWhens = Task.Factory.StartNew(() =>
-                    {
-                        var executedWhens = new List<Guid>();
-
-                        while (!stopToken.IsCancellationRequested)
-                        {
-                            if (executedWhens.Count == behavior.Whens.Count)
-                            {
-                                break;
-                            }
-
-                            if (stopToken.IsCancellationRequested)
-                                break;
-
-                            foreach (var when in behavior.Whens)
-                            {
-                                if (executedWhens.Contains(when.Id))
-                                {
-                                    continue;
-                                }
-
-                                if (when.ExecuteAction(scenarioContext, bus))
-                                {
-                                    executedWhens.Add(when.Id);
-                                }
-                            }
-                        }
-                    }, stopToken);
-                }
                 return Result.Success();
             }
             catch (Exception ex)
@@ -128,6 +92,41 @@
                     bus.Start();
                 }
 
+                if (behavior.Whens.Count != 0)
+                {
+                    Task.Factory.StartNew(() =>
+                    {
+                        var executedWhens = new List<Guid>();
+
+                        while (!stopToken.IsCancellationRequested)
+                        {
+                            if (executedWhens.Count == behavior.Whens.Count)
+                            {
+                                break;
+                            }
+
+                            if (stopToken.IsCancellationRequested)
+                            {
+                                break;
+                            }
+
+                            foreach (var when in behavior.Whens)
+                            {
+                                if (executedWhens.Contains(when.Id))
+                                {
+                                    continue;
+                                }
+
+                                if (when.ExecuteAction(scenarioContext, bus))
+                                {
+                                    executedWhens.Add(when.Id);
+                                }
+                            }
+                        }
+                    }, stopToken)
+                    .Wait(stopToken);
+                }
+
                 return Result.Success();
             }
             catch (Exception ex)
@@ -143,7 +142,6 @@
             try
             {
                 stopSource.Cancel();
-                executeWhens.Wait();
 
                 if (configuration.SendOnly)
                 {
