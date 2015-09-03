@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Runtime.Remoting.Lifetime;
     using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.Configuration.AdvanceExtensibility;
@@ -10,8 +9,7 @@
     using NServiceBus.Support;
     using NServiceBus.Transports;
 
-    [Serializable]
-    public class EndpointRunner : MarshalByRefObject
+    public class EndpointRunner
     {
         static ILog Logger = LogManager.GetLogger<EndpointRunner>();
         CancellationTokenSource stopSource = new CancellationTokenSource();
@@ -184,19 +182,6 @@
             return configuration.EndpointName;
         }
 
-        public override object InitializeLifetimeService()
-        {
-            var lease = (ILease)base.InitializeLifetimeService();
-            if (lease.CurrentState == LeaseState.Initial)
-            {
-                lease.InitialLeaseTime = TimeSpan.FromMinutes(2);
-                lease.SponsorshipTimeout = TimeSpan.FromMinutes(2);
-                lease.RenewOnCallTime = TimeSpan.FromSeconds(2);
-            }
-            return lease;
-        }
-
-        [Serializable]
         public class Result
         {
             public Exception Exception { get; set; }

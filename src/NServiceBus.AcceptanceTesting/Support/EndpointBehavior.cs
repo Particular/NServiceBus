@@ -5,8 +5,7 @@
     using System.Diagnostics;
     using System.Threading;
 
-    [Serializable]
-    public class EndpointBehavior : MarshalByRefObject
+    public class EndpointBehavior
     {
         public EndpointBehavior(Type builderType)
         {
@@ -22,7 +21,6 @@
         public List<Action<BusConfiguration>> CustomConfig { get; set; }
     }
 
-    [Serializable]
     public class WhenDefinition<TContext> : IWhenDefinition where TContext : ScenarioContext
     {
         public WhenDefinition(Predicate<TContext> condition, Action<IBus> action)
