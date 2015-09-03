@@ -42,7 +42,7 @@
 
                 public Context Context { get; set; }
 
-                public void MutateOutgoing(MutateOutgoingTransportMessagesContext context)
+                public void MutateOutgoing(MutateOutgoingTransportMessageContext context)
                 {
                     Context.TransportMutatorCalled = true;
                 }
@@ -59,7 +59,7 @@
 
                 public Context Context { get; set; }
 
-                public void MutateOutgoing(MutateOutgoingMessagesContext context)
+                public void MutateOutgoing(MutateOutgoingMessageContext context)
                 {
                     Context.MessageMutatorCalled = true;
                 }

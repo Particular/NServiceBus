@@ -5,7 +5,7 @@ namespace NServiceBus.MessageMutator
     /// <summary>
     /// Provides ways to mutate the outgoing message instance.
     /// </summary>
-    public class MutateOutgoingMessagesContext
+    public class MutateOutgoingMessageContext
     {
         /// <summary>
         /// The current message instance being sent.
@@ -27,7 +27,7 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// Initializes the context.
         /// </summary>
-        public MutateOutgoingMessagesContext(object messageInstance)
+        public MutateOutgoingMessageContext(object messageInstance)
         {
             Headers = new Dictionary<string, string>();
             MessageInstance = messageInstance;

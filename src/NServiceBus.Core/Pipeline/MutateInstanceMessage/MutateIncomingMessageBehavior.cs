@@ -5,7 +5,7 @@
     using NServiceBus.Pipeline.Contexts;
 
 
-    class ApplyIncomingMessageMutatorsBehavior : LogicalMessageProcessingStageBehavior
+    class MutateIncomingMessageBehavior : LogicalMessageProcessingStageBehavior
     {
         public override void Invoke(Context context, Action next)
         {

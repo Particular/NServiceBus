@@ -6,7 +6,7 @@
     using NServiceBus.OutgoingPipeline;
     using NServiceBus.TransportDispatch;
 
-    class MutateOutgoingPhysicalMessageBehavior : PhysicalOutgoingContextStageBehavior
+    class MutateOutgoingTransportMessageBehavior : PhysicalOutgoingContextStageBehavior
     {
         public override void Invoke(Context context, Action next)
         {
@@ -14,7 +14,7 @@
 
             foreach (var mutator in context.Builder.BuildAll<IMutateOutgoingTransportMessages>())
             {
-                var mutatorContext = new MutateOutgoingTransportMessagesContext(context.Body, headersSetByMutators);
+                var mutatorContext = new MutateOutgoingTransportMessageContext(context.Body, headersSetByMutators);
 
                 mutator.MutateOutgoing(mutatorContext);
 

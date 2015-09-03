@@ -5,13 +5,13 @@ namespace NServiceBus.MessageMutator
     /// <summary>
     /// Context class for <see cref="IMutateOutgoingTransportMessages"/>.
     /// </summary>
-    public class MutateOutgoingTransportMessagesContext
+    public class MutateOutgoingTransportMessageContext
     {
 
         /// <summary>
-        /// Initializes a new instance of <see cref="MutateOutgoingTransportMessagesContext"/>.
+        /// Initializes a new instance of <see cref="MutateOutgoingTransportMessageContext"/>.
         /// </summary>
-        public MutateOutgoingTransportMessagesContext(byte[] body, Dictionary<string, string> headers)
+        public MutateOutgoingTransportMessageContext(byte[] body, Dictionary<string, string> headers)
         {
             this.headers = headers;
             Body = body;

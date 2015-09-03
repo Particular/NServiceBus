@@ -12,6 +12,6 @@ namespace NServiceBus.MessageMutator
         /// Performs the mutation.
         /// </summary>
         /// <param name="context">Contains information about the current message and provides ways to mutate it.</param>
-        void MutateOutgoing(MutateOutgoingTransportMessagesContext context);
+        void MutateOutgoing(MutateOutgoingTransportMessageContext context);
     }
 }

@@ -39,7 +39,7 @@
 
                 public Context Context { get; set; }
 
-                public void MutateOutgoing(MutateOutgoingTransportMessagesContext context)
+                public void MutateOutgoing(MutateOutgoingTransportMessageContext context)
                 {
                     context.SetHeader("HeaderSetByMutator", "some value");
 

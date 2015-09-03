@@ -11,7 +11,7 @@
     {
         public override void Invoke(OutgoingContext context, Action next)
         {
-            var mutatorContext = new MutateOutgoingMessagesContext(context.GetMessageInstance());
+            var mutatorContext = new MutateOutgoingMessageContext(context.GetMessageInstance());
             foreach (var mutator in context.Builder.BuildAll<IMutateOutgoingMessages>())
             {
                 mutator.MutateOutgoing(mutatorContext);

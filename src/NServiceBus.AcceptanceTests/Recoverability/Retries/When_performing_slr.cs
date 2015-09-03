@@ -68,7 +68,7 @@
                     transportMessage.Body = decryptedBody;
                 }
 
-                public void MutateOutgoing(MutateOutgoingTransportMessagesContext context)
+                public void MutateOutgoing(MutateOutgoingTransportMessageContext context)
                 {
                     context.Body[0]--;
                 }

@@ -7,7 +7,7 @@ namespace NServiceBus.Impersonation.Windows
     class WindowsIdentityEnricher : IMutateOutgoingTransportMessages
     {
 
-        public void MutateOutgoing(MutateOutgoingTransportMessagesContext context)
+        public void MutateOutgoing(MutateOutgoingTransportMessageContext context)
         {
             if (Thread.CurrentPrincipal != null && Thread.CurrentPrincipal.Identity != null && !string.IsNullOrEmpty(Thread.CurrentPrincipal.Identity.Name))
             {
