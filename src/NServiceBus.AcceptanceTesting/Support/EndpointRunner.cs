@@ -66,7 +66,7 @@
             }
         }
 
-        public Result Start()
+        public async Task<Result> Start()
         {
             try
             {
@@ -76,12 +76,11 @@
 
                     if (configuration.SendOnly)
                     {
-                        action(new IBusAdapter(sendOnlyBus));
+                        await action(new IBusAdapter(sendOnlyBus)).ConfigureAwait(false);
                     }
                     else
                     {
-
-                        action(bus);
+                        await action(bus).ConfigureAwait(false);
                     }
                 }
 
@@ -135,7 +134,7 @@
             }
         }
 
-        public Result Stop()
+        public Task<Result> Stop()
         {
             try
             {
@@ -152,13 +151,13 @@
 
                 Cleanup();
 
-                return Result.Success();
+                return Task.FromResult(Result.Success());
             }
             catch (Exception ex)
             {
                 Logger.Error("Failed to stop endpoint " + configuration.EndpointName, ex);
 
-                return Result.Failure(ex);
+                return Task.FromResult(Result.Failure(ex));
             }
         }
 

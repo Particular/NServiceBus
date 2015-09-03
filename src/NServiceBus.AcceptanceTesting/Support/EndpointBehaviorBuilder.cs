@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
 
     public class EndpointBehaviorBuilder<TContext> where TContext:ScenarioContext
     {
@@ -15,8 +16,7 @@
                 };
         }
 
-
-        public EndpointBehaviorBuilder<TContext> Given(Action<IBus> action)
+        public EndpointBehaviorBuilder<TContext> Given(Func<IBus, Task> action)
         {
             behavior.Givens.Add(new GivenDefinition<TContext>(action));
 
@@ -24,26 +24,26 @@
         }
 
 
-        public EndpointBehaviorBuilder<TContext> Given(Action<IBus,TContext> action)
+        public EndpointBehaviorBuilder<TContext> Given(Func<IBus, TContext, Task> action)
         {
             behavior.Givens.Add(new GivenDefinition<TContext>(action));
 
             return this;
         }
 
-        public EndpointBehaviorBuilder<TContext> When(Action<IBus> action)
+        public EndpointBehaviorBuilder<TContext> When(Func<IBus, Task> action)
         {
             return When(c => true, action);
         }
 
-        public EndpointBehaviorBuilder<TContext> When(Predicate<TContext> condition, Action<IBus> action)
+        public EndpointBehaviorBuilder<TContext> When(Predicate<TContext> condition, Func<IBus, Task> action)
         {
-            behavior.Whens.Add(new WhenDefinition<TContext>(condition,action));
+            behavior.Whens.Add(new WhenDefinition<TContext>(condition, action));
 
             return this;
         }
 
-        public EndpointBehaviorBuilder<TContext> When(Predicate<TContext> condition, Action<IBus,TContext> action)
+        public EndpointBehaviorBuilder<TContext> When(Predicate<TContext> condition, Func<IBus, TContext, Task> action)
         {
             behavior.Whens.Add(new WhenDefinition<TContext>(condition,action));
 
