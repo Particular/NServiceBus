@@ -18,6 +18,7 @@
             Scenario.Define(context)
                 .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new MyMessage())))
                 .Done(c => c.MessageHandled)
+                .AllowExceptions(e => e is Endpoint.FakeException)
                 .Repeat(r => r.For<AllNativeMultiQueueTransactionTransports>())
                 .Should(c =>
                 {
@@ -56,7 +57,7 @@
                             HasFailed = true
                         });
                         Context.FirstAttempt = false;
-                        throw new Exception();
+                        throw new FakeException();
                     }
                     Bus.SendLocal(new MessageHandledEvent());
                 }
@@ -72,6 +73,10 @@
                     Context.MessageHandled = true;
                     Context.HasFailed |= @event.HasFailed;
                 }
+            }
+
+            public class FakeException : Exception
+            {
             }
         }
 

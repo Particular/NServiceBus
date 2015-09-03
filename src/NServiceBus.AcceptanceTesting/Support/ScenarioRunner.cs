@@ -162,19 +162,7 @@
 
                 runResult.ActiveEndpoints = runners.Select(r => r.EndpointName).ToList();
 
-                PerformScenarios(runDescriptor, runners, () =>
-                {
-                    var exceptions = runDescriptor.ScenarioContext.Exceptions
-                        .Where(ex => !allowedExceptions(ex))
-                        .ToList();
-
-                    if (exceptions.Any())
-                    {
-                        throw new AggregateException(exceptions);
-                    }
-
-                    return done(runDescriptor.ScenarioContext);
-                });
+                PerformScenarios(runDescriptor, runners, () => done(runDescriptor.ScenarioContext), allowedExceptions);
 
                 runTimer.Stop();
 
@@ -220,7 +208,7 @@
             Console.WriteLine();
         }
 
-        static void PerformScenarios(RunDescriptor runDescriptor, IEnumerable<ActiveRunner> runners, Func<bool> done)
+        static void PerformScenarios(RunDescriptor runDescriptor, IEnumerable<ActiveRunner> runners, Func<bool> done, Func<Exception, bool> allowedExceptions)
         {
             var endpoints = runners.Select(r => r.Instance).ToList();
 
@@ -230,7 +218,7 @@
 
             var startTime = DateTime.UtcNow;
             var maxTime = runDescriptor.TestExecutionTimeout;
-
+            
             try
             {
                 Task.WaitAll(endpoints.Select(endpoint => Task.Factory.StartNew(() => SpinWait.SpinUntil(done, maxTime))).Cast<Task>().ToArray(), maxTime);
@@ -243,6 +231,15 @@
             finally
             {
                 StopEndpoints(endpoints);
+
+                var exceptions = runDescriptor.ScenarioContext.Exceptions
+                        .Where(ex => !allowedExceptions(ex))
+                        .ToList();
+
+                if (exceptions.Any())
+                {
+                    throw new AggregateException(exceptions);
+                }
             }
         }
 

@@ -15,7 +15,7 @@ namespace NServiceBus
             successRateCounter = PerformanceCounterHelper.TryToInstantiatePerformanceCounter("# of msgs successfully processed / sec", PipelineInfo.PublicAddress);
             failureRateCounter = PerformanceCounterHelper.TryToInstantiatePerformanceCounter("# of msgs failures / sec", PipelineInfo.PublicAddress);
          
-            return base.Cooldown();
+            return base.Warmup();
         }
 
         public override void Invoke(Context context, Action next)

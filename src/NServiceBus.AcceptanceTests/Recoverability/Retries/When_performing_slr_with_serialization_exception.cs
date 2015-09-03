@@ -3,6 +3,7 @@
     using NServiceBus.AcceptanceTesting;
     using NUnit.Framework;
 
+    [Ignore]
     public class When_performing_slr_with_serialization_exception : When_performing_slr
     {
         [Test]
@@ -14,8 +15,8 @@
             };
 
             Scenario.Define(context)
-                .WithEndpoint<RetryEndpoint>()
-                .AllowExceptions()
+                .WithEndpoint<RetryEndpoint>(b => b.Given(bus => bus.SendLocal(new MessageToBeRetried())))
+                .AllowExceptions(e => e is SimulatedException)
                 .Done(c => c.SlrChecksum != default(byte))
                 .Run();
 

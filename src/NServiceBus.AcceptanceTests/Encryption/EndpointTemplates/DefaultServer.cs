@@ -42,7 +42,8 @@
             builder.CustomConfigurationSource(configSource);
             builder.EnableInstallers();
 
-            builder.DisableFeature<TimeoutManager>();
+            // TimeoutManager is currently required by Sagas
+            builder.EnableFeature<TimeoutManager>();
             builder.DisableFeature<SecondLevelRetries>();
             builder.DefineTransport(settings, endpointConfiguration.BuilderType);
             builder.DefineTransactions(settings);
@@ -53,6 +54,8 @@
                 r.RegisterSingleton(typeof(ScenarioContext), runDescriptor.ScenarioContext);
             });
 
+            // Workaround to avoid issues when stopping endpoints while processing messages
+            builder.Throttling().UseSingleTotalThroughputLimit(1);
 
             var serializer = settings.GetOrNull("Serializer");
 

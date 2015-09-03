@@ -13,7 +13,7 @@
 
         public void AddTrace(string trace)
         {
-            Trace += String.Format("{0:HH:mm:ss.ffffff} - {1}{2}", DateTime.Now, trace, Environment.NewLine);
+            Trace += string.Format("{0:HH:mm:ss.ffffff} - {1}{2}", DateTime.Now, trace, Environment.NewLine);
         }
 
         public ConcurrentQueue<Exception> Exceptions = new ConcurrentQueue<Exception>();
