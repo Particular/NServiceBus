@@ -12,7 +12,6 @@
     using NServiceBus.Serializers;
     using NServiceBus.Unicast;
     using NServiceBus.Unicast.Messages;
-    using NServiceBus.Unicast.Transport;
 
     class DeserializeLogicalMessagesConnector : StageConnector<PhysicalMessageProcessingStageBehavior.Context, LogicalMessagesProcessingStageBehavior.Context>
     {
@@ -27,13 +26,6 @@
         public override void Invoke(PhysicalMessageProcessingStageBehavior.Context context, Action<LogicalMessagesProcessingStageBehavior.Context> next)
         {
             var transportMessage = context.GetPhysicalMessage();
-
-            if (TransportMessageExtensions.IsControlMessage(transportMessage.Headers))
-            {
-                log.Info("Received a control message. Skipping deserialization as control message data is contained in the header.");
-                next(new LogicalMessagesProcessingStageBehavior.Context(Enumerable.Empty<LogicalMessage>(), context));
-                return;
-            }
             var messages = ExtractWithExceptionHandling(transportMessage);
             next(new LogicalMessagesProcessingStageBehavior.Context(messages, context));
         }
