@@ -14,7 +14,6 @@
     public class EndpointRunner : MarshalByRefObject
     {
         static ILog Logger = LogManager.GetLogger<EndpointRunner>();
-        SemaphoreSlim contextChanged = new SemaphoreSlim(0);
         CancellationTokenSource stopSource = new CancellationTokenSource();
         EndpointBehavior behavior;
         IStartableBus bus;
@@ -67,7 +66,7 @@
                 }
                 else
                 {
-                    executeWhens = Task.Factory.StartNew(async () =>
+                    executeWhens = Task.Factory.StartNew(() =>
                     {
                         var executedWhens = new List<Guid>();
 
@@ -77,9 +76,6 @@
                             {
                                 break;
                             }
-
-                            //we spin around each 5s since the callback mechanism seems to be shaky
-                            await contextChanged.WaitAsync(TimeSpan.FromSeconds(5), stopToken);
 
                             if (stopToken.IsCancellationRequested)
                                 break;
@@ -97,7 +93,7 @@
                                 }
                             }
                         }
-                    }, stopToken).Unwrap();
+                    }, stopToken);
                 }
                 return Result.Success();
             }
@@ -148,7 +144,6 @@
             {
                 stopSource.Cancel();
                 executeWhens.Wait();
-                contextChanged.Dispose();
 
                 if (configuration.SendOnly)
                 {
