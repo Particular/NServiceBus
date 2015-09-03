@@ -94,9 +94,6 @@ namespace NServiceBus
     public class CompletionResult
     {
         public CompletionResult() { }
-        public int ErrorCode { get; set; }
-        public object[] Messages { get; set; }
-        public object State { get; set; }
     }
     public class static ConcurrencySettingsExtensions
     {
@@ -299,9 +296,6 @@ namespace NServiceBus
     public class First<T>
     {
         public First() { }
-        public System.Collections.Generic.IEnumerable<System.Type> Types { get; }
-        public NServiceBus.First<T> AndThen<K>() { }
-        public static NServiceBus.First<T> Then<K>() { }
     }
     public class static HeaderOptionExtensions
     {
@@ -402,16 +396,7 @@ namespace NServiceBus
         public static void Unsubscribe<T>(this NServiceBus.IBus bus) { }
     }
     [System.ObsoleteAttribute("Replaced by NServiceBus.Callbacks package. Will be removed in version 7.0.0.", true)]
-    public interface ICallback
-    {
-        System.Threading.Tasks.Task<int> Register();
-        System.Threading.Tasks.Task<T> Register<T>();
-        System.Threading.Tasks.Task<T> Register<T>(System.Func<NServiceBus.CompletionResult, T> completion);
-        System.Threading.Tasks.Task Register(System.Action<NServiceBus.CompletionResult> completion);
-        System.IAsyncResult Register(System.AsyncCallback callback, object state);
-        void Register<T>(System.Action<T> callback);
-        void Register<T>(System.Action<T> callback, object synchronizer);
-    }
+    public interface ICallback { }
     public interface ICommand : NServiceBus.IMessage { }
     public interface IDataBusProperty
     {
@@ -1331,8 +1316,6 @@ namespace NServiceBus.Features
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
-    [System.ObsoleteAttribute("Use the ConfigureSerialization Feature class instead. Please use `ConfigureSerial" +
-        "ization` instead. Will be removed in version 7.0.0.", true)]
     public class static SerializationFeatureHelper { }
     public class static SettingsExtentions
     {
@@ -2116,7 +2099,6 @@ namespace NServiceBus.Saga
         public ToSagaExpression(NServiceBus.Saga.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration, System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty) { }
         public void ToSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object>> sagaEntityProperty) { }
     }
-    [System.AttributeUsageAttribute(System.AttributeTargets.Property | System.AttributeTargets.All)]
     [System.ObsoleteAttribute("There is no need for this attribute anymore, all mapped properties are automatica" +
         "lly correlated. Will be removed in version 7.0.0.", true)]
     public sealed class UniqueAttribute : System.Attribute
@@ -2597,13 +2579,7 @@ namespace NServiceBus.Unicast
     }
     [System.ObsoleteAttribute("Not a public API. Please use `MessageHandlerRegistry` instead. Will be removed in" +
         " version 7.0.0.", true)]
-    public interface IMessageHandlerRegistry
-    {
-        System.Collections.Generic.IEnumerable<System.Type> GetHandlerTypes(System.Type messageType);
-        System.Collections.Generic.IEnumerable<System.Type> GetMessageTypes();
-        void InvokeHandle(object handler, object message);
-        void InvokeTimeout(object handler, object state);
-    }
+    public interface IMessageHandlerRegistry { }
     public class MessageContext : NServiceBus.IMessageContext
     {
         public MessageContext(NServiceBus.TransportMessage transportMessage) { }
@@ -2778,11 +2754,7 @@ namespace NServiceBus.Unicast.Messages
 namespace NServiceBus.Unicast.Queuing
 {
     [System.ObsoleteAttribute("Please use `QueueBindings` instead. Will be removed in version 7.0.0.", true)]
-    public interface IWantQueueCreated
-    {
-        string Address { get; }
-        bool ShouldCreateQueue();
-    }
+    public interface IWantQueueCreated { }
     public class QueueNotFoundException : System.Exception
     {
         public QueueNotFoundException() { }
