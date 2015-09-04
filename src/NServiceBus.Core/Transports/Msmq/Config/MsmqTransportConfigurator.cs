@@ -8,10 +8,12 @@
     using System.Security;
     using System.Transactions;
     using NServiceBus.Config;
-    using NServiceBus.Logging;
+    using Logging;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Pipeline;
     using NServiceBus.Settings;
+    using NServiceBus.Logging;
+    using NServiceBus.Routing;
     using NServiceBus.Transports;
     using NServiceBus.Transports.Msmq;
     using NServiceBus.Transports.Msmq.Config;

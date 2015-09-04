@@ -26,8 +26,15 @@ namespace NServiceBus.Unicast.Transport
             this.builder = builder;
         }
 
+        internal BusNotifications Notifications { get; set; }
+
+        internal NoMessageBacklogNotifier Monitor { get; set; }
 
 
+        /// <summary>
+        ///     The receiver responsible for notifying the transport when new messages are available
+        /// </summary>
+        public IDequeueMessages Receiver { get; set; }
 
         /// <summary>
         /// Gets the ID of this pipeline.
