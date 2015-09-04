@@ -69,6 +69,7 @@
 
                 public void Handle(FinishMessage message)
                 {
+                    // This acts as a safe guard to abort the test earlier
                     Context.Done = true;
                 }
             }
@@ -128,6 +129,7 @@
                 public void Handle(object message)
                 {
                     Context.TimesFired++;
+                    Context.Done = true;
                 }
             }
         }
@@ -164,6 +166,7 @@
 
                 public void Handle(FinishMessage message)
                 {
+                    // This acts as a safe guard to abort the test earlier
                     Context.Done = true;
                 }
             }
@@ -193,6 +196,8 @@
 
             public class ReceiverWithOrderedSagasSaga2 : Saga<ReceiverWithOrderedSagasSaga2.ReceiverWithOrderedSagasSaga2Data>, IHandleMessages<StartSaga>, IAmStartedByMessages<MessageToSaga>
             {
+                public Context Context { get; set; }
+
                 public void Handle(StartSaga message)
                 {
                     Data.MessageId = message.Id;
@@ -200,6 +205,8 @@
 
                 public void Handle(MessageToSaga message)
                 {
+                    Data.MessageId = message.Id;
+                    Context.Done = true;
                 }
 
                 public class ReceiverWithOrderedSagasSaga2Data : ContainSagaData
