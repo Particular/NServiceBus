@@ -1,9 +1,7 @@
 namespace NServiceBus.Routing
 {
-    using NServiceBus.Transports;
-
     /// <summary>
-    /// Wraps both the <see cref="AddressTranslator"/> and <see cref="IProvideDynamicRouting"/> in a convenient injectable class.
+    /// Wraps the <see cref="IProvideDynamicRouting"/> in a convenient injectable class.
     /// </summary>
     public class DynamicRoutingProvider
     {
@@ -11,39 +9,22 @@ namespace NServiceBus.Routing
         /// The registered <see cref="IProvideDynamicRouting"/> impl.
         /// </summary>
         public IProvideDynamicRouting DynamicRouting { get; set; }
-        
+     
         /// <summary>
-        /// The registered <see cref="AddressTranslator"/> impl.
+        /// Returns the full address to send messages to based on the logical <paramref name="endpoint"/> provided.
+        /// If no routing distribution is available for the <paramref name="endpoint"/>, the logical endpoint is returned.
         /// </summary>
-        public AddressTranslator Translator { get; set; }
-
-        /// <summary>
-        /// Returns the full address to send messages to based on the <paramref name="address"/> provided.
-        /// If no routing distribution is available for the <paramref name="address"/>, the same address is returned.
-        /// </summary>
-        /// <param name="address">The logical endpoint address to get a dynamic address for.</param>
+        /// <param name="endpoint">The logical endpoint to get a dynamic address for.</param>
         /// <returns>The full address to send to.</returns>
-        public Address GetRouteAddress(Address address)
+        public string GetRouteAddress(string endpoint)
         {
-            if (DynamicRouting == null)
+            string dynamicAddress;
+            if (DynamicRouting != null && DynamicRouting.TryGetRouteAddress(endpoint, out dynamicAddress))
             {
-                return address;
+                return dynamicAddress;
             }
 
-            string s;
-            var result = DynamicRouting.TryGetRouteAddress(Translator.Translate(address), out s);
-            Address dynamicAddress;
-            
-            if (result)
-            {
-                dynamicAddress = Address.Parse(s);
-            }
-            else
-            {
-                dynamicAddress = address;
-            }
-
-            return dynamicAddress;
+            return endpoint;
         }
     }
 }

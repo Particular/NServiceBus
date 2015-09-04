@@ -10,6 +10,8 @@ namespace NServiceBus.Features
     using NServiceBus.Settings.Throttling;
     using NServiceBus.Unicast;
     using NServiceBus.Unicast.Messages;
+    using NServiceBus.EndpointControl;
+    using NServiceBus.Routing;
     using TransactionSettings = NServiceBus.Unicast.Transport.TransactionSettings;
 
     class UnicastBus : Feature

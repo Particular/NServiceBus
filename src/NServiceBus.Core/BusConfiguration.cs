@@ -169,7 +169,7 @@ namespace NServiceBus
         public void OverridePublicReturnAddress(string address)
         {
             Guard.AgainstNullAndEmpty("address", address);
-            publicReturnAddress = address;
+            Settings.SetDefault("PublicReturnAddress", address);
         }
 
 
@@ -278,7 +278,6 @@ namespace NServiceBus
         List<Type> excludedTypes = new List<Type>();
         List<string> excludedAssemblies = new List<string>();
         bool scanAssembliesInNestedDirectories;
-        string publicReturnAddress;
         PipelineConfiguration pipelineCollection;
 		bool useEndpointNameAsPublicReturnAddress;
     }

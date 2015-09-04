@@ -99,8 +99,6 @@
     <Compile Include="BusConfiguration.cs" />
     <Compile Include="Causation\MessageCausation.cs" />
     <Compile Include="ConfigureHandlerSettings.cs" />
-    <Compile Include="ConfigureQueueCreation_Obsolete.cs" />
-    <Compile Include="ConfigureInMemoryFaultManagement_obsolete.cs" />
     <Compile Include="Routing\DynamicRoutingConfigurationExtensions.cs" />
     <Compile Include="ConfigureClientDistribution.cs" />
     <Compile Include="ConfigureDynamicRouting.cs" />
@@ -237,6 +235,7 @@
     <Compile Include="Routing\MessagingBestPractices\EnforceUnsubscribeBestPracticesBehavior.cs" />
     <Compile Include="Routing\NativeSubscribeTerminator.cs" />
     <Compile Include="Routing\NativeUnsubscribeTerminator.cs" />
+    <Compile Include="Routing\RoutingExtensions.cs" />
     <Compile Include="Routing\StaticRoutes.cs" />
     <Compile Include="Routing\StorageDrivenPublishing\SubscribersForEvent.cs" />
     <Compile Include="Routing\RoutingContextExtensions.cs" />
@@ -429,9 +428,6 @@
     <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetriesBehavior.cs" />
     <Compile Include="Pipeline\Contexts\HandlingContext.cs" />
     <Compile Include="Unicast\Behaviors\MessageProcessingAbortedException.cs" />
-    <Compile Include="Serializers\XML\Config\XmlSerializationSettings_Obsolete.cs" />
-    <Compile Include="Settings\DurableMessagesConfig.cs" />
-    <Compile Include="Timeout\ConfigurationBuilderExtensions.cs" />
     <Compile Include="Transports\AddressTranslator.cs" />
     <Compile Include="Transports\ConfigurePurging_Obsolete.cs" />
     <Compile Include="Unicast\Behaviors\ForwardReceivedMessages.cs" />
@@ -456,20 +452,6 @@
     <Compile Include="Utils\MessageQueueExtensions.cs" />
     <Compile Include="Utils\PathUtilities.cs" />
     <Compile Include="Utils\WeakKeyDictionary.cs" />
-    <Compile Include="Unicast\Routing\FileBasedRoundRobinRoutingDistributor.cs" />
-    <Compile Include="Unicast\Routing\FileBasedRouterDistribution.cs" />
-    <Compile Include="Unicast\Routing\FileBasedRoutingDistributor.cs" />
-    <Compile Include="Unicast\Routing\IRouterDistributor.cs" />
-    <Compile Include="Unicast\Routing\RoutingDistributor.cs" />
-    <Compile Include="Unicast\Routing\RoutingDistributorDefinition.cs" />
-    <Compile Include="Unicast\Routing\RoutingExtentions.cs" />
-    <Compile Include="Routing\FileBasedRoundRobinRoutingDistributor.cs" />
-    <Compile Include="Routing\FileBasedRouterDistribution.cs" />
-    <Compile Include="Routing\FileBasedRoutingDistributor.cs" />
-    <Compile Include="Routing\FileBasedRoundRobinDynamicRoutingImpl.cs" />
-    <Compile Include="Routing\FileBasedRoundRobinRoutingProvider.cs" />
-    <Compile Include="Routing\FileBasedRoundRobinDynamicRouting.cs" />
-    <Compile Include="Routing\FileBasedDynamicRouting.cs" />
     <Compile Include="Routing\FileBasedDynamicRouting\FileBasedRoundRobinRoutingProvider.cs" />
     <Compile Include="Routing\FileBasedDynamicRouting\FileBasedRoundRobinDynamicRouting.cs" />
     <Compile Include="Routing\FileBasedDynamicRouting\FileBasedRoundRobinDistribution.cs" />
@@ -718,7 +700,6 @@
     <Compile Include="Routing\StorageDrivenPublishing\StorageDrivenDispatcher.cs" />
     <Compile Include="Unicast\Queuing\QueueNotFoundException.cs" />
     <Compile Include="Unicast\Queuing\QueuesCreator.cs" />
-    <Compile Include="Routing\StaticMessageRouter.cs" />
     <Compile Include="Unicast\IMessageHandlerRegistry.cs" />
     <Compile Include="Unicast\MessageHandlerRegistry.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\SubscriptionReceiverBehavior.cs" />

@@ -166,7 +166,6 @@
     <Compile Include="Pipeline\HandlerTransactionScopeWrapperBehaviorTests.cs" />
     <Compile Include="Pipeline\PipelineModelBuilderTests.cs" />
     <Compile Include="Routing\DetermineRouteForReplyBehaviorTests.cs" />
-    <Compile Include="Persistence\InMemory\InMemorySagaPersistenceFixture.cs" />
     <Compile Include="Routing\FileBasedRoundRobinRoutingDistributorTests.cs" />
     <Compile Include="Sagas\SagaModelTests.cs" />
     <Compile Include="Sagas\SagaMetadataCreationTests.cs" />

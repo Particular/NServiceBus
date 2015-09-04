@@ -7,13 +7,13 @@ namespace NServiceBus
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Unicast.Transport;
 
-    class DetectDisconnectRequestBehavior : IBehavior<IncomingContext>
+    class DetectDisconnectRequestBehavior : Behavior<TransportReceiveContext>
     {
         public NoMessageBacklogNotifier Monitor { get; set; }
 
-        public void Invoke(IncomingContext context, Action next)
+        public override void Invoke(TransportReceiveContext context, Action next)
         {
-            var transportMessage = context.PhysicalMessage;
+            var transportMessage = context.GetPhysicalMessage();
 
             if (IsDisconnectMessage(transportMessage))
             {
@@ -27,7 +27,7 @@ namespace NServiceBus
 
         bool IsDisconnectMessage(TransportMessage msg)
         {
-            if (msg.IsControlMessage() && msg.Headers.ContainsKey(DisconnectHeader))
+            if (TransportMessageExtensions.IsControlMessage(msg.Headers) && msg.Headers.ContainsKey(DisconnectHeader))
             {
                 return true;
             }

@@ -6,25 +6,25 @@ namespace NServiceBus
     using NServiceBus.Routing;
     using NServiceBus.Unicast;
 
-    class DynamicRoutingBehavior : IBehavior<OutgoingContext>
+    class DynamicRoutingBehavior : Behavior<OutgoingContext>
     {
         public DynamicRoutingProvider RoutingProvider { get; set; }
 
-        public void Invoke(OutgoingContext context, Action next)
+        public override void Invoke(OutgoingContext context, Action next)
         {
-            var sendOptions = context.DeliveryOptions as SendOptions;
+            //var sendOptions = context.DeliveryOptions as SendOptions; //TODO implement DYNAMIC routing after pipeline upgrade to V6
 
-            if (sendOptions == null)
-            {
-                next();
-                return;
-            }
+            //if (sendOptions == null)
+            //{
+            //    next();
+            //    return;
+            //}
 
-            sendOptions.Destination = GetNextAddress(sendOptions.Destination);
+            //sendOptions.Destination = GetNextAddress(sendOptions.Destination);
             next();
         }
 
-        Address GetNextAddress(Address destination)
+        string GetNextAddress(string destination)
         {
             var address = RoutingProvider.GetRouteAddress(destination);
             

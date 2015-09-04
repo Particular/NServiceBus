@@ -20,7 +20,7 @@ namespace NServiceBus
 
         internal void InvokeSafeToDisconnect(Dictionary<string, string> headers)
         {
-            disconnectEventList.Publish(new EndpointSafeToDisconnect(new Dictionary<string, string>(headers)));
+            disconnectEventList.OnNext(new EndpointSafeToDisconnect(new Dictionary<string, string>(headers)));
         }
 
         void IDisposable.Dispose()

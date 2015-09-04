@@ -4,6 +4,7 @@ namespace NServiceBus.Transports
     using Features;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Pipeline;
+    using NServiceBus.Routing;
     using NServiceBus.Settings;
     using Unicast.Transport;
 
@@ -48,7 +49,9 @@ namespace NServiceBus.Transports
             }
 
             context.Container.RegisterSingleton(selectedTransportDefinition);
+            context.Container.RegisterSingleton(context.Settings.Get<AddressTranslator>("Routing.Translator"));
             context.Container.ConfigureComponent<DynamicRoutingProvider>(DependencyLifecycle.SingleInstance);
+ 
 
             if (!context.Settings.Get<bool>("Endpoint.SendOnly"))
             {
