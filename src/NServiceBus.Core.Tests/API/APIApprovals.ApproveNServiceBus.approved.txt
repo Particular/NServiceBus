@@ -1503,24 +1503,24 @@ namespace NServiceBus.MessageMutator
     }
     public interface IMutateOutgoingMessages
     {
-        void MutateOutgoing(NServiceBus.MessageMutator.MutateOutgoingMessagesContext context);
+        void MutateOutgoing(NServiceBus.MessageMutator.MutateOutgoingMessageContext context);
     }
     public interface IMutateOutgoingTransportMessages
     {
-        void MutateOutgoing(NServiceBus.MessageMutator.MutateOutgoingTransportMessagesContext context);
+        void MutateOutgoing(NServiceBus.MessageMutator.MutateOutgoingTransportMessageContext context);
     }
     [System.ObsoleteAttribute("Just have your mutator implement both IMutateIncomingTransportMessages and IMutat" +
         "eOutgoingTransportMessages. Will be removed in version 7.0.0.", true)]
     public interface IMutateTransportMessages : NServiceBus.MessageMutator.IMutateIncomingTransportMessages, NServiceBus.MessageMutator.IMutateOutgoingTransportMessages { }
-    public class MutateOutgoingMessagesContext
+    public class MutateOutgoingMessageContext
     {
-        public MutateOutgoingMessagesContext(object messageInstance) { }
+        public MutateOutgoingMessageContext(object messageInstance) { }
         public object MessageInstance { get; set; }
         public void SetHeader(string key, string value) { }
     }
-    public class MutateOutgoingTransportMessagesContext
+    public class MutateOutgoingTransportMessageContext
     {
-        public MutateOutgoingTransportMessagesContext(byte[] body, System.Collections.Generic.Dictionary<string, string> headers) { }
+        public MutateOutgoingTransportMessageContext(byte[] body, System.Collections.Generic.Dictionary<string, string> headers) { }
         public byte[] Body { get; set; }
         public void SetHeader(string key, string value) { }
     }
