@@ -166,13 +166,10 @@
 
                 runTimer.Stop();
 
-                Parallel.ForEach(runners, runner =>
+                foreach (var v in shoulds.Where(s => s.ContextType == runDescriptor.ScenarioContext.GetType()))
                 {
-                    foreach (var v in shoulds.Where(s => s.ContextType == runDescriptor.ScenarioContext.GetType()))
-                    {
-                        v.Verify(runDescriptor.ScenarioContext);
-                    }
-                });
+                    v.Verify(runDescriptor.ScenarioContext);
+                }
             }
             catch (Exception ex)
             {
@@ -221,7 +218,7 @@
             
             try
             {
-                Task.WaitAll(endpoints.Select(endpoint => Task.Factory.StartNew(() => SpinWait.SpinUntil(done, maxTime))).Cast<Task>().ToArray(), maxTime);
+                SpinWait.SpinUntil(done, maxTime);
 
                 if ((DateTime.UtcNow - startTime) > maxTime)
                 {
