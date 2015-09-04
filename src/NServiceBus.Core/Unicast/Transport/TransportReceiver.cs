@@ -28,9 +28,6 @@ namespace NServiceBus.Unicast.Transport
 
         internal BusNotifications Notifications { get; set; }
 
-        internal NoMessageBacklogNotifier Monitor { get; set; }
-
-
         /// <summary>
         ///     The receiver responsible for notifying the transport when new messages are available
         /// </summary>

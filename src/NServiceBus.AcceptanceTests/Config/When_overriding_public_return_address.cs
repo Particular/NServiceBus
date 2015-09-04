@@ -17,7 +17,7 @@
                     .Done(c => c.IsDone)
                     .Run();
 
-            Assert.AreEqual(context.ReplyToAddress.Queue,context.EndpointName);
+            Assert.AreEqual(context.ReplyToAddress,context.EndpointName);
         }
 
         [Test]
@@ -26,19 +26,19 @@
             var context = Scenario.Define<Context>()
                     .WithEndpoint<EndpointWithCustomAddress>(b =>
                     {
-                        b.CustomConfig(c => c.OverridePublicReturnAddress(Address.Parse("Explicit")));
+                        b.CustomConfig(c => c.OverridePublicReturnAddress("Explicit"));
                         b.CustomConfig(c => c.GetSettings().Set("UseEndpointNameAsPublicReturnAddress", true));
                     })
                     .Done(c => c.IsDone)
                     .Run();
 
-            Assert.AreEqual(context.ReplyToAddress.Queue, "Explicit");
+            Assert.AreEqual(context.ReplyToAddress, "Explicit");
         }
 
         public class Context : ScenarioContext
         {
             public bool IsDone { get; set; }
-            public Address ReplyToAddress { get; set; }
+            public string ReplyToAddress { get; set; }
             public string EndpointName { get; set; }
         }
 
@@ -61,7 +61,7 @@
                 {
                     var propInfo = Config.GetType().GetProperty("PublicReturnAddress", BindingFlags.Instance | BindingFlags.NonPublic);
 
-                    Context.ReplyToAddress = (Address)propInfo.GetValue(Config, null);
+                    Context.ReplyToAddress = (string)propInfo.GetValue(Config, null);
 
 
                     Context.EndpointName = Settings.EndpointName();
