@@ -8,7 +8,6 @@ namespace NServiceBus.Unicast.Transport
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Transports;
-    using NServiceBus.EndpointControl;
 
     /// <summary>
     ///     Default implementation of a NServiceBus transport.

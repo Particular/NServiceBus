@@ -49,45 +49,7 @@ namespace NServiceBus
         {
             get { return Settings.GetAvailableTypes(); }
         }
-
-        /// <summary>
-        ///     Returns the queue name of this endpoint.
-        /// </summary>
-        public Address LocalAddress
-        {
-            get
-            {
-                Debug.Assert(localAddress != null);
-                return localAddress;
-            }
-        }
-
-        internal Address PublicReturnAddress
-        {
-            get
-            {
-                if (returnAddress != null)
-                {
-                    return returnAddress;
-                }
-
-                Address temp;
-
-                if (Settings.TryGet("PublicReturnAddress", out temp))
-                {
-                    returnAddress = temp;
-                }
-                else
-                {
-                    returnAddress = Settings.GetOrDefault<bool>("UseEndpointNameAsPublicReturnAddress") ?
-                        Address.Parse(Settings.EndpointName()) :
-                        LocalAddress;
-                }
-
-                return returnAddress;
-            }
-        }
-
+        
         void RunUserRegistrations(List<Action<IConfigureComponents>> registrations)
         {
             foreach (var registration in registrations)
@@ -197,9 +159,7 @@ namespace NServiceBus
         }
 
         internal IConfigureComponents container;
-        internal PipelineSettings pipeline;
+        internal PipelineSettings pipelineSettings;
         PipelineConfiguration pipelineConfiguration;
-        internal PipelineSettings pipeline;
-        Address returnAddress;
     }
 }

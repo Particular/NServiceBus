@@ -279,6 +279,5 @@ namespace NServiceBus
         List<string> excludedAssemblies = new List<string>();
         bool scanAssembliesInNestedDirectories;
         PipelineConfiguration pipelineCollection;
-		bool useEndpointNameAsPublicReturnAddress;
     }
 }

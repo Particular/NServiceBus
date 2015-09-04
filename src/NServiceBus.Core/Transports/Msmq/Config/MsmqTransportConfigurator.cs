@@ -26,7 +26,6 @@
         {
             DependsOn<UnicastBus>();
             RegisterStartupTask<CheckQueuePermissions>();
-			Defaults(s => s.SetDefault("Routing.Translator", translator));
         }
 
         class CheckQueuePermissions : FeatureStartupTask
@@ -187,6 +186,5 @@
         }
 
         ReceiveOptions options;
-        static ILog Logger = LogManager.GetLogger<MsmqTransportConfigurator>();
     }
 }

@@ -22,8 +22,6 @@ namespace NServiceBus.Transports
 
             Defaults(s => s.SetDefault("NServiceBus.LocalAddress", GetDefaultEndpointAddress(s)));
 
-            Defaults(s => s.SetDefault("Routing.Translator", Translator));
-
             Defaults(s =>
             {
                 var localAddress = GetLocalAddress(s);
@@ -81,6 +79,20 @@ namespace NServiceBus.Transports
         /// </summary>
         protected abstract void Configure(FeatureConfigurationContext context, string connectionString);
 
+        /// <summary>
+        /// Used by implementations to provide an example connection string that till be used for the possible exception thrown if the <see cref="RequiresConnectionString"/> requirement is not met.
+        /// </summary>
+        protected abstract string ExampleConnectionStringForErrorMessage { get; }
+
+        /// <summary>
+        /// Used by implementations to control if a connection string is necessary.
+        /// </summary>
+        /// <remarks>If this is true and a connection string is not returned by <see cref="TransportConnectionString.GetConnectionStringOrNull"/> then an exception will be thrown.</remarks>
+        protected virtual bool RequiresConnectionString
+        {
+            get { return true; }
+        }
+
         static string GetConfigFileIfExists()
         {
             return AppDomain.CurrentDomain.SetupInformation.ConfigurationFile ?? "App.config";
@@ -112,6 +124,5 @@ Here is an example of what is required:
     <add name=""NServiceBus/Transport"" connectionString=""{2}"" />
   </connectionStrings>";
 
-        AddressTranslator translator;
     }
 }
