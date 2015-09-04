@@ -12,6 +12,6 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// Modifies various properties of the transport message.
         /// </summary>
-        void MutateIncoming(TransportMessage transportMessage);
+        void MutateIncoming(MutateIncomingTransportMessageContext context);
     }
 }

@@ -41,9 +41,9 @@
 
                 public void MutateOutgoing(MutateOutgoingTransportMessageContext context)
                 {
-                    context.SetHeader("HeaderSetByMutator", "some value");
+                    context.Headers["HeaderSetByMutator"]= "some value";
 
-                    context.SetHeader(Headers.EnclosedMessageTypes, typeof(MessageThatMutatorChangesTo).FullName);
+                    context.Headers[Headers.EnclosedMessageTypes]= typeof(MessageThatMutatorChangesTo).FullName;
                     context.Body = Encoding.UTF8.GetBytes("<MessageThatMutatorChangesTo/>");
                 }
 

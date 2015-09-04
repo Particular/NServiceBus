@@ -38,14 +38,12 @@
 
             class MutateIncomingMessages : IMutateIncomingMessages
             {
-                public object MutateIncoming(object message)
+                public void MutateIncoming(MutateIncomingMessageContext message)
                 {
-                    if (message is V1Message)
+                    if (message.MessageInstance is V1Message)
                     {
-                        return new V2Message();
+                        message.MessageInstance=new V2Message();
                     }
-
-                    return message;
                 }
             }
 

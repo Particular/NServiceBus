@@ -89,7 +89,7 @@
             {
                 public Context Context { get; set; }
 
-                public void MutateIncoming(TransportMessage transportMessage)
+                public void MutateIncoming(MutateIncomingTransportMessageContext transportMessage)
                 {
                     Context.MessageAudited = true;
                 }

@@ -4,20 +4,24 @@
     using NServiceBus.MessageMutator;
     using NServiceBus.Pipeline.Contexts;
 
-
     class MutateIncomingMessageBehavior : LogicalMessageProcessingStageBehavior
     {
         public override void Invoke(Context context, Action next)
         {
-            var current = context.GetLogicalMessage().Instance;
+            var logicalMessage = context.GetLogicalMessage();
+            var current = logicalMessage.Instance;
 
+            var mutatorContext = new MutateIncomingMessageContext(current, context.Headers);
             foreach (var mutator in context.Builder.BuildAll<IMutateIncomingMessages>())
             {
-                current = mutator.MutateIncoming(current);
-                context.GetLogicalMessage().UpdateMessageInstance(current);
+                mutator.MutateIncoming(mutatorContext);
             }
 
-            context.MessageType = context.GetLogicalMessage().Metadata.MessageType;
+            if (mutatorContext.MessageInstanceChanged)
+            {
+                logicalMessage.UpdateMessageInstance(mutatorContext.MessageInstance);
+            }
+            context.MessageType = logicalMessage.Metadata.MessageType;
             next();
         }
     }

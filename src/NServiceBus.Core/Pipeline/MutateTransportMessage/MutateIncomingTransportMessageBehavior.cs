@@ -11,11 +11,13 @@
         {
             var mutators = context.Builder.BuildAll<IMutateIncomingTransportMessages>();
 
+            var transportMessage = context.GetPhysicalMessage();
+            var mutatorContext = new MutateIncomingTransportMessageContext(transportMessage.Body, transportMessage.Headers);
             foreach (var mutator in mutators)
             {
-                mutator.MutateIncoming(context.GetPhysicalMessage());
+                mutator.MutateIncoming(mutatorContext);
             }
-
+            transportMessage.Body = mutatorContext.Body;
             next();
         }
     }

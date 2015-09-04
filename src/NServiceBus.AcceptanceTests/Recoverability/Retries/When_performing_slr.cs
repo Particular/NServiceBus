@@ -47,7 +47,7 @@
             {
                 public Context Context { get; set; }
 
-                public void MutateIncoming(TransportMessage transportMessage)
+                public void MutateIncoming(MutateIncomingTransportMessageContext transportMessage)
                 {
                     var originalBody = transportMessage.Body;
 
