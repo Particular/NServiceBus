@@ -11,17 +11,12 @@
     public class When_reply_from_a_finder
     {
         [Test]
-        public void Should_be_received_by_handler()
+        public async Task Should_be_received_by_handler()
         {
-            var context = new Context
-            {
-                Id = Guid.NewGuid()
-            };
-
-            Scenario.Define(context)
-                .WithEndpoint<SagaEndpoint>(b => b.Given(bus =>
+            var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
+                .WithEndpoint<SagaEndpoint>(b => b.Given((bus, c) =>
                 {
-                    bus.SendLocal(new StartSagaMessage { Id = context.Id });
+                    bus.SendLocal(new StartSagaMessage { Id = c.Id });
                     return Task.FromResult(0);
                 }))
                 .Done(c => c.HandlerFired)

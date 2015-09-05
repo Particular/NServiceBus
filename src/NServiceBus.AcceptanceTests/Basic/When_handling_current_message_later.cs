@@ -12,14 +12,9 @@
     public class When_handling_current_message_later : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_commit_unit_of_work_and_execute_subsequent_handlers()
+        public async Task Should_commit_unit_of_work_and_execute_subsequent_handlers()
         {
-            var context = new Context
-            {
-                Id = Guid.NewGuid()
-            };
-
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<MyEndpoint>(b => b.Given((bus, c) =>
                 {
                     bus.SendLocal(new SomeMessage{Id = c.Id});

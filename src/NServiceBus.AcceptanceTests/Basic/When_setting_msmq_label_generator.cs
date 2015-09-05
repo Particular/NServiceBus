@@ -14,16 +14,12 @@
         const string auditQueue = @".\private$\labelAuditQueue";
 
         [Test]
-        public void Should_receive_the_message_and_label()
+        public async Task Should_receive_the_message_and_label()
         {
             DeleteAudit();
             try
             {
-                var context = new Context
-                {
-                    Id = Guid.NewGuid()
-                };
-                Scenario.Define(context)
+                await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                     .WithEndpoint<EndPoint>(b => b.Given((bus, c) =>
                     {
                         bus.SendLocal(new MyMessage
@@ -34,9 +30,8 @@
                     }))
                     .Done(c => c.WasCalled && ReadMessageLabel() == "MyLabel")
                     .Repeat(r => r.For<MsmqOnly>())
+                    .Should(c => Assert.True(c.WasCalled, "The message handler should be called"))
                     .Run();
-
-                Assert.True(context.WasCalled, "The message handler should be called");
             }
             finally
             {
@@ -51,7 +46,6 @@
                 MessageQueue.Delete(auditQueue);
             }
         }
-
 
         static string ReadMessageLabel()
         {

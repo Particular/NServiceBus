@@ -10,11 +10,10 @@
     public class When_defining_outgoing_message_mutators : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_be_applied_to_outgoing_messages()
+        public async Task Should_be_applied_to_outgoing_messages()
         {
-            var testContext = new Context();
-            Scenario.Define(testContext)
-                    .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new Message())))
+            var context = await Scenario.Define<Context>()
+                    .WithEndpoint<Endpoint>(b => b.Given(bus =>
                     {
                         bus.SendLocal(new MessageToBeMutated());
                         return Task.FromResult(0);
@@ -22,8 +21,8 @@
                     .Done(c => c.MessageProcessed)
                     .Run();
 
-            Assert.True(testContext.TransportMutatorCalled);
-            Assert.True(testContext.MessageMutatorCalled);
+            Assert.True(context.TransportMutatorCalled);
+            Assert.True(context.MessageMutatorCalled);
         }
 
         public class Context : ScenarioContext

@@ -9,13 +9,11 @@
     public class When_using_a_custom_correlation_id : NServiceBusAcceptanceTest
     {
         static string CorrelationId = "my_custom_correlation_id";
-       
-        [Test]
-        public void Should_use_the_given_id_as_the_transport_level_correlation_id()
-        {
-            var context = new Context();
 
-            Scenario.Define(context)
+        [Test]
+        public async Task Should_use_the_given_id_as_the_transport_level_correlation_id()
+        {
+            var context = await Scenario.Define<Context>()
                     .WithEndpoint<CorrelationEndpoint>(b => b.Given(bus =>
                     {
                         var options = new SendOptions();
@@ -23,7 +21,7 @@
                         options.SetCorrelationId(CorrelationId);
                         options.RouteToLocalEndpointInstance();
 
-                        bus.Send(new MessageWithCustomCorrelationId(),options);
+                        bus.Send(new MessageWithCustomCorrelationId(), options);
                         return Task.FromResult(0);
                     }))
                     .Done(c => c.GotRequest)
@@ -60,7 +58,7 @@
             }
         }
 
-         [Serializable]
+        [Serializable]
         public class MessageWithCustomCorrelationId : IMessage
         {
         }

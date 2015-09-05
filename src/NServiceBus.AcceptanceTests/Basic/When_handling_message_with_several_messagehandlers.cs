@@ -9,16 +9,14 @@
     public class When_handling_message_with_several_messagehandlers : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_call_all_handlers()
+        public async Task Should_call_all_handlers()
         {
-            var context = new Context { Id = Guid.NewGuid() };
-
-            Scenario.Define(context)
-                    .WithEndpoint<Endpoint>(b => b.Given(bus =>
+            var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
+                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
                     {
                         bus.SendLocal(new MyMessage
                         {
-                            Id = context.Id
+                            Id = c.Id
                         });
                         return Task.FromResult(0);
                     }))

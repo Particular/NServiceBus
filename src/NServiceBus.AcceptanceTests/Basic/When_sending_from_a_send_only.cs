@@ -10,13 +10,9 @@
     public class When_sending_from_a_send_only : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_receive_the_message()
+        public async Task Should_receive_the_message()
         {
-            var context = new Context
-            {
-                Id = Guid.NewGuid()
-            };
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                     .WithEndpoint<Sender>(b => b.Given((bus, c) =>
                     {
                         bus.Send(new MyMessage
@@ -33,13 +29,9 @@
         }
 
         [Test]
-        public void Should_not_need_audit_or_fault_forwarding_config_to_start()
+        public async Task Should_not_need_audit_or_fault_forwarding_config_to_start()
         {
-            var context = new Context
-            {
-                Id = Guid.NewGuid()
-            };
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                     .WithEndpoint<SendOnlyEndpoint>()
                     .Done(c => c.SendOnlyEndpointWasStarted)
                     .Run();
@@ -131,5 +123,5 @@
         }
     }
 
-    
+
 }

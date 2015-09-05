@@ -10,11 +10,10 @@
     public class When_using_outgoing_tm_mutator : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_be_able_to_update_message()
+        public async Task Should_be_able_to_update_message()
         {
-            var testContext = new Context();
-            Scenario.Define(testContext)
-                    .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new MessageToBeMutated())))
+            var context = await Scenario.Define<Context>()
+                    .WithEndpoint<Endpoint>(b => b.Given(bus =>
                     {
                         bus.SendLocal(new MessageToBeMutated());
                         return Task.FromResult(0);
@@ -22,7 +21,7 @@
                     .Done(c => c.MessageProcessed)
                     .Run();
 
-            Assert.True(testContext.CanAddHeaders);
+            Assert.True(context.CanAddHeaders);
         }
 
         public class Context : ScenarioContext

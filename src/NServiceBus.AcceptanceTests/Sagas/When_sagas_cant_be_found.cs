@@ -11,11 +11,9 @@
     public class When_sagas_cant_be_found : NServiceBusAcceptanceTest
     {
         [Test]
-        public void IHandleSagaNotFound_only_called_once()
+        public async Task IHandleSagaNotFound_only_called_once()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>()
                     .WithEndpoint<ReceiverWithSagas>(b => b.Given((bus, c) =>
                     {
                         bus.SendLocal(new MessageToSaga { Id = Guid.NewGuid() });
@@ -28,18 +26,16 @@
         }
 
         [Test]
-        public void IHandleSagaNotFound_not_called_if_second_saga_is_executed()
+        public async Task IHandleSagaNotFound_not_called_if_second_saga_is_executed()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
-                    .WithEndpoint<ReceiverWithOrderedSagas>(b => b.Given((bus, c) =>
-                    {
-                        bus.SendLocal(new MessageToSaga { Id = Guid.NewGuid() });
-                        return Task.FromResult(0);
-                    }))
-                    .Done(c => c.Done)
-                    .Run();
+            var context = await Scenario.Define<Context>()
+                     .WithEndpoint<ReceiverWithOrderedSagas>(b => b.Given((bus, c) =>
+                     {
+                         bus.SendLocal(new MessageToSaga { Id = Guid.NewGuid() });
+                         return Task.FromResult(0);
+                     }))
+                     .Done(c => c.Done)
+                     .Run();
 
             Assert.AreEqual(0, context.TimesFired);
         }

@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Recoverability.Retries
 {
     using System;
+    using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
@@ -10,9 +11,9 @@
     public class When_doing_flr_with_default_settings : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_not_do_any_retries_if_transactions_are_off()
+        public async Task Should_not_do_any_retries_if_transactions_are_off()
         {
-            Scenario.Define(() => new Context { Id = Guid.NewGuid() })
+            var contexts = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                     .WithEndpoint<RetryEndpoint>(b => b.Given((bus, context) =>
                     {
                         bus.SendLocal(new MessageToBeRetried { Id = context.Id });

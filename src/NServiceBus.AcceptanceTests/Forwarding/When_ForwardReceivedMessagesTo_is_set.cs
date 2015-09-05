@@ -9,66 +9,64 @@
 
     public class When_ForwardReceivedMessagesTo_is_set : NServiceBusAcceptanceTest
     {
-            [Test]
-            public void Should_forward_message()
+        [Test]
+        public async Task Should_forward_message()
+        {
+            var context = await Scenario.Define<Context>()
+                .WithEndpoint<EndpointThatForwards>(b => b.Given((bus, c) =>
+                {
+                    bus.SendLocal(new MessageToForward());
+                    return Task.FromResult(0);
+                }))
+                .WithEndpoint<ForwardReceiver>()
+                .Done(c => c.GotForwardedMessage)
+                .Run();
+
+            Assert.IsTrue(context.GotForwardedMessage);
+        }
+
+        public class Context : ScenarioContext
+        {
+            public bool GotForwardedMessage { get; set; }
+        }
+
+        public class ForwardReceiver : EndpointConfigurationBuilder
+        {
+            public ForwardReceiver()
             {
-                var context = new Context();
-
-                Scenario.Define(context)
-                    .WithEndpoint<EndpointThatForwards>(b => b.Given((bus, c) =>
-                    {
-                        bus.SendLocal(new MessageToForward());
-                        return Task.FromResult(0);
-                    }))
-                    .WithEndpoint<ForwardReceiver>()
-                    .Done(c => c.GotForwardedMessage)
-                    .Run();
-
-                Assert.IsTrue(context.GotForwardedMessage);
+                EndpointSetup<DefaultServer>(c => c.EndpointName("forward_receiver"));
             }
 
-            public class Context : ScenarioContext
+            public class MessageToForwardHandler : IHandleMessages<MessageToForward>
             {
-                public bool GotForwardedMessage { get; set; }
-            }
+                public Context Context { get; set; }
 
-            public class ForwardReceiver : EndpointConfigurationBuilder
-            {
-                public ForwardReceiver()
+                public void Handle(MessageToForward message)
                 {
-                    EndpointSetup<DefaultServer>(c => c.EndpointName("forward_receiver"));
+                    Context.GotForwardedMessage = true;
                 }
-
-                public class MessageToForwardHandler : IHandleMessages<MessageToForward>
-                {
-                    public Context Context { get; set; }
-
-                    public void Handle(MessageToForward message)
-                    {
-                        Context.GotForwardedMessage = true;
-                    }
-                }
-            }
-
-            public class EndpointThatForwards : EndpointConfigurationBuilder
-            {
-                public EndpointThatForwards()
-                {
-                    EndpointSetup<DefaultServer>()
-                        .WithConfig<UnicastBusConfig>(c => c.ForwardReceivedMessagesTo = "forward_receiver");
-                }
-
-                public class MessageToForwardHandler : IHandleMessages<MessageToForward>
-                {
-                    public void Handle(MessageToForward message)
-                    {
-                    }
-                }
-            }
-
-            [Serializable]
-            public class MessageToForward : IMessage
-            {
             }
         }
+
+        public class EndpointThatForwards : EndpointConfigurationBuilder
+        {
+            public EndpointThatForwards()
+            {
+                EndpointSetup<DefaultServer>()
+                    .WithConfig<UnicastBusConfig>(c => c.ForwardReceivedMessagesTo = "forward_receiver");
+            }
+
+            public class MessageToForwardHandler : IHandleMessages<MessageToForward>
+            {
+                public void Handle(MessageToForward message)
+                {
+                }
+            }
+        }
+
+        [Serializable]
+        public class MessageToForward : IMessage
+        {
+        }
     }
+}

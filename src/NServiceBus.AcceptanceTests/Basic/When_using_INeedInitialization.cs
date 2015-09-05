@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Basic
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
@@ -8,11 +9,9 @@
     public class When_using_INeedInitialization : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_be_able_to_set_endpoint_name()
+        public async Task Should_be_able_to_set_endpoint_name()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>()
                     .WithEndpoint<Sender>()
                     .WithEndpoint<Receiver>()
                     .Done(c => c.WasCalled)
@@ -50,7 +49,7 @@
                 }
             }
 
-            public class SendMessageToSender: IWantToRunWhenBusStartsAndStops
+            public class SendMessageToSender : IWantToRunWhenBusStartsAndStops
             {
                 public IBus Bus { get; set; }
 

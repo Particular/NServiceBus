@@ -11,18 +11,18 @@
     {
 
         [Test]
-        public void Should_contain_processing_stats_headers()
+        public async Task Should_contain_processing_stats_headers()
         {
-            var context = new Context();
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithAuditOn>(b => b.Given(bus =>
             {
                 bus.SendLocal(new MessageToBeAudited());
                 return Task.FromResult(0);
             }))
             .WithEndpoint<EndpointThatHandlesAuditMessages>()
-            .Done(c => context.IsMessageHandledByTheAuditEndpoint)
+            .Done(c => c.IsMessageHandledByTheAuditEndpoint)
             .Run();
+
             Assert.IsTrue(context.Headers.ContainsKey(Headers.ProcessingStarted));
             Assert.IsTrue(context.Headers.ContainsKey(Headers.ProcessingEnded));
             Assert.IsTrue(context.IsMessageHandledByTheAuditEndpoint);
@@ -31,7 +31,7 @@
         public class Context : ScenarioContext
         {
             public bool IsMessageHandledByTheAuditEndpoint { get; set; }
-            public IDictionary<string,string> Headers{ get; set; }
+            public IDictionary<string, string> Headers { get; set; }
         }
 
         public class EndpointWithAuditOn : EndpointConfigurationBuilder

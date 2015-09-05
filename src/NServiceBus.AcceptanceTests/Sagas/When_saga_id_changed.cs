@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
-    using System.Diagnostics;
     using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
@@ -14,10 +13,9 @@
     public class When_saga_id_changed : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_throw()
+        public async Task Should_throw()
         {
-            var context = new Context();
-            Scenario.Define(context)
+            await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(
                     b => b.Given(bus =>
                     {
@@ -27,76 +25,75 @@
                         });
                         return Task.FromResult(0);
                     }))
-                    .AllowExceptions()
+                .AllowExceptions()
                 .Done(c => c.MessageFailed)
                 .Repeat(r => r.For(Transports.Default))
+                .Should(c => { Assert.AreEqual(c.ExceptionMessage, "A modification of IContainSagaData.Id has been detected. This property is for infrastructure purposes only and should not be modified. SagaType: " + typeof(Endpoint.SagaIdChangedSaga)); })
                 .Run();
+        }
+    }
 
-            Debug.WriteLine(context.ExceptionMessage, "A modification of IContainSagaData.Id has been detected. This property is for infrastructure purposes only and should not be modified. SagaType: " + typeof(Endpoint.SagaIdChangedSaga));
+    public class Context : ScenarioContext
+    {
+        public bool MessageFailed { get; set; }
+        public string ExceptionMessage { get; set; }
+    }
+
+    public class Endpoint : EndpointConfigurationBuilder
+    {
+        public Endpoint()
+        {
+            EndpointSetup<DefaultServer>(b => b.DisableFeature<TimeoutManager>())
+                .WithConfig<TransportConfig>(c =>
+                {
+                    c.MaxRetries = 0;
+                });
         }
 
-        public class Context : ScenarioContext
+        public class SagaIdChangedSaga : Saga<SagaIdChangedSaga.SagaIdChangedSagaData>,
+            IAmStartedByMessages<StartSaga>
         {
-            public bool MessageFailed { get; set; }
-            public string ExceptionMessage { get; set; }
-        }
+            public Context Context { get; set; }
 
-        public class Endpoint : EndpointConfigurationBuilder
-        {
-            public Endpoint()
+            public void Handle(StartSaga message)
             {
-                EndpointSetup<DefaultServer>(b => b.DisableFeature<TimeoutManager>())
-                    .WithConfig<TransportConfig>(c =>
-                    {
-                        c.MaxRetries = 0;
-                    });
+                Data.DataId = message.DataId;
+                Data.Id = Guid.NewGuid();
             }
 
-            public class SagaIdChangedSaga : Saga<SagaIdChangedSaga.SagaIdChangedSagaData>,
-                IAmStartedByMessages<StartSaga>
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaIdChangedSagaData> mapper)
             {
-                public Context Context { get; set; }
-
-                public void Handle(StartSaga message)
-                {
-                    Data.DataId = message.DataId;
-                    Data.Id = Guid.NewGuid();
-                }
-
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaIdChangedSagaData> mapper)
-                {
-                    mapper.ConfigureMapping<StartSaga>(m => m.DataId).ToSaga(s => s.DataId);
-                }
-
-                public class SagaIdChangedSagaData : ContainSagaData
-                {
-                    public virtual Guid DataId { get; set; }
-                }
-
+                mapper.ConfigureMapping<StartSaga>(m => m.DataId).ToSaga(s => s.DataId);
             }
-            class ErrorNotificationSpy : IWantToRunWhenBusStartsAndStops
+
+            public class SagaIdChangedSagaData : ContainSagaData
             {
-                public Context Context { get; set; }
-
-                public BusNotifications BusNotifications { get; set; }
-
-                public void Start()
-                {
-                    BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e =>
-                    {
-                        Context.MessageFailed = true;
-                        Context.ExceptionMessage = e.Exception.Message;
-                    });
-                }
-
-                public void Stop() { }
+                public virtual Guid DataId { get; set; }
             }
+
         }
-
-        [Serializable]
-        public class StartSaga : ICommand
+        class ErrorNotificationSpy : IWantToRunWhenBusStartsAndStops
         {
-            public Guid DataId { get; set; }
+            public Context Context { get; set; }
+
+            public BusNotifications BusNotifications { get; set; }
+
+            public void Start()
+            {
+                BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e =>
+                {
+                    Context.MessageFailed = true;
+                    Context.ExceptionMessage = e.Exception.Message;
+                });
+            }
+
+            public void Stop() { }
         }
+    }
+
+    [Serializable]
+    public class StartSaga : ICommand
+    {
+        public Guid DataId { get; set; }
     }
 }

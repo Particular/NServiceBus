@@ -16,10 +16,9 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
     public class FilteringWhatGetsAudited : NServiceBusAcceptanceTest
     {
         [Test]
-        public void RunDemo()
+        public async Task RunDemo()
         {
-            var context = new Context();
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<UserEndpoint>(b => b.Given(bus =>
                 {
                     bus.SendLocal(new MessageToBeAudited());
@@ -89,7 +88,7 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
                     next();
                 }
 
-              
+
             }
 
             class AuditFilterResult

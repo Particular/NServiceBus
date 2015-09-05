@@ -10,22 +10,17 @@
     public class When_sending_to_another_endpoint : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_receive_the_message()
+        public async Task Should_receive_the_message()
         {
-            var context = new Context
-            {
-                Id = Guid.NewGuid()
-            };
-
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                     .WithEndpoint<Sender>(b => b.Given((bus, c) =>
                     {
                         var sendOptions = new SendOptions();
 
                         sendOptions.SetHeader("MyHeader", "MyHeaderValue");
                         sendOptions.SetMessageId("MyMessageId");
-                        
-                        bus.Send(new MyMessage{Id = c.Id}, sendOptions);
+
+                        bus.Send(new MyMessage { Id = c.Id }, sendOptions);
                         return Task.FromResult(0);
                     }))
                     .WithEndpoint<Receiver>()
@@ -36,7 +31,7 @@
             Assert.AreEqual(1, context.TimesCalled, "The message handler should only be invoked once");
             Assert.AreEqual("StaticHeaderValue", context.ReceivedHeaders["MyStaticHeader"], "Static headers should be attached to outgoing messages");
             Assert.AreEqual("MyHeaderValue", context.MyHeader, "Static headers should be attached to outgoing messages");
-                       
+
         }
 
         public class Context : ScenarioContext
@@ -79,7 +74,7 @@
                     if (Context.Id != message.Id)
                         return;
 
-                    Assert.AreEqual(Bus.CurrentMessageContext.Id,"MyMessageId");
+                    Assert.AreEqual(Bus.CurrentMessageContext.Id, "MyMessageId");
 
                     Context.TimesCalled++;
 

@@ -14,10 +14,9 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
     public class MutingHandlerExceptions : NServiceBusAcceptanceTest
     {
         [Test]
-        public void RunDemo()
+        public async Task RunDemo()
         {
-            var context = new Context();
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithCustomExceptionMuting>(b => b.Given(bus =>
                 {
                     bus.SendLocal(new MessageThatWillBlowUpButExWillBeMuted());

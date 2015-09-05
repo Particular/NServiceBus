@@ -11,12 +11,10 @@ namespace NServiceBus.AcceptanceTests.Hosting
 
     public class When_feature_overrides_hostid : NServiceBusAcceptanceTest
     {
-
-        static Context context = new Context();
         [Test]
-        public void MD5_should_not_be_used()
+        public async Task MD5_should_not_be_used()
         {
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<MyEndpoint>(e => e.Given(b =>
                 {
                     b.SendLocal(new MyMessage());
@@ -52,6 +50,7 @@ namespace NServiceBus.AcceptanceTests.Hosting
                     dictionary.TryRemove("NServiceBus.HostInformation.HostId", out s2);
 
                     // Try to get value, setting should not exist
+                    var context = (Context) s.Get<ScenarioContext>();
                     context.NotSet = !s.HasSetting("NServiceBus.HostInformation.HostId");
 
                     // Set override again so we have something

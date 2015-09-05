@@ -10,10 +10,9 @@
     public class When_error_is_overridden_in_code : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_error_to_target_queue()
+        public async Task Should_error_to_target_queue()
         {
-            var context = new Context();
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<UserEndpoint>(b => b.Given(bus =>
                 {
                     bus.SendLocal(new Message());
@@ -23,6 +22,8 @@
                 .AllowExceptions()
                 .Done(c => c.MessageReceived)
                 .Run();
+
+            Assert.True(context.MessageReceived);
         }
 
         public class UserEndpoint : EndpointConfigurationBuilder
@@ -74,7 +75,7 @@
         }
 
         [Serializable]
-        public class Message: IMessage
+        public class Message : IMessage
         {
         }
 

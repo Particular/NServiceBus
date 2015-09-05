@@ -11,9 +11,9 @@
     public class When_doing_flr_with_native_transactions : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_do_5_retries_by_default_with_native_transactions()
+        public async Task Should_do_5_retries_by_default_with_native_transactions()
         {
-            Scenario.Define(() => new Context { Id = Guid.NewGuid() })
+            await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                     .WithEndpoint<RetryEndpoint>(b => b.Given((bus, context) =>
                     {
                         bus.SendLocal(new MessageToBeRetried { Id = context.Id });
@@ -31,7 +31,6 @@
                             .StartsWith(string.Format("Giving up First Level Retries for message '{0}'.", c.PhysicalMessageId))));
                     })
                     .Run();
-
         }
 
         public class Context : ScenarioContext

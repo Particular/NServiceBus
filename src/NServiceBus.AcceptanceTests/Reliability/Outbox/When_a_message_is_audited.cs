@@ -12,11 +12,9 @@
     {
 
         [Test]
-        public void Should_audit_even_if_dispatch_blows_once()
+        public async Task Should_audit_even_if_dispatch_blows_once()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>()
                     .WithEndpoint<EndpointWithAuditOn>(b => b.Given(bus =>
                     {
                         bus.SendLocal(new MessageToBeAudited());
@@ -26,6 +24,7 @@
                     .AllowExceptions(e => e is EndpointWithAuditOn.BlowUpAfterDispatchBehavior.FakeException)
                     .Done(c => c.Done)
                     .Run();
+
             Assert.True(context.Done);
         }
 

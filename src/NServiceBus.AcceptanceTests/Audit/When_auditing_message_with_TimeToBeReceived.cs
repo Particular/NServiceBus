@@ -10,14 +10,14 @@
     {
 
         [Test]
-        public void Should_not_honor_TimeToBeReceived_for_audit_message()
+        public async Task Should_not_honor_TimeToBeReceived_for_audit_message()
         {
-            var context = new Context();
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithAuditOn>(b => b.Given(Send()))
             .WithEndpoint<EndpointThatHandlesAuditMessages>()
-            .Done(c => c.IsMessageHandlingComplete && context.TTBRHasExpiredAndMessageIsStillInAuditQueue)
+            .Done(c => c.IsMessageHandlingComplete && c.TTBRHasExpiredAndMessageIsStillInAuditQueue)
             .Run();
+
             Assert.IsTrue(context.IsMessageHandlingComplete);
         }
 

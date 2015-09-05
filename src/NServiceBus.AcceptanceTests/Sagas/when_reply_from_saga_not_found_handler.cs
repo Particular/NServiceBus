@@ -11,11 +11,9 @@
     {
         // related to NSB issue #2044
         [Test]
-        public void It_should_invoke_message_handler()
+        public async Task It_should_invoke_message_handler()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>()
                     .WithEndpoint<Sender>(b => b.Given((bus, c) =>
                     {
                         bus.Send(new MessageToSaga());

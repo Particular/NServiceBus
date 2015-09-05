@@ -10,10 +10,9 @@
     public class Issue_1980 : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Run()
+        public async Task Run()
         {
-            var testContext = new Context();
-            Scenario.Define(testContext)
+            var context = await Scenario.Define<Context>()
                     .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
                     {
                         bus.SendLocal(new V1Message());
@@ -22,8 +21,8 @@
                     .Done(c => c.V2MessageReceived || c.V1MessageReceived)
                     .Run();
 
-            Assert.IsTrue(testContext.V2MessageReceived);
-            Assert.IsFalse(testContext.V1MessageReceived);
+            Assert.IsTrue(context.V2MessageReceived);
+            Assert.IsFalse(context.V1MessageReceived);
         }
 
         public class Context : ScenarioContext

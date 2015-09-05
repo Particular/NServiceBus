@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.ApiExtension
 {
     using System;
+    using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
@@ -15,9 +16,9 @@
     public class When_extending_the_publish_api : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_make_the_context_available_to_behaviors()
+        public async Task Should_make_the_context_available_to_behaviors()
         {
-            Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                     .WithEndpoint<Publisher>(b =>
                         b.When(c => c.Subscriber1Subscribed, bus =>
                         {
@@ -41,7 +42,6 @@
                     .Done(c => c.Subscriber1GotTheEvent)
                     .Repeat(r => r.For(Transports.Default))
                     .Should(c => Assert.True(c.Subscriber1GotTheEvent))
-
                     .Run();
         }
 

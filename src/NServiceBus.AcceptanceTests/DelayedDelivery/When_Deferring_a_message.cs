@@ -10,12 +10,11 @@
     public class When_Deferring_a_message : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Delivery_should_be_delayed()
+        public async Task Delivery_should_be_delayed()
         {
-            var context = new Context();
             var delay = TimeSpan.FromSeconds(5);
 
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>()
                     .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
                     {
                         var options = new SendOptions();

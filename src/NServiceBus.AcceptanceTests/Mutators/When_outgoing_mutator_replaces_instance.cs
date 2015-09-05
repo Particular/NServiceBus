@@ -10,10 +10,9 @@
     public class When_outgoing_mutator_replaces_instance : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Message_sent_should_be_new_instance()
+        public async Task Message_sent_should_be_new_instance()
         {
-            var testContext = new Context();
-            Scenario.Define(testContext)
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
                 {
                     bus.SendLocal(new V1Message());
@@ -22,8 +21,8 @@
                 .Done(c => c.V2MessageReceived)
                 .Run();
 
-            Assert.IsTrue(testContext.V2MessageReceived);
-            Assert.IsFalse(testContext.V1MessageReceived);
+            Assert.IsTrue(context.V2MessageReceived);
+            Assert.IsFalse(context.V1MessageReceived);
         }
 
         public class Context : ScenarioContext

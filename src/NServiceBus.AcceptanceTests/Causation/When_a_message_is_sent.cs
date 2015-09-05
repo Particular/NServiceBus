@@ -7,13 +7,10 @@
 
     public class When_a_message_is_sent : NServiceBusAcceptanceTest
     {
-
         [Test]
-        public void Should_flow_causation_headers()
+        public async Task Should_flow_causation_headers()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>()
                     .WithEndpoint<CausationEndpoint>(b => b.Given(bus =>
                     {
                         bus.SendLocal(new MessageSentOutsideOfHandler());
@@ -22,7 +19,7 @@
                     .Done(c => c.Done)
                     .Run();
 
-            Assert.AreEqual(context.FirstConversationId, context.ConversationIdReceived,"Conversation id should flow to outgoing messages");
+            Assert.AreEqual(context.FirstConversationId, context.ConversationIdReceived, "Conversation id should flow to outgoing messages");
             Assert.AreEqual(context.MessageIdOfFirstMessage, context.RelatedToReceived, "RelatedToId on outgoing messages should be set to the message id of the message causing it to be sent");
         }
 

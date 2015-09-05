@@ -7,13 +7,11 @@
     using NUnit.Framework;
 
     public class When_sending_with_no_correlation_id : NServiceBusAcceptanceTest
-    {  
+    {
         [Test]
-        public void Should_use_the_message_id_as_the_correlation_id()
+        public async Task Should_use_the_message_id_as_the_correlation_id()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>()
                     .WithEndpoint<CorrelationEndpoint>(b => b.Given(bus =>
                     {
                         bus.SendLocal(new MyRequest());

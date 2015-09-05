@@ -8,11 +8,9 @@
     public class When_bestpractices_is_disabled_for_message : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_allow_publishing_commands()
+        public async Task Should_allow_publishing_commands()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
                 {
                     var publishOptions = new PublishOptions();
@@ -24,14 +22,13 @@
                 .Done(c => c.EndpointsStarted)
                 .Run();
 
+            Assert.True(context.EndpointsStarted);
         }
 
         [Test]
-        public void Should_allow_sending_events()
+        public async Task Should_allow_sending_events()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
                 {
                     var sendOptions = new SendOptions();
@@ -43,6 +40,7 @@
                 .Done(c => c.EndpointsStarted)
                 .Run();
 
+            Assert.True(context.EndpointsStarted);
         }
 
         public class Context : ScenarioContext

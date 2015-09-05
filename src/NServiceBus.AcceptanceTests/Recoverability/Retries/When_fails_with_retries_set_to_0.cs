@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Recoverability.Retries
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Config;
@@ -9,20 +10,15 @@
     public class When_fails_with_retries_set_to_0 : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_not_retry_the_message_using_flr()
+        public async Task Should_not_retry_the_message_using_flr()
         {
-            var context = new Context
-            {
-                Id = Guid.NewGuid()
-            };
-
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                     .WithEndpoint<RetryEndpoint>()
                     .AllowExceptions()
                     .Done(c => c.GaveUp)
                     .Run();
 
-            Assert.AreEqual(1, context.NumberOfTimesInvoked,"No FLR should be in use if MaxRetries is set to 0");
+            Assert.AreEqual(1, context.NumberOfTimesInvoked, "No FLR should be in use if MaxRetries is set to 0");
         }
 
         public class Context : ScenarioContext
@@ -44,9 +40,9 @@
                     });
             }
 
-            class ErrorNotificationSpy: IWantToRunWhenBusStartsAndStops
+            class ErrorNotificationSpy : IWantToRunWhenBusStartsAndStops
             {
-                public Context  Context { get; set; }
+                public Context Context { get; set; }
 
                 public BusNotifications BusNotifications { get; set; }
                 public IBus Bus { get; set; }
@@ -63,10 +59,10 @@
                     });
                 }
 
-                public void Stop(){}
+                public void Stop() { }
             }
 
-            class MessageToBeRetriedHandler:IHandleMessages<MessageToBeRetried>
+            class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
             {
                 public Context Context { get; set; }
                 public void Handle(MessageToBeRetried message)

@@ -11,10 +11,9 @@
     public class When_message_fails_retries : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_forward_message_to_error_queue()
+        public async Task Should_forward_message_to_error_queue()
         {
-            var context = new Context();
-            Scenario.Define(() => context)
+            var context = await Scenario.Define<Context>()
                     .WithEndpoint<RetryEndpoint>(b => b.Given((bus, c) =>
                     {
                         bus.SendLocal(new MessageWhichFailsRetries());

@@ -10,11 +10,9 @@
     public class When_deferring_to_non_local : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Message_should_be_received()
+        public async Task Message_should_be_received()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>()
                     .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
                     {
                         var options = new SendOptions();

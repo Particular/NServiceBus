@@ -12,14 +12,9 @@
     public class When_an_endpoint_replies_to_a_saga : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_correlate_all_saga_messages_properly()
+        public async Task Should_correlate_all_saga_messages_properly()
         {
-            var context = new Context
-            {
-                RunId = Guid.NewGuid()
-            };
-
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>(c => { c.RunId = Guid.NewGuid(); })
                     .WithEndpoint<EndpointThatHostsASaga>(b => b.Given((bus, ctx) =>
                     {
                         bus.SendLocal(new StartSaga { RunId = ctx.RunId });
@@ -62,7 +57,7 @@
             public EndpointThatHostsASaga()
             {
                 EndpointSetup<DefaultServer>()
-                    .AddMapping<DoSomething>(typeof (EndpointThatRepliesToSagaMessage));
+                    .AddMapping<DoSomething>(typeof(EndpointThatRepliesToSagaMessage));
 
             }
 
@@ -97,7 +92,7 @@
                     Context.DidSagaReplyMessageGetCorrelated = message.RunId == Data.RunId;
                     MarkAsComplete();
                 }
-                
+
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<CorrelationTestSagaData> mapper)
                 {
                     mapper.ConfigureMapping<StartSaga>(m => m.RunId).ToSaga(s => s.RunId);
@@ -110,7 +105,7 @@
                 }
             }
         }
-        
+
 
         [Serializable]
         public class StartSaga : ICommand

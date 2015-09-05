@@ -9,11 +9,9 @@
     public class When_unsubscribing_to_command : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_throw()
+        public async Task Should_throw()
         {
-            var context = new Context();
-            
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>()
                     .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
                     {
                         try
@@ -37,7 +35,7 @@
         public class Context : ScenarioContext
         {
             public bool GotTheException { get; set; }
-            public Exception Exception{ get; set; }
+            public Exception Exception { get; set; }
         }
 
         public class Endpoint : EndpointConfigurationBuilder
@@ -47,6 +45,6 @@
                 EndpointSetup<DefaultServer>();
             }
         }
-        public class MyCommand : ICommand{}
+        public class MyCommand : ICommand { }
     }
 }

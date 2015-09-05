@@ -10,27 +10,23 @@
     public class When_receiving_with_native_multi_queue_transaction : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_not_send_outgoing_messages_if_receiving_transaction_is_rolled_back()
+        public async Task Should_not_send_outgoing_messages_if_receiving_transaction_is_rolled_back()
         {
-            var context = new Context
-            {
-                FirstAttempt = true
-            };
-            Scenario.Define(context)
-                .WithEndpoint<Endpoint>(b => b.Given(bus =>
-                {
-                    bus.SendLocal(new MyMessage());
-                    return Task.FromResult(0);
-                }))
-                .Done(c => c.MessageHandled)
-                .AllowExceptions(e => e is Endpoint.FakeException)
-                .Repeat(r => r.For<AllNativeMultiQueueTransactionTransports>())
-                .Should(c =>
-                {
-                    Assert.IsFalse(c.HasFailed);
-                    Assert.IsTrue(c.MessageHandled);
-                })
-                .Run();
+            await Scenario.Define<Context>(c => { c.FirstAttempt = true; })
+                 .WithEndpoint<Endpoint>(b => b.Given(bus =>
+                 {
+                     bus.SendLocal(new MyMessage());
+                     return Task.FromResult(0);
+                 }))
+                 .Done(c => c.MessageHandled)
+                 .AllowExceptions(e => e is Endpoint.FakeException)
+                 .Repeat(r => r.For<AllNativeMultiQueueTransactionTransports>())
+                 .Should(c =>
+                 {
+                     Assert.IsFalse(c.HasFailed);
+                     Assert.IsTrue(c.MessageHandled);
+                 })
+                 .Run();
         }
 
         public class Context : ScenarioContext

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
@@ -11,9 +12,9 @@
     public class When_using_Rijndael_with_multikey: NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_receive_decrypted_message()
+        public async Task Should_receive_decrypted_message()
         {
-            Scenario.Define<Context>()
+            var contexts = await Scenario.Define<Context>()
                     .WithEndpoint<Sender>(b => b.Given((bus, context) =>
                     {
                         bus.Send(new MessageWithSecretData

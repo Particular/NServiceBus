@@ -10,13 +10,9 @@
     public class When_starting_up_the_endpoint : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_log_warning_if_queue_is_configured_with_anon_and_everyone_permissions()
+        public async Task Should_log_warning_if_queue_is_configured_with_anon_and_everyone_permissions()
         {
-            var context = new Context
-            {
-                Id = Guid.NewGuid()
-            };
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<EndPoint>(b => b.Given((bus, c) => Task.FromResult(0)))
                 .Run();
 

@@ -14,11 +14,9 @@ namespace NServiceBus.AcceptanceTests.Hosting
         static string instanceName = "Foo";
 
         [Test]
-        public void HostInfo_is_changed()
+        public async Task HostInfo_is_changed()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<MyEndpoint>(e => e.Given(b =>
                 {
                     b.SendLocal(new MyMessage());

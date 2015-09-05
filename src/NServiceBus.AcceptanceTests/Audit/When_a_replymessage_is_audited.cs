@@ -12,11 +12,9 @@
     public class When_a_replymessage_is_audited : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_audit_the_message()
+        public async Task Should_audit_the_message()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>()
                     .WithEndpoint<Server>()
                     .WithEndpoint<EndpointWithAuditOn>(b => b.Given(bus =>
                     {

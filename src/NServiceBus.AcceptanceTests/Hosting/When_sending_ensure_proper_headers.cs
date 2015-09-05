@@ -10,25 +10,21 @@
     public class When_sending_ensure_proper_headers : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_have_proper_headers_for_the_originating_endpoint()
+        public async Task Should_have_proper_headers_for_the_originating_endpoint()
         {
-            var context = new Context
-            {
-                Id = Guid.NewGuid()
-            };
-
-            Scenario.Define(context)
-                                .WithEndpoint<Sender>(b => b.Given((bus, ctx) =>
+            var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
+                                .WithEndpoint<Sender>(b => b.Given((bus, c) =>
                                 {
                                     bus.Send<MyMessage>(m =>
                                     {
-                                        m.Id = ctx.Id;
+                                        m.Id = c.Id;
                                     });
                                     return Task.FromResult(0);
                                 }))
                                 .WithEndpoint<Receiver>()
                                 .Done(c => c.WasCalled)
                                 .Run();
+
             Assert.True(context.WasCalled, "The message handler should be called");
             Assert.AreEqual("SenderForEnsureProperHeadersTest", context.ReceivedHeaders[Headers.OriginatingEndpoint], "Message should contain the Originating endpoint");
             Assert.IsNotNullOrEmpty(context.ReceivedHeaders[Headers.OriginatingHostId], "OriginatingHostId cannot be null or empty");

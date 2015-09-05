@@ -11,11 +11,9 @@
     public class When_using_ReplyToOriginator : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_set_Reply_as_messageintent()
+        public async Task Should_set_Reply_as_messageintent()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b.Given(bus =>
                 {
                     bus.SendLocal(new InitiateRequestingSaga { SomeCorrelationId = Guid.NewGuid() });

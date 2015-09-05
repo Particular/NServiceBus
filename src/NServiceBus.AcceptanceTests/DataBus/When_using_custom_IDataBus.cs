@@ -13,14 +13,9 @@
         static byte[] PayloadToSend = new byte[1024 * 10];
 
         [Test]
-        public void Should_be_able_to_register_via_fluent()
+        public async Task Should_be_able_to_register_via_fluent()
         {
-            var context = new Context
-            {
-                TempPath = Path.GetTempFileName()
-            };
-
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>(c => { c.TempPath = Path.GetTempFileName(); })
                     .WithEndpoint<SenderViaFluent>(b => b.Given(bus =>
                     {
                         bus.Send(new MyMessageWithLargePayload
@@ -99,5 +94,5 @@
         }
     }
 
-   
+
 }

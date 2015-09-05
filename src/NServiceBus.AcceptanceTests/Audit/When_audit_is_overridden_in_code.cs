@@ -9,10 +9,9 @@
     public class When_audit_is_overridden_in_code : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_audit_to_target_queue()
+        public async Task Should_audit_to_target_queue()
         {
-            var context = new Context();
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<UserEndpoint>(b => b.Given(bus =>
                 {
                     bus.SendLocal(new MessageToBeAudited());
@@ -21,6 +20,8 @@
                 .WithEndpoint<AuditSpy>()
                 .Done(c => c.MessageAudited)
                 .Run();
+
+            Assert.True(context.MessageAudited);
         }
 
         public class UserEndpoint : EndpointConfigurationBuilder

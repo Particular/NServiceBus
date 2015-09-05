@@ -8,11 +8,9 @@
     public class When_a_message_is_audited : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_add_the_license_diagnostic_headers()
+        public async Task Should_add_the_license_diagnostic_headers()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>()
                     .WithEndpoint<EndpointWithAuditOn>(b => b.Given(bus =>
                     {
                         bus.SendLocal(new MessageToBeAudited());
@@ -21,6 +19,7 @@
                     .WithEndpoint<AuditSpyEndpoint>()
                     .Done(c => c.HasDiagnosticLicensingHeaders)
                     .Run();
+
             Assert.IsTrue(context.HasDiagnosticLicensingHeaders);
         }
 

@@ -12,22 +12,18 @@
     {
       
         [Test]
-        public void Should_preserve_the_original_body()
+        public async Task Should_preserve_the_original_body()
         {
-            var context = new Context
-            {
-                RunId = Guid.NewGuid()
-            };
-
-            Scenario.Define(context)
-                    .WithEndpoint<EndpointWithAuditOn>(b => b.Given(bus =>
+            var context = await Scenario.Define<Context>(c => { c.RunId = Guid.NewGuid(); })
+                    .WithEndpoint<EndpointWithAuditOn>(b => b.Given((bus, c) =>
                     {
-                        bus.SendLocal(new MessageToBeAudited { RunId = context.RunId });
+                        bus.SendLocal(new MessageToBeAudited { RunId = c.RunId });
                         return Task.FromResult(0);
                     }))
                     .WithEndpoint<AuditSpyEndpoint>()
                     .Done(c => c.Done)
                     .Run();
+
             Assert.AreEqual(context.OriginalBodyChecksum, context.AuditChecksum, "The body of the message sent to audit should be the same as the original message coming off the queue");
         }
 

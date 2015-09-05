@@ -9,19 +9,21 @@
     public class When_sending_with_conventions : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_receive_the_message()
+        public async Task Should_receive_the_message()
         {
-            Scenario.Define(() => new Context { Id = Guid.NewGuid() })
-                    .WithEndpoint<Endpoint>(b => b.Given((bus, context) =>
+            var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
+                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
                     {
                         bus.SendLocal(new MyMessage
                         {
-                            Id = context.Id
+                            Id = c.Id
                         });
                         return Task.FromResult(0);
                     }))
                     .Done(c => c.WasCalled)
                     .Run();
+
+            Assert.True(context.WasCalled);
         }
 
         public class Context : ScenarioContext

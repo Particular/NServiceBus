@@ -9,11 +9,9 @@
     public class When_injecting_handler_props : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Run()
+        public async Task Run()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>()
                     .WithEndpoint<Receiver>(c=>c.When(b =>
                     {
                         b.SendLocal(new MyMessage());

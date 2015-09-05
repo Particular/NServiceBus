@@ -40,6 +40,7 @@
 
                 //apply custom config settings
                 busConfiguration = configuration.GetConfiguration(run, routingTable);
+                busConfiguration.GetSettings().Set<ScenarioContext>(scenarioContext);
 
                 endpointBehavior.CustomConfig.ForEach(customAction => customAction(busConfiguration));
 

@@ -14,9 +14,9 @@
         static TimeSpan SlrDelay = TimeSpan.FromSeconds(5);
 
         [Test]
-        public void Should_be_moved_to_slr()
+        public async Task Should_be_moved_to_slr()
         {
-            Scenario.Define(() => new Context { Id = Guid.NewGuid() })
+            var contexts = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                     .WithEndpoint<SLREndpoint>(b => b.Given((bus, context) =>
                     {
                         bus.SendLocal(new MessageToBeRetried { Id = context.Id });

@@ -11,9 +11,9 @@
     public class When_publishing_an_event_implementing_two_unrelated_interfaces : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Event_should_be_published_using_instance_type()
+        public async Task Event_should_be_published_using_instance_type()
         {
-            Scenario.Define(() => new Context { Id = Guid.NewGuid() })
+            await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                     .WithEndpoint<Publisher>(b =>
                         b.When(c => c.EventASubscribed && c.EventBSubscribed, (bus, ctx) =>
                         {

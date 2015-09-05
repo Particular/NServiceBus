@@ -10,11 +10,9 @@
     public class When_multiple_mappings_exists : NServiceBusAcceptanceTest
     {
         [Test]
-        public void First_registration_should_be_the_final_destination()
+        public async Task First_registration_should_be_the_final_destination()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>()
                     .WithEndpoint<Sender>(b => b.Given((bus, c) =>
                     {
                         bus.Send(new MyCommand1());

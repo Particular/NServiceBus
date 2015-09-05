@@ -15,19 +15,17 @@
     public class When_clearing_saga_timeouts : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_record_the_request_to_clear_in_outbox()
+        public async Task Should_record_the_request_to_clear_in_outbox()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
-                .WithEndpoint<NonDtcReceivingEndpoint>(b => b.Given(bus =>
-                {
-                    bus.SendLocal(new PlaceOrder { DataId = Guid.NewGuid() });
-                    return Task.FromResult(0);
-                }))
-                .AllowExceptions()
-                .Done(c => c.Done)
-                .Run();
+            var context = await Scenario.Define<Context>()
+            .WithEndpoint<NonDtcReceivingEndpoint>(b => b.Given(bus =>
+            {
+                bus.SendLocal(new PlaceOrder { DataId = Guid.NewGuid() });
+                return Task.FromResult(0);
+            }))
+            .AllowExceptions()
+            .Done(c => c.Done)
+            .Run();
 
             Assert.AreEqual(1, context.NumberOfOps, "Request to clear should be in the outbox");
         }

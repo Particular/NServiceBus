@@ -9,11 +9,9 @@
     public class When_aborting_the_behavior_chain : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Subsequent_handlers_will_not_be_invoked()
+        public async Task Subsequent_handlers_will_not_be_invoked()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<MyEndpoint>(b => b.Given(bus =>
                 {
                     bus.SendLocal(new SomeMessage());

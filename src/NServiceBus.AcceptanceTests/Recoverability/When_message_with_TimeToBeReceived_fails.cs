@@ -9,17 +9,16 @@
 
     public class When_message_with_TimeToBeReceived_fails : NServiceBusAcceptanceTest
     {
-
         [Test]
-        public void Should_not_honor_TimeToBeReceived_for_error_message()
+        public async Task Should_not_honor_TimeToBeReceived_for_error_message()
         {
-            var context = new Context();
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointThatThrows>(b => b.Given(Send()))
             .WithEndpoint<EndpointThatHandlesErrorMessages>()
             .AllowExceptions()
             .Done(c => c.MessageFailed && c.TTBRHasExpiredAndMessageIsStillInErrorQueue)
             .Run();
+
             Assert.IsTrue(context.MessageFailed);
             Assert.IsTrue(context.TTBRHasExpiredAndMessageIsStillInErrorQueue);
         }

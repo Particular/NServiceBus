@@ -10,10 +10,9 @@ namespace NServiceBus.AcceptanceTests.Audit
     public class When_auditing : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_not_be_forwarded_to_auditQueue_when_auditing_is_disabled()
+        public async Task Should_not_be_forwarded_to_auditQueue_when_auditing_is_disabled()
         {
-            var context = new Context();
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithAuditOff>(b => b.Given(bus =>
             {
                 bus.SendLocal(new MessageToBeAudited());
@@ -27,17 +26,16 @@ namespace NServiceBus.AcceptanceTests.Audit
         }
 
         [Test]
-        public void Should_be_forwarded_to_auditQueue_when_auditing_is_enabled()
+        public async Task Should_be_forwarded_to_auditQueue_when_auditing_is_enabled()
         {
-            var context = new Context();
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithAuditOn>(b => b.Given(bus =>
             {
                 bus.SendLocal(new MessageToBeAudited());
                 return Task.FromResult(0);
             }))
             .WithEndpoint<EndpointThatHandlesAuditMessages>()
-            .Done(c => c.IsMessageHandlingComplete && context.IsMessageHandledByTheAuditEndpoint)
+            .Done(c => c.IsMessageHandlingComplete && c.IsMessageHandledByTheAuditEndpoint)
             .Run();
 
             Assert.IsTrue(context.IsMessageHandledByTheAuditEndpoint);
@@ -51,7 +49,7 @@ namespace NServiceBus.AcceptanceTests.Audit
 
         public class EndpointWithAuditOff : EndpointConfigurationBuilder
         {
-           
+
             public EndpointWithAuditOff()
             {
                 // Although the AuditTo seems strange here, this test tries to fake the scenario where

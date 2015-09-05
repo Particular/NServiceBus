@@ -8,14 +8,9 @@
     public class When_performing_slr_with_serialization_exception : When_performing_slr
     {
         [Test]
-        public void Should_preserve_the_original_body_for_serialization_exceptions()
+        public async Task Should_preserve_the_original_body_for_serialization_exceptions()
         {
-            var context = new Context
-            {
-                SimulateSerializationException = true
-            };
-
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>(c => { c.SimulateSerializationException = true; })
                 .WithEndpoint<RetryEndpoint>(b => b.Given(bus =>
                 {
                     bus.SendLocal(new MessageToBeRetried());
