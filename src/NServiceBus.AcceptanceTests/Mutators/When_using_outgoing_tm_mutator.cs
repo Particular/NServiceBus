@@ -8,17 +8,16 @@
 
     public class When_using_outgoing_tm_mutator : NServiceBusAcceptanceTest
     {
+        static Context testContext = new Context();
         [Test]
         public void Should_be_able_to_update_message()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
-                    .WithEndpoint<OutgoingTMMutatorEndpoint>(b => b.Given(bus => bus.SendLocal(new MessageToBeMutated())))
+            Scenario.Define(testContext)
+                    .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new MessageToBeMutated())))
                     .Done(c => c.MessageProcessed)
                     .Run();
 
-            Assert.True(context.CanAddHeaders);
+            Assert.True(testContext.CanAddHeaders);
         }
 
         public class Context : ScenarioContext
@@ -27,23 +26,19 @@
             public bool CanAddHeaders { get; set; }
         }
 
-        public class OutgoingTMMutatorEndpoint : EndpointConfigurationBuilder
+        public class Endpoint : EndpointConfigurationBuilder
         {
-            public OutgoingTMMutatorEndpoint()
+            public Endpoint()
             {
                 EndpointSetup<DefaultServer>();
             }
 
             class MyTransportMessageMutator : IMutateOutgoingTransportMessages, INeedInitialization
             {
-
-                public Context Context { get; set; }
-
                 public void MutateOutgoing(MutateOutgoingTransportMessageContext context)
                 {
-                    context.Headers["HeaderSetByMutator"]= "some value";
-
-                    context.Headers[Headers.EnclosedMessageTypes]= typeof(MessageThatMutatorChangesTo).FullName;
+                    context.Headers["HeaderSetByMutator"] = "some value";
+                    context.Headers[Headers.EnclosedMessageTypes] = typeof(MessageThatMutatorChangesTo).FullName;
                     context.Body = Encoding.UTF8.GetBytes("<MessageThatMutatorChangesTo/>");
                 }
 
@@ -55,15 +50,12 @@
 
             class MessageToBeMutatedHandler : IHandleMessages<MessageThatMutatorChangesTo>
             {
-                public Context Context { get; set; }
-
                 public IBus Bus { get; set; }
-
 
                 public void Handle(MessageThatMutatorChangesTo message)
                 {
-                    Context.CanAddHeaders = Bus.CurrentMessageContext.Headers.ContainsKey("HeaderSetByMutator");
-                    Context.MessageProcessed = true;
+                    testContext.CanAddHeaders = Bus.CurrentMessageContext.Headers.ContainsKey("HeaderSetByMutator");
+                    testContext.MessageProcessed = true;
                 }
             }
 

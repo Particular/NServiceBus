@@ -8,18 +8,17 @@
 
     public class Issue_1980 : NServiceBusAcceptanceTest
     {
+        static Context testContext = new Context();
         [Test]
         public void Run()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
+            Scenario.Define(testContext)
                     .WithEndpoint<Endpoint>(b => b.Given((bus, c) => bus.SendLocal(new V1Message())))
                     .Done(c => c.V2MessageReceived || c.V1MessageReceived)
                     .Run();
 
-            Assert.IsTrue(context.V2MessageReceived);
-            Assert.IsFalse(context.V1MessageReceived);
+            Assert.IsTrue(testContext.V2MessageReceived);
+            Assert.IsFalse(testContext.V1MessageReceived);
         }
 
         public class Context : ScenarioContext
@@ -49,21 +48,17 @@
 
             class V2MessageHandler : IHandleMessages<V2Message>
             {
-                public Context Context { get; set; }
-
                 public void Handle(V2Message message)
                 {
-                    Context.V2MessageReceived = true;
+                    testContext.V2MessageReceived = true;
                 }
             }
 
             class V1MessageHandler : IHandleMessages<V1Message>
             {
-                public Context Context { get; set; }
-
                 public void Handle(V1Message message)
                 {
-                    Context.V1MessageReceived = true;
+                    testContext.V1MessageReceived = true;
                 }
             }
         }
