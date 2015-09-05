@@ -2,7 +2,6 @@
 {
     using System;
     using System.Diagnostics;
-    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
@@ -21,7 +20,7 @@
             using (var counter = new PerformanceCounter("NServiceBus", "SLA violation countdown", "PerformanceMonitoring.Endpoint.WhenSendingWithSLAEnabled." + Transports.Default.Key, true))
             using (new Timer(state => CheckPerfCounter(counter), null, 0, 100))
             {
-                var contexts = await Scenario.Define<Context>()
+                await Scenario.Define<Context>()
                     .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
                     {
                         bus.SendLocal(new MyMessage());

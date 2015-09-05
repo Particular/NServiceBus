@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.PerfMon.CriticalTime
 {
     using System.Diagnostics;
-    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
@@ -20,7 +19,7 @@
             using (var counter = new PerformanceCounter("NServiceBus", "Critical Time", "CriticaltimeEnabled.Endpoint", false))
             using (new Timer(state => CheckPerfCounter(counter), null, 0, 100))
             {
-                var contexts = await Scenario.Define<Context>()
+                await Scenario.Define<Context>()
                     .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
                     {
                         bus.SendLocal(new MyMessage());

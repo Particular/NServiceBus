@@ -16,7 +16,7 @@
         [Test]
         public async Task Should_be_moved_to_slr()
         {
-            var contexts = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
+            await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                     .WithEndpoint<SLREndpoint>(b => b.Given((bus, context) =>
                     {
                         bus.SendLocal(new MessageToBeRetried { Id = context.Id });

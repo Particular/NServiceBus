@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
@@ -14,7 +13,7 @@
         [Test]
         public async Task Should_receive_decrypted_message()
         {
-            var contexts = await Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                     .WithEndpoint<Sender>(b => b.Given((bus, context) =>
                     {
                         bus.Send(new MessageWithSecretData

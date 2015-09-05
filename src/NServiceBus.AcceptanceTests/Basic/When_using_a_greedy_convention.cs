@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Basic
 {
     using System;
-    using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
@@ -13,7 +12,7 @@
         [Test]
         public async Task Should_receive_the_message()
         {
-            var contexts = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
+            await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                     .WithEndpoint<EndPoint>(b => b.Given((bus, c) =>
                     {
                         bus.SendLocal(new MyMessage { Id = c.Id });

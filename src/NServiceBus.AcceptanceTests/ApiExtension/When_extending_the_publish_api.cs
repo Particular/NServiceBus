@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.ApiExtension
 {
     using System;
-    using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
