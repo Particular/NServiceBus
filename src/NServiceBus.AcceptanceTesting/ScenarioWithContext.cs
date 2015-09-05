@@ -11,9 +11,9 @@ namespace NServiceBus.AcceptanceTesting
 
     public class ScenarioWithContext<TContext> : IScenarioWithEndpointBehavior<TContext>, IAdvancedScenarioWithEndpointBehavior<TContext> where TContext : ScenarioContext, new()
     {
-        public ScenarioWithContext(Func<TContext> factory)
+        public ScenarioWithContext(Action<TContext> initializer)
         {
-            contextFactory = factory;
+            contextInitializer = initializer;
         }
 
         public IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>() where T : EndpointConfigurationBuilder
@@ -62,7 +62,8 @@ namespace NServiceBus.AcceptanceTesting
                 return new List<TContext>();
             }
 
-            var scenarioContext = contextFactory();
+            var scenarioContext = new TContext();
+            contextInitializer(scenarioContext);
             foreach (var runDescriptor in runDescriptors)
             {
                 runDescriptor.ScenarioContext = scenarioContext;
@@ -146,7 +147,7 @@ namespace NServiceBus.AcceptanceTesting
         Action<RunDescriptorsBuilder> runDescriptorsBuilderAction = builder => builder.For(Conventions.DefaultRunDescriptor());
         IList<IScenarioVerification> shoulds = new List<IScenarioVerification>();
         Func<ScenarioContext, bool> done = context => true;
-        Func<TContext> contextFactory;
+        Action<TContext> contextInitializer;
         Action<RunSummary> reports;
         Func<Exception, bool> allowedExceptions = exception => false;
     }

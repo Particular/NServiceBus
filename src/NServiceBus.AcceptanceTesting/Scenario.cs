@@ -7,19 +7,12 @@
     {
         public static IScenarioWithEndpointBehavior<T> Define<T>() where T : ScenarioContext, new()
         {
-            Func<T> contextFactory = () => new T();
-            return new ScenarioWithContext<T>(contextFactory);
+            return new ScenarioWithContext<T>(c => { });
         }
 
-        public static IScenarioWithEndpointBehavior<T> Define<T>(T context) where T : ScenarioContext, new()
+        public static IScenarioWithEndpointBehavior<T> Define<T>(Action<T> contextInitializer) where T : ScenarioContext, new()
         {
-            return new ScenarioWithContext<T>(()=>context);
+            return new ScenarioWithContext<T>(contextInitializer);
         }
-
-        public static IScenarioWithEndpointBehavior<T> Define<T>(Func<T> contextFactory) where T : ScenarioContext, new()
-        {
-            return new ScenarioWithContext<T>(contextFactory);
-        }
-
     }
 }
