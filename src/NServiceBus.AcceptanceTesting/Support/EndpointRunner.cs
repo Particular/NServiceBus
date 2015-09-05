@@ -91,7 +91,7 @@
 
                 if (behavior.Whens.Count != 0)
                 {
-                    Task.Factory.StartNew(() =>
+                    await Task.Run(async() =>
                     {
                         var executedWhens = new List<Guid>();
 
@@ -114,14 +114,13 @@
                                     continue;
                                 }
 
-                                if (when.ExecuteAction(scenarioContext, bus))
+                                if (await when.ExecuteAction(scenarioContext, bus))
                                 {
                                     executedWhens.Add(when.Id);
                                 }
                             }
                         }
-                    }, stopToken)
-                    .Wait(stopToken);
+                    }, stopToken);
                 }
 
                 return Result.Success();

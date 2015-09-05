@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Basic
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Features;
@@ -20,6 +21,7 @@
 
                         options.DelayDeliveryWith(TimeSpan.FromSeconds(3));
                         bus.Send(new MyMessage(), options);
+                        return Task.FromResult(0);
                     }))
                     .WithEndpoint<Receiver>()
                     .Done(c => c.WasCalled)

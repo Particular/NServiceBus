@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Basic
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
@@ -11,10 +12,14 @@
         public void Should_receive_the_message()
         {
             Scenario.Define(() => new Context { Id = Guid.NewGuid() })
-                    .WithEndpoint<Endpoint>(b => b.Given((bus, context) => bus.SendLocal(new MyMessage
+                    .WithEndpoint<Endpoint>(b => b.Given((bus, context) =>
                     {
-                        Id = context.Id
-                    })))
+                        bus.SendLocal(new MyMessage
+                        {
+                            Id = context.Id
+                        });
+                        return Task.FromResult(0);
+                    }))
                     .Done(c => c.WasCalled)
                     .Run();
         }

@@ -4,6 +4,7 @@ namespace NServiceBus.AcceptanceTesting
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
+    using System.Threading.Tasks;
     using Customization;
     using NServiceBus.Logging;
     using Support;
@@ -39,7 +40,7 @@ namespace NServiceBus.AcceptanceTesting
             return this;
         }
 
-        public IEnumerable<TContext> Run(TimeSpan? testExecutionTimeout = null)
+        public Task<IEnumerable<TContext>> Run(TimeSpan? testExecutionTimeout = null)
         {
             return Run(new RunSettings
             {
@@ -47,7 +48,7 @@ namespace NServiceBus.AcceptanceTesting
             });
         }
 
-        public IEnumerable<TContext> Run(RunSettings settings)
+        public async Task<IEnumerable<TContext>> Run(RunSettings settings)
         {
             var builder = new RunDescriptorsBuilder();
 
@@ -74,7 +75,7 @@ namespace NServiceBus.AcceptanceTesting
             var sw = new Stopwatch();
 
             sw.Start();
-            ScenarioRunner.Run(runDescriptors, behaviors, shoulds, done, limitTestParallelismTo, reports, allowedExceptions);
+            await ScenarioRunner.Run(runDescriptors, behaviors, shoulds, done, limitTestParallelismTo, reports, allowedExceptions).ConfigureAwait(false);
             ContextAppender.SetContext(null);
             sw.Stop();
 
@@ -108,17 +109,19 @@ namespace NServiceBus.AcceptanceTesting
             return this;
         }
 
-        TContext IScenarioWithEndpointBehavior<TContext>.Run(TimeSpan? testExecutionTimeout)
+        async Task<TContext> IScenarioWithEndpointBehavior<TContext>.Run(TimeSpan? testExecutionTimeout)
         {
-            return Run(new RunSettings
+            var contexts = await Run(new RunSettings
             {
                 TestExecutionTimeout = testExecutionTimeout
-            }).Single();
+            });
+            return contexts.Single();
         }
 
-        TContext IScenarioWithEndpointBehavior<TContext>.Run(RunSettings settings)
+        async Task<TContext> IScenarioWithEndpointBehavior<TContext>.Run(RunSettings settings)
         {
-            return Run(settings).Single();
+            var contexts = await Run(settings);
+            return contexts.Single();
         }
 
         public IAdvancedScenarioWithEndpointBehavior<TContext> Should(Action<TContext> should)

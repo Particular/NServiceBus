@@ -43,7 +43,7 @@ namespace NServiceBus.Unicast
         {
             throw new NotImplementedException();
         }
-
+ 
         public void Return<T>(T errorEnum)
         {
             throw new NotImplementedException();

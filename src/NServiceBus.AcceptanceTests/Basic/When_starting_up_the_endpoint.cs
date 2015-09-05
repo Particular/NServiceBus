@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
@@ -16,7 +17,7 @@
                 Id = Guid.NewGuid()
             };
             Scenario.Define(context)
-                .WithEndpoint<EndPoint>(b => b.Given((bus, c) => { }))
+                .WithEndpoint<EndPoint>(b => b.Given((bus, c) => Task.FromResult(0)))
                 .Run();
 
             var logItem = context.Logs.FirstOrDefault(item => item.Message.Contains(@"[Everyone] and [NT AUTHORITY\ANONYMOUS LOGON]"));

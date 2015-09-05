@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Tx
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
@@ -16,7 +17,11 @@
                 FirstAttempt = true
             };
             Scenario.Define(context)
-                .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new MyMessage())))
+                .WithEndpoint<Endpoint>(b => b.Given(bus =>
+                {
+                    bus.SendLocal(new MyMessage());
+                    return Task.FromResult(0);
+                }))
                 .Done(c => c.MessageHandled)
                 .AllowExceptions(e => e is Endpoint.FakeException)
                 .Repeat(r => r.For<AllNativeMultiQueueTransactionTransports>())

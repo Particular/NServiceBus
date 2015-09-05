@@ -4,6 +4,7 @@
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Globalization;
     using System.Linq;
     using System.Runtime.ExceptionServices;
     using System.Text;
@@ -13,7 +14,7 @@
 
     public class ScenarioRunner
     {
-        public static void Run(IList<RunDescriptor> runDescriptors, IList<EndpointBehavior> behaviorDescriptors, IList<IScenarioVerification> shoulds, Func<ScenarioContext, bool> done, int limitTestParallelismTo, Action<RunSummary> reports, Func<Exception, bool> allowedExceptions)
+        public static async Task Run(IList<RunDescriptor> runDescriptors, IList<EndpointBehavior> behaviorDescriptors, IList<IScenarioVerification> shoulds, Func<ScenarioContext, bool> done, int limitTestParallelismTo, Action<RunSummary> reports, Func<Exception, bool> allowedExceptions)
         {
             var totalRuns = runDescriptors.Count();
             var cts = new CancellationTokenSource();
@@ -40,18 +41,18 @@
 
             try
             {
-                Parallel.ForEach(runDescriptors, po, runDescriptor =>
+                var runs = runDescriptors.Select(runDescriptor => Task.Run(async () =>
                 {
                     if (po.CancellationToken.IsCancellationRequested)
                     {
                         return;
                     }
 
-                    Console.WriteLine("{0} - Started @ {1}", runDescriptor.Key, DateTime.Now.ToString());
+                    Console.WriteLine("{0} - Started @ {1}", runDescriptor.Key, DateTime.Now.ToString(CultureInfo.InvariantCulture));
 
-                    var runResult = PerformTestRun(behaviorDescriptors, shoulds, runDescriptor, done, allowedExceptions);
+                    var runResult = await PerformTestRun(behaviorDescriptors, shoulds, runDescriptor, done, allowedExceptions).ConfigureAwait(false);
 
-                    Console.WriteLine("{0} - Finished @ {1}", runDescriptor.Key, DateTime.Now.ToString());
+                    Console.WriteLine("{0} - Finished @ {1}", runDescriptor.Key, DateTime.Now.ToString(CultureInfo.InvariantCulture));
 
                     results.Add(new RunSummary
                     {
@@ -64,7 +65,9 @@
                     {
                         cts.Cancel();
                     }
-                });
+                }, cts.Token));
+
+                await Task.WhenAll(runs);
             }
             catch (OperationCanceledException)
             {
@@ -146,7 +149,7 @@
             Console.WriteLine("------------------------------------------------------");
         }
 
-        static RunResult PerformTestRun(IList<EndpointBehavior> behaviorDescriptors, IList<IScenarioVerification> shoulds, RunDescriptor runDescriptor, Func<ScenarioContext, bool> done, Func<Exception, bool> allowedExceptions)
+        static async Task<RunResult> PerformTestRun(IList<EndpointBehavior> behaviorDescriptors, IList<IScenarioVerification> shoulds, RunDescriptor runDescriptor, Func<ScenarioContext, bool> done, Func<Exception, bool> allowedExceptions)
         {
             var runResult = new RunResult
             {
@@ -163,7 +166,7 @@
 
                 runResult.ActiveEndpoints = runners.Select(r => r.EndpointName).ToList();
 
-                PerformScenarios(runDescriptor, runners, () => done(runDescriptor.ScenarioContext), allowedExceptions);
+                await PerformScenarios(runDescriptor, runners, () => done(runDescriptor.ScenarioContext), allowedExceptions).ConfigureAwait(false);
 
                 runTimer.Stop();
 
@@ -206,11 +209,11 @@
             Console.WriteLine();
         }
 
-        static async Task PerformScenarios(RunDescriptor runDescriptor, IEnumerable<ActiveRunner> runners, Func<bool> done)
+        static async Task PerformScenarios(RunDescriptor runDescriptor, IEnumerable<ActiveRunner> runners, Func<bool> done, Func<Exception, bool> allowedExceptions)
         {
             var endpoints = runners.Select(r => r.Instance).ToList();
 
-            await StartEndpoints(endpoints);
+            await StartEndpoints(endpoints).ConfigureAwait(false);
 
             runDescriptor.ScenarioContext.EndpointsStarted = true;
 
@@ -220,6 +223,7 @@
             ExceptionDispatchInfo exceptionInfo = null;
             try
             {
+                // Let's use a blocking SpinWait for now
                 SpinWait.SpinUntil(done, maxTime);
 
                 if ((DateTime.UtcNow - startTime) > maxTime)

@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Tx
 {
     using System;
+    using System.Threading.Tasks;
     using System.Transactions;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
@@ -13,7 +14,11 @@
         public void Should_wrap_the_handler_pipeline_with_a_transactionscope()
         {
             Scenario.Define<Context>()
-                    .WithEndpoint<TransactionalEndpoint>(b => b.Given(bus => bus.SendLocal(new MyMessage())))
+                    .WithEndpoint<TransactionalEndpoint>(b => b.Given(bus =>
+                    {
+                        bus.SendLocal(new MyMessage());
+                        return Task.FromResult(0);
+                    }))
                     .Done(c => c.HandlerInvoked)
                     .Repeat(r => r.For(Transports.Default))
                     .Should(c => Assert.True(c.AmbientTransactionExists, "There should exist an ambient transaction"))

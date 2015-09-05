@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
+    using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
     using NServiceBus.Features;
@@ -13,7 +14,11 @@
         public void Timeout_should_be_received_after_expiration()
         {
             Scenario.Define(() => new Context {Id = Guid.NewGuid()})
-                    .WithEndpoint<SagaEndpoint>(g => g.Given(bus=>bus.SendLocal(new StartSagaMessage())))
+                    .WithEndpoint<SagaEndpoint>(g => g.Given(bus =>
+                    {
+                        bus.SendLocal(new StartSagaMessage());
+                        return Task.FromResult(0);
+                    }))
                     .Done(c => c.TimeoutReceived)
                     .Run();
         }

@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Runtime.Serialization.Formatters.Binary;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Features;
@@ -19,7 +20,11 @@
 
             Scenario.Define(context)
                 .WithEndpoint<EndpointViaType>(b => b.Given(
-                    (bus, c) => bus.SendLocal(new MyRequest())))
+                    (bus, c) =>
+                    {
+                        bus.SendLocal(new MyRequest());
+                        return Task.FromResult(0);
+                    }))
                 .Done(c => c.HandlerGotTheRequest)
                 .Run();
 
@@ -34,7 +39,11 @@
 
             Scenario.Define(context)
                 .WithEndpoint<EndpointViaDefinition>(b => b.Given(
-                    (bus, c) => bus.SendLocal(new MyRequest())))
+                    (bus, c) =>
+                    {
+                        bus.SendLocal(new MyRequest());
+                        return Task.FromResult(0);
+                    }))
                 .Done(c => c.HandlerGotTheRequest)
                 .Run();
 

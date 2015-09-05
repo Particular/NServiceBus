@@ -24,6 +24,7 @@
                             c.Exception = ex;
                             c.GotTheException = true;
                         }
+                        return Task.FromResult(0);
                     }))
                     .Done(c => c.GotTheException)
                     .AllowExceptions()

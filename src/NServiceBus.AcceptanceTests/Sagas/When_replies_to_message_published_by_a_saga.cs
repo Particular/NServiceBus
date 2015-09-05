@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
+    using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
     using Features;
@@ -17,10 +18,14 @@
         {
             Scenario.Define<Context>()
                 .WithEndpoint<SagaEndpoint>
-                (b => b.When(c => c.Subscribed, bus => bus.SendLocal(new StartSaga
+                (b => b.When(c => c.Subscribed, bus =>
                 {
-                    DataId = Guid.NewGuid()
-                }))
+                    bus.SendLocal(new StartSaga
+                    {
+                        DataId = Guid.NewGuid()
+                    });
+                    return Task.FromResult(0);
+                })
                 )
                 .WithEndpoint<ReplyEndpoint>(b => b.Given((bus, context) =>
                 {
@@ -29,6 +34,7 @@
                     {
                         context.Subscribed = true;
                     }
+                    return Task.FromResult(0);
                 }))
                 .Done(c => c.DidSagaReplyMessageGetCorrelated)
                 .Repeat(r => r.For(Transports.Default))

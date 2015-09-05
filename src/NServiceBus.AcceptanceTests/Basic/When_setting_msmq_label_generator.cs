@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Messaging;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
@@ -23,10 +24,14 @@
                     Id = Guid.NewGuid()
                 };
                 Scenario.Define(context)
-                    .WithEndpoint<EndPoint>(b => b.Given((bus, c) => bus.SendLocal(new MyMessage
+                    .WithEndpoint<EndPoint>(b => b.Given((bus, c) =>
                     {
-                        Id = c.Id
-                    })))
+                        bus.SendLocal(new MyMessage
+                        {
+                            Id = c.Id
+                        });
+                        return Task.FromResult(0);
+                    }))
                     .Done(c => c.WasCalled && ReadMessageLabel() == "MyLabel")
                     .Repeat(r => r.For<MsmqOnly>())
                     .Run();

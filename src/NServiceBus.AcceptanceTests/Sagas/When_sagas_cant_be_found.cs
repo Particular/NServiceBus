@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
+    using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
     using NServiceBus.Features;
@@ -15,7 +16,11 @@
             var context = new Context();
 
             Scenario.Define(context)
-                    .WithEndpoint<ReceiverWithSagas>(b => b.Given((bus, c) => bus.SendLocal(new MessageToSaga { Id = Guid.NewGuid() })))
+                    .WithEndpoint<ReceiverWithSagas>(b => b.Given((bus, c) =>
+                    {
+                        bus.SendLocal(new MessageToSaga { Id = Guid.NewGuid() });
+                        return Task.FromResult(0);
+                    }))
                     .Done(c => c.Done)
                     .Run();
 
@@ -28,7 +33,11 @@
             var context = new Context();
 
             Scenario.Define(context)
-                    .WithEndpoint<ReceiverWithOrderedSagas>(b => b.Given((bus, c) => bus.SendLocal(new MessageToSaga { Id = Guid.NewGuid() })))
+                    .WithEndpoint<ReceiverWithOrderedSagas>(b => b.Given((bus, c) =>
+                    {
+                        bus.SendLocal(new MessageToSaga { Id = Guid.NewGuid() });
+                        return Task.FromResult(0);
+                    }))
                     .Done(c => c.Done)
                     .Run();
 

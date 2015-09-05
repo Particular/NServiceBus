@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.BestPractices
 {
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
@@ -18,6 +19,7 @@
                     publishOptions.DoNotEnforceBestPractices();
 
                     bus.Publish(new MyCommand(), publishOptions);
+                    return Task.FromResult(0);
                 }))
                 .Done(c => c.EndpointsStarted)
                 .Run();
@@ -36,6 +38,7 @@
                     sendOptions.DoNotEnforceBestPractices();
 
                     bus.Send(new MyEvent(), sendOptions);
+                    return Task.FromResult(0);
                 }))
                 .Done(c => c.EndpointsStarted)
                 .Run();

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Threading;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
@@ -14,7 +15,11 @@
             var context = new Context();
 
             Scenario.Define(context)
-                    .WithEndpoint<Sender>(b => b.Given((bus, c) => bus.Send(new MyCommand1())))
+                    .WithEndpoint<Sender>(b => b.Given((bus, c) =>
+                    {
+                        bus.Send(new MyCommand1());
+                        return Task.FromResult(0);
+                    }))
                     .WithEndpoint<Receiver1>()
                     .WithEndpoint<Receiver2>()
                     .Done(c => c.WasCalled1 || c.WasCalled2)

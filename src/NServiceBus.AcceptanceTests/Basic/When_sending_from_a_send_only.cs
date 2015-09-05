@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Basic
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Features;
@@ -16,10 +17,14 @@
                 Id = Guid.NewGuid()
             };
             Scenario.Define(context)
-                    .WithEndpoint<Sender>(b => b.Given((bus, c) => bus.Send(new MyMessage
+                    .WithEndpoint<Sender>(b => b.Given((bus, c) =>
                     {
-                        Id = c.Id
-                    })))
+                        bus.Send(new MyMessage
+                        {
+                            Id = c.Id
+                        });
+                        return Task.FromResult(0);
+                    }))
                     .WithEndpoint<Receiver>()
                     .Done(c => c.WasCalled)
                     .Run();

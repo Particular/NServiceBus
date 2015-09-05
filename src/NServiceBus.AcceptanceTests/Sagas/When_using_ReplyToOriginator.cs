@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.Features;
@@ -15,7 +16,11 @@
             var context = new Context();
 
             Scenario.Define(context)
-                .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new InitiateRequestingSaga { SomeCorrelationId = Guid.NewGuid() })))
+                .WithEndpoint<Endpoint>(b => b.Given(bus =>
+                {
+                    bus.SendLocal(new InitiateRequestingSaga { SomeCorrelationId = Guid.NewGuid() });
+                    return Task.FromResult(0);
+                }))
                 .Done(c => c.Done)
                 .Run();
 

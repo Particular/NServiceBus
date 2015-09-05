@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Basic
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Config;
@@ -19,7 +20,11 @@
             };
 
             Scenario.Define(context)
-                .WithEndpoint<MyEndpoint>(b => b.Given((bus, c) => bus.SendLocal(new SomeMessage{Id = c.Id})))
+                .WithEndpoint<MyEndpoint>(b => b.Given((bus, c) =>
+                {
+                    bus.SendLocal(new SomeMessage{Id = c.Id});
+                    return Task.FromResult(0);
+                }))
                 .Done(c => c.Done)
                 .Run();
 

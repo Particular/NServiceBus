@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Tx
 {
     using System;
+    using System.Threading.Tasks;
     using System.Transactions;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
@@ -28,6 +29,7 @@
 
                                 tx.Complete();
                             }
+                            return Task.FromResult(0);
                         }))
                     .Done(c => c.MessageThatIsNotEnlistedHandlerWasCalled && c.TimesCalled >= 2)
                     .Repeat(r => r.For<AllDtcTransports>())
@@ -49,7 +51,7 @@
                             }
 
                             bus.Send(new MessageThatIsNotEnlisted());
-
+                            return Task.FromResult(0);
                         }))
                     .Done(c => c.MessageThatIsNotEnlistedHandlerWasCalled)
                     .Repeat(r => r.For<AllDtcTransports>())

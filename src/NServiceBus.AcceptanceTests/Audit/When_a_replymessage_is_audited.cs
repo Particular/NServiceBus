@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
     using MessageMutator;
@@ -17,7 +18,11 @@
 
             Scenario.Define(context)
                     .WithEndpoint<Server>()
-                    .WithEndpoint<EndpointWithAuditOn>(b => b.Given(bus => bus.Send(new Request())))
+                    .WithEndpoint<EndpointWithAuditOn>(b => b.Given(bus =>
+                    {
+                        bus.Send(new Request());
+                        return Task.FromResult(0);
+                    }))
                     .WithEndpoint<AuditSpyEndpoint>()
                     .Done(c => c.MessageAudited)
                     .Run();

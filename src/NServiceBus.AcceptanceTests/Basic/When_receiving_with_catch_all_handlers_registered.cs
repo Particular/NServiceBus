@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Basic
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
@@ -13,10 +14,14 @@
             var context = new Context { Id = Guid.NewGuid() };
 
             Scenario.Define(context)
-                    .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new MyMessage
+                    .WithEndpoint<Endpoint>(b => b.Given(bus =>
                     {
-                        Id = context.Id
-                    })))
+                        bus.SendLocal(new MyMessage
+                        {
+                            Id = context.Id
+                        });
+                        return Task.FromResult(0);
+                    }))
                     .Done(c => c.ObjectHandlerWasCalled && c.DynamicHandlerWasCalled && c.IMessageHandlerWasCalled)
                     .Run();
 

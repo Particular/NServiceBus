@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.BestPractices
 {
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Features;
@@ -11,7 +12,11 @@
         public void Should_allow_subscribing_to_commands()
         {
             Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) => bus.Subscribe<MyCommand>()))
+                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
+                    {
+                        bus.Subscribe<MyCommand>();
+                        return Task.FromResult(0);
+                    }))
                     .Done(c => c.EndpointsStarted)
                     .Run();
         }
@@ -20,7 +25,11 @@
         public void Should_allow_unsubscribing_to_commands()
         {
             Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) => bus.Unsubscribe<MyCommand>()))
+                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
+                    {
+                        bus.Unsubscribe<MyCommand>();
+                        return Task.FromResult(0);
+                    }))
                     .Done(c => c.EndpointsStarted)
                     .Run();
         }
@@ -29,7 +38,11 @@
         public void Should_allow_publishing_commands()
         {
             Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) => bus.Publish(new MyCommand())))
+                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
+                    {
+                        bus.Publish(new MyCommand());
+                        return Task.FromResult(0);
+                    }))
                     .Done(c => c.EndpointsStarted)
                     .Run();
         }
@@ -38,7 +51,11 @@
         public void Should_allow_sending_events()
         {
             Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) => bus.Send(new MyEvent())))
+                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
+                    {
+                        bus.Send(new MyEvent());
+                        return Task.FromResult(0);
+                    }))
                     .Done(c => c.EndpointsStarted)
                     .Run();
         }

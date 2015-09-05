@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Volatile
 {
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
@@ -12,7 +13,11 @@
         {
             var context = new Context();
             Scenario.Define(context)
-                    .WithEndpoint<Sender>(b => b.Given((bus, c) => bus.Send(new MyMessage())))
+                    .WithEndpoint<Sender>(b => b.Given((bus, c) =>
+                    {
+                        bus.Send(new MyMessage());
+                        return Task.FromResult(0);
+                    }))
                     .WithEndpoint<Receiver>()
                     .Done(c => c.WasCalled)
                     .Repeat(r => r.For(Transports.Default))

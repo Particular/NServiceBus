@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Basic
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
@@ -13,7 +14,11 @@
             var context = new Context();
 
             Scenario.Define(context)
-                    .WithEndpoint<Receiver>(c=>c.When(b=>b.SendLocal(new MyMessage())))
+                    .WithEndpoint<Receiver>(c=>c.When(b =>
+                    {
+                        b.SendLocal(new MyMessage());
+                        return Task.FromResult(0);
+                    }))
                     .Done(c => c.WasCalled)
                     .Run();
 

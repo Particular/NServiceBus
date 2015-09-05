@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Runtime.Serialization.Formatters.Binary;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Features;
@@ -24,6 +25,7 @@
                         var sendOptions = new SendOptions();
                         sendOptions.SetHeader("ContentType", "MyCustomSerializer");
                         bus.Send(new MyRequest());
+                        return Task.FromResult(0);
                     }))
                 .WithEndpoint<XmlCustomSerializationReceiver>()
                 .Done(c => c.DeserializeCalled)

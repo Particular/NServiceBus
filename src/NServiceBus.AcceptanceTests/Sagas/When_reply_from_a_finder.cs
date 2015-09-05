@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Saga;
@@ -18,10 +19,11 @@
             };
 
             Scenario.Define(context)
-                .WithEndpoint<SagaEndpoint>(b => b.Given(bus => bus.SendLocal(new StartSagaMessage
-                                                                              {
-                                                                                  Id = context.Id
-                                                                              })))
+                .WithEndpoint<SagaEndpoint>(b => b.Given(bus =>
+                {
+                    bus.SendLocal(new StartSagaMessage { Id = context.Id });
+                    return Task.FromResult(0);
+                }))
                 .Done(c => c.HandlerFired)
                 .Run();
 
@@ -49,9 +51,9 @@
                 public TestSagaWithCustomFinder.TestSagaWithCustomFinderSagaData FindBy(StartSagaMessage message, SagaPersistenceOptions options)
                 {
                     Bus.Reply(new SagaNotFoundMessage
-                              {
-                                  Id = Context.Id
-                              });
+                    {
+                        Id = Context.Id
+                    });
                     return null;
                 }
             }

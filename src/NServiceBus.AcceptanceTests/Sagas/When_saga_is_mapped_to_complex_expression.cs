@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
+    using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
     using NUnit.Framework;
@@ -17,7 +18,8 @@
                     .WithEndpoint<SagaEndpoint>(b => b.Given(bus =>
                         {
                             bus.SendLocal(new StartSagaMessage { Key = "Part1_Part2"});
-                            bus.SendLocal(new OtherMessage { Part1 = "Part1", Part2 = "Part2" });                                    
+                            bus.SendLocal(new OtherMessage { Part1 = "Part1", Part2 = "Part2" });
+                            return Task.FromResult(0);
                         }))
                     .Done(c => c.SecondMessageReceived)
                     .Repeat(r => r.For(Persistence.Default))

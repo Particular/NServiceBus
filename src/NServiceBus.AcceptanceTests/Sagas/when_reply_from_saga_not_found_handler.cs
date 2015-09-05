@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
+    using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
     using NUnit.Framework;
@@ -15,7 +16,11 @@
             var context = new Context();
 
             Scenario.Define(context)
-                    .WithEndpoint<Sender>(b => b.Given((bus, c) => bus.Send(new MessageToSaga())))
+                    .WithEndpoint<Sender>(b => b.Given((bus, c) =>
+                    {
+                        bus.Send(new MessageToSaga());
+                        return Task.FromResult(0);
+                    }))
                     .WithEndpoint<ReceiverWithSaga>()
                     .Done(c => c.ReplyReceived)
                     .Run();

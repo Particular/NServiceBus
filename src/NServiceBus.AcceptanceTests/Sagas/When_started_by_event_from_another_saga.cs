@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
+    using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
     using Features;
@@ -19,10 +20,13 @@
                 .WithEndpoint<SagaThatPublishesAnEvent>(b =>
                     b.When(c => c.IsEventSubscriptionReceived,
                             bus =>
+                            {
                                 bus.SendLocal(new StartSaga
                                 {
                                     DataId = Guid.NewGuid()
-                                }))
+                                });
+                                return Task.FromResult(0);
+                            })
                 )
                 .WithEndpoint<SagaThatIsStartedByTheEvent>(
                     b => b.Given((bus, context) =>
@@ -31,6 +35,7 @@
 
                         if (context.HasNativePubSubSupport)
                             context.IsEventSubscriptionReceived = true;
+                        return Task.FromResult(0);
                     }))
                 .Done(c => c.DidSaga1Complete && c.DidSaga2Complete)
                 .Repeat(r => r.For(Transports.Default))

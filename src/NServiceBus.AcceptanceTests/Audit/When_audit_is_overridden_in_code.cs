@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Audit
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
@@ -12,7 +13,11 @@
         {
             var context = new Context();
             Scenario.Define(context)
-                .WithEndpoint<UserEndpoint>(b => b.Given(bus => bus.SendLocal(new MessageToBeAudited())))
+                .WithEndpoint<UserEndpoint>(b => b.Given(bus =>
+                {
+                    bus.SendLocal(new MessageToBeAudited());
+                    return Task.FromResult(0);
+                }))
                 .WithEndpoint<AuditSpy>()
                 .Done(c => c.MessageAudited)
                 .Run();

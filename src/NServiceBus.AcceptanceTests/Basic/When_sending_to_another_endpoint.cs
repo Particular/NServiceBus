@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
@@ -25,6 +26,7 @@
                         sendOptions.SetMessageId("MyMessageId");
                         
                         bus.Send(new MyMessage{Id = c.Id}, sendOptions);
+                        return Task.FromResult(0);
                     }))
                     .WithEndpoint<Receiver>()
                     .Done(c => c.WasCalled)

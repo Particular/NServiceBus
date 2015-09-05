@@ -2,6 +2,7 @@
 {
     using System;
     using System.Diagnostics;
+    using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
     using NServiceBus.Config;
@@ -18,10 +19,14 @@
             var context = new Context();
             Scenario.Define(context)
                 .WithEndpoint<Endpoint>(
-                    b => b.Given(bus => bus.SendLocal(new StartSaga
+                    b => b.Given(bus =>
                     {
-                        DataId = Guid.NewGuid()
-                    })))
+                        bus.SendLocal(new StartSaga
+                        {
+                            DataId = Guid.NewGuid()
+                        });
+                        return Task.FromResult(0);
+                    }))
                     .AllowExceptions()
                 .Done(c => c.MessageFailed)
                 .Repeat(r => r.For(Transports.Default))

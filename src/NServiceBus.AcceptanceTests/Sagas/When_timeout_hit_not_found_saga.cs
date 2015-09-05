@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
+    using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
     using NServiceBus.Features;
@@ -13,7 +14,11 @@
         public void Should_not_fire_notfound_for_tm()
         {
             var context = Scenario.Define<Context>()
-                .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new StartSaga())))
+                .WithEndpoint<Endpoint>(b => b.Given(bus =>
+                {
+                    bus.SendLocal(new StartSaga());
+                    return Task.FromResult(0);
+                }))
                 .Done(c => c.NotFoundHandlerCalledForRegularMessage)
                 .Run();
 

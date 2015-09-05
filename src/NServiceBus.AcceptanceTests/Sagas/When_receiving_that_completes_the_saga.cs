@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
+    using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
     using NUnit.Framework;
@@ -41,10 +42,14 @@
             })
                 .WithEndpoint<SagaEndpoint>(b =>
                 {
-                    b.Given((bus, c) => bus.SendLocal(new StartSagaMessage
+                    b.Given((bus, c) =>
                     {
-                        SomeId = c.Id
-                    }));
+                        bus.SendLocal(new StartSagaMessage
+                        {
+                            SomeId = c.Id
+                        });
+                        return Task.FromResult(0);
+                    });
                     b.When(c => c.StartSagaMessageReceived, (bus, c) =>
                     {
                         c.AddTrace("CompleteSagaMessage sent");
@@ -52,11 +57,16 @@
                         {
                             SomeId = c.Id
                         });
+                        return Task.FromResult(0);
                     });
-                    b.When(c => c.SagaCompleted, (bus, c) => bus.SendLocal(new AnotherMessage
+                    b.When(c => c.SagaCompleted, (bus, c) =>
                     {
-                        SomeId = c.Id
-                    }));
+                        bus.SendLocal(new AnotherMessage
+                        {
+                            SomeId = c.Id
+                        });
+                        return Task.FromResult(0);
+                    });
                 })
                 .Done(c => c.AnotherMessageReceived)
                 .Repeat(r => r.For(Transports.Default))
