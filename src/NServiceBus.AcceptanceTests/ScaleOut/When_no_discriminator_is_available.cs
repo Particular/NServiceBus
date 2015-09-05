@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.ConsistencyGuarantees;
@@ -14,18 +15,26 @@
     public class When_no_discriminator_is_available : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_blow_up()
+        public async Task Should_blow_up()
         {
-            var ex = Assert.Throws<AggregateException>(()=> Scenario.Define<Context>()
-                    .WithEndpoint<IndividualizedEndpoint>().Done(c =>c.EndpointsStarted)
+            AggregateException ex = null;
+            try
+            {
+                await Scenario.Define<Context>()
+                    .WithEndpoint<IndividualizedEndpoint>().Done(c => c.EndpointsStarted)
                     .AllowExceptions()
-                    .Run());
+                    .Run();
+
+            }
+            catch (AggregateException e)
+            {
+                ex = e;
+            }
 
             var configEx = ex.InnerExceptions.First()
                 .InnerException;
 
             Assert.True(configEx.Message.StartsWith("No endpoint instance discriminator found"));
-
         }
 
         public class Context : ScenarioContext

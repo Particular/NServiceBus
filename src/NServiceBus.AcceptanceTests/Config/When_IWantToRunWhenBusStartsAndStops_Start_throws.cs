@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Config
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
@@ -8,11 +9,11 @@
     public class When_Start_throws : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_shutdown_bus_cleanly()
+        public async Task Should_shutdown_bus_cleanly()
         {
             Exception ex = null;
 
-            Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                     .WithEndpoint<StartedEndpoint>(b => b.CustomConfig(c => c.DefineCriticalErrorAction((s, e) => ex = e)))
                     .AllowExceptions()
                     .Done(c => ex != null)
