@@ -62,22 +62,20 @@ namespace NServiceBus.AcceptanceTesting
                 return new List<TContext>();
             }
 
-            var scenarioContext = new TContext();
-            contextInitializer(scenarioContext);
             foreach (var runDescriptor in runDescriptors)
             {
+                var scenarioContext = new TContext();
+                contextInitializer(scenarioContext);
                 runDescriptor.ScenarioContext = scenarioContext;
                 runDescriptor.TestExecutionTimeout = settings.TestExecutionTimeout ?? TimeSpan.FromSeconds(90);
             }
 
             LogManager.UseFactory(new ContextAppender());
-            ContextAppender.SetContext(scenarioContext);
 
             var sw = new Stopwatch();
 
             sw.Start();
             await ScenarioRunner.Run(runDescriptors, behaviors, shoulds, done, limitTestParallelismTo, reports, allowedExceptions).ConfigureAwait(false);
-            ContextAppender.SetContext(null);
             sw.Stop();
 
             Console.WriteLine("Total time for testrun: {0}", sw.Elapsed);
