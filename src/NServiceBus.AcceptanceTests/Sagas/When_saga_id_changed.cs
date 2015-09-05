@@ -10,6 +10,7 @@
     using Saga;
     using ScenarioDescriptors;
 
+    [TestFixture]
     public class When_saga_id_changed : NServiceBusAcceptanceTest
     {
         [Test]
