@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
@@ -21,6 +22,7 @@
                                 ContextId = ctx.Id
                             };
                             bus.Publish(message);
+                            return Task.FromResult(0);
                         }))
                     .WithEndpoint<Subscriber>(b => b.Given((bus, context) =>
                     {
@@ -32,6 +34,7 @@
                             context.EventASubscribed = true;
                             context.EventBSubscribed = true;
                         }
+                        return Task.FromResult(0);
                     }))
                     .Done(c => c.GotEventA && c.GotEventB)
                     .Repeat(r => r.For(Serializers.Xml))

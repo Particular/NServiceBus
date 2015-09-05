@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Recoverability.Retries
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
@@ -16,6 +17,7 @@
                     {
                         bus.SendLocal(new MessageToBeRetried { Id = context.Id });
                         bus.SendLocal(new MessageToBeRetried { Id = context.Id, SecondMessage = true });
+                        return Task.FromResult(0);
                     }))
                     .AllowExceptions()
                     .Done(c => c.SecondMessageReceived || c.NumberOfTimesInvoked > 1)

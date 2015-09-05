@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Saga;
@@ -9,10 +10,14 @@
     public class When_a_finder_exists_and_found_saga
     {
         [Test]
-        public void Should_find_saga_and_not_correlate()
+        public async Task Should_find_saga_and_not_correlate()
         {
-            var context = Scenario.Define<Context>()
-                .WithEndpoint<SagaEndpoint>(b => b.Given(bus => bus.SendLocal(new StartSagaMessage())))
+            var context = await Scenario.Define<Context>()
+                .WithEndpoint<SagaEndpoint>(b => b.Given(bus =>
+                {
+                    bus.SendLocal(new StartSagaMessage());
+                    return Task.FromResult(0);
+                }))
                 .Done(c => c.Completed)
                 .Run();
 

@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Recoverability
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Config;
@@ -13,7 +14,11 @@
         {
             var context = new Context();
             Scenario.Define(context)
-                .WithEndpoint<UserEndpoint>(b => b.Given(bus => bus.SendLocal(new Message())))
+                .WithEndpoint<UserEndpoint>(b => b.Given(bus =>
+                {
+                    bus.SendLocal(new Message());
+                    return Task.FromResult(0);
+                }))
                 .WithEndpoint<ErrorSpy>()
                 .AllowExceptions()
                 .Done(c => c.MessageReceived)

@@ -3,6 +3,7 @@
     using System;
     using System.Diagnostics;
     using System.Threading;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
@@ -29,6 +30,7 @@
                         options.RouteToLocalEndpointInstance();
 
                         bus.Send(new MyMessage(), options);
+                        return Task.FromResult(0);
                     }))
                     .Done(c => c.WasCalled)
                     .Repeat(r => r.For(Transports.Default))

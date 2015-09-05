@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Config
 {
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Settings;
@@ -8,9 +9,9 @@
     public class When__startup_is_complete : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Configure_and_setting_should_be_available_via_DI()
+        public async Task Configure_and_setting_should_be_available_via_DI()
         {
-            var context = Scenario.Define<Context>()
+            var context = await Scenario.Define<Context>()
                     .WithEndpoint<StartedEndpoint>()
                     .Done(c => c.IsDone)
                     .Run();

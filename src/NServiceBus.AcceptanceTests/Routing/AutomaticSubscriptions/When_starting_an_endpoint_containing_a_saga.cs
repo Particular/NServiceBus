@@ -3,6 +3,7 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
@@ -15,26 +16,24 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
     public class When_starting_an_endpoint_containing_a_saga : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_autoSubscribe_the_saga_messageHandler_by_default()
+        public async Task Should_autoSubscribe_the_saga_messageHandler_by_default()
         {
-            var context = Scenario.Define<Context>()
+            var context = await Scenario.Define<Context>()
                    .WithEndpoint<Subscriber>()
                    .Done(c => c.EventsSubscribedTo.Count >= 2)
                    .Run();
-
 
             Assert.True(context.EventsSubscribedTo.Contains(typeof(MyEvent)), "Events only handled by sagas should be auto subscribed");
             Assert.True(context.EventsSubscribedTo.Contains(typeof(MyEventBase)), "Sagas should be auto subscribed even when handling a base class event");
         }
 
         [Test]
-        public void Should_not_autoSubscribe_messages_handled_by_sagas_if_asked_to()
+        public async Task Should_not_autoSubscribe_messages_handled_by_sagas_if_asked_to()
         {
-            var context = Scenario.Define<Context>()
+            var context = await Scenario.Define<Context>()
                    .WithEndpoint<Subscriber>(g => g.CustomConfig(c => c.AutoSubscribe().DoNotAutoSubscribeSagas()))
                    .Done(c => c.EndpointsStarted)
                    .Run();
-
 
             Assert.False(context.EventsSubscribedTo.Any(), "Events only handled by sagas should not be auto subscribed");
         }

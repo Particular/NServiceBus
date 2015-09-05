@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Correlation
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
@@ -23,6 +24,7 @@
                         options.RouteToLocalEndpointInstance();
 
                         bus.Send(new MessageWithCustomCorrelationId(),options);
+                        return Task.FromResult(0);
                     }))
                     .Done(c => c.GotRequest)
                     .Run();

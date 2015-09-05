@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
@@ -14,7 +15,11 @@
         {
             Scenario.Define<Context>()
                     .WithEndpoint<Publisher3>(b =>
-                        b.When(c => c.Subscriber3Subscribed, bus => bus.Publish<IFoo>())
+                        b.When(c => c.Subscriber3Subscribed, bus =>
+                        {
+                            bus.Publish<IFoo>();
+                            return Task.FromResult(0);
+                        })
                      )
                     .WithEndpoint<Subscriber3>(b => b.Given((bus, context) =>
                     {
@@ -24,6 +29,7 @@
                         {
                             context.Subscriber3Subscribed = true;
                         }
+                        return Task.FromResult(0);
                     }))
 
                     .Done(c => c.Subscriber3GotTheEvent)
@@ -45,6 +51,7 @@
 
                             options.SetHeader("MyHeader","SomeValue");
                             bus.Publish(new MyEvent(), options);
+                            return Task.FromResult(0);
                         })
                      )
                     .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
@@ -59,6 +66,7 @@
                             {
                                 context.AddTrace("Subscriber1 has now asked to be subscribed to MyEvent");
                             }
+                            return Task.FromResult(0);
                         }))
                       .WithEndpoint<Subscriber2>(b => b.Given((bus, context) =>
                       {
@@ -73,6 +81,7 @@
                           {
                               context.AddTrace("Subscriber2 has now asked to be subscribed to MyEvent");
                           }
+                          return Task.FromResult(0);
                       }))
                     .Done(c => c.Subscriber1GotTheEvent && c.Subscriber2GotTheEvent)
                     .Repeat(r => r.For(Transports.Default))

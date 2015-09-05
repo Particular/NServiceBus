@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.DataBus
 {
     using System;
+    using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
     using NUnit.Framework;
@@ -10,13 +11,17 @@
         static byte[] PayloadToSend = new byte[1024 * 1024 * 10];
 
         [Test]
-        public void Should_receive_the_message_the_largeproperty_correctly()
+        public async Task Should_receive_the_message_the_largeproperty_correctly()
         {
-            var context = Scenario.Define<Context>()
-                    .WithEndpoint<Sender>(b => b.Given(bus=> bus.Send(new MyMessageWithLargePayload
+            var context = await Scenario.Define<Context>()
+                    .WithEndpoint<Sender>(b => b.Given(bus=>
+                    {
+                        bus.Send(new MyMessageWithLargePayload
                         {
-                            Payload = new DataBusProperty<byte[]>(PayloadToSend) 
-                        })))
+                            Payload = new DataBusProperty<byte[]>(PayloadToSend)
+                        });
+                        return Task.FromResult(0);
+                    }))
                     .WithEndpoint<Receiver>()
                     .Done(c => c.ReceivedPayload != null)
                     .Run();

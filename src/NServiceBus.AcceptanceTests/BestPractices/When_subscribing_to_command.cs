@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.BestPractices
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;

@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Features;
@@ -18,11 +19,13 @@
                 {
                     c.AddTrace("Publishing MyEvent1");
                     bus.Publish(new MyEvent1());
+                    return Task.FromResult(0);
                 }))
                 .WithEndpoint<Publisher2>(b => b.When(c => c.Publisher2HasDetectedASubscriberForEvent2, (bus, c) =>
                 {
                     c.AddTrace("Publishing MyEvent2");
                     bus.Publish(new MyEvent2());
+                    return Task.FromResult(0);
                 }))
                 .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
                 {
@@ -35,6 +38,7 @@
                         context.Publisher1HasASubscriberForIMyEvent = true;
                         context.Publisher2HasDetectedASubscriberForEvent2 = true;
                     }
+                    return Task.FromResult(0);
                 }))
                 .AllowExceptions(e => e.Message.Contains("Oracle.DataAccess.Client.OracleException: ORA-00001") || e.Message.Contains("System.Data.SqlClient.SqlException: Violation of PRIMARY KEY constraint"))
                 .Done(c => c.SubscriberGotIMyEvent && c.SubscriberGotMyEvent2)

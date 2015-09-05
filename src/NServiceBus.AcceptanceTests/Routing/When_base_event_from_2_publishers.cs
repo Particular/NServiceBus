@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
@@ -14,10 +15,18 @@
 
             Scenario.Define(cc)
                .WithEndpoint<Publisher1>(b =>
-                        b.When(c => c.SubscribedToPublisher1, bus => bus.Publish(new DerivedEvent1()))
+                        b.When(c => c.SubscribedToPublisher1, bus =>
+                        {
+                            bus.Publish(new DerivedEvent1());
+                            return Task.FromResult(0);
+                        })
                      )
                 .WithEndpoint<Publisher2>(b =>
-                        b.When(c => c.SubscribedToPublisher2, bus => bus.Publish(new DerivedEvent2()))
+                        b.When(c => c.SubscribedToPublisher2, bus =>
+                        {
+                            bus.Publish(new DerivedEvent2());
+                            return Task.FromResult(0);
+                        })
                      )
                .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
                {
@@ -29,6 +38,7 @@
                        context.SubscribedToPublisher1 = true;
                        context.SubscribedToPublisher2 = true;
                    }
+                   return Task.FromResult(0);
                }))
                .AllowExceptions(e => e.Message.Contains("Oracle.DataAccess.Client.OracleException: ORA-00001") || e.Message.Contains("System.Data.SqlClient.SqlException: Violation of PRIMARY KEY constraint"))
                .Done(c => c.GotTheEventFromPublisher1 && c.GotTheEventFromPublisher2)

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
@@ -19,7 +20,11 @@
             var context = new Context();
 
             Scenario.Define(context)
-                .WithEndpoint<SendOnlyPublisher>(b => b.Given((bus, c) => bus.Publish(new MyEvent())))
+                .WithEndpoint<SendOnlyPublisher>(b => b.Given((bus, c) =>
+                {
+                    bus.Publish(new MyEvent());
+                    return Task.FromResult(0);
+                }))
                 .WithEndpoint<Subscriber>()
                 .Done(c => c.SubscriberGotTheEvent)
                 .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())

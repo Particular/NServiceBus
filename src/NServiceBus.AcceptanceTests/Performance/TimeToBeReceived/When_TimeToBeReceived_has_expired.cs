@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Performance.TimeToBeReceived
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
@@ -12,7 +13,11 @@
         {
             var context = new Context();
             Scenario.Define(context)
-                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) => bus.SendLocal(new MyMessage())))
+                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
+                    {
+                        bus.SendLocal(new MyMessage());
+                        return Task.FromResult(0);
+                    }))
                     .Run(TimeSpan.FromSeconds(10));
             Assert.IsFalse(context.WasCalled);
         }

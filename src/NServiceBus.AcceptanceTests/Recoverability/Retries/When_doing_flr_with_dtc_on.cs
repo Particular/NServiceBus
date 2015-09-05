@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
@@ -16,7 +17,11 @@
         public void Should_do_X_retries_by_default_with_dtc_on()
         {
             Scenario.Define(() => new Context { Id = Guid.NewGuid() })
-                    .WithEndpoint<RetryEndpoint>(b => b.Given((bus, context) => bus.SendLocal(new MessageToBeRetried{ Id = context.Id })))
+                    .WithEndpoint<RetryEndpoint>(b => b.Given((bus, context) =>
+                    {
+                        bus.SendLocal(new MessageToBeRetried{ Id = context.Id });
+                        return Task.FromResult(0);
+                    }))
                     .AllowExceptions()
                     .Done(c => c.GaveUpOnRetries)
                     .Repeat(r => r.For<AllDtcTransports>())

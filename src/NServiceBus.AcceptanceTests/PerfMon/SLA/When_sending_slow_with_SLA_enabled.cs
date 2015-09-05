@@ -3,6 +3,7 @@
     using System;
     using System.Diagnostics;
     using System.Threading;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
@@ -21,7 +22,11 @@
             {
                 var context = new Context();
                 Scenario.Define(context)
-                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) => bus.SendLocal(new MyMessage())))
+                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
+                    {
+                        bus.SendLocal(new MyMessage());
+                        return Task.FromResult(0);
+                    }))
                     .Done(c => c.WasCalled)
                     .Repeat(r => r.For(Transports.Default))
                     .Should(c => Assert.True(c.WasCalled, "The message handler should be called"))

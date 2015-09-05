@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Recoverability
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Config;
@@ -23,9 +24,13 @@
             Assert.IsTrue(context.TTBRHasExpiredAndMessageIsStillInErrorQueue);
         }
 
-        static Action<IBus> Send()
+        static Func<IBus, Task> Send()
         {
-            return bus => bus.SendLocal(new MessageThatFails());
+            return bus =>
+            {
+                bus.SendLocal(new MessageThatFails());
+                return Task.FromResult(0);
+            };
         }
 
         class Context : ScenarioContext

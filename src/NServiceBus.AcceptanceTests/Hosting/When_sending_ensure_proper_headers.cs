@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
@@ -17,10 +18,14 @@
             };
 
             Scenario.Define(context)
-                                .WithEndpoint<Sender>(b => b.Given((bus, ctx) => bus.Send<MyMessage>(m =>
+                                .WithEndpoint<Sender>(b => b.Given((bus, ctx) =>
                                 {
-                                    m.Id = ctx.Id;
-                                })))
+                                    bus.Send<MyMessage>(m =>
+                                    {
+                                        m.Id = ctx.Id;
+                                    });
+                                    return Task.FromResult(0);
+                                }))
                                 .WithEndpoint<Receiver>()
                                 .Done(c => c.WasCalled)
                                 .Run();

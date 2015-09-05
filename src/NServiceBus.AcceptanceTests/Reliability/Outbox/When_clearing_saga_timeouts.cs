@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Configuration.AdvanceExtensibility;
@@ -19,7 +20,11 @@
             var context = new Context();
 
             Scenario.Define(context)
-                .WithEndpoint<NonDtcReceivingEndpoint>(b => b.Given(bus => bus.SendLocal(new PlaceOrder { DataId = Guid.NewGuid() })))
+                .WithEndpoint<NonDtcReceivingEndpoint>(b => b.Given(bus =>
+                {
+                    bus.SendLocal(new PlaceOrder { DataId = Guid.NewGuid() });
+                    return Task.FromResult(0);
+                }))
                 .AllowExceptions()
                 .Done(c => c.Done)
                 .Run();

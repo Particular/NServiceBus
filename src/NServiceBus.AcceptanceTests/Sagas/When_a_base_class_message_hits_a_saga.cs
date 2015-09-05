@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Saga;
@@ -10,10 +11,10 @@
     public class When_a_base_class_message_hits_a_saga
     {
         [Test]
-        public void Should_find_existing_instance()
+        public async Task Should_find_existing_instance()
         {
             var correlationId = Guid.NewGuid();
-            var context = Scenario.Define<Context>()
+            var context = await Scenario.Define<Context>()
                    .WithEndpoint<SagaEndpoint>(b => b.Given(bus =>
                    {
                        bus.SendLocal(new StartSagaMessage
@@ -24,6 +25,7 @@
                        {
                            SomeId = correlationId
                        });
+                       return Task.FromResult(0);
                    }))
                    .Done(c => c.SecondMessageFoundExistingSaga)
                    .Run(TimeSpan.FromSeconds(20));

@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Reliability.Outbox
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
@@ -15,7 +16,11 @@
         {
           
             Scenario.Define<Context>()
-                    .WithEndpoint<NonDtcReceivingEndpoint>(b => b.Given(bus => bus.SendLocal(new PlaceOrder())))
+                    .WithEndpoint<NonDtcReceivingEndpoint>(b => b.Given(bus =>
+                    {
+                        bus.SendLocal(new PlaceOrder());
+                        return Task.FromResult(0);
+                    }))
                     .AllowExceptions()
                     .Done(c => c.OrderAckReceived == 1)
                     .Repeat(r=>r.For<AllOutboxCapableStorages>())

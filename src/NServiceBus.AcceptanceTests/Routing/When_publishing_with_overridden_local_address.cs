@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
@@ -14,7 +15,11 @@
         {
             Scenario.Define<Context>()
                     .WithEndpoint<Publisher>(b =>
-                        b.When(c => c.Subscriber1Subscribed, bus => bus.Publish(new MyEvent()))
+                        b.When(c => c.Subscriber1Subscribed, bus =>
+                        {
+                            bus.Publish(new MyEvent());
+                            return Task.FromResult(0);
+                        })
                      )
                     .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
                         {
@@ -22,6 +27,7 @@
 
                             if (context.HasNativePubSubSupport)
                                 context.Subscriber1Subscribed = true;
+                            return Task.FromResult(0);
                         }))
                     .Done(c => c.Subscriber1GotTheEvent)
                     .Repeat(r => r.For(Transports.Default))

@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Saga;
@@ -9,9 +10,9 @@
     public class When_message_has_a_saga_id : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_not_start_a_new_saga_if_not_found()
+        public async Task Should_not_start_a_new_saga_if_not_found()
         {
-            var context = Scenario.Define<Context>()
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<SagaEndpoint>(b => b.Given(bus =>
                 {
                     var message = new MessageWithSagaId();
@@ -21,6 +22,7 @@
                     options.SetHeader(Headers.SagaType, typeof(MessageWithSagaIdSaga).AssemblyQualifiedName);
                     options.RouteToLocalEndpointInstance();
                     bus.Send(message, options);
+                    return Task.FromResult(0);
                 }))
                 .Done(c => c.OtherSagaStarted)
                 .Run();

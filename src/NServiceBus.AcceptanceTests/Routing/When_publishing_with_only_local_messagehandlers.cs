@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
@@ -13,7 +14,11 @@
         {
             Scenario.Define<Context>()
                 .WithEndpoint<MessageDrivenPublisher>(b =>
-                    b.When(c => c.LocalEndpointSubscribed, bus => bus.Publish(new EventHandledByLocalEndpoint())))
+                    b.When(c => c.LocalEndpointSubscribed, bus =>
+                    {
+                        bus.Publish(new EventHandledByLocalEndpoint());
+                        return Task.FromResult(0);
+                    }))
                 .Done(c => c.CatchAllHandlerGotTheMessage)
                 .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
                 .Should(c => Assert.True(c.CatchAllHandlerGotTheMessage))
@@ -26,8 +31,16 @@
             Scenario.Define<Context>()
                        .WithEndpoint<CentralizedStoragePublisher>(b =>
                        {
-                           b.Given(bus => bus.Subscribe<EventHandledByLocalEndpoint>());
-                           b.When(c => c.EndpointsStarted, (bus, context) => bus.Publish(new EventHandledByLocalEndpoint()));
+                           b.Given(bus =>
+                           {
+                               bus.Subscribe<EventHandledByLocalEndpoint>();
+                               return Task.FromResult(0);
+                           });
+                           b.When(c => c.EndpointsStarted, (bus, context) =>
+                           {
+                               bus.Publish(new EventHandledByLocalEndpoint());
+                               return Task.FromResult(0);
+                           });
                        })
                        .Done(c => c.CatchAllHandlerGotTheMessage)
                        .Repeat(r => r.For<AllTransportsWithCentralizedPubSubSupport>())

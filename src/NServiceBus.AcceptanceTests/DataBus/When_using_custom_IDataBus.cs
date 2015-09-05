@@ -2,6 +2,7 @@
 {
     using System;
     using System.IO;
+    using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
     using NServiceBus.DataBus;
@@ -20,10 +21,14 @@
             };
 
             Scenario.Define(context)
-                    .WithEndpoint<SenderViaFluent>(b => b.Given(bus => bus.Send(new MyMessageWithLargePayload
+                    .WithEndpoint<SenderViaFluent>(b => b.Given(bus =>
                     {
-                        Payload = new DataBusProperty<byte[]>(PayloadToSend)
-                    })))
+                        bus.Send(new MyMessageWithLargePayload
+                        {
+                            Payload = new DataBusProperty<byte[]>(PayloadToSend)
+                        });
+                        return Task.FromResult(0);
+                    }))
                     .WithEndpoint<ReceiverViaFluent>()
                     .Done(c => c.ReceivedPayload != null)
                     .Run();

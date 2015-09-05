@@ -2,6 +2,7 @@ namespace NServiceBus.AcceptanceTests.Hosting
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Features;
@@ -18,7 +19,11 @@ namespace NServiceBus.AcceptanceTests.Hosting
             var context = new Context();
 
             Scenario.Define(context)
-                .WithEndpoint<MyEndpoint>(e => e.Given(b => b.SendLocal(new MyMessage())))
+                .WithEndpoint<MyEndpoint>(e => e.Given(b =>
+                {
+                    b.SendLocal(new MyMessage());
+                    return Task.FromResult(0);
+                }))
                 .Done(c => c.OriginatingHostId != Guid.Empty)
                 .Run();
 

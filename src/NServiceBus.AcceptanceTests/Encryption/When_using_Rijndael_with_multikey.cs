@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
     using NUnit.Framework;
@@ -13,10 +14,14 @@
         public void Should_receive_decrypted_message()
         {
             Scenario.Define<Context>()
-                    .WithEndpoint<Sender>(b => b.Given((bus, context) => bus.Send(new MessageWithSecretData
+                    .WithEndpoint<Sender>(b => b.Given((bus, context) =>
+                    {
+                        bus.Send(new MessageWithSecretData
                         {
                             Secret = "betcha can't guess my secret",
-                        })))
+                        });
+                        return Task.FromResult(0);
+                    }))
                     .WithEndpoint<Receiver>()
                     .Done(c => c.Done)
                     .Repeat(r => r.For(Transports.Default))

@@ -1,6 +1,7 @@
 namespace NServiceBus.AcceptanceTests.Recoverability.Retries
 {
     using System.Linq;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NUnit.Framework;
 
@@ -13,7 +14,11 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
             var context = new Context();
 
             Scenario.Define(context)
-                .WithEndpoint<RetryEndpoint>(b => b.Given(bus => bus.SendLocal(new MessageToBeRetried())))
+                .WithEndpoint<RetryEndpoint>(b => b.Given(bus =>
+                {
+                    bus.SendLocal(new MessageToBeRetried());
+                    return Task.FromResult(0);
+                }))
                 .AllowExceptions(e => e is SimulatedException)
                 .Done(c => c.SlrChecksum != default(byte))
                 .Run();
@@ -27,7 +32,11 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
             var context = new Context();
 
             Scenario.Define(context)
-                .WithEndpoint<RetryEndpoint>(b => b.Given(bus => bus.SendLocal(new MessageToBeRetried())))
+                .WithEndpoint<RetryEndpoint>(b => b.Given(bus =>
+                {
+                    bus.SendLocal(new MessageToBeRetried());
+                    return Task.FromResult(0);
+                }))
                 .AllowExceptions(e => e is SimulatedException)
                 .Done(c => c.ForwardedToErrorQueue)
                 .Run();

@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
     using NServiceBus.Encryption;
@@ -11,27 +12,34 @@
     public class When_using_encryption_with_custom_service : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_receive_decrypted_message()
+        public async Task Should_receive_decrypted_message()
         {
-            var context = Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new MessageWithSecretData
+            var context = await Scenario.Define<Context>()
+                    .WithEndpoint<Endpoint>(b => b.Given(bus =>
+                    {
+                        bus.SendLocal(new MessageWithSecretData
                         {
                             Secret = "betcha can't guess my secret",
-                            SubProperty = new MySecretSubProperty {Secret = "My sub secret"},
+                            SubProperty = new MySecretSubProperty
+                            {
+                                Secret = "My sub secret"
+                            },
                             CreditCards = new List<CreditCardDetails>
+                            {
+                                new CreditCardDetails
                                 {
-                                    new CreditCardDetails
-                                        {
-                                            ValidTo = DateTime.UtcNow.AddYears(1),
-                                            Number = "312312312312312"
-                                        },
-                                    new CreditCardDetails
-                                        {
-                                            ValidTo = DateTime.UtcNow.AddYears(2),
-                                            Number = "543645546546456"
-                                        }
+                                    ValidTo = DateTime.UtcNow.AddYears(1),
+                                    Number = "312312312312312"
+                                },
+                                new CreditCardDetails
+                                {
+                                    ValidTo = DateTime.UtcNow.AddYears(2),
+                                    Number = "543645546546456"
                                 }
-                        })))
+                            }
+                        });
+                        return Task.FromResult(0);
+                    }))
                     .Done(c => c.GotTheMessage)
                     .Run();
 

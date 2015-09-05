@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Reliability.Outbox
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Configuration.AdvanceExtensibility;
@@ -16,7 +17,11 @@
             var context = new Context();
 
             Scenario.Define(context)
-                    .WithEndpoint<EndpointWithAuditOn>(b => b.Given(bus => bus.SendLocal(new MessageToBeAudited())))
+                    .WithEndpoint<EndpointWithAuditOn>(b => b.Given(bus =>
+                    {
+                        bus.SendLocal(new MessageToBeAudited());
+                        return Task.FromResult(0);
+                    }))
                     .WithEndpoint<AuditSpyEndpoint>()
                     .AllowExceptions(e => e is EndpointWithAuditOn.BlowUpAfterDispatchBehavior.FakeException)
                     .Done(c => c.Done)

@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
+    using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
     using NUnit.Framework;
@@ -19,7 +20,11 @@
             };
 
             Scenario.Define(context)
-                    .WithEndpoint<EndpointThatHostsASaga>(b => b.Given((bus, ctx) => bus.SendLocal(new StartSaga { RunId = ctx.RunId })))
+                    .WithEndpoint<EndpointThatHostsASaga>(b => b.Given((bus, ctx) =>
+                    {
+                        bus.SendLocal(new StartSaga { RunId = ctx.RunId });
+                        return Task.FromResult(0);
+                    }))
                     .WithEndpoint<EndpointThatRepliesToSagaMessage>()
                     .Done(c => c.Done)
                     .Run();

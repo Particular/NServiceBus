@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.DelayedDelivery
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Features;
@@ -25,6 +26,7 @@
                         c.SentAt = DateTime.UtcNow;
 
                         bus.Send(new MyMessage(), options);
+                        return Task.FromResult(0);
                     }))
                     .Done(c => c.WasCalled)
                     .Run();

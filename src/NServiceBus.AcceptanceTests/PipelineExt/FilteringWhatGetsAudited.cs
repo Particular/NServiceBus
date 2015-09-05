@@ -2,6 +2,7 @@
 namespace NServiceBus.AcceptanceTests.PipelineExt
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Audit;
@@ -19,7 +20,11 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
         {
             var context = new Context();
             Scenario.Define(context)
-                .WithEndpoint<UserEndpoint>(b => b.Given(bus => bus.SendLocal(new MessageToBeAudited())))
+                .WithEndpoint<UserEndpoint>(b => b.Given(bus =>
+                {
+                    bus.SendLocal(new MessageToBeAudited());
+                    return Task.FromResult(0);
+                }))
                 .WithEndpoint<AuditSpy>()
                 .Done(c => c.Done)
                 .Run();

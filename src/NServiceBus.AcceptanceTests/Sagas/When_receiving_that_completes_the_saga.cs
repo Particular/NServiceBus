@@ -16,7 +16,11 @@
             Scenario.Define(() => new Context { Id = Guid.NewGuid() })
                     .WithEndpoint<SagaEndpoint>(b =>
                         {
-                            b.Given((bus, context) => bus.SendLocal(new StartSagaMessage { SomeId = context.Id }));
+                            b.Given((bus, context) =>
+                            {
+                                bus.SendLocal(new StartSagaMessage { SomeId = context.Id });
+                                return Task.FromResult(0);
+                            });
                             b.When(context => context.StartSagaMessageReceived, (bus, context) =>
                             {
                                 context.AddTrace("CompleteSagaMessage sent");
@@ -25,6 +29,7 @@
                                 {
                                     SomeId = context.Id
                                 });
+                                return Task.FromResult(0);
                             });
                         })
                     .Done(c => c.SagaCompleted)

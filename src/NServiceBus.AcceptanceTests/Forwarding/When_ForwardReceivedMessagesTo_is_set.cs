@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Forwarding
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Config;
@@ -17,6 +18,7 @@
                     .WithEndpoint<EndpointThatForwards>(b => b.Given((bus, c) =>
                     {
                         bus.SendLocal(new MessageToForward());
+                        return Task.FromResult(0);
                     }))
                     .WithEndpoint<ForwardReceiver>()
                     .Done(c => c.GotForwardedMessage)

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Threading.Tasks;
     using AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
@@ -15,7 +16,11 @@
         {
             Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithLocalCallback>(b => b.Given(
-                    (bus, context) => bus.SendLocal(new MyRequest())))
+                    (bus, context) =>
+                    {
+                        bus.SendLocal(new MyRequest());
+                        return Task.FromResult(0);
+                    }))
                 .AllowExceptions(exception => true)
                 .Done(c => c.ExceptionReceived)
                 .Repeat(r => r.For(Transports.Default))

@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.BestPractices
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
@@ -24,6 +25,7 @@
                             c.Exception = ex;
                             c.GotTheException = true;
                         }
+                        return Task.FromResult(0);
                     }))
                     .Done(c => c.GotTheException)
                     .AllowExceptions()

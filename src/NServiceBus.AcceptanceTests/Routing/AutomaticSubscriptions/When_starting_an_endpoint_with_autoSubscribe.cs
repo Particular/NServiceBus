@@ -2,6 +2,7 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Pipeline;
@@ -12,13 +13,12 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
     public class When_starting_an_endpoint_with_autosubscribe : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_autosubscribe_to_relevant_messagetypes()
+        public async Task Should_autosubscribe_to_relevant_messagetypes()
         {
-            var context = Scenario.Define<Context>()
+            var context = await Scenario.Define<Context>()
                .WithEndpoint<Subscriber>()
                .Done(c => c.EventsSubscribedTo.Count >= 1)
                .Run();
-
 
             Assert.True(context.EventsSubscribedTo.Contains(typeof(MyEvent)), "Events should be auto subscribed");
             Assert.False(context.EventsSubscribedTo.Contains(typeof(MyEventWithNoRouting)), "Events without routing should not be auto subscribed");
@@ -28,13 +28,12 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
         }
 
         [Test]
-        public void Should_autosubscribe_plain_messages_if_asked_to()
+        public async Task Should_autosubscribe_plain_messages_if_asked_to()
         {
-            var context = Scenario.Define<Context>()
+            var context = await Scenario.Define<Context>()
                .WithEndpoint<Subscriber>(b => b.CustomConfig(c => c.AutoSubscribe().AutoSubscribePlainMessages()))
                .Done(c => c.EventsSubscribedTo.Count >= 2)
                .Run();
-
 
             Assert.True(context.EventsSubscribedTo.Contains(typeof(MyEvent)), "Events should be auto subscribed");
             Assert.False(context.EventsSubscribedTo.Contains(typeof(MyEventWithNoRouting)), "Events without routing should not be auto subscribed");

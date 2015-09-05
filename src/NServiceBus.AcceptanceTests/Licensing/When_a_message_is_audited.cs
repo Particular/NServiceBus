@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Licensing
 {
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
@@ -12,7 +13,11 @@
             var context = new Context();
 
             Scenario.Define(context)
-                    .WithEndpoint<EndpointWithAuditOn>(b => b.Given(bus => bus.SendLocal(new MessageToBeAudited())))
+                    .WithEndpoint<EndpointWithAuditOn>(b => b.Given(bus =>
+                    {
+                        bus.SendLocal(new MessageToBeAudited());
+                        return Task.FromResult(0);
+                    }))
                     .WithEndpoint<AuditSpyEndpoint>()
                     .Done(c => c.HasDiagnosticLicensingHeaders)
                     .Run();

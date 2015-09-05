@@ -11,9 +11,9 @@
     public class When_timeout_hit_not_found_saga : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_not_fire_notfound_for_tm()
+        public async Task Should_not_fire_notfound_for_tm()
         {
-            var context = Scenario.Define<Context>()
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b.Given(bus =>
                 {
                     bus.SendLocal(new StartSaga());

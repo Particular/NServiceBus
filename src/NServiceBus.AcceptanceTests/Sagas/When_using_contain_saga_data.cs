@@ -11,9 +11,9 @@
     public class When_using_contain_saga_data : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_handle_timeouts_properly()
+        public async Task Should_handle_timeouts_properly()
         {
-            var context = Scenario.Define<Context>()
+            var context = await Scenario.Define<Context>()
                     .WithEndpoint<EndpointThatHostsASaga>(
                         b => b.Given(bus =>
                         {

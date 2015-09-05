@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Causation
 {
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
@@ -13,7 +14,11 @@
             var context = new Context();
 
             Scenario.Define(context)
-                    .WithEndpoint<CausationEndpoint>(b => b.Given(bus => bus.SendLocal(new MessageSentOutsideOfHandler())))
+                    .WithEndpoint<CausationEndpoint>(b => b.Given(bus =>
+                    {
+                        bus.SendLocal(new MessageSentOutsideOfHandler());
+                        return Task.FromResult(0);
+                    }))
                     .Done(c => c.Done)
                     .Run();
 

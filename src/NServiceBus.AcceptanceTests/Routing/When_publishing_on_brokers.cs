@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
@@ -13,14 +14,20 @@
         {
             Scenario.Define<Context>()
                     .WithEndpoint<CentralizedPublisher>
-                    (b => b.When(c => c.IsSubscriptionProcessedForSub1 && c.IsSubscriptionProcessedForSub2, bus => bus.Publish(new MyEvent())))
+                    (b => b.When(c => c.IsSubscriptionProcessedForSub1 && c.IsSubscriptionProcessedForSub2, bus =>
+                    {
+                        bus.Publish(new MyEvent());
+                        return Task.FromResult(0);
+                    }))
                     .WithEndpoint<CentralizedSubscriber1>(b => b.Given((bus, context) =>
                     {
                       context.IsSubscriptionProcessedForSub1 = true;
+                        return Task.FromResult(0);
                     }))
                     .WithEndpoint<CentralizedSubscriber2>(b => b.Given((bus, context) =>
                     {
                         context.IsSubscriptionProcessedForSub2 = true;
+                        return Task.FromResult(0);
                     }))
                     .Done(c => c.Subscriber1GotTheEvent && c.Subscriber2GotTheEvent)
                     .Repeat(r => r.For<AllTransportsWithCentralizedPubSubSupport>())

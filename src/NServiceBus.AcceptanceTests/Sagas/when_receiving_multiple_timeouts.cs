@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
+    using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
     using NServiceBus.Features;
@@ -16,7 +17,11 @@
             var context = new Context { Id = Guid.NewGuid() };
 
             Scenario.Define(context)
-                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) => bus.SendLocal(new StartSaga1 { ContextId = c.Id })))
+                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
+                    {
+                        bus.SendLocal(new StartSaga1 { ContextId = c.Id });
+                        return Task.FromResult(0);
+                    }))
                     .Done(c => (c.Saga1TimeoutFired && c.Saga2TimeoutFired) || c.SagaNotFound)
                     .Run(TimeSpan.FromSeconds(20));
 

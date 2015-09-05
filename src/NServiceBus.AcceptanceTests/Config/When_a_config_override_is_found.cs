@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Config
 {
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Config;
@@ -10,9 +11,9 @@
     {
 
         [Test]
-        public void Should_be_used_instead_of_pulling_the_settings_from_appconfig()
+        public async Task Should_be_used_instead_of_pulling_the_settings_from_appconfig()
         {
-            var context = Scenario.Define<Context>()
+            var context = await Scenario.Define<Context>()
                     .WithEndpoint<ConfigOverrideEndpoint>().Done(c =>c.ErrorQueueUsedByTheEndpoint != null)
                     .Run();
 

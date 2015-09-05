@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
@@ -15,7 +16,11 @@
         {
           
             Scenario.Define<Context>()
-                    .WithEndpoint<NonDtcReceivingEndpoint>(b => b.Given(bus => bus.SendLocal(new PlaceOrder())))
+                    .WithEndpoint<NonDtcReceivingEndpoint>(b => b.Given(bus =>
+                    {
+                        bus.SendLocal(new PlaceOrder());
+                        return Task.FromResult(0);
+                    }))
                    .Done(c => c.DispatchedMessageReceived)
                     .Repeat(r=>r.For<AllOutboxCapableStorages>())
                     .Should(context =>
