@@ -14,29 +14,7 @@
     public class When_Subscribing_to_errors : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_contain_exception_details()
-        {
-            Scenario.Define(() => new Context
-            {
-                Id = Guid.NewGuid()
-            })
-                .WithEndpoint<SLREndpoint>(b => b.Given((bus, c) => bus.SendLocal(new MessageToBeRetried
-                {
-                    Id = c.Id
-                })))
-                .AllowExceptions(e => e.Message.Contains("Simulated exception"))
-                .Done(c => c.MessageSentToError)
-                .Repeat(r => r.For<AllTransports>())
-                .Should(c =>
-                {
-                    Assert.IsInstanceOf<MySpecialException>(c.MessageSentToErrorException);
-                    Assert.True(c.Logs.Any(l => l.Level == "error" && l.Message.Contains("Simulated exception")), "The last exception should be logged as `error` before sending it to the error queue");
-                })
-                .Run();
-        }
-
-        [Test]
-        public void Should_receive_notifications()
+        public void Should_retain_exception_details_over_FLR_and_SLR()
         {
             var context = new Context
             {
@@ -46,7 +24,11 @@
                 .WithEndpoint<SLREndpoint>()
                 .AllowExceptions(e => e.Message.Contains("Simulated exception"))
                 .Done(c => c.MessageSentToError)
+                .Repeat(r => r.For<AllTransports>())
                 .Run();
+
+            Assert.IsInstanceOf<MySpecialException>(context.MessageSentToErrorException);
+            Assert.True(context.Logs.Any(l => l.Level == "error" && l.Message.Contains("Simulated exception")), "The last exception should be logged as `error` before sending it to the error queue");
 
             //FLR max retries = 3 means we will be processing 4 times. SLR max retries = 2 means we will do 3*FLR
             Assert.AreEqual(4 * 3, context.TotalNumberOfFLRTimesInvokedInHandler);
