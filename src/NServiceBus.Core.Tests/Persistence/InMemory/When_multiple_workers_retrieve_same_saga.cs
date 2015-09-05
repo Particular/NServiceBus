@@ -23,7 +23,7 @@
             var persister = InMemoryPersisterBuilder.Build<TestSaga>();
             persister.Save(saga, options);
 
-            var returnedSaga1 = persister.Get<TestSagaData>(saga.Id, options);
+            var returnedSaga1 = persister.Get<TestSagaData>(saga.Id.ToString(), options);
             var returnedSaga2 = persister.Get<TestSagaData>("Id", saga.Id, options);
             Assert.AreNotSame(returnedSaga2, returnedSaga1);
             Assert.AreNotSame(returnedSaga1, saga);
@@ -37,7 +37,7 @@
             var persister = InMemoryPersisterBuilder.Build<TestSaga>();
             persister.Save(saga, options);
 
-            var returnedSaga1 = Task<TestSagaData>.Factory.StartNew(() => persister.Get<TestSagaData>(saga.Id, options)).Result;
+            var returnedSaga1 = Task<TestSagaData>.Factory.StartNew(() => persister.Get<TestSagaData>(saga.Id.ToString(), options)).Result;
             var returnedSaga2 = persister.Get<TestSagaData>("Id", saga.Id, options);
 
             persister.Save(returnedSaga1, options);
@@ -52,7 +52,7 @@
             var persister = InMemoryPersisterBuilder.Build<TestSaga>();
             persister.Save(saga, options);
 
-            var record = persister.Get<TestSagaData>(saga.Id, options);
+            var record = persister.Get<TestSagaData>(saga.Id.ToString(), options);
             var staleRecord = persister.Get<TestSagaData>("Id", saga.Id, options);
 
             persister.Save(record, options);
@@ -67,7 +67,7 @@
             var persister = InMemoryPersisterBuilder.Build<TestSaga>();
             persister.Save(saga, options);
 
-            var returnedSaga1 = persister.Get<TestSagaData>(saga.Id, options);
+            var returnedSaga1 = persister.Get<TestSagaData>(saga.Id.ToString(), options);
             persister.Save(returnedSaga1, options);
 
             var exception = Assert.Throws<Exception>(() => persister.Save(returnedSaga1, options));
@@ -82,7 +82,7 @@
             var persister = InMemoryPersisterBuilder.Build<TestSaga>();
             persister.Save(saga, options);
 
-            var returnedSaga1 = Task<TestSagaData>.Factory.StartNew(() => persister.Get<TestSagaData>(saga.Id, options)).Result;
+            var returnedSaga1 = Task<TestSagaData>.Factory.StartNew(() => persister.Get<TestSagaData>(saga.Id.ToString(), options)).Result;
             var returnedSaga2 = persister.Get<TestSagaData>("Id", saga.Id, options);
 
             persister.Save(returnedSaga1, options);
@@ -90,7 +90,7 @@
             Assert.IsTrue(exceptionFromSaga2.Message.StartsWith(string.Format("InMemorySagaPersister concurrency violation: saga entity Id[{0}] already saved.", saga.Id)));
 
             var returnedSaga3 = Task<TestSagaData>.Factory.StartNew(() => persister.Get<TestSagaData>("Id", saga.Id, options)).Result;
-            var returnedSaga4 = persister.Get<TestSagaData>(saga.Id, options);
+            var returnedSaga4 = persister.Get<TestSagaData>(saga.Id.ToString(), options);
 
             persister.Save(returnedSaga4, options);
 

@@ -15,9 +15,9 @@
             var options = new SagaPersistenceOptions(SagaMetadata.Create(typeof(TestSaga)));
 
             persister.Save(saga, options);
-            Assert.NotNull(persister.Get<TestSagaData>(saga.Id, options));
+            Assert.NotNull(persister.Get<TestSagaData>(saga.Id.ToString(), options));
             persister.Complete(saga, options);
-            Assert.Null(persister.Get<TestSagaData>(saga.Id, options));
+            Assert.Null(persister.Get<TestSagaData>(saga.Id.ToString(), options));
         }
     }
 }

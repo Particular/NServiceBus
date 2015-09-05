@@ -1,7 +1,5 @@
 namespace NServiceBus.Saga
 {
-    using System;
-
     /// <summary>
     /// Defines the basic functionality of a persister for storing 
 	/// and retrieving a saga.
@@ -27,7 +25,7 @@ namespace NServiceBus.Saga
         /// </summary>
         /// <param name="sagaId">The Id of the saga entity to get.</param>
         /// <param name="options">The saga persistence options.</param>
-        TSagaData Get<TSagaData>(Guid sagaId, SagaPersistenceOptions options) where TSagaData : IContainSagaData;
+        TSagaData Get<TSagaData>(string sagaId, SagaPersistenceOptions options) where TSagaData : IContainSagaData;
 
         /// <summary>
         /// Looks up a saga entity by a given property.

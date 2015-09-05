@@ -19,7 +19,7 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
             var options = new SagaPersistenceOptions(SagaMetadata.Create(typeof(SagaWithUniqueProperty)));
 
             persister.Save(saga1, options);
-            saga1 = persister.Get<SagaWithUniquePropertyData>(saga1.Id, options);
+            saga1 = persister.Get<SagaWithUniquePropertyData>(saga1.Id.ToString(), options);
             persister.Update(saga1, options);
         }
     }

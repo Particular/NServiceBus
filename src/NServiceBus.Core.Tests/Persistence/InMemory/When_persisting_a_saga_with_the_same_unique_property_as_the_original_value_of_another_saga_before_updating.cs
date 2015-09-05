@@ -17,7 +17,7 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
 
             var persister = InMemoryPersisterBuilder.Build<SagaWithUniqueProperty>();
             persister.Save(saga1, options);
-            saga1 = persister.Get<SagaWithUniquePropertyData>(saga1.Id, options);
+            saga1 = persister.Get<SagaWithUniquePropertyData>(saga1.Id.ToString(), options);
             saga1.UniqueString = "whatever2";
             persister.Update(saga1, options);
 

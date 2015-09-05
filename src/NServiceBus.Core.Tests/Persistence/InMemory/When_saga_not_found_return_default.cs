@@ -27,7 +27,7 @@
         public void Should_return_default_when_using_finding_saga_with_id()
         {
             var persister = InMemoryPersisterBuilder.Build<SimpleSagaEntitySaga>();
-            var simpleSageEntity = persister.Get<SimpleSagaEntity>(Guid.Empty, options);
+            var simpleSageEntity = persister.Get<SimpleSagaEntity>(Guid.Empty.ToString(), options);
             Assert.IsNull(simpleSageEntity);
         }
 
@@ -43,7 +43,7 @@
             var persister = InMemoryPersisterBuilder.Build<SimpleSagaEntitySaga>();
             persister.Save(simpleSagaEntity, options);
 
-            var anotherSagaEntity = persister.Get<AnotherSimpleSagaEntity>(id, options);
+            var anotherSagaEntity = persister.Get<AnotherSimpleSagaEntity>(id.ToString(), options);
             Assert.IsNull(anotherSagaEntity);
         }
     }
