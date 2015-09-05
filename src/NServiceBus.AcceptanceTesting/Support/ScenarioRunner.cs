@@ -6,7 +6,6 @@
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
-    using System.Runtime.ExceptionServices;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
@@ -220,29 +219,29 @@
             var startTime = DateTime.UtcNow;
             var maxTime = runDescriptor.TestExecutionTimeout;
             
-            ExceptionDispatchInfo exceptionInfo = null;
             try
             {
                 // Let's use a blocking SpinWait for now
                 SpinWait.SpinUntil(done, maxTime);
 
-                if ((DateTime.UtcNow - startTime) > maxTime)
+                while (!done())
                 {
-                    throw new ScenarioException(GenerateTestTimedOutMessage(maxTime));
+                    if ((DateTime.UtcNow - startTime) > maxTime)
+                    {
+                        throw new ScenarioException(GenerateTestTimedOutMessage(maxTime));
+                    }
+
+                    await Task.Delay(1);
                 }
             }
-            catch(Exception ex)
+            catch(Exception)
             {
-                exceptionInfo = ExceptionDispatchInfo.Capture(ex);
+                // We swallow like the original code
+                // TODO Daniel: Why??
             }
 
             // With this version of C# we can't await in finally
             await StopEndpoints(endpoints);
-
-            if (exceptionInfo != null)
-            {
-                exceptionInfo.Throw();
-            }
             
             var exceptions = runDescriptor.ScenarioContext.Exceptions
                         .Where(ex => !allowedExceptions(ex))
