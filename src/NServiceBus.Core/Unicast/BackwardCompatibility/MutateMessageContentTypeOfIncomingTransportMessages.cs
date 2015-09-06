@@ -15,9 +15,10 @@
         /// <param name="transportMessage">Transport Message to mutate.</param>
         public void MutateIncoming(MutateIncomingTransportMessageContext transportMessage)
         {
-            if (!TransportMessageExtensions.IsControlMessage(transportMessage.Headers) && !transportMessage.Headers.ContainsKey(Headers.ContentType))
+            var headers = transportMessage.Headers;
+            if (!TransportMessageExtensions.IsControlMessage(headers) && !headers.ContainsKey(Headers.ContentType))
             {
-                transportMessage.Headers[Headers.ContentType] = Serializer.ContentType;
+                headers[Headers.ContentType] = Serializer.ContentType;
             }
         }
 

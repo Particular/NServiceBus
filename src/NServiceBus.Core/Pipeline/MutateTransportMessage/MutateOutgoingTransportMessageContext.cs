@@ -7,37 +7,65 @@ namespace NServiceBus.MessageMutator
     /// </summary>
     public class MutateOutgoingTransportMessageContext
     {
-        byte[] body;
+        byte[] outgoingBody;
+        Dictionary<string, string> incomingHeaders;
+        object incomingMessage;
 
         /// <summary>
         /// Initializes a new instance of <see cref="MutateOutgoingTransportMessageContext"/>.
         /// </summary>
-        public MutateOutgoingTransportMessageContext(byte[] body, Dictionary<string, string> headers)
+        public MutateOutgoingTransportMessageContext(byte[] outgoingBody, object outgoingMessage, Dictionary<string, string> outgoingHeaders, object incomingMessage, Dictionary<string, string> incomingHeaders)
         {
-            Guard.AgainstNull("headers", headers);
-            Guard.AgainstNull("body", body);
-            Headers = headers;
-            Body = body;
+            Guard.AgainstNull("outgoingHeaders", outgoingHeaders);
+            Guard.AgainstNull("outgoingBody", outgoingBody);
+            Guard.AgainstNull("outgoingMessage", outgoingMessage);
+            OutgoingHeaders = outgoingHeaders;
+            OutgoingBody = outgoingBody;
+            OutgoingMessage = outgoingMessage;
+            this.incomingHeaders = incomingHeaders;
+            this.incomingMessage = incomingMessage;
         }
+
+        /// <summary>
+        /// The current outgoing message.
+        /// </summary>
+        public object OutgoingMessage { get; private set; }
 
         /// <summary>
         /// The body of the message.
         /// </summary>
-        public byte[] Body
+        public byte[] OutgoingBody
         {
-            get { return body; }
+            get { return outgoingBody; }
             set
             {
                 Guard.AgainstNull("value",value);
-                body = value;
+                outgoingBody = value;
             }
         }
 
         /// <summary>
         /// The current outgoing headers.
         /// </summary>
-        public Dictionary<string, string> Headers { get; private set; }
+        public IDictionary<string, string> OutgoingHeaders { get; private set; }
 
+        /// <summary>
+        /// Gets the incoming message that initiated the current send if it exists.
+        /// </summary>
+        public bool TryGetIncomingMessage(out object incomingMessage)
+        {
+            incomingMessage = this.incomingMessage;
+            return incomingMessage != null;
+        }
+
+        /// <summary>
+        /// Gets the incoming headers that initiated the current send if it exists.
+        /// </summary>
+        public bool TryGetIncomingHeaders(out IReadOnlyDictionary<string, string> incomingHeaders)
+        {
+            incomingHeaders = this.incomingHeaders;
+            return incomingHeaders != null;
+        }
 
     }
 }

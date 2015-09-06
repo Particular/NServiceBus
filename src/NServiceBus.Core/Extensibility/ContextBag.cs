@@ -94,6 +94,26 @@ namespace NServiceBus.Extensibility
             stash[key] = t;
         }
 
+        /// <summary>
+        /// Walk the tree of context until one is found of the type <typeparamref name="T"/>.
+        /// </summary>
+        public bool TryGetRootContext<T>(out T result) where T: ContextBag
+        {
+            var cast = this as T;
+            if (cast != null)
+            {
+                result = cast;
+                return true;
+            }
+
+            if (parentBag == null)
+            {
+                result = null;
+                return false;
+            }
+
+            return parentBag.TryGetRootContext(out result);
+        }
         bool TryGet<T>(string key, out T result)
         {
             Guard.AgainstNullAndEmpty("key", key);

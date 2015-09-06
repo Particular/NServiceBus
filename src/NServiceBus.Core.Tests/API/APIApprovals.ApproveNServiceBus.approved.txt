@@ -1098,6 +1098,8 @@ namespace NServiceBus.Extensibility
         public void Remove<T>() { }
         public void Set<T>(T t) { }
         public bool TryGet<T>(out T result) { }
+        public bool TryGetRootContext<T>(out T result)
+            where T : NServiceBus.Extensibility.ContextBag { }
     }
     public abstract class ExtendableOptions
     {
@@ -1515,26 +1517,31 @@ namespace NServiceBus.MessageMutator
     public class MutateIncomingMessageContext
     {
         public MutateIncomingMessageContext(object messageInstance, System.Collections.Generic.Dictionary<string, string> headers) { }
-        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
+        public System.Collections.Generic.IDictionary<string, string> Headers { get; }
         public object MessageInstance { get; set; }
     }
     public class MutateIncomingTransportMessageContext
     {
         public MutateIncomingTransportMessageContext(byte[] body, System.Collections.Generic.Dictionary<string, string> headers) { }
         public byte[] Body { get; set; }
-        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
+        public System.Collections.Generic.IDictionary<string, string> Headers { get; }
     }
     public class MutateOutgoingMessageContext
     {
-        public MutateOutgoingMessageContext(object messageInstance, System.Collections.Generic.Dictionary<string, string> headers) { }
-        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
-        public object MessageInstance { get; set; }
+        public MutateOutgoingMessageContext(object outgoingMessage, System.Collections.Generic.Dictionary<string, string> outgoingHeaders, object incomingMessage, System.Collections.Generic.Dictionary<string, string> incomingHeaders) { }
+        public System.Collections.Generic.IDictionary<string, string> OutgoingHeaders { get; }
+        public object OutgoingMessage { get; set; }
+        public bool TryGetIncomingHeaders(out System.Collections.Generic.IReadOnlyDictionary<, > incomingHeaders) { }
+        public bool TryGetIncomingMessage(out object incomingMessage) { }
     }
     public class MutateOutgoingTransportMessageContext
     {
-        public MutateOutgoingTransportMessageContext(byte[] body, System.Collections.Generic.Dictionary<string, string> headers) { }
-        public byte[] Body { get; set; }
-        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
+        public MutateOutgoingTransportMessageContext(byte[] outgoingBody, object outgoingMessage, System.Collections.Generic.Dictionary<string, string> outgoingHeaders, object incomingMessage, System.Collections.Generic.Dictionary<string, string> incomingHeaders) { }
+        public byte[] OutgoingBody { get; set; }
+        public System.Collections.Generic.IDictionary<string, string> OutgoingHeaders { get; }
+        public object OutgoingMessage { get; }
+        public bool TryGetIncomingHeaders(out System.Collections.Generic.IReadOnlyDictionary<, > incomingHeaders) { }
+        public bool TryGetIncomingMessage(out object incomingMessage) { }
     }
 }
 namespace NServiceBus.ObjectBuilder.Common

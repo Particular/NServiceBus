@@ -72,6 +72,7 @@
     <Compile Include="Basic\When_setting_msmq_label_generator.cs" />
     <Compile Include="Basic\When_deferring_to_non_local.cs" />
     <Compile Include="Basic\When_starting_up_the_endpoint.cs" />
+    <Compile Include="Mutators\When_mutating.cs" />
     <Compile Include="Mutators\When_using_outgoing_tm_mutator.cs" />
     <Compile Include="Recoverability\Retries\When_message_fails_retries.cs" />
     <Compile Include="Recoverability\When_error_is_overridden_in_code.cs" />

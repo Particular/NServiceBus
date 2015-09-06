@@ -70,7 +70,7 @@
 
                 public void MutateOutgoing(MutateOutgoingTransportMessageContext context)
                 {
-                    context.Body[0]--;
+                    context.OutgoingBody[0]--;
                 }
             }
 

@@ -8,39 +8,62 @@ namespace NServiceBus.MessageMutator
     public class MutateOutgoingMessageContext
     {
 
-        object messageInstance;
+        object outgoingMessage;
         /// <summary>
         /// Initializes the context.
         /// </summary>
-        public MutateOutgoingMessageContext(object messageInstance, Dictionary<string, string> headers)
+        public MutateOutgoingMessageContext(object outgoingMessage, Dictionary<string, string> outgoingHeaders, object incomingMessage, Dictionary<string, string> incomingHeaders)
         {
-            Guard.AgainstNull("headers", headers);
-            Guard.AgainstNull("messageInstance", messageInstance);
-            Headers = headers;
-            this.messageInstance = messageInstance;
+            Guard.AgainstNull("outgoingHeaders", outgoingHeaders);
+            Guard.AgainstNull("outgoingMessage", outgoingMessage);
+            OutgoingHeaders = outgoingHeaders;
+            this.incomingMessage = incomingMessage;
+            this.incomingHeaders = incomingHeaders;
+            this.outgoingMessage = outgoingMessage;
         }
 
         /// <summary>
         /// The current outgoing message.
         /// </summary>
-        public object MessageInstance
+        public object OutgoingMessage
         {
             get
             {
-                return messageInstance;
+                return outgoingMessage;
             }
             set
             {
                 Guard.AgainstNull("value", value);
                 MessageInstanceChanged = true;
-                messageInstance = value;
+                outgoingMessage = value;
             }
         }
 
         internal bool MessageInstanceChanged;
+        readonly object incomingMessage;
+        Dictionary<string, string> incomingHeaders;
+
         /// <summary>
         /// The current outgoing headers.
         /// </summary>
-        public Dictionary<string, string> Headers { get; private set; }
+        public IDictionary<string, string> OutgoingHeaders { get; private set; }
+
+        /// <summary>
+        /// Gets the incoming message that initiated the current send if it exists.
+        /// </summary>
+        public bool TryGetIncomingMessage(out object incomingMessage)
+        {
+            incomingMessage = this.incomingMessage;
+            return incomingMessage != null;
+        }
+
+        /// <summary>
+        /// Gets the incoming headers that initiated the current send if it exists.
+        /// </summary>
+        public bool TryGetIncomingHeaders(out IReadOnlyDictionary<string, string> incomingHeaders)
+        {
+            incomingHeaders = this.incomingHeaders;
+            return incomingHeaders != null;
+        }
     }
 }

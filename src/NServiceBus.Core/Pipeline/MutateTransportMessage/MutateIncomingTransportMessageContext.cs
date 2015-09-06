@@ -3,7 +3,7 @@ namespace NServiceBus.MessageMutator
     using System.Collections.Generic;
 
     /// <summary>
-    /// Context class for <see cref="IMutateIncomingMessages"/>.
+    /// Context class for <see cref="IMutateIncomingTransportMessages"/>.
     /// </summary>
     public class MutateIncomingTransportMessageContext
     {
@@ -36,7 +36,7 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// The current incoming headers.
         /// </summary>
-        public Dictionary<string, string> Headers { get; private set; }
+        public IDictionary<string, string> Headers { get; private set; }
 
 
     }
