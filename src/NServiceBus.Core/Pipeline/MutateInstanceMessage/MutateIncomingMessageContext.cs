@@ -7,37 +7,37 @@ namespace NServiceBus.MessageMutator
     /// </summary>
     public class MutateIncomingMessageContext
     {
-        object messageInstance;
+        object message;
 
         /// <summary>
         /// Initializes the context.
         /// </summary>
-        public MutateIncomingMessageContext(object messageInstance, Dictionary<string, string> headers)
+        public MutateIncomingMessageContext(object message, IDictionary<string, string> headers)
         {
             Guard.AgainstNull("headers", headers);
-            Guard.AgainstNull("messageInstance", messageInstance);
+            Guard.AgainstNull("message", message);
             Headers = headers;
-            this.messageInstance = messageInstance;
+            this.message = message;
         }
 
         /// <summary>
         /// The current imcoming message.
         /// </summary>
-        public object MessageInstance
+        public object Message
         {
             get
             {
-                return messageInstance;
+                return message;
             }
             set
             {
-                Guard.AgainstNull("value", value); 
-                MessageInstanceChanged = true;
-                messageInstance = value;
+                Guard.AgainstNull("value", value);
+                MessageChanged = true;
+                message = value;
             }
         }
 
-        internal bool MessageInstanceChanged;
+        internal bool MessageChanged;
 
         /// <summary>
         /// The current incoming headers.

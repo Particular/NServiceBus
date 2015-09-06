@@ -79,7 +79,7 @@
                 public void MutateIncoming(MutateIncomingMessageContext context)
                 {
                     Assert.IsNotEmpty(context.Headers);
-                    Assert.IsNotNull(context.MessageInstance);
+                    Assert.IsNotNull(context.Message);
                 }
 
                 public void MutateIncoming(MutateIncomingTransportMessageContext context)

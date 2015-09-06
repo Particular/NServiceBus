@@ -12,7 +12,7 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// Initializes the context.
         /// </summary>
-        public MutateOutgoingMessageContext(object outgoingMessage, Dictionary<string, string> outgoingHeaders, object incomingMessage, Dictionary<string, string> incomingHeaders)
+        public MutateOutgoingMessageContext(object outgoingMessage, IDictionary<string, string> outgoingHeaders, object incomingMessage, IReadOnlyDictionary<string, string> incomingHeaders)
         {
             Guard.AgainstNull("outgoingHeaders", outgoingHeaders);
             Guard.AgainstNull("outgoingMessage", outgoingMessage);
@@ -40,8 +40,8 @@ namespace NServiceBus.MessageMutator
         }
 
         internal bool MessageInstanceChanged;
-        readonly object incomingMessage;
-        Dictionary<string, string> incomingHeaders;
+        object incomingMessage;
+        IReadOnlyDictionary<string, string> incomingHeaders;
 
         /// <summary>
         /// The current outgoing headers.

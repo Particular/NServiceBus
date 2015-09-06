@@ -17,9 +17,9 @@
                 mutator.MutateIncoming(mutatorContext);
             }
 
-            if (mutatorContext.MessageInstanceChanged)
+            if (mutatorContext.MessageChanged)
             {
-                logicalMessage.UpdateMessageInstance(mutatorContext.MessageInstance);
+                logicalMessage.UpdateMessageInstance(mutatorContext.Message);
             }
             context.MessageType = logicalMessage.Metadata.MessageType;
             next();

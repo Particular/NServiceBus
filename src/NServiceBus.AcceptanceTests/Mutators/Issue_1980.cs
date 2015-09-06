@@ -39,9 +39,9 @@
             {
                 public void MutateIncoming(MutateIncomingMessageContext message)
                 {
-                    if (message.MessageInstance is V1Message)
+                    if (message.Message is V1Message)
                     {
-                        message.MessageInstance=new V2Message();
+                        message.Message=new V2Message();
                     }
                 }
             }

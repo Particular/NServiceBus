@@ -8,13 +8,13 @@ namespace NServiceBus.MessageMutator
     public class MutateOutgoingTransportMessageContext
     {
         byte[] outgoingBody;
-        Dictionary<string, string> incomingHeaders;
+        IReadOnlyDictionary<string, string> incomingHeaders;
         object incomingMessage;
 
         /// <summary>
         /// Initializes a new instance of <see cref="MutateOutgoingTransportMessageContext"/>.
         /// </summary>
-        public MutateOutgoingTransportMessageContext(byte[] outgoingBody, object outgoingMessage, Dictionary<string, string> outgoingHeaders, object incomingMessage, Dictionary<string, string> incomingHeaders)
+        public MutateOutgoingTransportMessageContext(byte[] outgoingBody, object outgoingMessage, IDictionary<string, string> outgoingHeaders, object incomingMessage, IReadOnlyDictionary<string, string> incomingHeaders)
         {
             Guard.AgainstNull("outgoingHeaders", outgoingHeaders);
             Guard.AgainstNull("outgoingBody", outgoingBody);
