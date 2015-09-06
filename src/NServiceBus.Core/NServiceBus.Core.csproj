@@ -148,6 +148,8 @@
     <Compile Include="Features\FeatureRunner.cs" />
     <Compile Include="Features\FeatureState.cs" />
     <Compile Include="Pipeline\IBehavior.cs" />
+    <Compile Include="Pipeline\MutateInstanceMessage\MutateIncomingMessageContext.cs" />
+    <Compile Include="Pipeline\MutateTransportMessage\MutateIncomingTransportMessageContext.cs" />
     <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetry.cs" />
     <Compile Include="Faults\ErrorQueueSettings.cs" />
     <Compile Include="Faults\StoreFaultsInErrorQueue.cs" />

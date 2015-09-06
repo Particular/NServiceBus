@@ -3,16 +3,16 @@ namespace NServiceBus.MessageMutator
     using System.Collections.Generic;
 
     /// <summary>
-    /// Context class for <see cref="IMutateOutgoingTransportMessages"/>.
+    /// Context class for <see cref="IMutateIncomingMessages"/>.
     /// </summary>
-    public class MutateOutgoingTransportMessageContext
+    public class MutateIncomingTransportMessageContext
     {
         byte[] body;
 
         /// <summary>
         /// Initializes a new instance of <see cref="MutateOutgoingTransportMessageContext"/>.
         /// </summary>
-        public MutateOutgoingTransportMessageContext(byte[] body, Dictionary<string, string> headers)
+        public MutateIncomingTransportMessageContext(byte[] body, Dictionary<string, string> headers)
         {
             Guard.AgainstNull("headers", headers);
             Guard.AgainstNull("body", body);
@@ -34,7 +34,7 @@ namespace NServiceBus.MessageMutator
         }
 
         /// <summary>
-        /// The current outgoing headers.
+        /// The current incoming headers.
         /// </summary>
         public Dictionary<string, string> Headers { get; private set; }
 

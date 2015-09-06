@@ -46,10 +46,10 @@
             {
                 public Context Context { get; set; }
 
-                public void MutateIncoming(TransportMessage transportMessage)
+                public void MutateIncoming(MutateIncomingTransportMessageContext context)
                 {
 
-                    var originalBody = transportMessage.Body;
+                    var originalBody = context.Body;
 
                     Context.OriginalBodyChecksum = Checksum(originalBody);
 
@@ -60,7 +60,7 @@
 
                     modifiedBody[modifiedBody.Length - 1] = 13;
 
-                    transportMessage.Body = modifiedBody;
+                    context.Body = modifiedBody;
                 }
 
                 public void Customize(BusConfiguration configuration)
@@ -88,7 +88,7 @@
             {
                 public Context Context { get; set; }
 
-                public void MutateIncoming(TransportMessage transportMessage)
+                public void MutateIncoming(MutateIncomingTransportMessageContext transportMessage)
                 {
                     Context.AuditChecksum = Checksum(transportMessage.Body);
                 }

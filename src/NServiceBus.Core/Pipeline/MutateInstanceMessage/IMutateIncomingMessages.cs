@@ -11,6 +11,6 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// Mutates the given message right after it has been deserialized.
         /// </summary>
-        object MutateIncoming(object message);
+        void MutateIncoming(MutateIncomingMessageContext context);
     }
 }

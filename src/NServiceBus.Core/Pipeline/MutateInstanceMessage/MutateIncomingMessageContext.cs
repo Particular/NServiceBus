@@ -5,14 +5,14 @@ namespace NServiceBus.MessageMutator
     /// <summary>
     /// Provides ways to mutate the outgoing message instance.
     /// </summary>
-    public class MutateOutgoingMessageContext
+    public class MutateIncomingMessageContext
     {
-
         object messageInstance;
+
         /// <summary>
         /// Initializes the context.
         /// </summary>
-        public MutateOutgoingMessageContext(object messageInstance, Dictionary<string, string> headers)
+        public MutateIncomingMessageContext(object messageInstance, Dictionary<string, string> headers)
         {
             Guard.AgainstNull("headers", headers);
             Guard.AgainstNull("messageInstance", messageInstance);
@@ -21,7 +21,7 @@ namespace NServiceBus.MessageMutator
         }
 
         /// <summary>
-        /// The current outgoing message.
+        /// The current imcoming message.
         /// </summary>
         public object MessageInstance
         {
@@ -31,15 +31,16 @@ namespace NServiceBus.MessageMutator
             }
             set
             {
-                Guard.AgainstNull("value", value);
+                Guard.AgainstNull("value", value); 
                 MessageInstanceChanged = true;
                 messageInstance = value;
             }
         }
 
         internal bool MessageInstanceChanged;
+
         /// <summary>
-        /// The current outgoing headers.
+        /// The current incoming headers.
         /// </summary>
         public Dictionary<string, string> Headers { get; private set; }
     }

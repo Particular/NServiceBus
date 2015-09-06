@@ -1495,11 +1495,11 @@ namespace NServiceBus.MessageMutator
     public interface IMessageMutator : NServiceBus.MessageMutator.IMutateIncomingMessages, NServiceBus.MessageMutator.IMutateOutgoingMessages { }
     public interface IMutateIncomingMessages
     {
-        object MutateIncoming(object message);
+        void MutateIncoming(NServiceBus.MessageMutator.MutateIncomingMessageContext context);
     }
     public interface IMutateIncomingTransportMessages
     {
-        void MutateIncoming(NServiceBus.TransportMessage transportMessage);
+        void MutateIncoming(NServiceBus.MessageMutator.MutateIncomingTransportMessageContext context);
     }
     public interface IMutateOutgoingMessages
     {
@@ -1512,17 +1512,29 @@ namespace NServiceBus.MessageMutator
     [System.ObsoleteAttribute("Just have your mutator implement both IMutateIncomingTransportMessages and IMutat" +
         "eOutgoingTransportMessages. Will be removed in version 7.0.0.", true)]
     public interface IMutateTransportMessages : NServiceBus.MessageMutator.IMutateIncomingTransportMessages, NServiceBus.MessageMutator.IMutateOutgoingTransportMessages { }
+    public class MutateIncomingMessageContext
+    {
+        public MutateIncomingMessageContext(object messageInstance, System.Collections.Generic.Dictionary<string, string> headers) { }
+        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
+        public object MessageInstance { get; set; }
+    }
+    public class MutateIncomingTransportMessageContext
+    {
+        public MutateIncomingTransportMessageContext(byte[] body, System.Collections.Generic.Dictionary<string, string> headers) { }
+        public byte[] Body { get; set; }
+        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
+    }
     public class MutateOutgoingMessageContext
     {
-        public MutateOutgoingMessageContext(object messageInstance) { }
+        public MutateOutgoingMessageContext(object messageInstance, System.Collections.Generic.Dictionary<string, string> headers) { }
+        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public object MessageInstance { get; set; }
-        public void SetHeader(string key, string value) { }
     }
     public class MutateOutgoingTransportMessageContext
     {
         public MutateOutgoingTransportMessageContext(byte[] body, System.Collections.Generic.Dictionary<string, string> headers) { }
         public byte[] Body { get; set; }
-        public void SetHeader(string key, string value) { }
+        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
     }
 }
 namespace NServiceBus.ObjectBuilder.Common
