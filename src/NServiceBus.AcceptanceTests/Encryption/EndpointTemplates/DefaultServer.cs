@@ -96,6 +96,11 @@
 
         static IEnumerable<Type> GetNestedTypeRecursive(Type rootType, Type builderType)
         {
+            if (rootType == null)
+            {
+                throw new InvalidOperationException("Make sure you nest the endpoint infrastructure inside the TestFixture as nested classes");    
+            }
+
             yield return rootType;
 
             if (typeof(IEndpointConfigurationFactory).IsAssignableFrom(rootType) && rootType != builderType)

@@ -60,22 +60,22 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
                 }
             }
 
-            public class AutoSubscriptionSaga : Saga<AutoSubscriptionSaga.AutoSubscriptionSagaData>, IAmStartedByMessages<MyEvent>
+            public class NotAutoSubscribedSaga : Saga<NotAutoSubscribedSaga.NotAutoSubscribedSagaSagaData>, IAmStartedByMessages<MyEvent>
             {
                 public void Handle(MyEvent message)
                 {
                 }
 
-                public class AutoSubscriptionSagaData : ContainSagaData
+                public class NotAutoSubscribedSagaSagaData : ContainSagaData
                 {
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<AutoSubscriptionSagaData> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NotAutoSubscribedSagaSagaData> mapper)
                 {
                 }
             }
 
-            public class MySagaThatReactsOnASuperClassEvent : Saga<MySagaThatReactsOnASuperClassEvent.SuperClassEventSagaData>,
+            public class NotAutosubsubscribedSagaThatReactsOnASuperClassEvent : Saga<NotAutosubsubscribedSagaThatReactsOnASuperClassEvent.NotAutosubscribeSuperClassEventSagaData>,
                 IAmStartedByMessages<MyEventBase>
             {
                 public void Handle(MyEventBase message)
@@ -83,11 +83,11 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
                 }
 
 
-                public class SuperClassEventSagaData : ContainSagaData
+                public class NotAutosubscribeSuperClassEventSagaData : ContainSagaData
                 {
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SuperClassEventSagaData> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NotAutosubscribeSuperClassEventSagaData> mapper)
                 {
                 }
             }
