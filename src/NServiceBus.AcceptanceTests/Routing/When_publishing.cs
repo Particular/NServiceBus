@@ -11,37 +11,37 @@
     public class When_publishing : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Issue_1851()
+        public async Task Issue_1851()
         {
-            Scenario.Define<Context>()
-                    .WithEndpoint<Publisher3>(b =>
-                        b.When(c => c.Subscriber3Subscribed, bus =>
-                        {
-                            bus.Publish<IFoo>();
-                            return Task.FromResult(0);
-                        })
-                     )
-                    .WithEndpoint<Subscriber3>(b => b.Given((bus, context) =>
+            await Scenario.Define<Context>()
+                .WithEndpoint<Publisher3>(b =>
+                    b.When(c => c.Subscriber3Subscribed, bus =>
                     {
-                        bus.Subscribe<IFoo>();
-
-                        if (context.HasNativePubSubSupport)
-                        {
-                            context.Subscriber3Subscribed = true;
-                        }
+                        bus.Publish<IFoo>();
                         return Task.FromResult(0);
-                    }))
+                    })
+                    )
+                .WithEndpoint<Subscriber3>(b => b.Given((bus, context) =>
+                {
+                    bus.Subscribe<IFoo>();
 
-                    .Done(c => c.Subscriber3GotTheEvent)
-                    .Repeat(r => r.For(Transports.Default))
-                    .Should(c => Assert.True(c.Subscriber3GotTheEvent))
-                    .Run();
+                    if (context.HasNativePubSubSupport)
+                    {
+                        context.Subscriber3Subscribed = true;
+                    }
+                    return Task.FromResult(0);
+                }))
+
+                .Done(c => c.Subscriber3GotTheEvent)
+                .Repeat(r => r.For(Transports.Default))
+                .Should(c => Assert.True(c.Subscriber3GotTheEvent))
+                .Run();
         }
 
         [Test]
-        public void Should_be_delivered_to_all_subscribers()
+        public async Task Should_be_delivered_to_all_subscribers()
         {
-            Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                     .WithEndpoint<Publisher>(b =>
                         b.When(c => c.Subscriber1Subscribed && c.Subscriber2Subscribed, (bus, c) =>
                         {
@@ -90,7 +90,6 @@
                         Assert.True(c.Subscriber1GotTheEvent);
                         Assert.True(c.Subscriber2GotTheEvent);
                     })
-
                     .Run(TimeSpan.FromSeconds(10));
         }
 

@@ -9,16 +9,16 @@
     public class When_unsubscribing_to_command_bestpractices_disabled_on_endpoint : NServiceBusAcceptanceTest
     {
        [Test]
-        public void Should_allow_unsubscribing_to_commands()
+        public async Task Should_allow_unsubscribing_to_commands()
         {
-            Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
-                    {
-                        bus.Unsubscribe<MyCommand>();
-                        return Task.FromResult(0);
-                    }))
-                    .Done(c => c.EndpointsStarted)
-                    .Run();
+            await Scenario.Define<Context>()
+                .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
+                {
+                    bus.Unsubscribe<MyCommand>();
+                    return Task.FromResult(0);
+                }))
+                .Done(c => c.EndpointsStarted)
+                .Run();
         }
 
         public class Context : ScenarioContext

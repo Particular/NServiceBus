@@ -12,9 +12,9 @@
     public class When_a_saga_message_goes_through_the_slr : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_invoke_the_correct_handle_methods_on_the_saga()
+        public async Task Should_invoke_the_correct_handle_methods_on_the_saga()
         {
-            Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                     .WithEndpoint<SagaEndpoint>(b => b.Given(bus =>
                     {
                         bus.SendLocal(new StartSagaMessage { SomeId = Guid.NewGuid() });

@@ -11,9 +11,9 @@
     public class Issue_2481 : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_enlist_the_receive_in_the_dtc_tx()
+        public async Task Should_enlist_the_receive_in_the_dtc_tx()
         {
-            Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                     .WithEndpoint<DTCEndpoint>(b => b.Given(bus =>
                     {
                         bus.SendLocal(new MyMessage());

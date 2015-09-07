@@ -12,20 +12,19 @@
     public class When_blowing_up_just_after_dispatch : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_still_release_the_outgoing_messages_to_the_transport()
+        public async Task Should_still_release_the_outgoing_messages_to_the_transport()
         {
-          
-            Scenario.Define<Context>()
-                    .WithEndpoint<NonDtcReceivingEndpoint>(b => b.Given(bus =>
-                    {
-                        bus.SendLocal(new PlaceOrder());
-                        return Task.FromResult(0);
-                    }))
-                    .AllowExceptions()
-                    .Done(c => c.OrderAckReceived == 1)
-                    .Repeat(r=>r.For<AllOutboxCapableStorages>())
-                    .Should(context => Assert.AreEqual(1, context.OrderAckReceived, "Order ack should have been received since outbox dispatch isn't part of the receive tx"))
-                    .Run(TimeSpan.FromSeconds(20));
+            await Scenario.Define<Context>()
+                .WithEndpoint<NonDtcReceivingEndpoint>(b => b.Given(bus =>
+                {
+                    bus.SendLocal(new PlaceOrder());
+                    return Task.FromResult(0);
+                }))
+                .AllowExceptions()
+                .Done(c => c.OrderAckReceived == 1)
+                .Repeat(r=>r.For<AllOutboxCapableStorages>())
+                .Should(context => Assert.AreEqual(1, context.OrderAckReceived, "Order ack should have been received since outbox dispatch isn't part of the receive tx"))
+                .Run(TimeSpan.FromSeconds(20));
         }
 
 

@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Scheduling
 {
     using System;
+    using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
     using NServiceBus.Features;
@@ -10,9 +11,9 @@
     public class When_scheduling_a_recurring_task : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_execute_the_task()
+        public async Task Should_execute_the_task()
         {
-            Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                     .WithEndpoint<SchedulingEndpoint>()
                     .Done(c => c.InvokedAt.HasValue)
                     .Repeat(r => r.For(Transports.Default))

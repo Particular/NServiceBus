@@ -9,9 +9,9 @@
     public class When_receiving_that_should_start_a_saga_without_interception : When_receiving_that_should_start_a_saga
     {
         [Test]
-        public void Should_start_the_saga_and_call_messagehandlers()
+        public async Task Should_start_the_saga_and_call_messagehandlers()
         {
-            Scenario.Define<SagaEndpointContext>()
+            await Scenario.Define<SagaEndpointContext>()
                 .WithEndpoint<SagaEndpoint>(b => b.Given(bus =>
                 {
                     bus.SendLocal(new StartSagaMessage { SomeId = Guid.NewGuid().ToString() });

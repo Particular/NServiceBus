@@ -9,9 +9,9 @@
     public class When_subscribing_to_command_bestpractices_disabled_on_endpoint : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_allow_subscribing_to_commands()
+        public async Task Should_allow_subscribing_to_commands()
         {
-            Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
                 {
                     bus.Subscribe<MyCommand>();
@@ -22,9 +22,9 @@
         }
 
         [Test]
-        public void Should_allow_publishing_commands()
+        public async Task Should_allow_publishing_commands()
         {
-            Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
                 {
                     bus.Publish(new MyCommand());
@@ -35,9 +35,9 @@
         }
 
         [Test]
-        public void Should_allow_sending_events()
+        public async Task Should_allow_sending_events()
         {
-            Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
                 {
                     bus.Send(new MyEvent());

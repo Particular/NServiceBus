@@ -12,9 +12,9 @@
     public class When_sending_from_a_saga_timeout : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_match_different_saga()
+        public async Task Should_match_different_saga()
         {
-            Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                     .WithEndpoint<Endpoint>(b => b.Given(bus =>
                     {
                         bus.SendLocal(new StartSaga1 { DataId = Guid.NewGuid() });

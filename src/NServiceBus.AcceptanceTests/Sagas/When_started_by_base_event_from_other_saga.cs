@@ -15,9 +15,9 @@
     {
 
         [Test]
-        public void Should_start_the_saga_when_set_up_to_start_for_the_base_event()
+        public async Task Should_start_the_saga_when_set_up_to_start_for_the_base_event()
         {
-            Scenario.Define<SagaContext>()
+            await Scenario.Define<SagaContext>()
                 .WithEndpoint<Publisher>(b =>
                     b.When(c => c.IsEventSubscriptionReceived,
                         bus =>

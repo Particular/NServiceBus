@@ -11,10 +11,9 @@
     public class When_receiving_with_dtc_disabled : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_not_escalate_a_single_durable_rm_to_dtc_tx()
+        public async Task Should_not_escalate_a_single_durable_rm_to_dtc_tx()
         {
-
-            Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                     .WithEndpoint<NonDTCEndpoint>(b => b.Given(bus =>
                     {
                         bus.SendLocal(new MyMessage());

@@ -11,9 +11,9 @@
     public class When_sending_within_an_ambient_transaction : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_not_deliver_them_until_the_commit_phase()
+        public async Task Should_not_deliver_them_until_the_commit_phase()
         {
-            Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                     .WithEndpoint<TransactionalEndpoint>(b => b.Given((bus, context) =>
                         {
                             using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
@@ -38,9 +38,9 @@
         }
 
         [Test]
-        public void Should_not_deliver_them_on_rollback()
+        public async Task Should_not_deliver_them_on_rollback()
         {
-            Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                     .WithEndpoint<TransactionalEndpoint>(b => b.Given(bus =>
                         {
                             using (new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))

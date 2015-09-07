@@ -10,9 +10,9 @@
     public class When_multiple_versions_of_a_message_is_published : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_deliver_is_to_both_v1_and_vX_subscribers()
+        public async Task Should_deliver_is_to_both_v1_and_vX_subscribers()
         {
-            Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                     .WithEndpoint<V2Publisher>(b =>
                         b.When(c => c.V1Subscribed && c.V2Subscribed, (bus, c) =>
                         {
