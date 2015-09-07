@@ -11,10 +11,9 @@
     public class When_sending_inside_ambient_tx : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_not_roll_the_message_back_to_the_queue_in_case_of_failure()
+        public async Task Should_not_roll_the_message_back_to_the_queue_in_case_of_failure()
         {
-
-            Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                     .WithEndpoint<NonTransactionalEndpoint>(b => b.Given(bus =>
                     {
                         bus.SendLocal(new MyMessage());

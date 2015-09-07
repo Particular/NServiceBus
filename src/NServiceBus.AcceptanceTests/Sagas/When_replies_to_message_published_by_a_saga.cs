@@ -14,9 +14,9 @@
     public class When_replies_to_message_published_by_a_saga : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_reply_to_a_message_published_by_a_saga()
+        public async Task Should_reply_to_a_message_published_by_a_saga()
         {
-            Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                 .WithEndpoint<SagaEndpoint>
                 (b => b.When(c => c.Subscribed, bus =>
                 {

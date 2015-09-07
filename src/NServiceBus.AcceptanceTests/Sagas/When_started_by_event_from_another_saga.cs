@@ -14,9 +14,9 @@
     public class When_started_by_event_from_another_saga : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_start_the_saga_and_request_a_timeout()
+        public async Task Should_start_the_saga_and_request_a_timeout()
         {
-            Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                 .WithEndpoint<SagaThatPublishesAnEvent>(b =>
                     b.When(c => c.IsEventSubscriptionReceived,
                             bus =>
