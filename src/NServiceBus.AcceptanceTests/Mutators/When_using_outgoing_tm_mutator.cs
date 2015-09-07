@@ -8,10 +8,10 @@
 
     public class When_using_outgoing_tm_mutator : NServiceBusAcceptanceTest
     {
-        static Context testContext = new Context();
         [Test]
         public void Should_be_able_to_update_message()
         {
+            var testContext = new Context();
             Scenario.Define(testContext)
                     .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new MessageToBeMutated())))
                     .Done(c => c.MessageProcessed)
@@ -50,11 +50,18 @@
 
             class MessageToBeMutatedHandler : IHandleMessages<MessageThatMutatorChangesTo>
             {
-                public IBus Bus { get; set; }
+                Context testContext;
+                IBus bus;
+
+                public MessageToBeMutatedHandler(Context testContext,IBus bus)
+                {
+                    this.testContext = testContext;
+                    this.bus = bus;
+                }
 
                 public void Handle(MessageThatMutatorChangesTo message)
                 {
-                    testContext.CanAddHeaders = Bus.CurrentMessageContext.Headers.ContainsKey("HeaderSetByMutator");
+                    testContext.CanAddHeaders = bus.CurrentMessageContext.Headers.ContainsKey("HeaderSetByMutator");
                     testContext.MessageProcessed = true;
                 }
             }

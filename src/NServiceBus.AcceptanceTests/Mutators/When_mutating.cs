@@ -10,12 +10,11 @@
     public class When_mutating : NServiceBusAcceptanceTest
     {
 
-        static Context context = new Context();
-
         [Test]
         public void Context_should_be_populated()
         {
-            Scenario.Define(context)
+            var testContext = new Context();
+            Scenario.Define(testContext)
                     .WithEndpoint<Sender>(b => b.Given((bus, c) =>
                     {
                         bus.Send(new StartMessage());
@@ -23,7 +22,7 @@
                     .WithEndpoint<Receiver>()
                     .Done(c => c.WasCalled)
                     .Run(TimeSpan.FromHours(1));
-            Assert.True(context.WasCalled, "The message handler should be called");
+            Assert.True(testContext.WasCalled, "The message handler should be called");
         }
 
         public class Context : ScenarioContext
@@ -64,9 +63,14 @@
             }
             public class LoopMessageHandler : IHandleMessages<LoopMessage>
             {
+                Context testContext;
+                public LoopMessageHandler(Context testContext)
+                {
+                    this.testContext = testContext;
+                }
                 public void Handle(LoopMessage message)
                 {
-                    context.WasCalled=true;
+                    testContext.WasCalled = true;
                 }
             }
 

@@ -8,10 +8,10 @@
 
     public class When_outgoing_mutator_replaces_instance : NServiceBusAcceptanceTest
     {
-        static Context testContext = new Context();
         [Test]
         public void Message_sent_should_be_new_instance()
         {
+            var testContext = new Context();
             Scenario.Define(testContext)
                 .WithEndpoint<Endpoint>(b => b.Given((bus, c) => bus.SendLocal(new V1Message())))
                 .Done(c => c.V2MessageReceived)
@@ -48,6 +48,11 @@
 
             class V2Handler : IHandleMessages<V2Message>
             {
+                Context testContext;
+                public V2Handler(Context testContext)
+                {
+                    this.testContext = testContext;
+                }
                 public void Handle(V2Message message)
                 {
                     testContext.V2MessageReceived = true;
@@ -56,6 +61,11 @@
 
             class V1Handler : IHandleMessages<V1Message>
             {
+                Context testContext;
+                public V1Handler(Context testContext)
+                {
+                    this.testContext = testContext;
+                }
                 public void Handle(V1Message message)
                 {
                     testContext.V1MessageReceived = true;

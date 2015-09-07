@@ -8,10 +8,10 @@
 
     public class When_defining_outgoing_message_mutators : NServiceBusAcceptanceTest
     {
-        static Context testContext = new Context();
         [Test]
         public void Should_be_applied_to_outgoing_messages()
         {
+            var testContext = new Context();
             Scenario.Define(testContext)
                     .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new Message())))
                     .Done(c => c.MessageProcessed)
@@ -43,7 +43,12 @@
             class TransportMutator : 
                 IMutateOutgoingTransportMessages
             {
-
+                
+                Context testContext;
+                public TransportMutator(Context testContext)
+                {
+                    this.testContext = testContext;
+                }
                 public void MutateOutgoing(MutateOutgoingTransportMessageContext context)
                 {
                     testContext.TransportMutatorCalled = true;
@@ -52,6 +57,11 @@
 
             class MessageMutator : IMutateOutgoingMessages
             {
+                Context testContext;
+                public MessageMutator(Context testContext)
+                {
+                    this.testContext = testContext;
+                }
 
                 public void MutateOutgoing(MutateOutgoingMessageContext context)
                 {
@@ -61,6 +71,11 @@
 
             class Handler : IHandleMessages<Message>
             {
+                Context testContext;
+                public Handler(Context testContext)
+                {
+                    this.testContext = testContext;
+                }
              
                 public void Handle(Message message)
                 {
