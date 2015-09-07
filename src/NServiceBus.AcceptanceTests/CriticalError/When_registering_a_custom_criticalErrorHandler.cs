@@ -1,12 +1,12 @@
 ﻿namespace NServiceBus.AcceptanceTests.CriticalError
 {
     using System;
-    using System.Diagnostics;
     using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Configuration.AdvanceExtensibility;
+    using NServiceBus.Settings;
     using NUnit.Framework;
     using ScenarioDescriptors;
     using IMessage = NServiceBus.IMessage;
@@ -14,9 +14,9 @@
     public class When_registering_a_custom_criticalErrorHandler : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Critical_error_should_be_raised_inside_delegate()
+        public async Task Critical_error_should_be_raised_inside_delegate()
         {
-            Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithLocalCallback>(b => b.Given(
                     (bus, context) =>
                     {
@@ -31,7 +31,7 @@
                     Assert.AreEqual("Startup task failed to complete.", c.Message);
                     Assert.AreEqual("ExceptionInBusStarts", c.Exception.Message);
                 })
-                .Run(new TimeSpan(1, 1, 1));
+                .Run();
         }
 
         public class Context : ScenarioContext
@@ -67,6 +67,9 @@
             class AfterConfigIsComplete : IWantToRunWhenBusStartsAndStops
             {
                 public Context Context { get; set; }
+
+                public ReadOnlySettings Settings { get; set; }
+
                 public void Start()
                 {
                     throw new Exception("ExceptionInBusStarts");
