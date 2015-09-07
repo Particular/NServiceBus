@@ -2,7 +2,6 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests;
