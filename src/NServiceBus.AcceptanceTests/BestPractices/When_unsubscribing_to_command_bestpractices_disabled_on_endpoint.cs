@@ -6,54 +6,15 @@
     using NServiceBus.Features;
     using NUnit.Framework;
 
-    public class When_bestpractices_is_disabled : NServiceBusAcceptanceTest
+    public class When_unsubscribing_to_command_bestpractices_disabled_on_endpoint : NServiceBusAcceptanceTest
     {
-        [Test]
-        public void Should_allow_subscribing_to_commands()
-        {
-            Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
-                    {
-                        bus.Subscribe<MyCommand>();
-                        return Task.FromResult(0);
-                    }))
-                    .Done(c => c.EndpointsStarted)
-                    .Run();
-        }
-
-        [Test]
+       [Test]
         public void Should_allow_unsubscribing_to_commands()
         {
             Scenario.Define<Context>()
                     .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
                     {
                         bus.Unsubscribe<MyCommand>();
-                        return Task.FromResult(0);
-                    }))
-                    .Done(c => c.EndpointsStarted)
-                    .Run();
-        }
-
-        [Test]
-        public void Should_allow_publishing_commands()
-        {
-            Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
-                    {
-                        bus.Publish(new MyCommand());
-                        return Task.FromResult(0);
-                    }))
-                    .Done(c => c.EndpointsStarted)
-                    .Run();
-        }
-
-        [Test]
-        public void Should_allow_sending_events()
-        {
-            Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
-                    {
-                        bus.Send(new MyEvent());
                         return Task.FromResult(0);
                     }))
                     .Done(c => c.EndpointsStarted)

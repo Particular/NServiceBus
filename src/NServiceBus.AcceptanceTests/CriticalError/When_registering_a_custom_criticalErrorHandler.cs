@@ -1,10 +1,12 @@
 ﻿namespace NServiceBus.AcceptanceTests.CriticalError
 {
     using System;
+    using System.Diagnostics;
     using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using NServiceBus.Configuration.AdvanceExtensibility;
     using NUnit.Framework;
     using ScenarioDescriptors;
     using IMessage = NServiceBus.IMessage;
@@ -41,37 +43,32 @@
 
         public class EndpointWithLocalCallback : EndpointConfigurationBuilder
         {
-            public static Context Context { get; set; }
             public EndpointWithLocalCallback()
             {
                 EndpointSetup<DefaultServer>(builder => builder.DefineCriticalErrorAction((s, exception) =>
                 {
                     var aggregateException = (AggregateException) exception;
                     aggregateException = (AggregateException)aggregateException.InnerExceptions.First();
-                    Context.Exception = aggregateException.InnerExceptions.First();
-                    Context.Message = s;
-                    Context.ExceptionReceived = true;
+
+                    var context = builder.GetSettings().Get<Context>();
+                    context.Exception = aggregateException.InnerExceptions.First();
+                    context.Message = s;
+                    context.ExceptionReceived = true;
                 }));
             }
 
             public class MyRequestHandler : IHandleMessages<MyRequest>
             {
-                public Context Context { get; set; }
-
-                public IBus Bus { get; set; }
-
                 public void Handle(MyRequest request)
                 {
                 }
             }
-
 
             class AfterConfigIsComplete : IWantToRunWhenBusStartsAndStops
             {
                 public Context Context { get; set; }
                 public void Start()
                 {
-                    EndpointWithLocalCallback.Context = Context;
                     throw new Exception("ExceptionInBusStarts");
                 }
 
