@@ -1,6 +1,7 @@
 namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTesting.Support;
     using NUnit.Framework;
@@ -8,15 +9,14 @@ namespace NServiceBus.AcceptanceTests.Sagas
     public class When_doing_request_response_between_sagas_with_timeout : When_doing_request_response_between_sagas
     {
         [Test]
-        public void Should_autocorrelate_the_response_back_to_the_requesting_saga_from_timeouts()
+        public async Task Should_autocorrelate_the_response_back_to_the_requesting_saga_from_timeouts()
         {
-            var context = new Context
-            {
-                ReplyFromTimeout = true
-            };
-
-            Scenario.Define(context)
-                .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new InitiateRequestingSaga())))
+            var context = await Scenario.Define<Context>(c => { c.ReplyFromTimeout = true; })
+                .WithEndpoint<Endpoint>(b => b.Given(bus =>
+                {
+                    bus.SendLocal(new InitiateRequestingSaga());
+                    return Task.FromResult(0);
+                }))
                 .Done(c => c.DidRequestingSagaGetTheResponse)
                 .Run(new RunSettings { TestExecutionTimeout = TimeSpan.FromSeconds(15) });
 

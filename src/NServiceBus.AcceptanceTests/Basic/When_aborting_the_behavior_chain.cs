@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Basic
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
@@ -8,12 +9,14 @@
     public class When_aborting_the_behavior_chain : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Subsequent_handlers_will_not_be_invoked()
+        public async Task Subsequent_handlers_will_not_be_invoked()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
-                .WithEndpoint<MyEndpoint>(b => b.Given(bus => bus.SendLocal(new SomeMessage())))
+            var context = await Scenario.Define<Context>()
+                .WithEndpoint<MyEndpoint>(b => b.Given(bus =>
+                {
+                    bus.SendLocal(new SomeMessage());
+                    return Task.FromResult(0);
+                }))
                 .Done(c => c.FirstHandlerInvoked)
                 .Run();
 

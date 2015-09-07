@@ -2,6 +2,7 @@
 {
     using System;
     using System.IO;
+    using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
     using NServiceBus.DataBus;
@@ -12,18 +13,17 @@
         static byte[] PayloadToSend = new byte[1024 * 10];
 
         [Test]
-        public void Should_be_able_to_register_via_fluent()
+        public async Task Should_be_able_to_register_via_fluent()
         {
-            var context = new Context
-            {
-                TempPath = Path.GetTempFileName()
-            };
-
-            Scenario.Define(context)
-                    .WithEndpoint<SenderViaFluent>(b => b.Given(bus => bus.Send(new MyMessageWithLargePayload
+            var context = await Scenario.Define<Context>(c => { c.TempPath = Path.GetTempFileName(); })
+                    .WithEndpoint<SenderViaFluent>(b => b.Given(bus =>
                     {
-                        Payload = new DataBusProperty<byte[]>(PayloadToSend)
-                    })))
+                        bus.Send(new MyMessageWithLargePayload
+                        {
+                            Payload = new DataBusProperty<byte[]>(PayloadToSend)
+                        });
+                        return Task.FromResult(0);
+                    }))
                     .WithEndpoint<ReceiverViaFluent>()
                     .Done(c => c.ReceivedPayload != null)
                     .Run();
@@ -94,5 +94,5 @@
         }
     }
 
-   
+
 }

@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.ApiExtension
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Extensibility;
@@ -12,11 +13,9 @@
     public class When_extending_sendoptions : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_be_able_to_set_context_items_and_retrieve_it_via_a_behavior()
+        public async Task Should_be_able_to_set_context_items_and_retrieve_it_via_a_behavior()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>()
                     .WithEndpoint<SendOptionsExtensions>(b => b.Given((bus, c) =>
                     {
                         var options = new SendOptions();
@@ -25,6 +24,7 @@
                         options.RouteToLocalEndpointInstance();
 
                         bus.Send(new SendMessage(), options);
+                        return Task.FromResult(0);
                     }))
                     .Done(c => c.WasCalled)
                     .Run();

@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Recoverability
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Config;
@@ -8,24 +9,27 @@
 
     public class When_message_with_TimeToBeReceived_fails : NServiceBusAcceptanceTest
     {
-
         [Test]
-        public void Should_not_honor_TimeToBeReceived_for_error_message()
+        public async Task Should_not_honor_TimeToBeReceived_for_error_message()
         {
-            var context = new Context();
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointThatThrows>(b => b.Given(Send()))
             .WithEndpoint<EndpointThatHandlesErrorMessages>()
             .AllowExceptions()
             .Done(c => c.MessageFailed && c.TTBRHasExpiredAndMessageIsStillInErrorQueue)
             .Run();
+
             Assert.IsTrue(context.MessageFailed);
             Assert.IsTrue(context.TTBRHasExpiredAndMessageIsStillInErrorQueue);
         }
 
-        static Action<IBus> Send()
+        static Func<IBus, Task> Send()
         {
-            return bus => bus.SendLocal(new MessageThatFails());
+            return bus =>
+            {
+                bus.SendLocal(new MessageThatFails());
+                return Task.FromResult(0);
+            };
         }
 
         class Context : ScenarioContext

@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Features;
@@ -9,39 +10,40 @@
     public class When_multi_subscribing_to_a_polymorphic_event : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Both_events_should_be_delivered()
+        public async Task Both_events_should_be_delivered()
         {
-            var rootContext = new Context();
-
-            Scenario.Define(rootContext)
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<Publisher1>(b => b.When(c => c.Publisher1HasASubscriberForIMyEvent, (bus, c) =>
                 {
                     c.AddTrace("Publishing MyEvent1");
                     bus.Publish(new MyEvent1());
+                    return Task.FromResult(0);
                 }))
                 .WithEndpoint<Publisher2>(b => b.When(c => c.Publisher2HasDetectedASubscriberForEvent2, (bus, c) =>
                 {
                     c.AddTrace("Publishing MyEvent2");
                     bus.Publish(new MyEvent2());
+                    return Task.FromResult(0);
                 }))
-                .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
+                .WithEndpoint<Subscriber1>(b => b.Given((bus, c) =>
                 {
-                    context.AddTrace("Subscriber1 subscribing to both events");
+                    c.AddTrace("Subscriber1 subscribing to both events");
                     bus.Subscribe<IMyEvent>();
                     bus.Subscribe<MyEvent2>();
 
-                    if (context.HasNativePubSubSupport)
+                    if (c.HasNativePubSubSupport)
                     {
-                        context.Publisher1HasASubscriberForIMyEvent = true;
-                        context.Publisher2HasDetectedASubscriberForEvent2 = true;
+                        c.Publisher1HasASubscriberForIMyEvent = true;
+                        c.Publisher2HasDetectedASubscriberForEvent2 = true;
                     }
+                    return Task.FromResult(0);
                 }))
                 .AllowExceptions(e => e.Message.Contains("Oracle.DataAccess.Client.OracleException: ORA-00001") || e.Message.Contains("System.Data.SqlClient.SqlException: Violation of PRIMARY KEY constraint"))
                 .Done(c => c.SubscriberGotIMyEvent && c.SubscriberGotMyEvent2)
                 .Run();
 
-            Assert.True(rootContext.SubscriberGotIMyEvent);
-            Assert.True(rootContext.SubscriberGotMyEvent2);
+            Assert.True(context.SubscriberGotIMyEvent);
+            Assert.True(context.SubscriberGotMyEvent2);
         }
 
         public class Context : ScenarioContext
@@ -56,14 +58,14 @@
         {
             public Publisher1()
             {
-                EndpointSetup<DefaultPublisher>( b => b.OnEndpointSubscribed<Context>((args, context) =>
-                {
-                    context.AddTrace("Publisher1 OnEndpointSubscribed " + args.MessageType);
-                    if (args.MessageType.Contains(typeof(IMyEvent).Name))
-                    {
-                        context.Publisher1HasASubscriberForIMyEvent = true;
-                    }
-                }));
+                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((args, context) =>
+               {
+                   context.AddTrace("Publisher1 OnEndpointSubscribed " + args.MessageType);
+                   if (args.MessageType.Contains(typeof(IMyEvent).Name))
+                   {
+                       context.Publisher1HasASubscriberForIMyEvent = true;
+                   }
+               }));
             }
         }
 
@@ -110,7 +112,7 @@
                 }
             }
         }
-        
+
         [Serializable]
         public class MyEvent1 : IMyEvent
         {

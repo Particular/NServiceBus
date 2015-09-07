@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Features;
@@ -10,11 +11,14 @@
     public class When_message_fails_retries : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_forward_message_to_error_queue()
+        public async Task Should_forward_message_to_error_queue()
         {
-            var context = new Context();
-            Scenario.Define(() => context)
-                    .WithEndpoint<RetryEndpoint>(b => b.Given((bus, c) => bus.SendLocal(new MessageWhichFailsRetries())))
+            var context = await Scenario.Define<Context>()
+                    .WithEndpoint<RetryEndpoint>(b => b.Given((bus, c) =>
+                    {
+                        bus.SendLocal(new MessageWhichFailsRetries());
+                        return Task.FromResult(0);
+                    }))
                     .AllowExceptions(e => e is RetryEndpoint.SimulatedException)
                     .Done(c => c.ForwardedToErrorQueue)
                     .Run();

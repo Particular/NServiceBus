@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.ScaleOut
 {
     using System.Linq;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
@@ -10,9 +11,9 @@
     public class When_individualization_is_enabled_for_msmq : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_be_a_no_op_discriminator()
+        public async Task Should_be_a_no_op_discriminator()
         {
-            Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                     .WithEndpoint<IndividualizedEndpoint>().Done(c => c.EndpointsStarted)
                     .Repeat(r => r.For<MsmqOnly>())
                     .Should(c => Assert.AreEqual(c.EndpointName, c.Address.Split('@').First()))

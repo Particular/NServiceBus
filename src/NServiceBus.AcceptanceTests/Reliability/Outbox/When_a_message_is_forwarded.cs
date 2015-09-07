@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Reliability.Outbox
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Config;
@@ -12,20 +13,21 @@
     {
 
         [Test]
-        public void Should_forward_even_if_dispatch_blows_once()
+        public async Task Should_forward_even_if_dispatch_blows_once()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
-                    .WithEndpoint<EndpointWithAuditOn>(b => b.Given(bus => bus.SendLocal(new MessageToBeForwarded())))
+            var context = await Scenario.Define<Context>()
+                    .WithEndpoint<EndpointWithAuditOn>(b => b.Given(bus =>
+                    {
+                        bus.SendLocal(new MessageToBeForwarded());
+                        return Task.FromResult(0);
+                    }))
                     .WithEndpoint<ForwardingSpyEndpoint>()
                     .AllowExceptions(e => e is EndpointWithAuditOn.BlowUpAfterDispatchBehavior.FakeException)
                     .Done(c => c.Done)
                     .Run();
+
             Assert.True(context.Done);
         }
-
-
 
         public class Context : ScenarioContext
         {

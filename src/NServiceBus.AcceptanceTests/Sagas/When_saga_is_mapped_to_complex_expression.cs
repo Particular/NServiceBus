@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
+    using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
     using NUnit.Framework;
@@ -9,15 +10,15 @@
 
     public class When_saga_is_mapped_to_complex_expression : NServiceBusAcceptanceTest
     {
-
         [Test]
-        public void Should_hydrate_and_invoke_the_existing_instance()
+        public async Task Should_hydrate_and_invoke_the_existing_instance()
         {
-            Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                     .WithEndpoint<SagaEndpoint>(b => b.Given(bus =>
                         {
                             bus.SendLocal(new StartSagaMessage { Key = "Part1_Part2"});
-                            bus.SendLocal(new OtherMessage { Part1 = "Part1", Part2 = "Part2" });                                    
+                            bus.SendLocal(new OtherMessage { Part1 = "Part1", Part2 = "Part2" });
+                            return Task.FromResult(0);
                         }))
                     .Done(c => c.SecondMessageReceived)
                     .Repeat(r => r.For(Persistence.Default))

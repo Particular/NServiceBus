@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
@@ -10,24 +11,28 @@
     public class When_publishing_with_overridden_local_address : NServiceBusAcceptanceTest
     {
         [Test, Explicit("This test fails against RabbitMQ")]
-        public void Should_be_delivered_to_all_subscribers()
+        public async Task Should_be_delivered_to_all_subscribers()
         {
-            Scenario.Define<Context>()
-                    .WithEndpoint<Publisher>(b =>
-                        b.When(c => c.Subscriber1Subscribed, bus => bus.Publish(new MyEvent()))
-                     )
-                    .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
-                        {
-                            bus.Subscribe<MyEvent>();
+            await Scenario.Define<Context>()
+                .WithEndpoint<Publisher>(b =>
+                    b.When(c => c.Subscriber1Subscribed, bus =>
+                    {
+                        bus.Publish(new MyEvent());
+                        return Task.FromResult(0);
+                    })
+                    )
+                .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
+                    {
+                        bus.Subscribe<MyEvent>();
 
-                            if (context.HasNativePubSubSupport)
-                                context.Subscriber1Subscribed = true;
-                        }))
-                    .Done(c => c.Subscriber1GotTheEvent)
-                    .Repeat(r => r.For(Transports.Default))
-                    .Should(c => Assert.True(c.Subscriber1GotTheEvent))
-
-                    .Run();
+                        if (context.HasNativePubSubSupport)
+                            context.Subscriber1Subscribed = true;
+                        return Task.FromResult(0);
+                    }))
+                .Done(c => c.Subscriber1GotTheEvent)
+                .Repeat(r => r.For(Transports.Default))
+                .Should(c => Assert.True(c.Subscriber1GotTheEvent))
+                .Run();
         }
 
         public class Context : ScenarioContext

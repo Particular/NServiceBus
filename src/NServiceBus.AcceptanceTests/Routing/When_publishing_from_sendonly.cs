@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
@@ -14,12 +15,14 @@
     public class When_publishing_from_sendonly : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_be_delivered_to_all_subscribers()
+        public async Task Should_be_delivered_to_all_subscribers()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
-                .WithEndpoint<SendOnlyPublisher>(b => b.Given((bus, c) => bus.Publish(new MyEvent())))
+            await Scenario.Define<Context>()
+                .WithEndpoint<SendOnlyPublisher>(b => b.Given((bus, c) =>
+                {
+                    bus.Publish(new MyEvent());
+                    return Task.FromResult(0);
+                }))
                 .WithEndpoint<Subscriber>()
                 .Done(c => c.SubscriberGotTheEvent)
                 .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())

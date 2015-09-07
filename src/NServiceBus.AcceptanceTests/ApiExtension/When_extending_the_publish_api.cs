@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.ApiExtension
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.Routing;
@@ -14,9 +15,9 @@
     public class When_extending_the_publish_api : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_make_the_context_available_to_behaviors()
+        public async Task Should_make_the_context_available_to_behaviors()
         {
-            Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                     .WithEndpoint<Publisher>(b =>
                         b.When(c => c.Subscriber1Subscribed, bus =>
                         {
@@ -25,6 +26,7 @@
                             options.GetExtensions().Set(new Publisher.PublishExtensionBehavior.Context { SomeProperty = "ItWorks" });
 
                             bus.Publish(new MyEvent(), options);
+                            return Task.FromResult(0);
                         })
                      )
                     .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
@@ -33,11 +35,12 @@
 
                             if (context.HasNativePubSubSupport)
                                 context.Subscriber1Subscribed = true;
+
+                            return Task.FromResult(0);
                         }))
                     .Done(c => c.Subscriber1GotTheEvent)
                     .Repeat(r => r.For(Transports.Default))
                     .Should(c => Assert.True(c.Subscriber1GotTheEvent))
-
                     .Run();
         }
 

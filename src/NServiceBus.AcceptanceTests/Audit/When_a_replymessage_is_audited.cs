@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
     using MessageMutator;
@@ -11,13 +12,15 @@
     public class When_a_replymessage_is_audited : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_audit_the_message()
+        public async Task Should_audit_the_message()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>()
                     .WithEndpoint<Server>()
-                    .WithEndpoint<EndpointWithAuditOn>(b => b.Given(bus => bus.Send(new Request())))
+                    .WithEndpoint<EndpointWithAuditOn>(b => b.Given(bus =>
+                    {
+                        bus.Send(new Request());
+                        return Task.FromResult(0);
+                    }))
                     .WithEndpoint<AuditSpyEndpoint>()
                     .Done(c => c.MessageAudited)
                     .Run();

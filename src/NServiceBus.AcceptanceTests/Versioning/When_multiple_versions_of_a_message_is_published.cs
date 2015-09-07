@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Versioning
 {
+    using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
     using NServiceBus.AcceptanceTests.Routing;
@@ -9,26 +10,32 @@
     public class When_multiple_versions_of_a_message_is_published : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_deliver_is_to_both_v1_and_vX_subscribers()
+        public async Task Should_deliver_is_to_both_v1_and_vX_subscribers()
         {
-            Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                     .WithEndpoint<V2Publisher>(b =>
-                        b.When(c => c.V1Subscribed && c.V2Subscribed, (bus, c) => bus.Publish<V2Event>(e =>
-                                 {
-                                     e.SomeData = 1;
-                                     e.MoreInfo = "dasd";
-                                 })))
+                        b.When(c => c.V1Subscribed && c.V2Subscribed, (bus, c) =>
+                        {
+                            bus.Publish<V2Event>(e =>
+                            {
+                                e.SomeData = 1;
+                                e.MoreInfo = "dasd";
+                            });
+                            return Task.FromResult(0);
+                        }))
                     .WithEndpoint<V1Subscriber>(b => b.Given((bus,c) =>
                         {
                             bus.Subscribe<V1Event>();
                             if (c.HasNativePubSubSupport)
                                 c.V1Subscribed = true;
+                            return Task.FromResult(0);
                         }))
                     .WithEndpoint<V2Subscriber>(b => b.Given((bus,c) =>
                         {
                             bus.Subscribe<V2Event>();
                             if (c.HasNativePubSubSupport)
                                 c.V2Subscribed = true;
+                            return Task.FromResult(0);
                         }))
                     .Done(c => c.V1SubscriberGotTheMessage && c.V2SubscriberGotTheMessage)
                     .Run();

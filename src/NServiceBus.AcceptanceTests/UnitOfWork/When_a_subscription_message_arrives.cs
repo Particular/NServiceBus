@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.UnitOfWork
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.UnitOfWork;
@@ -9,11 +10,9 @@
     public class When_a_subscription_message_arrives
     {
         [Test]
-        public void Should_invoke_uow()
+        public async Task Should_invoke_uow()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>()
                     .WithEndpoint<UOWEndpoint>()
                     .Done(c => c.UowWasCalled)
                     .Run();

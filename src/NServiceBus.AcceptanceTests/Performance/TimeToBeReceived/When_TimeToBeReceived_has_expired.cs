@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Performance.TimeToBeReceived
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
@@ -8,12 +9,16 @@
     public class When_TimeToBeReceived_has_expired : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Message_should_not_be_received()
+        public async Task Message_should_not_be_received()
         {
-            var context = new Context();
-            Scenario.Define(context)
-                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) => bus.SendLocal(new MyMessage())))
+            var context = await Scenario.Define<Context>()
+                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
+                    {
+                        bus.SendLocal(new MyMessage());
+                        return Task.FromResult(0);
+                    }))
                     .Run(TimeSpan.FromSeconds(10));
+
             Assert.IsFalse(context.WasCalled);
         }
 

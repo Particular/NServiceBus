@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
@@ -10,9 +11,9 @@
     public class When_publishing_an_event_implementing_two_unrelated_interfaces : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Event_should_be_published_using_instance_type()
+        public async Task Event_should_be_published_using_instance_type()
         {
-            Scenario.Define(() => new Context { Id = Guid.NewGuid() })
+            await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                     .WithEndpoint<Publisher>(b =>
                         b.When(c => c.EventASubscribed && c.EventBSubscribed, (bus, ctx) =>
                         {
@@ -21,6 +22,7 @@
                                 ContextId = ctx.Id
                             };
                             bus.Publish(message);
+                            return Task.FromResult(0);
                         }))
                     .WithEndpoint<Subscriber>(b => b.Given((bus, context) =>
                     {
@@ -32,6 +34,7 @@
                             context.EventASubscribed = true;
                             context.EventBSubscribed = true;
                         }
+                        return Task.FromResult(0);
                     }))
                     .Done(c => c.GotEventA && c.GotEventB)
                     .Repeat(r => r.For(Serializers.Xml))

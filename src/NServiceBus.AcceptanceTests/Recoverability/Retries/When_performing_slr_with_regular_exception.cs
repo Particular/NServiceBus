@@ -1,6 +1,7 @@
 namespace NServiceBus.AcceptanceTests.Recoverability.Retries
 {
     using System.Linq;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NUnit.Framework;
 
@@ -8,12 +9,14 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
     public class When_performing_slr_with_regular_exception : When_performing_slr
     {
         [Test]
-        public void Should_preserve_the_original_body_for_regular_exceptions()
+        public async Task Should_preserve_the_original_body_for_regular_exceptions()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
-                .WithEndpoint<RetryEndpoint>(b => b.Given(bus => bus.SendLocal(new MessageToBeRetried())))
+            var context = await Scenario.Define<Context>()
+                .WithEndpoint<RetryEndpoint>(b => b.Given(bus =>
+                {
+                    bus.SendLocal(new MessageToBeRetried());
+                    return Task.FromResult(0);
+                }))
                 .AllowExceptions(e => e is SimulatedException)
                 .Done(c => c.SlrChecksum != default(byte))
                 .Run();
@@ -22,12 +25,14 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
         }
 
         [Test]
-        public void Should_reschedule_message_three_times_by_default()
+        public async Task Should_reschedule_message_three_times_by_default()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
-                .WithEndpoint<RetryEndpoint>(b => b.Given(bus => bus.SendLocal(new MessageToBeRetried())))
+            var context = await Scenario.Define<Context>()
+                .WithEndpoint<RetryEndpoint>(b => b.Given(bus =>
+                {
+                    bus.SendLocal(new MessageToBeRetried());
+                    return Task.FromResult(0);
+                }))
                 .AllowExceptions(e => e is SimulatedException)
                 .Done(c => c.ForwardedToErrorQueue)
                 .Run();

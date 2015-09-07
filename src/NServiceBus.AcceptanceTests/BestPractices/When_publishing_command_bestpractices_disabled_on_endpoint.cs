@@ -1,45 +1,37 @@
 ﻿namespace NServiceBus.AcceptanceTests.BestPractices
 {
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using NServiceBus.Features;
     using NUnit.Framework;
 
-    public class When_bestpractices_is_disabled_for_message : NServiceBusAcceptanceTest
+    public class When_publishing_command_bestpractices_disabled_on_endpoint : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_allow_publishing_commands()
+        public async Task Should_allow_publishing_commands()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
+            await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
                 {
-                    var publishOptions = new PublishOptions();
-                    publishOptions.DoNotEnforceBestPractices();
-
-                    bus.Publish(new MyCommand(), publishOptions);
+                    bus.Publish(new MyCommand());
+                    return Task.FromResult(0);
                 }))
                 .Done(c => c.EndpointsStarted)
                 .Run();
-
         }
 
         [Test]
-        public void Should_allow_sending_events()
+        public async Task Should_allow_sending_events()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
+            await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
                 {
-                    var sendOptions = new SendOptions();
-                    sendOptions.DoNotEnforceBestPractices();
-
-                    bus.Send(new MyEvent(), sendOptions);
+                    bus.Send(new MyEvent());
+                    return Task.FromResult(0);
                 }))
                 .Done(c => c.EndpointsStarted)
                 .Run();
-
         }
 
         public class Context : ScenarioContext
@@ -50,7 +42,7 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>()
+                EndpointSetup<DefaultServer>(c => c.DisableFeature<BestPracticeEnforcement>())
                     .AddMapping<MyCommand>(typeof(Endpoint))
                     .AddMapping<MyEvent>(typeof(Endpoint));
             }

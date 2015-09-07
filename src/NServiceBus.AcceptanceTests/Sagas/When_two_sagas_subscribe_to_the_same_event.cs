@@ -2,6 +2,7 @@
 namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
+    using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
     using NServiceBus.AcceptanceTests.Routing;
@@ -13,14 +14,18 @@ namespace NServiceBus.AcceptanceTests.Sagas
     public class When_two_sagas_subscribe_to_the_same_event : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_invoke_all_handlers_on_all_sagas()
+        public async Task Should_invoke_all_handlers_on_all_sagas()
         {
-            Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                     .WithEndpoint<SagaEndpoint>(b =>
-                        b.When(c => c.Subscribed, bus => bus.SendLocal(new StartSaga2
+                        b.When(c => c.Subscribed, bus =>
                         {
-                            DataId = Guid.NewGuid()
-                        }))
+                            bus.SendLocal(new StartSaga2
+                            {
+                                DataId = Guid.NewGuid()
+                            });
+                            return Task.FromResult(0);
+                        })
                      )
                     .WithEndpoint<Publisher>(b => b.Given((bus, context) =>
                     {
@@ -29,6 +34,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
                             context.Subscribed = true;
                             context.AddTrace("EndpointThatHandlesAMessageAndPublishesEvent is now subscribed (at least we have asked the broker to be subscribed)");
                         }
+                        return Task.FromResult(0);
                     }))
                     .Done(c => c.DidSaga1EventHandlerGetInvoked && c.DidSaga2EventHandlerGetInvoked)
                     .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>()) // exclude the brokers since c.Subscribed won't get set for them

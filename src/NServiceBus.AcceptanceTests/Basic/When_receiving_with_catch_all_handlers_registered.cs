@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Basic
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
@@ -8,15 +9,17 @@
     public class When_receiving_with_catch_all_handlers_registered : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_call_catch_all_handlers()
+        public async Task Should_call_catch_all_handlers()
         {
-            var context = new Context { Id = Guid.NewGuid() };
-
-            Scenario.Define(context)
-                    .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new MyMessage
+            var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
+                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
                     {
-                        Id = context.Id
-                    })))
+                        bus.SendLocal(new MyMessage
+                        {
+                            Id = c.Id
+                        });
+                        return Task.FromResult(0);
+                    }))
                     .Done(c => c.ObjectHandlerWasCalled && c.DynamicHandlerWasCalled && c.IMessageHandlerWasCalled)
                     .Run();
 
@@ -42,7 +45,7 @@
         }
 
         [Serializable]
-        public class MyMessage: IMessage
+        public class MyMessage : IMessage
         {
             public Guid Id { get; set; }
         }
@@ -78,10 +81,10 @@
         public class CatchAllHandler_IMessage : IHandleMessages<IMessage>
         {
             public Context Context { get; set; }
-            
+
             public void Handle(IMessage message)
             {
-                var myMessage = (MyMessage) message;
+                var myMessage = (MyMessage)message;
                 if (Context.Id != myMessage.Id)
                     return;
 

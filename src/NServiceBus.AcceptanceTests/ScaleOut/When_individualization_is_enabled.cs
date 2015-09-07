@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.ScaleOut
 {
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Settings;
@@ -9,14 +10,12 @@
     {
         const string discriminator = "-something";
 
-
         [Test]
-        public void Should_use_the_configured_differentiator()
+        public async Task Should_use_the_configured_differentiator()
         {
-            var context = Scenario.Define<Context>()
+            var context = await Scenario.Define<Context>()
                     .WithEndpoint<IndividualizedEndpoint>().Done(c => c.EndpointsStarted)
                     .Run();
-
 
             Assert.True(context.Address.Contains("-something"), context.Address + " should contain the discriminator " + discriminator);
 

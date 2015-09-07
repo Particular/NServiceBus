@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.MessageId
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Config;
@@ -12,14 +13,9 @@
     public class When_message_has_empty_id_header : NServiceBusAcceptanceTest
     {
         [Test]
-        public void A_message_id_is_generated_by_the_transport_layer_on_receiving_side()
+        public async Task A_message_id_is_generated_by_the_transport_layer_on_receiving_side()
         {
-            var context = new Context
-            {
-                Id = Guid.NewGuid()
-            };
-
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                     .WithEndpoint<Endpoint>()
                     .Done(c => c.MessageReceived)
                     .Run();

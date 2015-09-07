@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
+    using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
     using NUnit.Framework;
@@ -12,19 +13,19 @@
         static Guid IdThatSagaIsCorrelatedOn = Guid.NewGuid();
 
         [Test]
-        public void Should_hydrate_and_invoke_the_existing_instance()
+        public async Task Should_hydrate_and_invoke_the_existing_instance()
         {
-            Scenario.Define<Context>()
-                    .WithEndpoint<SagaEndpoint>(b => b.Given(bus =>
-                        {
-                            bus.SendLocal(new StartSagaMessage { SomeId = IdThatSagaIsCorrelatedOn });
-                            bus.SendLocal(new StartSagaMessage { SomeId = IdThatSagaIsCorrelatedOn, SecondMessage = true });                                    
-                        }))
-                    .Done(c => c.SecondMessageReceived)
-                    .Repeat(r => r.For(Persistence.Default))
-                    .Should(c => Assert.AreEqual(c.FirstSagaInstance, c.SecondSagaInstance, "The same saga instance should be invoked invoked for both messages"))
-
-                    .Run();
+            await Scenario.Define<Context>()
+                .WithEndpoint<SagaEndpoint>(b => b.Given(bus =>
+                    {
+                        bus.SendLocal(new StartSagaMessage { SomeId = IdThatSagaIsCorrelatedOn });
+                        bus.SendLocal(new StartSagaMessage { SomeId = IdThatSagaIsCorrelatedOn, SecondMessage = true });
+                        return Task.FromResult(0);
+                    }))
+                .Done(c => c.SecondMessageReceived)
+                .Repeat(r => r.For(Persistence.Default))
+                .Should(c => Assert.AreEqual(c.FirstSagaInstance, c.SecondSagaInstance, "The same saga instance should be invoked invoked for both messages"))
+                .Run();
         }
 
         public class Context : ScenarioContext

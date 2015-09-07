@@ -73,11 +73,15 @@
     <Compile Include="Basic\When_deferring_to_non_local.cs" />
     <Compile Include="Basic\When_starting_up_the_endpoint.cs" />
     <Compile Include="Mutators\When_mutating.cs" />
+    <Compile Include="BestPractices\When_publishing_command_bestpractices_disabled_on_endpoint.cs" />
+    <Compile Include="BestPractices\When_sending_events_bestpractices_disabled_on_endpoint.cs" />
+    <Compile Include="BestPractices\When_sending_events_bestpractices_disabled.cs" />
+    <Compile Include="BestPractices\When_subscribing_to_command_bestpractices_disabled_on_endpoint.cs" />
     <Compile Include="Mutators\When_using_outgoing_tm_mutator.cs" />
     <Compile Include="Recoverability\Retries\When_message_fails_retries.cs" />
     <Compile Include="Recoverability\When_error_is_overridden_in_code.cs" />
-    <Compile Include="BestPractices\When_bestpractices_is_disabled_for_message.cs" />
-    <Compile Include="BestPractices\When_bestpractices_is_disabled.cs" />
+    <Compile Include="BestPractices\When_publishing_command_bestpractices_disabled.cs" />
+    <Compile Include="BestPractices\When_unsubscribing_to_command_bestpractices_disabled_on_endpoint.cs" />
     <Compile Include="BestPractices\When_unsubscribing_to_command.cs" />
     <Compile Include="BestPractices\When_subscribing_to_command.cs" />
     <Compile Include="BestPractices\When_publishing_command.cs" />
@@ -114,7 +118,8 @@
     <Compile Include="Reliability\Outbox\When_dispatching_transport_operations.cs" />
     <Compile Include="PerfMon\CriticalTime\When_deferring_a_message.cs" />
     <Compile Include="Audit\When_audit_is_overridden_in_code.cs" />
-    <Compile Include="Routing\AutomaticSubscriptions\When_starting_an_endpoint_containing_a_saga.cs" />
+    <Compile Include="Routing\AutomaticSubscriptions\When_starting_an_endpoint_with_a_saga.cs" />
+    <Compile Include="Routing\AutomaticSubscriptions\When_starting_an_endpoint_with_a_saga_autosubscribe_disabled.cs" />
     <Compile Include="Routing\AutomaticSubscriptions\When_starting_an_endpoint_with_autoSubscribe.cs">
       <SubType>Code</SubType>
     </Compile>

@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Reliability.Outbox
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
@@ -10,14 +11,18 @@
     public class When_sending_from_a_non_dtc_endpoint : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_store_them_and_dispatch_them_from_the_outbox()
+        public async Task Should_store_them_and_dispatch_them_from_the_outbox()
         {
-            Scenario.Define<Context>()
-                    .WithEndpoint<NonDtcSalesEndpoint>(b => b.Given(bus => bus.SendLocal(new PlaceOrder())))
-                    .Done(c => c.OrderAckReceived)
-                    .Repeat(r => r.For<AllOutboxCapableStorages>())
-                    .Should(context => Assert.IsTrue(context.OrderAckReceived))
-                    .Run(TimeSpan.FromSeconds(20));
+            await Scenario.Define<Context>()
+                .WithEndpoint<NonDtcSalesEndpoint>(b => b.Given(bus =>
+                {
+                    bus.SendLocal(new PlaceOrder());
+                    return Task.FromResult(0);
+                }))
+                .Done(c => c.OrderAckReceived)
+                .Repeat(r => r.For<AllOutboxCapableStorages>())
+                .Should(context => Assert.IsTrue(context.OrderAckReceived))
+                .Run(TimeSpan.FromSeconds(20));
         }
 
         public class Context : ScenarioContext

@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Tx
 {
     using System;
+    using System.Threading.Tasks;
     using System.Transactions;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
@@ -10,10 +11,14 @@
     public class Issue_2481 : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_enlist_the_receive_in_the_dtc_tx()
+        public async Task Should_enlist_the_receive_in_the_dtc_tx()
         {
-            Scenario.Define<Context>()
-                    .WithEndpoint<DTCEndpoint>(b => b.Given(bus => bus.SendLocal(new MyMessage())))
+            await Scenario.Define<Context>()
+                    .WithEndpoint<DTCEndpoint>(b => b.Given(bus =>
+                    {
+                        bus.SendLocal(new MyMessage());
+                        return Task.FromResult(0);
+                    }))
                     .Done(c => c.HandlerInvoked)
                     .Repeat(r => r.For<AllDtcTransports>())
                     .Should(c => Assert.False(c.CanEnlistPromotable, "There should exists a DTC tx"))

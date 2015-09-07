@@ -1,27 +1,32 @@
 ﻿namespace NServiceBus.AcceptanceTests.DataBus
 {
     using System;
+    using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
     using NUnit.Framework;
 
     public class When_sending_databus_properties:NServiceBusAcceptanceTest
     {
-        static byte[] PayloadToSend = new byte[1024 * 1024 * 10];
-
         [Test]
-        public void Should_receive_the_message_the_largeproperty_correctly()
+        public async Task Should_receive_messages_with_largepayload_correctly()
         {
-            var context = Scenario.Define<Context>()
-                    .WithEndpoint<Sender>(b => b.Given(bus=> bus.Send(new MyMessageWithLargePayload
+            var payloadToSend = new byte[1024 * 1024 * 10];
+
+            var context = await Scenario.Define<Context>()
+                    .WithEndpoint<Sender>(b => b.Given(bus=>
+                    {
+                        bus.Send(new MyMessageWithLargePayload
                         {
-                            Payload = new DataBusProperty<byte[]>(PayloadToSend) 
-                        })))
+                            Payload = new DataBusProperty<byte[]>(payloadToSend)
+                        });
+                        return Task.FromResult(0);
+                    }))
                     .WithEndpoint<Receiver>()
                     .Done(c => c.ReceivedPayload != null)
                     .Run();
 
-            Assert.AreEqual(PayloadToSend, context.ReceivedPayload, "The large payload should be marshalled correctly using the databus");
+            Assert.AreEqual(payloadToSend, context.ReceivedPayload, "The large payload should be marshalled correctly using the databus");
         }
 
         public class Context : ScenarioContext

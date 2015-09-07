@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
+    using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
     using Features;
@@ -14,13 +15,16 @@
     {
 
         [Test]
-        public void Should_start_the_saga_when_set_up_to_start_for_the_base_event()
+        public async Task Should_start_the_saga_when_set_up_to_start_for_the_base_event()
         {
-            Scenario.Define<SagaContext>()
+            await Scenario.Define<SagaContext>()
                 .WithEndpoint<Publisher>(b =>
                     b.When(c => c.IsEventSubscriptionReceived,
                         bus =>
-                            bus.Publish<SomethingHappenedEvent>(m => { m.DataId = Guid.NewGuid(); }))
+                        {
+                            bus.Publish<SomethingHappenedEvent>(m => { m.DataId = Guid.NewGuid(); });
+                            return Task.FromResult(0);
+                        })
                 )
                 .WithEndpoint<SagaThatIsStartedByABaseEvent>(
                     b => b.Given((bus, context) =>
@@ -29,6 +33,7 @@
 
                         if (context.HasNativePubSubSupport)
                             context.IsEventSubscriptionReceived = true;
+                        return Task.FromResult(0);
                     }))
                 .Done(c => c.DidSagaComplete)
                 .Repeat(r => r.For(Transports.Default))

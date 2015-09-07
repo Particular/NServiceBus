@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Runtime.Serialization.Formatters.Binary;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Features;
@@ -13,13 +14,15 @@
     public class When_registering_custom_serializer : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_register_via_type()
+        public async Task Should_register_via_type()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointViaType>(b => b.Given(
-                    (bus, c) => bus.SendLocal(new MyRequest())))
+                    (bus, c) =>
+                    {
+                        bus.SendLocal(new MyRequest());
+                        return Task.FromResult(0);
+                    }))
                 .Done(c => c.HandlerGotTheRequest)
                 .Run();
 
@@ -28,13 +31,15 @@
         }
 
         [Test]
-        public void Should_register_via_definition()
+        public async Task Should_register_via_definition()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointViaDefinition>(b => b.Given(
-                    (bus, c) => bus.SendLocal(new MyRequest())))
+                    (bus, c) =>
+                    {
+                        bus.SendLocal(new MyRequest());
+                        return Task.FromResult(0);
+                    }))
                 .Done(c => c.HandlerGotTheRequest)
                 .Run();
 

@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Basic
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
@@ -8,12 +9,14 @@
     public class When_incoming_headers_should_be_shared : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_expose_header_in_downstream_handlers()
+        public async Task Should_expose_header_in_downstream_handlers()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
-                .WithEndpoint<Endpoint>(b => b.Given((bus, c) => bus.SendLocal(new Message())))
+            var context = await Scenario.Define<Context>()
+                .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
+                {
+                    bus.SendLocal(new Message());
+                    return Task.FromResult(0);
+                }))
                 .Done(c => c.GotMessage)
                 .Run();
 

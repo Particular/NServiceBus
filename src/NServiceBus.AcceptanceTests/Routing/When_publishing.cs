@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
@@ -10,32 +11,37 @@
     public class When_publishing : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Issue_1851()
+        public async Task Issue_1851()
         {
-            Scenario.Define<Context>()
-                    .WithEndpoint<Publisher3>(b =>
-                        b.When(c => c.Subscriber3Subscribed, bus => bus.Publish<IFoo>())
-                     )
-                    .WithEndpoint<Subscriber3>(b => b.Given((bus, context) =>
+            await Scenario.Define<Context>()
+                .WithEndpoint<Publisher3>(b =>
+                    b.When(c => c.Subscriber3Subscribed, bus =>
                     {
-                        bus.Subscribe<IFoo>();
+                        bus.Publish<IFoo>();
+                        return Task.FromResult(0);
+                    })
+                    )
+                .WithEndpoint<Subscriber3>(b => b.Given((bus, context) =>
+                {
+                    bus.Subscribe<IFoo>();
 
-                        if (context.HasNativePubSubSupport)
-                        {
-                            context.Subscriber3Subscribed = true;
-                        }
-                    }))
+                    if (context.HasNativePubSubSupport)
+                    {
+                        context.Subscriber3Subscribed = true;
+                    }
+                    return Task.FromResult(0);
+                }))
 
-                    .Done(c => c.Subscriber3GotTheEvent)
-                    .Repeat(r => r.For(Transports.Default))
-                    .Should(c => Assert.True(c.Subscriber3GotTheEvent))
-                    .Run();
+                .Done(c => c.Subscriber3GotTheEvent)
+                .Repeat(r => r.For(Transports.Default))
+                .Should(c => Assert.True(c.Subscriber3GotTheEvent))
+                .Run();
         }
 
         [Test]
-        public void Should_be_delivered_to_all_subscribers()
+        public async Task Should_be_delivered_to_all_subscribers()
         {
-            Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                     .WithEndpoint<Publisher>(b =>
                         b.When(c => c.Subscriber1Subscribed && c.Subscriber2Subscribed, (bus, c) =>
                         {
@@ -45,6 +51,7 @@
 
                             options.SetHeader("MyHeader","SomeValue");
                             bus.Publish(new MyEvent(), options);
+                            return Task.FromResult(0);
                         })
                      )
                     .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
@@ -59,6 +66,7 @@
                             {
                                 context.AddTrace("Subscriber1 has now asked to be subscribed to MyEvent");
                             }
+                            return Task.FromResult(0);
                         }))
                       .WithEndpoint<Subscriber2>(b => b.Given((bus, context) =>
                       {
@@ -73,6 +81,7 @@
                           {
                               context.AddTrace("Subscriber2 has now asked to be subscribed to MyEvent");
                           }
+                          return Task.FromResult(0);
                       }))
                     .Done(c => c.Subscriber1GotTheEvent && c.Subscriber2GotTheEvent)
                     .Repeat(r => r.For(Transports.Default))
@@ -81,7 +90,6 @@
                         Assert.True(c.Subscriber1GotTheEvent);
                         Assert.True(c.Subscriber2GotTheEvent);
                     })
-
                     .Run(TimeSpan.FromSeconds(10));
         }
 

@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.Features;
@@ -10,12 +11,14 @@
     public class When_using_ReplyToOriginator : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_set_Reply_as_messageintent()
+        public async Task Should_set_Reply_as_messageintent()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
-                .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new InitiateRequestingSaga { SomeCorrelationId = Guid.NewGuid() })))
+            var context = await Scenario.Define<Context>()
+                .WithEndpoint<Endpoint>(b => b.Given(bus =>
+                {
+                    bus.SendLocal(new InitiateRequestingSaga { SomeCorrelationId = Guid.NewGuid() });
+                    return Task.FromResult(0);
+                }))
                 .Done(c => c.Done)
                 .Run();
 

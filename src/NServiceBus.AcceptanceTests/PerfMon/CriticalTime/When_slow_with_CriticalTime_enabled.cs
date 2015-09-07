@@ -2,6 +2,7 @@
 {
     using System.Diagnostics;
     using System.Threading;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
@@ -13,14 +14,17 @@
 
         [Test]
         [Explicit("Since perf counters need to be enabled with powershell")]
-        public void Should_have_perf_counter_set()
+        public async Task Should_have_perf_counter_set()
         {
             using (var counter = new PerformanceCounter("NServiceBus", "Critical Time", "SlowWithCriticaltimeEnabled.Endpoint", true))
             using (new Timer(state => CheckPerfCounter(counter), null, 0, 100))
             {
-                var context = new Context();
-                Scenario.Define(context)
-                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) => bus.SendLocal(new MyMessage())))
+                await Scenario.Define<Context>()
+                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
+                    {
+                        bus.SendLocal(new MyMessage());
+                        return Task.FromResult(0);
+                    }))
                     .Done(c => c.WasCalled)
                     .Repeat(r => r.For(Transports.Default))
                     .Should(c => Assert.True(c.WasCalled, "The message handler should be called"))

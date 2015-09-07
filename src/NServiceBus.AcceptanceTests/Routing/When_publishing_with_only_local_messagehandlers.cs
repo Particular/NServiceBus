@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
@@ -9,11 +10,15 @@
     public class When_publishing_with_only_local_messagehandlers : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_trigger_the_catch_all_handler_for_message_driven_subscriptions()
+        public async Task Should_trigger_the_catch_all_handler_for_message_driven_subscriptions()
         {
-            Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                 .WithEndpoint<MessageDrivenPublisher>(b =>
-                    b.When(c => c.LocalEndpointSubscribed, bus => bus.Publish(new EventHandledByLocalEndpoint())))
+                    b.When(c => c.LocalEndpointSubscribed, bus =>
+                    {
+                        bus.Publish(new EventHandledByLocalEndpoint());
+                        return Task.FromResult(0);
+                    }))
                 .Done(c => c.CatchAllHandlerGotTheMessage)
                 .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
                 .Should(c => Assert.True(c.CatchAllHandlerGotTheMessage))
@@ -21,18 +26,26 @@
         }
 
         [Test]
-        public void Should_trigger_the_catch_all_handler_for_publishers_with_centralized_pubsub()
+        public async Task Should_trigger_the_catch_all_handler_for_publishers_with_centralized_pubsub()
         {
-            Scenario.Define<Context>()
-                       .WithEndpoint<CentralizedStoragePublisher>(b =>
-                       {
-                           b.Given(bus => bus.Subscribe<EventHandledByLocalEndpoint>());
-                           b.When(c => c.EndpointsStarted, (bus, context) => bus.Publish(new EventHandledByLocalEndpoint()));
-                       })
-                       .Done(c => c.CatchAllHandlerGotTheMessage)
-                       .Repeat(r => r.For<AllTransportsWithCentralizedPubSubSupport>())
-                       .Should(c => Assert.True(c.CatchAllHandlerGotTheMessage))
-                       .Run();
+            await Scenario.Define<Context>()
+                .WithEndpoint<CentralizedStoragePublisher>(b =>
+                {
+                    b.Given(bus =>
+                    {
+                        bus.Subscribe<EventHandledByLocalEndpoint>();
+                        return Task.FromResult(0);
+                    });
+                    b.When(c => c.EndpointsStarted, (bus, context) =>
+                    {
+                        bus.Publish(new EventHandledByLocalEndpoint());
+                        return Task.FromResult(0);
+                    });
+                })
+                .Done(c => c.CatchAllHandlerGotTheMessage)
+                .Repeat(r => r.For<AllTransportsWithCentralizedPubSubSupport>())
+                .Should(c => Assert.True(c.CatchAllHandlerGotTheMessage))
+                .Run();
         }
 
         public class Context : ScenarioContext

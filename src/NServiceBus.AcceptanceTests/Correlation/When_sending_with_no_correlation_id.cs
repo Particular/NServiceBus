@@ -1,19 +1,22 @@
 ﻿namespace NServiceBus.AcceptanceTests.Correlation
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
     public class When_sending_with_no_correlation_id : NServiceBusAcceptanceTest
-    {  
+    {
         [Test]
-        public void Should_use_the_message_id_as_the_correlation_id()
+        public async Task Should_use_the_message_id_as_the_correlation_id()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
-                    .WithEndpoint<CorrelationEndpoint>(b => b.Given(bus => bus.SendLocal(new MyRequest())))
+            var context = await Scenario.Define<Context>()
+                    .WithEndpoint<CorrelationEndpoint>(b => b.Given(bus =>
+                    {
+                        bus.SendLocal(new MyRequest());
+                        return Task.FromResult(0);
+                    }))
                     .Done(c => c.GotRequest)
                     .Run();
 

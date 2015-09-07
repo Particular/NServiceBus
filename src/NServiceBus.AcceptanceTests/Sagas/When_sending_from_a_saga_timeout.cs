@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
+    using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
     using NServiceBus.Features;
@@ -11,10 +12,14 @@
     public class When_sending_from_a_saga_timeout : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_match_different_saga()
+        public async Task Should_match_different_saga()
         {
-            Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new StartSaga1 { DataId = Guid.NewGuid() })))
+            await Scenario.Define<Context>()
+                    .WithEndpoint<Endpoint>(b => b.Given(bus =>
+                    {
+                        bus.SendLocal(new StartSaga1 { DataId = Guid.NewGuid() });
+                        return Task.FromResult(0);
+                    }))
                     .Done(c => c.DidSaga2ReceiveMessage)
                     .Repeat(r => r.For(Transports.Default))
                     .Should(c => Assert.True(c.DidSaga2ReceiveMessage))

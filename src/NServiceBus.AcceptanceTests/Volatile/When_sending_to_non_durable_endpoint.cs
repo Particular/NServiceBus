@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Volatile
 {
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
@@ -8,11 +9,14 @@
     public class When_sending_to_non_durable_endpoint: NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_receive_the_message()
+        public async Task Should_receive_the_message()
         {
-            var context = new Context();
-            Scenario.Define(context)
-                    .WithEndpoint<Sender>(b => b.Given((bus, c) => bus.Send(new MyMessage())))
+            await Scenario.Define<Context>()
+                    .WithEndpoint<Sender>(b => b.Given((bus, c) =>
+                    {
+                        bus.Send(new MyMessage());
+                        return Task.FromResult(0);
+                    }))
                     .WithEndpoint<Receiver>()
                     .Done(c => c.WasCalled)
                     .Repeat(r => r.For(Transports.Default))

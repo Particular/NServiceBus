@@ -2,6 +2,7 @@
 namespace NServiceBus.AcceptanceTests.PipelineExt
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Pipeline;
@@ -13,11 +14,14 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
     public class MutingHandlerExceptions : NServiceBusAcceptanceTest
     {
         [Test]
-        public void RunDemo()
+        public async Task RunDemo()
         {
-            var context = new Context();
-            Scenario.Define(context)
-                .WithEndpoint<EndpointWithCustomExceptionMuting>(b => b.Given(bus => bus.SendLocal(new MessageThatWillBlowUpButExWillBeMuted())))
+            var context = await Scenario.Define<Context>()
+                .WithEndpoint<EndpointWithCustomExceptionMuting>(b => b.Given(bus =>
+                {
+                    bus.SendLocal(new MessageThatWillBlowUpButExWillBeMuted());
+                    return Task.FromResult(0);
+                }))
                 .WithEndpoint<AuditSpy>()
                 .Done(c => c.MessageAudited)
                 .Run();

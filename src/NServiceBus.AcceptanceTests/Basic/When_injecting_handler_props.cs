@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Basic
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
@@ -8,12 +9,14 @@
     public class When_injecting_handler_props : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Run()
+        public async Task Run()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
-                    .WithEndpoint<Receiver>(c=>c.When(b=>b.SendLocal(new MyMessage())))
+            var context = await Scenario.Define<Context>()
+                    .WithEndpoint<Receiver>(c=>c.When(b =>
+                    {
+                        b.SendLocal(new MyMessage());
+                        return Task.FromResult(0);
+                    }))
                     .Done(c => c.WasCalled)
                     .Run();
 

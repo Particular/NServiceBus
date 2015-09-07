@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Recoverability.Retries
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
@@ -13,10 +14,14 @@
         static TimeSpan SlrDelay = TimeSpan.FromSeconds(5);
 
         [Test]
-        public void Should_be_moved_to_slr()
+        public async Task Should_be_moved_to_slr()
         {
-            Scenario.Define(() => new Context { Id = Guid.NewGuid() })
-                    .WithEndpoint<SLREndpoint>(b => b.Given((bus, context) => bus.SendLocal(new MessageToBeRetried { Id = context.Id })))
+            await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
+                    .WithEndpoint<SLREndpoint>(b => b.Given((bus, context) =>
+                    {
+                        bus.SendLocal(new MessageToBeRetried { Id = context.Id });
+                        return Task.FromResult(0);
+                    }))
                     .AllowExceptions(e => e.Message.Contains("Simulated exception"))
                     .Done(c => c.NumberOfTimesInvoked >= 2)
                     .Repeat(r => r.For(Transports.Default))

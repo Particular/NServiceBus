@@ -2,6 +2,7 @@ namespace NServiceBus.AcceptanceTests.Hosting
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Features;
@@ -13,12 +14,14 @@ namespace NServiceBus.AcceptanceTests.Hosting
         static string instanceName = "Foo";
 
         [Test]
-        public void HostInfo_is_changed()
+        public async Task HostInfo_is_changed()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
-                .WithEndpoint<MyEndpoint>(e => e.Given(b => b.SendLocal(new MyMessage())))
+            var context = await Scenario.Define<Context>()
+                .WithEndpoint<MyEndpoint>(e => e.Given(b =>
+                {
+                    b.SendLocal(new MyMessage());
+                    return Task.FromResult(0);
+                }))
                 .Done(c => c.OriginatingHostId != Guid.Empty)
                 .Run();
 

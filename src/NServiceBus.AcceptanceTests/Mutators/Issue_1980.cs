@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Mutators
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.MessageMutator;
@@ -9,16 +10,19 @@
     public class Issue_1980 : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Run()
+        public async Task Run()
         {
-            var testContext = new Context();
-            Scenario.Define(testContext)
-                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) => bus.SendLocal(new V1Message())))
+            var context = await Scenario.Define<Context>()
+                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
+                    {
+                        bus.SendLocal(new V1Message());
+                        return Task.FromResult(0);
+                    }))
                     .Done(c => c.V2MessageReceived || c.V1MessageReceived)
                     .Run();
 
-            Assert.IsTrue(testContext.V2MessageReceived);
-            Assert.IsFalse(testContext.V1MessageReceived);
+            Assert.IsTrue(context.V2MessageReceived);
+            Assert.IsFalse(context.V1MessageReceived);
         }
 
         public class Context : ScenarioContext

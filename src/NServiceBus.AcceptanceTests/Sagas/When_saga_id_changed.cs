@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
-    using System.Diagnostics;
+    using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
     using NServiceBus.Config;
@@ -10,24 +10,27 @@
     using Saga;
     using ScenarioDescriptors;
 
+    [TestFixture]
     public class When_saga_id_changed : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_throw()
+        public async Task Should_throw()
         {
-            var context = new Context();
-            Scenario.Define(context)
+            await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(
-                    b => b.Given(bus => bus.SendLocal(new StartSaga
+                    b => b.Given(bus =>
                     {
-                        DataId = Guid.NewGuid()
-                    })))
-                    .AllowExceptions()
+                        bus.SendLocal(new StartSaga
+                        {
+                            DataId = Guid.NewGuid()
+                        });
+                        return Task.FromResult(0);
+                    }))
+                .AllowExceptions()
                 .Done(c => c.MessageFailed)
                 .Repeat(r => r.For(Transports.Default))
+                .Should(c => { Assert.AreEqual(c.ExceptionMessage, "A modification of IContainSagaData.Id has been detected. This property is for infrastructure purposes only and should not be modified. SagaType: " + typeof(Endpoint.SagaIdChangedSaga)); })
                 .Run();
-
-            Debug.WriteLine(context.ExceptionMessage, "A modification of IContainSagaData.Id has been detected. This property is for infrastructure purposes only and should not be modified. SagaType: " + typeof(Endpoint.SagaIdChangedSaga));
         }
 
         public class Context : ScenarioContext
@@ -69,6 +72,7 @@
                 }
 
             }
+
             class ErrorNotificationSpy : IWantToRunWhenBusStartsAndStops
             {
                 public Context Context { get; set; }
@@ -84,7 +88,9 @@
                     });
                 }
 
-                public void Stop() { }
+                public void Stop()
+                {
+                }
             }
         }
 

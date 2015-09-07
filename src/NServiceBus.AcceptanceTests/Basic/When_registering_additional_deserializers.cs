@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Runtime.Serialization.Formatters.Binary;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Features;
@@ -13,17 +14,16 @@
     public class When_registering_additional_deserializers : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Two_endpoints_with_different_serializers_should_deserialize_the_message()
+        public async Task Two_endpoints_with_different_serializers_should_deserialize_the_message()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<CustomSerializationSender>(b => b.Given(
                     (bus, c) =>
                     {
                         var sendOptions = new SendOptions();
                         sendOptions.SetHeader("ContentType", "MyCustomSerializer");
                         bus.Send(new MyRequest());
+                        return Task.FromResult(0);
                     }))
                 .WithEndpoint<XmlCustomSerializationReceiver>()
                 .Done(c => c.DeserializeCalled)

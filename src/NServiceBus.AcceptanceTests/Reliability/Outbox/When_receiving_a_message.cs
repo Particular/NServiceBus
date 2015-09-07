@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Reliability.Outbox
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTesting.Support;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
@@ -11,20 +12,24 @@
     public class When_receiving_a_message : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_handle_it()
+        public async Task Should_handle_it()
         {
-            Scenario.Define<Context>()
-                    .WithEndpoint<NonDtcReceivingEndpoint>(b => b.Given(bus => bus.SendLocal(new PlaceOrder())))
-                    .AllowExceptions()
-                    .Done(c => c.OrderAckReceived == 1)
-                    .Repeat(r => r.For<AllOutboxCapableStorages>())
-                    .Run(new RunSettings { TestExecutionTimeout = TimeSpan.FromSeconds(20) });
+            await Scenario.Define<Context>()
+                .WithEndpoint<NonDtcReceivingEndpoint>(b => b.Given(bus =>
+                {
+                    bus.SendLocal(new PlaceOrder());
+                    return Task.FromResult(0);
+                }))
+                .AllowExceptions()
+                .Done(c => c.OrderAckReceived == 1)
+                .Repeat(r => r.For<AllOutboxCapableStorages>())
+                .Run(new RunSettings { TestExecutionTimeout = TimeSpan.FromSeconds(20) });
         }
 
         [Test]
-        public void Should_discard_duplicates_using_the_outbox()
+        public async Task Should_discard_duplicates_using_the_outbox()
         {
-            Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                     .WithEndpoint<NonDtcReceivingEndpoint>(b => b.Given(bus =>
                     {
                         var duplicateMessageId = Guid.NewGuid().ToString();
@@ -37,6 +42,8 @@
                         bus.Send(new PlaceOrder(), options);
                         bus.Send(new PlaceOrder(), options);
                         bus.SendLocal(new PlaceOrder());
+
+                        return Task.FromResult(0);
                     }))
                     .AllowExceptions()
                     .Done(c => c.OrderAckReceived >= 2)

@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Tx
 {
     using System;
+    using System.Threading.Tasks;
     using System.Transactions;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
@@ -10,11 +11,14 @@
     public class When_receiving_with_dtc_disabled : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_not_escalate_a_single_durable_rm_to_dtc_tx()
+        public async Task Should_not_escalate_a_single_durable_rm_to_dtc_tx()
         {
-
-            Scenario.Define<Context>()
-                    .WithEndpoint<NonDTCEndpoint>(b => b.Given(bus => bus.SendLocal(new MyMessage())))
+            await Scenario.Define<Context>()
+                    .WithEndpoint<NonDTCEndpoint>(b => b.Given(bus =>
+                    {
+                        bus.SendLocal(new MyMessage());
+                        return Task.FromResult(0);
+                    }))
                     .Done(c => c.HandlerInvoked)
                     .Repeat(r => r.For<AllDtcTransports>())
                     .Should(c =>

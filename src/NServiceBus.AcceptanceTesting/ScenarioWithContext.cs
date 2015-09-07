@@ -4,15 +4,16 @@ namespace NServiceBus.AcceptanceTesting
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
+    using System.Threading.Tasks;
     using Customization;
     using NServiceBus.Logging;
     using Support;
 
     public class ScenarioWithContext<TContext> : IScenarioWithEndpointBehavior<TContext>, IAdvancedScenarioWithEndpointBehavior<TContext> where TContext : ScenarioContext, new()
     {
-        public ScenarioWithContext(Func<TContext> factory)
+        public ScenarioWithContext(Action<TContext> initializer)
         {
-            contextFactory = factory;
+            contextInitializer = initializer;
         }
 
         public IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>() where T : EndpointConfigurationBuilder
@@ -39,7 +40,7 @@ namespace NServiceBus.AcceptanceTesting
             return this;
         }
 
-        public IEnumerable<TContext> Run(TimeSpan? testExecutionTimeout = null)
+        public Task<IEnumerable<TContext>> Run(TimeSpan? testExecutionTimeout = null)
         {
             return Run(new RunSettings
             {
@@ -47,7 +48,7 @@ namespace NServiceBus.AcceptanceTesting
             });
         }
 
-        public IEnumerable<TContext> Run(RunSettings settings)
+        public async Task<IEnumerable<TContext>> Run(RunSettings settings)
         {
             var builder = new RunDescriptorsBuilder();
 
@@ -61,21 +62,20 @@ namespace NServiceBus.AcceptanceTesting
                 return new List<TContext>();
             }
 
-            var scenarioContext = contextFactory();
             foreach (var runDescriptor in runDescriptors)
             {
+                var scenarioContext = new TContext();
+                contextInitializer(scenarioContext);
                 runDescriptor.ScenarioContext = scenarioContext;
                 runDescriptor.TestExecutionTimeout = settings.TestExecutionTimeout ?? TimeSpan.FromSeconds(90);
             }
 
             LogManager.UseFactory(new ContextAppender());
-            ContextAppender.SetContext(scenarioContext);
 
             var sw = new Stopwatch();
 
             sw.Start();
-            ScenarioRunner.Run(runDescriptors, behaviors, shoulds, done, limitTestParallelismTo, reports, allowedExceptions);
-            ContextAppender.SetContext(null);
+            await ScenarioRunner.Run(runDescriptors, behaviors, shoulds, done, limitTestParallelismTo, reports, allowedExceptions).ConfigureAwait(false);
             sw.Stop();
 
             Console.WriteLine("Total time for testrun: {0}", sw.Elapsed);
@@ -108,17 +108,19 @@ namespace NServiceBus.AcceptanceTesting
             return this;
         }
 
-        TContext IScenarioWithEndpointBehavior<TContext>.Run(TimeSpan? testExecutionTimeout)
+        async Task<TContext> IScenarioWithEndpointBehavior<TContext>.Run(TimeSpan? testExecutionTimeout)
         {
-            return Run(new RunSettings
+            var contexts = await Run(new RunSettings
             {
                 TestExecutionTimeout = testExecutionTimeout
-            }).Single();
+            }).ConfigureAwait(false);
+            return contexts.Single();
         }
 
-        TContext IScenarioWithEndpointBehavior<TContext>.Run(RunSettings settings)
+        async Task<TContext> IScenarioWithEndpointBehavior<TContext>.Run(RunSettings settings)
         {
-            return Run(settings).Single();
+            var contexts = await Run(settings).ConfigureAwait(false);
+            return contexts.Single();
         }
 
         public IAdvancedScenarioWithEndpointBehavior<TContext> Should(Action<TContext> should)
@@ -143,7 +145,7 @@ namespace NServiceBus.AcceptanceTesting
         Action<RunDescriptorsBuilder> runDescriptorsBuilderAction = builder => builder.For(Conventions.DefaultRunDescriptor());
         IList<IScenarioVerification> shoulds = new List<IScenarioVerification>();
         Func<ScenarioContext, bool> done = context => true;
-        Func<TContext> contextFactory;
+        Action<TContext> contextInitializer;
         Action<RunSummary> reports;
         Func<Exception, bool> allowedExceptions = exception => false;
     }

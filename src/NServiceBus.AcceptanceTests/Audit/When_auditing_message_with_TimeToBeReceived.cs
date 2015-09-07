@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Audit
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
@@ -9,20 +10,24 @@
     {
 
         [Test]
-        public void Should_not_honor_TimeToBeReceived_for_audit_message()
+        public async Task Should_not_honor_TimeToBeReceived_for_audit_message()
         {
-            var context = new Context();
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithAuditOn>(b => b.Given(Send()))
             .WithEndpoint<EndpointThatHandlesAuditMessages>()
-            .Done(c => c.IsMessageHandlingComplete && context.TTBRHasExpiredAndMessageIsStillInAuditQueue)
+            .Done(c => c.IsMessageHandlingComplete && c.TTBRHasExpiredAndMessageIsStillInAuditQueue)
             .Run();
+
             Assert.IsTrue(context.IsMessageHandlingComplete);
         }
 
-        static Action<IBus> Send()
+        static Func<IBus, Task> Send()
         {
-            return bus => bus.SendLocal(new MessageToBeAudited());
+            return bus =>
+            {
+                bus.SendLocal(new MessageToBeAudited());
+                return Task.FromResult(0);
+            };
         }
 
         class Context : ScenarioContext

@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Basic
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
@@ -8,15 +9,17 @@
     public class When_handling_message_with_several_messagehandlers : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_call_all_handlers()
+        public async Task Should_call_all_handlers()
         {
-            var context = new Context { Id = Guid.NewGuid() };
-
-            Scenario.Define(context)
-                    .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new MyMessage
+            var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
+                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
                     {
-                        Id = context.Id
-                    })))
+                        bus.SendLocal(new MyMessage
+                        {
+                            Id = c.Id
+                        });
+                        return Task.FromResult(0);
+                    }))
                     .Done(c => c.FirstHandlerWasCalled)
                     .Run();
 

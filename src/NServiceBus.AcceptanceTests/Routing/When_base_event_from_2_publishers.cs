@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
@@ -8,34 +9,41 @@
     public class When_base_event_from_2_publishers : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_receive_events_from_all_publishers()
+        public async Task Should_receive_events_from_all_publishers()
         {
-            var cc = new Context();
-
-            Scenario.Define(cc)
+            var context = await Scenario.Define<Context>()
                .WithEndpoint<Publisher1>(b =>
-                        b.When(c => c.SubscribedToPublisher1, bus => bus.Publish(new DerivedEvent1()))
+                        b.When(c => c.SubscribedToPublisher1, bus =>
+                        {
+                            bus.Publish(new DerivedEvent1());
+                            return Task.FromResult(0);
+                        })
                      )
                 .WithEndpoint<Publisher2>(b =>
-                        b.When(c => c.SubscribedToPublisher2, bus => bus.Publish(new DerivedEvent2()))
+                        b.When(c => c.SubscribedToPublisher2, bus =>
+                        {
+                            bus.Publish(new DerivedEvent2());
+                            return Task.FromResult(0);
+                        })
                      )
-               .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
+               .WithEndpoint<Subscriber1>(b => b.Given((bus, c) =>
                {
                    bus.Subscribe<DerivedEvent1>();
                    bus.Subscribe<DerivedEvent2>();
 
-                   if (context.HasNativePubSubSupport)
+                   if (c.HasNativePubSubSupport)
                    {
-                       context.SubscribedToPublisher1 = true;
-                       context.SubscribedToPublisher2 = true;
+                       c.SubscribedToPublisher1 = true;
+                       c.SubscribedToPublisher2 = true;
                    }
+                   return Task.FromResult(0);
                }))
                .AllowExceptions(e => e.Message.Contains("Oracle.DataAccess.Client.OracleException: ORA-00001") || e.Message.Contains("System.Data.SqlClient.SqlException: Violation of PRIMARY KEY constraint"))
                .Done(c => c.GotTheEventFromPublisher1 && c.GotTheEventFromPublisher2)
                .Run();
 
-            Assert.True(cc.GotTheEventFromPublisher1);
-            Assert.True(cc.GotTheEventFromPublisher2);
+            Assert.True(context.GotTheEventFromPublisher1);
+            Assert.True(context.GotTheEventFromPublisher2);
         }
 
         public class Context : ScenarioContext

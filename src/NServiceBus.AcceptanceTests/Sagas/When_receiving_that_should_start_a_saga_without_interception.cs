@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NUnit.Framework;
@@ -8,10 +9,14 @@
     public class When_receiving_that_should_start_a_saga_without_interception : When_receiving_that_should_start_a_saga
     {
         [Test]
-        public void Should_start_the_saga_and_call_messagehandlers()
+        public async Task Should_start_the_saga_and_call_messagehandlers()
         {
-            Scenario.Define<SagaEndpointContext>()
-                .WithEndpoint<SagaEndpoint>(b => b.Given(bus => bus.SendLocal(new StartSagaMessage { SomeId = Guid.NewGuid().ToString() })))
+            await Scenario.Define<SagaEndpointContext>()
+                .WithEndpoint<SagaEndpoint>(b => b.Given(bus =>
+                {
+                    bus.SendLocal(new StartSagaMessage { SomeId = Guid.NewGuid().ToString() });
+                    return Task.FromResult(0);
+                }))
                 .Done(context => context.InterceptingHandlerCalled && context.SagaStarted)
                 .Repeat(r => r.For(Transports.Default))
                 .Should(c =>

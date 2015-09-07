@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
@@ -11,19 +12,22 @@
     public class When_dispatching_transport_operations : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_honor_all_delivery_options()
+        public async Task Should_honor_all_delivery_options()
         {
-          
-            Scenario.Define<Context>()
-                    .WithEndpoint<NonDtcReceivingEndpoint>(b => b.Given(bus => bus.SendLocal(new PlaceOrder())))
-                   .Done(c => c.DispatchedMessageReceived)
-                    .Repeat(r=>r.For<AllOutboxCapableStorages>())
-                    .Should(context =>
-                    {
-                        Assert.AreEqual(TimeSpan.FromMinutes(1), TimeSpan.Parse(context.HeadersOnDispatchedMessage[Headers.TimeToBeReceived]), "Should honor the TTBR");
-                        Assert.True(bool.Parse(context.HeadersOnDispatchedMessage[Headers.NonDurableMessage]), "Should honor the durability");
-                    })
-                    .Run(TimeSpan.FromSeconds(20));
+            await Scenario.Define<Context>()
+                .WithEndpoint<NonDtcReceivingEndpoint>(b => b.Given(bus =>
+                {
+                    bus.SendLocal(new PlaceOrder());
+                    return Task.FromResult(0);
+                }))
+                .Done(c => c.DispatchedMessageReceived)
+                .Repeat(r=>r.For<AllOutboxCapableStorages>())
+                .Should(context =>
+                {
+                    Assert.AreEqual(TimeSpan.FromMinutes(1), TimeSpan.Parse(context.HeadersOnDispatchedMessage[Headers.TimeToBeReceived]), "Should honor the TTBR");
+                    Assert.True(bool.Parse(context.HeadersOnDispatchedMessage[Headers.NonDurableMessage]), "Should honor the durability");
+                })
+                .Run(TimeSpan.FromSeconds(20));
         }
 
 

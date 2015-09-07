@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Basic
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Features;
@@ -9,17 +10,16 @@
     public class When_deferring_to_non_local : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Message_should_be_received()
+        public async Task Message_should_be_received()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>()
                     .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
                     {
                         var options = new SendOptions();
 
                         options.DelayDeliveryWith(TimeSpan.FromSeconds(3));
                         bus.Send(new MyMessage(), options);
+                        return Task.FromResult(0);
                     }))
                     .WithEndpoint<Receiver>()
                     .Done(c => c.WasCalled)

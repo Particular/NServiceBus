@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Features;
@@ -9,31 +10,35 @@
     public class When_subscribing_to_a_polymorphic_event : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Event_should_be_delivered()
+        public async Task Event_should_be_delivered()
         {
-            var cc = new Context();
-
-            Scenario.Define(cc)
-                    .WithEndpoint<Publisher>(b => b.When(c => c.Subscriber1Subscribed && c.Subscriber2Subscribed, bus => bus.Publish(new MyEvent())))
-                    .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
+            var context = await Scenario.Define<Context>()
+                    .WithEndpoint<Publisher>(b => b.When(c => c.Subscriber1Subscribed && c.Subscriber2Subscribed, bus =>
+                    {
+                        bus.Publish(new MyEvent());
+                        return Task.FromResult(0);
+                    }))
+                    .WithEndpoint<Subscriber1>(b => b.Given((bus, c) =>
                         {
                             bus.Subscribe<IMyEvent>();
 
-                            if (context.HasNativePubSubSupport)
-                                context.Subscriber1Subscribed = true;
+                            if (c.HasNativePubSubSupport)
+                                c.Subscriber1Subscribed = true;
+                            return Task.FromResult(0);
                         }))
-                    .WithEndpoint<Subscriber2>(b => b.Given((bus, context) =>
+                    .WithEndpoint<Subscriber2>(b => b.Given((bus, c) =>
                         {
                             bus.Subscribe<MyEvent>();
 
-                            if (context.HasNativePubSubSupport)
-                                context.Subscriber2Subscribed = true;
+                            if (c.HasNativePubSubSupport)
+                                c.Subscriber2Subscribed = true;
+                            return Task.FromResult(0);
                         }))
                     .Done(c => c.Subscriber1GotTheEvent && c.Subscriber2GotTheEvent)
                     .Run();
 
-            Assert.True(cc.Subscriber1GotTheEvent);
-            Assert.True(cc.Subscriber2GotTheEvent);
+            Assert.True(context.Subscriber1GotTheEvent);
+            Assert.True(context.Subscriber2GotTheEvent);
         }
 
         public class Context : ScenarioContext
@@ -59,7 +64,7 @@
                     {
                         context.Subscriber1Subscribed = true;
                     }
-                    
+
                     if (args.SubscriberReturnAddress.Contains("Subscriber2"))
                     {
                         context.Subscriber2Subscribed = true;
@@ -105,7 +110,7 @@
                 }
             }
         }
-        
+
         [Serializable]
         public class MyEvent : IMyEvent
         {

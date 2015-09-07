@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Tx
 {
     using System;
+    using System.Threading.Tasks;
     using System.Transactions;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
@@ -10,11 +11,14 @@
     public class When_receiving_with_transactions_disabled : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_not_roll_the_message_back_to_the_queue_in_case_of_failure()
+        public async Task Should_not_roll_the_message_back_to_the_queue_in_case_of_failure()
         {
-
-            Scenario.Define<Context>()
-                    .WithEndpoint<NonTransactionalEndpoint>(b => b.Given(bus => bus.SendLocal(new MyMessage())))
+            await Scenario.Define<Context>()
+                    .WithEndpoint<NonTransactionalEndpoint>(b => b.Given(bus =>
+                    {
+                        bus.SendLocal(new MyMessage());
+                        return Task.FromResult(0);
+                    }))
                     .AllowExceptions()
                     .Done(c => c.TestComplete)
                     .Repeat(r => r.For(Transports.Default))

@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Recoverability.Retries
 {
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NUnit.Framework;
 
@@ -7,15 +8,14 @@
     public class When_performing_slr_with_serialization_exception : When_performing_slr
     {
         [Test]
-        public void Should_preserve_the_original_body_for_serialization_exceptions()
+        public async Task Should_preserve_the_original_body_for_serialization_exceptions()
         {
-            var context = new Context
-            {
-                SimulateSerializationException = true
-            };
-
-            Scenario.Define(context)
-                .WithEndpoint<RetryEndpoint>(b => b.Given(bus => bus.SendLocal(new MessageToBeRetried())))
+            var context = await Scenario.Define<Context>(c => { c.SimulateSerializationException = true; })
+                .WithEndpoint<RetryEndpoint>(b => b.Given(bus =>
+                {
+                    bus.SendLocal(new MessageToBeRetried());
+                    return Task.FromResult(0);
+                }))
                 .AllowExceptions(e => e is SimulatedException)
                 .Done(c => c.SlrChecksum != default(byte))
                 .Run();

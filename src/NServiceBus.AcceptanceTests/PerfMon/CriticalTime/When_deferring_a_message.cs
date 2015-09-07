@@ -3,6 +3,7 @@
     using System;
     using System.Diagnostics;
     using System.Threading;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
@@ -14,13 +15,12 @@
 
         [Test]
         [Explicit("Since perf counters need to be enabled with powershell")]
-        public void Critical_time_should_not_include_the_time_message_was_waiting_in_the_timeout_store()
+        public async Task Critical_time_should_not_include_the_time_message_was_waiting_in_the_timeout_store()
         {
             using (var counter = new PerformanceCounter("NServiceBus", "Critical Time", "DeferringAMessage.Endpoint", false))
             using (new Timer(state => CheckPerfCounter(counter), null, 0, 100))
             {
-                var context = new Context();
-                Scenario.Define(context)
+                await Scenario.Define<Context>()
                     .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
                     {
                         var options = new SendOptions();
@@ -29,6 +29,7 @@
                         options.RouteToLocalEndpointInstance();
 
                         bus.Send(new MyMessage(), options);
+                        return Task.FromResult(0);
                     }))
                     .Done(c => c.WasCalled)
                     .Repeat(r => r.For(Transports.Default))
@@ -69,7 +70,7 @@
         public class MyMessageHandler : IHandleMessages<MyMessage>
         {
             public Context Context { get; set; }
-            
+
             public void Handle(MyMessage message)
             {
                 Context.WasCalled = true;

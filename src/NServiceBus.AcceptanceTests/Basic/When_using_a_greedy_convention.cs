@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Basic
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
@@ -9,10 +10,14 @@
     public class When_using_a_greedy_convention : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_receive_the_message()
+        public async Task Should_receive_the_message()
         {
-            Scenario.Define(() => new Context { Id = Guid.NewGuid() })
-                    .WithEndpoint<EndPoint>(b => b.Given((bus, context) => bus.SendLocal(new MyMessage { Id = context.Id })))
+            await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
+                    .WithEndpoint<EndPoint>(b => b.Given((bus, c) =>
+                    {
+                        bus.SendLocal(new MyMessage { Id = c.Id });
+                        return Task.FromResult(0);
+                    }))
                     .Done(c => c.WasCalled)
                     .Repeat(r => r
                         .For(Transports.Default)
@@ -43,7 +48,7 @@
         }
 
         [Serializable]
-        public class MyMessage 
+        public class MyMessage
         {
             public Guid Id { get; set; }
         }

@@ -3,8 +3,8 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
@@ -12,29 +12,15 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
     using NUnit.Framework;
 
     [TestFixture]
-    public class When_starting_an_endpoint_containing_a_saga : NServiceBusAcceptanceTest
+    public class When_starting_an_endpoint_with_a_saga_autosubscribe_disabled : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_autoSubscribe_the_saga_messageHandler_by_default()
+        public async Task Should_not_autoSubscribe_messages_handled_by_sagas_if_asked_to()
         {
-            var context = Scenario.Define<Context>()
-                   .WithEndpoint<Subscriber>()
-                   .Done(c => c.EventsSubscribedTo.Count >= 2)
-                   .Run();
-
-
-            Assert.True(context.EventsSubscribedTo.Contains(typeof(MyEvent)), "Events only handled by sagas should be auto subscribed");
-            Assert.True(context.EventsSubscribedTo.Contains(typeof(MyEventBase)), "Sagas should be auto subscribed even when handling a base class event");
-        }
-
-        [Test]
-        public void Should_not_autoSubscribe_messages_handled_by_sagas_if_asked_to()
-        {
-            var context = Scenario.Define<Context>()
-                   .WithEndpoint<Subscriber>(g => g.CustomConfig(c => c.AutoSubscribe().DoNotAutoSubscribeSagas()))
-                   .Done(c => c.EndpointsStarted)
-                   .Run();
-
+            var context = await Scenario.Define<Context>()
+                .WithEndpoint<Subscriber>(g => g.CustomConfig(c => c.AutoSubscribe().DoNotAutoSubscribeSagas()))
+                .Done(c => c.EndpointsStarted)
+                .Run();
 
             Assert.False(context.EventsSubscribedTo.Any(), "Events only handled by sagas should not be auto subscribed");
         }
@@ -74,22 +60,22 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
                 }
             }
 
-            public class AutoSubscriptionSaga : Saga<AutoSubscriptionSaga.AutoSubscriptionSagaData>, IAmStartedByMessages<MyEvent>
+            public class NotAutoSubscribedSaga : Saga<NotAutoSubscribedSaga.NotAutoSubscribedSagaSagaData>, IAmStartedByMessages<MyEvent>
             {
                 public void Handle(MyEvent message)
                 {
                 }
 
-                public class AutoSubscriptionSagaData : ContainSagaData
+                public class NotAutoSubscribedSagaSagaData : ContainSagaData
                 {
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<AutoSubscriptionSagaData> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NotAutoSubscribedSagaSagaData> mapper)
                 {
                 }
             }
 
-            public class MySagaThatReactsOnASuperClassEvent : Saga<MySagaThatReactsOnASuperClassEvent.SuperClassEventSagaData>, 
+            public class NotAutosubsubscribedSagaThatReactsOnASuperClassEvent : Saga<NotAutosubsubscribedSagaThatReactsOnASuperClassEvent.NotAutosubscribeSuperClassEventSagaData>,
                 IAmStartedByMessages<MyEventBase>
             {
                 public void Handle(MyEventBase message)
@@ -97,11 +83,11 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
                 }
 
 
-                public class SuperClassEventSagaData : ContainSagaData
+                public class NotAutosubscribeSuperClassEventSagaData : ContainSagaData
                 {
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SuperClassEventSagaData> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NotAutosubscribeSuperClassEventSagaData> mapper)
                 {
                 }
             }

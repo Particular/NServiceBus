@@ -4,6 +4,7 @@
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Globalization;
     using System.Linq;
     using System.Text;
     using System.Threading;
@@ -12,7 +13,7 @@
 
     public class ScenarioRunner
     {
-        public static void Run(IList<RunDescriptor> runDescriptors, IList<EndpointBehavior> behaviorDescriptors, IList<IScenarioVerification> shoulds, Func<ScenarioContext, bool> done, int limitTestParallelismTo, Action<RunSummary> reports, Func<Exception, bool> allowedExceptions)
+        public static async Task Run(IList<RunDescriptor> runDescriptors, IList<EndpointBehavior> behaviorDescriptors, IList<IScenarioVerification> shoulds, Func<ScenarioContext, bool> done, int limitTestParallelismTo, Action<RunSummary> reports, Func<Exception, bool> allowedExceptions)
         {
             var totalRuns = runDescriptors.Count();
             var cts = new CancellationTokenSource();
@@ -39,18 +40,20 @@
 
             try
             {
-                Parallel.ForEach(runDescriptors, po, runDescriptor =>
+                var runs = runDescriptors.Select(runDescriptor => Task.Run(async () =>
                 {
                     if (po.CancellationToken.IsCancellationRequested)
                     {
                         return;
                     }
 
-                    Console.WriteLine("{0} - Started @ {1}", runDescriptor.Key, DateTime.Now.ToString());
+                    Console.WriteLine("{0} - Started @ {1}", runDescriptor.Key, DateTime.Now.ToString(CultureInfo.InvariantCulture));
 
-                    var runResult = PerformTestRun(behaviorDescriptors, shoulds, runDescriptor, done, allowedExceptions);
+                    ContextAppender.SetContext(runDescriptor.ScenarioContext);
+                    var runResult = await PerformTestRun(behaviorDescriptors, shoulds, runDescriptor, done, allowedExceptions).ConfigureAwait(false);
+                    ContextAppender.SetContext(null);
 
-                    Console.WriteLine("{0} - Finished @ {1}", runDescriptor.Key, DateTime.Now.ToString());
+                    Console.WriteLine("{0} - Finished @ {1}", runDescriptor.Key, DateTime.Now.ToString(CultureInfo.InvariantCulture));
 
                     results.Add(new RunSummary
                     {
@@ -63,7 +66,9 @@
                     {
                         cts.Cancel();
                     }
-                });
+                }, cts.Token));
+
+                await Task.WhenAll(runs).ConfigureAwait(false);
             }
             catch (OperationCanceledException)
             {
@@ -145,7 +150,7 @@
             Console.WriteLine("------------------------------------------------------");
         }
 
-        static RunResult PerformTestRun(IList<EndpointBehavior> behaviorDescriptors, IList<IScenarioVerification> shoulds, RunDescriptor runDescriptor, Func<ScenarioContext, bool> done, Func<Exception, bool> allowedExceptions)
+        static async Task<RunResult> PerformTestRun(IList<EndpointBehavior> behaviorDescriptors, IList<IScenarioVerification> shoulds, RunDescriptor runDescriptor, Func<ScenarioContext, bool> done, Func<Exception, bool> allowedExceptions)
         {
             var runResult = new RunResult
             {
@@ -162,7 +167,7 @@
 
                 runResult.ActiveEndpoints = runners.Select(r => r.EndpointName).ToList();
 
-                PerformScenarios(runDescriptor, runners, () => done(runDescriptor.ScenarioContext), allowedExceptions);
+                await PerformScenarios(runDescriptor, runners, () => done(runDescriptor.ScenarioContext), allowedExceptions).ConfigureAwait(false);
 
                 runTimer.Stop();
 
@@ -205,11 +210,11 @@
             Console.WriteLine();
         }
 
-        static void PerformScenarios(RunDescriptor runDescriptor, IEnumerable<ActiveRunner> runners, Func<bool> done, Func<Exception, bool> allowedExceptions)
+        static async Task PerformScenarios(RunDescriptor runDescriptor, IEnumerable<ActiveRunner> runners, Func<bool> done, Func<Exception, bool> allowedExceptions)
         {
             var endpoints = runners.Select(r => r.Instance).ToList();
 
-            StartEndpoints(endpoints);
+            await StartEndpoints(endpoints).ConfigureAwait(false);
 
             runDescriptor.ScenarioContext.EndpointsStarted = true;
 
@@ -218,25 +223,33 @@
             
             try
             {
-                SpinWait.SpinUntil(done, maxTime);
-
-                if ((DateTime.UtcNow - startTime) > maxTime)
+                // ReSharper disable once LoopVariableIsNeverChangedInsideLoop
+                while (!done())
                 {
-                    throw new ScenarioException(GenerateTestTimedOutMessage(maxTime));
+                    if ((DateTime.UtcNow - startTime) > maxTime)
+                    {
+                        throw new ScenarioException(GenerateTestTimedOutMessage(maxTime));
+                    }
+
+                    await Task.Delay(1).ConfigureAwait(false);
                 }
             }
-            finally
+            catch(Exception)
             {
-                StopEndpoints(endpoints);
+                // We swallow like the original code
+                // TODO Daniel: Why??
+            }
 
-                var exceptions = runDescriptor.ScenarioContext.Exceptions
+            // With this version of C# we can't await in finally
+            await StopEndpoints(endpoints).ConfigureAwait(false);
+            
+            var exceptions = runDescriptor.ScenarioContext.Exceptions
                         .Where(ex => !allowedExceptions(ex))
                         .ToList();
 
-                if (exceptions.Any())
-                {
-                    throw new AggregateException(exceptions);
-                }
+            if (exceptions.Any())
+            {
+               throw new AggregateException(exceptions);
             }
         }
 
@@ -251,28 +264,32 @@
             return sb.ToString();
         }
 
-        static void StartEndpoints(IEnumerable<EndpointRunner> endpoints)
+        static async Task StartEndpoints(IEnumerable<EndpointRunner> endpoints)
         {
-            var tasks = endpoints.Select(endpoint => Task.Factory.StartNew(() =>
+            var tasks = endpoints.Select(endpoint => Task.Run(async () =>
             {
-                var result = endpoint.Start();
+                var result = await endpoint.Start().ConfigureAwait(false);
 
                 if (result.Failed)
                     throw new ScenarioException("Endpoint failed to start", result.Exception);
             })).ToArray();
 
-            if (!Task.WaitAll(tasks, TimeSpan.FromMinutes(2)))
+            var whenAll = Task.WhenAll(tasks);
+            var timeoutTask = Task.Delay(TimeSpan.FromMinutes(2));
+            var completedTask = await Task.WhenAny(whenAll, timeoutTask);
+
+            if (completedTask.Equals(timeoutTask))
                 throw new Exception("Starting endpoints took longer than 2 minutes");
         }
 
-        static void StopEndpoints(IEnumerable<EndpointRunner> endpoints)
+        static async Task StopEndpoints(IEnumerable<EndpointRunner> endpoints)
         {
-            var tasks = endpoints.Select(endpoint => Task.Factory.StartNew(() =>
+            var tasks = endpoints.Select(endpoint => Task.Run(async () =>
             {
                 Console.WriteLine("Stopping endpoint: {0}", endpoint.Name());
                 var sw = new Stopwatch();
                 sw.Start();
-                var result = endpoint.Stop();
+                var result = await endpoint.Stop().ConfigureAwait(false);
                 sw.Stop();
                 if (result.Failed)
                 {
@@ -282,7 +299,11 @@
                 Console.WriteLine("Endpoint: {0} stopped ({1}s)", endpoint.Name(), sw.Elapsed);
             })).ToArray();
 
-            if (!Task.WaitAll(tasks, TimeSpan.FromMinutes(2)))
+            var whenAll = Task.WhenAll(tasks);
+            var timeoutTask = Task.Delay(TimeSpan.FromMinutes(2));
+            var completedTask = await Task.WhenAny(whenAll, timeoutTask).ConfigureAwait(false);
+
+            if (completedTask.Equals(timeoutTask))
             {
                 throw new Exception("Stopping endpoints took longer than 2 minutes");
             }

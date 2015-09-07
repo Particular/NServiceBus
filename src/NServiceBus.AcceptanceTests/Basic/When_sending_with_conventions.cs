@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Basic
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
@@ -8,15 +9,21 @@
     public class When_sending_with_conventions : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_receive_the_message()
+        public async Task Should_receive_the_message()
         {
-            Scenario.Define(() => new Context { Id = Guid.NewGuid() })
-                    .WithEndpoint<Endpoint>(b => b.Given((bus, context) => bus.SendLocal(new MyMessage
+            var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
+                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
                     {
-                        Id = context.Id
-                    })))
+                        bus.SendLocal(new MyMessage
+                        {
+                            Id = c.Id
+                        });
+                        return Task.FromResult(0);
+                    }))
                     .Done(c => c.WasCalled)
                     .Run();
+
+            Assert.True(context.WasCalled);
         }
 
         public class Context : ScenarioContext

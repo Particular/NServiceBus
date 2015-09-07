@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Recoverability
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Config;
@@ -9,15 +10,20 @@
     public class When_error_is_overridden_in_code : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_error_to_target_queue()
+        public async Task Should_error_to_target_queue()
         {
-            var context = new Context();
-            Scenario.Define(context)
-                .WithEndpoint<UserEndpoint>(b => b.Given(bus => bus.SendLocal(new Message())))
+            var context = await Scenario.Define<Context>()
+                .WithEndpoint<UserEndpoint>(b => b.Given(bus =>
+                {
+                    bus.SendLocal(new Message());
+                    return Task.FromResult(0);
+                }))
                 .WithEndpoint<ErrorSpy>()
                 .AllowExceptions()
                 .Done(c => c.MessageReceived)
                 .Run();
+
+            Assert.True(context.MessageReceived);
         }
 
         public class UserEndpoint : EndpointConfigurationBuilder
@@ -69,7 +75,7 @@
         }
 
         [Serializable]
-        public class Message: IMessage
+        public class Message : IMessage
         {
         }
 

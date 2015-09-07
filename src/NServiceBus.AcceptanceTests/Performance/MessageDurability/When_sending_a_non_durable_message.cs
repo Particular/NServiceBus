@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Performance.MessageDurability
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
@@ -8,15 +9,18 @@
     public class When_sending_a_non_durable_message : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_be_available_as_a_header_on_receiver()
+        public async Task Should_be_available_as_a_header_on_receiver()
         {
-            var context = new Context();
-            Scenario.Define(context)
-                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) => bus.SendLocal(new MyMessage())))
-                    .Done(c=>c.WasCalled)
+            var context = await Scenario.Define<Context>()
+                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
+                    {
+                        bus.SendLocal(new MyMessage());
+                        return Task.FromResult(0);
+                    }))
+                    .Done(c => c.WasCalled)
                     .Run(TimeSpan.FromSeconds(10));
-        
-            Assert.IsTrue(context.NonDurabilityHeader,"Message should be flagged as non durable");
+
+            Assert.IsTrue(context.NonDurabilityHeader, "Message should be flagged as non durable");
         }
 
         public class Context : ScenarioContext
@@ -44,7 +48,7 @@
             }
         }
 
-      
+
         [Express]
         public class MyMessage : IMessage
         {

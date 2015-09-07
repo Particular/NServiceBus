@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.DelayedDelivery
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Features;
@@ -9,12 +10,11 @@
     public class When_Deferring_a_message : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Delivery_should_be_delayed()
+        public async Task Delivery_should_be_delayed()
         {
-            var context = new Context();
             var delay = TimeSpan.FromSeconds(5);
 
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>()
                     .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
                     {
                         var options = new SendOptions();
@@ -25,6 +25,7 @@
                         c.SentAt = DateTime.UtcNow;
 
                         bus.Send(new MyMessage(), options);
+                        return Task.FromResult(0);
                     }))
                     .Done(c => c.WasCalled)
                     .Run();

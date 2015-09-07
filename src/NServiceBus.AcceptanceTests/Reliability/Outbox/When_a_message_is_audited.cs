@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Reliability.Outbox
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Configuration.AdvanceExtensibility;
@@ -11,16 +12,19 @@
     {
 
         [Test]
-        public void Should_audit_even_if_dispatch_blows_once()
+        public async Task Should_audit_even_if_dispatch_blows_once()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
-                    .WithEndpoint<EndpointWithAuditOn>(b => b.Given(bus => bus.SendLocal(new MessageToBeAudited())))
+            var context = await Scenario.Define<Context>()
+                    .WithEndpoint<EndpointWithAuditOn>(b => b.Given(bus =>
+                    {
+                        bus.SendLocal(new MessageToBeAudited());
+                        return Task.FromResult(0);
+                    }))
                     .WithEndpoint<AuditSpyEndpoint>()
                     .AllowExceptions(e => e is EndpointWithAuditOn.BlowUpAfterDispatchBehavior.FakeException)
                     .Done(c => c.Done)
                     .Run();
+
             Assert.True(context.Done);
         }
 

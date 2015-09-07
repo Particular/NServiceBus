@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Tx
 {
     using System;
+    using System.Threading.Tasks;
     using System.Transactions;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
@@ -10,9 +11,9 @@
     public class When_sending_within_an_ambient_transaction : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_not_deliver_them_until_the_commit_phase()
+        public async Task Should_not_deliver_them_until_the_commit_phase()
         {
-            Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                     .WithEndpoint<TransactionalEndpoint>(b => b.Given((bus, context) =>
                         {
                             using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
@@ -28,6 +29,7 @@
 
                                 tx.Complete();
                             }
+                            return Task.FromResult(0);
                         }))
                     .Done(c => c.MessageThatIsNotEnlistedHandlerWasCalled && c.TimesCalled >= 2)
                     .Repeat(r => r.For<AllDtcTransports>())
@@ -36,9 +38,9 @@
         }
 
         [Test]
-        public void Should_not_deliver_them_on_rollback()
+        public async Task Should_not_deliver_them_on_rollback()
         {
-            Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                     .WithEndpoint<TransactionalEndpoint>(b => b.Given(bus =>
                         {
                             using (new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
@@ -49,7 +51,7 @@
                             }
 
                             bus.Send(new MessageThatIsNotEnlisted());
-
+                            return Task.FromResult(0);
                         }))
                     .Done(c => c.MessageThatIsNotEnlistedHandlerWasCalled)
                     .Repeat(r => r.For<AllDtcTransports>())

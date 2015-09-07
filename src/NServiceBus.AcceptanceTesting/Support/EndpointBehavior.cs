@@ -2,8 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Threading;
+    using System.Threading.Tasks;
 
     public class EndpointBehavior
     {
@@ -23,14 +22,14 @@
 
     public class WhenDefinition<TContext> : IWhenDefinition where TContext : ScenarioContext
     {
-        public WhenDefinition(Predicate<TContext> condition, Action<IBus> action)
+        public WhenDefinition(Predicate<TContext> condition, Func<IBus, Task> action)
         {
             Id = Guid.NewGuid();
             this.condition = condition;
             busAction = action;
         }
 
-        public WhenDefinition(Predicate<TContext> condition, Action<IBus, TContext> actionWithContext)
+        public WhenDefinition(Predicate<TContext> condition, Func<IBus, TContext, Task> actionWithContext)
         {
             Id = Guid.NewGuid();
             this.condition = condition;
@@ -39,7 +38,7 @@
 
         public Guid Id { get; private set; }
 
-        public bool ExecuteAction(ScenarioContext context, IBus bus)
+        public async Task<bool> ExecuteAction(ScenarioContext context, IBus bus)
         {
             var c = (TContext)context;
 
@@ -48,36 +47,32 @@
                 return false;
             }
 
-
             if (busAction != null)
             {
-                busAction(bus);
+                await busAction(bus).ConfigureAwait(false);
             }
             else
             {
-                busAndContextAction(bus, c);
-          
+                await busAndContextAction(bus, c).ConfigureAwait(false);
             }
-
-            Debug.WriteLine("Condition {0} has fired - Thread: {1} AppDomain: {2}", Id, Thread.CurrentThread.ManagedThreadId,AppDomain.CurrentDomain.FriendlyName);
 
             return true;
         }
 
         Predicate<TContext> condition;
-        Action<IBus> busAction;
-        Action<IBus, TContext> busAndContextAction;
+        Func<IBus, Task> busAction;
+        Func<IBus, TContext, Task> busAndContextAction;
     }
 
     public interface IGivenDefinition
     {
-        Action<IBus> GetAction(ScenarioContext context);
+        Func<IBus, Task> GetAction(ScenarioContext context);
     }
 
 
     public interface IWhenDefinition
     {
-        bool ExecuteAction(ScenarioContext context, IBus bus);
+        Task<bool> ExecuteAction(ScenarioContext context, IBus bus);
 
         Guid Id { get; }
     }
