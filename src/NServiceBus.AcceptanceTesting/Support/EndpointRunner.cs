@@ -121,7 +121,7 @@
                                 }
                             }
                         }
-                    }, stopToken);
+                    }, stopToken).ConfigureAwait(false);
                 }
 
                 return Result.Success();

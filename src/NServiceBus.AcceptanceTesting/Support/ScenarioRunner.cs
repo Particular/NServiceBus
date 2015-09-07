@@ -68,7 +68,7 @@
                     }
                 }, cts.Token));
 
-                await Task.WhenAll(runs);
+                await Task.WhenAll(runs).ConfigureAwait(false);
             }
             catch (OperationCanceledException)
             {
@@ -223,9 +223,7 @@
             
             try
             {
-                // Let's use a blocking SpinWait for now
-                SpinWait.SpinUntil(done, maxTime);
-
+                // ReSharper disable once LoopVariableIsNeverChangedInsideLoop
                 while (!done())
                 {
                     if ((DateTime.UtcNow - startTime) > maxTime)
@@ -233,7 +231,7 @@
                         throw new ScenarioException(GenerateTestTimedOutMessage(maxTime));
                     }
 
-                    await Task.Delay(1);
+                    await Task.Delay(1).ConfigureAwait(false);
                 }
             }
             catch(Exception)
@@ -243,7 +241,7 @@
             }
 
             // With this version of C# we can't await in finally
-            await StopEndpoints(endpoints);
+            await StopEndpoints(endpoints).ConfigureAwait(false);
             
             var exceptions = runDescriptor.ScenarioContext.Exceptions
                         .Where(ex => !allowedExceptions(ex))
@@ -303,7 +301,7 @@
 
             var whenAll = Task.WhenAll(tasks);
             var timeoutTask = Task.Delay(TimeSpan.FromMinutes(2));
-            var completedTask = await Task.WhenAny(whenAll, timeoutTask);
+            var completedTask = await Task.WhenAny(whenAll, timeoutTask).ConfigureAwait(false);
 
             if (completedTask.Equals(timeoutTask))
             {

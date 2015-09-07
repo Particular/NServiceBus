@@ -113,13 +113,13 @@ namespace NServiceBus.AcceptanceTesting
             var contexts = await Run(new RunSettings
             {
                 TestExecutionTimeout = testExecutionTimeout
-            });
+            }).ConfigureAwait(false);
             return contexts.Single();
         }
 
         async Task<TContext> IScenarioWithEndpointBehavior<TContext>.Run(RunSettings settings)
         {
-            var contexts = await Run(settings);
+            var contexts = await Run(settings).ConfigureAwait(false);
             return contexts.Single();
         }
 
