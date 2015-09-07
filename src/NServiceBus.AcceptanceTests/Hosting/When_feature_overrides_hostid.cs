@@ -50,7 +50,7 @@ namespace NServiceBus.AcceptanceTests.Hosting
                     dictionary.TryRemove("NServiceBus.HostInformation.HostId", out s2);
 
                     // Try to get value, setting should not exist
-                    var context = (Context) s.Get<ScenarioContext>();
+                    var context = s.Get<Context>();
                     context.NotSet = !s.HasSetting("NServiceBus.HostInformation.HostId");
 
                     // Set override again so we have something
