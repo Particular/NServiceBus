@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.MessageMutator;
@@ -9,20 +10,20 @@
 
     public class When_mutating : NServiceBusAcceptanceTest
     {
-
         [Test]
-        public void Context_should_be_populated()
+        public async Task Context_should_be_populated()
         {
-            var testContext = new Context();
-            Scenario.Define(testContext)
+            var context = await Scenario.Define<Context>()
                     .WithEndpoint<Sender>(b => b.Given((bus, c) =>
                     {
                         bus.Send(new StartMessage());
+                        return Task.FromResult(0);
                     }))
                     .WithEndpoint<Receiver>()
                     .Done(c => c.WasCalled)
                     .Run(TimeSpan.FromHours(1));
-            Assert.True(testContext.WasCalled, "The message handler should be called");
+
+            Assert.True(context.WasCalled, "The message handler should be called");
         }
 
         public class Context : ScenarioContext
