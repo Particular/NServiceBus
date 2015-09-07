@@ -20,6 +20,5 @@ namespace NServiceBus
             Guard.AgainstNull("onCriticalError", onCriticalError);
             busConfiguration.Settings.Set("onCriticalErrorAction", onCriticalError);
         }
-
     }
 }
