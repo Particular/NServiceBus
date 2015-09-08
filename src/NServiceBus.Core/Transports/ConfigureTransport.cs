@@ -4,23 +4,24 @@ namespace NServiceBus.Transports
     using Features;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Pipeline;
+    using NServiceBus.Routing;
     using NServiceBus.Settings;
-    using Unicast.Transport;
+    using NServiceBus.Unicast.Transport;
 
     /// <summary>
-    /// Base class for configuring <see cref="TransportDefinition"/> features.
+    ///     Base class for configuring <see cref="TransportDefinition" /> features.
     /// </summary>
     public abstract class ConfigureTransport : Feature
     {
         /// <summary>
-        ///  Initializes a new instance of <see cref="ConfigureTransport"/>.
+        ///     Initializes a new instance of <see cref="ConfigureTransport" />.
         /// </summary>
         protected ConfigureTransport()
         {
             Defaults(s => s.SetDefault<TransportConnectionString>(TransportConnectionString.Default));
 
             Defaults(s => s.SetDefault("NServiceBus.LocalAddress", GetDefaultEndpointAddress(s)));
-
+            
             Defaults(s =>
             {
                 var localAddress = GetLocalAddress(s);
@@ -46,6 +47,8 @@ namespace NServiceBus.Transports
             }
 
             context.Container.RegisterSingleton(selectedTransportDefinition);
+            context.Container.ConfigureComponent<DynamicRoutingProvider>(DependencyLifecycle.SingleInstance);
+ 
 
             if (!context.Settings.Get<bool>("Endpoint.SendOnly"))
             {
@@ -71,9 +74,10 @@ namespace NServiceBus.Transports
         }
 
         /// <summary>
-        /// Gives the chance to implementers to set themselves up.
+        ///     Gives the chance to implementers to set themselves up.
         /// </summary>
         protected abstract void Configure(FeatureConfigurationContext context, string connectionString);
+
 
         /// <summary>
         /// Used by implementations to provide an example connection string that till be used for the possible exception thrown if the <see cref="RequiresConnectionString"/> requirement is not met.
@@ -101,12 +105,12 @@ namespace NServiceBus.Transports
                 return settings.EndpointName();
             }
 
-            if (!settings.HasSetting("EndpointInstanceDiscriminator"))
+            if (!settings.HasSetting("EndpointInstanceSuffix"))
             {
-                throw new Exception("No endpoint instance discriminator found. This value is usually provided by your transport so please make sure you're on the lastest version of your specific transport or set the discriminator using 'configuration.ScaleOut().UniqueQueuePerEndpointInstance(myDiscriminator)'");
+                throw new Exception("No endpoint instance suffix found. This value is usually provided by your transport so please make sure you're on the lastest version of your specific transport or set the suffix using 'configuration.ScaleOut().UniqueQueuePerEndpointInstance(mysuffix)'");
             }
 
-            return settings.EndpointName() + settings.Get<string>("EndpointInstanceDiscriminator");
+            return settings.EndpointName() + settings.Get<string>("EndpointInstanceSuffix");
         }
 
 

@@ -7,18 +7,18 @@
     using System.Messaging;
     using System.Security;
     using System.Transactions;
-    using Config;
-    using NServiceBus.Logging;
+    using NServiceBus.Config;
+    using Logging;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Pipeline;
     using NServiceBus.Settings;
+    using NServiceBus.Transports;
+    using NServiceBus.Transports.Msmq;
+    using NServiceBus.Transports.Msmq.Config;
     using NServiceBus.Utils;
-    using Transports;
-    using Transports.Msmq;
-    using Transports.Msmq.Config;
 
     /// <summary>
-    /// Used to configure the MSMQ transport.
+    ///     Used to configure the MSMQ transport.
     /// </summary>
     public class MsmqTransportConfigurator : ConfigureTransport
     {

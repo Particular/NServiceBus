@@ -17,7 +17,7 @@ namespace NServiceBus
     public partial class Configure
     {
         /// <summary>
-        ///     Creates a new instance of <see cref="Configure"/>.
+        ///     Creates a new instance of <see cref="Configure" />.
         /// </summary>
         internal Configure(SettingsHolder settings, IContainer container, List<Action<IConfigureComponents>> registrations, PipelineSettings pipelineSettings, PipelineConfiguration pipelineConfiguration)
         {
@@ -49,7 +49,7 @@ namespace NServiceBus
         {
             get { return Settings.GetAvailableTypes(); }
         }
-
+        
         void RunUserRegistrations(List<Action<IConfigureComponents>> registrations)
         {
             foreach (var registration in registrations)
@@ -137,7 +137,7 @@ namespace NServiceBus
         {
             ForAllTypes<T>(types, t =>
             {
-                var instanceToInvoke = (T)Activator.CreateInstance(t);
+                var instanceToInvoke = (T) Activator.CreateInstance(t);
                 action(instanceToInvoke);
             });
         }

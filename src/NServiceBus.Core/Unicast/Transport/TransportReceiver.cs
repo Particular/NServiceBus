@@ -4,6 +4,7 @@ namespace NServiceBus.Unicast.Transport
     using System.Threading.Tasks;
     using NServiceBus.Logging;
     using NServiceBus.ObjectBuilder;
+    using NServiceBus.EndpointControl;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Transports;
@@ -13,6 +14,8 @@ namespace NServiceBus.Unicast.Transport
     /// </summary>
     public class TransportReceiver : IObserver<MessageAvailable>
     {
+        internal NoMessageBacklogNotifier Monitor { get; set; }
+
         internal TransportReceiver(string id, IBuilder builder, IDequeueMessages receiver, DequeueSettings dequeueSettings, PipelineBase<IncomingContext> pipeline, IExecutor executor)
         {
             Id = id;
@@ -23,6 +26,12 @@ namespace NServiceBus.Unicast.Transport
             this.builder = builder;
         }
 
+        internal BusNotifications Notifications { get; set; }
+
+        /// <summary>
+        ///     The receiver responsible for notifying the transport when new messages are available
+        /// </summary>
+        public IDequeueMessages Receiver { get; set; }
 
         /// <summary>
         /// Gets the ID of this pipeline.

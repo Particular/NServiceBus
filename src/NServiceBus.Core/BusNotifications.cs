@@ -7,7 +7,7 @@ namespace NServiceBus
     /// <summary>
     ///     Bus notifications.
     /// </summary>
-    public class BusNotifications: IDisposable
+    public class BusNotifications : IDisposable
     {
         /// <summary>
         ///     Errors push-based notifications.
@@ -17,7 +17,13 @@ namespace NServiceBus
             get { return errorNotifications; }
         }
 
-        ErrorsNotifications errorNotifications = new ErrorsNotifications();
+        /// <summary>
+        ///     Endpoint push-based notifications.
+        /// </summary>
+        public EndpointNotifications Endpoint
+        {
+            get { return endpointNotifications; }
+        }
 
         /// <summary>
         ///     Pipeline push-based notifications.
@@ -34,5 +40,8 @@ namespace NServiceBus
         {
             // Injected
         }
+
+        EndpointNotifications endpointNotifications = new EndpointNotifications();
+        ErrorsNotifications errorNotifications = new ErrorsNotifications();
     }
 }
