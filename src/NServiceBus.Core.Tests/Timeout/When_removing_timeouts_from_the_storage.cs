@@ -1,8 +1,8 @@
 ﻿namespace NServiceBus.Core.Tests.Timeout
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using InMemory.TimeoutPersister;
     using NServiceBus.Extensibility;
     using NServiceBus.Timeout.Core;
@@ -22,29 +22,28 @@
         }
 
         [Test]
-        public void Should_remove_timeouts_by_id()
+        public async Task Should_remove_timeouts_by_id()
         {
             var t1 = new TimeoutData { Id = "1", Time = DateTime.UtcNow.AddHours(-1) };
-            persister.Add(t1, options);
+            await persister.Add(t1, options);
 
             var t2 = new TimeoutData { Id = "2", Time = DateTime.UtcNow.AddHours(-1) };
-            persister.Add(t2, options);
+            await persister.Add(t2, options);
 
-            var timeouts = GetNextChunk();
-
-            foreach (var timeout in timeouts)
+            var firstChunk = await GetNextChunk();
+            foreach (var timeout in firstChunk.DueTimeouts)
             {
-                TimeoutData timeoutData;
-                persister.TryRemove(timeout.Item1, options, out timeoutData);
+                await persister.Remove(timeout.Id, options);
             }
 
-            Assert.AreEqual(0, GetNextChunk().Count());
+            var secondChunk = await GetNextChunk();
+
+            Assert.AreEqual(0, secondChunk.DueTimeouts.Count());
         }
 
-        IEnumerable<Tuple<string, DateTime>> GetNextChunk()
+        Task<TimeoutsChunk> GetNextChunk()
         {
-            DateTime nextTimeToRunQuery;
-            return persister.GetNextChunk(DateTime.UtcNow.AddYears(-3), out nextTimeToRunQuery);
+            return persister.GetNextChunk(DateTime.UtcNow.AddYears(-3));
         }
     }
 }

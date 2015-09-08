@@ -27,11 +27,11 @@ namespace NServiceBus
             //dispatch request will arrive at the same input so we need to make sure to call the correct handler
             if (message.Headers.ContainsKey(TimeoutIdToDispatchHeader))
             {
-                HandleBackwardsCompatibility(message, context);
+                HandleBackwardsCompatibility(message, context).GetAwaiter().GetResult();
             }
             else
             {
-                HandleInternal(message, context);
+                HandleInternal(message, context).GetAwaiter().GetResult();
             }
         }
 
@@ -47,7 +47,7 @@ namespace NServiceBus
             return base.Cooldown();
         }
 
-        void HandleBackwardsCompatibility(TransportMessage message, PhysicalMessageProcessingStageBehavior.Context context)
+        async Task HandleBackwardsCompatibility(TransportMessage message, PhysicalMessageProcessingStageBehavior.Context context)
         {
             var timeoutId = message.Headers[TimeoutIdToDispatchHeader];
 
@@ -63,9 +63,9 @@ namespace NServiceBus
                 destination = routeExpiredTimeoutTo;
             }
 
-            TimeoutData timeoutData;
+            var timeoutData = await persister.Remove(timeoutId, new TimeoutPersistenceOptions(context));
 
-            if (!persister.TryRemove(timeoutId, new TimeoutPersistenceOptions(context), out timeoutData))
+            if (timeoutData == null)
             {
                 return;
             }
@@ -73,7 +73,7 @@ namespace NServiceBus
             dispatcher.Dispatch(new OutgoingMessage(message.Id, message.Headers, message.Body), new DispatchOptions(destination, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), context));
         }
 
-        void HandleInternal(TransportMessage message, PhysicalMessageProcessingStageBehavior.Context context)
+        async Task HandleInternal(TransportMessage message, PhysicalMessageProcessingStageBehavior.Context context)
         {
             var sagaId = Guid.Empty;
 
@@ -88,7 +88,7 @@ namespace NServiceBus
                 if (sagaId == Guid.Empty)
                     throw new InvalidOperationException("Invalid saga id specified, clear timeouts is only supported for saga instances");
 
-                persister.RemoveTimeoutBy(sagaId, new TimeoutPersistenceOptions(context));
+                await persister.RemoveTimeoutBy(sagaId, new TimeoutPersistenceOptions(context)).ConfigureAwait(false);
             }
             else
             {
@@ -125,8 +125,7 @@ namespace NServiceBus
                     return;
                 }
 
-
-                persister.Add(data, new TimeoutPersistenceOptions(context));
+                await persister.Add(data, new TimeoutPersistenceOptions(context)).ConfigureAwait(false);
 
                 poller.NewTimeoutRegistered(data.Time);
             }

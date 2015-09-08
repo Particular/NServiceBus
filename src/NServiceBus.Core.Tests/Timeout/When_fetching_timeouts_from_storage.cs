@@ -1,8 +1,8 @@
 namespace NServiceBus.Core.Tests.Timeout
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using InMemory.TimeoutPersister;
     using NServiceBus.Extensibility;
     using NServiceBus.Timeout.Core;
@@ -22,13 +22,13 @@ namespace NServiceBus.Core.Tests.Timeout
         }
 
         [Test]
-        public void Should_only_return_timeouts_for_time_slice()
+        public async Task Should_only_return_timeouts_for_time_slice()
         {
             const int numberOfTimeoutsToAdd = 10;
 
             for (var i = 0; i < numberOfTimeoutsToAdd; i++)
             {
-                persister.Add(new TimeoutData
+                await persister.Add(new TimeoutData
                 {
                     OwningTimeoutManager = String.Empty,
                     Time = DateTime.UtcNow.AddHours(-1)
@@ -37,18 +37,20 @@ namespace NServiceBus.Core.Tests.Timeout
 
             for (var i = 0; i < numberOfTimeoutsToAdd; i++)
             {
-                persister.Add(new TimeoutData
+                await persister.Add(new TimeoutData
                 {
                     OwningTimeoutManager = String.Empty,
                     Time = DateTime.UtcNow.AddHours(1)
                 }, options);
             }
 
-            Assert.AreEqual(numberOfTimeoutsToAdd, GetNextChunk().Count());
+            var nextChunk = await GetNextChunk();
+
+            Assert.AreEqual(numberOfTimeoutsToAdd, nextChunk.DueTimeouts.Count());
         }
 
         [Test]
-        public void Should_set_the_next_run()
+        public async Task Should_set_the_next_run()
         {
             const int numberOfTimeoutsToAdd = 50;
 
@@ -60,28 +62,26 @@ namespace NServiceBus.Core.Tests.Timeout
                     OwningTimeoutManager = "MyEndpoint"
                 };
 
-                persister.Add(d, options);
+                await persister.Add(d, options);
             }
 
             var expected = DateTime.UtcNow.AddHours(1);
-            persister.Add(new TimeoutData
+            await persister.Add(new TimeoutData
             {
                 Time = expected,
                 OwningTimeoutManager = String.Empty,
             }, options);
 
-            DateTime nextTimeToRunQuery;
-            persister.GetNextChunk(DateTime.UtcNow.AddYears(-3), out nextTimeToRunQuery);
+            var nextChunk = await GetNextChunk();
 
-            var totalMilliseconds = (expected - nextTimeToRunQuery).Duration().TotalMilliseconds;
+            var totalMilliseconds = (expected - nextChunk.NextTimeToQuery).Duration().TotalMilliseconds;
 
             Assert.True(totalMilliseconds < 200);
         }
 
-        IEnumerable<Tuple<string, DateTime>> GetNextChunk()
+        Task<TimeoutsChunk> GetNextChunk()
         {
-            DateTime nextTimeToRunQuery;
-            return persister.GetNextChunk(DateTime.UtcNow.AddYears(-3), out nextTimeToRunQuery);
+            return persister.GetNextChunk(DateTime.UtcNow.AddYears(-3));
         }
     }
 }

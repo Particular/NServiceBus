@@ -59,7 +59,7 @@ namespace NServiceBus.DelayedDelivery.TimeoutManager
             var token = tokenSource.Token;
 
             Task.Factory
-                .StartNew(Poll, token, TaskCreationOptions.LongRunning)
+                .StartNew(async () => await Poll(token), TaskCreationOptions.LongRunning)
                 .ContinueWith(t =>
                 {
                     t.Exception.Handle(ex =>
@@ -73,10 +73,8 @@ namespace NServiceBus.DelayedDelivery.TimeoutManager
                 }, TaskContinuationOptions.OnlyOnFaulted);
         }
 
-        void Poll(object obj)
+        async Task Poll(CancellationToken cancellationToken)
         {
-            var cancellationToken = (CancellationToken)obj;
-
             var startSlice = DateTime.UtcNow.AddYears(-10);
 
             resetEvent.Reset();
@@ -91,20 +89,18 @@ namespace NServiceBus.DelayedDelivery.TimeoutManager
 
                 Logger.DebugFormat("Polling for timeouts at {0}.", DateTime.Now);
 
-                DateTime nextExpiredTimeout;
-                var timeoutDatas = timeoutsFetcher.GetNextChunk(startSlice, out nextExpiredTimeout);
+                var timeoutChunk = await timeoutsFetcher.GetNextChunk(startSlice).ConfigureAwait(false);
 
-                foreach (var timeoutData in timeoutDatas)
+                foreach (var timeoutData in timeoutChunk.DueTimeouts)
                 {
-                    if (startSlice < timeoutData.Item2)
+                    if (startSlice < timeoutData.DueTime)
                     {
-                        startSlice = timeoutData.Item2;
+                        startSlice = timeoutData.DueTime;
                     }
-
 
                     var dispatchRequest = ControlMessageFactory.Create(MessageIntentEnum.Send);
 
-                    dispatchRequest.Headers["Timeout.Id"] = timeoutData.Item1;
+                    dispatchRequest.Headers["Timeout.Id"] = timeoutData.Id;
 
                     dispatcher.Dispatch(dispatchRequest, new DispatchOptions(dispatcherAddress, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), new ContextBag()));
                 }
@@ -114,11 +110,11 @@ namespace NServiceBus.DelayedDelivery.TimeoutManager
                     //Check if nextRetrieval has been modified (This means that a push come in) and if it has check if it is earlier than nextExpiredTimeout time
                     if (!timeoutPushed)
                     {
-                        nextRetrieval = nextExpiredTimeout;
+                        nextRetrieval = timeoutChunk.NextTimeToQuery;
                     }
-                    else if (nextExpiredTimeout < nextRetrieval)
+                    else if (timeoutChunk.NextTimeToQuery < nextRetrieval)
                     {
-                        nextRetrieval = nextExpiredTimeout;
+                        nextRetrieval = timeoutChunk.NextTimeToQuery;
                     }
 
                     timeoutPushed = false;

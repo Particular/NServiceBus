@@ -3,6 +3,7 @@ namespace NServiceBus.InMemory.TimeoutPersister
     using System;
     using System.Collections.Generic;
     using System.Threading;
+    using System.Threading.Tasks;
     using Timeout.Core;
 
     class InMemoryTimeoutPersister : IPersistTimeouts, IQueryTimeouts, IDisposable
@@ -10,12 +11,11 @@ namespace NServiceBus.InMemory.TimeoutPersister
         List<TimeoutData> storage = new List<TimeoutData>();
         ReaderWriterLockSlim readerWriterLock = new ReaderWriterLockSlim();
 
-        public IEnumerable<Tuple<string, DateTime>> GetNextChunk(DateTime startSlice, out DateTime nextTimeToRunQuery)
+        public Task<TimeoutsChunk> GetNextChunk(DateTime startSlice)
         {
             var now = DateTime.UtcNow;
-            nextTimeToRunQuery = DateTime.MaxValue;
-
-            var tuples = new List<Tuple<string, DateTime>>();
+            var nextTimeToRunQuery = DateTime.MaxValue;
+            var dueTimeouts = new List<TimeoutsChunk.Timeout>();
 
             try
             {
@@ -29,7 +29,7 @@ namespace NServiceBus.InMemory.TimeoutPersister
                     }
                     if (data.Time > startSlice && data.Time <= now)
                     {
-                        tuples.Add(new Tuple<string, DateTime>(data.Id, data.Time));
+                        dueTimeouts.Add(new TimeoutsChunk.Timeout(data.Id, data.Time));
                     }
                 }
             }
@@ -37,14 +37,16 @@ namespace NServiceBus.InMemory.TimeoutPersister
             {
                 readerWriterLock.ExitReadLock();
             }
+
             if (nextTimeToRunQuery == DateTime.MaxValue)
             {
                 nextTimeToRunQuery = now.AddMinutes(1);
             }
-            return tuples;
+
+            return Task.FromResult(new TimeoutsChunk(dueTimeouts, nextTimeToRunQuery));
         }
 
-        public void Add(TimeoutData timeout, TimeoutPersistenceOptions options)
+        public Task Add(TimeoutData timeout, TimeoutPersistenceOptions options)
         {
             timeout.Id = Guid.NewGuid().ToString();
             try
@@ -56,9 +58,11 @@ namespace NServiceBus.InMemory.TimeoutPersister
             {
                 readerWriterLock.ExitWriteLock();
             }
+
+            return Task.FromResult(0);
         }
 
-        public bool TryRemove(string timeoutId, TimeoutPersistenceOptions options, out TimeoutData timeoutData)
+        public Task<TimeoutData> Remove(string timeoutId, TimeoutPersistenceOptions options)
         {
             try
             {
@@ -69,14 +73,12 @@ namespace NServiceBus.InMemory.TimeoutPersister
                     var data = storage[index];
                     if (data.Id == timeoutId)
                     {
-                        timeoutData = data;
                         storage.RemoveAt(index);
-                        return true;
+                        return Task.FromResult(data);
                     }
                 }
 
-                timeoutData = null;
-                return false;
+                return Task.FromResult<TimeoutData>(null);
             }
             finally
             {
@@ -84,7 +86,7 @@ namespace NServiceBus.InMemory.TimeoutPersister
             }
         }
 
-        public void RemoveTimeoutBy(Guid sagaId, TimeoutPersistenceOptions options)
+        public Task RemoveTimeoutBy(Guid sagaId, TimeoutPersistenceOptions options)
         {
             try
             {
@@ -104,6 +106,8 @@ namespace NServiceBus.InMemory.TimeoutPersister
             {
                 readerWriterLock.ExitWriteLock();
             }
+
+            return Task.FromResult(0);
         }
 
         public void Dispose()

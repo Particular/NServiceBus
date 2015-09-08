@@ -2308,13 +2308,13 @@ namespace NServiceBus.Timeout.Core
 {
     public interface IPersistTimeouts
     {
-        void Add(NServiceBus.Timeout.Core.TimeoutData timeout, NServiceBus.Timeout.Core.TimeoutPersistenceOptions options);
-        void RemoveTimeoutBy(System.Guid sagaId, NServiceBus.Timeout.Core.TimeoutPersistenceOptions options);
-        bool TryRemove(string timeoutId, NServiceBus.Timeout.Core.TimeoutPersistenceOptions options, out NServiceBus.Timeout.Core.TimeoutData timeoutData);
+        System.Threading.Tasks.Task Add(NServiceBus.Timeout.Core.TimeoutData timeout, NServiceBus.Timeout.Core.TimeoutPersistenceOptions options);
+        System.Threading.Tasks.Task<NServiceBus.Timeout.Core.TimeoutData> Remove(string timeoutId, NServiceBus.Timeout.Core.TimeoutPersistenceOptions options);
+        System.Threading.Tasks.Task RemoveTimeoutBy(System.Guid sagaId, NServiceBus.Timeout.Core.TimeoutPersistenceOptions options);
     }
     public interface IQueryTimeouts
     {
-        System.Collections.Generic.IEnumerable<System.Tuple<string, System.DateTime>> GetNextChunk(System.DateTime startSlice, out System.DateTime nextTimeToRunQuery);
+        System.Threading.Tasks.Task<NServiceBus.Timeout.Core.TimeoutsChunk> GetNextChunk(System.DateTime startSlice);
     }
     public class TimeoutData
     {
@@ -2341,6 +2341,18 @@ namespace NServiceBus.Timeout.Core
     {
         public TimeoutPersistenceOptions(NServiceBus.Extensibility.ReadOnlyContextBag context) { }
         public NServiceBus.Extensibility.ReadOnlyContextBag Context { get; set; }
+    }
+    public class TimeoutsChunk
+    {
+        public TimeoutsChunk(System.Collections.Generic.IEnumerable<NServiceBus.Timeout.Core.TimeoutsChunk.Timeout> dueTimeouts, System.DateTime nextTimeToQuery) { }
+        public System.Collections.Generic.IEnumerable<NServiceBus.Timeout.Core.TimeoutsChunk.Timeout> DueTimeouts { get; }
+        public System.DateTime NextTimeToQuery { get; }
+        public class Timeout
+        {
+            public Timeout(string id, System.DateTime dueTime) { }
+            public System.DateTime DueTime { get; }
+            public string Id { get; }
+        }
     }
 }
 namespace NServiceBus.TransportDispatch

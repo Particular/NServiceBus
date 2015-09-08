@@ -21,9 +21,9 @@ namespace NServiceBus
             var message = context.GetPhysicalMessage();
             var timeoutId = message.Headers["Timeout.Id"];
 
-            TimeoutData timeoutData;
+            var timeoutData = persister.Remove(timeoutId, new TimeoutPersistenceOptions(context)).GetAwaiter().GetResult();
 
-            if (!persister.TryRemove(timeoutId, new TimeoutPersistenceOptions(context), out timeoutData))
+            if (timeoutData == null)
             {
                 return;
             }

@@ -5,6 +5,7 @@ namespace NServiceBus.Core.Tests.Timeout
     using System.Diagnostics;
     using System.Linq;
     using System.Threading;
+    using System.Threading.Tasks;
     using NServiceBus.Extensibility;
     using NServiceBus.InMemory.TimeoutPersister;
     using NServiceBus.Timeout.Core;
@@ -13,7 +14,6 @@ namespace NServiceBus.Core.Tests.Timeout
     [TestFixture]
     public class InMemoryTimeoutPersisterThreadTests
     {
-
         ConcurrentDictionary<int, Guid> sagaIdGuids = new ConcurrentDictionary<int, Guid>();
 
         [Test]
@@ -26,7 +26,7 @@ namespace NServiceBus.Core.Tests.Timeout
 
             for (var i = 0; i < 10; i++)
             {
-                var thread = new Thread(() => Runner(inMemoryTimeoutPersister, options));
+                var thread = new Thread(() => Runner(inMemoryTimeoutPersister, options).Wait());
                 thread.Start();
                 thread.Join();
             }
@@ -34,47 +34,45 @@ namespace NServiceBus.Core.Tests.Timeout
             Console.Out.WriteLine(stopwatch.ElapsedMilliseconds);
         }
 
-        void Runner(InMemoryTimeoutPersister inMemoryTimeoutPersister, TimeoutPersistenceOptions options)
+        async Task Runner(InMemoryTimeoutPersister inMemoryTimeoutPersister, TimeoutPersistenceOptions options)
         {
             for (var i = 0; i < 10000; i++)
             {
-                GetNextChunk(inMemoryTimeoutPersister);
-                Add(inMemoryTimeoutPersister, options);
-                GetNextChunk(inMemoryTimeoutPersister);
-                TryRemove(inMemoryTimeoutPersister, options);
-                GetNextChunk(inMemoryTimeoutPersister);
-                RemoveTimeoutBy(inMemoryTimeoutPersister, options);
-                GetNextChunk(inMemoryTimeoutPersister);
+                await GetNextChunk(inMemoryTimeoutPersister);
+                await Add(inMemoryTimeoutPersister, options);
+                await GetNextChunk(inMemoryTimeoutPersister);
+                await TryRemove(inMemoryTimeoutPersister, options);
+                await GetNextChunk(inMemoryTimeoutPersister);
+                await RemoveTimeoutBy(inMemoryTimeoutPersister, options);
+                await GetNextChunk(inMemoryTimeoutPersister);
             }
         }
 
-        void RemoveTimeoutBy(IPersistTimeouts inMemoryTimeoutPersister, TimeoutPersistenceOptions options)
+        Task RemoveTimeoutBy(IPersistTimeouts inMemoryTimeoutPersister, TimeoutPersistenceOptions options)
         {
             var sagaId = sagaIdGuids.GetOrAdd(Thread.CurrentThread.ManagedThreadId, new Guid());
-            inMemoryTimeoutPersister.RemoveTimeoutBy(sagaId, options);
+            return inMemoryTimeoutPersister.RemoveTimeoutBy(sagaId, options);
         }
 
-        static void TryRemove(IPersistTimeouts inMemoryTimeoutPersister, TimeoutPersistenceOptions options)
+        static async Task TryRemove(IPersistTimeouts inMemoryTimeoutPersister, TimeoutPersistenceOptions options)
         {
-            TimeoutData timeout;
-            inMemoryTimeoutPersister.TryRemove(Thread.CurrentThread.Name, options, out timeout);
+            await inMemoryTimeoutPersister.Remove(Thread.CurrentThread.Name, options);
         }
 
-        static void Add(IPersistTimeouts inMemoryTimeoutPersister, TimeoutPersistenceOptions options)
+        static Task Add(IPersistTimeouts inMemoryTimeoutPersister, TimeoutPersistenceOptions options)
         {
-            inMemoryTimeoutPersister.Add(new TimeoutData
+            return inMemoryTimeoutPersister.Add(new TimeoutData
             {
                 Time = DateTime.Now,
                 Id = Thread.CurrentThread.Name
             }, options);
         }
 
-        static void GetNextChunk(IQueryTimeouts inMemoryTimeoutPersister)
+        static async Task GetNextChunk(IQueryTimeouts inMemoryTimeoutPersister)
         {
             for (var i = 0; i < 10; i++)
             {
-                DateTime nextTimeToRunQuery;
-                inMemoryTimeoutPersister.GetNextChunk(DateTime.MinValue, out nextTimeToRunQuery).ToList();   
+                (await inMemoryTimeoutPersister.GetNextChunk(DateTime.MinValue)).DueTimeouts.ToList();   
             }
         }
     }
