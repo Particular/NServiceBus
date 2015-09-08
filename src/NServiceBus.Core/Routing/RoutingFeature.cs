@@ -24,8 +24,9 @@
             var transportDefinition = context.Settings.Get<TransportDefinition>();
             var staticRoutes = InitializeStaticRoutes(context.Settings);
 
+            context.Container.ConfigureComponent<DynamicRoutingProvider>(DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent(b => new DetermineRouteForSendBehavior(context.Settings.LocalAddress(),
-               new DefaultMessageRouter(staticRoutes)), DependencyLifecycle.InstancePerCall);
+               new DefaultMessageRouter(staticRoutes), b.Build<DynamicRoutingProvider>()), DependencyLifecycle.InstancePerCall);
 
             if (transportDefinition.HasNativePubSubSupport)
             {

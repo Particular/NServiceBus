@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
+    using NServiceBus.Extensibility;
     using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
@@ -12,16 +13,34 @@ namespace NServiceBus
     {
         string localAddress;
         MessageRouter messageRouter;
+        DynamicRoutingProvider dynamicRouting;
 
-        public DetermineRouteForSendBehavior(string localAddress, MessageRouter messageRouter)
+        public DetermineRouteForSendBehavior(string localAddress, MessageRouter messageRouter, DynamicRoutingProvider dynamicRouting)
         {
             this.localAddress = localAddress;
             this.messageRouter = messageRouter;
+            this.dynamicRouting = dynamicRouting;
         }
 
         public override async Task Invoke(OutgoingSendContext context, Func<Task> next)
         {
             var messageType = context.GetMessageType();
+            var destination = DetermineDestination(context, messageType);
+            context.Set<RoutingStrategy>(new DirectToTargetDestination(destination));
+
+            context.SetHeader(Headers.MessageIntent, MessageIntentEnum.Send.ToString());
+            try
+            {
+                await next().ConfigureAwait(false);
+            }
+            catch (QueueNotFoundException ex)
+            {
+                throw new Exception(string.Format("The destination queue '{0}' could not be found. You may have misconfigured the destination for this kind of message ({1}) in the MessageEndpointMappings of the UnicastBusConfig section in your configuration file. " + "It may also be the case that the given queue just hasn't been created yet, or has been deleted.", ex.Queue, messageType), ex);
+            }
+        }
+
+        string DetermineDestination(ContextBag context, Type messageType)
+        {
             var state = context.GetOrCreate<State>();
             var destination = state.ExplicitDestination;
 
@@ -39,18 +58,8 @@ namespace NServiceBus
                     }
                 }
             }
-            context.SetHeader(Headers.MessageIntent, MessageIntentEnum.Send.ToString());
-
-            context.Set<RoutingStrategy>(new DirectToTargetDestination(destination));
-
-            try
-            {
-                await next().ConfigureAwait(false);
-            }
-            catch (QueueNotFoundException ex)
-            {
-                throw new Exception(string.Format("The destination queue '{0}' could not be found. You may have misconfigured the destination for this kind of message ({1}) in the MessageEndpointMappings of the UnicastBusConfig section in your configuration file. " + "It may also be the case that the given queue just hasn't been created yet, or has been deleted.", ex.Queue, messageType), ex);
-            }
+            destination = dynamicRouting.GetRouteAddress(destination);
+            return destination;
         }
 
         public class State

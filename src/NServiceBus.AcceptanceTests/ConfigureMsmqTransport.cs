@@ -35,8 +35,15 @@ public class ConfigureMsmqTransport
 
         foreach (var queuePath in queuesToBeDeleted)
         {
-            MessageQueue.Delete(queuePath);
-            Console.WriteLine("Deleted '{0}' queue", queuePath);
+            try
+            {
+                MessageQueue.Delete(queuePath);
+                Console.WriteLine("Deleted '{0}' queue", queuePath);
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Could not delete queue '{0}'", queuePath);                
+            }
         }
 
         MessageQueue.ClearConnectionCache();

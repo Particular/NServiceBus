@@ -6,7 +6,6 @@ namespace NServiceBus.Routing
     using System.IO;
     using System.Linq;
     using System.Threading;
-    using System.Threading.Tasks;
     using Janitor;
     using NServiceBus.Logging;
 
@@ -28,7 +27,7 @@ namespace NServiceBus.Routing
             CacheRoute routes;
             if (!routeMapping.TryGetValue(queueName, out routes))
             {
-                ReadFileAsync(queueName);
+                UpdateMapping(queueName, true);
 
                 if (!routeMapping.TryGetValue(queueName, out routes))
                 {
@@ -42,11 +41,6 @@ namespace NServiceBus.Routing
             }
 
             return true;
-        }
-
-        void ReadFileAsync(string queueName)
-        {
-            Task.Factory.StartNew(() => UpdateMapping(queueName, true));
         }
 
         void StartMonitoring(string basePath, string queueName, string fileName)

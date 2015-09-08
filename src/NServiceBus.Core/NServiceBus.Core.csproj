@@ -217,6 +217,7 @@
     <Compile Include="Routing\DetermineRouteForPublishBehavior.cs" />
     <Compile Include="Routing\DetermineRouteForSendBehavior.cs" />
     <Compile Include="Routing\DirectToTargetDestination.cs" />
+    <Compile Include="Routing\DynamicRoutingProvider.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\IInitializableSubscriptionStorage.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\MessageDrivenUnsubscribeTerminator.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\MessageDrivenSubscribeTerminator.cs" />
@@ -373,8 +374,6 @@
     <Compile Include="Persistence\StorageType.cs" />
     <Compile Include="Pipeline\HardcodedPipelineSteps.cs" />
     <Compile Include="Pipeline\PipelineModifications.cs" />
-    <Compile Include="Routing\DynamicRoutingBehavior.cs" />
-    <Compile Include="Routing\DynamicRoutingProvider.cs" />
     <Compile Include="Routing\FileBasedDynamicRouting\FileBasedRoutingConfigurationExtensions.cs" />
     <Compile Include="Sagas\CorrelationProperty.cs" />
     <Compile Include="Sagas\CustomFinderAdapter.cs" />

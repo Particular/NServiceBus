@@ -27,9 +27,6 @@ namespace NServiceBus.Features
         /// <param name="context">The feature context</param>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.Pipeline.Register<DynamicRoutingBehavior.RoutingDistributorRegistration>();
-
-            context.Container.ConfigureComponent<DynamicRoutingBehavior>(DependencyLifecycle.SingleInstance);
         }
     }
 }
