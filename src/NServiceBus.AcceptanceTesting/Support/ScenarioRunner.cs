@@ -163,7 +163,7 @@
 
             try
             {
-                var runners = InitializeRunners(runDescriptor, behaviorDescriptors);
+                var runners = await InitializeRunners(runDescriptor, behaviorDescriptors).ConfigureAwait(false);
 
                 runResult.ActiveEndpoints = runners.Select(r => r.EndpointName).ToList();
 
@@ -276,7 +276,7 @@
 
             var whenAll = Task.WhenAll(tasks);
             var timeoutTask = Task.Delay(TimeSpan.FromMinutes(2));
-            var completedTask = await Task.WhenAny(whenAll, timeoutTask);
+            var completedTask = await Task.WhenAny(whenAll, timeoutTask).ConfigureAwait(false);
 
             if (completedTask.Equals(timeoutTask))
                 throw new Exception("Starting endpoints took longer than 2 minutes");
@@ -309,7 +309,7 @@
             }
         }
 
-        static List<ActiveRunner> InitializeRunners(RunDescriptor runDescriptor, IList<EndpointBehavior> behaviorDescriptors)
+        static async Task<List<ActiveRunner>> InitializeRunners(RunDescriptor runDescriptor, IList<EndpointBehavior> behaviorDescriptors)
         {
             var runners = new List<ActiveRunner>();
             var routingTable = CreateRoutingTable(behaviorDescriptors);
@@ -328,7 +328,7 @@
                     Instance = new EndpointRunner(),
                     EndpointName = endpointName
                 };
-                var result = runner.Instance.Initialize(runDescriptor, behaviorDescriptor, routingTable, endpointName);
+                var result = await runner.Instance.Initialize(runDescriptor, behaviorDescriptor, routingTable, endpointName).ConfigureAwait(false);
 
                 if (result.Failed)
                 {

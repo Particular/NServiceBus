@@ -21,7 +21,7 @@
         BusConfiguration busConfiguration;
         CancellationToken stopToken;
 
-        public Result Initialize(RunDescriptor run, EndpointBehavior endpointBehavior,
+        public async Task<Result> Initialize(RunDescriptor run, EndpointBehavior endpointBehavior,
             IDictionary<Type, string> routingTable, string endpointName)
         {
             try
@@ -39,7 +39,7 @@
                 }
 
                 //apply custom config settings
-                busConfiguration = configuration.GetConfiguration(run, routingTable);
+                busConfiguration = await configuration.GetConfiguration(run, routingTable).ConfigureAwait(false);
                 busConfiguration.GetSettings().Set(scenarioContext.GetType().FullName, scenarioContext);
 
                 endpointBehavior.CustomConfig.ForEach(customAction => customAction(busConfiguration));
@@ -134,7 +134,7 @@
             }
         }
 
-        public Task<Result> Stop()
+        public async Task<Result> Stop()
         {
             try
             {
@@ -149,30 +149,30 @@
                     bus.Dispose();
                 }
 
-                Cleanup();
+                await Cleanup();
 
-                return Task.FromResult(Result.Success());
+                return Result.Success();
             }
             catch (Exception ex)
             {
                 Logger.Error("Failed to stop endpoint " + configuration.EndpointName, ex);
 
-                return Task.FromResult(Result.Failure(ex));
+                return Result.Failure(ex);
             }
         }
 
-        void Cleanup()
+        async Task Cleanup()
         {
             dynamic transportCleaner;
             if (busConfiguration.GetSettings().TryGet("CleanupTransport", out transportCleaner))
             {
-                transportCleaner.Cleanup();
+                await transportCleaner.Cleanup();
             }
 
             dynamic persistenceCleaner;
             if (busConfiguration.GetSettings().TryGet("CleanupPersistence", out persistenceCleaner))
             {
-                persistenceCleaner.Cleanup();
+                await persistenceCleaner.Cleanup();
             }
         }
 

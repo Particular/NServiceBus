@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
 
     public class EndpointConfiguration
     {
@@ -18,7 +19,7 @@
 
         public IList<Type> TypesToInclude { get; set; }
 
-        public Func<RunDescriptor, IDictionary<Type, string>, BusConfiguration> GetConfiguration { get; set; }
+        public Func<RunDescriptor, IDictionary<Type, string>, Task<BusConfiguration>> GetConfiguration { get; set; }
 
         public string EndpointName
         {

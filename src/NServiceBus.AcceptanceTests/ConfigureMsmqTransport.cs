@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Messaging;
+using System.Threading.Tasks;
 using NServiceBus;
 using NServiceBus.Configuration.AdvanceExtensibility;
 
@@ -8,12 +9,13 @@ public class ConfigureMsmqTransport
 {
     BusConfiguration busConfiguration;
 
-    public void Configure(BusConfiguration configuration)
+    public Task Configure(BusConfiguration configuration)
     {
         busConfiguration = configuration;
+        return Task.FromResult(0);
     }
 
-    public void Cleanup()
+    public Task Cleanup()
     {
         var name = busConfiguration.GetSettings().EndpointName();
         var nameFilter = @"private$\" + name;
@@ -38,5 +40,7 @@ public class ConfigureMsmqTransport
         }
 
         MessageQueue.ClearConnectionCache();
+
+        return Task.FromResult(0);
     }
 }
