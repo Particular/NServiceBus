@@ -574,7 +574,7 @@
     <Compile Include="Transports\Msmq\MsmqMessageSender.cs" />
     <Compile Include="Transports\Msmq\MsmqQueueCreator.cs" />
     <Compile Include="Transports\Msmq\MsmqUtilities.cs" />
-    <Compile Include="Config\MsmqSubscriptionStorageConfig.cs" />
+    <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionStorageConfig.cs" />
     <Compile Include="Encryption\RijndaelEncryptionServiceConfig.cs" />
     <Compile Include="Recoverability\SecondLevelRetries\Config\SecondLevelRetriesConfig.cs" />
     <Compile Include="Recoverability\SecondLevelRetries\SecondLevelRetries.cs" />
