@@ -261,6 +261,11 @@ namespace NServiceBus
     {
         public static NServiceBus.ConventionsBuilder DefiningExpressMessagesAs(this NServiceBus.ConventionsBuilder builder, System.Func<System.Type, bool> definesExpressMessageType) { }
     }
+    public class static DynamicRoutingConfigurationExtensions
+    {
+        public static NServiceBus.Routing.RoutingExtensions<T> UseDynamicRouting<T>(this NServiceBus.BusConfiguration config)
+            where T : NServiceBus.Routing.DynamicRoutingDefinition, new () { }
+    }
     public class EncryptedValue
     {
         public EncryptedValue() { }
@@ -285,6 +290,15 @@ namespace NServiceBus
         [System.ObsoleteAttribute("Headers can be set using the ``.SetHeader` method on the context object passed in" +
             "to your behavior or mutator. Will be removed in version 7.0.0.", true)]
         public static void SetMessageHeader(this NServiceBus.ISendOnlyBus bus, object msg, string key, string value) { }
+    }
+    public class FileBasedRoundRobinDistribution : NServiceBus.Routing.DynamicRoutingDefinition
+    {
+        public FileBasedRoundRobinDistribution() { }
+        protected internal override System.Type ProvidedByFeature() { }
+    }
+    public class static FileBasedRoutingConfigurationExtensions
+    {
+        public static NServiceBus.Routing.RoutingExtensions<NServiceBus.FileBasedRoundRobinDistribution> LookForFilesIn(this NServiceBus.Routing.RoutingExtensions<NServiceBus.FileBasedRoundRobinDistribution> config, string path) { }
     }
     public class FileShareDataBus : NServiceBus.DataBus.DataBusDefinition
     {
@@ -1923,9 +1937,29 @@ namespace NServiceBus.Routing
         public string Destination { get; }
         public override void Serialize(System.Collections.Generic.Dictionary<string, string> options) { }
     }
+    public abstract class DynamicRoutingDefinition
+    {
+        protected DynamicRoutingDefinition() { }
+        protected internal abstract System.Type ProvidedByFeature();
+    }
+    public class DynamicRoutingProvider
+    {
+        public DynamicRoutingProvider() { }
+        public NServiceBus.Routing.IProvideDynamicRouting DynamicRouting { get; set; }
+        public string GetRouteAddress(string endpoint) { }
+    }
+    public interface IProvideDynamicRouting
+    {
+        bool TryGetRouteAddress(string logicalEndpoint, out string address);
+    }
     public class static RoutingContextExtensions
     {
         public static NServiceBus.Routing.RoutingStrategy GetRoutingStrategy(this NServiceBus.TransportDispatch.DispatchContext context) { }
+    }
+    public class RoutingExtensions<T> : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
+        where T : NServiceBus.Routing.DynamicRoutingDefinition
+    {
+        public RoutingExtensions(NServiceBus.Settings.SettingsHolder settings) { }
     }
     public abstract class RoutingStrategy
     {
