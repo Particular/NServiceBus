@@ -87,6 +87,7 @@ namespace NServiceBus
     public class BusNotifications : System.IDisposable
     {
         public BusNotifications() { }
+        public NServiceBus.EndpointNotifications Endpoint { get; }
         public NServiceBus.Faults.ErrorsNotifications Errors { get; }
         public NServiceBus.Pipeline.PipelineNotifications Pipeline { get; }
     }
@@ -261,11 +262,21 @@ namespace NServiceBus
     {
         public static NServiceBus.ConventionsBuilder DefiningExpressMessagesAs(this NServiceBus.ConventionsBuilder builder, System.Func<System.Type, bool> definesExpressMessageType) { }
     }
+    public class static DynamicRoutingConfigurationExtensions
+    {
+        public static NServiceBus.Routing.RoutingExtensions<T> UseDynamicRouting<T>(this NServiceBus.BusConfiguration config)
+            where T : NServiceBus.Routing.DynamicRoutingDefinition, new () { }
+    }
     public class EncryptedValue
     {
         public EncryptedValue() { }
         public string Base64Iv { get; set; }
         public string EncryptedBase64Value { get; set; }
+    }
+    public class EndpointNotifications : System.IDisposable
+    {
+        public EndpointNotifications() { }
+        public System.IObservable<NServiceBus.EndpointControl.EndpointSafeToDisconnect> SafeToDisconnect { get; }
     }
     [System.AttributeUsageAttribute(System.AttributeTargets.Class | System.AttributeTargets.Interface | System.AttributeTargets.All)]
     public sealed class ExpressAttribute : System.Attribute
@@ -285,6 +296,15 @@ namespace NServiceBus
         [System.ObsoleteAttribute("Headers can be set using the ``.SetHeader` method on the context object passed in" +
             "to your behavior or mutator. Will be removed in version 7.0.0.", true)]
         public static void SetMessageHeader(this NServiceBus.ISendOnlyBus bus, object msg, string key, string value) { }
+    }
+    public class FileBasedRoundRobinDistribution : NServiceBus.Routing.DynamicRoutingDefinition
+    {
+        public FileBasedRoundRobinDistribution() { }
+        protected internal override System.Type ProvidedByFeature() { }
+    }
+    public class static FileBasedRoutingConfigurationExtensions
+    {
+        public static NServiceBus.Routing.RoutingExtensions<NServiceBus.FileBasedRoundRobinDistribution> LookForFilesIn(this NServiceBus.Routing.RoutingExtensions<NServiceBus.FileBasedRoundRobinDistribution> config, string path) { }
     }
     public class FileShareDataBus : NServiceBus.DataBus.DataBusDefinition
     {
@@ -804,6 +824,12 @@ namespace NServiceBus.AutomaticSubscriptions.Config
 }
 namespace NServiceBus.CircuitBreakers
 {
+    public class CircuitBreaker : System.IDisposable
+    {
+        public CircuitBreaker(int threshold, System.TimeSpan resetEvery) { }
+        public void Dispose() { }
+        public void Execute(System.Action trigger) { }
+    }
     public class RepeatedFailuresOverTimeCircuitBreaker : System.IDisposable
     {
         public RepeatedFailuresOverTimeCircuitBreaker(string name, System.TimeSpan timeToWaitBeforeTriggering, System.Action<System.Exception> triggerAction) { }
@@ -1084,6 +1110,14 @@ namespace NServiceBus.Encryption
     {
         string Decrypt(NServiceBus.EncryptedValue encryptedValue);
         NServiceBus.EncryptedValue Encrypt(string value);
+    }
+}
+namespace NServiceBus.EndpointControl
+{
+    public class EndpointSafeToDisconnect
+    {
+        public EndpointSafeToDisconnect(System.Collections.Generic.Dictionary<string, string> headers) { }
+        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
     }
 }
 namespace NServiceBus.Extensibility
@@ -1904,9 +1938,29 @@ namespace NServiceBus.Routing
         public string Destination { get; }
         public override void Serialize(System.Collections.Generic.Dictionary<string, string> options) { }
     }
+    public abstract class DynamicRoutingDefinition
+    {
+        protected DynamicRoutingDefinition() { }
+        protected internal abstract System.Type ProvidedByFeature();
+    }
+    public class DynamicRoutingProvider
+    {
+        public DynamicRoutingProvider() { }
+        public NServiceBus.Routing.IProvideDynamicRouting DynamicRouting { get; set; }
+        public string GetRouteAddress(string endpoint) { }
+    }
+    public interface IProvideDynamicRouting
+    {
+        bool TryGetRouteAddress(string logicalEndpoint, out string address);
+    }
     public class static RoutingContextExtensions
     {
         public static NServiceBus.Routing.RoutingStrategy GetRoutingStrategy(this NServiceBus.TransportDispatch.DispatchContext context) { }
+    }
+    public class RoutingExtensions<T> : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
+        where T : NServiceBus.Routing.DynamicRoutingDefinition
+    {
+        public RoutingExtensions(NServiceBus.Settings.SettingsHolder settings) { }
     }
     public abstract class RoutingStrategy
     {
@@ -2250,7 +2304,7 @@ namespace NServiceBus.Settings
     public class ScaleOutSettings
     {
         public void UniqueQueuePerEndpointInstance() { }
-        public void UniqueQueuePerEndpointInstance(string discriminator) { }
+        public void UniqueQueuePerEndpointInstance(string suffix) { }
         public void UseSingleBrokerQueue() { }
         public void UseUniqueBrokerQueuePerMachine() { }
     }
@@ -2855,6 +2909,7 @@ namespace NServiceBus.Unicast.Transport
     public class TransportReceiver : System.IObserver<NServiceBus.Transports.MessageAvailable>
     {
         public string Id { get; }
+        public NServiceBus.Transports.IDequeueMessages Receiver { get; set; }
         protected virtual void SetContext(NServiceBus.Pipeline.Contexts.IncomingContext context) { }
         public async System.Threading.Tasks.Task Start() { }
         public async System.Threading.Tasks.Task Stop() { }

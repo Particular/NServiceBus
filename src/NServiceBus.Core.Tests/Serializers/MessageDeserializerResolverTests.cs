@@ -13,7 +13,7 @@
     [TestFixture]
     public class MessageDeserializerResolverTests
     {
-        MessageDeserializerResolver resolver = null;
+        MessageDeserializerResolver resolver;
 
         [SetUp]
         public void Setup()

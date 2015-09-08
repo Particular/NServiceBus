@@ -4,7 +4,6 @@ namespace NServiceBus
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Routing;
-    using NServiceBus.Unicast;
 
     class DynamicRoutingBehavior : Behavior<OutgoingContext>
     {

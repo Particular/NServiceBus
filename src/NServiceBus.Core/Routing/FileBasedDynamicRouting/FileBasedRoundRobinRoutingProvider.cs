@@ -65,7 +65,7 @@ namespace NServiceBus.Routing
 
                 if (startMonitor)
                 {
-                    logger.InfoFormat("Monitoring '{0}' for changes.", queueName, filePath);
+                    logger.InfoFormat("Monitoring '{0}' for changes.", queueName);
 
                     StartMonitoring(basePath, queueName, fileName);
                 }
