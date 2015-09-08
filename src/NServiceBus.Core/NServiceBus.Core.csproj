@@ -365,7 +365,7 @@
     <Compile Include="IMessageContext.cs" />
     <Compile Include="IMessageCreator.cs" />
     <Compile Include="IMessageHandler.cs" />
-    <Compile Include="Impersonation\Windows\ConfigureWindowsIdentityEnricher.cs" />
+    <Compile Include="WindowsIdentityEnrichment\ConfigureWindowsIdentityEnricher.cs" />
     <Compile Include="Persistence\EnabledPersistence.cs" />
     <Compile Include="Persistence\Msmq\Msmq.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionPersistence.cs" />
@@ -593,7 +593,7 @@
     <Compile Include="Hosting\Helpers\AssemblyScanner.cs" />
     <Compile Include="Hosting\Helpers\AssemblyScannerResults.cs" />
     <Compile Include="InternalsVisibleTo.cs" />
-    <Compile Include="Impersonation\Windows\WindowsIdentityEnricher.cs" />
+    <Compile Include="WindowsIdentityEnrichment\WindowsIdentityEnricher.cs" />
     <Compile Include="Installation\INeedToInstallSomething.cs" />
     <Compile Include="IWantToRunBeforeConfigurationIsFinalized.cs" />
     <Compile Include="Licensing\LicenseManager.cs" />
