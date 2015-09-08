@@ -59,6 +59,7 @@ namespace NServiceBus
         public TransportExtensions(SettingsHolder settings)
             : base(settings)
         {
+            settings.Set<TransportAddresses>(new TransportAddresses());
         }
 
         /// <summary>
@@ -66,7 +67,7 @@ namespace NServiceBus
         /// </summary>
         public TransportExtensions ConnectionString(string connectionString)
         {
-            Guard.AgainstNullAndEmpty("connectionString", connectionString);
+            Guard.AgainstNullAndEmpty(nameof(connectionString), connectionString);
             Settings.Set<TransportConnectionString>(new TransportConnectionString(() => connectionString));
             return this;
         }
@@ -88,6 +89,27 @@ namespace NServiceBus
         {
             Guard.AgainstNull("connectionString", connectionString);
             Settings.Set<TransportConnectionString>(new TransportConnectionString(connectionString));
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a rule for translating endpoint instance names to physical addresses in direct routing.
+        /// </summary>
+        /// <param name="rule">The rule.</param>
+        public TransportExtensions AddAddressTranslationRule(Func<EndpointInstanceName, string> rule)
+        {
+            Settings.Get<TransportAddresses>().AddRule(rule);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds an exception to the translation rules for a given endpoint instance.
+        /// </summary>
+        /// <param name="endpointInstance">Name of the instance for which the exception is created.</param>
+        /// <param name="transportAddress">Transport address of that instance.</param>
+        public TransportExtensions AddAddressTranslationException(EndpointInstanceName endpointInstance, string transportAddress)
+        {
+            Settings.Get<TransportAddresses>().AddException(endpointInstance, transportAddress);
             return this;
         }
     }

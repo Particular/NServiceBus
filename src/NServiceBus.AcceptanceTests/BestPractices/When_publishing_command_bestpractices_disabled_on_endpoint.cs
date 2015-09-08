@@ -39,9 +39,14 @@
                     .AddMapping<MyEvent>(typeof(Endpoint));
             }
 
-            public class Handler : IHandleMessages<MyEvent>
+            public class Handler : IHandleMessages<MyEvent>, IHandleMessages<MyCommand>
             {
                 public Task Handle(MyEvent message)
+                {
+                    return Task.FromResult(0);
+                }
+
+                public Task Handle(MyCommand message)
                 {
                     return Task.FromResult(0);
                 }

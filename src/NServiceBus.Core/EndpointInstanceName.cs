@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using System;
     using System.Text;
 
     /// <summary>
@@ -15,6 +16,15 @@
         /// <param name="transportDiscriminator">The discriminator provided by the transport, if any.</param>
         public EndpointInstanceName(EndpointName endpointName, string userDiscriminator, string transportDiscriminator)
         {
+            Guard.AgainstNull(nameof(endpointName),endpointName);
+            if ("".Equals(userDiscriminator, StringComparison.InvariantCultureIgnoreCase))
+            {
+                throw new ArgumentException("User-provided discriminator cannot be an empty string.");
+            }
+            if ("".Equals(transportDiscriminator, StringComparison.InvariantCultureIgnoreCase))
+            {
+                throw new ArgumentException("Transport-provided discriminator cannot be an empty string.");
+            }
             EndpointName = endpointName;
             UserDiscriminator = userDiscriminator;
             TransportDiscriminator = transportDiscriminator;

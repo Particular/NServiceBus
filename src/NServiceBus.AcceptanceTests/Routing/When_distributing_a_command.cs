@@ -5,7 +5,6 @@
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.Config;
     using NUnit.Framework;
 
     public class When_distributing_a_command : NServiceBusAcceptanceTest
@@ -38,17 +37,15 @@
 
                 File.WriteAllLines(Path.Combine(basePath, "DistributingACommand.Receiver.txt"), new[]
                 {
-                    "DistributingACommand.Receiver-1",
-                    "DistributingACommand.Receiver-2"
+                    "1:",
+                    "2:"
                 });
 
-                EndpointSetup<DefaultServer>(c => c.UseDynamicRouting<FileBasedRoundRobinDistribution>()
-                    .LookForFilesIn(basePath))
-                    .WithConfig<UnicastBusConfig>(c => c.MessageEndpointMappings.Add(new MessageEndpointMapping
-                    {
-                        AssemblyName = typeof(Request).Assembly.FullName,
-                        Endpoint = "DistributingACommand.Receiver"
-                    }));
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    c.Routing().EnableAutoRefreshFileBasedRoutingTable().LookForFilesIn(basePath);
+                    c.Routing().DirectRoutingTable.AddStatic(typeof(Request), new EndpointName("DistributingACommand.Receiver"));
+                });
             }
 
             public class ResponseHandler : IHandleMessages<Response>

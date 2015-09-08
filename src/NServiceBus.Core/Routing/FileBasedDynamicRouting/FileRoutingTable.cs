@@ -10,37 +10,50 @@ namespace NServiceBus.Routing
     using NServiceBus.Logging;
 
     [SkipWeaving]
-    class FileBasedRoundRobinRoutingProvider : IProvideDynamicRouting, IDisposable
+    class FileRoutingTable : IDisposable
     {
-        public FileBasedRoundRobinRoutingProvider(string basePath, TimeSpan timeToWaitBeforeRaisingFileChangedEvent)
+        public FileRoutingTable(string basePath, TimeSpan timeToWaitBeforeRaisingFileChangedEvent)
         {
             this.basePath = basePath;
             this.timeToWaitBeforeRaisingFileChangedEvent = timeToWaitBeforeRaisingFileChangedEvent;
         }
 
-        public bool TryGetRouteAddress(string queueName, out string address)
+        public IEnumerable<EndpointInstanceName> GetInstances(EndpointName endpointName)
         {
-            address = null;
-
-            logger.DebugFormat("Request route for {0}.", queueName);
+            logger.DebugFormat("Request routes for {0}.", endpointName);
 
             CacheRoute routes;
-            if (!routeMapping.TryGetValue(queueName, out routes))
+            if (!routeMapping.TryGetValue(endpointName.ToString(), out routes))
             {
-                UpdateMapping(queueName, true);
+                UpdateMapping(endpointName.ToString(), true);
 
-                if (!routeMapping.TryGetValue(queueName, out routes))
+                if (!routeMapping.TryGetValue(endpointName.ToString(), out routes))
                 {
-                    return false;
+                    yield break;
                 }
             }
-
-            if (!routes.TryGetRouteAddress(out address))
+            foreach (var route in routes.Routes)
             {
-                return false;
-            }
+                var discriminators = route.Split(new []{':'},StringSplitOptions.None);
+                if (discriminators.Length == 2)
+                {
+                    var userDiscriminator = NullIfEmptyString(discriminators[0].Trim());
+                    var transportDiscriminator = NullIfEmptyString(discriminators[1].Trim());
 
-            return true;
+                    yield return new EndpointInstanceName(endpointName, userDiscriminator, transportDiscriminator);
+                }
+                else
+                {
+                    logger.Info($"Invalid route {route}. Expecting <userDiscriminator>:<transportDiscriminator> format");
+                }
+            }
+        }
+
+        static string NullIfEmptyString(string value)
+        {
+            return value.Equals("", StringComparison.InvariantCultureIgnoreCase) 
+                ? null 
+                : value;
         }
 
         void StartMonitoring(string basePath, string queueName, string fileName)
@@ -105,7 +118,7 @@ namespace NServiceBus.Routing
 
         string basePath;
         readonly TimeSpan timeToWaitBeforeRaisingFileChangedEvent;
-        static ILog logger = LogManager.GetLogger<FileBasedRoundRobinRoutingProvider>();
+        static ILog logger = LogManager.GetLogger<FileRoutingTable>();
         List<MonitorFileChanges> monitoringFiles = new List<MonitorFileChanges>();
         ConcurrentDictionary<string, CacheRoute> routeMapping = new ConcurrentDictionary<string, CacheRoute>();
 
@@ -113,36 +126,10 @@ namespace NServiceBus.Routing
         {
             public CacheRoute(string[] routes)
             {
-                this.routes = routes;
+                Routes = routes;
             }
 
-            public bool TryGetRouteAddress(out string address)
-            {
-                address = null;
-
-                if (routes.Length == 0)
-                {
-                    return false;
-                }
-
-                lock (lockObj)
-                {
-                    if (index >= routes.Length)
-                    {
-                        index = 0;
-                    }
-
-                    address = routes[index];
-
-                    index++;
-                }
-
-                return true;
-            }
-
-            readonly string[] routes;
-            int index;
-            object lockObj = new object();
+            public string[] Routes { get; private set; }
         }
 
         class MonitorFileChanges : IDisposable

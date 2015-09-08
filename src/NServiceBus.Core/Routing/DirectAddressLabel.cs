@@ -3,7 +3,7 @@ namespace NServiceBus.Routing
     /// <summary>
     /// Represents a route directly to the specified destination.
     /// </summary>
-    public class DirectToTargetDestination : RoutingStrategy
+    public class DirectAddressLabel : AddressLabel
     {
         /// <summary>
         /// The destination.
@@ -14,7 +14,7 @@ namespace NServiceBus.Routing
         /// Initializes the strategy.
         /// </summary>
         /// <param name="destination">The destination.</param>
-        public DirectToTargetDestination(string destination)
+        public DirectAddressLabel(string destination)
         {
             Guard.AgainstNullAndEmpty("destination", destination);
 

@@ -1,29 +1,41 @@
 namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
     using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
     using NServiceBus.TransportDispatch;
     using NServiceBus.Unicast.Queuing;
 
-    class DetermineRouteForSendBehavior : Behavior<OutgoingSendContext>
+    class DirectSendRouterBehavior : Behavior<OutgoingSendContext>
     {
-        public DetermineRouteForSendBehavior(string localAddress, MessageRouter messageRouter, DynamicRoutingProvider dynamicRouting)
+        IDirectRoutingStrategy directRoutingStrategy;
+        DistributionPolicy distributionPolicy;
+
+        public DirectSendRouterBehavior(string localAddress, 
+            IDirectRoutingStrategy directRoutingStrategy, 
+            DistributionPolicy distributionPolicy)
         {
             this.localAddress = localAddress;
-            this.messageRouter = messageRouter;
-            this.dynamicRouting = dynamicRouting;
+            this.directRoutingStrategy = directRoutingStrategy;
+            this.distributionPolicy = distributionPolicy;
         }
 
         public override async Task Invoke(OutgoingSendContext context, Func<Task> next)
         {
             var messageType = context.Message.MessageType;
-            var destination = DetermineDestination(context, messageType);
-            context.Set<RoutingStrategy>(new DirectToTargetDestination(destination));
+            var distributionStrategy = distributionPolicy.GetDistributionStrategy(messageType);
 
+            var state = context.GetOrCreate<State>();
+            var destination = state.ExplicitDestination ?? (state.RouteToLocalInstance ? localAddress : null);
+
+            var addressLabels = string.IsNullOrEmpty(destination) 
+                ? directRoutingStrategy.Route(messageType, distributionStrategy, context) 
+                : RouteToDestination(destination);
+
+            context.SetAddressLabels(addressLabels.EnsureNonEmpty(() => "No destination specified for message: " + messageType));
             context.SetHeader(Headers.MessageIntent, MessageIntentEnum.Send.ToString());
             try
             {
@@ -35,27 +47,9 @@ namespace NServiceBus
             }
         }
 
-        string DetermineDestination(ContextBag context, Type messageType)
+        static IEnumerable<AddressLabel> RouteToDestination(string physicalAddress)
         {
-            var state = context.GetOrCreate<State>();
-            var destination = state.ExplicitDestination;
-
-            if (string.IsNullOrEmpty(destination))
-            {
-                if (state.RouteToLocalInstance)
-                {
-                    destination = localAddress;
-                }
-                else
-                {
-                    if (!messageRouter.TryGetRoute(messageType, out destination))
-                    {
-                        throw new Exception("No destination specified for message: " + messageType);
-                    }
-                }
-            }
-            destination = dynamicRouting.GetRouteAddress(destination);
-            return destination;
+            yield return new DirectAddressLabel(physicalAddress);
         }
 
         DynamicRoutingProvider dynamicRouting;

@@ -3,6 +3,7 @@ namespace NServiceBus.Transports
     using System;
     using System.Collections.Generic;
     using NServiceBus.ConsistencyGuarantees;
+    using NServiceBus.Settings;
 
     /// <summary>
     /// Defines a transport.
@@ -69,5 +70,10 @@ namespace NServiceBus.Transports
         /// <param name="logicalAddress">The logical address.</param>
         /// <returns>The transport address.</returns>
         public abstract string ToTransportAddress(LogicalAddress logicalAddress);
+
+        /// <summary>
+        /// Returns the outbound routing policy selected for the transport.
+        /// </summary>
+        public abstract OutboundRoutingPolicy GetOutboundRoutingPolicy(ReadOnlySettings settings);
     }
 }

@@ -11,15 +11,15 @@
         [Test]
         public async Task Should_use_to_all_subscribers_strategy()
         {
-            var behavior = new DetermineRouteForPublishBehavior();
+            var behavior = new IndirectPublishRouterBehavior();
 
             var context = new OutgoingPublishContext(new OutgoingLogicalMessage(new MyEvent()), new PublishOptions(), new RootContext(null));
 
             await behavior.Invoke(context, () => Task.FromResult(0));
 
-            var routingStrategy = (ToAllSubscribers)context.Get<RoutingStrategy>();
+            var routingStrategy = (IndirectAddressLabel)context.Get<AddressLabel>();
 
-            Assert.AreEqual(typeof(MyEvent), routingStrategy.EventType);
+            Assert.AreEqual(typeof(MyEvent), routingStrategy.MessageType);
         }
 
         class MyEvent

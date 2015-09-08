@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Linq;
     using System.Threading.Tasks;
     using DelayedDelivery;
     using DelayedDelivery.TimeoutManager;
@@ -24,7 +25,7 @@ namespace NServiceBus
 
             if (context.TryGetDeliveryConstraint(out constraint))
             {
-                var currentRoutingStrategy = context.RoutingStrategy as DirectToTargetDestination;
+                var currentRoutingStrategy = context.GetAddressLabels().First() as DirectAddressLabel;
 
                 if (currentRoutingStrategy == null)
                 {

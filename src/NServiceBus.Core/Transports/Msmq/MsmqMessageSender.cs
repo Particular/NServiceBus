@@ -46,12 +46,12 @@ namespace NServiceBus.Transports.Msmq
             var dispatchOptions = transportOperation.DispatchOptions;
             var message = transportOperation.Message;
 
-            var routingStrategy = dispatchOptions.RoutingStrategy as DirectToTargetDestination;
+                var routingStrategy = dispatchOptions.AddressLabel as DirectAddressLabel;
 
-            if (routingStrategy == null)
-            {
-                throw new Exception("The MSMQ transport only supports the `DirectRoutingStrategy`, strategy required " + dispatchOptions.RoutingStrategy.GetType().Name);
-            }
+                if (routingStrategy == null)
+                {
+                    throw new Exception("The MSMQ transport only supports the `DirectRoutingStrategy`, strategy required " + dispatchOptions.AddressLabel.GetType().Name);
+                }
 
             var destination = routingStrategy.Destination;
 
@@ -103,11 +103,12 @@ namespace NServiceBus.Transports.Msmq
                     throw new QueueNotFoundException(destination, msg, ex);
                 }
 
-                ThrowFailedToSendException(destination, ex);
-            }
-            catch (Exception ex)
-            {
-                ThrowFailedToSendException(destination, ex);
+                    ThrowFailedToSendException(destination, ex);
+                }
+                catch (Exception ex)
+                {
+                    ThrowFailedToSendException(destination, ex);
+                }
             }
         }
 

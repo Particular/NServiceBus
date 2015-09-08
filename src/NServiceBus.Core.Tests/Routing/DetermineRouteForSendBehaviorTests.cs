@@ -1,11 +1,16 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
+    using NServiceBus.Extensibility;
     using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Routing;
+    using NServiceBus.Unicast.Messages;
     using NUnit.Framework;
+    using Conventions = NServiceBus.Conventions;
 
     [TestFixture]
     public class DetermineRouteForSendBehaviorTests
@@ -22,7 +27,7 @@
 
             await behavior.Invoke(context, () => Task.FromResult(0));
 
-            var routingStrategy = (DirectToTargetDestination)context.Get<RoutingStrategy>();
+            var routingStrategy = (DirectAddressLabel)context.Get<AddressLabel[]>().First();
 
             Assert.AreEqual("destination endpoint", routingStrategy.Destination);
         }
@@ -39,7 +44,7 @@
 
             await behavior.Invoke(context, () => Task.FromResult(0));
 
-            var routingStrategy = (DirectToTargetDestination)context.Get<RoutingStrategy>();
+            var routingStrategy = (DirectAddressLabel)context.Get<AddressLabel[]>().First();
 
             Assert.AreEqual("MyLocalAddress", routingStrategy.Destination);
         }
@@ -47,16 +52,18 @@
         [Test]
         public async Task Should_route_using_the_mappings_if_no_destination_is_set()
         {
-            var router = new FakeRouter();
-
-            var behavior = InitializeBehavior(router: router);
+            var strategy = new FakeRoutingStrategy()
+            {
+                FixedDestination = new AddressLabel[] { new DirectAddressLabel("MappedDestination")}
+            };
+            var behavior = InitializeBehavior(strategy:strategy);
             var options = new SendOptions();
 
             var context = CreateContext(options);
 
             await behavior.Invoke(context, () => Task.FromResult(0));
 
-            var routingStrategy = (DirectToTargetDestination)context.Get<RoutingStrategy>();
+            var routingStrategy = (DirectAddressLabel)context.Get<AddressLabel[]>().First();
 
             Assert.AreEqual("MappedDestination", routingStrategy.Destination);
         }
@@ -64,9 +71,12 @@
         [Test]
         public void Should_throw_if_no_route_can_be_found()
         {
-            var router = new FakeRouter();
+            var strategy = new FakeRoutingStrategy()
+            {
+                FixedDestination = new AddressLabel[] {}
+            };
 
-            var behavior = InitializeBehavior(router: router);
+            var behavior = InitializeBehavior(strategy: strategy);
             var options = new SendOptions();
 
             var context = CreateContext(options, new MessageWithoutRouting());
@@ -88,29 +98,27 @@
         }
 
 
-        static DetermineRouteForSendBehavior InitializeBehavior(string localAddress = null, MessageRouter router = null)
+        static DirectSendRouterBehavior InitializeBehavior(string localAddress = null,
+            FakeRoutingStrategy strategy = null)
         {
-            return new DetermineRouteForSendBehavior(localAddress, router, new DynamicRoutingProvider());
+            var metadataRegistry = new MessageMetadataRegistry(new Conventions());
+            metadataRegistry.RegisterMessageType(typeof(MyMessage));
+            metadataRegistry.RegisterMessageType(typeof(MessageWithoutRouting));
+            return new DirectSendRouterBehavior(localAddress, strategy ?? new FakeRoutingStrategy(), new DistributionPolicy());
+        }
+
+        class FakeRoutingStrategy : IDirectRoutingStrategy
+        {
+            public IEnumerable<AddressLabel> FixedDestination { get; set; } 
+
+            public IEnumerable<AddressLabel> Route(Type messageType, DistributionStrategy distributionStrategy, ContextBag contextBag)
+            {
+                return FixedDestination;
+            }
         }
 
         class MyMessage { }
 
         class MessageWithoutRouting { }
-
-        class FakeRouter : MessageRouter
-        {
-            public override bool TryGetRoute(Type messageType, out string destination)
-            {
-                if (messageType == typeof(MyMessage))
-                {
-                    destination = "MappedDestination";
-
-                    return true;
-                }
-
-                destination = null;
-                return false;
-            }
-        }
     }
 }

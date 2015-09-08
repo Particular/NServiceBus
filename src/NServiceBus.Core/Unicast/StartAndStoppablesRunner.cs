@@ -80,6 +80,7 @@
             {
                 await Task.WhenAll(stoppableTasks.ToArray());
             }
+// ReSharper disable once EmptyGeneralCatchClause
             catch
             {
                 // ignore because we want to shutdown no matter what.

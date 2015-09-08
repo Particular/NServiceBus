@@ -3,58 +3,28 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using NServiceBus.Transports;
 
     class SubscriptionRouter
     {
-        public SubscriptionRouter(StaticRoutes staticRoutes, ICollection<Type> messageTypes)
+        public SubscriptionRouter(Publishers publishers, KnownEndpoints knownEndpoints, TransportAddresses physicalAddresses)
         {
-            routes = new Dictionary<Type, List<string>>();
-
-            foreach (var route in staticRoutes.GetAllRoutes())
-            {
-                AddRoute(route);
-
-                var route1 = route;
-
-                //find inherited types that would also match this route
-                foreach (var messageType in messageTypes.Where(t => t != route1.MessageType && t.IsAssignableFrom(route1.MessageType)))
-                {
-                    AddRoute(messageType, route1.Address);
-                }
-            }
-        }
-
-        void AddRoute(StaticRoutes.StaticRoute route)
-        {
-            AddRoute(route.MessageType, route.Address);
-        }
-
-        void AddRoute(Type messageType, string address)
-        {
-            List<string> addresses;
-
-            if (!routes.TryGetValue(messageType, out addresses))
-            {
-                addresses = new List<string>();
-                routes[messageType] = addresses;
-            }
-
-            addresses.Add(address);
+            this.publishers = publishers;
+            this.knownEndpoints = knownEndpoints;
+            this.physicalAddresses = physicalAddresses;
         }
 
         public IEnumerable<string> GetAddressesForEventType(Type messageType)
         {
-            List<string> addresses;
+            var publisherAddresses = publishers
+                .GetPublisherFor(messageType).SelectMany(p => p
+                    .Resolve(e => knownEndpoints.FindInstances(e), i => physicalAddresses.GetPhysicalAddress(i)));
 
-            if (!routes.TryGetValue(messageType, out addresses))
-            {
-                return new List<string>();
-            }
-
-
-            return addresses;
+            return publisherAddresses;
         }
 
-        Dictionary<Type, List<string>> routes;
+        Publishers publishers;
+        KnownEndpoints knownEndpoints;
+        TransportAddresses physicalAddresses;
     }
 }

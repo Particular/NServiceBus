@@ -80,6 +80,7 @@
             {
                 await runner.StartAsync();
             }
+// ReSharper disable once EmptyGeneralCatchClause
             catch
             {
                 // ignored
@@ -105,6 +106,7 @@
             {
                 await runner.StartAsync();
             }
+// ReSharper disable once EmptyGeneralCatchClause
             catch
             {
                 // ignored
@@ -128,6 +130,7 @@
             {
                 await runner.StartAsync();
             }
+// ReSharper disable once EmptyGeneralCatchClause
             catch
             {
                 // ignored

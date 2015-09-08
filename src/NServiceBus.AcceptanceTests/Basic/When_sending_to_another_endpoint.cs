@@ -50,7 +50,13 @@
         {
             public Sender()
             {
-                EndpointSetup<DefaultServer>(c => c.AddHeaderToAllOutgoingMessages("MyStaticHeader", "StaticHeaderValue"))
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    c.AddHeaderToAllOutgoingMessages("MyStaticHeader", "StaticHeaderValue");
+                    //var receiver = new EndpointName("SendingToAnotherEndpoint.Receiver");
+                    //c.Routing().DirectRoutingTable.AddStatic(typeof(MyMessage), receiver);
+                    //c.Routing().KnownEndpoints.AddStatic(receiver, new EndpointInstanceName(receiver, null, null));
+                })
                     .AddMapping<MyMessage>(typeof(Receiver));
             }
         }

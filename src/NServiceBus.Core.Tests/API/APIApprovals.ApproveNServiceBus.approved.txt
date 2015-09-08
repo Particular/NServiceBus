@@ -272,11 +272,6 @@ namespace NServiceBus
     {
         public static NServiceBus.ConventionsBuilder DefiningExpressMessagesAs(this NServiceBus.ConventionsBuilder builder, System.Func<System.Type, bool> definesExpressMessageType) { }
     }
-    public class static DynamicRoutingConfigurationExtensions
-    {
-        public static NServiceBus.Routing.RoutingExtensions<T> UseDynamicRouting<T>(this NServiceBus.BusConfiguration config)
-            where T : NServiceBus.Routing.DynamicRoutingDefinition, new () { }
-    }
     public class EncryptedValue
     {
         public EncryptedValue() { }
@@ -319,14 +314,14 @@ namespace NServiceBus
             "to your behavior or mutator. Will be removed in version 7.0.0.", true)]
         public static void SetMessageHeader(this NServiceBus.ISendOnlyBus bus, object msg, string key, string value) { }
     }
-    public class FileBasedRoundRobinDistribution : NServiceBus.Routing.DynamicRoutingDefinition
-    {
-        public FileBasedRoundRobinDistribution() { }
-        protected internal override System.Type ProvidedByFeature() { }
-    }
     public class static FileBasedRoutingConfigurationExtensions
     {
-        public static NServiceBus.Routing.RoutingExtensions<NServiceBus.FileBasedRoundRobinDistribution> LookForFilesIn(this NServiceBus.Routing.RoutingExtensions<NServiceBus.FileBasedRoundRobinDistribution> config, string path) { }
+        public static NServiceBus.FileRoutingTableSettings EnableAutoRefreshFileBasedRoutingTable(this NServiceBus.RoutingSettings config) { }
+    }
+    public class FileRoutingTableSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
+    {
+        public FileRoutingTableSettings(NServiceBus.Settings.SettingsHolder settings) { }
+        public void LookForFilesIn(string path) { }
     }
     public class FileShareDataBus : NServiceBus.DataBus.DataBusDefinition
     {
@@ -664,6 +659,7 @@ namespace NServiceBus
         protected internal override void Configure(NServiceBus.BusConfiguration config) { }
         public override NServiceBus.ConsistencyGuarantees.ConsistencyGuarantee GetDefaultConsistencyGuarantee() { }
         public override string GetDiscriminatorForThisEndpointInstance() { }
+        public override NServiceBus.Transports.OutboundRoutingPolicy GetOutboundRoutingPolicy(NServiceBus.Settings.ReadOnlySettings settings) { }
         public override NServiceBus.Transports.IManageSubscriptions GetSubscriptionManager() { }
         public override System.Collections.Generic.IEnumerable<System.Type> GetSupportedDeliveryConstraints() { }
         public override string ToTransportAddress(NServiceBus.LogicalAddress logicalAddress) { }
@@ -725,6 +721,10 @@ namespace NServiceBus
         public PipelineDiagnostics() { }
         public System.IObservable<NServiceBus.Pipeline.StepStarted> Steps { get; }
     }
+    public class static PublishersSettingsExtensions
+    {
+        public static NServiceBus.Routing.MessageDrivenSubscriptions.Publishers Pubishers(this NServiceBus.BusConfiguration config) { }
+    }
     public class PublishOptions : NServiceBus.Extensibility.ExtendableOptions
     {
         public PublishOptions() { }
@@ -738,6 +738,16 @@ namespace NServiceBus
         public static void OverrideReplyToAddressOfIncomingMessage(this NServiceBus.ReplyOptions option, string destination) { }
         public static void RouteToLocalEndpointInstance(this NServiceBus.SendOptions option) { }
         public static void SetDestination(this NServiceBus.SendOptions option, string destination) { }
+    }
+    public class RoutingSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
+    {
+        public NServiceBus.Routing.DirectRoutingTable DirectRoutingTable { get; }
+        public NServiceBus.Routing.DistributionPolicy DistributionPolicy { get; }
+        public NServiceBus.Routing.KnownEndpoints KnownEndpoints { get; }
+    }
+    public class static RoutingSettingsExtensions
+    {
+        public static NServiceBus.RoutingSettings Routing(this NServiceBus.BusConfiguration config) { }
     }
     public abstract class Saga
     {
@@ -879,6 +889,8 @@ namespace NServiceBus
     public class TransportExtensions : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
         public TransportExtensions(NServiceBus.Settings.SettingsHolder settings) { }
+        public NServiceBus.TransportExtensions AddAddressTranslationException(NServiceBus.EndpointInstanceName endpointInstance, string transportAddress) { }
+        public NServiceBus.TransportExtensions AddAddressTranslationRule(System.Func<NServiceBus.EndpointInstanceName, string> rule) { }
         public NServiceBus.TransportExtensions ConnectionString(string connectionString) { }
         public NServiceBus.TransportExtensions ConnectionString(System.Func<string> connectionString) { }
         public NServiceBus.TransportExtensions ConnectionStringName(string name) { }
@@ -2068,49 +2080,93 @@ namespace NServiceBus.Pipeline.Contexts
 }
 namespace NServiceBus.Routing
 {
-    public class DirectToTargetDestination : NServiceBus.Routing.RoutingStrategy
+    public class AllInstancesDistributionStrategy : NServiceBus.Routing.DistributionStrategy
     {
-        public DirectToTargetDestination(string destination) { }
+        public AllInstancesDistributionStrategy() { }
+        public override System.Collections.Generic.IEnumerable<NServiceBus.EndpointInstanceName> SelectDestination(System.Collections.Generic.IEnumerable<NServiceBus.EndpointInstanceName> allInstances) { }
+    }
+    public class DirectRoutingDestination
+    {
+        public DirectRoutingDestination(NServiceBus.EndpointName endpointName) { }
+        public DirectRoutingDestination(NServiceBus.EndpointInstanceName instanceName) { }
+        public DirectRoutingDestination(string physicalAddress) { }
+    }
+    public class DirectRoutingSlip : NServiceBus.Routing.RoutingSlip
+    {
+        public DirectRoutingSlip(string destination) { }
         public string Destination { get; }
     }
-    public abstract class DynamicRoutingDefinition
+    public class DirectRoutingTable
     {
-        protected DynamicRoutingDefinition() { }
-        protected internal abstract System.Type ProvidedByFeature();
+        public DirectRoutingTable() { }
+        public void AddDynamic(System.Func<System.Type, NServiceBus.Extensibility.ContextBag, System.Collections.Generic.IEnumerable<NServiceBus.Routing.DirectRoutingDestination>> dynamicRule) { }
+        public void AddStatic(System.Type messageType, NServiceBus.EndpointName destination) { }
+        public void AddStatic(System.Type messageType, NServiceBus.EndpointInstanceName destination) { }
+        public void AddStatic(System.Type messageType, string destinationAddress) { }
     }
-    public class DynamicRoutingProvider
+    public class DistributionPolicy
     {
-        public DynamicRoutingProvider() { }
-        public NServiceBus.Routing.IProvideDynamicRouting DynamicRouting { get; set; }
-        public string GetRouteAddress(string endpoint) { }
+        public void SetDistributionStrategy(NServiceBus.Routing.DistributionStrategy distributionStrategy, System.Func<System.Type, bool> typeMatchingRule) { }
     }
-    public interface IProvideDynamicRouting
+    public abstract class DistributionStrategy
     {
-        bool TryGetRouteAddress(string logicalEndpoint, out string address);
+        protected DistributionStrategy() { }
+        public abstract System.Collections.Generic.IEnumerable<NServiceBus.EndpointInstanceName> SelectDestination(System.Collections.Generic.IEnumerable<NServiceBus.EndpointInstanceName> allInstances);
     }
-    public class RoutingExtensions<T> : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
-        where T : NServiceBus.Routing.DynamicRoutingDefinition
+    public class IndirectRoutingSlip : NServiceBus.Routing.RoutingSlip
     {
-        public RoutingExtensions(NServiceBus.Settings.SettingsHolder settings) { }
+        public IndirectRoutingSlip(System.Type messageType) { }
+        public System.Type MessageType { get; }
+        public override void Serialize(System.Collections.Generic.Dictionary<string, string> options) { }
     }
-    public abstract class RoutingStrategy
+    public class KnownEndpoints
     {
-        protected RoutingStrategy() { }
+        public KnownEndpoints() { }
+        public void AddDynamic(System.Func<NServiceBus.EndpointName, System.Collections.Generic.IEnumerable<NServiceBus.EndpointInstanceName>> dynamicRule) { }
+        public void AddStatic(NServiceBus.EndpointName endpoint, params NServiceBus.EndpointInstanceName[] instances) { }
+        public void AddStaticUsingTransportDiscriminators(NServiceBus.EndpointName endpoint, params string[] transportDiscriminators) { }
+    }
+        public static System.Collections.Generic.IEnumerable<NServiceBus.Routing.RoutingSlip> GetRoutingSlips(this NServiceBus.TransportDispatch.DispatchContext context) { }
+        public static void SetRoutingSlips(this NServiceBus.Pipeline.BehaviorContext context, System.Collections.Generic.IEnumerable<NServiceBus.Routing.RoutingSlip> routingSlips) { }
+        public static void SetRoutingSlips(this NServiceBus.Pipeline.BehaviorContext context, params NServiceBus.Routing.RoutingSlip[] routingSlips) { }
+    }
+    public abstract class RoutingSlip
+    {
+        protected RoutingSlip() { }
+        public abstract void Serialize(System.Collections.Generic.Dictionary<string, string> options);
+    }
+    public class SingleInstanceRoundRobinDistributionStrategy : NServiceBus.Routing.DistributionStrategy
+    {
+        public SingleInstanceRoundRobinDistributionStrategy() { }
+        [System.Runtime.CompilerServices.IteratorStateMachineAttribute(typeof(NServiceBus.Routing.SingleInstanceRoundRobinDistributionStrategy.<SelectDestination>d__3))]
+        public override System.Collections.Generic.IEnumerable<NServiceBus.EndpointInstanceName> SelectDestination(System.Collections.Generic.IEnumerable<NServiceBus.EndpointInstanceName> currentAllInstances) { }
     }
     public class SubscribeContext : NServiceBus.Pipeline.BehaviorContext
     {
         public SubscribeContext(NServiceBus.Pipeline.BehaviorContext parentContext, System.Type eventType, NServiceBus.SubscribeOptions options) { }
         public System.Type EventType { get; }
     }
-    public class ToAllSubscribers : NServiceBus.Routing.RoutingStrategy
-    {
-        public ToAllSubscribers(System.Type eventType) { }
-        public System.Type EventType { get; }
-    }
     public class UnsubscribeContext : NServiceBus.Pipeline.BehaviorContext
     {
         public UnsubscribeContext(NServiceBus.Pipeline.BehaviorContext parentContext, System.Type eventType, NServiceBus.UnsubscribeOptions options) { }
         public System.Type EventType { get; }
+    }
+}
+namespace NServiceBus.Routing.MessageDrivenSubscriptions
+{
+    public class PublisherAddress
+    {
+        public PublisherAddress(NServiceBus.EndpointName endpoint) { }
+        public PublisherAddress(params NServiceBus.EndpointInstanceName[] instances) { }
+        public PublisherAddress(params string[] addresses) { }
+    }
+    public class Publishers
+    {
+        public Publishers() { }
+        public void AddDynamic(System.Func<System.Type, NServiceBus.Routing.MessageDrivenSubscriptions.PublisherAddress> dynamicRule, string description = null) { }
+        public void AddStatic(NServiceBus.EndpointName publisher, System.Type eventType) { }
+        public void AddStatic(string publisherAddress, System.Type eventType) { }
+        public void AddStatic(NServiceBus.EndpointName publisher, System.Reflection.Assembly eventAssembly, string eventNamespace = null) { }
     }
 }
 namespace NServiceBus.Routing.StorageDrivenPublishing
@@ -2444,10 +2500,11 @@ namespace NServiceBus.Transports
     }
     public class DispatchOptions
     {
-        public DispatchOptions(NServiceBus.Routing.RoutingStrategy routingStrategy, NServiceBus.Transports.DispatchConsistency requiredDispatchConsistency, System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints = null) { }
+        public DispatchOptions(NServiceBus.Routing.RoutingSlip routingSlip, NServiceBus.Extensibility.ContextBag context, System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints = null, NServiceBus.Transports.DispatchConsistency requiredDispatchConsistency = 1) { }
+        public NServiceBus.Extensibility.ReadOnlyContextBag Context { get; }
         public System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> DeliveryConstraints { get; }
-        public NServiceBus.Transports.DispatchConsistency RequiredDispatchConsistency { get; set; }
-        public NServiceBus.Routing.RoutingStrategy RoutingStrategy { get; }
+        public NServiceBus.Transports.DispatchConsistency RequiredDispatchConsistency { get; }
+        public NServiceBus.Routing.RoutingSlip RoutingSlip { get; set; }
     }
     [System.ObsoleteAttribute("No longer used, safe to remove. Will be removed in version 7.0.0.", true)]
     public interface IAuditMessages { }
@@ -2525,6 +2582,18 @@ namespace NServiceBus.Transports
     {
         public MessageAvailable(System.Action<NServiceBus.Pipeline.Contexts.IncomingContext> contextAction) { }
     }
+    public class OutboundRoutingPolicy
+    {
+        public OutboundRoutingPolicy(NServiceBus.Transports.OutboundRoutingType sends, NServiceBus.Transports.OutboundRoutingType publishes, NServiceBus.Transports.OutboundRoutingType replies) { }
+        public NServiceBus.Transports.OutboundRoutingType Publishes { get; }
+        public NServiceBus.Transports.OutboundRoutingType Replies { get; }
+        public NServiceBus.Transports.OutboundRoutingType Sends { get; }
+    }
+    public enum OutboundRoutingType
+    {
+        DirectSend = 0,
+        IndirectPublish = 1,
+    }
     public class OutgoingMessage
     {
         public OutgoingMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body) { }
@@ -2560,6 +2629,12 @@ namespace NServiceBus.Transports
         public void BindReceiving(string address) { }
         public void BindSending(string transportAddress) { }
     }
+    public class TransportAddresses
+    {
+        public TransportAddresses() { }
+        public void AddException(NServiceBus.EndpointInstanceName endpointInstance, string physicalAddress) { }
+        public void AddRule(System.Func<NServiceBus.EndpointInstanceName, string> dynamicRule) { }
+    }
     public abstract class TransportDefinition
     {
         protected TransportDefinition() { }
@@ -2571,6 +2646,7 @@ namespace NServiceBus.Transports
         protected internal void Configure(NServiceBus.BusConfiguration config) { }
         public abstract NServiceBus.ConsistencyGuarantees.ConsistencyGuarantee GetDefaultConsistencyGuarantee();
         public abstract string GetDiscriminatorForThisEndpointInstance();
+        public abstract NServiceBus.Transports.OutboundRoutingPolicy GetOutboundRoutingPolicy(NServiceBus.Settings.ReadOnlySettings settings);
         public abstract NServiceBus.Transports.IManageSubscriptions GetSubscriptionManager();
         public abstract System.Collections.Generic.IEnumerable<System.Type> GetSupportedDeliveryConstraints();
         public abstract string ToTransportAddress(NServiceBus.LogicalAddress logicalAddress);

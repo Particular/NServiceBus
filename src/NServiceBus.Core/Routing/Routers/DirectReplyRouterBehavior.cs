@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using NServiceBus.Transports;
     using OutgoingPipeline;
@@ -8,7 +9,7 @@ namespace NServiceBus
     using Routing;
     using TransportDispatch;
 
-    class DetermineRouteForReplyBehavior : Behavior<OutgoingReplyContext>
+    class DirectReplyRouterBehavior : Behavior<OutgoingReplyContext>
     {
         public override Task Invoke(OutgoingReplyContext context, Func<Task> next)
         {
@@ -23,7 +24,7 @@ namespace NServiceBus
 
             context.SetHeader(Headers.MessageIntent, MessageIntentEnum.Reply.ToString());
 
-            context.Set<RoutingStrategy>(new DirectToTargetDestination(replyToAddress));
+            context.SetAddressLabels(RouteToDestination(replyToAddress).EnsureNonEmpty(() => "No destination specified."));
 
             return next();
         }
@@ -45,6 +46,11 @@ namespace NServiceBus
             }
 
             return replyToAddress;
+        }
+
+        static IEnumerable<AddressLabel> RouteToDestination(string physicalAddress)
+        {
+            yield return new DirectAddressLabel(physicalAddress);
         }
 
         public class State

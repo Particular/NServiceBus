@@ -1,6 +1,6 @@
 namespace NServiceBus
 {
-    using NServiceBus.Routing;
+    using NServiceBus.Features;
 
     /// <summary>
     /// Extension methods to configure dynamic routing.
@@ -8,14 +8,12 @@ namespace NServiceBus
     public static class FileBasedRoutingConfigurationExtensions
     {
         /// <summary>
-        /// Folder path where to look for files when using <see cref="FileBasedRoundRobinDistribution"/>.
+        /// Enables file-based route table source that is automatically refreshed whenever files get updated.
         /// </summary>
-        /// <param name="config">The current definition instance.</param>
-        /// <param name="path">The folder path. This can be a UNC path.</param>
-        public static RoutingExtensions<FileBasedRoundRobinDistribution> LookForFilesIn(this RoutingExtensions<FileBasedRoundRobinDistribution> config, string path)
+        public static FileRoutingTableSettings EnableAutoRefreshFileBasedRoutingTable(this RoutingSettings config)
         {
-            config.Settings.Set("FileBasedRouting.BasePath", path);
-            return config;
+            config.Settings.EnableFeature(typeof(FileRoutingTableFeature));
+            return new FileRoutingTableSettings(config.Settings);
         }
     }
 }

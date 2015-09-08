@@ -6,6 +6,7 @@ namespace NServiceBus
     using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.Features;
     using NServiceBus.Performance.TimeToBeReceived;
+    using NServiceBus.Settings;
     using NServiceBus.Support;
     using NServiceBus.Transports;
 
@@ -21,14 +22,6 @@ namespace NServiceBus
         {
             RequireOutboxConsent = true;
             HasSupportForMultiQueueNativeTransactions = true;
-        }
-
-        /// <summary>
-        /// Gives implementations access to the <see cref="BusConfiguration"/> instance at configuration time.
-        /// </summary>
-        protected internal override void Configure(BusConfiguration config)
-        {
-            config.EnableFeature<MsmqTransportConfigurator>();
         }
 
         /// <summary>
@@ -67,13 +60,21 @@ namespace NServiceBus
         }
 
         /// <summary>
+        /// Gives implementations access to the <see cref="BusConfiguration"/> instance at configuration time.
+        /// </summary>
+        protected internal override void Configure(BusConfiguration config)
+        {
+            config.EnableFeature<MsmqTransportConfigurator>();
+        }
+
+        /// <summary>
         /// Converts a given logical address to the transport address.
         /// </summary>
         /// <param name="logicalAddress">The logical address.</param>
         /// <returns>The transport address.</returns>
         public override string ToTransportAddress(LogicalAddress logicalAddress)
         {
-            var machine = logicalAddress.EndpointInstanceName.TransportDiscriminator;
+            var machine = logicalAddress.EndpointInstanceName.TransportDiscriminator ?? RuntimeEnvironment.MachineName;
 
             var queue = new StringBuilder(logicalAddress.EndpointInstanceName.EndpointName.ToString());
             if (logicalAddress.EndpointInstanceName.UserDiscriminator != null)
@@ -85,6 +86,14 @@ namespace NServiceBus
                 queue.Append("." + logicalAddress.Qualifier);
             }
             return queue + "@" + machine;
+        }
+
+        /// <summary>
+        /// Returns the outbound routing policy selected for the transport.
+        /// </summary>
+        public override OutboundRoutingPolicy GetOutboundRoutingPolicy(ReadOnlySettings settings)
+        {
+            return new OutboundRoutingPolicy(OutboundRoutingType.DirectSend, OutboundRoutingType.DirectSend, OutboundRoutingType.DirectSend);
         }
     }
 }
