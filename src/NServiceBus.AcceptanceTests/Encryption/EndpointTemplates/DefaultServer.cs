@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using System.Threading.Tasks;
     using AcceptanceTesting.Support;
     using NServiceBus;
     using NServiceBus.AcceptanceTesting;
@@ -27,7 +28,7 @@
             this.typesToInclude = typesToInclude;
         }
 
-        public BusConfiguration GetConfiguration(RunDescriptor runDescriptor, EndpointConfiguration endpointConfiguration, IConfigurationSource configSource, Action<BusConfiguration> configurationBuilderCustomization)
+        public async Task<BusConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointConfiguration endpointConfiguration, IConfigurationSource configSource, Action<BusConfiguration> configurationBuilderCustomization)
         {
             var settings = runDescriptor.Settings;            
 
@@ -45,7 +46,7 @@
             // TimeoutManager is currently required by Sagas
             builder.EnableFeature<TimeoutManager>();
             builder.DisableFeature<SecondLevelRetries>();
-            builder.DefineTransport(settings, endpointConfiguration.BuilderType);
+            await builder.DefineTransport(settings, endpointConfiguration.BuilderType);
             builder.DefineTransactions(settings);
             builder.DefineBuilder(settings);
             builder.RegisterComponents(r =>
@@ -63,7 +64,7 @@
             {
                 builder.UseSerialization(Type.GetType(serializer));
             }
-            builder.DefinePersistence(settings);
+            await builder.DefinePersistence(settings);
 
             builder.GetSettings().SetDefault("ScaleOut.UseSingleBrokerQueue", true);
             configurationBuilderCustomization(builder);
