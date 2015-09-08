@@ -1368,7 +1368,7 @@ namespace NServiceBus.Gateway.Deduplication
 {
     public interface IDeduplicateMessages
     {
-        bool DeduplicateMessage(string clientId, System.DateTime timeReceived);
+        System.Threading.Tasks.Task<bool> DeduplicateMessage(string clientId, System.DateTime timeReceived);
     }
 }
 namespace NServiceBus.Hosting.Helpers

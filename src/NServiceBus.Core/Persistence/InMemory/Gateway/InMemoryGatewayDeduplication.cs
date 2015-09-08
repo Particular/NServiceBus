@@ -3,18 +3,19 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
 
     class InMemoryGatewayDeduplication : IDeduplicateMessages
     {
-        public bool DeduplicateMessage(string clientId, DateTime timeReceived)
+        public Task<bool> DeduplicateMessage(string clientId, DateTime timeReceived)
         {
             lock (persistence)
             {
                 var item = persistence.SingleOrDefault(m => m.Id == clientId);
                 if (item != null)
-                    return false;
+                    return Task.FromResult(false);
 
-                return persistence.Add(new GatewayMessage { Id = clientId, TimeReceived = timeReceived });
+                return Task.FromResult(persistence.Add(new GatewayMessage { Id = clientId, TimeReceived = timeReceived }));
             }
         }
 
