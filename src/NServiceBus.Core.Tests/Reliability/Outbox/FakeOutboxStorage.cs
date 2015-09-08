@@ -1,37 +1,35 @@
 ﻿namespace NServiceBus.Core.Tests.Reliability.Outbox
 {
-    using System.Collections.Generic;
+    using System.Threading.Tasks;
     using NServiceBus.Outbox;
 
-    internal class FakeOutboxStorage : IOutboxStorage
+    class FakeOutboxStorage : IOutboxStorage
     {
         public OutboxMessage ExistingMessage { get; set; }
         public OutboxMessage StoredMessage { get; set; }
 
         public bool WasDispatched { get; set; }
 
-        public bool TryGet(string messageId, OutboxStorageOptions options, out OutboxMessage message)
+        public Task<OutboxMessage> Get(string messageId, OutboxStorageOptions options)
         {
-            message = null;
-
             if (ExistingMessage != null && ExistingMessage.MessageId == messageId)
             {
-                message = ExistingMessage;
-                return true;
+                return Task.FromResult(ExistingMessage);
             }
 
-            return false;
+            return Task.FromResult(default(OutboxMessage));
         }
 
-        public void Store(string messageId, IEnumerable<TransportOperation> transportOperations, OutboxStorageOptions options)
+        public Task Store(OutboxMessage message, OutboxStorageOptions options)
         {
-            StoredMessage = new OutboxMessage(messageId);
-            StoredMessage.TransportOperations.AddRange(transportOperations);
+            StoredMessage = message;
+            return Task.FromResult(0);
         }
 
-        public void SetAsDispatched(string messageId, OutboxStorageOptions options)
+        public Task SetAsDispatched(string messageId, OutboxStorageOptions options)
         {
             WasDispatched = true;
+            return Task.FromResult(0);
         }
     }
 }

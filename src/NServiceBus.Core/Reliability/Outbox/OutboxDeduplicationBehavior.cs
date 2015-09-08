@@ -29,9 +29,9 @@
         {
             var options = new OutboxStorageOptions(context);
             var messageId = context.GetPhysicalMessage().Id;
-            OutboxMessage outboxMessage;
+            var outboxMessage = outboxStorage.Get(messageId, options).GetAwaiter().GetResult();
 
-            if (!outboxStorage.TryGet(messageId, options, out outboxMessage))
+            if (outboxMessage == null)
             {
                 outboxMessage = new OutboxMessage(messageId);
 
@@ -51,12 +51,12 @@
                     return;
                 }
 
-                outboxStorage.Store(messageId, outboxMessage.TransportOperations, options);
+                outboxStorage.Store(outboxMessage, options).GetAwaiter().GetResult();
             }
 
             DispatchOperationToTransport(outboxMessage.TransportOperations, context);
 
-            outboxStorage.SetAsDispatched(messageId, options);
+            outboxStorage.SetAsDispatched(messageId, options).GetAwaiter().GetResult();
         }
 
         void DispatchOperationToTransport(IEnumerable<TransportOperation> operations, Context context)

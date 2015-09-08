@@ -1587,9 +1587,9 @@ namespace NServiceBus.Outbox
 {
     public interface IOutboxStorage
     {
-        void SetAsDispatched(string messageId, NServiceBus.Outbox.OutboxStorageOptions options);
-        void Store(string messageId, System.Collections.Generic.IEnumerable<NServiceBus.Outbox.TransportOperation> transportOperations, NServiceBus.Outbox.OutboxStorageOptions options);
-        bool TryGet(string messageId, NServiceBus.Outbox.OutboxStorageOptions options, out NServiceBus.Outbox.OutboxMessage message);
+        System.Threading.Tasks.Task<NServiceBus.Outbox.OutboxMessage> Get(string messageId, NServiceBus.Outbox.OutboxStorageOptions options);
+        System.Threading.Tasks.Task SetAsDispatched(string messageId, NServiceBus.Outbox.OutboxStorageOptions options);
+        System.Threading.Tasks.Task Store(NServiceBus.Outbox.OutboxMessage message, NServiceBus.Outbox.OutboxStorageOptions options);
     }
     public class OutboxMessage
     {
