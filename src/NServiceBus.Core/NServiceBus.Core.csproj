@@ -338,7 +338,7 @@
     <Compile Include="Routing\AutomaticSubscriptions\AutoSubscribeSettingsExtensions.cs" />
     <Compile Include="Routing\AutomaticSubscriptions\AutoSubscribeSettings.cs" />
     <Compile Include="Configure.cs" />
-    <Compile Include="Config\AuditConfig.cs" />
+    <Compile Include="Audit\AuditConfig.cs" />
     <Compile Include="ContentTypes.cs" />
     <Compile Include="DataBusProperty.cs" />
     <Compile Include="Distributor\MasterNode\DefaultMasterNodeAddress.cs" />
@@ -397,9 +397,9 @@
     <Compile Include="Serialization\SerializationDefinition.cs" />
     <Compile Include="Serialization\SerializationExtentions.cs" />
     <Compile Include="Serializers\Binary\Binary.cs" />
-    <Compile Include="Serializers\Json\Bson.cs" />
-    <Compile Include="Serializers\Json\Json.cs" />
-    <Compile Include="Serializers\XML\Config\Xml.cs" />
+    <Compile Include="Serializers\Json\BsonSerializer.cs" />
+    <Compile Include="Serializers\Json\JsonSerializer.cs" />
+    <Compile Include="Serializers\XML\Config\XmlSerializer.cs" />
     <Compile Include="Serializers\XML\Config\XmlSerializationExtentions.cs" />
     <Compile Include="Serializers\XML\Deserializer.cs" />
     <Compile Include="Serializers\XML\Serializer.cs" />
