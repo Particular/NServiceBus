@@ -12,7 +12,7 @@ namespace NServiceBus
         /// </summary>
         public static Publishers Pubishers(this BusConfiguration config)
         {
-            Guard.AgainstNull("config", config);
+            Guard.AgainstNull(nameof(config), config);
             Publishers publishers;
             if (!config.Settings.TryGet(out publishers))
             {

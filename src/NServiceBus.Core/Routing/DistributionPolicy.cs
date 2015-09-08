@@ -12,7 +12,7 @@ namespace NServiceBus.Routing
         List<Tuple<Func<Type, bool>,DistributionStrategy>> strategies = new List<Tuple<Func<Type, bool>, DistributionStrategy>>();
 
         /// <summary>
-        /// Creates a new distribution policy.
+        /// Creates a new distribution policy object.
         /// </summary>
         public DistributionPolicy()
         {
