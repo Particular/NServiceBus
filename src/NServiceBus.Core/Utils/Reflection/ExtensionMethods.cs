@@ -104,13 +104,6 @@ namespace NServiceBus.Utils.Reflection
             return result;
         }
 
-        public static bool IsNServiceBusMarkerInterface(this Type type)
-        {
-            return type == typeof(IMessage) ||
-                   type == typeof(ICommand) ||
-                   type == typeof(IEvent);
-        }
-
         static ConcurrentDictionary<RuntimeTypeHandle, string> TypeToNameLookup = new ConcurrentDictionary<RuntimeTypeHandle, string>();
 
         static byte[] nsbPublicKeyToken = typeof(ExtensionMethods).Assembly.GetName().GetPublicKeyToken();
