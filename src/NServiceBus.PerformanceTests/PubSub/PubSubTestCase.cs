@@ -136,7 +136,7 @@ public class PrimeSubscriptionStorage : Feature
                     subscriptionStorage.Subscribe(subscriberAddress, new List<MessageType>
                 {
                     testEventMessage
-                }, new SubscriptionStorageOptions(new ContextBag()));
+                }, new SubscriptionStorageOptions(new ContextBag())).GetAwaiter().GetResult();
 
                     tx.Complete();
                 }

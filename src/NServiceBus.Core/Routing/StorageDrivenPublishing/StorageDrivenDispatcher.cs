@@ -43,11 +43,10 @@
                 .Distinct()
                 .ToList();
 
-            var subscribers = querySubscriptions.GetSubscriberAddressesForMessage(eventTypesToPublish.Select(t => new MessageType(t))).ToList();
-
+            var subscribers = querySubscriptions.GetSubscriberAddressesForMessage(eventTypesToPublish.Select(t => new MessageType(t))).GetAwaiter().GetResult()
+                .ToList();
 
             currentContext.Set(new SubscribersForEvent(subscribers, eventType));
-
 
             if (!subscribers.Any())
             {

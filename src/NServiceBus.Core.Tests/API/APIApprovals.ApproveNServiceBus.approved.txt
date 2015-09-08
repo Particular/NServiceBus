@@ -2842,12 +2842,12 @@ namespace NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions
     }
     public interface IQuerySubscriptions
     {
-        System.Collections.Generic.IEnumerable<string> GetSubscriberAddressesForMessage(System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Subscriptions.MessageType> messageTypes);
+        System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<string>> GetSubscriberAddressesForMessage(System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Subscriptions.MessageType> messageTypes);
     }
     public interface ISubscriptionStorage
     {
-        void Subscribe(string client, System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Subscriptions.MessageType> messageTypes, NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.SubscriptionStorageOptions options);
-        void Unsubscribe(string client, System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Subscriptions.MessageType> messageTypes, NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.SubscriptionStorageOptions options);
+        System.Threading.Tasks.Task Subscribe(string client, System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Subscriptions.MessageType> messageTypes, NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.SubscriptionStorageOptions options);
+        System.Threading.Tasks.Task Unsubscribe(string client, System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Subscriptions.MessageType> messageTypes, NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.SubscriptionStorageOptions options);
     }
     public class SubscriptionStorageOptions
     {

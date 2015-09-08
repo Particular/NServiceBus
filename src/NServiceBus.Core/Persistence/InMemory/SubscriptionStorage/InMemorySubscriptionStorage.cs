@@ -3,6 +3,7 @@ namespace NServiceBus.InMemory.SubscriptionStorage
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using NServiceBus.Unicast.Subscriptions;
     using NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions;
 
@@ -11,7 +12,7 @@ namespace NServiceBus.InMemory.SubscriptionStorage
     /// </summary>
     class InMemorySubscriptionStorage : ISubscriptionStorage, IQuerySubscriptions
     {
-        public void Subscribe(string address, IEnumerable<MessageType> messageTypes, SubscriptionStorageOptions options)
+        public Task Subscribe(string address, IEnumerable<MessageType> messageTypes, SubscriptionStorageOptions options)
         {
             foreach (var m in messageTypes)
             {
@@ -19,9 +20,10 @@ namespace NServiceBus.InMemory.SubscriptionStorage
 
                 dict.AddOrUpdate(address, addValueFactory, updateValueFactory);
             }
+            return Task.FromResult(0);
         }
 
-        public void Unsubscribe(string address, IEnumerable<MessageType> messageTypes, SubscriptionStorageOptions options)
+        public Task Unsubscribe(string address, IEnumerable<MessageType> messageTypes, SubscriptionStorageOptions options)
         {
             foreach (var m in messageTypes)
             {
@@ -32,9 +34,10 @@ namespace NServiceBus.InMemory.SubscriptionStorage
                     dict.TryRemove(address, out _);
                 }
             }
+            return Task.FromResult(0);
         }
 
-        public IEnumerable<string> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes)
+        public Task<IEnumerable<string>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes)
         {
             var result = new HashSet<string>();
             foreach (var m in messageTypes)
@@ -45,7 +48,7 @@ namespace NServiceBus.InMemory.SubscriptionStorage
                     result.UnionWith(list.Keys);
                 }
             }
-            return result;
+            return Task.FromResult((IEnumerable<string>) result);
         }
 
         ConcurrentDictionary<MessageType, ConcurrentDictionary<string, object>> storage = new ConcurrentDictionary<MessageType, ConcurrentDictionary<string, object>>();

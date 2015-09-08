@@ -4,6 +4,7 @@ namespace NServiceBus.Persistence.SubscriptionStorage
     using System.Collections.Generic;
     using System.Linq;
     using System.Messaging;
+    using System.Threading.Tasks;
     using System.Transactions;
     using Logging;
     using Msmq.SubscriptionStorage;
@@ -55,8 +56,9 @@ namespace NServiceBus.Persistence.SubscriptionStorage
             }
         }
 
-        public IEnumerable<string> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes)
+        public Task<IEnumerable<string>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes)
         {
+            var subscribers = new List<string>();
             var result = new List<string>();
             var messagelist = messageTypes.ToList();
             lock (locker)
@@ -71,15 +73,16 @@ namespace NServiceBus.Persistence.SubscriptionStorage
                             if (!result.Contains(loweredSubscriberAddress))
                             {
                                 result.Add(loweredSubscriberAddress);
-                                yield return e.Subscriber;
+                                subscribers.Add(e.Subscriber);
                             }
                         }
                     }
                 }
             }
+            return Task.FromResult((IEnumerable<string>) subscribers);
         }
 
-        public void Subscribe(string address, IEnumerable<MessageType> messageTypes, SubscriptionStorageOptions options)
+        public Task Subscribe(string address, IEnumerable<MessageType> messageTypes, SubscriptionStorageOptions options)
         {
             lock (locker)
             {
@@ -111,9 +114,10 @@ namespace NServiceBus.Persistence.SubscriptionStorage
                     }
                 }
             }
+            return Task.FromResult(0);
         }
 
-        public void Unsubscribe(string address, IEnumerable<MessageType> messageTypes, SubscriptionStorageOptions options)
+        public Task Unsubscribe(string address, IEnumerable<MessageType> messageTypes, SubscriptionStorageOptions options)
         {
             lock (locker)
             {
@@ -133,6 +137,7 @@ namespace NServiceBus.Persistence.SubscriptionStorage
                     }
                 }
             }
+            return Task.FromResult(0);
         }
 
         /// <summary>

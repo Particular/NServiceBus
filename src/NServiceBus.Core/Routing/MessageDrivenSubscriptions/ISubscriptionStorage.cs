@@ -1,6 +1,7 @@
 namespace NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions
 {
     using System.Collections.Generic;
+    using System.Threading.Tasks;
 
     /// <summary>
 	/// Defines storage for subscriptions.
@@ -10,11 +11,11 @@ namespace NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions
         /// <summary>
         /// Subscribes the given client address to messages of the given types.
         /// </summary>
-        void Subscribe(string client, IEnumerable<MessageType> messageTypes, SubscriptionStorageOptions options);
+        Task Subscribe(string client, IEnumerable<MessageType> messageTypes, SubscriptionStorageOptions options);
 
         /// <summary>
         /// Unsubscribes the given client address from messages of the given types.
         /// </summary>
-        void Unsubscribe(string client, IEnumerable<MessageType> messageTypes, SubscriptionStorageOptions options);
+        Task Unsubscribe(string client, IEnumerable<MessageType> messageTypes, SubscriptionStorageOptions options);
     }
 }
