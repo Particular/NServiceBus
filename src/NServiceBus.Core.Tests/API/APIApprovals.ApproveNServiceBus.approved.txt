@@ -2018,13 +2018,13 @@ namespace NServiceBus.Saga
     }
     public interface ISagaPersister
     {
-        void Complete(NServiceBus.Saga.IContainSagaData saga, NServiceBus.Saga.SagaPersistenceOptions options);
-        TSagaData Get<TSagaData>(System.Guid sagaId, NServiceBus.Saga.SagaPersistenceOptions options)
+        System.Threading.Tasks.Task Complete(NServiceBus.Saga.IContainSagaData saga, NServiceBus.Saga.SagaPersistenceOptions options);
+        System.Threading.Tasks.Task<TSagaData> Get<TSagaData>(System.Guid sagaId, NServiceBus.Saga.SagaPersistenceOptions options)
             where TSagaData : NServiceBus.Saga.IContainSagaData;
-        TSagaData Get<TSagaData>(string propertyName, object propertyValue, NServiceBus.Saga.SagaPersistenceOptions options)
+        System.Threading.Tasks.Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, NServiceBus.Saga.SagaPersistenceOptions options)
             where TSagaData : NServiceBus.Saga.IContainSagaData;
-        void Save(NServiceBus.Saga.IContainSagaData saga, NServiceBus.Saga.SagaPersistenceOptions options);
-        void Update(NServiceBus.Saga.IContainSagaData saga, NServiceBus.Saga.SagaPersistenceOptions options);
+        System.Threading.Tasks.Task Save(NServiceBus.Saga.IContainSagaData saga, NServiceBus.Saga.SagaPersistenceOptions options);
+        System.Threading.Tasks.Task Update(NServiceBus.Saga.IContainSagaData saga, NServiceBus.Saga.SagaPersistenceOptions options);
     }
     public abstract class Saga
     {
