@@ -71,7 +71,7 @@
 
                 public class MyTimeout { }
 
-                public void Handle(object message)
+                public Task Handle(object message)
                 {
                     if (message is SomeOtherMessage)
                     {
@@ -83,7 +83,7 @@
                     {
                         Context.NotFoundHandlerCalledForTimeout = true;
                     }
-
+                    return Task.FromResult(0);
                 }
 
                 public void Handle(SomeOtherMessage message)

@@ -1,5 +1,7 @@
 namespace NServiceBus.Sagas
 {
+    using System.Threading.Tasks;
+
     /// <summary>
     /// Implementors will be invoked when a message arrives that should have been processed
     /// by a saga, but no existing saga was found. This does not include the scenario when
@@ -11,6 +13,6 @@ namespace NServiceBus.Sagas
         /// Implementors will implement this method, likely using an injected IBus
         /// to send responses to the client who sent the message.
         /// </summary>
-        void Handle(object message);
+        Task Handle(object message);
     }
 }

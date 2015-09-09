@@ -91,11 +91,13 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(object message)
+                public Task Handle(object message)
                 {
-                    if (((dynamic)message).ContextId != Context.Id) return;
+                    if (((dynamic)message).ContextId != Context.Id) return Task.FromResult(0);
 
                     Context.SagaNotFound = true;
+
+                    return Task.FromResult(0);
                 }
             }
 

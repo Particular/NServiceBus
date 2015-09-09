@@ -65,13 +65,14 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(object message)
+                public Task Handle(object message)
                 {
                     var lostMessage = message as DoSomethingResponse;
                     if (lostMessage != null && lostMessage.RunId == Context.RunId)
                     {
                         Context.Done = true;
                     }
+                    return Task.FromResult(0);
                 }
             }
 

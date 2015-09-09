@@ -131,10 +131,11 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(object message)
+                public Task Handle(object message)
                 {
                     Context.TimesFired++;
                     Context.Done = true;
+                    return Task.FromResult(0);
                 }
             }
         }
@@ -230,9 +231,10 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(object message)
+                public Task Handle(object message)
                 {
                     Context.TimesFired++;
+                    return Task.FromResult(0);
                 }
             }
         }
