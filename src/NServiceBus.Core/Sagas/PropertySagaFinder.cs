@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Sagas;
 
@@ -16,7 +17,7 @@ namespace NServiceBus
             this.sagaPersister = sagaPersister;
         }
 
-        internal override IContainSagaData Find(IBuilder builder, SagaFinderDefinition finderDefinition, SagaPersistenceOptions options, object message)
+        internal override async Task<IContainSagaData> Find(IBuilder builder, SagaFinderDefinition finderDefinition, SagaPersistenceOptions options, object message)
         {
             var propertyAccessor = (Func<object,object>)finderDefinition.Properties["property-accessor"];
             var propertyValue = propertyAccessor(message);
@@ -25,10 +26,10 @@ namespace NServiceBus
 
             if (sagaPropertyName.ToLower() == "id")
             {
-                return sagaPersister.Get<TSagaData>((Guid)propertyValue, options).GetAwaiter().GetResult();
+                return await sagaPersister.Get<TSagaData>((Guid) propertyValue, options).ConfigureAwait(false);
             }
 
-            return sagaPersister.Get<TSagaData>(sagaPropertyName, propertyValue, options).GetAwaiter().GetResult();
+            return await sagaPersister.Get<TSagaData>(sagaPropertyName, propertyValue, options).ConfigureAwait(false);
         }
     }
 }

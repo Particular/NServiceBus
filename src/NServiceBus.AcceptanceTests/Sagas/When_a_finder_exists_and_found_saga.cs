@@ -42,13 +42,13 @@
                 // ReSharper disable once MemberCanBePrivate.Global
                 public Context Context { get; set; }
 
-                public TestSaga08.SagaData08 FindBy(SomeOtherMessage message, SagaPersistenceOptions options)
+                public Task<TestSaga08.SagaData08> FindBy(SomeOtherMessage message, SagaPersistenceOptions options)
                 {
                     Context.FinderUsed = true;
-                    return new TestSaga08.SagaData08
-                           {
-                               Property = "jfbsjdfbsdjh"
-                           };
+                    return Task.FromResult(new TestSaga08.SagaData08
+                    {
+                        Property = "jfbsjdfbsdjh"
+                    });
                 }
             }
 

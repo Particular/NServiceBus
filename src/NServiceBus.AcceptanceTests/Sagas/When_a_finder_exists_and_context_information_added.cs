@@ -46,12 +46,12 @@ namespace NServiceBus.AcceptanceTests.Sagas
             class CustomFinder : IFindSagas<TestSaga07.SagaData07>.Using<StartSagaMessage>
             {
                 public Context Context { get; set; }
-                public TestSaga07.SagaData07 FindBy(StartSagaMessage message, SagaPersistenceOptions options)
+                public Task<TestSaga07.SagaData07> FindBy(StartSagaMessage message, SagaPersistenceOptions options)
                 {
                     Context.Metadata = options.Metadata;
                     Context.ContextBag = options.Context;
                     Context.FinderUsed = true;
-                    return null;
+                    return Task.FromResult(default(TestSaga07.SagaData07));
                 }
             }
 
