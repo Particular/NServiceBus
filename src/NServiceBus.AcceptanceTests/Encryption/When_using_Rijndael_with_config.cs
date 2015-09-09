@@ -110,6 +110,7 @@
             {
                 return new RijndaelEncryptionServiceConfig
                 {
+                    KeyIdentifier = "1st",
                     Key = "gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6"
                 };
             }
