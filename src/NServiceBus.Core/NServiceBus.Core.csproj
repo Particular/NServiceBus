@@ -244,13 +244,13 @@
     <Compile Include="Unicast\Behaviors\InvokeSagaNotFoundBehavior.cs" />
     <Compile Include="Unicast\BusAsyncResultEventArgs.cs" />
     <Compile Include="Unicast\Config\LoadMessageHandlersExtentions_Obsolete.cs" />
+    <Compile Include="Unicast\Config\PathUtilities.cs" />
     <Compile Include="Unicast\Config\RegisterHandlersInOrder.cs" />
     <Compile Include="Monitoring\SLA\SLABehavior.cs" />
     <Compile Include="Monitoring\CriticalTime\CriticalTimeBehavior.cs" />
     <Compile Include="Monitoring\MonitoringConfig_Obsolete.cs" />
     <Compile Include="Monitoring\SLA\SLAMonitoring.cs" />
     <Compile Include="Monitoring\ProcessingStatisticsBehavior.cs" />
-    <Compile Include="Unicast\DefaultHostIdGenerator.cs" />
     <Compile Include="Unicast\IMessageDispatcherFactory_Obsolete.cs" />
     <Compile Include="MessageDeserializationException.cs" />
     <Compile Include="Unicast\Transport\Config\TransportConfiguration.cs" />

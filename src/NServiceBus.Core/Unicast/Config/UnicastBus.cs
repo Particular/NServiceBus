@@ -10,7 +10,7 @@ namespace NServiceBus.Features
     using Logging;
     using NServiceBus.Hosting;
     using NServiceBus.Support;
-    using NServiceBus.Unicast;
+    using NServiceBus.Utils;
     using Pipeline;
     using Pipeline.Contexts;
     using Transports;
@@ -26,8 +26,12 @@ namespace NServiceBus.Features
 
             Defaults(s =>
             {
-                string fullPathToStartingExe;
-                s.SetDefault("NServiceBus.HostInformation.HostId", GenerateDefaultHostId(out fullPathToStartingExe));
+                var fullPathToStartingExe = PathUtilities.SanitizedPath(Environment.CommandLine);
+
+                if (!s.HasExplicitValue("NServiceBus.HostInformation.HostId"))
+                {
+                    s.SetDefault("NServiceBus.HostInformation.HostId", DeterministicGuid.Create(fullPathToStartingExe, RuntimeEnvironment.MachineName));
+                }
                 s.SetDefault("NServiceBus.HostInformation.DisplayName", RuntimeEnvironment.MachineName);
                 s.SetDefault("NServiceBus.HostInformation.Properties", new Dictionary<string, string>
                 {
@@ -70,15 +74,6 @@ namespace NServiceBus.Features
             }
 
             SetTransportThresholds(context);
-        }
-
-        static Guid GenerateDefaultHostId(out string fullPathToStartingExe)
-        {
-            var gen = new DefaultHostIdGenerator(Environment.CommandLine, RuntimeEnvironment.MachineName);
-
-            fullPathToStartingExe = gen.FullPathToStartingExe;
-
-            return gen.HostId;
         }
 
         void SetTransportThresholds(FeatureConfigurationContext context)

@@ -153,7 +153,6 @@
     <Compile Include="Features\FeatureSettingsTests.cs" />
     <Compile Include="Features\FeatureStartupTests.cs" />
     <Compile Include="Features\FeatureTests.cs" />
-    <Compile Include="Hosting\When_creating_host_information_from_environment.cs" />
     <Compile Include="Logging\RollingLoggerTests.cs" />
     <Compile Include="Outbox\OutboxRecordBehaviorTests.cs" />
     <Compile Include="Persistence\InMemory\AnotherSagaWithTwoUniquePropertiesData.cs" />
@@ -260,6 +259,7 @@
     <Compile Include="Unicast\ConfigurationSettings.cs" />
     <Compile Include="Unicast\ConfiguringMessageEndpointMapping.cs" />
     <Compile Include="Unicast\Config\ConfigurationSettings.cs" />
+    <Compile Include="Unicast\Config\PathUtilities_Tests.cs" />
     <Compile Include="Unicast\Contexts\CommandMessage.cs" />
     <Compile Include="Unicast\Contexts\CommandWithDataBusPropertyMessage.cs" />
     <Compile Include="Unicast\Contexts\EventMessage.cs" />
