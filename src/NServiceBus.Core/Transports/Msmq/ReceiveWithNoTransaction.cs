@@ -3,13 +3,14 @@ namespace NServiceBus.Transports.Msmq
     using System;
     using System.Collections.Generic;
     using System.Messaging;
+    using System.Threading.Tasks;
     using NServiceBus.Extensibility;
     using NServiceBus.Logging;
     using NServiceBus.Transports;
 
     class ReceiveWithNoTransaction : ReceiveStrategy
     {
-        public override void ReceiveMessage(MessageQueue inputQueue, MessageQueue errorQueue, Action<PushContext> onMessage)
+        public override async Task ReceiveMessage(MessageQueue inputQueue, MessageQueue errorQueue, Func<PushContext, Task> onMessage)
         {
 
             var message = inputQueue.Receive(TimeSpan.FromMilliseconds(10), MessageQueueTransactionType.None);
@@ -33,8 +34,8 @@ namespace NServiceBus.Transports.Msmq
             using (var bodyStream = message.BodyStream)
             {
                 var incomingMessage = new IncomingMessage(message.Id, headers, bodyStream);
-            
-                onMessage(new PushContext(incomingMessage,  new ContextBag()));
+
+                await onMessage(new PushContext(incomingMessage, new ContextBag())).ConfigureAwait(false);
             }
         }
 

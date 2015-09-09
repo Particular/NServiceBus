@@ -3,12 +3,13 @@ namespace NServiceBus.Transports.Msmq
     using System;
     using System.Collections.Generic;
     using System.Messaging;
+    using System.Threading.Tasks;
     using NServiceBus.Extensibility;
     using NServiceBus.Logging;
 
     class ReceiveWithNativeTransaction : ReceiveStrategy
     {
-        public override void ReceiveMessage(MessageQueue inputQueue, MessageQueue errorQueue, Action<PushContext> onMessage)
+        public override async Task ReceiveMessage(MessageQueue inputQueue, MessageQueue errorQueue, Func<PushContext, Task> onMessage)
         {
             using (var msmqTransaction = new MessageQueueTransaction())
             {
@@ -42,7 +43,7 @@ namespace NServiceBus.Transports.Msmq
 
                         context.Set(msmqTransaction);
 
-                        onMessage(new PushContext(incomingMessage, context));
+                        await onMessage(new PushContext(incomingMessage, context)).ConfigureAwait(false);
                     }
 
                     msmqTransaction.Commit();

@@ -3,6 +3,7 @@ namespace NServiceBus.Transports.Msmq
     using System;
     using System.Collections.Generic;
     using System.Messaging;
+    using System.Threading.Tasks;
     using System.Transactions;
     using NServiceBus.Extensibility;
     using NServiceBus.Logging;
@@ -15,7 +16,7 @@ namespace NServiceBus.Transports.Msmq
             this.transactionOptions = transactionOptions;
         }
 
-        public override void ReceiveMessage(MessageQueue inputQueue, MessageQueue errorQueue, Action<PushContext> onMessage)
+        public override async Task ReceiveMessage(MessageQueue inputQueue, MessageQueue errorQueue, Func<PushContext, Task> onMessage)
         {
             using (var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions, TransactionScopeAsyncFlowOption.Enabled))
             {
@@ -42,7 +43,7 @@ namespace NServiceBus.Transports.Msmq
                 {
                     var incomingMessage = new IncomingMessage(message.Id, headers, bodyStream);
 
-                    onMessage(new PushContext(incomingMessage, new ContextBag()));
+                    await onMessage(new PushContext(incomingMessage, new ContextBag())).ConfigureAwait(false);
                 }
 
                 scope.Complete();
