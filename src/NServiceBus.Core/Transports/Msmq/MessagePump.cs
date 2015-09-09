@@ -70,19 +70,9 @@ namespace NServiceBus
             }
             cancellationTokenSource = new CancellationTokenSource();
 
-            messagePumpTask = Task.Factory.StartNew(_ => { ProcessMessages(); }, cancellationTokenSource.Token)
-                      .ContinueWith(t =>
-                         {
-                             Logger.Error("MSMQ Message pump failed", t.Exception);
-
-                             if (!cancellationTokenSource.IsCancellationRequested)
-                             {
-                                 ProcessMessages();
-                             }
-                         }, TaskContinuationOptions.OnlyOnFaulted);
+            cancellationToken = cancellationTokenSource.Token;
+            messagePumpTask = Task.Factory.StartNew(ProcessMessages, cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Current);
         }
-
-
 
         /// <summary>
         ///     Stops the dequeuing of messages.
@@ -124,9 +114,26 @@ namespace NServiceBus
         [DebuggerNonUserCode]
         void ProcessMessages()
         {
+            try
+            {
+                InnerProcessMessages();
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("MSMQ Message pump failed", ex);
+                peekCircuitBreaker.Failure(ex);
+            }
+
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                ProcessMessages();
+            }
+        }
+
+        void InnerProcessMessages()
+        {
             using (var enumerator = inputQueue.GetMessageEnumerator2())
             {
-
                 while (!cancellationTokenSource.IsCancellationRequested)
                 {
                     try
@@ -141,6 +148,7 @@ namespace NServiceBus
                     }
                     catch (Exception ex)
                     {
+                        Logger.Warn("MSMQ receive operation failed", ex);
                         peekCircuitBreaker.Failure(ex);
                         continue;
                     }
@@ -162,22 +170,23 @@ namespace NServiceBus
                         {
                             //expected to happen
                         }
-                        catch (MessageQueueException messageQueueException)
+                        catch (MessageQueueException ex)
                         {
-                            if (messageQueueException.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
+                            if (ex.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
                             {
                                 //We should only get an IOTimeout exception here if another process removed the message between us peeking and now.
                                 return;
                             }
 
-                            throw;
+                            Logger.Warn("MSMQ receive operation failed", ex);
+                            receiveCircuitBreaker.Failure(ex);
                         }
                         catch (Exception ex)
                         {
                             Logger.Warn("MSMQ receive operation failed", ex);
                             receiveCircuitBreaker.Failure(ex);
                         }
-                    }, cancellationTokenSource.Token, TaskCreationOptions.AttachedToParent, scheduler);
+                    }, cancellationToken, TaskCreationOptions.AttachedToParent | TaskCreationOptions.HideScheduler, scheduler);
                 }
             }
         }
@@ -221,6 +230,7 @@ namespace NServiceBus
         Task messagePumpTask;
         TaskScheduler scheduler;
         CancellationTokenSource cancellationTokenSource;
+        CancellationToken cancellationToken;
         Func<PushContext, Task> pipeline;
         ReceiveStrategy receiveStrategy;
         CriticalError criticalError;
