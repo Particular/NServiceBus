@@ -36,18 +36,6 @@ namespace NServiceBus
                 : base("HandlerTransactionScopeWrapper", typeof(HandlerTransactionScopeWrapperBehavior), "Makes sure that the handlers gets wrapped in a transaction scope")
             {
                 InsertBeforeIfExists(WellKnownStep.InvokeHandlers);
-
-                ContainerRegistration((builder, settings) =>
-                {
-                    var transactionOptions = new TransactionOptions
-                    {
-                        IsolationLevel = settings.Get<IsolationLevel>("Transactions.IsolationLevel"),
-                        Timeout = settings.Get<TimeSpan>("Transactions.DefaultTimeout")
-                    };
-
-
-                    return new HandlerTransactionScopeWrapperBehavior(transactionOptions);
-                });
             }
         }
     }

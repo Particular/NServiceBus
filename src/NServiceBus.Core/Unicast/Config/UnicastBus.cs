@@ -7,7 +7,6 @@ namespace NServiceBus.Features
     using NServiceBus.Pipeline;
     using NServiceBus.Unicast;
     using NServiceBus.Unicast.Messages;
-    using NServiceBus.Unicast.Transport;
 
     class UnicastBus : Feature
     {
@@ -37,17 +36,6 @@ namespace NServiceBus.Features
             }
 
             HardcodedPipelineSteps.RegisterIncomingCoreBehaviors(context.Pipeline);
-
-            var transactionSettings = new TransactionSettings(context.Settings);
-
-            if (transactionSettings.DoNotWrapHandlersExecutionInATransactionScope)
-            {
-                context.Pipeline.Register<SuppressAmbientTransactionBehavior.Registration>();
-            }
-            else
-            {
-                context.Pipeline.Register<HandlerTransactionScopeWrapperBehavior.Registration>();
-            }
         }
 
         static void ConfigureMessageRegistry(FeatureConfigurationContext context, IEnumerable<Type> knownMessages)

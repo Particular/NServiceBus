@@ -2865,7 +2865,11 @@ namespace NServiceBus.Unicast.Transport
     }
     public class TransactionSettings
     {
+        [System.ObsoleteAttribute("No longer used. Will be removed in version 7.0.0.", true)]
         public TransactionSettings(bool isTransactional, System.TimeSpan transactionTimeout, System.Transactions.IsolationLevel isolationLevel, bool suppressDistributedTransactions, bool doNotWrapHandlersExecutionInATransactionScope) { }
+        [System.ObsoleteAttribute("DoNotWrapHandlersExecutionInATransactionScope is no longer used here. Please use " +
+            "settings.GetOrDefault<bool>(\'Transactions.DoNotWrapHandlersExecutionInATransacti" +
+            "onScope\') instead. Will be removed in version 7.0.0.", true)]
         public bool DoNotWrapHandlersExecutionInATransactionScope { get; set; }
         public System.Transactions.IsolationLevel IsolationLevel { get; set; }
         public bool IsTransactional { get; set; }
