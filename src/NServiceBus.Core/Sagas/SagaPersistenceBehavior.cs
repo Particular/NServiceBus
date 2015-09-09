@@ -96,7 +96,7 @@
             {
                 if (!sagaInstanceState.IsNew)
                 {
-                    sagaPersister.Complete(saga.Entity, sagaPersistenceOptions);
+                    sagaPersister.Complete(saga.Entity, sagaPersistenceOptions).GetAwaiter().GetResult();
                 }
 
                 if (saga.Entity.Id != Guid.Empty)
@@ -110,11 +110,11 @@
             {
                 if (sagaInstanceState.IsNew)
                 {
-                    sagaPersister.Save(saga.Entity, sagaPersistenceOptions);
+                    sagaPersister.Save(saga.Entity, sagaPersistenceOptions).GetAwaiter().GetResult();
                 }
                 else
                 {
-                    sagaPersister.Update(saga.Entity, sagaPersistenceOptions);
+                    sagaPersister.Update(saga.Entity, sagaPersistenceOptions).GetAwaiter().GetResult();
                 }
             }
         }

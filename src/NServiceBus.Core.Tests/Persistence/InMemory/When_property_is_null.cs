@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.Saga;
     using NUnit.Framework;
 
@@ -8,7 +9,7 @@
     class When_mapping_to_a_null_property_value
     {
         [Test]
-        public void Should_retrieve_saga_with_null()
+        public async Task Should_retrieve_saga_with_null()
         {
             var sagaId = Guid.NewGuid();
             var saga = new SagaData
@@ -20,10 +21,13 @@
             var persister = InMemoryPersisterBuilder.Build<Saga>();
             var options = new SagaPersistenceOptions(SagaMetadata.Create(typeof(Saga)));
 
-            persister.Save(saga, options);
+            await persister.Save(saga, options);
 
-            Assert.AreEqual(sagaId, persister.Get<SagaData>("Property", null, options).Id);
-            Assert.IsNull(persister.Get<SagaData>("Property", "a value", options));
+            var sagaData = await persister.Get<SagaData>("Property", null, options);
+            var sagaDataWithPropertyValue = await persister.Get<SagaData>("Property", "a value", options);
+
+            Assert.AreEqual(sagaId, sagaData.Id);
+            Assert.IsNull(sagaDataWithPropertyValue);
         }
 
         class Saga : Saga<SagaData>

@@ -24,10 +24,10 @@ namespace NServiceBus.Saga
 
             if (sagaPropertyName.ToLower() == "id")
             {
-                return sagaPersister.Get<TSagaData>((Guid)propertyValue, options);
+                return sagaPersister.Get<TSagaData>((Guid)propertyValue, options).GetAwaiter().GetResult();
             }
 
-            return sagaPersister.Get<TSagaData>(sagaPropertyName, propertyValue, options);
+            return sagaPersister.Get<TSagaData>(sagaPropertyName, propertyValue, options).GetAwaiter().GetResult();
         }
     }
 }

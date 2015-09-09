@@ -8,7 +8,7 @@ namespace NServiceBus.Saga
     {
         public IContainSagaData Load(ISagaPersister persister, string sagaId, SagaPersistenceOptions options)
         {
-            return persister.Get<T>(Guid.Parse(sagaId), options);
+            return persister.Get<T>(Guid.Parse(sagaId), options).GetAwaiter().GetResult();
         }
     }
 

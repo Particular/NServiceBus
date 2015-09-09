@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.Saga;
     using NUnit.Framework;
 
@@ -16,23 +17,23 @@
         }
 
         [Test]
-        public void Should_return_default_when_using_finding_saga_with_property()
+        public async Task Should_return_default_when_using_finding_saga_with_property()
         {
             var persister = InMemoryPersisterBuilder.Build<SimpleSagaEntitySaga>();
-            var simpleSageEntity = persister.Get<SimpleSagaEntity>("propertyNotFound", null, options);
+            var simpleSageEntity = await persister.Get<SimpleSagaEntity>("propertyNotFound", null, options);
             Assert.IsNull(simpleSageEntity);
         }
 
         [Test]
-        public void Should_return_default_when_using_finding_saga_with_id()
+        public async Task Should_return_default_when_using_finding_saga_with_id()
         {
             var persister = InMemoryPersisterBuilder.Build<SimpleSagaEntitySaga>();
-            var simpleSageEntity = persister.Get<SimpleSagaEntity>(Guid.Empty, options);
+            var simpleSageEntity = await persister.Get<SimpleSagaEntity>(Guid.Empty, options);
             Assert.IsNull(simpleSageEntity);
         }
 
         [Test]
-        public void Should_return_default_when_using_finding_saga_with_id_of_another_type()
+        public async Task Should_return_default_when_using_finding_saga_with_id_of_another_type()
         {
             var id = Guid.NewGuid();
             var simpleSagaEntity = new SimpleSagaEntity
@@ -41,9 +42,9 @@
                 OrderSource = "CA"
             };
             var persister = InMemoryPersisterBuilder.Build<SimpleSagaEntitySaga>();
-            persister.Save(simpleSagaEntity, options);
+            await persister.Save(simpleSagaEntity, options);
 
-            var anotherSagaEntity = persister.Get<AnotherSimpleSagaEntity>(id, options);
+            var anotherSagaEntity = await persister.Get<AnotherSimpleSagaEntity>(id, options);
             Assert.IsNull(anotherSagaEntity);
         }
     }

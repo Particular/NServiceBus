@@ -17,58 +17,58 @@
         }
 
         [Test]
-        public void Persister_returns_different_instance_of_saga_data()
+        public async Task Persister_returns_different_instance_of_saga_data()
         {
             var saga = new TestSagaData { Id = Guid.NewGuid() };
             var persister = InMemoryPersisterBuilder.Build<TestSaga>();
-            persister.Save(saga, options);
+            await persister.Save(saga, options);
 
-            var returnedSaga1 = persister.Get<TestSagaData>(saga.Id, options);
-            var returnedSaga2 = persister.Get<TestSagaData>("Id", saga.Id, options);
+            var returnedSaga1 = await persister.Get<TestSagaData>(saga.Id, options);
+            var returnedSaga2 = await persister.Get<TestSagaData>("Id", saga.Id, options);
             Assert.AreNotSame(returnedSaga2, returnedSaga1);
             Assert.AreNotSame(returnedSaga1, saga);
             Assert.AreNotSame(returnedSaga2, saga);
         }
 
         [Test]
-        public void Save_fails_when_data_changes_between_read_and_update()
+        public async Task Save_fails_when_data_changes_between_read_and_update()
         {
             var saga = new TestSagaData { Id = Guid.NewGuid() };
             var persister = InMemoryPersisterBuilder.Build<TestSaga>();
-            persister.Save(saga, options);
+            await persister.Save(saga, options);
 
-            var returnedSaga1 = Task<TestSagaData>.Factory.StartNew(() => persister.Get<TestSagaData>(saga.Id, options)).Result;
-            var returnedSaga2 = persister.Get<TestSagaData>("Id", saga.Id, options);
+            var returnedSaga1 = await Task.Run(() => persister.Get<TestSagaData>(saga.Id, options));
+            var returnedSaga2 = await persister.Get<TestSagaData>("Id", saga.Id, options);
 
-            persister.Save(returnedSaga1, options);
+            await persister.Save(returnedSaga1, options);
             var exception = Assert.Throws<Exception>(() => persister.Save(returnedSaga2, options));
             Assert.IsTrue(exception.Message.StartsWith(string.Format("InMemorySagaPersister concurrency violation: saga entity Id[{0}] already saved.", saga.Id)));
         }
 
         [Test]
-        public void Save_fails_when_data_changes_between_read_and_update_on_same_thread()
+        public async Task Save_fails_when_data_changes_between_read_and_update_on_same_thread()
         {
             var saga = new TestSagaData { Id = Guid.NewGuid() };
             var persister = InMemoryPersisterBuilder.Build<TestSaga>();
-            persister.Save(saga, options);
+            await persister.Save(saga, options);
 
-            var record = persister.Get<TestSagaData>(saga.Id, options);
-            var staleRecord = persister.Get<TestSagaData>("Id", saga.Id, options);
+            var record = await persister.Get<TestSagaData>(saga.Id, options);
+            var staleRecord = await persister.Get<TestSagaData>("Id", saga.Id, options);
 
-            persister.Save(record, options);
+            await persister.Save(record, options);
             var exception = Assert.Throws<Exception>(() => persister.Save(staleRecord, options));
             Assert.IsTrue(exception.Message.StartsWith(string.Format("InMemorySagaPersister concurrency violation: saga entity Id[{0}] already saved.", saga.Id)));
         }
 
         [Test]
-        public void Save_fails_when_writing_same_data_twice()
+        public async Task Save_fails_when_writing_same_data_twice()
         {
             var saga = new TestSagaData { Id = Guid.NewGuid() };
             var persister = InMemoryPersisterBuilder.Build<TestSaga>();
-            persister.Save(saga, options);
+            await persister.Save(saga, options);
 
-            var returnedSaga1 = persister.Get<TestSagaData>(saga.Id, options);
-            persister.Save(returnedSaga1, options);
+            var returnedSaga1 = await persister.Get<TestSagaData>(saga.Id, options);
+            await persister.Save(returnedSaga1, options);
 
             var exception = Assert.Throws<Exception>(() => persister.Save(returnedSaga1, options));
 
@@ -76,23 +76,23 @@
         }
 
         [Test]
-        public void Save_process_is_repeatable()
+        public async Task Save_process_is_repeatable()
         {
             var saga = new TestSagaData { Id = Guid.NewGuid() };
             var persister = InMemoryPersisterBuilder.Build<TestSaga>();
-            persister.Save(saga, options);
+            await persister.Save(saga, options);
 
-            var returnedSaga1 = Task<TestSagaData>.Factory.StartNew(() => persister.Get<TestSagaData>(saga.Id, options)).Result;
-            var returnedSaga2 = persister.Get<TestSagaData>("Id", saga.Id, options);
+            var returnedSaga1 = await Task.Run(() => persister.Get<TestSagaData>(saga.Id, options));
+            var returnedSaga2 = await persister.Get<TestSagaData>("Id", saga.Id, options);
 
-            persister.Save(returnedSaga1, options);
+            await persister.Save(returnedSaga1, options);
             var exceptionFromSaga2 = Assert.Throws<Exception>(() => persister.Save(returnedSaga2, options));
             Assert.IsTrue(exceptionFromSaga2.Message.StartsWith(string.Format("InMemorySagaPersister concurrency violation: saga entity Id[{0}] already saved.", saga.Id)));
 
-            var returnedSaga3 = Task<TestSagaData>.Factory.StartNew(() => persister.Get<TestSagaData>("Id", saga.Id, options)).Result;
-            var returnedSaga4 = persister.Get<TestSagaData>(saga.Id, options);
+            var returnedSaga3 = await Task.Run(() => persister.Get<TestSagaData>("Id", saga.Id, options));
+            var returnedSaga4 = await persister.Get<TestSagaData>(saga.Id, options);
 
-            persister.Save(returnedSaga4, options);
+            await persister.Save(returnedSaga4, options);
 
             var exceptionFromSaga3 = Assert.Throws<Exception>(() => persister.Save(returnedSaga3, options));
             Assert.IsTrue(exceptionFromSaga3.Message.StartsWith(string.Format("InMemorySagaPersister concurrency violation: saga entity Id[{0}] already saved.", saga.Id)));

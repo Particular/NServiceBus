@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.Saga;
     using NUnit.Framework;
     
@@ -16,15 +17,18 @@
         }
 
         [Test]
-        public void Should_delete_the_saga()
+        public async Task Should_delete_the_saga()
         {
             var saga = new SagaWithUniquePropertyData { Id = Guid.NewGuid(), UniqueString = "whatever" };
 
             var persister = InMemoryPersisterBuilder.Build<SagaWithUniqueProperty>();
-            persister.Save(saga, options);
-            Assert.NotNull(persister.Get<SagaWithUniquePropertyData>(saga.Id, options));
-            persister.Complete(saga, options);
-            Assert.Null(persister.Get<SagaWithUniquePropertyData>(saga.Id, options));
+            await persister.Save(saga, options);
+            var sagaData = await persister.Get<SagaWithUniquePropertyData>(saga.Id, options);
+            await persister.Complete(saga, options);
+            var completedSagaData = await persister.Get<SagaWithUniquePropertyData>(saga.Id, options);
+
+            Assert.NotNull(sagaData);
+            Assert.Null(completedSagaData);
         }
     }
 }
