@@ -25,11 +25,9 @@ namespace NServiceBus.Config
             }
         }
 
-
         int IComparable<RijndaelExpiredKey>.CompareTo(RijndaelExpiredKey other)
         {
             return String.Compare(Key, other.Key, StringComparison.Ordinal);
         }
-
     }
 }

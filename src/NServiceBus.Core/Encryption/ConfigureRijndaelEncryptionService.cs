@@ -40,7 +40,7 @@ namespace NServiceBus
                 throw new Exception("The RijndaelEncryptionServiceConfig has an empty a 'Key' property.");
             }
             var expiredKeys = ExtractExpiredKeysFromConfigSection(section);
-            return BuildRijndaelEncryptionService(section.Key, expiredKeys);
+            return BuildRijndaelEncryptionService(section.Key, expiredKeys, section.KeyFormat);
         }
 
         internal static List<string> ExtractExpiredKeysFromConfigSection(RijndaelEncryptionServiceConfig section)
@@ -88,7 +88,7 @@ namespace NServiceBus
                 VerifyKeys(expiredKeys);
             }
 
-            RegisterEncryptionService(config, context => BuildRijndaelEncryptionService(encryptionKey, expiredKeys));
+            RegisterEncryptionService(config, context => BuildRijndaelEncryptionService(encryptionKey, expiredKeys, KeyFormat.Ascii));
         }
 
         internal static void VerifyKeys(List<string> expiredKeys)
@@ -107,11 +107,11 @@ namespace NServiceBus
             }
         }
 
-        static IEncryptionService BuildRijndaelEncryptionService(string encryptionKey, List<string> expiredKeys)
+        static IEncryptionService BuildRijndaelEncryptionService(string encryptionKey, List<string> expiredKeys, KeyFormat keyFormat)
         {
             return BuildRijndaelEncryptionService(
-                Encoding.ASCII.GetBytes(encryptionKey),
-                expiredKeys.Select(x => Encoding.ASCII.GetBytes(x)).ToList()
+                ParseKey(encryptionKey, keyFormat),
+                expiredKeys.Select(x => ParseKey(x, keyFormat)).ToList()
                 );
         }
 
@@ -131,6 +131,18 @@ namespace NServiceBus
         internal static bool GetEncryptionServiceConstructor(this ReadOnlySettings settings, out Func<IBuilder, IEncryptionService> func)
         {
             return settings.TryGet("EncryptionServiceConstructor", out func);
+        }
+
+        static byte[] ParseKey(string key, KeyFormat keyFormat)
+        {
+            switch (keyFormat)
+            {
+                case KeyFormat.Ascii:
+                    return Encoding.ASCII.GetBytes(key);
+                case KeyFormat.Base64:
+                    return Convert.FromBase64String(key);
+            }
+            throw new NotSupportedException("Unsupported KeyFormat");
         }
     }
 }

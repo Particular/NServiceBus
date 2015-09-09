@@ -39,5 +39,22 @@ namespace NServiceBus.Config
             }
         }
 
+
+        /// <summary>
+        /// The data format in which the key is stored.
+        /// </summary>
+        [ConfigurationProperty("KeyFormat", IsRequired = false)]
+        public KeyFormat KeyFormat
+        {
+            get
+            {
+                return (KeyFormat)this["KeyFormat"];
+            }
+            set
+            {
+                this["KeyFormat"] = value;
+            }
+        }
+
     }
 }
