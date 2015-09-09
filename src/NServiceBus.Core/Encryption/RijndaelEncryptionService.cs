@@ -45,36 +45,11 @@ namespace NServiceBus.Encryption.Rijndael
             VerifyEncryptionKey(this.encryptionKey);
             var expiredKeyBytes = expiredKeys.Select(key => Encoding.ASCII.GetBytes(key)).ToList();
             VerifyExpiredKeys(expiredKeyBytes);
-            VerifyKeysAreNotTooSimilar(expiredKeyBytes);
 
             decryptionKeys = new List<byte[]>{this.encryptionKey};
             decryptionKeys.AddRange(expiredKeyBytes);
 
         }
-
-        void VerifyKeysAreNotTooSimilar(List<byte[]> expiredKeyBytes)
-        {
-            for (var index = 0; index < expiredKeyBytes.Count; index++)
-            {
-                var decryption = expiredKeyBytes[index];
-                CryptographicException exception = null;
-                var encryptedValue = Encrypt("a");
-                try
-                {
-                    Decrypt(encryptedValue, decryption);
-                }
-                catch (CryptographicException cryptographicException)
-                {
-                    exception = cryptographicException;
-                }
-                if (exception == null)
-                {
-                    var message = string.Format("The new Encryption Key is too similar to the Expired Key at index {0}. This can cause issues when decrypting data. To fix this issue please ensure the new encryption key is not too similar to the existing Expired Keys.", index);
-                    throw new Exception(message);
-                }
-            }
-        }
-
 
         public string Decrypt(EncryptedValue encryptedValue)
         {
