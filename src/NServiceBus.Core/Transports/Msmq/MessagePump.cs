@@ -1,6 +1,7 @@
 namespace NServiceBus.Transports.Msmq
 {
     using System;
+    using System.Diagnostics;
     using System.Messaging;
     using System.Threading;
     using System.Threading.Tasks;
@@ -119,6 +120,7 @@ namespace NServiceBus.Transports.Msmq
             // Injected
         }
 
+        [DebuggerNonUserCode]
         void ProcessMessages()
         {
             using (var enumerator = inputQueue.GetMessageEnumerator2())
@@ -129,7 +131,7 @@ namespace NServiceBus.Transports.Msmq
                     try
                     {
                         //note: .Peek will throw an ex if no message is available. It also turns out that .MoveNext is faster since message isn't read
-                        if (!enumerator.MoveNext(TimeSpan.FromSeconds(2)))
+                        if (!enumerator.MoveNext(TimeSpan.FromMilliseconds(10)))
                         {
                             continue;
                         }
@@ -140,6 +142,11 @@ namespace NServiceBus.Transports.Msmq
                     {
                         peekCircuitBreaker.Failure(ex);
                         continue;
+                    }
+
+                    if (cancellationTokenSource.IsCancellationRequested)
+                    {
+                        return;
                     }
 
                     Task.Factory.StartNew(() =>

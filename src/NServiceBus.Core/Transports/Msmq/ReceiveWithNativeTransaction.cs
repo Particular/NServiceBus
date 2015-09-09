@@ -16,7 +16,7 @@ namespace NServiceBus.Transports.Msmq
                 {
                     msmqTransaction.Begin();
 
-                    var message = inputQueue.Receive(TimeSpan.FromSeconds(1), msmqTransaction);
+                    var message = inputQueue.Receive(TimeSpan.FromMilliseconds(10), msmqTransaction);
 
                     Dictionary<string, string> headers;
 

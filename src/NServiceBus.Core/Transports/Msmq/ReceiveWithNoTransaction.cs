@@ -12,7 +12,7 @@ namespace NServiceBus.Transports.Msmq
         public override void ReceiveMessage(MessageQueue inputQueue, MessageQueue errorQueue, Action<PushContext> onMessage)
         {
 
-            var message = inputQueue.Receive(TimeSpan.FromSeconds(1), MessageQueueTransactionType.None);
+            var message = inputQueue.Receive(TimeSpan.FromMilliseconds(10), MessageQueueTransactionType.None);
 
             Dictionary<string, string> headers;
 

@@ -19,7 +19,7 @@ namespace NServiceBus.Transports.Msmq
         {
             using (var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions, TransactionScopeAsyncFlowOption.Enabled))
             {
-                var message = inputQueue.Receive(TimeSpan.FromSeconds(1), MessageQueueTransactionType.Automatic);
+                var message = inputQueue.Receive(TimeSpan.FromMilliseconds(10), MessageQueueTransactionType.Automatic);
 
                 Dictionary<string, string> headers;
 
