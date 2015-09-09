@@ -4,45 +4,46 @@
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using NServiceBus.Outbox;
 
     class InMemoryOutboxStorage : IOutboxStorage
     {
-        public bool TryGet(string messageId, OutboxStorageOptions options, out OutboxMessage message)
+        public Task<OutboxMessage> Get(string messageId, OutboxStorageOptions options)
         {
             StoredMessage storedMessage;
-            message = null;
-
             if (!storage.TryGetValue(messageId, out storedMessage))
             {
-                return false;
+                return Task.FromResult(default(OutboxMessage));
             }
 
-            message = new OutboxMessage(messageId);
+            var message = new OutboxMessage(messageId);
             message.TransportOperations.AddRange(storedMessage.TransportOperations);
-
-            return true;
+            return Task.FromResult(message);
         }
 
-        public void Store(string messageId, IEnumerable<TransportOperation> transportOperations, OutboxStorageOptions options)
+        public Task Store(OutboxMessage message, OutboxStorageOptions options)
         {
-            if (!storage.TryAdd(messageId, new StoredMessage(messageId, transportOperations.ToList())))
+            if (!storage.TryAdd(message.MessageId, new StoredMessage(message.MessageId, message.TransportOperations)))
             {
-                throw new Exception(string.Format("Outbox message with id '{0}' is already present in storage.", messageId));
+                throw new Exception(string.Format("Outbox message with id '{0}' is already present in storage.", message.MessageId));
             }
+            return Task.FromResult(0);
         }
 
-        public void SetAsDispatched(string messageId, OutboxStorageOptions options)
+        public Task SetAsDispatched(string messageId, OutboxStorageOptions options)
         {
             StoredMessage storedMessage;
 
             if (!storage.TryGetValue(messageId, out storedMessage))
             {
-                return;
+                return Task.FromResult(0);
             }
 
             storedMessage.TransportOperations.Clear();
             storedMessage.Dispatched = true;
+
+            return Task.FromResult(0);
         }
 
         ConcurrentDictionary<string, StoredMessage> storage = new ConcurrentDictionary<string, StoredMessage>();

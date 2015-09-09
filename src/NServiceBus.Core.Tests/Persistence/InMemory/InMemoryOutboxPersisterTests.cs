@@ -1,8 +1,8 @@
 ﻿namespace NServiceBus.Persistence.InMemory.Tests
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using NServiceBus.Extensibility;
     using NServiceBus.InMemory.Outbox;
     using NUnit.Framework;
@@ -11,46 +11,42 @@
     [TestFixture]
     class InMemoryOutboxPersisterTests
     {
-    
         [Test]
-        public void Should_clear_operations_on_dispatched_messages()
+        public async Task Should_clear_operations_on_dispatched_messages()
         {
             var storage = new InMemoryOutboxStorage();
 
             var messageId = "myId";
     
-            storage.Store(messageId,new List<TransportOperation>{new TransportOperation("x",null,null,null)}, new OutboxStorageOptions(new ContextBag()));
+            var messageToStore = new OutboxMessage(messageId);
+            messageToStore.TransportOperations.Add(new TransportOperation("x", null, null, null));
+            await storage.Store(messageToStore, new OutboxStorageOptions(new ContextBag()));
+            await storage.SetAsDispatched(messageId, new OutboxStorageOptions(new ContextBag()));
 
-            OutboxMessage message;
-
-            storage.SetAsDispatched(messageId, new OutboxStorageOptions(new ContextBag()));
-
-            storage.TryGet(messageId, new OutboxStorageOptions(new ContextBag()), out message);
-
+            var message = await storage.Get(messageId, new OutboxStorageOptions(new ContextBag()));
 
             Assert.False(message.TransportOperations.Any());
         }
 
-
         [Test]
-        public void Should_not_remove_non_dispatched_messages()
+        public async Task Should_not_remove_non_dispatched_messages()
         {
             var storage = new InMemoryOutboxStorage();
 
             var messageId = "myId";
 
-            storage.Store(messageId, new List<TransportOperation> { new TransportOperation("x", null, null, null) }, new OutboxStorageOptions(new ContextBag()));
-
-            OutboxMessage message;
+            var messageToStore = new OutboxMessage(messageId);
+            messageToStore.TransportOperations.Add(new TransportOperation("x", null, null, null));
+            await storage.Store(messageToStore, new OutboxStorageOptions(new ContextBag()));
 
             storage.RemoveEntriesOlderThan(DateTime.UtcNow);
 
-            Assert.True(storage.TryGet(messageId, new OutboxStorageOptions(new ContextBag()), out message));
+            var message = await storage.Get(messageId, new OutboxStorageOptions(new ContextBag()));
+            Assert.NotNull(message);
         }
 
-
         [Test]
-        public void Should_clear_dispatched_messages_after_given_expiry()
+        public async Task Should_clear_dispatched_messages_after_given_expiry()
         {
             var storage = new InMemoryOutboxStorage();
 
@@ -58,19 +54,21 @@
 
             var beforeStore = DateTime.UtcNow;
 
-            storage.Store(messageId, new List<TransportOperation> { new TransportOperation("x", null, null, null) }, new OutboxStorageOptions(new ContextBag()));
+            var messageToStore = new OutboxMessage(messageId);
+            messageToStore.TransportOperations.Add(new TransportOperation("x", null, null, null));
+            await storage.Store(messageToStore, new OutboxStorageOptions(new ContextBag()));
 
-            OutboxMessage message;
-
-            storage.SetAsDispatched(messageId, new OutboxStorageOptions(new ContextBag()));
+            await storage.SetAsDispatched(messageId, new OutboxStorageOptions(new ContextBag()));
 
             storage.RemoveEntriesOlderThan(beforeStore);
-            
-            Assert.True(storage.TryGet(messageId, new OutboxStorageOptions(new ContextBag()), out message));
+
+            var message = await storage.Get(messageId, new OutboxStorageOptions(new ContextBag()));
+            Assert.NotNull(message);
 
             storage.RemoveEntriesOlderThan(DateTime.UtcNow);
 
-            Assert.False(storage.TryGet(messageId, new OutboxStorageOptions(new ContextBag()), out message));
+            message = await storage.Get(messageId, new OutboxStorageOptions(new ContextBag()));
+            Assert.Null(message);
         }
     }
 }
