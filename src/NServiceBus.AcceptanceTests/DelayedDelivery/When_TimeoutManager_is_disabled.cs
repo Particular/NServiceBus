@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.DelayedDelivery
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Features;
@@ -9,11 +10,9 @@
     public class When_TimeoutManager_is_disabled : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Bus_Defer_should_throw()
+        public async Task Bus_Defer_should_throw()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>()
                     .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
                     {
                         var options = new SendOptions();
@@ -21,6 +20,7 @@
                         options.RouteToLocalEndpointInstance();
 
                         bus.Send(new MyMessage(), options);
+                        return Task.FromResult(0);
                     }))
                     .Done(c => c.ExceptionThrown || c.SecondMessageReceived)
                     .Run();
