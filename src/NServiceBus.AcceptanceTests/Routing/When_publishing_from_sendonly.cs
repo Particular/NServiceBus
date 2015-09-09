@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
@@ -90,23 +91,32 @@
 
         public class HardcodedSubscriptionQuery : IQuerySubscriptions
         {
-            public IEnumerable<string> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes)
+            Task<IEnumerable<string>> addressTask;
+
+            public HardcodedSubscriptionQuery()
             {
-                return new[]
+                addressTask = Task.FromResult(new[]
                 {
                     "publishingfromsendonly.subscriber"
-                };
+                }.AsEnumerable());
+            }
+
+            public Task<IEnumerable<string>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes)
+            {
+                return addressTask;
             }
         }
 
         public class NoOpSubscriptionManager : ISubscriptionStorage
         {
-            public void Subscribe(string client, IEnumerable<MessageType> messageTypes, SubscriptionStorageOptions options)
+            public Task Subscribe(string client, IEnumerable<MessageType> messageTypes, SubscriptionStorageOptions options)
             {
+                return Task.FromResult(0);
             }
 
-            public void Unsubscribe(string client, IEnumerable<MessageType> messageTypes, SubscriptionStorageOptions options)
+            public Task Unsubscribe(string client, IEnumerable<MessageType> messageTypes, SubscriptionStorageOptions options)
             {
+                return Task.FromResult(0);
             }
         }
     }

@@ -68,7 +68,7 @@
                 subscriptionStorage.Subscribe(transportMessage.ReplyToAddress, new[]
                 {
                     mt
-                }, options);
+                }, options).GetAwaiter().GetResult();
 
                 return;
             }
@@ -77,7 +77,7 @@
             subscriptionStorage.Unsubscribe(subscriberAddress, new[]
             {
                 new MessageType(messageTypeString)
-            }, options);
+            }, options).GetAwaiter().GetResult();
         }
 
 
