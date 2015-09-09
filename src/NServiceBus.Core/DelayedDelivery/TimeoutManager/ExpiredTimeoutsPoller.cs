@@ -27,14 +27,17 @@ namespace NServiceBus.DelayedDelivery.TimeoutManager
         {
             tokenSource = new CancellationTokenSource();
 
-            StartPoller();
+            var token = tokenSource.Token;
+
+            timeoutPollerTask = Task.Factory
+                .StartNew(() => Poll(token), TaskCreationOptions.LongRunning)
+                .Unwrap();
         }
 
-        public void Stop()
+        public Task Stop()
         {
             tokenSource.Cancel();
-
-            resetEvent.WaitOne();
+            return Task.WhenAll(timeoutPollerTask);
         }
 
         public void NewTimeoutRegistered(DateTime expiryTime)
@@ -54,36 +57,34 @@ namespace NServiceBus.DelayedDelivery.TimeoutManager
             //Injected
         }
 
-        void StartPoller()
-        {
-            var token = tokenSource.Token;
-
-            Task.Factory
-                .StartNew(async () => await Poll(token), TaskCreationOptions.LongRunning)
-                .ContinueWith(t =>
-                {
-                    t.Exception.Handle(ex =>
-                    {
-                        Logger.Warn("Failed to fetch timeouts from the timeout storage", ex);
-                        circuitBreaker.Failure(ex);
-                        return true;
-                    });
-
-                    StartPoller();
-                }, TaskContinuationOptions.OnlyOnFaulted);
-        }
-
         async Task Poll(CancellationToken cancellationToken)
         {
-            var startSlice = DateTime.UtcNow.AddYears(-10);
+            try
+            {
+                await InnerPoll(cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                Logger.Warn("Failed to fetch timeouts from the timeout storage", ex);
+                circuitBreaker.Failure(ex);
+            }
 
-            resetEvent.Reset();
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                await Poll(cancellationToken);
+            }
+        }
+
+        async Task InnerPoll(CancellationToken cancellationToken)
+        {
+            var startSlice = DateTime.UtcNow.AddYears(-10);
 
             while (!cancellationToken.IsCancellationRequested)
             {
                 if (nextRetrieval > DateTime.UtcNow)
                 {
-                    Thread.Sleep(1000);
+                    // ReSharper disable once MethodSupportsCancellation
+                    await Task.Delay(1000);
                     continue;
                 }
 
@@ -133,8 +134,6 @@ namespace NServiceBus.DelayedDelivery.TimeoutManager
                 Logger.DebugFormat("Polling next retrieval is at {0}.", nextRetrieval.ToLocalTime());
                 circuitBreaker.Success();
             }
-
-            resetEvent.Set();
         }
 
         IQueryTimeouts timeoutsFetcher;
@@ -142,7 +141,7 @@ namespace NServiceBus.DelayedDelivery.TimeoutManager
         string dispatcherAddress;
         RepeatedFailuresOverTimeCircuitBreaker circuitBreaker;
         object lockObject = new object();
-        ManualResetEvent resetEvent = new ManualResetEvent(true);
+        Task timeoutPollerTask;
         DateTime nextRetrieval = DateTime.UtcNow;
         volatile bool timeoutPushed;
         CancellationTokenSource tokenSource;

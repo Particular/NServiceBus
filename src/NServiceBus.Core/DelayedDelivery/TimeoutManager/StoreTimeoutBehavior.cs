@@ -41,10 +41,10 @@ namespace NServiceBus
             return base.Warmup();
         }
 
-        public override Task Cooldown()
+        public override async Task Cooldown()
         {
-            poller.Stop();
-            return base.Cooldown();
+            await poller.Stop();
+            await base.Cooldown();
         }
 
         async Task HandleBackwardsCompatibility(TransportMessage message, PhysicalMessageProcessingStageBehavior.Context context)
