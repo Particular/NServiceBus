@@ -1,5 +1,6 @@
 namespace NServiceBus.MessageMutator
 {
+    using System.Threading.Tasks;
     using JetBrains.Annotations;
 
     /// <summary>
@@ -11,6 +12,6 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// Mutates the given message just before it's serialized.
         /// </summary>
-        void MutateOutgoing(MutateOutgoingMessageContext context);
+        Task MutateOutgoing(MutateOutgoingMessageContext context);
     }
 }

@@ -53,10 +53,12 @@
                 {
                     this.testContext = testContext;
                 }
-                public void MutateOutgoing(MutateOutgoingTransportMessageContext context)
+                public Task MutateOutgoing(MutateOutgoingTransportMessageContext context)
                 {
                     testContext.TransportMutatorCalled = true;
+                    return Task.FromResult(0);
                 }
+
             }
 
             class MessageMutator : IMutateOutgoingMessages
@@ -67,9 +69,10 @@
                     this.testContext = testContext;
                 }
 
-                public void MutateOutgoing(MutateOutgoingMessageContext context)
+                public Task MutateOutgoing(MutateOutgoingMessageContext context)
                 {
                     testContext.MessageMutatorCalled = true;
+                    return Task.FromResult(0);
                 }
             }
 

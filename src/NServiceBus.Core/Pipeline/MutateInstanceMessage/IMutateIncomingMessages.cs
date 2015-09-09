@@ -1,5 +1,6 @@
 namespace NServiceBus.MessageMutator
 {
+    using System.Threading.Tasks;
     using JetBrains.Annotations;
 
     /// <summary>
@@ -11,6 +12,6 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// Mutates the given message right after it has been deserialized.
         /// </summary>
-        void MutateIncoming(MutateIncomingMessageContext context);
+        Task MutateIncoming(MutateIncomingMessageContext context);
     }
 }

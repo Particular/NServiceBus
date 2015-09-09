@@ -2,24 +2,27 @@ namespace NServiceBus
 {
     using System.Security.Principal;
     using System.Threading;
+    using System.Threading.Tasks;
     using NServiceBus.MessageMutator;
 
     class WindowsIdentityEnricher : IMutateOutgoingTransportMessages
     {
 
-        public void MutateOutgoing(MutateOutgoingTransportMessageContext context)
+        public Task MutateOutgoing(MutateOutgoingTransportMessageContext context)
         {
             if (Thread.CurrentPrincipal != null && Thread.CurrentPrincipal.Identity != null && !string.IsNullOrEmpty(Thread.CurrentPrincipal.Identity.Name))
             {
-                context.OutgoingHeaders[Headers.WindowsIdentityName]= Thread.CurrentPrincipal.Identity.Name;
-                return;
+                context.OutgoingHeaders[Headers.WindowsIdentityName] = Thread.CurrentPrincipal.Identity.Name;
+                return Task.FromResult(0);
             }
-            var windowsIdentity = WindowsIdentity.GetCurrent();
-            if (windowsIdentity != null)
+            using (var windowsIdentity = WindowsIdentity.GetCurrent())
             {
-                context.OutgoingHeaders[Headers.WindowsIdentityName]= windowsIdentity.Name;
+                if (windowsIdentity != null)
+                {
+                    context.OutgoingHeaders[Headers.WindowsIdentityName] = windowsIdentity.Name;
+                }
             }
-
+            return Task.FromResult(0);
         }
     }
 }

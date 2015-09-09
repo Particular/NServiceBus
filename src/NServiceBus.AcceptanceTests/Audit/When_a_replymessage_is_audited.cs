@@ -92,9 +92,10 @@
             {
                 public Context Context { get; set; }
 
-                public void MutateIncoming(MutateIncomingTransportMessageContext transportMessage)
+                public Task MutateIncoming(MutateIncomingTransportMessageContext transportMessage)
                 {
                     Context.MessageAudited = true;
+                    return Task.FromResult(0);
                 }
 
                 public void Customize(BusConfiguration configuration)

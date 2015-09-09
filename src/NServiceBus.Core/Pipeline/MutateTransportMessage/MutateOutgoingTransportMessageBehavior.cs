@@ -29,7 +29,7 @@
                 .Headers, messageBeingHandled, incomingHeaders);
             foreach (var mutator in context.Builder.BuildAll<IMutateOutgoingTransportMessages>())
             {
-                mutator.MutateOutgoing(mutatorContext);
+                mutator.MutateOutgoing(mutatorContext).GetAwaiter().GetResult();
             }
             context.Body = mutatorContext.OutgoingBody;
 

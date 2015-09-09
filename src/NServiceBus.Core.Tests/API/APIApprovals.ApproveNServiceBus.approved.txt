@@ -1487,19 +1487,19 @@ namespace NServiceBus.MessageMutator
     public interface IMessageMutator : NServiceBus.MessageMutator.IMutateIncomingMessages, NServiceBus.MessageMutator.IMutateOutgoingMessages { }
     public interface IMutateIncomingMessages
     {
-        void MutateIncoming(NServiceBus.MessageMutator.MutateIncomingMessageContext context);
+        System.Threading.Tasks.Task MutateIncoming(NServiceBus.MessageMutator.MutateIncomingMessageContext context);
     }
     public interface IMutateIncomingTransportMessages
     {
-        void MutateIncoming(NServiceBus.MessageMutator.MutateIncomingTransportMessageContext context);
+        System.Threading.Tasks.Task MutateIncoming(NServiceBus.MessageMutator.MutateIncomingTransportMessageContext context);
     }
     public interface IMutateOutgoingMessages
     {
-        void MutateOutgoing(NServiceBus.MessageMutator.MutateOutgoingMessageContext context);
+        System.Threading.Tasks.Task MutateOutgoing(NServiceBus.MessageMutator.MutateOutgoingMessageContext context);
     }
     public interface IMutateOutgoingTransportMessages
     {
-        void MutateOutgoing(NServiceBus.MessageMutator.MutateOutgoingTransportMessageContext context);
+        System.Threading.Tasks.Task MutateOutgoing(NServiceBus.MessageMutator.MutateOutgoingTransportMessageContext context);
     }
     [System.ObsoleteAttribute("Just have your mutator implement both IMutateIncomingTransportMessages and IMutat" +
         "eOutgoingTransportMessages. Will be removed in version 7.0.0.", true)]

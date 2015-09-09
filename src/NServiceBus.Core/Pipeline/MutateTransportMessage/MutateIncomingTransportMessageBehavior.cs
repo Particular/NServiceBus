@@ -13,7 +13,7 @@
             var mutatorContext = new MutateIncomingTransportMessageContext(transportMessage.Body, transportMessage.Headers);
             foreach (var mutator in mutators)
             {
-                mutator.MutateIncoming(mutatorContext);
+                mutator.MutateIncoming(mutatorContext).GetAwaiter().GetResult();
             }
             transportMessage.Body = mutatorContext.Body;
             next();

@@ -1,5 +1,6 @@
 namespace NServiceBus.MessageMutator
 {
+    using System.Threading.Tasks;
     using JetBrains.Annotations;
 
     /// <summary>
@@ -12,6 +13,6 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// Modifies various properties of the transport message.
         /// </summary>
-        void MutateIncoming(MutateIncomingTransportMessageContext context);
+        Task MutateIncoming(MutateIncomingTransportMessageContext context);
     }
 }

@@ -41,12 +41,13 @@
 
             class MutateOutgoingMessages : IMutateOutgoingMessages
             {
-                public void MutateOutgoing(MutateOutgoingMessageContext context)
+                public Task MutateOutgoing(MutateOutgoingMessageContext context)
                 {
                     if (context.OutgoingMessage is V1Message)
                     {
                         context.OutgoingMessage = new V2Message();
                     }
+                    return Task.FromResult(0);
                 }
             }
 

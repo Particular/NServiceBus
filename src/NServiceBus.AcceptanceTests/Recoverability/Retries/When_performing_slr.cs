@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Config;
@@ -47,7 +48,7 @@
             {
                 public Context Context { get; set; }
 
-                public void MutateIncoming(MutateIncomingTransportMessageContext transportMessage)
+                public Task MutateIncoming(MutateIncomingTransportMessageContext transportMessage)
                 {
                     var originalBody = transportMessage.Body;
 
@@ -66,11 +67,13 @@
                     }
 
                     transportMessage.Body = decryptedBody;
+                    return Task.FromResult(0);
                 }
 
-                public void MutateOutgoing(MutateOutgoingTransportMessageContext context)
+                public Task MutateOutgoing(MutateOutgoingTransportMessageContext context)
                 {
                     context.OutgoingBody[0]--;
+                    return Task.FromResult(0);
                 }
             }
 

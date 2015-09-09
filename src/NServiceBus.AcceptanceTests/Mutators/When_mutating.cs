@@ -81,19 +81,21 @@
                 IMutateOutgoingMessages,
                 IMutateOutgoingTransportMessages
             {
-                public void MutateIncoming(MutateIncomingMessageContext context)
+                public Task MutateIncoming(MutateIncomingMessageContext context)
                 {
                     Assert.IsNotEmpty(context.Headers);
                     Assert.IsNotNull(context.Message);
+                    return Task.FromResult(0);
                 }
 
-                public void MutateIncoming(MutateIncomingTransportMessageContext context)
+                public Task MutateIncoming(MutateIncomingTransportMessageContext context)
                 {
                     Assert.IsNotEmpty(context.Headers);
                     Assert.IsNotNull(context.Body);
+                    return Task.FromResult(0);
                 }
 
-                public void MutateOutgoing(MutateOutgoingMessageContext context)
+                public Task MutateOutgoing(MutateOutgoingMessageContext context)
                 {
                     Assert.IsNotEmpty(context.OutgoingHeaders);
                     Assert.IsNotNull(context.OutgoingMessage);
@@ -103,9 +105,10 @@
                     context.TryGetIncomingMessage(out incomingmessage);
                     Assert.IsNotEmpty(incomingHeaders);
                     Assert.IsNotNull(incomingmessage);
+                    return Task.FromResult(0);
                 }
 
-                public void MutateOutgoing(MutateOutgoingTransportMessageContext context)
+                public Task MutateOutgoing(MutateOutgoingTransportMessageContext context)
                 {
                     Assert.IsNotEmpty(context.OutgoingHeaders);
                     Assert.IsNotNull(context.OutgoingBody);
@@ -115,7 +118,7 @@
                     context.TryGetIncomingMessage(out incomingmessage);
                     Assert.IsNotEmpty(incomingHeaders);
                     Assert.IsNotNull(incomingmessage);
-
+                    return Task.FromResult(0);
                 }
             }
         }

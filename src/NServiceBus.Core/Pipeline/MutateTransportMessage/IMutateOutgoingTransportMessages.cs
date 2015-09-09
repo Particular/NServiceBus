@@ -1,5 +1,6 @@
 namespace NServiceBus.MessageMutator
 {
+    using System.Threading.Tasks;
     using JetBrains.Annotations;
 
     /// <summary>
@@ -12,6 +13,6 @@ namespace NServiceBus.MessageMutator
         /// Performs the mutation.
         /// </summary>
         /// <param name="context">Contains information about the current message and provides ways to mutate it.</param>
-        void MutateOutgoing(MutateOutgoingTransportMessageContext context);
+        Task MutateOutgoing(MutateOutgoingTransportMessageContext context);
     }
 }

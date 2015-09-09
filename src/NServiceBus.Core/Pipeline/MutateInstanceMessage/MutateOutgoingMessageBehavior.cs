@@ -30,7 +30,7 @@
                 incomingHeaders);
             foreach (var mutator in context.Builder.BuildAll<IMutateOutgoingMessages>())
             {
-                mutator.MutateOutgoing(mutatorContext);
+                mutator.MutateOutgoing(mutatorContext).GetAwaiter().GetResult();
             }
 
             if (mutatorContext.MessageInstanceChanged)

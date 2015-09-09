@@ -14,7 +14,7 @@
             var mutatorContext = new MutateIncomingMessageContext(current, context.Headers);
             foreach (var mutator in context.Builder.BuildAll<IMutateIncomingMessages>())
             {
-                mutator.MutateIncoming(mutatorContext);
+                mutator.MutateIncoming(mutatorContext).GetAwaiter().GetResult();
             }
 
             if (mutatorContext.MessageChanged)

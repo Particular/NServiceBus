@@ -41,12 +41,13 @@
 
             class MutateIncomingMessages : IMutateIncomingMessages
             {
-                public void MutateIncoming(MutateIncomingMessageContext message)
+                public Task MutateIncoming(MutateIncomingMessageContext message)
                 {
                     if (message.Message is V1Message)
                     {
                         message.Message=new V2Message();
                     }
+                    return Task.FromResult(0);
                 }
             }
 
