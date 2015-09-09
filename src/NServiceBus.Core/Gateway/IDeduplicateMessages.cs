@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Gateway.Deduplication
 {
     using System;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Defines the api for storages that wants to provide storage for gateway deduplication.
@@ -12,6 +13,6 @@
         /// </summary>
         /// <param name="clientId">The client id that defines the range of ids to check for duplicates.</param>
         /// <param name="timeReceived">The time received of the message to allow the storage to do cleanup.</param>
-        bool DeduplicateMessage(string clientId, DateTime timeReceived);
+        Task<bool> DeduplicateMessage(string clientId, DateTime timeReceived);
     }
 }
