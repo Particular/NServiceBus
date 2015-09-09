@@ -29,31 +29,85 @@ namespace NServiceBus.Encryption.Rijndael
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Security.Cryptography;
+    using NServiceBus.Logging;
 
     class RijndaelEncryptionService : IEncryptionService
     {
-
+        static readonly ILog Log = LogManager.GetLogger<RijndaelEncryptionService>();
+        readonly IBus bus;
+        readonly string HeaderKey = Headers.KeyIdentifier;
+        readonly string encryptionKeyIdentifier;
         byte[] encryptionKey;
-        List<byte[]> decryptionKeys;
+        IDictionary<string, byte[]> decryptionKeys;
+        List<byte[]> orderedDecryptionKeys; // Required, as we decrypt in the configured order.
 
-        public RijndaelEncryptionService(byte[] encryptionKey, List<byte[]> expiredKeys)
+        public RijndaelEncryptionService(IBus bus, string encryptionKeyIdentifier, byte[] encryptionKey, IEnumerable<KeyValuePair<string, byte[]>> expiredKeys)
         {
+            this.bus = bus;
+            this.encryptionKeyIdentifier = encryptionKeyIdentifier;
             this.encryptionKey = encryptionKey;
             VerifyEncryptionKey(encryptionKey);
-            var expiredKeyBytes = expiredKeys;
-            VerifyExpiredKeys(expiredKeyBytes);
 
-            decryptionKeys = new List<byte[]> { this.encryptionKey };
-            decryptionKeys.AddRange(expiredKeyBytes);
+            if (string.IsNullOrEmpty(encryptionKeyIdentifier))
+            {
+                Log.Error("No encryption key identifier configured. Messages with encrypted properties will fail to send. Please add an encryption key identifier to the rijndael encryption service configuration.");
+            }
 
+            expiredKeys = expiredKeys ?? new List<KeyValuePair<string, byte[]>>(0);
+
+            var keys = new List<KeyValuePair<string, byte[]>>(expiredKeys);
+            VerifyExpiredKeys(keys);
+
+            orderedDecryptionKeys = keys.Select(x => x.Value).ToList();
+
+            // Current encryption key needs to be used for decryption first as this has the highest probability of being the correct key. 
+            orderedDecryptionKeys.Insert(0, encryptionKey);
+
+            decryptionKeys = keys
+                .Where(x => !string.IsNullOrEmpty(x.Key))
+                .ToDictionary(x => x.Key, x => x.Value);
+
+            if (!string.IsNullOrEmpty(encryptionKeyIdentifier))
+            {
+                decryptionKeys.Add(encryptionKeyIdentifier, encryptionKey);
+            }
         }
 
         public string Decrypt(EncryptedValue encryptedValue)
         {
+            string keyIdentifier;
+
+            if (TryGetKeyIdentiferHeader(out keyIdentifier))
+            {
+                return DecryptUsingKeyIdentifier(encryptedValue, keyIdentifier);
+            }
+            else
+            {
+                Log.WarnFormat("Encrypted message has no '" + HeaderKey + "' header. Possibility of data corruption. Please upgrade endpoints that send message with encrypted properties.");
+                return DecryptUsingAllKeys(encryptedValue);
+            }
+        }
+
+        string DecryptUsingKeyIdentifier(EncryptedValue encryptedValue, string keyIdentifier)
+        {
+            byte[] key;
+            if (decryptionKeys.TryGetValue(keyIdentifier, out key))
+            {
+                return Decrypt(encryptedValue, key);
+            }
+            else
+            {
+                throw new InvalidOperationException("Decryption key not available for key identifier '" + keyIdentifier + "'. Please add this key to the rijndael encryption service configuration. Key identifiers are case sensitive.");
+            }
+        }
+
+        string DecryptUsingAllKeys(EncryptedValue encryptedValue)
+        {
             var cryptographicExceptions = new List<CryptographicException>();
 
-            foreach (var key in decryptionKeys)
+            foreach (var key in orderedDecryptionKeys)
             {
                 try
                 {
@@ -64,7 +118,7 @@ namespace NServiceBus.Encryption.Rijndael
                     cryptographicExceptions.Add(exception);
                 }
             }
-            var message = string.Format("Could not decrypt message. Tried {0} keys.", decryptionKeys.Count);
+            var message = string.Format("Could not decrypt message. Tried {0} keys.", decryptionKeys.Keys.Count);
             throw new AggregateException(message, cryptographicExceptions);
         }
 
@@ -88,6 +142,13 @@ namespace NServiceBus.Encryption.Rijndael
 
         public EncryptedValue Encrypt(string value)
         {
+            if (string.IsNullOrEmpty(encryptionKeyIdentifier))
+            {
+                throw new InvalidOperationException("It is required to set the rijndael key identifer.");
+            }
+
+            AddKeyIdentifierHeader();
+
             using (var rijndael = new RijndaelManaged())
             {
                 rijndael.Key = encryptionKey;
@@ -112,11 +173,11 @@ namespace NServiceBus.Encryption.Rijndael
             }
         }
 
-        static void VerifyExpiredKeys(List<byte[]> keys)
+        static void VerifyExpiredKeys(IList<KeyValuePair<string, byte[]>> keys)
         {
             for (var index = 0; index < keys.Count; index++)
             {
-                var key = keys[index];
+                var key = keys[index].Value;
                 if (IsValidKey(key))
                 {
                     continue;
@@ -143,6 +204,21 @@ namespace NServiceBus.Encryption.Rijndael
                 var bitLength = key.Length * 8;
                 return rijndael.ValidKeySize(bitLength);
             }
+        }
+
+        protected virtual void AddKeyIdentifierHeader()
+        {
+            var outgoingHeaders = bus.OutgoingHeaders;
+
+            if (!outgoingHeaders.ContainsKey(HeaderKey))
+            {
+                outgoingHeaders.Add(HeaderKey, encryptionKeyIdentifier);
+            }
+        }
+
+        protected virtual bool TryGetKeyIdentiferHeader(out string keyIdentifier)
+        {
+            return bus.CurrentMessageContext.Headers.TryGetValue(HeaderKey, out keyIdentifier);
         }
     }
 }

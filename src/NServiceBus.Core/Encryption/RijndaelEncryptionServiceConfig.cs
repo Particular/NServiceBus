@@ -24,6 +24,22 @@ namespace NServiceBus.Config
         }
 
         /// <summary>
+        /// Identifies this key for it to be used for decryption.
+        /// </summary>
+        [ConfigurationProperty("KeyIdentifier", IsRequired = false)]
+        public string KeyIdentifier
+        {
+            get
+            {
+                return (string)this["KeyIdentifier"];
+            }
+            set
+            {
+                this["KeyIdentifier"] = value;
+            }
+        }
+
+        /// <summary>
         /// Contains the encryption keys to use.
         /// </summary>
         [ConfigurationProperty("ExpiredKeys", IsRequired = false)]

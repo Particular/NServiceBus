@@ -11,6 +11,7 @@
     using Encryption;
     using Saga;
     using System;
+    using System.Text;
     using MsmqTransport = NServiceBus.MsmqTransport;
 
     class Program
@@ -101,7 +102,7 @@
                     throw new InvalidOperationException("Illegal serialization format " + args[2]);
             }
             configuration.UsePersistence<InMemoryPersistence>();
-            configuration.RijndaelEncryptionService("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6");
+            configuration.RijndaelEncryptionService("KEY", Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6"));
             
 
             using (var startableBus = Bus.Create(configuration))

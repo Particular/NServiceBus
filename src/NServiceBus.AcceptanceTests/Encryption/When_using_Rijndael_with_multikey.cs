@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Text;
     using EndpointTemplates;
     using AcceptanceTesting;
     using NUnit.Framework;
@@ -34,7 +35,7 @@
         {
             public Sender()
             {
-                EndpointSetup<DefaultServer>(builder => builder.RijndaelEncryptionService("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6"))
+                EndpointSetup<DefaultServer>(builder => builder.RijndaelEncryptionService("1st", Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6")))
                     .AddMapping<MessageWithSecretData>(typeof(Receiver));
             }
 
@@ -44,11 +45,11 @@
         {
             public Receiver()
             {
-                var expiredKeys = new List<string>
+                var expiredKeys = new List<KeyValuePair<string, byte[]>>
                 {
-                    "gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6"
+                    new KeyValuePair<string,byte[]>("1st", Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6"))
                 };
-                EndpointSetup<DefaultServer>(builder => builder.RijndaelEncryptionService("adDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6", expiredKeys));
+                EndpointSetup<DefaultServer>(builder => builder.RijndaelEncryptionService("2nd", Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6"), expiredKeys));
             }
 
             public class Handler : IHandleMessages<MessageWithSecretData>

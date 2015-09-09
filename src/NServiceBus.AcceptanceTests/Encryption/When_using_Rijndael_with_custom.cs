@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Text;
     using EndpointTemplates;
     using AcceptanceTesting;
     using NUnit.Framework;
@@ -53,7 +54,7 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(builder => builder.RijndaelEncryptionService("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6"));
+                EndpointSetup<DefaultServer>(builder => builder.RijndaelEncryptionService("1st", Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6")));
             }
 
             public class Handler : IHandleMessages<MessageWithSecretData>

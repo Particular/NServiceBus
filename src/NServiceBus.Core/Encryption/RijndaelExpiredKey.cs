@@ -29,5 +29,20 @@ namespace NServiceBus.Config
         {
             return String.Compare(Key, other.Key, StringComparison.Ordinal);
         }
+
+        /// <summary>
+        /// Identifies this key for it to be used for decryption.
+        /// </summary>
+        [ConfigurationProperty("KeyIdentifier", IsRequired = false)]
+        public string KeyIdentifier {
+            get
+            {
+                return (string) this["KeyIdentifier"];
+            }
+            set
+            {
+                this["KeyIdentifier"] = value;
+            } 
+        }
     }
 }
