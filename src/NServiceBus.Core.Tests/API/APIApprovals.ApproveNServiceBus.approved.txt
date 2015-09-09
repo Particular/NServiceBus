@@ -95,10 +95,6 @@ namespace NServiceBus
     {
         public CompletionResult() { }
     }
-    public class static ConcurrencySettingsExtensions
-    {
-        public static NServiceBus.Settings.Concurrency.ConcurrencySettings Concurrency(this NServiceBus.BusConfiguration config) { }
-    }
     public class static ConfigurationBuilderExtensions
     {
         public static void DisableFeature<T>(this NServiceBus.BusConfiguration config)
@@ -441,13 +437,6 @@ namespace NServiceBus
         T CreateInstance<T>(System.Action<T> action);
         object CreateInstance(System.Type messageType);
     }
-    public class IndividualThrottlingSettings
-    {
-        public NServiceBus.IndividualThrottlingSettings DoNotLimit(string satelliteId) { }
-        public NServiceBus.IndividualThrottlingSettings DoNotLimitMainPipeline() { }
-        public NServiceBus.IndividualThrottlingSettings ForMainPipeline(int maximumMessagesPerSecond) { }
-        public NServiceBus.IndividualThrottlingSettings ForSatellite(string satelliteId, int maximumMessagesPerSecond) { }
-    }
     public interface INeedInitialization
     {
         void Customize(NServiceBus.BusConfiguration configuration);
@@ -552,6 +541,10 @@ namespace NServiceBus
         Subscribe = 3,
         Unsubscribe = 4,
         Reply = 5,
+    }
+    public class static MessageProcessingOptimizationExtensions
+    {
+        public static void LimitMessageProcessingConcurrencyTo(this NServiceBus.BusConfiguration config, int maxConcurrency) { }
     }
     public class static MsmqConfigurationExtensions
     {
@@ -698,10 +691,6 @@ namespace NServiceBus
     {
         public SubscribeOptions() { }
     }
-    public class static ThrottlingSettingsExtensions
-    {
-        public static NServiceBus.Settings.Throttling.ThrottlingSettings Throttling(this NServiceBus.BusConfiguration config) { }
-    }
     [System.AttributeUsageAttribute(System.AttributeTargets.Class | System.AttributeTargets.Interface | System.AttributeTargets.All)]
     public sealed class TimeToBeReceivedAttribute : System.Attribute
     {
@@ -814,17 +803,6 @@ namespace NServiceBus.AutomaticSubscriptions.Config
         [System.ObsoleteAttribute("Transports with support for centralized pubsub will default this to true. Can saf" +
             "ely be removed. Will be removed in version 7.0.0.", true)]
         public void DoNotRequireExplicitRouting() { }
-    }
-}
-namespace NServiceBus.CircuitBreakers
-{
-    public class RepeatedFailuresOverTimeCircuitBreaker : System.IDisposable
-    {
-        public RepeatedFailuresOverTimeCircuitBreaker(string name, System.TimeSpan timeToWaitBeforeTriggering, System.Action<System.Exception> triggerAction) { }
-        public RepeatedFailuresOverTimeCircuitBreaker(string name, System.TimeSpan timeToWaitBeforeTriggering, System.Action<System.Exception> triggerAction, System.TimeSpan delayAfterFailure) { }
-        public void Dispose() { }
-        public void Failure(System.Exception exception) { }
-        public bool Success() { }
     }
 }
 namespace NServiceBus.Config
@@ -1228,8 +1206,7 @@ namespace NServiceBus.Features
         public NServiceBus.ObjectBuilder.IConfigureComponents Container { get; }
         public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
         public NServiceBus.Settings.ReadOnlySettings Settings { get; }
-        public NServiceBus.Pipeline.PipelineSettings AddSatellitePipeline(string name, string receiveAddress) { }
-        public void RegisterReceiveBehavior(System.Func<NServiceBus.ObjectBuilder.IBuilder, NServiceBus.Transports.ReceiveBehavior> receiveBehaviorFactory) { }
+        public NServiceBus.Pipeline.PipelineSettings AddSatellitePipeline(string name, string receiveAddress, System.Nullable<int> maxConcurrency = null, NServiceBus.Unicast.Transport.TransactionSettings transactionSettings = null) { }
     }
     public class FeatureDiagnosticData
     {
@@ -1309,7 +1286,6 @@ namespace NServiceBus.Features
         protected override string ExampleConnectionStringForErrorMessage { get; }
         protected override bool RequiresConnectionString { get; }
         protected override void Configure(NServiceBus.Features.FeatureConfigurationContext context, string connectionString) { }
-        protected override System.Func<NServiceBus.ObjectBuilder.IBuilder, NServiceBus.Transports.ReceiveBehavior> GetReceiveBehaviorFactory(NServiceBus.Transports.ReceiveOptions receiveOptions) { }
     }
     public class Outbox : NServiceBus.Features.Feature
     {
@@ -2268,21 +2244,6 @@ namespace NServiceBus.Serializers.XML
         public void Serialize(object message, System.IO.Stream stream) { }
     }
 }
-namespace NServiceBus.Settings.Concurrency
-{
-    public class ConcurrencySettings
-    {
-        public NServiceBus.Settings.Concurrency.IndividualConcurrencySettings UseSeparateThreadPoolsForMainPipelineAndEachSatellite() { }
-        public NServiceBus.Settings.Concurrency.IndividualConcurrencySettings UseSeparateThreadPoolsForMainPipelineAndEachSatellite(int defaultMaxiumConcurrencyLevel) { }
-        public void UseSingleThreadPool() { }
-        public void UseSingleThreadPool(int maximumConcurrencyLevel) { }
-    }
-    public class IndividualConcurrencySettings
-    {
-        public NServiceBus.Settings.Concurrency.IndividualConcurrencySettings ForMainPipeline(int maximumConcurrency) { }
-        public NServiceBus.Settings.Concurrency.IndividualConcurrencySettings ForSatellite(string satelliteId, int maximumConcurrency) { }
-    }
-}
 namespace NServiceBus.Settings
 {
     public interface ReadOnlySettings
@@ -2342,16 +2303,6 @@ namespace NServiceBus.Settings
         public NServiceBus.Settings.TransactionSettings EnableDistributedTransactions() { }
         public NServiceBus.Settings.TransactionSettings IsolationLevel(System.Transactions.IsolationLevel isolationLevel) { }
         public NServiceBus.Settings.TransactionSettings WrapHandlersExecutionInATransactionScope() { }
-    }
-}
-namespace NServiceBus.Settings.Throttling
-{
-    public class ThrottlingSettings
-    {
-        public void DoNotLimitThroughput() { }
-        public NServiceBus.IndividualThrottlingSettings UseSeparateThroughputLimitForMainPipelineAndEachSatellite() { }
-        public NServiceBus.IndividualThrottlingSettings UseSeparateThroughputLimitForMainPipelineAndEachSatellite(int defaultMaximumMessagesPerSecond) { }
-        public void UseSingleTotalThroughputLimit(int maximumMessagesPerSecond) { }
     }
 }
 namespace NServiceBus.Support
@@ -2426,19 +2377,12 @@ namespace NServiceBus.Transports
         protected virtual bool RequiresConnectionString { get; }
         protected abstract void Configure(NServiceBus.Features.FeatureConfigurationContext context, string connectionString);
         protected virtual string GetLocalAddress(NServiceBus.Settings.ReadOnlySettings settings) { }
-        protected abstract System.Func<NServiceBus.ObjectBuilder.IBuilder, NServiceBus.Transports.ReceiveBehavior> GetReceiveBehaviorFactory(NServiceBus.Transports.ReceiveOptions receiveOptions);
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class DequeueInfo
     {
         public readonly string PublicAddress;
         public DequeueInfo(string publicAddress) { }
-    }
-    public class DequeueSettings
-    {
-        public DequeueSettings(string queue, bool purgeOnStartup) { }
-        public bool PurgeOnStartup { get; }
-        public string QueueName { get; }
     }
     public class DispatchOptions
     {
@@ -2466,10 +2410,12 @@ namespace NServiceBus.Transports
         void ClearDeferredMessages(string headerKey, string headerValue);
         void Defer(NServiceBus.TransportMessage message, NServiceBus.Unicast.SendOptions sendOptions);
     }
-    public interface IDequeueMessages : System.IObservable<NServiceBus.Transports.MessageAvailable>
+    [System.ObsoleteAttribute("Please use `NServiceBus.Transport.IPushMessages` instead. Will be removed in vers" +
+        "ion 7.0.0.", true)]
+    public interface IDequeueMessages
     {
-        NServiceBus.Transports.DequeueInfo Init(NServiceBus.Transports.DequeueSettings settings);
-        void Start();
+        void Init(NServiceBus.Address address, NServiceBus.Unicast.Transport.TransactionSettings transactionSettings, System.Func<NServiceBus.TransportMessage, bool> tryProcessMessage, System.Action<NServiceBus.TransportMessage, System.Exception> endProcessMessage);
+        void Start(int maximumConcurrencyLevel);
         void Stop();
     }
     public interface IDispatchMessages
@@ -2493,6 +2439,12 @@ namespace NServiceBus.Transports
     {
         void Publish(NServiceBus.TransportMessage message, NServiceBus.Unicast.PublishOptions publishOptions);
     }
+    public interface IPushMessages
+    {
+        NServiceBus.Transports.DequeueInfo Init(System.Action<NServiceBus.Transports.PushContext> pipe, NServiceBus.Transports.PushSettings settings);
+        void Start(NServiceBus.Transports.PushRuntimeSettings limitations);
+        void Stop();
+    }
     [System.ObsoleteAttribute("Please use `IDispatchMessages` instead. Will be removed in version 7.0.0.", true)]
     public interface ISendMessages
     {
@@ -2509,6 +2461,26 @@ namespace NServiceBus.Transports
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string MessageId { get; }
     }
+    public class PushContext
+    {
+        public PushContext(NServiceBus.Transports.IncomingMessage message, NServiceBus.Extensibility.ContextBag context) { }
+        public NServiceBus.Extensibility.ContextBag Context { get; }
+        public NServiceBus.Transports.IncomingMessage Message { get; }
+    }
+    public class PushRuntimeSettings
+    {
+        public PushRuntimeSettings(System.Nullable<int> maxConcurrency) { }
+        public static NServiceBus.Transports.PushRuntimeSettings Default { get; }
+        public System.Nullable<int> MaxConcurrency { get; }
+    }
+    public class PushSettings
+    {
+        public PushSettings(string inputQueue, string errorQueue, bool purgeOnStartup, NServiceBus.Unicast.Transport.TransactionSettings transactionSettings) { }
+        public string ErrorQueue { get; }
+        public string InputQueue { get; }
+        public bool PurgeOnStartup { get; }
+        public NServiceBus.Unicast.Transport.TransactionSettings TransactionSettings { get; }
+    }
     public class QueueBindings
     {
         public QueueBindings() { }
@@ -2516,22 +2488,6 @@ namespace NServiceBus.Transports
         public System.Collections.Generic.IEnumerable<string> SendingAddresses { get; }
         public void BindReceiving(string address) { }
         public void BindSending(string address) { }
-    }
-    public abstract class ReceiveBehavior : NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.Contexts.IncomingContext, NServiceBus.Pipeline.Contexts.TransportReceiveContext>
-    {
-        protected ReceiveBehavior() { }
-        public override void Invoke(NServiceBus.Pipeline.Contexts.IncomingContext context, System.Action<NServiceBus.Pipeline.Contexts.TransportReceiveContext> next) { }
-        protected abstract void Invoke(NServiceBus.Pipeline.Contexts.IncomingContext context, System.Action<NServiceBus.Transports.IncomingMessage> onMessage);
-        public class Registration : NServiceBus.Pipeline.RegisterStep
-        {
-            public Registration() { }
-        }
-    }
-    public class ReceiveOptions
-    {
-        public string ErrorQueue { get; }
-        public NServiceBus.Settings.ReadOnlySettings Settings { get; }
-        public NServiceBus.Unicast.Transport.TransactionSettings Transactions { get; }
     }
     public abstract class TransportDefinition
     {
@@ -2575,6 +2531,17 @@ namespace NServiceBus.Transports.Msmq
         public HeaderInfo() { }
         public string Key { get; set; }
         public string Value { get; set; }
+    }
+    [System.ObsoleteAttribute("No longer available, resolve an instance of IPushMessages from the container inst" +
+        "ead. Will be removed in version 7.0.0.", true)]
+    public class MsmqDequeueStrategy : NServiceBus.Transports.IDequeueMessages, System.IDisposable
+    {
+        public MsmqDequeueStrategy(NServiceBus.Configure configure, NServiceBus.CriticalError criticalError, NServiceBus.Transports.Msmq.MsmqUnitOfWork unitOfWork) { }
+        public NServiceBus.Address ErrorQueue { get; set; }
+        public void Dispose() { }
+        public void Init(NServiceBus.Address address, NServiceBus.Unicast.Transport.TransactionSettings settings, System.Func<NServiceBus.TransportMessage, bool> tryProcessMessage, System.Action<NServiceBus.TransportMessage, System.Exception> endProcessMessage) { }
+        public void Start(int maximumConcurrencyLevel) { }
+        public void Stop() { }
     }
     public class MsmqMessageSender : NServiceBus.Transports.IDispatchMessages
     {
@@ -2905,10 +2872,9 @@ namespace NServiceBus.Unicast.Transport
         public bool SuppressDistributedTransactions { get; set; }
         public System.TimeSpan TransactionTimeout { get; set; }
     }
-    public class TransportReceiver : System.IObserver<NServiceBus.Transports.MessageAvailable>
+    public class TransportReceiver
     {
         public string Id { get; }
-        protected virtual void SetContext(NServiceBus.Pipeline.Contexts.IncomingContext context) { }
         public async System.Threading.Tasks.Task Start() { }
         public async System.Threading.Tasks.Task Stop() { }
     }

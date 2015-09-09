@@ -267,7 +267,6 @@
     <Compile Include="Timeout\When_fetching_timeouts_from_storage.cs" />
     <Compile Include="Timeout\InMemoryTimeoutPersisterThreadTests.cs" />
     <Compile Include="Timeout\When_removing_timeouts_from_the_storage.cs" />
-    <Compile Include="Pipeline\When_specifying_a_non_zero_throughput_limit.cs" />
     <Compile Include="Unicast\ConfigurationSettings.cs" />
     <Compile Include="Unicast\ConfiguringMessageEndpointMapping.cs" />
     <Compile Include="Unicast\Config\ConfigurationSettings.cs" />
@@ -278,7 +277,6 @@
     <Compile Include="Unicast\TransportMessageTests.cs" />
     <Compile Include="Unicast\MessageTypeTests.cs" />
     <Compile Include="UnitOfWork\UnitOfWorkBehaviorTests.cs" />
-    <Compile Include="Unicast\ThroughputLimiterTests.cs" />
     <Compile Include="Unicast\MessagingBestPracticesTests.cs" />
     <Compile Include="Unicast\HandlerInvocationCache.cs" />
     <Compile Include="Unicast\Messages\ANamespace\ASubNamespace\MessageD.cs" />

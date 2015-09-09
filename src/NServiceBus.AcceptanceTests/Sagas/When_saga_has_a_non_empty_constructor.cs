@@ -19,7 +19,6 @@
                     .WithEndpoint<SagaEndpoint>(b => b.Given(bus =>
                         {
                             bus.SendLocal(new StartSagaMessage { SomeId = IdThatSagaIsCorrelatedOn });
-                            bus.SendLocal(new OtherMessage { SomeId = IdThatSagaIsCorrelatedOn });
                             return Task.FromResult(0);
                         }))
                     .Done(c => c.SecondMessageReceived)
@@ -37,9 +36,7 @@
         {
             public SagaEndpoint()
             {
-                EndpointSetup<DefaultServer>(
-
-                    builder => builder.Transactions().DoNotWrapHandlersExecutionInATransactionScope());
+                EndpointSetup<DefaultServer>();
             }
 
             public class TestSaga11 : Saga<TestSagaData11>,
@@ -56,6 +53,7 @@
                 public void Handle(StartSagaMessage message)
                 {
                     Data.SomeId = message.SomeId;
+                    Bus.SendLocal(new OtherMessage { SomeId = message.SomeId });
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData11> mapper)

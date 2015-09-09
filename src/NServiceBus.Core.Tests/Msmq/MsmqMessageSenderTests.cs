@@ -6,7 +6,6 @@
     using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.DeliveryConstraints;
     using NServiceBus.Extensibility;
-    using NServiceBus.Pipeline;
     using NServiceBus.Routing;
     using NServiceBus.Transports;
     using NServiceBus.Transports.Msmq;
@@ -16,14 +15,6 @@
     [TestFixture]
     public class MsmqMessageSenderTests
     {
-        class FakeContext : BehaviorContext
-        {
-            public FakeContext()
-                : base(null)
-            {
-            }
-        }
-
         [Test]
         public void Should_set_label_when_convention_configured()
         {
@@ -61,7 +52,7 @@
             {
                 MsmqHelpers.DeleteQueue(path);
                 MsmqHelpers.CreateQueue(path);
-                var messageSender = new MsmqMessageSender(new MsmqSettings(),null);
+                var messageSender = new MsmqMessageSender(new MsmqSettings(), null);
 
                 var bytes = new byte[]
                 {

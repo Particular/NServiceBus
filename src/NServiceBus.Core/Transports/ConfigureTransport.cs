@@ -1,11 +1,9 @@
 namespace NServiceBus.Transports
 {
     using System;
-    using Features;
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.Pipeline;
+    using NServiceBus.Features;
     using NServiceBus.Settings;
-    using Unicast.Transport;
+    using NServiceBus.Unicast.Transport;
 
     /// <summary>
     /// Base class for configuring <see cref="TransportDefinition"/> features.
@@ -47,19 +45,11 @@ namespace NServiceBus.Transports
 
             context.Container.RegisterSingleton(selectedTransportDefinition);
 
-            if (!context.Settings.Get<bool>("Endpoint.SendOnly"))
-            {
-                var receiveBehaviorFactory = GetReceiveBehaviorFactory(new ReceiveOptions(context.Settings));
-                context.RegisterReceiveBehavior(receiveBehaviorFactory);
-            }
+          
             Configure(context, connectionString);
         }
 
-        /// <summary>
-        /// Creates a <see cref="RegisterStep"/> for receive behavior.
-        /// </summary>
-        protected abstract Func<IBuilder, ReceiveBehavior> GetReceiveBehaviorFactory(ReceiveOptions receiveOptions);
-
+       
         /// <summary>
         ///  Allows the transport to control the local address of the endpoint if needed.
         /// </summary>

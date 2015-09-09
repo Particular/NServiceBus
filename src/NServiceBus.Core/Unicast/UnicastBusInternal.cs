@@ -7,6 +7,8 @@ namespace NServiceBus.Unicast
     using System.Security.Principal;
     using System.Threading;
     using System.Threading.Tasks;
+    using NServiceBus.Config;
+    using NServiceBus.Faults;
     using NServiceBus.Features;
     using NServiceBus.Licensing;
     using NServiceBus.Logging;
@@ -28,22 +30,20 @@ namespace NServiceBus.Unicast
         /// </summary>
         public UnicastBusInternal(
             BehaviorContextStacker contextStacker,
-            IExecutor executor,
             CriticalError criticalError,
-            IMessageMapper messageMapper, 
-            IBuilder builder, 
+            IMessageMapper messageMapper,
+            IBuilder builder,
             ReadOnlySettings settings,
             IDispatchMessages dispatcher)
         {
-            this.executor = executor;
             this.criticalError = criticalError;
             this.settings = settings;
             this.builder = builder;
 
-            busImpl = new ContextualBus( 
+            busImpl = new ContextualBus(
                 contextStacker,
-                messageMapper, 
-                builder, 
+                messageMapper,
+                builder,
                 settings,
                 dispatcher);
         }
@@ -69,7 +69,6 @@ namespace NServiceBus.Unicast
 
                 AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
                 var pipelines = BuildPipelines().ToArray();
-                executor.Start(pipelines.Select(x => x.Id).ToArray());
 
                 pipelineCollection = new PipelineCollection(pipelines);
                 pipelineCollection.Start().GetAwaiter().GetResult();
@@ -93,28 +92,69 @@ namespace NServiceBus.Unicast
 
         IEnumerable<TransportReceiver> BuildPipelines()
         {
+            var errorQueue = ErrorQueueSettings.GetConfiguredErrorQueue(settings);
             var pipelinesCollection = settings.Get<PipelineConfiguration>();
 
-            yield return BuildPipelineInstance(pipelinesCollection.MainPipeline, pipelinesCollection.ReceiveBehavior, "Main", settings.LocalAddress());
+            var dequeueLimitations = GeDequeueLimitationsForReceivePipeline();
 
-            foreach (var satellite in pipelinesCollection.SatellitePipelines)
+            var transactionSettings = new Transport.TransactionSettings(settings);
+            var pushSettings = new PushSettings(settings.LocalAddress(), errorQueue, settings.GetOrDefault<bool>("Transport.PurgeOnStartup"), transactionSettings);
+
+
+            yield return BuildPipelineInstance(pipelinesCollection.MainPipeline, pipelinesCollection.ReceiveBehavior, "Main", pushSettings, dequeueLimitations);
+
+            foreach (var satellitePipeline in pipelinesCollection.SatellitePipelines)
             {
-                yield return BuildPipelineInstance(satellite, pipelinesCollection.ReceiveBehavior, satellite.Name, satellite.ReceiveAddress);
+                var satellitePushSettings = new PushSettings(satellitePipeline.ReceiveAddress, errorQueue, settings.GetOrDefault<bool>("Transport.PurgeOnStartup"),satellitePipeline.TransactionSettings ?? transactionSettings);
+
+                yield return BuildPipelineInstance(satellitePipeline, pipelinesCollection.ReceiveBehavior, satellitePipeline.Name, satellitePushSettings, satellitePipeline.PushRuntimeSettings ?? PushRuntimeSettings.Default);
             }
         }
 
-        TransportReceiver BuildPipelineInstance(PipelineModifications modifications, RegisterStep receiveBehavior, string name, string address)
+        //note: this should be handled in a feature but we don't have a good
+        // extension point to plugin atm
+        PushRuntimeSettings GeDequeueLimitationsForReceivePipeline()
         {
-            var dequeueSettings = new DequeueSettings(address, settings.GetOrDefault<bool>("Transport.PurgeOnStartup"));
+            var transportConfig = settings.GetConfigSection<TransportConfig>();
 
-            var pipelineInstance = new PipelineBase<IncomingContext>(builder, settings, modifications, receiveBehavior);
+            int? concurrencyMaxFromConfig = null;
+
+            if (transportConfig != null && transportConfig.MaximumConcurrencyLevel > 0)
+            {
+                concurrencyMaxFromConfig = transportConfig.MaximumConcurrencyLevel;
+            }
+
+            MessageProcessingOptimizationExtensions.ConcurrencyLimit concurrencyLimit;
+
+            if (settings.TryGet(out concurrencyLimit))
+            {
+                if (concurrencyMaxFromConfig.HasValue)
+                {
+                    throw new Exception("Max receive concurrency specified both via API and configuration, please remove one of them.");
+                }
+
+                return new PushRuntimeSettings(concurrencyLimit.MaxValue);
+            }
+
+            if (concurrencyMaxFromConfig.HasValue)
+            {
+                return new PushRuntimeSettings(concurrencyMaxFromConfig.Value);
+            }
+
+            return PushRuntimeSettings.Default;
+        }
+
+        TransportReceiver BuildPipelineInstance(PipelineModifications modifications, RegisterStep receiveBehavior, string name, PushSettings pushSettings, PushRuntimeSettings runtimeSettings)
+        {
+            var pipelineInstance = new PipelineBase<TransportReceiveContext>(builder, settings, modifications, receiveBehavior);
             var receiver = new TransportReceiver(
                 name,
                 builder,
-                builder.Build<IDequeueMessages>(),
-                dequeueSettings,
+                builder.Build<IPushMessages>(),
+                pushSettings,
                 pipelineInstance,
-                executor);
+                runtimeSettings);
+
             return receiver;
         }
 
@@ -150,7 +190,7 @@ namespace NServiceBus.Unicast
             //Injected at compile time
         }
 
-// ReSharper disable once UnusedMember.Local
+        // ReSharper disable once UnusedMember.Local
         void DisposeManaged()
         {
             InnerShutdown();
@@ -169,7 +209,7 @@ namespace NServiceBus.Unicast
 
             Log.Info("Initiating shutdown.");
             pipelineCollection.Stop().GetAwaiter().GetResult();
-            executor.Stop();
+
             ExecuteIWantToRunAtStartupStopMethods();
 
             Log.Info("Shutdown complete.");
@@ -197,7 +237,6 @@ namespace NServiceBus.Unicast
 
         PipelineCollection pipelineCollection;
         ContextualBus busImpl;
-        IExecutor executor;
         CriticalError criticalError;
         ReadOnlySettings settings;
         IBuilder builder;

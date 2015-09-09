@@ -7,9 +7,9 @@ namespace NServiceBus.Transports.Msmq
     using Logging;
     using Support;
 
-    class MsmqQueueCreator : ICreateQueues
+    class QueueCreator : ICreateQueues
     {
-        static ILog Logger = LogManager.GetLogger<MsmqQueueCreator>();
+        static ILog Logger = LogManager.GetLogger<QueueCreator>();
 
         /// <summary>
         /// The current runtime settings.

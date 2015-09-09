@@ -55,9 +55,6 @@
                 r.RegisterSingleton(typeof(ScenarioContext), runDescriptor.ScenarioContext);
             });
 
-            // Workaround to avoid issues when stopping endpoints while processing messages
-            builder.Throttling().UseSingleTotalThroughputLimit(1);
-
             var serializer = settings.GetOrNull("Serializer");
 
             if (serializer != null)
