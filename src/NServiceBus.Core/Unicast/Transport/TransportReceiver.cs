@@ -29,7 +29,7 @@ namespace NServiceBus.Unicast.Transport
         /// </summary>
         public string Id { get; private set; }
 
-        void InvokePipeline(PushContext pushContext)
+        Task InvokePipeline(PushContext pushContext)
         {
             using (var childBuilder = builder.CreateChildBuilder())
             {
@@ -45,6 +45,7 @@ namespace NServiceBus.Unicast.Transport
                 pipeline.Invoke(context);
             }
 
+            return Task.FromResult(0);
         }
         
         /// <summary>

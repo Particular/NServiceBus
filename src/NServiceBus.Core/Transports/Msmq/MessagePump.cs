@@ -16,7 +16,7 @@ namespace NServiceBus.Transports.Msmq
             this.criticalError = criticalError;
         }
 
-        public DequeueInfo Init(Action<PushContext> pipe, PushSettings settings)
+        public DequeueInfo Init(Func<PushContext, Task> pipe, PushSettings settings)
         {
             pipeline = pipe;
 
@@ -220,7 +220,7 @@ namespace NServiceBus.Transports.Msmq
         Task messagePumpTask;
         TaskScheduler scheduler;
         CancellationTokenSource cancellationTokenSource;
-        Action<PushContext> pipeline;
+        Func<PushContext, Task> pipeline;
         ReceiveStrategy receiveStrategy;
         CriticalError criticalError;
         RepeatedFailuresOverTimeCircuitBreaker peekCircuitBreaker;
