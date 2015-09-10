@@ -7,7 +7,6 @@ namespace NServiceBus
     using NServiceBus.Features;
     using NServiceBus.Performance.TimeToBeReceived;
     using NServiceBus.Transports;
-    using NServiceBus.Transports.Msmq;
 
     /// <summary>
     /// Transport definition for MSMQ.

@@ -1,4 +1,4 @@
-namespace NServiceBus.Persistence.Msmq.SubscriptionStorage
+namespace NServiceBus
 {
     using Unicast.Subscriptions;
 

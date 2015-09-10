@@ -1,4 +1,4 @@
-namespace NServiceBus.Transports.Msmq
+namespace NServiceBus
 {
     using System;
     using System.Net;
@@ -7,7 +7,7 @@ namespace NServiceBus.Transports.Msmq
     ///<summary>
     /// Abstraction for an address on the NServiceBus network.
     ///</summary>
-    internal struct MsmqAddress
+    struct MsmqAddress
     {
 
         /// <summary>

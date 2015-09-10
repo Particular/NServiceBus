@@ -1,4 +1,4 @@
-namespace NServiceBus.Persistence.SubscriptionStorage
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
@@ -7,8 +7,6 @@ namespace NServiceBus.Persistence.SubscriptionStorage
     using System.Threading.Tasks;
     using System.Transactions;
     using Logging;
-    using Msmq.SubscriptionStorage;
-    using NServiceBus.Transports.Msmq;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
     using MessageType = Unicast.Subscriptions.MessageType;
 

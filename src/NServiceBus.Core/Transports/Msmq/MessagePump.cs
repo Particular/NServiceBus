@@ -1,4 +1,4 @@
-namespace NServiceBus.Transports.Msmq
+namespace NServiceBus
 {
     using System;
     using System.Diagnostics;
@@ -8,6 +8,7 @@ namespace NServiceBus.Transports.Msmq
     using System.Transactions;
     using NServiceBus.CircuitBreakers;
     using NServiceBus.Logging;
+    using NServiceBus.Transports;
 
     class MessagePump : IPushMessages, IDisposable
     {

@@ -6,7 +6,6 @@
     using System.Linq;
     using System.Messaging;
     using System.Security;
-    using NServiceBus.Config;
     using NServiceBus.Logging;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Settings;

@@ -3,7 +3,6 @@
     using Config;
     using Logging;
     using NServiceBus.Transports;
-    using Persistence.SubscriptionStorage;
 
     /// <summary>
     /// Provides subscription storage using a msmq queue as the backing store.

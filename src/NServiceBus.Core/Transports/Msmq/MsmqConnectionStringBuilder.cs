@@ -1,4 +1,4 @@
-namespace NServiceBus.Config
+namespace NServiceBus
 {
     using System;
     using System.Data.Common;

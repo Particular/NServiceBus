@@ -1,4 +1,4 @@
-namespace NServiceBus.Transports.Msmq
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
@@ -6,6 +6,7 @@ namespace NServiceBus.Transports.Msmq
     using System.Threading.Tasks;
     using NServiceBus.Extensibility;
     using NServiceBus.Logging;
+    using NServiceBus.Transports;
 
     class ReceiveWithNativeTransaction : ReceiveStrategy
     {
