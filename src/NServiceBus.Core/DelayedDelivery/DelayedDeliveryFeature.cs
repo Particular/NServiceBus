@@ -13,34 +13,54 @@
         {
             EnableByDefault();
         }
+
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            if (!context.DoesTransportSupportConstraint<DelayedDeliveryConstraint>())
+            var transportHasNativeDelayedDelivery = context.DoesTransportSupportConstraint<DelayedDeliveryConstraint>();
+            var timeoutMgrDisabled = IsTimeoutManagerDisabled(context);
+
+            if (!transportHasNativeDelayedDelivery)
             {
-                var timeoutManagerAddress = GetTimeoutManagerAddress(context);
-
-                context.Pipeline.Register<RouteDeferredMessageToTimeoutManagerBehavior.Registration>();
-
-
-                context.Container.ConfigureComponent(b => new RouteDeferredMessageToTimeoutManagerBehavior(timeoutManagerAddress), DependencyLifecycle.SingleInstance);
-
-
-                context.Container.ConfigureComponent(b =>
+                if (timeoutMgrDisabled)
                 {
-                    var pipelinesCollection = context.Settings.Get<PipelineConfiguration>();
+                    DoNotClearTimeouts(context);
+                    context.Pipeline.Register<ThrowIfCannotDeferMessageBehavior.Registration>();
+                }
+                else
+                {
+                    var timeoutManagerAddress = GetTimeoutManagerAddress(context);
 
-                    var dispatchPipeline = new PipelineBase<DispatchContext>(b, context.Settings, pipelinesCollection.MainPipeline);
+                    context.Pipeline.Register<RouteDeferredMessageToTimeoutManagerBehavior.Registration>();
 
-                    return new RequestCancelingOfDeferredMessagesFromTimeoutManager(timeoutManagerAddress, dispatchPipeline);
-                }, DependencyLifecycle.SingleInstance);
+                    context.Container.ConfigureComponent(b => new RouteDeferredMessageToTimeoutManagerBehavior(timeoutManagerAddress), DependencyLifecycle.SingleInstance);
 
+                    context.Container.ConfigureComponent(b =>
+                    {
+                        var pipelinesCollection = context.Settings.Get<PipelineConfiguration>();
+
+                        var dispatchPipeline = new PipelineBase<DispatchContext>(b, context.Settings, pipelinesCollection.MainPipeline);
+
+                        return new RequestCancelingOfDeferredMessagesFromTimeoutManager(timeoutManagerAddress, dispatchPipeline);
+                    }, DependencyLifecycle.SingleInstance);
+                }
             }
             else
             {
-                context.Container.ConfigureComponent(b => new NoOpCanceling(), DependencyLifecycle.SingleInstance);
+                DoNotClearTimeouts(context);
+
             }
 
             context.Pipeline.Register("ApplyDelayedDeliveryConstraint", typeof(ApplyDelayedDeliveryConstraintBehavior), "Applied relevant delayed delivery constraints requested by the user");
+        }
+
+        static bool IsTimeoutManagerDisabled(FeatureConfigurationContext context)
+        {
+            FeatureState timeoutMgrState;
+            if (context.Settings.TryGet("NServiceBus.Features.TimeoutManager", out timeoutMgrState))
+            {
+                return timeoutMgrState == FeatureState.Deactivated || timeoutMgrState == FeatureState.Disabled;
+            }
+            return true;
         }
 
         static string GetTimeoutManagerAddress(FeatureConfigurationContext context)
@@ -53,6 +73,11 @@
             }
             var selectedTransportDefinition = context.Settings.Get<TransportDefinition>();
             return selectedTransportDefinition.GetSubScope(context.Settings.Get<string>("MasterNode.Address"), "Timeouts");
+        }
+
+        static void DoNotClearTimeouts(FeatureConfigurationContext context)
+        {
+            context.Container.ConfigureComponent(b => new NoOpCanceling(), DependencyLifecycle.SingleInstance);
         }
     }
 }

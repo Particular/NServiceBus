@@ -71,12 +71,16 @@
     <Compile Include="Basic\When_registering_additional_deserializers.cs" />
     <Compile Include="Basic\When_setting_msmq_label_generator.cs" />
     <Compile Include="Basic\When_deferring_to_non_local.cs" />
+    <Compile Include="DelayedDelivery\When_TimeoutManager_is_disabled.cs" />
     <Compile Include="Basic\When_starting_up_the_endpoint.cs" />
     <Compile Include="Mutators\When_mutating.cs" />
     <Compile Include="BestPractices\When_publishing_command_bestpractices_disabled_on_endpoint.cs" />
     <Compile Include="BestPractices\When_sending_events_bestpractices_disabled_on_endpoint.cs" />
     <Compile Include="BestPractices\When_sending_events_bestpractices_disabled.cs" />
     <Compile Include="BestPractices\When_subscribing_to_command_bestpractices_disabled_on_endpoint.cs" />
+    <Compile Include="EndpointTemplates\ConfigureExtensions.cs" />
+    <Compile Include="EndpointTemplates\DefaultPublisher.cs" />
+    <Compile Include="EndpointTemplates\DefaultServer.cs" />
     <Compile Include="Mutators\When_using_outgoing_tm_mutator.cs" />
     <Compile Include="FakeTransport\FakeDispatcher.cs" />
     <Compile Include="FakeTransport\FakeQueueCreator.cs" />
@@ -179,7 +183,6 @@
     <Compile Include="Encryption\When_using_Rijndael_with_multikey.cs" />
     <Compile Include="Encryption\When_using_Rijndael_with_custom.cs" />
     <Compile Include="Encryption\When_using_Rijndael_with_config.cs" />
-    <Compile Include="Encryption\EndpointTemplates\DefaultPublisher.cs" />
     <Compile Include="Mutators\Issue_1980.cs" />
     <Compile Include="Mutators\When_outgoing_mutator_replaces_instance.cs" />
     <Compile Include="Mutators\When_defining_outgoing_message_mutators.cs" />
@@ -209,7 +212,6 @@
     <Compile Include="Reliability\Outbox\When_receiving_a_message.cs" />
     <Compile Include="NServiceBusAcceptanceTest.cs" />
     <Compile Include="DataBus\When_sending_databus_properties.cs" />
-    <Compile Include="Encryption\EndpointTemplates\ConfigureExtensions.cs" />
     <Compile Include="Routing\SubscriptionBehavior.cs" />
     <Compile Include="Routing\When_multi_subscribing_to_a_polymorphic_event.cs" />
     <Compile Include="Routing\When_publishing_with_overridden_local_address.cs" />
@@ -241,7 +243,6 @@
     <Compile Include="Sagas\When_using_contain_saga_data.cs" />
     <Compile Include="ScenarioDescriptors\Builders.cs" />
     <Compile Include="ScenarioDescriptors\AllTransports.cs" />
-    <Compile Include="Encryption\EndpointTemplates\DefaultServer.cs" />
     <Compile Include="ScenarioDescriptors\Persistence.cs" />
     <Compile Include="Scheduling\When_scheduling_a_recurring_task.cs" />
     <Compile Include="Tx\FakePromotableResourceManager.cs" />

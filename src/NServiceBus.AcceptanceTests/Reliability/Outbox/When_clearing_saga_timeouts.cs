@@ -5,6 +5,7 @@
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Configuration.AdvanceExtensibility;
+    using NServiceBus.Features;
     using NServiceBus.Outbox;
     using NServiceBus.Persistence;
     using NUnit.Framework;
@@ -41,6 +42,7 @@
                     b =>
                     {
                         b.GetSettings().Set("DisableOutboxTransportCheck", true);
+                        b.EnableFeature<TimeoutManager>();
                         b.EnableOutbox();
                         b.UsePersistence<FakeOutboxPersistence>();
                         b.RegisterComponents(c => c.ConfigureComponent<FakeOutbox>(DependencyLifecycle.SingleInstance));

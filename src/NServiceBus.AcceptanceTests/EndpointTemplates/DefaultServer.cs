@@ -43,8 +43,7 @@
             builder.CustomConfigurationSource(configSource);
             builder.EnableInstallers();
 
-            // TimeoutManager is currently required by Sagas
-            builder.EnableFeature<TimeoutManager>();
+            builder.DisableFeature<TimeoutManager>();
             builder.DisableFeature<SecondLevelRetries>();
             await builder.DefineTransport(settings, endpointConfiguration.BuilderType);
             builder.DefineTransactions(settings);
