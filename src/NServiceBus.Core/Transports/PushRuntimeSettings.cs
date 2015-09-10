@@ -9,14 +9,14 @@ namespace NServiceBus.Transports
         /// Restricts the concurrency.
         /// </summary>
         /// <param name="maxConcurrency">The max value to enforce.</param>
-        public PushRuntimeSettings(int? maxConcurrency)
+        public PushRuntimeSettings(int maxConcurrency = 100)
         {
             MaxConcurrency = maxConcurrency;
         }
         /// <summary>
         /// The maximum number of messages that should be in flight at any given time.
         /// </summary>
-        public int? MaxConcurrency { get; private set; }
+        public int MaxConcurrency { get; private set; }
 
 
         /// <summary>
@@ -24,7 +24,7 @@ namespace NServiceBus.Transports
         /// </summary>
         public static PushRuntimeSettings Default
         {
-            get { return new PushRuntimeSettings(null); }
+            get { return new PushRuntimeSettings(); }
         }
     }
 }

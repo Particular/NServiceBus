@@ -79,7 +79,7 @@ namespace NServiceBus.Unicast.Transport
                 return;
             }
 
-            receiver.Stop();
+            await receiver.Stop().ConfigureAwait(false);
             await pipeline.Cooldown().ConfigureAwait(false);
 
             isStarted = false;

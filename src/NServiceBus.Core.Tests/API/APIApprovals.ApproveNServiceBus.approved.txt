@@ -2446,7 +2446,7 @@ namespace NServiceBus.Transports
     {
         NServiceBus.Transports.DequeueInfo Init(System.Func<NServiceBus.Transports.PushContext, System.Threading.Tasks.Task> pipe, NServiceBus.Transports.PushSettings settings);
         void Start(NServiceBus.Transports.PushRuntimeSettings limitations);
-        void Stop();
+        System.Threading.Tasks.Task Stop();
     }
     [System.ObsoleteAttribute("Please use `IDispatchMessages` instead. Will be removed in version 7.0.0.", true)]
     public interface ISendMessages
@@ -2472,9 +2472,9 @@ namespace NServiceBus.Transports
     }
     public class PushRuntimeSettings
     {
-        public PushRuntimeSettings(System.Nullable<int> maxConcurrency) { }
+        public PushRuntimeSettings(int maxConcurrency = 100) { }
         public static NServiceBus.Transports.PushRuntimeSettings Default { get; }
-        public System.Nullable<int> MaxConcurrency { get; }
+        public int MaxConcurrency { get; }
     }
     public class PushSettings
     {

@@ -270,7 +270,6 @@
     <Compile Include="TransportDispatch\HeaderContextExtensions.cs" />
     <Compile Include="Transports\DequeueInfo.cs" />
     <Compile Include="Transports\PushRuntimeSettings.cs" />
-    <Compile Include="Transports\Msmq\LimitedConcurrencyLevelTaskScheduler.cs" />
     <Compile Include="Transports\Msmq\MsmqLabelGenerator.cs" />
     <Compile Include="Transports\ICancelDeferredMessages.cs" />
     <Compile Include="Transports\Msmq\MsmqAddress.cs" />
