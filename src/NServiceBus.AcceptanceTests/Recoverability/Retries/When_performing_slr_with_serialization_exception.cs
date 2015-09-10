@@ -4,7 +4,6 @@
     using NServiceBus.AcceptanceTesting;
     using NUnit.Framework;
 
-    [Ignore]
     public class When_performing_slr_with_serialization_exception : When_performing_slr
     {
         [Test]
@@ -16,7 +15,7 @@
                     bus.SendLocal(new MessageToBeRetried());
                     return Task.FromResult(0);
                 }))
-                .AllowExceptions(e => e is SimulatedException)
+                .AllowExceptions(e => e is MessageDeserializationException)
                 .Done(c => c.SlrChecksum != default(byte))
                 .Run();
 
