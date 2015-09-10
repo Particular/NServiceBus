@@ -8,7 +8,6 @@ namespace NServiceBus.AcceptanceTests.FakeTransport
     {
         public FakeTransportContext Context { get; set; }
 
-
         public DequeueInfo Init(Func<PushContext, Task> pipe, PushSettings settings)
         {
             isMain = !settings.InputQueue.Contains("#");
@@ -29,8 +28,9 @@ namespace NServiceBus.AcceptanceTests.FakeTransport
             }
         }
 
-        public void Stop()
+        public Task Stop()
         {
+            return Task.FromResult(0);
         }
 
         bool isMain;

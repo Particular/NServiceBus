@@ -1,6 +1,7 @@
 namespace NServiceBus.Timeout.Core
 {
     using System;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Timeout persister contract.
@@ -12,22 +13,21 @@ namespace NServiceBus.Timeout.Core
         /// </summary>
         /// <param name="timeout">Timeout data.</param>
         /// <param name="options">The timeout persistence options.</param>
-        void Add(TimeoutData timeout, TimeoutPersistenceOptions options);
+        Task Add(TimeoutData timeout, TimeoutPersistenceOptions options);
 
         /// <summary>
         /// Removes the timeout if it hasn't been previously removed.
         /// </summary>
         /// <param name="timeoutId">The timeout id to remove.</param>
-        /// <param name="timeoutData">The timeout data of the removed timeout.</param>
         /// <param name="options">The timeout persistence options.</param>
-        /// <returns><c>true</c> it the timeout was successfully removed.</returns>
-        bool TryRemove(string timeoutId, TimeoutPersistenceOptions options, out TimeoutData timeoutData);
+        /// <returns><see cref="TimeoutData"/> of the timeout if it was successfully removed. <c>null</c> otherwise.</returns>
+        Task<TimeoutData> Remove(string timeoutId, TimeoutPersistenceOptions options);
 
         /// <summary>
-        /// Removes the time by saga id.
+        /// Removes the timeouts by saga id.
         /// </summary>
         /// <param name="sagaId">The saga id of the timeouts to remove.</param>
         /// <param name="options">The timeout persistence options.</param>
-        void RemoveTimeoutBy(Guid sagaId, TimeoutPersistenceOptions options);
+        Task RemoveTimeoutBy(Guid sagaId, TimeoutPersistenceOptions options);
     }
 }

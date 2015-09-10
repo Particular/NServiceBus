@@ -27,14 +27,17 @@ namespace NServiceBus.DelayedDelivery.TimeoutManager
         {
             tokenSource = new CancellationTokenSource();
 
-            StartPoller();
+            var token = tokenSource.Token;
+
+            timeoutPollerTask = Task.Factory
+                .StartNew(() => Poll(token), TaskCreationOptions.LongRunning)
+                .Unwrap();
         }
 
-        public void Stop()
+        public Task Stop()
         {
             tokenSource.Cancel();
-
-            resetEvent.WaitOne();
+            return Task.WhenAll(timeoutPollerTask);
         }
 
         public void NewTimeoutRegistered(DateTime expiryTime)
@@ -54,57 +57,51 @@ namespace NServiceBus.DelayedDelivery.TimeoutManager
             //Injected
         }
 
-        void StartPoller()
+        async Task Poll(CancellationToken cancellationToken)
         {
-            var token = tokenSource.Token;
+            try
+            {
+                await InnerPoll(cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                Logger.Warn("Failed to fetch timeouts from the timeout storage", ex);
+                circuitBreaker.Failure(ex);
+            }
 
-            Task.Factory
-                .StartNew(Poll, token, TaskCreationOptions.LongRunning)
-                .ContinueWith(t =>
-                {
-                    t.Exception.Handle(ex =>
-                    {
-                        Logger.Warn("Failed to fetch timeouts from the timeout storage", ex);
-                        circuitBreaker.Failure(ex);
-                        return true;
-                    });
-
-                    StartPoller();
-                }, TaskContinuationOptions.OnlyOnFaulted);
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                await Poll(cancellationToken);
+            }
         }
 
-        void Poll(object obj)
+        async Task InnerPoll(CancellationToken cancellationToken)
         {
-            var cancellationToken = (CancellationToken)obj;
-
             var startSlice = DateTime.UtcNow.AddYears(-10);
-
-            resetEvent.Reset();
 
             while (!cancellationToken.IsCancellationRequested)
             {
                 if (nextRetrieval > DateTime.UtcNow)
                 {
-                    Thread.Sleep(1000);
+                    // ReSharper disable once MethodSupportsCancellation
+                    await Task.Delay(1000);
                     continue;
                 }
 
                 Logger.DebugFormat("Polling for timeouts at {0}.", DateTime.Now);
 
-                DateTime nextExpiredTimeout;
-                var timeoutDatas = timeoutsFetcher.GetNextChunk(startSlice, out nextExpiredTimeout);
+                var timeoutChunk = await timeoutsFetcher.GetNextChunk(startSlice).ConfigureAwait(false);
 
-                foreach (var timeoutData in timeoutDatas)
+                foreach (var timeoutData in timeoutChunk.DueTimeouts)
                 {
-                    if (startSlice < timeoutData.Item2)
+                    if (startSlice < timeoutData.DueTime)
                     {
-                        startSlice = timeoutData.Item2;
+                        startSlice = timeoutData.DueTime;
                     }
-
 
                     var dispatchRequest = ControlMessageFactory.Create(MessageIntentEnum.Send);
 
-                    dispatchRequest.Headers["Timeout.Id"] = timeoutData.Item1;
+                    dispatchRequest.Headers["Timeout.Id"] = timeoutData.Id;
 
                     dispatcher.Dispatch(dispatchRequest, new DispatchOptions(dispatcherAddress, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), new ContextBag()));
                 }
@@ -114,11 +111,11 @@ namespace NServiceBus.DelayedDelivery.TimeoutManager
                     //Check if nextRetrieval has been modified (This means that a push come in) and if it has check if it is earlier than nextExpiredTimeout time
                     if (!timeoutPushed)
                     {
-                        nextRetrieval = nextExpiredTimeout;
+                        nextRetrieval = timeoutChunk.NextTimeToQuery;
                     }
-                    else if (nextExpiredTimeout < nextRetrieval)
+                    else if (timeoutChunk.NextTimeToQuery < nextRetrieval)
                     {
-                        nextRetrieval = nextExpiredTimeout;
+                        nextRetrieval = timeoutChunk.NextTimeToQuery;
                     }
 
                     timeoutPushed = false;
@@ -137,8 +134,6 @@ namespace NServiceBus.DelayedDelivery.TimeoutManager
                 Logger.DebugFormat("Polling next retrieval is at {0}.", nextRetrieval.ToLocalTime());
                 circuitBreaker.Success();
             }
-
-            resetEvent.Set();
         }
 
         IQueryTimeouts timeoutsFetcher;
@@ -146,7 +141,7 @@ namespace NServiceBus.DelayedDelivery.TimeoutManager
         string dispatcherAddress;
         RepeatedFailuresOverTimeCircuitBreaker circuitBreaker;
         object lockObject = new object();
-        ManualResetEvent resetEvent = new ManualResetEvent(true);
+        Task timeoutPollerTask;
         DateTime nextRetrieval = DateTime.UtcNow;
         volatile bool timeoutPushed;
         CancellationTokenSource tokenSource;

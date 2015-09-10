@@ -21,6 +21,6 @@
         /// <summary>
         /// Stops pushing messages.
         /// </summary>
-        void Stop();
+        Task Stop();
     }
 }

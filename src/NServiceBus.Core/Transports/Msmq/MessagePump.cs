@@ -9,6 +9,7 @@ namespace NServiceBus
     using NServiceBus.CircuitBreakers;
     using NServiceBus.Logging;
     using NServiceBus.Transports;
+    using NServiceBus.Unicast.Transport;
 
     class MessagePump : IPushMessages, IDisposable
     {
@@ -60,58 +61,30 @@ namespace NServiceBus
         {
             MessageQueue.ClearConnectionCache();
 
-            if (limitations.MaxConcurrency.HasValue)
-            {
-                scheduler = new LimitedConcurrencyLevelTaskScheduler(limitations.MaxConcurrency.Value);
-            }
-            else
-            {
-                scheduler = TaskScheduler.Current;
-            }
+            concurrencyLimiter = new SemaphoreSlim(limitations.MaxConcurrency);
             cancellationTokenSource = new CancellationTokenSource();
 
-            messagePumpTask = Task.Factory.StartNew(_ => { ProcessMessages(); }, cancellationTokenSource.Token)
-                      .ContinueWith(t =>
-                         {
-                             Logger.Error("MSMQ Message pump failed", t.Exception);
-
-                             if (!cancellationTokenSource.IsCancellationRequested)
-                             {
-                                 ProcessMessages();
-                             }
-                         }, TaskContinuationOptions.OnlyOnFaulted);
+            cancellationToken = cancellationTokenSource.Token;
+            messagePumpTask = Task.Factory.StartNew(() => ProcessMessages(), CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default).Unwrap();
         }
-
-
 
         /// <summary>
         ///     Stops the dequeuing of messages.
         /// </summary>
-        public void Stop()
+        public async Task Stop()
         {
             cancellationTokenSource.Cancel();
 
-            try
-            {
-                if (!messagePumpTask.Wait(TimeSpan.FromSeconds(30)))
-                {
-                    Logger.Error("The message pump failed to stop with in the time allowed(30s)");
-                }
-            }
-            catch (AggregateException aex)
-            {
-                aex.Handle(ex =>
-                {
-                    if (ex is OperationCanceledException)
-                    {
-                        return true;
-                    }
+            // ReSharper disable once MethodSupportsCancellation
+            var timeoutTask = Task.Delay(TimeSpan.FromSeconds(30));
+            var finishedTask = await Task.WhenAny(messagePumpTask, timeoutTask);
 
-                    Logger.Error("Exceptions when stopping message pump", ex);
-                    return true;
-                });
+            if (finishedTask.Equals(timeoutTask))
+            {
+                Logger.Error("The message pump failed to stop with in the time allowed(30s)");
             }
 
+            concurrencyLimiter.Dispose();
             inputQueue.Dispose();
             errorQueue.Dispose();
         }
@@ -122,11 +95,32 @@ namespace NServiceBus
         }
 
         [DebuggerNonUserCode]
-        void ProcessMessages()
+        async Task ProcessMessages()
+        {
+            try
+            {
+                await InnerProcessMessages();
+            }
+            catch(OperationCanceledException)
+            {
+                // For graceful shutdown purposes
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("MSMQ Message pump failed", ex);
+                peekCircuitBreaker.Failure(ex);
+            }
+
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                await ProcessMessages();
+            }
+        }
+
+        async Task InnerProcessMessages()
         {
             using (var enumerator = inputQueue.GetMessageEnumerator2())
             {
-
                 while (!cancellationTokenSource.IsCancellationRequested)
                 {
                     try
@@ -141,6 +135,7 @@ namespace NServiceBus
                     }
                     catch (Exception ex)
                     {
+                        Logger.Warn("MSMQ receive operation failed", ex);
                         peekCircuitBreaker.Failure(ex);
                         continue;
                     }
@@ -150,7 +145,9 @@ namespace NServiceBus
                         return;
                     }
 
-                    Task.Factory.StartNew(() =>
+                    await concurrencyLimiter.WaitAsync(cancellationToken);
+
+                    await Task.Factory.StartNew(() =>
                     {
                         try
                         {
@@ -162,22 +159,27 @@ namespace NServiceBus
                         {
                             //expected to happen
                         }
-                        catch (MessageQueueException messageQueueException)
+                        catch (MessageQueueException ex)
                         {
-                            if (messageQueueException.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
+                            if (ex.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
                             {
                                 //We should only get an IOTimeout exception here if another process removed the message between us peeking and now.
                                 return;
                             }
 
-                            throw;
+                            Logger.Warn("MSMQ receive operation failed", ex);
+                            receiveCircuitBreaker.Failure(ex);
                         }
                         catch (Exception ex)
                         {
                             Logger.Warn("MSMQ receive operation failed", ex);
                             receiveCircuitBreaker.Failure(ex);
                         }
-                    }, cancellationTokenSource.Token, TaskCreationOptions.AttachedToParent, scheduler);
+                        finally
+                        {
+                            concurrencyLimiter.Release();
+                        }
+                    }, cancellationToken, TaskCreationOptions.AttachedToParent,  TaskScheduler.Default);
                 }
             }
         }
@@ -195,7 +197,7 @@ namespace NServiceBus
             }
         }
 
-        ReceiveStrategy SelectReceiveStrategy(Unicast.Transport.TransactionSettings transactionSettings)
+        ReceiveStrategy SelectReceiveStrategy(TransactionSettings transactionSettings)
         {
             if (!transactionSettings.IsTransactional)
             {
@@ -219,8 +221,9 @@ namespace NServiceBus
 
 
         Task messagePumpTask;
-        TaskScheduler scheduler;
+        SemaphoreSlim concurrencyLimiter;
         CancellationTokenSource cancellationTokenSource;
+        CancellationToken cancellationToken;
         Func<PushContext, Task> pipeline;
         ReceiveStrategy receiveStrategy;
         CriticalError criticalError;
