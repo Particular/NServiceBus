@@ -18,7 +18,9 @@ namespace NServiceBus.ContainerTests
                 builder.Configure(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
 
                 using (var nestedContainer = builder.BuildChildContainer())
+                {
                     nestedContainer.Build(typeof(InstancePerUoWComponent));
+                }
                 Assert.True(InstancePerUoWComponent.DisposeCalled);
             }
             //Not supported by typeof(SpringObjectBuilder));
@@ -51,6 +53,36 @@ namespace NServiceBus.ContainerTests
 
 
             //Not supported by typeof(SpringObjectBuilder));
+        }
+
+
+        [Test]
+        public void Should_resolve_child_container_instance_first()
+        {
+            using (var builder = TestContainerBuilder.ConstructBuilder())
+            {
+                builder.Configure(typeof(InstanceToReplaceInNested_Parent), DependencyLifecycle.SingleInstance);
+                var instance1 = builder.Build(typeof(IInstanceToReplaceInNested));
+                object instance2;
+                using (var nestedContainer = builder.BuildChildContainer())
+                {
+                    nestedContainer.Configure(typeof(InstanceToReplaceInNested_Child), DependencyLifecycle.SingleInstance);
+                    instance2 = nestedContainer.Build(typeof(IInstanceToReplaceInNested));
+                }
+
+                Assert.AreNotSame(instance1, instance2);
+            }
+        }
+
+        public interface IInstanceToReplaceInNested
+        {
+        }
+
+        public class InstanceToReplaceInNested_Parent : IInstanceToReplaceInNested
+        {
+        }
+        public class InstanceToReplaceInNested_Child : IInstanceToReplaceInNested
+        {
         }
 
         [Test]
