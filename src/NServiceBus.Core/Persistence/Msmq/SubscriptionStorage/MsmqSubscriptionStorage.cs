@@ -112,7 +112,7 @@ namespace NServiceBus
                     }
                 }
             }
-            return Task.FromResult(0);
+            return TaskEx.Completed;
         }
 
         public Task Unsubscribe(string address, IEnumerable<MessageType> messageTypes, SubscriptionStorageOptions options)
@@ -135,7 +135,7 @@ namespace NServiceBus
                     }
                 }
             }
-            return Task.FromResult(0);
+            return TaskEx.Completed;
         }
 
         /// <summary>

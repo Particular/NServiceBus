@@ -20,7 +20,7 @@ namespace NServiceBus.InMemory.SubscriptionStorage
 
                 dict.AddOrUpdate(address, addValueFactory, updateValueFactory);
             }
-            return Task.FromResult(0);
+            return TaskEx.Completed;
         }
 
         public Task Unsubscribe(string address, IEnumerable<MessageType> messageTypes, SubscriptionStorageOptions options)
@@ -34,7 +34,7 @@ namespace NServiceBus.InMemory.SubscriptionStorage
                     dict.TryRemove(address, out _);
                 }
             }
-            return Task.FromResult(0);
+            return TaskEx.Completed;
         }
 
         public Task<IEnumerable<string>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes)
