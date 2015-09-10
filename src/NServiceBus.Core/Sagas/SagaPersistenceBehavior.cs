@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using NServiceBus.DelayedDelivery.TimeoutManager;
     using NServiceBus.Logging;
     using NServiceBus.Pipeline;
@@ -47,7 +48,7 @@
             //so that other behaviors can access the saga
             context.Set(sagaInstanceState);
 
-            var loadedEntity = TryLoadSagaEntity(sagaPersistenceOptions, context);
+            var loadedEntity = TryLoadSagaEntity(sagaPersistenceOptions, context).GetAwaiter().GetResult();
 
             if (loadedEntity == null)
             {
@@ -206,7 +207,7 @@
             return true;
         }
 
-        IContainSagaData TryLoadSagaEntity(SagaPersistenceOptions options, Context context)
+        Task<IContainSagaData> TryLoadSagaEntity(SagaPersistenceOptions options, Context context)
         {
             string sagaId;
             var metadata = options.Metadata;
@@ -236,14 +237,13 @@
             //check if we could find a finder
             if (finderDefinition == null)
             {
-                return null;
+                return Task.FromResult(default(IContainSagaData));
             }
 
             var finderType = finderDefinition.Type;
+            var finder = (SagaFinder)currentContext.Builder.Build(finderType);
 
-            var finder = currentContext.Builder.Build(finderType);
-
-            return ((SagaFinder)finder).Find(currentContext.Builder, finderDefinition, options, context.MessageBeingHandled);
+            return finder.Find(currentContext.Builder, finderDefinition, options, context.MessageBeingHandled);
         }
 
         IContainSagaData CreateNewSagaEntity(SagaMetadata metadata, Context context)

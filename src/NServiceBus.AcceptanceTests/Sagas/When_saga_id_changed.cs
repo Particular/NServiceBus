@@ -28,7 +28,12 @@
                 .AllowExceptions()
                 .Done(c => c.MessageFailed)
                 .Repeat(r => r.For(Transports.Default))
-                .Should(c => { Assert.AreEqual(c.ExceptionMessage, "A modification of IContainSagaData.Id has been detected. This property is for infrastructure purposes only and should not be modified. SagaType: " + typeof(Endpoint.SagaIdChangedSaga)); })
+                .Should(c =>
+                {
+                    Assert.AreEqual(
+                        "A modification of IContainSagaData.Id has been detected. This property is for infrastructure purposes only and should not be modified. SagaType: " + typeof(Endpoint.SagaIdChangedSaga),
+                        c.ExceptionMessage);
+                })
                 .Run();
         }
 
@@ -82,8 +87,8 @@
                 {
                     BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e =>
                     {
-                        Context.MessageFailed = true;
                         Context.ExceptionMessage = e.Exception.Message;
+                        Context.MessageFailed = true;
                     });
                 }
 

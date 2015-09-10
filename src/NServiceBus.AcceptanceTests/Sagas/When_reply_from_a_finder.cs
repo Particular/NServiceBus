@@ -43,13 +43,13 @@
                 public IBus Bus { get; set; }
                 public Context Context { get; set; }
 
-                public TestSagaWithCustomFinder.TestSagaWithCustomFinderSagaData FindBy(StartSagaMessage message, SagaPersistenceOptions options)
+                public Task<TestSagaWithCustomFinder.TestSagaWithCustomFinderSagaData> FindBy(StartSagaMessage message, SagaPersistenceOptions options)
                 {
                     Bus.Reply(new SagaNotFoundMessage
                     {
                         Id = Context.Id
                     });
-                    return null;
+                    return Task.FromResult(default(TestSagaWithCustomFinder.TestSagaWithCustomFinderSagaData));
                 }
             }
 

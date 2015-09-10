@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using NServiceBus.Sagas;
     using NUnit.Framework;
     using Conventions = NServiceBus.Conventions;
@@ -96,9 +97,9 @@
 
             public class Finder : IFindSagas<SagaData>.Using<StartSagaMessage>
             {
-                public SagaData FindBy(StartSagaMessage message, SagaPersistenceOptions options)
+                public Task<SagaData> FindBy(StartSagaMessage message, SagaPersistenceOptions options)
                 {
-                    return null;
+                    return Task.FromResult(default(SagaData));
                 }
             }
 
@@ -143,9 +144,9 @@
 
             public class Finder : IFindSagas<SagaData>.Using<StartSagaMessage>
             {
-                public SagaData FindBy(StartSagaMessage message, SagaPersistenceOptions options)
+                public Task<SagaData> FindBy(StartSagaMessage message, SagaPersistenceOptions options)
                 {
-                    return null;
+                    return Task.FromResult(default(SagaData));
                 }
             }
 
@@ -412,9 +413,9 @@
 
             internal class CustomFinder : IFindSagas<SagaData>.Using<SomeMessage>
             {
-                public SagaData FindBy(SomeMessage message, SagaPersistenceOptions options)
+                public Task<SagaData> FindBy(SomeMessage message, SagaPersistenceOptions options)
                 {
-                    return null;
+                    return Task.FromResult(default(SagaData));
                 }
             }
 

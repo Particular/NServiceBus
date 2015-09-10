@@ -39,10 +39,10 @@
             class CustomFinder : IFindSagas<TestSaga06.SagaData06>.Using<StartSagaMessage>
             {
                 public Context Context { get; set; }
-                public TestSaga06.SagaData06 FindBy(StartSagaMessage message, SagaPersistenceOptions options)
+                public Task<TestSaga06.SagaData06> FindBy(StartSagaMessage message, SagaPersistenceOptions options)
                 {
                     Context.FinderUsed = true;
-                    return null;
+                    return Task.FromResult(default(TestSaga06.SagaData06));
                 }
             }
 

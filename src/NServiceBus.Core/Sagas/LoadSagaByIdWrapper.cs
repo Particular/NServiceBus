@@ -1,19 +1,19 @@
 namespace NServiceBus.Sagas
 {
     using System;
+    using System.Threading.Tasks;
 
- 
     //this class in only here until we can move to a better saga persister api
-    class LoadSagaByIdWrapper<T>:SagaLoader where T : IContainSagaData
+    class LoadSagaByIdWrapper<T> : SagaLoader where T : IContainSagaData
     {
-        public IContainSagaData Load(ISagaPersister persister, string sagaId, SagaPersistenceOptions options)
+        public async Task<IContainSagaData> Load(ISagaPersister persister, string sagaId, SagaPersistenceOptions options)
         {
-            return persister.Get<T>(Guid.Parse(sagaId), options).GetAwaiter().GetResult();
+            return await persister.Get<T>(Guid.Parse(sagaId), options).ConfigureAwait(false);
         }
     }
 
     interface SagaLoader
     {
-        IContainSagaData Load(ISagaPersister persister, string sagaId, SagaPersistenceOptions options);
+        Task<IContainSagaData> Load(ISagaPersister persister, string sagaId, SagaPersistenceOptions options);
     }
 }

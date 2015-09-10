@@ -2068,7 +2068,7 @@ namespace NServiceBus.Sagas
         public interface Using<T, M> : NServiceBus.Sagas.IFinder
             where T : NServiceBus.IContainSagaData
         {
-            T FindBy(M message, NServiceBus.Sagas.SagaPersistenceOptions options);
+            System.Threading.Tasks.Task<T> FindBy(M message, NServiceBus.Sagas.SagaPersistenceOptions options);
         }
     }
     public interface IHandleSagaNotFound
