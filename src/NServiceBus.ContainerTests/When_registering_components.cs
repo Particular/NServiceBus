@@ -221,8 +221,6 @@ namespace NServiceBus.ContainerTests
                 Assert.True(builder.HasComponent(typeof(IYetAnotherInterface)));
                 Assert.AreEqual(1, builder.BuildAll(typeof(IYetAnotherInterface)).Count());
             }
-
-            //Not supported by typeof(SpringObjectBuilder));
         }
 
         [Test]

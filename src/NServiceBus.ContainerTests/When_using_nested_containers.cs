@@ -23,7 +23,6 @@ namespace NServiceBus.ContainerTests
                 }
                 Assert.True(InstancePerUoWComponent.DisposeCalled);
             }
-            //Not supported by typeof(SpringObjectBuilder));
         }
 
         [Test]
@@ -50,9 +49,6 @@ namespace NServiceBus.ContainerTests
                 });
                 Assert.AreNotSame(task1.Result, task2.Result);
             }
-
-
-            //Not supported by typeof(SpringObjectBuilder));
         }
 
 
@@ -155,7 +151,6 @@ namespace NServiceBus.ContainerTests
                     Assert.AreSame(nestedContainer.Build(typeof(InstancePerUoWComponent)), nestedContainer.Build(typeof(InstancePerUoWComponent)), "UoW's should be singleton in child container");
                 }
             }
-            //Not supported by typeof(SpringObjectBuilder));
         }
 
         [Test]
@@ -193,7 +188,6 @@ namespace NServiceBus.ContainerTests
                 }
                 Assert.False(SingletonComponent.DisposeCalled);
             }
-            //Not supported by typeof(SpringObjectBuilder));
         }
 
         class SingletonComponent : ISingletonComponent, IDisposable
