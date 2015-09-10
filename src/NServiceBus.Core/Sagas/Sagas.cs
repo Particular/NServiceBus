@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using NServiceBus.ObjectBuilder;
-    using NServiceBus.Saga;
+    using NServiceBus.Sagas;
 
     /// <summary>
     ///     Used to configure saga.

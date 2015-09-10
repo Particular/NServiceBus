@@ -3,7 +3,7 @@
     using System;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.Saga;
+    using NServiceBus.Sagas;
     using NServiceBus.TransportDispatch;
 
     class AttachSagaDetailsToOutGoingMessageBehavior : Behavior<OutgoingContext>

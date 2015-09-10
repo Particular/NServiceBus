@@ -7,7 +7,6 @@
     using NServiceBus.Config;
     using NServiceBus.Features;
     using NUnit.Framework;
-    using Saga;
     using ScenarioDescriptors;
 
     [TestFixture]

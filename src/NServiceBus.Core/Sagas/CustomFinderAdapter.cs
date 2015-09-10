@@ -1,7 +1,8 @@
-namespace NServiceBus.Saga
+namespace NServiceBus
 {
     using System;
     using NServiceBus.ObjectBuilder;
+    using NServiceBus.Sagas;
 
     class CustomFinderAdapter<TSagaData,TMessage> : SagaFinder where TSagaData : IContainSagaData
     {

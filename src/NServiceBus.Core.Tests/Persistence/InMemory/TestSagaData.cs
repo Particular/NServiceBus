@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using Saga;
 
     class TestSaga:Saga<TestSagaData>
     {

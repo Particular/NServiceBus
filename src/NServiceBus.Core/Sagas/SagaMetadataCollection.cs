@@ -1,4 +1,4 @@
-namespace NServiceBus.Saga
+namespace NServiceBus.Sagas
 {
     using System;
     using System.Collections;

@@ -1,5 +1,6 @@
-namespace NServiceBus.Saga
+namespace NServiceBus
 {
+    using NServiceBus.Sagas;
 
     /// <summary>
     /// Use this interface to signify that when a message of the given type is

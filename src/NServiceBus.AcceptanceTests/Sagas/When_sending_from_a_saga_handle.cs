@@ -1,5 +1,4 @@
-﻿
-namespace NServiceBus.AcceptanceTests.Sagas
+﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
     using System.Threading.Tasks;
@@ -7,7 +6,6 @@ namespace NServiceBus.AcceptanceTests.Sagas
     using AcceptanceTesting;
     using NServiceBus.Features;
     using NUnit.Framework;
-    using Saga;
     using ScenarioDescriptors;
 
     public class When_sending_from_a_saga_handle : NServiceBusAcceptanceTest

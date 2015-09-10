@@ -5,7 +5,6 @@
     using System.Linq;
     using System.Linq.Expressions;
     using NServiceBus.Logging;
-    using NServiceBus.Saga;
 
     /// <summary>
     ///     Maintains the message handlers for this endpoint.

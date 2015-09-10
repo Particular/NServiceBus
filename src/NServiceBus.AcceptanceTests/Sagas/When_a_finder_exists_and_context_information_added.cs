@@ -6,7 +6,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Extensibility;
     using NServiceBus.Pipeline;
-    using NServiceBus.Saga;
+    using NServiceBus.Sagas;
     using NUnit.Framework;
 
     [TestFixture]

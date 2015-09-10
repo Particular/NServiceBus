@@ -1,7 +1,7 @@
 ﻿namespace Runner.Saga
 {
     using System;
-    using NServiceBus.Saga;
+    using NServiceBus;
 
     public class SagaData : IContainSagaData
     {

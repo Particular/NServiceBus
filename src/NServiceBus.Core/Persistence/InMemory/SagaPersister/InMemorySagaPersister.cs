@@ -1,11 +1,11 @@
-namespace NServiceBus.InMemory.SagaPersister
+namespace NServiceBus
 {
     using System;
     using System.Collections.Concurrent;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using NServiceBus.Saga;
+    using NServiceBus.Sagas;
     using NServiceBus.Utils;
     using Serializers.Json;
 

@@ -5,7 +5,6 @@
     using EndpointTemplates;
     using AcceptanceTesting;
     using NUnit.Framework;
-    using Saga;
     using ScenarioDescriptors;
 
     //repro for issue: https://github.com/NServiceBus/NServiceBus/issues/1020

@@ -1,4 +1,4 @@
-namespace NServiceBus.Saga
+namespace NServiceBus.Sagas
 {
     /// <summary>
     /// Details about a saga data property used to correlate messages hitting the saga.

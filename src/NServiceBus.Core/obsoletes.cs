@@ -1213,7 +1213,7 @@ namespace NServiceBus.Faults
 }
 
 
-namespace NServiceBus.Saga
+namespace NServiceBus.Sagas
 {
     using System;
     using System.Collections.Generic;
@@ -1280,16 +1280,6 @@ namespace NServiceBus.Persistence
     }
 }
 
-namespace NServiceBus.Sagas
-{
-    [ObsoleteEx(
-        ReplacementTypeOrMember = "NServiceBus.Saga.ActiveSagaInstance",
-        RemoveInVersion = "7.0",
-        TreatAsErrorFromVersion = "6.0")]
-    public class ActiveSagaInstance
-    {
-    }
-}
 namespace NServiceBus.Unicast.Queuing
 {
     [ObsoleteEx(

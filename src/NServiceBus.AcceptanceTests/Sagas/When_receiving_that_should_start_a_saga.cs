@@ -3,7 +3,6 @@
     using System;
     using EndpointTemplates;
     using AcceptanceTesting;
-    using Saga;
 
     public class When_receiving_that_should_start_a_saga : NServiceBusAcceptanceTest
     {

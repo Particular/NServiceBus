@@ -174,6 +174,13 @@ namespace NServiceBus
     {
         public static string TransportConnectionString(this NServiceBus.Configure config) { }
     }
+    public abstract class ContainSagaData : NServiceBus.IContainSagaData
+    {
+        protected ContainSagaData() { }
+        public virtual System.Guid Id { get; set; }
+        public virtual string OriginalMessageId { get; set; }
+        public virtual string Originator { get; set; }
+    }
     public class static ContentTypes
     {
         public const string Binary = "application/binary";
@@ -368,6 +375,7 @@ namespace NServiceBus
     }
     [System.ObsoleteAttribute(@"ISatellite is no longer an extension point. In order to create a satellite one must create a feature that uses AddSatellitePipeline() method and a class that inherits from SatelliteBehavior that is used for processing the messages. Will be removed in version 7.0.0.", true)]
     public interface IAdvancedSatellite { }
+    public interface IAmStartedByMessages<T> : NServiceBus.IHandleMessages<T> { }
     [System.ObsoleteAttribute("This feature has been removed. To support authorization on a per subscription mes" +
         "sage type use a pipeline step instead. Will be removed in version 7.0.0.", true)]
     public interface IAuthorizeSubscriptions
@@ -408,6 +416,18 @@ namespace NServiceBus
     [System.ObsoleteAttribute("Replaced by NServiceBus.Callbacks package. Will be removed in version 7.0.0.", true)]
     public interface ICallback { }
     public interface ICommand : NServiceBus.IMessage { }
+    public interface IConfigureHowToFindSagaWithMessage
+    {
+        void ConfigureMapping<TSagaEntity, TMessage>(System.Linq.Expressions.Expression<System.Func<TSagaEntity, object>> sagaEntityProperty, System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty)
+            where TSagaEntity : NServiceBus.IContainSagaData
+        ;
+    }
+    public interface IContainSagaData
+    {
+        System.Guid Id { get; set; }
+        string OriginalMessageId { get; set; }
+        string Originator { get; set; }
+    }
     public interface IDataBusProperty
     {
         bool HasValue { get; set; }
@@ -421,6 +441,10 @@ namespace NServiceBus
     public interface IHandleMessages<T>
     {
         void Handle(T message);
+    }
+    public interface IHandleTimeouts<T>
+    {
+        void Timeout(T state);
     }
     [System.ObsoleteAttribute("Will be removed in version 7.0.0.", true)]
     public interface IIncludesBuilder { }
@@ -636,6 +660,49 @@ namespace NServiceBus
         public static void RouteToLocalEndpointInstance(this NServiceBus.SendOptions option) { }
         public static void SetDestination(this NServiceBus.SendOptions option, string destination) { }
     }
+    public abstract class Saga
+    {
+        protected Saga() { }
+        public NServiceBus.IBus Bus { get; set; }
+        public bool Completed { get; }
+        public NServiceBus.IContainSagaData Entity { get; set; }
+        protected internal abstract void ConfigureHowToFindSaga(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration);
+        protected virtual void MarkAsComplete() { }
+        protected void ReplyToOriginator(object message) { }
+        [System.ObsoleteAttribute("Construct your message and pass it to the non Action overload. Please use `Saga.R" +
+            "eplyToOriginator(object)` instead. Will be removed in version 7.0.0.", true)]
+        protected virtual void ReplyToOriginator<TMessage>(System.Action<TMessage> messageConstructor)
+            where TMessage : new() { }
+        protected void RequestTimeout<TTimeoutMessageType>(System.DateTime at)
+            where TTimeoutMessageType : new() { }
+        [System.ObsoleteAttribute("Construct your message and pass it to the non Action overload. Please use `Saga.R" +
+            "equestTimeout<TTimeoutMessageType>(DateTime, TTimeoutMessageType)` instead. Will" +
+            " be removed in version 7.0.0.", true)]
+        protected void RequestTimeout<TTimeoutMessageType>(System.DateTime at, System.Action<TTimeoutMessageType> action)
+            where TTimeoutMessageType : new() { }
+        protected void RequestTimeout<TTimeoutMessageType>(System.DateTime at, TTimeoutMessageType timeoutMessage) { }
+        protected void RequestTimeout<TTimeoutMessageType>(System.TimeSpan within)
+            where TTimeoutMessageType : new() { }
+        [System.ObsoleteAttribute("Construct your message and pass it to the non Action overload. Please use `Saga.R" +
+            "equestTimeout<TTimeoutMessageType>(TimeSpan, TTimeoutMessageType)` instead. Will" +
+            " be removed in version 7.0.0.", true)]
+        protected void RequestTimeout<TTimeoutMessageType>(System.TimeSpan within, System.Action<TTimeoutMessageType> messageConstructor)
+            where TTimeoutMessageType : new() { }
+        protected void RequestTimeout<TTimeoutMessageType>(System.TimeSpan within, TTimeoutMessageType timeoutMessage) { }
+    }
+    public abstract class Saga<TSagaData> : NServiceBus.Saga
+        where TSagaData : NServiceBus.IContainSagaData, new ()
+    {
+        protected Saga() { }
+        public TSagaData Data { get; set; }
+        protected internal override void ConfigureHowToFindSaga(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration) { }
+        protected abstract void ConfigureHowToFindSaga(NServiceBus.SagaPropertyMapper<TSagaData> mapper);
+    }
+    public class SagaPropertyMapper<TSagaData>
+        where TSagaData : NServiceBus.IContainSagaData
+    {
+        public NServiceBus.ToSagaExpression<TSagaData, TMessage> ConfigureMapping<TMessage>(System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty) { }
+    }
     public abstract class SatelliteBehavior : NServiceBus.Pipeline.PipelineTerminator<NServiceBus.PhysicalMessageProcessingStageBehavior.Context>
     {
         protected SatelliteBehavior() { }
@@ -700,6 +767,12 @@ namespace NServiceBus
     public class static TimeToBeReceivedConventionExtensions
     {
         public static NServiceBus.ConventionsBuilder DefiningTimeToBeReceivedAs(this NServiceBus.ConventionsBuilder builder, System.Func<System.Type, System.TimeSpan> retrieveTimeToBeReceived) { }
+    }
+    public class ToSagaExpression<TSagaData, TMessage>
+        where TSagaData : NServiceBus.IContainSagaData
+    {
+        public ToSagaExpression(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration, System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty) { }
+        public void ToSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object>> sagaEntityProperty) { }
     }
     public class static TransactionSettingsExtentions
     {
@@ -1968,111 +2041,49 @@ namespace NServiceBus.Routing.StorageDrivenPublishing
         public System.Collections.Generic.IEnumerable<string> Subscribers { get; }
     }
 }
-namespace NServiceBus.Saga
+namespace NServiceBus.Sagas
 {
     public class ActiveSagaInstance
     {
         [System.ObsoleteAttribute("Please use `context.MessageHandler.Instance` instead. Will be removed in version " +
             "7.0.0.", true)]
-        public NServiceBus.Saga.Saga Instance { get; }
+        public NServiceBus.Saga Instance { get; }
         public bool IsNew { get; }
         public bool NotFound { get; }
         public string SagaId { get; }
         [System.ObsoleteAttribute("Please use `.Metadata.SagaType` instead. Will be removed in version 7.0.0.", true)]
         public System.Type SagaType { get; }
-        public void AttachNewEntity(NServiceBus.Saga.IContainSagaData sagaEntity) { }
-    }
-    public abstract class ContainSagaData : NServiceBus.Saga.IContainSagaData
-    {
-        protected ContainSagaData() { }
-        public virtual System.Guid Id { get; set; }
-        public virtual string OriginalMessageId { get; set; }
-        public virtual string Originator { get; set; }
+        public void AttachNewEntity(NServiceBus.IContainSagaData sagaEntity) { }
     }
     public class CorrelationProperty
     {
         public CorrelationProperty(string name) { }
         public string Name { get; }
     }
-    public interface IAmStartedByMessages<T> : NServiceBus.IHandleMessages<T> { }
-    public interface IConfigureHowToFindSagaWithMessage
-    {
-        void ConfigureMapping<TSagaEntity, TMessage>(System.Linq.Expressions.Expression<System.Func<TSagaEntity, object>> sagaEntityProperty, System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty)
-            where TSagaEntity : NServiceBus.Saga.IContainSagaData
-        ;
-    }
-    public interface IContainSagaData
-    {
-        System.Guid Id { get; set; }
-        string OriginalMessageId { get; set; }
-        string Originator { get; set; }
-    }
     public interface IFinder { }
     public abstract class IFindSagas<T>
-        where T : NServiceBus.Saga.IContainSagaData
+        where T : NServiceBus.IContainSagaData
     {
         protected IFindSagas() { }
-        public interface Using<T, M> : NServiceBus.Saga.IFinder
-            where T : NServiceBus.Saga.IContainSagaData
+        public interface Using<T, M> : NServiceBus.Sagas.IFinder
+            where T : NServiceBus.IContainSagaData
         {
-            T FindBy(M message, NServiceBus.Saga.SagaPersistenceOptions options);
+            T FindBy(M message, NServiceBus.Sagas.SagaPersistenceOptions options);
         }
     }
     public interface IHandleSagaNotFound
     {
         void Handle(object message);
     }
-    public interface IHandleTimeouts<T>
-    {
-        void Timeout(T state);
-    }
     public interface ISagaPersister
     {
-        System.Threading.Tasks.Task Complete(NServiceBus.Saga.IContainSagaData saga, NServiceBus.Saga.SagaPersistenceOptions options);
-        System.Threading.Tasks.Task<TSagaData> Get<TSagaData>(System.Guid sagaId, NServiceBus.Saga.SagaPersistenceOptions options)
-            where TSagaData : NServiceBus.Saga.IContainSagaData;
-        System.Threading.Tasks.Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, NServiceBus.Saga.SagaPersistenceOptions options)
-            where TSagaData : NServiceBus.Saga.IContainSagaData;
-        System.Threading.Tasks.Task Save(NServiceBus.Saga.IContainSagaData saga, NServiceBus.Saga.SagaPersistenceOptions options);
-        System.Threading.Tasks.Task Update(NServiceBus.Saga.IContainSagaData saga, NServiceBus.Saga.SagaPersistenceOptions options);
-    }
-    public abstract class Saga
-    {
-        protected Saga() { }
-        public NServiceBus.IBus Bus { get; set; }
-        public bool Completed { get; }
-        public NServiceBus.Saga.IContainSagaData Entity { get; set; }
-        protected internal abstract void ConfigureHowToFindSaga(NServiceBus.Saga.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration);
-        protected virtual void MarkAsComplete() { }
-        protected void ReplyToOriginator(object message) { }
-        [System.ObsoleteAttribute("Construct your message and pass it to the non Action overload. Please use `Saga.R" +
-            "eplyToOriginator(object)` instead. Will be removed in version 7.0.0.", true)]
-        protected virtual void ReplyToOriginator<TMessage>(System.Action<TMessage> messageConstructor)
-            where TMessage : new() { }
-        protected void RequestTimeout<TTimeoutMessageType>(System.DateTime at)
-            where TTimeoutMessageType : new() { }
-        [System.ObsoleteAttribute("Construct your message and pass it to the non Action overload. Please use `Saga.R" +
-            "equestTimeout<TTimeoutMessageType>(DateTime, TTimeoutMessageType)` instead. Will" +
-            " be removed in version 7.0.0.", true)]
-        protected void RequestTimeout<TTimeoutMessageType>(System.DateTime at, System.Action<TTimeoutMessageType> action)
-            where TTimeoutMessageType : new() { }
-        protected void RequestTimeout<TTimeoutMessageType>(System.DateTime at, TTimeoutMessageType timeoutMessage) { }
-        protected void RequestTimeout<TTimeoutMessageType>(System.TimeSpan within)
-            where TTimeoutMessageType : new() { }
-        [System.ObsoleteAttribute("Construct your message and pass it to the non Action overload. Please use `Saga.R" +
-            "equestTimeout<TTimeoutMessageType>(TimeSpan, TTimeoutMessageType)` instead. Will" +
-            " be removed in version 7.0.0.", true)]
-        protected void RequestTimeout<TTimeoutMessageType>(System.TimeSpan within, System.Action<TTimeoutMessageType> messageConstructor)
-            where TTimeoutMessageType : new() { }
-        protected void RequestTimeout<TTimeoutMessageType>(System.TimeSpan within, TTimeoutMessageType timeoutMessage) { }
-    }
-    public abstract class Saga<TSagaData> : NServiceBus.Saga.Saga
-        where TSagaData : NServiceBus.Saga.IContainSagaData, new ()
-    {
-        protected Saga() { }
-        public TSagaData Data { get; set; }
-        protected internal override void ConfigureHowToFindSaga(NServiceBus.Saga.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration) { }
-        protected abstract void ConfigureHowToFindSaga(NServiceBus.Saga.SagaPropertyMapper<TSagaData> mapper);
+        System.Threading.Tasks.Task Complete(NServiceBus.IContainSagaData saga, NServiceBus.Sagas.SagaPersistenceOptions options);
+        System.Threading.Tasks.Task<TSagaData> Get<TSagaData>(System.Guid sagaId, NServiceBus.Sagas.SagaPersistenceOptions options)
+            where TSagaData : NServiceBus.IContainSagaData;
+        System.Threading.Tasks.Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, NServiceBus.Sagas.SagaPersistenceOptions options)
+            where TSagaData : NServiceBus.IContainSagaData;
+        System.Threading.Tasks.Task Save(NServiceBus.IContainSagaData saga, NServiceBus.Sagas.SagaPersistenceOptions options);
+        System.Threading.Tasks.Task Update(NServiceBus.IContainSagaData saga, NServiceBus.Sagas.SagaPersistenceOptions options);
     }
     public class SagaFinderDefinition
     {
@@ -2089,44 +2100,33 @@ namespace NServiceBus.Saga
     }
     public class SagaMetadata
     {
-        public SagaMetadata(string name, System.Type sagaType, string entityName, System.Type sagaEntityType, System.Collections.Generic.List<NServiceBus.Saga.CorrelationProperty> correlationProperties, System.Collections.Generic.IEnumerable<NServiceBus.Saga.SagaMessage> messages, System.Collections.Generic.IEnumerable<NServiceBus.Saga.SagaFinderDefinition> finders) { }
-        public System.Collections.Generic.IEnumerable<NServiceBus.Saga.SagaMessage> AssociatedMessages { get; }
-        public System.Collections.Generic.List<NServiceBus.Saga.CorrelationProperty> CorrelationProperties { get; }
+        public SagaMetadata(string name, System.Type sagaType, string entityName, System.Type sagaEntityType, System.Collections.Generic.List<NServiceBus.Sagas.CorrelationProperty> correlationProperties, System.Collections.Generic.IEnumerable<NServiceBus.Sagas.SagaMessage> messages, System.Collections.Generic.IEnumerable<NServiceBus.Sagas.SagaFinderDefinition> finders) { }
+        public System.Collections.Generic.IEnumerable<NServiceBus.Sagas.SagaMessage> AssociatedMessages { get; }
+        public System.Collections.Generic.List<NServiceBus.Sagas.CorrelationProperty> CorrelationProperties { get; }
         public string EntityName { get; }
-        public System.Collections.Generic.IEnumerable<NServiceBus.Saga.SagaFinderDefinition> Finders { get; }
+        public System.Collections.Generic.IEnumerable<NServiceBus.Sagas.SagaFinderDefinition> Finders { get; }
         public string Name { get; }
         public System.Type SagaEntityType { get; }
         public System.Type SagaType { get; }
-        public static NServiceBus.Saga.SagaMetadata Create(System.Type sagaType) { }
-        public static NServiceBus.Saga.SagaMetadata Create(System.Type sagaType, System.Collections.Generic.IEnumerable<System.Type> availableTypes, NServiceBus.Conventions conventions) { }
+        public static NServiceBus.Sagas.SagaMetadata Create(System.Type sagaType) { }
+        public static NServiceBus.Sagas.SagaMetadata Create(System.Type sagaType, System.Collections.Generic.IEnumerable<System.Type> availableTypes, NServiceBus.Conventions conventions) { }
         public bool IsMessageAllowedToStartTheSaga(string messageType) { }
-        public bool TryGetFinder(string messageType, out NServiceBus.Saga.SagaFinderDefinition finderDefinition) { }
+        public bool TryGetFinder(string messageType, out NServiceBus.Sagas.SagaFinderDefinition finderDefinition) { }
     }
-    public class SagaMetadataCollection : System.Collections.Generic.IEnumerable<NServiceBus.Saga.SagaMetadata>, System.Collections.IEnumerable
+    public class SagaMetadataCollection : System.Collections.Generic.IEnumerable<NServiceBus.Sagas.SagaMetadata>, System.Collections.IEnumerable
     {
         public SagaMetadataCollection() { }
-        public NServiceBus.Saga.SagaMetadata Find(System.Type sagaType) { }
-        public NServiceBus.Saga.SagaMetadata FindByEntity(System.Type entityType) { }
-        public System.Collections.Generic.IEnumerator<NServiceBus.Saga.SagaMetadata> GetEnumerator() { }
+        public NServiceBus.Sagas.SagaMetadata Find(System.Type sagaType) { }
+        public NServiceBus.Sagas.SagaMetadata FindByEntity(System.Type entityType) { }
+        public System.Collections.Generic.IEnumerator<NServiceBus.Sagas.SagaMetadata> GetEnumerator() { }
         public void Initialize(System.Collections.Generic.IEnumerable<System.Type> availableTypes) { }
         public void Initialize(System.Collections.Generic.IEnumerable<System.Type> availableTypes, NServiceBus.Conventions conventions) { }
     }
     public class SagaPersistenceOptions
     {
-        public SagaPersistenceOptions(NServiceBus.Saga.SagaMetadata sagaMetadata, NServiceBus.Extensibility.ReadOnlyContextBag context = null) { }
+        public SagaPersistenceOptions(NServiceBus.Sagas.SagaMetadata sagaMetadata, NServiceBus.Extensibility.ReadOnlyContextBag context = null) { }
         public NServiceBus.Extensibility.ReadOnlyContextBag Context { get; }
-        public NServiceBus.Saga.SagaMetadata Metadata { get; }
-    }
-    public class SagaPropertyMapper<TSagaData>
-        where TSagaData : NServiceBus.Saga.IContainSagaData
-    {
-        public NServiceBus.Saga.ToSagaExpression<TSagaData, TMessage> ConfigureMapping<TMessage>(System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty) { }
-    }
-    public class ToSagaExpression<TSagaData, TMessage>
-        where TSagaData : NServiceBus.Saga.IContainSagaData
-    {
-        public ToSagaExpression(NServiceBus.Saga.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration, System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty) { }
-        public void ToSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object>> sagaEntityProperty) { }
+        public NServiceBus.Sagas.SagaMetadata Metadata { get; }
     }
     [System.ObsoleteAttribute("There is no need for this attribute anymore, all mapped properties are automatica" +
         "lly correlated. Will be removed in version 7.0.0.", true)]
@@ -2134,22 +2134,13 @@ namespace NServiceBus.Saga
     {
         public UniqueAttribute() { }
         [System.ObsoleteAttribute("Use the new SagaMetadata. Will be removed in version 7.0.0.", true)]
-        public static System.Collections.Generic.IDictionary<string, object> GetUniqueProperties(NServiceBus.Saga.IContainSagaData entity) { }
+        public static System.Collections.Generic.IDictionary<string, object> GetUniqueProperties(NServiceBus.IContainSagaData entity) { }
         [System.ObsoleteAttribute("Use the new SagaMetadata. Will be removed in version 7.0.0.", true)]
         public static System.Collections.Generic.IEnumerable<System.Reflection.PropertyInfo> GetUniqueProperties(System.Type type) { }
         [System.ObsoleteAttribute("Use the new SagaMetadata. Will be removed in version 7.0.0.", true)]
         public static System.Reflection.PropertyInfo GetUniqueProperty(System.Type type) { }
         [System.ObsoleteAttribute("Use the new SagaMetadata. Will be removed in version 7.0.0.", true)]
-        public static System.Nullable<System.Collections.Generic.KeyValuePair<string, object>> GetUniqueProperty(NServiceBus.Saga.IContainSagaData entity) { }
-    }
-}
-namespace NServiceBus.Sagas
-{
-    [System.ObsoleteAttribute("Please use `NServiceBus.Saga.ActiveSagaInstance` instead. Will be removed in vers" +
-        "ion 7.0.0.", true)]
-    public class ActiveSagaInstance
-    {
-        public ActiveSagaInstance() { }
+        public static System.Nullable<System.Collections.Generic.KeyValuePair<string, object>> GetUniqueProperty(NServiceBus.IContainSagaData entity) { }
     }
 }
 namespace NServiceBus.SecondLevelRetries.Config
