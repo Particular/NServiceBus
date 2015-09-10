@@ -52,9 +52,10 @@
                 Context.MessageHandlerCalled = true;
             }
 
-            public void Handle(object message)
+            public Task Handle(object message)
             {
                 Context.NotFoundHandlerCalled = true;
+                return Task.FromResult(0);
             }
 
             public void Timeout(MessageWithSagaId state)

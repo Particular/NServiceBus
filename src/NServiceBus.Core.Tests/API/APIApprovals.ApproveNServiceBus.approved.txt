@@ -2073,7 +2073,7 @@ namespace NServiceBus.Sagas
     }
     public interface IHandleSagaNotFound
     {
-        void Handle(object message);
+        System.Threading.Tasks.Task Handle(object message);
     }
     public interface ISagaPersister
     {

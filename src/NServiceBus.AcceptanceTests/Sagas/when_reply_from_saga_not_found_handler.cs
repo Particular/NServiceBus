@@ -88,9 +88,10 @@
             {
                 public IBus Bus { get; set; }
 
-                public void Handle(object message)
+                public Task Handle(object message)
                 {
                     Bus.Reply(new Reply());
+                    return Task.FromResult(0);
                 }
             }
         }
