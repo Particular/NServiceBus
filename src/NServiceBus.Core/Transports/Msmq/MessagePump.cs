@@ -66,12 +66,12 @@ namespace NServiceBus
             }
             else
             {
-                scheduler = TaskScheduler.Current;
+                scheduler = TaskScheduler.Default;
             }
             cancellationTokenSource = new CancellationTokenSource();
 
             cancellationToken = cancellationTokenSource.Token;
-            messagePumpTask = Task.Factory.StartNew(ProcessMessages, cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Current);
+            messagePumpTask = Task.Factory.StartNew(ProcessMessages, cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
 
         /// <summary>
