@@ -12,15 +12,12 @@
     class PipelineBase<T>:IPipelineBase<T>
         where T : BehaviorContext
     {
-        public PipelineBase(IBuilder builder, ReadOnlySettings settings, PipelineModifications pipelineModifications, RegisterStep receiveBehavior = null)
+        public PipelineBase(IBuilder builder, ReadOnlySettings settings, PipelineModifications pipelineModifications)
         {
             busNotifications = builder.Build<BusNotifications>();
 
             var coordinator = new StepRegistrationsCoordinator(pipelineModifications.Removals, pipelineModifications.Replacements);
-            if (receiveBehavior != null)
-            {
-                coordinator.Register(receiveBehavior);
-            }
+          
             foreach (var rego in pipelineModifications.Additions.Where(x => x.IsEnabled(settings)))
             {
                 coordinator.Register(rego);

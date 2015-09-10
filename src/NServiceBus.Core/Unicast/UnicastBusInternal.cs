@@ -101,13 +101,13 @@ namespace NServiceBus.Unicast
             var pushSettings = new PushSettings(settings.LocalAddress(), errorQueue, settings.GetOrDefault<bool>("Transport.PurgeOnStartup"), transactionSettings);
 
 
-            yield return BuildPipelineInstance(pipelinesCollection.MainPipeline, pipelinesCollection.ReceiveBehavior, "Main", pushSettings, dequeueLimitations);
+            yield return BuildPipelineInstance(pipelinesCollection.MainPipeline, "Main", pushSettings, dequeueLimitations);
 
             foreach (var satellitePipeline in pipelinesCollection.SatellitePipelines)
             {
                 var satellitePushSettings = new PushSettings(satellitePipeline.ReceiveAddress, errorQueue, settings.GetOrDefault<bool>("Transport.PurgeOnStartup"),satellitePipeline.TransactionSettings ?? transactionSettings);
 
-                yield return BuildPipelineInstance(satellitePipeline, pipelinesCollection.ReceiveBehavior, satellitePipeline.Name, satellitePushSettings, satellitePipeline.PushRuntimeSettings ?? PushRuntimeSettings.Default);
+                yield return BuildPipelineInstance(satellitePipeline, satellitePipeline.Name, satellitePushSettings, satellitePipeline.PushRuntimeSettings ?? PushRuntimeSettings.Default);
             }
         }
 
@@ -144,9 +144,9 @@ namespace NServiceBus.Unicast
             return PushRuntimeSettings.Default;
         }
 
-        TransportReceiver BuildPipelineInstance(PipelineModifications modifications, RegisterStep receiveBehavior, string name, PushSettings pushSettings, PushRuntimeSettings runtimeSettings)
+        TransportReceiver BuildPipelineInstance(PipelineModifications modifications, string name, PushSettings pushSettings, PushRuntimeSettings runtimeSettings)
         {
-            var pipelineInstance = new PipelineBase<TransportReceiveContext>(builder, settings, modifications, receiveBehavior);
+            var pipelineInstance = new PipelineBase<TransportReceiveContext>(builder, settings, modifications);
             var receiver = new TransportReceiver(
                 name,
                 builder,
