@@ -37,7 +37,7 @@ namespace NServiceBus.DelayedDelivery.TimeoutManager
         public Task Stop()
         {
             tokenSource.Cancel();
-            return Task.WhenAll(timeoutPollerTask);
+            return timeoutPollerTask;
         }
 
         public void NewTimeoutRegistered(DateTime expiryTime)
@@ -84,7 +84,7 @@ namespace NServiceBus.DelayedDelivery.TimeoutManager
                 if (nextRetrieval > DateTime.UtcNow)
                 {
                     // ReSharper disable once MethodSupportsCancellation
-                    await Task.Delay(1000);
+                    await Task.Delay(1000).ConfigureAwait(false);
                     continue;
                 }
 

@@ -1,7 +1,9 @@
 namespace NServiceBus
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Diagnostics;
+    using System.Linq;
     using System.Messaging;
     using System.Threading;
     using System.Threading.Tasks;
@@ -61,6 +63,7 @@ namespace NServiceBus
         {
             MessageQueue.ClearConnectionCache();
 
+            runningReceiveTasks = new ConcurrentDictionary<Task, Task>();
             concurrencyLimiter = new SemaphoreSlim(limitations.MaxConcurrency);
             cancellationTokenSource = new CancellationTokenSource();
 
@@ -77,7 +80,8 @@ namespace NServiceBus
 
             // ReSharper disable once MethodSupportsCancellation
             var timeoutTask = Task.Delay(TimeSpan.FromSeconds(30));
-            var finishedTask = await Task.WhenAny(messagePumpTask, timeoutTask);
+            var allTasks = runningReceiveTasks.Values.Concat(new[] { messagePumpTask });
+            var finishedTask = await Task.WhenAny(Task.WhenAll(allTasks), timeoutTask).ConfigureAwait(false);
 
             if (finishedTask.Equals(timeoutTask))
             {
@@ -85,6 +89,7 @@ namespace NServiceBus
             }
 
             concurrencyLimiter.Dispose();
+            runningReceiveTasks.Clear();
             inputQueue.Dispose();
             errorQueue.Dispose();
         }
@@ -99,7 +104,7 @@ namespace NServiceBus
         {
             try
             {
-                await InnerProcessMessages();
+                await InnerProcessMessages().ConfigureAwait(false);
             }
             catch(OperationCanceledException)
             {
@@ -113,7 +118,7 @@ namespace NServiceBus
 
             if (!cancellationToken.IsCancellationRequested)
             {
-                await ProcessMessages();
+                await ProcessMessages().ConfigureAwait(false);
             }
         }
 
@@ -145,13 +150,13 @@ namespace NServiceBus
                         return;
                     }
 
-                    await concurrencyLimiter.WaitAsync(cancellationToken);
+                    await concurrencyLimiter.WaitAsync(cancellationToken).ConfigureAwait(false);
 
-                    await Task.Factory.StartNew(() =>
+                    var task = Task.Run(async () =>
                     {
                         try
                         {
-                            receiveStrategy.ReceiveMessage(inputQueue, errorQueue, pipeline);
+                            await receiveStrategy.ReceiveMessage(inputQueue, errorQueue, pipeline).ConfigureAwait(false);
 
                             receiveCircuitBreaker.Success();
                         }
@@ -179,7 +184,17 @@ namespace NServiceBus
                         {
                             concurrencyLimiter.Release();
                         }
-                    }, cancellationToken, TaskCreationOptions.AttachedToParent,  TaskScheduler.Default);
+                    }, cancellationToken);
+
+                    task.ContinueWith(t =>
+                    {
+                        Task wayne;
+                        runningReceiveTasks.TryRemove(t, out wayne);
+                    }, TaskContinuationOptions.ExecuteSynchronously)
+                    .Ignore();
+
+                    runningReceiveTasks.AddOrUpdate(task, task, (k, v) => task)
+                        .Ignore();
                 }
             }
         }
@@ -221,6 +236,7 @@ namespace NServiceBus
 
 
         Task messagePumpTask;
+        ConcurrentDictionary<Task, Task> runningReceiveTasks;
         SemaphoreSlim concurrencyLimiter;
         CancellationTokenSource cancellationTokenSource;
         CancellationToken cancellationToken;
