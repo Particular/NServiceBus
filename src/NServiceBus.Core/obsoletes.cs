@@ -1345,3 +1345,27 @@ namespace NServiceBus.Transports.Msmq
         }
     }
 }
+
+namespace NServiceBus.Unicast.Transport
+{
+    using System;
+    using System.Transactions;
+
+    public partial class TransactionSettings
+    {
+        [ObsoleteEx(
+         Message = "No longer used",
+         RemoveInVersion = "7.0",
+         TreatAsErrorFromVersion = "6.0")]
+        public TransactionSettings(bool isTransactional, TimeSpan transactionTimeout, IsolationLevel isolationLevel, bool suppressDistributedTransactions, bool doNotWrapHandlersExecutionInATransactionScope)
+        {
+
+        }
+
+        [ObsoleteEx(
+               Message = "DoNotWrapHandlersExecutionInATransactionScope is no longer used here. Please use settings.GetOrDefault<bool>('Transactions.DoNotWrapHandlersExecutionInATransactionScope') instead",
+               RemoveInVersion = "7.0",
+               TreatAsErrorFromVersion = "6.0")]
+        public bool DoNotWrapHandlersExecutionInATransactionScope { get; set; }
+    }
+}

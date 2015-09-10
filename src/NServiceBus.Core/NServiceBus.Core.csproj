@@ -98,6 +98,7 @@
     <Compile Include="BusConfiguration.cs" />
     <Compile Include="Causation\MessageCausation.cs" />
     <Compile Include="ConfigureHandlerSettings.cs" />
+    <Compile Include="ConsistencyGuarantees\TransactionScopes\WrapHandlersInTransactionScope.cs" />
     <Compile Include="Routing\DynamicRoutingConfigurationExtensions.cs" />
     <Compile Include="TaskEx.cs" />
     <Compile Include="Transports\Msmq\MsmqConnectionStringBuilder.cs" />
@@ -426,9 +427,9 @@
     <Compile Include="Routing\DynamicRouting.cs" />
     <Compile Include="Routing\DynamicRoutingDefinition.cs" />
     <Compile Include="Unicast\Transport\Config\TransportExtensions.cs" />
-    <Compile Include="Unicast\Transport\SuppressAmbientTransactionBehavior.cs" />
+    <Compile Include="ConsistencyGuarantees\TransactionScopes\SuppressAmbientTransactionBehavior.cs" />
     <Compile Include="Performance\Statistics\ReceivePerformanceDiagnosticsBehavior.cs" />
-    <Compile Include="Unicast\Transport\HandlerTransactionScopeWrapperBehavior.cs" />
+    <Compile Include="ConsistencyGuarantees\TransactionScopes\HandlerTransactionScopeWrapperBehavior.cs" />
     <Compile Include="Unicast\UnicastBusInternal_IBusImpl.cs" />
     <Compile Include="Utils\Guard.cs" />
     <Compile Include="Utils\ExceptionHeaderHelper.cs" />
