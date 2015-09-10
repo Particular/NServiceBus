@@ -68,22 +68,24 @@
         {
             public Context Context { get; set; }
 
-            public Stream Get(string key)
+            public Task<Stream> Get(string key)
             {
-                return File.OpenRead(Context.TempPath);
+                var fileStream = new FileStream(Context.TempPath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 4096, useAsync: true);
+                return Task.FromResult((Stream) fileStream);
             }
 
-            public string Put(Stream stream, TimeSpan timeToBeReceived)
+            public Task<string> Put(Stream stream, TimeSpan timeToBeReceived)
             {
                 using (var destination = File.OpenWrite(Context.TempPath))
                 {
                     stream.CopyTo(destination);
                 }
-                return "key";
+                return Task.FromResult("key");
             }
 
-            public void Start()
+            public Task Start()
             {
+                return Task.FromResult(0);
             }
         }
 

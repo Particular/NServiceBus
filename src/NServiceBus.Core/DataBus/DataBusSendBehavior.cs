@@ -55,7 +55,7 @@
 
                     using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
                     {
-                        headerValue = DataBus.Put(stream, timeToBeReceived);
+                        headerValue = DataBus.Put(stream, timeToBeReceived).GetAwaiter().GetResult();
                     }
 
                     string headerKey;

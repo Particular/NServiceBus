@@ -2,6 +2,7 @@ namespace NServiceBus.DataBus
 {
     using System;
     using System.IO;
+    using System.Threading.Tasks;
     using Logging;
 
     /// <summary>
@@ -31,13 +32,14 @@ namespace NServiceBus.DataBus
         /// </summary>
         /// <param name="key">The key to look for.</param>
         /// <returns>The data <see cref="Stream"/>.</returns>
-        public Stream Get(string key)
+        public Task<Stream> Get(string key)
 		{
             var filePath = Path.Combine(basePath, key);
 
             logger.DebugFormat("Opening stream from '{0}'.", filePath);
 
-            return new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 4096, useAsync:true);
+            return Task.FromResult((Stream)fileStream);
 		}
 
         /// <summary>
@@ -45,7 +47,7 @@ namespace NServiceBus.DataBus
         /// </summary>
         /// <param name="stream">A create containing the data to be sent on the databus.</param>
         /// <param name="timeToBeReceived">The time to be received specified on the message type. TimeSpan.MaxValue is the default.</param>
-        public string Put(Stream stream, TimeSpan timeToBeReceived)
+        public async Task<string> Put(Stream stream, TimeSpan timeToBeReceived)
 		{
 			var key = GenerateKey(timeToBeReceived);
 
@@ -53,15 +55,10 @@ namespace NServiceBus.DataBus
 
 			Directory.CreateDirectory(Path.GetDirectoryName(filePath));
 
-			using (var output = new FileStream(filePath, FileMode.CreateNew, FileAccess.Write, FileShare.Read))
+			using (var output = new FileStream(filePath, FileMode.CreateNew, FileAccess.Write, FileShare.Read, 4096, FileOptions.Asynchronous))
 			{
-				var buffer = new byte[32 * 1024];
-				int read;
-
-				while ((read = stream.Read(buffer, 0, buffer.Length)) > 0)
-				{
-					output.Write(buffer, 0, read);
-				}
+			    const int bufferSize = 32 * 1024;
+                await stream.CopyToAsync(output, bufferSize);
 			}
 
             logger.DebugFormat("Saved stream to '{0}'.", filePath);
@@ -72,10 +69,11 @@ namespace NServiceBus.DataBus
         /// <summary>
         /// Called when the bus starts up to allow the data bus to active background tasks.
         /// </summary>
-        public void Start()
+        public Task Start()
 		{
 			logger.Info("File share data bus started. Location: " + basePath);
 			//TODO: Implement a clean up thread
+            return TaskEx.Completed;
 		}
 
 		string GenerateKey(TimeSpan timeToBeReceived)
