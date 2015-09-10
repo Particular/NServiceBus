@@ -4,6 +4,7 @@ namespace NServiceBus.Core.Tests.DataBus
     using System.Collections.Generic;
     using System.IO;
     using System.Runtime.Serialization.Formatters.Binary;
+    using System.Threading.Tasks;
     using NServiceBus.DataBus;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Unicast.Messages;
@@ -54,17 +55,17 @@ namespace NServiceBus.Core.Tests.DataBus
         class FakeDataBus:IDataBus
         {
             public Dictionary<string,Stream> StreamsToReturn = new Dictionary<string, Stream>();
-            public Stream Get(string key)
+            public Task<Stream> Get(string key)
             {
-                return StreamsToReturn[key];
+                return Task.FromResult(StreamsToReturn[key]);
             }
 
-            public string Put(Stream stream, TimeSpan timeToBeReceived)
+            public Task<string> Put(Stream stream, TimeSpan timeToBeReceived)
             {
                 throw new NotImplementedException();
             }
 
-            public void Start()
+            public Task Start()
             {
                 throw new NotImplementedException();
             }

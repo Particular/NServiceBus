@@ -2,6 +2,7 @@ namespace NServiceBus.Core.Tests.DataBus
 {
     using System;
     using System.IO;
+    using System.Threading.Tasks;
     using NServiceBus.DataBus;
     using NServiceBus.DeliveryConstraints;
     using NServiceBus.Performance.TimeToBeReceived;
@@ -64,18 +65,18 @@ namespace NServiceBus.Core.Tests.DataBus
         {
             public TimeSpan TTBRUsed;
 
-            public Stream Get(string key)
+            public Task<Stream> Get(string key)
             {
                 throw new NotImplementedException();
             }
 
-            public string Put(Stream stream, TimeSpan timeToBeReceived)
+            public Task<string> Put(Stream stream, TimeSpan timeToBeReceived)
             {
                 TTBRUsed = timeToBeReceived;
-                return Guid.NewGuid().ToString();
+                return Task.FromResult(Guid.NewGuid().ToString());
             }
 
-            public void Start()
+            public Task Start()
             {
                 throw new NotImplementedException();
             }

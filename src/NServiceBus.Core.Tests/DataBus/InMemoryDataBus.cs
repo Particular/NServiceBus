@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Threading.Tasks;
 
     class InMemoryDataBus : IDataBus
     {
@@ -13,10 +14,10 @@
         /// </summary>
         /// <param name="key">The key to look for.</param>
         /// <returns>The data <see cref="Stream"/>.</returns>
-        public Stream Get(string key)
+        public Task<Stream> Get(string key)
         {
             lock (storage)
-                return new MemoryStream(storage[key].Data);
+                return Task.FromResult((Stream)new MemoryStream(storage[key].Data));
         }
 
         /// <summary>
@@ -24,7 +25,7 @@
         /// </summary>
         /// <param name="stream">A create containing the data to be sent on the databus.</param>
         /// <param name="timeToBeReceived">The time to be received specified on the message type. TimeSpan.MaxValue is the default.</param>
-        public string Put(Stream stream, TimeSpan timeToBeReceived)
+        public Task<string> Put(Stream stream, TimeSpan timeToBeReceived)
         {
             var key = Guid.NewGuid().ToString();
 
@@ -37,15 +38,16 @@
                     Data = data,
                     ExpireAt = DateTime.Now + timeToBeReceived
                 });
-            return key;
+            return Task.FromResult(key);
         }
 
         /// <summary>
         /// Called when the bus starts up to allow the data bus to active background tasks.
         /// </summary>
-        public void Start()
+        public Task Start()
         {
             //no-op
+            return TaskEx.Completed;
         }
 
         //used for test purposes

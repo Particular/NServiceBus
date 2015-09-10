@@ -19,7 +19,7 @@
         FileShareDataBusImplementation dataBus;
         string basePath = Path.GetTempPath();
 
-        string Put(string content, TimeSpan timeToLive)
+        Task<string> Put(string content, TimeSpan timeToLive)
         {
             var byteArray = Encoding.ASCII.GetBytes(content);
             using (var stream = new MemoryStream(byteArray))
@@ -29,27 +29,27 @@
         }
 
         [Test]
-        public void Should_handle_be_able_to_read_stored_values()
+        public async Task Should_handle_be_able_to_read_stored_values()
         {
             const string content = "Test";
 
-            var key = Put(content, TimeSpan.MaxValue);
-            using (var stream = dataBus.Get(key))
+            var key = await Put(content, TimeSpan.MaxValue);
+            using (var stream = await dataBus.Get(key))
             {
                 Assert.AreEqual(new StreamReader(stream).ReadToEnd(), content);
             }
         }
 
         [Test]
-        public void Should_handle_be_able_to_read_stored_values_concurrently()
+        public async Task Should_handle_be_able_to_read_stored_values_concurrently()
         {
             const string content = "Test";
 
-            var key = Put(content, TimeSpan.MaxValue);
+            var key = await Put(content, TimeSpan.MaxValue);
 
-            Parallel.For(0, 10, i =>
+            Parallel.For(0, 10, async i =>
             {
-                using (var stream = dataBus.Get(key))
+                using (var stream = await dataBus.Get(key))
                 {
                     Assert.AreEqual(new StreamReader(stream).ReadToEnd(), content);
                 }

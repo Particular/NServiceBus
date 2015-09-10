@@ -1095,9 +1095,9 @@ namespace NServiceBus.DataBus
     }
     public interface IDataBus
     {
-        System.IO.Stream Get(string key);
-        string Put(System.IO.Stream stream, System.TimeSpan timeToBeReceived);
-        void Start();
+        System.Threading.Tasks.Task<System.IO.Stream> Get(string key);
+        System.Threading.Tasks.Task<string> Put(System.IO.Stream stream, System.TimeSpan timeToBeReceived);
+        System.Threading.Tasks.Task Start();
     }
     public interface IDataBusSerializer
     {
