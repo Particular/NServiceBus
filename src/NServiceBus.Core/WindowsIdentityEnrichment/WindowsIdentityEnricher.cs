@@ -7,13 +7,12 @@ namespace NServiceBus
 
     class WindowsIdentityEnricher : IMutateOutgoingTransportMessages
     {
-
         public Task MutateOutgoing(MutateOutgoingTransportMessageContext context)
         {
             if (Thread.CurrentPrincipal != null && Thread.CurrentPrincipal.Identity != null && !string.IsNullOrEmpty(Thread.CurrentPrincipal.Identity.Name))
             {
                 context.OutgoingHeaders[Headers.WindowsIdentityName] = Thread.CurrentPrincipal.Identity.Name;
-                return Task.FromResult(0);
+                return TaskEx.Completed;
             }
             using (var windowsIdentity = WindowsIdentity.GetCurrent())
             {
@@ -22,7 +21,7 @@ namespace NServiceBus
                     context.OutgoingHeaders[Headers.WindowsIdentityName] = windowsIdentity.Name;
                 }
             }
-            return Task.FromResult(0);
+            return TaskEx.Completed;
         }
     }
 }

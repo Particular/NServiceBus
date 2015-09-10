@@ -45,7 +45,7 @@ namespace NServiceBus.Unicast.Transport
                 pipeline.Invoke(context);
             }
 
-            return Task.FromResult(0);
+            return TaskEx.Completed;
         }
         
         /// <summary>

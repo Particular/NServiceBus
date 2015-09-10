@@ -21,7 +21,7 @@
             {
                 headers[Headers.ContentType] = Serializer.ContentType;
             }
-            return Task.FromResult(0);
+            return TaskEx.Completed;
         }
 
         public void Customize(BusConfiguration configuration)
