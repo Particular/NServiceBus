@@ -99,6 +99,7 @@
     <Compile Include="Causation\MessageCausation.cs" />
     <Compile Include="ConfigureHandlerSettings.cs" />
     <Compile Include="Routing\DynamicRoutingConfigurationExtensions.cs" />
+    <Compile Include="TaskEx.cs" />
     <Compile Include="Transports\Msmq\MsmqConnectionStringBuilder.cs" />
     <Compile Include="ConsistencyGuarantees\ApplyDefaultConsistencyGuaranteeBehavior.cs" />
     <Compile Include="ConsistencyGuarantees\ConsistencyGuaranteeExtensions.cs" />

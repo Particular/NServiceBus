@@ -22,7 +22,7 @@ namespace NServiceBus.InMemory.SagaPersister
         {
             VersionedSagaEntity value;
             data.TryRemove(saga.Id, out value);
-            return Task.FromResult(0);
+            return TaskEx.Completed;
         }
 
         public Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, SagaPersistenceOptions options) where TSagaData : IContainSagaData
@@ -71,7 +71,7 @@ namespace NServiceBus.InMemory.SagaPersister
             data.AddOrUpdate(saga.Id, id => new VersionedSagaEntity { SagaEntity = DeepClone(saga) }, (id, original) => new VersionedSagaEntity { SagaEntity = DeepClone(saga), VersionCache = original.VersionCache });
 
             Interlocked.Increment(ref version);
-            return Task.FromResult(0);
+            return TaskEx.Completed;
         }
 
         public Task Update(IContainSagaData saga, SagaPersistenceOptions options)

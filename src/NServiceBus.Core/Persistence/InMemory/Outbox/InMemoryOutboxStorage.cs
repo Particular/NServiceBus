@@ -28,7 +28,7 @@
             {
                 throw new Exception(string.Format("Outbox message with id '{0}' is already present in storage.", message.MessageId));
             }
-            return Task.FromResult(0);
+            return TaskEx.Completed;
         }
 
         public Task SetAsDispatched(string messageId, OutboxStorageOptions options)
@@ -37,13 +37,13 @@
 
             if (!storage.TryGetValue(messageId, out storedMessage))
             {
-                return Task.FromResult(0);
+                return TaskEx.Completed;
             }
 
             storedMessage.TransportOperations.Clear();
             storedMessage.Dispatched = true;
 
-            return Task.FromResult(0);
+            return TaskEx.Completed;
         }
 
         ConcurrentDictionary<string, StoredMessage> storage = new ConcurrentDictionary<string, StoredMessage>();
