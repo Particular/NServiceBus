@@ -42,7 +42,8 @@ namespace NServiceBus
                 {
                     var receiveAddress = PipelineInfo.PublicAddress;
 
-                    var messageToRetry = new OutgoingMessage(context.GetPhysicalMessage().Id, message.Headers, message.Body);
+                    message.RevertToOriginalBodyIfNeeded();
+                    var messageToRetry = new OutgoingMessage(message.Id, message.Headers, message.Body);
 
                     messageToRetry.Headers[Headers.Retries] = currentRetry.ToString();
                     messageToRetry.Headers[RetriesTimestamp] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);

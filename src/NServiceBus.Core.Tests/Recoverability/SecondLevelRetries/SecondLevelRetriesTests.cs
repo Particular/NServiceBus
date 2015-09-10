@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Text;
     using NServiceBus.DelayedDelivery;
     using NServiceBus.DeliveryConstraints;
     using NServiceBus.Faults;
@@ -113,12 +114,32 @@
             Assert.AreEqual("1", fakeDispatchPipeline.DispatchContext.Get<OutgoingMessage>().Headers[Headers.Retries]);
         }
 
-        PhysicalMessageProcessingStageBehavior.Context CreateContext(string messageId, int currentRetryCount)
+        [Test]
+        public void ShouldRevertMessageBodyWhenDispatchingMessage()
+        {
+            const string originalContent = "original content";
+            var context = CreateContext("someId", 1, Encoding.UTF8.GetBytes(originalContent));
+            var fakeDispatchPipeline = new FakeDispatchPipeline();
+            var retryPolicy = new FakePolicy(TimeSpan.FromSeconds(0));
+            var behavior = new SecondLevelRetriesBehavior(fakeDispatchPipeline, retryPolicy, new BusNotifications());
+            behavior.Initialize(new PipelineInfo("Test", "test-address-for-this-pipeline"));
+
+            var message = context.GetPhysicalMessage();
+            message.Body = Encoding.UTF8.GetBytes("modified content");
+
+            behavior.Invoke(context, () => { throw new Exception("test"); });
+
+            var dispatchedMessage = fakeDispatchPipeline.DispatchContext.Get<OutgoingMessage>();
+            Assert.AreEqual(originalContent, Encoding.UTF8.GetString(dispatchedMessage.Body));
+            Assert.AreEqual(originalContent, Encoding.UTF8.GetString(message.Body));
+        }
+
+        PhysicalMessageProcessingStageBehavior.Context CreateContext(string messageId, int currentRetryCount, byte[] messageBody = null)
         {
             var context = new PhysicalMessageProcessingStageBehavior.Context(new TransportReceiveContext(new IncomingMessage(messageId, new Dictionary<string, string>
             {
                 {Headers.Retries, currentRetryCount.ToString()}
-            }, new MemoryStream()), null));
+            }, new MemoryStream(messageBody ?? new byte[0])), null));
             return context;
         }
     }
