@@ -111,7 +111,7 @@
     <Compile Include="Correlation\MessageCorrelation.cs" />
     <Compile Include="CriticalError\CriticalErrorHandling.cs" />
     <Compile Include="CriticalError\CriticalError.cs" />
-    <Compile Include="DataBusPropertyInfo.cs" />
+    <Compile Include="DataBus\DataBusPropertyInfo.cs" />
     <Compile Include="DataBus\CustomDataBus.cs" />
     <Compile Include="DataBus\CustomIDataBus.cs" />
     <Compile Include="DataBus\DataBus.cs" />
@@ -160,7 +160,7 @@
     <Compile Include="Hosting\AddHostInfoHeadersBehavior.cs" />
     <Compile Include="Hosting\HostInformationFeature.cs" />
     <Compile Include="IBusExtensions.cs" />
-    <Compile Include="IDataBusProperty.cs" />
+    <Compile Include="DataBus\IDataBusProperty.cs" />
     <Compile Include="ISendOnlyBusExtensions.cs" />
     <Compile Include="Pipeline\MutateTransportMessage\IMutateOutgoingTransportMessages.cs" />
     <Compile Include="Pipeline\MutateInstanceMessage\MutateOutgoingMessageContext.cs" />
@@ -326,13 +326,13 @@
     <Compile Include="Configure.cs" />
     <Compile Include="Audit\AuditConfig.cs" />
     <Compile Include="ContentTypes.cs" />
-    <Compile Include="DataBusProperty.cs" />
+    <Compile Include="DataBus\DataBusProperty.cs" />
     <Compile Include="Distributor\MasterNode\DefaultMasterNodeAddress.cs" />
     <Compile Include="DataBus\DataBusReceiveBehavior.cs" />
     <Compile Include="DataBus\DataBusSendBehavior.cs" />
     <Compile Include="Encryption\MemberInfoExtensions.cs" />
     <Compile Include="ExceptionExtensions.cs" />
-    <Compile Include="ExpressAttribute.cs" />
+    <Compile Include="Performance\MessageDurability\ExpressAttribute.cs" />
     <Compile Include="Features\FeatureConfigurationContext.cs" />
     <Compile Include="Features\ConfigurationBuilderExtensions.cs" />
     <Compile Include="Features\FeatureStartupTask.cs" />
