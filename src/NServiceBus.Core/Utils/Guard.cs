@@ -66,7 +66,7 @@
             }
         }
 
-        public static void AgainstNegativeAndZero([InvokerParameterName] string argumentName, [NotNull] TimeSpan? value)
+        public static void AgainstNegativeAndZero([InvokerParameterName] string argumentName, TimeSpan value)
         {
             if (value <= TimeSpan.Zero)
             {
@@ -74,7 +74,7 @@
             }
         }
 
-        public static void AgainstNegative([InvokerParameterName] string argumentName, [NotNull] TimeSpan? value)
+        public static void AgainstNegative([InvokerParameterName] string argumentName, TimeSpan value)
         {
             if (value < TimeSpan.Zero)
             {

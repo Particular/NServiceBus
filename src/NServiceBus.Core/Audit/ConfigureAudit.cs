@@ -18,13 +18,16 @@ namespace NServiceBus
         {
             Guard.AgainstNull("config", config);
             Guard.AgainstNullAndEmpty("auditQueue", auditQueue);
-            Guard.AgainstNegative("timeToBeReceived", timeToBeReceived);
-
+            if (timeToBeReceived != null)
+            {
+                Guard.AgainstNegative("timeToBeReceived", timeToBeReceived.Value);
+            }
             config.Settings.Set<AuditConfigReader.Result>(new AuditConfigReader.Result
             {
                 Address = auditQueue,
                 TimeToBeReceived = timeToBeReceived
             });
+
         }
     }
 }
