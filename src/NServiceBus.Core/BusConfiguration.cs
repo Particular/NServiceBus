@@ -8,7 +8,6 @@ namespace NServiceBus
     using System.Transactions;
     using System.Web;
     using NServiceBus.Config.ConfigurationSource;
-    using NServiceBus.Config.Conventions;
     using NServiceBus.Configuration.AdvanceExtensibility;
     using NServiceBus.Container;
     using NServiceBus.Hosting.Helpers;

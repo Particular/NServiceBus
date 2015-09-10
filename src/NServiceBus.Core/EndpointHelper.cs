@@ -1,4 +1,4 @@
-namespace NServiceBus.Config.Conventions
+namespace NServiceBus
 {
     using System;
     using System.Diagnostics;
