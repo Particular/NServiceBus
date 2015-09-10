@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using NServiceBus.Saga;
+    using NServiceBus.Sagas;
     using NUnit.Framework;
     using Conventions = NServiceBus.Conventions;
 

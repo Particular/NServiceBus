@@ -6,7 +6,6 @@
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.Features;
     using NUnit.Framework;
-    using NServiceBus.Saga;
 
     public class When_using_ReplyToOriginator : NServiceBusAcceptanceTest
     {

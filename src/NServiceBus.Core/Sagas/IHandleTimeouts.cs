@@ -1,4 +1,4 @@
-namespace NServiceBus.Saga
+namespace NServiceBus
 {
     using JetBrains.Annotations;
 

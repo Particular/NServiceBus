@@ -2,7 +2,7 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
 {
     using System;
     using System.Linq;
-    using NServiceBus.Saga;
+    using NServiceBus.Sagas;
     using NUnit.Framework;
     using Conventions = NServiceBus.Conventions;
 

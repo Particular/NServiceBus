@@ -2,7 +2,6 @@
 {
     using System.Diagnostics;
     using NUnit.Framework;
-    using Saga;
 
     [TestFixture]
     [Explicit("Performance Tests")]

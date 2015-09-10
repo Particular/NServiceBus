@@ -1,4 +1,4 @@
-namespace NServiceBus.Saga
+namespace NServiceBus.Sagas
 {
     /// <summary>
     /// Implementors will be invoked when a message arrives that should have been processed

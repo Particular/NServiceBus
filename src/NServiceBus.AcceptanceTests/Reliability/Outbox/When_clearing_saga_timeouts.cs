@@ -7,7 +7,6 @@
     using NServiceBus.Configuration.AdvanceExtensibility;
     using NServiceBus.Outbox;
     using NServiceBus.Persistence;
-    using NServiceBus.Saga;
     using NUnit.Framework;
 
     public class When_clearing_saga_timeouts : NServiceBusAcceptanceTest

@@ -3,7 +3,7 @@
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.Saga;
+    using NServiceBus.Sagas;
     using NUnit.Framework;
 
     [TestFixture]

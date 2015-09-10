@@ -1,4 +1,4 @@
-namespace NServiceBus.Saga
+namespace NServiceBus.Sagas
 {
     using System;
     using System.Collections.Generic;
@@ -123,7 +123,7 @@ namespace NServiceBus.Saga
         /// <summary>
         /// Creates a <see cref="SagaMetadata" /> from a specific Saga type.
         /// </summary>
-        /// <param name="sagaType">A type representing a Saga. Must be a non-generic type inheriting from <see cref="NServiceBus.Saga.Saga" />.</param>
+        /// <param name="sagaType">A type representing a Saga. Must be a non-generic type inheriting from <see cref="Saga" />.</param>
         /// <returns>An instance of <see cref="SagaMetadata" /> describing the Saga.</returns>
         public static SagaMetadata Create(Type sagaType)
         {
@@ -133,7 +133,7 @@ namespace NServiceBus.Saga
         /// <summary>
         /// Creates a <see cref="SagaMetadata" /> from a specific Saga type.
         /// </summary>
-        /// <param name="sagaType">A type representing a Saga. Must be a non-generic type inheriting from <see cref="NServiceBus.Saga.Saga" />.</param>
+        /// <param name="sagaType">A type representing a Saga. Must be a non-generic type inheriting from <see cref="Saga" />.</param>
         /// <param name="availableTypes">Additional available types, used to locate saga finders and other related classes.</param>
         /// <param name="conventions">Custom conventions to use while scanning types.</param>
         /// <returns>An instance of <see cref="SagaMetadata" /> describing the Saga.</returns>

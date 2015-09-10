@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Features
 {
-    using NServiceBus.InMemory.SagaPersister;
 
     /// <summary>
     /// Used to configure in memory saga persistence.

@@ -1,7 +1,6 @@
 namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
     using System;
-    using Saga;
 
     class AnotherSagaWithTwoUniqueProperties:Saga<AnotherSagaWithTwoUniquePropertiesData>, IHandleMessages<M1>
     {

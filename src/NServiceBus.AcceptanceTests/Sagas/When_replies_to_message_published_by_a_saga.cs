@@ -8,7 +8,6 @@
     using NServiceBus.AcceptanceTests.Routing;
     using NServiceBus.Config;
     using NUnit.Framework;
-    using Saga;
     using ScenarioDescriptors;
 
     public class When_replies_to_message_published_by_a_saga : NServiceBusAcceptanceTest

@@ -1,5 +1,4 @@
-
-namespace NServiceBus.Saga
+namespace NServiceBus.Sagas
 {
     /// <summary>
     /// Interface indicating that implementers can find sagas of the given type.

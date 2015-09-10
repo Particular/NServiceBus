@@ -2,7 +2,7 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Saga;
+    using NServiceBus.Sagas;
     using NUnit.Framework;
     
     [TestFixture]

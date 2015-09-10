@@ -1,7 +1,8 @@
-namespace NServiceBus.Saga
+namespace NServiceBus
 {
     using System;
     using NServiceBus.ObjectBuilder;
+    using NServiceBus.Sagas;
 
     /// <summary>
     /// Finds the given type of saga by looking it up based on the given property.

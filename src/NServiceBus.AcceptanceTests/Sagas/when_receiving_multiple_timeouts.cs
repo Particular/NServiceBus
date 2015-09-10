@@ -5,8 +5,8 @@
     using EndpointTemplates;
     using AcceptanceTesting;
     using NServiceBus.Features;
+    using NServiceBus.Sagas;
     using NUnit.Framework;
-    using Saga;
 
     public class when_receiving_multiple_timeouts : NServiceBusAcceptanceTest
     {

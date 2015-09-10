@@ -5,8 +5,8 @@
     using EndpointTemplates;
     using AcceptanceTesting;
     using NServiceBus.Features;
+    using NServiceBus.Sagas;
     using NUnit.Framework;
-    using Saga;
 
     public class When_timeout_hit_not_found_saga : NServiceBusAcceptanceTest
     {
@@ -40,7 +40,8 @@
             }
 
             public class TimeoutHitsNotFoundSaga : Saga<TimeoutHitsNotFoundSaga.TimeoutHitsNotFoundSagaData>,
-                IAmStartedByMessages<StartSaga>, IHandleSagaNotFound,
+                IAmStartedByMessages<StartSaga>, 
+                IHandleSagaNotFound,
                 IHandleTimeouts<TimeoutHitsNotFoundSaga.MyTimeout>,
                 IHandleMessages<SomeOtherMessage>
             {

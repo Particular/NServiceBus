@@ -1,7 +1,6 @@
 namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
     using System;
-    using Saga;
 
     class SagaWithUniqueProperty : Saga<SagaWithUniquePropertyData>
     {

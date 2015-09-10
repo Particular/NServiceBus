@@ -1,4 +1,4 @@
-namespace NServiceBus.Saga
+namespace NServiceBus.Sagas
 {
     using NServiceBus.Extensibility;
 

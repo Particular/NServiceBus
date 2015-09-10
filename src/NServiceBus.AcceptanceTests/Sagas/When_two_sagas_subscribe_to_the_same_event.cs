@@ -1,5 +1,4 @@
-﻿
-namespace NServiceBus.AcceptanceTests.Sagas
+﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
     using System.Threading.Tasks;
@@ -7,7 +6,6 @@ namespace NServiceBus.AcceptanceTests.Sagas
     using AcceptanceTesting;
     using NServiceBus.AcceptanceTests.Routing;
     using NUnit.Framework;
-    using Saga;
     using ScenarioDescriptors;
 
     // Repro for issue  https://github.com/NServiceBus/NServiceBus/issues/1277

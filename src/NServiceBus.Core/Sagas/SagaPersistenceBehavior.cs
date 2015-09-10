@@ -7,7 +7,7 @@
     using NServiceBus.Logging;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.Saga;
+    using NServiceBus.Sagas;
     using NServiceBus.Transports;
     using NServiceBus.Unicast;
 
@@ -32,7 +32,7 @@
 
             RemoveSagaHeadersIfProcessingAEvent(context);
 
-            var saga = context.MessageHandler.Instance as Saga.Saga;
+            var saga = context.MessageHandler.Instance as Saga;
 
             if (saga == null)
             {

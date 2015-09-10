@@ -1,4 +1,4 @@
-namespace NServiceBus.Saga
+namespace NServiceBus
 {
     using System;
     using System.Linq.Expressions;

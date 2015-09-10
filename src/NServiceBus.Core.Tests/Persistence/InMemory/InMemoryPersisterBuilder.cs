@@ -1,8 +1,7 @@
 namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
     using System;
-    using NServiceBus.InMemory.SagaPersister;
-    using NServiceBus.Saga;
+    using NServiceBus.Sagas;
     using NUnit.Framework;
 
     class InMemoryPersisterBuilder

@@ -7,7 +7,6 @@
     using Features;
     using NServiceBus.AcceptanceTests.Routing;
     using NUnit.Framework;
-    using Saga;
     using ScenarioDescriptors;
 
     //Repro for #1323

@@ -2,7 +2,7 @@
 {
     using System;
     using Pipeline.Contexts;
-    using Saga;
+    using Sagas;
 
     class InvokeHandlersBehavior : HandlingStageBehavior
     {

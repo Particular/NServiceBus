@@ -5,7 +5,6 @@
     using EndpointTemplates;
     using AcceptanceTesting;
     using NUnit.Framework;
-    using Saga;
     using ScenarioDescriptors;
 
     public class When_saga_is_mapped_to_complex_expression : NServiceBusAcceptanceTest

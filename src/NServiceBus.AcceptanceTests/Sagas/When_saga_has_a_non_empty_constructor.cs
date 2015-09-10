@@ -5,7 +5,6 @@
     using EndpointTemplates;
     using AcceptanceTesting;
     using NUnit.Framework;
-    using Saga;
     using ScenarioDescriptors;
 
     public class When_saga_has_a_non_empty_constructor : NServiceBusAcceptanceTest

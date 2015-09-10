@@ -1,4 +1,4 @@
-namespace NServiceBus.Saga
+namespace NServiceBus.Sagas
 {
     /// <summary>
     /// Representation of a message that is related to a saga.

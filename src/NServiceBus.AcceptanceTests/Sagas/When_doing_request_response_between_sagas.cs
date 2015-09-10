@@ -1,11 +1,9 @@
-﻿
-namespace NServiceBus.AcceptanceTests.Sagas
+﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
     using EndpointTemplates;
     using AcceptanceTesting;
     using NServiceBus.Features;
-    using Saga;
 
     public class When_doing_request_response_between_sagas : NServiceBusAcceptanceTest
     {
