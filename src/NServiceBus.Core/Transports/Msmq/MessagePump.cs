@@ -101,6 +101,10 @@ namespace NServiceBus
             {
                 await InnerProcessMessages();
             }
+            catch(OperationCanceledException)
+            {
+                // For graceful shutdown purposes
+            }
             catch (Exception ex)
             {
                 Logger.Error("MSMQ Message pump failed", ex);
