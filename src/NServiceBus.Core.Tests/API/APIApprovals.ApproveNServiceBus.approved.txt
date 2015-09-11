@@ -444,7 +444,7 @@ namespace NServiceBus
     }
     public interface IHandleTimeouts<T>
     {
-        void Timeout(T state);
+        System.Threading.Tasks.Task Timeout(T state);
     }
     [System.ObsoleteAttribute("Will be removed in version 7.0.0.", true)]
     public interface IIncludesBuilder { }

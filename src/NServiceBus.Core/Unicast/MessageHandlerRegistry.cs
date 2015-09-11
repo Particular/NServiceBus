@@ -53,7 +53,7 @@
         }
 
         /// <summary>
-        ///     Registers the given potentialHandlerKind handler type.
+        ///     Registers the given potential handler type.
         /// </summary>
         public void RegisterHandler(Type handlerType)
         {
@@ -132,18 +132,21 @@
             var methodParameters = methodInfo.GetParameters();
             var messageCastParam = Expression.Convert(messageParam, methodParameters.ElementAt(0).ParameterType);
 
-            //var contextParameter = methodParameters.ElementAtOrDefault(1);
-            //if (IsNewContextApi(contextParameter))
-            //{
-            //    var contextType = contextParameter.ParameterType;
-            //    var contextCastParam = Expression.Convert(contextParam, contextType);
-            //    var execute = Expression.Call(castTarget, methodInfo, messageCastParam, contextCastParam);
-            //    return Expression.Lambda<Action<object, object, object>>(execute, target, messageParam, contextParam).Compile();
-            //}
 
-            var body = Expression.Block(
+            Expression body;
+            if (methodInfo.ReturnType == typeof(Task))
+            {
+                // call the handler and return it's Task
+                body = Expression.Call(castTarget, methodInfo, messageCastParam);
+            }
+            else
+            {
+                // wrap the synchronous handler in a wrapper returning Task.FromResult(0);
+                // remove this code once all handler interfaces are moved changed to async.
+                body = Expression.Block(
                 Expression.Call(castTarget, methodInfo, messageCastParam),
                 Expression.Call(typeof(Task), "FromResult", new[] { typeof(int) }, Expression.Constant(0)));
+            }
 
             return Expression.Lambda<Func<object, object, Task>>(body, target, messageParam).Compile();
         }

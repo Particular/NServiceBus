@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
+    using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
     using NServiceBus.Features;
@@ -102,9 +103,10 @@
 
                 public class DelayReply { }
 
-                public void Timeout(DelayReply state)
+                public Task Timeout(DelayReply state)
                 {
                     SendReply();
+                    return Task.FromResult(0);
                 }
 
                 public void Handle(SendReplyFromNonInitiatingHandler message)

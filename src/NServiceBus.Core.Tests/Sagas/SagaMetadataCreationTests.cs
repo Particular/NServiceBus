@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using NServiceBus.Sagas;
     using NUnit.Framework;
     using Conventions = NServiceBus.Conventions;
@@ -316,8 +317,9 @@
             {
             }
 
-            public void Timeout(MyTimeout state)
+            public Task Timeout(MyTimeout state)
             {
+                return TaskEx.Completed;
             }
         }
 

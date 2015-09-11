@@ -48,8 +48,9 @@
 
         public class StubTimeoutHandler : IHandleTimeouts<StubTimeoutState>
         {
-            public void Timeout(StubTimeoutState state)
+            public Task Timeout(StubTimeoutState state)
             {
+                return TaskEx.Completed;
             }
         }
 
@@ -133,10 +134,11 @@
 
         public class StubHandler : IHandleTimeouts<StubTimeoutState>
         {
-            public void Timeout(StubTimeoutState state)
+            public Task Timeout(StubTimeoutState state)
             {
                 TimeoutCalled = true;
                 HandledState = state;
+                return TaskEx.Completed;
             }
 
             public StubTimeoutState HandledState;
