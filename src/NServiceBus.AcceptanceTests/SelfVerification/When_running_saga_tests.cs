@@ -47,11 +47,16 @@
             var sagaEntities = allTypes.Where(t => typeof(IContainSagaData).IsAssignableFrom(t) && !t.IsInterface)
                .ToArray();
 
+            var nestedSagaEntityParents = sagaEntities
+                .Where(t => t.DeclaringType != null)
+                .Select(t => t.DeclaringType)
+                .ToArray();
+
             var usedNames = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
             var offenders = 0;
 
             Console.WriteLine("Sagas / Saga Entities with non-unique names:");
-            foreach (var cls in sagas.Union(sagaEntities))
+            foreach (var cls in sagas.Union(sagaEntities).Union(nestedSagaEntityParents))
             {
                 if (usedNames.Contains(cls.Name))
                 {

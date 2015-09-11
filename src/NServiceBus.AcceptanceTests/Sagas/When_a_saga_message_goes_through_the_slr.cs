@@ -14,7 +14,7 @@
         public async Task Should_invoke_the_correct_handle_methods_on_the_saga()
         {
             await Scenario.Define<Context>()
-                    .WithEndpoint<SagaEndpoint>(b => b.Given(bus =>
+                    .WithEndpoint<SagaMsgThruSlrEndpt>(b => b.Given(bus =>
                     {
                         bus.SendLocal(new StartSagaMessage { SomeId = Guid.NewGuid() });
                         return Task.FromResult(0);
@@ -33,9 +33,9 @@
             public int NumberOfTimesInvoked { get; set; }
         }
 
-        public class SagaEndpoint : EndpointConfigurationBuilder
+        public class SagaMsgThruSlrEndpt : EndpointConfigurationBuilder
         {
-            public SagaEndpoint()
+            public SagaMsgThruSlrEndpt()
             {
                 EndpointSetup<DefaultServer>();
             }

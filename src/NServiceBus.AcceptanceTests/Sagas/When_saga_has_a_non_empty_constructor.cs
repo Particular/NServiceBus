@@ -15,7 +15,7 @@
         public async Task Should_hydrate_and_invoke_the_existing_instance()
         {
             await Scenario.Define<Context>()
-                    .WithEndpoint<SagaEndpoint>(b => b.Given(bus =>
+                    .WithEndpoint<NonEmptySagaCtorEndpt>(b => b.Given(bus =>
                         {
                             bus.SendLocal(new StartSagaMessage { SomeId = IdThatSagaIsCorrelatedOn });
                             return Task.FromResult(0);
@@ -31,9 +31,9 @@
 
         }
 
-        public class SagaEndpoint : EndpointConfigurationBuilder
+        public class NonEmptySagaCtorEndpt : EndpointConfigurationBuilder
         {
-            public SagaEndpoint()
+            public NonEmptySagaCtorEndpt()
             {
                 EndpointSetup<DefaultServer>();
             }
