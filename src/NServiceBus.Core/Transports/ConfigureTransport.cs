@@ -1,8 +1,9 @@
 namespace NServiceBus.Transports
 {
     using System;
-    using NServiceBus.Features;
-    using NServiceBus.Settings;
+    using Features;
+    using NServiceBus.ObjectBuilder;
+    using NServiceBus.Pipeline;
     using NServiceBus.Unicast.Transport;
 
     /// <summary>
@@ -17,15 +18,20 @@ namespace NServiceBus.Transports
         {
             Defaults(s => s.SetDefault<TransportConnectionString>(TransportConnectionString.Default));
 
-            Defaults(s => s.SetDefault("NServiceBus.LocalAddress", GetDefaultEndpointAddress(s)));
+            Defaults(s =>
+            {
+                const string translationKey = "LogicalToTransportAddressTranslation";
+                Func<LogicalAddress, string, string> emptyTranslation = (logicalAddress, defaultTranslation) => defaultTranslation;
+                s.SetDefault(translationKey, emptyTranslation);
+                var translation = s.Get<Func<LogicalAddress, string, string>>(translationKey);
+                s.Set<LogicalToTransportAddressTranslation>(new LogicalToTransportAddressTranslation(s.Get<TransportDefinition>(), translation));
+            });
 
             Defaults(s =>
             {
-                var localAddress = GetLocalAddress(s);
-                if (!String.IsNullOrEmpty(localAddress) && !s.HasExplicitValue("NServiceBus.LocalAddress"))
-                {
-                    s.Set("NServiceBus.LocalAddress", localAddress);
-                }
+                var transport = s.Get<LogicalToTransportAddressTranslation>();
+                var defaultTransportAddress = transport.Translate(s.RootLogicalAddress());
+                s.SetDefault("NServiceBus.LocalAddress", defaultTransportAddress);
             });
         }
 
@@ -34,10 +40,10 @@ namespace NServiceBus.Transports
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.Settings.Get<QueueBindings>().BindReceiving(context.Settings.LocalAddress());
-            var connectionString = context.Settings.Get<TransportConnectionString>().GetConnectionStringOrNull();
             var selectedTransportDefinition = context.Settings.Get<TransportDefinition>();
+            context.Settings.Get<QueueBindings>().BindReceiving(selectedTransportDefinition.ToTransportAddress(context.Settings.RootLogicalAddress()));
 
+            var connectionString = context.Settings.Get<TransportConnectionString>().GetConnectionStringOrNull();
             if (connectionString == null && RequiresConnectionString)
             {
                 throw new InvalidOperationException(String.Format(Message, GetConfigFileIfExists(), selectedTransportDefinition.GetType().Name, ExampleConnectionStringForErrorMessage));
@@ -50,16 +56,6 @@ namespace NServiceBus.Transports
         }
 
        
-        /// <summary>
-        ///  Allows the transport to control the local address of the endpoint if needed.
-        /// </summary>
-        /// <param name="settings">The current settings in read only mode.</param>
-        // ReSharper disable once UnusedParameter.Global
-        protected virtual string GetLocalAddress(ReadOnlySettings settings)
-        {
-            return null;
-        }
-
         /// <summary>
         /// Gives the chance to implementers to set themselves up.
         /// </summary>
@@ -83,22 +79,6 @@ namespace NServiceBus.Transports
         {
             return AppDomain.CurrentDomain.SetupInformation.ConfigurationFile ?? "App.config";
         }
-
-        static string GetDefaultEndpointAddress(ReadOnlySettings settings)
-        {
-            if (!settings.GetOrDefault<bool>("IndividualizeEndpointAddress"))
-            {
-                return settings.EndpointName();
-            }
-
-            if (!settings.HasSetting("EndpointInstanceDiscriminator"))
-            {
-                throw new Exception("No endpoint instance discriminator found. This value is usually provided by your transport so please make sure you're on the lastest version of your specific transport or set the discriminator using 'configuration.ScaleOut().UniqueQueuePerEndpointInstance(myDiscriminator)'");
-            }
-
-            return settings.EndpointName() + settings.Get<string>("EndpointInstanceDiscriminator");
-        }
-
 
         const string Message =
             @"No default connection string found in your config file ({0}) for the {1} Transport.

@@ -8,10 +8,10 @@ namespace NServiceBus.Unicast.Transport
         /// <summary>
         /// Creates new instance.
         /// </summary>
-        public PipelineInfo(string name, string publicAddress)
+        public PipelineInfo(string name, string transportAddress)
         {
             Name = name;
-            PublicAddress = publicAddress;
+            TransportAddress = transportAddress;
         }
 
         /// <summary>
@@ -20,8 +20,8 @@ namespace NServiceBus.Unicast.Transport
         public string Name { get; private set; }
 
         /// <summary>
-        /// Public address to which messages should be sent to get to this pipeline's input queue. Might differe from the input queue.
+        /// The transport address of the receiver bound to this pipeline.
         /// </summary>
-        public string PublicAddress { get; private set; }
+        public string TransportAddress { get; private set; }
     }
 }

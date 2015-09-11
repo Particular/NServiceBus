@@ -8,7 +8,7 @@ namespace NServiceBus.AcceptanceTests.FakeTransport
     {
         public FakeTransportContext Context { get; set; }
 
-        public DequeueInfo Init(Func<PushContext, Task> pipe, PushSettings settings)
+        public void Init(Func<PushContext, Task> pipe, PushSettings settings)
         {
             isMain = !settings.InputQueue.Contains("#");
 
@@ -16,8 +16,6 @@ namespace NServiceBus.AcceptanceTests.FakeTransport
             {
                 Context.PushSettings = settings;
             }
-
-            return new DequeueInfo("fake");
         }
 
         public void Start(PushRuntimeSettings limitations)

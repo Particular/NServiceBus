@@ -105,7 +105,7 @@ namespace NServiceBus.Unicast
 
             foreach (var satellitePipeline in pipelinesCollection.SatellitePipelines)
             {
-                var satellitePushSettings = new PushSettings(satellitePipeline.ReceiveAddress, errorQueue, settings.GetOrDefault<bool>("Transport.PurgeOnStartup"),satellitePipeline.TransactionSettings ?? transactionSettings);
+                var satellitePushSettings = new PushSettings(satellitePipeline.ReceiveAddress, errorQueue, settings.GetOrDefault<bool>("Transport.PurgeOnStartup"), satellitePipeline.TransactionSettings ?? transactionSettings);
 
                 yield return BuildPipelineInstance(satellitePipeline, satellitePipeline.Name, satellitePushSettings, satellitePipeline.PushRuntimeSettings ?? PushRuntimeSettings.Default);
             }

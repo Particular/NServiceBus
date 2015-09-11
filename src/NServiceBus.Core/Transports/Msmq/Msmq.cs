@@ -2,10 +2,11 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
-    using NServiceBus.Configuration.AdvanceExtensibility;
+    using System.Text;
     using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.Features;
     using NServiceBus.Performance.TimeToBeReceived;
+    using NServiceBus.Support;
     using NServiceBus.Transports;
 
     /// <summary>
@@ -27,26 +28,9 @@ namespace NServiceBus
         /// </summary>
         protected internal override void Configure(BusConfiguration config)
         {
-            // For MSMQ the endpoint differentiator is a no-op since you commonly scale out by running the same endpoint on a different machine.
-            // if users want to run more than one instance on the same machine they need to set an explicit discriminator
-            config.GetSettings()
-                .SetDefault("EndpointInstanceDiscriminator", String.Empty);
-               
             config.EnableFeature<MsmqTransportConfigurator>();
         }
 
-        /// <summary>
-        /// <see cref="TransportDefinition.GetSubScope"/>.
-        /// </summary>
-        public override string GetSubScope(string address, string qualifier)
-        {
-            Guard.AgainstNullAndEmpty("address", address);
-            Guard.AgainstNullAndEmpty("qualifier", qualifier);
-
-            var msmqAddress = MsmqAddress.Parse(address);
-
-            return msmqAddress.ToString(qualifier);
-        }
         /// <summary>
         /// The list of constraints supported by the MSMQ transport.
         /// </summary>
@@ -72,6 +56,35 @@ namespace NServiceBus
         public override IManageSubscriptions GetSubscriptionManager()
         {
             throw new NotSupportedException("Msmq don't support native pub sub");
+        }
+
+        /// <summary>
+        /// Returns the discriminator for this endpoint instance.
+        /// </summary>
+        public override string GetDiscriminatorForThisEndpointInstance()
+        {
+            return RuntimeEnvironment.MachineName;
+        }
+
+        /// <summary>
+        /// Converts a given logical address to the transport address.
+        /// </summary>
+        /// <param name="logicalAddress">The logical address.</param>
+        /// <returns>The transport address.</returns>
+        public override string ToTransportAddress(LogicalAddress logicalAddress)
+        {
+            var machine = logicalAddress.EndpointInstanceName.TransportDiscriminator;
+
+            var queue = new StringBuilder(logicalAddress.EndpointInstanceName.EndpointName.ToString());
+            if (logicalAddress.EndpointInstanceName.UserDiscriminator != null)
+            {
+                queue.Append("-" + logicalAddress.EndpointInstanceName.UserDiscriminator);
+            }
+            if (logicalAddress.Qualifier != null)
+            {
+                queue.Append("." + logicalAddress.Qualifier);
+            }
+            return queue + "@" + machine;
         }
     }
 }

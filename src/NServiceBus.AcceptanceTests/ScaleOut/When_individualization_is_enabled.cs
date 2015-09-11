@@ -8,7 +8,7 @@
 
     public class When_individualization_is_enabled : NServiceBusAcceptanceTest
     {
-        const string discriminator = "-something";
+        const string discriminator = "something";
 
         [Test]
         public async Task Should_use_the_configured_differentiator()
@@ -17,7 +17,7 @@
                     .WithEndpoint<IndividualizedEndpoint>().Done(c => c.EndpointsStarted)
                     .Run();
 
-            Assert.True(context.Address.Contains("-something"), context.Address + " should contain the discriminator " + discriminator);
+            Assert.True(context.Address.Contains("something"), context.Address + " should contain the discriminator " + discriminator);
 
         }
 
@@ -42,7 +42,7 @@
 
                 public void Start()
                 {
-                    Context.Address = Settings.LocalAddress();
+                    Context.Address = Settings.RootLogicalAddress().ToString();
                 }
 
                 public void Stop()

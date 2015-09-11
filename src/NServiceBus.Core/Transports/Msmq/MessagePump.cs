@@ -20,7 +20,7 @@ namespace NServiceBus
             this.criticalError = criticalError;
         }
 
-        public DequeueInfo Init(Func<PushContext, Task> pipe, PushSettings settings)
+        public void Init(Func<PushContext, Task> pipe, PushSettings settings)
         {
             pipeline = pipe;
 
@@ -29,17 +29,17 @@ namespace NServiceBus
             peekCircuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("MsmqPeek", TimeSpan.FromSeconds(30), ex => criticalError.Raise("Failed to peek " + settings.InputQueue, ex));
             receiveCircuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("MsmqReceive", TimeSpan.FromSeconds(30), ex => criticalError.Raise("Failed to receive from " + settings.InputQueue, ex));
 
-            var msmqAddress = MsmqAddress.Parse(settings.InputQueue);
+            var inputAddress = MsmqAddress.Parse(settings.InputQueue);
+            var errorAddress = MsmqAddress.Parse(settings.InputQueue);
 
-            var queueName = msmqAddress.Queue;
-            if (!string.Equals(msmqAddress.Machine, Environment.MachineName, StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(errorAddress.Machine, Environment.MachineName, StringComparison.OrdinalIgnoreCase))
             {
                 var message = string.Format("MSMQ Dequeuing can only run against the local machine. Invalid inputQueue name '{0}'", settings.InputQueue);
                 throw new Exception(message);
             }
 
-            inputQueue = new MessageQueue(MsmqUtilities.GetFullPath(queueName), false, true, QueueAccessMode.Receive);
-            errorQueue = new MessageQueue(MsmqUtilities.GetFullPath(settings.ErrorQueue), false, true, QueueAccessMode.Send);
+            inputQueue = new MessageQueue(inputAddress.FullPath, false, true, QueueAccessMode.Receive);
+            errorQueue = new MessageQueue(errorAddress.FullPath, false, true, QueueAccessMode.Send);
 
             if (settings.TransactionSettings.IsTransactional && !QueueIsTransactional())
             {
@@ -52,8 +52,6 @@ namespace NServiceBus
             {
                 inputQueue.Purge();
             }
-            return new DequeueInfo(queueName);
-
         }
 
         /// <summary>

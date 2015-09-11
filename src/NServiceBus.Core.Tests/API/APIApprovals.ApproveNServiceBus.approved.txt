@@ -68,6 +68,8 @@ namespace NServiceBus
         public void EndpointName(string name) { }
         public void ExcludeAssemblies(params string[] assemblies) { }
         public void ExcludeTypes(params System.Type[] types) { }
+        [System.ObsoleteAttribute("Please use `UseCustomLogicalToTransportAddressTranslation` instead. Will be remov" +
+            "ed in version 7.0.0.", true)]
         public void OverrideLocalAddress(string queue) { }
         public void OverridePublicReturnAddress(string address) { }
         [System.ObsoleteAttribute("Please use `OverridePublicReturnAddress(string address)` instead. Will be removed" +
@@ -83,6 +85,7 @@ namespace NServiceBus
             where T : NServiceBus.Container.ContainerDefinition, new () { }
         public void UseContainer(System.Type definitionType) { }
         public void UseContainer(NServiceBus.ObjectBuilder.Common.IContainer builder) { }
+        public void UseCustomLogicalToTransportAddressTranslation(System.Func<NServiceBus.LogicalAddress, string, string> translation) { }
     }
     public class BusNotifications : System.IDisposable
     {
@@ -274,6 +277,23 @@ namespace NServiceBus
         public EncryptedValue() { }
         public string Base64Iv { get; set; }
         public string EncryptedBase64Value { get; set; }
+    }
+    public sealed class EndpointInstanceName
+    {
+        public EndpointInstanceName(NServiceBus.EndpointName endpointName, string userDiscriminator, string transportDiscriminator) { }
+        public NServiceBus.EndpointName EndpointName { get; }
+        public string TransportDiscriminator { get; }
+        public string UserDiscriminator { get; }
+        public override bool Equals(object obj) { }
+        public override int GetHashCode() { }
+        public override string ToString() { }
+    }
+    public sealed class EndpointName
+    {
+        public EndpointName(string name) { }
+        public override bool Equals(object obj) { }
+        public override int GetHashCode() { }
+        public override string ToString() { }
     }
     [System.AttributeUsageAttribute(System.AttributeTargets.Class | System.AttributeTargets.Interface | System.AttributeTargets.All)]
     public sealed class ExpressAttribute : System.Attribute
@@ -546,6 +566,16 @@ namespace NServiceBus
             "", true)]
         public static void LoadMessageHandlers<T>(this NServiceBus.BusConfiguration config, NServiceBus.First<T> order) { }
     }
+    public sealed class LogicalAddress
+    {
+        public LogicalAddress(NServiceBus.EndpointInstanceName endpointInstanceName, string qualifier) { }
+        public LogicalAddress(NServiceBus.EndpointInstanceName endpointInstanceName) { }
+        public NServiceBus.EndpointInstanceName EndpointInstanceName { get; }
+        public string Qualifier { get; }
+        public override bool Equals(object obj) { }
+        public override int GetHashCode() { }
+        public override string ToString() { }
+    }
     public class MessageDeserializationException : System.Runtime.Serialization.SerializationException
     {
         public MessageDeserializationException(string message) { }
@@ -580,9 +610,10 @@ namespace NServiceBus
         public MsmqTransport() { }
         protected internal override void Configure(NServiceBus.BusConfiguration config) { }
         public override NServiceBus.ConsistencyGuarantees.ConsistencyGuarantee GetDefaultConsistencyGuarantee() { }
-        public override string GetSubScope(string address, string qualifier) { }
+        public override string GetDiscriminatorForThisEndpointInstance() { }
         public override NServiceBus.Transports.IManageSubscriptions GetSubscriptionManager() { }
         public override System.Collections.Generic.IEnumerable<System.Type> GetSupportedDeliveryConstraints() { }
+        public override string ToTransportAddress(NServiceBus.LogicalAddress logicalAddress) { }
     }
     public class NonDurableDelivery : NServiceBus.DeliveryConstraints.DeliveryConstraint
     {
@@ -739,11 +770,13 @@ namespace NServiceBus
     }
     public class static SettingsExtentions
     {
-        public static string EndpointName(this NServiceBus.Settings.ReadOnlySettings settings) { }
+        public static NServiceBus.EndpointInstanceName EndpointInstanceName(this NServiceBus.Settings.ReadOnlySettings settings) { }
+        public static NServiceBus.EndpointName EndpointName(this NServiceBus.Settings.ReadOnlySettings settings) { }
         public static System.Collections.Generic.IList<System.Type> GetAvailableTypes(this NServiceBus.Settings.ReadOnlySettings settings) { }
         public static T GetConfigSection<T>(this NServiceBus.Settings.ReadOnlySettings settings)
             where T :  class, new () { }
         public static string LocalAddress(this NServiceBus.Settings.ReadOnlySettings settings) { }
+        public static NServiceBus.LogicalAddress RootLogicalAddress(this NServiceBus.Settings.ReadOnlySettings settings) { }
     }
     public class static SLAMonitoringConfig
     {
@@ -1267,6 +1300,10 @@ namespace NServiceBus.Features
         protected void DependsOn(string featureName) { }
         protected void DependsOnAtLeastOne(params System.Type[] features) { }
         protected void DependsOnAtLeastOne(params string[] featureNames) { }
+        protected void DependsOnOptionally(string featureName) { }
+        protected void DependsOnOptionally(System.Type featureType) { }
+        protected void DependsOnOptionally<T>()
+            where T : NServiceBus.Features.Feature { }
         protected void EnableByDefault() { }
         protected void Prerequisite(System.Func<NServiceBus.Features.FeatureConfigurationContext, bool> condition, string description) { }
         protected void RegisterStartupTask<T>()
@@ -1279,7 +1316,7 @@ namespace NServiceBus.Features
         public NServiceBus.ObjectBuilder.IConfigureComponents Container { get; }
         public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
         public NServiceBus.Settings.ReadOnlySettings Settings { get; }
-        public NServiceBus.Pipeline.PipelineSettings AddSatellitePipeline(string name, string receiveAddress, System.Nullable<int> maxConcurrency = null, NServiceBus.Unicast.Transport.TransactionSettings transactionSettings = null) { }
+        public NServiceBus.Pipeline.PipelineSettings AddSatellitePipeline(string name, string qualifier, out string transportAddress, System.Nullable<int> maxConcurrency = null, NServiceBus.Unicast.Transport.TransactionSettings transactionSettings = null) { }
     }
     public class FeatureDiagnosticData
     {
@@ -2253,7 +2290,10 @@ namespace NServiceBus.Settings
     {
         public void UniqueQueuePerEndpointInstance() { }
         public void UniqueQueuePerEndpointInstance(string discriminator) { }
+        [System.ObsoleteAttribute("This is the default starting with V6. Will be removed in version 7.0.0.", true)]
         public void UseSingleBrokerQueue() { }
+        [System.ObsoleteAttribute("Please use `UniqueQueuePerEndpointInstance` instead. Will be removed in version 7" +
+            ".0.0.", true)]
         public void UseUniqueBrokerQueuePerMachine() { }
     }
     public class SettingsHolder : NServiceBus.Settings.ReadOnlySettings
@@ -2376,13 +2416,7 @@ namespace NServiceBus.Transports
         protected abstract string ExampleConnectionStringForErrorMessage { get; }
         protected virtual bool RequiresConnectionString { get; }
         protected abstract void Configure(NServiceBus.Features.FeatureConfigurationContext context, string connectionString);
-        protected virtual string GetLocalAddress(NServiceBus.Settings.ReadOnlySettings settings) { }
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
-    }
-    public class DequeueInfo
-    {
-        public readonly string PublicAddress;
-        public DequeueInfo(string publicAddress) { }
     }
     public class DispatchOptions
     {
@@ -2441,7 +2475,7 @@ namespace NServiceBus.Transports
     }
     public interface IPushMessages
     {
-        NServiceBus.Transports.DequeueInfo Init(System.Func<NServiceBus.Transports.PushContext, System.Threading.Tasks.Task> pipe, NServiceBus.Transports.PushSettings settings);
+        void Init(System.Func<NServiceBus.Transports.PushContext, System.Threading.Tasks.Task> pipe, NServiceBus.Transports.PushSettings settings);
         void Start(NServiceBus.Transports.PushRuntimeSettings limitations);
         System.Threading.Tasks.Task Stop();
     }
@@ -2487,7 +2521,7 @@ namespace NServiceBus.Transports
         public System.Collections.Generic.IEnumerable<string> ReceivingAddresses { get; }
         public System.Collections.Generic.IEnumerable<string> SendingAddresses { get; }
         public void BindReceiving(string address) { }
-        public void BindSending(string address) { }
+        public void BindSending(string transportAddress) { }
     }
     public abstract class TransportDefinition
     {
@@ -2499,9 +2533,10 @@ namespace NServiceBus.Transports
         public bool RequireOutboxConsent { get; set; }
         protected internal void Configure(NServiceBus.BusConfiguration config) { }
         public abstract NServiceBus.ConsistencyGuarantees.ConsistencyGuarantee GetDefaultConsistencyGuarantee();
-        public abstract string GetSubScope(string address, string qualifier);
+        public abstract string GetDiscriminatorForThisEndpointInstance();
         public abstract NServiceBus.Transports.IManageSubscriptions GetSubscriptionManager();
         public abstract System.Collections.Generic.IEnumerable<System.Type> GetSupportedDeliveryConstraints();
+        public abstract string ToTransportAddress(NServiceBus.LogicalAddress logicalAddress);
     }
     public class TransportPublishOptions
     {
@@ -2873,9 +2908,9 @@ namespace NServiceBus.Unicast.Transport
     }
     public class PipelineInfo
     {
-        public PipelineInfo(string name, string publicAddress) { }
+        public PipelineInfo(string name, string transportAddress) { }
         public string Name { get; }
-        public string PublicAddress { get; }
+        public string TransportAddress { get; }
     }
     public class TransactionSettings
     {

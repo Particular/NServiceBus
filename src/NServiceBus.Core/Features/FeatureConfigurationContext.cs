@@ -35,15 +35,19 @@
         /// <summary>
         /// Creates a new satellite processing pipeline.
         /// </summary>
-        public PipelineSettings AddSatellitePipeline(string name, string receiveAddress, int? maxConcurrency = null, Unicast.Transport.TransactionSettings transactionSettings = null)
+        public PipelineSettings AddSatellitePipeline(string name, string qualifier, out string transportAddress, int? maxConcurrency = null, Unicast.Transport.TransactionSettings transactionSettings = null)
         {
-            var pipelineModifications = new SatellitePipelineModifications(name, receiveAddress, transactionSettings, maxConcurrency.HasValue ? new PushRuntimeSettings(maxConcurrency.Value) : null);
+            var instanceName = config.Settings.EndpointInstanceName();
+            var satelliteLogicalAddress = new LogicalAddress(instanceName, qualifier);
+            var addressTranslation = config.Settings.Get<LogicalToTransportAddressTranslation>();
+            transportAddress = addressTranslation.Translate(satelliteLogicalAddress);
+
+            var pipelineModifications = new SatellitePipelineModifications(name, transportAddress, transactionSettings, maxConcurrency.HasValue ? new PushRuntimeSettings(maxConcurrency.Value) : null);
             config.Settings.Get<PipelineConfiguration>().SatellitePipelines.Add(pipelineModifications);
             var newPipeline = new PipelineSettings(pipelineModifications);
 
             newPipeline.RegisterConnector<TransportReceiveToPhysicalMessageProcessingConnector>("Allows to abort processing the message");
-
-            config.Settings.Get<QueueBindings>().BindReceiving(receiveAddress);
+            config.Settings.Get<QueueBindings>().BindReceiving(transportAddress);
 
             return newPipeline;
         }

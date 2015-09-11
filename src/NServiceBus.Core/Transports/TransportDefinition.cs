@@ -43,12 +43,6 @@ namespace NServiceBus.Transports
         }
 
         /// <summary>
-        /// Creates a new Address whose Queue is derived from the Queue of the existing Address
-        /// together with the provided qualifier. For example: queue.qualifier@machine.
-        /// </summary>
-        public abstract string GetSubScope(string address, string qualifier);
-
-        /// <summary>
         /// Returns the list of supported delivery constraints for this transport.
         /// </summary>
         public abstract IEnumerable<Type> GetSupportedDeliveryConstraints();
@@ -60,7 +54,20 @@ namespace NServiceBus.Transports
 
         /// <summary>
         /// Will be called if the transport has indicated that it has native support for pub sub.
+        /// Creates a transport address for the input queue defined by a logical address.
         /// </summary>
         public abstract IManageSubscriptions GetSubscriptionManager();
+
+        /// <summary>
+        /// Returns the discriminator for this endpoint instance.
+        /// </summary>
+        public abstract string GetDiscriminatorForThisEndpointInstance();
+
+        /// <summary>
+        /// Converts a given logical address to the transport address.
+        /// </summary>
+        /// <param name="logicalAddress">The logical address.</param>
+        /// <returns>The transport address.</returns>
+        public abstract string ToTransportAddress(LogicalAddress logicalAddress);
     }
 }

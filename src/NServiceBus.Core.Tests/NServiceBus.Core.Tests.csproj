@@ -130,6 +130,7 @@
     <Compile Include="DelayedDelivery\RouteDeferredMessageToTimeoutManagerBehaviorTests.cs" />
     <Compile Include="Msmq\MsmqExtensionsTests.cs" />
     <Compile Include="Msmq\MsmqHelpers.cs" />
+    <Compile Include="Msmq\MsmqAddressTests.cs" />
     <Compile Include="Reliability\Outbox\DeliveryConstraintsFactoryTests.cs" />
     <Compile Include="Routing\ApplyReplyToAddressBehaviorTests.cs" />
     <Compile Include="Routing\DetermineRouteForPublishBehaviorTests.cs" />

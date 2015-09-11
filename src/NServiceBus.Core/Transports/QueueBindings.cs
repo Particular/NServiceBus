@@ -20,12 +20,12 @@
         }
 
         /// <summary>
-        /// Declares that this endpoint will be using queue with address <paramref name="address"/> for sending.
+        /// Declares that this endpoint will be using queue with address <paramref name="transportAddress"/> for sending.
         /// </summary>
-        /// <param name="address">The address of the queue.</param>
-        public void BindSending(string address)
+        /// <param name="transportAddress">The address of the queue.</param>
+        public void BindSending(string transportAddress)
         {
-            sendingAddresses.Add(address);
+            sendingAddresses.Add(transportAddress);
         }
 
         /// <summary>

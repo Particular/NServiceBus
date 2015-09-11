@@ -5,7 +5,6 @@ namespace NServiceBus.Transports.Msmq
     using System.Security.Principal;
     using Config;
     using Logging;
-    using Support;
 
     class QueueCreator : ICreateQueues
     {
@@ -28,10 +27,9 @@ namespace NServiceBus.Transports.Msmq
                 return;
             }
             var msmqAddress = MsmqAddress.Parse(address);
-            var queuePath = GetFullPathWithoutPrefix(msmqAddress);
-            var isRemote = msmqAddress.Machine.ToLower() != RuntimeEnvironment.MachineName.ToLower();
+            var queuePath = msmqAddress.PathWithoutPrefix;
             
-            if (isRemote)
+            if (msmqAddress.IsRemote)
             {
                 Logger.Debug("Queue is on remote machine.");
                 Logger.Debug("If this does not succeed (like if the remote machine is disconnected), processing will continue.");
@@ -55,7 +53,7 @@ namespace NServiceBus.Transports.Msmq
             }
             catch (MessageQueueException ex)
             {
-                if (isRemote && (ex.MessageQueueErrorCode == MessageQueueErrorCode.IllegalQueuePathName))
+                if (msmqAddress.IsRemote && (ex.MessageQueueErrorCode == MessageQueueErrorCode.IllegalQueuePathName))
                 {
                     return;
                 }
@@ -66,21 +64,7 @@ namespace NServiceBus.Transports.Msmq
                 Logger.Error(String.Format("Could not create queue {0} or check its existence. Processing will still continue.", address), ex);
             }
         }
-
-        /// <summary>
-        /// Returns the full path without Format or direct os
-        /// from an address.
-        /// </summary>
-        public static string GetFullPathWithoutPrefix(MsmqAddress address)
-        {
-            return GetFullPathWithoutPrefix(address.Queue, address.Machine);
-        }
-
-        public static string GetFullPathWithoutPrefix(string queue, string machine)
-        {
-            return machine + MsmqUtilities.PRIVATE + queue;
-        }
-
+        
         static void CreateQueue(string queuePath, string account, bool transactional)
         {
             using (var queue = MessageQueue.Create(queuePath, transactional))

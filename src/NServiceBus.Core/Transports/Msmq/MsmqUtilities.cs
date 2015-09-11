@@ -5,14 +5,11 @@ namespace NServiceBus
     using System.IO;
     using System.Linq;
     using System.Messaging;
-    using System.Net;
-    using System.Net.NetworkInformation;
     using System.Text;
     using System.Xml;
     using NServiceBus.DeliveryConstraints;
     using NServiceBus.Logging;
     using NServiceBus.Performance.TimeToBeReceived;
-    using NServiceBus.Support;
     using NServiceBus.Transports;
     using NServiceBus.Transports.Msmq;
 
@@ -21,80 +18,6 @@ namespace NServiceBus
     /// </summary>
     class MsmqUtilities
     {
-        /// <summary>
-        ///     Turns a '@' separated value into a full path.
-        ///     Format is 'queue@machine', or 'queue@ipaddress'
-        /// </summary>
-        public static string GetFullPath(MsmqAddress value)
-        {
-            IPAddress ipAddress;
-            if (IPAddress.TryParse(value.Machine, out ipAddress))
-            {
-                return PREFIX_TCP + QueueCreator.GetFullPathWithoutPrefix(value);
-            }
-
-            return PREFIX + QueueCreator.GetFullPathWithoutPrefix(value);
-        }
-
-        public static string GetFullPath(string queue)
-        {
-            return PREFIX + QueueCreator.GetFullPathWithoutPrefix(queue, RuntimeEnvironment.MachineName);
-        }
-
-        /// <summary>
-        ///     Gets the name of the return address from the provided value.
-        ///     If the target includes a machine name, uses the local machine name in the returned value
-        ///     otherwise uses the local IP address in the returned value.
-        /// </summary>
-        public static string GetReturnAddress(string replyToString, string destinationMachine)
-        {
-            var replyToAddress = MsmqAddress.Parse(replyToString);
-            IPAddress targetIpAddress;
-
-            //see if the target is an IP address, if so, get our own local ip address
-            if (IPAddress.TryParse(destinationMachine, out targetIpAddress))
-            {
-                if (string.IsNullOrEmpty(localIp))
-                {
-                    localIp = LocalIpAddress(targetIpAddress);
-                }
-
-                return PREFIX_TCP + localIp + PRIVATE + replyToAddress.Queue;
-            }
-
-            return PREFIX + QueueCreator.GetFullPathWithoutPrefix(replyToAddress);
-        }
-
-        static string LocalIpAddress(IPAddress targetIpAddress)
-        {
-            var networkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
-
-            var availableAddresses =
-                networkInterfaces.Where(
-                    ni =>
-                        ni.OperationalStatus == OperationalStatus.Up &&
-                        ni.NetworkInterfaceType != NetworkInterfaceType.Loopback)
-                    .SelectMany(ni => ni.GetIPProperties().UnicastAddresses).ToList();
-
-            var firstWithMatchingFamily =
-                availableAddresses.FirstOrDefault(a => a.Address.AddressFamily == targetIpAddress.AddressFamily);
-
-            if (firstWithMatchingFamily != null)
-            {
-                return firstWithMatchingFamily.Address.ToString();
-            }
-
-            var fallbackToDifferentFamily = availableAddresses.FirstOrDefault();
-
-            if (fallbackToDifferentFamily != null)
-            {
-                return fallbackToDifferentFamily.Address.ToString();
-            }
-
-            return "127.0.0.1";
-        }
-
-
         static MsmqAddress GetIndependentAddressForQueue(MessageQueue q)
         {
             var arr = q.FormatName.Split('\\');
@@ -307,10 +230,7 @@ namespace NServiceBus
 
         const string DIRECTPREFIX = "DIRECT=OS:";
         const string DIRECTPREFIX_TCP = "DIRECT=TCP:";
-        const string PREFIX_TCP = "FormatName:" + DIRECTPREFIX_TCP;
-        const string PREFIX = "FormatName:" + DIRECTPREFIX;
         internal const string PRIVATE = "\\private$\\";
-        static string localIp;
         static System.Xml.Serialization.XmlSerializer headerSerializer = new System.Xml.Serialization.XmlSerializer(typeof(List<HeaderInfo>));
         static ILog Logger = LogManager.GetLogger<MsmqUtilities>();
     }

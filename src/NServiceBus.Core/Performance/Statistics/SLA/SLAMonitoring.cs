@@ -30,7 +30,7 @@ namespace NServiceBus.Features
                 return;
             }
 
-            var slaBreachCounter = PerformanceCounterHelper.InstantiatePerformanceCounter("SLA violation countdown", context.Settings.EndpointName());
+            var slaBreachCounter = PerformanceCounterHelper.InstantiatePerformanceCounter("SLA violation countdown", context.Settings.EndpointName().ToString());
             var timeToSLABreachCalculator = new EstimatedTimeToSLABreachCalculator(endpointSla, slaBreachCounter);
             context.Container.RegisterSingleton(timeToSLABreachCalculator);
             context.Pipeline.Register<SLABehavior.Registration>();

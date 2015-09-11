@@ -12,11 +12,6 @@
             config.EnableFeature<FakeTransportConfigurator>();
         }
 
-        public override string GetSubScope(string address, string qualifier)
-        {
-            return address + "#" + qualifier;
-        }
-
         public override IEnumerable<Type> GetSupportedDeliveryConstraints()
         {
             return new List<Type>();
@@ -30,6 +25,16 @@
         public override IManageSubscriptions GetSubscriptionManager()
         {
             throw new NotImplementedException();
+        }
+
+        public override string GetDiscriminatorForThisEndpointInstance()
+        {
+            return null;
+        }
+
+        public override string ToTransportAddress(LogicalAddress logicalAddress)
+        {
+            return logicalAddress.ToString();
         }
     }
 }

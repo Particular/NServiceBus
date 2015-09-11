@@ -5,6 +5,7 @@
     using EndpointTemplates;
     using AcceptanceTesting;
     using NServiceBus.AcceptanceTests.Routing;
+    using NServiceBus.Features;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
@@ -51,10 +52,11 @@
         {
             public Publisher()
             {
-                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) =>
+                EndpointSetup<DefaultPublisher>(b =>
                 {
-                    context.Subscribed = true;
-                }));
+                    b.EnableFeature<TimeoutManager>();
+                    b.OnEndpointSubscribed<Context>((s, context) => { context.Subscribed = true; });
+                });
             }
 
             class OpenGroupCommandHandler : IHandleMessages<OpenGroupCommand>
@@ -74,7 +76,7 @@
         {
             public SagaEndpoint()
             {
-                EndpointSetup<DefaultServer>()
+                EndpointSetup<DefaultServer>(c => c.EnableFeature<TimeoutManager>())
                     .AddMapping<OpenGroupCommand>(typeof(Publisher))
                     .AddMapping<GroupPendingEvent>(typeof(Publisher));
             }

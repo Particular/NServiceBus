@@ -60,8 +60,8 @@ namespace NServiceBus.Unicast.Transport
 
             Logger.DebugFormat("Pipeline {0} is starting receiver for queue {1}.", Id, pushSettings.InputQueue);
 
-            var dequeueInfo = receiver.Init(InvokePipeline, pushSettings);
-            pipeline.Initialize(new PipelineInfo(Id, dequeueInfo.PublicAddress));
+            receiver.Init(InvokePipeline, pushSettings);
+            pipeline.Initialize(new PipelineInfo(Id, pushSettings.InputQueue));
             await pipeline.Warmup().ConfigureAwait(false);
 
             receiver.Start(pushRuntimeSettings);

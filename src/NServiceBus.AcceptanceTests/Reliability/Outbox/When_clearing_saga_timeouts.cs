@@ -25,7 +25,7 @@
             .Done(c => c.Done)
             .Run();
 
-            Assert.AreEqual(1, context.NumberOfOps, "Request to clear should be in the outbox");
+            Assert.AreEqual(2, context.NumberOfOps, "Request to clear and a done signal should be in the outbox");
         }
 
         public class Context : ScenarioContext
@@ -44,21 +44,30 @@
                         b.GetSettings().Set("DisableOutboxTransportCheck", true);
                         b.EnableFeature<TimeoutManager>();
                         b.EnableOutbox();
+                        b.EnableFeature<TimeoutManager>();
                         b.UsePersistence<FakeOutboxPersistence>();
                         b.RegisterComponents(c => c.ConfigureComponent<FakeOutbox>(DependencyLifecycle.SingleInstance));
                     });
             }
 
-            class PlaceOrderSaga : Saga<PlaceOrderSaga.PlaceOrderSagaData>, IAmStartedByMessages<PlaceOrder>
+            class DoneHandler : IHandleMessages<SignalDone>
             {
                 public Context Context { get; set; }
 
-                public Task Handle(PlaceOrder message)
+                public void Handle(SignalDone message)
+                {
+                    Context.Done = true;
+                }
+            }
+
+            class PlaceOrderSaga : Saga<PlaceOrderSaga.PlaceOrderSagaData>, IAmStartedByMessages<PlaceOrder>
+            {
+                public void Handle(PlaceOrder message)
                 {
                     Data.DataId = message.DataId;
 
+                    Bus.SendLocal(new SignalDone());
                     MarkAsComplete();
-                    Context.Done = true;
 
                     return Task.FromResult(0);
                 }
@@ -91,8 +100,8 @@
 
             public Task Store(OutboxMessage message, OutboxStorageOptions options)
             {
-                context.NumberOfOps = message.TransportOperations.Count;
-                return Task.FromResult(0);
+                context.NumberOfOps += message.TransportOperations.Count;
+				return Task.FromResult(0);
             }
 
             public Task SetAsDispatched(string messageId, OutboxStorageOptions options)
@@ -105,6 +114,10 @@
         public class PlaceOrder : ICommand
         {
             public Guid DataId { get; set; }
+        }
+
+        public class SignalDone : ICommand
+        {
         }
     }
 

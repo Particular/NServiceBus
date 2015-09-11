@@ -4,6 +4,7 @@
     using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
+    using NServiceBus.Features;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
@@ -34,8 +35,11 @@
             public SagaEndpoint()
             {
                 EndpointSetup<DefaultServer>(
-                    
-                    builder => builder.Transactions().DoNotWrapHandlersExecutionInATransactionScope());
+                    c =>
+                    {
+                        c.EnableFeature<TimeoutManager>();
+                        c.Transactions().DoNotWrapHandlersExecutionInATransactionScope();
+                    });
             }
 
             public class TestSaga02 : Saga<TestSagaData02>,

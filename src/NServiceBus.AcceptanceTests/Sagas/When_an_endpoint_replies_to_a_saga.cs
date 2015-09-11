@@ -4,6 +4,7 @@
     using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
+    using NServiceBus.Features;
     using NServiceBus.Sagas;
     using NUnit.Framework;
 
@@ -57,7 +58,7 @@
         {
             public EndpointThatHostsASaga()
             {
-                EndpointSetup<DefaultServer>()
+                EndpointSetup<DefaultServer>(c => c.EnableFeature<TimeoutManager>())
                     .AddMapping<DoSomething>(typeof(EndpointThatRepliesToSagaMessage));
 
             }
