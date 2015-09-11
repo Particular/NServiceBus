@@ -54,10 +54,11 @@
                         .ToSaga(s => s.SomeId);
                 }
 
-                public void Timeout(StartSagaMessage message)
+                public Task Timeout(StartSagaMessage message)
                 {
-                    Context.TimeoutReceived = true;
                     MarkAsComplete();
+                    Context.TimeoutReceived = true;
+                    return Task.FromResult(0);
                 }
             }
 

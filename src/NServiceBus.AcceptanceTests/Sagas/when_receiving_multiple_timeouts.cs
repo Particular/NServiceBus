@@ -61,18 +61,26 @@
                     RequestTimeout(TimeSpan.FromMilliseconds(10), new Saga2Timeout { ContextId = Context.Id });
                 }
 
-                public void Timeout(Saga1Timeout state)
+                public Task Timeout(Saga1Timeout state)
                 {
                     MarkAsComplete();
 
-                    if (state.ContextId != Context.Id) return;
-                    Context.Saga1TimeoutFired = true;
+                    if (state.ContextId == Context.Id)
+                    {
+                        Context.Saga1TimeoutFired = true;
+                    }
+
+                    return Task.FromResult(0);
                 }
 
-                public void Timeout(Saga2Timeout state)
+                public Task Timeout(Saga2Timeout state)
                 {
-                    if (state.ContextId != Context.Id) return;
-                    Context.Saga2TimeoutFired = true;
+                    if (state.ContextId == Context.Id)
+                    {
+                        Context.Saga2TimeoutFired = true;
+                    }
+
+                    return Task.FromResult(0);
                 }
 
                 public class MultTimeoutsSaga1Data : ContainSagaData

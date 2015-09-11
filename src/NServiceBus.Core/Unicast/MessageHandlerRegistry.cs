@@ -4,18 +4,18 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using System.Threading.Tasks;
     using NServiceBus.Logging;
+    using NServiceBus.Unicast.Behaviors;
 
     /// <summary>
     ///     Maintains the message handlers for this endpoint.
     /// </summary>
-    public class MessageHandlerRegistry
+    public partial class MessageHandlerRegistry
     {
         static ILog Log = LogManager.GetLogger<MessageHandlerRegistry>();
-        Conventions conventions;
-        Dictionary<RuntimeTypeHandle, List<DelegateHolder>> handlerCache = new Dictionary<RuntimeTypeHandle, List<DelegateHolder>>();
-        IDictionary<RuntimeTypeHandle, List<Type>> handlerList = new Dictionary<RuntimeTypeHandle, List<Type>>();
-        Dictionary<RuntimeTypeHandle, List<DelegateHolder>> timeoutCache = new Dictionary<RuntimeTypeHandle, List<DelegateHolder>>();
+        readonly Conventions conventions;
+        readonly IDictionary<RuntimeTypeHandle, List<DelegateHolder>> handlerAndMessagesHandledByHandlerCache = new Dictionary<RuntimeTypeHandle, List<DelegateHolder>>();
 
         internal MessageHandlerRegistry(Conventions conventions)
         {
@@ -23,20 +23,21 @@
         }
 
         /// <summary>
-        ///     Gets the list of <see cref="IHandleMessages{T}" /> <see cref="Type" />s for the given
+        ///     Gets the list of handlers <see cref="Type" />s for the given
         ///     <paramref name="messageType" />.
         /// </summary>
-        public IEnumerable<Type> GetHandlerTypes(Type messageType)
+        public IEnumerable<MessageHandler> GetHandlersFor(Type messageType)
         {
             Guard.AgainstNull("messageType", messageType);
             if (!conventions.IsMessageType(messageType))
             {
-                return Enumerable.Empty<Type>();
+                return Enumerable.Empty<MessageHandler>();
             }
 
-            return from keyValue in handlerList
-                where keyValue.Value.Any(msgTypeHandled => msgTypeHandled.IsAssignableFrom(messageType))
-                select Type.GetTypeFromHandle(keyValue.Key);
+            return from handlersAndMessages in handlerAndMessagesHandledByHandlerCache
+                   from messagesBeingHandled in handlersAndMessages.Value
+                   where Type.GetTypeFromHandle(messagesBeingHandled.MessageType).IsAssignableFrom(messageType)
+                   select new MessageHandler(messagesBeingHandled.MethodDelegate, Type.GetTypeFromHandle(handlersAndMessages.Key));
         }
 
         /// <summary>
@@ -44,14 +45,15 @@
         /// </summary>
         public IEnumerable<Type> GetMessageTypes()
         {
-            return from handlers in handlerList.Values
-                from typeHandled in handlers
-                where conventions.IsMessageType(typeHandled)
-                select typeHandled;
+            return (from messagesBeingHandled in handlerAndMessagesHandledByHandlerCache.Values
+                    from typeHandled in messagesBeingHandled
+                    let messageType = Type.GetTypeFromHandle(typeHandled.MessageType)
+                    where conventions.IsMessageType(messageType)
+                    select messageType).Distinct();
         }
 
         /// <summary>
-        ///     Registers the given message handler type.
+        ///     Registers the given potential handler type.
         /// </summary>
         public void RegisterHandler(Type handlerType)
         {
@@ -61,62 +63,19 @@
                 return;
             }
 
-            var messageTypesThisHandlerHandles = GetMessageTypesIfIsMessageHandler(handlerType).ToList();
+            var messageTypes = GetMessageTypesBeingHandledBy(handlerType);
 
-            foreach (var messageType in messageTypesThisHandlerHandles)
+            foreach (var messageType in messageTypes)
             {
-                List<Type> typeList;
+                List<DelegateHolder> typeList;
                 var typeHandle = handlerType.TypeHandle;
-                if (!handlerList.TryGetValue(typeHandle, out typeList))
+                if (!handlerAndMessagesHandledByHandlerCache.TryGetValue(typeHandle, out typeList))
                 {
-                    handlerList[typeHandle] = typeList = new List<Type>();
+                    handlerAndMessagesHandledByHandlerCache[typeHandle] = typeList = new List<DelegateHolder>();
                 }
 
-                if (!typeList.Contains(messageType))
-                {
-                    typeList.Add(messageType);
-                    Log.DebugFormat("Associated '{0}' message with '{1}' handler", messageType, handlerType);
-                }
-
-                CacheMethodForHandler(handlerType, messageType);
+                CacheHandlerMethods(handlerType, messageType, typeList);
             }
-        }
-
-        /// <summary>
-        ///     Invokes the handle method of the given handler passing the message.
-        /// </summary>
-        /// <param name="handler">The handler instance.</param>
-        /// <param name="message">The message instance.</param>
-        public void InvokeHandle(object handler, object message)
-        {
-            Guard.AgainstNull("handler", handler);
-            Guard.AgainstNull("message", message);
-            Invoke(handler, message, handlerCache);
-        }
-
-        /// <summary>
-        ///     Invokes the timeout method of the given handler passing the message.
-        /// </summary>
-        /// <param name="handler">The handler instance.</param>
-        /// <param name="state">The message instance.</param>
-        public void InvokeTimeout(object handler, object state)
-        {
-            Guard.AgainstNull("handler", handler);
-            Guard.AgainstNull("state", state);
-            Invoke(handler, state, timeoutCache);
-        }
-
-        /// <summary>
-        ///     Registers the method in the cache.
-        /// </summary>
-        /// <param name="handler">The object type.</param>
-        /// <param name="messageType">the message type.</param>
-        public void CacheMethodForHandler(Type handler, Type messageType)
-        {
-            Guard.AgainstNull("handler", handler);
-            Guard.AgainstNull("messageType", messageType);
-            CacheMethod(handler, messageType, typeof(IHandleMessages<>), handlerCache);
-            CacheMethod(handler, messageType, typeof(IHandleTimeouts<>), timeoutCache);
         }
 
         /// <summary>
@@ -124,90 +83,91 @@
         /// </summary>
         public void Clear()
         {
-            handlerCache.Clear();
-            timeoutCache.Clear();
+            handlerAndMessagesHandledByHandlerCache.Clear();
         }
 
-        static void Invoke(object handler, object message, Dictionary<RuntimeTypeHandle, List<DelegateHolder>> dictionary)
+        static void CacheHandlerMethods(Type handler, Type messageType, ICollection<DelegateHolder> typeList)
         {
-            List<DelegateHolder> methodList;
-            if (!dictionary.TryGetValue(handler.GetType().TypeHandle, out methodList))
-            {
-                return;
-            }
-            foreach (var delegateHolder in methodList.Where(x => x.MessageType.IsInstanceOfType(message)))
-            {
-                delegateHolder.MethodDelegate(handler, message);
-            }
+            CacheMethod(handler, messageType, typeof(IHandleMessages<>), typeList);
+            CacheMethod(handler, messageType, typeof(IHandleTimeouts<>), typeList);
         }
 
-        static void CacheMethod(Type handler, Type messageType, Type interfaceGenericType, Dictionary<RuntimeTypeHandle, List<DelegateHolder>> cache)
+        static void CacheMethod(Type handler, Type messageType, Type interfaceGenericType, ICollection<DelegateHolder> methodList)
         {
             var handleMethod = GetMethod(handler, messageType, interfaceGenericType);
             if (handleMethod == null)
             {
                 return;
             }
+            Log.DebugFormat("Associated '{0}' message with '{1}' handler.", messageType, handler);
+
             var delegateHolder = new DelegateHolder
             {
-                MessageType = messageType,
+                MessageType = messageType.TypeHandle,
                 MethodDelegate = handleMethod
             };
-            List<DelegateHolder> methodList;
-            if (cache.TryGetValue(handler.TypeHandle, out methodList))
-            {
-                if (methodList.Any(x => x.MessageType == messageType))
-                {
-                    return;
-                }
-                methodList.Add(delegateHolder);
-            }
-            else
-            {
-                cache[handler.TypeHandle] = new List<DelegateHolder>
-                {
-                    delegateHolder
-                };
-            }
+            methodList.Add(delegateHolder);
         }
 
-        static Action<object, object> GetMethod(Type targetType, Type messageType, Type interfaceGenericType)
+        static Func<object, object, Task> GetMethod(Type targetType, Type messageType, Type interfaceGenericType)
         {
             var interfaceType = interfaceGenericType.MakeGenericType(messageType);
 
-            if (interfaceType.IsAssignableFrom(targetType))
+            if (!interfaceType.IsAssignableFrom(targetType))
             {
-                var methodInfo = targetType.GetInterfaceMap(interfaceType).TargetMethods.FirstOrDefault();
-                if (methodInfo != null)
-                {
-                    var target = Expression.Parameter(typeof(object));
-                    var param = Expression.Parameter(typeof(object));
-
-                    var castTarget = Expression.Convert(target, targetType);
-                    var castParam = Expression.Convert(param, methodInfo.GetParameters().First().ParameterType);
-                    var execute = Expression.Call(castTarget, methodInfo, castParam);
-                    return Expression.Lambda<Action<object, object>>(execute, target, param).Compile();
-                }
+                return null;
             }
 
-            return null;
+            var methodInfo = targetType.GetInterfaceMap(interfaceType).TargetMethods.FirstOrDefault();
+            if (methodInfo == null)
+            {
+                return null;
+            }
+
+            var target = Expression.Parameter(typeof(object));
+            var messageParam = Expression.Parameter(typeof(object));
+
+            var castTarget = Expression.Convert(target, targetType);
+
+            var methodParameters = methodInfo.GetParameters();
+            var messageCastParam = Expression.Convert(messageParam, methodParameters.ElementAt(0).ParameterType);
+
+
+            Expression body;
+            if (methodInfo.ReturnType == typeof(Task))
+            {
+                // call the handler and return it's Task
+                body = Expression.Call(castTarget, methodInfo, messageCastParam);
+            }
+            else
+            {
+                // wrap the synchronous handler in a wrapper returning Task.FromResult(0);
+                // remove this code once all handler interfaces are moved changed to async.
+                body = Expression.Block(
+                Expression.Call(castTarget, methodInfo, messageCastParam),
+                Expression.Call(typeof(Task), "FromResult", new[] { typeof(int) }, Expression.Constant(0)));
+            }
+
+            return Expression.Lambda<Func<object, object, Task>>(body, target, messageParam).Compile();
         }
 
-        static IEnumerable<Type> GetMessageTypesIfIsMessageHandler(Type type)
+        static IEnumerable<Type> GetMessageTypesBeingHandledBy(Type type)
         {
-            return from t in type.GetInterfaces()
-                where t.IsGenericType
-                let potentialMessageType = t.GetGenericArguments()[0]
-                where
-                    typeof(IHandleMessages<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t) ||
-                    typeof(IHandleTimeouts<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t)
-                select potentialMessageType;
+            return (from t in type.GetInterfaces()
+                    where t.IsGenericType
+                    let potentialMessageType = t.GetGenericArguments()[0]
+                    where
+                        typeof(IHandleMessages<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t) ||
+                        typeof(IHandleTimeouts<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t)
+                    select potentialMessageType)
+                   .Distinct()
+                   .ToList();
         }
 
         class DelegateHolder
         {
-            public Type MessageType;
-            public Action<object, object> MethodDelegate;
+            public RuntimeTypeHandle MessageType;
+            public Func<object, object, Task> MethodDelegate;
         }
     }
 }

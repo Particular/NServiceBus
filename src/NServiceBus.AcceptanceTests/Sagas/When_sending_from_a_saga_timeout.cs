@@ -48,10 +48,11 @@
                     RequestTimeout(TimeSpan.FromSeconds(1), new Saga1Timeout());
                 }
 
-                public void Timeout(Saga1Timeout state)
+                public Task Timeout(Saga1Timeout state)
                 {
                     Bus.SendLocal(new StartSaga2());
                     MarkAsComplete();
+                    return Task.FromResult(0);
                 }
 
                 public class SendFromTimeoutSaga1Data : ContainSagaData

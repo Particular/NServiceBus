@@ -58,9 +58,10 @@
                 return Task.FromResult(0);
             }
 
-            public void Timeout(MessageWithSagaId state)
+            public Task Timeout(MessageWithSagaId state)
             {
                 Context.TimeoutHandlerCalled = true;
+                return Task.FromResult(0);
             }
         }
 

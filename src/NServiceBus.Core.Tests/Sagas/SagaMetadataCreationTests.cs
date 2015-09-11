@@ -317,8 +317,9 @@
             {
             }
 
-            public void Timeout(MyTimeout state)
+            public Task Timeout(MyTimeout state)
             {
+                return TaskEx.Completed;
             }
         }
 

@@ -10,20 +10,17 @@
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Sagas;
     using NServiceBus.Transports;
-    using NServiceBus.Unicast;
 
     class SagaPersistenceBehavior : HandlingStageBehavior
     {
         ISagaPersister sagaPersister;
         ICancelDeferredMessages timeoutCancellation;
-        MessageHandlerRegistry messageHandlerRegistry;
         SagaMetadataCollection sagaMetadataCollection;
 
-        public SagaPersistenceBehavior(ISagaPersister persister, ICancelDeferredMessages timeoutCancellation, MessageHandlerRegistry handlerRegistry, SagaMetadataCollection sagaMetadataCollection)
+        public SagaPersistenceBehavior(ISagaPersister persister, ICancelDeferredMessages timeoutCancellation, SagaMetadataCollection sagaMetadataCollection)
         {
             sagaPersister = persister;
             this.timeoutCancellation = timeoutCancellation;
-            messageHandlerRegistry = handlerRegistry;
             this.sagaMetadataCollection = sagaMetadataCollection;
         }
 
@@ -78,11 +75,6 @@
             {
                 context.Get<SagaInvocationResult>().SagaFound();
                 sagaInstanceState.AttachExistingEntity(loadedEntity);
-            }
-
-            if (IsTimeoutMessage(context.Headers))
-            {
-                context.MessageHandler.Invocation = messageHandlerRegistry.InvokeTimeout;
             }
 
             next();

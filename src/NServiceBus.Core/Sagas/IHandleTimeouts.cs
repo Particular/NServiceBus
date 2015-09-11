@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using System.Threading.Tasks;
     using JetBrains.Annotations;
 
     /// <summary>
@@ -11,6 +12,6 @@ namespace NServiceBus
         /// <summary>
         /// Called when the timeout has expired.
         /// </summary>
-        void Timeout(T state);
+        Task Timeout(T state);
     }
 }

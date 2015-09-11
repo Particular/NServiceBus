@@ -78,10 +78,11 @@
                     RequestTimeout<Timeout1>(TimeSpan.FromSeconds(5));
                 }
 
-                public void Timeout(Timeout1 state)
+                public Task Timeout(Timeout1 state)
                 {
                     MarkAsComplete();
                     Context.DidSaga1Complete = true;
+                    return Task.FromResult(0);
                 }
 
                 public class EventFromOtherSaga1Data : ContainSagaData
@@ -124,10 +125,11 @@
                     RequestTimeout<Saga2Timeout>(TimeSpan.FromSeconds(5));
                 }
 
-                public void Timeout(Saga2Timeout state)
+                public Task Timeout(Saga2Timeout state)
                 {
                     MarkAsComplete();
                     Context.DidSaga2Complete = true;
+                    return Task.FromResult(0);
                 }
 
                 public class EventFromOtherSaga2Data : ContainSagaData

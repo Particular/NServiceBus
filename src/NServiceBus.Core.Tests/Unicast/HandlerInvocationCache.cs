@@ -1,146 +1,162 @@
 ﻿namespace NServiceBus.Unicast.Tests
 {
+    using System;
     using System.Diagnostics;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using NServiceBus.Unicast.Behaviors;
     using NUnit.Framework;
 
     [TestFixture]
     [Explicit("Performance Tests")]
-	public class HandlerInvocationCachePerformanceTests
-	{
-		[Test]
-		public void RunNew()
-		{
+    public class HandlerInvocationCachePerformanceTests
+    {
+        [Test]
+        public async Task RunNew()
+        {
             var cache = new MessageHandlerRegistry(new Conventions());
-            cache.CacheMethodForHandler(typeof(StubMessageHandler), typeof(StubMessage));
-            cache.CacheMethodForHandler(typeof(StubTimeoutHandler), typeof(StubTimeoutState));
-			var handler1 = new StubMessageHandler();
-            var handler2 = new StubTimeoutHandler();
-			var stubMessage1 = new StubMessage();
-			var stubMessage2 = new StubTimeoutState();
-            cache.InvokeHandle(handler1, stubMessage1);
-            cache.InvokeHandle(handler2, stubMessage2);
+            cache.RegisterHandler(typeof(StubMessageHandler));
+            cache.RegisterHandler(typeof(StubTimeoutHandler));
+            var stubMessage = new StubMessage();
+            var stubTimeout = new StubTimeoutState();
+            var messageHandler = cache.GetCachedHandlerForMessage<StubMessage>();
+            var timeoutHandler = cache.GetCachedHandlerForMessage<StubTimeoutState>();
 
-			var startNew = Stopwatch.StartNew();
-			for (var i = 0; i < 100000; i++)
-			{
-                cache.InvokeHandle(handler1, stubMessage1);
-                cache.InvokeHandle(handler2, stubMessage2);
-			}
-			startNew.Stop();
-			Trace.WriteLine(startNew.ElapsedMilliseconds);
-		}
+            await messageHandler.Invoke(stubMessage);
+            await timeoutHandler.Invoke(stubTimeout);
 
-		public class StubMessageHandler : IHandleMessages<StubMessage>
-		{
+            var startNew = Stopwatch.StartNew();
+            for (var i = 0; i < 100000; i++)
+            {
+                await messageHandler.Invoke(stubMessage);
+                await timeoutHandler.Invoke(stubTimeout);
+            }
+            startNew.Stop();
+            Trace.WriteLine(startNew.ElapsedMilliseconds);
+        }
 
-			public void Handle(StubMessage message)
-			{
-			}
-		}
+        public class StubMessageHandler : IHandleMessages<StubMessage>
+        {
+            public void Handle(StubMessage message)
+            {
+            }
+        }
 
-		public class StubMessage
-		{
-		}
+        public class StubMessage : IMessage
+        {
+        }
 
-		public class StubTimeoutHandler : IHandleTimeouts<StubTimeoutState>
-		{
-			public void Timeout(StubTimeoutState state)
-			{
-			}
-		}
+        public class StubTimeoutHandler : IHandleTimeouts<StubTimeoutState>
+        {
+            public Task Timeout(StubTimeoutState state)
+            {
+                return TaskEx.Completed;
+            }
+        }
 
-		public class StubTimeoutState
-		{
-		}
-	}
+        public class StubTimeoutState : IMessage
+        {
+        }
+    }
 
-	[TestFixture]
-	public class When_invoking_a_cached_message_handler
-	{
-		[Test]
-		public void Should_invoke_handle_method()
-		{
+    [TestFixture]
+    public class When_invoking_a_cached_message_handler
+    {
+        [Test]
+        public async Task Should_invoke_handle_method()
+        {
             var cache = new MessageHandlerRegistry(new Conventions());
+            cache.RegisterHandler(typeof(StubHandler));
 
-            cache.CacheMethodForHandler(typeof(StubHandler), typeof(StubMessage));
-			var handler = new StubHandler();
-            cache.InvokeHandle(handler, new StubMessage());
-			Assert.IsTrue(handler.HandleCalled);
-		}
+            var handler = cache.GetCachedHandlerForMessage<StubMessage>();
+            await handler.Invoke(new StubMessage());
 
-		[Test]
-		public void Should_have_passed_through_correct_message()
-		{
+            Assert.IsTrue(((StubHandler) handler.Instance).HandleCalled);
+        }
+
+        [Test]
+        public async Task Should_have_passed_through_correct_message()
+        {
             var cache = new MessageHandlerRegistry(new Conventions());
+            cache.RegisterHandler(typeof(StubHandler));
 
-            cache.CacheMethodForHandler(typeof(StubHandler), typeof(StubMessage));
-			var handler = new StubHandler();
-			var stubMessage = new StubMessage();
-            cache.InvokeHandle(handler, stubMessage);
-			Assert.AreEqual(stubMessage, handler.HandledMessage);
-		}
+            var handler = cache.GetCachedHandlerForMessage<StubMessage>();
+            var stubMessage = new StubMessage();
+            await handler.Invoke(stubMessage);
 
-		public class StubHandler : IHandleMessages<StubMessage>
-		{
-			public bool HandleCalled;
-			public StubMessage HandledMessage;
+            Assert.AreEqual(stubMessage, ((StubHandler) handler.Instance).HandledMessage);
+        }
 
-			public void Handle(StubMessage message)
-			{
-				HandleCalled = true;
-				HandledMessage = message;
-			}
-		}
+        public class StubHandler : IHandleMessages<StubMessage>
+        {
+            public void Handle(StubMessage message)
+            {
+                HandleCalled = true;
+                HandledMessage = message;
+            }
 
-		public class StubMessage
-		{
-		}
-	}
-    
-	[TestFixture]
-	public class When_invoking_a_cached_timeout_handler
-	{
-		[Test]
-		public void Should_invoke_timeout_method()
-		{
+            public bool HandleCalled;
+            public StubMessage HandledMessage;
+        }
+
+        public class StubMessage : IMessage
+        {
+        }
+    }
+
+    [TestFixture]
+    public class When_invoking_a_cached_timeout_handler
+    {
+        [Test]
+        public async void Should_invoke_timeout_method()
+        {
             var cache = new MessageHandlerRegistry(new Conventions());
+            cache.RegisterHandler(typeof(StubHandler));
 
-            cache.CacheMethodForHandler(typeof(StubHandler), typeof(StubTimeoutState));
-			var handler = new StubHandler();
-            cache.InvokeTimeout(handler, new StubTimeoutState());
-			Assert.IsTrue(handler.TimeoutCalled);
-		}
+            var handler = cache.GetCachedHandlerForMessage<StubTimeoutState>();
+            await handler.Invoke(new StubTimeoutState());
 
-		[Test]
-		public void Should_have_passed_through_correct_state()
-		{
+            Assert.IsTrue(((StubHandler) handler.Instance).TimeoutCalled);
+        }
+
+        [Test]
+        public async void Should_have_passed_through_correct_state()
+        {
             var cache = new MessageHandlerRegistry(new Conventions());
+            cache.RegisterHandler(typeof(StubHandler));
 
-            cache.CacheMethodForHandler(typeof(StubHandler), typeof(StubTimeoutState));
-			var handler = new StubHandler();
-			var stubState = new StubTimeoutState();
-            cache.InvokeTimeout(handler, stubState);
-			Assert.AreEqual(stubState, handler.HandledState);
-		}
+            var stubState = new StubTimeoutState();
+            var handler = cache.GetCachedHandlerForMessage<StubTimeoutState>();
+            await handler.Invoke(stubState);
 
-		public class StubHandler : IHandleTimeouts<StubTimeoutState>
-		{
-			public bool TimeoutCalled;
-			public StubTimeoutState HandledState;
+            Assert.AreEqual(stubState, ((StubHandler) handler.Instance).HandledState);
+        }
 
+        public class StubHandler : IHandleTimeouts<StubTimeoutState>
+        {
+            public Task Timeout(StubTimeoutState state)
+            {
+                TimeoutCalled = true;
+                HandledState = state;
+                return TaskEx.Completed;
+            }
 
-			public void Timeout(StubTimeoutState state)
-			{
-				TimeoutCalled = true;
-				HandledState = state;
-			}
-		}
+            public StubTimeoutState HandledState;
+            public bool TimeoutCalled;
+        }
 
-		public class StubTimeoutState
-		{
-		}
+        public class StubTimeoutState : IMessage
+        {
+        }
+    }
 
-	}
-
+    static class MessageHandlerRegistryExtension
+    {
+        public static MessageHandler GetCachedHandlerForMessage<TMessage>(this MessageHandlerRegistry cache)
+        {
+            var handler = cache.GetHandlersFor(typeof(TMessage)).Single();
+            handler.Instance = Activator.CreateInstance(handler.HandlerType);
+            return handler;
+        }
+    }
 }
-

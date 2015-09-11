@@ -50,11 +50,11 @@
                     RequestTimeout(TimeSpan.FromSeconds(5), new TimeHasPassed());
                 }
 
-                public void Timeout(TimeHasPassed state)
+                public Task Timeout(TimeHasPassed state)
                 {
                     MarkAsComplete();
-
                     Context.TimeoutReceived = true;
+                    return Task.FromResult(0);
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper)

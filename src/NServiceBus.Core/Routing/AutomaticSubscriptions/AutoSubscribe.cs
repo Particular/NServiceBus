@@ -73,7 +73,7 @@
                 .Where(t => !conventions.IsInSystemConventionList(t)) //never auto-subscribe system messages
                 .Where(t => !conventions.IsCommandType(t)) //commands should never be subscribed to
                 .Where(t => settings.SubscribePlainMessages || conventions.IsEventType(t)) //only events unless the user asked for all messages
-                .Where(t => settings.AutoSubscribeSagas || handlerRegistry.GetHandlerTypes(t).Any(handler => !typeof(Saga).IsAssignableFrom(handler)))//get messages with other handlers than sagas if needed
+                .Where(t => settings.AutoSubscribeSagas || handlerRegistry.GetHandlersFor(t).Any(handler => !typeof(Saga).IsAssignableFrom(handler.HandlerType)))//get messages with other handlers than sagas if needed
                 .ToList();
 
             return messageTypesHandled;

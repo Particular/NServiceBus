@@ -17,8 +17,8 @@
             }
 
             var messageHandler = context.MessageHandler;
+            messageHandler.Invoke(context.MessageBeingHandled).GetAwaiter().GetResult();
 
-            messageHandler.Invocation(messageHandler.Instance, context.MessageBeingHandled);
             next();
         }
     }
