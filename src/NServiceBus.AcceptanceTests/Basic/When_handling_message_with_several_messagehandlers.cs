@@ -44,7 +44,7 @@
         }
 
         [Serializable]
-        public class MyMessage: IMessage
+        public class MyMessage : IMessage
         {
             public Guid Id { get; set; }
         }
@@ -53,12 +53,14 @@
         {
             public Context Context { get; set; }
 
-            public void Handle(MyMessage message)
+            public Task Handle(MyMessage message)
             {
                 if (Context.Id != message.Id)
-                    return;
+                    return Task.FromResult(0);
 
                 Context.FirstHandlerWasCalled = true;
+
+                return Task.FromResult(0);
             }
         }
 
@@ -66,12 +68,14 @@
         {
             public Context Context { get; set; }
 
-            public void Handle(MyMessage message)
+            public Task Handle(MyMessage message)
             {
                 if (Context.Id != message.Id)
-                    return;
+                    return Task.FromResult(0);
 
                 Context.SecondHandlerWasCalled = true;
+
+                return Task.FromResult(0);
             }
         }
 

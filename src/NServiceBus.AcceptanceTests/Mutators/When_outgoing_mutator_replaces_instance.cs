@@ -58,9 +58,11 @@
                 {
                     this.testContext = testContext;
                 }
-                public void Handle(V2Message message)
+                public Task Handle(V2Message message)
                 {
                     testContext.V2MessageReceived = true;
+
+                    return Task.FromResult(0);
                 }
             }
 
@@ -71,9 +73,11 @@
                 {
                     this.testContext = testContext;
                 }
-                public void Handle(V1Message message)
+                public Task Handle(V1Message message)
                 {
                     testContext.V1MessageReceived = true;
+
+                    return Task.FromResult(0);
                 }
             }
         }

@@ -44,9 +44,11 @@
                 public Context Context { get; set; }
 
 
-                public void Handle(Reply message)
+                public Task Handle(Reply message)
                 {
                     Context.ReplyReceived = true;
+
+                    return Task.FromResult(0);
                 }
             }
         }
@@ -61,13 +63,15 @@
             public class NotFoundHandlerSaga1 : Saga<NotFoundHandlerSaga1.NotFoundHandlerSaga1Data>, IAmStartedByMessages<StartSaga1>, IHandleMessages<MessageToSaga>
             {
 
-                public void Handle(StartSaga1 message)
+                public Task Handle(StartSaga1 message)
                 {
                     Data.ContextId = message.ContextId;
+                    return Task.FromResult(0);
                 }
 
-                public void Handle(MessageToSaga message)
+                public Task Handle(MessageToSaga message)
                 {
+                    return Task.FromResult(0);
                 }
 
                 public class NotFoundHandlerSaga1Data : ContainSagaData

@@ -60,10 +60,12 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(MessageWithSecretData message)
+                public Task Handle(MessageWithSecretData message)
                 {
                     Context.Secret = message.Secret.Value;
                     Context.Done = true;
+
+                    return Task.FromResult(0);
                 }
             }
         }

@@ -1,6 +1,7 @@
 namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
     using System;
+    using System.Threading.Tasks;
 
     class AnotherSagaWithTwoUniqueProperties:Saga<AnotherSagaWithTwoUniquePropertiesData>, IHandleMessages<M1>
     {
@@ -10,7 +11,7 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
             mapper.ConfigureMapping<M1>(m => m.UniqueString).ToSaga(s => s.UniqueString);
         }
 
-        public void Handle(M1 message)
+        public Task Handle(M1 message)
         {
             throw new NotImplementedException();
         }

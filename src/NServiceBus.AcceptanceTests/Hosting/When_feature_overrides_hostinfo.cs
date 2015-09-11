@@ -65,9 +65,10 @@ namespace NServiceBus.AcceptanceTests.Hosting
 
             public Context Context { get; set; }
 
-            public void Handle(MyMessage message)
+            public Task Handle(MyMessage message)
             {
                 Context.OriginatingHostId = new Guid(Bus.CurrentMessageContext.Headers[Headers.OriginatingHostId]);
+                return Task.FromResult(0);
             }
         }
 

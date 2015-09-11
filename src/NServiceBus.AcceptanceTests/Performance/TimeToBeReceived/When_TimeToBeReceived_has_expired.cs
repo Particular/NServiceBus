@@ -38,9 +38,10 @@
 
                 public IBus Bus { get; set; }
 
-                public void Handle(MyMessage message)
+                public Task Handle(MyMessage message)
                 {
                     Context.WasCalled = true;
+                    return Task.FromResult(0);
                 }
             }
         }

@@ -49,7 +49,7 @@
                 public Context Context { get; set; }
                 public IBus Bus { get; set; }
 
-                public void Handle(MyMessage @event)
+                public Task Handle(MyMessage @event)
                 {
                     if (Context.FirstAttempt)
                     {
@@ -60,7 +60,10 @@
                         Context.FirstAttempt = false;
                         throw new FakeException();
                     }
+
                     Bus.SendLocal(new MessageHandledEvent());
+
+                    return Task.FromResult(0);
                 }
             }
 
@@ -69,10 +72,11 @@
                 public Context Context { get; set; }
                 public IBus Bus { get; set; }
 
-                public void Handle(MessageHandledEvent @event)
+                public Task Handle(MessageHandledEvent @event)
                 {
                     Context.MessageHandled = true;
                     Context.HasFailed |= @event.HasFailed;
+                    return Task.FromResult(0);
                 }
             }
 

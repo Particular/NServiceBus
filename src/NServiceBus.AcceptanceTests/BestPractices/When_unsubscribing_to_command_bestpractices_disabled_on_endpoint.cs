@@ -8,7 +8,7 @@
 
     public class When_unsubscribing_to_command_bestpractices_disabled_on_endpoint : NServiceBusAcceptanceTest
     {
-       [Test]
+        [Test]
         public async Task Should_allow_unsubscribing_to_commands()
         {
             await Scenario.Define<Context>()
@@ -36,8 +36,9 @@
 
             public class Handler : IHandleMessages<MyEvent>
             {
-                public void Handle(MyEvent message)
+                public Task Handle(MyEvent message)
                 {
+                    return Task.FromResult(0);
                 }
             }
         }

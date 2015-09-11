@@ -82,8 +82,9 @@
             IAmStartedByMessages<SagaWithNonMessageFinder.StartSagaMessage>
         {
 
-            public void Handle(StartSagaMessage message)
+            public Task Handle(StartSagaMessage message)
             {
+                return Task.FromResult(0);
             }
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
@@ -127,8 +128,9 @@
             IAmStartedByMessages<SagaWithMappingAndFinder.StartSagaMessage>
         {
 
-            public void Handle(StartSagaMessage message)
+            public Task Handle(StartSagaMessage message)
             {
+                return Task.FromResult(0);
             }
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
@@ -236,12 +238,14 @@
             {
             }
 
-            public void Handle(MessageThatStartsTheSaga message)
+            public Task Handle(MessageThatStartsTheSaga message)
             {
+                return Task.FromResult(0);
             }
 
-            public void Handle(MessageThatDoesNotStartTheSaga message)
+            public Task Handle(MessageThatDoesNotStartTheSaga message)
             {
+                return Task.FromResult(0);
             }
         }
 
@@ -298,17 +302,17 @@
                     .ToSaga(s => s.SomeId);
             }
 
-            public void Handle(StartMessage1 message)
+            public Task Handle(StartMessage1 message)
             {
                 throw new NotImplementedException();
             }
 
-            public void Handle(StartMessage2 message)
+            public Task Handle(StartMessage2 message)
             {
                 throw new NotImplementedException();
             }
 
-            public void Handle(Message3 message)
+            public Task Handle(Message3 message)
             {
                 throw new NotImplementedException();
             }
@@ -356,8 +360,9 @@
                     .ToSaga(s => s.Id);
             }
 
-            public void Handle(SomeMessage message)
+            public Task Handle(SomeMessage message)
             {
+                return Task.FromResult(0);
             }
         }
 
@@ -382,8 +387,9 @@
                     .ToSaga(s => s.Id);
             }
 
-            public void Handle(SomeMessageWithField message)
+            public Task Handle(SomeMessageWithField message)
             {
+                return Task.FromResult(0);
             }
         }
 
@@ -420,9 +426,9 @@
                 }
             }
 
-            public void Handle(SomeMessage message)
+            public Task Handle(SomeMessage message)
             {
-
+                return Task.FromResult(0);
             }
         }
 

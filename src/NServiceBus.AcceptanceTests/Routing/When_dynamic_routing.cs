@@ -75,7 +75,7 @@
 //            {
 //                public ISendMessages MessageSender { get; set; }
 
-//                public void Handle(Response message)
+//                public Task Handle(Response message)
 //                {
 //                    var transportMessage = ControlMessage.Create();
 //                    transportMessage.Headers["NServiceBus.DisconnectMessage"] = "anything";
@@ -110,7 +110,7 @@
 
 //                public IBus Bus { get; set; }
 
-//                public void Handle(Response message)
+//                public Task Handle(Response message)
 //                {
 //                    switch (message.EndpointName)
 //                    {
@@ -138,7 +138,7 @@
 //            {
 //                public IBus Bus { get; set; }
 
-//                public void Handle(Request message)
+//                public Task Handle(Request message)
 //                {
 //                    Bus.Reply(new Response
 //                    {
@@ -186,7 +186,7 @@
 //            {
 //                public IBus Bus { get; set; }
 
-//                public void Handle(Request message)
+//                public Task Handle(Request message)
 //                {
 //                    Bus.Reply(new Response
 //                    {

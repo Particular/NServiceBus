@@ -2,6 +2,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
 {
     using System.IO;
     using System.Linq;
+    using System.Threading.Tasks;
     using Hosting.Helpers;
     using NUnit.Framework;
 
@@ -17,16 +18,17 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             Directory.CreateDirectory(someDir);
 
             results = new AssemblyScanner(someDir)
-                {
-                    IncludeAppDomainAssemblies = true,
-                }
+            {
+                IncludeAppDomainAssemblies = true,
+            }
                 .GetScannableAssemblies();
         }
 
         class SomeHandlerThatEnsuresThatWeKeepReferencingNsbCore : IHandleMessages<string>
         {
-            public void Handle(string message)
+            public Task Handle(string message)
             {
+                return Task.FromResult(0);
             }
         }
 

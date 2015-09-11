@@ -49,12 +49,14 @@
 
                 public Context Context { get; set; }
 
-                public void Handle(MessageSentOutsideOfHandler message)
+                public Task Handle(MessageSentOutsideOfHandler message)
                 {
                     Context.FirstConversationId = Bus.CurrentMessageContext.Headers[Headers.ConversationId];
                     Context.MessageIdOfFirstMessage = Bus.CurrentMessageContext.Id;
 
                     Bus.SendLocal(new MessageSentInsideHandler());
+
+                    return Task.FromResult(0);
                 }
             }
 
@@ -66,13 +68,15 @@
 
 
 
-                public void Handle(MessageSentInsideHandler message)
+                public Task Handle(MessageSentInsideHandler message)
                 {
                     Context.ConversationIdReceived = Bus.CurrentMessageContext.Headers[Headers.ConversationId];
 
                     Context.RelatedToReceived = Bus.CurrentMessageContext.Headers[Headers.RelatedTo];
 
                     Context.Done = true;
+
+                    return Task.FromResult(0);
                 }
             }
         }

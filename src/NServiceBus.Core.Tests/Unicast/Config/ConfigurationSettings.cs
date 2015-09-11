@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Unicast.Config.Tests
 {
+    using System.Threading.Tasks;
     using NServiceBus.Features;
     using NUnit.Framework;
 
@@ -55,18 +56,20 @@
             Assert.IsTrue(RegisterHandlersInOrder.IsMessageHandler(typeof(GenericImplementedHandler)));
         }
 
-        
+
         public class SimpleHandler : IHandleMessages<SimpleMessage>
         {
-            public void Handle(SimpleMessage message)
+            public Task Handle(SimpleMessage message)
             {
+                return Task.FromResult(0);
             }
         }
 
         public class GenericTypeDefinitionHandler<T> : IHandleMessages<SimpleMessage>
         {
-            public void Handle(SimpleMessage message)
+            public Task Handle(SimpleMessage message)
             {
+                return Task.FromResult(0);
             }
         }
 
@@ -84,8 +87,9 @@
 
         public abstract class AbstractHandler : IHandleMessages<SimpleMessage>
         {
-            public void Handle(SimpleMessage message)
+            public Task Handle(SimpleMessage message)
             {
+                return Task.FromResult(0);
             }
         }
 

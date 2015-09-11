@@ -49,7 +49,7 @@
 
                             var options = new PublishOptions();
 
-                            options.SetHeader("MyHeader","SomeValue");
+                            options.SetHeader("MyHeader", "SomeValue");
                             bus.Publish(new MyEvent(), options);
                             return Task.FromResult(0);
                         })
@@ -155,9 +155,10 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(IFoo messageThatIsEnlisted)
+                public Task Handle(IFoo messageThatIsEnlisted)
                 {
                     Context.Subscriber3GotTheEvent = true;
+                    return Task.FromResult(0);
                 }
             }
 
@@ -177,10 +178,11 @@
 
                 public IBus Bus { get; set; }
 
-                public void Handle(MyEvent messageThatIsEnlisted)
+                public Task Handle(MyEvent messageThatIsEnlisted)
                 {
                     Assert.AreEqual(Bus.CurrentMessageContext.Headers["MyHeader"], "SomeValue");
                     Context.Subscriber1GotTheEvent = true;
+                    return Task.FromResult(0);
                 }
             }
         }
@@ -197,9 +199,10 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(MyEvent messageThatIsEnlisted)
+                public Task Handle(MyEvent messageThatIsEnlisted)
                 {
                     Context.Subscriber2GotTheEvent = true;
+                    return Task.FromResult(0);
                 }
             }
         }

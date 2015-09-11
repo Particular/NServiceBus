@@ -40,10 +40,11 @@
 
                 public IBus Bus { get; set; }
 
-                public void Handle(MyMessage message)
+                public Task Handle(MyMessage message)
                 {
                     Context.NonDurabilityHeader = bool.Parse(Bus.CurrentMessageContext.Headers[Headers.NonDurableMessage]);
                     Context.WasCalled = true;
+                    return Task.FromResult(0);
                 }
             }
         }

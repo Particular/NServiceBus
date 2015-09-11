@@ -54,9 +54,10 @@
             {
                 public IBus Bus { get; set; }
 
-                public void Handle(PlaceOrder message)
+                public Task Handle(PlaceOrder message)
                 {
                     Bus.SendLocal(new MessageToDispatch());
+                    return Task.FromResult(0);
                 }
             }
 
@@ -66,10 +67,11 @@
 
                 public IBus Bus { get; set; }
 
-                public void Handle(MessageToDispatch message)
+                public Task Handle(MessageToDispatch message)
                 {
                     Context.HeadersOnDispatchedMessage = Bus.CurrentMessageContext.Headers;
                     Context.DispatchedMessageReceived = true;
+                    return Task.FromResult(0);
                 }
             }
         }

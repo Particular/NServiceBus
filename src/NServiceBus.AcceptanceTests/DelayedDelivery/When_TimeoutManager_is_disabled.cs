@@ -47,7 +47,7 @@
                 public Context Context { get; set; }
                 public IBus Bus { get; set; }
 
-                public void Handle(MyMessage message)
+                public Task Handle(MyMessage message)
                 {
                     try
                     {
@@ -62,12 +62,15 @@
                         Console.WriteLine(x.Message);
                         Context.ExceptionThrown = true;
                     }
-                    
+
+                    return Task.FromResult(0);
                 }
 
-                public void Handle(MyOtherMessage message)
+                public Task Handle(MyOtherMessage message)
                 {
                     Context.SecondMessageReceived = true;
+
+                    return Task.FromResult(0);
                 }
             }
         }

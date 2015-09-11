@@ -57,9 +57,11 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(MyMessageWithLargePayload messageWithLargePayload)
+                public Task Handle(MyMessageWithLargePayload messageWithLargePayload)
                 {
                     Context.ReceivedPayload = messageWithLargePayload.Payload.Value;
+
+                    return Task.FromResult(0);
                 }
             }
         }

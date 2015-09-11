@@ -98,13 +98,15 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(IEventA @event)
+                public Task Handle(IEventA @event)
                 {
                     if (@event.ContextId != Context.Id)
                     {
-                        return;
+                        return Task.FromResult(0);
                     }
                     Context.GotEventA = true;
+
+                    return Task.FromResult(0);
                 }
             }
 
@@ -112,13 +114,16 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(IEventB @event)
+                public Task Handle(IEventB @event)
                 {
                     if (@event.ContextId != Context.Id)
                     {
-                        return;
+                        return Task.FromResult(0);
                     }
+
                     Context.GotEventB = true;
+
+                    return Task.FromResult(0);
                 }
             }
         }

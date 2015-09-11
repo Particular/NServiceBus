@@ -117,12 +117,14 @@
 
             public IBus Bus { get; set; }
 
-            public void Handle(MyMessage message)
+            public Task Handle(MyMessage message)
             {
                 if (Context.Id != message.Id)
-                    return;
+                    return Task.FromResult(0);
 
                 Context.WasCalled = true;
+
+                return Task.FromResult(0);
             }
         }
     }

@@ -102,26 +102,30 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(StartSagaMessage message)
+                public Task Handle(StartSagaMessage message)
                 {
                     Context.AddTrace("Saga started");
 
                     Data.SomeId = message.SomeId;
 
                     Context.StartSagaMessageReceived = true;
+
+                    return Task.FromResult(0);
                 }
 
-                public void Handle(CompleteSagaMessage message)
+                public Task Handle(CompleteSagaMessage message)
                 {
                     Context.AddTrace("CompleteSagaMessage received");
                     MarkAsComplete();
                     Context.SagaCompleted = true;
+                    return Task.FromResult(0);
                 }
 
-                public void Handle(AnotherMessage message)
+                public Task Handle(AnotherMessage message)
                 {
                     Context.AddTrace("AnotherMessage received");
                     Context.SagaReceivedAnotherMessage = true;
+                    return Task.FromResult(0);
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData10> mapper)
@@ -147,9 +151,10 @@
         public class CompletionHandler : IHandleMessages<AnotherMessage>
         {
             public Context Context { get; set; }
-            public void Handle(AnotherMessage message)
+            public Task Handle(AnotherMessage message)
             {
                 Context.AnotherMessageReceived = true;
+                return Task.FromResult(0);
             }
         }
 

@@ -54,13 +54,14 @@
         {
             public Context Context { get; set; }
 
-            public void Handle(object message)
+            public Task Handle(object message)
             {
                 var myMessage = (MyMessage)message;
                 if (Context.Id != myMessage.Id)
-                    return;
+                    return Task.FromResult(0);
 
                 Context.ObjectHandlerWasCalled = true;
+                return Task.FromResult(0);
             }
         }
 
@@ -68,13 +69,15 @@
         {
             public Context Context { get; set; }
 
-            public void Handle(dynamic message)
+            public Task Handle(dynamic message)
             {
                 var myMessage = (MyMessage)message;
                 if (Context.Id != myMessage.Id)
-                    return;
+                    return Task.FromResult(0);
 
                 Context.DynamicHandlerWasCalled = true;
+
+                return Task.FromResult(0);
             }
         }
 
@@ -82,13 +85,14 @@
         {
             public Context Context { get; set; }
 
-            public void Handle(IMessage message)
+            public Task Handle(IMessage message)
             {
                 var myMessage = (MyMessage)message;
                 if (Context.Id != myMessage.Id)
-                    return;
+                    return Task.FromResult(0);
 
                 Context.IMessageHandlerWasCalled = true;
+                return Task.FromResult(0);
             }
         }
     }

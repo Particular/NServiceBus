@@ -69,16 +69,19 @@
             class CatchAllHandler:IHandleMessages<IEvent> //not enough for auto subscribe to work
             {
                 public Context Context { get; set; }
-                public void Handle(IEvent message)
+                public Task Handle(IEvent message)
                 {
                     Context.CatchAllHandlerGotTheMessage = true;
+
+                    return Task.FromResult(0);
                 }
             }
 
             class DummyHandler : IHandleMessages<EventHandledByLocalEndpoint> //explicit handler for the event is needed
             {
-                public void Handle(EventHandledByLocalEndpoint message)
+                public Task Handle(EventHandledByLocalEndpoint message)
                 {
+                    return Task.FromResult(0);
                 }
             }
         }
@@ -93,16 +96,18 @@
             class CatchAllHandler : IHandleMessages<IEvent> 
             {
                 public Context Context { get; set; }
-                public void Handle(IEvent message)
+                public Task Handle(IEvent message)
                 {
                     Context.CatchAllHandlerGotTheMessage = true;
+                    return Task.FromResult(0);
                 }
             }
 
             class DummyHandler : IHandleMessages<EventHandledByLocalEndpoint> //explicit handler for the event is needed
             {
-                public void Handle(EventHandledByLocalEndpoint message)
+                public Task Handle(EventHandledByLocalEndpoint message)
                 {
+                    return Task.FromResult(0);
                 }
             }
         }

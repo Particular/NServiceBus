@@ -42,10 +42,11 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(MyMessage messageThatIsEnlisted)
+                public Task Handle(MyMessage messageThatIsEnlisted)
                 {
                     Context.AmbientTransactionExists = (Transaction.Current != null);
                     Context.HandlerInvoked = true;
+                return Task.FromResult(0);
                 }
             }
         }

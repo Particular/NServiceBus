@@ -43,24 +43,28 @@
             class FirstHandler : IHandleMessages<SomeMessage>
             {
                 public Context Context { get; set; }
-                
+
                 public IBus Bus { get; set; }
-                
-                public void Handle(SomeMessage message)
+
+                public Task Handle(SomeMessage message)
                 {
                     Context.FirstHandlerInvoked = true;
 
                     Bus.DoNotContinueDispatchingCurrentMessageToHandlers();
+
+                    return Task.FromResult(0);
                 }
             }
 
             class SecondHandler : IHandleMessages<SomeMessage>
             {
                 public Context Context { get; set; }
-                
-                public void Handle(SomeMessage message)
+
+                public Task Handle(SomeMessage message)
                 {
                     Context.SecondHandlerInvoked = true;
+
+                    return Task.FromResult(0);
                 }
             }
         }

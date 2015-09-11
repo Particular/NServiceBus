@@ -52,7 +52,7 @@
 //            {
 //                public Context Context { get; set; }
 
-//                public void Handle(MessageThatThrows message)
+//                public Task Handle(MessageThatThrows message)
 //                {
 //                    Context.GotTheMessage = true;
 //                }
@@ -73,7 +73,7 @@
 
 //            public class MessageThatThrowsHandler : IHandleMessages<MessageThatThrows>
 //            {
-//                public void Handle(MessageThatThrows message)
+//                public Task Handle(MessageThatThrows message)
 //                {
 //                    throw new Exception("MessageThatThrowsHandler Exception");
 //                }

@@ -69,10 +69,11 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(MyMessage messageThatIsEnlisted)
+                public Task Handle(MyMessage messageThatIsEnlisted)
                 {
                     Context.CanEnlistPromotable = Transaction.Current.EnlistPromotableSinglePhase(new FakePromotableResourceManager());
                     Context.HandlerInvoked = true;
+                    return Task.FromResult(0);
                 }
             }
         }

@@ -62,8 +62,9 @@
 
             public class Handler : IHandleMessages<MyEvent>
             {
-                public void Handle(MyEvent message)
+                public Task Handle(MyEvent message)
                 {
+                    return Task.FromResult(0);
                 }
             }
         }

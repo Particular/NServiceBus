@@ -52,8 +52,9 @@
                     this.context = context;
                 }
 
-                public void Handle(MessageToBeAudited message)
+                public Task Handle(MessageToBeAudited message)
                 {
+                    return Task.FromResult(0);
                 }
             }
         }
@@ -77,10 +78,11 @@
                     this.bus = bus;
                 }
 
-                public void Handle(MessageToBeAudited message)
+                public Task Handle(MessageToBeAudited message)
                 {
                     context.Headers = bus.CurrentMessageContext.Headers;
                     context.IsMessageHandledByTheAuditEndpoint = true;
+                    return Task.FromResult(0);
                 }
             }
         }

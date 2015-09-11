@@ -64,10 +64,11 @@
                     this.bus = bus;
                 }
 
-                public void Handle(MessageThatMutatorChangesTo message)
+                public Task Handle(MessageThatMutatorChangesTo message)
                 {
                     testContext.CanAddHeaders = bus.CurrentMessageContext.Headers.ContainsKey("HeaderSetByMutator");
                     testContext.MessageProcessed = true;
+                    return Task.FromResult(0);
                 }
             }
 

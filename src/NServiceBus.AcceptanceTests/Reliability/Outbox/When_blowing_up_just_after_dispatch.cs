@@ -93,9 +93,10 @@
             {
                 public IBus Bus { get; set; }
 
-                public void Handle(PlaceOrder message)
+                public Task Handle(PlaceOrder message)
                 {
                     Bus.SendLocal(new SendOrderAcknowledgment());
+                    return Task.FromResult(0);
                 }
             }
 
@@ -103,9 +104,10 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(SendOrderAcknowledgment message)
+                public Task Handle(SendOrderAcknowledgment message)
                 {
                     Context.OrderAckReceived++;
+                    return Task.FromResult(0);
                 }
             }
         }

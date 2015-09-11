@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
+    using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
 
@@ -26,10 +27,11 @@
             {
                 public SagaEndpointContext Context { get; set; }
 
-                public void Handle(StartSagaMessage message)
+                public Task Handle(StartSagaMessage message)
                 {
                     Context.SagaStarted = true;
                     Data.SomeId = message.SomeId;
+                    return Task.FromResult(0);
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData03> mapper)
@@ -44,19 +46,21 @@
                 }
             }
 
-            
+
             public class InterceptingHandler : IHandleMessages<StartSagaMessage>
             {
                 public SagaEndpointContext Context { get; set; }
 
                 public IBus Bus { get; set; }
 
-                public void Handle(StartSagaMessage message)
+                public Task Handle(StartSagaMessage message)
                 {
                     Context.InterceptingHandlerCalled = true;
 
                     if (Context.InterceptSaga)
                         Bus.DoNotContinueDispatchingCurrentMessageToHandlers();
+
+                    return Task.FromResult(0);
                 }
             }
         }

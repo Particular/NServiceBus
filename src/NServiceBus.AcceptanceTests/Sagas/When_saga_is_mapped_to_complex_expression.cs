@@ -42,9 +42,10 @@
                 IAmStartedByMessages<StartSagaMessage>, IHandleMessages<OtherMessage>
             {
                 public Context Context { get; set; }
-                public void Handle(StartSagaMessage message)
+                public Task Handle(StartSagaMessage message)
                 {
                     Data.KeyValue = message.Key;
+                    return Task.FromResult(0);
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData02> mapper)
@@ -53,9 +54,10 @@
                         .ToSaga(s => s.KeyValue);
                 }
 
-                public void Handle(OtherMessage message)
+                public Task Handle(OtherMessage message)
                 {
                     Context.SecondMessageReceived = true;
+                    return Task.FromResult(0);
                 }
             }
 

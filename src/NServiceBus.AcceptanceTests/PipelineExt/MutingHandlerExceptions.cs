@@ -41,7 +41,7 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
             {
                 public Context MyContext { get; set; }
 
-                public void Handle(MessageThatWillBlowUpButExWillBeMuted message)
+                public Task Handle(MessageThatWillBlowUpButExWillBeMuted message)
                 {
                     throw new Exception("Lets filter on this text");
                 }
@@ -99,9 +99,10 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
             {
                 public Context MyContext { get; set; }
 
-                public void Handle(MessageThatWillBlowUpButExWillBeMuted message)
+                public Task Handle(MessageThatWillBlowUpButExWillBeMuted message)
                 {
                     MyContext.MessageAudited = true;
+                    return Task.FromResult(0);
                 }
             }
         }

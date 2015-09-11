@@ -35,8 +35,9 @@
             {
                 public IBus Bus { get; set; }
 
-                public void Handle(MessageToBeAudited message)
+                public Task Handle(MessageToBeAudited message)
                 {
+                    return Task.FromResult(0);
                 }
             }
 
@@ -53,12 +54,12 @@
             {
                 public Context MyContext { get; set; }
 
-                public void Handle(MessageToBeAudited message)
+                public Task Handle(MessageToBeAudited message)
                 {
                     MyContext.MessageAudited = true;
+                    return Task.FromResult(0);
                 }
             }
-
         }
 
         public class Context : ScenarioContext

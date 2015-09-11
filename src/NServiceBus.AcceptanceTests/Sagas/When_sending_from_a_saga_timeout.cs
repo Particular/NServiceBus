@@ -42,10 +42,11 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(StartSaga1 message)
+                public Task Handle(StartSaga1 message)
                 {
                     Data.DataId = message.DataId;
                     RequestTimeout(TimeSpan.FromSeconds(1), new Saga1Timeout());
+                    return Task.FromResult(0);
                 }
 
                 public Task Timeout(Saga1Timeout state)
@@ -70,10 +71,11 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(StartSaga2 message)
+                public Task Handle(StartSaga2 message)
                 {
                     Data.DataId = message.DataId;
                     Context.DidSaga2ReceiveMessage = true;
+                    return Task.FromResult(0);
                 }
 
                 public class SendFromTimeoutSaga2Data : ContainSagaData

@@ -44,7 +44,7 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(StartSagaMessageBase message)
+                public Task Handle(StartSagaMessageBase message)
                 {
                     if (Data.SomeId != Guid.Empty)
                     {
@@ -59,6 +59,8 @@
                             SomeId = message.SomeId
                         });
                     }
+
+                    return Task.FromResult(0);
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData04> mapper)

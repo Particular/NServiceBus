@@ -53,11 +53,12 @@
 
                 public int Number { get; set; }
 
-                public void Handle(MyMessage message)
+                public Task Handle(MyMessage message)
                 {
                     Context.Number = Number;
                     Context.Name = Name;
                     Context.WasCalled = true;
+                    return Task.FromResult(0);
                 }
             }
         }

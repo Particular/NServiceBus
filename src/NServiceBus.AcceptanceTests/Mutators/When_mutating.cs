@@ -57,9 +57,11 @@
                     this.bus = bus;
                 }
 
-                public void Handle(StartMessage message)
+                public Task Handle(StartMessage message)
                 {
                     bus.SendLocal(new LoopMessage());
+
+                    return Task.FromResult(0);
                 }
             }
             public class LoopMessageHandler : IHandleMessages<LoopMessage>
@@ -69,9 +71,10 @@
                 {
                     this.testContext = testContext;
                 }
-                public void Handle(LoopMessage message)
+                public Task Handle(LoopMessage message)
                 {
                     testContext.WasCalled = true;
+                    return Task.FromResult(0);
                 }
             }
 

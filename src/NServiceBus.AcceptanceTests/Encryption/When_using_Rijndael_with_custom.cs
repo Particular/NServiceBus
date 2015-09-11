@@ -68,7 +68,7 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(MessageWithSecretData message)
+                public Task Handle(MessageWithSecretData message)
                 {
                     Context.Secret = message.Secret.Value;
 
@@ -81,6 +81,8 @@
                     };
 
                     Context.GetTheMessage = true;
+
+                    return Task.FromResult(0);
                 }
             }
         }

@@ -45,7 +45,7 @@
                 public Context Context { get; set; }
 
                 public IBus Bus { get; set; }
-                public void Handle(MyMessage message)
+                public Task Handle(MyMessage message)
                 {
                     Context.TimesCalled++;
 
@@ -62,9 +62,10 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(CompleteTest message)
+                public Task Handle(CompleteTest message)
                 {
                     Context.TestComplete = true;
+                    return Task.FromResult(0);
                 }
             }
         }

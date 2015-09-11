@@ -44,16 +44,18 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
             {
                 public IBus Bus { get; set; }
 
-                public void Handle(MessageToBeAudited message)
+                public Task Handle(MessageToBeAudited message)
                 {
                     Bus.SendLocal(new Message3());
+                    return Task.FromResult(0);
                 }
             }
 
             class Message3Handler : IHandleMessages<Message3>
             {
-                public void Handle(Message3 message)
+                public Task Handle(Message3 message)
                 {
+                    return Task.FromResult(0);
                 }
             }
 
@@ -143,9 +145,10 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
             {
                 public Context MyContext { get; set; }
 
-                public void Handle(MessageToBeAudited message)
+                public Task Handle(MessageToBeAudited message)
                 {
                     MyContext.WrongMessageAudited = true;
+                    return Task.FromResult(0);
                 }
             }
 
@@ -153,9 +156,10 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
             {
                 public Context MyContext { get; set; }
 
-                public void Handle(Message3 message)
+                public Task Handle(Message3 message)
                 {
                     MyContext.Done = true;
+                    return Task.FromResult(0);
                 }
             }
         }

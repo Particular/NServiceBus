@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.Sagas;
     using NUnit.Framework;
 
@@ -31,7 +32,7 @@
                 mapper.ConfigureMapping<M1>(m => m.Property).ToSaga(s => s.Property);
             }
 
-            public void Handle(M1 message)
+            public Task Handle(M1 message)
             {
                 throw new NotImplementedException();
             }

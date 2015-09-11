@@ -17,7 +17,7 @@
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<MyEndpoint>(b => b.Given((bus, c) =>
                 {
-                    bus.SendLocal(new SomeMessage{Id = c.Id});
+                    bus.SendLocal(new SomeMessage { Id = c.Id });
                     return Task.FromResult(0);
                 }))
                 .Done(c => c.Done)
@@ -73,11 +73,11 @@
                 public Context Context { get; set; }
                 public IBus Bus { get; set; }
 
-                public void Handle(SomeMessage message)
+                public Task Handle(SomeMessage message)
                 {
                     if (message.Id != Context.Id)
                     {
-                        return;
+                        return Task.FromResult(0);
                     }
                     Context.FirstHandlerInvocationCount++;
 
@@ -85,25 +85,30 @@
                     {
                         Bus.HandleCurrentMessageLater();
                     }
+
+                    return Task.FromResult(0);
                 }
             }
 
             class SecondHandler : IHandleMessages<SomeMessage>
             {
                 public Context Context { get; set; }
-                public void Handle(SomeMessage message)
+                public Task Handle(SomeMessage message)
                 {
                     if (message.Id != Context.Id)
                     {
-                        return;
+                        return Task.FromResult(0);
                     }
+
                     Context.SecondHandlerInvocationCount++;
                     Context.Done = true;
+
+                    return Task.FromResult(0);
                 }
             }
         }
         [Serializable]
-        public class SomeMessage : IMessage 
+        public class SomeMessage : IMessage
         {
             public Guid Id { get; set; }
         }

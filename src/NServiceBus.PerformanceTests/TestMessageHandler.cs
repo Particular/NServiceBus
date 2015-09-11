@@ -2,15 +2,16 @@
 {
     using System;
     using System.Threading;
+    using System.Threading.Tasks;
     using System.Transactions;
 
     using NServiceBus;
 
-    class TestMessageHandler:IHandleMessages<TestMessage>
+    class TestMessageHandler : IHandleMessages<TestMessage>
     {
         static TwoPhaseCommitEnlistment enlistment = new TwoPhaseCommitEnlistment();
 
-        public void Handle(TestMessage message)
+        public Task Handle(TestMessage message)
         {
             if (!Statistics.First.HasValue)
             {
@@ -24,6 +25,8 @@
             }
 
             Statistics.Last = DateTime.Now;
+
+            return Task.FromResult(0);
         }
     }
 }

@@ -56,10 +56,11 @@
 
                 public IBus Bus { get; set; }
 
-                public void Handle(MyBaseCommand message)
+                public Task Handle(MyBaseCommand message)
                 {
                     Context.WasCalled1 = true;
                     Thread.Sleep(2000); // Just to be sure the other receiver is finished
+                    return Task.FromResult(0);
                 }
             }
         }
@@ -77,10 +78,11 @@
 
                 public IBus Bus { get; set; }
 
-                public void Handle(MyBaseCommand message)
+                public Task Handle(MyBaseCommand message)
                 {
                     Context.WasCalled2 = true;
                     Thread.Sleep(2000); // Just to be sure the other receiver is finished
+                    return Task.FromResult(0);
                 }
             }
         }

@@ -41,7 +41,7 @@
             public class TestSaga05 : Saga<TestSagaData05>, IAmStartedByMessages<StartSagaMessage>
             {
                 public Context Context { get; set; }
-                public void Handle(StartSagaMessage message)
+                public Task Handle(StartSagaMessage message)
                 {
                     Data.SomeId = message.SomeId;
 
@@ -55,6 +55,8 @@
                         Context.FirstSagaId = Data.Id;
                         Bus.SendLocal(new StartSagaMessage { SomeId = message.SomeId, SecondMessage = true });
                     }
+
+                    return Task.FromResult(0);
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData05> mapper)

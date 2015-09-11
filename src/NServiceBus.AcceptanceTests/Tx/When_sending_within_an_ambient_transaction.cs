@@ -84,7 +84,7 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(MessageThatIsEnlisted messageThatIsEnlisted)
+                public Task Handle(MessageThatIsEnlisted messageThatIsEnlisted)
                 {
                     Context.MessageThatIsEnlistedHandlerWasCalled = true;
                     Context.TimesCalled++;
@@ -93,6 +93,8 @@
                     {
                         Context.SequenceNumberOfFirstMessage = messageThatIsEnlisted.SequenceNumber;
                     }
+
+                    return Task.FromResult(0);
                 }
             }
 
@@ -100,10 +102,11 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(MessageThatIsNotEnlisted messageThatIsNotEnlisted)
+                public Task Handle(MessageThatIsNotEnlisted messageThatIsNotEnlisted)
                 {
                     Context.MessageThatIsNotEnlistedHandlerWasCalled = true;
                     Context.NonTransactionalHandlerCalledFirst = !Context.MessageThatIsEnlistedHandlerWasCalled;
+                    return Task.FromResult(0);
                 }
             }
         }

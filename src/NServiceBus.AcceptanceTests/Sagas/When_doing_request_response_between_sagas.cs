@@ -29,7 +29,7 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(InitiateRequestingSaga message)
+                public Task Handle(InitiateRequestingSaga message)
                 {
                     Data.CorrIdForResponse = message.Id;
 
@@ -37,12 +37,17 @@
                     {
                         SomeIdThatTheResponseSagaCanCorrelateBackToUs = Data.CorrIdForResponse //wont be needed in the future
                     });
+
+                    return Task.FromResult(0);
                 }
 
-                public void Handle(ResponseFromOtherSaga message)
+                public Task Handle(ResponseFromOtherSaga message)
                 {
                     Context.DidRequestingSagaGetTheResponse = true;
+
                     MarkAsComplete();
+
+                    return Task.FromResult(0);
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestResponseRequestingSagaData> mapper)
@@ -64,20 +69,20 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(RequestToRespondingSaga message)
+                public Task Handle(RequestToRespondingSaga message)
                 {
                     if (Context.ReplyFromNonInitiatingHandler)
                     {
                         Data.CorrIdForRequest = message.SomeIdThatTheResponseSagaCanCorrelateBackToUs; //wont be needed in the future
                         Bus.SendLocal(new SendReplyFromNonInitiatingHandler { SagaIdSoWeCanCorrelate = Data.Id });
-                        return;
+                        return Task.FromResult(0);
                     }
 
                     if (Context.ReplyFromTimeout)
                     {
                         Data.CorrIdForRequest = message.SomeIdThatTheResponseSagaCanCorrelateBackToUs; //wont be needed in the future
                         RequestTimeout<DelayReply>(TimeSpan.FromSeconds(1));
-                        return;
+                        return Task.FromResult(0);
                     }
 
                     Data.CorrIdForRequest = Guid.NewGuid();
@@ -86,6 +91,8 @@
                     // also note we don't set the correlation ID since auto correlation happens to work for this special case 
                     // where we reply from the first handler
                     Bus.Reply(new ResponseFromOtherSaga());
+
+                    return Task.FromResult(0);
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestResponseRespondingSagaData> mapper)
@@ -109,9 +116,10 @@
                     return Task.FromResult(0);
                 }
 
-                public void Handle(SendReplyFromNonInitiatingHandler message)
+                public Task Handle(SendReplyFromNonInitiatingHandler message)
                 {
                     SendReply();
+                    return Task.FromResult(0);
                 }
 
                 void SendReply()

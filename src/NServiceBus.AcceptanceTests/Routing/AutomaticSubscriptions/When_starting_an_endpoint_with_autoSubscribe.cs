@@ -82,29 +82,33 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
 
             class MyMessageHandler : IHandleMessages<MyMessage>
             {
-                public void Handle(MyMessage message)
+                public Task Handle(MyMessage message)
                 {
+                    return Task.FromResult(0);
                 }
             }
 
 
             public class EventMessageHandler : IHandleMessages<MyEvent>
             {
-                public void Handle(MyEvent message)
+                public Task Handle(MyEvent message)
                 {
+                    return Task.FromResult(0);
                 }
             }
             public class MyEventWithNoRoutingHandler : IHandleMessages<MyEventWithNoRouting>
             {
-                public void Handle(MyEventWithNoRouting message)
+                public Task Handle(MyEventWithNoRouting message)
                 {
+                    return Task.FromResult(0);
                 }
             }
 
             public class CommandMessageHandler : IHandleMessages<MyCommand>
             {
-                public void Handle(MyCommand message)
+                public Task Handle(MyCommand message)
                 {
+                    return Task.FromResult(0);
                 }
             }
         }

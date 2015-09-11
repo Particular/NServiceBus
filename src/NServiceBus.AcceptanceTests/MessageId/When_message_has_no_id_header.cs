@@ -109,8 +109,9 @@
 
             class Handler : IHandleMessages<Message>
             {
-                public void Handle(Message message)
+                public Task Handle(Message message)
                 {
+                    return Task.FromResult(0);
                 }
             }
         }

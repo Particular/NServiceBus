@@ -10,7 +10,7 @@
 
     public class When_a_message_is_audited : NServiceBusAcceptanceTest
     {
-      
+
         [Test]
         public async Task Should_preserve_the_original_body()
         {
@@ -72,8 +72,9 @@
 
             public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
             {
-                public void Handle(MessageToBeAudited message)
+                public Task Handle(MessageToBeAudited message)
                 {
+                    return Task.FromResult(0);
                 }
             }
         }
@@ -106,13 +107,16 @@
                 public Context Context { get; set; }
                 public IBus Bus { get; set; }
 
-                public void Handle(MessageToBeAudited message)
+                public Task Handle(MessageToBeAudited message)
                 {
                     if (message.RunId != Context.RunId)
                     {
-                        return;
+                        return Task.FromResult(0);
                     }
+
                     Context.Done = true;
+
+                    return Task.FromResult(0);
                 }
             }
         }

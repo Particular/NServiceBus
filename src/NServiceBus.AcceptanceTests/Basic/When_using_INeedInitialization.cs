@@ -79,9 +79,10 @@
         {
             public IBus Bus { get; set; }
 
-            public void Handle(SendMessage message)
+            public Task Handle(SendMessage message)
             {
                 Bus.Send("ineedinitialization_receiver", new MyMessage());
+                return Task.FromResult(0);
             }
         }
 
@@ -91,9 +92,10 @@
 
             public IBus Bus { get; set; }
 
-            public void Handle(MyMessage message)
+            public Task Handle(MyMessage message)
             {
                 Context.WasCalled = true;
+                return Task.FromResult(0);
             }
         }
     }

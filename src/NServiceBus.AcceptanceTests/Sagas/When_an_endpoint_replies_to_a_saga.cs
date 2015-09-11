@@ -45,9 +45,10 @@
             {
                 public IBus Bus { get; set; }
 
-                public void Handle(DoSomething message)
+                public Task Handle(DoSomething message)
                 {
                     Bus.Reply(new DoSomethingResponse { RunId = message.RunId });
+                    return Task.FromResult(0);
                 }
             }
         }
@@ -81,17 +82,19 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(StartSaga message)
+                public Task Handle(StartSaga message)
                 {
                     Data.RunId = message.RunId;
                     Bus.Send(new DoSomething { RunId = message.RunId });
+                    return Task.FromResult(0);
                 }
 
-                public void Handle(DoSomethingResponse message)
+                public Task Handle(DoSomethingResponse message)
                 {
                     Context.Done = true;
                     Context.DidSagaReplyMessageGetCorrelated = message.RunId == Data.RunId;
                     MarkAsComplete();
+                    return Task.FromResult(0);
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<CorrelationTestSagaData> mapper)

@@ -67,9 +67,10 @@
             {
                 public IBus Bus { get; set; }
 
-                public void Handle(DidSomething message)
+                public Task Handle(DidSomething message)
                 {
                     Bus.Reply(new DidSomethingResponse { ReceivedDataId = message.DataId });
+                    return Task.FromResult(0);
                 }
             }
         }
@@ -88,18 +89,20 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(StartSaga message)
+                public Task Handle(StartSaga message)
                 {
                     Data.DataId = message.DataId;
                     Bus.Publish(new DidSomething { DataId = message.DataId });
+                    return Task.FromResult(0);
                 }
 
-                public void Handle(DidSomethingResponse message)
+                public Task Handle(DidSomethingResponse message)
                 {
                     Context.DidSagaReplyMessageGetCorrelated = message.ReceivedDataId == Data.DataId;
                     MarkAsComplete();
+                    return Task.FromResult(0);
                 }
-                
+
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ReplyToPubMsgSagaData> mapper)
                 {
                     mapper.ConfigureMapping<StartSaga>(m => m.DataId).ToSaga(s => s.DataId);

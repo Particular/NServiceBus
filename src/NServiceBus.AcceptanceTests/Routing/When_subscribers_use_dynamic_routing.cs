@@ -58,7 +58,7 @@
 //            {
 //                public Context Context { get; set; }
 
-//                public void Handle(MyEvent message)
+//                public Task Handle(MyEvent message)
 //                {
 //                    Context.GotTheMessage = true;
 //                }

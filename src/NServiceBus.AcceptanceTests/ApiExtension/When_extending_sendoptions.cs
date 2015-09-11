@@ -51,10 +51,11 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(SendMessage message)
+                public Task Handle(SendMessage message)
                 {
                     Context.Secret = message.Secret;
                     Context.WasCalled = true;
+                    return Task.FromResult(0);
                 }
             }
 
