@@ -12,7 +12,7 @@
         public async Task Should_hydrate_and_invoke_the_existing_instance()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<SagaEndpoint>(b => b.Given(bus =>
+                .WithEndpoint<ExistingSagaInstanceEndpt>(b => b.Given(bus =>
                     {
                         bus.SendLocal(new StartSagaMessage { SomeId = Guid.NewGuid() });
                         return Task.FromResult(0);
@@ -31,9 +31,9 @@
             public Guid SecondSagaId { get; set; }
         }
 
-        public class SagaEndpoint : EndpointConfigurationBuilder
+        public class ExistingSagaInstanceEndpt : EndpointConfigurationBuilder
         {
-            public SagaEndpoint()
+            public ExistingSagaInstanceEndpt()
             {
                 EndpointSetup<DefaultServer>();
             }
