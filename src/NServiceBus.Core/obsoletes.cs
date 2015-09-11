@@ -481,6 +481,7 @@ namespace NServiceBus.MessageMutator
 namespace NServiceBus.Unicast
 {
     using System;
+    using System.Collections.Generic;
     using NServiceBus.Hosting;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Settings;
@@ -852,6 +853,54 @@ namespace NServiceBus.Unicast
         public void Dispose()
         {
             throw new NotImplementedException();
+        }
+    }
+
+    public partial class MessageHandlerRegistry
+    {
+        [ObsoleteEx(ReplacementTypeOrMember = "MessageHandlerRegistry.GetHandlersFor(Type messageType)", RemoveInVersion = "7", TreatAsErrorFromVersion = "6")]
+        public IEnumerable<Type> GetHandlerTypes(Type messageType)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(ReplacementTypeOrMember = "MessageHandler.Invoke(object message, object context)", RemoveInVersion = "7", TreatAsErrorFromVersion = "6")]
+        public void InvokeHandle(object handler, object message)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(ReplacementTypeOrMember = "MessageHandler.Invoke(object message, object context)", RemoveInVersion = "7", TreatAsErrorFromVersion = "6")]
+        public void InvokeTimeout(object handler, object state)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(ReplacementTypeOrMember = "MessageHandlerRegistry.RegisterHandler(Type handlerType)", RemoveInVersion = "7", TreatAsErrorFromVersion = "6")]
+        public void CacheMethodForHandler(Type handler, Type messageType)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+
+namespace NServiceBus.Unicast.Behaviors
+{
+    using System;
+
+    public partial class MessageHandler
+    {
+        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "MessageHandler(Action<object, object, object> invocation, Type handlerType)")]
+        public MessageHandler()
+        {
+            throw new NotImplementedException("Creator of the message handler must assign the handler type and the invocation delegate");
+        }
+
+        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "MessageHandler.Invoke")]
+        public Action<object, object> Invocation
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
         }
     }
 }

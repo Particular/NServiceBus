@@ -2,7 +2,6 @@
 {
     using System;
     using System.Linq;
-    using NServiceBus.Unicast.Behaviors;
     using Pipeline;
     using Pipeline.Contexts;
     using Unicast;
@@ -18,23 +17,19 @@
 
         public override void Invoke(LogicalMessageProcessingStageBehavior.Context context, Action<HandlingStageBehavior.Context> next)
         {
-            var handlerTypedToInvoke = messageHandlerRegistry.GetHandlerTypes(context.MessageType).ToList();
+            var handlersToInvoke = messageHandlerRegistry.GetHandlersFor(context.MessageType).ToList();
 
-            if (!context.MessageHandled && !handlerTypedToInvoke.Any())
+            if (!context.MessageHandled && !handlersToInvoke.Any())
             {
                 var error = string.Format("No handlers could be found for message type: {0}", context.MessageType);
                 throw new InvalidOperationException(error);
             }
 
-            foreach (var handlerType in handlerTypedToInvoke)
+            foreach (var messageHandler in handlersToInvoke)
             {
-                var loadedHandler = new MessageHandler
-                {
-                    Instance = context.Builder.Build(handlerType),
-                    Invocation = (handlerInstance, message) => messageHandlerRegistry.InvokeHandle(handlerInstance, message)
-                };
+                messageHandler.Instance = context.Builder.Build(messageHandler.HandlerType);
 
-                var handlingContext = new HandlingStageBehavior.Context(loadedHandler, context);
+                var handlingContext = new HandlingStageBehavior.Context(messageHandler, context);
                 next(handlingContext);
 
                 if (handlingContext.HandlerInvocationAborted)
