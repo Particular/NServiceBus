@@ -7,24 +7,24 @@ namespace NServiceBus
     using System.Messaging;
     using System.Threading;
     using System.Threading.Tasks;
-    using System.Transactions;
     using NServiceBus.CircuitBreakers;
+    using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.Logging;
     using NServiceBus.Transports;
-    using NServiceBus.Unicast.Transport;
 
     class MessagePump : IPushMessages, IDisposable
     {
-        public MessagePump(CriticalError criticalError)
+        public MessagePump(CriticalError criticalError, Func<ConsistencyGuarantee, ReceiveStrategy> receiveStrategyFactory)
         {
             this.criticalError = criticalError;
+            this.receiveStrategyFactory = receiveStrategyFactory;
         }
 
         public void Init(Func<PushContext, Task> pipe, PushSettings settings)
         {
             pipeline = pipe;
 
-            receiveStrategy = SelectReceiveStrategy(settings.TransactionSettings);
+            receiveStrategy = receiveStrategyFactory(settings.RequiredConsistency);
 
             peekCircuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("MsmqPeek", TimeSpan.FromSeconds(30), ex => criticalError.Raise("Failed to peek " + settings.InputQueue, ex));
             receiveCircuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("MsmqReceive", TimeSpan.FromSeconds(30), ex => criticalError.Raise("Failed to receive from " + settings.InputQueue, ex));
@@ -41,7 +41,7 @@ namespace NServiceBus
             inputQueue = new MessageQueue(inputAddress.FullPath, false, true, QueueAccessMode.Receive);
             errorQueue = new MessageQueue(errorAddress.FullPath, false, true, QueueAccessMode.Send);
 
-            if (settings.TransactionSettings.IsTransactional && !QueueIsTransactional())
+            if (settings.RequiredConsistency.GetType() != typeof(AtMostOnce) && !QueueIsTransactional())
             {
                 throw new ArgumentException("Queue must be transactional if you configure your endpoint to be transactional (" + settings.InputQueue + ").");
             }
@@ -104,7 +104,7 @@ namespace NServiceBus
             {
                 await InnerProcessMessages().ConfigureAwait(false);
             }
-            catch(OperationCanceledException)
+            catch (OperationCanceledException)
             {
                 // For graceful shutdown purposes
             }
@@ -218,29 +218,6 @@ namespace NServiceBus
             }
         }
 
-        ReceiveStrategy SelectReceiveStrategy(TransactionSettings transactionSettings)
-        {
-            if (!transactionSettings.IsTransactional)
-            {
-                return new ReceiveWithNoTransaction();
-            }
-
-            if (transactionSettings.SuppressDistributedTransactions)
-            {
-                return new ReceiveWithNativeTransaction();
-            }
-
-
-            var transactionOptions = new TransactionOptions
-            {
-                IsolationLevel = transactionSettings.IsolationLevel,
-                Timeout = transactionSettings.TransactionTimeout
-            };
-
-            return new ReceiveWithTransactionScope(transactionOptions);
-        }
-
-
         Task messagePumpTask;
         ConcurrentDictionary<Task, Task> runningReceiveTasks;
         SemaphoreSlim concurrencyLimiter;
@@ -249,6 +226,7 @@ namespace NServiceBus
         Func<PushContext, Task> pipeline;
         ReceiveStrategy receiveStrategy;
         CriticalError criticalError;
+        Func<ConsistencyGuarantee, ReceiveStrategy> receiveStrategyFactory;
         RepeatedFailuresOverTimeCircuitBreaker peekCircuitBreaker;
         RepeatedFailuresOverTimeCircuitBreaker receiveCircuitBreaker;
         MessageQueue errorQueue;

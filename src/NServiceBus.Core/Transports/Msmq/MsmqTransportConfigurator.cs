@@ -6,6 +6,8 @@
     using System.Linq;
     using System.Messaging;
     using System.Security;
+    using System.Transactions;
+    using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.Logging;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Settings;
@@ -13,6 +15,7 @@
     using NServiceBus.Transports.Msmq;
     using NServiceBus.Transports.Msmq.Config;
     using NServiceBus.Utils;
+    using TransactionSettings = NServiceBus.Unicast.Transport.TransactionSettings;
 
     /// <summary>
     /// Used to configure the MSMQ transport.
@@ -121,7 +124,15 @@
                 return;
             }
 
-            context.Container.ConfigureComponent(b => new MessagePump(b.Build<CriticalError>()), DependencyLifecycle.InstancePerCall);
+            var transactionSettings = new TransactionSettings(context.Settings);
+
+            var transactionOptions = new TransactionOptions
+            {
+                IsolationLevel = transactionSettings.IsolationLevel,
+                Timeout = transactionSettings.TransactionTimeout
+            };
+
+            context.Container.ConfigureComponent(b => new MessagePump(b.Build<CriticalError>(), guarantee => SelectReceiveStrategy(guarantee, transactionOptions)), DependencyLifecycle.InstancePerCall);
         }
 
         /// <summary>
@@ -139,5 +150,23 @@
         {
             get { return false; }
         }
+
+
+        ReceiveStrategy SelectReceiveStrategy(ConsistencyGuarantee minimumConsistencyGuarantee, TransactionOptions transactionOptions)
+        {
+            if (minimumConsistencyGuarantee is ExactlyOnce)
+            {
+                return new ReceiveWithTransactionScope(transactionOptions);
+            }
+
+            if (minimumConsistencyGuarantee is AtMostOnce)
+            {
+                return new ReceiveWithNoTransaction();
+            }
+
+            return new ReceiveWithNativeTransaction();
+        }
+
+
     }
 }

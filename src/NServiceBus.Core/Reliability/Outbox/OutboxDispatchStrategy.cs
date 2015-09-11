@@ -3,7 +3,6 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.DeliveryConstraints;
     using NServiceBus.Outbox;
     using NServiceBus.Pipeline;
@@ -22,9 +21,9 @@ namespace NServiceBus
 
         public override Task Dispatch(IDispatchMessages dispatcher,OutgoingMessage message,
             RoutingStrategy routingStrategy,
-            ConsistencyGuarantee minimumConsistencyGuarantee,
             IEnumerable<DeliveryConstraint> constraints,
-            BehaviorContext currentContext)
+            BehaviorContext currentContext,
+            DispatchConsistency dispatchConsistency)
         {
           
             var options = new Dictionary<string, string>();

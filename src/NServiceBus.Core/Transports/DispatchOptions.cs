@@ -1,7 +1,6 @@
 namespace NServiceBus.Transports
 {
     using System.Collections.Generic;
-    using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.DeliveryConstraints;
     using NServiceBus.Extensibility;
     using NServiceBus.Routing;
@@ -15,27 +14,20 @@ namespace NServiceBus.Transports
         /// Creates the send options with the given routing strategy.
         /// </summary>
         /// <param name="routingStrategy">The strategy to use when routing this message.</param>
-        /// <param name="minimumConsistencyGuarantee">The level of consistency that's required for this operation.</param>
         /// <param name="deliveryConstraints">The delivery constraints that must be honored by the transport.</param>
         /// <param name="context">The pipeline context if present.</param>
-        public DispatchOptions(RoutingStrategy routingStrategy, ConsistencyGuarantee minimumConsistencyGuarantee, IEnumerable<DeliveryConstraint> deliveryConstraints, ContextBag context)
+        /// <param name="requiredDispatchConsistency">The required consistency level for the dispatch operation.</param>
+        public DispatchOptions(RoutingStrategy routingStrategy, ContextBag context, IEnumerable<DeliveryConstraint> deliveryConstraints = null, DispatchConsistency requiredDispatchConsistency = DispatchConsistency.Default)
         {
-            RoutingStrategy = routingStrategy;
-            MinimumConsistencyGuarantee = minimumConsistencyGuarantee;
-            DeliveryConstraints = deliveryConstraints;
-            Context = context;
-        }
+            if (deliveryConstraints == null)
+            {
+                deliveryConstraints = new List<DeliveryConstraint>();
+            }
 
-        /// <summary>
-        /// Creates the send options with the given address.
-        /// </summary>
-        /// <param name="destination">The destination when the message should go to.</param>
-        /// <param name="minimumConsistencyGuarantee">The level of consistency that's required for this operation.</param>
-        /// <param name="deliveryConstraints">The delivery constraints that must be honored by the transport.</param>
-        /// <param name="context">The pipeline context if present.</param>
-        public DispatchOptions(string destination, ConsistencyGuarantee minimumConsistencyGuarantee, IEnumerable<DeliveryConstraint> deliveryConstraints, ContextBag context)
-            : this(new DirectToTargetDestination(destination), minimumConsistencyGuarantee,deliveryConstraints,context)
-        {
+            RoutingStrategy = routingStrategy;
+            DeliveryConstraints = deliveryConstraints;
+            RequiredDispatchConsistency = requiredDispatchConsistency;
+            Context = context;
         }
 
         /// <summary>
@@ -44,14 +36,14 @@ namespace NServiceBus.Transports
         public RoutingStrategy RoutingStrategy { get; set; }
 
         /// <summary>
-        /// The level of consistency that's required for this operation.
-        /// </summary>
-        public ConsistencyGuarantee MinimumConsistencyGuarantee { get; private set; }
-
-        /// <summary>
         /// The delivery constraints that must be honored by the transport.
         /// </summary>
         public IEnumerable<DeliveryConstraint> DeliveryConstraints { get; private set; }
+
+        /// <summary>
+        /// The dispatch consistency the must be honored by the transport.
+        /// </summary>
+        public DispatchConsistency RequiredDispatchConsistency { get; private set; }
 
         /// <summary>
         /// Access to the behavior context.

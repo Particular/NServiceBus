@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus
 {
-    using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.DeliveryConstraints;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
@@ -25,7 +24,7 @@
             }
             var routingStrategy = context.GetRoutingStrategy();
 
-            dispatchStrategy.Dispatch(dispatcher, context.Get<OutgoingMessage>(), routingStrategy, context.GetConsistencyGuarantee(), context.GetDeliveryConstraints(), context).GetAwaiter().GetResult();
+            dispatchStrategy.Dispatch(dispatcher, context.Get<OutgoingMessage>(), routingStrategy, context.GetDeliveryConstraints(), context, DispatchConsistency.Default).GetAwaiter().GetResult();
         }
 
         IDispatchMessages dispatcher;

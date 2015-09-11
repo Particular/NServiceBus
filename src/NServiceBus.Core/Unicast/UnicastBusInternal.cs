@@ -8,6 +8,7 @@ namespace NServiceBus.Unicast
     using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.Config;
+    using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.Faults;
     using NServiceBus.Features;
     using NServiceBus.Licensing;
@@ -96,18 +97,18 @@ namespace NServiceBus.Unicast
             var pipelinesCollection = settings.Get<PipelineConfiguration>();
 
             var dequeueLimitations = GeDequeueLimitationsForReceivePipeline();
+            var defaultConsistencyGuarantee = settings.GetConsistencyGuarantee();
 
-            var transactionSettings = new Transport.TransactionSettings(settings);
-            var pushSettings = new PushSettings(settings.LocalAddress(), errorQueue, settings.GetOrDefault<bool>("Transport.PurgeOnStartup"), transactionSettings);
+            var pushSettings = new PushSettings(settings.LocalAddress(), errorQueue, settings.GetOrDefault<bool>("Transport.PurgeOnStartup"), defaultConsistencyGuarantee);
 
 
             yield return BuildPipelineInstance(pipelinesCollection.MainPipeline, "Main", pushSettings, dequeueLimitations);
 
             foreach (var satellitePipeline in pipelinesCollection.SatellitePipelines)
             {
-                var satellitePushSettings = new PushSettings(satellitePipeline.ReceiveAddress, errorQueue, settings.GetOrDefault<bool>("Transport.PurgeOnStartup"), satellitePipeline.TransactionSettings ?? transactionSettings);
+                var satellitePushSettings = new PushSettings(satellitePipeline.ReceiveAddress, errorQueue, settings.GetOrDefault<bool>("Transport.PurgeOnStartup"), satellitePipeline.ConsistencyGuarantee);
 
-                yield return BuildPipelineInstance(satellitePipeline, satellitePipeline.Name, satellitePushSettings, satellitePipeline.PushRuntimeSettings ?? PushRuntimeSettings.Default);
+                yield return BuildPipelineInstance(satellitePipeline, satellitePipeline.Name, satellitePushSettings, satellitePipeline.RuntimeSettings);
             }
         }
 

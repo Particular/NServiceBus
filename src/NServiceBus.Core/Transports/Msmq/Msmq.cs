@@ -43,11 +43,11 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Atomic with receive is the MSMQ default. 
+        /// MSMQ will by default be exactly once using the DTC. 
         /// </summary>
         public override ConsistencyGuarantee GetDefaultConsistencyGuarantee()
         {
-            return new AtomicWithReceiveOperation();
+            return new ExactlyOnce();
         }
 
         /// <summary>

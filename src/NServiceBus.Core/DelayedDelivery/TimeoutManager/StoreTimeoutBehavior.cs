@@ -1,12 +1,10 @@
 namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.DelayedDelivery.TimeoutManager;
-    using NServiceBus.DeliveryConstraints;
     using NServiceBus.Pipeline;
+    using NServiceBus.Routing;
     using NServiceBus.Timeout.Core;
     using NServiceBus.Transports;
 
@@ -73,7 +71,7 @@ namespace NServiceBus
                 return;
             }
 
-            await dispatcher.Dispatch(new OutgoingMessage(message.Id, message.Headers, message.Body), new DispatchOptions(destination, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), context))
+            await dispatcher.Dispatch(new OutgoingMessage(message.Id, message.Headers, message.Body), new DispatchOptions(new DirectToTargetDestination(destination), context))
                 .ConfigureAwait(false);
         }
 
@@ -122,7 +120,7 @@ namespace NServiceBus
 
                 if (data.Time.AddSeconds(-1) <= DateTime.UtcNow)
                 {
-                    var sendOptions = new DispatchOptions(data.Destination, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), context);
+                    var sendOptions = new DispatchOptions(new DirectToTargetDestination(data.Destination), context);
                     var outgoingMessage = new OutgoingMessage(data.Headers[Headers.MessageId], data.Headers, data.State);
 
                     await dispatcher.Dispatch(outgoingMessage, sendOptions).ConfigureAwait(false);

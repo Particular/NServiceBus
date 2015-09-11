@@ -9,11 +9,11 @@
     using NServiceBus.Pipeline;
     using NUnit.Framework;
 
-    public class When_a_message_is_forwarding : NServiceBusAcceptanceTest
+    public class When_dispatching_forwarded_messages : NServiceBusAcceptanceTest
     {
 
         [Test]
-        public async Task Should_forward_even_if_dispatch_blows_once()
+        public async Task Should_be_dispatched_immediately()
         {
             var context = await Scenario.Define<Context>()
                     .WithEndpoint<EndpointWithAuditOn>(b => b.Given(bus =>

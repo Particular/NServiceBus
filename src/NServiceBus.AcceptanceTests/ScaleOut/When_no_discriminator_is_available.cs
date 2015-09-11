@@ -67,7 +67,7 @@
 
             public override ConsistencyGuarantee GetDefaultConsistencyGuarantee()
             {
-                return new AtomicWithReceiveOperation();
+                return new AtLeastOnce();
             }
 
             public override IManageSubscriptions GetSubscriptionManager()

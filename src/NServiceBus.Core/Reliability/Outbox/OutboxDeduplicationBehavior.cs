@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Transactions;
-    using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.Outbox;
     using NServiceBus.Pipeline;
     using NServiceBus.Reliability.Outbox;
@@ -69,8 +68,8 @@
 
                 var deliveryConstraints = deliveryConstraintsFactory.DeserializeConstraints(transportOperation.Options)
                     .ToList();
-            
-                dispatchStrategy.Dispatch(dispatcher, message, routingStrategy, new AtLeastOnce(), deliveryConstraints, context).GetAwaiter().GetResult();
+
+                dispatchStrategy.Dispatch(dispatcher, message, routingStrategy, deliveryConstraints, context, DispatchConsistency.Isolated).GetAwaiter().GetResult();
             }
         }
 
