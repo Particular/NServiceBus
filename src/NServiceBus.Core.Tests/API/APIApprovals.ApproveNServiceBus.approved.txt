@@ -2572,7 +2572,7 @@ namespace NServiceBus.Unicast.Behaviors
         public object Instance { get; set; }
         [System.ObsoleteAttribute("Please use `MessageHandler.Invoke` instead. Will be removed in version 7.0.0.", true)]
         public System.Action<object, object> Invocation { get; set; }
-        public void Invoke(object message) { }
+        public System.Threading.Tasks.Task Invoke(object message) { }
     }
 }
 namespace NServiceBus.Unicast

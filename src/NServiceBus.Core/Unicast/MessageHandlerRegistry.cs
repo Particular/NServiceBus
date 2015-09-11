@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using System.Threading.Tasks;
     using NServiceBus.Logging;
     using NServiceBus.Unicast.Behaviors;
 
@@ -108,7 +109,7 @@
             methodList.Add(delegateHolder);
         }
 
-        static Action<object, object> GetMethod(Type targetType, Type messageType, Type interfaceGenericType)
+        static Func<object, object, Task> GetMethod(Type targetType, Type messageType, Type interfaceGenericType)
         {
             var interfaceType = interfaceGenericType.MakeGenericType(messageType);
 
@@ -140,8 +141,11 @@
             //    return Expression.Lambda<Action<object, object, object>>(execute, target, messageParam, contextParam).Compile();
             //}
 
-            var innerExecute = Expression.Call(castTarget, methodInfo, messageCastParam);
-            return Expression.Lambda<Action<object, object>>(innerExecute, target, messageParam).Compile();
+            var body = Expression.Block(
+                Expression.Call(castTarget, methodInfo, messageCastParam),
+                Expression.Call(typeof(Task), "FromResult", new[] { typeof(int) }, Expression.Constant(0)));
+
+            return Expression.Lambda<Func<object, object, Task>>(body, target, messageParam).Compile();
         }
 
         static IEnumerable<Type> GetMessageTypesBeingHandledBy(Type type)
@@ -160,7 +164,7 @@
         class DelegateHolder
         {
             public RuntimeTypeHandle MessageType;
-            public Action<object, object> MethodDelegate;
+            public Func<object, object, Task> MethodDelegate;
         }
     }
 }
