@@ -57,7 +57,7 @@
                 }));
             }
         }
-        
+
         public class Subscriber1 : EndpointConfigurationBuilder
         {
             public Subscriber1()
@@ -70,9 +70,10 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(EventMessage messageThatIsEnlisted)
+                public Task Handle(EventMessage messageThatIsEnlisted)
                 {
                     Context.Subscriber1GotTheEvent = true;
+                    return Task.FromResult(0);
                 }
             }
         }

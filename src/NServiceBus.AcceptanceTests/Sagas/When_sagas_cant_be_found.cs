@@ -57,7 +57,7 @@
             {
                 public IBus Bus { get; set; }
 
-                public void Handle(MessageToSaga message)
+                public Task Handle(MessageToSaga message)
                 {
                     var options = new SendOptions();
 
@@ -65,6 +65,8 @@
                     options.RouteToLocalEndpointInstance();
 
                     Bus.Send(new FinishMessage(), options);
+
+                    return Task.FromResult(0);
                 }
             }
 
@@ -72,23 +74,26 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(FinishMessage message)
+                public Task Handle(FinishMessage message)
                 {
                     // This acts as a safe guard to abort the test earlier
                     Context.Done = true;
+                    return Task.FromResult(0);
                 }
             }
 
             public class CantBeFoundSaga1 : Saga<CantBeFoundSaga1.CantBeFoundSaga1Data>, IAmStartedByMessages<StartSaga>, IHandleMessages<MessageToSaga>
             {
 
-                public void Handle(StartSaga message)
+                public Task Handle(StartSaga message)
                 {
                     Data.MessageId = message.Id;
+                    return Task.FromResult(0);
                 }
 
-                public void Handle(MessageToSaga message)
+                public Task Handle(MessageToSaga message)
                 {
+                    return Task.FromResult(0);
                 }
 
                 public class CantBeFoundSaga1Data : ContainSagaData
@@ -106,13 +111,15 @@
             public class CantBeFoundSaga2 : Saga<CantBeFoundSaga2.CantBeFoundSaga2Data>, IAmStartedByMessages<StartSaga>, IHandleMessages<MessageToSaga>
             {
 
-                public void Handle(StartSaga message)
+                public Task Handle(StartSaga message)
                 {
                     Data.MessageId = message.Id;
+                    return Task.FromResult(0);
                 }
 
-                public void Handle(MessageToSaga message)
+                public Task Handle(MessageToSaga message)
                 {
+                    return Task.FromResult(0);
                 }
 
                 public class CantBeFoundSaga2Data : ContainSagaData
@@ -155,7 +162,7 @@
             {
                 public IBus Bus { get; set; }
 
-                public void Handle(MessageToSaga message)
+                public Task Handle(MessageToSaga message)
                 {
                     var options = new SendOptions();
 
@@ -163,6 +170,8 @@
                     options.RouteToLocalEndpointInstance();
 
                     Bus.Send(new FinishMessage(), options);
+
+                    return Task.FromResult(0);
                 }
             }
 
@@ -170,22 +179,25 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(FinishMessage message)
+                public Task Handle(FinishMessage message)
                 {
                     // This acts as a safe guard to abort the test earlier
                     Context.Done = true;
+                    return Task.FromResult(0);
                 }
             }
 
             public class ReceiverWithOrderedSagasSaga1 : Saga<ReceiverWithOrderedSagasSaga1.ReceiverWithOrderedSagasSaga1Data>, IAmStartedByMessages<StartSaga>, IHandleMessages<MessageToSaga>
             {
-                public void Handle(StartSaga message)
+                public Task Handle(StartSaga message)
                 {
                     Data.MessageId = message.Id;
+                    return Task.FromResult(0);
                 }
 
-                public void Handle(MessageToSaga message)
+                public Task Handle(MessageToSaga message)
                 {
+                    return Task.FromResult(0);
                 }
 
                 public class ReceiverWithOrderedSagasSaga1Data : ContainSagaData
@@ -204,15 +216,17 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(StartSaga message)
+                public Task Handle(StartSaga message)
                 {
                     Data.MessageId = message.Id;
+                    return Task.FromResult(0);
                 }
 
-                public void Handle(MessageToSaga message)
+                public Task Handle(MessageToSaga message)
                 {
                     Data.MessageId = message.Id;
                     Context.Done = true;
+                    return Task.FromResult(0);
                 }
 
                 public class ReceiverWithOrderedSagasSaga2Data : ContainSagaData

@@ -84,9 +84,10 @@
             class V1Handler:IHandleMessages<V1Event>
             {
                 public Context Context { get; set; }
-                public void Handle(V1Event message)
+                public Task Handle(V1Event message)
                 {
                     Context.V1SubscriberGotTheMessage = true;
+                    return Task.FromResult(0);
                 }
             }
         }
@@ -104,9 +105,10 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(V2Event message)
+                public Task Handle(V2Event message)
                 {
                     Context.V2SubscriberGotTheMessage = true;
+                    return Task.FromResult(0);
                 }
             }
         }

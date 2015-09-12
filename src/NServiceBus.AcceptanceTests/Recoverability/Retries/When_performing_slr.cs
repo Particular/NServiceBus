@@ -103,7 +103,7 @@
 
                 public Context Context { get; set; }
 
-                public void Handle(MessageToBeRetried message)
+                public Task Handle(MessageToBeRetried message)
                 {
                     Context.PhysicalMessageId = Bus.CurrentMessageContext.Id;
                     throw new SimulatedException();

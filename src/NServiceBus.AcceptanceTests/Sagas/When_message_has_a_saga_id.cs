@@ -47,9 +47,10 @@
             {
             }
 
-            public void Handle(MessageWithSagaId message)
+            public Task Handle(MessageWithSagaId message)
             {
                 Context.MessageHandlerCalled = true;
+                return Task.FromResult(0);
             }
 
             public Task Handle(object message)
@@ -69,11 +70,13 @@
         {
             public Context Context { get; set; }
 
-            public void Handle(MessageWithSagaId message)
+            public Task Handle(MessageWithSagaId message)
             {
                 Data.DataId = message.DataId;
 
                 Context.OtherSagaStarted = true;
+
+                return Task.FromResult(0);
             }
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
             {

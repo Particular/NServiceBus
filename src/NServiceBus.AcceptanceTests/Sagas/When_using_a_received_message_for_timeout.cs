@@ -42,10 +42,11 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(StartSagaMessage message)
+                public Task Handle(StartSagaMessage message)
                 {
                     Data.SomeId = message.SomeId;
                     RequestTimeout(TimeSpan.FromMilliseconds(100), message);
+                    return Task.FromResult(0);
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData01> mapper)

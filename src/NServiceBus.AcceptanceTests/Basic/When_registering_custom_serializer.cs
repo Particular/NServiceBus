@@ -65,9 +65,10 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(MyRequest request)
+                public Task Handle(MyRequest request)
                 {
                     Context.HandlerGotTheRequest = true;
+                    return Task.FromResult(0);
                 }
             }
         }
@@ -83,9 +84,10 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(MyRequest request)
+                public Task Handle(MyRequest request)
                 {
                     Context.HandlerGotTheRequest = true;
+                    return Task.FromResult(0);
                 }
             }
         }

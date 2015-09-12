@@ -65,11 +65,11 @@
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
             {
                 public Context Context { get; set; }
-                public void Handle(MessageToBeRetried message)
+                public Task Handle(MessageToBeRetried message)
                 {
                     if (Context.Id != message.ContextId)
                     {
-                        return;
+                        return Task.FromResult(0);
                     }
                     Context.NumberOfTimesInvoked++;
                     throw new Exception("Simulated exception");

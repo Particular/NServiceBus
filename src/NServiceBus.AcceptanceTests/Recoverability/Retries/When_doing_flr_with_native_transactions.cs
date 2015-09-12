@@ -79,9 +79,10 @@
 
                 public Context Context { get; set; }
 
-                public void Handle(MessageToBeRetried message)
+                public Task Handle(MessageToBeRetried message)
                 {
-                    if (message.Id != Context.Id) return; // messages from previous test runs must be ignored
+                    if (message.Id != Context.Id)
+                        return Task.FromResult(0); // messages from previous test runs must be ignored
 
                     Context.PhysicalMessageId = Bus.CurrentMessageContext.Id;
                     Context.NumberOfTimesInvoked++;

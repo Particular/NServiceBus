@@ -37,8 +37,9 @@
 
         public class StubMessageHandler : IHandleMessages<StubMessage>
         {
-            public void Handle(StubMessage message)
+            public Task Handle(StubMessage message)
             {
+                return Task.FromResult(0);
             }
         }
 
@@ -71,7 +72,7 @@
             var handler = cache.GetCachedHandlerForMessage<StubMessage>();
             await handler.Invoke(new StubMessage());
 
-            Assert.IsTrue(((StubHandler) handler.Instance).HandleCalled);
+            Assert.IsTrue(((StubHandler)handler.Instance).HandleCalled);
         }
 
         [Test]
@@ -84,15 +85,16 @@
             var stubMessage = new StubMessage();
             await handler.Invoke(stubMessage);
 
-            Assert.AreEqual(stubMessage, ((StubHandler) handler.Instance).HandledMessage);
+            Assert.AreEqual(stubMessage, ((StubHandler)handler.Instance).HandledMessage);
         }
 
         public class StubHandler : IHandleMessages<StubMessage>
         {
-            public void Handle(StubMessage message)
+            public Task Handle(StubMessage message)
             {
                 HandleCalled = true;
                 HandledMessage = message;
+                return Task.FromResult(0);
             }
 
             public bool HandleCalled;
@@ -116,7 +118,7 @@
             var handler = cache.GetCachedHandlerForMessage<StubTimeoutState>();
             await handler.Invoke(new StubTimeoutState());
 
-            Assert.IsTrue(((StubHandler) handler.Instance).TimeoutCalled);
+            Assert.IsTrue(((StubHandler)handler.Instance).TimeoutCalled);
         }
 
         [Test]
@@ -129,7 +131,7 @@
             var handler = cache.GetCachedHandlerForMessage<StubTimeoutState>();
             await handler.Invoke(stubState);
 
-            Assert.AreEqual(stubState, ((StubHandler) handler.Instance).HandledState);
+            Assert.AreEqual(stubState, ((StubHandler)handler.Instance).HandledState);
         }
 
         public class StubHandler : IHandleTimeouts<StubTimeoutState>

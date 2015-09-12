@@ -44,7 +44,7 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(InitiateRequestingSaga message)
+                public Task Handle(InitiateRequestingSaga message)
                 {
                     Data.CorrIdForResponse = message.SomeCorrelationId; //wont be needed in the future
 
@@ -52,12 +52,15 @@
                     {
                         SomeCorrelationId = Data.CorrIdForResponse //wont be needed in the future
                     });
+
+                    return Task.FromResult(0);
                 }
 
-                public void Handle(AnotherRequest message)
+                public Task Handle(AnotherRequest message)
                 {
                     ReplyToOriginator(new MyReplyToOriginator());
                     MarkAsComplete();
+                    return Task.FromResult(0);
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestingSagaData> mapper)
@@ -79,10 +82,11 @@
                 public Context Context { get; set; }
                 public IBus Bus { get; set; }
 
-                public void Handle(MyReplyToOriginator message)
+                public Task Handle(MyReplyToOriginator message)
                 {
                     Context.Intent = (MessageIntentEnum)Enum.Parse(typeof(MessageIntentEnum), Bus.CurrentMessageContext.Headers[Headers.MessageIntent]);
                     Context.Done = true;
+                    return Task.FromResult(0);
                 }
             }
         }

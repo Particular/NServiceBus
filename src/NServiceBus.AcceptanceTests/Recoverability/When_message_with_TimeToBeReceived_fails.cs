@@ -63,7 +63,7 @@
                     this.context = context;
                 }
 
-                public void Handle(MessageThatFails message)
+                public Task Handle(MessageThatFails message)
                 {
                     context.MessageFailed = true;
                     throw new Exception("Simulated exception");
@@ -91,7 +91,7 @@
                     this.bus = bus;
                 }
 
-                public void Handle(MessageThatFails message)
+                public Task Handle(MessageThatFails message)
                 {
                     var errorProcessingStarted = DateTime.Now;
                     if (context.FirstTimeProcessedByErrorHandler == null)
@@ -111,6 +111,8 @@
                     {
                         bus.HandleCurrentMessageLater();
                     }
+
+                    return Task.FromResult(0); // ignore messages from previous test runs
                 }
             }
         }

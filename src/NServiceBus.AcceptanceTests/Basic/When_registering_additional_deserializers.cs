@@ -28,7 +28,7 @@
                 .WithEndpoint<XmlCustomSerializationReceiver>()
                 .Done(c => c.DeserializeCalled)
                 .Run();
-            
+
             Assert.True(context.DeserializeCalled);
         }
 
@@ -63,9 +63,10 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(MyRequest request)
+                public Task Handle(MyRequest request)
                 {
                     Context.HandlerGotTheRequest = true;
+                    return Task.FromResult(0);
                 }
             }
         }

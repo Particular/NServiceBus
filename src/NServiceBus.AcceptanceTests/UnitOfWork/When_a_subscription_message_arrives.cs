@@ -49,8 +49,9 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(MyMessage message)
+                public Task Handle(MyMessage message)
                 {
+                    return Task.FromResult(0);
                 }
             }
         }

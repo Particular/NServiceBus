@@ -43,7 +43,7 @@
 
             class Handler : IHandleMessages<Message>
             {
-                public void Handle(Message message)
+                public Task Handle(Message message)
                 {
                     throw new Exception();
                 }
@@ -62,9 +62,10 @@
             {
                 public Context MyContext { get; set; }
 
-                public void Handle(Message message)
+                public Task Handle(Message message)
                 {
                     MyContext.MessageReceived = true;
+                    return Task.FromResult(0);
                 }
             }
         }

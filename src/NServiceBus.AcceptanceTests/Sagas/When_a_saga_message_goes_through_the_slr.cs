@@ -43,7 +43,7 @@
             public class TestSaga09 : Saga<TestSagaData09>, IAmStartedByMessages<StartSagaMessage>,IHandleMessages<SecondSagaMessage>
             {
                 public Context Context { get; set; }
-                public void Handle(StartSagaMessage message)
+                public Task Handle(StartSagaMessage message)
                 {
                     Data.SomeId = message.SomeId;
 
@@ -51,6 +51,8 @@
                         {
                             SomeId = Data.SomeId
                         });
+
+                    return Task.FromResult(0);
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData09> mapper)
@@ -61,7 +63,7 @@
                       .ToSaga(s => s.SomeId);
                 }
 
-                public void Handle(SecondSagaMessage message)
+                public Task Handle(SecondSagaMessage message)
                 {
                     Context.NumberOfTimesInvoked++;
                     var shouldFail = Context.NumberOfTimesInvoked < 2; //1 FLR and 1 SLR
@@ -70,8 +72,9 @@
                         throw new Exception("Simulated exception");
 
                     Context.SecondMessageProcessed = true;
-                }
 
+                    return Task.FromResult(0);
+                }
             }
 
             public class TestSagaData09 : IContainSagaData

@@ -98,12 +98,14 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(BaseEvent message)
+                public Task Handle(BaseEvent message)
                 {
                     if (message.GetType().FullName.Contains("DerivedEvent1"))
                         Context.GotTheEventFromPublisher1 = true;
                     if (message.GetType().FullName.Contains("DerivedEvent2"))
                         Context.GotTheEventFromPublisher2 = true;
+
+                    return Task.FromResult(0);
                 }
             }
         }

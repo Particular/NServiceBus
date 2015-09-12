@@ -148,9 +148,10 @@ public class PrimeSubscriptionStorage : Feature
 class PublishEventHandler : IHandleMessages<PerformPublish>
 {
     public IBus Bus { get; set; }
-    public void Handle(PerformPublish message)
+    public Task Handle(PerformPublish message)
     {
         Bus.Publish<TestEvent>();
+        return Task.FromResult(0);
     }
 }
 

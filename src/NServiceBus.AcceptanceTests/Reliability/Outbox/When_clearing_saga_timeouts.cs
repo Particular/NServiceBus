@@ -53,12 +53,14 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(PlaceOrder message)
+                public Task Handle(PlaceOrder message)
                 {
                     Data.DataId = message.DataId;
 
                     MarkAsComplete();
                     Context.Done = true;
+
+                    return Task.FromResult(0);
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<PlaceOrderSagaData> mapper)

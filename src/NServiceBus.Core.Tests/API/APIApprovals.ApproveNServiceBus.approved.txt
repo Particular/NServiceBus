@@ -440,7 +440,7 @@ namespace NServiceBus
     public interface IExcludesBuilder { }
     public interface IHandleMessages<T>
     {
-        void Handle(T message);
+        System.Threading.Tasks.Task Handle(T message);
     }
     public interface IHandleTimeouts<T>
     {

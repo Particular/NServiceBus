@@ -58,8 +58,9 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(StartSagaMessage message)
+                public Task Handle(StartSagaMessage message)
                 {
+                    return Task.FromResult(0);
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaWithCustomFinderSagaData> mapper)
@@ -76,13 +77,16 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(SagaNotFoundMessage message)
+                public Task Handle(SagaNotFoundMessage message)
                 {
                     if (Context.Id != message.Id)
                     {
-                        return;
+                        return Task.FromResult(0);
                     }
+
                     Context.HandlerFired = true;
+
+                    return Task.FromResult(0);
                 }
             }
         }

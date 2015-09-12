@@ -58,9 +58,10 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(StartSagaMessage message)
+                public Task Handle(StartSagaMessage message)
                 {
                     Bus.SendLocal(new SomeOtherMessage());
+                    return Task.FromResult(0);
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData08> mapper)
@@ -73,9 +74,10 @@
                     public virtual string Property { get; set; }
                 }
 
-                public void Handle(SomeOtherMessage message)
+                public Task Handle(SomeOtherMessage message)
                 {
                     Context.Completed = true;
+                    return Task.FromResult(0);
                 }
             }
 

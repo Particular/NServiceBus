@@ -59,8 +59,9 @@
 
             public class MyRequestHandler : IHandleMessages<MyRequest>
             {
-                public void Handle(MyRequest request)
+                public Task Handle(MyRequest request)
                 {
+                    return Task.FromResult(0);
                 }
             }
 

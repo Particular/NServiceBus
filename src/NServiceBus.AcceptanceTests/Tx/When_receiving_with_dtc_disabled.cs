@@ -52,13 +52,15 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(MyMessage messageThatIsEnlisted)
+                public Task Handle(MyMessage messageThatIsEnlisted)
                 {
                     Context.DistributedIdentifierBefore = Transaction.Current.TransactionInformation.DistributedIdentifier;
 
                     Context.CanEnlistPromotable = Transaction.Current.EnlistPromotableSinglePhase(new FakePromotableResourceManager());
 
                     Context.HandlerInvoked = true;
+
+                    return Task.FromResult(0);
                 }
             }
         }

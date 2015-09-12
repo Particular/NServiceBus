@@ -41,9 +41,11 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(MessageToForward message)
+                public Task Handle(MessageToForward message)
                 {
                     Context.GotForwardedMessage = true;
+
+                    return Task.FromResult(0);
                 }
             }
         }
@@ -58,8 +60,9 @@
 
             public class MessageToForwardHandler : IHandleMessages<MessageToForward>
             {
-                public void Handle(MessageToForward message)
+                public Task Handle(MessageToForward message)
                 {
+                    return Task.FromResult(0);
                 }
             }
         }

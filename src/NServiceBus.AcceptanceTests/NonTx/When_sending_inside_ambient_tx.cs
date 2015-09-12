@@ -45,7 +45,7 @@
                 public Context Context { get; set; }
 
                 public IBus Bus { get; set; }
-                public void Handle(MyMessage message)
+                public Task Handle(MyMessage message)
                 {
                     Bus.SendLocal(new CompleteTest
                         {
@@ -65,12 +65,14 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(CompleteTest message)
+                public Task Handle(CompleteTest message)
                 {
                     if (!Context.MessageEnlistedInTheAmbientTxReceived)
                         Context.MessageEnlistedInTheAmbientTxReceived = message.EnlistedInTheAmbientTx;
 
                     Context.TestComplete = true;
+
+                    return Task.FromResult(0);
                 }
             }
         }

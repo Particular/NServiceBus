@@ -55,7 +55,7 @@
 //            {
 //                public Context Context { get; set; }
 
-//                public void Handle(MessageToGetAudited message)
+//                public Task Handle(MessageToGetAudited message)
 //                {
 //                    Context.GotAuditMessage = true;
 //                }
@@ -73,7 +73,7 @@
 //            {
 //                public Context Context { get; set; }
 
-//                public void Handle(MessageToGetAudited message)
+//                public Task Handle(MessageToGetAudited message)
 //                {
 //                    Context.GotForwardedMessage = true;
 //                }
@@ -91,7 +91,7 @@
 
 //            public class MessageToGetAuditedHandler : IHandleMessages<MessageToGetAudited>
 //            {
-//                public void Handle(MessageToGetAudited message)
+//                public Task Handle(MessageToGetAudited message)
 //                {
 //                }
 //            }

@@ -43,11 +43,13 @@
 
                 public IBus Bus { get; set; }
 
-                public void Handle(MyRequest response)
+                public Task Handle(MyRequest response)
                 {
                     Context.CorrelationIdReceived = Bus.CurrentMessageContext.Headers[Headers.CorrelationId];
                     Context.MessageIdReceived = Bus.CurrentMessageContext.Id;
                     Context.GotRequest = true;
+
+                    return Task.FromResult(0);
                 }
             }
         }

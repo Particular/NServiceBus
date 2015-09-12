@@ -44,10 +44,10 @@
                     }));
             }
 
-            class TransportMutator : 
+            class TransportMutator :
                 IMutateOutgoingTransportMessages
             {
-                
+
                 Context testContext;
                 public TransportMutator(Context testContext)
                 {
@@ -83,10 +83,12 @@
                 {
                     this.testContext = testContext;
                 }
-             
-                public void Handle(Message message)
+
+                public Task Handle(Message message)
                 {
                     testContext.MessageProcessed = true;
+
+                    return Task.FromResult(0);
                 }
             }
 

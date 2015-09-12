@@ -109,9 +109,10 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(MyEvent messageThatIsEnlisted)
+                public Task Handle(MyEvent messageThatIsEnlisted)
                 {
                     Context.Subscriber1GotTheEvent = true;
+                    return Task.FromResult(0);
                 }
             }
         }

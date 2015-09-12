@@ -6,7 +6,7 @@
     using AcceptanceTesting;
     using NUnit.Framework;
 
-    public class When_sending_databus_properties:NServiceBusAcceptanceTest
+    public class When_sending_databus_properties : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_receive_messages_with_largepayload_correctly()
@@ -14,7 +14,7 @@
             var payloadToSend = new byte[1024 * 1024 * 10];
 
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<Sender>(b => b.Given(bus=>
+                    .WithEndpoint<Sender>(b => b.Given(bus =>
                     {
                         bus.Send(new MyMessageWithLargePayload
                         {
@@ -40,7 +40,7 @@
             public Sender()
             {
                 EndpointSetup<DefaultServer>(builder => builder.UseDataBus<FileShareDataBus>().BasePath(@".\databus\sender"))
-                    .AddMapping<MyMessageWithLargePayload>(typeof (Receiver));
+                    .AddMapping<MyMessageWithLargePayload>(typeof(Receiver));
             }
         }
 
@@ -55,9 +55,11 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(MyMessageWithLargePayload messageWithLargePayload)
+                public Task Handle(MyMessageWithLargePayload messageWithLargePayload)
                 {
                     Context.ReceivedPayload = messageWithLargePayload.Payload.Value;
+
+                    return Task.FromResult(0);
                 }
             }
         }

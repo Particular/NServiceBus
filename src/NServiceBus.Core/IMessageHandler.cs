@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using System.Threading.Tasks;
     using JetBrains.Annotations;
 
     /// <summary>
@@ -16,6 +17,6 @@ namespace NServiceBus
 		/// <remarks>
 		/// This method will be called when a message arrives on the bus and should contain
 		/// the custom logic to execute when the message is received.</remarks>
-        void Handle(T message);
+        Task Handle(T message);
     }
 }

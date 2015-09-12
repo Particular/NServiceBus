@@ -61,10 +61,11 @@
             {
                 public IBus Bus { get; set; }
 
-                public void Handle(OpenGroupCommand message)
+                public Task Handle(OpenGroupCommand message)
                 {
                     Console.WriteLine("Received OpenGroupCommand for RunId:{0} ... and publishing GroupPendingEvent", message.DataId);
                     Bus.Publish(new GroupPendingEvent { DataId = message.DataId });
+                    return Task.FromResult(0);
                 }
             }
         }
@@ -82,19 +83,22 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(GroupPendingEvent message)
+                public Task Handle(GroupPendingEvent message)
                 {
                     Data.DataId = message.DataId;
                     Console.Out.WriteLine("Saga1 received GroupPendingEvent for RunId: {0}", message.DataId);
                     Bus.SendLocal(new CompleteSaga1Now { DataId = message.DataId });
+                    return Task.FromResult(0);
                 }
 
-                public void Handle(CompleteSaga1Now message)
+                public Task Handle(CompleteSaga1Now message)
                 {
                     Console.Out.WriteLine("Saga1 received CompleteSaga1Now for RunId:{0} and MarkAsComplete", message.DataId);
                     Context.DidSaga1EventHandlerGetInvoked = true;
 
                     MarkAsComplete();
+
+                    return Task.FromResult(0);
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySaga1Data> mapper)
@@ -114,19 +118,21 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(StartSaga2 message)
+                public Task Handle(StartSaga2 message)
                 {
                     var dataId = Guid.NewGuid();
                     Console.Out.WriteLine("Saga2 sending OpenGroupCommand for RunId: {0}", dataId);
                     Data.DataId = dataId;
                     Bus.Send(new OpenGroupCommand { DataId = dataId });
+                    return Task.FromResult(0);
                 }
 
-                public void Handle(GroupPendingEvent message)
+                public Task Handle(GroupPendingEvent message)
                 {
                     Context.DidSaga2EventHandlerGetInvoked = true;
                     Console.Out.WriteLine("Saga2 received GroupPendingEvent for RunId: {0} and MarkAsComplete", message.DataId);
                     MarkAsComplete();
+                    return Task.FromResult(0);
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySaga2Data> mapper)

@@ -6,7 +6,7 @@
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NUnit.Framework;
 
-    public class When_sending_to_non_durable_endpoint: NServiceBusAcceptanceTest
+    public class When_sending_to_non_durable_endpoint : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_receive_the_message()
@@ -56,9 +56,10 @@
 
             public IBus Bus { get; set; }
 
-            public void Handle(MyMessage message)
+            public Task Handle(MyMessage message)
             {
                 Context.WasCalled = true;
+                return Task.FromResult(0);
             }
         }
     }

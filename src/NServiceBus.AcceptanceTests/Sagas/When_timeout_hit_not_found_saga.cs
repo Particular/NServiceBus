@@ -47,7 +47,7 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(StartSaga message)
+                public Task Handle(StartSaga message)
                 {
                     Data.DataId = message.DataId;
 
@@ -56,6 +56,8 @@
                     Bus.SendLocal(new SomeOtherMessage { DataId = Guid.NewGuid() });
 
                     MarkAsComplete();
+
+                    return Task.FromResult(0);
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TimeoutHitsNotFoundSagaData> mapper)
@@ -86,8 +88,9 @@
                     return Task.FromResult(0);
                 }
 
-                public void Handle(SomeOtherMessage message)
+                public Task Handle(SomeOtherMessage message)
                 {
+                    return Task.FromResult(0);
                 }
 
                 public Task Timeout(MyTimeout state)

@@ -40,9 +40,11 @@
             {
                 public IBus Bus { get; set; }
 
-                public void Handle(Message message)
+                public Task Handle(Message message)
                 {
                     Bus.CurrentMessageContext.Headers["Key"] = "Value";
+
+                    return Task.FromResult(0);
                 }
             }
 
@@ -52,11 +54,12 @@
 
                 public Context Context { get; set; }
 
-                public void Handle(Message message)
+                public Task Handle(Message message)
                 {
                     var header = Bus.CurrentMessageContext.Headers["Key"];
                     Context.SecondHandlerCanReadHeaderSetByFirstHandler = header == "Value";
                     Context.GotMessage = true;
+                    return Task.FromResult(0);
                 }
             }
         }

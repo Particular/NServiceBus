@@ -60,9 +60,11 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(MyEvent messageThatIsEnlisted)
+                public Task Handle(MyEvent messageThatIsEnlisted)
                 {
                     Context.SubscriberGotTheEvent = true;
+
+                    return Task.FromResult(0);
                 }
             }
         }

@@ -43,11 +43,13 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(StartSaga message)
+                public Task Handle(StartSaga message)
                 {
                     Data.DataId = message.DataId;
 
                     RequestTimeout(TimeSpan.FromSeconds(5), new TimeHasPassed());
+
+                    return Task.FromResult(0);
                 }
 
                 public Task Timeout(TimeHasPassed state)

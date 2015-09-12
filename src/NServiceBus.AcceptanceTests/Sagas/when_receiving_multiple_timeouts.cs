@@ -51,14 +51,17 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(StartSaga1 message)
+                public Task Handle(StartSaga1 message)
                 {
-                    if (message.ContextId != Context.Id) return;
+                    if (message.ContextId != Context.Id)
+                        return Task.FromResult(0);
 
                     Data.ContextId = message.ContextId;
 
                     RequestTimeout(TimeSpan.FromSeconds(5), new Saga1Timeout { ContextId = Context.Id });
                     RequestTimeout(TimeSpan.FromMilliseconds(10), new Saga2Timeout { ContextId = Context.Id });
+
+                    return Task.FromResult(0);
                 }
 
                 public Task Timeout(Saga1Timeout state)
@@ -111,9 +114,9 @@
 
             public class CatchAllMessageHandler : IHandleMessages<object>
             {
-                public void Handle(object message)
+                public Task Handle(object message)
                 {
-
+                    return Task.FromResult(0);
                 }
             }
         }

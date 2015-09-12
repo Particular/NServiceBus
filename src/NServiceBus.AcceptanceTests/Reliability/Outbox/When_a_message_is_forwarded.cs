@@ -96,8 +96,9 @@
 
             public class MessageToBeForwardedHandler : IHandleMessages<MessageToBeForwarded>
             {
-                public void Handle(MessageToBeForwarded message)
+                public Task Handle(MessageToBeForwarded message)
                 {
+                    return Task.FromResult(0);
                 }
             }
         }
@@ -114,9 +115,10 @@
                 public Context Context { get; set; }
                 public IBus Bus { get; set; }
 
-                public void Handle(MessageToBeForwarded message)
+                public Task Handle(MessageToBeForwarded message)
                 {
                     Context.Done = true;
+                    return Task.FromResult(0);
                 }
             }
         }

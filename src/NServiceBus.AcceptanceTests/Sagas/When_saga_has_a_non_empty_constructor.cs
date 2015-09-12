@@ -49,10 +49,11 @@
                     this.context = context;
                 }
 
-                public void Handle(StartSagaMessage message)
+                public Task Handle(StartSagaMessage message)
                 {
                     Data.SomeId = message.SomeId;
                     Bus.SendLocal(new OtherMessage { SomeId = message.SomeId });
+                    return Task.FromResult(0);
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData11> mapper)
@@ -63,9 +64,10 @@
                         .ToSaga(s => s.SomeId);
                 }
 
-                public void Handle(OtherMessage message)
+                public Task Handle(OtherMessage message)
                 {
                     context.SecondMessageReceived = true;
+                    return Task.FromResult(0);
                 }
             }
 

@@ -2,6 +2,7 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
 {
     using System;
     using System.Linq;
+    using System.Threading.Tasks;
     using NServiceBus.Sagas;
     using NUnit.Framework;
     using Conventions = NServiceBus.Conventions;
@@ -86,12 +87,12 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
                 public int UniqueProperty { get; set; }
             }
 
-            public void Handle(Message1 message)
+            public Task Handle(Message1 message)
             {
                 throw new NotImplementedException();
             }
 
-            public void Handle(Message2 message)
+            public Task Handle(Message2 message)
             {
                 throw new NotImplementedException();
             }

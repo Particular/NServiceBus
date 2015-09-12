@@ -42,22 +42,24 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(StartSaga1 message)
+                public Task Handle(StartSaga1 message)
                 {
                     var dataId = Guid.NewGuid();
                     Data.DataId = dataId;
                     Bus.SendLocal(new MessageSaga1WillHandle
-                             {
-                                 DataId = dataId
-                             });
+                    {
+                        DataId = dataId
+                    });
+                    return Task.FromResult(0);
                 }
 
-                public void Handle(MessageSaga1WillHandle message)
+                public Task Handle(MessageSaga1WillHandle message)
                 {
                     Bus.SendLocal(new StartSaga2());
                     MarkAsComplete();
+                    return Task.FromResult(0);
                 }
-                
+
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TwoSaga1Saga1Data> mapper)
                 {
                     mapper.ConfigureMapping<MessageSaga1WillHandle>(m => m.DataId).ToSaga(s => s.DataId);
@@ -76,9 +78,11 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(StartSaga2 message)
+                public Task Handle(StartSaga2 message)
                 {
                     Context.DidSaga2ReceiveMessage = true;
+
+                    return Task.FromResult(0);
                 }
 
                 public class TwoSaga1Saga2Data : ContainSagaData

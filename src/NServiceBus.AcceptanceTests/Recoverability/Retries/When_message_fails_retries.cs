@@ -69,7 +69,7 @@
 
                 public Context Context { get; set; }
 
-                public void Handle(MessageWhichFailsRetries message)
+                public Task Handle(MessageWhichFailsRetries message)
                 {
                     Context.PhysicalMessageId = Bus.CurrentMessageContext.Id;
                     throw new SimulatedException();

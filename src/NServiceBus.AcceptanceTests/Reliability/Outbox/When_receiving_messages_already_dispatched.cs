@@ -57,9 +57,10 @@
             {
                 public IBus Bus { get; set; }
 
-                public void Handle(PlaceOrder message)
+                public Task Handle(PlaceOrder message)
                 {
                     Bus.SendLocal(new SendOrderAcknowledgement());
+                    return Task.FromResult(0);
                 }
             }
 
@@ -67,9 +68,10 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(SendOrderAcknowledgement message)
+                public Task Handle(SendOrderAcknowledgement message)
                 {
                     Context.OrderAckReceived++;
+                    return Task.FromResult(0);
                 }
             }
         }

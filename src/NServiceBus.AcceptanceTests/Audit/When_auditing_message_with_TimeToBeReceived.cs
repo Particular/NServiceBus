@@ -55,9 +55,10 @@
                     this.context = context;
                 }
 
-                public void Handle(MessageToBeAudited message)
+                public Task Handle(MessageToBeAudited message)
                 {
                     context.IsMessageHandlingComplete = true;
+                    return Task.FromResult(0);
                 }
             }
         }
@@ -81,7 +82,7 @@
                     this.bus = bus;
                 }
 
-                public void Handle(MessageToBeAudited message)
+                public Task Handle(MessageToBeAudited message)
                 {
                     var auditProcessingStarted = DateTime.Now;
                     if (context.FirstTimeProcessedByAudit == null)
@@ -101,6 +102,8 @@
                     {
                         bus.HandleCurrentMessageLater();
                     }
+
+                    return Task.FromResult(0);
                 }
             }
         }

@@ -67,7 +67,7 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(StartSaga message)
+                public Task Handle(StartSaga message)
                 {
                     Data.DataId = message.DataId;
 
@@ -76,6 +76,8 @@
 
                     //Request a timeout
                     RequestTimeout<Timeout1>(TimeSpan.FromSeconds(5));
+
+                    return Task.FromResult(0);
                 }
 
                 public Task Timeout(Timeout1 state)
@@ -118,11 +120,12 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(SomethingHappenedEvent message)
+                public Task Handle(SomethingHappenedEvent message)
                 {
                     Data.DataId = message.DataId;
                     //Request a timeout
                     RequestTimeout<Saga2Timeout>(TimeSpan.FromSeconds(5));
+                    return Task.FromResult(0);
                 }
 
                 public Task Timeout(Saga2Timeout state)

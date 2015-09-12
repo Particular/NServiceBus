@@ -45,7 +45,7 @@ namespace NServiceBus.AcceptanceTests.Hosting
                 {
                     // remove the override, we need to hack it via reflection!
                     var fieldInfo = s.GetType().GetField("Overrides", BindingFlags.Instance | BindingFlags.NonPublic);
-                    var  dictionary = (ConcurrentDictionary<string, object>) fieldInfo.GetValue(s);
+                    var dictionary = (ConcurrentDictionary<string, object>)fieldInfo.GetValue(s);
                     object s2;
                     dictionary.TryRemove("NServiceBus.HostInformation.HostId", out s2);
 
@@ -67,9 +67,11 @@ namespace NServiceBus.AcceptanceTests.Hosting
         {
             public Context Context { get; set; }
 
-            public void Handle(MyMessage message)
+            public Task Handle(MyMessage message)
             {
                 Context.Done = true;
+
+                return Task.FromResult(0);
             }
         }
 

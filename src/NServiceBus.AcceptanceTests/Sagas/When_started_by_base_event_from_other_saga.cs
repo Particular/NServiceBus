@@ -70,11 +70,12 @@
             {
                 public SagaContext Context { get; set; }
 
-                public void Handle(BaseEvent message)
+                public Task Handle(BaseEvent message)
                 {
                     Data.DataId = message.DataId;
                     MarkAsComplete();
                     Context.DidSagaComplete = true;
+                    return Task.FromResult(0);
                 }
 
                 public class SagaStartedByBaseEventSagaData : ContainSagaData
