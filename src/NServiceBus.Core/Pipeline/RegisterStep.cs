@@ -29,34 +29,16 @@ namespace NServiceBus.Pipeline
             Description = description;
         }
 
-
-        /// <summary>
-        /// Allows for customization of the container registration for this step.
-        /// </summary>
-        public void ContainerRegistration<T>(Func<IBuilder,ReadOnlySettings,T> customRegistration)
-        {
-            Guard.AgainstNull("customRegistration", customRegistration);
-            customContainerRegistration = (settings, container) => container.ConfigureComponent(builder => customRegistration(builder,settings), DependencyLifecycle.InstancePerCall);
-        }
-
         internal void ApplyContainerRegistration(ReadOnlySettings settings, IConfigureComponents container)
         {
             if (!IsEnabled(settings))
             {
                 return;
             }
-            if (customContainerRegistration != null)
-            {
-                customContainerRegistration(settings, container);
-                return;
-            }
 
             container.ConfigureComponent(BehaviorType, DependencyLifecycle.InstancePerCall);
         }
-
-        Action<ReadOnlySettings,IConfigureComponents> customContainerRegistration;
-
-        /// <summary>
+      /// <summary>
         /// Gets the unique identifier for this step.
         /// </summary>
         public string StepId { get; private set; }

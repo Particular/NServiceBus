@@ -2,8 +2,6 @@ namespace NServiceBus.Pipeline
 {
     using System;
     using System.Collections.Generic;
-    using NServiceBus.ObjectBuilder;
-
 
     /// <summary>
     /// Manages the pipeline configuration.
@@ -108,21 +106,6 @@ namespace NServiceBus.Pipeline
         {
             AddStep(new TRegisterStep());
         }
-
-        /// <summary>
-        /// Register a new step into the pipeline.
-        /// </summary>
-        /// <param name="customInitializer">A function the returns a new instance of the behavior.</param>
-        public void Register<TRegisterStep, TBehavior>(Func<IBuilder, TBehavior> customInitializer) where TRegisterStep : RegisterStep, new()
-        {
-            Guard.AgainstNull("customInitializer", customInitializer);
-            var registration = new TRegisterStep();
-
-            registration.ContainerRegistration((b, s) => customInitializer(b));
-
-            AddStep(registration);
-        }
-
 
         /// <summary>
         /// Register a new step into the pipeline.
