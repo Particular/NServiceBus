@@ -33,10 +33,7 @@ namespace NServiceBus.Core.Tests.Msmq
         public void If_reference_address_is_specified_via_ip_and_this_is_specified_via_host_name_it_should_convert_to_ip()
         {
             var address = new MsmqAddress("replytoaddress", "replytomachine");
-            var returnAddress = address.MakeCompatibleWith(new MsmqAddress("someQueue", "202.171.13.140"), _ =>
-            {
-                return "10.10.10.10";
-            });
+            var returnAddress = address.MakeCompatibleWith(new MsmqAddress("someQueue", "202.171.13.140"), _ => "10.10.10.10");
             Assert.AreEqual("10.10.10.10", returnAddress.Machine);
         }
     }

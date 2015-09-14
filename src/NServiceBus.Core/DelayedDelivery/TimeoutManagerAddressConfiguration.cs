@@ -7,11 +7,9 @@
     /// </summary>
     class TimeoutManagerAddressConfiguration
     {
-        string timeoutManagerAddress;
-
         internal TimeoutManagerAddressConfiguration(string defaultTimeoutManagerAddress)
         {
-            timeoutManagerAddress = defaultTimeoutManagerAddress;
+            TransportAddress = defaultTimeoutManagerAddress;
         }
 
         /// <summary>
@@ -20,13 +18,13 @@
         public void Set(string newTimeoutManagerAddress)
         {
             Guard.AgainstNullAndEmpty(newTimeoutManagerAddress, "newTimeoutManagerAddress");
-            if (timeoutManagerAddress != null)
+            if (TransportAddress != null)
             {
                 throw new InvalidOperationException("Another feature or the UnicastBusConfig section has already set the timeout manager address.");
             }
-            timeoutManagerAddress = newTimeoutManagerAddress;
+            TransportAddress = newTimeoutManagerAddress;
         }
 
-        public string TransportAddress { get { return timeoutManagerAddress; } }
+        public string TransportAddress { get; private set; }
     }
 }
