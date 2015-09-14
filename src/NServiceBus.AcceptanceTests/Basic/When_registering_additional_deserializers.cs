@@ -22,8 +22,7 @@
                     {
                         var sendOptions = new SendOptions();
                         sendOptions.SetHeader("ContentType", "MyCustomSerializer");
-                        bus.Send(new MyRequest());
-                        return Task.FromResult(0);
+                        return bus.SendAsync(new MyRequest());
                     }))
                 .WithEndpoint<XmlCustomSerializationReceiver>()
                 .Done(c => c.DeserializeCalled)

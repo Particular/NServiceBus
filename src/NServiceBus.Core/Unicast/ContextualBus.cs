@@ -128,19 +128,19 @@ namespace NServiceBus.Unicast
             dispatcher.Dispatch(new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new DispatchOptions(destination, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), new ContextBag()));
         }
 
-        public void Send<T>(Action<T> messageConstructor, NServiceBus.SendOptions options)
+        public Task SendAsync<T>(Action<T> messageConstructor, NServiceBus.SendOptions options)
         {
-            Send(messageMapper.CreateInstance(messageConstructor), options);
+            return SendAsync(messageMapper.CreateInstance(messageConstructor), options);
         }
 
-        public void Send(object message, NServiceBus.SendOptions options)
+        public Task SendAsync(object message, NServiceBus.SendOptions options)
         {
             var messageType = message.GetType();
 
-            SendMessage(messageType, message, options);
+            return SendMessage(messageType, message, options);
         }
 
-        void SendMessage(Type messageType, object message, NServiceBus.SendOptions options)
+        Task SendMessage(Type messageType, object message, NServiceBus.SendOptions options)
         {
             var pipeline = new PipelineBase<OutgoingSendContext>(builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
 
@@ -150,6 +150,8 @@ namespace NServiceBus.Unicast
                 options);
 
             pipeline.Invoke(outgoingContext);
+
+            return TaskEx.Completed;
         }
 
         /// <summary>

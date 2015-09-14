@@ -16,14 +16,10 @@
         public async Task Should_be_able_to_register_via_fluent()
         {
             var context = await Scenario.Define<Context>(c => { c.TempPath = Path.GetTempFileName(); })
-                    .WithEndpoint<SenderViaFluent>(b => b.Given(bus =>
+                    .WithEndpoint<SenderViaFluent>(b => b.Given(bus => bus.SendAsync(new MyMessageWithLargePayload
                     {
-                        bus.Send(new MyMessageWithLargePayload
-                        {
-                            Payload = new DataBusProperty<byte[]>(PayloadToSend)
-                        });
-                        return Task.FromResult(0);
-                    }))
+                        Payload = new DataBusProperty<byte[]>(PayloadToSend)
+                    })))
                     .WithEndpoint<ReceiverViaFluent>()
                     .Done(c => c.ReceivedPayload != null)
                     .Run();

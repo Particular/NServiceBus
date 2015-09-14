@@ -16,8 +16,7 @@ namespace NServiceBus.AcceptanceTests.BestPractices
                     var sendOptions = new SendOptions();
                     sendOptions.DoNotEnforceBestPractices();
 
-                    bus.Send(new MyEvent(), sendOptions);
-                    return Task.FromResult(0);
+                    return bus.SendAsync(new MyEvent(), sendOptions);
                 }))
                 .Done(c => c.EndpointsStarted)
                 .Run();

@@ -23,8 +23,7 @@
                         options.GetExtensions().Set(new SendOptionsExtensions.TestingSendOptionsExtensionBehavior.Context { SomeValue = "I did it" });
                         options.RouteToLocalEndpointInstance();
 
-                        bus.Send(new SendMessage(), options);
-                        return Task.FromResult(0);
+                        return bus.SendAsync(new SendMessage(), options);
                     }))
                     .Done(c => c.WasCalled)
                     .Run();

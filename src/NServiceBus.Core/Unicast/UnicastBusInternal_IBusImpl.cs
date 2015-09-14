@@ -26,17 +26,17 @@
 
 
         /// <inheritdoc />
-        public void Send(object message, NServiceBus.SendOptions options)
+        public Task SendAsync(object message, NServiceBus.SendOptions options)
         {
-            busImpl.Send(message, options);
+            return busImpl.SendAsync(message, options);
         }
 
 
 
         /// <inheritdoc />
-        public void Send<T>(Action<T> messageConstructor, NServiceBus.SendOptions options)
+        public Task SendAsync<T>(Action<T> messageConstructor, NServiceBus.SendOptions options)
         {
-            busImpl.Send(messageConstructor, options);
+            return busImpl.SendAsync(messageConstructor, options);
         }
 
         /// <inheritdoc />

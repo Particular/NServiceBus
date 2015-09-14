@@ -90,7 +90,7 @@ namespace NServiceBus
 
             SetTimeoutHeaders(options);
 
-            Bus.Send(timeoutMessage, options);
+            Bus.SendAsync(timeoutMessage, options).GetAwaiter().GetResult();
         }
 
         void VerifySagaCanHandleTimeout<TTimeoutMessageType>(TTimeoutMessageType timeoutMessage)
@@ -143,7 +143,7 @@ namespace NServiceBus
 
             SetTimeoutHeaders(context);
 
-            Bus.Send(timeoutMessage, context);
+            Bus.SendAsync(timeoutMessage, context).GetAwaiter().GetResult();
         }
 
         void SetTimeoutHeaders(SendOptions options)

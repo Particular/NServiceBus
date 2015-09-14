@@ -6,7 +6,7 @@ namespace NServiceBus
     /// <summary>
     /// Provides the subset of bus operations that is applicable for a send only bus.
     /// </summary>
-    public partial interface ISendOnlyBus : IDisposable
+    public interface ISendOnlyBus : IDisposable
     {
        /// <summary>
         ///  Publish the message to subscribers.
@@ -28,7 +28,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="message">The message to send.</param>
         /// <param name="options">The options for the send.</param>
-        void Send(object message, SendOptions options);
+        Task SendAsync(object message, SendOptions options);
 
         /// <summary>
         /// Instantiates a message of type T and sends it.
@@ -36,6 +36,6 @@ namespace NServiceBus
         /// <typeparam name="T">The type of message, usually an interface.</typeparam>
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
         /// <param name="options">The options for the send.</param>
-        void Send<T>(Action<T> messageConstructor, SendOptions options);
+        Task SendAsync<T>(Action<T> messageConstructor, SendOptions options);
     }
 }
