@@ -39,9 +39,10 @@
             {
                 public IBus Bus { get; set; }
 
-                public void Handle(MyMessage messageThatIsEnlisted)
+                public Task Handle(MyMessage messageThatIsEnlisted)
                 {
                     Bus.Reply(new MyReply());
+                    return Task.FromResult(0);
                 }
             }
         }
@@ -59,9 +60,10 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(MyReply messageThatIsEnlisted)
+                public Task Handle(MyReply messageThatIsEnlisted)
                 {
                     Context.GotReply = true;
+                    return Task.FromResult(0);
                 }
             }
         }

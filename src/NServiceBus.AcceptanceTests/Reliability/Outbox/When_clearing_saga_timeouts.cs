@@ -54,15 +54,16 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(SignalDone message)
+                public Task Handle(SignalDone message)
                 {
                     Context.Done = true;
+                    return Task.FromResult(0);
                 }
             }
 
             class PlaceOrderSaga : Saga<PlaceOrderSaga.PlaceOrderSagaData>, IAmStartedByMessages<PlaceOrder>
             {
-                public void Handle(PlaceOrder message)
+                public Task Handle(PlaceOrder message)
                 {
                     Data.DataId = message.DataId;
 
