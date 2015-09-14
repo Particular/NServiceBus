@@ -66,7 +66,7 @@ namespace NServiceBus
                 destination = routeExpiredTimeoutTo;
             }
 
-            var timeoutData = await persister.Remove(timeoutId, new TimeoutPersistenceOptions(context));
+            var timeoutData = await persister.Peek(timeoutId, new TimeoutPersistenceOptions(context));
 
             if (timeoutData == null)
             {
@@ -74,6 +74,8 @@ namespace NServiceBus
             }
 
             dispatcher.Dispatch(new OutgoingMessage(message.Id, message.Headers, message.Body), new DispatchOptions(destination, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), context));
+
+            await persister.Remove(timeoutId, new TimeoutPersistenceOptions(context));
         }
 
         async Task HandleInternal(TransportMessage message, PhysicalMessageProcessingStageBehavior.Context context)

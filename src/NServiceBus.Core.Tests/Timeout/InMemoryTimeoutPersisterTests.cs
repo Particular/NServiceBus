@@ -67,16 +67,16 @@ namespace NServiceBus.Core.Tests.Timeout
         }
 
         [Test]
-        public async Task When_existing_is_removed_existing_is_outted()
+        public async Task When_existing_is_removed_by_id()
         {
             var options = new TimeoutPersistenceOptions(new ContextBag());
             var persister = new InMemoryTimeoutPersister();
             var inputTimeout = new TimeoutData();
 
             await persister.Add(inputTimeout, options);
-            var result = await persister.Remove(inputTimeout.Id, options);
-            
-            Assert.AreSame(inputTimeout, result);
+            await persister.Remove(inputTimeout.Id, options);
+
+            Assert.IsNull(persister.Peek(inputTimeout.Id, options).Result);
         }
 
         [Test]
@@ -92,9 +92,8 @@ namespace NServiceBus.Core.Tests.Timeout
             
             await persister.Add(inputTimeout, options);
             await persister.RemoveTimeoutBy(newGuid, options);
-            var result = await persister.Remove(inputTimeout.Id, options);
 
-            Assert.IsNull(result);
+            Assert.IsNull(persister.Peek(inputTimeout.Id, options).Result);
         }
 
         [Test]

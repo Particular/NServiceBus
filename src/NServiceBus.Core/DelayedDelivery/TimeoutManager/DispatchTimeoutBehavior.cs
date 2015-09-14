@@ -21,7 +21,7 @@ namespace NServiceBus
             var message = context.GetPhysicalMessage();
             var timeoutId = message.Headers["Timeout.Id"];
 
-            var timeoutData = persister.Remove(timeoutId, new TimeoutPersistenceOptions(context)).GetAwaiter().GetResult();
+            var timeoutData = persister.Peek(timeoutId, new TimeoutPersistenceOptions(context)).GetAwaiter().GetResult();
 
             if (timeoutData == null)
             {
@@ -34,6 +34,8 @@ namespace NServiceBus
             timeoutData.Headers["NServiceBus.RelatedToTimeoutId"] = timeoutData.Id;
 
             dispatcher.Dispatch(new OutgoingMessage(message.Id, timeoutData.Headers, timeoutData.State), sendOptions);
+
+            persister.Remove(timeoutId, new TimeoutPersistenceOptions(context)).GetAwaiter().GetResult();
         }
 
         IDispatchMessages dispatcher;

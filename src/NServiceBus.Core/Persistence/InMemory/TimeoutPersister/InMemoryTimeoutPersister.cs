@@ -2,6 +2,7 @@ namespace NServiceBus.InMemory.TimeoutPersister
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Timeout.Core;
@@ -62,7 +63,12 @@ namespace NServiceBus.InMemory.TimeoutPersister
             return Task.FromResult(0);
         }
 
-        public Task<TimeoutData> Remove(string timeoutId, TimeoutPersistenceOptions options)
+        public Task<TimeoutData> Peek(string timeoutId, TimeoutPersistenceOptions options)
+        {
+            return Task.FromResult(storage.FirstOrDefault(item => item.Id == timeoutId));
+        }
+
+        public Task Remove(string timeoutId, TimeoutPersistenceOptions options)
         {
             try
             {
@@ -70,15 +76,13 @@ namespace NServiceBus.InMemory.TimeoutPersister
 
                 for (var index = 0; index < storage.Count; index++)
                 {
-                    var data = storage[index];
-                    if (data.Id == timeoutId)
+                    if (storage[index].Id == timeoutId)
                     {
                         storage.RemoveAt(index);
-                        return Task.FromResult(data);
                     }
                 }
 
-                return Task.FromResult<TimeoutData>(null);
+                return Task.FromResult(0);
             }
             finally
             {
