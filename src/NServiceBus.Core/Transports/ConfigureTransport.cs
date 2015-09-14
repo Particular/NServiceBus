@@ -2,8 +2,6 @@ namespace NServiceBus.Transports
 {
     using System;
     using Features;
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.Pipeline;
     using NServiceBus.Unicast.Transport;
 
     /// <summary>
