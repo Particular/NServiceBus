@@ -13,14 +13,10 @@
         public async Task Should_receive_the_message()
         {
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                    .WithEndpoint<Sender>(b => b.Given((bus, c) =>
+                    .WithEndpoint<Sender>(b => b.Given((bus, c) => bus.SendAsync(new MyMessage
                     {
-                        bus.Send(new MyMessage
-                        {
-                            Id = c.Id
-                        });
-                        return Task.FromResult(0);
-                    }))
+                        Id = c.Id
+                    })))
                     .WithEndpoint<Receiver>()
                     .Done(c => c.WasCalled)
                     .Run();

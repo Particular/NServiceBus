@@ -13,11 +13,7 @@
         public async Task First_registration_should_be_the_final_destination()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<Sender>(b => b.Given((bus, c) =>
-                    {
-                        bus.Send(new MyCommand1());
-                        return Task.FromResult(0);
-                    }))
+                    .WithEndpoint<Sender>(b => b.Given((bus, c) => bus.SendAsync(new MyCommand1())))
                     .WithEndpoint<Receiver1>()
                     .WithEndpoint<Receiver2>()
                     .Done(c => c.WasCalled1 || c.WasCalled2)

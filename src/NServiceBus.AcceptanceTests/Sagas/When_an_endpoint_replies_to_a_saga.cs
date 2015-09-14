@@ -85,8 +85,7 @@
                 public Task Handle(StartSaga message)
                 {
                     Data.RunId = message.RunId;
-                    Bus.Send(new DoSomething { RunId = message.RunId });
-                    return Task.FromResult(0);
+                    return Bus.SendAsync(new DoSomething { RunId = message.RunId });
                 }
 
                 public Task Handle(DoSomethingResponse message)

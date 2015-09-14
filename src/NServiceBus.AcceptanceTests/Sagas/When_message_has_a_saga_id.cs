@@ -22,8 +22,7 @@
                     options.SetHeader(Headers.SagaId, Guid.NewGuid().ToString());
                     options.SetHeader(Headers.SagaType, typeof(MessageWithSagaIdSaga).AssemblyQualifiedName);
                     options.RouteToLocalEndpointInstance();
-                    bus.Send(message, options);
-                    return Task.FromResult(0);
+                    return bus.SendAsync(message, options);
                 }))
                 .Done(c => c.OtherSagaStarted)
                 .Run();

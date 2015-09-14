@@ -46,7 +46,7 @@
             throw new NotImplementedException();
         }
 
-        public void Send(object message, SendOptions options)
+        public Task SendAsync(object message, SendOptions options)
         {
             ApplyDelayedDeliveryConstraintBehavior.State state;
 
@@ -61,46 +61,47 @@
                     DeferedMessage = message;
                 }
             }
+            return Task.FromResult(0);
         }
 
-        public void Send<T>(Action<T> messageConstructor, SendOptions options)
+        public Task SendAsync<T>(Action<T> messageConstructor, SendOptions options)
         {
             throw new NotImplementedException();
         }
 
         [Obsolete("", true)]
-        public ICallback Send(Address address, object message)
+        public ICallback SendAsync(Address address, object message)
         {
             throw new NotImplementedException();
         }
 
         [Obsolete("", true)]
-        public ICallback Send<T>(Address address, Action<T> messageConstructor)
+        public ICallback SendAsync<T>(Address address, Action<T> messageConstructor)
         {
             throw new NotImplementedException();
         }
 
         [Obsolete("", true)]
-        public ICallback Send(string destination, string correlationId, object message)
+        public ICallback SendAsync(string destination, string correlationId, object message)
         {
             throw new NotImplementedException();
         }
 
         [Obsolete("", true)]
-        public ICallback Send(Address address, string correlationId, object message)
+        public ICallback SendAsync(Address address, string correlationId, object message)
         {
             throw new NotImplementedException();
         }
 
         [Obsolete("", true)]
-        public ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor)
+        public ICallback SendAsync<T>(string destination, string correlationId, Action<T> messageConstructor)
         {
             throw new NotImplementedException();
         }
 
 
         [Obsolete("", true)]
-        public ICallback Send<T>(Address address, string correlationId, Action<T> messageConstructor)
+        public ICallback SendAsync<T>(Address address, string correlationId, Action<T> messageConstructor)
         {
             throw new NotImplementedException();
         }

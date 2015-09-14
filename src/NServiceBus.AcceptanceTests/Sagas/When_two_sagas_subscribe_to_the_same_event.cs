@@ -124,8 +124,7 @@
                     var dataId = Guid.NewGuid();
                     Console.Out.WriteLine("Saga2 sending OpenGroupCommand for RunId: {0}", dataId);
                     Data.DataId = dataId;
-                    Bus.Send(new OpenGroupCommand { DataId = dataId });
-                    return Task.FromResult(0);
+                    return Bus.SendAsync(new OpenGroupCommand { DataId = dataId });
                 }
 
                 public Task Handle(GroupPendingEvent message)

@@ -49,7 +49,7 @@ namespace NServiceBus
 
             options.RouteToLocalEndpointInstance();
 
-            bus.Send(message, options);
+            bus.SendAsync(message, options).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace NServiceBus
 
             options.RouteToLocalEndpointInstance();
 
-            bus.Send(messageConstructor, options);
+            bus.SendAsync(messageConstructor, options).GetAwaiter().GetResult();
         }
 
         /// <summary>

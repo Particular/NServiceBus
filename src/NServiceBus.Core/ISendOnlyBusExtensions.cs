@@ -46,12 +46,12 @@ namespace NServiceBus
         /// </summary>
         /// <param name="bus">The instance of <see cref="ISendOnlyBus"/> to use for the action.</param>
         /// <param name="message">The message to send.</param>
-        public static void Send(this ISendOnlyBus bus, object message)
+        public static Task SendAsync(this ISendOnlyBus bus, object message)
         {
             Guard.AgainstNull("bus", bus);
             Guard.AgainstNull("message", message);
 
-            bus.Send(message, new SendOptions());
+            return bus.SendAsync(message, new SendOptions());
         }
 
         /// <summary>
@@ -63,12 +63,12 @@ namespace NServiceBus
         /// <remarks>
         /// The message will be sent to the destination configured for <typeparamref name="T"/>.
         /// </remarks>
-        public static void Send<T>(this ISendOnlyBus bus, Action<T> messageConstructor)
+        public static Task SendAsync<T>(this ISendOnlyBus bus, Action<T> messageConstructor)
         {
             Guard.AgainstNull("bus", bus);
             Guard.AgainstNull("messageConstructor", messageConstructor);
 
-            bus.Send(messageConstructor, new SendOptions());
+            return bus.SendAsync(messageConstructor, new SendOptions());
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace NServiceBus
         /// <param name="bus">The instance of <see cref="ISendOnlyBus"/> to use for the action.</param>
         /// <param name="destination">The address of the destination to which the message will be sent.</param>
         /// <param name="message">The message to send.</param>
-        public static void Send(this ISendOnlyBus bus, string destination, object message)
+        public static Task SendAsync(this ISendOnlyBus bus, string destination, object message)
         {
             Guard.AgainstNull("bus", bus);
             Guard.AgainstNullAndEmpty("destination", destination);
@@ -87,7 +87,7 @@ namespace NServiceBus
 
             options.SetDestination(destination);
 
-            bus.Send(message, options);
+            return bus.SendAsync(message, options);
         }
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace NServiceBus
         /// <param name="bus">The instance of <see cref="ISendOnlyBus"/> to use for the action.</param>
         /// <param name="destination">The destination to which the message will be sent.</param>
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
-        public static void Send<T>(this ISendOnlyBus bus, string destination, Action<T> messageConstructor)
+        public static Task SendAsync<T>(this ISendOnlyBus bus, string destination, Action<T> messageConstructor)
         {
             Guard.AgainstNull("bus", bus);
             Guard.AgainstNullAndEmpty("destination", destination);
@@ -107,7 +107,7 @@ namespace NServiceBus
 
             options.SetDestination(destination);
 
-            bus.Send(messageConstructor, options);
+            return bus.SendAsync(messageConstructor, options);
         }
     }
 }
