@@ -144,6 +144,38 @@
         }
 
         /// <summary>
+        /// Registers this feature as optionally depending on the given feature. It means that the declaring feature's <see cref="Setup"/> method will be called
+        /// after the dependent feature's <see cref="Setup"/> if that dependent feature is enabled.
+        /// </summary>
+        /// <param name="featureName">The name of the feature that this feature depends on.</param>
+        protected void DependsOnOptionally(string featureName)
+        {
+            DependsOnAtLeastOne(GetFeatureName(typeof(RootFeature)), featureName);
+        }
+
+        /// <summary>
+        /// Registers this feature as optionally depending on the given feature. It means that the declaring feature's <see cref="Setup"/> method will be called
+        /// after the dependent feature's <see cref="Setup"/> if that dependent feature is enabled.
+        /// </summary>
+        /// <param name="featureType">The type of the feature that this feature depends on.</param>
+        protected void DependsOnOptionally(Type featureType)
+        {
+            Guard.AgainstNull("featureType", featureType);
+
+            DependsOnOptionally(GetFeatureName(featureType));
+        }
+
+        /// <summary>
+        /// Registers this feature as optionally depending on the given feature. It means that the declaring feature's <see cref="Setup"/> method will be called
+        /// after the dependent feature's <see cref="Setup"/> if that dependent feature is enabled.
+        /// </summary>
+        /// <typeparam name="T">The type of the feature that this feature depends on.</typeparam>
+        protected void DependsOnOptionally<T>() where T : Feature
+        {
+            DependsOnOptionally(typeof(T));
+        }
+
+        /// <summary>
         ///     Register this feature as depending on at least on of the given features. This means that this feature won't be
         ///     activated unless at least one of the provided features in the list is active.
         ///     This also causes this feature to be activated after the other features.

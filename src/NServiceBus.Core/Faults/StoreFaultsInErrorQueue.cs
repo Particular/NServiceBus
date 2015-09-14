@@ -30,7 +30,7 @@ namespace NServiceBus.Features
                     dispatchPipeline,
                     b.Build<HostInformation>(),
                     b.Build<BusNotifications>(),
-                    errorQueue.ToString());
+                    errorQueue);
             }, DependencyLifecycle.InstancePerCall);
 
             context.Settings.Get<QueueBindings>().BindSending(errorQueue);

@@ -60,11 +60,6 @@
                 config.EnableFeature<TransportThatDoesNotSetADefaultDiscriminatorConfigurator>();
             }
 
-            public override string GetSubScope(string address, string qualifier)
-            {
-                return address + "." + qualifier;
-            }
-
             public override IEnumerable<Type> GetSupportedDeliveryConstraints()
             {
                 return new List<Type>();
@@ -79,6 +74,17 @@
             {
                 throw new NotImplementedException();
             }
+
+            public override string GetDiscriminatorForThisEndpointInstance()
+            {
+                return null;
+            }
+
+            public override string ToTransportAddress(LogicalAddress logicalAddress)
+            {
+                throw new NotImplementedException();
+            }
+
         }
 
             public class TransportThatDoesNotSetADefaultDiscriminatorConfigurator : ConfigureTransport

@@ -11,7 +11,7 @@
         /// <summary>
         /// Initializes the <see cref="IPushMessages"/>.
         /// </summary>
-        DequeueInfo Init(Func<PushContext, Task> pipe, PushSettings settings);
+        void Init(Func<PushContext, Task> pipe, PushSettings settings);
 
         /// <summary>
         /// Starts pushing message/>.

@@ -79,10 +79,11 @@
         {
             public SagaEndpoint()
             {
-                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) =>
+                EndpointSetup<DefaultPublisher>(b =>
                 {
-                    context.Subscribed = true;
-                }));
+                    b.EnableFeature<TimeoutManager>();
+                    b.OnEndpointSubscribed<Context>((s, context) => { context.Subscribed = true; });
+                });
             }
 
             public class ReplyToPubMsgSaga : Saga<ReplyToPubMsgSaga.ReplyToPubMsgSagaData>, IAmStartedByMessages<StartSaga>, IHandleMessages<DidSomethingResponse>

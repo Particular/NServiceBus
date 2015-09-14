@@ -2,8 +2,8 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using EndpointTemplates;
+    using AcceptanceTesting;
     using NUnit.Framework;
 
     public class When_a_existing_saga_instance_exists : NServiceBusAcceptanceTest

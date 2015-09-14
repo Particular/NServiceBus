@@ -4,6 +4,7 @@
     using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
+    using NServiceBus.Features;
     using NServiceBus.Sagas;
     using NUnit.Framework;
 
@@ -57,7 +58,7 @@
         {
             public ReceiverWithSaga()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>(c => c.EnableFeature<TimeoutManager>());
             }
 
             public class NotFoundHandlerSaga1 : Saga<NotFoundHandlerSaga1.NotFoundHandlerSaga1Data>, IAmStartedByMessages<StartSaga1>, IHandleMessages<MessageToSaga>

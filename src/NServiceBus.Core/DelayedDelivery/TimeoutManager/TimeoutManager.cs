@@ -2,13 +2,13 @@
 {
     using System;
     using NServiceBus.CircuitBreakers;
-    using NServiceBus.Config;
     using NServiceBus.DelayedDelivery;
     using NServiceBus.DelayedDelivery.TimeoutManager;
     using NServiceBus.DeliveryConstraints;
-    using NServiceBus.Settings;
-    using NServiceBus.Timeout.Core;
+    using NServiceBus.Features.DelayedDelivery;
     using NServiceBus.Transports;
+    using Settings;
+    using Timeout.Core;
 
     /// <summary>
     /// Used to configure the timeout manager that provides message deferral.
@@ -32,7 +32,6 @@
 
             Prerequisite(context => !HasAlternateTimeoutManagerBeenConfigured(context.Settings), "A user configured timeoutmanager address has been found and this endpoint will send timeouts to that endpoint");
             Prerequisite(c => !c.DoesTransportSupportConstraint<DelayedDeliveryConstraint>(), "The selected transport supports delayed delivery natively");
-
         }
 
         /// <summary>
@@ -40,22 +39,20 @@
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var selectedTransportDefinition = context.Settings.Get<TransportDefinition>();
-            var localAddress = context.Settings.LocalAddress();
-            var dispatcherAddress = selectedTransportDefinition.GetSubScope(localAddress, "TimeoutsDispatcher");
-            var inputAddress = selectedTransportDefinition.GetSubScope(localAddress, "Timeouts");
-
-            var messageProcessorPipeline = context.AddSatellitePipeline("Timeout Message Processor", inputAddress);
+            string processorAddress;
+            var messageProcessorPipeline = context.AddSatellitePipeline("Timeout Message Processor", "Timeouts", out processorAddress);
             messageProcessorPipeline.Register<MoveFaultsToErrorQueueBehavior.Registration>();
             messageProcessorPipeline.Register<FirstLevelRetriesBehavior.Registration>();
             messageProcessorPipeline.Register<StoreTimeoutBehavior.Registration>();
-
             context.Container.ConfigureComponent(b => new StoreTimeoutBehavior(b.Build<ExpiredTimeoutsPoller>(),
                 b.Build<IDispatchMessages>(),
                 b.Build<IPersistTimeouts>(),
-                context.Settings.EndpointName()), DependencyLifecycle.SingleInstance);
+                context.Settings.EndpointName().ToString()), DependencyLifecycle.SingleInstance);
 
-            var dispatcherProcessorPipeline = context.AddSatellitePipeline("Timeout Dispatcher Processor", dispatcherAddress);
+            context.Settings.Get<TimeoutManagerAddressConfiguration>().Set(processorAddress);
+
+            string dispatcherAddress;
+            var dispatcherProcessorPipeline = context.AddSatellitePipeline("Timeout Dispatcher Processor", "TimeoutsDispatcher", out dispatcherAddress);
             dispatcherProcessorPipeline.Register<MoveFaultsToErrorQueueBehavior.Registration>();
             dispatcherProcessorPipeline.Register<FirstLevelRetriesBehavior.Registration>();
             dispatcherProcessorPipeline.Register<DispatchTimeoutBehavior.Registration>();
@@ -76,9 +73,7 @@
 
         bool HasAlternateTimeoutManagerBeenConfigured(ReadOnlySettings settings)
         {
-            var unicastConfig = settings.GetConfigSection<UnicastBusConfig>();
-
-            return unicastConfig != null && !string.IsNullOrWhiteSpace(unicastConfig.TimeoutManagerAddress);
+            return settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress != null;
         }
     }
 }

@@ -114,7 +114,19 @@ namespace NServiceBus
         public void EndpointName(string name)
         {
             Guard.AgainstNullAndEmpty("name", name);
-            endpointName = name;
+            endpointName = new EndpointName(name);
+        }
+
+        /// <summary>
+        /// Registers a callback which allows to override the default translation of a logical address to the transport address in case the default
+        /// does not comply with naming rules implied by the transport (e.g. too long, invalid characters).
+        /// The callback takes a logical address and a default translation and should return an overridden (or the provided default) translation.
+        /// </summary>
+        /// <param name="translation">The translation callback.</param>
+        public void UseCustomLogicalToTransportAddressTranslation(Func<LogicalAddress, string, string> translation)
+        {
+            Guard.AgainstNull("translation", translation);
+            addressTranslation = translation;
         }
 
         /// <summary>
@@ -172,16 +184,6 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Sets the address of this endpoint.
-        /// </summary>
-        /// <param name="queue">The queue name.</param>
-        public void OverrideLocalAddress(string queue)
-        {
-            Guard.AgainstNullAndEmpty("queue", queue);
-            Settings.Set("NServiceBus.LocalAddress", queue);
-        }
-
-        /// <summary>
         ///     Specifies the range of types that NServiceBus scans for handlers etc.
         /// </summary>
         internal void TypesToScanInternal(IEnumerable<Type> typesToScan)
@@ -220,24 +222,16 @@ namespace NServiceBus
 
             var endpointHelper = new EndpointHelper(new StackTrace());
 
-            if (endpointVersion == null)
+            Settings.SetDefault("EndpointVersion", endpointHelper.GetEndpointVersion());
+            Settings.SetDefault<EndpointName>(endpointName ?? new EndpointName(endpointHelper.GetDefaultEndpointName()));
+            if (addressTranslation != null)
             {
-                endpointVersion = endpointHelper.GetEndpointVersion();
+                Settings.Set("LogicalToTransportAddressTranslation", addressTranslation);
             }
-
-            if (endpointName == null)
-            {
-                endpointName = endpointHelper.GetDefaultEndpointName();
-            }
-
-            Settings.SetDefault("EndpointName", endpointName);
-            Settings.SetDefault("EndpointVersion", endpointVersion);
-
             if (publicReturnAddress != null)
             {
                 Settings.SetDefault("PublicReturnAddress", publicReturnAddress);
             }
-
             container.RegisterSingleton(typeof(Conventions), conventionsBuilder.Conventions);
 
             Settings.SetDefault<Conventions>(conventionsBuilder.Conventions);
@@ -274,8 +268,8 @@ namespace NServiceBus
         ConventionsBuilder conventionsBuilder;
         List<Action<IConfigureComponents>> registrations = new List<Action<IConfigureComponents>>();
         IContainer customBuilder;
-        string endpointName;
-        string endpointVersion;
+        EndpointName endpointName;
+        Func<LogicalAddress, string, string> addressTranslation;
         IList<Type> scannedTypes;
         List<Type> excludedTypes = new List<Type>();
         List<string> excludedAssemblies = new List<string>();

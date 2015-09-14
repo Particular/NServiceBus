@@ -39,7 +39,7 @@ namespace NServiceBus.Features
                 var pipelinesCollection = context.Settings.Get<PipelineConfiguration>();
              
                 var dispatchPipeline = new PipelineBase<DispatchContext>(b, context.Settings, pipelinesCollection.MainPipeline);
-                return new SecondLevelRetriesBehavior(dispatchPipeline,retryPolicy,b.Build<BusNotifications>());
+                return new SecondLevelRetriesBehavior(dispatchPipeline,retryPolicy,b.Build<BusNotifications>(), context.Settings.LocalAddress());
             }, DependencyLifecycle.InstancePerCall);
         }
 

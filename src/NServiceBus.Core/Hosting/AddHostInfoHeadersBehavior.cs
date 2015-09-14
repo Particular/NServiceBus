@@ -10,9 +10,9 @@
     class AddHostInfoHeadersBehavior : Behavior<OutgoingContext>
     {
         HostInformation hostInformation;
-        string endpointName;
+        EndpointName endpointName;
 
-        public AddHostInfoHeadersBehavior(HostInformation hostInformation, string endpointName)
+        public AddHostInfoHeadersBehavior(HostInformation hostInformation, EndpointName endpointName)
         {
             this.hostInformation = hostInformation;
             this.endpointName = endpointName;
@@ -21,7 +21,7 @@
         public override void Invoke(OutgoingContext context, Action next)
         {
             context.SetHeader(Headers.OriginatingMachine, RuntimeEnvironment.MachineName);
-            context.SetHeader(Headers.OriginatingEndpoint, endpointName);
+            context.SetHeader(Headers.OriginatingEndpoint, endpointName.ToString());
             context.SetHeader(Headers.OriginatingHostId, hostInformation.HostId.ToString("N"));
 
             next();

@@ -35,7 +35,7 @@ namespace NServiceBus
 
                     message.RevertToOriginalBodyIfNeeded();
 
-                    message.SetExceptionHeaders(exception, PipelineInfo.PublicAddress);
+                    message.SetExceptionHeaders(exception, PipelineInfo.TransportAddress);
 
                     message.Headers.Remove(Headers.Retries);
 

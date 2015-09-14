@@ -1,14 +1,18 @@
 
 namespace NServiceBus.Unicast.Queuing
 {
-    using System.Linq;
     using Installation;
     using Logging;
     using Transports;
 
     class QueuesCreator : INeedToInstallSomething
     {
-        public ICreateQueues QueueCreator { get; set; }
+        readonly ICreateQueues queueCreator;
+
+        public QueuesCreator(ICreateQueues queueCreator)
+        {
+            this.queueCreator = queueCreator;
+        }
 
         public void Install(string identity, Configure config)
         {
@@ -23,13 +27,22 @@ namespace NServiceBus.Unicast.Queuing
             }
 
             var queueBindings = config.Settings.Get<QueueBindings>();
-            var boundQueueAddresses = queueBindings.ReceivingAddresses.Concat(queueBindings.SendingAddresses);
 
-            foreach (var address in boundQueueAddresses)
+            foreach (var receiveLogicalAddress in queueBindings.ReceivingAddresses)
             {
-                QueueCreator.CreateQueueIfNecessary(address, identity);
-                Logger.DebugFormat("Verified that the queue: [{0}] existed", address);
+                CreateQueue(identity, receiveLogicalAddress);
             }
+
+            foreach (var sendingAddress in queueBindings.SendingAddresses)
+            {
+                CreateQueue(identity, sendingAddress);
+            }
+        }
+
+        void CreateQueue(string identity, string transportAddress)
+        {
+            queueCreator.CreateQueueIfNecessary(transportAddress, identity);
+            Logger.DebugFormat("Verified that the queue: [{0}] existed", transportAddress);
         }
 
         static ILog Logger = LogManager.GetLogger<QueuesCreator>();

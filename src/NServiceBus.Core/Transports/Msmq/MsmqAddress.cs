@@ -63,6 +63,11 @@ namespace NServiceBus
             return new MsmqAddress(queue, machineName);
         }
 
+        public bool IsRemote
+        {
+            get { return Machine != RuntimeEnvironment.MachineName; }
+        }
+
         static string ApplyLocalMachineConventions(string machineName)
         {
             if (
@@ -86,7 +91,45 @@ namespace NServiceBus
             Queue = queueName;
             Machine = machineName;
         }
-        
+
+        /// <summary>
+        /// Returns an equivalent address which is compatible with a given one with regards to how machine is specified. If a given address has machine specified via IP (as opposed
+        /// to host name), the new address will also have machine specified via IP.
+        /// </summary>
+        /// <param name="other">The address to be compatible with.</param>
+        /// <param name="ipLookup">The IP address lookup method.</param>
+        /// <returns></returns>
+        public MsmqAddress MakeCompatibleWith(MsmqAddress other, Func<string, string> ipLookup)
+        {
+            IPAddress _;
+            if (IPAddress.TryParse(other.Machine, out _) && !IPAddress.TryParse(Machine, out _))
+            {
+                return new MsmqAddress(Queue, ipLookup(Machine));
+            }
+            return this;
+        }
+
+        public string FullPath
+        {
+            get
+            {
+                IPAddress ipAddress;
+                if (IPAddress.TryParse(Machine, out ipAddress))
+                {
+                    return PREFIX_TCP + PathWithoutPrefix;
+                }
+                return PREFIX + PathWithoutPrefix;                
+            }
+        }
+
+        public string PathWithoutPrefix
+        {
+            get
+            {
+                return Machine + PRIVATE + Queue;
+            }
+        }
+
         /// <summary>
         /// Returns a string representation of the address.
         /// </summary>
@@ -95,13 +138,12 @@ namespace NServiceBus
             return Queue + "@" + Machine;
         }
 
-        /// <summary>
-        /// Returns a string representation of the address.
-        /// </summary>
-        public string ToString(string qualifier)
-        {
-            return Queue + "." + qualifier + "@" + Machine;
-        }
+        const string DIRECTPREFIX_TCP = "DIRECT=TCP:";
+        const string PREFIX_TCP = "FormatName:" + DIRECTPREFIX_TCP;
 
+        const string PREFIX = "FormatName:" + DIRECTPREFIX;
+        const string DIRECTPREFIX = "DIRECT=OS:";
+
+        const string PRIVATE = "\\private$\\";
     }
 }

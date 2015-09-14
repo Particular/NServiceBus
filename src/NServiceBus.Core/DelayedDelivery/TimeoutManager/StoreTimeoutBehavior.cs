@@ -20,6 +20,9 @@ namespace NServiceBus
             this.owningTimeoutManager = owningTimeoutManager;
         }
 
+        // ReSharper disable once UnusedAutoPropertyAccessor.Global
+        public EndpointName EndpointName { get; set; }
+
         public override void Terminate(PhysicalMessageProcessingStageBehavior.Context context)
         {
             var message = context.GetPhysicalMessage();

@@ -5,6 +5,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Extensibility;
+    using NServiceBus.Features;
     using NServiceBus.Pipeline;
     using NServiceBus.Sagas;
     using NUnit.Framework;
@@ -40,7 +41,11 @@ namespace NServiceBus.AcceptanceTests.Sagas
         {
             public SagaEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.Pipeline.Register<BehaviorWhichAddsThingsToTheContext.Registration>());
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    c.EnableFeature<TimeoutManager>();
+                    c.Pipeline.Register<BehaviorWhichAddsThingsToTheContext.Registration>();
+                });
             }
 
             class CustomFinder : IFindSagas<TestSaga07.SagaData07>.Using<StartSagaMessage>

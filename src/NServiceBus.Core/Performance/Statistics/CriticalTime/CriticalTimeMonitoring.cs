@@ -16,7 +16,7 @@ namespace NServiceBus.Features
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var criticalTimeCounter = PerformanceCounterHelper.InstantiatePerformanceCounter("Critical Time", context.Settings.EndpointName());
+            var criticalTimeCounter = PerformanceCounterHelper.InstantiatePerformanceCounter("Critical Time", context.Settings.EndpointName().ToString());
             var criticalTimeCalculator = new CriticalTimeCalculator(criticalTimeCounter);
             context.Container.RegisterSingleton(criticalTimeCalculator);
             context.Pipeline.Register<CriticalTimeBehavior.Registration>();

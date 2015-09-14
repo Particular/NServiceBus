@@ -234,6 +234,7 @@
                     await Task.Delay(1).ConfigureAwait(false);
                 }
             }
+// ReSharper disable once EmptyGeneralCatchClause
             catch(Exception)
             {
                 // We swallow like the original code

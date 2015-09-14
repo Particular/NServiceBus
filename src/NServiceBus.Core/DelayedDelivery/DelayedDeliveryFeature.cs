@@ -3,15 +3,22 @@
     using NServiceBus.Config;
     using NServiceBus.DelayedDelivery;
     using NServiceBus.DeliveryConstraints;
+    using NServiceBus.Features.DelayedDelivery;
     using NServiceBus.Pipeline;
     using NServiceBus.TransportDispatch;
-    using NServiceBus.Transports;
+
 
     class DelayedDeliveryFeature : Feature
     {
         public DelayedDeliveryFeature()
         {
             EnableByDefault();
+            DependsOnOptionally<TimeoutManager>();
+            Defaults(s =>
+            {
+                var timeoutManagerAddressConfiguration = new TimeoutManagerAddressConfiguration(s.GetConfigSection<UnicastBusConfig>().TimeoutManagerAddress);
+                s.Set<TimeoutManagerAddressConfiguration>(timeoutManagerAddressConfiguration);
+            });
         }
 
         protected internal override void Setup(FeatureConfigurationContext context)
@@ -28,7 +35,7 @@
                 }
                 else
                 {
-                    var timeoutManagerAddress = GetTimeoutManagerAddress(context);
+                    var timeoutManagerAddress = context.Settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress;
 
                     context.Pipeline.Register<RouteDeferredMessageToTimeoutManagerBehavior.Registration>();
 
@@ -61,18 +68,6 @@
                 return timeoutMgrState == FeatureState.Deactivated || timeoutMgrState == FeatureState.Disabled;
             }
             return true;
-        }
-
-        static string GetTimeoutManagerAddress(FeatureConfigurationContext context)
-        {
-            var unicastConfig = context.Settings.GetConfigSection<UnicastBusConfig>();
-
-            if (unicastConfig != null && !string.IsNullOrWhiteSpace(unicastConfig.TimeoutManagerAddress))
-            {
-                return unicastConfig.TimeoutManagerAddress;
-            }
-            var selectedTransportDefinition = context.Settings.Get<TransportDefinition>();
-            return selectedTransportDefinition.GetSubScope(context.Settings.Get<string>("MasterNode.Address"), "Timeouts");
         }
 
         static void DoNotClearTimeouts(FeatureConfigurationContext context)

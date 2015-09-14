@@ -62,7 +62,7 @@
                 EndpointSetup<DefaultServer>(builder =>
                 {
                     builder.DisableFeature<AutoSubscribe>();
-                    builder.OverrideLocalAddress("myinputqueue");
+                    //builder.OverrideLocalAddress("myinputqueue"); Fix in 133
                 })
                     .AddMapping<MyEvent>(typeof(Publisher));
             }

@@ -133,6 +133,7 @@
     <Compile Include="DelayedDelivery\TimeoutManager\Persistence\IQueryTimeouts.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\Persistence\TimeoutPersistenceOptions.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\Persistence\TimeoutsChunk.cs" />
+    <Compile Include="DelayedDelivery\TimeoutManagerAddressConfiguration.cs" />
     <Compile Include="DeliveryConstraints\DeliveryConstraintContextExtensions.cs" />
     <Compile Include="Encryption\DecryptBehavior.cs" />
     <Compile Include="Encryption\EncryptBehavior.cs" />
@@ -146,6 +147,8 @@
     <Compile Include="Extensibility\ExtendableOptionsExtensions.cs" />
     <Compile Include="Extensibility\ReadOnlyContextBag.cs" />
     <Compile Include="Faults\ConfigureError.cs" />
+    <Compile Include="EndpointInstanceName.cs" />
+    <Compile Include="EndpointName.cs" />
     <Compile Include="Faults\FailedMessage.cs" />
     <Compile Include="Faults\ErrorsNotifications.cs" />
     <Compile Include="Faults\ErrorSubscribers.cs" />
@@ -206,6 +209,7 @@
     <Compile Include="DelayedDelivery\DelayDeliveryWith.cs" />
     <Compile Include="Reliability\Outbox\OutboxStorageOptions.cs" />
     <Compile Include="Routing\DefaultMessageRouter.cs" />
+    <Compile Include="Features\RootFeature.cs" />
     <Compile Include="Routing\DetermineRouteForPublishBehavior.cs" />
     <Compile Include="Routing\DetermineRouteForSendBehavior.cs" />
     <Compile Include="Routing\DirectToTargetDestination.cs" />
@@ -224,6 +228,7 @@
     <Compile Include="Routing\MessagingBestPractices\BestPracticesOptionExtensions.cs" />
     <Compile Include="Pipeline\Contexts\OutgoingContext.cs" />
     <Compile Include="Persistence\InMemory\Outbox\InMemoryOutboxSettingsExtensions.cs" />
+    <Compile Include="LogicalAddress.cs" />
     <Compile Include="Pipeline\Contexts\PhysicalMessageProcessingStageBehavior.cs" />
     <Compile Include="Pipeline\BehaviorInvoker.cs" />
     <Compile Include="Pipeline\Contexts\IncomingContext.cs" />
@@ -270,8 +275,8 @@
     <Compile Include="TransportDispatch\DispatchStrategy.cs" />
     <Compile Include="TransportDispatch\DispatchTerminator.cs" />
     <Compile Include="TransportDispatch\HeaderContextExtensions.cs" />
-    <Compile Include="Transports\DequeueInfo.cs" />
     <Compile Include="Transports\PushRuntimeSettings.cs" />
+    <Compile Include="Transports\LogicalToTransportAddressTranslation.cs" />
     <Compile Include="Transports\Msmq\MsmqLabelGenerator.cs" />
     <Compile Include="Transports\ICancelDeferredMessages.cs" />
     <Compile Include="Transports\Msmq\MsmqAddress.cs" />

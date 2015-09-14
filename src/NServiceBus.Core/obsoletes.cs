@@ -169,6 +169,15 @@ namespace NServiceBus
             }
         }
 
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "UseCustomLogicalToTransportAddressTranslation",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public void OverrideLocalAddress(string queue)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 
     public partial class Configure
@@ -1416,5 +1425,25 @@ namespace NServiceBus.Unicast.Transport
                RemoveInVersion = "7.0",
                TreatAsErrorFromVersion = "6.0")]
         public bool DoNotWrapHandlersExecutionInATransactionScope { get; set; }
+    }
+}
+
+namespace NServiceBus.Settings
+{
+    using System;
+
+    public partial class ScaleOutSettings
+    {
+        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", Message = "This is the default starting with V6.")]
+        public void UseSingleBrokerQueue()
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "UniqueQueuePerEndpointInstance")]
+        public void UseUniqueBrokerQueuePerMachine()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

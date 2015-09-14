@@ -2,11 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Messaging;
-    using System.Net;
-    using System.Net.NetworkInformation;
-    using System.Net.Sockets;
     using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.DeliveryConstraints;
     using NServiceBus.Extensibility;
@@ -25,7 +21,10 @@
             var options = new DispatchOptions("destination", new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), new ContextBag());
 
 
-            var message = MsmqUtilities.Convert(new OutgoingMessage("message id",new Dictionary<string, string> { { "NServiceBus.ExceptionInfo.Message" ,expected} }, new byte[0]), options);
+            var message = MsmqUtilities.Convert(new OutgoingMessage("message id", new Dictionary<string, string>
+            {
+                {"NServiceBus.ExceptionInfo.Message", expected}
+            }, new byte[0]), options);
             var headers = MsmqUtilities.ExtractHeaders(message);
 
             Assert.AreEqual(expected, headers["NServiceBus.ExceptionInfo.Message"]);
@@ -38,11 +37,14 @@
             var options = new DispatchOptions("destination", new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), new ContextBag());
 
             Console.Out.WriteLine(sizeof(char));
-            var message = MsmqUtilities.Convert(new OutgoingMessage("message id",new Dictionary<string, string> { { "NServiceBus.ExceptionInfo.Message", expected } }, new byte[0]), options);
-            var bufferWithNulls = new byte[message.Extension.Length + (10 * sizeof(char))];
-            
-            Buffer.BlockCopy(message.Extension, 0, bufferWithNulls, 0, bufferWithNulls.Length - (10 * sizeof(char)));
-            
+            var message = MsmqUtilities.Convert(new OutgoingMessage("message id", new Dictionary<string, string>
+            {
+                {"NServiceBus.ExceptionInfo.Message", expected}
+            }, new byte[0]), options);
+            var bufferWithNulls = new byte[message.Extension.Length + (10*sizeof(char))];
+
+            Buffer.BlockCopy(message.Extension, 0, bufferWithNulls, 0, bufferWithNulls.Length - (10*sizeof(char)));
+
             message.Extension = bufferWithNulls;
 
             var headers = MsmqUtilities.ExtractHeaders(message);
@@ -55,10 +57,10 @@
         {
             var message = MsmqUtilities.Convert(new OutgoingMessage("message id", new Dictionary<string, string>(), new byte[0]), new DispatchOptions("destination", new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), new ContextBag()));
 
-            message.ResponseQueue = new MessageQueue(MsmqUtilities.GetReturnAddress("local", Environment.MachineName));
+            message.ResponseQueue = new MessageQueue(new MsmqAddress("local", Environment.MachineName).FullPath);
             var headers = MsmqUtilities.ExtractHeaders(message);
 
-            Assert.AreEqual("local@"+Environment.MachineName, headers[Headers.ReplyToAddress]);
+            Assert.AreEqual("local@" + Environment.MachineName, headers[Headers.ReplyToAddress]);
         }
 
         [Test]
@@ -66,7 +68,7 @@
         {
             var options = new DispatchOptions("destination", new AtomicWithReceiveOperation(), new List<DeliveryConstraint>{new DiscardIfNotReceivedBefore(TimeSpan.FromDays(1))}, new ContextBag());
 
-            var message = MsmqUtilities.Convert(new OutgoingMessage("message id",new Dictionary<string, string>(),  new byte[0]), options);
+            var message = MsmqUtilities.Convert(new OutgoingMessage("message id", new Dictionary<string, string>(), new byte[0]), options);
 
             Assert.AreEqual(TimeSpan.FromDays(1), message.TimeToBeReceived);
         }
@@ -77,49 +79,9 @@
         {
             var options = new DispatchOptions("destination", new AtomicWithReceiveOperation(), new List<DeliveryConstraint> { new NonDurableDelivery() }, new ContextBag());
 
-      
             Assert.False(MsmqUtilities.Convert(new OutgoingMessage("message id", new Dictionary<string, string>(), new byte[0]), options).Recoverable);
             Assert.True(MsmqUtilities.Convert(new OutgoingMessage("message id", new Dictionary<string, string>(), new byte[0]), new DispatchOptions("destination", new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), new ContextBag())).Recoverable);
         }
 
-  
-
-        [Test]
-        public void GetReturnAddress_for_both_with_machine_name_should_return_replyToAddress_with_reply_machine()
-        {
-            var returnAddress = MsmqUtilities.GetReturnAddress("replytoaddress@replytomachine", "destinationmachine");
-            Assert.AreEqual(@"FormatName:DIRECT=OS:replytomachine\private$\replytoaddress", returnAddress);
-        }
-
-        [Test]
-        public void GetReturnAddress_for_both_with_ipAddress_should_return_replyToAddress_with_localIP()
-        {
-            var returnAddress = MsmqUtilities.GetReturnAddress("replytoaddress@202.171.13.141", "202.171.13.140");
-            returnAddress = returnAddress.Replace(LocalIPAddress(), "TheLocalIP");
-            Assert.AreEqual(@"FormatName:DIRECT=TCP:TheLocalIP\private$\replytoaddress", returnAddress);
-        }
-
-        [Test]
-        public void GetReturnAddress_for_destination_with_ipAddress_should_return_replyToAddress_with_localIP()
-        {
-            var returnAddress = MsmqUtilities.GetReturnAddress("replytoaddress@replytomachine", "202.171.13.140");
-            returnAddress = returnAddress.Replace(LocalIPAddress(), "TheLocalIP");
-            Assert.AreEqual(@"FormatName:DIRECT=TCP:TheLocalIP\private$\replytoaddress", returnAddress);
-        }
-
-        string LocalIPAddress()
-        {
-            if (!NetworkInterface.GetIsNetworkAvailable())
-            {
-                return null;
-            }
-
-            var host = Dns.GetHostEntry(Dns.GetHostName());
-
-            return host
-                .AddressList
-                .First(ip => ip.AddressFamily == AddressFamily.InterNetwork)
-                .ToString();
-        }
     }
 }

@@ -49,7 +49,7 @@
             static void CheckQueue(string address)
             {
                 var msmqAddress = MsmqAddress.Parse(address);
-                var queuePath = QueueCreator.GetFullPathWithoutPrefix(msmqAddress);
+                var queuePath = msmqAddress.PathWithoutPrefix;
 
                 if (MessageQueue.Exists(queuePath))
                 {

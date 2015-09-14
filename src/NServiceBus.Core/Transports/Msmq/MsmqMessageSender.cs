@@ -43,10 +43,9 @@ namespace NServiceBus.Transports.Msmq
             var destination = routingStrategy.Destination;
             
             var destinationAddress = MsmqAddress.Parse(destination);
-            var queuePath = MsmqUtilities.GetFullPath(destinationAddress);
             try
             {
-                using (var q = new MessageQueue(queuePath, false, settings.UseConnectionCache, QueueAccessMode.Send))
+                using (var q = new MessageQueue(destinationAddress.FullPath, false, settings.UseConnectionCache, QueueAccessMode.Send))
                 using (var toSend = MsmqUtilities.Convert(message,dispatchOptions))
                 {
                     toSend.UseDeadLetterQueue = settings.UseDeadLetterQueue;
@@ -57,8 +56,7 @@ namespace NServiceBus.Transports.Msmq
 
                     if (message.Headers.TryGetValue(Headers.ReplyToAddress, out replyToAddress))
                     {
-                        var returnAddress = MsmqUtilities.GetReturnAddress(replyToAddress, destinationAddress.Machine);
-                        toSend.ResponseQueue = new MessageQueue(returnAddress);
+                        toSend.ResponseQueue = new MessageQueue(MsmqAddress.Parse(replyToAddress).FullPath);
                     }
 
                     MessageQueueTransaction receiveTransaction;
