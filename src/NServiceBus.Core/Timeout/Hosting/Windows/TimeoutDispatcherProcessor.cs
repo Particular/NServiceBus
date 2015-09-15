@@ -38,7 +38,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
                 }
                 catch
                 {
-                    timeoutData.Id = string.Empty;
+                    timeoutData.Id = null;
                     timeoutData.Time = DateTime.UtcNow.AddSeconds(5);
                     TimeoutsPersister.Add(timeoutData);
                 }
