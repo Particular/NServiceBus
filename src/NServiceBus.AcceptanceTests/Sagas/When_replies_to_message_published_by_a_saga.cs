@@ -69,8 +69,7 @@
 
                 public Task Handle(DidSomething message)
                 {
-                    Bus.Reply(new DidSomethingResponse { ReceivedDataId = message.DataId });
-                    return Task.FromResult(0);
+                    return Bus.ReplyAsync(new DidSomethingResponse { ReceivedDataId = message.DataId });
                 }
             }
         }

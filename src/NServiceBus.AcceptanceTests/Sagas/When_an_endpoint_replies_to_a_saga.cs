@@ -48,8 +48,7 @@
 
                 public Task Handle(DoSomething message)
                 {
-                    Bus.Reply(new DoSomethingResponse { RunId = message.RunId });
-                    return Task.FromResult(0);
+                    return Bus.ReplyAsync(new DoSomethingResponse { RunId = message.RunId });
                 }
             }
         }

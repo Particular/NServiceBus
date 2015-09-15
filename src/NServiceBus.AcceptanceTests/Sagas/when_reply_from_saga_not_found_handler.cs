@@ -95,8 +95,7 @@
 
                 public Task Handle(object message)
                 {
-                    Bus.Reply(new Reply());
-                    return Task.FromResult(0);
+                    return Bus.ReplyAsync(new Reply());
                 }
             }
         }

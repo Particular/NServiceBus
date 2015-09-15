@@ -41,8 +41,7 @@
 
                 public Task Handle(MyMessage messageThatIsEnlisted)
                 {
-                    Bus.Reply(new MyReply());
-                    return Task.FromResult(0);
+                    return Bus.ReplyAsync(new MyReply());
                 }
             }
         }

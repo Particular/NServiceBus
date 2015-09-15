@@ -177,7 +177,7 @@ namespace NServiceBus
                 SagaIdToUse = null
             });
 
-            Bus.Reply(message, options);
+            Bus.ReplyAsync(message, options).GetAwaiter().GetResult();
         }
 
         /// <summary>

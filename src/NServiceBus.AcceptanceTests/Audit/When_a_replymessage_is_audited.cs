@@ -52,9 +52,7 @@
 
                     replyOptions.SetHeader("MyHeader", "SomeValue");
 
-                    Bus.Reply(new ResponseToBeAudited(), replyOptions);
-
-                    return Task.FromResult(0);
+                    return Bus.ReplyAsync(new ResponseToBeAudited(), replyOptions);
                 }
             }
         }

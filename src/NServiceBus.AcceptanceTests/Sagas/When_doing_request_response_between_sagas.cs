@@ -90,9 +90,7 @@
                     // Both reply and reply to originator work here since the sender of the incoming message is the requesting saga
                     // also note we don't set the correlation ID since auto correlation happens to work for this special case 
                     // where we reply from the first handler
-                    Bus.Reply(new ResponseFromOtherSaga());
-
-                    return Task.FromResult(0);
+                    return Bus.ReplyAsync(new ResponseFromOtherSaga());
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestResponseRespondingSagaData> mapper)
@@ -125,7 +123,7 @@
                 void SendReply()
                 {
                     //reply to originator must be used here since the sender of the incoming message the timeoutmanager and not the requesting saga
-                    ReplyToOriginator(new ResponseFromOtherSaga //change this line to Bus.Reply(new ResponseFromOtherSaga  and see it fail
+                    ReplyToOriginator(new ResponseFromOtherSaga //change this line to Bus.ReplyAsync(new ResponseFromOtherSaga  and see it fail
                     {
                         SomeCorrelationId = Data.CorrIdForRequest //wont be needed in the future
                     });
