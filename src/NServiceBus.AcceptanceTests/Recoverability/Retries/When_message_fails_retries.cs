@@ -19,7 +19,7 @@
                         bus.SendLocal(new MessageWhichFailsRetries());
                         return Task.FromResult(0);
                     }))
-                    .AllowExceptions(e => e is RetryEndpoint.SimulatedException)
+                    .AllowSimulatedExceptions()
                     .Done(c => c.ForwardedToErrorQueue)
                     .Run();
 
@@ -74,10 +74,6 @@
                     Context.PhysicalMessageId = Bus.CurrentMessageContext.Id;
                     throw new SimulatedException();
                 }
-            }
-
-            public class SimulatedException : Exception
-            {
             }
         }
 

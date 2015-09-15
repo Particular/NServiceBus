@@ -101,6 +101,11 @@ namespace NServiceBus.AcceptanceTesting
             return this;
         }
 
+        public IScenarioWithEndpointBehavior<TContext> AllowSimulatedExceptions()
+        {
+            return AllowExceptions(e => e is SimulatedException);
+        }
+
         public IAdvancedScenarioWithEndpointBehavior<TContext> MaxTestParallelism(int maxParallelism)
         {
             limitTestParallelismTo = maxParallelism;

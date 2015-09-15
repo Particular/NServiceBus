@@ -22,13 +22,13 @@
                        bus.SendLocal(new MessageToBeRetried { Id = context.Id });
                        return Task.FromResult(0);
                    }))
-                   .AllowExceptions()
+                   .AllowSimulatedExceptions()
                    .Done(c => c.GaveUpOnRetries)
                    .Repeat(r => r.For<AllDtcTransports>())
                    .Should(c =>
                    {
-                        //we add 1 since first call + X retries totals to X+1
-                        Assert.AreEqual(maxretries + 1, c.NumberOfTimesInvoked, string.Format("The FLR should by default retry {0} times", maxretries));
+                       //we add 1 since first call + X retries totals to X+1
+                       Assert.AreEqual(maxretries + 1, c.NumberOfTimesInvoked, string.Format("The FLR should by default retry {0} times", maxretries));
                        Assert.AreEqual(maxretries, c.Logs.Count(l => l.Message
                            .StartsWith(string.Format("First Level Retry is going to retry message '{0}' because of an exception:", c.PhysicalMessageId))));
                        Assert.AreEqual(1, c.Logs.Count(l => l.Message
@@ -87,7 +87,7 @@
                     Context.PhysicalMessageId = Bus.CurrentMessageContext.Id;
                     Context.NumberOfTimesInvoked++;
 
-                    throw new Exception("Simulated exception");
+                    throw new SimulatedException();
                 }
             }
         }

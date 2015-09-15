@@ -19,7 +19,7 @@
                         bus.SendLocal(new MyMessage());
                         return Task.FromResult(0);
                     }))
-                    .AllowExceptions()
+                    .AllowSimulatedExceptions()
                     .Done(c => c.TestComplete)
                     .Repeat(r => r.For(Transports.Default))
                     .Should(c => Assert.AreEqual(1, c.TimesCalled, "Should not retry the message"))
@@ -54,7 +54,7 @@
                         Bus.SendLocal(new CompleteTest());
                     }
 
-                    throw new Exception("Simulated exception");
+                    throw new SimulatedException();
                 }
             }
 

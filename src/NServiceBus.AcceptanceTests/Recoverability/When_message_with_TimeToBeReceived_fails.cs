@@ -15,7 +15,7 @@
             var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointThatThrows>(b => b.Given(Send()))
             .WithEndpoint<EndpointThatHandlesErrorMessages>()
-            .AllowExceptions()
+            .AllowSimulatedExceptions()
             .Done(c => c.MessageFailed && c.TTBRHasExpiredAndMessageIsStillInErrorQueue)
             .Run();
 
@@ -66,7 +66,7 @@
                 public Task Handle(MessageThatFails message)
                 {
                     context.MessageFailed = true;
-                    throw new Exception("Simulated exception");
+                    throw new SimulatedException();
                 }
             }
         }

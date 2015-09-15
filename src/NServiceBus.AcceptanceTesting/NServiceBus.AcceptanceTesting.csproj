@@ -78,6 +78,7 @@
     <Compile Include="Support\ScenarioDescriptor.cs" />
     <Compile Include="Support\ScenarioException.cs" />
     <Compile Include="Support\ScenarioRunner.cs" />
+    <Compile Include="Support\SimulatedException.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\NServiceBus.Core\NServiceBus.Core.csproj">

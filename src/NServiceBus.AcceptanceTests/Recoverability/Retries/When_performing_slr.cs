@@ -115,9 +115,5 @@
         public class MessageToBeRetried : IMessage
         {
         }
-
-        public class SimulatedException : Exception
-        {
-        }
     }
 }

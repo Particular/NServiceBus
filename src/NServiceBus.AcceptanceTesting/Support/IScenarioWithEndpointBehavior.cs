@@ -18,6 +18,8 @@
         IAdvancedScenarioWithEndpointBehavior<TContext> Repeat(Action<RunDescriptorsBuilder> runtimeDescriptor);
 
         IScenarioWithEndpointBehavior<TContext> AllowExceptions(Func<Exception,bool> filter = null);
+
+        IScenarioWithEndpointBehavior<TContext> AllowSimulatedExceptions();
     }
 
     public interface IAdvancedScenarioWithEndpointBehavior<TContext> where TContext : ScenarioContext

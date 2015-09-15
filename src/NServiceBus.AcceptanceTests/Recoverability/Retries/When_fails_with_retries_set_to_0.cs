@@ -14,7 +14,7 @@
         {
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                     .WithEndpoint<RetryEndpoint>()
-                    .AllowExceptions()
+                    .AllowSimulatedExceptions()
                     .Done(c => c.GaveUp)
                     .Run();
 
@@ -72,7 +72,7 @@
                         return Task.FromResult(0);
                     }
                     Context.NumberOfTimesInvoked++;
-                    throw new Exception("Simulated exception");
+                    throw new SimulatedException();
                 }
             }
         }

@@ -22,7 +22,7 @@
                         bus.SendLocal(new MessageToBeRetried { Id = context.Id });
                         return Task.FromResult(0);
                     }))
-                    .AllowExceptions(e => e.Message.Contains("Simulated exception"))
+                    .AllowSimulatedExceptions()
                     .Done(c => c.NumberOfTimesInvoked >= 2)
                     .Repeat(r => r.For(Transports.Default))
                     .Should(context =>
@@ -95,7 +95,7 @@
                     }
 
 
-                    throw new Exception("Simulated exception");
+                    throw new SimulatedException();
                 }
             }
         }

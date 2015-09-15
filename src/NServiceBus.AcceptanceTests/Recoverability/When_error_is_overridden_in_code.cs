@@ -19,7 +19,7 @@
                     return Task.FromResult(0);
                 }))
                 .WithEndpoint<ErrorSpy>()
-                .AllowExceptions()
+                .AllowSimulatedExceptions()
                 .Done(c => c.MessageReceived)
                 .Run();
 
@@ -45,7 +45,7 @@
             {
                 public Task Handle(Message message)
                 {
-                    throw new Exception();
+                    throw new SimulatedException();
                 }
             }
 

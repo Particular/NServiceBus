@@ -20,7 +20,7 @@
                     bus.SendLocal(new PlaceOrder());
                     return Task.FromResult(0);
                 }))
-                .AllowExceptions()
+                .AllowSimulatedExceptions()
                 .Done(c => c.OrderAckReceived == 1)
                 .Repeat(r=>r.For<AllOutboxCapableStorages>())
                 .Should(context => Assert.AreEqual(1, context.OrderAckReceived, "Order ack should have been received since outbox dispatch isn't part of the receive tx"))
@@ -83,7 +83,7 @@
 
                     called = true;
 
-                    throw new Exception("Fake ex after dispatch");
+                    throw new SimulatedException();
                 }
 
                 static bool called;
