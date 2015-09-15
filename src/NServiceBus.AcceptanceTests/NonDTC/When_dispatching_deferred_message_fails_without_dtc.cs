@@ -22,7 +22,7 @@
                     {
                        bus.Defer(delay, new MyMessage());
                     }))
-                    .AllowExceptions(e => e.Message == "simulated exception")
+                    .AllowExceptions()
                     .Done(c => c.MessageReceived)
                     .Run(TimeSpan.FromSeconds(10));
 
