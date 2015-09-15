@@ -92,7 +92,7 @@
 
                 public SenderWrapper(ISendMessages wrappedDispatcher)
                 {
-                    this.wrappedSender = wrappedDispatcher;
+                    wrappedSender = wrappedDispatcher;
                 }
 
                 public void Send(TransportMessage message, SendOptions sendOptions)
