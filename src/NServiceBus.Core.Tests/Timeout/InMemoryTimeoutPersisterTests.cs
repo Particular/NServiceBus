@@ -75,8 +75,9 @@ namespace NServiceBus.Core.Tests.Timeout
 
             await persister.Add(inputTimeout, options);
             await persister.Remove(inputTimeout.Id, options);
+            var result = await persister.Peek(inputTimeout.Id, options);
 
-            Assert.IsNull(persister.Peek(inputTimeout.Id, options).Result);
+            Assert.IsNull(result);
         }
 
         [Test]
@@ -91,9 +92,9 @@ namespace NServiceBus.Core.Tests.Timeout
                                };
             
             await persister.Add(inputTimeout, options);
-            await persister.RemoveTimeoutBy(newGuid, options);
+            var result = await persister.Peek(inputTimeout.Id, options);
 
-            Assert.IsNull(persister.Peek(inputTimeout.Id, options).Result);
+            Assert.IsNull(result);
         }
 
         [Test]

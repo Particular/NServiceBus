@@ -60,7 +60,7 @@ namespace NServiceBus.InMemory.TimeoutPersister
                 readerWriterLock.ExitWriteLock();
             }
 
-            return Task.FromResult(0);
+            return TaskEx.Completed;
         }
 
         public Task<TimeoutData> Peek(string timeoutId, TimeoutPersistenceOptions options)
@@ -82,7 +82,7 @@ namespace NServiceBus.InMemory.TimeoutPersister
                     }
                 }
 
-                return Task.FromResult(0);
+                return TaskEx.Completed;
             }
             finally
             {
@@ -111,7 +111,7 @@ namespace NServiceBus.InMemory.TimeoutPersister
                 readerWriterLock.ExitWriteLock();
             }
 
-            return Task.FromResult(0);
+            return TaskEx.Completed;
         }
 
         public void Dispose()
