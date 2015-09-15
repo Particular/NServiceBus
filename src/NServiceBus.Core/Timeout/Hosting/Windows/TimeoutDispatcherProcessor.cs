@@ -32,7 +32,16 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
             if (TimeoutsPersister.TryRemove(timeoutId, out timeoutData))
             {
-                MessageSender.Send(timeoutData.ToTransportMessage(), timeoutData.ToSendOptions(Configure.LocalAddress));
+                try
+                {
+                    MessageSender.Send(timeoutData.ToTransportMessage(), timeoutData.ToSendOptions(Configure.LocalAddress));
+                }
+                catch
+                {
+                    timeoutData.Id = string.Empty;
+                    timeoutData.Time = DateTime.UtcNow.AddSeconds(5);
+                    TimeoutsPersister.Add(timeoutData);
+                }
             }
 
             return true;

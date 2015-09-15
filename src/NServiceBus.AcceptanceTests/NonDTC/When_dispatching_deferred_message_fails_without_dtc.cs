@@ -24,7 +24,7 @@
                     }))
                     .AllowExceptions()
                     .Done(c => c.MessageReceived)
-                    .Run(TimeSpan.FromSeconds(10));
+                    .Run(TimeSpan.FromSeconds(70));
 
             Assert.IsTrue(context.MessageReceived);
         }
