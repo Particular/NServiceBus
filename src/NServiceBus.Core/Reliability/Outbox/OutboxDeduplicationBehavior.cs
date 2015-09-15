@@ -70,7 +70,7 @@
                 var deliveryConstraints = deliveryConstraintsFactory.DeserializeConstraints(transportOperation.Options)
                     .ToList();
             
-                dispatchStrategy.Dispatch(dispatcher, message, routingStrategy, new AtLeastOnce(), deliveryConstraints, context);
+                dispatchStrategy.Dispatch(dispatcher, message, routingStrategy, new AtLeastOnce(), deliveryConstraints, context).GetAwaiter().GetResult();
             }
         }
 

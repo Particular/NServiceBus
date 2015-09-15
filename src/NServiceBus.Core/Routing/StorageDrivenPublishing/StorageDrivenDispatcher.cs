@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.DeliveryConstraints;
     using NServiceBus.Pipeline;
@@ -19,7 +20,7 @@
             this.messageMetadataRegistry = messageMetadataRegistry;
         }
 
-        public override void Dispatch(IDispatchMessages dispatcher, OutgoingMessage message, RoutingStrategy routingStrategy, ConsistencyGuarantee minimumConsistencyGuarantee, IEnumerable<DeliveryConstraint> constraints, BehaviorContext currentContext)
+        public override async Task Dispatch(IDispatchMessages dispatcher, OutgoingMessage message, RoutingStrategy routingStrategy, ConsistencyGuarantee minimumConsistencyGuarantee, IEnumerable<DeliveryConstraint> constraints, BehaviorContext currentContext)
         {
             var currentConstraints = constraints.ToList();
 
@@ -27,10 +28,10 @@
 
             if (toAllSubscribersStrategy == null)
             {
-                dispatcher.Dispatch(message, new DispatchOptions(routingStrategy,
+                await dispatcher.Dispatch(message, new DispatchOptions(routingStrategy,
                     minimumConsistencyGuarantee,
                     currentConstraints,
-                    currentContext));
+                    currentContext)).ConfigureAwait(false);
 
                 return;
             }
@@ -55,10 +56,10 @@
 
             foreach (var subscriber in subscribers)
             {
-                dispatcher.Dispatch(message, new DispatchOptions(subscriber,
+                await dispatcher.Dispatch(message, new DispatchOptions(subscriber,
                     minimumConsistencyGuarantee,
                     currentConstraints,
-                    currentContext));
+                    currentContext)).ConfigureAwait(false);
             }
         }
 

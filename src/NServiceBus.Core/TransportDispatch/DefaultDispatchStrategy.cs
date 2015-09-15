@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.TransportDispatch
 {
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.DeliveryConstraints;
     using NServiceBus.Pipeline;
@@ -10,9 +11,9 @@
     class DefaultDispatchStrategy : DispatchStrategy
     {
         
-        public override void Dispatch(IDispatchMessages dispatcher,OutgoingMessage message, RoutingStrategy routingStrategy, ConsistencyGuarantee minimumConsistencyGuarantee, IEnumerable<DeliveryConstraint> constraints, BehaviorContext currentContext)
+        public override Task Dispatch(IDispatchMessages dispatcher,OutgoingMessage message, RoutingStrategy routingStrategy, ConsistencyGuarantee minimumConsistencyGuarantee, IEnumerable<DeliveryConstraint> constraints, BehaviorContext currentContext)
         {
-            dispatcher.Dispatch(message, new DispatchOptions(routingStrategy, minimumConsistencyGuarantee, constraints, currentContext));
+            return dispatcher.Dispatch(message, new DispatchOptions(routingStrategy, minimumConsistencyGuarantee, constraints, currentContext));
         }
     }
 }

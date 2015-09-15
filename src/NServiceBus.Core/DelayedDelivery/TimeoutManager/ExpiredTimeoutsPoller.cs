@@ -103,7 +103,8 @@ namespace NServiceBus.DelayedDelivery.TimeoutManager
 
                     dispatchRequest.Headers["Timeout.Id"] = timeoutData.Id;
 
-                    dispatcher.Dispatch(dispatchRequest, new DispatchOptions(dispatcherAddress, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), new ContextBag()));
+                    await dispatcher.Dispatch(dispatchRequest, new DispatchOptions(dispatcherAddress, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), new ContextBag()))
+                        .ConfigureAwait(false);
                 }
 
                 lock (lockObject)

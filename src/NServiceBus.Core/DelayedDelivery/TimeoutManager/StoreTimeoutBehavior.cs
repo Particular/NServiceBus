@@ -73,7 +73,8 @@ namespace NServiceBus
                 return;
             }
 
-            dispatcher.Dispatch(new OutgoingMessage(message.Id, message.Headers, message.Body), new DispatchOptions(destination, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), context));
+            await dispatcher.Dispatch(new OutgoingMessage(message.Id, message.Headers, message.Body), new DispatchOptions(destination, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), context))
+                .ConfigureAwait(false);
         }
 
         async Task HandleInternal(TransportMessage message, PhysicalMessageProcessingStageBehavior.Context context)
@@ -124,7 +125,7 @@ namespace NServiceBus
                     var sendOptions = new DispatchOptions(data.Destination, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), context);
                     var outgoingMessage = new OutgoingMessage(data.Headers[Headers.MessageId], data.Headers, data.State);
 
-                    dispatcher.Dispatch(outgoingMessage, sendOptions);
+                    await dispatcher.Dispatch(outgoingMessage, sendOptions).ConfigureAwait(false);
                     return;
                 }
 

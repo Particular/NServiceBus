@@ -44,7 +44,7 @@
                 subscriptionMessage.Headers[Headers.ReplyToAddress] = replyToAddress;
 
 
-                dispatcher.Dispatch(subscriptionMessage, new DispatchOptions(publisherAddress, new AtLeastOnce(), new List<DeliveryConstraint>(), new ContextBag()));
+                dispatcher.Dispatch(subscriptionMessage, new DispatchOptions(publisherAddress, new AtLeastOnce(), new List<DeliveryConstraint>(), new ContextBag())).GetAwaiter().GetResult();
             }
         }
 

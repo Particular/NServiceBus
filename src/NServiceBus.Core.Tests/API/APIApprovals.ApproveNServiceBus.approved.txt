@@ -2454,7 +2454,7 @@ namespace NServiceBus.Transports
     }
     public interface IDispatchMessages
     {
-        void Dispatch(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Transports.DispatchOptions dispatchOptions);
+        System.Threading.Tasks.Task Dispatch(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Transports.DispatchOptions dispatchOptions);
     }
     public interface IManageSubscriptions
     {
@@ -2581,7 +2581,7 @@ namespace NServiceBus.Transports.Msmq
     public class MsmqMessageSender : NServiceBus.Transports.IDispatchMessages
     {
         public MsmqMessageSender(NServiceBus.Transports.Msmq.Config.MsmqSettings settings, NServiceBus.MsmqLabelGenerator messageLabelGenerator) { }
-        public void Dispatch(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Transports.DispatchOptions dispatchOptions) { }
+        public System.Threading.Tasks.Task Dispatch(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Transports.DispatchOptions dispatchOptions) { }
     }
     [System.ObsoleteAttribute("The msmq transaction is now available via the pipeline context. Will be removed i" +
         "n version 7.0.0.", true)]
