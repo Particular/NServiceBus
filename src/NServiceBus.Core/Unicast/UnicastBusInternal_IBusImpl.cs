@@ -83,10 +83,10 @@
         }
         
         /// <inheritdoc />
-        public void ForwardCurrentMessageTo(string destination)
+        public Task ForwardCurrentMessageToAsync(string destination)
         {
             Guard.AgainstNullAndEmpty("destination", destination);
-            busImpl.ForwardCurrentMessageTo(destination);
+            return busImpl.ForwardCurrentMessageToAsync(destination);
         }
         
         /// <inheritdoc />

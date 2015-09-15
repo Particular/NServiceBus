@@ -49,7 +49,7 @@ namespace NServiceBus
         /// Forwards the current message being handled to the destination maintaining
         /// all of its transport-level properties and headers.
         /// </summary>
-        void ForwardCurrentMessageTo(string destination);
+        Task ForwardCurrentMessageToAsync(string destination);
 
         /// <summary>
         /// Tells the bus to stop dispatching the current message to additional

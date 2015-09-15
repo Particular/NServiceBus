@@ -148,7 +148,7 @@
             throw new NotImplementedException();
         }
 
-        public void ForwardCurrentMessageTo(string destination)
+        public Task ForwardCurrentMessageToAsync(string destination)
         {
             throw new NotImplementedException();
         }
