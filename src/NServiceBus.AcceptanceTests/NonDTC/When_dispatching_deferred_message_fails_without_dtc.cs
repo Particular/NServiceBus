@@ -90,9 +90,9 @@
                 ISendMessages wrappedSender;
                 bool failMessage = true;
 
-                public SenderWrapper(ISendMessages wrappedDispatcher)
+                public SenderWrapper(ISendMessages wrappedSender)
                 {
-                    wrappedSender = wrappedDispatcher;
+                    this.wrappedSender = wrappedSender;
                 }
 
                 public void Send(TransportMessage message, SendOptions sendOptions)
