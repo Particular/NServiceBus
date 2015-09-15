@@ -13,18 +13,10 @@
         {
             var context = await Scenario.Define<Context>()
                .WithEndpoint<Publisher1>(b =>
-                        b.When(c => c.SubscribedToPublisher1, bus =>
-                        {
-                            bus.Publish(new DerivedEvent1());
-                            return Task.FromResult(0);
-                        })
+                        b.When(c => c.SubscribedToPublisher1, bus => bus.PublishAsync(new DerivedEvent1()))
                      )
                 .WithEndpoint<Publisher2>(b =>
-                        b.When(c => c.SubscribedToPublisher2, bus =>
-                        {
-                            bus.Publish(new DerivedEvent2());
-                            return Task.FromResult(0);
-                        })
+                        b.When(c => c.SubscribedToPublisher2, bus => bus.PublishAsync(new DerivedEvent2()))
                      )
                .WithEndpoint<Subscriber1>(b => b.Given((bus, c) =>
                {

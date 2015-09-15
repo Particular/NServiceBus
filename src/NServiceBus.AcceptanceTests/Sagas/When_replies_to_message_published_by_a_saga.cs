@@ -93,8 +93,7 @@
                 public Task Handle(StartSaga message)
                 {
                     Data.DataId = message.DataId;
-                    Bus.Publish(new DidSomething { DataId = message.DataId });
-                    return Task.FromResult(0);
+                    return Bus.PublishAsync(new DidSomething { DataId = message.DataId });
                 }
 
                 public Task Handle(DidSomethingResponse message)

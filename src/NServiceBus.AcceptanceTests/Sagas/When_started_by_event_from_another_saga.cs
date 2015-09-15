@@ -67,17 +67,15 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(StartSaga message)
+                public async Task Handle(StartSaga message)
                 {
                     Data.DataId = message.DataId;
 
                     //Publish the event, which will start the second saga
-                    Bus.Publish<SomethingHappenedEvent>(m => { m.DataId = message.DataId; });
+                    await Bus.PublishAsync<SomethingHappenedEvent>(m => { m.DataId = message.DataId; });
 
                     //Request a timeout
                     RequestTimeout<Timeout1>(TimeSpan.FromSeconds(5));
-
-                    return Task.FromResult(0);
                 }
 
                 public Task Timeout(Timeout1 state)

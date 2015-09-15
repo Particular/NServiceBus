@@ -21,8 +21,7 @@
                             {
                                 ContextId = ctx.Id
                             };
-                            bus.Publish(message);
-                            return Task.FromResult(0);
+                            return bus.PublishAsync(message);
                         }))
                     .WithEndpoint<Subscriber>(b => b.Given((bus, context) =>
                     {

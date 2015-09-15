@@ -12,18 +12,17 @@
         public async Task Should_throw()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
+                    .WithEndpoint<Endpoint>(b => b.Given(async (bus, c) =>
                     {
                         try
                         {
-                            bus.Publish(new MyCommand());
+                            await bus.PublishAsync(new MyCommand());
                         }
                         catch (Exception ex)
                         {
                             c.Exception = ex;
                             c.GotTheException = true;
                         }
-                        return Task.FromResult(0);
                     }))
                     .Done(c => c.GotTheException)
                     .AllowExceptions()

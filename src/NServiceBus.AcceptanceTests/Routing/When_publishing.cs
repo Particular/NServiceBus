@@ -15,11 +15,7 @@
         {
             await Scenario.Define<Context>()
                 .WithEndpoint<Publisher3>(b =>
-                    b.When(c => c.Subscriber3Subscribed, bus =>
-                    {
-                        bus.Publish<IFoo>();
-                        return Task.FromResult(0);
-                    })
+                    b.When(c => c.Subscriber3Subscribed, bus => bus.PublishAsync<IFoo>())
                     )
                 .WithEndpoint<Subscriber3>(b => b.Given((bus, context) =>
                 {
@@ -50,8 +46,7 @@
                             var options = new PublishOptions();
 
                             options.SetHeader("MyHeader", "SomeValue");
-                            bus.Publish(new MyEvent(), options);
-                            return Task.FromResult(0);
+                            return bus.PublishAsync(new MyEvent(), options);
                         })
                      )
                     .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>

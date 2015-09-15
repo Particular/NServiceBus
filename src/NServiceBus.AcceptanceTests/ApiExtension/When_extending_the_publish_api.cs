@@ -25,8 +25,7 @@
 
                             options.GetExtensions().Set(new Publisher.PublishExtensionBehavior.Context { SomeProperty = "ItWorks" });
 
-                            bus.Publish(new MyEvent(), options);
-                            return Task.FromResult(0);
+                            return bus.PublishAsync(new MyEvent(), options);
                         })
                      )
                     .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>

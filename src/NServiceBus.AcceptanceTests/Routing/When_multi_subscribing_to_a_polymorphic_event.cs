@@ -16,14 +16,12 @@
                 .WithEndpoint<Publisher1>(b => b.When(c => c.Publisher1HasASubscriberForIMyEvent, (bus, c) =>
                 {
                     c.AddTrace("Publishing MyEvent1");
-                    bus.Publish(new MyEvent1());
-                    return Task.FromResult(0);
+                    return bus.PublishAsync(new MyEvent1());
                 }))
                 .WithEndpoint<Publisher2>(b => b.When(c => c.Publisher2HasDetectedASubscriberForEvent2, (bus, c) =>
                 {
                     c.AddTrace("Publishing MyEvent2");
-                    bus.Publish(new MyEvent2());
-                    return Task.FromResult(0);
+                    return bus.PublishAsync(new MyEvent2());
                 }))
                 .WithEndpoint<Subscriber1>(b => b.Given((bus, c) =>
                 {

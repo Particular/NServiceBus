@@ -150,8 +150,7 @@ class PublishEventHandler : IHandleMessages<PerformPublish>
     public IBus Bus { get; set; }
     public Task Handle(PerformPublish message)
     {
-        Bus.Publish<TestEvent>();
-        return Task.FromResult(0);
+        return Bus.PublishAsync<TestEvent>();
     }
 }
 

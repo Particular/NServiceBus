@@ -2,6 +2,7 @@ namespace NServiceBus.Unicast
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using Janitor;
     using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.DeliveryConstraints;
@@ -30,17 +31,17 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="ISendOnlyBus.Publish"/>
+        /// <see cref="ISendOnlyBus.PublishAsync"/>
         /// </summary>
-        public void Publish<T>(Action<T> messageConstructor, NServiceBus.PublishOptions options)
+        public Task PublishAsync<T>(Action<T> messageConstructor, NServiceBus.PublishOptions options)
         {
-            Publish(messageMapper.CreateInstance(messageConstructor), options);
+            return PublishAsync(messageMapper.CreateInstance(messageConstructor), options);
         }
 
         /// <summary>
-        /// <see cref="ISendOnlyBus.Publish"/>
+        /// <see cref="ISendOnlyBus.PublishAsync"/>
         /// </summary>
-        public void Publish(object message, NServiceBus.PublishOptions options)
+        public Task PublishAsync(object message, NServiceBus.PublishOptions options)
         {
             var pipeline = new PipelineBase<OutgoingPublishContext>(builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
 
@@ -50,6 +51,8 @@ namespace NServiceBus.Unicast
                 options);
 
             pipeline.Invoke(publishContext);
+
+            return TaskEx.Completed;
         }
 
 
