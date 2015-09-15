@@ -15,11 +15,7 @@
         public async Task Should_handle_it()
         {
             await Scenario.Define<Context>()
-                .WithEndpoint<NonDtcReceivingEndpoint>(b => b.Given(bus =>
-                {
-                    bus.SendLocal(new PlaceOrder());
-                    return Task.FromResult(0);
-                }))
+                .WithEndpoint<NonDtcReceivingEndpoint>(b => b.Given(bus => bus.SendLocalAsync(new PlaceOrder())))
                 .AllowExceptions()
                 .Done(c => c.OrderAckReceived == 1)
                 .Repeat(r => r.For<AllOutboxCapableStorages>())
@@ -48,8 +44,7 @@
 
                 public Task Handle(PlaceOrder message)
                 {
-                    Bus.SendLocal(new SendOrderAcknowledgement());
-                    return Task.FromResult(0);
+                    return Bus.SendLocalAsync(new SendOrderAcknowledgement());
                 }
             }
 

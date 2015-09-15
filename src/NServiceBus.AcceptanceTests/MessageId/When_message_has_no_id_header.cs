@@ -99,8 +99,7 @@
 
                 public Task StartAsync()
                 {
-                    bus.SendLocal(new Message());
-                    return Task.FromResult(0);
+                    return bus.SendLocalAsync(new Message());
                 }
 
                 public Task StopAsync()

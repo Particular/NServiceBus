@@ -14,11 +14,7 @@
         public async Task Should_invoke_the_correct_handle_methods_on_the_saga()
         {
             await Scenario.Define<Context>()
-                    .WithEndpoint<SagaMsgThruSlrEndpt>(b => b.Given(bus =>
-                    {
-                        bus.SendLocal(new StartSagaMessage { SomeId = Guid.NewGuid() });
-                        return Task.FromResult(0);
-                    }))
+                    .WithEndpoint<SagaMsgThruSlrEndpt>(b => b.Given(bus => bus.SendLocalAsync(new StartSagaMessage { SomeId = Guid.NewGuid() })))
                     .AllowSimulatedExceptions()
                     .Done(c => c.SecondMessageProcessed)
                     .Repeat(r => r.For(Transports.Default))
@@ -47,12 +43,10 @@
                 {
                     Data.SomeId = message.SomeId;
 
-                    Bus.SendLocal(new SecondSagaMessage
+                    return Bus.SendLocalAsync(new SecondSagaMessage
                         {
                             SomeId = Data.SomeId
                         });
-
-                    return Task.FromResult(0);
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData09> mapper)

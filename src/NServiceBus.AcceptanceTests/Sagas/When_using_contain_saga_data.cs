@@ -14,11 +14,7 @@
         {
             var context = await Scenario.Define<Context>()
                     .WithEndpoint<EndpointThatHostsASaga>(
-                        b => b.Given(bus =>
-                        {
-                            bus.SendLocal(new StartSaga {DataId = Guid.NewGuid()});
-                            return Task.FromResult(0);
-                        }))
+                        b => b.Given(bus => bus.SendLocalAsync(new StartSaga {DataId = Guid.NewGuid()})))
                     .Done(c => c.TimeoutReceived)
                     .Run();
 

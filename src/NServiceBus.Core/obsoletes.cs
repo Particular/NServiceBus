@@ -272,13 +272,13 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
-            ReplacementTypeOrMember = "SendLocal(object message, SendLocalOptions options)")]
+            ReplacementTypeOrMember = "SendLocalAsync(object message, SendLocalOptions options)")]
         ICallback Defer(TimeSpan delay, object message);
 
         [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
-            ReplacementTypeOrMember = "SendLocal(object message, SendLocalOptions options)")]
+            ReplacementTypeOrMember = "SendLocalAsync(object message, SendLocalOptions options)")]
         ICallback Defer(DateTime processAt, object message);
     }
 }
@@ -514,7 +514,7 @@ namespace NServiceBus.Unicast
         [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
-            ReplacementTypeOrMember = "SendLocal(object message, SendLocalOptions options)")]
+            ReplacementTypeOrMember = "SendLocalAsync(object message, SendLocalOptions options)")]
         public ICallback Defer(TimeSpan delay, object message)
         {
             throw new NotImplementedException();
@@ -523,7 +523,7 @@ namespace NServiceBus.Unicast
         [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
-            ReplacementTypeOrMember = "SendLocal(object message, SendLocalOptions options)")]
+            ReplacementTypeOrMember = "SendLocalAsync(object message, SendLocalOptions options)")]
         public ICallback Defer(DateTime processAt, object message)
         {
             throw new NotImplementedException();
@@ -636,7 +636,7 @@ namespace NServiceBus.Unicast
         [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
-            ReplacementTypeOrMember = "SendLocal(object message, SendLocalOptions options)")]
+            ReplacementTypeOrMember = "SendLocalAsync(object message, SendLocalOptions options)")]
         public ICallback Defer(TimeSpan delay, object message)
         {
             throw new NotImplementedException();
@@ -645,7 +645,7 @@ namespace NServiceBus.Unicast
         [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
-            ReplacementTypeOrMember = "SendLocal(object message, SendLocalOptions options)")]
+            ReplacementTypeOrMember = "SendLocalAsync(object message, SendLocalOptions options)")]
         public ICallback Defer(DateTime processAt, object message)
         {
             throw new NotImplementedException();

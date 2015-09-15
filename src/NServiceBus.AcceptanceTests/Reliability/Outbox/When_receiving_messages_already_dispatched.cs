@@ -25,7 +25,7 @@
 
                         await bus.SendAsync(new PlaceOrder(), options);
                         await bus.SendAsync(new PlaceOrder(), options);
-                        bus.SendLocal(new PlaceOrder());
+                        await bus.SendLocalAsync(new PlaceOrder());
                     }))
                     .AllowExceptions()
                     .Done(c => c.OrderAckReceived >= 2)
@@ -57,8 +57,7 @@
 
                 public Task Handle(PlaceOrder message)
                 {
-                    Bus.SendLocal(new SendOrderAcknowledgement());
-                    return Task.FromResult(0);
+                    return Bus.SendLocalAsync(new SendOrderAcknowledgement());
                 }
             }
 

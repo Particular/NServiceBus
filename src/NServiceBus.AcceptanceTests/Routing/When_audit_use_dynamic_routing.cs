@@ -27,7 +27,7 @@
 //                    unicastBus.Settings.Get<Dictionary<string, string>>("FakeRoutes")["boo"] = "audit_receiver";
 //                    unicastBus.Settings.Get<Dictionary<string, string>>("FakeRoutes")["foo"] = "forward_receiver";
 
-//                    bus.SendLocal(new MessageToGetAudited());
+//                    bus.SendLocalAsync(new MessageToGetAudited());
 //                }))
 //                .WithEndpoint<AuditReceiver>()
 //                .WithEndpoint<ForwardReceiver>()

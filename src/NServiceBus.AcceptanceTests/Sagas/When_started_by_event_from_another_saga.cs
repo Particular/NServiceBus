@@ -18,14 +18,10 @@
             await Scenario.Define<Context>()
                 .WithEndpoint<SagaThatPublishesAnEvent>(b =>
                     b.When(c => c.IsEventSubscriptionReceived,
-                            bus =>
+                            bus => bus.SendLocalAsync(new StartSaga
                             {
-                                bus.SendLocal(new StartSaga
-                                {
-                                    DataId = Guid.NewGuid()
-                                });
-                                return Task.FromResult(0);
-                            })
+                                DataId = Guid.NewGuid()
+                            }))
                 )
                 .WithEndpoint<SagaThatIsStartedByTheEvent>(
                     b => b.Given((bus, context) =>

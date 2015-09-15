@@ -15,14 +15,10 @@
         {
             var correlationId = Guid.NewGuid();
             var context = await Scenario.Define<Context>()
-                   .WithEndpoint<SagaEndpoint>(b => b.Given(bus =>
+                   .WithEndpoint<SagaEndpoint>(b => b.Given(bus => bus.SendLocalAsync(new StartSagaMessage
                    {
-                       bus.SendLocal(new StartSagaMessage
-                       {
-                           SomeId = correlationId
-                       });
-                       return Task.FromResult(0);
-                   }))
+                       SomeId = correlationId
+                   })))
                    .Done(c => c.SecondMessageFoundExistingSaga)
                    .Run(TimeSpan.FromSeconds(20));
 
@@ -55,7 +51,7 @@
                     {
                         Data.SomeId = message.SomeId;
 
-                        Bus.SendLocal(new StartSagaMessage
+                        return Bus.SendLocalAsync(new StartSagaMessage
                         {
                             SomeId = message.SomeId
                         });

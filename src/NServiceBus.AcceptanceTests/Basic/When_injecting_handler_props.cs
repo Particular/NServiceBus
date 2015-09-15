@@ -12,11 +12,7 @@
         public async Task Run()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<Receiver>(c=>c.When(b =>
-                    {
-                        b.SendLocal(new MyMessage());
-                        return Task.FromResult(0);
-                    }))
+                    .WithEndpoint<Receiver>(c=>c.When(b => b.SendLocalAsync(new MyMessage())))
                     .Done(c => c.WasCalled)
                     .Run();
 

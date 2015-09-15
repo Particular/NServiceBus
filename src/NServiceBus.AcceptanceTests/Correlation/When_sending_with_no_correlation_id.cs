@@ -12,11 +12,7 @@
         public async Task Should_use_the_message_id_as_the_correlation_id()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<CorrelationEndpoint>(b => b.Given(bus =>
-                    {
-                        bus.SendLocal(new MyRequest());
-                        return Task.FromResult(0);
-                    }))
+                    .WithEndpoint<CorrelationEndpoint>(b => b.Given(bus => bus.SendLocalAsync(new MyRequest())))
                     .Done(c => c.GotRequest)
                     .Run();
 

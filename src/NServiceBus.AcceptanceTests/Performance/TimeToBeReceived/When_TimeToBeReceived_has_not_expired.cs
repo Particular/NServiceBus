@@ -12,11 +12,7 @@
         public async Task Message_should_be_received()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
-                    {
-                        bus.SendLocal(new MyMessage());
-                        return Task.FromResult(0);
-                    }))
+                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) => bus.SendLocalAsync(new MyMessage())))
                     .Done(c => c.WasCalled)
                     .Run();
 

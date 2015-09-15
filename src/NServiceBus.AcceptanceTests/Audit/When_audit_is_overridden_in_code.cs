@@ -12,11 +12,7 @@
         public async Task Should_audit_to_target_queue()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<UserEndpoint>(b => b.Given(bus =>
-                {
-                    bus.SendLocal(new MessageToBeAudited());
-                    return Task.FromResult(0);
-                }))
+                .WithEndpoint<UserEndpoint>(b => b.Given(bus => bus.SendLocalAsync(new MessageToBeAudited())))
                 .WithEndpoint<AuditSpy>()
                 .Done(c => c.MessageAudited)
                 .Run();

@@ -12,11 +12,7 @@
         public async Task Should_not_start_saga_if_a_interception_handler_has_been_invoked()
         {
             await Scenario.Define< SagaEndpointContext>(c => { c.InterceptSaga = true; })
-                .WithEndpoint<SagaEndpoint>(b => b.Given(bus =>
-                {
-                    bus.SendLocal(new StartSagaMessage { SomeId = Guid.NewGuid().ToString() });
-                    return Task.FromResult(0);
-                }))
+                .WithEndpoint<SagaEndpoint>(b => b.Given(bus => bus.SendLocalAsync(new StartSagaMessage { SomeId = Guid.NewGuid().ToString() })))
                 .Done(context => context.InterceptingHandlerCalled)
                 .Repeat(r => r.For(Transports.Default))
                 .Should(c =>

@@ -40,7 +40,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="bus">Object being extended.</param>
         /// <param name="message">The message to send.</param>
-        public static void SendLocal(this IBus bus, object message)
+        public static Task SendLocalAsync(this IBus bus, object message)
         {
             Guard.AgainstNull("bus", bus);
             Guard.AgainstNull("message", message);
@@ -49,7 +49,7 @@ namespace NServiceBus
 
             options.RouteToLocalEndpointInstance();
 
-            bus.SendAsync(message, options).GetAwaiter().GetResult();
+            return bus.SendAsync(message, options);
         }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace NServiceBus
         /// <typeparam name="T">The type of message, usually an interface.</typeparam>
         /// <param name="bus">Object being extended.</param>
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
-        public static void SendLocal<T>(this IBus bus, Action<T> messageConstructor)
+        public static Task SendLocalAsync<T>(this IBus bus, Action<T> messageConstructor)
         {
             Guard.AgainstNull("bus", bus);
             Guard.AgainstNull("messageConstructor", messageConstructor);
@@ -67,7 +67,7 @@ namespace NServiceBus
 
             options.RouteToLocalEndpointInstance();
 
-            bus.SendAsync(messageConstructor, options).GetAwaiter().GetResult();
+            return bus.SendAsync(messageConstructor, options);
         }
 
         /// <summary>

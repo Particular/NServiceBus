@@ -33,12 +33,10 @@
                 {
                     Data.CorrIdForResponse = message.Id;
 
-                    Bus.SendLocal(new RequestToRespondingSaga
+                    return Bus.SendLocalAsync(new RequestToRespondingSaga
                     {
                         SomeIdThatTheResponseSagaCanCorrelateBackToUs = Data.CorrIdForResponse //wont be needed in the future
                     });
-
-                    return Task.FromResult(0);
                 }
 
                 public Task Handle(ResponseFromOtherSaga message)
@@ -69,20 +67,18 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(RequestToRespondingSaga message)
+                public async Task Handle(RequestToRespondingSaga message)
                 {
                     if (Context.ReplyFromNonInitiatingHandler)
                     {
                         Data.CorrIdForRequest = message.SomeIdThatTheResponseSagaCanCorrelateBackToUs; //wont be needed in the future
-                        Bus.SendLocal(new SendReplyFromNonInitiatingHandler { SagaIdSoWeCanCorrelate = Data.Id });
-                        return Task.FromResult(0);
+                        await Bus.SendLocalAsync(new SendReplyFromNonInitiatingHandler { SagaIdSoWeCanCorrelate = Data.Id });
                     }
 
                     if (Context.ReplyFromTimeout)
                     {
                         Data.CorrIdForRequest = message.SomeIdThatTheResponseSagaCanCorrelateBackToUs; //wont be needed in the future
                         RequestTimeout<DelayReply>(TimeSpan.FromSeconds(1));
-                        return Task.FromResult(0);
                     }
 
                     Data.CorrIdForRequest = Guid.NewGuid();
@@ -90,7 +86,7 @@
                     // Both reply and reply to originator work here since the sender of the incoming message is the requesting saga
                     // also note we don't set the correlation ID since auto correlation happens to work for this special case 
                     // where we reply from the first handler
-                    return Bus.ReplyAsync(new ResponseFromOtherSaga());
+                    await Bus.ReplyAsync(new ResponseFromOtherSaga());
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestResponseRespondingSagaData> mapper)

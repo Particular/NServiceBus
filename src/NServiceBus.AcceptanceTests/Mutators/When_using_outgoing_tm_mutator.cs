@@ -13,11 +13,7 @@
         public async Task Should_be_able_to_update_message()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(b => b.Given(bus =>
-                    {
-                        bus.SendLocal(new MessageToBeMutated());
-                        return Task.FromResult(0);
-                    }))
+                    .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocalAsync(new MessageToBeMutated())))
                     .Done(c => c.MessageProcessed)
                     .Run();
 

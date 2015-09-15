@@ -26,7 +26,7 @@
 //                    //setup a fake route
 //                    unicastBus.Settings.Get<Dictionary<string, string>>("FakeRoutes")["boo"] = "error_receiver";
 
-//                    bus.SendLocal(new MessageThatThrows());
+//                    bus.SendLocalAsync(new MessageThatThrows());
 //                }))
 //                .AllowExceptions(e => e.Message.Contains("MessageThatThrowsHandler Exception"))
 //                .WithEndpoint<ErrorReceiver>()

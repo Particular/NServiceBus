@@ -12,11 +12,7 @@
         public async Task Should_add_host_related_headers()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<EndpointWithAuditOn>(b => b.Given((bus, c) =>
-                    {
-                        bus.SendLocal(new MessageToBeAudited());
-                        return Task.FromResult(0);
-                    }))
+                    .WithEndpoint<EndpointWithAuditOn>(b => b.Given((bus, c) => bus.SendLocalAsync(new MessageToBeAudited())))
                     .WithEndpoint<AuditSpyEndpoint>()
                     .Done(c => c.Done)
                     .Run();

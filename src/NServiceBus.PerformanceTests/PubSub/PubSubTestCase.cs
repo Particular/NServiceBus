@@ -73,7 +73,7 @@ public class PubSubTestCase : TestCase
           0,
           NumberMessages,
           new ParallelOptions { MaxDegreeOfParallelism = NumberOfThreads },
-          x => bus.SendLocal(new PerformPublish()));
+          x => bus.SendLocalAsync(new PerformPublish()).GetAwaiter().GetResult());
 
 
             Statistics.StartTime = DateTime.Now;

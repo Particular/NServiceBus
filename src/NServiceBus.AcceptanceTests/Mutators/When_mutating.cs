@@ -55,9 +55,7 @@
 
                 public Task Handle(StartMessage message)
                 {
-                    bus.SendLocal(new LoopMessage());
-
-                    return Task.FromResult(0);
+                    return bus.SendLocalAsync(new LoopMessage());
                 }
             }
             public class LoopMessageHandler : IHandleMessages<LoopMessage>

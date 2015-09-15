@@ -10,11 +10,7 @@
         public async Task Should_preserve_the_original_body_for_serialization_exceptions()
         {
             var context = await Scenario.Define<Context>(c => { c.SimulateSerializationException = true; })
-                .WithEndpoint<RetryEndpoint>(b => b.Given(bus =>
-                {
-                    bus.SendLocal(new MessageToBeRetried());
-                    return Task.FromResult(0);
-                }))
+                .WithEndpoint<RetryEndpoint>(b => b.Given(bus => bus.SendLocalAsync(new MessageToBeRetried())))
                 .AllowExceptions(e => e is MessageDeserializationException)
                 .Done(c => c.SlrChecksum != default(byte))
                 .Run();

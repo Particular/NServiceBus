@@ -14,11 +14,7 @@
         public async Task IHandleSagaNotFound_only_called_once()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<ReceiverWithSagas>(b => b.Given((bus, c) =>
-                    {
-                        bus.SendLocal(new MessageToSaga { Id = Guid.NewGuid() });
-                        return Task.FromResult(0);
-                    }))
+                    .WithEndpoint<ReceiverWithSagas>(b => b.Given((bus, c) => bus.SendLocalAsync(new MessageToSaga { Id = Guid.NewGuid() })))
                     .Done(c => c.Done)
                     .Run();
 
@@ -29,11 +25,7 @@
         public async Task IHandleSagaNotFound_not_called_if_second_saga_is_executed()
         {
             var context = await Scenario.Define<Context>()
-                     .WithEndpoint<ReceiverWithOrderedSagas>(b => b.Given((bus, c) =>
-                     {
-                         bus.SendLocal(new MessageToSaga { Id = Guid.NewGuid() });
-                         return Task.FromResult(0);
-                     }))
+                     .WithEndpoint<ReceiverWithOrderedSagas>(b => b.Given((bus, c) => bus.SendLocalAsync(new MessageToSaga { Id = Guid.NewGuid() })))
                      .Done(c => c.Done)
                      .Run();
 

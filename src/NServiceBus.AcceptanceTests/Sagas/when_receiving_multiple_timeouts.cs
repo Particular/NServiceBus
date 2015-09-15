@@ -15,11 +15,7 @@
         public async Task It_should_not_invoke_SagaNotFound_handler()
         {
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
-                    {
-                        bus.SendLocal(new StartSaga1 { ContextId = c.Id });
-                        return Task.FromResult(0);
-                    }))
+                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) => bus.SendLocalAsync(new StartSaga1 { ContextId = c.Id })))
                     .Done(c => (c.Saga1TimeoutFired && c.Saga2TimeoutFired) || c.SagaNotFound)
                     .Run(TimeSpan.FromSeconds(20));
 

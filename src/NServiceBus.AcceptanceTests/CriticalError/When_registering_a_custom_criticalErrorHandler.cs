@@ -18,11 +18,7 @@
         {
             await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithLocalCallback>(b => b.Given(
-                    (bus, context) =>
-                    {
-                        bus.SendLocal(new MyRequest());
-                        return Task.FromResult(0);
-                    }))
+                    (bus, context) => bus.SendLocalAsync(new MyRequest())))
                 .AllowExceptions()
                 .Done(c => c.ExceptionReceived)
                 .Repeat(r => r.For(Transports.Default))

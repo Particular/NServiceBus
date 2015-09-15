@@ -17,14 +17,10 @@
         {
             await Scenario.Define<Context>()
                     .WithEndpoint<SagaEndpoint>(b =>
-                        b.When(c => c.Subscribed, bus =>
+                        b.When(c => c.Subscribed, bus => bus.SendLocalAsync(new StartSaga2
                         {
-                            bus.SendLocal(new StartSaga2
-                            {
-                                DataId = Guid.NewGuid()
-                            });
-                            return Task.FromResult(0);
-                        })
+                            DataId = Guid.NewGuid()
+                        }))
                      )
                     .WithEndpoint<Publisher>(b => b.Given((bus, context) =>
                     {
@@ -88,8 +84,7 @@
                 {
                     Data.DataId = message.DataId;
                     Console.Out.WriteLine("Saga1 received GroupPendingEvent for RunId: {0}", message.DataId);
-                    Bus.SendLocal(new CompleteSaga1Now { DataId = message.DataId });
-                    return Task.FromResult(0);
+                    return Bus.SendLocalAsync(new CompleteSaga1Now { DataId = message.DataId });
                 }
 
                 public Task Handle(CompleteSaga1Now message)

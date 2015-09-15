@@ -11,11 +11,7 @@
         public async Task Should_flow_causation_headers()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<CausationEndpoint>(b => b.Given(bus =>
-                    {
-                        bus.SendLocal(new MessageSentOutsideOfHandler());
-                        return Task.FromResult(0);
-                    }))
+                    .WithEndpoint<CausationEndpoint>(b => b.Given(bus => bus.SendLocalAsync(new MessageSentOutsideOfHandler())))
                     .Done(c => c.Done)
                     .Run();
 
@@ -54,9 +50,7 @@
                     Context.FirstConversationId = Bus.CurrentMessageContext.Headers[Headers.ConversationId];
                     Context.MessageIdOfFirstMessage = Bus.CurrentMessageContext.Id;
 
-                    Bus.SendLocal(new MessageSentInsideHandler());
-
-                    return Task.FromResult(0);
+                    return Bus.SendLocalAsync(new MessageSentInsideHandler());
                 }
             }
 
