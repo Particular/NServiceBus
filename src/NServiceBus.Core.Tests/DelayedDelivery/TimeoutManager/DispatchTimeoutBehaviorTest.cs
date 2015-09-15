@@ -29,7 +29,7 @@
         [Test]
         public async Task Terminate_when_dispatching_message_fails_should_keep_timeout_in_storage()
         {
-            var messageDispatcher = new FakeMessageDispatcher { DispatchFails = true };
+            var messageDispatcher = new FailingMessageDispatcher();
             var timeoutPersister = new InMemoryTimeoutPersister();
             var testee = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister);
             var timeoutId = await timeoutPersister.Add(CreateTimeout(), null);
@@ -65,14 +65,16 @@
 
         class FakeMessageDispatcher : IDispatchMessages
         {
-            public bool DispatchFails { get; set; }
-
             public void Dispatch(OutgoingMessage message, DispatchOptions dispatchOptions)
             {
-                if (DispatchFails)
-                {
-                    throw new Exception("simulated exception");
-                }
+            }
+        }
+
+        class FailingMessageDispatcher : IDispatchMessages
+        {
+            public void Dispatch(OutgoingMessage message, DispatchOptions dispatchOptions)
+            {
+                throw new Exception("simulated exception");
             }
         }
     }
