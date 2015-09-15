@@ -19,7 +19,7 @@
                      return Task.FromResult(0);
                  }))
                  .Done(c => c.MessageHandled)
-                 .AllowExceptions(e => e is Endpoint.FakeException)
+                 .AllowSimulatedExceptions()
                  .Repeat(r => r.For<AllNativeMultiQueueTransactionTransports>())
                  .Should(c =>
                  {
@@ -58,7 +58,7 @@
                             HasFailed = true
                         });
                         Context.FirstAttempt = false;
-                        throw new FakeException();
+                        throw new SimulatedException();
                     }
 
                     Bus.SendLocal(new MessageHandledEvent());
@@ -78,10 +78,6 @@
                     Context.HasFailed |= @event.HasFailed;
                     return Task.FromResult(0);
                 }
-            }
-
-            public class FakeException : Exception
-            {
             }
         }
 

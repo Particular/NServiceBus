@@ -22,7 +22,7 @@
                         return Task.FromResult(0);
                     }))
                     .WithEndpoint<ForwardingSpyEndpoint>()
-                    .AllowExceptions(e => e is EndpointWithAuditOn.BlowUpAfterDispatchBehavior.FakeException)
+                    .AllowSimulatedExceptions()
                     .Done(c => c.Done)
                     .Run();
 
@@ -83,11 +83,7 @@
 
                     called = true;
 
-                    throw new FakeException();
-                }
-
-                public class FakeException : Exception
-                {
+                    throw new SimulatedException();
                 }
 
                 static bool called;

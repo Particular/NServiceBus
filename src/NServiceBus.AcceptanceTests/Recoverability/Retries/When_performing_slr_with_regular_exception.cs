@@ -16,7 +16,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
                     bus.SendLocal(new MessageToBeRetried());
                     return Task.FromResult(0);
                 }))
-                .AllowExceptions(e => e is SimulatedException)
+                .AllowSimulatedExceptions()
                 .Done(c => c.SlrChecksum != default(byte))
                 .Run();
 
@@ -32,7 +32,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
                     bus.SendLocal(new MessageToBeRetried());
                     return Task.FromResult(0);
                 }))
-                .AllowExceptions(e => e is SimulatedException)
+                .AllowSimulatedExceptions()
                 .Done(c => c.ForwardedToErrorQueue)
                 .Run();
 

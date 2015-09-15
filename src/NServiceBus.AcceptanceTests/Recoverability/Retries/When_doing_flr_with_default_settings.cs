@@ -19,7 +19,7 @@
                         bus.SendLocal(new MessageToBeRetried { Id = context.Id, SecondMessage = true });
                         return Task.FromResult(0);
                     }))
-                    .AllowExceptions()
+                    .AllowSimulatedExceptions()
                     .Done(c => c.SecondMessageReceived || c.NumberOfTimesInvoked > 1)
                     .Repeat(r => r.For(Transports.Default))
                     .Should(c => Assert.AreEqual(1, c.NumberOfTimesInvoked, "No retries should be in use if transactions are off"))
@@ -60,7 +60,7 @@
 
                     Context.NumberOfTimesInvoked++;
 
-                    throw new Exception("Simulated exception");
+                    throw new SimulatedException();
                 }
             }
         }

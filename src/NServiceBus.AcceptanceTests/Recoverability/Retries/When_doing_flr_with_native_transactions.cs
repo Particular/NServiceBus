@@ -19,7 +19,7 @@
                         bus.SendLocal(new MessageToBeRetried { Id = context.Id });
                         return Task.FromResult(0);
                     }))
-                    .AllowExceptions()
+                    .AllowSimulatedExceptions()
                     .Done(c => c.ForwardedToErrorQueue)
                     .Repeat(r => r.For(Transports.Default))
                     .Should(c =>
@@ -87,7 +87,7 @@
                     Context.PhysicalMessageId = Bus.CurrentMessageContext.Id;
                     Context.NumberOfTimesInvoked++;
 
-                    throw new Exception("Simulated exception");
+                    throw new SimulatedException();
                 }
             }
         }

@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Runtime.Serialization;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
@@ -19,13 +18,13 @@
         {
             await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<SLREndpoint>()
-                .AllowExceptions(e => e.Message.Contains("Simulated exception"))
+                .AllowSimulatedExceptions()
                 .Done(c => c.MessageSentToError)
                 .Repeat(r => r.For<AllTransports>())
                 .Should(c =>
                 {
-                    Assert.IsInstanceOf<MySpecialException>(c.MessageSentToErrorException);
-                    Assert.True(c.Logs.Any(l => l.Level == "error" && l.Message.Contains("Simulated exception")), "The last exception should be logged as `error` before sending it to the error queue");
+                    Assert.IsInstanceOf<SimulatedException>(c.MessageSentToErrorException);
+                    Assert.True(c.Logs.Any(l => l.Level == "error" && l.Message.Contains("Simulated exception message")), "The last exception should be logged as `error` before sending it to the error queue");
 
                     //FLR max retries = 3 means we will be processing 4 times. SLR max retries = 2 means we will do 3*FLR
                     Assert.AreEqual(4 * 3, c.TotalNumberOfFLRTimesInvokedInHandler);
@@ -76,21 +75,8 @@
 
                     Context.TotalNumberOfFLRTimesInvokedInHandler++;
 
-                    throw new MySpecialException();
+                    throw new SimulatedException("Simulated exception message");
                 }
-            }
-        }
-
-        [Serializable]
-        public class MySpecialException : Exception
-        {
-            public MySpecialException()
-                : base("Simulated exception")
-            {
-            }
-
-            protected MySpecialException(SerializationInfo info, StreamingContext context)
-            {
             }
         }
 

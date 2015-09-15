@@ -19,7 +19,7 @@
                         bus.SendLocal(new StartSagaMessage { SomeId = Guid.NewGuid() });
                         return Task.FromResult(0);
                     }))
-                    .AllowExceptions()
+                    .AllowSimulatedExceptions()
                     .Done(c => c.SecondMessageProcessed)
                     .Repeat(r => r.For(Transports.Default))
                     .Run();
@@ -69,7 +69,7 @@
                     var shouldFail = Context.NumberOfTimesInvoked < 2; //1 FLR and 1 SLR
 
                     if(shouldFail)
-                        throw new Exception("Simulated exception");
+                        throw new SimulatedException();
 
                     Context.SecondMessageProcessed = true;
 
