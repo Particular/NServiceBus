@@ -109,7 +109,7 @@
                     }
                     else
                     {
-                        bus.HandleCurrentMessageLater();
+                        return bus.HandleCurrentMessageLaterAsync();
                     }
 
                     return Task.FromResult(0); // ignore messages from previous test runs

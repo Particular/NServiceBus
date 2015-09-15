@@ -43,7 +43,7 @@ namespace NServiceBus
         /// Moves the message being handled to the back of the list of available 
         /// messages so it can be handled later.
         /// </summary>
-        void HandleCurrentMessageLater();
+        Task HandleCurrentMessageLaterAsync();
 
         /// <summary>
         /// Forwards the current message being handled to the destination maintaining
