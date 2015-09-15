@@ -784,19 +784,19 @@ namespace NServiceBus.Unicast
         }
 
         [ObsoleteEx(
-            ReplacementTypeOrMember = "IBus.Reply<T>(object message, ReplyOptions options)",
+            ReplacementTypeOrMember = "IBus.ReplyAsync<T>(object message, ReplyOptions options)",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
-        public void Reply(object message, NServiceBus.ReplyOptions options)
+        public Task ReplyAsync(object message, NServiceBus.ReplyOptions options)
         {
             throw new NotImplementedException();
         }
 
         [ObsoleteEx(
-            ReplacementTypeOrMember = "IBus.Reply<T>(Action<T> messageConstructor, ReplyOptions options)",
+            ReplacementTypeOrMember = "IBus.ReplyAsync<T>(Action<T> messageConstructor, ReplyOptions options)",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
-        public void Reply<T>(Action<T> messageConstructor, NServiceBus.ReplyOptions options)
+        public Task ReplyAsync<T>(Action<T> messageConstructor, NServiceBus.ReplyOptions options)
         {
             throw new NotImplementedException();
         }

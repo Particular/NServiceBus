@@ -140,7 +140,7 @@
 
 //                public Task Handle(Request message)
 //                {
-//                    Bus.Reply(new Response
+//                    Bus.ReplyAsync(new Response
 //                    {
 //                        EndpointName = "Receiver1"
 //                    });
@@ -188,7 +188,7 @@
 
 //                public Task Handle(Request message)
 //                {
-//                    Bus.Reply(new Response
+//                    Bus.ReplyAsync(new Response
 //                    {
 //                        EndpointName = "Receiver2"
 //                    });

@@ -81,17 +81,17 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IBus.Reply"/>
+        /// <see cref="IBus.ReplyAsync"/>
         /// </summary>
-        public void Reply<T>(Action<T> messageConstructor, NServiceBus.ReplyOptions options)
+        public Task ReplyAsync<T>(Action<T> messageConstructor, NServiceBus.ReplyOptions options)
         {
-            Reply(messageMapper.CreateInstance(messageConstructor), options);
+            return ReplyAsync(messageMapper.CreateInstance(messageConstructor), options);
         }
 
         /// <summary>
-        /// <see cref="IBus.Reply"/>
+        /// <see cref="IBus.ReplyAsync"/>
         /// </summary>
-        public void Reply(object message, NServiceBus.ReplyOptions options)
+        public Task ReplyAsync(object message, NServiceBus.ReplyOptions options)
         {
             var pipeline = new PipelineBase<OutgoingReplyContext>(builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
 
@@ -101,6 +101,8 @@ namespace NServiceBus.Unicast
                 options);
 
             pipeline.Invoke(outgoingContext);
+
+            return TaskEx.Completed;
         }
 
         /// <summary>

@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Defines a bus to be used with NServiceBus.
@@ -12,15 +13,15 @@ namespace NServiceBus
         /// </summary>
         /// <param name="message">The message to send.</param>
         /// <param name="options">Options for this reply.</param>
-        void Reply(object message,ReplyOptions options);
+        Task ReplyAsync(object message, ReplyOptions options);
 
         /// <summary>
-        /// Instantiates a message of type T and performs a regular <see cref="Reply(object,ReplyOptions)"/>.
+        /// Instantiates a message of type T and performs a regular <see cref="ReplyAsync"/>.
         /// </summary>
         /// <typeparam name="T">The type of message, usually an interface.</typeparam>
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
         /// <param name="options">Options for this reply.</param>
-        void Reply<T>(Action<T> messageConstructor, ReplyOptions options);
+        Task ReplyAsync<T>(Action<T> messageConstructor, ReplyOptions options);
 
         /// <summary>
         /// Subscribes to receive published messages of the specified type.
