@@ -25,11 +25,7 @@
         public async Task Should_allow_publishing_commands()
         {
             await Scenario.Define<Context>()
-                .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
-                {
-                    bus.Publish(new MyCommand());
-                    return Task.FromResult(0);
-                }))
+                .WithEndpoint<Endpoint>(b => b.Given((bus, c) => bus.PublishAsync(new MyCommand())))
                 .Done(c => c.EndpointsStarted)
                 .Run();
         }

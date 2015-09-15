@@ -15,11 +15,7 @@
         {
             await Scenario.Define<Context>()
                 .WithEndpoint<Publisher>(b =>
-                    b.When(c => c.Subscriber1Subscribed, bus =>
-                    {
-                        bus.Publish(new MyEvent());
-                        return Task.FromResult(0);
-                    })
+                    b.When(c => c.Subscriber1Subscribed, bus => bus.PublishAsync(new MyEvent()))
                     )
                 .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
                     {

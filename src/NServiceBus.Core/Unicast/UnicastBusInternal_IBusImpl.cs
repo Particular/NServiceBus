@@ -1,26 +1,27 @@
 ﻿namespace NServiceBus.Unicast
 {
     using System;
+    using System.Threading.Tasks;
 
     partial class UnicastBusInternal
     {
         /// <inheritdoc />
-        public void Publish(object message, NServiceBus.PublishOptions options)
+        public Task PublishAsync(object message, NServiceBus.PublishOptions options)
         {
             Guard.AgainstNull("message", message);
             Guard.AgainstNull("options", options);
 
-            busImpl.Publish(message, options);
+            return busImpl.PublishAsync(message, options);
         }
 
 
         /// <inheritdoc />
-        public void Publish<T>(Action<T> messageConstructor, NServiceBus.PublishOptions options)
+        public Task PublishAsync<T>(Action<T> messageConstructor, NServiceBus.PublishOptions options)
         {
             Guard.AgainstNull("messageConstructor", messageConstructor);
             Guard.AgainstNull("options", options);
 
-            busImpl.Publish(messageConstructor, options);
+            return busImpl.PublishAsync(messageConstructor, options);
         }
 
 

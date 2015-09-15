@@ -494,8 +494,8 @@ namespace NServiceBus
     public interface ISatellite { }
     public interface ISendOnlyBus : System.IDisposable
     {
-        void Publish(object message, NServiceBus.PublishOptions options);
-        void Publish<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions);
+        System.Threading.Tasks.Task PublishAsync(object message, NServiceBus.PublishOptions options);
+        System.Threading.Tasks.Task PublishAsync<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions);
         void Send(object message, NServiceBus.SendOptions options);
         void Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options);
         [System.ObsoleteAttribute("Please use `Send(object message, SendOptions options)` instead. Will be removed i" +
@@ -519,9 +519,17 @@ namespace NServiceBus
     }
     public class static ISendOnlyBusExtensions
     {
+        [System.ObsoleteAttribute("Please use `PublishAsync(object message)` instead. Will be removed in version 7.0" +
+            ".0.", true)]
         public static void Publish(this NServiceBus.ISendOnlyBus bus, object message) { }
+        [System.ObsoleteAttribute("Please use `PublishAsync()` instead. Will be removed in version 7.0.0.", true)]
         public static void Publish<T>(this NServiceBus.ISendOnlyBus bus) { }
+        [System.ObsoleteAttribute("Please use `PublishAsyn<T>(Action<T> messageConstructor)` instead. Will be remove" +
+            "d in version 7.0.0.", true)]
         public static void Publish<T>(this NServiceBus.ISendOnlyBus bus, System.Action<T> messageConstructor) { }
+        public static System.Threading.Tasks.Task PublishAsync(this NServiceBus.ISendOnlyBus bus, object message) { }
+        public static System.Threading.Tasks.Task PublishAsync<T>(this NServiceBus.ISendOnlyBus bus) { }
+        public static System.Threading.Tasks.Task PublishAsync<T>(this NServiceBus.ISendOnlyBus bus, System.Action<T> messageConstructor) { }
         public static void Send(this NServiceBus.ISendOnlyBus bus, object message) { }
         public static void Send<T>(this NServiceBus.ISendOnlyBus bus, System.Action<T> messageConstructor) { }
         public static void Send(this NServiceBus.ISendOnlyBus bus, string destination, object message) { }
@@ -2733,12 +2741,12 @@ namespace NServiceBus.Unicast
         [System.ObsoleteAttribute("Please use `IBus.HandleCurrentMessageLater()` instead. Will be removed in version" +
             " 7.0.0.", true)]
         public void HandleCurrentMessageLater() { }
-        [System.ObsoleteAttribute("Please use `ISendOnlyBus.Publish(object message, PublishOptions options)` instead" +
-            ". Will be removed in version 7.0.0.", true)]
-        public void Publish(object message, NServiceBus.PublishOptions options) { }
-        [System.ObsoleteAttribute("Please use `ISendOnlyBus.Publish<T>(Action<T> messageConstructor, PublishOptions " +
-            "options)` instead. Will be removed in version 7.0.0.", true)]
-        public void Publish<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions) { }
+        [System.ObsoleteAttribute("Please use `ISendOnlyBus.PublishAsync(object message, PublishOptions options)` in" +
+            "stead. Will be removed in version 7.0.0.", true)]
+        public System.Threading.Tasks.Task PublishAsync(object message, NServiceBus.PublishOptions options) { }
+        [System.ObsoleteAttribute("Please use `ISendOnlyBus.PublishAsync<T>(Action<T> messageConstructor, PublishOpt" +
+            "ions options)` instead. Will be removed in version 7.0.0.", true)]
+        public System.Threading.Tasks.Task PublishAsync<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions) { }
         [System.ObsoleteAttribute("Please use `IBus.Reply<T>(object message, ReplyOptions options)` instead. Will be" +
             " removed in version 7.0.0.", true)]
         public void Reply(object message, NServiceBus.ReplyOptions options) { }

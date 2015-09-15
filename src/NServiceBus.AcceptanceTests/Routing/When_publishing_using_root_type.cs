@@ -19,8 +19,7 @@
                         {
                             IMyEvent message = new EventMessage();
 
-                            bus.Publish(message);
-                            return Task.FromResult(0);
+                            return bus.PublishAsync(message);
                         }))
                     .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
                     {

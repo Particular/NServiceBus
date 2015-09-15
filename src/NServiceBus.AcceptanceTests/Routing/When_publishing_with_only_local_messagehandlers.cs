@@ -14,11 +14,7 @@
         {
             await Scenario.Define<Context>()
                 .WithEndpoint<MessageDrivenPublisher>(b =>
-                    b.When(c => c.LocalEndpointSubscribed, bus =>
-                    {
-                        bus.Publish(new EventHandledByLocalEndpoint());
-                        return Task.FromResult(0);
-                    }))
+                    b.When(c => c.LocalEndpointSubscribed, bus => bus.PublishAsync(new EventHandledByLocalEndpoint())))
                 .Done(c => c.CatchAllHandlerGotTheMessage)
                 .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
                 .Should(c => Assert.True(c.CatchAllHandlerGotTheMessage))
@@ -36,11 +32,7 @@
                         bus.Subscribe<EventHandledByLocalEndpoint>();
                         return Task.FromResult(0);
                     });
-                    b.When(c => c.EndpointsStarted, (bus, context) =>
-                    {
-                        bus.Publish(new EventHandledByLocalEndpoint());
-                        return Task.FromResult(0);
-                    });
+                    b.When(c => c.EndpointsStarted, (bus, context) => bus.PublishAsync(new EventHandledByLocalEndpoint()));
                 })
                 .Done(c => c.CatchAllHandlerGotTheMessage)
                 .Repeat(r => r.For<AllTransportsWithCentralizedPubSubSupport>())

@@ -491,6 +491,7 @@ namespace NServiceBus.Unicast
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using NServiceBus.Hosting;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Settings;
@@ -693,19 +694,19 @@ namespace NServiceBus.Unicast
         }
 
         [ObsoleteEx(
-            ReplacementTypeOrMember = "ISendOnlyBus.Publish(object message, PublishOptions options)",
+            ReplacementTypeOrMember = "ISendOnlyBus.PublishAsync(object message, PublishOptions options)",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
-        public void Publish(object message, NServiceBus.PublishOptions options)
+        public Task PublishAsync(object message, NServiceBus.PublishOptions options)
         {
             throw new NotImplementedException();
         }
 
         [ObsoleteEx(
-            ReplacementTypeOrMember = "ISendOnlyBus.Publish<T>(Action<T> messageConstructor, PublishOptions options)",
+            ReplacementTypeOrMember = "ISendOnlyBus.PublishAsync<T>(Action<T> messageConstructor, PublishOptions options)",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
-        public void Publish<T>(Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions)
+        public Task PublishAsync<T>(Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions)
         {
             throw new NotImplementedException();
         }

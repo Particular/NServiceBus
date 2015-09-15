@@ -66,8 +66,7 @@
                 public Task Handle(OpenGroupCommand message)
                 {
                     Console.WriteLine("Received OpenGroupCommand for RunId:{0} ... and publishing GroupPendingEvent", message.DataId);
-                    Bus.Publish(new GroupPendingEvent { DataId = message.DataId });
-                    return Task.FromResult(0);
+                    return Bus.PublishAsync(new GroupPendingEvent { DataId = message.DataId });
                 }
             }
         }

@@ -21,8 +21,7 @@
                     b.When(c => c.IsEventSubscriptionReceived,
                         bus =>
                         {
-                            bus.Publish<SomethingHappenedEvent>(m => { m.DataId = Guid.NewGuid(); });
-                            return Task.FromResult(0);
+                            return bus.PublishAsync<SomethingHappenedEvent>(m => { m.DataId = Guid.NewGuid(); });
                         })
                 )
                 .WithEndpoint<SagaThatIsStartedByABaseEvent>(

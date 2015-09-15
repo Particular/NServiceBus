@@ -16,12 +16,11 @@
                     .WithEndpoint<V2Publisher>(b =>
                         b.When(c => c.V1Subscribed && c.V2Subscribed, (bus, c) =>
                         {
-                            bus.Publish<V2Event>(e =>
+                            return bus.PublishAsync<V2Event>(e =>
                             {
                                 e.SomeData = 1;
                                 e.MoreInfo = "dasd";
                             });
-                            return Task.FromResult(0);
                         }))
                     .WithEndpoint<V1Subscriber>(b => b.Given((bus,c) =>
                         {

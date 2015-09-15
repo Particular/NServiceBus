@@ -13,11 +13,7 @@
         public async Task Event_should_be_delivered()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<Publisher>(b => b.When(c => c.Subscriber1Subscribed && c.Subscriber2Subscribed, bus =>
-                    {
-                        bus.Publish(new MyEvent());
-                        return Task.FromResult(0);
-                    }))
+                    .WithEndpoint<Publisher>(b => b.When(c => c.Subscriber1Subscribed && c.Subscriber2Subscribed, bus => bus.PublishAsync(new MyEvent())))
                     .WithEndpoint<Subscriber1>(b => b.Given((bus, c) =>
                         {
                             bus.Subscribe<IMyEvent>();

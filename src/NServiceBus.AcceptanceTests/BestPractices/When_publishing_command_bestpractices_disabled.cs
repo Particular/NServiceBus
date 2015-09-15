@@ -16,8 +16,7 @@
                     var publishOptions = new PublishOptions();
                     publishOptions.DoNotEnforceBestPractices();
 
-                    bus.Publish(new MyCommand(), publishOptions);
-                    return Task.FromResult(0);
+                    return bus.PublishAsync(new MyCommand(), publishOptions);
                 }))
                 .Done(c => c.EndpointsStarted)
                 .Run();

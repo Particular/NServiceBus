@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTesting.Support
 {
     using System;
+    using System.Threading.Tasks;
 
     public class IBusAdapter : IBus
     {
@@ -16,14 +17,14 @@
             sendOnlyBus.Dispose();
         }
 
-        public void Publish(object message, PublishOptions options)
+        public Task PublishAsync(object message, PublishOptions options)
         {
-            sendOnlyBus.Publish(message, options);
+            return sendOnlyBus.PublishAsync(message, options);
         }
 
-        public void Publish<T>(Action<T> messageConstructor, PublishOptions options)
+        public Task PublishAsync<T>(Action<T> messageConstructor, PublishOptions options)
         {
-            sendOnlyBus.Publish(messageConstructor, options);
+            return sendOnlyBus.PublishAsync(messageConstructor, options);
         }
 
         public void Send(object message, SendOptions options)

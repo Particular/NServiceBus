@@ -34,7 +34,7 @@
 //                    //setup a fake route
 //                    unicastBus.Settings.Get<Dictionary<string, string>>("FakeRoutes")["LogicalAddress"] = unicastBus.Configure.LocalAddress.ToString();
 
-//                    bus.Publish(new MyEvent());
+//                    bus.PublishAsync(new MyEvent());
 //                }))
 //                .Done(c => c.GotTheMessage)
 //                .Repeat(c => c.For<AllTransportsWithMessageDrivenPubSub>())

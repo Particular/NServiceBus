@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Threading;
+    using System.Threading.Tasks;
     using NServiceBus.DelayedDelivery;
     using NServiceBus.Extensibility;
 
@@ -35,12 +36,12 @@
             get { throw new NotImplementedException(); }
         }
 
-        public void Publish(object message, PublishOptions options)
+        public Task PublishAsync(object message, PublishOptions options)
         {
             throw new NotImplementedException();
         }
 
-        public void Publish<T>(Action<T> messageConstructor, PublishOptions options)
+        public Task PublishAsync<T>(Action<T> messageConstructor, PublishOptions options)
         {
             throw new NotImplementedException();
         }
