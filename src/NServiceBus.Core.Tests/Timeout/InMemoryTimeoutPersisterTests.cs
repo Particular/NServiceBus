@@ -71,11 +71,10 @@ namespace NServiceBus.Core.Tests.Timeout
         {
             var options = new TimeoutPersistenceOptions(new ContextBag());
             var persister = new InMemoryTimeoutPersister();
-            var inputTimeout = new TimeoutData();
 
-            await persister.Add(inputTimeout, options);
-            await persister.Remove(inputTimeout.Id, options);
-            var result = await persister.Peek(inputTimeout.Id, options);
+            var timeoutId = await persister.Add(new TimeoutData(), options);
+            await persister.Remove(timeoutId, options);
+            var result = await persister.Peek(timeoutId, options);
 
             Assert.IsNull(result);
         }
@@ -91,8 +90,9 @@ namespace NServiceBus.Core.Tests.Timeout
                                    SagaId = newGuid
                                };
             
-            await persister.Add(inputTimeout, options);
-            var result = await persister.Peek(inputTimeout.Id, options);
+            var timeoutId = await persister.Add(inputTimeout, options);
+            await persister.Remove(timeoutId, options);
+            var result = await persister.Peek(timeoutId, options);
 
             Assert.IsNull(result);
         }

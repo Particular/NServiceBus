@@ -47,7 +47,7 @@ namespace NServiceBus.InMemory.TimeoutPersister
             return Task.FromResult(new TimeoutsChunk(dueTimeouts, nextTimeToRunQuery));
         }
 
-        public Task Add(TimeoutData timeout, TimeoutPersistenceOptions options)
+        public Task<string> Add(TimeoutData timeout, TimeoutPersistenceOptions options)
         {
             timeout.Id = Guid.NewGuid().ToString();
             try
@@ -60,7 +60,7 @@ namespace NServiceBus.InMemory.TimeoutPersister
                 readerWriterLock.ExitWriteLock();
             }
 
-            return TaskEx.Completed;
+            return Task.FromResult(timeout.Id);
         }
 
         public Task<TimeoutData> Peek(string timeoutId, TimeoutPersistenceOptions options)

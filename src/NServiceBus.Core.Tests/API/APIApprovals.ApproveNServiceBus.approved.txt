@@ -2345,7 +2345,7 @@ namespace NServiceBus.Timeout.Core
 {
     public interface IPersistTimeouts
     {
-        System.Threading.Tasks.Task Add(NServiceBus.Timeout.Core.TimeoutData timeout, NServiceBus.Timeout.Core.TimeoutPersistenceOptions options);
+        System.Threading.Tasks.Task<string> Add(NServiceBus.Timeout.Core.TimeoutData timeout, NServiceBus.Timeout.Core.TimeoutPersistenceOptions options);
         System.Threading.Tasks.Task<NServiceBus.Timeout.Core.TimeoutData> Peek(string timeoutId, NServiceBus.Timeout.Core.TimeoutPersistenceOptions options);
         System.Threading.Tasks.Task Remove(string timeoutId, NServiceBus.Timeout.Core.TimeoutPersistenceOptions options);
         System.Threading.Tasks.Task RemoveTimeoutBy(System.Guid sagaId, NServiceBus.Timeout.Core.TimeoutPersistenceOptions options);

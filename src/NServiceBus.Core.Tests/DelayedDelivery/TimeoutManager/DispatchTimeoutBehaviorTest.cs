@@ -18,12 +18,11 @@
             var messageDispatcher = new FakeMessageDispatcher();
             var timeoutPersister = new InMemoryTimeoutPersister();
             var testee = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister);
-            var timeoutData = CreateTimeout();
-            await timeoutPersister.Add(timeoutData, null);
+            var timeoutId = await timeoutPersister.Add(CreateTimeout(), null);
 
-            testee.Terminate(CreateContext(timeoutData.Id));
+            testee.Terminate(CreateContext(timeoutId));
 
-            var result = await timeoutPersister.Peek(timeoutData.Id, null);
+            var result = await timeoutPersister.Peek(timeoutId, null);
             Assert.Null(result);
         }
 
@@ -33,12 +32,11 @@
             var messageDispatcher = new FakeMessageDispatcher { DispatchFails = true };
             var timeoutPersister = new InMemoryTimeoutPersister();
             var testee = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister);
-            var timeoutData = CreateTimeout();
-            await timeoutPersister.Add(timeoutData, null);
+            var timeoutId = await timeoutPersister.Add(CreateTimeout(), null);
 
-            Assert.Throws<Exception>(() => testee.Terminate(CreateContext(timeoutData.Id)));
-            
-            var result = await timeoutPersister.Peek(timeoutData.Id, null);
+            Assert.Throws<Exception>(() => testee.Terminate(CreateContext(timeoutId)));
+
+            var result = await timeoutPersister.Peek(timeoutId, null);
             Assert.NotNull(result);
         }
 

@@ -13,7 +13,8 @@ namespace NServiceBus.Timeout.Core
         /// </summary>
         /// <param name="timeout">Timeout data.</param>
         /// <param name="options">The timeout persistence options.</param>
-        Task Add(TimeoutData timeout, TimeoutPersistenceOptions options);
+        /// <returns>The id of the added timeout.</returns>
+        Task<string> Add(TimeoutData timeout, TimeoutPersistenceOptions options);
 
         /// <summary>
         /// Reads timeout data.
