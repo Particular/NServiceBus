@@ -122,7 +122,7 @@
     <Compile Include="Performance\TimeToBeReceived\When_TimeToBeReceived_has_expired_convention.cs" />
     <Compile Include="Performance\TimeToBeReceived\When_TimeToBeReceived_has_not_expired.cs" />
     <Compile Include="Performance\TimeToBeReceived\When_TimeToBeReceived_has_expired.cs" />
-    <Compile Include="DelayedDelivery\When_dispatching_deferred_message_fails.cs" />
+    <Compile Include="DelayedDelivery\When_dispatching_deferred_message_fails_without_dtc.cs" />
     <Compile Include="ConfigureMsmqTransport.cs" />
     <Compile Include="Hosting\When_feature_overrides_hostid.cs" />
     <Compile Include="Reliability\Outbox\When_a_message_is_forwarded.cs" />
