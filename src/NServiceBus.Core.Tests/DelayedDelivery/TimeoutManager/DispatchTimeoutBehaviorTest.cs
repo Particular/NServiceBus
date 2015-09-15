@@ -27,7 +27,7 @@
         }
 
         [Test]
-        public async Task Terminate_when_dispatching_message_fails_should_not_remove_timeout()
+        public async Task Terminate_when_dispatching_message_fails_should_keep_timeout_in_storage()
         {
             var messageDispatcher = new FakeMessageDispatcher { DispatchFails = true };
             var timeoutPersister = new InMemoryTimeoutPersister();
