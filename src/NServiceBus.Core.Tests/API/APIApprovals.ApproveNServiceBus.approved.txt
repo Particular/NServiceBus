@@ -496,26 +496,8 @@ namespace NServiceBus
     {
         System.Threading.Tasks.Task PublishAsync(object message, NServiceBus.PublishOptions options);
         System.Threading.Tasks.Task PublishAsync<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions);
-        void Send(object message, NServiceBus.SendOptions options);
-        void Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options);
-        [System.ObsoleteAttribute("Please use `Send(object message, SendOptions options)` instead. Will be removed i" +
-            "n version 7.0.0.", true)]
-        NServiceBus.ICallback Send(NServiceBus.Address address, object message);
-        [System.ObsoleteAttribute("Please use `Send<T>(Action<T> messageConstructor, SendOptions options)` instead. " +
-            "Will be removed in version 7.0.0.", true)]
-        NServiceBus.ICallback Send<T>(NServiceBus.Address address, System.Action<T> messageConstructor);
-        [System.ObsoleteAttribute("Please use `Send(object message, SendOptions options)` instead. Will be removed i" +
-            "n version 7.0.0.", true)]
-        NServiceBus.ICallback Send(string destination, string correlationId, object message);
-        [System.ObsoleteAttribute("Please use `Send(object message, SendOptions options)` instead. Will be removed i" +
-            "n version 7.0.0.", true)]
-        NServiceBus.ICallback Send(NServiceBus.Address address, string correlationId, object message);
-        [System.ObsoleteAttribute("Please use `Send<T>(Action<T> messageConstructor, SendOptions options)` instead. " +
-            "Will be removed in version 7.0.0.", true)]
-        NServiceBus.ICallback Send<T>(string destination, string correlationId, System.Action<T> messageConstructor);
-        [System.ObsoleteAttribute("Please use `Send<T>(Action<T> messageConstructor, SendOptions options)` instead. " +
-            "Will be removed in version 7.0.0.", true)]
-        NServiceBus.ICallback Send<T>(NServiceBus.Address address, string correlationId, System.Action<T> messageConstructor);
+        System.Threading.Tasks.Task SendAsync(object message, NServiceBus.SendOptions options);
+        System.Threading.Tasks.Task SendAsync<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options);
     }
     public class static ISendOnlyBusExtensions
     {
@@ -530,10 +512,22 @@ namespace NServiceBus
         public static System.Threading.Tasks.Task PublishAsync(this NServiceBus.ISendOnlyBus bus, object message) { }
         public static System.Threading.Tasks.Task PublishAsync<T>(this NServiceBus.ISendOnlyBus bus) { }
         public static System.Threading.Tasks.Task PublishAsync<T>(this NServiceBus.ISendOnlyBus bus, System.Action<T> messageConstructor) { }
+        [System.ObsoleteAttribute("Please use `SendAsync(object message)` instead. Will be removed in version 7.0.0." +
+            "", true)]
         public static void Send(this NServiceBus.ISendOnlyBus bus, object message) { }
+        [System.ObsoleteAttribute("Please use `SendAsync<T>(Action<T> messageConstructor)` instead. Will be removed " +
+            "in version 7.0.0.", true)]
         public static void Send<T>(this NServiceBus.ISendOnlyBus bus, System.Action<T> messageConstructor) { }
+        [System.ObsoleteAttribute("Please use `SendAsync(string destination, object message)` instead. Will be remov" +
+            "ed in version 7.0.0.", true)]
         public static void Send(this NServiceBus.ISendOnlyBus bus, string destination, object message) { }
+        [System.ObsoleteAttribute("Please use `SendAsync<T>(string destination, Action<T> messageConstructor)` inste" +
+            "ad. Will be removed in version 7.0.0.", true)]
         public static void Send<T>(this NServiceBus.ISendOnlyBus bus, string destination, System.Action<T> messageConstructor) { }
+        public static System.Threading.Tasks.Task SendAsync(this NServiceBus.ISendOnlyBus bus, object message) { }
+        public static System.Threading.Tasks.Task SendAsync<T>(this NServiceBus.ISendOnlyBus bus, System.Action<T> messageConstructor) { }
+        public static System.Threading.Tasks.Task SendAsync(this NServiceBus.ISendOnlyBus bus, string destination, object message) { }
+        public static System.Threading.Tasks.Task SendAsync<T>(this NServiceBus.ISendOnlyBus bus, string destination, System.Action<T> messageConstructor) { }
     }
     [System.ObsoleteAttribute("Please use `BusConfiguration.ExecuteTheseHandlersFirst` instead. Will be removed " +
         "in version 7.0.0.", true)]
@@ -2755,30 +2749,12 @@ namespace NServiceBus.Unicast
         public void Reply<T>(System.Action<T> messageConstructor, NServiceBus.ReplyOptions options) { }
         [System.ObsoleteAttribute("Replaced by NServiceBus.Callbacks package. Will be removed in version 7.0.0.", true)]
         public void Return<T>(T errorEnum) { }
-        [System.ObsoleteAttribute("Please use `Send(object message, SendOptions options)` instead. Will be removed i" +
-            "n version 7.0.0.", true)]
-        public NServiceBus.ICallback Send(NServiceBus.Address address, object message) { }
-        [System.ObsoleteAttribute("Please use `Send<T>(Action<T> messageConstructor, SendOptions options)` instead. " +
-            "Will be removed in version 7.0.0.", true)]
-        public NServiceBus.ICallback Send<T>(NServiceBus.Address address, System.Action<T> messageConstructor) { }
-        [System.ObsoleteAttribute("Please use `Send(object message, SendOptions options)` instead. Will be removed i" +
-            "n version 7.0.0.", true)]
-        public NServiceBus.ICallback Send(string destination, string correlationId, object message) { }
-        [System.ObsoleteAttribute("Please use `Send(object message, SendOptions options)` instead. Will be removed i" +
-            "n version 7.0.0.", true)]
-        public NServiceBus.ICallback Send(NServiceBus.Address address, string correlationId, object message) { }
-        [System.ObsoleteAttribute("Please use `Send<T>(Action<T> messageConstructor, SendOptions options)` instead. " +
-            "Will be removed in version 7.0.0.", true)]
-        public NServiceBus.ICallback Send<T>(string destination, string correlationId, System.Action<T> messageConstructor) { }
-        [System.ObsoleteAttribute("Please use `Send<T>(Action<T> messageConstructor, SendOptions options)` instead. " +
-            "Will be removed in version 7.0.0.", true)]
-        public NServiceBus.ICallback Send<T>(NServiceBus.Address address, string correlationId, System.Action<T> messageConstructor) { }
-        [System.ObsoleteAttribute("Please use `ISendOnlyBus.Send(object message, SendOptions options)` instead. Will" +
-            " be removed in version 7.0.0.", true)]
-        public void Send(object message, NServiceBus.SendOptions options) { }
-        [System.ObsoleteAttribute("Please use `ISendOnlyBus.Send<T>(Action<T> messageConstructor, SendOptions option" +
-            "s)` instead. Will be removed in version 7.0.0.", true)]
-        public void Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options) { }
+        [System.ObsoleteAttribute("Please use `ISendOnlyBus.SendAsync(object message, SendOptions options)` instead." +
+            " Will be removed in version 7.0.0.", true)]
+        public System.Threading.Tasks.Task SendAsync(object message, NServiceBus.SendOptions options) { }
+        [System.ObsoleteAttribute("Please use `ISendOnlyBus.SendAsync<T>(Action<T> messageConstructor, SendOptions o" +
+            "ptions)` instead. Will be removed in version 7.0.0.", true)]
+        public System.Threading.Tasks.Task SendAsync<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options) { }
         [System.ObsoleteAttribute("Please use `IStartableBus.Start()` instead. Will be removed in version 7.0.0.", true)]
         public NServiceBus.IBus Start() { }
         [System.ObsoleteAttribute("Please use `IBus.Subscribe(Type messageType)` instead. Will be removed in version" +

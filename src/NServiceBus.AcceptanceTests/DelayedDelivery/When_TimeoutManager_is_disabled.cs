@@ -19,8 +19,7 @@
 
                         options.RouteToLocalEndpointInstance();
 
-                        bus.Send(new MyMessage(), options);
-                        return Task.FromResult(0);
+                        return bus.SendAsync(new MyMessage(), options);
                     }))
                     .Done(c => c.ExceptionThrown || c.SecondMessageReceived)
                     .Run();
@@ -47,7 +46,7 @@
                 public Context Context { get; set; }
                 public IBus Bus { get; set; }
 
-                public Task Handle(MyMessage message)
+                public async Task Handle(MyMessage message)
                 {
                     try
                     {
@@ -55,15 +54,13 @@
                         opts.DelayDeliveryWith(TimeSpan.FromSeconds(5));
                         opts.RouteToLocalEndpointInstance();
 
-                        Bus.Send(new MyOtherMessage(), opts);
+                        await Bus.SendAsync(new MyOtherMessage(), opts);
                     }
                     catch (Exception x)
                     {
                         Console.WriteLine(x.Message);
                         Context.ExceptionThrown = true;
                     }
-
-                    return Task.FromResult(0);
                 }
 
                 public Task Handle(MyOtherMessage message)

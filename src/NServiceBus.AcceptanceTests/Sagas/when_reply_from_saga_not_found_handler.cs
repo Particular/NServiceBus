@@ -15,11 +15,7 @@
         public async Task It_should_invoke_message_handler()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<Sender>(b => b.Given((bus, c) =>
-                    {
-                        bus.Send(new MessageToSaga());
-                        return Task.FromResult(0);
-                    }))
+                    .WithEndpoint<Sender>(b => b.Given((bus, c) => bus.SendAsync(new MessageToSaga())))
                     .WithEndpoint<ReceiverWithSaga>()
                     .Done(c => c.ReplyReceived)
                     .Run();

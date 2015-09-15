@@ -55,7 +55,7 @@
 
                 public void Start()
                 {
-                    Bus.Send(new SendMessage());
+                    Bus.SendAsync(new SendMessage()).GetAwaiter().GetResult();
                 }
 
                 public void Stop()
@@ -81,8 +81,7 @@
 
             public Task Handle(SendMessage message)
             {
-                Bus.Send("ineedinitialization_receiver", new MyMessage());
-                return Task.FromResult(0);
+                return Bus.SendAsync("ineedinitialization_receiver", new MyMessage());
             }
         }
 

@@ -14,22 +14,21 @@
         public async Task Should_not_deliver_them_until_the_commit_phase()
         {
             await Scenario.Define<Context>()
-                    .WithEndpoint<TransactionalEndpoint>(b => b.Given((bus, context) =>
+                    .WithEndpoint<TransactionalEndpoint>(b => b.Given(async (bus, context) =>
                         {
                             using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                             {
-                                bus.Send(new MessageThatIsEnlisted { SequenceNumber = 1 });
-                                bus.Send(new MessageThatIsEnlisted { SequenceNumber = 2 });
+                                await bus.SendAsync(new MessageThatIsEnlisted { SequenceNumber = 1 });
+                                await bus.SendAsync(new MessageThatIsEnlisted { SequenceNumber = 2 });
 
                                 //send another message as well so that we can check the order in the receiver
                                 using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
                                 {
-                                    bus.Send(new MessageThatIsNotEnlisted());
+                                    await bus.SendAsync(new MessageThatIsNotEnlisted());
                                 }
 
                                 tx.Complete();
                             }
-                            return Task.FromResult(0);
                         }))
                     .Done(c => c.MessageThatIsNotEnlistedHandlerWasCalled && c.TimesCalled >= 2)
                     .Repeat(r => r.For<AllDtcTransports>())
@@ -41,17 +40,16 @@
         public async Task Should_not_deliver_them_on_rollback()
         {
             await Scenario.Define<Context>()
-                    .WithEndpoint<TransactionalEndpoint>(b => b.Given(bus =>
+                    .WithEndpoint<TransactionalEndpoint>(b => b.Given(async bus =>
                         {
                             using (new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                             {
-                                bus.Send(new MessageThatIsEnlisted());
+                                await bus.SendAsync(new MessageThatIsEnlisted());
 
                                 //rollback
                             }
 
-                            bus.Send(new MessageThatIsNotEnlisted());
-                            return Task.FromResult(0);
+                            await bus.SendAsync(new MessageThatIsNotEnlisted());
                         }))
                     .Done(c => c.MessageThatIsNotEnlistedHandlerWasCalled)
                     .Repeat(r => r.For<AllDtcTransports>())

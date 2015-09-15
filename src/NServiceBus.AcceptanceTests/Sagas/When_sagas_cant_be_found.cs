@@ -64,9 +64,7 @@
                     options.DelayDeliveryWith(TimeSpan.FromSeconds(10));
                     options.RouteToLocalEndpointInstance();
 
-                    Bus.Send(new FinishMessage(), options);
-
-                    return Task.FromResult(0);
+                    return Bus.SendAsync(new FinishMessage(), options);
                 }
             }
 
@@ -169,9 +167,7 @@
                     options.DelayDeliveryWith(TimeSpan.FromSeconds(10));
                     options.RouteToLocalEndpointInstance();
 
-                    Bus.Send(new FinishMessage(), options);
-
-                    return Task.FromResult(0);
+                    return Bus.SendAsync(new FinishMessage(), options);
                 }
             }
 

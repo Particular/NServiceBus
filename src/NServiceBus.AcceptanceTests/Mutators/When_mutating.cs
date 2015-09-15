@@ -14,11 +14,7 @@
         public async Task Context_should_be_populated()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<Sender>(b => b.Given((bus, c) =>
-                    {
-                        bus.Send(new StartMessage());
-                        return Task.FromResult(0);
-                    }))
+                    .WithEndpoint<Sender>(b => b.Given((bus, c) => bus.SendAsync(new StartMessage())))
                     .WithEndpoint<Receiver>()
                     .Done(c => c.WasCalled)
                     .Run(TimeSpan.FromHours(1));
