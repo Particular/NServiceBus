@@ -22,19 +22,17 @@
                                 e.MoreInfo = "dasd";
                             });
                         }))
-                    .WithEndpoint<V1Subscriber>(b => b.Given((bus,c) =>
+                    .WithEndpoint<V1Subscriber>(b => b.Given(async (bus,c) =>
                         {
-                            bus.Subscribe<V1Event>();
+                            await bus.SubscribeAsync<V1Event>();
                             if (c.HasNativePubSubSupport)
                                 c.V1Subscribed = true;
-                            return Task.FromResult(0);
                         }))
-                    .WithEndpoint<V2Subscriber>(b => b.Given((bus,c) =>
+                    .WithEndpoint<V2Subscriber>(b => b.Given(async (bus,c) =>
                         {
-                            bus.Subscribe<V2Event>();
+                            await bus.SubscribeAsync<V2Event>();
                             if (c.HasNativePubSubSupport)
                                 c.V2Subscribed = true;
-                            return Task.FromResult(0);
                         }))
                     .Done(c => c.V1SubscriberGotTheMessage && c.V2SubscriberGotTheMessage)
                     .Run();

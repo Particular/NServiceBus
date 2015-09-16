@@ -1,8 +1,11 @@
 namespace NServiceBus.Unicast
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using Janitor;
+    using NServiceBus.ConsistencyGuarantees;
+    using NServiceBus.DeliveryConstraints;
     using NServiceBus.Extensibility;
     using NServiceBus.MessageInterfaces;
     using NServiceBus.ObjectBuilder;
@@ -17,7 +20,7 @@ namespace NServiceBus.Unicast
     partial class ContextualBus : IBus, IContextualBus
     {
         public ContextualBus(BehaviorContextStacker contextStacker, IMessageMapper messageMapper, IBuilder builder,
-            ReadOnlySettings settings, IDispatchMessages dispatcher)
+            ReadOnlySettings settings,IDispatchMessages dispatcher)
         {
             this.messageMapper = messageMapper;
             this.contextStacker = contextStacker;
@@ -50,8 +53,10 @@ namespace NServiceBus.Unicast
             return pipeline.Invoke(publishContext);
         }
 
-
-        public void Subscribe(Type eventType, SubscribeOptions options)
+        /// <summary>
+        /// <see cref="IBus.SubscribeAsync"/>
+        /// </summary>
+        public Task SubscribeAsync(Type eventType, SubscribeOptions options)
         {
             var pipeline = new PipelineBase<SubscribeContext>(builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
 
@@ -59,11 +64,13 @@ namespace NServiceBus.Unicast
                 incomingContext,
                 eventType,
                 options);
-
-            pipeline.Invoke(subscribeContext).GetAwaiter().GetResult();
+            return pipeline.Invoke(subscribeContext);
         }
-
-        public void Unsubscribe(Type eventType, UnsubscribeOptions options)
+        
+        /// <summary>
+        /// <see cref="IBus.UnsubscribeAsync"/>
+        /// </summary>
+        public Task UnsubscribeAsync(Type eventType, UnsubscribeOptions options)
         {
             var pipeline = new PipelineBase<UnsubscribeContext>(builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
 
@@ -72,7 +79,7 @@ namespace NServiceBus.Unicast
                 eventType,
                 options);
 
-            pipeline.Invoke(subscribeContext).GetAwaiter().GetResult();
+            return pipeline.Invoke(subscribeContext);
         }
 
         /// <summary>

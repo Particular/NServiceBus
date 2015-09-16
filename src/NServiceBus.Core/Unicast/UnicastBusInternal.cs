@@ -182,7 +182,6 @@ namespace NServiceBus.Unicast
             featureRunner.Stop();
         }
 
-
         volatile bool started;
 
         static ILog Log = LogManager.GetLogger<UnicastBus>();

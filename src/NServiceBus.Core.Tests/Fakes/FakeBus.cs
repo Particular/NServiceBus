@@ -128,12 +128,12 @@
             throw new NotImplementedException();
         }
 
-        public void Subscribe(Type eventType, SubscribeOptions options)
+        public Task SubscribeAsync(Type eventType, SubscribeOptions options)
         {
             throw new NotImplementedException();
         }
 
-        public void Unsubscribe(Type eventType, UnsubscribeOptions options)
+        public Task UnsubscribeAsync(Type eventType, UnsubscribeOptions options)
         {
             throw new NotImplementedException();
         }

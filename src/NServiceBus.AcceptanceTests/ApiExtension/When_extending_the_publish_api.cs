@@ -28,14 +28,12 @@
                             return bus.PublishAsync(new MyEvent(), options);
                         })
                      )
-                    .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
+                    .WithEndpoint<Subscriber1>(b => b.Given(async (bus, context) =>
                         {
-                            bus.Subscribe<MyEvent>();
+                            await bus.SubscribeAsync<MyEvent>();
 
                             if (context.HasNativePubSubSupport)
                                 context.Subscriber1Subscribed = true;
-
-                            return Task.FromResult(0);
                         }))
                     .Done(c => c.Subscriber1GotTheEvent)
                     .Repeat(r => r.For(Transports.Default))

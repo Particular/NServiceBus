@@ -76,12 +76,12 @@ namespace NServiceBus
         /// </summary>
         /// <param name="bus">Object being extended.</param>
         /// <param name="messageType">The type of message to subscribe to.</param>
-        public static void Subscribe(this IBus bus, Type messageType)
+        public static Task SubscribeAsync(this IBus bus, Type messageType)
         {
             Guard.AgainstNull("bus", bus);
             Guard.AgainstNull("messageType", messageType);
 
-            bus.Subscribe(messageType, new SubscribeOptions());
+            return bus.SubscribeAsync(messageType, new SubscribeOptions());
         }
 
         /// <summary>
@@ -90,11 +90,11 @@ namespace NServiceBus
         /// </summary>
         /// <param name="bus">Object being extended.</param>
         /// <typeparam name="T">The type of message to subscribe to.</typeparam>
-        public static void Subscribe<T>(this IBus bus)
+        public static Task SubscribeAsync<T>(this IBus bus)
         {
             Guard.AgainstNull("bus", bus);
 
-            bus.Subscribe(typeof(T), new SubscribeOptions());
+            return bus.SubscribeAsync(typeof(T), new SubscribeOptions());
         }
 
         /// <summary>
@@ -102,12 +102,12 @@ namespace NServiceBus
         /// </summary>
         /// <param name="bus">Object being extended.</param>
         /// <param name="messageType">The type of message to subscribe to.</param>
-        public static void Unsubscribe(this IBus bus, Type messageType)
+        public static Task UnsubscribeAsync(this IBus bus, Type messageType)
         {
             Guard.AgainstNull("bus", bus);
             Guard.AgainstNull("messageType", messageType);
 
-            bus.Unsubscribe(messageType, new UnsubscribeOptions());
+            return bus.UnsubscribeAsync(messageType, new UnsubscribeOptions());
         }
 
         /// <summary>
@@ -115,11 +115,11 @@ namespace NServiceBus
         /// </summary>
         /// <param name="bus">Object being extended.</param>
         /// <typeparam name="T">The type of message to unsubscribe from.</typeparam>
-        public static void Unsubscribe<T>(this IBus bus)
+        public static Task UnsubscribeAsync<T>(this IBus bus)
         {
             Guard.AgainstNull("bus", bus);
 
-            bus.Unsubscribe(typeof(T), new UnsubscribeOptions());
+            return bus.UnsubscribeAsync(typeof(T), new UnsubscribeOptions());
         }
     }
 }
