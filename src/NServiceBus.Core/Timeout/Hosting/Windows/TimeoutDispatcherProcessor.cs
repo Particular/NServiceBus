@@ -31,11 +31,28 @@ namespace NServiceBus.Timeout.Hosting.Windows
         public bool Handle(TransportMessage message)
         {
             var timeoutId = message.Headers["Timeout.Id"];
-            TimeoutData timeoutData;
+            
 
-            if (TimeoutsPersister.TryRemove(timeoutId, out timeoutData))
+            IPersistTimeoutsV2 persisterV2 = TimeoutsPersister as IPersistTimeoutsV2;
+            if (persisterV2 != null)
             {
+                var timeoutData = persisterV2.Peek(timeoutId);
+                if (timeoutData == null)
+                {
+                    return true;
+                }
+
+                // TODO: when using native transactions make sure send completes indipendelty before commiting
                 MessageSender.Send(timeoutData.ToTransportMessage(), timeoutData.Destination);
+                persisterV2.Remove(timeoutId);
+            }
+            else
+            {
+                TimeoutData timeoutData;
+                if (TimeoutsPersister.TryRemove(timeoutId, out timeoutData))
+                {
+                    MessageSender.Send(timeoutData.ToTransportMessage(), timeoutData.Destination);
+                }
             }
 
             return true;
