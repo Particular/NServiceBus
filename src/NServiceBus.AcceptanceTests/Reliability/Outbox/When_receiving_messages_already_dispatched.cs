@@ -10,7 +10,6 @@
 
     public class When_receiving_messages_already_dispatched : NServiceBusAcceptanceTest
     {
-
         [Test]
         public async Task Should_discard_them()
         {
@@ -48,6 +47,7 @@
             {
                 EndpointSetup<DefaultServer>(b =>
                 {
+                    b.LimitMessageProcessingConcurrencyTo(1); // We limit to one to avoid race conditions on dispatch and this allows us to reliable check whether deduplication happens properly
                     b.GetSettings().Set("DisableOutboxTransportCheck", true);
                     b.EnableOutbox();
                 });
