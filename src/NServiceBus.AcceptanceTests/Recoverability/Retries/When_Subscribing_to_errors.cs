@@ -110,12 +110,13 @@
                 });
             }
 
-            public void Stop()
+            public Task StopAsync()
             {
                 foreach (var unsubscribeStream in unsubscribeStreams)
                 {
                     unsubscribeStream.Dispose();
                 }
+                return Task.FromResult(0);
             }
 
             List<IDisposable> unsubscribeStreams = new List<IDisposable>();

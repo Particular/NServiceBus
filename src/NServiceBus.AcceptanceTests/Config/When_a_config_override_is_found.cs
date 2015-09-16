@@ -52,8 +52,9 @@
                     context.ErrorQueueUsedByTheEndpoint = configure.Settings.GetConfigSection<MessageForwardingInCaseOfFaultConfig>().ErrorQueue;
                 }
 
-                public void Stop()
+                public Task StopAsync()
                 {
+                    return Task.FromResult(0);
                 }
             }
 
