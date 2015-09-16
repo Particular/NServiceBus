@@ -46,6 +46,7 @@
         [Test]
         public void Should_encrypt_the_property_correctly()
         {
+            // ReSharper disable once UseObjectOrCollectionInitializer
             var message = new MessageWithIndexedProperties
                 {
                     Secret = MySecretMessage
@@ -81,6 +82,7 @@
         [Test]
         public void Should_throw_exception()
         {
+            // ReSharper disable once UseObjectOrCollectionInitializer
             var message = new MessageWithIndexedProperties();
 
             message[0] = MySecretMessage;
@@ -129,6 +131,7 @@
         [Test]
         public void Should_decrypt_the_property_correctly()
         {
+            // ReSharper disable once UseObjectOrCollectionInitializer
             var message = new MessageWithIndexProperties
                           {
                               Secret = Create()
