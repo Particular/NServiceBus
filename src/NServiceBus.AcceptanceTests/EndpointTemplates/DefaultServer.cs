@@ -50,8 +50,12 @@
             builder.DefineBuilder(settings);
             builder.RegisterComponents(r =>
             {
-                r.RegisterSingleton(runDescriptor.ScenarioContext.GetType(), runDescriptor.ScenarioContext);
-                r.RegisterSingleton(typeof(ScenarioContext), runDescriptor.ScenarioContext);
+                var type = runDescriptor.ScenarioContext.GetType();
+                while (type != typeof(object))
+                {
+                    r.RegisterSingleton(type, runDescriptor.ScenarioContext);
+                    type = type.BaseType;
+                }
             });
 
             var serializer = settings.GetOrNull("Serializer");

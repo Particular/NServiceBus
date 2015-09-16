@@ -40,7 +40,12 @@
 
                 //apply custom config settings
                 busConfiguration = await configuration.GetConfiguration(run, routingTable).ConfigureAwait(false);
-                busConfiguration.GetSettings().Set(scenarioContext.GetType().FullName, scenarioContext);
+                var type = scenarioContext.GetType();
+                while (type != typeof(object))
+                {
+                    busConfiguration.GetSettings().Set(type.FullName, scenarioContext);
+                    type = type.BaseType;
+                }
 
                 endpointBehavior.CustomConfig.ForEach(customAction => customAction(busConfiguration));
 
