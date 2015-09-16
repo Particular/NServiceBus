@@ -103,13 +103,13 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IBus.HandleCurrentMessageLater"/>
+        /// <see cref="IBus.HandleCurrentMessageLaterAsync"/>
         /// </summary>
-        public void HandleCurrentMessageLater()
+        public Task HandleCurrentMessageLaterAsync()
         {
             if (incomingContext.handleCurrentMessageLaterWasCalled)
             {
-                return;
+                return TaskEx.Completed;
             }
 
             dispatcher.Dispatch(new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new DispatchOptions(new DirectToTargetDestination(sendLocalAddress), new ContextBag())).GetAwaiter().GetResult();
@@ -117,6 +117,8 @@ namespace NServiceBus.Unicast
             incomingContext.handleCurrentMessageLaterWasCalled = true;
 
             ((HandlingStageBehavior.Context)incomingContext).DoNotInvokeAnyMoreHandlers();
+
+            return TaskEx.Completed;
         }
 
         /// <summary>

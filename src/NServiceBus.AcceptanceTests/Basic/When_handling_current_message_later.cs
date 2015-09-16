@@ -83,7 +83,7 @@
 
                     if (Context.FirstHandlerInvocationCount == 1)
                     {
-                        Bus.HandleCurrentMessageLater();
+                        return Bus.HandleCurrentMessageLaterAsync();
                     }
 
                     return Task.FromResult(0);

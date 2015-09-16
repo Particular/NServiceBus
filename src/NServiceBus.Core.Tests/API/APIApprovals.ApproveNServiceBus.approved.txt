@@ -414,7 +414,7 @@ namespace NServiceBus
         NServiceBus.ICallback Defer(System.DateTime processAt, object message);
         void DoNotContinueDispatchingCurrentMessageToHandlers();
         void ForwardCurrentMessageTo(string destination);
-        void HandleCurrentMessageLater();
+        System.Threading.Tasks.Task HandleCurrentMessageLaterAsync();
         System.Threading.Tasks.Task ReplyAsync(object message, NServiceBus.ReplyOptions options);
         System.Threading.Tasks.Task ReplyAsync<T>(System.Action<T> messageConstructor, NServiceBus.ReplyOptions options);
         [System.ObsoleteAttribute("Replaced by NServiceBus.Callbacks package. Will be removed in version 7.0.0.", true)]
@@ -2752,9 +2752,9 @@ namespace NServiceBus.Unicast
         [System.ObsoleteAttribute("Please use `IBus.ForwardCurrentMessageTo(string destination)` instead. Will be re" +
             "moved in version 7.0.0.", true)]
         public void ForwardCurrentMessageTo(string destination) { }
-        [System.ObsoleteAttribute("Please use `IBus.HandleCurrentMessageLater()` instead. Will be removed in version" +
-            " 7.0.0.", true)]
-        public void HandleCurrentMessageLater() { }
+        [System.ObsoleteAttribute("Please use `IBus.HandleCurrentMessageLaterAsync()` instead. Will be removed in ve" +
+            "rsion 7.0.0.", true)]
+        public System.Threading.Tasks.Task HandleCurrentMessageLaterAsync() { }
         [System.ObsoleteAttribute("Please use `ISendOnlyBus.PublishAsync(object message, PublishOptions options)` in" +
             "stead. Will be removed in version 7.0.0.", true)]
         public System.Threading.Tasks.Task PublishAsync(object message, NServiceBus.PublishOptions options) { }

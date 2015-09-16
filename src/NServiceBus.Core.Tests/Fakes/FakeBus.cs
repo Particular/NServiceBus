@@ -143,7 +143,7 @@
             throw new NotImplementedException();
         }
 
-        public void HandleCurrentMessageLater()
+        public Task HandleCurrentMessageLaterAsync()
         {
             throw new NotImplementedException();
         }

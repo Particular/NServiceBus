@@ -77,9 +77,9 @@
         }
 
         /// <inheritdoc />
-        public void HandleCurrentMessageLater()
+        public Task HandleCurrentMessageLaterAsync()
         {
-            busImpl.HandleCurrentMessageLater();
+            return busImpl.HandleCurrentMessageLaterAsync();
         }
         
         /// <inheritdoc />

@@ -812,10 +812,10 @@ namespace NServiceBus.Unicast
         }
 
         [ObsoleteEx(
-            ReplacementTypeOrMember = "IBus.HandleCurrentMessageLater()",
+            ReplacementTypeOrMember = "IBus.HandleCurrentMessageLaterAsync()",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
-        public void HandleCurrentMessageLater()
+        public Task HandleCurrentMessageLaterAsync()
         {
             throw new NotImplementedException();
         }

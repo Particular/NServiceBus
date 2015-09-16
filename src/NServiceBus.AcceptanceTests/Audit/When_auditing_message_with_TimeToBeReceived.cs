@@ -100,7 +100,7 @@
                     }
                     else
                     {
-                        bus.HandleCurrentMessageLater();
+                        return bus.HandleCurrentMessageLaterAsync();
                     }
 
                     return Task.FromResult(0);
