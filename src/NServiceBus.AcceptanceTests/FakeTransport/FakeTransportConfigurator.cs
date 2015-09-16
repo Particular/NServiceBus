@@ -1,10 +1,16 @@
 ﻿namespace NServiceBus.AcceptanceTests.FakeTransport
 {
+    using System;
     using NServiceBus.Features;
     using NServiceBus.Transports;
 
     public class FakeTransportConfigurator : ConfigureTransport
     {
+        public FakeTransportConfigurator()
+        {
+            Defaults(s => s.SetDefault("FakeTransport.ThrowCritical", default(Exception)));
+        }
+
         protected override void Configure(FeatureConfigurationContext context, string connectionString)
         {
             context.Container.ConfigureComponent<FakeReceiver>(DependencyLifecycle.InstancePerCall);

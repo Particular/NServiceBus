@@ -73,6 +73,7 @@
     <Compile Include="Basic\When_deferring_to_non_local.cs" />
     <Compile Include="DelayedDelivery\When_TimeoutManager_is_disabled.cs" />
     <Compile Include="Basic\When_starting_up_the_endpoint.cs" />
+    <Compile Include="FakeTransport\FakeTransportSetingsExtensions.cs" />
     <Compile Include="Mutators\When_mutating.cs" />
     <Compile Include="BestPractices\When_publishing_command_bestpractices_disabled_on_endpoint.cs" />
     <Compile Include="BestPractices\When_sending_events_bestpractices_disabled_on_endpoint.cs" />
