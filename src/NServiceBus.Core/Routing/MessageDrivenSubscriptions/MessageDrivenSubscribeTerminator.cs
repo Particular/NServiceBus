@@ -1,11 +1,8 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
-    using NServiceBus.ConsistencyGuarantees;
-    using NServiceBus.DeliveryConstraints;
     using NServiceBus.Extensibility;
     using NServiceBus.Logging;
     using NServiceBus.Pipeline;
@@ -48,22 +45,22 @@
                 var address = publisherAddress;
 
                 ThreadPool.QueueUserWorkItem(state =>
-                    SendSubscribeMessageWithRetries(address, subscriptionMessage, eventType.AssemblyQualifiedName));
+                    SendSubscribeMessageWithRetries(address, subscriptionMessage, eventType.AssemblyQualifiedName, context));
             }
         }
 
-        void SendSubscribeMessageWithRetries(string destination, OutgoingMessage subscriptionMessage, string messageType, int retriesCount = 0)
+        void SendSubscribeMessageWithRetries(string destination, OutgoingMessage subscriptionMessage, string messageType, ContextBag context, int retriesCount = 0)
         {
             try
             {
-                dispatcher.Dispatch(subscriptionMessage, new DispatchOptions(destination, new AtLeastOnce(), new List<DeliveryConstraint>(), new ContextBag())).GetAwaiter().GetResult();
+                dispatcher.Dispatch(subscriptionMessage, new DispatchOptions(new DirectToTargetDestination(destination), context)).GetAwaiter().GetResult();
             }
             catch (QueueNotFoundException ex)
             {
                 if (retriesCount < 10)
                 {
                     Thread.Sleep(TimeSpan.FromSeconds(2));
-                    SendSubscribeMessageWithRetries(destination, subscriptionMessage, messageType, ++retriesCount);
+                    SendSubscribeMessageWithRetries(destination, subscriptionMessage, messageType, context, ++retriesCount);
                 }
                 else
                 {

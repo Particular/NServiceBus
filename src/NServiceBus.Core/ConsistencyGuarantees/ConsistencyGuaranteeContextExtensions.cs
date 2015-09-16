@@ -2,7 +2,7 @@ namespace NServiceBus.ConsistencyGuarantees
 {
     using NServiceBus.TransportDispatch;
 
-    static class ConsistencyGuaranteeExtensions
+    static class ConsistencyGuaranteeContextExtensions
     {
         public static ConsistencyGuarantee GetConsistencyGuarantee(this DispatchContext context)
         {

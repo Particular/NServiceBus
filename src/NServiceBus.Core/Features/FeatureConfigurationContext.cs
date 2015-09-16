@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
+    using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Pipeline;
     using NServiceBus.Settings;
@@ -35,14 +36,14 @@
         /// <summary>
         /// Creates a new satellite processing pipeline.
         /// </summary>
-        public PipelineSettings AddSatellitePipeline(string name, string qualifier, out string transportAddress, int? maxConcurrency = null, Unicast.Transport.TransactionSettings transactionSettings = null)
+        public PipelineSettings AddSatellitePipeline(string name, string qualifier, ConsistencyGuarantee consistencyGuarantee, PushRuntimeSettings runtimeSettings, out string transportAddress)
         {
             var instanceName = config.Settings.EndpointInstanceName();
             var satelliteLogicalAddress = new LogicalAddress(instanceName, qualifier);
             var addressTranslation = config.Settings.Get<LogicalToTransportAddressTranslation>();
             transportAddress = addressTranslation.Translate(satelliteLogicalAddress);
 
-            var pipelineModifications = new SatellitePipelineModifications(name, transportAddress, transactionSettings, maxConcurrency.HasValue ? new PushRuntimeSettings(maxConcurrency.Value) : null);
+            var pipelineModifications = new SatellitePipelineModifications(name, transportAddress, consistencyGuarantee, runtimeSettings);
             config.Settings.Get<PipelineConfiguration>().SatellitePipelines.Add(pipelineModifications);
             var newPipeline = new PipelineSettings(pipelineModifications);
 

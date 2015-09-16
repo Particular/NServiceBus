@@ -1103,13 +1103,17 @@ namespace NServiceBus.ConsistencyGuarantees
     {
         public AtLeastOnce() { }
     }
-    public class AtomicWithReceiveOperation : NServiceBus.ConsistencyGuarantees.ConsistencyGuarantee
+    public class AtMostOnce : NServiceBus.ConsistencyGuarantees.ConsistencyGuarantee
     {
-        public AtomicWithReceiveOperation() { }
+        public AtMostOnce() { }
     }
     public abstract class ConsistencyGuarantee
     {
         protected ConsistencyGuarantee() { }
+    }
+    public class ExactlyOnce : NServiceBus.ConsistencyGuarantees.ConsistencyGuarantee
+    {
+        public ExactlyOnce() { }
     }
 }
 namespace NServiceBus.Container
@@ -1330,7 +1334,7 @@ namespace NServiceBus.Features
         public NServiceBus.ObjectBuilder.IConfigureComponents Container { get; }
         public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
         public NServiceBus.Settings.ReadOnlySettings Settings { get; }
-        public NServiceBus.Pipeline.PipelineSettings AddSatellitePipeline(string name, string qualifier, out string transportAddress, System.Nullable<int> maxConcurrency = null, NServiceBus.Unicast.Transport.TransactionSettings transactionSettings = null) { }
+        public NServiceBus.Pipeline.PipelineSettings AddSatellitePipeline(string name, string qualifier, NServiceBus.ConsistencyGuarantees.ConsistencyGuarantee consistencyGuarantee, NServiceBus.Transports.PushRuntimeSettings runtimeSettings, out string transportAddress) { }
     }
     public class FeatureDiagnosticData
     {
@@ -2432,13 +2436,17 @@ namespace NServiceBus.Transports
         protected abstract void Configure(NServiceBus.Features.FeatureConfigurationContext context, string connectionString);
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
+    public enum DispatchConsistency
+    {
+        Default = 1,
+        Isolated = 2,
+    }
     public class DispatchOptions
     {
-        public DispatchOptions(NServiceBus.Routing.RoutingStrategy routingStrategy, NServiceBus.ConsistencyGuarantees.ConsistencyGuarantee minimumConsistencyGuarantee, System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints, NServiceBus.Extensibility.ContextBag context) { }
-        public DispatchOptions(string destination, NServiceBus.ConsistencyGuarantees.ConsistencyGuarantee minimumConsistencyGuarantee, System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints, NServiceBus.Extensibility.ContextBag context) { }
+        public DispatchOptions(NServiceBus.Routing.RoutingStrategy routingStrategy, NServiceBus.Extensibility.ContextBag context, System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints = null, NServiceBus.Transports.DispatchConsistency requiredDispatchConsistency = 1) { }
         public NServiceBus.Extensibility.ReadOnlyContextBag Context { get; }
         public System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> DeliveryConstraints { get; }
-        public NServiceBus.ConsistencyGuarantees.ConsistencyGuarantee MinimumConsistencyGuarantee { get; }
+        public NServiceBus.Transports.DispatchConsistency RequiredDispatchConsistency { get; }
         public NServiceBus.Routing.RoutingStrategy RoutingStrategy { get; set; }
     }
     [System.ObsoleteAttribute("No longer used, safe to remove. Will be removed in version 7.0.0.", true)]
@@ -2523,11 +2531,11 @@ namespace NServiceBus.Transports
     }
     public class PushSettings
     {
-        public PushSettings(string inputQueue, string errorQueue, bool purgeOnStartup, NServiceBus.Unicast.Transport.TransactionSettings transactionSettings) { }
+        public PushSettings(string inputQueue, string errorQueue, bool purgeOnStartup, NServiceBus.ConsistencyGuarantees.ConsistencyGuarantee requiredConsistency) { }
         public string ErrorQueue { get; }
         public string InputQueue { get; }
         public bool PurgeOnStartup { get; }
-        public NServiceBus.Unicast.Transport.TransactionSettings TransactionSettings { get; }
+        public NServiceBus.ConsistencyGuarantees.ConsistencyGuarantee RequiredConsistency { get; }
     }
     public class QueueBindings
     {

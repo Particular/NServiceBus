@@ -10,9 +10,8 @@
 
     public class When_a_message_is_audited : NServiceBusAcceptanceTest
     {
-
         [Test]
-        public async Task Should_audit_even_if_dispatch_blows_once()
+        public async Task Should_be_dispatched_immediately()
         {
             var context = await Scenario.Define<Context>()
                     .WithEndpoint<EndpointWithAuditOn>(b => b.Given(bus =>

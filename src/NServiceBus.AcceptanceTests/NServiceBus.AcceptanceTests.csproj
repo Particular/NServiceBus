@@ -124,7 +124,7 @@
     <Compile Include="DelayedDelivery\When_Deferring_a_message.cs" />
     <Compile Include="ConfigureMsmqTransport.cs" />
     <Compile Include="Hosting\When_feature_overrides_hostid.cs" />
-    <Compile Include="Reliability\Outbox\When_a_message_is_forwarded.cs" />
+    <Compile Include="Reliability\Outbox\When_dispatching_forwarded_messages.cs" />
     <Compile Include="Reliability\Outbox\When_a_message_is_audited.cs" />
     <Compile Include="Reliability\Outbox\When_clearing_saga_timeouts.cs" />
     <Compile Include="Reliability\Outbox\When_dispatching_transport_operations.cs" />

@@ -98,14 +98,18 @@
     <Compile Include="BusConfiguration.cs" />
     <Compile Include="Causation\MessageCausation.cs" />
     <Compile Include="ConfigureHandlerSettings.cs" />
+    <Compile Include="ConsistencyGuarantees\AtMostOnce.cs" />
+    <Compile Include="ConsistencyGuarantees\ConsistencyGuaranteeSettingsExtensions.cs" />
+    <Compile Include="ConsistencyGuarantees\ExactlyOnce.cs" />
     <Compile Include="ConsistencyGuarantees\TransactionScopes\WrapHandlersInTransactionScope.cs" />
     <Compile Include="IBusExtensions_obsolete.cs" />
     <Compile Include="ISendOnlyBusExtensions_obsoletes.cs" />
     <Compile Include="Routing\DynamicRoutingConfigurationExtensions.cs" />
     <Compile Include="TaskEx.cs" />
+    <Compile Include="Transports\DispatchConsistency.cs" />
     <Compile Include="Transports\Msmq\MsmqConnectionStringBuilder.cs" />
     <Compile Include="ConsistencyGuarantees\ApplyDefaultConsistencyGuaranteeBehavior.cs" />
-    <Compile Include="ConsistencyGuarantees\ConsistencyGuaranteeExtensions.cs" />
+    <Compile Include="ConsistencyGuarantees\ConsistencyGuaranteeContextExtensions.cs" />
     <Compile Include="ConsistencyGuarantees\ConsistencyGuaranteeFeature.cs" />
     <Compile Include="Container\ContainerCustomizations.cs" />
     <Compile Include="Container\ContainerDefinition.cs" />
@@ -204,7 +208,6 @@
     <Compile Include="Performance\TimeToBeReceived\TimeToBeReceivedMappings.cs" />
     <Compile Include="Performance\TimeToBeReceived\UserDefinedTimeToBeReceivedConvention.cs" />
     <Compile Include="Pipeline\PipelineTerminator.cs" />
-    <Compile Include="ConsistencyGuarantees\AtomicWithReceiveOperation.cs" />
     <Compile Include="ConsistencyGuarantees\ConsistencyGuarantee.cs" />
     <Compile Include="Performance\TimeToBeReceived\DiscardIfNotReceivedBefore.cs" />
     <Compile Include="DeliveryConstraints\DeliveryConstraint.cs" />

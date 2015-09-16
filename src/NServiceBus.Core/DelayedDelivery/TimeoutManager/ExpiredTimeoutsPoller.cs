@@ -1,14 +1,12 @@
 namespace NServiceBus.DelayedDelivery.TimeoutManager
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.CircuitBreakers;
-    using NServiceBus.ConsistencyGuarantees;
-    using NServiceBus.DeliveryConstraints;
     using NServiceBus.Extensibility;
     using NServiceBus.Logging;
+    using NServiceBus.Routing;
     using NServiceBus.Timeout.Core;
     using NServiceBus.Transports;
     using NServiceBus.Unicast.Transport;
@@ -103,7 +101,7 @@ namespace NServiceBus.DelayedDelivery.TimeoutManager
 
                     dispatchRequest.Headers["Timeout.Id"] = timeoutData.Id;
 
-                    await dispatcher.Dispatch(dispatchRequest, new DispatchOptions(dispatcherAddress, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), new ContextBag()))
+                    await dispatcher.Dispatch(dispatchRequest, new DispatchOptions(new DirectToTargetDestination(dispatcherAddress), new ContextBag()))
                         .ConfigureAwait(false);
                 }
 

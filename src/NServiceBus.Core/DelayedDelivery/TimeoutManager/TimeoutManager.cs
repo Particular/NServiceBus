@@ -6,9 +6,9 @@
     using NServiceBus.DelayedDelivery.TimeoutManager;
     using NServiceBus.DeliveryConstraints;
     using NServiceBus.Features.DelayedDelivery;
+    using NServiceBus.Settings;
+    using NServiceBus.Timeout.Core;
     using NServiceBus.Transports;
-    using Settings;
-    using Timeout.Core;
 
     /// <summary>
     /// Used to configure the timeout manager that provides message deferral.
@@ -40,7 +40,10 @@
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             string processorAddress;
-            var messageProcessorPipeline = context.AddSatellitePipeline("Timeout Message Processor", "Timeouts", out processorAddress);
+
+            var consistencyGuarantee = context.Settings.Get<TransportDefinition>().GetDefaultConsistencyGuarantee();
+
+            var messageProcessorPipeline = context.AddSatellitePipeline("Timeout Message Processor", "Timeouts", consistencyGuarantee, PushRuntimeSettings.Default, out processorAddress);
             messageProcessorPipeline.Register<MoveFaultsToErrorQueueBehavior.Registration>();
             messageProcessorPipeline.Register<FirstLevelRetriesBehavior.Registration>();
             messageProcessorPipeline.Register<StoreTimeoutBehavior.Registration>();
@@ -52,7 +55,7 @@
             context.Settings.Get<TimeoutManagerAddressConfiguration>().Set(processorAddress);
 
             string dispatcherAddress;
-            var dispatcherProcessorPipeline = context.AddSatellitePipeline("Timeout Dispatcher Processor", "TimeoutsDispatcher", out dispatcherAddress);
+            var dispatcherProcessorPipeline = context.AddSatellitePipeline("Timeout Dispatcher Processor", "TimeoutsDispatcher", consistencyGuarantee, PushRuntimeSettings.Default, out dispatcherAddress);
             dispatcherProcessorPipeline.Register<MoveFaultsToErrorQueueBehavior.Registration>();
             dispatcherProcessorPipeline.Register<FirstLevelRetriesBehavior.Registration>();
             dispatcherProcessorPipeline.Register<DispatchTimeoutBehavior.Registration>();

@@ -1,11 +1,8 @@
 namespace NServiceBus.Unicast
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
     using Janitor;
-    using NServiceBus.ConsistencyGuarantees;
-    using NServiceBus.DeliveryConstraints;
     using NServiceBus.Extensibility;
     using NServiceBus.MessageInterfaces;
     using NServiceBus.ObjectBuilder;
@@ -20,7 +17,7 @@ namespace NServiceBus.Unicast
     partial class ContextualBus : IBus, IContextualBus
     {
         public ContextualBus(BehaviorContextStacker contextStacker, IMessageMapper messageMapper, IBuilder builder,
-            ReadOnlySettings settings,IDispatchMessages dispatcher)
+            ReadOnlySettings settings, IDispatchMessages dispatcher)
         {
             this.messageMapper = messageMapper;
             this.contextStacker = contextStacker;
@@ -65,7 +62,7 @@ namespace NServiceBus.Unicast
                 eventType,
                 options);
 
-            pipeline.Invoke(subscribeContext);   
+            pipeline.Invoke(subscribeContext);
         }
 
         public void Unsubscribe(Type eventType, UnsubscribeOptions options)
@@ -115,7 +112,7 @@ namespace NServiceBus.Unicast
                 return;
             }
 
-            dispatcher.Dispatch(new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new DispatchOptions(sendLocalAddress, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), new ContextBag())).GetAwaiter().GetResult();
+            dispatcher.Dispatch(new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new DispatchOptions(new DirectToTargetDestination(sendLocalAddress), new ContextBag())).GetAwaiter().GetResult();
 
             incomingContext.handleCurrentMessageLaterWasCalled = true;
 
@@ -127,7 +124,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public void ForwardCurrentMessageTo(string destination)
         {
-            dispatcher.Dispatch(new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new DispatchOptions(destination, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), new ContextBag())).GetAwaiter().GetResult();
+            dispatcher.Dispatch(new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new DispatchOptions(new DirectToTargetDestination(destination), new ContextBag())).GetAwaiter().GetResult();
         }
 
         public void Send<T>(Action<T> messageConstructor, NServiceBus.SendOptions options)

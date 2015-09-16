@@ -1,10 +1,8 @@
 namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
-    using NServiceBus.ConsistencyGuarantees;
-    using NServiceBus.DeliveryConstraints;
     using NServiceBus.Pipeline;
+    using NServiceBus.Routing;
     using NServiceBus.Timeout.Core;
     using NServiceBus.Transports;
 
@@ -28,7 +26,7 @@ namespace NServiceBus
                 return;
             }
 
-            var sendOptions = new DispatchOptions(timeoutData.Destination, new AtomicWithReceiveOperation(), new List<DeliveryConstraint>(), context);
+            var sendOptions = new DispatchOptions(new DirectToTargetDestination(timeoutData.Destination), context);
 
             timeoutData.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
             timeoutData.Headers["NServiceBus.RelatedToTimeoutId"] = timeoutData.Id;

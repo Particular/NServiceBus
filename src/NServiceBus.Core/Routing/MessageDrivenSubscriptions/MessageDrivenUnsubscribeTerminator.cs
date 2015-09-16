@@ -1,11 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
-    using NServiceBus.ConsistencyGuarantees;
-    using NServiceBus.DeliveryConstraints;
-    using NServiceBus.Extensibility;
     using NServiceBus.Logging;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
@@ -44,7 +40,7 @@
                 subscriptionMessage.Headers[Headers.ReplyToAddress] = replyToAddress;
 
 
-                dispatcher.Dispatch(subscriptionMessage, new DispatchOptions(publisherAddress, new AtLeastOnce(), new List<DeliveryConstraint>(), new ContextBag())).GetAwaiter().GetResult();
+                dispatcher.Dispatch(subscriptionMessage, new DispatchOptions(new DirectToTargetDestination(publisherAddress), context)).GetAwaiter().GetResult();
             }
         }
 

@@ -5,7 +5,6 @@ namespace NServiceBus.Transports.Msmq
     using System.Messaging;
     using System.Threading.Tasks;
     using System.Transactions;
-    using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.Routing;
     using NServiceBus.Transports.Msmq.Config;
     using NServiceBus.Unicast.Queuing;
@@ -21,7 +20,7 @@ namespace NServiceBus.Transports.Msmq
         public MsmqMessageSender(MsmqSettings settings, MsmqLabelGenerator messageLabelGenerator)
         {
             Guard.AgainstNull("settings", settings);
-    
+
             this.settings = settings;
             this.messageLabelGenerator = messageLabelGenerator;
         }
@@ -33,7 +32,7 @@ namespace NServiceBus.Transports.Msmq
         {
             Guard.AgainstNull("message", message);
             Guard.AgainstNull("dispatchOptions", dispatchOptions);
-            
+
             var routingStrategy = dispatchOptions.RoutingStrategy as DirectToTargetDestination;
 
             if (routingStrategy == null)
@@ -42,12 +41,12 @@ namespace NServiceBus.Transports.Msmq
             }
 
             var destination = routingStrategy.Destination;
-            
+
             var destinationAddress = MsmqAddress.Parse(destination);
             try
             {
                 using (var q = new MessageQueue(destinationAddress.FullPath, false, settings.UseConnectionCache, QueueAccessMode.Send))
-                using (var toSend = MsmqUtilities.Convert(message,dispatchOptions))
+                using (var toSend = MsmqUtilities.Convert(message, dispatchOptions))
                 {
                     toSend.UseDeadLetterQueue = settings.UseDeadLetterQueue;
                     toSend.UseJournalQueue = settings.UseJournalQueue;
@@ -60,22 +59,23 @@ namespace NServiceBus.Transports.Msmq
                         toSend.ResponseQueue = new MessageQueue(MsmqAddress.Parse(replyToAddress).FullPath);
                     }
 
-                    MessageQueueTransaction receiveTransaction;
-                    dispatchOptions.Context.TryGet(out receiveTransaction);
-
-
                     var label = GetLabel(message);
 
-                    if (dispatchOptions.MinimumConsistencyGuarantee is AtomicWithReceiveOperation && receiveTransaction != null)
+                    if (dispatchOptions.RequiredDispatchConsistency == DispatchConsistency.Isolated)
                     {
-                        q.Send(toSend, label, receiveTransaction);
+                        q.Send(toSend, label, GetIsolatedTransactionType());
+                        return TaskEx.Completed;
                     }
-                    else
-                    {
-                        var transactionType = GetTransactionTypeForSend();
 
-                        q.Send(toSend, label, transactionType);
+                    MessageQueueTransaction activeTransaction;
+                    if (dispatchOptions.Context.TryGet(out activeTransaction))
+                    {
+                        q.Send(toSend, label, activeTransaction);
+
+                        return TaskEx.Completed;
                     }
+
+                    q.Send(toSend, label, GetTransactionTypeForSend());
                 }
             }
             catch (MessageQueueException ex)
@@ -96,6 +96,11 @@ namespace NServiceBus.Transports.Msmq
                 ThrowFailedToSendException(destination, ex);
             }
             return TaskEx.Completed;
+        }
+
+        MessageQueueTransactionType GetIsolatedTransactionType()
+        {
+            return settings.UseTransactionalQueues ? MessageQueueTransactionType.Single : MessageQueueTransactionType.None;
         }
 
         string GetLabel(OutgoingMessage message)

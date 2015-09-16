@@ -1,8 +1,8 @@
 ﻿namespace NServiceBus.Pipeline
 {
     using System.Collections.Generic;
+    using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.Transports;
-    using NServiceBus.Unicast.Transport;
 
     class PipelineModifications
     {
@@ -14,20 +14,20 @@
     class SatellitePipelineModifications : PipelineModifications
     {
         public string Name { get; private set; }
-    
-        public string ReceiveAddress{ get; private set; }
-       
-        public TransactionSettings TransactionSettings { get; private set; }
 
-        public PushRuntimeSettings PushRuntimeSettings{ get; private set; }
+        public string ReceiveAddress { get; private set; }
+        
+        public ConsistencyGuarantee ConsistencyGuarantee { get; private set; }
+
+        public PushRuntimeSettings RuntimeSettings { get; private set; }
 
 
-        public SatellitePipelineModifications(string name, string receiveAddress,TransactionSettings transactionSettings = null, PushRuntimeSettings pushRuntimeSettings = null)
+        public SatellitePipelineModifications(string name, string receiveAddress, ConsistencyGuarantee consistencyGuarantee, PushRuntimeSettings runtimeSettings)
         {
             Name = name;
             ReceiveAddress = receiveAddress;
-            TransactionSettings = transactionSettings;
-            PushRuntimeSettings = pushRuntimeSettings;
+            ConsistencyGuarantee = consistencyGuarantee;
+            RuntimeSettings = runtimeSettings;
         }
     }
 }
