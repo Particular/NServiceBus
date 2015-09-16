@@ -1,6 +1,7 @@
 namespace NServiceBus.TransportDispatch
 {
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.DeliveryConstraints;
     using NServiceBus.Pipeline;
@@ -9,7 +10,7 @@ namespace NServiceBus.TransportDispatch
 
     abstract class DispatchStrategy
     {
-        public abstract void Dispatch(IDispatchMessages dispatcher,OutgoingMessage message,
+        public abstract Task Dispatch(IDispatchMessages dispatcher,OutgoingMessage message,
             RoutingStrategy routingStrategy,
             ConsistencyGuarantee minimumConsistencyGuarantee,
             IEnumerable<DeliveryConstraint> constraints,

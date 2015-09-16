@@ -56,7 +56,7 @@
         {
             try
             {
-                dispatcher.Dispatch(subscriptionMessage, new DispatchOptions(destination, new AtLeastOnce(), new List<DeliveryConstraint>(), new ContextBag()));
+                dispatcher.Dispatch(subscriptionMessage, new DispatchOptions(destination, new AtLeastOnce(), new List<DeliveryConstraint>(), new ContextBag())).GetAwaiter().GetResult();
             }
             catch (QueueNotFoundException ex)
             {

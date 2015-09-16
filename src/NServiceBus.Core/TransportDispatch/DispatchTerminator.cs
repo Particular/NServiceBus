@@ -25,7 +25,7 @@
             }
             var routingStrategy = context.GetRoutingStrategy();
 
-            dispatchStrategy.Dispatch(dispatcher, context.Get<OutgoingMessage>(), routingStrategy, context.GetConsistencyGuarantee(), context.GetDeliveryConstraints(), context);
+            dispatchStrategy.Dispatch(dispatcher, context.Get<OutgoingMessage>(), routingStrategy, context.GetConsistencyGuarantee(), context.GetDeliveryConstraints(), context).GetAwaiter().GetResult();
         }
 
         IDispatchMessages dispatcher;
