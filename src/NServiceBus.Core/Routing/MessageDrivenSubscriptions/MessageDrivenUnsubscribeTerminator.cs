@@ -40,7 +40,8 @@
                 subscriptionMessage.Headers[Headers.ReplyToAddress] = replyToAddress;
 
 
-                dispatcher.Dispatch(subscriptionMessage, new DispatchOptions(new DirectToTargetDestination(publisherAddress), context)).GetAwaiter().GetResult();
+                var dispatchOptions = new DispatchOptions(new DirectToTargetDestination(publisherAddress), context);
+                dispatcher.Dispatch(new [] { new TransportOperation(subscriptionMessage, dispatchOptions)}).GetAwaiter().GetResult();
             }
         }
 

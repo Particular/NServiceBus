@@ -1,6 +1,7 @@
 namespace NServiceBus.Transports.Msmq
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Messaging;
     using System.Threading.Tasks;
@@ -26,74 +27,81 @@ namespace NServiceBus.Transports.Msmq
         }
 
         /// <summary>
-        /// Sends the given <paramref name="message"/>.
+        /// Dispatches the given operations to the transport.
         /// </summary>
-        public Task Dispatch(OutgoingMessage message, DispatchOptions dispatchOptions)
+        public Task Dispatch(IEnumerable<TransportOperation> transportOperations)
         {
-            Guard.AgainstNull("message", message);
-            Guard.AgainstNull("dispatchOptions", dispatchOptions);
+            Guard.AgainstNull("transportOperations", transportOperations);
 
-            var routingStrategy = dispatchOptions.RoutingStrategy as DirectToTargetDestination;
-
-            if (routingStrategy == null)
+            foreach (var transportOperation in transportOperations)
             {
-                throw new Exception("The MSMQ transport only supports the `DirectRoutingStrategy`, strategy required " + dispatchOptions.RoutingStrategy.GetType().Name);
-            }
+                var dispatchOptions = transportOperation.DispatchOptions;
+                var message = transportOperation.Message;
 
-            var destination = routingStrategy.Destination;
 
-            var destinationAddress = MsmqAddress.Parse(destination);
-            try
-            {
-                using (var q = new MessageQueue(destinationAddress.FullPath, false, settings.UseConnectionCache, QueueAccessMode.Send))
-                using (var toSend = MsmqUtilities.Convert(message, dispatchOptions))
+                var routingStrategy = dispatchOptions.RoutingStrategy as DirectToTargetDestination;
+
+                if (routingStrategy == null)
                 {
-                    toSend.UseDeadLetterQueue = settings.UseDeadLetterQueue;
-                    toSend.UseJournalQueue = settings.UseJournalQueue;
-                    toSend.TimeToReachQueue = settings.TimeToReachQueue;
-
-                    string replyToAddress;
-
-                    if (message.Headers.TryGetValue(Headers.ReplyToAddress, out replyToAddress))
-                    {
-                        toSend.ResponseQueue = new MessageQueue(MsmqAddress.Parse(replyToAddress).FullPath);
-                    }
-
-                    var label = GetLabel(message);
-
-                    if (dispatchOptions.RequiredDispatchConsistency == DispatchConsistency.Isolated)
-                    {
-                        q.Send(toSend, label, GetIsolatedTransactionType());
-                        return TaskEx.Completed;
-                    }
-
-                    MessageQueueTransaction activeTransaction;
-                    if (dispatchOptions.Context.TryGet(out activeTransaction))
-                    {
-                        q.Send(toSend, label, activeTransaction);
-
-                        return TaskEx.Completed;
-                    }
-
-                    q.Send(toSend, label, GetTransactionTypeForSend());
-                }
-            }
-            catch (MessageQueueException ex)
-            {
-                if (ex.MessageQueueErrorCode == MessageQueueErrorCode.QueueNotFound)
-                {
-                    var msg = destination == null
-                                     ? "Failed to send message. Target address is null."
-                                     : string.Format("Failed to send message to address: [{0}]", destination);
-
-                    throw new QueueNotFoundException(destination, msg, ex);
+                    throw new Exception("The MSMQ transport only supports the `DirectRoutingStrategy`, strategy required " + dispatchOptions.RoutingStrategy.GetType().Name);
                 }
 
-                ThrowFailedToSendException(destination, ex);
-            }
-            catch (Exception ex)
-            {
-                ThrowFailedToSendException(destination, ex);
+                var destination = routingStrategy.Destination;
+
+                var destinationAddress = MsmqAddress.Parse(destination);
+                try
+                {
+                    using (var q = new MessageQueue(destinationAddress.FullPath, false, settings.UseConnectionCache, QueueAccessMode.Send))
+                    using (var toSend = MsmqUtilities.Convert(message, dispatchOptions))
+                    {
+                        toSend.UseDeadLetterQueue = settings.UseDeadLetterQueue;
+                        toSend.UseJournalQueue = settings.UseJournalQueue;
+                        toSend.TimeToReachQueue = settings.TimeToReachQueue;
+
+                        string replyToAddress;
+
+                        if (message.Headers.TryGetValue(Headers.ReplyToAddress, out replyToAddress))
+                        {
+                            toSend.ResponseQueue = new MessageQueue(MsmqAddress.Parse(replyToAddress).FullPath);
+                        }
+
+                        var label = GetLabel(message);
+
+                        if (dispatchOptions.RequiredDispatchConsistency == DispatchConsistency.Isolated)
+                        {
+                            q.Send(toSend, label, GetIsolatedTransactionType());
+                            return TaskEx.Completed;
+                        }
+
+                        MessageQueueTransaction activeTransaction;
+                        if (dispatchOptions.Context.TryGet(out activeTransaction))
+                        {
+                            q.Send(toSend, label, activeTransaction);
+
+                            return TaskEx.Completed;
+                        }
+
+                        q.Send(toSend, label, GetTransactionTypeForSend());
+                    }
+                }
+                catch (MessageQueueException ex)
+                {
+                    if (ex.MessageQueueErrorCode == MessageQueueErrorCode.QueueNotFound)
+                    {
+                        var msg = destination == null
+                            ? "Failed to send message. Target address is null."
+                            : string.Format("Failed to send message to address: [{0}]", destination);
+
+                        throw new QueueNotFoundException(destination, msg, ex);
+                    }
+
+                    ThrowFailedToSendException(destination, ex);
+                }
+                catch (Exception ex)
+                {
+                    ThrowFailedToSendException(destination, ex);
+                }
+                return TaskEx.Completed;
             }
             return TaskEx.Completed;
         }

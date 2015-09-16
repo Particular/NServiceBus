@@ -53,7 +53,8 @@
         {
             try
             {
-                dispatcher.Dispatch(subscriptionMessage, new DispatchOptions(new DirectToTargetDestination(destination), context)).GetAwaiter().GetResult();
+                var dispatchOptions = new DispatchOptions(new DirectToTargetDestination(destination), context);
+                dispatcher.Dispatch(new [] { new TransportOperation(subscriptionMessage, dispatchOptions)}).GetAwaiter().GetResult();
             }
             catch (QueueNotFoundException ex)
             {
