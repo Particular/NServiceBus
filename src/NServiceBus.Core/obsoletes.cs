@@ -821,10 +821,10 @@ namespace NServiceBus.Unicast
         }
 
         [ObsoleteEx(
-            ReplacementTypeOrMember = "IBus.ForwardCurrentMessageTo(string destination)",
+            ReplacementTypeOrMember = "IBus.ForwardCurrentMessageToAsync(string destination)",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
-        public void ForwardCurrentMessageTo(string destination)
+        public Task ForwardCurrentMessageToAsync(string destination)
         {
             throw new NotImplementedException();
         }

@@ -122,11 +122,12 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IBus.ForwardCurrentMessageTo(string)"/>
+        /// <see cref="IBus.ForwardCurrentMessageToAsync"/>
         /// </summary>
-        public void ForwardCurrentMessageTo(string destination)
+        public Task ForwardCurrentMessageToAsync(string destination)
         {
             dispatcher.Dispatch(new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new DispatchOptions(new DirectToTargetDestination(destination), new ContextBag())).GetAwaiter().GetResult();
+            return TaskEx.Completed;
         }
 
         public void Send<T>(Action<T> messageConstructor, NServiceBus.SendOptions options)
