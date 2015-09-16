@@ -35,9 +35,6 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="nunit.framework">
-      <HintPath>..\packages\NUnit\lib\nunit.framework.dll</HintPath>
-    </Reference>
     <Reference Include="AWS.Extensions">
       <HintPath>..\packages\RavenDB.Database.2.0.2380\lib\net40\AWS.Extensions.dll</HintPath>
     </Reference>
