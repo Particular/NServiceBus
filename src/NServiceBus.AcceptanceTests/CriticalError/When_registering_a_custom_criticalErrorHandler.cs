@@ -5,6 +5,7 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using NServiceBus.AcceptanceTests.FakeTransport;
     using NServiceBus.Configuration.AdvanceExtensibility;
     using NUnit.Framework;
     using ScenarioDescriptors;
@@ -22,7 +23,7 @@
                         bus.SendLocal(new MyRequest());
                         return Task.FromResult(0);
                     }))
-                .AllowExceptions(exception => true)
+                .AllowExceptions()
                 .Done(c => c.ExceptionReceived)
                 .Repeat(r => r.For(Transports.Default))
                 .Should(c =>
@@ -33,7 +34,7 @@
                 .Run();
         }
 
-        public class Context : ScenarioContext
+        public class Context : FakeTransportContext
         {
             public Exception Exception { get; set; }
             public string Message { get; set; }
@@ -44,35 +45,25 @@
         {
             public EndpointWithLocalCallback()
             {
-                EndpointSetup<DefaultServer>(builder => builder.DefineCriticalErrorAction((s, exception) =>
+                EndpointSetup<DefaultServer>(builder =>
                 {
-                    var aggregateException = (AggregateException) exception;
-                    aggregateException = (AggregateException)aggregateException.InnerExceptions.First();
+                    builder.UseTransport<FakeTransport>()
+                        .ThrowCritical(new AggregateException("Startup task failed to complete.", new InvalidOperationException("ExceptionInBusStarts")));
 
-                    var context = builder.GetSettings().Get<Context>();
-                    context.Exception = aggregateException.InnerExceptions.First();
-                    context.Message = s;
-                    context.ExceptionReceived = true;
-                }));
+                    builder.DefineCriticalErrorAction((s, exception) =>
+                    {
+                        var aggregateException = (AggregateException) exception;
+                        var context = builder.GetSettings().Get<Context>();
+                        context.Exception = aggregateException.InnerExceptions.First();
+                        context.Message = s;
+                        context.ExceptionReceived = true;
+                    });
+                }).IncludeType<FakeTransportConfigurator>();
             }
 
             public class MyRequestHandler : IHandleMessages<MyRequest>
             {
                 public Task Handle(MyRequest request)
-                {
-                    return Task.FromResult(0);
-                }
-            }
-
-            class AfterConfigIsComplete : IWantToRunWhenBusStartsAndStops
-            {
-                public Context Context { get; set; }
-                public Task StartAsync()
-                {
-                    throw new Exception("ExceptionInBusStarts");
-                }
-
-                public Task StopAsync()
                 {
                     return Task.FromResult(0);
                 }

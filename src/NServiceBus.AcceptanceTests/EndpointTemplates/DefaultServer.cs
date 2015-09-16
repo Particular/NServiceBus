@@ -7,7 +7,6 @@
     using System.Threading.Tasks;
     using AcceptanceTesting.Support;
     using NServiceBus;
-    using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTesting.Customization;
     using NServiceBus.Config.ConfigurationSource;
     using NServiceBus.Configuration.AdvanceExtensibility;
