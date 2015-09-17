@@ -424,6 +424,12 @@ namespace NServiceBus
     }
     public class static IBusExtensions
     {
+        [System.ObsoleteAttribute("Please use `ForwardCurrentMessageToAsync(string destination)` instead. Will be re" +
+            "moved in version 7.0.0.", true)]
+        public static void ForwardCurrentMessageTo(this NServiceBus.IBus bus, string destination) { }
+        [System.ObsoleteAttribute("Please use `HandleCurrentMessageLaterAsync()` instead. Will be removed in version" +
+            " 7.0.0.", true)]
+        public static void HandleCurrentMessageLater(this NServiceBus.IBus bus) { }
         [System.ObsoleteAttribute("Please use `ReplyAsync(object message)` instead. Will be removed in version 7.0.0" +
             ".", true)]
         public static void Reply(this NServiceBus.IBus bus, object message) { }
@@ -559,6 +565,13 @@ namespace NServiceBus
     {
         System.Threading.Tasks.Task StartAsync();
         System.Threading.Tasks.Task StopAsync();
+    }
+    public class static IWantToRunWhenBusStartsAndStopsExtensions_obsoletes
+    {
+        [System.ObsoleteAttribute("Please use `StartAsync()` instead. Will be removed in version 7.0.0.", true)]
+        public static void Start(this NServiceBus.IWantToRunWhenBusStartsAndStops runnable) { }
+        [System.ObsoleteAttribute("Please use `StopAsync()` instead. Will be removed in version 7.0.0.", true)]
+        public static void Stop(this NServiceBus.IWantToRunWhenBusStartsAndStops runnable) { }
     }
     public class JsonSerializer : NServiceBus.Serialization.SerializationDefinition
     {

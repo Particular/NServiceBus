@@ -61,5 +61,31 @@
         {
             throw new NotImplementedException();
         }
+
+        /// <summary>
+        /// Moves the message being handled to the back of the list of available 
+        /// messages so it can be handled later.
+        /// </summary>
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
+            ReplacementTypeOrMember = "HandleCurrentMessageLaterAsync()")]
+        public static void HandleCurrentMessageLater(this IBus bus)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Forwards the current message being handled to the destination maintaining
+        /// all of its transport-level properties and headers.
+        /// </summary>
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
+            ReplacementTypeOrMember = "ForwardCurrentMessageToAsync(string destination)")]
+        public static void ForwardCurrentMessageTo(this IBus bus, string destination)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
