@@ -23,31 +23,11 @@ namespace NServiceBus.Unicast.Transport
             this.builder = builder;
         }
 
-
         /// <summary>
         /// Gets the ID of this pipeline.
         /// </summary>
         public string Id { get; private set; }
 
-        Task InvokePipeline(PushContext pushContext)
-        {
-            using (var childBuilder = builder.CreateChildBuilder())
-            {
-                var configurer = (IConfigureComponents)childBuilder;
-                var behaviorContextStacker = new BehaviorContextStacker(childBuilder);
-                configurer.RegisterSingleton(behaviorContextStacker);
-                configurer.ConfigureComponent<ContextualBus>(DependencyLifecycle.SingleInstance);
-
-                var context = new TransportReceiveContext(pushContext.Message, behaviorContextStacker.Root);
-
-                context.Merge(pushContext.Context);
-
-                pipeline.Invoke(context);
-            }
-
-            return TaskEx.Completed;
-        }
-        
         /// <summary>
         ///     Starts the transport listening for messages on the given local address.
         /// </summary>
@@ -83,6 +63,23 @@ namespace NServiceBus.Unicast.Transport
             await pipeline.Cooldown().ConfigureAwait(false);
 
             isStarted = false;
+        }
+
+        async Task InvokePipeline(PushContext pushContext)
+        {
+            using (var childBuilder = builder.CreateChildBuilder())
+            {
+                var configurer = (IConfigureComponents)childBuilder;
+                var behaviorContextStacker = new BehaviorContextStacker(childBuilder);
+                configurer.RegisterSingleton(behaviorContextStacker);
+                configurer.ConfigureComponent<ContextualBus>(DependencyLifecycle.SingleInstance);
+
+                var context = new TransportReceiveContext(pushContext.Message, behaviorContextStacker.Root);
+
+                context.Merge(pushContext.Context);
+
+                await pipeline.Invoke(context).ConfigureAwait(false);
+            }
         }
 
         static ILog Logger = LogManager.GetLogger<TransportReceiver>();

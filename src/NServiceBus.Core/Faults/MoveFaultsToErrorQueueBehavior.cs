@@ -48,7 +48,7 @@ namespace NServiceBus
 
                     context.Set<RoutingStrategy>(new DirectToTargetDestination(errorQueueAddress));
                     
-                    dispatchPipeline.Invoke(dispatchContext);
+                    dispatchPipeline.Invoke(dispatchContext).GetAwaiter().GetResult();
 
                     notifications.Errors.InvokeMessageHasBeenSentToErrorQueue(message,exception);
                 }
