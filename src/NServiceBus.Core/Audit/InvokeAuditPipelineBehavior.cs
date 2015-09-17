@@ -27,7 +27,7 @@
             context.Set(processedMessage);
             context.Set<RoutingStrategy>(new DirectToTargetDestination(auditAddress));
 
-            auditPipeline.Invoke(auditContext);
+            auditPipeline.Invoke(auditContext).GetAwaiter().GetResult();
         }
 
         PipelineBase<AuditContext> auditPipeline;

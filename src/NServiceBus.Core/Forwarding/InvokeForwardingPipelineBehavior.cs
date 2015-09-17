@@ -26,7 +26,7 @@
 
             context.Set<RoutingStrategy>(new DirectToTargetDestination(forwardingAddress));
 
-            forwardingPipeline.Invoke(forwardingContext);
+            forwardingPipeline.Invoke(forwardingContext).GetAwaiter().GetResult();
         }
 
         IPipelineBase<ForwardingContext> forwardingPipeline;

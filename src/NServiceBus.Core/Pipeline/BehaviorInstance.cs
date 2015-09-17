@@ -28,9 +28,13 @@
 
         public Type Type { get; private set; }
 
-        public void Invoke(BehaviorContext context, Action<BehaviorContext> next)
+        public Task Invoke(BehaviorContext context, Func<BehaviorContext, Task> next)
         {
-            invoker.Invoke(instance, context, next);
+            invoker.Invoke(instance, context, ctx =>
+            {
+                next(ctx).GetAwaiter().GetResult();
+            });
+            return TaskEx.Completed;
         }
 
         public void Initialize(PipelineInfo pipelineInfo)

@@ -9,7 +9,7 @@
     using ObjectBuilder;
 
     [SkipWeaving]
-    class PipelineBase<T>:IPipelineBase<T>
+    class PipelineBase<T> : IPipelineBase<T>
         where T : BehaviorContext
     {
         public PipelineBase(IBuilder builder, ReadOnlySettings settings, PipelineModifications pipelineModifications)
@@ -52,11 +52,11 @@
             }
         }
 
-        public void Invoke(T context)
+        public Task Invoke(T context)
         {
             var lookupSteps = steps.ToDictionary(rs => rs.BehaviorType, ss => ss.StepId);
             var pipeline = new BehaviorChain(behaviors, lookupSteps, busNotifications);
-            pipeline.Invoke(context);
+            return pipeline.Invoke(context);
         }
 
         BehaviorInstance[] behaviors;
@@ -66,6 +66,6 @@
 
     interface IPipelineBase<T>
     {
-        void Invoke(T context);
+        Task Invoke(T context);
     }
 }

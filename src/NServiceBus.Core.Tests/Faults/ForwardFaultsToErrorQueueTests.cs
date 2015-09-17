@@ -3,6 +3,7 @@ namespace NServiceBus.Core.Tests
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Threading.Tasks;
     using NServiceBus.Core.Tests.Features;
     using NServiceBus.Faults;
     using NServiceBus.Hosting;
@@ -128,7 +129,7 @@ namespace NServiceBus.Core.Tests
             public OutgoingMessage MessageSent { get; private set; }
             public bool ThrowOnDispatch { get; set; }
 
-            public void Invoke(DispatchContext context)
+            public Task Invoke(DispatchContext context)
             {
                 if (ThrowOnDispatch)
                 {
@@ -137,6 +138,7 @@ namespace NServiceBus.Core.Tests
 
                 Destination = ((DirectToTargetDestination) context.GetRoutingStrategy()).Destination;
                 MessageSent = context.Get<OutgoingMessage>();
+                return Task.FromResult(0);
             }
         }
         class FakeCriticalError : CriticalError

@@ -27,7 +27,7 @@
 
             context.Set<RoutingStrategy>(new DirectToTargetDestination(timeoutManagerAddress));
 
-            dispatchPipeline.Invoke(dispatchContext);
+            dispatchPipeline.Invoke(dispatchContext).GetAwaiter().GetResult();
         }
 
         string timeoutManagerAddress;

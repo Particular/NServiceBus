@@ -47,9 +47,7 @@ namespace NServiceBus.Unicast
                 new OutgoingLogicalMessage(message),
                 options);
 
-            pipeline.Invoke(publishContext);
-
-            return TaskEx.Completed;
+            return pipeline.Invoke(publishContext);
         }
 
 
@@ -62,7 +60,7 @@ namespace NServiceBus.Unicast
                 eventType,
                 options);
 
-            pipeline.Invoke(subscribeContext);
+            pipeline.Invoke(subscribeContext).GetAwaiter().GetResult();
         }
 
         public void Unsubscribe(Type eventType, UnsubscribeOptions options)
@@ -74,7 +72,7 @@ namespace NServiceBus.Unicast
                 eventType,
                 options);
 
-            pipeline.Invoke(subscribeContext);
+            pipeline.Invoke(subscribeContext).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -97,9 +95,7 @@ namespace NServiceBus.Unicast
                 new OutgoingLogicalMessage(message),
                 options);
 
-            pipeline.Invoke(outgoingContext);
-
-            return TaskEx.Completed;
+            return pipeline.Invoke(outgoingContext);
         }
 
         /// <summary>
@@ -151,9 +147,7 @@ namespace NServiceBus.Unicast
                 new OutgoingLogicalMessage(messageType, message),
                 options);
 
-            pipeline.Invoke(outgoingContext);
-
-            return TaskEx.Completed;
+            return pipeline.Invoke(outgoingContext);
         }
 
         /// <summary>

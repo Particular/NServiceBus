@@ -5,6 +5,7 @@
     using System.IO;
     using System.Linq;
     using System.Text;
+    using System.Threading.Tasks;
     using NServiceBus.DelayedDelivery;
     using NServiceBus.DeliveryConstraints;
     using NServiceBus.Faults;
@@ -148,9 +149,10 @@
     {
         public DispatchContext DispatchContext { get; set; }
 
-        public void Invoke(DispatchContext context)
+        public Task Invoke(DispatchContext context)
         {
             DispatchContext = context;
+            return Task.FromResult(0);
         }
     }
 
