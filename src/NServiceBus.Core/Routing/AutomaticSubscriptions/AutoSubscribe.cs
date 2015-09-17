@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Threading.Tasks;
     using NServiceBus.Logging;
     using NServiceBus.Routing.MessageDrivenSubscriptions;
     using NServiceBus.Transports;
@@ -90,14 +89,11 @@
 
             protected override void OnStart()
             {
-                var subscriptionTasks =
-                    eventsToSubscribe.Select(async e =>
-                    {
-                        await bus.SubscribeAsync(e).ConfigureAwait(false);
-                        Logger.DebugFormat("Auto subscribed to event {0}", e);
-                    }).ToArray();
-
-                Task.WaitAll(subscriptionTasks);
+                foreach (var eventType in eventsToSubscribe)
+                {
+                    bus.SubscribeAsync(eventType).GetAwaiter().GetResult();
+                    Logger.DebugFormat("Auto subscribed to event {0}", eventType);
+                }
             }
 
             IEnumerable<Type> eventsToSubscribe;
