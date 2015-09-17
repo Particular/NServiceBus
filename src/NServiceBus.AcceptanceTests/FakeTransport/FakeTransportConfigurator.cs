@@ -8,7 +8,7 @@
     {
         public FakeTransportConfigurator()
         {
-            Defaults(s => s.SetDefault("FakeTransport.ThrowCritical", default(Exception)));
+            Defaults(s => s.SetDefault("FakeTransport.RaiseCriticalErrorDuringStartup", default(Exception)));
         }
 
         protected override void Configure(FeatureConfigurationContext context, string connectionString)

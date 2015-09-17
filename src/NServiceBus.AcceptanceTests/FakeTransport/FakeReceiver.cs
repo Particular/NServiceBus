@@ -16,7 +16,7 @@ namespace NServiceBus.AcceptanceTests.FakeTransport
         public void Init(Func<PushContext, Task> pipe, PushSettings settings)
         {
             isMain = !settings.InputQueue.Contains("#");
-            throwCritical = Settings.Get<Exception>("FakeTransport.ThrowCritical");
+            throwCritical = Settings.Get<Exception>("FakeTransport.RaiseCriticalErrorDuringStartup");
 
             if (isMain)
             {

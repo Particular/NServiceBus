@@ -5,9 +5,9 @@
 
     public static class FakeTransportSetingsExtensions
     {
-        public static TransportExtensions<FakeTransport> ThrowCritical(this TransportExtensions<FakeTransport> transportExtensions, Exception exception)
+        public static TransportExtensions<FakeTransport> RaiseCriticalErrorDuringStartup(this TransportExtensions<FakeTransport> transportExtensions, Exception exception)
         {
-            transportExtensions.GetSettings().Set("FakeTransport.ThrowCritical", exception);
+            transportExtensions.GetSettings().Set("FakeTransport.RaiseCriticalErrorDuringStartup", exception);
 
             return transportExtensions;
         }
