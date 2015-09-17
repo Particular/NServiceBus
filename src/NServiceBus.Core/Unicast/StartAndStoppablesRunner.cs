@@ -28,7 +28,10 @@
                     thingsRanAtStartup.Add(startable1);
                     Log.DebugFormat("Started {0}.", startable1.GetType().AssemblyQualifiedName);
                 }, TaskContinuationOptions.OnlyOnRanToCompletion | TaskContinuationOptions.ExecuteSynchronously);
-                task.ContinueWith(t => { Log.Error("Startup task failed to complete.", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously);
+                task.ContinueWith(t =>
+                {
+                    Log.Error(string.Format("Startup task {0} failed to complete.", startable1.GetType().AssemblyQualifiedName), t.Exception);
+                }, TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously);
 
                 startableTasks.Add(task);
             }
@@ -57,13 +60,13 @@
                         thingsRanAtStartup.Add(stoppable1);
                         Log.DebugFormat("Stopped {0}.", stoppable1.GetType().AssemblyQualifiedName);
                     }, TaskContinuationOptions.OnlyOnRanToCompletion | TaskContinuationOptions.ExecuteSynchronously)
-                        .Ignore();
+                    .Ignore();
                     task.ContinueWith(t =>
                     {
-                        Log.Fatal("Startup task failed to stop.", t.Exception);
+                        Log.Fatal(string.Format("Startup task {0} failed to stop.", stoppable1.GetType().AssemblyQualifiedName), t.Exception);
                         t.Exception.Flatten().Handle(e => true);
                     }, TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously)
-                        .Ignore();
+                    .Ignore();
 
                     stoppableTasks.Add(task);
                 }
