@@ -91,8 +91,7 @@
             {
                 foreach (var eventType in eventsToSubscribe)
                 {
-                    bus.Subscribe(eventType);
-
+                    bus.SubscribeAsync(eventType).GetAwaiter().GetResult();
                     Logger.DebugFormat("Auto subscribed to event {0}", eventType);
                 }
             }

@@ -17,7 +17,7 @@ namespace NServiceBus.Unicast
     partial class ContextualBus : IBus, IContextualBus
     {
         public ContextualBus(BehaviorContextStacker contextStacker, IMessageMapper messageMapper, IBuilder builder,
-            ReadOnlySettings settings, IDispatchMessages dispatcher)
+            ReadOnlySettings settings,IDispatchMessages dispatcher)
         {
             this.messageMapper = messageMapper;
             this.contextStacker = contextStacker;
@@ -50,8 +50,10 @@ namespace NServiceBus.Unicast
             return pipeline.Invoke(publishContext);
         }
 
-
-        public void Subscribe(Type eventType, SubscribeOptions options)
+        /// <summary>
+        /// <see cref="IBus.SubscribeAsync"/>
+        /// </summary>
+        public Task SubscribeAsync(Type eventType, SubscribeOptions options)
         {
             var pipeline = new PipelineBase<SubscribeContext>(builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
 
@@ -59,11 +61,13 @@ namespace NServiceBus.Unicast
                 incomingContext,
                 eventType,
                 options);
-
-            pipeline.Invoke(subscribeContext).GetAwaiter().GetResult();
+            return pipeline.Invoke(subscribeContext);
         }
-
-        public void Unsubscribe(Type eventType, UnsubscribeOptions options)
+        
+        /// <summary>
+        /// <see cref="IBus.UnsubscribeAsync"/>
+        /// </summary>
+        public Task UnsubscribeAsync(Type eventType, UnsubscribeOptions options)
         {
             var pipeline = new PipelineBase<UnsubscribeContext>(builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
 
@@ -72,7 +76,7 @@ namespace NServiceBus.Unicast
                 eventType,
                 options);
 
-            pipeline.Invoke(subscribeContext).GetAwaiter().GetResult();
+            return pipeline.Invoke(subscribeContext);
         }
 
         /// <summary>
@@ -101,20 +105,18 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// <see cref="IBus.HandleCurrentMessageLaterAsync"/>
         /// </summary>
-        public Task HandleCurrentMessageLaterAsync()
+        public async Task HandleCurrentMessageLaterAsync()
         {
             if (incomingContext.handleCurrentMessageLaterWasCalled)
             {
-                return TaskEx.Completed;
+                return;
             }
 
-            dispatcher.Dispatch(new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new DispatchOptions(new DirectToTargetDestination(sendLocalAddress), new ContextBag())).GetAwaiter().GetResult();
+            await dispatcher.Dispatch(new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new DispatchOptions(new DirectToTargetDestination(sendLocalAddress), new ContextBag())).ConfigureAwait(false);
 
             incomingContext.handleCurrentMessageLaterWasCalled = true;
 
             ((HandlingStageBehavior.Context)incomingContext).DoNotInvokeAnyMoreHandlers();
-
-            return TaskEx.Completed;
         }
 
         /// <summary>
@@ -122,8 +124,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public Task ForwardCurrentMessageToAsync(string destination)
         {
-            dispatcher.Dispatch(new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new DispatchOptions(new DirectToTargetDestination(destination), new ContextBag())).GetAwaiter().GetResult();
-            return TaskEx.Completed;
+            return dispatcher.Dispatch(new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new DispatchOptions(new DirectToTargetDestination(destination), new ContextBag()));
         }
 
         public Task SendAsync<T>(Action<T> messageConstructor, NServiceBus.SendOptions options)

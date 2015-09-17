@@ -23,17 +23,16 @@
                             };
                             return bus.PublishAsync(message);
                         }))
-                    .WithEndpoint<Subscriber>(b => b.Given((bus, context) =>
+                    .WithEndpoint<Subscriber>(b => b.Given(async (bus, context) =>
                     {
-                        bus.Subscribe<IEventA>();
-                        bus.Subscribe<IEventB>();
+                        await bus.SubscribeAsync<IEventA>();
+                        await bus.SubscribeAsync<IEventB>();
 
                         if (context.HasNativePubSubSupport)
                         {
                             context.EventASubscribed = true;
                             context.EventBSubscribed = true;
                         }
-                        return Task.FromResult(0);
                     }))
                     .Done(c => c.GotEventA && c.GotEventB)
                     .Repeat(r => r.For(Serializers.Xml))

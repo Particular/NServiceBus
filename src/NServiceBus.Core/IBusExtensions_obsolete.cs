@@ -87,5 +87,63 @@
         {
             throw new NotImplementedException();
         }
+        
+        /// <summary>
+        /// Subscribes to receive published messages of the specified type.
+        /// This method is only necessary if you turned off auto-subscribe.
+        /// </summary>
+        /// <param name="bus">Object being extended.</param>
+        /// <param name="messageType">The type of message to subscribe to.</param>
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
+            ReplacementTypeOrMember = "SubscribeAsync(Type messageType)")]
+        public static void Subscribe(this IBus bus, Type messageType)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Subscribes to receive published messages of type T.
+        /// This method is only necessary if you turned off auto-subscribe.
+        /// </summary>
+        /// <param name="bus">Object being extended.</param>
+        /// <typeparam name="T">The type of message to subscribe to.</typeparam>
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
+            ReplacementTypeOrMember = "SubscribeAsync<T>()")]
+        public static void Subscribe<T>(this IBus bus)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Unsubscribes from receiving published messages of the specified type.
+        /// </summary>
+        /// <param name="bus">Object being extended.</param>
+        /// <param name="messageType">The type of message to subscribe to.</param>
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
+            ReplacementTypeOrMember = "UnsubscribeAsync(Type messageType)")]
+        public static void Unsubscribe(this IBus bus, Type messageType)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Unsubscribes from receiving published messages of the specified type.
+        /// </summary>
+        /// <param name="bus">Object being extended.</param>
+        /// <typeparam name="T">The type of message to unsubscribe from.</typeparam>
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
+            ReplacementTypeOrMember = "UnsubscribeAsync<T>()")]
+        public static void Unsubscribe<T>(this IBus bus)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

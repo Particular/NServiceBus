@@ -14,7 +14,6 @@
             return busImpl.PublishAsync(message, options);
         }
 
-
         /// <inheritdoc />
         public Task PublishAsync<T>(Action<T> messageConstructor, NServiceBus.PublishOptions options)
         {
@@ -24,14 +23,11 @@
             return busImpl.PublishAsync(messageConstructor, options);
         }
 
-
         /// <inheritdoc />
         public Task SendAsync(object message, NServiceBus.SendOptions options)
         {
             return busImpl.SendAsync(message, options);
         }
-
-
 
         /// <inheritdoc />
         public Task SendAsync<T>(Action<T> messageConstructor, NServiceBus.SendOptions options)
@@ -40,21 +36,21 @@
         }
 
         /// <inheritdoc />
-        public void Subscribe(Type eventType, SubscribeOptions options)
+        public Task SubscribeAsync(Type eventType, SubscribeOptions options)
         {
             Guard.AgainstNull("eventType", eventType);
             Guard.AgainstNull("options", options);
 
-            busImpl.Subscribe(eventType,options);
+            return busImpl.SubscribeAsync(eventType, options);
         }
 
         /// <inheritdoc />
-        public void Unsubscribe(Type eventType, UnsubscribeOptions options)
+        public Task UnsubscribeAsync(Type eventType, UnsubscribeOptions options)
         {
             Guard.AgainstNull("eventType", eventType);
             Guard.AgainstNull("options", options);
 
-            busImpl.Unsubscribe(eventType, options);
+            return busImpl.UnsubscribeAsync(eventType, options);
         }
 
         /// <inheritdoc />
@@ -65,7 +61,6 @@
 
             return busImpl.ReplyAsync(message, options);
         }
-
 
         /// <inheritdoc />
         public Task ReplyAsync<T>(Action<T> messageConstructor, NServiceBus.ReplyOptions options)

@@ -18,17 +18,16 @@
                 .WithEndpoint<Publisher2>(b =>
                         b.When(c => c.SubscribedToPublisher2, bus => bus.PublishAsync(new DerivedEvent2()))
                      )
-               .WithEndpoint<Subscriber1>(b => b.Given((bus, c) =>
+               .WithEndpoint<Subscriber1>(b => b.Given(async (bus, c) =>
                {
-                   bus.Subscribe<DerivedEvent1>();
-                   bus.Subscribe<DerivedEvent2>();
+                   await bus.SubscribeAsync<DerivedEvent1>();
+                   await bus.SubscribeAsync<DerivedEvent2>();
 
                    if (c.HasNativePubSubSupport)
                    {
                        c.SubscribedToPublisher1 = true;
                        c.SubscribedToPublisher2 = true;
                    }
-                   return Task.FromResult(0);
                }))
                .AllowExceptions(e => e.Message.Contains("Oracle.DataAccess.Client.OracleException: ORA-00001") || e.Message.Contains("System.Data.SqlClient.SqlException: Violation of PRIMARY KEY constraint"))
                .Done(c => c.GotTheEventFromPublisher1 && c.GotTheEventFromPublisher2)

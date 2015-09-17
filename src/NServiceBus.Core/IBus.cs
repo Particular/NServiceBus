@@ -29,7 +29,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="eventType">The type of event to subscribe to.</param>
         /// <param name="options">Options for the subscribe.</param>
-        void Subscribe(Type eventType, SubscribeOptions options);
+        Task SubscribeAsync(Type eventType, SubscribeOptions options);
 
         /// <summary>
         /// Subscribes to receive published messages of the specified type.
@@ -37,7 +37,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="eventType">The type of event to unsubscribe from.</param>
         /// <param name="options">Options for the unsubscribe operation.</param>
-        void Unsubscribe(Type eventType, UnsubscribeOptions options);
+        Task UnsubscribeAsync(Type eventType, UnsubscribeOptions options);
 
         /// <summary>
         /// Moves the message being handled to the back of the list of available 

@@ -24,13 +24,12 @@
                             }))
                 )
                 .WithEndpoint<SagaThatIsStartedByTheEvent>(
-                    b => b.Given((bus, context) =>
+                    b => b.Given(async (bus, context) =>
                     {
-                        bus.Subscribe<SomethingHappenedEvent>();
+                        await bus.SubscribeAsync<SomethingHappenedEvent>();
 
                         if (context.HasNativePubSubSupport)
                             context.IsEventSubscriptionReceived = true;
-                        return Task.FromResult(0);
                     }))
                 .Done(c => c.DidSaga1Complete && c.DidSaga2Complete)
                 .Repeat(r => r.For(Transports.Default))

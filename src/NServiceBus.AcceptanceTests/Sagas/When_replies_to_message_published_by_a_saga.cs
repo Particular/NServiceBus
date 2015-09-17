@@ -22,14 +22,13 @@
                     DataId = Guid.NewGuid()
                 }))
                 )
-                .WithEndpoint<ReplyEndpoint>(b => b.Given((bus, context) =>
+                .WithEndpoint<ReplyEndpoint>(b => b.Given(async (bus, context) =>
                 {
-                    bus.Subscribe<DidSomething>();
+                    await bus.SubscribeAsync<DidSomething>();
                     if (context.HasNativePubSubSupport)
                     {
                         context.Subscribed = true;
                     }
-                    return Task.FromResult(0);
                 }))
                 .Done(c => c.DidSagaReplyMessageGetCorrelated)
                 .Repeat(r => r.For(Transports.Default))
