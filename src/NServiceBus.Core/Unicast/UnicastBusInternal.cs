@@ -1,12 +1,9 @@
 namespace NServiceBus.Unicast
 {
     using System;
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using System.Security.Principal;
-    using System.Threading;
-    using System.Threading.Tasks;
     using NServiceBus.Config;
     using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.Faults;
@@ -31,13 +28,11 @@ namespace NServiceBus.Unicast
         /// </summary>
         public UnicastBusInternal(
             BehaviorContextStacker contextStacker,
-            CriticalError criticalError,
             IMessageMapper messageMapper,
             IBuilder builder,
             ReadOnlySettings settings,
             IDispatchMessages dispatcher)
         {
-            this.criticalError = criticalError;
             this.settings = settings;
             this.builder = builder;
 
@@ -61,32 +56,17 @@ namespace NServiceBus.Unicast
                 return this;
             }
 
-            lock (startLocker)
-            {
-                if (started)
-                {
-                    return this;
-                }
+            var startables = builder.BuildAll<IWantToRunWhenBusStartsAndStops>().ToList();
+            runner = new StartAndStoppablesRunner(startables);
+            runner.StartAsync().GetAwaiter().GetResult();
+            
+            AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
+            var pipelines = BuildPipelines().ToArray();
 
-                AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
-                var pipelines = BuildPipelines().ToArray();
+            pipelineCollection = new PipelineCollection(pipelines);
+            pipelineCollection.Start().GetAwaiter().GetResult();
 
-                pipelineCollection = new PipelineCollection(pipelines);
-                pipelineCollection.Start().GetAwaiter().GetResult();
-
-                started = true;
-            }
-
-            ProcessStartupItems(
-                builder.BuildAll<IWantToRunWhenBusStartsAndStops>().ToList(),
-                toRun =>
-                {
-                    toRun.Start();
-                    thingsRanAtStartup.Add(toRun);
-                    Log.DebugFormat("Started {0}.", toRun.GetType().AssemblyQualifiedName);
-                },
-                ex => criticalError.Raise("Startup task failed to complete.", ex),
-                startCompletedEvent);
+            started = true;
 
             return this;
         }
@@ -159,30 +139,6 @@ namespace NServiceBus.Unicast
             return receiver;
         }
 
-        void ExecuteIWantToRunAtStartupStopMethods()
-        {
-            // Ensuring IWantToRunWhenBusStartsAndStops.Start has been called.
-            startCompletedEvent.WaitOne();
-
-            var tasksToStop = Interlocked.Exchange(ref thingsRanAtStartup, new ConcurrentBag<IWantToRunWhenBusStartsAndStops>());
-            if (!tasksToStop.Any())
-            {
-                return;
-            }
-
-            ProcessStartupItems(
-                tasksToStop,
-                toRun =>
-                {
-                    toRun.Stop();
-                    Log.DebugFormat("Stopped {0}.", toRun.GetType().AssemblyQualifiedName);
-                },
-                ex => Log.Fatal("Startup task failed to stop.", ex),
-                stopCompletedEvent);
-
-            stopCompletedEvent.WaitOne();
-        }
-
         /// <summary>
         /// <see cref="IDisposable.Dispose"/>.
         /// </summary>
@@ -211,7 +167,7 @@ namespace NServiceBus.Unicast
             Log.Info("Initiating shutdown.");
             pipelineCollection.Stop().GetAwaiter().GetResult();
 
-            ExecuteIWantToRunAtStartupStopMethods();
+            runner.StopAsync().GetAwaiter().GetResult();
 
             Log.Info("Shutdown complete.");
 
@@ -228,35 +184,13 @@ namespace NServiceBus.Unicast
 
 
         volatile bool started;
-        object startLocker = new object();
 
         static ILog Log = LogManager.GetLogger<UnicastBus>();
 
-        ConcurrentBag<IWantToRunWhenBusStartsAndStops> thingsRanAtStartup = new ConcurrentBag<IWantToRunWhenBusStartsAndStops>();
-        ManualResetEvent startCompletedEvent = new ManualResetEvent(false);
-        ManualResetEvent stopCompletedEvent = new ManualResetEvent(true);
-
+        StartAndStoppablesRunner runner;
         PipelineCollection pipelineCollection;
         ContextualBus busImpl;
-        CriticalError criticalError;
         ReadOnlySettings settings;
         IBuilder builder;
-
-
-        static void ProcessStartupItems<T>(IEnumerable<T> items, Action<T> iteration, Action<Exception> inCaseOfFault, EventWaitHandle eventToSet)
-        {
-            eventToSet.Reset();
-
-            Task.Factory.StartNew(() =>
-            {
-                Parallel.ForEach(items, iteration);
-                eventToSet.Set();
-            }, TaskCreationOptions.LongRunning | TaskCreationOptions.PreferFairness)
-            .ContinueWith(task =>
-            {
-                eventToSet.Set();
-                inCaseOfFault(task.Exception);
-            }, TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.LongRunning);
-        }
     }
 }

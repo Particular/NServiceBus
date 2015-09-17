@@ -40,13 +40,15 @@
 
                 public ReadOnlySettings Settings { get; set; }
 
-                public void Start()
+                public Task StartAsync()
                 {
                     Context.Address = Settings.RootLogicalAddress().ToString();
+                    return Task.FromResult(0);
                 }
 
-                public void Stop()
+                public Task StopAsync()
                 {
+                    return Task.FromResult(0);
                 }
             }
         }

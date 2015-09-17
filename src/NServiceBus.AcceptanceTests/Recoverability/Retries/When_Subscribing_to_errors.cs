@@ -94,7 +94,7 @@
 
             public IBus Bus { get; set; }
 
-            public void Start()
+            public Task StartAsync()
             {
                 unsubscribeStreams.Add(Notifications.Errors.MessageSentToErrorQueue.Subscribe(message =>
                 {
@@ -108,14 +108,16 @@
                 {
                     Id = Context.Id
                 });
+                return Task.FromResult(0);
             }
 
-            public void Stop()
+            public Task StopAsync()
             {
                 foreach (var unsubscribeStream in unsubscribeStreams)
                 {
                     unsubscribeStream.Dispose();
                 }
+                return Task.FromResult(0);
             }
 
             List<IDisposable> unsubscribeStreams = new List<IDisposable>();

@@ -83,17 +83,19 @@
                 public IBus Bus { get; set; }
                 public BusNotifications BusNotifications { get; set; }
 
-                public void Start()
+                public Task StartAsync()
                 {
                     BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e =>
                     {
                         Context.ForwardedToErrorQueue = true;
                         Context.SlrChecksum = Checksum(e.Body);
                     });
+                    return Task.FromResult(0);
                 }
 
-                public void Stop()
+                public Task StopAsync()
                 {
+                    return Task.FromResult(0);
                 }
             }
 

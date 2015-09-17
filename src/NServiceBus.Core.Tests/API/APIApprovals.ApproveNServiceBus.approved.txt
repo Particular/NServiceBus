@@ -557,8 +557,8 @@ namespace NServiceBus
     }
     public interface IWantToRunWhenBusStartsAndStops
     {
-        void Start();
-        void Stop();
+        System.Threading.Tasks.Task StartAsync();
+        System.Threading.Tasks.Task StopAsync();
     }
     public class JsonSerializer : NServiceBus.Serialization.SerializationDefinition
     {

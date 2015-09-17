@@ -40,7 +40,7 @@
 
                 //apply custom config settings
                 busConfiguration = await configuration.GetConfiguration(run, routingTable).ConfigureAwait(false);
-                busConfiguration.GetSettings().Set(scenarioContext.GetType().FullName, scenarioContext);
+                RegisterInheritanceHierarchyOfContextInSettings(scenarioContext);
 
                 endpointBehavior.CustomConfig.ForEach(customAction => customAction(busConfiguration));
 
@@ -64,6 +64,16 @@
             {
                 Logger.Error("Failed to initialize endpoint " + endpointName, ex);
                 return Result.Failure(ex);
+            }
+        }
+
+        void RegisterInheritanceHierarchyOfContextInSettings(ScenarioContext context)
+        {
+            var type = context.GetType();
+            while (type != typeof(object))
+            {
+                busConfiguration.GetSettings().Set(type.FullName, scenarioContext);
+                type = type.BaseType;
             }
         }
 

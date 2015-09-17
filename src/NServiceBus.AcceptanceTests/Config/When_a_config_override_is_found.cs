@@ -36,7 +36,7 @@
                 EndpointSetup<DefaultServer>();
             }
 
-            public class ErrorQueueExtractor:IWantToRunWhenBusStartsAndStops
+            public class ErrorQueueExtractor : IWantToRunWhenBusStartsAndStops
             {
                 Configure configure;
                 Context context;
@@ -47,13 +47,15 @@
                     this.context = context;
                 }
 
-                public void Start()
+                public Task StartAsync()
                 {
                     context.ErrorQueueUsedByTheEndpoint = configure.Settings.GetConfigSection<MessageForwardingInCaseOfFaultConfig>().ErrorQueue;
+                    return Task.FromResult(0);
                 }
 
-                public void Stop()
+                public Task StopAsync()
                 {
+                    return Task.FromResult(0);
                 }
             }
 

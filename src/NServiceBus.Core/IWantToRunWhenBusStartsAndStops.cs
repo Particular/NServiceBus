@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using System.Threading.Tasks;
     using JetBrains.Annotations;
 
     /// <summary>
@@ -12,11 +13,11 @@
         /// <summary>
         /// Method called at startup.
         /// </summary>
-        void Start();
+        Task StartAsync();
 
         /// <summary>
         /// Method called on shutdown.
         /// </summary>
-        void Stop();
+        Task StopAsync();
     }
 }

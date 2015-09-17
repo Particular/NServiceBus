@@ -53,13 +53,15 @@
             {
                 public IBus Bus { get; set; }
 
-                public void Start()
+                public Task StartAsync()
                 {
                     Bus.Send(new SendMessage());
+                    return Task.FromResult(0);
                 }
 
-                public void Stop()
+                public Task StopAsync()
                 {
+                    return Task.FromResult(0);
                 }
             }
         }

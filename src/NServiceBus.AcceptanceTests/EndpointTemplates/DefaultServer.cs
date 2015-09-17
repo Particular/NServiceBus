@@ -7,12 +7,12 @@
     using System.Threading.Tasks;
     using AcceptanceTesting.Support;
     using NServiceBus;
-    using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTesting.Customization;
     using NServiceBus.Config.ConfigurationSource;
     using NServiceBus.Configuration.AdvanceExtensibility;
     using NServiceBus.Features;
     using NServiceBus.Hosting.Helpers;
+    using NServiceBus.ObjectBuilder;
 
     public class DefaultServer : IEndpointSetupTemplate
     {
@@ -48,11 +48,7 @@
             await builder.DefineTransport(settings, endpointConfiguration.BuilderType);
             builder.DefineTransactions(settings);
             builder.DefineBuilder(settings);
-            builder.RegisterComponents(r =>
-            {
-                r.RegisterSingleton(runDescriptor.ScenarioContext.GetType(), runDescriptor.ScenarioContext);
-                r.RegisterSingleton(typeof(ScenarioContext), runDescriptor.ScenarioContext);
-            });
+            builder.RegisterComponents(r => { RegisterInheritanceHierarchyOfContextOnContainer(runDescriptor, r); });
 
             var serializer = settings.GetOrNull("Serializer");
 
@@ -67,6 +63,16 @@
 
 
             return builder;
+        }
+
+        static void RegisterInheritanceHierarchyOfContextOnContainer(RunDescriptor runDescriptor, IConfigureComponents r)
+        {
+            var type = runDescriptor.ScenarioContext.GetType();
+            while (type != typeof(object))
+            {
+                r.RegisterSingleton(type, runDescriptor.ScenarioContext);
+                type = type.BaseType;
+            }
         }
 
         static IEnumerable<Type> GetTypesScopedByTestClass(EndpointConfiguration endpointConfiguration)

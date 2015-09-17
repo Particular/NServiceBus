@@ -73,6 +73,7 @@
     <Compile Include="Basic\When_deferring_to_non_local.cs" />
     <Compile Include="DelayedDelivery\When_TimeoutManager_is_disabled.cs" />
     <Compile Include="Basic\When_starting_up_the_endpoint.cs" />
+    <Compile Include="FakeTransport\FakeTransportSetingsExtensions.cs" />
     <Compile Include="Mutators\When_mutating.cs" />
     <Compile Include="BestPractices\When_publishing_command_bestpractices_disabled_on_endpoint.cs" />
     <Compile Include="BestPractices\When_sending_events_bestpractices_disabled_on_endpoint.cs" />
@@ -159,7 +160,6 @@
     <Compile Include="ScaleOut\When_individualization_is_enabled_for_msmq.cs" />
     <Compile Include="ScaleOut\When_no_discriminator_is_available.cs" />
     <Compile Include="ScaleOut\When_individualization_is_enabled.cs" />
-    <Compile Include="Config\When_IWantToRunWhenBusStartsAndStops_Start_throws.cs" />
     <Compile Include="Config\When__startup_is_complete.cs" />
     <Compile Include="CriticalError\When_registering_a_custom_criticalErrorHandler.cs" />
     <Compile Include="DataBus\When_using_custom_IDataBus.cs" />
