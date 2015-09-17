@@ -5,6 +5,7 @@
     using System.IO;
     using System.Linq;
     using System.Reflection;
+    using System.Threading.Tasks;
     using NServiceBus.Logging;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
@@ -23,11 +24,11 @@
 
         public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
 
-        public override void Invoke(PhysicalMessageProcessingStageBehavior.Context context, Action<LogicalMessagesProcessingStageBehavior.Context> next)
+        public override Task Invoke(PhysicalMessageProcessingStageBehavior.Context context, Func<LogicalMessagesProcessingStageBehavior.Context, Task> next)
         {
             var transportMessage = context.GetPhysicalMessage();
             var messages = ExtractWithExceptionHandling(transportMessage);
-            next(new LogicalMessagesProcessingStageBehavior.Context(messages, context));
+            return next(new LogicalMessagesProcessingStageBehavior.Context(messages, context));
         }
 
         List<LogicalMessage> ExtractWithExceptionHandling(TransportMessage transportMessage)

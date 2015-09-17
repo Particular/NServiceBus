@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
@@ -8,7 +9,7 @@ namespace NServiceBus
 
     class DetermineRouteForReplyBehavior : Behavior<OutgoingReplyContext>
     {
-        public override void Invoke(OutgoingReplyContext context, Action next)
+        public override Task Invoke(OutgoingReplyContext context, Func<Task> next)
         {
             var state = context.GetOrCreate<State>();
 
@@ -23,7 +24,7 @@ namespace NServiceBus
 
             context.Set<RoutingStrategy>(new DirectToTargetDestination(replyToAddress));
 
-            next();
+            return next();
         }
 
         static string GetReplyToAddressFromIncomingMessage(OutgoingReplyContext context)

@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
+    using System.Threading.Tasks;
     using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Routing;
@@ -8,13 +9,13 @@
     public class DetermineRouteForPublishBehaviorTests
     {
         [Test]
-        public void Should_use_to_all_subscribers_strategy()
+        public async Task Should_use_to_all_subscribers_strategy()
         {
             var behavior = new DetermineRouteForPublishBehavior();
 
             var context = new OutgoingPublishContext(new RootContext(null), new OutgoingLogicalMessage(new MyEvent()), new PublishOptions());
 
-            behavior.Invoke(context, () => { });
+            await behavior.Invoke(context, () => Task.FromResult(0));
 
             var routingStrategy = (ToAllSubscribers)context.Get<RoutingStrategy>();
 

@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Threading.Tasks;
     using Core.Tests;
     using NServiceBus.Transports;
     using NUnit.Framework;
@@ -25,7 +26,7 @@
             builder.Register<IManageUnitsOfWork>(() => unitOfWork);
 
             //since it is a single exception then it will not be an AggregateException 
-            Assert.Throws<InvalidOperationException>(() => InvokeBehavior(builder));
+            Assert.Throws<InvalidOperationException>(async () => await InvokeBehavior(builder));
             Assert.IsTrue(unitOfWorkThatThrowsFromEnd.BeginCalled);
             Assert.IsTrue(unitOfWorkThatThrowsFromEnd.EndCalled);
             Assert.IsTrue(unitOfWork.BeginCalled);
@@ -41,7 +42,7 @@
 
             builder.Register<IManageUnitsOfWork>(() => unitOfWork);
             //since it is a single exception then it will not be an AggregateException 
-            var exception = Assert.Throws<InvalidOperationException>(() => InvokeBehavior(builder));
+            var exception = Assert.Throws<InvalidOperationException>(async () => await InvokeBehavior(builder));
 
             Assert.AreSame(unitOfWork.ExceptionThrownFromEnd, exception);
         }
@@ -49,18 +50,16 @@
         [Test]
         public void Should_not_invoke_end_if_begin_was_not_invoked()
         {
-
             var builder = new FuncBuilder();
 
             var unitOfWorkThatThrowsFromBegin = new UnitOfWorkThatThrowsFromBegin();
             var unitOfWork = new UnitOfWork();
-
-
+            
             builder.Register<IManageUnitsOfWork>(() => unitOfWorkThatThrowsFromBegin);
             builder.Register<IManageUnitsOfWork>(() => unitOfWork);
             
             //since it is a single exception then it will not be an AggregateException 
-            Assert.Throws<InvalidOperationException>(() => InvokeBehavior(builder));
+            Assert.Throws<InvalidOperationException>(async () => await InvokeBehavior(builder));
             Assert.False(unitOfWork.EndCalled);
 
         }
@@ -77,16 +76,16 @@
 
             var ex = new Exception("Handler failed");
             //since it is a single exception then it will not be an AggregateException 
-            Assert.Throws<Exception>(() =>
+            Assert.Throws<Exception>(async () =>
             {                
-                InvokeBehavior(builder,ex);
+                await InvokeBehavior(builder,ex);
             });
             Assert.AreSame(ex, unitOfWork.ExceptionPassedToEnd );
 
         }
 
         [Test]
-        public void Should_invoke_ends_in_reverse_order_of_the_begins()
+        public async Task Should_invoke_ends_in_reverse_order_of_the_begins()
         {
             var builder = new FuncBuilder();
 
@@ -98,13 +97,14 @@
             builder.Register<IManageUnitsOfWork>(() => firstUnitOfWork);
             builder.Register<IManageUnitsOfWork>(() => secondUnitOfWork);
 
-            InvokeBehavior(builder);
+            await InvokeBehavior(builder);
 
             Assert.AreEqual("first", order[0]);
             Assert.AreEqual("second", order[1]);
             Assert.AreEqual("second", order[2]);
             Assert.AreEqual("first", order[3]);
         }
+
         [Test]
         public void Should_call_all_end_even_if_one_or_more_of_them_throws()
         {
@@ -116,7 +116,7 @@
             builder.Register<IManageUnitsOfWork>(() => unitOfWorkThatThrows);
             builder.Register<IManageUnitsOfWork>(() => unitOfWork);
 
-            Assert.Throws<InvalidOperationException>(() => InvokeBehavior(builder));
+            Assert.Throws<InvalidOperationException>(async () => await InvokeBehavior(builder));
 
             Assert.True(unitOfWork.EndCalled);
         }
@@ -134,32 +134,30 @@
             builder.Register<IManageUnitsOfWork>(() => unitOfWorkThatThrows);
             builder.Register<IManageUnitsOfWork>(() => unitOfWorkThatIsNeverCalled);
 
-            Assert.Throws<InvalidOperationException>(() => InvokeBehavior(builder));
+            Assert.Throws<InvalidOperationException>(async() => await InvokeBehavior(builder));
 
             Assert.True(normalUnitOfWork.EndCalled);
             Assert.True(unitOfWorkThatThrows.EndCalled);
             Assert.False(unitOfWorkThatIsNeverCalled.EndCalled);
         }
 
-        public void InvokeBehavior(IBuilder builder,Exception toThrow = null)
+        static Task InvokeBehavior(IBuilder builder,Exception toThrow = null)
         {
             var runner = new UnitOfWorkBehavior();
 
             var context = new PhysicalMessageProcessingStageBehavior.Context(new TransportReceiveContext(new IncomingMessage("fakeId",new Dictionary<string, string>(),new MemoryStream() ), new IncomingContext(new RootContext(builder))));
 
-            runner.Invoke(context, () =>
+            return runner.Invoke(context, () =>
             {
                 if (toThrow != null)
                 {
                     throw toThrow;
                 }
+                return Task.FromResult(0);
             });
-
         }
 
-
-
-        public class UnitOfWorkThatThrowsFromEnd : IManageUnitsOfWork
+        class UnitOfWorkThatThrowsFromEnd : IManageUnitsOfWork
         {
             public bool BeginCalled;
             public bool EndCalled;
@@ -177,7 +175,8 @@
             }
 
         }
-        public class UnitOfWorkThatThrowsFromBegin : IManageUnitsOfWork
+
+        class UnitOfWorkThatThrowsFromBegin : IManageUnitsOfWork
         {
             public bool EndCalled;
             public Exception ExceptionThrownFromEnd = new InvalidOperationException();
@@ -191,10 +190,9 @@
             {
                 EndCalled = true;
             }
-
         }
 
-        public class UnitOfWork : IManageUnitsOfWork
+        class UnitOfWork : IManageUnitsOfWork
         {
             public bool BeginCalled;
             public bool EndCalled;
@@ -212,7 +210,7 @@
         }
 
         [Test]
-        public void Verify_order()
+        public async Task Verify_order()
         {
             var builder = new FuncBuilder();
 
@@ -224,7 +222,7 @@
             builder.Register<IManageUnitsOfWork>(() => unitOfWork2);
             builder.Register<IManageUnitsOfWork>(() => unitOfWork3);
 
-            InvokeBehavior(builder);
+            await InvokeBehavior(builder);
 
             Assert.AreEqual(1, unitOfWork1.BeginCallIndex);
             Assert.AreEqual(2, unitOfWork2.BeginCallIndex);
@@ -234,7 +232,7 @@
             Assert.AreEqual(1, unitOfWork3.EndCallIndex);
         }
 
-        public class CountingUnitOfWork : IManageUnitsOfWork
+        class CountingUnitOfWork : IManageUnitsOfWork
         {
             static int BeginCallCount;
             static int EndCallCount;
@@ -265,13 +263,13 @@
             builder.Register<IManageUnitsOfWork>(() => throwingUoW);
 
             //since it is a single exception then it will not be an AggregateException 
-            var exception = Assert.Throws<InvalidOperationException>(() => InvokeBehavior(builder));
+            var exception = Assert.Throws<InvalidOperationException>(async () => await InvokeBehavior(builder));
 
             Assert.AreSame(throwingUoW.ExceptionThrownFromEnd, unitOfWork.Exception);
             Assert.AreSame(throwingUoW.ExceptionThrownFromEnd, exception);
         }
 
-        public class CaptureExceptionPassedToEndUnitOfWork : IManageUnitsOfWork
+        class CaptureExceptionPassedToEndUnitOfWork : IManageUnitsOfWork
         {
             public void Begin()
             {
@@ -283,8 +281,7 @@
             public Exception Exception;
         }
 
-
-        public class OrderAwareUnitOfWork : IManageUnitsOfWork
+        class OrderAwareUnitOfWork : IManageUnitsOfWork
         {
             string name;
             List<string> order;
@@ -306,5 +303,4 @@
             }
         }
     }
-
 }

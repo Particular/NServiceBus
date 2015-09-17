@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline;
     using NServiceBus.TransportDispatch;
@@ -9,15 +10,14 @@
 
     class DispatchMessageToTransportConnector : StageConnector<PhysicalOutgoingContextStageBehavior.Context,DispatchContext>
     {
-        public override void Invoke(PhysicalOutgoingContextStageBehavior.Context context, Action<DispatchContext> next)
+        public override Task Invoke(PhysicalOutgoingContextStageBehavior.Context context, Func<DispatchContext, Task> next)
         {
             var state = context.GetOrCreate<State>();
             state.Headers[Headers.MessageId] = state.MessageId;
 
             var message = new OutgoingMessage(state.MessageId, state.Headers, context.Body);
             
-            
-            next(new DispatchContext(message,context));
+            return next(new DispatchContext(message,context));
         }
      
         public class State

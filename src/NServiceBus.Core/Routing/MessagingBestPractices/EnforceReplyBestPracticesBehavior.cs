@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.MessagingBestPractices;
     using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline;
@@ -15,7 +16,7 @@ namespace NServiceBus
             this.validations = validations;
         }
 
-        public override void Invoke(OutgoingReplyContext context, Action next)
+        public override Task Invoke(OutgoingReplyContext context, Func<Task> next)
         {
             EnforceBestPracticesOptions options;
 
@@ -24,7 +25,7 @@ namespace NServiceBus
                 validations.AssertIsValidForReply(context.GetMessageType());
             }
 
-            next();
+            return next();
         }
     }
 }

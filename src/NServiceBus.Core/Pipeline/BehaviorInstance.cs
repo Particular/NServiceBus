@@ -30,11 +30,7 @@
 
         public Task Invoke(BehaviorContext context, Func<BehaviorContext, Task> next)
         {
-            invoker.Invoke(instance, context, ctx =>
-            {
-                next(ctx).GetAwaiter().GetResult();
-            });
-            return TaskEx.Completed;
+            return invoker.Invoke(instance, context, next);
         }
 
         public void Initialize(PipelineInfo pipelineInfo)

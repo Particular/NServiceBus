@@ -3,6 +3,7 @@
     using System;
     using System.IO;
     using System.Linq;
+    using System.Threading.Tasks;
     using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
@@ -21,11 +22,11 @@
             this.messageMetadataRegistry = messageMetadataRegistry;
         }
 
-        public override void Invoke(OutgoingContext context, Action<PhysicalOutgoingContextStageBehavior.Context> next)
+        public override async Task Invoke(OutgoingContext context, Func<PhysicalOutgoingContextStageBehavior.Context, Task> next)
         {
             if (context.GetOrCreate<State>().SkipSerialization)
             {
-                next(new PhysicalOutgoingContextStageBehavior.Context(new byte[0], context));
+                await next(new PhysicalOutgoingContextStageBehavior.Context(new byte[0], context)).ConfigureAwait(false);
                 return;
             }
 
@@ -33,7 +34,7 @@
             context.SetHeader(Headers.EnclosedMessageTypes, SerializeEnclosedMessageTypes(context.GetMessageType()));
 
             var array = Serialize(context);
-            next(new PhysicalOutgoingContextStageBehavior.Context(array, context));
+            await next(new PhysicalOutgoingContextStageBehavior.Context(array, context)).ConfigureAwait(false);
         }
 
         byte[] Serialize(OutgoingContext context)

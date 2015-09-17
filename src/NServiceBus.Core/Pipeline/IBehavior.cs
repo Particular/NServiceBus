@@ -18,8 +18,7 @@ namespace NServiceBus.Pipeline
         /// </summary>
         /// <param name="context">The current context.</param>
         /// <param name="next">The next <see cref="IBehavior{TIn,TOut}"/> in the chain to execute.</param>
-        void Invoke(TIn context, Action<TOut> next);
-
+        Task Invoke(TIn context, Func<TOut, Task> next);
     }
 
     /// <summary>
@@ -27,7 +26,6 @@ namespace NServiceBus.Pipeline
     /// </summary>
     public interface IBehavior
     {
-
         /// <summary>
         /// Initialized the behavior with information about the just constructed pipeline.
         /// </summary>

@@ -76,14 +76,14 @@ namespace NServiceBus.AcceptanceTests.Sagas
 
             public class BehaviorWhichAddsThingsToTheContext : PhysicalMessageProcessingStageBehavior
             {
-                public override void Invoke(Context context, Action next)
+                public override Task Invoke(Context context, Func<Task> next)
                 {
                     context.Set(new State
                     {
                         SomeData = "SomeData"
                     });
 
-                    next();
+                    return next();
                 }
 
                 public class State

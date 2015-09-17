@@ -56,26 +56,22 @@
                     }
                 }
 
-                public override void Invoke(Context context, Action next)
+                public override async Task Invoke(Context context, Func<Task> next)
                 {
                     if (!context.GetPhysicalMessage().Headers[Headers.EnclosedMessageTypes].Contains(typeof(PlaceOrder).Name))
                     {
-                        next();
+                        await next().ConfigureAwait(false);
                         return;
                     }
-
-
+                    
                     if (called)
                     {
                         Console.Out.WriteLine("Called once, skipping next");
                         return;
 
                     }
-                    else
-                    {
-                        next();
-                    }
 
+                    await next().ConfigureAwait(false);
 
                     called = true;
 

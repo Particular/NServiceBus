@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using System.Transactions;
     using NServiceBus.Outbox;
     using NServiceBus.Pipeline;
@@ -24,11 +25,11 @@
             this.dispatchStrategy = dispatchStrategy;
         }
 
-        public override void Invoke(Context context, Action next)
+        public override async Task Invoke(Context context, Func<Task> next)
         {
             var options = new OutboxStorageOptions(context);
             var messageId = context.GetPhysicalMessage().Id;
-            var outboxMessage = outboxStorage.Get(messageId, options).GetAwaiter().GetResult();
+            var outboxMessage = await outboxStorage.Get(messageId, options).ConfigureAwait(false);
 
             if (outboxMessage == null)
             {
@@ -40,7 +41,7 @@
                 //we use this scope to make sure that we escalate to DTC if the user is talking to another resource by misstake
                 using (var checkForEscalationScope = new TransactionScope(TransactionScopeOption.RequiresNew, transactionOptions, TransactionScopeAsyncFlowOption.Enabled))
                 {
-                    next();
+                    await next().ConfigureAwait(false);
                     checkForEscalationScope.Complete();
                 }
 
@@ -50,15 +51,15 @@
                     return;
                 }
 
-                outboxStorage.Store(outboxMessage, options).GetAwaiter().GetResult();
+                await outboxStorage.Store(outboxMessage, options).ConfigureAwait(false);
             }
 
-            DispatchOperationToTransport(outboxMessage.TransportOperations, context);
+            await DispatchOperationToTransport(outboxMessage.TransportOperations, context).ConfigureAwait(false);
 
-            outboxStorage.SetAsDispatched(messageId, options).GetAwaiter().GetResult();
+            await outboxStorage.SetAsDispatched(messageId, options).ConfigureAwait(false);
         }
 
-        void DispatchOperationToTransport(IEnumerable<Outbox.TransportOperation> operations, Context context)
+        async Task DispatchOperationToTransport(IEnumerable<Outbox.TransportOperation> operations, Context context)
         {
             foreach (var transportOperation in operations)
             {
@@ -69,7 +70,7 @@
                 var deliveryConstraints = deliveryConstraintsFactory.DeserializeConstraints(transportOperation.Options)
                     .ToList();
 
-                dispatchStrategy.Dispatch(dispatcher, message, routingStrategy, deliveryConstraints, context, DispatchConsistency.Isolated).GetAwaiter().GetResult();
+                await dispatchStrategy.Dispatch(dispatcher, message, routingStrategy, deliveryConstraints, context, DispatchConsistency.Isolated).ConfigureAwait(false);
             }
         }
 

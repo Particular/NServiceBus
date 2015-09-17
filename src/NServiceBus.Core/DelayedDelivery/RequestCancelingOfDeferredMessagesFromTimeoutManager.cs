@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.DelayedDelivery
 {
+    using System.Threading.Tasks;
     using NServiceBus.DelayedDelivery.TimeoutManager;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
@@ -16,7 +17,7 @@
             this.dispatchPipeline = dispatchPipeline;
         }
 
-        public void CancelDeferredMessages(string messageKey, BehaviorContext context)
+        public Task CancelDeferredMessages(string messageKey, BehaviorContext context)
         {
             var controlMessage = ControlMessageFactory.Create(MessageIntentEnum.Send);
 
@@ -27,7 +28,7 @@
 
             context.Set<RoutingStrategy>(new DirectToTargetDestination(timeoutManagerAddress));
 
-            dispatchPipeline.Invoke(dispatchContext).GetAwaiter().GetResult();
+            return dispatchPipeline.Invoke(dispatchContext);
         }
 
         string timeoutManagerAddress;

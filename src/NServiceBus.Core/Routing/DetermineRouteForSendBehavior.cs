@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
@@ -18,7 +19,7 @@ namespace NServiceBus
             this.messageRouter = messageRouter;
         }
 
-        public override void Invoke(OutgoingSendContext context, Action next)
+        public override async Task Invoke(OutgoingSendContext context, Func<Task> next)
         {
             var messageType = context.GetMessageType();
             var state = context.GetOrCreate<State>();
@@ -44,7 +45,7 @@ namespace NServiceBus
 
             try
             {
-                next();
+                await next().ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {

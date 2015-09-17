@@ -56,11 +56,11 @@
                     }
                 }
 
-                public override void Invoke(Context context, Action next)
+                public override async Task Invoke(Context context, Func<Task> next)
                 {
                     if (!context.GetPhysicalMessage().Headers[Headers.EnclosedMessageTypes].Contains(typeof(MessageToBeForwarded).Name))
                     {
-                        next();
+                        await next().ConfigureAwait(false);
                         return;
                     }
 
@@ -71,11 +71,8 @@
                         return;
 
                     }
-                    else
-                    {
-                        next();
-                    }
 
+                    await next().ConfigureAwait(false);
 
                     called = true;
 

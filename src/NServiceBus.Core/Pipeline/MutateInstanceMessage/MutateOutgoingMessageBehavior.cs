@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using NServiceBus.MessageMutator;
     using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline;
@@ -9,7 +10,7 @@
 
     class MutateOutgoingMessageBehavior : Behavior<OutgoingContext>
     {
-        public override void Invoke(OutgoingContext context, Action next)
+        public override async Task Invoke(OutgoingContext context, Func<Task> next)
         {
             //TODO: should not need to do a lookup
             var state = context.Get<DispatchMessageToTransportConnector.State>();
@@ -30,7 +31,7 @@
                 incomingHeaders);
             foreach (var mutator in context.Builder.BuildAll<IMutateOutgoingMessages>())
             {
-                mutator.MutateOutgoing(mutatorContext).GetAwaiter().GetResult();
+                await mutator.MutateOutgoing(mutatorContext).ConfigureAwait(false);
             }
 
             if (mutatorContext.MessageInstanceChanged)
@@ -38,7 +39,7 @@
                 context.UpdateMessageInstance(mutatorContext.OutgoingMessage);
             }
 
-            next();
+            await next().ConfigureAwait(false);
         }
     }
 }

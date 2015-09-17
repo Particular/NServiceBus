@@ -1,22 +1,23 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.MessageMutator;
     using NServiceBus.Pipeline;
 
     class MutateIncomingTransportMessageBehavior : PhysicalMessageProcessingStageBehavior
     {
-        public override void Invoke(Context context, Action next)
+        public override async Task Invoke(Context context, Func<Task> next)
         {
             var mutators = context.Builder.BuildAll<IMutateIncomingTransportMessages>();
             var transportMessage = context.GetPhysicalMessage();
             var mutatorContext = new MutateIncomingTransportMessageContext(transportMessage.Body, transportMessage.Headers);
             foreach (var mutator in mutators)
             {
-                mutator.MutateIncoming(mutatorContext).GetAwaiter().GetResult();
+                await mutator.MutateIncoming(mutatorContext).ConfigureAwait(false);
             }
             transportMessage.Body = mutatorContext.Body;
-            next();
+            await next().ConfigureAwait(false);
         }
     }
 }

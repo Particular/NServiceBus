@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Threading.Tasks;
     using Pipeline;
     using Pipeline.Contexts;
     using Unicast;
@@ -15,7 +16,7 @@
             this.messageHandlerRegistry = messageHandlerRegistry;
         }
 
-        public override void Invoke(LogicalMessageProcessingStageBehavior.Context context, Action<HandlingStageBehavior.Context> next)
+        public override async Task Invoke(LogicalMessageProcessingStageBehavior.Context context, Func<HandlingStageBehavior.Context, Task> next)
         {
             var handlersToInvoke = messageHandlerRegistry.GetHandlersFor(context.MessageType).ToList();
 
@@ -30,7 +31,7 @@
                 messageHandler.Instance = context.Builder.Build(messageHandler.HandlerType);
 
                 var handlingContext = new HandlingStageBehavior.Context(messageHandler, context);
-                next(handlingContext);
+                await next(handlingContext).ConfigureAwait(false);
 
                 if (handlingContext.HandlerInvocationAborted)
                 {

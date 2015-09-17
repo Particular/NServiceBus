@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Threading.Tasks;
     using NServiceBus.Logging;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
@@ -18,7 +19,7 @@
             this.dispatcher = dispatcher;
         }
 
-        public override void Terminate(UnsubscribeContext context)
+        protected override async Task Terminate(UnsubscribeContext context)
         {
             var eventType = context.EventType;
 
@@ -39,9 +40,9 @@
                 subscriptionMessage.Headers[Headers.SubscriptionMessageType] = eventType.AssemblyQualifiedName;
                 subscriptionMessage.Headers[Headers.ReplyToAddress] = replyToAddress;
 
-
+                // Daniel: Why are we here not retrying?
                 var dispatchOptions = new DispatchOptions(new DirectToTargetDestination(publisherAddress), context);
-                dispatcher.Dispatch(new [] { new TransportOperation(subscriptionMessage, dispatchOptions)}).GetAwaiter().GetResult();
+                await dispatcher.Dispatch(new [] { new TransportOperation(subscriptionMessage, dispatchOptions)}).ConfigureAwait(false);
             }
         }
 

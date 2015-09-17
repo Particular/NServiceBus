@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using System.Threading.Tasks;
     using NServiceBus.DeliveryConstraints;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
@@ -14,7 +15,7 @@
             this.defaultDispatchStrategy = defaultDispatchStrategy;
         }
 
-        public override void Terminate(DispatchContext context)
+        protected override Task Terminate(DispatchContext context)
         {
             DispatchStrategy dispatchStrategy;
 
@@ -24,7 +25,7 @@
             }
             var routingStrategy = context.GetRoutingStrategy();
 
-            dispatchStrategy.Dispatch(dispatcher, context.Get<OutgoingMessage>(), routingStrategy, context.GetDeliveryConstraints(), context, DispatchConsistency.Default).GetAwaiter().GetResult();
+            return dispatchStrategy.Dispatch(dispatcher, context.Get<OutgoingMessage>(), routingStrategy, context.GetDeliveryConstraints(), context, DispatchConsistency.Default);
         }
 
         IDispatchMessages dispatcher;

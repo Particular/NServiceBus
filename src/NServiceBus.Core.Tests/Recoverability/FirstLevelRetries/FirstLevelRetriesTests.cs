@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Threading.Tasks;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Recoverability.FirstLevelRetries;
@@ -18,19 +19,19 @@
         {
             var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(0));
 
-            Assert.Throws<MessageDeserializationException>(() => behavior.Invoke(null, () =>
+            Assert.Throws<MessageDeserializationException>(async () => await behavior.Invoke(null, () =>
             {
                 throw new MessageDeserializationException("test");
             }));
         }
 
         [Test]
-        public void ShouldPerformFLRIfThereAreRetriesLeftToDo()
+        public async Task ShouldPerformFLRIfThereAreRetriesLeftToDo()
         {
             var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1));
             var context = CreateContext("someid");
 
-            behavior.Invoke(context, () =>
+            await behavior.Invoke(context, () =>
             {
                 throw new Exception("test");
             });
@@ -44,7 +45,7 @@
             var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(0));
             var context = CreateContext("someid");
 
-            Assert.Throws<Exception>(() => behavior.Invoke(context, () =>
+            Assert.Throws<Exception>(async () => await behavior.Invoke(context, () =>
             {
                 throw new Exception("test");
             }));
@@ -63,7 +64,7 @@
 
             storage.IncrementFailuresForMessage(pipeline.Name + messageId);
 
-            Assert.Throws<Exception>(() => behavior.Invoke(CreateContext(messageId), () =>
+            Assert.Throws<Exception>(async () => await behavior.Invoke(CreateContext(messageId), () =>
             {
                 throw new Exception("test");
             }));
@@ -72,14 +73,14 @@
         }
 
         [Test]
-        public void ShouldRememberRetryCountBetweenRetries()
+        public async Task ShouldRememberRetryCountBetweenRetries()
         {
             const string messageId = "someid";
             var storage = new FlrStatusStorage();
             var pipeline = new PipelineInfo("anotherPipeline", "anotherAddress");
             var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1), storage, pipelineInfo: pipeline);
 
-            behavior.Invoke(CreateContext(messageId), () =>
+            await behavior.Invoke(CreateContext(messageId), () =>
             {
                 throw new Exception("test");
             });
@@ -88,7 +89,7 @@
         }
 
         [Test]
-        public void ShouldRaiseBusNotificationsForFLR()
+        public async Task ShouldRaiseBusNotificationsForFLR()
         {
             var notifications = new BusNotifications();
             var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1), busNotifications: notifications);
@@ -104,7 +105,7 @@
                 notificationFired = true;
             });
 
-            behavior.Invoke(CreateContext("someid"), () =>
+            await behavior.Invoke(CreateContext("someid"), () =>
             {
                 throw new Exception("test");
             });
@@ -113,27 +114,27 @@
         }
 
         [Test]
-        public void WillResetRetryCounterWhenFlrStorageCleared()
+        public async Task WillResetRetryCounterWhenFlrStorageCleared()
         {
             const string messageId = "someId";
             var storage = new FlrStatusStorage();
             var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1), storage);
 
-            behavior.Invoke(CreateContext(messageId), () =>
+            await behavior.Invoke(CreateContext(messageId), () =>
             {
                 throw new Exception("test");
             });
 
             storage.ClearAllFailures();
 
-            Assert.DoesNotThrow(() => behavior.Invoke(CreateContext(messageId), () =>
+            Assert.DoesNotThrow(async () => await behavior.Invoke(CreateContext(messageId), () =>
             {
                 throw new Exception("test");
             }));
         }
 
         [Test]
-        public void ShouldTrackRetriesForEachPipelineIndependently()
+        public async Task ShouldTrackRetriesForEachPipelineIndependently()
         {
             const string messageId = "someId";
             var storage = new FlrStatusStorage();
@@ -142,22 +143,22 @@
             var pipeline2 = new PipelineInfo("pipeline2", "address");
             var behavior2 = CreateFlrBehavior(new FirstLevelRetryPolicy(2), storage, pipelineInfo: pipeline2);
 
-            behavior1.Invoke(CreateContext(messageId), () =>
+            await behavior1.Invoke(CreateContext(messageId), () =>
             {
                 throw new Exception("test");
             });
 
-            behavior2.Invoke(CreateContext(messageId), () =>
+            await behavior2.Invoke(CreateContext(messageId), () =>
             {
                 throw new Exception("test");
             });
 
-            Assert.Throws<Exception>(() => behavior1.Invoke(CreateContext(messageId), () =>
+            Assert.Throws<Exception>(async () => await behavior1.Invoke(CreateContext(messageId), () =>
             {
                 throw new Exception("test");
             }));
 
-            Assert.DoesNotThrow(() => behavior2.Invoke(CreateContext(messageId), () =>
+            Assert.DoesNotThrow(async () => await behavior2.Invoke(CreateContext(messageId), () =>
             {
                 throw new Exception("test");
             }));

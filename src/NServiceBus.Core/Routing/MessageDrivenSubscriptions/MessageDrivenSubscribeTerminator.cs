@@ -2,7 +2,7 @@
 {
     using System;
     using System.Linq;
-    using System.Threading;
+    using System.Threading.Tasks;
     using NServiceBus.Extensibility;
     using NServiceBus.Logging;
     using NServiceBus.Pipeline;
@@ -21,7 +21,7 @@
             this.dispatcher = dispatcher;
         }
 
-        public override void Terminate(SubscribeContext context)
+        protected override async Task Terminate(SubscribeContext context)
         {
             var eventType = context.EventType;
 
@@ -44,24 +44,23 @@
 
                 var address = publisherAddress;
 
-                ThreadPool.QueueUserWorkItem(state =>
-                    SendSubscribeMessageWithRetries(address, subscriptionMessage, eventType.AssemblyQualifiedName, context));
+                await SendSubscribeMessageWithRetries(address, subscriptionMessage, eventType.AssemblyQualifiedName, context).ConfigureAwait(false);
             }
         }
 
-        void SendSubscribeMessageWithRetries(string destination, OutgoingMessage subscriptionMessage, string messageType, ContextBag context, int retriesCount = 0)
+        async Task SendSubscribeMessageWithRetries(string destination, OutgoingMessage subscriptionMessage, string messageType, ContextBag context, int retriesCount = 0)
         {
             try
             {
                 var dispatchOptions = new DispatchOptions(new DirectToTargetDestination(destination), context);
-                dispatcher.Dispatch(new [] { new TransportOperation(subscriptionMessage, dispatchOptions)}).GetAwaiter().GetResult();
+                await dispatcher.Dispatch(new [] { new TransportOperation(subscriptionMessage, dispatchOptions)}).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {
                 if (retriesCount < 10)
                 {
-                    Thread.Sleep(TimeSpan.FromSeconds(2));
-                    SendSubscribeMessageWithRetries(destination, subscriptionMessage, messageType, context, ++retriesCount);
+                    await Task.Delay(TimeSpan.FromSeconds(2)).ConfigureAwait(false);
+                    await SendSubscribeMessageWithRetries(destination, subscriptionMessage, messageType, context, ++retriesCount).ConfigureAwait(false);
                 }
                 else
                 {
