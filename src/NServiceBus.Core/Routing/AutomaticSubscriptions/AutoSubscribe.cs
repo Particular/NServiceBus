@@ -88,16 +88,16 @@
                 this.bus = bus;
             }
 
-            protected async override void OnStart()
+            protected override void OnStart()
             {
-                var subscriptionTasks = eventsToSubscribe.Select(async e =>
-                {
-                    await bus.SubscribeAsync(e).ConfigureAwait(false);
+                var subscriptionTasks =
+                    eventsToSubscribe.Select(async e =>
+                    {
+                        await bus.SubscribeAsync(e).ConfigureAwait(false);
+                        Logger.DebugFormat("Auto subscribed to event {0}", e);
+                    }).ToArray();
 
-                    Logger.DebugFormat("Auto subscribed to event {0}", e);
-                });
-
-                await Task.WhenAll(subscriptionTasks).ConfigureAwait(false);
+                Task.WaitAll(subscriptionTasks);
             }
 
             IEnumerable<Type> eventsToSubscribe;
