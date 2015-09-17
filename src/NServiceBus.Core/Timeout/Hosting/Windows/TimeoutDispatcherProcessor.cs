@@ -3,6 +3,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
     using System;
     using Core;
     using Features;
+    using NServiceBus.Pipeline;
     using Satellites;
     using Transports;
     using Unicast.Transport;
@@ -14,6 +15,8 @@ namespace NServiceBus.Timeout.Hosting.Windows
         public IPersistTimeouts TimeoutsPersister { get; set; }
         
         public TimeoutPersisterReceiver TimeoutPersisterReceiver { get; set; }
+
+        public PipelineExecutor PipelineExecutor { get; set; }
       
         public Address InputAddress
         {
@@ -42,8 +45,16 @@ namespace NServiceBus.Timeout.Hosting.Windows
                     return true;
                 }
 
-                // TODO: when using native transactions make sure send completes indipendelty before commiting
-                MessageSender.Send(timeoutData.ToTransportMessage(), timeoutData.Destination);
+                try
+                {
+                    PipelineExecutor.CurrentContext.Set("do-not-enlist-in-native-transaction", true);
+                    MessageSender.Send(timeoutData.ToTransportMessage(), timeoutData.Destination);
+                }
+                finally
+                {
+                    PipelineExecutor.CurrentContext.Set("do-not-enlist-in-native-transaction", false);
+                }
+
                 persisterV2.Remove(timeoutId);
             }
             else
