@@ -27,10 +27,7 @@
             await Scenario.Define<Context>()
                 .WithEndpoint<CentralizedStoragePublisher>(b =>
                 {
-                    b.Given(async bus =>
-                    {
-                        await bus.SubscribeAsync<EventHandledByLocalEndpoint>();
-                    });
+                    b.Given(bus => bus.SubscribeAsync<EventHandledByLocalEndpoint>());
                     b.When(c => c.EndpointsStarted, (bus, context) => bus.PublishAsync(new EventHandledByLocalEndpoint()));
                 })
                 .Done(c => c.CatchAllHandlerGotTheMessage)
