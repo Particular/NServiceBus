@@ -14,11 +14,7 @@
         public async Task Context_should_be_populated()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<Sender>(b => b.Given((bus, c) =>
-                    {
-                        bus.Send(new StartMessage());
-                        return Task.FromResult(0);
-                    }))
+                    .WithEndpoint<Sender>(b => b.Given((bus, c) => bus.SendAsync(new StartMessage())))
                     .WithEndpoint<Receiver>()
                     .Done(c => c.WasCalled)
                     .Run(TimeSpan.FromHours(1));
@@ -59,9 +55,7 @@
 
                 public Task Handle(StartMessage message)
                 {
-                    bus.SendLocal(new LoopMessage());
-
-                    return Task.FromResult(0);
+                    return bus.SendLocalAsync(new LoopMessage());
                 }
             }
             public class LoopMessageHandler : IHandleMessages<LoopMessage>

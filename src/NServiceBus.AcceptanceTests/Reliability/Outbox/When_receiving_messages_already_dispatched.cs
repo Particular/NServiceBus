@@ -14,7 +14,7 @@
         public async Task Should_discard_them()
         {
             await Scenario.Define<Context>()
-                    .WithEndpoint<OutboxEndpoint>(b => b.Given(bus =>
+                    .WithEndpoint<OutboxEndpoint>(b => b.Given(async bus =>
                     {
                         var duplicateMessageId = Guid.NewGuid().ToString();
 
@@ -23,11 +23,9 @@
                         options.SetMessageId(duplicateMessageId);
                         options.RouteToLocalEndpointInstance();
 
-                        bus.Send(new PlaceOrder(), options);
-                        bus.Send(new PlaceOrder(), options);
-                        bus.SendLocal(new PlaceOrder());
-
-                        return Task.FromResult(0);
+                        await bus.SendAsync(new PlaceOrder(), options);
+                        await bus.SendAsync(new PlaceOrder(), options);
+                        await bus.SendLocalAsync(new PlaceOrder());
                     }))
                     .AllowExceptions()
                     .Done(c => c.OrderAckReceived >= 2)
@@ -59,8 +57,7 @@
 
                 public Task Handle(PlaceOrder message)
                 {
-                    Bus.SendLocal(new SendOrderAcknowledgement());
-                    return Task.FromResult(0);
+                    return Bus.SendLocalAsync(new SendOrderAcknowledgement());
                 }
             }
 

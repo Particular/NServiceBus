@@ -15,11 +15,7 @@
         public async Task Should_honor_all_delivery_options()
         {
             await Scenario.Define<Context>()
-                .WithEndpoint<NonDtcReceivingEndpoint>(b => b.Given(bus =>
-                {
-                    bus.SendLocal(new PlaceOrder());
-                    return Task.FromResult(0);
-                }))
+                .WithEndpoint<NonDtcReceivingEndpoint>(b => b.Given(bus => bus.SendLocalAsync(new PlaceOrder())))
                 .Done(c => c.DispatchedMessageReceived)
                 .Repeat(r=>r.For<AllOutboxCapableStorages>())
                 .Should(context =>
@@ -56,8 +52,7 @@
 
                 public Task Handle(PlaceOrder message)
                 {
-                    Bus.SendLocal(new MessageToDispatch());
-                    return Task.FromResult(0);
+                    return Bus.SendLocalAsync(new MessageToDispatch());
                 }
             }
 

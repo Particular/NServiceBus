@@ -12,11 +12,7 @@
         public async Task Should_receive_the_message()
         {
             await Scenario.Define<Context>()
-                    .WithEndpoint<Sender>(b => b.Given((bus, c) =>
-                    {
-                        bus.Send(new MyMessage());
-                        return Task.FromResult(0);
-                    }))
+                    .WithEndpoint<Sender>(b => b.Given((bus, c) => bus.SendAsync(new MyMessage())))
                     .WithEndpoint<Receiver>()
                     .Done(c => c.WasCalled)
                     .Repeat(r => r.For(Transports.Default))

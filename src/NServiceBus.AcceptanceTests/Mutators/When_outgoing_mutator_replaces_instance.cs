@@ -13,11 +13,7 @@
         public async Task Message_sent_should_be_new_instance()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
-                {
-                    bus.SendLocal(new V1Message());
-                    return Task.FromResult(0);
-                }))
+                .WithEndpoint<Endpoint>(b => b.Given((bus, c) => bus.SendLocalAsync(new V1Message())))
                 .Done(c => c.V2MessageReceived)
                 .Run();
 

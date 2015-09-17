@@ -21,11 +21,7 @@
             using (new Timer(state => CheckPerfCounter(counter), null, 0, 100))
             {
                 await Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
-                    {
-                        bus.SendLocal(new MyMessage());
-                        return Task.FromResult(0);
-                    }))
+                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) => bus.SendLocalAsync(new MyMessage())))
                     .Done(c => c.WasCalled)
                     .Repeat(r => r.For(Transports.Default))
                     .Should(c => Assert.True(c.WasCalled, "The message handler should be called"))

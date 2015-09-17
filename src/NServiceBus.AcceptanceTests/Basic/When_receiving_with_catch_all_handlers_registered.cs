@@ -12,14 +12,10 @@
         public async Task Should_call_catch_all_handlers()
         {
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
+                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) => bus.SendLocalAsync(new MyMessage
                     {
-                        bus.SendLocal(new MyMessage
-                        {
-                            Id = c.Id
-                        });
-                        return Task.FromResult(0);
-                    }))
+                        Id = c.Id
+                    })))
                     .Done(c => c.ObjectHandlerWasCalled && c.DynamicHandlerWasCalled && c.IMessageHandlerWasCalled)
                     .Run();
 

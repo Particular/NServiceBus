@@ -12,11 +12,7 @@
         public async Task Should_start_the_saga_and_call_messagehandlers()
         {
             await Scenario.Define<SagaEndpointContext>()
-                .WithEndpoint<SagaEndpoint>(b => b.Given(bus =>
-                {
-                    bus.SendLocal(new StartSagaMessage { SomeId = Guid.NewGuid().ToString() });
-                    return Task.FromResult(0);
-                }))
+                .WithEndpoint<SagaEndpoint>(b => b.Given(bus => bus.SendLocalAsync(new StartSagaMessage { SomeId = Guid.NewGuid().ToString() })))
                 .Done(context => context.InterceptingHandlerCalled && context.SagaStarted)
                 .Repeat(r => r.For(Transports.Default))
                 .Should(c =>

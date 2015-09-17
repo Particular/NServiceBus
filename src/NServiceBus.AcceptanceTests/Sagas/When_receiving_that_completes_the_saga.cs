@@ -16,20 +16,15 @@
             await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                     .WithEndpoint<RecvCompletesSagaEndpt>(b =>
                         {
-                            b.Given((bus, context) =>
-                            {
-                                bus.SendLocal(new StartSagaMessage { SomeId = context.Id });
-                                return Task.FromResult(0);
-                            });
+                            b.Given((bus, context) => bus.SendLocalAsync(new StartSagaMessage { SomeId = context.Id }));
                             b.When(context => context.StartSagaMessageReceived, (bus, context) =>
                             {
                                 context.AddTrace("CompleteSagaMessage sent");
 
-                                bus.SendLocal(new CompleteSagaMessage
+                                return bus.SendLocalAsync(new CompleteSagaMessage
                                 {
                                     SomeId = context.Id
                                 });
-                                return Task.FromResult(0);
                             });
                         })
                     .Done(c => c.SagaCompleted)
@@ -44,31 +39,22 @@
             await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<RecvCompletesSagaEndpt>(b =>
                 {
-                    b.Given((bus, c) =>
+                    b.Given((bus, c) => bus.SendLocalAsync(new StartSagaMessage
                     {
-                        bus.SendLocal(new StartSagaMessage
-                        {
-                            SomeId = c.Id
-                        });
-                        return Task.FromResult(0);
-                    });
+                        SomeId = c.Id
+                    }));
                     b.When(c => c.StartSagaMessageReceived, (bus, c) =>
                     {
                         c.AddTrace("CompleteSagaMessage sent");
-                        bus.SendLocal(new CompleteSagaMessage
+                        return bus.SendLocalAsync(new CompleteSagaMessage
                         {
                             SomeId = c.Id
                         });
-                        return Task.FromResult(0);
                     });
-                    b.When(c => c.SagaCompleted, (bus, c) =>
+                    b.When(c => c.SagaCompleted, (bus, c) => bus.SendLocalAsync(new AnotherMessage
                     {
-                        bus.SendLocal(new AnotherMessage
-                        {
-                            SomeId = c.Id
-                        });
-                        return Task.FromResult(0);
-                    });
+                        SomeId = c.Id
+                    }));
                 })
                 .Done(c => c.AnotherMessageReceived)
                 .Repeat(r => r.For(Transports.Default))

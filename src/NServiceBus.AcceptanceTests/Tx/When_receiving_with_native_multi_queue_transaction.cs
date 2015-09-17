@@ -13,11 +13,7 @@
         public async Task Should_not_send_outgoing_messages_if_receiving_transaction_is_rolled_back()
         {
             await Scenario.Define<Context>(c => { c.FirstAttempt = true; })
-                 .WithEndpoint<Endpoint>(b => b.Given(bus =>
-                 {
-                     bus.SendLocal(new MyMessage());
-                     return Task.FromResult(0);
-                 }))
+                 .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocalAsync(new MyMessage())))
                  .Done(c => c.MessageHandled)
                  .AllowSimulatedExceptions()
                  .Repeat(r => r.For<AllNativeMultiQueueTransactionTransports>())
@@ -49,11 +45,11 @@
                 public Context Context { get; set; }
                 public IBus Bus { get; set; }
 
-                public Task Handle(MyMessage @event)
+                public async Task Handle(MyMessage @event)
                 {
                     if (Context.FirstAttempt)
                     {
-                        Bus.SendLocal(new MessageHandledEvent
+                        await Bus.SendLocalAsync(new MessageHandledEvent
                         {
                             HasFailed = true
                         });
@@ -61,9 +57,7 @@
                         throw new SimulatedException();
                     }
 
-                    Bus.SendLocal(new MessageHandledEvent());
-
-                    return Task.FromResult(0);
+                    await Bus.SendLocalAsync(new MessageHandledEvent());
                 }
             }
 

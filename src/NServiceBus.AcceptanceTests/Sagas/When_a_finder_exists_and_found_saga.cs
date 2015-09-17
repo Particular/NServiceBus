@@ -14,11 +14,7 @@
         public async Task Should_find_saga_and_not_correlate()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<SagaEndpoint>(b => b.Given(bus =>
-                {
-                    bus.SendLocal(new StartSagaMessage());
-                    return Task.FromResult(0);
-                }))
+                .WithEndpoint<SagaEndpoint>(b => b.Given(bus => bus.SendLocalAsync(new StartSagaMessage())))
                 .Done(c => c.Completed)
                 .Run();
 
@@ -61,8 +57,7 @@
 
                 public Task Handle(StartSagaMessage message)
                 {
-                    Bus.SendLocal(new SomeOtherMessage());
-                    return Task.FromResult(0);
+                    return Bus.SendLocalAsync(new SomeOtherMessage());
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData08> mapper)

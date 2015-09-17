@@ -17,14 +17,10 @@
         {
             await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(
-                    b => b.Given(bus =>
+                    b => b.Given(bus => bus.SendLocalAsync(new StartSaga
                     {
-                        bus.SendLocal(new StartSaga
-                        {
-                            DataId = Guid.NewGuid()
-                        });
-                        return Task.FromResult(0);
-                    }))
+                        DataId = Guid.NewGuid()
+                    })))
                 .AllowExceptions()
                 .Done(c => c.MessageFailed)
                 .Repeat(r => r.For(Transports.Default))

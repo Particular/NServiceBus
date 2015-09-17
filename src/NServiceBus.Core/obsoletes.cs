@@ -272,57 +272,14 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
-            ReplacementTypeOrMember = "SendLocal(object message, SendLocalOptions options)")]
+            ReplacementTypeOrMember = "SendLocalAsync(object message, SendLocalOptions options)")]
         ICallback Defer(TimeSpan delay, object message);
 
         [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
-            ReplacementTypeOrMember = "SendLocal(object message, SendLocalOptions options)")]
+            ReplacementTypeOrMember = "SendLocalAsync(object message, SendLocalOptions options)")]
         ICallback Defer(DateTime processAt, object message);
-    }
-
-    public partial interface ISendOnlyBus
-    {
-        [ObsoleteEx(
-            ReplacementTypeOrMember = "Send(object message, SendOptions options)",
-            RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0")]
-        ICallback Send(Address address, object message);
-
-        [ObsoleteEx(
-            ReplacementTypeOrMember = "Send<T>(Action<T> messageConstructor, SendOptions options)",
-            RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0")]
-        ICallback Send<T>(Address address, Action<T> messageConstructor);
-
-        [ObsoleteEx(
-            ReplacementTypeOrMember = "Send(object message, SendOptions options)",
-            RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0")]
-        ICallback Send(string destination, string correlationId, object message);
-
-        /// <summary>
-        /// Sends the message to the given address as well as identifying this
-        /// as a response to a message containing the Id found in correlationId.
-        /// </summary>
-        [ObsoleteEx(
-            ReplacementTypeOrMember = "Send(object message, SendOptions options)",
-            RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0")]
-        ICallback Send(Address address, string correlationId, object message);
-
-        [ObsoleteEx(
-            ReplacementTypeOrMember = "Send<T>(Action<T> messageConstructor, SendOptions options)",
-            RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0")]
-        ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor);
-
-        [ObsoleteEx(
-            ReplacementTypeOrMember = "Send<T>(Action<T> messageConstructor, SendOptions options)",
-            RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0")]
-        ICallback Send<T>(Address address, string correlationId, Action<T> messageConstructor);
     }
 }
 
@@ -501,7 +458,7 @@ namespace NServiceBus.Unicast
         [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
-        public ICallback Send(Address address, object message)
+        public ICallback SendAsync(Address address, object message)
         {
             throw new NotImplementedException();
         }
@@ -517,7 +474,7 @@ namespace NServiceBus.Unicast
         [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
-        public ICallback Send<T>(Address address, Action<T> messageConstructor)
+        public ICallback SendAsync<T>(Address address, Action<T> messageConstructor)
         {
             throw new NotImplementedException();
         }
@@ -525,7 +482,7 @@ namespace NServiceBus.Unicast
         [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
-        public ICallback Send(string destination, string correlationId, object message)
+        public ICallback SendAsync(string destination, string correlationId, object message)
         {
             throw new NotImplementedException();
         }
@@ -533,7 +490,7 @@ namespace NServiceBus.Unicast
         [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
-        public ICallback Send(Address address, string correlationId, object message)
+        public ICallback SendAsync(Address address, string correlationId, object message)
         {
             throw new NotImplementedException();
         }
@@ -541,7 +498,7 @@ namespace NServiceBus.Unicast
         [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
-        public ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor)
+        public ICallback SendAsync<T>(string destination, string correlationId, Action<T> messageConstructor)
         {
             throw new NotImplementedException();
         }
@@ -549,7 +506,7 @@ namespace NServiceBus.Unicast
         [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
-        public ICallback Send<T>(Address address, string correlationId, Action<T> messageConstructor)
+        public ICallback SendAsync<T>(Address address, string correlationId, Action<T> messageConstructor)
         {
             throw new NotImplementedException();
         }
@@ -557,7 +514,7 @@ namespace NServiceBus.Unicast
         [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
-            ReplacementTypeOrMember = "SendLocal(object message, SendLocalOptions options)")]
+            ReplacementTypeOrMember = "SendLocalAsync(object message, SendLocalOptions options)")]
         public ICallback Defer(TimeSpan delay, object message)
         {
             throw new NotImplementedException();
@@ -566,7 +523,7 @@ namespace NServiceBus.Unicast
         [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
-            ReplacementTypeOrMember = "SendLocal(object message, SendLocalOptions options)")]
+            ReplacementTypeOrMember = "SendLocalAsync(object message, SendLocalOptions options)")]
         public ICallback Defer(DateTime processAt, object message)
         {
             throw new NotImplementedException();
@@ -639,59 +596,6 @@ namespace NServiceBus.Unicast
             get { throw new NotImplementedException(); }
         }
 
-        [ObsoleteEx(
-            ReplacementTypeOrMember = "Send(object message, SendOptions options)",
-            RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0")]
-        public ICallback Send(Address address, object message)
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(
-            ReplacementTypeOrMember = "Send<T>(Action<T> messageConstructor, SendOptions options)",
-            RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0")]
-        public ICallback Send<T>(Address address, Action<T> messageConstructor)
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(
-            ReplacementTypeOrMember = "Send(object message, SendOptions options)",
-            RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0")]
-        public ICallback Send(string destination, string correlationId, object message)
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(
-           ReplacementTypeOrMember = "Send(object message, SendOptions options)",
-           RemoveInVersion = "7.0",
-           TreatAsErrorFromVersion = "6.0")]
-        public ICallback Send(Address address, string correlationId, object message)
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(
-            ReplacementTypeOrMember = "Send<T>(Action<T> messageConstructor, SendOptions options)",
-            RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0")]
-        public ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor)
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(
-            ReplacementTypeOrMember = "Send<T>(Action<T> messageConstructor, SendOptions options)",
-            RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0")]
-        public ICallback Send<T>(Address address, string correlationId, Action<T> messageConstructor)
-        {
-            throw new NotImplementedException();
-        }
 
         [ObsoleteEx(
             ReplacementTypeOrMember = "ISendOnlyBus.PublishAsync(object message, PublishOptions options)",
@@ -712,19 +616,19 @@ namespace NServiceBus.Unicast
         }
 
         [ObsoleteEx(
-            ReplacementTypeOrMember = "ISendOnlyBus.Send(object message, SendOptions options)",
+            ReplacementTypeOrMember = "ISendOnlyBus.SendAsync(object message, SendOptions options)",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
-        public void Send(object message, NServiceBus.SendOptions options)
+        public Task SendAsync(object message, NServiceBus.SendOptions options)
         {
             throw new NotImplementedException();
         }
 
         [ObsoleteEx(
-            ReplacementTypeOrMember = "ISendOnlyBus.Send<T>(Action<T> messageConstructor, SendOptions options)",
+            ReplacementTypeOrMember = "ISendOnlyBus.SendAsync<T>(Action<T> messageConstructor, SendOptions options)",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
-        public void Send<T>(Action<T> messageConstructor, NServiceBus.SendOptions options)
+        public Task SendAsync<T>(Action<T> messageConstructor, NServiceBus.SendOptions options)
         {
             throw new NotImplementedException();
         }
@@ -732,7 +636,7 @@ namespace NServiceBus.Unicast
         [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
-            ReplacementTypeOrMember = "SendLocal(object message, SendLocalOptions options)")]
+            ReplacementTypeOrMember = "SendLocalAsync(object message, SendLocalOptions options)")]
         public ICallback Defer(TimeSpan delay, object message)
         {
             throw new NotImplementedException();
@@ -741,7 +645,7 @@ namespace NServiceBus.Unicast
         [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
-            ReplacementTypeOrMember = "SendLocal(object message, SendLocalOptions options)")]
+            ReplacementTypeOrMember = "SendLocalAsync(object message, SendLocalOptions options)")]
         public ICallback Defer(DateTime processAt, object message)
         {
             throw new NotImplementedException();

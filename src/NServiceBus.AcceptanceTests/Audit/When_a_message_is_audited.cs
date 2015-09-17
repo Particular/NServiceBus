@@ -15,11 +15,7 @@
         public async Task Should_preserve_the_original_body()
         {
             var context = await Scenario.Define<Context>(c => { c.RunId = Guid.NewGuid(); })
-                    .WithEndpoint<EndpointWithAuditOn>(b => b.Given((bus, c) =>
-                    {
-                        bus.SendLocal(new MessageToBeAudited { RunId = c.RunId });
-                        return Task.FromResult(0);
-                    }))
+                    .WithEndpoint<EndpointWithAuditOn>(b => b.Given((bus, c) => bus.SendLocalAsync(new MessageToBeAudited { RunId = c.RunId })))
                     .WithEndpoint<AuditSpyEndpoint>()
                     .Done(c => c.Done)
                     .Run();

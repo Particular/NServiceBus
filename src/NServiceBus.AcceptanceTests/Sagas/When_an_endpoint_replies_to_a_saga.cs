@@ -16,11 +16,7 @@
         public async Task Should_correlate_all_saga_messages_properly()
         {
             var context = await Scenario.Define<Context>(c => { c.RunId = Guid.NewGuid(); })
-                    .WithEndpoint<EndpointThatHostsASaga>(b => b.Given((bus, ctx) =>
-                    {
-                        bus.SendLocal(new StartSaga { RunId = ctx.RunId });
-                        return Task.FromResult(0);
-                    }))
+                    .WithEndpoint<EndpointThatHostsASaga>(b => b.Given((bus, ctx) => bus.SendLocalAsync(new StartSaga { RunId = ctx.RunId })))
                     .WithEndpoint<EndpointThatRepliesToSagaMessage>()
                     .Done(c => c.Done)
                     .Run();
@@ -85,8 +81,7 @@
                 public Task Handle(StartSaga message)
                 {
                     Data.RunId = message.RunId;
-                    Bus.Send(new DoSomething { RunId = message.RunId });
-                    return Task.FromResult(0);
+                    return Bus.SendAsync(new DoSomething { RunId = message.RunId });
                 }
 
                 public Task Handle(DoSomethingResponse message)

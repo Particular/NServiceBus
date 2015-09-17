@@ -14,11 +14,7 @@
         public async Task Should_match_different_saga()
         {
             await Scenario.Define<Context>()
-                .WithEndpoint<Endpoint>(b => b.Given(bus =>
-                {
-                    bus.SendLocal(new StartSaga1 { DataId = Guid.NewGuid() });
-                    return Task.FromResult(0);
-                }))
+                .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocalAsync(new StartSaga1 { DataId = Guid.NewGuid() })))
                 .Done(c => c.DidSaga2ReceiveMessage)
                 .Repeat(r => r.For(Transports.Default))
                 .Should(c => Assert.True(c.DidSaga2ReceiveMessage))
@@ -46,18 +42,16 @@
                 {
                     var dataId = Guid.NewGuid();
                     Data.DataId = dataId;
-                    Bus.SendLocal(new MessageSaga1WillHandle
+                    return Bus.SendLocalAsync(new MessageSaga1WillHandle
                     {
                         DataId = dataId
                     });
-                    return Task.FromResult(0);
                 }
 
-                public Task Handle(MessageSaga1WillHandle message)
+                public async Task Handle(MessageSaga1WillHandle message)
                 {
-                    Bus.SendLocal(new StartSaga2());
+                    await Bus.SendLocalAsync(new StartSaga2());
                     MarkAsComplete();
-                    return Task.FromResult(0);
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TwoSaga1Saga1Data> mapper)

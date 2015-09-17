@@ -14,14 +14,10 @@
         public async Task Should_receive_decrypted_message()
         {
             await Scenario.Define<Context>()
-                    .WithEndpoint<Sender>(b => b.Given((bus, context) =>
+                    .WithEndpoint<Sender>(b => b.Given((bus, context) => bus.SendAsync(new MessageWithSecretData
                     {
-                        bus.Send(new MessageWithSecretData
-                        {
-                            Secret = "betcha can't guess my secret",
-                        });
-                        return Task.FromResult(0);
-                    }))
+                        Secret = "betcha can't guess my secret",
+                    })))
                     .WithEndpoint<Receiver>()
                     .Done(c => c.Done)
                     .Repeat(r => r.For(Transports.Default))

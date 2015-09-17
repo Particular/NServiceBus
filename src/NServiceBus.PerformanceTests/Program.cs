@@ -144,10 +144,10 @@
 
                 for (var j = 0; j < concurrency; j++)
                 {
-                    bus.Send(inputQueue, new StartSagaMessage
+                    bus.SendAsync(inputQueue, new StartSagaMessage
                     {
                         Id = i
-                    });
+                    }).GetAwaiter().GetResult();
                 }
             }
 
@@ -173,13 +173,13 @@
                     {
                         using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                         {
-                            bus.Send(inputQueue, message);
+                            bus.SendAsync(inputQueue, message).GetAwaiter().GetResult();
                             tx.Complete();
                         }
                     }
                     else
                     {
-                        bus.Send(inputQueue, message);
+                        bus.SendAsync(inputQueue, message).GetAwaiter().GetResult();
                     }
                 });
             sw.Stop();

@@ -13,21 +13,12 @@
         public async Task Should_not_honor_TimeToBeReceived_for_audit_message()
         {
             var context = await Scenario.Define<Context>()
-            .WithEndpoint<EndpointWithAuditOn>(b => b.Given(Send()))
+            .WithEndpoint<EndpointWithAuditOn>(b => b.Given(bus => bus.SendLocalAsync(new MessageToBeAudited())))
             .WithEndpoint<EndpointThatHandlesAuditMessages>()
             .Done(c => c.IsMessageHandlingComplete && c.TTBRHasExpiredAndMessageIsStillInAuditQueue)
             .Run();
 
             Assert.IsTrue(context.IsMessageHandlingComplete);
-        }
-
-        static Func<IBus, Task> Send()
-        {
-            return bus =>
-            {
-                bus.SendLocal(new MessageToBeAudited());
-                return Task.FromResult(0);
-            };
         }
 
         class Context : ScenarioContext

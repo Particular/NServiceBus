@@ -69,12 +69,12 @@ namespace NServiceBus.Scheduling
             options.DelayDeliveryWith(taskDefinition.Every);
             options.RouteToLocalEndpointInstance();
 
-            bus.Send(new Messages.ScheduledTask
+            bus.SendAsync(new Messages.ScheduledTask
             {
                 TaskId = taskDefinition.Id,
                 Name = taskDefinition.Name,
                 Every = taskDefinition.Every
-            }, options);
+            }, options).GetAwaiter().GetResult();
         }
 
         static ILog logger = LogManager.GetLogger<DefaultScheduler>();

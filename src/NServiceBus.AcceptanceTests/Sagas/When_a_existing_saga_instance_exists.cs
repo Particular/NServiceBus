@@ -12,11 +12,7 @@
         public async Task Should_hydrate_and_invoke_the_existing_instance()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<ExistingSagaInstanceEndpt>(b => b.Given(bus =>
-                    {
-                        bus.SendLocal(new StartSagaMessage { SomeId = Guid.NewGuid() });
-                        return Task.FromResult(0);
-                    }))
+                .WithEndpoint<ExistingSagaInstanceEndpt>(b => b.Given(bus => bus.SendLocalAsync(new StartSagaMessage { SomeId = Guid.NewGuid() })))
                 .Done(c => c.SecondMessageReceived)
                 .Run();
 
@@ -53,7 +49,7 @@
                     else
                     {
                         Context.FirstSagaId = Data.Id;
-                        Bus.SendLocal(new StartSagaMessage { SomeId = message.SomeId, SecondMessage = true });
+                        return Bus.SendLocalAsync(new StartSagaMessage { SomeId = message.SomeId, SecondMessage = true });
                     }
 
                     return Task.FromResult(0);

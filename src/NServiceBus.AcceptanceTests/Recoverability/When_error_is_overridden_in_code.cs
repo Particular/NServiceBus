@@ -13,11 +13,7 @@
         public async Task Should_error_to_target_queue()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<UserEndpoint>(b => b.Given(bus =>
-                {
-                    bus.SendLocal(new Message());
-                    return Task.FromResult(0);
-                }))
+                .WithEndpoint<UserEndpoint>(b => b.Given(bus => bus.SendLocalAsync(new Message())))
                 .WithEndpoint<ErrorSpy>()
                 .AllowSimulatedExceptions()
                 .Done(c => c.MessageReceived)

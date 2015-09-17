@@ -17,14 +17,10 @@
         {
             await Scenario.Define<Context>()
                 .WithEndpoint<SagaEndpoint>
-                (b => b.When(c => c.Subscribed, bus =>
+                (b => b.When(c => c.Subscribed, bus => bus.SendLocalAsync(new StartSaga
                 {
-                    bus.SendLocal(new StartSaga
-                    {
-                        DataId = Guid.NewGuid()
-                    });
-                    return Task.FromResult(0);
-                })
+                    DataId = Guid.NewGuid()
+                }))
                 )
                 .WithEndpoint<ReplyEndpoint>(b => b.Given((bus, context) =>
                 {

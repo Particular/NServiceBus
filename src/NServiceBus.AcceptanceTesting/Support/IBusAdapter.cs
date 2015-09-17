@@ -27,52 +27,17 @@
             return sendOnlyBus.PublishAsync(messageConstructor, options);
         }
 
-        public void Send(object message, SendOptions options)
+        public Task SendAsync(object message, SendOptions options)
         {
-            sendOnlyBus.Send(message, options);
+            return sendOnlyBus.SendAsync(message, options);
         }
 
-        public void Send<T>(Action<T> messageConstructor, SendOptions options)
+        public Task SendAsync<T>(Action<T> messageConstructor, SendOptions options)
         {
-            sendOnlyBus.Send(messageConstructor, options);
+            return sendOnlyBus.SendAsync(messageConstructor, options);
         }
 
-        [Obsolete("", true)]
-        ICallback ISendOnlyBus.Send(Address address, object message)
-        {
-            throw new NotImplementedException();
-        }
-
-        [Obsolete("", true)]
-        ICallback ISendOnlyBus.Send<T>(Address address, Action<T> messageConstructor)
-        {
-            throw new NotImplementedException();
-        }
-
-        [Obsolete("", true)]
-        public ICallback Send(string destination, string correlationId, object message)
-        {
-            throw new NotImplementedException();
-        }
-
-        [Obsolete("", true)]
-        ICallback ISendOnlyBus.Send(Address address, string correlationId, object message)
-        {
-            throw new NotImplementedException();
-        }
-
-        [Obsolete("", true)]
-        public ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor)
-        {
-            throw new NotImplementedException();
-        }
-
-        [Obsolete("", true)]
-        ICallback ISendOnlyBus.Send<T>(Address address, string correlationId, Action<T> messageConstructor)
-        {
-            throw new NotImplementedException();
-        }
-
+       
         public Task ReplyAsync(object message, ReplyOptions options)
         {
             throw new NotImplementedException();

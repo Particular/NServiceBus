@@ -21,11 +21,7 @@
         public async Task Should_allow_sending_events()
         {
             await Scenario.Define<Context>()
-                .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
-                {
-                    bus.Send(new MyEvent());
-                    return Task.FromResult(0);
-                }))
+                .WithEndpoint<Endpoint>(b => b.Given((bus, c) => bus.SendAsync(new MyEvent())))
                 .Done(c => c.EndpointsStarted)
                 .Run();
         }

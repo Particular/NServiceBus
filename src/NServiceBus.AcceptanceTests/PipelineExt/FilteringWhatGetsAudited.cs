@@ -19,11 +19,7 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
         public async Task RunDemo()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<UserEndpoint>(b => b.Given(bus =>
-                {
-                    bus.SendLocal(new MessageToBeAudited());
-                    return Task.FromResult(0);
-                }))
+                .WithEndpoint<UserEndpoint>(b => b.Given(bus => bus.SendLocalAsync(new MessageToBeAudited())))
                 .WithEndpoint<AuditSpy>()
                 .Done(c => c.Done)
                 .Run();
@@ -46,8 +42,7 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
 
                 public Task Handle(MessageToBeAudited message)
                 {
-                    Bus.SendLocal(new Message3());
-                    return Task.FromResult(0);
+                    return Bus.SendLocalAsync(new Message3());
                 }
             }
 

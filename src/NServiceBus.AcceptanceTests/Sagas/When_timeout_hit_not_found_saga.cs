@@ -14,11 +14,7 @@
         public async Task Should_not_fire_notfound_for_tm()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Endpoint>(b => b.Given(bus =>
-                {
-                    bus.SendLocal(new StartSaga());
-                    return Task.FromResult(0);
-                }))
+                .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocalAsync(new StartSaga())))
                 .Done(c => c.NotFoundHandlerCalledForRegularMessage)
                 .Run();
 
@@ -47,17 +43,15 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(StartSaga message)
+                public async Task Handle(StartSaga message)
                 {
                     Data.DataId = message.DataId;
 
                     //this will cause the message to be delivered right away
                     RequestTimeout<MyTimeout>(TimeSpan.Zero);
-                    Bus.SendLocal(new SomeOtherMessage { DataId = Guid.NewGuid() });
+                    await Bus.SendLocalAsync(new SomeOtherMessage { DataId = Guid.NewGuid() });
 
                     MarkAsComplete();
-
-                    return Task.FromResult(0);
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TimeoutHitsNotFoundSagaData> mapper)

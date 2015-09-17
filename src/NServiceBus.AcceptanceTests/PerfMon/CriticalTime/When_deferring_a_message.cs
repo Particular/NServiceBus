@@ -28,8 +28,7 @@
                         options.DelayDeliveryWith(TimeSpan.FromSeconds(5));
                         options.RouteToLocalEndpointInstance();
 
-                        bus.Send(new MyMessage(), options);
-                        return Task.FromResult(0);
+                        return bus.SendAsync(new MyMessage(), options);
                     }))
                     .Done(c => c.WasCalled)
                     .Repeat(r => r.For(Transports.Default))

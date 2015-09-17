@@ -14,11 +14,7 @@
         public async Task Should_not_roll_the_message_back_to_the_queue_in_case_of_failure()
         {
             await Scenario.Define<Context>()
-                    .WithEndpoint<NonTransactionalEndpoint>(b => b.Given(bus =>
-                    {
-                        bus.SendLocal(new MyMessage());
-                        return Task.FromResult(0);
-                    }))
+                    .WithEndpoint<NonTransactionalEndpoint>(b => b.Given(bus => bus.SendLocalAsync(new MyMessage())))
                     .AllowSimulatedExceptions()
                     .Done(c => c.TestComplete)
                     .Repeat(r => r.For(Transports.Default))
@@ -45,13 +41,13 @@
                 public Context Context { get; set; }
 
                 public IBus Bus { get; set; }
-                public Task Handle(MyMessage message)
+                public async Task Handle(MyMessage message)
                 {
                     Context.TimesCalled++;
 
                     using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
                     {
-                        Bus.SendLocal(new CompleteTest());
+                        await Bus.SendLocalAsync(new CompleteTest());
                     }
 
                     throw new SimulatedException();

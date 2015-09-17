@@ -13,7 +13,7 @@
         public async Task Should_not_honor_TimeToBeReceived_for_error_message()
         {
             var context = await Scenario.Define<Context>()
-            .WithEndpoint<EndpointThatThrows>(b => b.Given(Send()))
+            .WithEndpoint<EndpointThatThrows>(b => b.Given(bus => bus.SendLocalAsync(new MessageThatFails())))
             .WithEndpoint<EndpointThatHandlesErrorMessages>()
             .AllowSimulatedExceptions()
             .Done(c => c.MessageFailed && c.TTBRHasExpiredAndMessageIsStillInErrorQueue)
@@ -21,15 +21,6 @@
 
             Assert.IsTrue(context.MessageFailed);
             Assert.IsTrue(context.TTBRHasExpiredAndMessageIsStillInErrorQueue);
-        }
-
-        static Func<IBus, Task> Send()
-        {
-            return bus =>
-            {
-                bus.SendLocal(new MessageThatFails());
-                return Task.FromResult(0);
-            };
         }
 
         class Context : ScenarioContext

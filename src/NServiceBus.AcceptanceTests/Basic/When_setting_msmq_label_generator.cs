@@ -20,14 +20,10 @@
             try
             {
                 await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                    .WithEndpoint<EndPoint>(b => b.Given((bus, c) =>
+                    .WithEndpoint<EndPoint>(b => b.Given((bus, c) => bus.SendLocalAsync(new MyMessage
                     {
-                        bus.SendLocal(new MyMessage
-                        {
-                            Id = c.Id
-                        });
-                        return Task.FromResult(0);
-                    }))
+                        Id = c.Id
+                    })))
                     .Done(c => c.WasCalled && ReadMessageLabel() == "MyLabel")
                     .Repeat(r => r.For<MsmqOnly>())
                     .Should(c => Assert.True(c.WasCalled, "The message handler should be called"))

@@ -12,11 +12,7 @@
         public async Task Should_expose_header_in_downstream_handlers()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
-                {
-                    bus.SendLocal(new Message());
-                    return Task.FromResult(0);
-                }))
+                .WithEndpoint<Endpoint>(b => b.Given((bus, c) => bus.SendLocalAsync(new Message())))
                 .Done(c => c.GotMessage)
                 .Run();
 

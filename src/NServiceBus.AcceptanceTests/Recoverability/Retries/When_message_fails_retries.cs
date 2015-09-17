@@ -14,11 +14,7 @@
         public async Task Should_forward_message_to_error_queue()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<RetryEndpoint>(b => b.Given((bus, c) =>
-                    {
-                        bus.SendLocal(new MessageWhichFailsRetries());
-                        return Task.FromResult(0);
-                    }))
+                    .WithEndpoint<RetryEndpoint>(b => b.Given((bus, c) => bus.SendLocalAsync(new MessageWhichFailsRetries())))
                     .AllowSimulatedExceptions()
                     .Done(c => c.ForwardedToErrorQueue)
                     .Run();
