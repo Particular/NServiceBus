@@ -1,11 +1,8 @@
 namespace NServiceBus.Unicast
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
     using Janitor;
-    using NServiceBus.ConsistencyGuarantees;
-    using NServiceBus.DeliveryConstraints;
     using NServiceBus.Extensibility;
     using NServiceBus.MessageInterfaces;
     using NServiceBus.ObjectBuilder;
