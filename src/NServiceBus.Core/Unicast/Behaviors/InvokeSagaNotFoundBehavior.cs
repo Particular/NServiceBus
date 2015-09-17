@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.Logging;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
@@ -10,12 +11,12 @@ namespace NServiceBus
     {
         static ILog logger = LogManager.GetLogger<InvokeSagaNotFoundBehavior>();
 
-        public override void Invoke(Context context, Action next)
+        public override async Task Invoke(Context context, Func<Task> next)
         {
             var invocationResult = new SagaInvocationResult();
             context.Set(invocationResult);
 
-            next();
+            await next().ConfigureAwait(false);
 
             if (invocationResult.WasFound)
             {
@@ -27,7 +28,7 @@ namespace NServiceBus
             foreach (var handler in context.Builder.BuildAll<IHandleSagaNotFound>())
             {
                 logger.DebugFormat("Invoking SagaNotFoundHandler ('{0}')", handler.GetType().FullName);
-                handler.Handle(context.GetLogicalMessage().Instance).GetAwaiter().GetResult();
+                await handler.Handle(context.GetLogicalMessage().Instance);
             }
         }
 

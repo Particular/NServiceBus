@@ -1,15 +1,16 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
 
     class SendToOutgoingContextConnector:StageConnector<OutgoingSendContext,OutgoingContext>
     {
-        public override void Invoke(OutgoingSendContext context, Action<OutgoingContext> next)
+        public override Task Invoke(OutgoingSendContext context, Func<OutgoingContext, Task> next)
         {
-            next(new OutgoingContext(context));
+            return next(new OutgoingContext(context));
         }
     }
 }

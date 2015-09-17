@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.Hosting;
     using NServiceBus.Logging;
     using NServiceBus.Pipeline;
@@ -19,11 +20,11 @@ namespace NServiceBus
             this.errorQueueAddress = errorQueueAddress;
         }
 
-        public override void Invoke(Context context, Action next)
+        public override async Task Invoke(Context context, Func<Task> next)
         {
             try
             {
-                next();
+                await next().ConfigureAwait(false);
             }
             catch (Exception exception)
             {
@@ -48,7 +49,7 @@ namespace NServiceBus
 
                     context.Set<RoutingStrategy>(new DirectToTargetDestination(errorQueueAddress));
                     
-                    dispatchPipeline.Invoke(dispatchContext).GetAwaiter().GetResult();
+                    await dispatchPipeline.Invoke(dispatchContext).ConfigureAwait(false);
 
                     notifications.Errors.InvokeMessageHasBeenSentToErrorQueue(message,exception);
                 }

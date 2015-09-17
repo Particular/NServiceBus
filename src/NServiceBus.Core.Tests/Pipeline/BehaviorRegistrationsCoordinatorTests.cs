@@ -4,6 +4,7 @@ namespace NServiceBus.Core.Tests.Pipeline
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NUnit.Framework;
@@ -200,7 +201,7 @@ namespace NServiceBus.Core.Tests.Pipeline
         }
         class FakeBehavior: Behavior<IncomingContext>
         {
-            public override void Invoke(IncomingContext context, Action next)
+            public override Task Invoke(IncomingContext context, Func<Task> next)
             {
                 throw new NotImplementedException();
             }
@@ -209,7 +210,7 @@ namespace NServiceBus.Core.Tests.Pipeline
 
         class ReplacedBehavior : Behavior<IncomingContext>
         {
-            public override void Invoke(IncomingContext context, Action next)
+            public override Task Invoke(IncomingContext context, Func<Task> next)
             {
                 throw new NotImplementedException();
             }
@@ -217,7 +218,7 @@ namespace NServiceBus.Core.Tests.Pipeline
 
         class FakeStageConnector : StageConnector<IncomingContext,ChildContext>
         {
-            public override void Invoke(IncomingContext context, Action<ChildContext> next)
+            public override Task Invoke(IncomingContext context, Func<ChildContext, Task> next)
             {
                 throw new NotImplementedException();
             }

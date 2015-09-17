@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using NServiceBus.Audit;
     using NServiceBus.DeliveryConstraints;
     using NServiceBus.Performance.TimeToBeReceived;
@@ -18,7 +19,7 @@ namespace NServiceBus
             this.timeToBeReceived = timeToBeReceived;
         }
 
-        public override void Invoke(AuditContext context, Action<DispatchContext> next)
+        public override Task Invoke(AuditContext context, Func<DispatchContext, Task> next)
         {
             var message = context.Get<OutgoingMessage>();
 
@@ -45,7 +46,7 @@ namespace NServiceBus
 
             dispatchContext.Set(deliveryConstraints);
 
-            next(dispatchContext);
+            return next(dispatchContext);
         }
 
         public class State

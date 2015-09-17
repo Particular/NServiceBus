@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using System.Threading.Tasks;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
     using NServiceBus.Transports;
@@ -11,9 +12,9 @@ namespace NServiceBus
             this.subscriptionManager = subscriptionManager;
         }
 
-        public override void Terminate(UnsubscribeContext context)
+        protected override Task Terminate(UnsubscribeContext context)
         {
-            subscriptionManager.Unsubscribe(context.EventType, context);
+            return subscriptionManager.UnsubscribeAsync(context.EventType, context);
         }
 
         IManageSubscriptions subscriptionManager;

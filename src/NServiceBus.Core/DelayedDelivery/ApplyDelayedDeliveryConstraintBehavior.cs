@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.DelayedDelivery;
     using NServiceBus.DeliveryConstraints;
     using NServiceBus.Pipeline;
@@ -8,7 +9,7 @@
 
     class ApplyDelayedDeliveryConstraintBehavior:Behavior<OutgoingContext>
     {
-        public override void Invoke(OutgoingContext context, Action next)
+        public override Task Invoke(OutgoingContext context, Func<Task> next)
         {
             State state;
 
@@ -17,7 +18,7 @@
                 context.AddDeliveryConstraint(state.RequestedDelay);
             }
 
-            next();
+            return next();
         }
 
         public class State

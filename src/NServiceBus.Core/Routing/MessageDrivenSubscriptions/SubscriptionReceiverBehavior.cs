@@ -3,6 +3,7 @@
     using System;
     using System.Diagnostics;
     using System.Linq;
+    using System.Threading.Tasks;
     using Logging;
     using NServiceBus.Pipeline;
     using NServiceBus.Unicast.Subscriptions;
@@ -15,7 +16,7 @@
             this.subscriptionStorage = subscriptionStorage;
         }
 
-        public override void Invoke(Context context, Action next)
+        public override async Task Invoke(Context context, Func<Task> next)
         {
             var transportMessage = context.GetPhysicalMessage();
             var messageTypeString = GetSubscriptionMessageTypeFrom(transportMessage);
@@ -24,7 +25,7 @@
 
             if (string.IsNullOrEmpty(messageTypeString) && intent != MessageIntentEnum.Subscribe && intent != MessageIntentEnum.Unsubscribe)
             {
-                next();
+                await next().ConfigureAwait(false);
                 return;
             }
 
@@ -65,19 +66,19 @@
 
                 var mt = new MessageType(messageTypeString);
 
-                subscriptionStorage.Subscribe(transportMessage.ReplyToAddress, new[]
+                await subscriptionStorage.Subscribe(transportMessage.ReplyToAddress, new[]
                 {
                     mt
-                }, options).GetAwaiter().GetResult();
+                }, options).ConfigureAwait(false);
 
                 return;
             }
 
             Logger.Info("Unsubscribing " + subscriberAddress + " from message type " + messageTypeString);
-            subscriptionStorage.Unsubscribe(subscriberAddress, new[]
+            await subscriptionStorage.Unsubscribe(subscriberAddress, new[]
             {
                 new MessageType(messageTypeString)
-            }, options).GetAwaiter().GetResult();
+            }, options).ConfigureAwait(false);
         }
 
 

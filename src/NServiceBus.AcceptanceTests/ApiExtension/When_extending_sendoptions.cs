@@ -37,8 +37,6 @@
             public string Secret { get; set; }
         }
 
-
-
         public class SendOptionsExtensions : EndpointConfigurationBuilder
         {
             public SendOptionsExtensions()
@@ -60,7 +58,7 @@
 
             public class TestingSendOptionsExtensionBehavior : Behavior<OutgoingContext>
             {
-                public override void Invoke(OutgoingContext context, Action next)
+                public override Task Invoke(OutgoingContext context, Func<Task> next)
                 {
                     Context data;
                     if (context.TryGet(out data))
@@ -68,7 +66,7 @@
                         context.UpdateMessageInstance(new SendMessage { Secret = data.SomeValue });
                     }
 
-                    next();
+                    return next();
                 }
 
                 public class Context

@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using NServiceBus.DelayedDelivery;
     using NServiceBus.DeliveryConstraints;
     using NServiceBus.Logging;
@@ -21,11 +22,11 @@ namespace NServiceBus
             this.localAddress = localAddress;
         }
 
-        public override void Invoke(Context context, Action next)
+        public override async Task Invoke(Context context, Func<Task> next)
         {
             try
             {
-                next();
+                await next().ConfigureAwait(false);
             }
             catch (MessageDeserializationException)
             {
@@ -57,8 +58,8 @@ namespace NServiceBus
                     });
 
                     Logger.Warn(string.Format("Second Level Retry will reschedule message '{0}' after a delay of {1} because of an exception:", message.Id, delay), ex);
-                    dispatchPipeline.Invoke(dispatchContext).GetAwaiter().GetResult();
 
+                    await dispatchPipeline.Invoke(dispatchContext).ConfigureAwait(false);
 
                     notifications.Errors.InvokeMessageHasBeenSentToSecondLevelRetries(currentRetry, message, ex);
 

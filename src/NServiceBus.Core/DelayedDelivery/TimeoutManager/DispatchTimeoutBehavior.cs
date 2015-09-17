@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
     using NServiceBus.Timeout.Core;
@@ -14,12 +15,12 @@ namespace NServiceBus
             this.persister = persister;
         }
 
-        public override void Terminate(PhysicalMessageProcessingStageBehavior.Context context)
+        protected override async Task Terminate(PhysicalMessageProcessingStageBehavior.Context context)
         {
             var message = context.GetPhysicalMessage();
             var timeoutId = message.Headers["Timeout.Id"];
 
-            var timeoutData = persister.Remove(timeoutId, new TimeoutPersistenceOptions(context)).GetAwaiter().GetResult();
+            var timeoutData = await persister.Remove(timeoutId, new TimeoutPersistenceOptions(context)).ConfigureAwait(false);
 
             if (timeoutData == null)
             {
@@ -31,7 +32,7 @@ namespace NServiceBus
             timeoutData.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
             timeoutData.Headers["NServiceBus.RelatedToTimeoutId"] = timeoutData.Id;
 
-            dispatcher.Dispatch(new OutgoingMessage(message.Id, timeoutData.Headers, timeoutData.State), sendOptions).GetAwaiter().GetResult();
+            await dispatcher.Dispatch(new OutgoingMessage(message.Id, timeoutData.Headers, timeoutData.State), sendOptions).ConfigureAwait(false);
         }
 
         IDispatchMessages dispatcher;

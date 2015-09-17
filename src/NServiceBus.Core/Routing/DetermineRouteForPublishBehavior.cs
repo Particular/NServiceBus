@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
@@ -8,13 +9,13 @@ namespace NServiceBus
 
     class DetermineRouteForPublishBehavior : Behavior<OutgoingPublishContext>
     {
-        public override void Invoke(OutgoingPublishContext context, Action next)
+        public override Task Invoke(OutgoingPublishContext context, Func<Task> next)
         {
             context.SetHeader(Headers.MessageIntent, MessageIntentEnum.Publish.ToString());
 
             context.Set<RoutingStrategy>(new ToAllSubscribers(context.GetMessageType()));
 
-            next();
+            return next();
         }
     }
 }

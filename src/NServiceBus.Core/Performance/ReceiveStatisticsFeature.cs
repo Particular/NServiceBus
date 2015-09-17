@@ -1,11 +1,12 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.Audit;
     using NServiceBus.Features;
     using NServiceBus.Pipeline;
 
-    class ReceiveStatisticsFeature:Feature
+    class ReceiveStatisticsFeature : Feature
     {
         public ReceiveStatisticsFeature()
         {
@@ -20,9 +21,9 @@
     }
 
 
-    class AuditProcessingStatisticsBehavior:Behavior<AuditContext>
+    class AuditProcessingStatisticsBehavior : Behavior<AuditContext>
     {
-        public override void Invoke(AuditContext context, Action next)
+        public override Task Invoke(AuditContext context, Func<Task> next)
         {
 
             ProcessingStatisticsBehavior.State state;
@@ -33,7 +34,7 @@
                 context.AddAuditData(Headers.ProcessingEnded, DateTimeExtensions.ToWireFormattedString(state.ProcessingEnded));
             }
 
-            next();
+            return next();
         }
     }
 }

@@ -21,18 +21,18 @@ namespace NServiceBus
         // ReSharper disable once UnusedAutoPropertyAccessor.Global
         public EndpointName EndpointName { get; set; }
 
-        public override void Terminate(PhysicalMessageProcessingStageBehavior.Context context)
+        protected override async Task Terminate(PhysicalMessageProcessingStageBehavior.Context context)
         {
             var message = context.GetPhysicalMessage();
 
             //dispatch request will arrive at the same input so we need to make sure to call the correct handler
             if (message.Headers.ContainsKey(TimeoutIdToDispatchHeader))
             {
-                HandleBackwardsCompatibility(message, context).GetAwaiter().GetResult();
+                await HandleBackwardsCompatibility(message, context).ConfigureAwait(false);
             }
             else
             {
-                HandleInternal(message, context).GetAwaiter().GetResult();
+                await HandleInternal(message, context).ConfigureAwait(false);
             }
         }
 

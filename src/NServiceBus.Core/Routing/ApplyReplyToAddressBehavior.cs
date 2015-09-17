@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.TransportDispatch;
@@ -13,11 +14,11 @@
             this.replyToAddress = replyToAddress;
         }
 
-        public override void Invoke(OutgoingContext context, Action next)
+        public override Task Invoke(OutgoingContext context, Func<Task> next)
         {
             context.SetHeader(Headers.ReplyToAddress, replyToAddress);
 
-            next();
+            return next();
         }
 
         string replyToAddress;

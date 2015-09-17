@@ -2,13 +2,14 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using NServiceBus.MessageMutator;
     using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline.Contexts;
 
     class MutateOutgoingTransportMessageBehavior : PhysicalOutgoingContextStageBehavior
     {
-        public override void Invoke(Context context, Action next)
+        public override async Task Invoke(Context context, Func<Task> next)
         {
             //TODO: should not need to do a lookup
             var state = context.Get<DispatchMessageToTransportConnector.State>();
@@ -29,11 +30,11 @@
                 .Headers, messageBeingHandled, incomingHeaders);
             foreach (var mutator in context.Builder.BuildAll<IMutateOutgoingTransportMessages>())
             {
-                mutator.MutateOutgoing(mutatorContext).GetAwaiter().GetResult();
+                await mutator.MutateOutgoing(mutatorContext).ConfigureAwait(false);
             }
             context.Body = mutatorContext.OutgoingBody;
 
-            next();
+            await next().ConfigureAwait(false);
         }
     }
 }

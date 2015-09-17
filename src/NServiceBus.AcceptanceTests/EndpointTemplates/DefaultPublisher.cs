@@ -26,9 +26,9 @@ namespace NServiceBus.AcceptanceTests.EndpointTemplates
         {
             public ScenarioContext Context { get; set; }
 
-            public override void Invoke(OutgoingContext context, Action next)
+            public override async Task Invoke(OutgoingContext context, Func<Task> next)
             {
-                next();
+                await next().ConfigureAwait(false);
 
                 SubscribersForEvent subscribersForEvent;
 

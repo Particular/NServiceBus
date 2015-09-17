@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
     using System.Transactions;
     using NServiceBus.DataBus;
     using Pipeline;
@@ -14,7 +15,7 @@
 
         public Conventions Conventions { get; set; }
 
-        public override void Invoke(Context context, Action next)
+        public override async Task Invoke(Context context, Func<Task> next)
         {
             var message = context.GetLogicalMessage().Instance;
 
@@ -42,7 +43,7 @@
                 }
 
                 using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
-                using (var stream = DataBus.Get(dataBusKey).GetAwaiter().GetResult())
+                using (var stream = await DataBus.Get(dataBusKey).ConfigureAwait(false))
                 {
                     var value = DataBusSerializer.Deserialize(stream);
 
@@ -57,7 +58,7 @@
                 }
             }
 
-            next();
+            await next().ConfigureAwait(false);
         }
 
         public class Registration : RegisterStep

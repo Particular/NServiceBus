@@ -2,6 +2,7 @@
 {
     using System;
     using System.IO;
+    using System.Threading.Tasks;
     using System.Transactions;
     using NServiceBus.DataBus;
     using NServiceBus.DeliveryConstraints;
@@ -19,7 +20,7 @@
 
         public Conventions Conventions { get; set; }
 
-        public override void Invoke(OutgoingContext context, Action next)
+        public override async Task Invoke(OutgoingContext context, Func<Task> next)
         {
             var timeToBeReceived = TimeSpan.MaxValue;
 
@@ -55,7 +56,7 @@
 
                     using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
                     {
-                        headerValue = DataBus.Put(stream, timeToBeReceived).GetAwaiter().GetResult();
+                        headerValue = await DataBus.Put(stream, timeToBeReceived).ConfigureAwait(false);
                     }
 
                     string headerKey;
@@ -77,7 +78,7 @@
                 }
             }
 
-            next();
+            await next().ConfigureAwait(false);
         }
 
         public class Registration : RegisterStep

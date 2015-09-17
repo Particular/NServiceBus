@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Routing;
@@ -9,7 +10,7 @@ namespace NServiceBus
     {
         public DynamicRoutingProvider RoutingProvider { get; set; }
 
-        public override void Invoke(OutgoingContext context, Action next)
+        public override Task Invoke(OutgoingContext context, Func<Task> next)
         {
             //var sendOptions = context.DeliveryOptions as SendOptions; //TODO implement DYNAMIC routing after pipeline upgrade to V6
 
@@ -20,7 +21,7 @@ namespace NServiceBus
             //}
 
             //sendOptions.Destination = GetNextAddress(sendOptions.Destination);
-            next();
+            return next();
         }
 
         string GetNextAddress(string destination)

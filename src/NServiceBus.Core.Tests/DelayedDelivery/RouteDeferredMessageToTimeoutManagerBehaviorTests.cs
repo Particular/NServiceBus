@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using NServiceBus.DelayedDelivery;
     using NServiceBus.DelayedDelivery.TimeoutManager;
     using NServiceBus.DeliveryConstraints;
@@ -14,7 +15,7 @@
     class RouteDeferredMessageToTimeoutManagerBehaviorTests
     {
         [Test]
-        public void Should_reroute_to_tm()
+        public async Task Should_reroute_to_tm()
         {
             var behavior = new RouteDeferredMessageToTimeoutManagerBehavior("tm");
             var delay = TimeSpan.FromDays(1);
@@ -25,7 +26,7 @@
             context.AddDeliveryConstraint(new DelayDeliveryWith(delay));
             context.Set<RoutingStrategy>(new DirectToTargetDestination("target"));
 
-            behavior.Invoke(context, () => { });
+            await behavior.Invoke(context, () => Task.FromResult(0));
 
             Assert.AreEqual("tm",((DirectToTargetDestination)context.GetRoutingStrategy()).Destination);
 
@@ -45,7 +46,7 @@
             context.AddDeliveryConstraint(new DelayDeliveryWith(delay));
             context.Set<RoutingStrategy>(new ToAllSubscribers(null));
 
-            var ex = Assert.Throws<Exception>(()=> behavior.Invoke(context, () => { }));
+            var ex = Assert.Throws<Exception>(async ()=> await behavior.Invoke(context, () => Task.FromResult(0)));
 
             Assert.True(ex.Message.Contains("Direct routing"));
         }
@@ -63,12 +64,12 @@
             context.AddDeliveryConstraint(new DiscardIfNotReceivedBefore(TimeSpan.FromSeconds(30)));
             context.Set<RoutingStrategy>(new DirectToTargetDestination("target"));
 
-            var ex = Assert.Throws<Exception>(() => behavior.Invoke(context, () => { }));
+            var ex = Assert.Throws<Exception>(async () => await behavior.Invoke(context, () => Task.FromResult(0)));
 
             Assert.True(ex.Message.Contains("TimeToBeReceived"));
         }
         [Test]
-        public void Should_set_the_expiry_header_to_a_absolute_utc_time_calculated_based_on_delay()
+        public async Task Should_set_the_expiry_header_to_a_absolute_utc_time_calculated_based_on_delay()
         {
             var behavior = new RouteDeferredMessageToTimeoutManagerBehavior("tm");
             var delay = TimeSpan.FromDays(1);
@@ -79,13 +80,13 @@
             context.AddDeliveryConstraint(new DelayDeliveryWith(delay));
             context.Set<RoutingStrategy>(new DirectToTargetDestination("target"));
             
-            behavior.Invoke(context,()=>{});
+            await behavior.Invoke(context,()=> Task.FromResult(0));
 
             Assert.LessOrEqual(DateTimeExtensions.ToUtcDateTime(message.Headers[TimeoutManagerHeaders.Expire]), DateTime.UtcNow + delay);
           }
 
         [Test]
-        public void Should_set_the_expiry_header_to_a_absolute_utc_time()
+        public async Task Should_set_the_expiry_header_to_a_absolute_utc_time()
         {
             var behavior = new RouteDeferredMessageToTimeoutManagerBehavior("tm");
             var at = DateTime.UtcNow + TimeSpan.FromDays(1);
@@ -96,7 +97,7 @@
             context.AddDeliveryConstraint(new DoNotDeliverBefore(at));
             context.Set<RoutingStrategy>(new DirectToTargetDestination("target"));
 
-            behavior.Invoke(context, () => { });
+            await behavior.Invoke(context, () => Task.FromResult(0));
 
             Assert.AreEqual(message.Headers[TimeoutManagerHeaders.Expire], DateTimeExtensions.ToWireFormattedString(at));
         }

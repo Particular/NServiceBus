@@ -1,19 +1,20 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.Pipeline;
     using NServiceBus.TransportDispatch;
 
     class ThrowIfCannotDeferMessageBehavior : Behavior<DispatchContext>
     {
-        public override void Invoke(DispatchContext context, Action next)
+        public override Task Invoke(DispatchContext context, Func<Task> next)
         {
             ApplyDelayedDeliveryConstraintBehavior.State delayState;
             if (context.TryGet(out delayState))
             {
                 throw new InvalidOperationException("Cannot delay delivery of messages when TimeoutManager is disabled or there is no infrastructure support for delayed messages.");
             }
-            next();
+            return next();
         }
 
         public class Registration : RegisterStep

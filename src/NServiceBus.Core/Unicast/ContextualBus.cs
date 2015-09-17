@@ -61,6 +61,7 @@ namespace NServiceBus.Unicast
                 incomingContext,
                 eventType,
                 options);
+
             return pipeline.Invoke(subscribeContext);
         }
         

@@ -24,7 +24,7 @@
             this.sagaMetadataCollection = sagaMetadataCollection;
         }
 
-        public override void Invoke(Context context, Action next)
+        public override async Task Invoke(Context context, Func<Task> next)
         {
             currentContext = context;
 
@@ -34,7 +34,7 @@
 
             if (saga == null)
             {
-                next();
+                await next().ConfigureAwait(false);
                 return;
             }
 
@@ -45,7 +45,7 @@
             //so that other behaviors can access the saga
             context.Set(sagaInstanceState);
 
-            var loadedEntity = TryLoadSagaEntity(sagaPersistenceOptions, context).GetAwaiter().GetResult();
+            var loadedEntity = await TryLoadSagaEntity(sagaPersistenceOptions, context).ConfigureAwait(false);
 
             if (loadedEntity == null)
             {
@@ -77,7 +77,7 @@
                 sagaInstanceState.AttachExistingEntity(loadedEntity);
             }
 
-            next();
+            await next().ConfigureAwait(false);
 
             if (sagaInstanceState.NotFound)
             {
@@ -89,12 +89,12 @@
             {
                 if (!sagaInstanceState.IsNew)
                 {
-                    sagaPersister.Complete(saga.Entity, sagaPersistenceOptions).GetAwaiter().GetResult();
+                    await sagaPersister.Complete(saga.Entity, sagaPersistenceOptions).ConfigureAwait(false);
                 }
 
                 if (saga.Entity.Id != Guid.Empty)
                 {
-                    timeoutCancellation.CancelDeferredMessages(saga.Entity.Id.ToString(),context);
+                    await timeoutCancellation.CancelDeferredMessages(saga.Entity.Id.ToString(), context).ConfigureAwait(false);
                 }
 
                 logger.DebugFormat("Saga: '{0}' with Id: '{1}' has completed.", sagaInstanceState.Metadata.Name, saga.Entity.Id);
@@ -103,11 +103,11 @@
             {
                 if (sagaInstanceState.IsNew)
                 {
-                    sagaPersister.Save(saga.Entity, sagaPersistenceOptions).GetAwaiter().GetResult();
+                    await sagaPersister.Save(saga.Entity, sagaPersistenceOptions).ConfigureAwait(false);
                 }
                 else
                 {
-                    sagaPersister.Update(saga.Entity, sagaPersistenceOptions).GetAwaiter().GetResult();
+                    await sagaPersister.Update(saga.Entity, sagaPersistenceOptions).ConfigureAwait(false);
                 }
             }
         }

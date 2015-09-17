@@ -1,11 +1,12 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.Pipeline;
 
     class ProcessingStatisticsBehavior : PhysicalMessageProcessingStageBehavior
     {
-        public override void Invoke(Context context, Action next)
+        public override async Task Invoke(Context context, Func<Task> next)
         {
             var state = new State();
 
@@ -22,7 +23,7 @@
             context.Set(state);
             try
             {
-                next();
+                await next().ConfigureAwait(false);
             }
             finally
             {

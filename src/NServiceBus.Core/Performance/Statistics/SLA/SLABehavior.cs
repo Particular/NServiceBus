@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
     using Pipeline;
 
     class SLABehavior : PhysicalMessageProcessingStageBehavior
@@ -12,9 +13,9 @@
             this.breachCalculator = breachCalculator;
         }
 
-        public override void Invoke(Context context, Action next)
+        public override async Task Invoke(Context context, Func<Task> next)
         {
-            next();
+            await next().ConfigureAwait(false);
 
             ProcessingStatisticsBehavior.State state;
 
