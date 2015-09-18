@@ -212,67 +212,50 @@
 
         static async Task PerformScenarios(RunDescriptor runDescriptor, IEnumerable<ActiveRunner> runners, Func<bool> done, Func<Exception, bool> allowedExceptions)
         {
+            var cts = new CancellationTokenSource();
             var endpoints = runners.Select(r => r.Instance).ToList();
 
-            await StartEndpoints(endpoints, allowedExceptions).ConfigureAwait(false);
+            await StartEndpoints(endpoints, allowedExceptions, cts).ConfigureAwait(false);
 
             runDescriptor.ScenarioContext.EndpointsStarted = true;
 
             var startTime = DateTime.UtcNow;
             var maxTime = runDescriptor.TestExecutionTimeout;
 
-            try
+            // ReSharper disable once LoopVariableIsNeverChangedInsideLoop
+            while (!done() && !cts.Token.IsCancellationRequested)
             {
-                // ReSharper disable once LoopVariableIsNeverChangedInsideLoop
-                while (!done())
+                if ((DateTime.UtcNow - startTime) > maxTime)
                 {
-                    if ((DateTime.UtcNow - startTime) > maxTime)
-                    {
-                        throw new ScenarioException(GenerateTestTimedOutMessage(maxTime));
-                    }
-
-                    await Task.Delay(1).ConfigureAwait(false);
+                    break;
                 }
-            }
-// ReSharper disable once EmptyGeneralCatchClause
-            catch(Exception)
-            {
-                // We swallow like the original code
-                // TODO Daniel: Why??
+
+                await Task.Delay(1).ConfigureAwait(false);
             }
 
             // With this version of C# we can't await in finally
             await StopEndpoints(endpoints).ConfigureAwait(false);
-            
+
             var exceptions = runDescriptor.ScenarioContext.Exceptions
                         .Where(ex => !allowedExceptions(ex))
                         .ToList();
 
             if (exceptions.Any())
             {
-               throw new AggregateException(exceptions);
+                throw new AggregateException(exceptions);
             }
         }
 
-        static string GenerateTestTimedOutMessage(TimeSpan maxTime)
+        static async Task StartEndpoints(IEnumerable<EndpointRunner> endpoints, Func<Exception, bool> allowedExceptions, CancellationTokenSource cts)
         {
-            var sb = new StringBuilder();
-
-            sb.AppendLine(string.Format("The maximum time limit for this test({0}s) has been reached",
-                                        maxTime.TotalSeconds));
-            sb.AppendLine("----------------------------------------------------------------------------");
-
-            return sb.ToString();
-        }
-
-        static async Task StartEndpoints(IEnumerable<EndpointRunner> endpoints, Func<Exception, bool> allowedExceptions)
-        {
+            var token = cts.Token;
             var tasks = endpoints.Select(endpoint => Task.Run(async () =>
             {
-                var result = await endpoint.Start().ConfigureAwait(false);
+                var result = await endpoint.Start(token).ConfigureAwait(false);
 
                 if (result.Failed && !allowedExceptions(result.Exception))
                 {
+                    cts.Cancel();
                     throw new ScenarioException("Endpoint failed to start", result.Exception);
                 }
             })).ToArray();
@@ -282,7 +265,10 @@
             var completedTask = await Task.WhenAny(whenAll, timeoutTask).ConfigureAwait(false);
 
             if (completedTask.Equals(timeoutTask))
+            {
                 throw new Exception("Starting endpoints took longer than 2 minutes");
+            }
+
         }
 
         static async Task StopEndpoints(IEnumerable<EndpointRunner> endpoints)

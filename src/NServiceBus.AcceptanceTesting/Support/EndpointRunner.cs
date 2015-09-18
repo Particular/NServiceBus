@@ -12,14 +12,12 @@
     public class EndpointRunner
     {
         static ILog Logger = LogManager.GetLogger<EndpointRunner>();
-        CancellationTokenSource stopSource = new CancellationTokenSource();
         EndpointBehavior behavior;
         IStartableBus bus;
         ISendOnlyBus sendOnlyBus;
         EndpointConfiguration configuration;
         ScenarioContext scenarioContext;
         BusConfiguration busConfiguration;
-        CancellationToken stopToken;
 
         public async Task<Result> Initialize(RunDescriptor run, EndpointBehavior endpointBehavior,
             IDictionary<Type, string> routingTable, string endpointName)
@@ -56,8 +54,6 @@
                     scenarioContext.HasNativePubSubSupport = transportDefinition.HasNativePubSubSupport;
                 }
 
-                stopToken = stopSource.Token;
-
                 return Result.Success();
             }
             catch (Exception ex)
@@ -77,12 +73,17 @@
             }
         }
 
-        public async Task<Result> Start()
+        public async Task<Result> Start(CancellationToken token)
         {
             try
             {
                 foreach (var given in behavior.Givens)
                 {
+                    if (token.IsCancellationRequested)
+                    {
+                        break;
+                    }
+
                     var action = given.GetAction(scenarioContext);
 
                     if (configuration.SendOnly)
@@ -93,6 +94,11 @@
                     {
                         await action(bus).ConfigureAwait(false);
                     }
+                }
+
+                if (token.IsCancellationRequested)
+                {
+                    return Result.Failure(new OperationCanceledException("Endpoint start was aborted"));
                 }
 
                 if (!configuration.SendOnly)
@@ -106,20 +112,25 @@
                     {
                         var executedWhens = new List<Guid>();
 
-                        while (!stopToken.IsCancellationRequested)
+                        while (!token.IsCancellationRequested)
                         {
                             if (executedWhens.Count == behavior.Whens.Count)
                             {
                                 break;
                             }
 
-                            if (stopToken.IsCancellationRequested)
+                            if (token.IsCancellationRequested)
                             {
                                 break;
                             }
 
                             foreach (var when in behavior.Whens)
                             {
+                                if (token.IsCancellationRequested)
+                                {
+                                    break;
+                                }
+
                                 if (executedWhens.Contains(when.Id))
                                 {
                                     continue;
@@ -131,7 +142,7 @@
                                 }
                             }
                         }
-                    }, stopToken).ConfigureAwait(false);
+                    }, token).ConfigureAwait(false);
                 }
 
                 return Result.Success();
@@ -148,8 +159,6 @@
         {
             try
             {
-                stopSource.Cancel();
-
                 if (configuration.SendOnly)
                 {
                     sendOnlyBus.Dispose();
