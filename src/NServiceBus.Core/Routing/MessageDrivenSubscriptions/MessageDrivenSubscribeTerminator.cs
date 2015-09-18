@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.Extensibility;
@@ -21,7 +22,7 @@
             this.dispatcher = dispatcher;
         }
 
-        protected override async Task Terminate(SubscribeContext context)
+        protected override Task Terminate(SubscribeContext context)
         {
             var eventType = context.EventType;
 
@@ -30,9 +31,10 @@
 
             if (!publisherAddresses.Any())
             {
-                throw new Exception(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMappings> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", eventType));
+                throw new Exception($"No destination could be found for message type {eventType}. Check the <MessageEndpointMappings> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.");
             }
 
+            var subscribeTasks = new List<Task>();
             foreach (var publisherAddress in publisherAddresses)
             {
                 Logger.Debug("Subscribing to " + eventType.AssemblyQualifiedName + " at publisher queue " + publisherAddress);
@@ -44,8 +46,10 @@
 
                 var address = publisherAddress;
 
-                await SendSubscribeMessageWithRetries(address, subscriptionMessage, eventType.AssemblyQualifiedName, context).ConfigureAwait(false);
+                subscribeTasks.Add(SendSubscribeMessageWithRetries(address, subscriptionMessage, eventType.AssemblyQualifiedName, context));
             }
+
+            return Task.WhenAll(subscribeTasks.ToArray());
         }
 
         async Task SendSubscribeMessageWithRetries(string destination, OutgoingMessage subscriptionMessage, string messageType, ContextBag context, int retriesCount = 0)
@@ -64,7 +68,9 @@
                 }
                 else
                 {
-                    Logger.ErrorFormat("Failed to subscribe to {0} at publisher queue {1}, reason {2}", messageType, destination, ex.Message);
+                    string message = $"Failed to subscribe to {messageType} at publisher queue {destination}, reason {ex.Message}";
+                    Logger.Error(message, ex);
+                    throw new QueueNotFoundException(destination, message, ex);
                 }
             }
         }
