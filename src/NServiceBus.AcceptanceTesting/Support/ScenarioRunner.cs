@@ -223,18 +223,22 @@
             var maxTime = runDescriptor.TestExecutionTimeout;
 
             // ReSharper disable once LoopVariableIsNeverChangedInsideLoop
-            while (!done() && !cts.Token.IsCancellationRequested)
+            try
             {
-                if ((DateTime.UtcNow - startTime) > maxTime)
+                while (!done() && !cts.Token.IsCancellationRequested)
                 {
-                    break;
+                    if ((DateTime.UtcNow - startTime) > maxTime)
+                    {
+                        throw new ScenarioException(GenerateTestTimedOutMessage(maxTime));
+                    }
+
+                    await Task.Delay(1).ConfigureAwait(false);
                 }
-
-                await Task.Delay(1).ConfigureAwait(false);
             }
-
-            // With this version of C# we can't await in finally
-            await StopEndpoints(endpoints).ConfigureAwait(false);
+            finally
+            {
+                await StopEndpoints(endpoints).ConfigureAwait(false);
+            }
 
             var exceptions = runDescriptor.ScenarioContext.Exceptions
                         .Where(ex => !allowedExceptions(ex))
@@ -244,6 +248,16 @@
             {
                 throw new AggregateException(exceptions);
             }
+        }
+
+        static string GenerateTestTimedOutMessage(TimeSpan maxTime)
+        {
+            var sb = new StringBuilder();
+
+            sb.AppendLine($"The maximum time limit for this test({maxTime.TotalSeconds}s) has been reached");
+            sb.AppendLine("----------------------------------------------------------------------------");
+
+            return sb.ToString();
         }
 
         static async Task StartEndpoints(IEnumerable<EndpointRunner> endpoints, Func<Exception, bool> allowedExceptions, CancellationTokenSource cts)
