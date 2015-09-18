@@ -323,24 +323,25 @@
 
                 if (endpointName.Length > 77)
                 {
-                    throw new Exception(string.Format("Endpoint name '{0}' is larger than 77 characters and will cause issues with MSMQ queue names. Please rename your test class or endpoint.", endpointName));
+                    throw new Exception($"Endpoint name '{endpointName}' is larger than 77 characters and will cause issues with MSMQ queue names. Please rename your test class or endpoint.");
                 }
 
                 var runner = new ActiveRunner
                 {
                     Instance = new EndpointRunner(),
-                    EndpointName = endpointName
+                    EndpointName = endpointName,
                 };
-                var result = await runner.Instance.Initialize(runDescriptor, behaviorDescriptor, routingTable, endpointName).ConfigureAwait(false);
 
-                if (result.Failed)
-                {
-                    throw new ScenarioException(string.Format("Endpoint {0} failed to initialize", runner.Instance.Name()), result.Exception);
-                }
-
+                runner.InitializeTask = Task.Run(() => runner.Instance.Initialize(runDescriptor, behaviorDescriptor, routingTable, endpointName));
                 runners.Add(runner);
             }
 
+            await Task.WhenAll(runners.Select(r => r.InitializeTask).ToArray());
+            var failedRunner = runners.FirstOrDefault(r => r.InitializeTask.Result.Failed);
+            if (failedRunner != null)
+            {
+                throw new ScenarioException($"Endpoint {failedRunner.Instance.Name()} failed to initialize", failedRunner.InitializeTask.Result.Exception);
+            }
             return runners;
         }
 
