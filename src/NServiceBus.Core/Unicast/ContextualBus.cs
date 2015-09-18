@@ -124,7 +124,7 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// <see cref="IBus.ForwardCurrentMessageToAsync"/>
         /// </summary>
-        public Task ForwardCurrentMessageToAsync(string destination)
+        public async Task ForwardCurrentMessageToAsync(string destination)
         {
             var outgoingMessages = new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body);
             var dispatchOptions = new DispatchOptions(new DirectToTargetDestination(destination), new ContextBag());

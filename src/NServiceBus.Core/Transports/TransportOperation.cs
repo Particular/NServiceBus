@@ -5,32 +5,23 @@ namespace NServiceBus.Transports
     /// </summary>
     public class TransportOperation
     {
-        OutgoingMessage message;
-        DispatchOptions dispatchOptions;
-
         /// <summary>
         /// Creates a new transport operation.
         /// </summary>
         public TransportOperation(OutgoingMessage message, DispatchOptions dispatchOptions)
         {
-            this.message = message;
-            this.dispatchOptions = dispatchOptions;
+            this.Message = message;
+            this.DispatchOptions = dispatchOptions;
         }
 
         /// <summary>
         /// Gets the message.
         /// </summary>
-        public OutgoingMessage Message
-        {
-            get { return message; }
-        }
+        public OutgoingMessage Message { get; private set; }
 
         /// <summary>
         /// Gets the dispatch options.
         /// </summary>
-        public DispatchOptions DispatchOptions
-        {
-            get { return dispatchOptions; }
-        }
+        public DispatchOptions DispatchOptions { get; private set; }
     }
 }
