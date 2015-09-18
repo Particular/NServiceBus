@@ -54,16 +54,18 @@
 
         async Task SendUnsubscribeMessageWithRetries(string destination, OutgoingMessage unsubscribeMessage, string messageType, ContextBag context, int retriesCount = 0)
         {
+            var state = context.GetOrCreate<State>();
             try
             {
+                
                 var dispatchOptions = new DispatchOptions(new DirectToTargetDestination(destination), context);
                 await dispatcher.Dispatch(new[] { new TransportOperation(unsubscribeMessage, dispatchOptions) }).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {
-                if (retriesCount < 10)
+                if (retriesCount < state.MaxRetries)
                 {
-                    await Task.Delay(TimeSpan.FromSeconds(2)).ConfigureAwait(false);
+                    await Task.Delay(state.RetryDelay).ConfigureAwait(false);
                     await SendUnsubscribeMessageWithRetries(destination, unsubscribeMessage, messageType, context, ++retriesCount).ConfigureAwait(false);
                 }
                 else
@@ -73,6 +75,18 @@
                     throw new QueueNotFoundException(destination, message, ex);
                 }
             }
+        }
+
+        public class State
+        {
+            public State()
+            {
+                MaxRetries = 10;
+                RetryDelay = TimeSpan.FromSeconds(2);
+            }
+
+            public TimeSpan RetryDelay { get; set; }
+            public int MaxRetries { get; set; }
         }
 
         SubscriptionRouter subscriptionRouter;
