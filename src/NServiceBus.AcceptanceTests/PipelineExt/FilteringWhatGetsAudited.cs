@@ -54,9 +54,9 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
                 }
             }
 
-            class AddContextStorage : PhysicalMessageProcessingStageBehavior
+            class AddContextStorage : Behavior<PhysicalMessageProcessingContext>
             {
-                public override Task Invoke(Context context, Func<Task> next)
+                public override Task Invoke(PhysicalMessageProcessingContext context, Func<Task> next)
                 {
                     context.Set(new AuditFilterResult());
 
@@ -73,11 +73,11 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
                 }
             }
 
-            class SetFiltering : LogicalMessageProcessingStageBehavior
+            class SetFiltering : Behavior<LogicalMessageProcessingContext>
             {
-                public override Task Invoke(Context context, Func<Task> next)
+                public override Task Invoke(LogicalMessageProcessingContext context, Func<Task> next)
                 {
-                    if (context.MessageType == typeof(MessageToBeAudited))
+                    if (context.Message.MessageType == typeof(MessageToBeAudited))
                     {
                         context.Get<AuditFilterResult>().DoNotAuditMessage = true;
                     }

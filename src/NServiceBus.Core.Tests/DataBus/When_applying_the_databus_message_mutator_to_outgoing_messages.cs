@@ -4,7 +4,7 @@ namespace NServiceBus.Core.Tests.DataBus
     using System.IO;
     using System.Threading.Tasks;
     using NServiceBus.DataBus;
-    using NServiceBus.DeliveryConstraints;
+    using DeliveryConstraints;
     using NServiceBus.Performance.TimeToBeReceived;
     using NUnit.Framework;
     using Conventions = NServiceBus.Conventions;

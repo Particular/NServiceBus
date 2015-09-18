@@ -4,10 +4,10 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Threading.Tasks;
-    using NServiceBus.OutgoingPipeline;
+    using OutgoingPipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Routing;
-    using NServiceBus.Transports;
+    using Transports;
     using NUnit.Framework;
 
     [TestFixture]
@@ -19,14 +19,14 @@
             var behavior = new DetermineRouteForReplyBehavior();
             var options = new ReplyOptions();
 
-            var context = new OutgoingReplyContext(new TransportReceiveContext(new IncomingMessage("id", new Dictionary<string, string>
+            var context = new OutgoingReplyContext(new OutgoingLogicalMessage(new MyReply()), options, new TransportReceiveContext(new IncomingMessage("id", new Dictionary<string, string>
             {
                 {Headers.ReplyToAddress, "ReplyAddressOfIncomingMessage"}
-            }, new MemoryStream()), null), new OutgoingLogicalMessage(new MyReply()), options);
+            }, new MemoryStream()), new RootContext(null)));
 
             await behavior.Invoke(context, () => Task.FromResult(0));
 
-            var routingStrategy = (DirectToTargetDestination) context.Get<RoutingStrategy>();
+            var routingStrategy = (DirectToTargetDestination)context.Get<RoutingStrategy>();
 
             Assert.AreEqual("ReplyAddressOfIncomingMessage", routingStrategy.Destination);
         }
@@ -37,7 +37,7 @@
             var behavior = new DetermineRouteForReplyBehavior();
             var options = new ReplyOptions();
 
-            var context = new OutgoingReplyContext(new TransportReceiveContext(new IncomingMessage("id", new Dictionary<string, string>(), new MemoryStream()), null), new OutgoingLogicalMessage(new MyReply()), options);
+            var context = new OutgoingReplyContext(new OutgoingLogicalMessage(new MyReply()), options, new TransportReceiveContext(new IncomingMessage("id", new Dictionary<string, string>(), new MemoryStream()), new RootContext(null)));
 
             var ex = Assert.Throws<Exception>(async () => await behavior.Invoke(context, () => Task.FromResult(0)));
 
@@ -52,11 +52,11 @@
 
             options.OverrideReplyToAddressOfIncomingMessage("CustomReplyToAddress");
 
-            var context = new OutgoingReplyContext(new RootContext(null), new OutgoingLogicalMessage(new MyReply()), options);
+            var context = new OutgoingReplyContext(new OutgoingLogicalMessage(new MyReply()), options, new RootContext(null));
 
             await behavior.Invoke(context, () => Task.FromResult(0));
 
-            var routingStrategy = (DirectToTargetDestination) context.Get<RoutingStrategy>();
+            var routingStrategy = (DirectToTargetDestination)context.Get<RoutingStrategy>();
 
             Assert.AreEqual("CustomReplyToAddress", routingStrategy.Destination);
         }

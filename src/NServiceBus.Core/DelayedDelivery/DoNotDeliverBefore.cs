@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.DelayedDelivery
 {
     using System;
-    using System.Collections.Generic;
 
     /// <summary>
     /// Represent a constraint that the message can't be made available for consumption before a given time.
@@ -25,15 +24,6 @@
             }
 
             At = at;
-        }
-
-        /// <summary>
-        /// Serializes the constraint into the passed dictionary.
-        /// </summary>
-        /// <param name="options">Dictionary where to store the data.</param>
-        public override void Serialize(Dictionary<string, string> options)
-        {
-            options["DeliverAt"] = DateTimeExtensions.ToWireFormattedString(At);
         }
     }
 }

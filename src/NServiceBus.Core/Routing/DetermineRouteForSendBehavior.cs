@@ -11,10 +11,6 @@ namespace NServiceBus
 
     class DetermineRouteForSendBehavior : Behavior<OutgoingSendContext>
     {
-        string localAddress;
-        MessageRouter messageRouter;
-        DynamicRoutingProvider dynamicRouting;
-
         public DetermineRouteForSendBehavior(string localAddress, MessageRouter messageRouter, DynamicRoutingProvider dynamicRouting)
         {
             this.localAddress = localAddress;
@@ -24,7 +20,7 @@ namespace NServiceBus
 
         public override async Task Invoke(OutgoingSendContext context, Func<Task> next)
         {
-            var messageType = context.GetMessageType();
+            var messageType = context.Message.MessageType;
             var destination = DetermineDestination(context, messageType);
             context.Set<RoutingStrategy>(new DirectToTargetDestination(destination));
 
@@ -61,6 +57,10 @@ namespace NServiceBus
             destination = dynamicRouting.GetRouteAddress(destination);
             return destination;
         }
+
+        DynamicRoutingProvider dynamicRouting;
+        string localAddress;
+        MessageRouter messageRouter;
 
         public class State
         {

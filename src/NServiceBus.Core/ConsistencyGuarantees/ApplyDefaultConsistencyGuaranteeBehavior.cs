@@ -6,7 +6,7 @@ namespace NServiceBus
     using NServiceBus.Pipeline;
     using NServiceBus.TransportDispatch;
 
-    class ApplyDefaultConsistencyGuaranteeBehavior:Behavior<DispatchContext>
+    class ApplyDefaultConsistencyGuaranteeBehavior:Behavior<RoutingContext>
     {
       
         public ApplyDefaultConsistencyGuaranteeBehavior(ConsistencyGuarantee transportDefault)
@@ -14,7 +14,7 @@ namespace NServiceBus
             this.transportDefault = transportDefault;
         }
 
-        public override Task Invoke(DispatchContext context, Func<Task> next)
+        public override Task Invoke(RoutingContext context, Func<Task> next)
         {
             ConsistencyGuarantee explicitGuarantee;
 

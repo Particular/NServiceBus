@@ -2,15 +2,13 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.MessagingBestPractices;
-    using NServiceBus.OutgoingPipeline;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Routing.MessagingBestPractices;
+    using MessagingBestPractices;
+    using OutgoingPipeline;
+    using Pipeline;
+    using Routing.MessagingBestPractices;
 
     class EnforceSendBestPracticesBehavior : Behavior<OutgoingSendContext>
     {
-        Validations validations;
-
         public EnforceSendBestPracticesBehavior(Validations validations)
         {
             this.validations = validations;
@@ -22,10 +20,12 @@
 
             if (!context.TryGet(out options) || options.Enabled)
             {
-                validations.AssertIsValidForSend(context.GetMessageType());
+                validations.AssertIsValidForSend(context.Message.MessageType);
             }
 
             return next();
         }
+
+        Validations validations;
     }
 }

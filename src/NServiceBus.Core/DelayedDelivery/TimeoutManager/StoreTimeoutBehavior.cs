@@ -2,11 +2,11 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.DelayedDelivery.TimeoutManager;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Routing;
-    using NServiceBus.Timeout.Core;
-    using NServiceBus.Transports;
+    using DelayedDelivery.TimeoutManager;
+    using Pipeline;
+    using Routing;
+    using Timeout.Core;
+    using Transports;
 
     class StoreTimeoutBehavior : SatelliteBehavior
     {
@@ -18,9 +18,9 @@ namespace NServiceBus
             this.owningTimeoutManager = owningTimeoutManager;
         }
 
-        protected override async Task Terminate(PhysicalMessageProcessingStageBehavior.Context context)
+        protected override async Task Terminate(PhysicalMessageProcessingContext context)
         {
-            var message = context.GetPhysicalMessage();
+            var message = context.Message;
 
             //dispatch request will arrive at the same input so we need to make sure to call the correct handler
             if (message.Headers.ContainsKey(TimeoutIdToDispatchHeader))
@@ -45,7 +45,7 @@ namespace NServiceBus
             await base.Cooldown();
         }
 
-        async Task HandleBackwardsCompatibility(TransportMessage message, PhysicalMessageProcessingStageBehavior.Context context)
+        async Task HandleBackwardsCompatibility(TransportMessage message, PhysicalMessageProcessingContext context)
         {
             var timeoutId = message.Headers[TimeoutIdToDispatchHeader];
 
@@ -69,11 +69,11 @@ namespace NServiceBus
             }
 
             var outgoingMessages = new OutgoingMessage(message.Id, message.Headers, message.Body);
-            var dispatchOptions = new DispatchOptions(new DirectToTargetDestination(destination), context);
-            await dispatcher.Dispatch(new [] { new TransportOperation(outgoingMessages, dispatchOptions)}).ConfigureAwait(false);
+            var dispatchOptions = new DispatchOptions(new DirectToTargetDestination(destination), DispatchConsistency.Default);
+            await dispatcher.Dispatch(new[] { new TransportOperation(outgoingMessages, dispatchOptions) }, context).ConfigureAwait(false);
         }
 
-        async Task HandleInternal(TransportMessage message, PhysicalMessageProcessingStageBehavior.Context context)
+        async Task HandleInternal(TransportMessage message, PhysicalMessageProcessingContext context)
         {
             var sagaId = Guid.Empty;
 
@@ -118,10 +118,10 @@ namespace NServiceBus
 
                 if (data.Time.AddSeconds(-1) <= DateTime.UtcNow)
                 {
-                    var sendOptions = new DispatchOptions(new DirectToTargetDestination(data.Destination), context);
+                    var sendOptions = new DispatchOptions(new DirectToTargetDestination(data.Destination), DispatchConsistency.Default);
                     var outgoingMessage = new OutgoingMessage(data.Headers[Headers.MessageId], data.Headers, data.State);
 
-                    await dispatcher.Dispatch(new [] { new TransportOperation(outgoingMessage, sendOptions)}).ConfigureAwait(false);
+                    await dispatcher.Dispatch(new[] { new TransportOperation(outgoingMessage, sendOptions) }, context).ConfigureAwait(false);
                     return;
                 }
 

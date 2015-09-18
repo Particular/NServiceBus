@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
     using System.Threading.Tasks;
-    using NServiceBus.OutgoingPipeline;
+    using OutgoingPipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Routing;
     using NUnit.Framework;
@@ -13,7 +13,7 @@
         {
             var behavior = new DetermineRouteForPublishBehavior();
 
-            var context = new OutgoingPublishContext(new RootContext(null), new OutgoingLogicalMessage(new MyEvent()), new PublishOptions());
+            var context = new OutgoingPublishContext(new OutgoingLogicalMessage(new MyEvent()), new PublishOptions(), new RootContext(null));
 
             await behavior.Invoke(context, () => Task.FromResult(0));
 

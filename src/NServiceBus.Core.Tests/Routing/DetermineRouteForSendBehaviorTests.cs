@@ -83,7 +83,7 @@
                 message = new MyMessage();
             }
 
-            var context = new OutgoingSendContext(new RootContext(null), new OutgoingLogicalMessage(message), options);
+            var context = new OutgoingSendContext(new OutgoingLogicalMessage(message), options, new RootContext(null));
             return context;
         }
 

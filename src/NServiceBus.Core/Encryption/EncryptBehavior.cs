@@ -2,12 +2,11 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Encryption;
-    using NServiceBus.OutgoingPipeline;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
+    using Encryption;
+    using Pipeline;
+    using Pipeline.Contexts;
 
-    class EncryptBehavior : Behavior<OutgoingContext>
+    class EncryptBehavior : Behavior<OutgoingLogicalMessageContext>
     {
         EncryptionMutator messageMutator;
 
@@ -16,9 +15,9 @@
             this.messageMutator = messageMutator;
         }
 
-        public override Task Invoke(OutgoingContext context, Func<Task> next)
+        public override Task Invoke(OutgoingLogicalMessageContext context, Func<Task> next)
         {
-            var currentMessageToSend = context.GetMessageInstance();
+            var currentMessageToSend = context.Message.Instance;
 
             currentMessageToSend = messageMutator.MutateOutgoing(currentMessageToSend);
 

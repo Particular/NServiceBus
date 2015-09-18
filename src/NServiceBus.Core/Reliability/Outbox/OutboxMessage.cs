@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Outbox
 {
     using System.Collections.Generic;
+    using System.Linq;
 
     /// <summary>
     ///     The Outbox message type.
@@ -11,11 +12,14 @@
         ///     Creates an instance of an <see cref="OutboxMessage" />.
         /// </summary>
         /// <param name="messageId">The message identifier of the incoming message.</param>
-        public OutboxMessage(string messageId)
+        /// <param name="operations">The outgoing transport operations to execute as part of this incoming message.</param>
+        public OutboxMessage(string messageId, IList<TransportOperation> operations)
         {
             Guard.AgainstNullAndEmpty("messageId", messageId);
+            Guard.AgainstNull("operations", operations);
 
             MessageId = messageId;
+            TransportOperations = operations.ToList();
         }
 
         /// <summary>
@@ -26,19 +30,6 @@
         /// <summary>
         ///     The list of operations performed during the processing of the incoming message.
         /// </summary>
-        public List<TransportOperation> TransportOperations
-        {
-            get
-            {
-                if (transportOperations == null)
-                {
-                    transportOperations = new List<TransportOperation>();
-                }
-
-                return transportOperations;
-            }
-        }
-
-        List<TransportOperation> transportOperations;
+        public IList<TransportOperation> TransportOperations { get; private set; }
     }
 }

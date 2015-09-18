@@ -3,19 +3,20 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.MessageMutator;
-    using NServiceBus.OutgoingPipeline;
-    using NServiceBus.Pipeline.Contexts;
+    using MessageMutator;
+    using OutgoingPipeline;
+    using Pipeline;
+    using Pipeline.Contexts;
 
-    class MutateOutgoingTransportMessageBehavior : PhysicalOutgoingContextStageBehavior
+    class MutateOutgoingTransportMessageBehavior : Behavior<OutgoingPhysicalMessageContext>
     {
-        public override async Task Invoke(Context context, Func<Task> next)
+        public override async Task Invoke(OutgoingPhysicalMessageContext context, Func<Task> next)
         {
             //TODO: should not need to do a lookup
-            var state = context.Get<DispatchMessageToTransportConnector.State>();
+            var state = context.Get<OutgoingPhysicalToRoutingConnector.State>();
             var outgoingMessage = context.Get<OutgoingLogicalMessage>();
 
-            HandlingStageBehavior.Context incomingState;
+            InvokeHandlerContext incomingState;
             context.TryGetRootContext(out incomingState);
 
             object messageBeingHandled = null;

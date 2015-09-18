@@ -1352,3 +1352,22 @@ namespace NServiceBus.Settings
         }
     }
 }
+
+namespace NServiceBus.Routing.StorageDrivenPublishing
+{
+    using System;
+    using System.Collections.Generic;
+
+    [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", Message = "No longer an extension point, if you want to list events without subscribers you can take a dependency on ISubscriptionStorage and query it for the event types you want to check")]
+    public class SubscribersForEvent
+    {
+        public IEnumerable<string> Subscribers { get; private set; }
+
+        public Type EventType { get; private set; }
+
+        public SubscribersForEvent(List<string> subscribers, Type eventType)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}

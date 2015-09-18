@@ -173,6 +173,9 @@
     <Compile Include="ScenarioDescriptors\AllTransactionSettings.cs" />
     <Compile Include="ScenarioDescriptors\TransactionSettings.cs" />
     <Compile Include="SelfVerification\When_running_saga_tests.cs" />
+    <Compile Include="Tx\ImmediateDispatch\When_requesting_immediate_dispatch_using_scope_suppress.cs" />
+    <Compile Include="Tx\ImmediateDispatch\When_requesting_immediate_dispatch_with_at_least_once.cs" />
+    <Compile Include="Tx\ImmediateDispatch\When_requesting_immediate_dispatch_with_exactly_once.cs" />
     <Compile Include="Tx\Issue_2481.cs" />
     <Compile Include="Tx\When_receiving_with_native_multi_queue_transaction.cs" />
     <Compile Include="UnitOfWork\When_a_subscription_message_arrives.cs" />
@@ -246,7 +249,7 @@
     <Compile Include="Tx\When_receiving_with_dtc_disabled.cs" />
     <Compile Include="Tx\When_receiving_with_dtc_enabled.cs" />
     <Compile Include="Tx\When_receiving_with_the_default_settings.cs" />
-    <Compile Include="Tx\When_receiving_with_transactions_disabled.cs" />
+    <Compile Include="Tx\ImmediateDispatch\When_requesting_immediate_dispatch_with_at_most_once.cs" />
     <Compile Include="NonTx\When_sending_inside_ambient_tx.cs" />
     <Compile Include="Tx\When_sending_within_an_ambient_transaction.cs" />
     <Compile Include="ScenarioDescriptors\Serializers.cs" />

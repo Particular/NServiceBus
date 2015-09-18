@@ -9,16 +9,16 @@
     using NServiceBus.Unicast.Subscriptions;
     using NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions;
 
-    class SubscriptionReceiverBehavior : PhysicalMessageProcessingStageBehavior
+    class SubscriptionReceiverBehavior : Behavior<PhysicalMessageProcessingContext>
     {
         public SubscriptionReceiverBehavior(ISubscriptionStorage subscriptionStorage)
         {
             this.subscriptionStorage = subscriptionStorage;
         }
 
-        public override async Task Invoke(Context context, Func<Task> next)
+        public override async Task Invoke(PhysicalMessageProcessingContext context, Func<Task> next)
         {
-            var transportMessage = context.GetPhysicalMessage();
+            var transportMessage = context.Message;
             var messageTypeString = GetSubscriptionMessageTypeFrom(transportMessage);
 
             var intent = transportMessage.MessageIntent;

@@ -3,8 +3,8 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.Unicast.Messages;
+    using Pipeline.Contexts;
+    using Unicast.Messages;
     using NUnit.Framework;
 
     [TestFixture]
@@ -15,8 +15,8 @@
         {
             var behavior = new LoadHandlersConnector(new MessageHandlerRegistry(new Conventions()));
 
-            var context = new LogicalMessageProcessingStageBehavior.Context(
-                new LogicalMessage(new MessageMetadata(typeof(string)),null, null),new Dictionary<string, string>(),typeof(MyMessage),  null);
+            var context = new LogicalMessageProcessingContext(
+                new LogicalMessage(new MessageMetadata(typeof(string)),null, null),new Dictionary<string, string>(),null);
 
             Assert.Throws<InvalidOperationException>(async () => await behavior.Invoke(context, c => Task.FromResult(0)));
         }

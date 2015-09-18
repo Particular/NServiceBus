@@ -3,24 +3,22 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.DeliveryConstraints;
-    using NServiceBus.OutgoingPipeline;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.TransportDispatch;
+    using DeliveryConstraints;
+    using Pipeline;
+    using Pipeline.Contexts;
+    using TransportDispatch;
 
-    class DetermineMessageDurabilityBehavior : Behavior<OutgoingContext>
+    class DetermineMessageDurabilityBehavior : Behavior<OutgoingLogicalMessageContext>
     {
-        
         public DetermineMessageDurabilityBehavior(Dictionary<Type,bool> durabilitySettings)
         {
             this.durabilitySettings = durabilitySettings;
         }
 
-        public override Task Invoke(OutgoingContext context, Func<Task> next)
+        public override Task Invoke(OutgoingLogicalMessageContext context, Func<Task> next)
         {
             bool isDurable;
-            if (durabilitySettings.TryGetValue(context.GetMessageType(), out isDurable) && !isDurable)
+            if (durabilitySettings.TryGetValue(context.Message.MessageType, out isDurable) && !isDurable)
             {
                 context.AddDeliveryConstraint(new NonDurableDelivery());
 

@@ -7,7 +7,7 @@ namespace NServiceBus
     using NServiceBus.StaticHeaders;
     using NServiceBus.TransportDispatch;
 
-    class ApplyStaticHeadersBehavior:Behavior<OutgoingContext>
+    class ApplyStaticHeadersBehavior:Behavior<OutgoingLogicalMessageContext>
     {
         CurrentStaticHeaders currentStaticHeaders;
 
@@ -16,7 +16,7 @@ namespace NServiceBus
             this.currentStaticHeaders = currentStaticHeaders;
         }
 
-        public override Task Invoke(OutgoingContext context, Func<Task> next)
+        public override Task Invoke(OutgoingLogicalMessageContext context, Func<Task> next)
         {
             foreach (var staticHeader in currentStaticHeaders)
             {

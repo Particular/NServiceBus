@@ -3,18 +3,17 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.MessageMutator;
-    using NServiceBus.OutgoingPipeline;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
+    using MessageMutator;
+    using Pipeline;
+    using Pipeline.Contexts;
 
-    class MutateOutgoingMessageBehavior : Behavior<OutgoingContext>
+    class MutateOutgoingMessageBehavior : Behavior<OutgoingLogicalMessageContext>
     {
-        public override async Task Invoke(OutgoingContext context, Func<Task> next)
+        public override async Task Invoke(OutgoingLogicalMessageContext context, Func<Task> next)
         {
             //TODO: should not need to do a lookup
-            var state = context.Get<DispatchMessageToTransportConnector.State>();
-            HandlingStageBehavior.Context incomingState;
+            var state = context.Get<OutgoingPhysicalToRoutingConnector.State>();
+            InvokeHandlerContext incomingState;
             context.TryGetRootContext(out incomingState);
 
             object messageBeingHandled = null;
@@ -25,10 +24,11 @@
                 incomingHeaders = incomingState.Headers;
             }
             var mutatorContext = new MutateOutgoingMessageContext(
-                context.GetMessageInstance(), 
+                context.Message.Instance, 
                 state.Headers,
                 messageBeingHandled, 
                 incomingHeaders);
+
             foreach (var mutator in context.Builder.BuildAll<IMutateOutgoingMessages>())
             {
                 await mutator.MutateOutgoing(mutatorContext).ConfigureAwait(false);

@@ -3,19 +3,16 @@ namespace NServiceBus
     using System;
     using System.Threading.Tasks;
     using System.Transactions;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
+    using Pipeline;
 
-    class HandlerTransactionScopeWrapperBehavior : HandlingStageBehavior
+    class HandlerTransactionScopeWrapperBehavior : Behavior<PhysicalMessageProcessingContext>
     {
-        TransactionOptions transactionOptions;
-
         public HandlerTransactionScopeWrapperBehavior(TransactionOptions transactionOptions)
         {
             this.transactionOptions = transactionOptions;
         }
 
-        public override async Task Invoke(Context context, Func<Task> next)
+        public override async Task Invoke(PhysicalMessageProcessingContext context, Func<Task> next)
         {
             if (Transaction.Current != null)
             {
@@ -31,13 +28,6 @@ namespace NServiceBus
             }
         }
 
-        public class Registration : RegisterStep
-        {
-            public Registration()
-                : base("HandlerTransactionScopeWrapper", typeof(HandlerTransactionScopeWrapperBehavior), "Makes sure that the handlers gets wrapped in a transaction scope")
-            {
-                InsertBeforeIfExists(WellKnownStep.InvokeHandlers);
-            }
-        }
+        TransactionOptions transactionOptions;
     }
 }

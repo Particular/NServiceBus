@@ -3,13 +3,9 @@
     using System;
     using System.Configuration;
     using System.ServiceProcess;
-    using System.Transactions;
-    using NServiceBus.Logging;
-    using NServiceBus.Outbox;
-    using NServiceBus.Persistence;
-    using NServiceBus.TransportDispatch;
-    using NServiceBus.Transports;
-    using NServiceBus.Unicast.Transport;
+    using Logging;
+    using Persistence;
+    using Transports;
 
     /// <summary>
     /// Configure the Outbox.
@@ -76,23 +72,9 @@ The reason you need to do this is because we need to ensure that you have read a
                 throw new Exception("Selected persister doesn't have support for outbox storage. Please select another storage or disable the outbox feature using config.Features(f=>f.Disable<Outbox>())");
             }
 
-            context.Pipeline.Register<OutboxDeduplicationBehavior.OutboxDeduplicationRegistration>();
+            //note: in the future we should change the persister api to give us a "outbox factory" so that we can register it in DI here instead of relying on the persister to do it
 
-            var transactionSettings = new TransactionSettings(context.Settings);
-            var transactionOptions = new TransactionOptions
-            {
-                IsolationLevel = transactionSettings.IsolationLevel,
-                Timeout = transactionSettings.TransactionTimeout
-            };
-            
-            
-            context.Container.ConfigureComponent(
-                b => new OutboxDeduplicationBehavior(
-                    b.Build<IOutboxStorage>(),
-                    transactionOptions,
-                    b.Build<IDispatchMessages>(),
-                    b.Build<DispatchStrategy>()),
-                DependencyLifecycle.InstancePerCall);
+            context.Pipeline.Register("ForceBatchDispatchToBeIsolated", typeof(ForceBatchDispatchToBeIsolatedBehavior), "Makes sure that we dispatch straigt to the transport so that we can safely set the outbox record to dispatched one the dispatch pipeline returns.");
         }
 
     }

@@ -2,12 +2,12 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Encryption;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.Unicast.Transport;
+    using Encryption;
+    using Pipeline;
+    using Pipeline.Contexts;
+    using Unicast.Transport;
 
-    class DecryptBehavior : LogicalMessageProcessingStageBehavior
+    class DecryptBehavior : Behavior<LogicalMessageProcessingContext>
     {
         EncryptionMutator messageMutator;
 
@@ -15,16 +15,17 @@ namespace NServiceBus
         {
             this.messageMutator = messageMutator;
         }
-        public override async Task Invoke(Context context, Func<Task> next)
+        public override async Task Invoke(LogicalMessageProcessingContext context, Func<Task> next)
         {
             if (TransportMessageExtensions.IsControlMessage(context.Headers))
             {
                 await next().ConfigureAwait(false);
                 return;
             }
-            var current = context.GetLogicalMessage().Instance;
+            var current = context.Message.Instance;
             current = messageMutator.MutateIncoming(current);
-            context.GetLogicalMessage().UpdateMessageInstance(current);
+            context.Message.UpdateMessageInstance(current);
+
             await next().ConfigureAwait(false);
         }
 

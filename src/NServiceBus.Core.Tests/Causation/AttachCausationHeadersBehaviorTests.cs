@@ -65,9 +65,9 @@
             context.AssertHeaderWasSet(Headers.RelatedTo, value => value == "the message id");   
         }
 
-        static PhysicalOutgoingContextStageBehavior.Context InitializeContext()
+        static OutgoingPhysicalMessageContext InitializeContext()
         {
-            var context = new PhysicalOutgoingContextStageBehavior.Context(null, ContextHelpers.GetOutgoingContext(new SendOptions()));
+            var context = new OutgoingPhysicalMessageContext(null, ContextHelpers.GetOutgoingContext(new SendOptions()));
             return context;
         }
     }

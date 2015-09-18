@@ -2,15 +2,13 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.MessagingBestPractices;
-    using NServiceBus.OutgoingPipeline;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Routing.MessagingBestPractices;
+    using MessagingBestPractices;
+    using OutgoingPipeline;
+    using Pipeline;
+    using Routing.MessagingBestPractices;
 
     class EnforceReplyBestPracticesBehavior : Behavior<OutgoingReplyContext>
     {
-        Validations validations;
-
         public EnforceReplyBestPracticesBehavior(Validations validations)
         {
             this.validations = validations;
@@ -22,10 +20,12 @@ namespace NServiceBus
 
             if (!context.TryGet(out options) || options.Enabled)
             {
-                validations.AssertIsValidForReply(context.GetMessageType());
+                validations.AssertIsValidForReply(context.Message.MessageType);
             }
 
             return next();
         }
+
+        Validations validations;
     }
 }

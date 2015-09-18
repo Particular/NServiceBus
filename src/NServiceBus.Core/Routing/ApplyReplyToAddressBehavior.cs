@@ -6,7 +6,7 @@
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.TransportDispatch;
 
-    class ApplyReplyToAddressBehavior : Behavior<OutgoingContext>
+    class ApplyReplyToAddressBehavior : Behavior<OutgoingLogicalMessageContext>
     {
 
         public ApplyReplyToAddressBehavior(string replyToAddress)
@@ -14,7 +14,7 @@
             this.replyToAddress = replyToAddress;
         }
 
-        public override Task Invoke(OutgoingContext context, Func<Task> next)
+        public override Task Invoke(OutgoingLogicalMessageContext context, Func<Task> next)
         {
             context.SetHeader(Headers.ReplyToAddress, replyToAddress);
 

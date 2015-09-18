@@ -45,7 +45,6 @@
                             using (new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                             {
                                 await bus.SendAsync(new MessageThatIsEnlisted());
-
                                 //rollback
                             }
 

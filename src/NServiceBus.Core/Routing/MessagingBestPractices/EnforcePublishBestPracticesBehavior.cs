@@ -2,10 +2,10 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.MessagingBestPractices;
-    using NServiceBus.OutgoingPipeline;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Routing.MessagingBestPractices;
+    using MessagingBestPractices;
+    using OutgoingPipeline;
+    using Pipeline;
+    using Routing.MessagingBestPractices;
 
     class EnforcePublishBestPracticesBehavior : Behavior<OutgoingPublishContext>
     {
@@ -22,7 +22,7 @@
 
             if (!context.TryGet(out options) || options.Enabled)
             {
-                validations.AssertIsValidForPubSub(context.GetMessageType());
+                validations.AssertIsValidForPubSub(context.Message.MessageType);
             }
 
             return next();

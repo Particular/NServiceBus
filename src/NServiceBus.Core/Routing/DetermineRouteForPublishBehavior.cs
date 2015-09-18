@@ -2,10 +2,10 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.OutgoingPipeline;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Routing;
-    using NServiceBus.TransportDispatch;
+    using OutgoingPipeline;
+    using Pipeline;
+    using Routing;
+    using TransportDispatch;
 
     class DetermineRouteForPublishBehavior : Behavior<OutgoingPublishContext>
     {
@@ -13,7 +13,7 @@ namespace NServiceBus
         {
             context.SetHeader(Headers.MessageIntent, MessageIntentEnum.Publish.ToString());
 
-            context.Set<RoutingStrategy>(new ToAllSubscribers(context.GetMessageType()));
+            context.Set<RoutingStrategy>(new ToAllSubscribers(context.Message.MessageType));
 
             return next();
         }

@@ -5,7 +5,7 @@
     using Pipeline;
 
 
-    class CriticalTimeBehavior : PhysicalMessageProcessingStageBehavior
+    class CriticalTimeBehavior : Behavior<PhysicalMessageProcessingContext>
     {
         CriticalTimeCalculator criticalTimeCounter;
 
@@ -14,7 +14,7 @@
             this.criticalTimeCounter = criticalTimeCounter;
         }
 
-        public override async Task Invoke(Context context, Func<Task> next)
+        public override async Task Invoke(PhysicalMessageProcessingContext context, Func<Task> next)
         {
             await next().ConfigureAwait(false);
 
@@ -30,7 +30,7 @@
                 return;
             }
 
-            criticalTimeCounter.Update(state.TimeSent.Value, state.ProcessingStarted,state.ProcessingEnded);
+            criticalTimeCounter.Update(state.TimeSent.Value, state.ProcessingStarted, state.ProcessingEnded);
         }
 
         public class Registration : RegisterStep

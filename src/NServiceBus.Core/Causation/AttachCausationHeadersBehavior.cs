@@ -2,20 +2,20 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.OutgoingPipeline;
-    using NServiceBus.Pipeline;
-    using NServiceBus.TransportDispatch;
+    using OutgoingPipeline;
+    using Pipeline;
+    using TransportDispatch;
 
-    class AttachCausationHeadersBehavior : PhysicalOutgoingContextStageBehavior
+    class AttachCausationHeadersBehavior : Behavior<OutgoingPhysicalMessageContext>
     {
-        public override Task Invoke(Context context, Func<Task> next)
+        public override Task Invoke(OutgoingPhysicalMessageContext context, Func<Task> next)
         {
             ApplyHeaders(context);
 
             return next();
          }
 
-        void ApplyHeaders(Context context)
+        void ApplyHeaders(OutgoingPhysicalMessageContext context)
         {
             var conversationId = CombGuid.Generate().ToString();
 

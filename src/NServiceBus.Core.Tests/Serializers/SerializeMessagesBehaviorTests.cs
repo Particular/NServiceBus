@@ -19,11 +19,11 @@
             registry.RegisterMessageType(typeof(MyMessage));
 
             var context = ContextHelpers.GetOutgoingContext(new MyMessage());
-            var behavior = new SerializeMessagesBehavior(new FakeSerializer("myContentType"), registry);
+            var behavior = new SerializeMessageConnector(new FakeSerializer("myContentType"), registry);
             
             await behavior.Invoke(context, c => Task.FromResult(0));
 
-            Assert.AreEqual("myContentType", context.GetOrCreate<DispatchMessageToTransportConnector.State>().Headers[Headers.ContentType]);
+            Assert.AreEqual("myContentType", context.GetOrCreate<OutgoingPhysicalToRoutingConnector.State>().Headers[Headers.ContentType]);
         }
 
         public class FakeSerializer : IMessageSerializer

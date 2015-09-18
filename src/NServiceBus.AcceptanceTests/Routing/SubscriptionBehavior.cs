@@ -20,7 +20,7 @@
         }
     }
 
-    class SubscriptionBehavior<TContext> : PhysicalMessageProcessingStageBehavior where TContext : ScenarioContext
+    class SubscriptionBehavior<TContext> : Behavior<PhysicalMessageProcessingContext> where TContext : ScenarioContext
     {
         Action<SubscriptionEventArgs, TContext> action;
         TContext scenarioContext;
@@ -31,16 +31,16 @@
             this.scenarioContext = scenarioContext;
         }
 
-        public override async Task Invoke(Context context, Func<Task> next)
+        public override async Task Invoke(PhysicalMessageProcessingContext context, Func<Task> next)
         {
             await next().ConfigureAwait(false);
-            var subscriptionMessageType = GetSubscriptionMessageTypeFrom(context.GetPhysicalMessage());
+            var subscriptionMessageType = GetSubscriptionMessageTypeFrom(context.Message);
             if (subscriptionMessageType != null)
             {
                 action(new SubscriptionEventArgs
                 {
                     MessageType = subscriptionMessageType,
-                    SubscriberReturnAddress = context.GetPhysicalMessage().ReplyToAddress
+                    SubscriberReturnAddress = context.Message.ReplyToAddress
                 }, scenarioContext);
             }
         }

@@ -7,9 +7,9 @@
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
 
-    class ApplyDelayedDeliveryConstraintBehavior:Behavior<OutgoingContext>
+    class ApplyDelayedDeliveryConstraintBehavior:Behavior<OutgoingLogicalMessageContext>
     {
-        public override Task Invoke(OutgoingContext context, Func<Task> next)
+        public override Task Invoke(OutgoingLogicalMessageContext context, Func<Task> next)
         {
             State state;
 

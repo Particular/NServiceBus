@@ -2,15 +2,15 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.MessageMutator;
-    using NServiceBus.Pipeline;
+    using MessageMutator;
+    using Pipeline;
 
-    class MutateIncomingTransportMessageBehavior : PhysicalMessageProcessingStageBehavior
+    class MutateIncomingTransportMessageBehavior : Behavior<PhysicalMessageProcessingContext>
     {
-        public override async Task Invoke(Context context, Func<Task> next)
+        public override async Task Invoke(PhysicalMessageProcessingContext context, Func<Task> next)
         {
             var mutators = context.Builder.BuildAll<IMutateIncomingTransportMessages>();
-            var transportMessage = context.GetPhysicalMessage();
+            var transportMessage = context.Message;
             var mutatorContext = new MutateIncomingTransportMessageContext(transportMessage.Body, transportMessage.Headers);
             foreach (var mutator in mutators)
             {

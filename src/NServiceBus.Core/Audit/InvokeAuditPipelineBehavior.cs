@@ -2,12 +2,11 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Audit;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Routing;
-    using NServiceBus.Transports;
+    using Audit;
+    using Pipeline;
+    using Transports;
 
-    class InvokeAuditPipelineBehavior : PhysicalMessageProcessingStageBehavior
+    class InvokeAuditPipelineBehavior : Behavior<PhysicalMessageProcessingContext>
     {
         public InvokeAuditPipelineBehavior(PipelineBase<AuditContext> auditPipeline, string auditAddress)
         {
@@ -15,33 +14,20 @@
             this.auditAddress = auditAddress;
         }
 
-        public override async Task Invoke(Context context, Func<Task> next)
+        public override async Task Invoke(PhysicalMessageProcessingContext context, Func<Task> next)
         {
             await next().ConfigureAwait(false);
 
-            context.GetPhysicalMessage().RevertToOriginalBodyIfNeeded();
+            context.Message.RevertToOriginalBodyIfNeeded();
 
-            var processedMessage = new OutgoingMessage(context.GetPhysicalMessage().Id, context.GetPhysicalMessage().Headers, context.GetPhysicalMessage().Body);
+            var processedMessage = new OutgoingMessage(context.Message.Id, context.Message.Headers, context.Message.Body);
 
-            var auditContext = new AuditContext(context);
-
-            context.Set(processedMessage);
-            context.Set<RoutingStrategy>(new DirectToTargetDestination(auditAddress));
-
+            var auditContext = new AuditContext(processedMessage, auditAddress, context);
+            
             await auditPipeline.Invoke(auditContext).ConfigureAwait(false);
         }
 
         PipelineBase<AuditContext> auditPipeline;
         string auditAddress;
-
-
-        public class Registration : RegisterStep
-        {
-            public Registration()
-                : base(WellKnownStep.AuditProcessedMessage, typeof(InvokeAuditPipelineBehavior), "Execute the audit pipeline")
-            {
-                InsertAfterIfExists("FirstLevelRetries");
-            }
-        }
     }
 }

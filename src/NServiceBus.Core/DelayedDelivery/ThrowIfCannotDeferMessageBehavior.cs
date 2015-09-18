@@ -5,9 +5,9 @@
     using NServiceBus.Pipeline;
     using NServiceBus.TransportDispatch;
 
-    class ThrowIfCannotDeferMessageBehavior : Behavior<DispatchContext>
+    class ThrowIfCannotDeferMessageBehavior : Behavior<RoutingContext>
     {
-        public override Task Invoke(DispatchContext context, Func<Task> next)
+        public override Task Invoke(RoutingContext context, Func<Task> next)
         {
             ApplyDelayedDeliveryConstraintBehavior.State delayState;
             if (context.TryGet(out delayState))
