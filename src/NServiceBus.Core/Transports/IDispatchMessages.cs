@@ -1,6 +1,7 @@
 namespace NServiceBus.Transports
 {
     using System.Threading.Tasks;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Abstraction of the capability to dispatch messages.
@@ -8,8 +9,8 @@ namespace NServiceBus.Transports
     public interface IDispatchMessages
     {
         /// <summary>
-        /// Sends the given <paramref name="message"/>.
+        /// Dispatches the given operations to the transport.
         /// </summary>
-        Task Dispatch(OutgoingMessage message, DispatchOptions dispatchOptions);
+        Task Dispatch(IEnumerable<TransportOperation> outgoingMessages);
     }
 }

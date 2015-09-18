@@ -9,6 +9,7 @@ namespace NServiceBus
     using NServiceBus.Routing;
     using NServiceBus.TransportDispatch;
     using NServiceBus.Transports;
+    using TransportOperation = NServiceBus.Outbox.TransportOperation;
 
     class OutboxDispatchStrategy : DispatchStrategy
     {

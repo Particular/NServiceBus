@@ -11,7 +11,8 @@
     {
         public override Task Dispatch(IDispatchMessages dispatcher, OutgoingMessage message, RoutingStrategy routingStrategy, IEnumerable<DeliveryConstraint> constraints, BehaviorContext currentContext, DispatchConsistency dispatchConsistency)
         {
-            return dispatcher.Dispatch(message, new DispatchOptions(routingStrategy, currentContext, constraints, dispatchConsistency));
+            var dispatchOptions = new DispatchOptions(routingStrategy, currentContext, constraints, dispatchConsistency);
+            return dispatcher.Dispatch(new [] { new TransportOperation(message, dispatchOptions)});
         }
     }
 }

@@ -27,11 +27,11 @@
 
             if (toAllSubscribersStrategy == null)
             {
-                await dispatcher.Dispatch(message, new DispatchOptions(routingStrategy,
+                var dispatchOptions = new DispatchOptions(routingStrategy,
                     currentContext,
                     currentConstraints,
-                    dispatchConsistency)).ConfigureAwait(false);
-
+                    dispatchConsistency);
+                await dispatcher.Dispatch(new [] {new TransportOperation(message, dispatchOptions)}).ConfigureAwait(false);
                 return;
             }
 
@@ -55,10 +55,11 @@
 
             foreach (var subscriber in subscribers)
             {
-                await dispatcher.Dispatch(message, new DispatchOptions(new DirectToTargetDestination(subscriber),
+                var dispatchOptions = new DispatchOptions(new DirectToTargetDestination(subscriber),
                     currentContext,
                     currentConstraints,
-                    dispatchConsistency)).ConfigureAwait(false);
+                    dispatchConsistency);
+                await dispatcher.Dispatch(new [] { new TransportOperation(message, dispatchOptions)}).ConfigureAwait(false);
             }
         }
 

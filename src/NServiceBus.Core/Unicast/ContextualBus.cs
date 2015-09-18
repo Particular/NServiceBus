@@ -112,7 +112,9 @@ namespace NServiceBus.Unicast
                 return;
             }
 
-            await dispatcher.Dispatch(new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new DispatchOptions(new DirectToTargetDestination(sendLocalAddress), new ContextBag())).ConfigureAwait(false);
+            var outgoingMessages = new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body);
+            var dispatchOptions = new DispatchOptions(new DirectToTargetDestination(sendLocalAddress), new ContextBag());
+            await dispatcher.Dispatch(new [] { new TransportOperation(outgoingMessages, dispatchOptions)});
 
             incomingContext.handleCurrentMessageLaterWasCalled = true;
 
@@ -122,9 +124,11 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// <see cref="IBus.ForwardCurrentMessageToAsync"/>
         /// </summary>
-        public Task ForwardCurrentMessageToAsync(string destination)
+        public async Task ForwardCurrentMessageToAsync(string destination)
         {
-            return dispatcher.Dispatch(new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body), new DispatchOptions(new DirectToTargetDestination(destination), new ContextBag()));
+            var outgoingMessages = new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body);
+            var dispatchOptions = new DispatchOptions(new DirectToTargetDestination(destination), new ContextBag());
+            await dispatcher.Dispatch(new [] { new TransportOperation(outgoingMessages, dispatchOptions)});
         }
 
         public Task SendAsync<T>(Action<T> messageConstructor, NServiceBus.SendOptions options)

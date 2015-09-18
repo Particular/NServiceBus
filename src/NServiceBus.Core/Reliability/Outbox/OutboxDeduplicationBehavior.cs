@@ -58,7 +58,7 @@
             outboxStorage.SetAsDispatched(messageId, options).GetAwaiter().GetResult();
         }
 
-        void DispatchOperationToTransport(IEnumerable<TransportOperation> operations, Context context)
+        void DispatchOperationToTransport(IEnumerable<Outbox.TransportOperation> operations, Context context)
         {
             foreach (var transportOperation in operations)
             {

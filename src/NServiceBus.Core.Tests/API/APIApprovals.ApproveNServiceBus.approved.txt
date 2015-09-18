@@ -2499,7 +2499,7 @@ namespace NServiceBus.Transports
     }
     public interface IDispatchMessages
     {
-        System.Threading.Tasks.Task Dispatch(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Transports.DispatchOptions dispatchOptions);
+        System.Threading.Tasks.Task Dispatch(System.Collections.Generic.IEnumerable<NServiceBus.Transports.TransportOperation> outgoingMessages);
     }
     public interface IManageSubscriptions
     {
@@ -2583,6 +2583,12 @@ namespace NServiceBus.Transports
         public abstract System.Collections.Generic.IEnumerable<System.Type> GetSupportedDeliveryConstraints();
         public abstract string ToTransportAddress(NServiceBus.LogicalAddress logicalAddress);
     }
+    public class TransportOperation
+    {
+        public TransportOperation(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Transports.DispatchOptions dispatchOptions) { }
+        public NServiceBus.Transports.DispatchOptions DispatchOptions { get; }
+        public NServiceBus.Transports.OutgoingMessage Message { get; }
+    }
     public class TransportPublishOptions
     {
         public TransportPublishOptions(System.Type eventType, NServiceBus.ConsistencyGuarantees.ConsistencyGuarantee minimumConsistencyGuarantee, System.Collections.Generic.List<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints, NServiceBus.Pipeline.BehaviorContext context) { }
@@ -2626,7 +2632,7 @@ namespace NServiceBus.Transports.Msmq
     public class MsmqMessageSender : NServiceBus.Transports.IDispatchMessages
     {
         public MsmqMessageSender(NServiceBus.Transports.Msmq.Config.MsmqSettings settings, NServiceBus.MsmqLabelGenerator messageLabelGenerator) { }
-        public System.Threading.Tasks.Task Dispatch(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Transports.DispatchOptions dispatchOptions) { }
+        public System.Threading.Tasks.Task Dispatch(System.Collections.Generic.IEnumerable<NServiceBus.Transports.TransportOperation> transportOperations) { }
     }
     [System.ObsoleteAttribute("The msmq transaction is now available via the pipeline context. Will be removed i" +
         "n version 7.0.0.", true)]
