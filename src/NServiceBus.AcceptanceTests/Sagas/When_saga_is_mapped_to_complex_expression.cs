@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
-    using NServiceBus.Features;
     using NUnit.Framework;
 
     public class When_saga_is_mapped_to_complex_expression : NServiceBusAcceptanceTest
@@ -33,12 +32,7 @@
         {
             public SagaEndpoint()
             {
-                EndpointSetup<DefaultServer>(
-                    c =>
-                    {
-                        c.EnableFeature<TimeoutManager>();
-                        c.Transactions().DoNotWrapHandlersExecutionInATransactionScope();
-                    });
+                EndpointSetup<DefaultServer>();
             }
 
             public class TestSaga02 : Saga<TestSagaData02>,
