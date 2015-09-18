@@ -98,9 +98,7 @@
     <Compile Include="BusConfiguration.cs" />
     <Compile Include="Causation\MessageCausation.cs" />
     <Compile Include="ConfigureHandlerSettings.cs" />
-    <Compile Include="ConsistencyGuarantees\AtMostOnce.cs" />
     <Compile Include="ConsistencyGuarantees\ConsistencyGuaranteeSettingsExtensions.cs" />
-    <Compile Include="ConsistencyGuarantees\ExactlyOnce.cs" />
     <Compile Include="ConsistencyGuarantees\TransactionScopes\WrapHandlersInTransactionScope.cs" />
     <Compile Include="IBusExtensions_obsolete.cs" />
     <Compile Include="ISendOnlyBusExtensions_obsoletes.cs" />
@@ -110,7 +108,6 @@
     <Compile Include="Transports\DispatchConsistency.cs" />
     <Compile Include="Transports\Msmq\MsmqConnectionStringBuilder.cs" />
     <Compile Include="ConsistencyGuarantees\ApplyDefaultConsistencyGuaranteeBehavior.cs" />
-    <Compile Include="ConsistencyGuarantees\ConsistencyGuaranteeContextExtensions.cs" />
     <Compile Include="ConsistencyGuarantees\ConsistencyGuaranteeFeature.cs" />
     <Compile Include="Container\ContainerCustomizations.cs" />
     <Compile Include="Container\ContainerDefinition.cs" />
@@ -261,7 +258,6 @@
     <Compile Include="Sagas\PopulateAutoCorrelationHeadersForRepliesBehavior.cs" />
     <Compile Include="Sagas\SagaPersistenceOptions.cs" />
     <Compile Include="Routing\DetermineRouteForReplyBehavior.cs" />
-    <Compile Include="ConsistencyGuarantees\AtLeastOnce.cs" />
     <Compile Include="Routing\NonDurableDelivery.cs" />
     <Compile Include="Routing\RoutingFeature.cs" />
     <Compile Include="Routing\RoutingOptionExtensions.cs" />

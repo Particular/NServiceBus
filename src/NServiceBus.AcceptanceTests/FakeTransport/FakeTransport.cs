@@ -19,7 +19,7 @@
 
         public override ConsistencyGuarantee GetDefaultConsistencyGuarantee()
         {
-            return new AtLeastOnce();
+            return ConsistencyGuarantee.AtLeastOnce;
         }
 
         public override IManageSubscriptions GetSubscriptionManager()

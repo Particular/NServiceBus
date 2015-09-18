@@ -41,7 +41,7 @@ namespace NServiceBus
             inputQueue = new MessageQueue(inputAddress.FullPath, false, true, QueueAccessMode.Receive);
             errorQueue = new MessageQueue(errorAddress.FullPath, false, true, QueueAccessMode.Send);
 
-            if (settings.RequiredConsistency.GetType() != typeof(AtMostOnce) && !QueueIsTransactional())
+            if (settings.RequiredConsistency != ConsistencyGuarantee.AtMostOnce && !QueueIsTransactional())
             {
                 throw new ArgumentException("Queue must be transactional if you configure your endpoint to be transactional (" + settings.InputQueue + ").");
             }
