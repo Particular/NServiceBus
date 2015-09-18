@@ -15,7 +15,7 @@
         }
     }
 
-    public class TimeoutPersistenceVersionCheck : IWantToRunWhenConfigurationIsComplete
+    internal class TimeoutPersistenceVersionCheck : IWantToRunWhenConfigurationIsComplete
     {
         internal const string SuppressOutdatedTimeoutPersistenceWarning = "suppress-outdated-timeout-persistence-warning";
 
