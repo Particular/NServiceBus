@@ -1122,21 +1122,11 @@ namespace NServiceBus.Configuration.AdvanceExtensibility
 }
 namespace NServiceBus.ConsistencyGuarantees
 {
-    public class AtLeastOnce : NServiceBus.ConsistencyGuarantees.ConsistencyGuarantee
+    public enum ConsistencyGuarantee
     {
-        public AtLeastOnce() { }
-    }
-    public class AtMostOnce : NServiceBus.ConsistencyGuarantees.ConsistencyGuarantee
-    {
-        public AtMostOnce() { }
-    }
-    public abstract class ConsistencyGuarantee
-    {
-        protected ConsistencyGuarantee() { }
-    }
-    public class ExactlyOnce : NServiceBus.ConsistencyGuarantees.ConsistencyGuarantee
-    {
-        public ExactlyOnce() { }
+        AtMostOnce = 1,
+        AtLeastOnce = 2,
+        ExactlyOnce = 3,
     }
 }
 namespace NServiceBus.Container

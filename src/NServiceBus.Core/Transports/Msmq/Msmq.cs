@@ -47,7 +47,7 @@ namespace NServiceBus
         /// </summary>
         public override ConsistencyGuarantee GetDefaultConsistencyGuarantee()
         {
-            return new ExactlyOnce();
+            return ConsistencyGuarantee.ExactlyOnce;
         }
 
         /// <summary>

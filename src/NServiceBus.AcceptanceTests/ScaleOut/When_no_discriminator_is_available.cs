@@ -42,7 +42,7 @@
 
         public class IndividualizedEndpoint : EndpointConfigurationBuilder
         {
-       
+
             public IndividualizedEndpoint()
             {
                 EndpointSetup<DefaultServer>(c =>
@@ -53,7 +53,7 @@
             }
         }
 
-        public class TransportThatDoesNotSetADefaultDiscriminator:TransportDefinition
+        public class TransportThatDoesNotSetADefaultDiscriminator : TransportDefinition
         {
             protected override void Configure(BusConfiguration config)
             {
@@ -67,7 +67,7 @@
 
             public override ConsistencyGuarantee GetDefaultConsistencyGuarantee()
             {
-                return new AtLeastOnce();
+                return ConsistencyGuarantee.AtLeastOnce;
             }
 
             public override IManageSubscriptions GetSubscriptionManager()
@@ -87,20 +87,20 @@
 
         }
 
-            public class TransportThatDoesNotSetADefaultDiscriminatorConfigurator : ConfigureTransport
-            {
-               
-                protected override void Configure(FeatureConfigurationContext context, string connectionString)
-                {
-                    
-                }
+        public class TransportThatDoesNotSetADefaultDiscriminatorConfigurator : ConfigureTransport
+        {
 
-                protected override string ExampleConnectionStringForErrorMessage
-                {
-                    get { return ""; }
-                }
+            protected override void Configure(FeatureConfigurationContext context, string connectionString)
+            {
+
             }
+
+            protected override string ExampleConnectionStringForErrorMessage
+            {
+                get { return ""; }
+            }
+        }
     }
 
-    
+
 }

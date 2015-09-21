@@ -154,12 +154,12 @@
 
         ReceiveStrategy SelectReceiveStrategy(ConsistencyGuarantee minimumConsistencyGuarantee, TransactionOptions transactionOptions)
         {
-            if (minimumConsistencyGuarantee is ExactlyOnce)
+            if (minimumConsistencyGuarantee == ConsistencyGuarantee.ExactlyOnce)
             {
                 return new ReceiveWithTransactionScope(transactionOptions);
             }
 
-            if (minimumConsistencyGuarantee is AtMostOnce)
+            if (minimumConsistencyGuarantee == ConsistencyGuarantee.AtMostOnce)
             {
                 return new ReceiveWithNoTransaction();
             }
