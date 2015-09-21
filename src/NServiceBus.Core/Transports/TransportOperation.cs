@@ -10,8 +10,8 @@ namespace NServiceBus.Transports
         /// </summary>
         public TransportOperation(OutgoingMessage message, DispatchOptions dispatchOptions)
         {
-            this.Message = message;
-            this.DispatchOptions = dispatchOptions;
+            Message = message;
+            DispatchOptions = dispatchOptions;
         }
 
         /// <summary>
