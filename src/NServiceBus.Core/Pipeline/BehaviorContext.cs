@@ -6,13 +6,13 @@
     /// <summary>
     /// Base class for a pipeline behavior.
     /// </summary>
-    public abstract class BehaviorContext:ContextBag
+    public abstract class BehaviorContext : ContextBag
     {
         /// <summary>
         /// Create an instance of <see cref="BehaviorContext"/>.
         /// </summary>
         /// <param name="parentContext">The parent context.</param>
-        protected BehaviorContext(BehaviorContext parentContext):base(parentContext)
+        protected BehaviorContext(BehaviorContext parentContext) : base(parentContext)
         {
           
         }
