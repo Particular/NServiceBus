@@ -78,7 +78,7 @@
                     if (Context.ReplyFromTimeout)
                     {
                         Data.CorrIdForRequest = message.SomeIdThatTheResponseSagaCanCorrelateBackToUs; //wont be needed in the future
-                        RequestTimeout<DelayReply>(TimeSpan.FromSeconds(1));
+                        await RequestTimeout<DelayReply>(TimeSpan.FromSeconds(1));
                     }
 
                     Data.CorrIdForRequest = Guid.NewGuid();
@@ -106,20 +106,18 @@
 
                 public Task Timeout(DelayReply state)
                 {
-                    SendReply();
-                    return Task.FromResult(0);
+                    return SendReply();
                 }
 
                 public Task Handle(SendReplyFromNonInitiatingHandler message)
                 {
-                    SendReply();
-                    return Task.FromResult(0);
+                    return SendReply();
                 }
 
-                void SendReply()
+                Task SendReply()
                 {
                     //reply to originator must be used here since the sender of the incoming message the timeoutmanager and not the requesting saga
-                    ReplyToOriginator(new ResponseFromOtherSaga //change this line to Bus.ReplyAsync(new ResponseFromOtherSaga  and see it fail
+                    return ReplyToOriginator(new ResponseFromOtherSaga //change this line to Bus.ReplyAsync(new ResponseFromOtherSaga  and see it fail
                     {
                         SomeCorrelationId = Data.CorrIdForRequest //wont be needed in the future
                     });

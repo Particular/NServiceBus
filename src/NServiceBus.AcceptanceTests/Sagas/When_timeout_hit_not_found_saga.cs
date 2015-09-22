@@ -48,7 +48,7 @@
                     Data.DataId = message.DataId;
 
                     //this will cause the message to be delivered right away
-                    RequestTimeout<MyTimeout>(TimeSpan.Zero);
+                    await RequestTimeout<MyTimeout>(TimeSpan.Zero);
                     await Bus.SendLocalAsync(new SomeOtherMessage { DataId = Guid.NewGuid() });
 
                     MarkAsComplete();
