@@ -52,7 +52,7 @@
 
                 public async Task Handle(AnotherRequest message)
                 {
-                    await ReplyToOriginator(new MyReplyToOriginator());
+                    await ReplyToOriginatorAsync(new MyReplyToOriginator());
                     MarkAsComplete();
                 }
 
