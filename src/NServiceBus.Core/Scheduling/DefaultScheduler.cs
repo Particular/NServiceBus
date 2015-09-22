@@ -3,7 +3,6 @@ namespace NServiceBus.Scheduling
     using System;
     using System.Collections.Concurrent;
     using System.Diagnostics;
-    using System.Threading;
     using System.Threading.Tasks;
     using Logging;
 
@@ -41,8 +40,7 @@ namespace NServiceBus.Scheduling
             var sw = new Stopwatch();
             sw.Start();
 
-            Task.Factory
-                .StartNew(taskDefinition.Task, CancellationToken.None, TaskCreationOptions.None, TaskScheduler.Default)
+            Task.Run(taskDefinition.Task)
                 .ContinueWith(task =>
                 {
                     sw.Stop();
@@ -51,7 +49,7 @@ namespace NServiceBus.Scheduling
                     {
                         task.Exception.Handle(ex =>
                         {
-                            logger.Error(String.Format("Failed to execute scheduled task '{0}'.", taskDefinition.Name), ex);
+                            logger.Error($"Failed to execute scheduled task '{taskDefinition.Name}'.", ex);
                             return true;
                         });
                     }
@@ -59,7 +57,7 @@ namespace NServiceBus.Scheduling
                     {
                         logger.InfoFormat("Scheduled task '{0}' run for {1}", taskDefinition.Name, sw.Elapsed.ToString());
                     }
-                });
+                }, TaskContinuationOptions.ExecuteSynchronously);
         }
 
         void DeferTask(TaskDefinition taskDefinition)
