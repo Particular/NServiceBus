@@ -2,6 +2,7 @@ namespace NServiceBus.CircuitBreakers
 {
     using System;
     using System.Threading;
+    using System.Threading.Tasks;
     using Logging;
 
     class RepeatedFailuresOverTimeCircuitBreaker : IDisposable
@@ -28,7 +29,7 @@ namespace NServiceBus.CircuitBreakers
             Logger.InfoFormat("The circuit breaker for {0} is now disarmed", name);
         }
 
-        public void Failure(Exception exception)
+        public Task Failure(Exception exception)
         {
             lastException = exception;
             var newValue = Interlocked.Increment(ref failureCount);
@@ -39,8 +40,7 @@ namespace NServiceBus.CircuitBreakers
                 Logger.WarnFormat("The circuit breaker for {0} is now in the armed state", name);
             }
 
-
-            Thread.Sleep(TimeSpan.FromSeconds(1));
+            return Task.Delay(TimeSpan.FromSeconds(1));
         }
 
         public void Dispose()

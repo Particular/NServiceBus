@@ -59,17 +59,17 @@ namespace NServiceBus.DelayedDelivery.TimeoutManager
         {
             try
             {
-                await InnerPoll(cancellationToken);
+                await InnerPoll(cancellationToken).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
                 Logger.Warn("Failed to fetch timeouts from the timeout storage", ex);
-                circuitBreaker.Failure(ex);
+                await circuitBreaker.Failure(ex).ConfigureAwait(false);
             }
 
             if (!cancellationToken.IsCancellationRequested)
             {
-                await Poll(cancellationToken);
+                await Poll(cancellationToken).ConfigureAwait(false);
             }
         }
 

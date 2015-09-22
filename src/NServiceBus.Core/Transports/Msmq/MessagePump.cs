@@ -111,7 +111,7 @@ namespace NServiceBus
             catch (Exception ex)
             {
                 Logger.Error("MSMQ Message pump failed", ex);
-                peekCircuitBreaker.Failure(ex);
+                await peekCircuitBreaker.Failure(ex).ConfigureAwait(false);
             }
 
             if (!cancellationToken.IsCancellationRequested)
@@ -139,7 +139,7 @@ namespace NServiceBus
                     catch (Exception ex)
                     {
                         Logger.Warn("MSMQ receive operation failed", ex);
-                        peekCircuitBreaker.Failure(ex);
+                        await peekCircuitBreaker.Failure(ex).ConfigureAwait(false);
                         continue;
                     }
 
@@ -171,12 +171,12 @@ namespace NServiceBus
                             }
 
                             Logger.Warn("MSMQ receive operation failed", ex);
-                            receiveCircuitBreaker.Failure(ex);
+                            await receiveCircuitBreaker.Failure(ex).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
                             Logger.Warn("MSMQ receive operation failed", ex);
-                            receiveCircuitBreaker.Failure(ex);
+                            await receiveCircuitBreaker.Failure(ex).ConfigureAwait(false);
                         }
                         finally
                         {
