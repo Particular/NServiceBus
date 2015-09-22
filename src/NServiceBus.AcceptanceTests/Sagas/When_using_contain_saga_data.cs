@@ -43,9 +43,7 @@
                 {
                     Data.DataId = message.DataId;
 
-                    RequestTimeout(TimeSpan.FromSeconds(5), new TimeHasPassed());
-
-                    return Task.FromResult(0);
+                    return RequestTimeout(TimeSpan.FromSeconds(5), new TimeHasPassed());
                 }
 
                 public Task Timeout(TimeHasPassed state)

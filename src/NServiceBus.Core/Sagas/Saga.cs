@@ -1,6 +1,8 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
+    using NServiceBus.Extensibility;
 
     /// <summary>
     /// This class is used to define sagas containing data and handling a message.
@@ -49,9 +51,9 @@ namespace NServiceBus
         /// Request for a timeout to occur at the given <see cref="DateTime"/>.
         /// </summary>
         /// <param name="at"><see cref="DateTime"/> to send timeout <typeparamref name="TTimeoutMessageType"/>.</param>
-        protected void RequestTimeout<TTimeoutMessageType>(DateTime at) where TTimeoutMessageType : new()
+        protected Task RequestTimeout<TTimeoutMessageType>(DateTime at) where TTimeoutMessageType : new()
         {
-            RequestTimeout(at, new TTimeoutMessageType());
+            return RequestTimeout(at, new TTimeoutMessageType());
         }
 
         /// <summary>
@@ -74,7 +76,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="at"><see cref="DateTime"/> to send timeout <paramref name="timeoutMessage"/>.</param>
         /// <param name="timeoutMessage">The message to send after <paramref name="at"/> is reached.</param>
-        protected void RequestTimeout<TTimeoutMessageType>(DateTime at, TTimeoutMessageType timeoutMessage)
+        protected Task RequestTimeout<TTimeoutMessageType>(DateTime at, TTimeoutMessageType timeoutMessage)
         {
             if (at.Kind == DateTimeKind.Unspecified)
             {
@@ -90,7 +92,7 @@ namespace NServiceBus
 
             SetTimeoutHeaders(options);
 
-            Bus.SendAsync(timeoutMessage, options).GetAwaiter().GetResult();
+            return Bus.SendAsync(timeoutMessage, options);
         }
 
         void VerifySagaCanHandleTimeout<TTimeoutMessageType>(TTimeoutMessageType timeoutMessage)
@@ -107,9 +109,9 @@ namespace NServiceBus
         /// Request for a timeout to occur within the give <see cref="TimeSpan"/>.
         /// </summary>
         /// <param name="within">Given <see cref="TimeSpan"/> to delay timeout message by.</param>
-        protected void RequestTimeout<TTimeoutMessageType>(TimeSpan within) where TTimeoutMessageType : new()
+        protected Task RequestTimeout<TTimeoutMessageType>(TimeSpan within) where TTimeoutMessageType : new()
         {
-            RequestTimeout(within, new TTimeoutMessageType());
+            return RequestTimeout(within, new TTimeoutMessageType());
         }
 
         /// <summary>
@@ -132,7 +134,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="within">Given <see cref="TimeSpan"/> to delay timeout message by.</param>
         /// <param name="timeoutMessage">The message to send after <paramref name="within"/> expires.</param>
-        protected void RequestTimeout<TTimeoutMessageType>(TimeSpan within, TTimeoutMessageType timeoutMessage)
+        protected Task RequestTimeout<TTimeoutMessageType>(TimeSpan within, TTimeoutMessageType timeoutMessage)
         {
             VerifySagaCanHandleTimeout(timeoutMessage);
 
@@ -143,10 +145,10 @@ namespace NServiceBus
 
             SetTimeoutHeaders(context);
 
-            Bus.SendAsync(timeoutMessage, context).GetAwaiter().GetResult();
+            return Bus.SendAsync(timeoutMessage, context);
         }
 
-        void SetTimeoutHeaders(SendOptions options)
+        void SetTimeoutHeaders(ExtendableOptions options)
         {
             options.SetHeader(Headers.SagaId, Entity.Id.ToString());
             options.SetHeader(Headers.IsSagaTimeoutMessage, bool.TrueString);
@@ -156,7 +158,7 @@ namespace NServiceBus
         /// <summary>
         /// Sends the <paramref name="message"/> using the bus to the endpoint that caused this saga to start.
         /// </summary>
-        protected void ReplyToOriginator(object message)
+        protected Task ReplyToOriginator(object message)
         {
             if (string.IsNullOrEmpty(Entity.Originator))
             {
@@ -177,7 +179,7 @@ namespace NServiceBus
                 SagaIdToUse = null
             });
 
-            Bus.ReplyAsync(message, options).GetAwaiter().GetResult();
+            return Bus.ReplyAsync(message, options);
         }
 
         /// <summary>

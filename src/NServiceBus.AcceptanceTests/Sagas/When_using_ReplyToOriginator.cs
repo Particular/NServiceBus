@@ -50,11 +50,10 @@
                     });
                 }
 
-                public Task Handle(AnotherRequest message)
+                public async Task Handle(AnotherRequest message)
                 {
-                    ReplyToOriginator(new MyReplyToOriginator());
+                    await ReplyToOriginator(new MyReplyToOriginator());
                     MarkAsComplete();
-                    return Task.FromResult(0);
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestingSagaData> mapper)

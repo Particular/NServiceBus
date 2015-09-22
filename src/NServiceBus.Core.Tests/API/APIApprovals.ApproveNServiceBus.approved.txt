@@ -736,27 +736,27 @@ namespace NServiceBus
         public NServiceBus.IContainSagaData Entity { get; set; }
         protected internal abstract void ConfigureHowToFindSaga(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration);
         protected virtual void MarkAsComplete() { }
-        protected void ReplyToOriginator(object message) { }
+        protected System.Threading.Tasks.Task ReplyToOriginator(object message) { }
         [System.ObsoleteAttribute("Construct your message and pass it to the non Action overload. Please use `Saga.R" +
             "eplyToOriginator(object)` instead. Will be removed in version 7.0.0.", true)]
         protected virtual void ReplyToOriginator<TMessage>(System.Action<TMessage> messageConstructor)
             where TMessage : new() { }
-        protected void RequestTimeout<TTimeoutMessageType>(System.DateTime at)
+        protected System.Threading.Tasks.Task RequestTimeout<TTimeoutMessageType>(System.DateTime at)
             where TTimeoutMessageType : new() { }
         [System.ObsoleteAttribute("Construct your message and pass it to the non Action overload. Please use `Saga.R" +
             "equestTimeout<TTimeoutMessageType>(DateTime, TTimeoutMessageType)` instead. Will" +
             " be removed in version 7.0.0.", true)]
         protected void RequestTimeout<TTimeoutMessageType>(System.DateTime at, System.Action<TTimeoutMessageType> action)
             where TTimeoutMessageType : new() { }
-        protected void RequestTimeout<TTimeoutMessageType>(System.DateTime at, TTimeoutMessageType timeoutMessage) { }
-        protected void RequestTimeout<TTimeoutMessageType>(System.TimeSpan within)
+        protected System.Threading.Tasks.Task RequestTimeout<TTimeoutMessageType>(System.DateTime at, TTimeoutMessageType timeoutMessage) { }
+        protected System.Threading.Tasks.Task RequestTimeout<TTimeoutMessageType>(System.TimeSpan within)
             where TTimeoutMessageType : new() { }
         [System.ObsoleteAttribute("Construct your message and pass it to the non Action overload. Please use `Saga.R" +
             "equestTimeout<TTimeoutMessageType>(TimeSpan, TTimeoutMessageType)` instead. Will" +
             " be removed in version 7.0.0.", true)]
         protected void RequestTimeout<TTimeoutMessageType>(System.TimeSpan within, System.Action<TTimeoutMessageType> messageConstructor)
             where TTimeoutMessageType : new() { }
-        protected void RequestTimeout<TTimeoutMessageType>(System.TimeSpan within, TTimeoutMessageType timeoutMessage) { }
+        protected System.Threading.Tasks.Task RequestTimeout<TTimeoutMessageType>(System.TimeSpan within, TTimeoutMessageType timeoutMessage) { }
     }
     public abstract class Saga<TSagaData> : NServiceBus.Saga
         where TSagaData : NServiceBus.IContainSagaData, new ()
