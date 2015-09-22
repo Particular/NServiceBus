@@ -735,7 +735,7 @@ namespace NServiceBus
         public bool Completed { get; }
         public NServiceBus.IContainSagaData Entity { get; set; }
         protected internal abstract void ConfigureHowToFindSaga(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration);
-        protected virtual void MarkAsComplete() { }
+        protected void MarkAsComplete() { }
         protected System.Threading.Tasks.Task ReplyToOriginator(object message) { }
         [System.ObsoleteAttribute("Construct your message and pass it to the non Action overload. Please use `Saga.R" +
             "eplyToOriginator(object)` instead. Will be removed in version 7.0.0.", true)]

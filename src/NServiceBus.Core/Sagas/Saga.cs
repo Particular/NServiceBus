@@ -100,7 +100,7 @@ namespace NServiceBus
             var canHandleTimeoutMessage = this is IHandleTimeouts<TTimeoutMessageType>;
             if (!canHandleTimeoutMessage)
             {
-                var message = string.Format("The type '{0}' cannot request timeouts for '{1}' because it does not implement 'IHandleTimeouts<{2}>'", GetType().Name, timeoutMessage, typeof(TTimeoutMessageType).FullName);
+                var message = $"The type '{GetType().Name}' cannot request timeouts for '{timeoutMessage}' because it does not implement 'IHandleTimeouts<{typeof(TTimeoutMessageType).FullName}>'";
                 throw new Exception(message);
             }
         }
@@ -202,7 +202,7 @@ namespace NServiceBus
         /// Marks the saga as complete.
         /// This may result in the sagas state being deleted by the persister.
         /// </summary>
-        protected virtual void MarkAsComplete()
+        protected void MarkAsComplete()
         {
             Completed = true;
         }
