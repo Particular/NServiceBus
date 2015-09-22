@@ -18,13 +18,13 @@ namespace NServiceBus
             return base.Warmup();
         }
 
-        public override void Invoke(Context context, Action next)
+        public override async Task Invoke(Context context, Func<Task> next)
         {
             messagesPulledFromQueueCounter.Increment();
 
             try
             {
-                next();
+                await next().ConfigureAwait(false);
             }
             catch (Exception)
             {

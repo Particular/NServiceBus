@@ -4,28 +4,27 @@
     using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
-    using NServiceBus.Features;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_saga_is_mapped_to_complex_expression : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_hydrate_and_invoke_the_existing_instance()
         {
-            await Scenario.Define<Context>()
-                    .WithEndpoint<SagaEndpoint>(b => b.Given(async bus =>
-                        {
-                            await bus.SendLocalAsync(new StartSagaMessage { Key = "Part1_Part2"});
-                            await bus.SendLocalAsync(new OtherMessage { Part1 = "Part1", Part2 = "Part2" });
-                        }))
+            var context = await Scenario.Define<Context>()
+                    .WithEndpoint<SagaEndpoint>(b => b
+                        .Given(bus => bus.SendLocalAsync(new StartSagaMessage { Key = "Part1_Part2"}))
+                        .When(c => c.FirstMessageReceived, bus =>  bus.SendLocalAsync(new OtherMessage { Part1 = "Part1", Part2 = "Part2" })))
+                    .AllowExceptions()
                     .Done(c => c.SecondMessageReceived)
-                    .Repeat(r => r.For(Persistence.Default))
                     .Run();
+
+            Assert.IsTrue(context.SecondMessageReceived);
         }
 
         public class Context : ScenarioContext
         {
+            public bool FirstMessageReceived { get; set; }
             public bool SecondMessageReceived { get; set; }
         }
 
@@ -33,21 +32,17 @@
         {
             public SagaEndpoint()
             {
-                EndpointSetup<DefaultServer>(
-                    c =>
-                    {
-                        c.EnableFeature<TimeoutManager>();
-                        c.Transactions().DoNotWrapHandlersExecutionInATransactionScope();
-                    });
+                EndpointSetup<DefaultServer>();
             }
 
             public class TestSaga02 : Saga<TestSagaData02>,
-                IAmStartedByMessages<StartSagaMessage>, IHandleMessages<OtherMessage>
+                IAmStartedByMessages<StartSagaMessage>, IAmStartedByMessages<OtherMessage>
             {
                 public Context Context { get; set; }
                 public Task Handle(StartSagaMessage message)
                 {
                     Data.KeyValue = message.Key;
+                    Context.FirstMessageReceived = true;
                     return Task.FromResult(0);
                 }
 

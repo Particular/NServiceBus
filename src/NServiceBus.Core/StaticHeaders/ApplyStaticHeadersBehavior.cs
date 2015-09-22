@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.StaticHeaders;
@@ -15,14 +16,14 @@ namespace NServiceBus
             this.currentStaticHeaders = currentStaticHeaders;
         }
 
-        public override void Invoke(OutgoingContext context, Action next)
+        public override Task Invoke(OutgoingContext context, Func<Task> next)
         {
             foreach (var staticHeader in currentStaticHeaders)
             {
                 context.SetHeader(staticHeader.Key,staticHeader.Value);
             }
 
-            next();
+            return next();
         }
     }
 }

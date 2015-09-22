@@ -1,18 +1,17 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
 
     class TransportReceiveToPhysicalMessageProcessingConnector : StageConnector<TransportReceiveContext, PhysicalMessageProcessingStageBehavior.Context>
     {
-
-
-        public override void Invoke(TransportReceiveContext context, Action<PhysicalMessageProcessingStageBehavior.Context> next)
+        public override async Task Invoke(TransportReceiveContext context, Func<PhysicalMessageProcessingStageBehavior.Context, Task> next)
         {
             var physicalMessageContext = new PhysicalMessageProcessingStageBehavior.Context(context);
 
-            next(physicalMessageContext);
+            await next(physicalMessageContext).ConfigureAwait(false);
 
             if (physicalMessageContext.AbortReceiveOperation)
             {

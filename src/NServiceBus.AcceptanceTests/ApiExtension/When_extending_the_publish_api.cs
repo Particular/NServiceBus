@@ -64,7 +64,7 @@
 
             public class PublishExtensionBehavior : Behavior<OutgoingContext>
             {
-                public override void Invoke(OutgoingContext context, Action next)
+                public override Task Invoke(OutgoingContext context, Func<Task> next)
                 {
                     Context data;
 
@@ -77,7 +77,7 @@
                         Assert.Fail("Expected to find the data");
                     }
 
-                    next();
+                    return next();
                 }
 
                public  class Context

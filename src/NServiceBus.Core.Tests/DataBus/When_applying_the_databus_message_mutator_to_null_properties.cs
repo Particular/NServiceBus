@@ -2,6 +2,7 @@ namespace NServiceBus.Core.Tests.DataBus
 {
     using System.IO;
     using System.Runtime.Serialization.Formatters.Binary;
+    using System.Threading.Tasks;
     using NUnit.Framework;
     using Conventions = NServiceBus.Conventions;
 
@@ -9,7 +10,7 @@ namespace NServiceBus.Core.Tests.DataBus
     class When_applying_the_databus_message_mutator_to_null_properties 
     {
         [Test]
-        public void Should_not_blow_up()
+        public async Task Should_not_blow_up()
         {
             var context = ContextHelpers.GetOutgoingContext(new MessageWithNullDataBusProperty());
             var sendBehavior = new DataBusSendBehavior
@@ -24,7 +25,7 @@ namespace NServiceBus.Core.Tests.DataBus
                 new BinaryFormatter().Serialize(stream, "test");
                 stream.Position = 0;
 
-                sendBehavior.Invoke(context, () => { });            
+                await sendBehavior.Invoke(context, () => Task.FromResult(0));            
             }
         }
 

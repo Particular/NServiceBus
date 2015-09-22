@@ -15,7 +15,7 @@ namespace NServiceBus.Core.Tests.DataBus
     class When_applying_the_databus_message_mutator_to_incoming_messages
     {
         [Test]
-        public void Incoming_databus_properties_should_be_hydrated()
+        public async Task Incoming_databus_properties_should_be_hydrated()
         {
             var propertyKey = Guid.NewGuid().ToString();
             var databusKey = Guid.NewGuid().ToString();
@@ -44,7 +44,7 @@ namespace NServiceBus.Core.Tests.DataBus
                 fakeDatabus.StreamsToReturn[databusKey] = stream;
 
               
-                receiveBehavior.Invoke(new LogicalMessageProcessingStageBehavior.Context(message,new Dictionary<string, string> { { "NServiceBus.DataBus." + propertyKey, databusKey } },null,null), () => { });
+                await receiveBehavior.Invoke(new LogicalMessageProcessingStageBehavior.Context(message,new Dictionary<string, string> { { "NServiceBus.DataBus." + propertyKey, databusKey } },null,null), () => Task.FromResult(0));
             }
 
             var instance = (MessageWithDataBusProperty)message.Instance;
@@ -52,9 +52,10 @@ namespace NServiceBus.Core.Tests.DataBus
             Assert.AreEqual(instance.DataBusProperty.Value, "test");
         }
 
-        class FakeDataBus:IDataBus
+        class FakeDataBus : IDataBus
         {
             public Dictionary<string,Stream> StreamsToReturn = new Dictionary<string, Stream>();
+
             public Task<Stream> Get(string key)
             {
                 return Task.FromResult(StreamsToReturn[key]);

@@ -1,12 +1,13 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.MessageMutator;
     using NServiceBus.Pipeline.Contexts;
 
     class MutateIncomingMessageBehavior : LogicalMessageProcessingStageBehavior
     {
-        public override void Invoke(Context context, Action next)
+        public override async Task Invoke(Context context, Func<Task> next)
         {
             var logicalMessage = context.GetLogicalMessage();
             var current = logicalMessage.Instance;
@@ -14,7 +15,7 @@
             var mutatorContext = new MutateIncomingMessageContext(current, context.Headers);
             foreach (var mutator in context.Builder.BuildAll<IMutateIncomingMessages>())
             {
-                mutator.MutateIncoming(mutatorContext).GetAwaiter().GetResult();
+                await mutator.MutateIncoming(mutatorContext).ConfigureAwait(false);
             }
 
             if (mutatorContext.MessageChanged)
@@ -22,7 +23,7 @@
                 logicalMessage.UpdateMessageInstance(mutatorContext.Message);
             }
             context.MessageType = logicalMessage.Metadata.MessageType;
-            next();
+            await next().ConfigureAwait(false);
         }
     }
 }

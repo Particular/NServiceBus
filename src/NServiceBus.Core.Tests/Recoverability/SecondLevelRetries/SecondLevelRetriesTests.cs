@@ -22,7 +22,7 @@
     public class SecondLevelRetriesTests
     {
         [Test]
-        public void ShouldRetryIfPolicyReturnsADelay()
+        public async Task ShouldRetryIfPolicyReturnsADelay()
         {
             var notifications = new BusNotifications();
 
@@ -35,7 +35,7 @@
 
             notifications.Errors.MessageHasBeenSentToSecondLevelRetries.Subscribe(slr => { slrNotification = slr; });
 
-            behavior.Invoke(CreateContext("someid", 1), () => { throw new Exception("testex"); });
+            await behavior.Invoke(CreateContext("someid", 1), () => { throw new Exception("testex"); });
 
             Assert.AreEqual("someid", fakeDispatchPipeline.DispatchContext.Get<OutgoingMessage>().Headers[Headers.MessageId]);
             Assert.AreEqual(delay, ((DelayDeliveryWith) fakeDispatchPipeline.DispatchContext.GetDeliveryConstraints().Single(c => c is DelayDeliveryWith)).Delay);
@@ -44,14 +44,14 @@
         }
 
         [Test]
-        public void ShouldSetTimestampHeaderForFirstRetry()
+        public async Task ShouldSetTimestampHeaderForFirstRetry()
         {
             var delay = TimeSpan.FromSeconds(5);
             var fakeDispatchPipeline = new FakeDispatchPipeline();
             var behavior = new SecondLevelRetriesBehavior(fakeDispatchPipeline, new FakePolicy(delay), new BusNotifications(), "MyAddress");
             behavior.Initialize(new PipelineInfo("Test", "test-address-for-this-pipeline"));
 
-            behavior.Invoke(CreateContext("someid", 0), () => { throw new Exception("testex"); });
+            await behavior.Invoke(CreateContext("someid", 0), () => { throw new Exception("testex"); });
 
             Assert.True(fakeDispatchPipeline.DispatchContext.Get<OutgoingMessage>().Headers.ContainsKey(SecondLevelRetriesBehavior.RetriesTimestamp));
         }
@@ -64,7 +64,7 @@
             behavior.Initialize(new PipelineInfo("Test", "test-address-for-this-pipeline"));
             var context = CreateContext("someid", 1);
 
-            Assert.Throws<Exception>(() => behavior.Invoke(context, () => { throw new Exception("testex"); }));
+            Assert.Throws<Exception>(async () => await behavior.Invoke(context, () => { throw new Exception("testex"); }));
 
             Assert.False(context.GetPhysicalMessage().Headers.ContainsKey(Headers.Retries));
         }
@@ -77,12 +77,12 @@
             behavior.Initialize(new PipelineInfo("Test", "test-address-for-this-pipeline"));
             var context = CreateContext("someid", 1);
 
-            Assert.Throws<MessageDeserializationException>(() => behavior.Invoke(context, () => { throw new MessageDeserializationException("testex"); }));
+            Assert.Throws<MessageDeserializationException>(async () => await behavior.Invoke(context, () => { throw new MessageDeserializationException("testex"); }));
             Assert.False(context.GetPhysicalMessage().Headers.ContainsKey(Headers.Retries));
         }
 
         [Test]
-        public void ShouldPullCurrentRetryCountFromHeaders()
+        public async Task ShouldPullCurrentRetryCountFromHeaders()
         {
             var retryPolicy = new FakePolicy(TimeSpan.FromSeconds(5));
 
@@ -92,13 +92,13 @@
 
             var currentRetry = 3;
 
-            behavior.Invoke(CreateContext("someid", currentRetry), () => { throw new Exception("testex"); });
+            await behavior.Invoke(CreateContext("someid", currentRetry), () => { throw new Exception("testex"); });
 
             Assert.AreEqual(currentRetry + 1, retryPolicy.InvokedWithCurrentRetry);
         }
 
         [Test]
-        public void ShouldDefaultRetryCountToZeroIfNoHeaderIsFound()
+        public async Task ShouldDefaultRetryCountToZeroIfNoHeaderIsFound()
         {
             var retryPolicy = new FakePolicy(TimeSpan.FromSeconds(5));
             var context = CreateContext("someid", 2);
@@ -109,14 +109,14 @@
             var behavior = new SecondLevelRetriesBehavior(fakeDispatchPipeline, retryPolicy, new BusNotifications(), "MyAddress");
             behavior.Initialize(new PipelineInfo("Test", "test-address-for-this-pipeline"));
 
-            behavior.Invoke(context, () => { throw new Exception("testex"); });
+            await behavior.Invoke(context, () => { throw new Exception("testex"); });
 
             Assert.AreEqual(1, retryPolicy.InvokedWithCurrentRetry);
             Assert.AreEqual("1", fakeDispatchPipeline.DispatchContext.Get<OutgoingMessage>().Headers[Headers.Retries]);
         }
 
         [Test]
-        public void ShouldRevertMessageBodyWhenDispatchingMessage()
+        public async Task ShouldRevertMessageBodyWhenDispatchingMessage()
         {
             const string originalContent = "original content";
             var context = CreateContext("someId", 1, Encoding.UTF8.GetBytes(originalContent));
@@ -128,7 +128,7 @@
             var message = context.GetPhysicalMessage();
             message.Body = Encoding.UTF8.GetBytes("modified content");
 
-            behavior.Invoke(context, () => { throw new Exception("test"); });
+            await behavior.Invoke(context, () => { throw new Exception("test"); });
 
             var dispatchedMessage = fakeDispatchPipeline.DispatchContext.Get<OutgoingMessage>();
             Assert.AreEqual(originalContent, Encoding.UTF8.GetString(dispatchedMessage.Body));

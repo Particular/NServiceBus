@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.DeliveryConstraints;
     using NServiceBus.OutgoingPipeline;
     using NServiceBus.Performance.TimeToBeReceived;
@@ -8,14 +9,14 @@
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.TransportDispatch;
 
-    class ApplyTimeToBeReceivedBehavior:Behavior<OutgoingContext>
+    class ApplyTimeToBeReceivedBehavior : Behavior<OutgoingContext>
     {
         public ApplyTimeToBeReceivedBehavior(TimeToBeReceivedMappings timeToBeReceivedMappings)
         {
             this.timeToBeReceivedMappings = timeToBeReceivedMappings;
         }
         
-        public override void Invoke(OutgoingContext context, Action next)
+        public override Task Invoke(OutgoingContext context, Func<Task> next)
         {
             TimeSpan timeToBeReceived;
 
@@ -25,7 +26,7 @@
                 context.SetHeader(Headers.TimeToBeReceived, timeToBeReceived.ToString());
             }
 
-            next();
+            return next();
         }
 
         TimeToBeReceivedMappings timeToBeReceivedMappings;

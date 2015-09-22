@@ -26,14 +26,13 @@
         public class CorruptionBehavior : Behavior<DispatchContext>
         {
             public Context Context { get; set; }
-
-
-            public override void Invoke(DispatchContext context, Action next)
+            
+            public override Task Invoke(DispatchContext context, Func<Task> next)
             {
                 context.Get<OutgoingMessage>().Headers["ScenarioContextId"] = Context.Id.ToString();
                 context.Get<OutgoingMessage>().Headers[Headers.MessageId] = "";
 
-                next();
+                return next();
             }
         }
 
@@ -63,19 +62,21 @@
             {
                 public When_message_has_empty_id_header.Context ScenarioContext { get; set; }
 
-                public override void Invoke(Context ctx, Action next)
+                public override Task Invoke(Context ctx, Func<Task> next)
                 {
                     if (!ctx.GetPhysicalMessage().Headers.ContainsKey("ScenarioContextId"))
                     {
-                        return;
+                        return Task.FromResult(0);
                     }
                     var id = new Guid(ctx.GetPhysicalMessage().Headers["ScenarioContextId"]);
                     if (id != ScenarioContext.Id)
                     {
-                        return;
+                        return Task.FromResult(0);
                     }
                     ScenarioContext.MessageId = ctx.GetPhysicalMessage().Id;
                     ScenarioContext.MessageReceived = true;
+
+                    return Task.FromResult(0);
                 }
 
                 public class Registration : RegisterStep

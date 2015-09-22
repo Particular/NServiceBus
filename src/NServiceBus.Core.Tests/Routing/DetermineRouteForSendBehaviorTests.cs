@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Routing;
@@ -10,7 +11,7 @@
     public class DetermineRouteForSendBehaviorTests
     {
         [Test]
-        public void Should_use_explicit_route_for_sends_if_present()
+        public async Task Should_use_explicit_route_for_sends_if_present()
         {
             var behavior = InitializeBehavior();
             var options = new SendOptions();
@@ -19,17 +20,15 @@
 
             var context = CreateContext(options);
 
-            behavior.Invoke(context, () => { });
+            await behavior.Invoke(context, () => Task.FromResult(0));
 
             var routingStrategy = (DirectToTargetDestination)context.Get<RoutingStrategy>();
 
             Assert.AreEqual("destination endpoint", routingStrategy.Destination);
         }
 
-
-
         [Test]
-        public void Should_route_to_local_endpoint_if_requested_so()
+        public async Task Should_route_to_local_endpoint_if_requested_so()
         {
             var behavior = InitializeBehavior("MyLocalAddress");
             var options = new SendOptions();
@@ -38,17 +37,15 @@
 
             var context = CreateContext(options);
 
-
-            behavior.Invoke(context, () => { });
+            await behavior.Invoke(context, () => Task.FromResult(0));
 
             var routingStrategy = (DirectToTargetDestination)context.Get<RoutingStrategy>();
-
 
             Assert.AreEqual("MyLocalAddress", routingStrategy.Destination);
         }
 
         [Test]
-        public void Should_route_using_the_mappings_if_no_destination_is_set()
+        public async Task Should_route_using_the_mappings_if_no_destination_is_set()
         {
             var router = new FakeRouter();
 
@@ -57,8 +54,7 @@
 
             var context = CreateContext(options);
 
-
-            behavior.Invoke(context, () => { });
+            await behavior.Invoke(context, () => Task.FromResult(0));
 
             var routingStrategy = (DirectToTargetDestination)context.Get<RoutingStrategy>();
 
@@ -75,8 +71,7 @@
 
             var context = CreateContext(options, new MessageWithoutRouting());
 
-
-            var ex = Assert.Throws<Exception>(() => behavior.Invoke(context, () => { }));
+            var ex = Assert.Throws<Exception>(async() => await behavior.Invoke(context, () => Task.FromResult(0)));
 
             Assert.True(ex.Message.Contains("No destination specified"));
         }

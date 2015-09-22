@@ -1859,8 +1859,8 @@ namespace NServiceBus.Pipeline
         protected NServiceBus.Unicast.Transport.PipelineInfo PipelineInfo { get; }
         public virtual System.Threading.Tasks.Task Cooldown() { }
         public void Initialize(NServiceBus.Unicast.Transport.PipelineInfo pipelineInfo) { }
-        public abstract void Invoke(TContext context, System.Action next);
-        public void Invoke(TContext context, System.Action<TContext> next) { }
+        public abstract System.Threading.Tasks.Task Invoke(TContext context, System.Func<System.Threading.Tasks.Task> next);
+        public System.Threading.Tasks.Task Invoke(TContext context, System.Func<TContext, System.Threading.Tasks.Task> next) { }
         public virtual System.Threading.Tasks.Task Warmup() { }
     }
     public abstract class BehaviorContext : NServiceBus.Extensibility.ContextBag
@@ -1878,7 +1878,7 @@ namespace NServiceBus.Pipeline
         where in TIn : NServiceBus.Pipeline.BehaviorContext
         where out TOut : NServiceBus.Pipeline.BehaviorContext
     {
-        void Invoke(TIn context, System.Action<TOut> next);
+        System.Threading.Tasks.Task Invoke(TIn context, System.Func<TOut, System.Threading.Tasks.Task> next);
     }
     public interface IPipelineTerminator { }
     public class PipelineNotifications : System.IDisposable
@@ -1902,8 +1902,8 @@ namespace NServiceBus.Pipeline
         where T : NServiceBus.Pipeline.BehaviorContext
     {
         protected PipelineTerminator() { }
-        public override void Invoke(T context, System.Action<NServiceBus.Pipeline.PipelineTerminator<T>.TerminatingContext> next) { }
-        public abstract void Terminate(T context);
+        public virtual System.Threading.Tasks.Task Invoke(T context, System.Func<NServiceBus.Pipeline.PipelineTerminator<T>.TerminatingContext, System.Threading.Tasks.Task> next) { }
+        protected abstract System.Threading.Tasks.Task Terminate(T context);
         public class TerminatingContext<T> : NServiceBus.Pipeline.BehaviorContext
             where T : NServiceBus.Pipeline.BehaviorContext
         {
@@ -1935,7 +1935,7 @@ namespace NServiceBus.Pipeline
         protected NServiceBus.Unicast.Transport.PipelineInfo PipelineInfo { get; }
         public virtual System.Threading.Tasks.Task Cooldown() { }
         public void Initialize(NServiceBus.Unicast.Transport.PipelineInfo pipelineInfo) { }
-        public abstract void Invoke(TFrom context, System.Action<TTo> next);
+        public abstract System.Threading.Tasks.Task Invoke(TFrom context, System.Func<TTo, System.Threading.Tasks.Task> next);
         public virtual System.Threading.Tasks.Task Warmup() { }
     }
     public struct StepEnded
@@ -2466,7 +2466,7 @@ namespace NServiceBus.Transports
     public interface IAuditMessages { }
     public interface ICancelDeferredMessages
     {
-        void CancelDeferredMessages(string messageKey, NServiceBus.Pipeline.BehaviorContext context);
+        System.Threading.Tasks.Task CancelDeferredMessages(string messageKey, NServiceBus.Pipeline.BehaviorContext context);
     }
     public interface ICreateQueues
     {
@@ -2493,8 +2493,17 @@ namespace NServiceBus.Transports
     }
     public interface IManageSubscriptions
     {
-        void Subscribe(System.Type eventType, NServiceBus.Extensibility.ContextBag context);
-        void Unsubscribe(System.Type eventType, NServiceBus.Extensibility.ContextBag context);
+        System.Threading.Tasks.Task SubscribeAsync(System.Type eventType, NServiceBus.Extensibility.ContextBag context);
+        System.Threading.Tasks.Task UnsubscribeAsync(System.Type eventType, NServiceBus.Extensibility.ContextBag context);
+    }
+    public class static IManageSubscriptionsExtensions_obsolete
+    {
+        [System.ObsoleteAttribute("Please use `SubscribeAsync(Type eventType, ContextBag context)` instead. Will be " +
+            "removed in version 7.0.0.", true)]
+        public static void Subscribe(this NServiceBus.Transports.IManageSubscriptions manage, System.Type eventType, NServiceBus.Extensibility.ContextBag context) { }
+        [System.ObsoleteAttribute("Please use `UnsubscribeAsync(Type eventType, ContextBag context)` instead. Will b" +
+            "e removed in version 7.0.0.", true)]
+        public static void Unsubscribe(NServiceBus.Transports.IManageSubscriptions manage, System.Type eventType, NServiceBus.Extensibility.ContextBag context) { }
     }
     public class IncomingMessage
     {

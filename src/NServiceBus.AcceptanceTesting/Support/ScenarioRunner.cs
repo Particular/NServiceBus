@@ -212,19 +212,20 @@
 
         static async Task PerformScenarios(RunDescriptor runDescriptor, IEnumerable<ActiveRunner> runners, Func<bool> done, Func<Exception, bool> allowedExceptions)
         {
+            var cts = new CancellationTokenSource();
             var endpoints = runners.Select(r => r.Instance).ToList();
 
-            await StartEndpoints(endpoints, allowedExceptions).ConfigureAwait(false);
+            await StartEndpoints(endpoints, allowedExceptions, cts).ConfigureAwait(false);
 
             runDescriptor.ScenarioContext.EndpointsStarted = true;
 
             var startTime = DateTime.UtcNow;
             var maxTime = runDescriptor.TestExecutionTimeout;
 
+            // ReSharper disable once LoopVariableIsNeverChangedInsideLoop
             try
             {
-                // ReSharper disable once LoopVariableIsNeverChangedInsideLoop
-                while (!done())
+                while (!done() && !cts.Token.IsCancellationRequested)
                 {
                     if ((DateTime.UtcNow - startTime) > maxTime)
                     {
@@ -234,23 +235,18 @@
                     await Task.Delay(1).ConfigureAwait(false);
                 }
             }
-// ReSharper disable once EmptyGeneralCatchClause
-            catch(Exception)
+            finally
             {
-                // We swallow like the original code
-                // TODO Daniel: Why??
+                await StopEndpoints(endpoints).ConfigureAwait(false);
             }
 
-            // With this version of C# we can't await in finally
-            await StopEndpoints(endpoints).ConfigureAwait(false);
-            
             var exceptions = runDescriptor.ScenarioContext.Exceptions
                         .Where(ex => !allowedExceptions(ex))
                         .ToList();
 
             if (exceptions.Any())
             {
-               throw new AggregateException(exceptions);
+                throw new AggregateException(exceptions);
             }
         }
 
@@ -258,21 +254,22 @@
         {
             var sb = new StringBuilder();
 
-            sb.AppendLine(string.Format("The maximum time limit for this test({0}s) has been reached",
-                                        maxTime.TotalSeconds));
+            sb.AppendLine($"The maximum time limit for this test({maxTime.TotalSeconds}s) has been reached");
             sb.AppendLine("----------------------------------------------------------------------------");
 
             return sb.ToString();
         }
 
-        static async Task StartEndpoints(IEnumerable<EndpointRunner> endpoints, Func<Exception, bool> allowedExceptions)
+        static async Task StartEndpoints(IEnumerable<EndpointRunner> endpoints, Func<Exception, bool> allowedExceptions, CancellationTokenSource cts)
         {
+            var token = cts.Token;
             var tasks = endpoints.Select(endpoint => Task.Run(async () =>
             {
-                var result = await endpoint.Start().ConfigureAwait(false);
+                var result = await endpoint.Start(token).ConfigureAwait(false);
 
                 if (result.Failed && !allowedExceptions(result.Exception))
                 {
+                    cts.Cancel();
                     throw new ScenarioException("Endpoint failed to start", result.Exception);
                 }
             })).ToArray();
@@ -282,7 +279,10 @@
             var completedTask = await Task.WhenAny(whenAll, timeoutTask).ConfigureAwait(false);
 
             if (completedTask.Equals(timeoutTask))
+            {
                 throw new Exception("Starting endpoints took longer than 2 minutes");
+            }
+
         }
 
         static async Task StopEndpoints(IEnumerable<EndpointRunner> endpoints)
@@ -323,24 +323,25 @@
 
                 if (endpointName.Length > 77)
                 {
-                    throw new Exception(string.Format("Endpoint name '{0}' is larger than 77 characters and will cause issues with MSMQ queue names. Please rename your test class or endpoint.", endpointName));
+                    throw new Exception($"Endpoint name '{endpointName}' is larger than 77 characters and will cause issues with MSMQ queue names. Please rename your test class or endpoint.");
                 }
 
                 var runner = new ActiveRunner
                 {
                     Instance = new EndpointRunner(),
-                    EndpointName = endpointName
+                    EndpointName = endpointName,
                 };
-                var result = await runner.Instance.Initialize(runDescriptor, behaviorDescriptor, routingTable, endpointName).ConfigureAwait(false);
 
-                if (result.Failed)
-                {
-                    throw new ScenarioException(string.Format("Endpoint {0} failed to initialize", runner.Instance.Name()), result.Exception);
-                }
-
+                runner.InitializeTask = Task.Run(() => runner.Instance.Initialize(runDescriptor, behaviorDescriptor, routingTable, endpointName));
                 runners.Add(runner);
             }
 
+            await Task.WhenAll(runners.Select(r => r.InitializeTask).ToArray());
+            var failedRunner = runners.FirstOrDefault(r => r.InitializeTask.Result.Failed);
+            if (failedRunner != null)
+            {
+                throw new ScenarioException($"Endpoint {failedRunner.Instance.Name()} failed to initialize", failedRunner.InitializeTask.Result.Exception);
+            }
             return runners;
         }
 

@@ -51,9 +51,9 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
                     this.testContext = testContext;
                 }
 
-                public override void Invoke(SubscribeContext context, Action next)
+                public override async Task Invoke(SubscribeContext context, Func<Task> next)
                 {
-                    next();
+                    await next().ConfigureAwait(false);
 
                     testContext.EventsSubscribedTo.Add(context.EventType);
                 }

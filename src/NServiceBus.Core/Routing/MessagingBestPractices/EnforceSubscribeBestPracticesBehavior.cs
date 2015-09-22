@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.MessagingBestPractices;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
@@ -13,7 +14,7 @@ namespace NServiceBus
             this.validations = validations;
         }
 
-        public override void Invoke(SubscribeContext context, Action next)
+        public override Task Invoke(SubscribeContext context, Func<Task> next)
         {
             EnforceBestPracticesOptions options;
 
@@ -22,7 +23,7 @@ namespace NServiceBus
                 validations.AssertIsValidForPubSub(context.EventType);
             }
 
-            next();
+            return next();
         }
 
         Validations validations;

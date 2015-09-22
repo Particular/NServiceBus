@@ -18,10 +18,8 @@ namespace NServiceBus.Core.Tests
     [TestFixture]
     public class ForwardFaultsToErrorQueueTests
     {
-
-
         [Test]
-        public void ShouldForwardToErrorQueueForAllExceptions()
+        public async Task ShouldForwardToErrorQueueForAllExceptions()
         {
             var fakeDispatchPipeline = new FakeDispatchPipeline();
             var errorQueueAddress = "error";
@@ -33,7 +31,7 @@ namespace NServiceBus.Core.Tests
             var context = CreateContext("someid");
             behavior.Initialize(new PipelineInfo("Test", "public-receive-address"));
 
-            behavior.Invoke(context, () =>
+            await behavior.Invoke(context, () =>
             {
                 throw new Exception("testex");
             });
@@ -53,7 +51,7 @@ namespace NServiceBus.Core.Tests
             behavior.Initialize(new PipelineInfo("Test", "public-receive-address"));
 
             //the ex should bubble to force the transport to rollback. If not the message will be lost
-            Assert.Throws<Exception>(() => behavior.Invoke(CreateContext("someid"), () =>
+            Assert.Throws<Exception>(async () => await behavior.Invoke(CreateContext("someid"), () =>
             {
                 throw new Exception("testex");
             }));
@@ -63,7 +61,7 @@ namespace NServiceBus.Core.Tests
 
 
         [Test]
-        public void ShouldEnrichHeadersWithHostAndExceptionDetails()
+        public async Task ShouldEnrichHeadersWithHostAndExceptionDetails()
         {
             var fakeDispatchPipeline = new FakeDispatchPipeline();
             var hostInfo = new HostInformation(Guid.NewGuid(), "my host");
@@ -72,7 +70,8 @@ namespace NServiceBus.Core.Tests
 
             var behavior = new MoveFaultsToErrorQueueBehavior(new FakeCriticalError(), fakeDispatchPipeline, hostInfo, new BusNotifications(), "error");
             behavior.Initialize(new PipelineInfo("Test", "public-receive-address"));
-            behavior.Invoke(context, () =>
+
+            await behavior.Invoke(context, () =>
             {
                 throw new Exception("testex");
             });
@@ -88,7 +87,7 @@ namespace NServiceBus.Core.Tests
         }
 
         [Test]
-        public void ShouldRaiseNotificationWhenMessageIsForwarded()
+        public async Task ShouldRaiseNotificationWhenMessageIsForwarded()
         {
 
             var notifications = new BusNotifications();
@@ -104,12 +103,10 @@ namespace NServiceBus.Core.Tests
             notifications.Errors.MessageSentToErrorQueue.Subscribe(f => { failedMessageNotification = f; });
 
             behavior.Initialize(new PipelineInfo("Test", "public-receive-address"));
-            behavior.Invoke(CreateContext("someid"), () =>
+            await behavior.Invoke(CreateContext("someid"), () =>
             {
                 throw new Exception("testex");
             });
-
-
 
             Assert.AreEqual("someid", failedMessageNotification.Headers[Headers.MessageId]);
 

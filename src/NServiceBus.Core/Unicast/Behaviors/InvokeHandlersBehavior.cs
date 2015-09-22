@@ -1,25 +1,26 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
     using Pipeline.Contexts;
     using Sagas;
 
     class InvokeHandlersBehavior : HandlingStageBehavior
     {
-        public override void Invoke(Context context, Action next)
+        public override async Task Invoke(Context context, Func<Task> next)
         {
             ActiveSagaInstance saga;
 
             if (context.TryGet(out saga) && saga.NotFound && saga.Metadata.SagaType == context.MessageHandler.Instance.GetType())
             {
-                next();
+                await next().ConfigureAwait(false);
                 return;
             }
 
             var messageHandler = context.MessageHandler;
-            messageHandler.Invoke(context.MessageBeingHandled).GetAwaiter().GetResult();
+            await messageHandler.Invoke(context.MessageBeingHandled).ConfigureAwait(false);
 
-            next();
+            await next().ConfigureAwait(false);
         }
     }
 }

@@ -1,12 +1,16 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
+    using NServiceBus.Extensibility;
     using NServiceBus.Logging;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
     using NServiceBus.Routing.MessageDrivenSubscriptions;
     using NServiceBus.Transports;
+    using NServiceBus.Unicast.Queuing;
     using NServiceBus.Unicast.Transport;
 
     class MessageDrivenUnsubscribeTerminator : PipelineTerminator<UnsubscribeContext>
@@ -18,7 +22,7 @@
             this.dispatcher = dispatcher;
         }
 
-        public override void Terminate(UnsubscribeContext context)
+        protected override Task Terminate(UnsubscribeContext context)
         {
             var eventType = context.EventType;
 
@@ -27,24 +31,63 @@
 
             if (!publisherAddresses.Any())
             {
-                throw new Exception(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMappings> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", eventType));
+                throw new Exception($"No destination could be found for message type {eventType}. Check the <MessageEndpointMappings> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.");
             }
 
+            var unsubscribeTasks = new List<Task>();
             foreach (var publisherAddress in publisherAddresses)
             {
                 Logger.Debug("Unsubscribing to " + eventType.AssemblyQualifiedName + " at publisher queue " + publisherAddress);
 
-                var subscriptionMessage = ControlMessageFactory.Create(MessageIntentEnum.Unsubscribe);
+                var unsubscribeMessage = ControlMessageFactory.Create(MessageIntentEnum.Unsubscribe);
 
-                subscriptionMessage.Headers[Headers.SubscriptionMessageType] = eventType.AssemblyQualifiedName;
-                subscriptionMessage.Headers[Headers.ReplyToAddress] = replyToAddress;
+                unsubscribeMessage.Headers[Headers.SubscriptionMessageType] = eventType.AssemblyQualifiedName;
+                unsubscribeMessage.Headers[Headers.ReplyToAddress] = replyToAddress;
 
+                var address = publisherAddress;
 
-                var dispatchOptions = new DispatchOptions(new DirectToTargetDestination(publisherAddress), context);
-                dispatcher.Dispatch(new [] { new TransportOperation(subscriptionMessage, dispatchOptions)}).GetAwaiter().GetResult();
+                unsubscribeTasks.Add(SendUnsubscribeMessageWithRetries(address, unsubscribeMessage, eventType.AssemblyQualifiedName, context));
+            }
+
+            return Task.WhenAll(unsubscribeTasks.ToArray());
+        }
+
+        async Task SendUnsubscribeMessageWithRetries(string destination, OutgoingMessage unsubscribeMessage, string messageType, ContextBag context, int retriesCount = 0)
+        {
+            var state = context.GetOrCreate<Settings>();
+            try
+            {
+                
+                var dispatchOptions = new DispatchOptions(new DirectToTargetDestination(destination), context);
+                await dispatcher.Dispatch(new[] { new TransportOperation(unsubscribeMessage, dispatchOptions) }).ConfigureAwait(false);
+            }
+            catch (QueueNotFoundException ex)
+            {
+                if (retriesCount < state.MaxRetries)
+                {
+                    await Task.Delay(state.RetryDelay).ConfigureAwait(false);
+                    await SendUnsubscribeMessageWithRetries(destination, unsubscribeMessage, messageType, context, ++retriesCount).ConfigureAwait(false);
+                }
+                else
+                {
+                    string message = $"Failed to unsubsribe for {messageType} at publisher queue {destination}, reason {ex.Message}";
+                    Logger.Error(message, ex);
+                    throw new QueueNotFoundException(destination, message, ex);
+                }
             }
         }
 
+        public class Settings
+        {
+            public Settings()
+            {
+                MaxRetries = 10;
+                RetryDelay = TimeSpan.FromSeconds(2);
+            }
+
+            public TimeSpan RetryDelay { get; set; }
+            public int MaxRetries { get; set; }
+        }
 
         SubscriptionRouter subscriptionRouter;
         string replyToAddress;

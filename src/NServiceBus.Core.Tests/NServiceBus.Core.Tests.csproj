@@ -16,7 +16,6 @@
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <TargetFrameworkProfile />
     <NuGetPackageImportStamp>27189a06</NuGetPackageImportStamp>
-    <LangVersion>5</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -135,6 +134,8 @@
     <Compile Include="Routing\ApplyReplyToAddressBehaviorTests.cs" />
     <Compile Include="Routing\DetermineRouteForPublishBehaviorTests.cs" />
     <Compile Include="Routing\DetermineRouteForSendBehaviorTests.cs" />
+    <Compile Include="Routing\MessageDrivenSubscribeTerminatorTests.cs" />
+    <Compile Include="Routing\MessageDrivenUnsubscribeTerminatorTests.cs" />
     <Compile Include="Routing\SubscriptionRouterTests.cs" />
     <Compile Include="Serializers\MessageDeserializerResolverTests.cs" />
     <Compile Include="Serializers\SerializationExtensionsTests.cs" />

@@ -56,11 +56,11 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
 
             class AddContextStorage : PhysicalMessageProcessingStageBehavior
             {
-                public override void Invoke(Context context, Action next)
+                public override Task Invoke(Context context, Func<Task> next)
                 {
                     context.Set(new AuditFilterResult());
 
-                    next();
+                    return next();
                 }
 
                 public class Registration : RegisterStep
@@ -75,17 +75,15 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
 
             class SetFiltering : LogicalMessageProcessingStageBehavior
             {
-                public override void Invoke(Context context, Action next)
+                public override Task Invoke(Context context, Func<Task> next)
                 {
                     if (context.MessageType == typeof(MessageToBeAudited))
                     {
                         context.Get<AuditFilterResult>().DoNotAuditMessage = true;
                     }
 
-                    next();
+                    return next();
                 }
-
-
             }
 
             class AuditFilterResult
@@ -95,17 +93,16 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
 
             class FilteringAuditBehavior : Behavior<AuditContext>
             {
-                public override void Invoke(AuditContext context, Action next)
+                public override Task Invoke(AuditContext context, Func<Task> next)
                 {
                     AuditFilterResult result;
 
                     if (context.TryGet(out result) && result.DoNotAuditMessage)
                     {
-                        return;
+                        return Task.FromResult(0);
                     }
-                    next();
+                    return next();
                 }
-
 
                 public class Registration : RegisterStep
                 {
@@ -114,8 +111,6 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
                     {
                     }
                 }
-
-
             }
 
             class AuditFilteringOverride : INeedInitialization

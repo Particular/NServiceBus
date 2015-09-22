@@ -1,8 +1,9 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
-    using System.Threading;
+    using System.Threading.Tasks;
     using NServiceBus.Extensibility;
     using NServiceBus.Logging;
     using NServiceBus.Pipeline;
@@ -21,7 +22,7 @@
             this.dispatcher = dispatcher;
         }
 
-        public override void Terminate(SubscribeContext context)
+        protected override Task Terminate(SubscribeContext context)
         {
             var eventType = context.EventType;
 
@@ -30,9 +31,10 @@
 
             if (!publisherAddresses.Any())
             {
-                throw new Exception(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMappings> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", eventType));
+                throw new Exception($"No destination could be found for message type {eventType}. Check the <MessageEndpointMappings> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.");
             }
 
+            var subscribeTasks = new List<Task>();
             foreach (var publisherAddress in publisherAddresses)
             {
                 Logger.Debug("Subscribing to " + eventType.AssemblyQualifiedName + " at publisher queue " + publisherAddress);
@@ -44,30 +46,46 @@
 
                 var address = publisherAddress;
 
-                ThreadPool.QueueUserWorkItem(state =>
-                    SendSubscribeMessageWithRetries(address, subscriptionMessage, eventType.AssemblyQualifiedName, context));
+                subscribeTasks.Add(SendSubscribeMessageWithRetries(address, subscriptionMessage, eventType.AssemblyQualifiedName, context));
             }
+
+            return Task.WhenAll(subscribeTasks.ToArray());
         }
 
-        void SendSubscribeMessageWithRetries(string destination, OutgoingMessage subscriptionMessage, string messageType, ContextBag context, int retriesCount = 0)
+        async Task SendSubscribeMessageWithRetries(string destination, OutgoingMessage subscriptionMessage, string messageType, ContextBag context, int retriesCount = 0)
         {
+            var state = context.GetOrCreate<Settings>();
             try
             {
                 var dispatchOptions = new DispatchOptions(new DirectToTargetDestination(destination), context);
-                dispatcher.Dispatch(new [] { new TransportOperation(subscriptionMessage, dispatchOptions)}).GetAwaiter().GetResult();
+                await dispatcher.Dispatch(new [] { new TransportOperation(subscriptionMessage, dispatchOptions)}).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {
-                if (retriesCount < 10)
+                if (retriesCount < state.MaxRetries)
                 {
-                    Thread.Sleep(TimeSpan.FromSeconds(2));
-                    SendSubscribeMessageWithRetries(destination, subscriptionMessage, messageType, context, ++retriesCount);
+                    await Task.Delay(state.RetryDelay).ConfigureAwait(false);
+                    await SendSubscribeMessageWithRetries(destination, subscriptionMessage, messageType, context, ++retriesCount).ConfigureAwait(false);
                 }
                 else
                 {
-                    Logger.ErrorFormat("Failed to subscribe to {0} at publisher queue {1}, reason {2}", messageType, destination, ex.Message);
+                    string message = $"Failed to subscribe to {messageType} at publisher queue {destination}, reason {ex.Message}";
+                    Logger.Error(message, ex);
+                    throw new QueueNotFoundException(destination, message, ex);
                 }
             }
+        }
+
+        public class Settings
+        {
+            public Settings()
+            {
+                MaxRetries = 10;
+                RetryDelay = TimeSpan.FromSeconds(2);
+            }
+
+            public TimeSpan RetryDelay { get; set; }
+            public int MaxRetries { get; set; }
         }
 
         SubscriptionRouter subscriptionRouter;
