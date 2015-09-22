@@ -54,7 +54,7 @@
 
         async Task SendUnsubscribeMessageWithRetries(string destination, OutgoingMessage unsubscribeMessage, string messageType, ContextBag context, int retriesCount = 0)
         {
-            var state = context.GetOrCreate<State>();
+            var state = context.GetOrCreate<Settings>();
             try
             {
                 
@@ -77,9 +77,9 @@
             }
         }
 
-        public class State
+        public class Settings
         {
-            public State()
+            public Settings()
             {
                 MaxRetries = 10;
                 RetryDelay = TimeSpan.FromSeconds(2);

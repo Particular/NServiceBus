@@ -41,7 +41,7 @@
         public async Task Should_Dispatch_according_to_max_retries_when_dispatch_fails()
         {
             var options = new SubscribeOptions();
-            var state = options.GetExtensions().GetOrCreate<MessageDrivenSubscribeTerminator.State>();
+            var state = options.GetExtensions().GetOrCreate<MessageDrivenSubscribeTerminator.Settings>();
             state.MaxRetries = 10;
             state.RetryDelay = TimeSpan.Zero;
             dispatcher.FailDispatch(10);
@@ -56,7 +56,7 @@
         public void Should_Throw_when_max_retries_reached()
         {
             var options = new SubscribeOptions();
-            var state = options.GetExtensions().GetOrCreate<MessageDrivenSubscribeTerminator.State>();
+            var state = options.GetExtensions().GetOrCreate<MessageDrivenSubscribeTerminator.Settings>();
             state.MaxRetries = 10;
             state.RetryDelay = TimeSpan.Zero;
             dispatcher.FailDispatch(11);
