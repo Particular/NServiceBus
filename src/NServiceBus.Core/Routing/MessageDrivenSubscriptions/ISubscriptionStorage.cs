@@ -17,5 +17,10 @@ namespace NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions
         /// Unsubscribes the given client address from messages of the given types.
         /// </summary>
         Task Unsubscribe(string client, IEnumerable<MessageType> messageTypes, SubscriptionStorageOptions options);
+
+        /// <summary>
+        /// Returns a list of addresses for subscribers currently subscribed to the given message type.
+        /// </summary>
+        Task<IEnumerable<string>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes, SubscriptionStorageOptions options);
     }
 }

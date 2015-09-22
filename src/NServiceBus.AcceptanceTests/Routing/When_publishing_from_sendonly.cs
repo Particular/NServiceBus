@@ -82,31 +82,22 @@
         {
             protected override void Setup(FeatureConfigurationContext context)
             {
-                context.Container.ConfigureComponent<HardcodedSubscriptionQuery>(DependencyLifecycle.SingleInstance);
-                context.Container.ConfigureComponent<NoOpSubscriptionManager>(DependencyLifecycle.SingleInstance);
+                context.Container.ConfigureComponent<HardcodedSubscriptionManager>(DependencyLifecycle.SingleInstance);
             }
         }
 
-        public class HardcodedSubscriptionQuery : IQuerySubscriptions
+        public class HardcodedSubscriptionManager : ISubscriptionStorage
         {
             Task<IEnumerable<string>> addressTask;
 
-            public HardcodedSubscriptionQuery()
+            public HardcodedSubscriptionManager()
             {
                 addressTask = Task.FromResult(new[]
-                {
+{
                     "publishingfromsendonly.subscriber"
                 }.AsEnumerable());
             }
 
-            public Task<IEnumerable<string>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes)
-            {
-                return addressTask;
-            }
-        }
-
-        public class NoOpSubscriptionManager : ISubscriptionStorage
-        {
             public Task Subscribe(string client, IEnumerable<MessageType> messageTypes, SubscriptionStorageOptions options)
             {
                 return Task.FromResult(0);
@@ -115,6 +106,11 @@
             public Task Unsubscribe(string client, IEnumerable<MessageType> messageTypes, SubscriptionStorageOptions options)
             {
                 return Task.FromResult(0);
+            }
+
+            public Task<IEnumerable<string>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes, SubscriptionStorageOptions options)
+            {
+                return addressTask;
             }
         }
     }

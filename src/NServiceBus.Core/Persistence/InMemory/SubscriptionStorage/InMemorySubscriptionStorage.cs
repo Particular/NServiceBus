@@ -10,7 +10,7 @@ namespace NServiceBus.InMemory.SubscriptionStorage
     /// <summary>
     ///     In memory implementation of the subscription storage
     /// </summary>
-    class InMemorySubscriptionStorage : ISubscriptionStorage, IQuerySubscriptions
+    class InMemorySubscriptionStorage : ISubscriptionStorage
     {
         public Task Subscribe(string address, IEnumerable<MessageType> messageTypes, SubscriptionStorageOptions options)
         {
@@ -37,7 +37,7 @@ namespace NServiceBus.InMemory.SubscriptionStorage
             return TaskEx.Completed;
         }
 
-        public Task<IEnumerable<string>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes)
+        public Task<IEnumerable<string>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes, SubscriptionStorageOptions options)
         {
             var result = new HashSet<string>();
             foreach (var m in messageTypes)

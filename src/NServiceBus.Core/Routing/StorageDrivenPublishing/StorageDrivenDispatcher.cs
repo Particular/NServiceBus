@@ -13,7 +13,7 @@
 
     class StorageDrivenDispatcher : DispatchStrategy
     {
-        public StorageDrivenDispatcher(IQuerySubscriptions querySubscriptions, MessageMetadataRegistry messageMetadataRegistry)
+        public StorageDrivenDispatcher(ISubscriptionStorage querySubscriptions, MessageMetadataRegistry messageMetadataRegistry)
         {
             this.querySubscriptions = querySubscriptions;
             this.messageMetadataRegistry = messageMetadataRegistry;
@@ -43,7 +43,7 @@
                 .Distinct()
                 .ToList();
 
-            var subscribers = (await querySubscriptions.GetSubscriberAddressesForMessage(eventTypesToPublish.Select(t => new MessageType(t))).ConfigureAwait(false))
+            var subscribers = (await querySubscriptions.GetSubscriberAddressesForMessage(eventTypesToPublish.Select(t => new MessageType(t)), new SubscriptionStorageOptions(currentContext)).ConfigureAwait(false))
                 .ToList();
 
             currentContext.Set(new SubscribersForEvent(subscribers, eventType));
@@ -63,7 +63,7 @@
             }
         }
 
-        IQuerySubscriptions querySubscriptions;
+        ISubscriptionStorage querySubscriptions;
         MessageMetadataRegistry messageMetadataRegistry;
     }
 }

@@ -218,7 +218,6 @@
     <Compile Include="Routing\DetermineRouteForSendBehavior.cs" />
     <Compile Include="Routing\DirectToTargetDestination.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\IInitializableSubscriptionStorage.cs" />
-    <Compile Include="Routing\MessageDrivenSubscriptions\IQuerySubscriptions.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\MessageDrivenUnsubscribeTerminator.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\MessageDrivenSubscribeTerminator.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\MessageDrivenSubscriptions.cs" />
