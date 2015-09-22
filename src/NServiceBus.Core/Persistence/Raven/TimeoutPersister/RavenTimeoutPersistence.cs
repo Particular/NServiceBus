@@ -10,7 +10,7 @@ namespace NServiceBus.Persistence.Raven.TimeoutPersister
     using Logging;
     using Timeout.Core;
 
-    public class RavenTimeoutPersistence : IPersistTimeouts
+    public class RavenTimeoutPersistence : IPersistTimeouts, IPersistTimeoutsV2
     {
         readonly IDocumentStore store;
 
@@ -167,6 +167,28 @@ namespace NServiceBus.Persistence.Raven.TimeoutPersister
                 foreach (var item in items)
                     session.Delete(item);
 
+                session.SaveChanges();
+            }
+        }
+
+        public TimeoutData Peek(string timeoutId)
+        {
+            using (var session = OpenSession())
+            {
+                return session.Load<TimeoutData>(timeoutId);
+            }
+        }
+
+        public void Remove(string timeoutId)
+        {
+            using (var session = OpenSession())
+            {
+                var timeoutData = session.Load<TimeoutData>(timeoutId);
+
+                if (timeoutData == null)
+                    return;
+
+                session.Delete(timeoutData);
                 session.SaveChanges();
             }
         }
