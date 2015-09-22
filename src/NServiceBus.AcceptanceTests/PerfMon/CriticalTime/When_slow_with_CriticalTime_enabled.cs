@@ -58,11 +58,10 @@
         public class MyMessageHandler : IHandleMessages<MyMessage>
         {
             public Context Context { get; set; }
-            public Task Handle(MyMessage message)
+            public async Task Handle(MyMessage message)
             {
-                Thread.Sleep(2000);
+                await Task.Delay(2000);
                 Context.WasCalled = true;
-                return Task.FromResult(0);
             }
         }
     }
