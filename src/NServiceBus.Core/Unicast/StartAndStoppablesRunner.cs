@@ -30,7 +30,7 @@
                 }, TaskContinuationOptions.OnlyOnRanToCompletion | TaskContinuationOptions.ExecuteSynchronously);
                 task.ContinueWith(t =>
                 {
-                    Log.Error(string.Format("Startup task {0} failed to complete.", startable1.GetType().AssemblyQualifiedName), t.Exception);
+                    Log.Error($"Startup task {startable1.GetType().AssemblyQualifiedName} failed to complete.", t.Exception);
                 }, TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously);
 
                 startableTasks.Add(task);
@@ -63,7 +63,7 @@
                     .Ignore();
                     task.ContinueWith(t =>
                     {
-                        Log.Fatal(string.Format("Startup task {0} failed to stop.", stoppable1.GetType().AssemblyQualifiedName), t.Exception);
+                        Log.Fatal($"Startup task {stoppable1.GetType().AssemblyQualifiedName} failed to stop.", t.Exception);
                         t.Exception.Flatten().Handle(e => true);
                     }, TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously)
                     .Ignore();
