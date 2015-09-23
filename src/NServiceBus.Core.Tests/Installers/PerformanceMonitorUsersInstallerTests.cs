@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Installers
 {
+    using System.Threading.Tasks;
     using NServiceBus.Performance.Counters;
     using NUnit.Framework;
 
@@ -8,10 +9,10 @@
     {
         [Test]
         [Explicit]
-        public void Integration()
+        public async Task Integration()
         {
             var installer = new PerformanceMonitorUsersInstaller();
-            installer.Install(@"location\username", null);
+            await installer.InstallAsync(@"location\username", null);
         }
     }
 }

@@ -4,6 +4,7 @@ namespace NServiceBus.Performance.Counters
     using System.Diagnostics;
     using System.IO;
     using System.Security.Principal;
+    using System.Threading.Tasks;
     using NServiceBus.Installation;
     using NServiceBus.Logging;
 
@@ -25,7 +26,7 @@ namespace NServiceBus.Performance.Counters
                 builtinPerformanceMonitoringUsersName = parts[1];
             }
         }
-        public void Install(string identity, Configure config)
+        public Task InstallAsync(string identity, Configure config)
         {
             //did not use DirectoryEntry to avoid a ref to the DirectoryServices.dll
             try
@@ -34,7 +35,7 @@ namespace NServiceBus.Performance.Counters
                 {
                     logger.InfoFormat(@"Did not attempt to add user '{0}' to group '{1}' since process is not running with elevate privileges. Processing will continue. To manually perform this action run the following command from an admin console:
 net localgroup ""{1}"" ""{0}"" /add", identity, builtinPerformanceMonitoringUsersName);
-                    return;
+                    return TaskEx.Completed;
                 }
                 StartProcess(identity);
             }
@@ -46,6 +47,8 @@ To help diagnose the problem try running the following command from an admin con
 net localgroup ""{1}"" ""{0}"" /add", identity, builtinPerformanceMonitoringUsersName);
                 logger.Warn(message, win32Exception);
             }
+
+            return TaskEx.Completed;
         }
 
 
@@ -67,18 +70,18 @@ net localgroup ""{1}"" ""{0}"" /add", identity, builtinPerformanceMonitoringUser
 
                 if (process.ExitCode == 0)
                 {
-                    logger.Info(string.Format("Added user '{0}' to group '{1}'.", identity, builtinPerformanceMonitoringUsersName));
+                    logger.Info($"Added user '{identity}' to group '{builtinPerformanceMonitoringUsersName}'.");
                     return;
                 }
                 var error = process.StandardError.ReadToEnd();
                 if (IsAlreadyAMemberError(error))
                 {
-                    logger.Info(string.Format("Skipped adding user '{0}' to group '{1}' because the user is already in group.", identity, builtinPerformanceMonitoringUsersName));
+                    logger.Info($"Skipped adding user '{identity}' to group '{builtinPerformanceMonitoringUsersName}' because the user is already in group.");
                     return;
                 }
                 if (IsGroupDoesNotExistError(error))
                 {
-                    logger.Info(string.Format("Skipped adding user '{0}' to group '{1}' because the group does not exist.", identity, builtinPerformanceMonitoringUsersName));
+                    logger.Info($"Skipped adding user '{identity}' to group '{builtinPerformanceMonitoringUsersName}' because the group does not exist.");
                     return;
                 }
                 var message = string.Format(
@@ -90,12 +93,12 @@ net localgroup ""{2}"" ""{0}"" /add", identity, error, builtinPerformanceMonitor
             }
         }
 
-        bool IsAlreadyAMemberError(string error)
+        static bool IsAlreadyAMemberError(string error)
         {
             return error.Contains("1378");
         }
 
-        bool IsGroupDoesNotExistError(string error)
+        static bool IsGroupDoesNotExistError(string error)
         {
             //required since 'Performance Monitor Users' does not exist on all windows OS.
             return error.Contains("1376");
