@@ -70,7 +70,7 @@
                     await Bus.PublishAsync<SomethingHappenedEvent>(m => { m.DataId = message.DataId; });
 
                     //Request a timeout
-                    await RequestTimeout<Timeout1>(TimeSpan.FromSeconds(5));
+                    await RequestTimeoutAsync<Timeout1>(TimeSpan.FromSeconds(5));
                 }
 
                 public Task Timeout(Timeout1 state)
@@ -117,7 +117,7 @@
                 {
                     Data.DataId = message.DataId;
                     //Request a timeout
-                    return RequestTimeout<Saga2Timeout>(TimeSpan.FromSeconds(5));
+                    return RequestTimeoutAsync<Saga2Timeout>(TimeSpan.FromSeconds(5));
                 }
 
                 public Task Timeout(Saga2Timeout state)

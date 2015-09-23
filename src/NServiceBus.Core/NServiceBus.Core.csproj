@@ -103,6 +103,7 @@
     <Compile Include="ISendOnlyBusExtensions_obsoletes.cs" />
     <Compile Include="IWantToRunWhenBusStartsAndStopsExtensions_obsoletes.cs" />
     <Compile Include="Routing\DynamicRoutingConfigurationExtensions.cs" />
+    <Compile Include="Sagas\Saga_obsoletes.cs" />
     <Compile Include="TaskEx.cs" />
     <Compile Include="Transports\DispatchConsistency.cs" />
     <Compile Include="Transports\IManageSubscriptionsExtensions_obsolete.cs" />

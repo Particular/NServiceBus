@@ -78,7 +78,7 @@
                     if (Context.ReplyFromTimeout)
                     {
                         Data.CorrIdForRequest = message.SomeIdThatTheResponseSagaCanCorrelateBackToUs; //wont be needed in the future
-                        await RequestTimeout<DelayReply>(TimeSpan.FromSeconds(1));
+                        await RequestTimeoutAsync<DelayReply>(TimeSpan.FromSeconds(1));
                     }
 
                     Data.CorrIdForRequest = Guid.NewGuid();
@@ -117,7 +117,7 @@
                 Task SendReply()
                 {
                     //reply to originator must be used here since the sender of the incoming message the timeoutmanager and not the requesting saga
-                    return ReplyToOriginator(new ResponseFromOtherSaga //change this line to Bus.ReplyAsync(new ResponseFromOtherSaga  and see it fail
+                    return ReplyToOriginatorAsync(new ResponseFromOtherSaga //change this line to Bus.ReplyAsync(new ResponseFromOtherSaga  and see it fail
                     {
                         SomeCorrelationId = Data.CorrIdForRequest //wont be needed in the future
                     });
