@@ -60,11 +60,10 @@
         {
             public Context Context { get; set; }
 
-            public Task Handle(MyMessage message)
+            public async Task Handle(MyMessage message)
             {
-                Thread.Sleep(1000);
+                await Task.Delay(1000);
                 Context.WasCalled = true;
-                return Task.FromResult(0);
             }
         }
     }

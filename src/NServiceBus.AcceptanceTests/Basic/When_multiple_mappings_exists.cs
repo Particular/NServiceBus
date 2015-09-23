@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Basic
 {
     using System;
-    using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
@@ -55,8 +54,7 @@
                 public Task Handle(MyBaseCommand message)
                 {
                     Context.WasCalled1 = true;
-                    Thread.Sleep(2000); // Just to be sure the other receiver is finished
-                    return Task.FromResult(0);
+                    return Task.Delay(2000); // Just to be sure the other receiver is finished
                 }
             }
         }
@@ -77,8 +75,7 @@
                 public Task Handle(MyBaseCommand message)
                 {
                     Context.WasCalled2 = true;
-                    Thread.Sleep(2000); // Just to be sure the other receiver is finished
-                    return Task.FromResult(0);
+                    return Task.Delay(2000); // Just to be sure the other receiver is finished
                 }
             }
         }
