@@ -1,6 +1,6 @@
-
 namespace NServiceBus.Unicast.Queuing
 {
+    using System.Threading.Tasks;
     using Installation;
     using Logging;
     using Transports;
@@ -14,16 +14,16 @@ namespace NServiceBus.Unicast.Queuing
             this.queueCreator = queueCreator;
         }
 
-        public void Install(string identity, Configure config)
+        public Task InstallAsync(string identity, Configure config)
         {
             if (config.Settings.Get<bool>("Endpoint.SendOnly"))
             {
-                return;
+                return TaskEx.Completed;
             }
 
             if (!config.CreateQueues())
             {
-                return;
+                return TaskEx.Completed;
             }
 
             var queueBindings = config.Settings.Get<QueueBindings>();
@@ -37,6 +37,8 @@ namespace NServiceBus.Unicast.Queuing
             {
                 CreateQueue(identity, sendingAddress);
             }
+
+            return TaskEx.Completed;
         }
 
         void CreateQueue(string identity, string transportAddress)

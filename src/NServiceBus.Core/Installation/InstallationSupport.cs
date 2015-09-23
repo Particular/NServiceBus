@@ -58,7 +58,7 @@ namespace NServiceBus.Features
                 var username = GetInstallationUserName(readOnlySettings);
                 foreach (var installer in builder.BuildAll<INeedToInstallSomething>())
                 {
-                    installer.Install(username, configure);
+                    installer.InstallAsync(username, configure).GetAwaiter().GetResult();
                 }
             }
 

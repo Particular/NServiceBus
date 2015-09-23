@@ -1553,7 +1553,7 @@ namespace NServiceBus.Installation
 {
     public interface INeedToInstallSomething
     {
-        void Install(string identity, NServiceBus.Configure config);
+        System.Threading.Tasks.Task InstallAsync(string identity, NServiceBus.Configure config);
     }
 }
 namespace NServiceBus.Logging
