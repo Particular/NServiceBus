@@ -20,9 +20,10 @@ namespace NServiceBus.Features
             Defaults(s =>
             {
                 var section = s.GetConfigSection<UnicastBusConfig>();
-                if (section.TimeoutManagerAddress != null)
+                var timeoutManagerAddress = section?.TimeoutManagerAddress;
+                if (timeoutManagerAddress != null)
                 {
-                    s.Set("TimeoutManagerAddress", section.TimeoutManagerAddress);
+                    s.Set("TimeoutManagerAddress", timeoutManagerAddress);
                 }
             });
 

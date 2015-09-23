@@ -39,10 +39,10 @@
             }, DependencyLifecycle.InstancePerCall);
         }
 
-        string GetConfiguredForwardMessageQueue(FeatureConfigurationContext context)
+        static string GetConfiguredForwardMessageQueue(FeatureConfigurationContext context)
         {
             var unicastBusConfig = context.Settings.GetConfigSection<UnicastBusConfig>();
-            if (unicastBusConfig != null && !string.IsNullOrWhiteSpace(unicastBusConfig.ForwardReceivedMessagesTo))
+            if (!string.IsNullOrWhiteSpace(unicastBusConfig?.ForwardReceivedMessagesTo))
             {
                 return unicastBusConfig.ForwardReceivedMessagesTo;
             }
