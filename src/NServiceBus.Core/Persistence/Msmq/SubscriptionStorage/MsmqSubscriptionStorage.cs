@@ -14,7 +14,7 @@ namespace NServiceBus
     /// Provides functionality for managing message subscriptions
     /// using MSMQ.
     /// </summary>
-    class MsmqSubscriptionStorage : IInitializableSubscriptionStorage, IQuerySubscriptions, IDisposable
+    class MsmqSubscriptionStorage : IInitializableSubscriptionStorage, IDisposable
     {
         public bool TransactionsEnabled { get; set; }
 
@@ -51,7 +51,7 @@ namespace NServiceBus
             }
         }
 
-        public Task<IEnumerable<string>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes)
+        public Task<IEnumerable<string>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes, SubscriptionStorageOptions options)
         {
             var subscribers = new List<string>();
             var result = new List<string>();
