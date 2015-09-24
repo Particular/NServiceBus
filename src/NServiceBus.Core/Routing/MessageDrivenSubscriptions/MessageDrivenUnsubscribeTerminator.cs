@@ -57,9 +57,9 @@
             var state = context.GetOrCreate<Settings>();
             try
             {
-                
-                var dispatchOptions = new DispatchOptions(new DirectToTargetDestination(destination), context);
-                await dispatcher.Dispatch(new[] { new TransportOperation(unsubscribeMessage, dispatchOptions) }).ConfigureAwait(false);
+
+                var dispatchOptions = new DispatchOptions(new DirectToTargetDestination(destination));
+                await dispatcher.Dispatch(new[] { new TransportOperation(unsubscribeMessage, dispatchOptions) }, context).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {

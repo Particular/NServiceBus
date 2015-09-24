@@ -11,11 +11,21 @@
         ///     Creates an instance of an <see cref="OutboxMessage" />.
         /// </summary>
         /// <param name="messageId">The message identifier of the incoming message.</param>
-        public OutboxMessage(string messageId)
+        /// <param name="operations">The outgoing transport operations to execute as part of this incoming message.</param>
+        public OutboxMessage(string messageId,IEnumerable<TransportOperation> operations = null)
         {
             Guard.AgainstNullAndEmpty("messageId", messageId);
-
+         
             MessageId = messageId;
+
+            if (operations != null)
+            {
+                TransportOperations = operations;
+            }
+            else
+            {
+                TransportOperations = new List<TransportOperation>();
+            }
         }
 
         /// <summary>
@@ -26,19 +36,6 @@
         /// <summary>
         ///     The list of operations performed during the processing of the incoming message.
         /// </summary>
-        public List<TransportOperation> TransportOperations
-        {
-            get
-            {
-                if (transportOperations == null)
-                {
-                    transportOperations = new List<TransportOperation>();
-                }
-
-                return transportOperations;
-            }
-        }
-
-        List<TransportOperation> transportOperations;
+        public IEnumerable<TransportOperation> TransportOperations { get; private set; }
     }
 }

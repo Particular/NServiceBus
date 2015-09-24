@@ -17,14 +17,12 @@
                 return Task.FromResult(default(OutboxMessage));
             }
 
-            var message = new OutboxMessage(messageId);
-            message.TransportOperations.AddRange(storedMessage.TransportOperations);
-            return Task.FromResult(message);
+            return Task.FromResult(new OutboxMessage(messageId, storedMessage.TransportOperations));
         }
 
         public Task Store(OutboxMessage message, OutboxStorageOptions options)
         {
-            if (!storage.TryAdd(message.MessageId, new StoredMessage(message.MessageId, message.TransportOperations)))
+            if (!storage.TryAdd(message.MessageId, new StoredMessage(message.MessageId, message.TransportOperations.ToList())))
             {
                 throw new Exception($"Outbox message with id '{message.MessageId}' is already present in storage.");
             }

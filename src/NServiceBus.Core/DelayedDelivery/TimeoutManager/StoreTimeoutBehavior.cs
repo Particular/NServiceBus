@@ -69,8 +69,8 @@ namespace NServiceBus
             }
 
             var outgoingMessages = new OutgoingMessage(message.Id, message.Headers, message.Body);
-            var dispatchOptions = new DispatchOptions(new DirectToTargetDestination(destination), context);
-            await dispatcher.Dispatch(new [] { new TransportOperation(outgoingMessages, dispatchOptions)}).ConfigureAwait(false);
+            var dispatchOptions = new DispatchOptions(new DirectToTargetDestination(destination));
+            await dispatcher.Dispatch(new[] { new TransportOperation(outgoingMessages, dispatchOptions) }, context).ConfigureAwait(false);
         }
 
         async Task HandleInternal(TransportMessage message, PhysicalMessageProcessingStageBehavior.Context context)
@@ -118,10 +118,10 @@ namespace NServiceBus
 
                 if (data.Time.AddSeconds(-1) <= DateTime.UtcNow)
                 {
-                    var sendOptions = new DispatchOptions(new DirectToTargetDestination(data.Destination), context);
+                    var sendOptions = new DispatchOptions(new DirectToTargetDestination(data.Destination));
                     var outgoingMessage = new OutgoingMessage(data.Headers[Headers.MessageId], data.Headers, data.State);
 
-                    await dispatcher.Dispatch(new [] { new TransportOperation(outgoingMessage, sendOptions)}).ConfigureAwait(false);
+                    await dispatcher.Dispatch(new[] { new TransportOperation(outgoingMessage, sendOptions) }, context).ConfigureAwait(false);
                     return;
                 }
 

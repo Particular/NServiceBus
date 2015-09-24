@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Messaging;
     using NServiceBus.DeliveryConstraints;
-    using NServiceBus.Extensibility;
     using NServiceBus.Performance.TimeToBeReceived;
     using NServiceBus.Routing;
     using NServiceBus.Transports;
@@ -18,7 +17,7 @@
         {
             var expected = $"Can u see this '{(char) 0x19}' character.";
 
-            var options = new DispatchOptions(new DirectToTargetDestination("destination"), new ContextBag());
+            var options = new DispatchOptions(new DirectToTargetDestination("destination"));
 
             var message = MsmqUtilities.Convert(new OutgoingMessage("message id", new Dictionary<string, string>
             {
@@ -33,16 +32,16 @@
         public void Should_convert_message_headers_that_contain_nulls_at_the_end()
         {
             var expected = "Hello World";
-            var options = new DispatchOptions(new DirectToTargetDestination("destination"), new ContextBag());
+            var options = new DispatchOptions(new DirectToTargetDestination("destination"));
 
             Console.Out.WriteLine(sizeof(char));
             var message = MsmqUtilities.Convert(new OutgoingMessage("message id", new Dictionary<string, string>
             {
                 {"NServiceBus.ExceptionInfo.Message", expected}
             }, new byte[0]), options);
-            var bufferWithNulls = new byte[message.Extension.Length + (10*sizeof(char))];
+            var bufferWithNulls = new byte[message.Extension.Length + (10 * sizeof(char))];
 
-            Buffer.BlockCopy(message.Extension, 0, bufferWithNulls, 0, bufferWithNulls.Length - (10*sizeof(char)));
+            Buffer.BlockCopy(message.Extension, 0, bufferWithNulls, 0, bufferWithNulls.Length - (10 * sizeof(char)));
 
             message.Extension = bufferWithNulls;
 
@@ -54,7 +53,7 @@
         [Test]
         public void Should_fetch_the_replytoaddress_from_responsequeue_for_backwards_compatibility()
         {
-            var message = MsmqUtilities.Convert(new OutgoingMessage("message id", new Dictionary<string, string>(), new byte[0]), new DispatchOptions(new DirectToTargetDestination("destination"), new ContextBag()));
+            var message = MsmqUtilities.Convert(new OutgoingMessage("message id", new Dictionary<string, string>(), new byte[0]), new DispatchOptions(new DirectToTargetDestination("destination")));
 
             message.ResponseQueue = new MessageQueue(new MsmqAddress("local", Environment.MachineName).FullPath);
             var headers = MsmqUtilities.ExtractHeaders(message);
@@ -65,7 +64,7 @@
         [Test]
         public void Should_use_the_TTBR_in_the_send_options_if_set()
         {
-            var options = new DispatchOptions(new DirectToTargetDestination("destination"), new ContextBag(), new List<DeliveryConstraint> { new DiscardIfNotReceivedBefore(TimeSpan.FromDays(1)) });
+            var options = new DispatchOptions(new DirectToTargetDestination("destination"), new List<DeliveryConstraint> { new DiscardIfNotReceivedBefore(TimeSpan.FromDays(1)) });
 
             var message = MsmqUtilities.Convert(new OutgoingMessage("message id", new Dictionary<string, string>(), new byte[0]), options);
 
@@ -76,10 +75,10 @@
         [Test]
         public void Should_use_the_non_durable_setting()
         {
-            var options = new DispatchOptions(new DirectToTargetDestination("destination"), new ContextBag(), new List<DeliveryConstraint> { new NonDurableDelivery() });
+            var options = new DispatchOptions(new DirectToTargetDestination("destination"), new List<DeliveryConstraint> { new NonDurableDelivery() });
 
             Assert.False(MsmqUtilities.Convert(new OutgoingMessage("message id", new Dictionary<string, string>(), new byte[0]), options).Recoverable);
-            Assert.True(MsmqUtilities.Convert(new OutgoingMessage("message id", new Dictionary<string, string>(), new byte[0]), new DispatchOptions(new DirectToTargetDestination("destination"), new ContextBag(), new List<DeliveryConstraint>())).Recoverable);
+            Assert.True(MsmqUtilities.Convert(new OutgoingMessage("message id", new Dictionary<string, string>(), new byte[0]), new DispatchOptions(new DirectToTargetDestination("destination"), new List<DeliveryConstraint>())).Recoverable);
         }
 
     }

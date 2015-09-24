@@ -1,20 +1,24 @@
 namespace NServiceBus.TransportDispatch
 {
-    using NServiceBus.Pipeline;
-    using NServiceBus.Transports;
+    using Pipeline;
+    using Transports;
 
     /// <summary>
     /// Context for the dispatch part of the pipeline.
     /// </summary>
     public class DispatchContext : BehaviorContext
     {
-      
         /// <summary>
         /// Initializes the context with the message to be dispatched.
         /// </summary>
         public DispatchContext(OutgoingMessage messageToDispatch, BehaviorContext context) : base(context)
         {
-            Set(messageToDispatch);
+            Message = messageToDispatch;
         }
+
+        /// <summary>
+        /// The message to dispatch the the transport.
+        /// </summary>
+        public OutgoingMessage Message { get; private set; }
     }
 }

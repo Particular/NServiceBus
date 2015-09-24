@@ -27,12 +27,12 @@ namespace NServiceBus
                 return;
             }
 
-            var sendOptions = new DispatchOptions(new DirectToTargetDestination(timeoutData.Destination), context);
+            var sendOptions = new DispatchOptions(new DirectToTargetDestination(timeoutData.Destination));
 
             timeoutData.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
             timeoutData.Headers["NServiceBus.RelatedToTimeoutId"] = timeoutData.Id;
 
-            await dispatcher.Dispatch(new[] { new TransportOperation(new OutgoingMessage(message.Id, timeoutData.Headers, timeoutData.State), sendOptions)}).ConfigureAwait(false);
+            await dispatcher.Dispatch(new[] { new TransportOperation(new OutgoingMessage(message.Id, timeoutData.Headers, timeoutData.State), sendOptions) }, context).ConfigureAwait(false);
         }
 
         IDispatchMessages dispatcher;

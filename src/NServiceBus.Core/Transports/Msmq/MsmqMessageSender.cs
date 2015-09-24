@@ -6,6 +6,7 @@ namespace NServiceBus.Transports.Msmq
     using System.Messaging;
     using System.Threading.Tasks;
     using System.Transactions;
+    using NServiceBus.Extensibility;
     using NServiceBus.Routing;
     using NServiceBus.Transports.Msmq.Config;
     using NServiceBus.Unicast.Queuing;
@@ -29,7 +30,7 @@ namespace NServiceBus.Transports.Msmq
         /// <summary>
         /// Dispatches the given operations to the transport.
         /// </summary>
-        public Task Dispatch(IEnumerable<TransportOperation> transportOperations)
+        public Task Dispatch(IEnumerable<TransportOperation> transportOperations, ReadOnlyContextBag context)
         {
             Guard.AgainstNull("transportOperations", transportOperations);
 
@@ -70,15 +71,14 @@ namespace NServiceBus.Transports.Msmq
                         if (dispatchOptions.RequiredDispatchConsistency == DispatchConsistency.Isolated)
                         {
                             q.Send(toSend, label, GetIsolatedTransactionType());
-                            return TaskEx.Completed;
+                            continue;
                         }
 
                         MessageQueueTransaction activeTransaction;
-                        if (dispatchOptions.Context.TryGet(out activeTransaction))
+                        if (context.TryGet(out activeTransaction))
                         {
                             q.Send(toSend, label, activeTransaction);
-
-                            return TaskEx.Completed;
+                            continue;
                         }
 
                         q.Send(toSend, label, GetTransactionTypeForSend());
@@ -101,7 +101,6 @@ namespace NServiceBus.Transports.Msmq
                 {
                     ThrowFailedToSendException(destination, ex);
                 }
-                return TaskEx.Completed;
             }
             return TaskEx.Completed;
         }

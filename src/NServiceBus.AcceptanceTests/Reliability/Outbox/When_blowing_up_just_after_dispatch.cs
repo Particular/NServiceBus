@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Reliability.Outbox
 {
     using System;
+    using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
@@ -39,26 +40,15 @@
                     {
                         b.GetSettings().Set("DisableOutboxTransportCheck", true);
                         b.EnableOutbox();
-                        b.Pipeline.Register<BlowUpAfterDispatchBehavior.Registration>();
-                        b.RegisterComponents(r => r.ConfigureComponent<BlowUpAfterDispatchBehavior>(DependencyLifecycle.InstancePerCall));
+                        b.Pipeline.Register("BlowUpAfterDispatchBehavior", typeof(BlowUpAfterDispatchBehavior), "For testing");
                     });
             }
 
-            public class BlowUpAfterDispatchBehavior : PhysicalMessageProcessingStageBehavior
+            class BlowUpAfterDispatchBehavior : Behavior<BatchDispatchContext>
             {
-                public class Registration : RegisterStep
+                public async override Task Invoke(BatchDispatchContext context, Func<Task> next)
                 {
-                    public Registration()
-                        : base("BlowUpAfterDispatchBehavior", typeof(BlowUpAfterDispatchBehavior), "For testing")
-                    {
-                        InsertAfter("FirstLevelRetries");
-                        InsertBefore("OutboxDeduplication");
-                    }
-                }
-
-                public override async Task Invoke(Context context, Func<Task> next)
-                {
-                    if (!context.GetPhysicalMessage().Headers[Headers.EnclosedMessageTypes].Contains(typeof(PlaceOrder).Name))
+                    if (!context.Operations.Any(op=>op.Message.Headers[Headers.EnclosedMessageTypes].Contains(typeof(PlaceOrder).Name)))
                     {
                         await next().ConfigureAwait(false);
                         return;
@@ -68,7 +58,6 @@
                     {
                         Console.Out.WriteLine("Called once, skipping next");
                         return;
-
                     }
 
                     await next().ConfigureAwait(false);

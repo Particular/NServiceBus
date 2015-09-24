@@ -6,11 +6,8 @@
     using NServiceBus.Routing.MessageDrivenSubscriptions;
     using NServiceBus.Routing.StorageDrivenPublishing;
     using NServiceBus.Settings;
-    using NServiceBus.TransportDispatch;
     using NServiceBus.Transports;
-    using NServiceBus.Unicast.Messages;
     using NServiceBus.Unicast.Routing;
-    using NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions;
 
     class RoutingFeature : Feature
     {
@@ -28,20 +25,17 @@
             context.Container.ConfigureComponent(b => new DetermineRouteForSendBehavior(context.Settings.LocalAddress(),
                new DefaultMessageRouter(staticRoutes), b.Build<DynamicRoutingProvider>()), DependencyLifecycle.InstancePerCall);
 
-            if (transportDefinition.HasNativePubSubSupport)
+            if (!transportDefinition.HasNativePubSubSupport)
             {
-                context.Container.ConfigureComponent<DispatchStrategy>(b => new DefaultDispatchStrategy(), DependencyLifecycle.SingleInstance);
+                //todo: add the routing behavior
+                //context.Container.ConfigureComponent<DispatchStrategy>(b => new StorageDrivenDispatcher(b.Build<IQuerySubscriptions>(), b.Build<MessageMetadataRegistry>()), DependencyLifecycle.SingleInstance);
             }
-            else
-            {
-                context.Container.ConfigureComponent<DispatchStrategy>(b => new StorageDrivenDispatcher(b.Build<ISubscriptionStorage>(), b.Build<MessageMetadataRegistry>()), DependencyLifecycle.SingleInstance);
-            }
-
+    
             context.Pipeline.Register("DetermineRouteForSend", typeof(DetermineRouteForSendBehavior), "Determines how the message being sent should be routed");
             context.Pipeline.Register("DetermineRouteForReply", typeof(DetermineRouteForReplyBehavior), "Determines how replies should be routed");
             context.Pipeline.Register("DetermineRouteForPublish", typeof(DetermineRouteForPublishBehavior), "Determines how the published messages should be routed");
-
-
+            context.Pipeline.Register("StorageDrivenPublish", typeof(StorageDrivenPublishBehavior), "Forks publish operations to individual sends using the subscription storage");
+            
             if (canReceive)
             {
                 context.Pipeline.Register("ApplyReplyToAddress", typeof(ApplyReplyToAddressBehavior), "Applies the public reply to address to outgoing messages");

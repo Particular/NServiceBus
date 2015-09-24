@@ -2,7 +2,6 @@ namespace NServiceBus.Transports
 {
     using System.Collections.Generic;
     using NServiceBus.DeliveryConstraints;
-    using NServiceBus.Extensibility;
     using NServiceBus.Routing;
 
     /// <summary>
@@ -15,9 +14,8 @@ namespace NServiceBus.Transports
         /// </summary>
         /// <param name="routingStrategy">The strategy to use when routing this message.</param>
         /// <param name="deliveryConstraints">The delivery constraints that must be honored by the transport.</param>
-        /// <param name="context">The pipeline context if present.</param>
         /// <param name="requiredDispatchConsistency">The required consistency level for the dispatch operation.</param>
-        public DispatchOptions(RoutingStrategy routingStrategy, ContextBag context, IEnumerable<DeliveryConstraint> deliveryConstraints = null, DispatchConsistency requiredDispatchConsistency = DispatchConsistency.Default)
+        public DispatchOptions(RoutingStrategy routingStrategy, IEnumerable<DeliveryConstraint> deliveryConstraints = null, DispatchConsistency requiredDispatchConsistency = DispatchConsistency.Default)
         {
             if (deliveryConstraints == null)
             {
@@ -27,7 +25,6 @@ namespace NServiceBus.Transports
             RoutingStrategy = routingStrategy;
             DeliveryConstraints = deliveryConstraints;
             RequiredDispatchConsistency = requiredDispatchConsistency;
-            Context = context;
         }
 
         /// <summary>
@@ -44,10 +41,5 @@ namespace NServiceBus.Transports
         /// The dispatch consistency the must be honored by the transport.
         /// </summary>
         public DispatchConsistency RequiredDispatchConsistency { get; private set; }
-
-        /// <summary>
-        /// Access to the behavior context.
-        /// </summary>
-        public ReadOnlyContextBag Context { get; private set; }
     }
 }

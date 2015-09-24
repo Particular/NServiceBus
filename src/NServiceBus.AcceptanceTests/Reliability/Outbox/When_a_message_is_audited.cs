@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Reliability.Outbox
 {
     using System;
+    using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
@@ -23,8 +24,6 @@
             Assert.True(context.Done);
         }
 
-
-
         public class Context : ScenarioContext
         {
             public bool Done { get; set; }
@@ -39,31 +38,20 @@
                     {
                         b.GetSettings().Set("DisableOutboxTransportCheck", true);
                         b.EnableOutbox();
-                        b.Pipeline.Register<BlowUpAfterDispatchBehavior.Registration>();
+                        b.Pipeline.Register("BlowUpAfterDispatchBehavior", typeof(BlowUpAfterDispatchBehavior), "For testing");
                     })
                     .AuditTo<AuditSpyEndpoint>();
             }
 
-            public class BlowUpAfterDispatchBehavior : PhysicalMessageProcessingStageBehavior
+            class BlowUpAfterDispatchBehavior : Behavior<BatchDispatchContext>
             {
-                public class Registration : RegisterStep
+                public async override Task Invoke(BatchDispatchContext context, Func<Task> next)
                 {
-                    public Registration()
-                        : base("BlowUpAfterDispatchBehavior", typeof(BlowUpAfterDispatchBehavior), "For testing")
-                    {
-                        InsertAfter("FirstLevelRetries");
-                        InsertBefore("OutboxDeduplication");
-                    }
-                }
-
-                public override async Task Invoke(Context context, Func<Task> next)
-                {
-                    if (!context.GetPhysicalMessage().Headers[Headers.EnclosedMessageTypes].Contains(typeof(MessageToBeAudited).Name))
+                    if (!context.Operations.Any(op => op.Message.Headers[Headers.EnclosedMessageTypes].Contains(typeof(MessageToBeAudited).Name)))
                     {
                         await next().ConfigureAwait(false);
                         return;
                     }
-
 
                     if (called)
                     {
@@ -72,7 +60,7 @@
 
                     }
                     await next().ConfigureAwait(false);
-                    
+
                     called = true;
 
                     throw new SimulatedException();
@@ -80,7 +68,6 @@
 
                 static bool called;
             }
-
 
             public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
             {

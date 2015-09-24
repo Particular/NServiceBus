@@ -3,10 +3,10 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.OutgoingPipeline;
-    using NServiceBus.Pipeline;
-    using NServiceBus.TransportDispatch;
-    using NServiceBus.Transports;
+    using OutgoingPipeline;
+    using Pipeline;
+    using TransportDispatch;
+    using Transports;
 
     class DispatchMessageToTransportConnector : StageConnector<PhysicalOutgoingContextStageBehavior.Context,DispatchContext>
     {

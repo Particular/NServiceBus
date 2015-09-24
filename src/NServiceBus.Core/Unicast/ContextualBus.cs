@@ -17,7 +17,7 @@ namespace NServiceBus.Unicast
     partial class ContextualBus : IBus, IContextualBus
     {
         public ContextualBus(BehaviorContextStacker contextStacker, IMessageMapper messageMapper, IBuilder builder,
-            ReadOnlySettings settings,IDispatchMessages dispatcher)
+            ReadOnlySettings settings, IDispatchMessages dispatcher)
         {
             this.messageMapper = messageMapper;
             this.contextStacker = contextStacker;
@@ -64,7 +64,7 @@ namespace NServiceBus.Unicast
 
             return pipeline.Invoke(subscribeContext);
         }
-        
+
         /// <summary>
         /// <see cref="IBus.UnsubscribeAsync"/>
         /// </summary>
@@ -114,8 +114,8 @@ namespace NServiceBus.Unicast
             }
 
             var outgoingMessages = new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body);
-            var dispatchOptions = new DispatchOptions(new DirectToTargetDestination(sendLocalAddress), new ContextBag());
-            await dispatcher.Dispatch(new [] { new TransportOperation(outgoingMessages, dispatchOptions)});
+            var dispatchOptions = new DispatchOptions(new DirectToTargetDestination(sendLocalAddress));
+            await dispatcher.Dispatch(new[] { new TransportOperation(outgoingMessages, dispatchOptions) }, new ContextBag());
 
             incomingContext.handleCurrentMessageLaterWasCalled = true;
 
@@ -128,8 +128,8 @@ namespace NServiceBus.Unicast
         public async Task ForwardCurrentMessageToAsync(string destination)
         {
             var outgoingMessages = new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body);
-            var dispatchOptions = new DispatchOptions(new DirectToTargetDestination(destination), new ContextBag());
-            await dispatcher.Dispatch(new [] { new TransportOperation(outgoingMessages, dispatchOptions)});
+            var dispatchOptions = new DispatchOptions(new DirectToTargetDestination(destination));
+            await dispatcher.Dispatch(new[] { new TransportOperation(outgoingMessages, dispatchOptions) }, incomingContext);
         }
 
         public Task SendAsync<T>(Action<T> messageConstructor, NServiceBus.SendOptions options)
