@@ -13,6 +13,7 @@ namespace NServiceBus.Timeout.Core
         /// Removes the timeout if it hasn't been previously removed.
         /// </summary>
         /// <param name="timeoutId">The timeout id to remove.</param>
-        void Remove(string timeoutId);
+        /// <returns><c>true</c> if the timeout has been successfully removed or <c>false</c> if there was no timeout to remove.</returns>
+        bool TryRemove(string timeoutId);
     }
 }
