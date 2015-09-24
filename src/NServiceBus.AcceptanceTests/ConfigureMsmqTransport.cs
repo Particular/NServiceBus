@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Messaging;
 using System.Threading.Tasks;
 using NServiceBus;
 using NServiceBus.Configuration.AdvanceExtensibility;
+using NServiceBus.Transports;
 
 public class ConfigureMsmqTransport
 {
@@ -17,8 +19,7 @@ public class ConfigureMsmqTransport
 
     public Task Cleanup()
     {
-        var name = busConfiguration.GetSettings().EndpointName();
-        var nameFilter = @"private$\" + name;
+        var bindings = busConfiguration.GetSettings().Get<QueueBindings>();
         var allQueues = MessageQueue.GetPrivateQueuesByMachine("localhost");
         var queuesToBeDeleted = new List<string>();
 
@@ -26,7 +27,15 @@ public class ConfigureMsmqTransport
         {
             using (messageQueue)
             {
-                if (messageQueue.QueueName.StartsWith(nameFilter, StringComparison.OrdinalIgnoreCase))
+                if (bindings.ReceivingAddresses.Any(ra =>
+                {
+                    var indexOfAt = ra.IndexOf("@", StringComparison.Ordinal);
+                    if (indexOfAt >= 0)
+                    {
+                        ra = ra.Substring(0, indexOfAt);
+                    }
+                    return messageQueue.QueueName.StartsWith(@"private$\" + ra, StringComparison.OrdinalIgnoreCase);
+                }))
                 {
                     queuesToBeDeleted.Add(messageQueue.Path);
                 }
