@@ -3,10 +3,10 @@
     using System;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.Configuration.AdvanceExtensibility;
-    using NServiceBus.Pipeline;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Configuration.AdvanceExtensibility;
+    using Pipeline;
     using NUnit.Framework;
 
     public class When_a_message_is_audited : NServiceBusAcceptanceTest

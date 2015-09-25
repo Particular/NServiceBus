@@ -205,7 +205,6 @@
     <Compile Include="Pipeline\IPipelineTerminator.cs" />
     <Compile Include="Pipeline\IStageConnector.cs" />
     <Compile Include="Pipeline\PipelineDiagnostics.cs" />
-    <Compile Include="Reliability\Outbox\DeliveryConstraintsFactory.cs" />
     <Compile Include="Performance\ReceiveStatisticsFeature.cs" />
     <Compile Include="Performance\TimeToBeReceived\ApplyTimeToBeReceivedBehavior.cs" />
     <Compile Include="Performance\TimeToBeReceived\TimeToBeReceived.cs" />
@@ -269,7 +268,6 @@
     <Compile Include="Routing\RoutingFeature.cs" />
     <Compile Include="Routing\RoutingOptionExtensions.cs" />
     <Compile Include="Routing\RoutingStrategy.cs" />
-    <Compile Include="Routing\RoutingStrategyFactory.cs" />
     <Compile Include="Routing\ToAllSubscribers.cs" />
     <Compile Include="Satellites\SatelliteBehavior.cs" />
     <Compile Include="SendOptions.cs" />

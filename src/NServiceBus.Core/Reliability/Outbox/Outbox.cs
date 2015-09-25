@@ -3,9 +3,9 @@
     using System;
     using System.Configuration;
     using System.ServiceProcess;
-    using NServiceBus.Logging;
-    using NServiceBus.Persistence;
-    using NServiceBus.Transports;
+    using Logging;
+    using Persistence;
+    using Transports;
 
     /// <summary>
     /// Configure the Outbox.

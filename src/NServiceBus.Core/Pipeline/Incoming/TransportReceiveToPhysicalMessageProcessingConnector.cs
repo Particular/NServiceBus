@@ -1,8 +1,13 @@
 namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using DelayedDelivery;
+    using DeliveryConstraints;
+    using Performance.TimeToBeReceived;
+    using Routing;
     using Outbox;
     using Pipeline;
     using Pipeline.Contexts;
@@ -31,15 +36,11 @@ namespace NServiceBus
 
                 await next(physicalMessageContext).ConfigureAwait(false);
                 
-                await outboxStorage.Store(new OutboxMessage(messageId), new OutboxStorageOptions(context)).ConfigureAwait(false);
+                await outboxStorage.Store(new OutboxMessage(messageId,ConvertToOutboxOperations(pendingTransportOperations.Operations)), new OutboxStorageOptions(context)).ConfigureAwait(false);
             }
             else
             {
-                foreach (var operation in deduplicationEntry.TransportOperations)
-                {
-                    pendingTransportOperations.Add(new TransportOperation(new OutgoingMessage(operation.MessageId,operation.Headers,operation.Body), 
-                        new DispatchOptions(null,null,DispatchConsistency.Isolated)));
-                }
+                ConvertToPendingOperations(deduplicationEntry, pendingTransportOperations);
             }
 
             if (pendingTransportOperations.Operations.Any())
@@ -52,6 +53,80 @@ namespace NServiceBus
             await outboxStorage.SetAsDispatched(messageId,new OutboxStorageOptions(context)).ConfigureAwait(false);
         }
 
+        void ConvertToPendingOperations(OutboxMessage deduplicationEntry, PendingTransportOperations pendingTransportOperations)
+        {
+            foreach (var operation in deduplicationEntry.TransportOperations)
+            {
+                var options = new DispatchOptions(DeserializeRoutingStrategy(operation.Options),
+                    DeserializeConstraints(operation.Options),
+                    DispatchConsistency.Isolated);
+
+                var message = new OutgoingMessage(operation.MessageId, operation.Headers, operation.Body);
+
+                pendingTransportOperations.Add(new TransportOperation(message, options));
+            }
+        }
+
+        IEnumerable<Outbox.TransportOperation> ConvertToOutboxOperations(IEnumerable<TransportOperation> operations)
+        {
+            foreach (var operation in operations)
+            {
+                var options = new Dictionary<string, string>();
+
+                operation.DispatchOptions.DeliveryConstraints.ToList().ForEach(c => c.Serialize(options));
+                operation.DispatchOptions.RoutingStrategy.Serialize(options);
+
+                yield return new Outbox.TransportOperation(operation.Message.MessageId,
+                    options,operation.Message.Body,operation.Message.Headers);
+            }
+        }
+
+        public IEnumerable<DeliveryConstraint> DeserializeConstraints(Dictionary<string, string> options)
+        {
+            if (options.ContainsKey("NonDurable"))
+            {
+                yield return new NonDurableDelivery();
+            }
+
+            string deliverAt;
+            if (options.TryGetValue("DeliverAt", out deliverAt))
+            {
+                yield return new DoNotDeliverBefore(DateTimeExtensions.ToUtcDateTime(deliverAt));
+            }
+
+
+            string delay;
+            if (options.TryGetValue("DelayDeliveryFor", out delay))
+            {
+                yield return new DelayDeliveryWith(TimeSpan.Parse(delay));
+            }
+
+            string ttbr;
+
+            if (options.TryGetValue("TimeToBeReceived", out ttbr))
+            {
+                yield return new DiscardIfNotReceivedBefore(TimeSpan.Parse(ttbr));
+            }
+        }
+
+        public RoutingStrategy DeserializeRoutingStrategy(Dictionary<string, string> options)
+        {
+            string destination;
+
+            if (options.TryGetValue("Destination", out destination))
+            {
+                return new DirectToTargetDestination(destination);
+            }
+
+            string eventType;
+
+            if (options.TryGetValue("EventType", out eventType))
+            {
+                return new ToAllSubscribers(Type.GetType(eventType, true));
+            }
+
+            throw new Exception("Could not find routing strategy to deserialize");
+        }
         IPipelineBase<BatchDispatchContext> batchDispatchPipeline;
         IOutboxStorage outboxStorage;
     }
