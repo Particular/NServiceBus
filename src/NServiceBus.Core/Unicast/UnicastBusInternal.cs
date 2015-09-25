@@ -4,6 +4,7 @@ namespace NServiceBus.Unicast
     using System.Collections.Generic;
     using System.Linq;
     using System.Security.Principal;
+    using System.Threading.Tasks;
     using NServiceBus.Config;
     using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.Faults;
@@ -45,9 +46,9 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IStartableBus.Start()"/>.
+        /// <see cref="IStartableBus.StartAsync"/>.
         /// </summary>
-        public IBus Start()
+        public async Task<IBus> StartAsync()
         {
             LicenseManager.PromptUserForLicenseIfTrialHasExpired();
 
@@ -58,13 +59,13 @@ namespace NServiceBus.Unicast
 
             var startables = builder.BuildAll<IWantToRunWhenBusStartsAndStops>().ToList();
             runner = new StartAndStoppablesRunner(startables);
-            runner.StartAsync().GetAwaiter().GetResult();
+            await runner.StartAsync();
             
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
             var pipelines = BuildPipelines().ToArray();
 
             pipelineCollection = new PipelineCollection(pipelines);
-            pipelineCollection.Start().GetAwaiter().GetResult();
+            await pipelineCollection.Start();
 
             started = true;
 

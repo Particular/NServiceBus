@@ -565,7 +565,12 @@ namespace NServiceBus
     }
     public interface IStartableBus : NServiceBus.IBus, NServiceBus.ISendOnlyBus, System.IDisposable
     {
-        NServiceBus.IBus Start();
+        System.Threading.Tasks.Task<NServiceBus.IBus> StartAsync();
+    }
+    public class static IStartableBusExtensions
+    {
+        [System.ObsoleteAttribute("Please use `StartAsync()` instead. Will be removed in version 7.0.0.", true)]
+        public static NServiceBus.IBus Start(this NServiceBus.IStartableBus bus) { }
     }
     public interface IWantToRunBeforeConfigurationIsFinalized
     {
@@ -2820,8 +2825,9 @@ namespace NServiceBus.Unicast
         [System.ObsoleteAttribute("Please use `ISendOnlyBus.SendAsync<T>(Action<T> messageConstructor, SendOptions o" +
             "ptions)` instead. Will be removed in version 7.0.0.", true)]
         public System.Threading.Tasks.Task SendAsync<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options) { }
-        [System.ObsoleteAttribute("Please use `IStartableBus.Start()` instead. Will be removed in version 7.0.0.", true)]
-        public NServiceBus.IBus Start() { }
+        [System.ObsoleteAttribute("Please use `IStartableBus.StartAsync()` instead. Will be removed in version 7.0.0" +
+            ".", true)]
+        public System.Threading.Tasks.Task<NServiceBus.IBus> StartAsync() { }
         [System.ObsoleteAttribute("Please use `IBus.Subscribe(Type messageType)` instead. Will be removed in version" +
             " 7.0.0.", true)]
         public void Subscribe(System.Type messageType) { }

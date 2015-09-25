@@ -743,10 +743,10 @@ namespace NServiceBus.Unicast
         }
 
         [ObsoleteEx(
-            ReplacementTypeOrMember = "IStartableBus.Start()",
+            ReplacementTypeOrMember = "IStartableBus.StartAsync()",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
-        public IBus Start()
+        public Task<IBus> StartAsync()
         {
             throw new NotImplementedException();
         }
