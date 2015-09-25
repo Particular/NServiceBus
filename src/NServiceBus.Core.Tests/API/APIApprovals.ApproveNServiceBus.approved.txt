@@ -28,6 +28,11 @@ namespace NServiceBus
     {
         public static NServiceBus.AutomaticSubscriptions.Config.AutoSubscribeSettings AutoSubscribe(this NServiceBus.BusConfiguration config) { }
     }
+    public class BatchDispatchContext : NServiceBus.Pipeline.BehaviorContext
+    {
+        public BatchDispatchContext(System.Collections.Generic.IEnumerable<NServiceBus.Transports.TransportOperation> operations, NServiceBus.Pipeline.BehaviorContext parentContext) { }
+        public System.Collections.Generic.IEnumerable<NServiceBus.Transports.TransportOperation> Operations { get; }
+    }
     public class static BestPracticesOptionExtensions
     {
         public static void DoNotEnforceBestPractices(this NServiceBus.Extensibility.ExtendableOptions options) { }
@@ -508,6 +513,11 @@ namespace NServiceBus
         T CreateInstance<T>();
         T CreateInstance<T>(System.Action<T> action);
         object CreateInstance(System.Type messageType);
+    }
+    public class ImmediateDispatchContext : NServiceBus.Pipeline.BehaviorContext
+    {
+        public ImmediateDispatchContext(System.Collections.Generic.IEnumerable<NServiceBus.Transports.TransportOperation> operations, NServiceBus.Pipeline.BehaviorContext parentContext) { }
+        public System.Collections.Generic.IEnumerable<NServiceBus.Transports.TransportOperation> Operations { get; }
     }
     public interface INeedInitialization
     {
@@ -1756,9 +1766,9 @@ namespace NServiceBus.Outbox
     }
     public class OutboxMessage
     {
-        public OutboxMessage(string messageId) { }
+        public OutboxMessage(string messageId, System.Collections.Generic.IEnumerable<NServiceBus.Outbox.TransportOperation> operations = null) { }
         public string MessageId { get; }
-        public System.Collections.Generic.List<NServiceBus.Outbox.TransportOperation> TransportOperations { get; }
+        public System.Collections.Generic.IEnumerable<NServiceBus.Outbox.TransportOperation> TransportOperations { get; }
     }
     public class OutboxSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
@@ -2450,6 +2460,7 @@ namespace NServiceBus.TransportDispatch
     public class DispatchContext : NServiceBus.Pipeline.BehaviorContext
     {
         public DispatchContext(NServiceBus.Transports.OutgoingMessage messageToDispatch, NServiceBus.Pipeline.BehaviorContext context) { }
+        public NServiceBus.Transports.OutgoingMessage Message { get; }
     }
     public class static HeaderContextExtensions
     {
@@ -2458,7 +2469,6 @@ namespace NServiceBus.TransportDispatch
         public static void SetHeader(this NServiceBus.OutgoingPipeline.OutgoingSendContext context, string key, string value) { }
         public static void SetHeader(this NServiceBus.OutgoingPipeline.OutgoingReplyContext context, string key, string value) { }
         public static void SetHeader(this NServiceBus.OutgoingPipeline.PhysicalOutgoingContextStageBehavior.Context context, string key, string value) { }
-        public static void SetHeader(this NServiceBus.TransportDispatch.DispatchContext context, string key, string value) { }
     }
 }
 namespace NServiceBus.Transports
@@ -2478,8 +2488,7 @@ namespace NServiceBus.Transports
     }
     public class DispatchOptions
     {
-        public DispatchOptions(NServiceBus.Routing.RoutingStrategy routingStrategy, NServiceBus.Extensibility.ContextBag context, System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints = null, NServiceBus.Transports.DispatchConsistency requiredDispatchConsistency = 1) { }
-        public NServiceBus.Extensibility.ReadOnlyContextBag Context { get; }
+        public DispatchOptions(NServiceBus.Routing.RoutingStrategy routingStrategy, System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints = null, NServiceBus.Transports.DispatchConsistency requiredDispatchConsistency = 1) { }
         public System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> DeliveryConstraints { get; }
         public NServiceBus.Transports.DispatchConsistency RequiredDispatchConsistency { get; }
         public NServiceBus.Routing.RoutingStrategy RoutingStrategy { get; set; }
@@ -2511,7 +2520,7 @@ namespace NServiceBus.Transports
     }
     public interface IDispatchMessages
     {
-        System.Threading.Tasks.Task Dispatch(System.Collections.Generic.IEnumerable<NServiceBus.Transports.TransportOperation> outgoingMessages);
+        System.Threading.Tasks.Task Dispatch(System.Collections.Generic.IEnumerable<NServiceBus.Transports.TransportOperation> outgoingMessages, NServiceBus.Extensibility.ReadOnlyContextBag context);
     }
     public interface IManageSubscriptions
     {
@@ -2653,7 +2662,7 @@ namespace NServiceBus.Transports.Msmq
     public class MsmqMessageSender : NServiceBus.Transports.IDispatchMessages
     {
         public MsmqMessageSender(NServiceBus.Transports.Msmq.Config.MsmqSettings settings, NServiceBus.MsmqLabelGenerator messageLabelGenerator) { }
-        public System.Threading.Tasks.Task Dispatch(System.Collections.Generic.IEnumerable<NServiceBus.Transports.TransportOperation> transportOperations) { }
+        public System.Threading.Tasks.Task Dispatch(System.Collections.Generic.IEnumerable<NServiceBus.Transports.TransportOperation> transportOperations, NServiceBus.Extensibility.ReadOnlyContextBag context) { }
     }
     [System.ObsoleteAttribute("The msmq transaction is now available via the pipeline context. Will be removed i" +
         "n version 7.0.0.", true)]

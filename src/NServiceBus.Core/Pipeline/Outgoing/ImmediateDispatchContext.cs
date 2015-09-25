@@ -1,11 +1,11 @@
 namespace NServiceBus
 {
     using System.Collections.Generic;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Transports;
+    using Pipeline;
+    using Transports;
 
     /// <summary>
-    /// Context for the immediate dispatch part of the pipeline
+    /// Context for the immediate dispatch part of the pipeline.
     /// </summary>
     public class ImmediateDispatchContext : BehaviorContext
     {

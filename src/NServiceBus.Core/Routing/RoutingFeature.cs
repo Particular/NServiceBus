@@ -4,7 +4,6 @@
     using NServiceBus.Config;
     using NServiceBus.Routing;
     using NServiceBus.Routing.MessageDrivenSubscriptions;
-    using NServiceBus.Routing.StorageDrivenPublishing;
     using NServiceBus.Settings;
     using NServiceBus.Transports;
     using NServiceBus.Unicast.Routing;

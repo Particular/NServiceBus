@@ -2,13 +2,13 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.DelayedDelivery;
-    using NServiceBus.DelayedDelivery.TimeoutManager;
-    using NServiceBus.DeliveryConstraints;
-    using NServiceBus.Performance.TimeToBeReceived;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Routing;
-    using NServiceBus.TransportDispatch;
+    using DelayedDelivery;
+    using DelayedDelivery.TimeoutManager;
+    using DeliveryConstraints;
+    using Performance.TimeToBeReceived;
+    using Pipeline;
+    using Routing;
+    using TransportDispatch;
 
     class RouteDeferredMessageToTimeoutManagerBehavior : Behavior<DispatchContext>
     {
@@ -37,9 +37,8 @@ namespace NServiceBus
                     throw new Exception("Postponed delivery of messages with TimeToBeReceived set is not supported. Remove the TimeToBeReceived attribute to postpone messages of this type.");
                 }
 
-
                 context.Set<RoutingStrategy>(new DirectToTargetDestination(timeoutManagerAddress));
-                context.SetHeader(TimeoutManagerHeaders.RouteExpiredTimeoutTo, currentRoutingStrategy.Destination);
+                context.Message.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo] = currentRoutingStrategy.Destination;
 
                 DateTime deliverAt;
                 var delayConstraint = constraint as DelayDeliveryWith;
@@ -53,7 +52,7 @@ namespace NServiceBus
                     deliverAt = ((DoNotDeliverBefore)constraint).At;
                 }
 
-                context.SetHeader(TimeoutManagerHeaders.Expire, DateTimeExtensions.ToWireFormattedString(deliverAt));
+                context.Message.Headers[TimeoutManagerHeaders.Expire] = DateTimeExtensions.ToWireFormattedString(deliverAt);
                 context.RemoveDeliveryConstaint(constraint);
             }
 
@@ -61,7 +60,7 @@ namespace NServiceBus
         }
 
         string timeoutManagerAddress;
-        
+
         public class Registration : RegisterStep
         {
             public Registration()

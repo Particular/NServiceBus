@@ -37,7 +37,7 @@
 
             await behavior.Invoke(CreateContext("someid", 1), () => { throw new Exception("testex"); });
 
-            Assert.AreEqual("someid", fakeDispatchPipeline.DispatchContext.Get<OutgoingMessage>().Headers[Headers.MessageId]);
+            Assert.AreEqual("someid", fakeDispatchPipeline.DispatchContext.Message.Headers[Headers.MessageId]);
             Assert.AreEqual(delay, ((DelayDeliveryWith) fakeDispatchPipeline.DispatchContext.GetDeliveryConstraints().Single(c => c is DelayDeliveryWith)).Delay);
             Assert.AreEqual("test-address-for-this-pipeline", ((DirectToTargetDestination) fakeDispatchPipeline.DispatchContext.Get<RoutingStrategy>()).Destination);
             Assert.AreEqual("testex", slrNotification.Exception.Message);
@@ -53,7 +53,7 @@
 
             await behavior.Invoke(CreateContext("someid", 0), () => { throw new Exception("testex"); });
 
-            Assert.True(fakeDispatchPipeline.DispatchContext.Get<OutgoingMessage>().Headers.ContainsKey(SecondLevelRetriesBehavior.RetriesTimestamp));
+            Assert.True(fakeDispatchPipeline.DispatchContext.Message.Headers.ContainsKey(SecondLevelRetriesBehavior.RetriesTimestamp));
         }
 
         [Test]
@@ -112,7 +112,7 @@
             await behavior.Invoke(context, () => { throw new Exception("testex"); });
 
             Assert.AreEqual(1, retryPolicy.InvokedWithCurrentRetry);
-            Assert.AreEqual("1", fakeDispatchPipeline.DispatchContext.Get<OutgoingMessage>().Headers[Headers.Retries]);
+            Assert.AreEqual("1", fakeDispatchPipeline.DispatchContext.Message.Headers[Headers.Retries]);
         }
 
         [Test]
@@ -130,7 +130,7 @@
 
             await behavior.Invoke(context, () => { throw new Exception("test"); });
 
-            var dispatchedMessage = fakeDispatchPipeline.DispatchContext.Get<OutgoingMessage>();
+            var dispatchedMessage = fakeDispatchPipeline.DispatchContext.Message;
             Assert.AreEqual(originalContent, Encoding.UTF8.GetString(dispatchedMessage.Body));
             Assert.AreEqual(originalContent, Encoding.UTF8.GetString(message.Body));
         }

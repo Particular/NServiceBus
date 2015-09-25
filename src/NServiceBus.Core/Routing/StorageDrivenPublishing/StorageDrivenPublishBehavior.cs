@@ -1,13 +1,14 @@
-﻿namespace NServiceBus.Routing.StorageDrivenPublishing
+﻿namespace NServiceBus
 {
     using System;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Transports;
-    using NServiceBus.Unicast.Messages;
-    using NServiceBus.Unicast.Subscriptions;
-    using NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions;
+    using Pipeline;
+    using Routing;
+    using Transports;
+    using Unicast.Messages;
+    using Unicast.Subscriptions;
+    using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
     class StorageDrivenPublishBehavior : Behavior<ImmediateDispatchContext>
     {

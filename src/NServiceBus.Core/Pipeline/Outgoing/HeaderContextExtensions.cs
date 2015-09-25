@@ -1,8 +1,7 @@
 ﻿namespace NServiceBus.TransportDispatch
 {
-    using NServiceBus.OutgoingPipeline;
-    using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.Transports;
+    using OutgoingPipeline;
+    using Pipeline.Contexts;
 
     /// <summary>
     /// Extensions to the the pipeline contexts to provide ways to set message headers.
@@ -87,21 +86,6 @@
 
             context.GetOrCreate<DispatchMessageToTransportConnector.State>()
                 .Headers[key] = value;
-        }
-
-        /// <summary>
-        /// Allows headers to be set for the outgoing message.
-        /// </summary>
-        /// <param name="context">Context to extend.</param>
-        /// <param name="key">The header key.</param>
-        /// <param name="value">The header value.</param>
-        public static void SetHeader(this DispatchContext context, string key, string value)
-        {
-            Guard.AgainstNull("context", context);
-            Guard.AgainstNullAndEmpty("key", key);
-            Guard.AgainstNullAndEmpty("value", value);
-
-            context.Get<OutgoingMessage>().Headers[key] = value;
         }
     }
 }

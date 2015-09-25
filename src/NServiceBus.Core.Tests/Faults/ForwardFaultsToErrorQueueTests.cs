@@ -4,15 +4,15 @@ namespace NServiceBus.Core.Tests
     using System.Collections.Generic;
     using System.IO;
     using System.Threading.Tasks;
-    using NServiceBus.Core.Tests.Features;
-    using NServiceBus.Faults;
-    using NServiceBus.Hosting;
+    using Features;
+    using Faults;
+    using Hosting;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Routing;
-    using NServiceBus.TransportDispatch;
-    using NServiceBus.Transports;
-    using NServiceBus.Unicast.Transport;
+    using TransportDispatch;
+    using Transports;
+    using Unicast.Transport;
     using NUnit.Framework;
 
     [TestFixture]
@@ -134,7 +134,7 @@ namespace NServiceBus.Core.Tests
                 }
 
                 Destination = ((DirectToTargetDestination) context.GetRoutingStrategy()).Destination;
-                MessageSent = context.Get<OutgoingMessage>();
+                MessageSent = context.Message;
                 return Task.FromResult(0);
             }
         }
