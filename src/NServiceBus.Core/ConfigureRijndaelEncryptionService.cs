@@ -38,8 +38,6 @@ namespace NServiceBus
                 encryptionService.ExpiredKeys = expiredKeys.Select(x => Encoding.ASCII.GetBytes(x)).ToList();
             }
 
-            encryptionService.VerifyKeysAreNotTooSimilar();
-
             config.Configurer.RegisterSingleton<IEncryptionService>(encryptionService);
 
             return config;
