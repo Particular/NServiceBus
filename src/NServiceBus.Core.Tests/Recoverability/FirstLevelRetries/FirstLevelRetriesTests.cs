@@ -3,8 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Threading.Tasks;
-    using NServiceBus.Core.Tests.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Recoverability.FirstLevelRetries;
     using Transports;
