@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.Pipeline
 {
-    using NServiceBus.Extensibility;
-    using NServiceBus.ObjectBuilder;
+    using Extensibility;
+    using ObjectBuilder;
 
     /// <summary>
     /// Base class for a pipeline behavior.
@@ -12,7 +12,7 @@
         /// Create an instance of <see cref="BehaviorContext"/>.
         /// </summary>
         /// <param name="parentContext">The parent context.</param>
-        protected BehaviorContext(BehaviorContext parentContext) : base(parentContext)
+        protected BehaviorContext(ContextBag parentContext) : base(parentContext)
         {
           
         }

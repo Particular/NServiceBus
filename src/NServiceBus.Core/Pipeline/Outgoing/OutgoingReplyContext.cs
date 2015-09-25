@@ -1,11 +1,12 @@
 ﻿namespace NServiceBus.OutgoingPipeline
 {
     using NServiceBus.Pipeline;
+    using NServiceBus.Pipeline.Contexts;
 
     /// <summary>
     /// Pipeline context for reply operations.
     /// </summary>
-    public class OutgoingReplyContext : BehaviorContext
+    public class OutgoingReplyContext : OutgoingContext
     {
         /// <summary>
         /// Initializes a new instance of <see cref="OutgoingReplyContext"/>.

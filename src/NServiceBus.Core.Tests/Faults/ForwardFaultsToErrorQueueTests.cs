@@ -115,10 +115,9 @@ namespace NServiceBus.Core.Tests
 
 
 
-        PhysicalMessageProcessingStageBehavior.Context CreateContext(string messageId)
+        TransportReceiveContext CreateContext(string messageId)
         {
-            var context = new PhysicalMessageProcessingStageBehavior.Context(new TransportReceiveContext(new IncomingMessage(messageId, new Dictionary<string, string>(), new MemoryStream()), null));
-            return context;
+            return new TransportReceiveContext(new IncomingMessage(messageId, new Dictionary<string, string>(), new MemoryStream()), new RootContext(null));
         }
         class FakeDispatchPipeline : IPipelineBase<DispatchContext>
         {

@@ -4,11 +4,11 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Threading.Tasks;
-    using NServiceBus.Pipeline;
+    using NServiceBus.Core.Tests.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Recoverability.FirstLevelRetries;
-    using NServiceBus.Transports;
-    using NServiceBus.Unicast.Transport;
+    using Transports;
+    using Unicast.Transport;
     using NUnit.Framework;
 
     [TestFixture]
@@ -26,18 +26,16 @@
         }
 
         [Test]
-        public async Task ShouldPerformFLRIfThereAreRetriesLeftToDo()
+        public void ShouldPerformFLRIfThereAreRetriesLeftToDo()
         {
             var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1));
             var context = CreateContext("someid");
 
-            await behavior.Invoke(context, () =>
+            Assert.Throws<MessageProcessingAbortedException>(async () => await behavior.Invoke(context, () =>
             {
                 throw new Exception("test");
-            });
-
-            Assert.True(context.AbortReceiveOperation);
-        }
+            }));
+ }
 
         [Test]
         public void ShouldBubbleTheExceptionUpIfThereAreNoMoreRetriesLeft()
@@ -51,7 +49,7 @@
             }));
 
             //should set the retries header to capture how many flr attempts where made
-            Assert.AreEqual("0", context.GetPhysicalMessage().Headers[Headers.FLRetries]);
+            Assert.AreEqual("0", context.Message.Headers[Headers.FLRetries]);
         }
 
         [Test]
@@ -73,23 +71,23 @@
         }
 
         [Test]
-        public async Task ShouldRememberRetryCountBetweenRetries()
+        public void ShouldRememberRetryCountBetweenRetries()
         {
             const string messageId = "someid";
             var storage = new FlrStatusStorage();
             var pipeline = new PipelineInfo("anotherPipeline", "anotherAddress");
             var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1), storage, pipelineInfo: pipeline);
 
-            await behavior.Invoke(CreateContext(messageId), () =>
+            Assert.Throws<MessageProcessingAbortedException>(async ()=> await behavior.Invoke(CreateContext(messageId), () =>
             {
                 throw new Exception("test");
-            });
+            }));
 
             Assert.AreEqual(1, storage.GetFailuresForMessage(pipeline.Name + messageId));
         }
 
         [Test]
-        public async Task ShouldRaiseBusNotificationsForFLR()
+        public void ShouldRaiseBusNotificationsForFLR()
         {
             var notifications = new BusNotifications();
             var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1), busNotifications: notifications);
@@ -105,36 +103,37 @@
                 notificationFired = true;
             });
 
-            await behavior.Invoke(CreateContext("someid"), () =>
+
+            Assert.Throws<MessageProcessingAbortedException>(async () => await behavior.Invoke(CreateContext("someid"), () =>
             {
                 throw new Exception("test");
-            });
+            }));
 
             Assert.True(notificationFired);
         }
 
         [Test]
-        public async Task WillResetRetryCounterWhenFlrStorageCleared()
+        public void WillResetRetryCounterWhenFlrStorageCleared()
         {
             const string messageId = "someId";
             var storage = new FlrStatusStorage();
             var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1), storage);
 
-            await behavior.Invoke(CreateContext(messageId), () =>
+            Assert.Throws<MessageProcessingAbortedException>(async () => await behavior.Invoke(CreateContext(messageId), () =>
             {
                 throw new Exception("test");
-            });
+            }));
 
             storage.ClearAllFailures();
 
-            Assert.DoesNotThrow(async () => await behavior.Invoke(CreateContext(messageId), () =>
+            Assert.Throws<MessageProcessingAbortedException>(async () => await behavior.Invoke(CreateContext(messageId), () =>
             {
                 throw new Exception("test");
             }));
         }
 
         [Test]
-        public async Task ShouldTrackRetriesForEachPipelineIndependently()
+        public void ShouldTrackRetriesForEachPipelineIndependently()
         {
             const string messageId = "someId";
             var storage = new FlrStatusStorage();
@@ -143,22 +142,22 @@
             var pipeline2 = new PipelineInfo("pipeline2", "address");
             var behavior2 = CreateFlrBehavior(new FirstLevelRetryPolicy(2), storage, pipelineInfo: pipeline2);
 
-            await behavior1.Invoke(CreateContext(messageId), () =>
+            Assert.Throws<MessageProcessingAbortedException>(async () => await behavior1.Invoke(CreateContext(messageId), () =>
             {
                 throw new Exception("test");
-            });
+            }));
 
-            await behavior2.Invoke(CreateContext(messageId), () =>
+            Assert.Throws<MessageProcessingAbortedException>(async () => await behavior2.Invoke(CreateContext(messageId), () =>
             {
                 throw new Exception("test");
-            });
+            }));
 
             Assert.Throws<Exception>(async () => await behavior1.Invoke(CreateContext(messageId), () =>
             {
                 throw new Exception("test");
             }));
 
-            Assert.DoesNotThrow(async () => await behavior2.Invoke(CreateContext(messageId), () =>
+            Assert.Throws<MessageProcessingAbortedException>(async () => await behavior2.Invoke(CreateContext(messageId), () =>
             {
                 throw new Exception("test");
             }));
@@ -175,10 +174,9 @@
             return flrBehavior;
         }
 
-        PhysicalMessageProcessingStageBehavior.Context CreateContext(string messageId)
+        TransportReceiveContext CreateContext(string messageId)
         {
-            var context = new PhysicalMessageProcessingStageBehavior.Context(new TransportReceiveContext(new IncomingMessage(messageId, new Dictionary<string, string>(), new MemoryStream()), null));
-            return context;
+            return new TransportReceiveContext(new IncomingMessage(messageId, new Dictionary<string, string>(), new MemoryStream()), new RootContext(null));
         }
     }
 }

@@ -5,11 +5,12 @@ namespace NServiceBus
     using NServiceBus.Hosting;
     using NServiceBus.Logging;
     using NServiceBus.Pipeline;
+    using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Routing;
     using NServiceBus.TransportDispatch;
     using NServiceBus.Transports;
 
-    class MoveFaultsToErrorQueueBehavior : PhysicalMessageProcessingStageBehavior
+    class MoveFaultsToErrorQueueBehavior : Behavior<TransportReceiveContext>
     {
         public MoveFaultsToErrorQueueBehavior(CriticalError criticalError, IPipelineBase<DispatchContext> dispatchPipeline, HostInformation hostInformation, BusNotifications notifications, string errorQueueAddress)
         {
@@ -20,17 +21,21 @@ namespace NServiceBus
             this.errorQueueAddress = errorQueueAddress;
         }
 
-        public override async Task Invoke(Context context, Func<Task> next)
+        public override async Task Invoke(TransportReceiveContext context, Func<Task> next)
         {
             try
             {
                 await next().ConfigureAwait(false);
             }
+            catch (MessageProcessingAbortedException)
+            {
+                throw;
+            }
             catch (Exception exception)
             {
                 try
                 {
-                    var message = context.GetPhysicalMessage();
+                    var message = context.Message;
 
                     Logger.Error($"Moving message '{message.Id}' to the error queue because processing failed due to an exception:", exception);
 

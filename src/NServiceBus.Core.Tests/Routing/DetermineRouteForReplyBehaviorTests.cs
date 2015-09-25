@@ -4,10 +4,10 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Threading.Tasks;
-    using NServiceBus.OutgoingPipeline;
+    using OutgoingPipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Routing;
-    using NServiceBus.Transports;
+    using Transports;
     using NUnit.Framework;
 
     [TestFixture]
@@ -22,7 +22,7 @@
             var context = new OutgoingReplyContext(new TransportReceiveContext(new IncomingMessage("id", new Dictionary<string, string>
             {
                 {Headers.ReplyToAddress, "ReplyAddressOfIncomingMessage"}
-            }, new MemoryStream()), null), new OutgoingLogicalMessage(new MyReply()), options);
+            }, new MemoryStream()), new RootContext(null)), new OutgoingLogicalMessage(new MyReply()), options);
 
             await behavior.Invoke(context, () => Task.FromResult(0));
 
@@ -37,7 +37,7 @@
             var behavior = new DetermineRouteForReplyBehavior();
             var options = new ReplyOptions();
 
-            var context = new OutgoingReplyContext(new TransportReceiveContext(new IncomingMessage("id", new Dictionary<string, string>(), new MemoryStream()), null), new OutgoingLogicalMessage(new MyReply()), options);
+            var context = new OutgoingReplyContext(new TransportReceiveContext(new IncomingMessage("id", new Dictionary<string, string>(), new MemoryStream()), new RootContext(null)), new OutgoingLogicalMessage(new MyReply()), options);
 
             var ex = Assert.Throws<Exception>(async () => await behavior.Invoke(context, () => Task.FromResult(0)));
 

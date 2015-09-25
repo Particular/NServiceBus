@@ -221,7 +221,6 @@ namespace NServiceBus
     }
     public class static CorrelationContextExtensions
     {
-        public static string GetCorrelationId(this NServiceBus.Pipeline.Contexts.LogicalMessagesProcessingStageBehavior.Context context) { }
         public static void SetCorrelationId(this NServiceBus.SendOptions options, string correlationId) { }
         public static void SetCorrelationId(this NServiceBus.ReplyOptions options, string correlationId) { }
     }
@@ -718,10 +717,10 @@ namespace NServiceBus
     public abstract class PhysicalMessageProcessingStageBehavior : NServiceBus.Pipeline.Behavior<NServiceBus.PhysicalMessageProcessingStageBehavior.Context>
     {
         protected PhysicalMessageProcessingStageBehavior() { }
-        public class Context : NServiceBus.Pipeline.Contexts.TransportReceiveContext
+        public class Context : NServiceBus.Pipeline.Contexts.IncomingContext
         {
-            protected Context(NServiceBus.Pipeline.BehaviorContext parentContext) { }
-            public bool AbortReceiveOperation { get; set; }
+            public Context(NServiceBus.TransportMessage message, NServiceBus.Pipeline.BehaviorContext parentContext) { }
+            public NServiceBus.TransportMessage Message { get; }
         }
     }
     public class PipelineDiagnostics
@@ -962,7 +961,8 @@ namespace NServiceBus.Audit
 {
     public class AuditContext : NServiceBus.Pipeline.BehaviorContext
     {
-        public AuditContext(NServiceBus.Pipeline.Contexts.TransportReceiveContext parent) { }
+        public AuditContext(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Pipeline.BehaviorContext parent) { }
+        public NServiceBus.Transports.OutgoingMessage Message { get; }
     }
     public class static AuditContextExtensions
     {
@@ -1815,7 +1815,7 @@ namespace NServiceBus.OutgoingPipeline
     {
         public OutgoingPublishContext(NServiceBus.Pipeline.BehaviorContext parentContext, NServiceBus.OutgoingPipeline.OutgoingLogicalMessage message, NServiceBus.PublishOptions options) { }
     }
-    public class OutgoingReplyContext : NServiceBus.Pipeline.BehaviorContext
+    public class OutgoingReplyContext : NServiceBus.Pipeline.Contexts.OutgoingContext
     {
         public OutgoingReplyContext(NServiceBus.Pipeline.BehaviorContext parentContext, NServiceBus.OutgoingPipeline.OutgoingLogicalMessage message, NServiceBus.ReplyOptions options) { }
     }
@@ -1826,7 +1826,7 @@ namespace NServiceBus.OutgoingPipeline
     public abstract class PhysicalOutgoingContextStageBehavior : NServiceBus.Pipeline.Behavior<NServiceBus.OutgoingPipeline.PhysicalOutgoingContextStageBehavior.Context>
     {
         protected PhysicalOutgoingContextStageBehavior() { }
-        public class Context : NServiceBus.Pipeline.BehaviorContext
+        public class Context : NServiceBus.Pipeline.Contexts.OutgoingContext
         {
             public Context(byte[] body, NServiceBus.Pipeline.Contexts.OutgoingContext parentContext) { }
             public byte[] Body { get; set; }
@@ -1897,7 +1897,7 @@ namespace NServiceBus.Pipeline
     }
     public abstract class BehaviorContext : NServiceBus.Extensibility.ContextBag
     {
-        protected BehaviorContext(NServiceBus.Pipeline.BehaviorContext parentContext) { }
+        protected BehaviorContext(NServiceBus.Extensibility.ContextBag parentContext) { }
         public NServiceBus.ObjectBuilder.IBuilder Builder { get; }
     }
     public interface IBehavior
@@ -1989,10 +1989,7 @@ namespace NServiceBus.Pipeline
     }
     public class static TransportMessageContextExtensions
     {
-        public static NServiceBus.TransportMessage GetPhysicalMessage(this NServiceBus.Pipeline.Contexts.TransportReceiveContext context) { }
         public static bool TryGetIncomingPhysicalMessage(this NServiceBus.Pipeline.Contexts.OutgoingContext context, out NServiceBus.TransportMessage message) { }
-        public static bool TryGetIncomingPhysicalMessage(this NServiceBus.OutgoingPipeline.OutgoingReplyContext context, out NServiceBus.TransportMessage message) { }
-        public static bool TryGetIncomingPhysicalMessage(this NServiceBus.OutgoingPipeline.PhysicalOutgoingContextStageBehavior.Context context, out NServiceBus.TransportMessage message) { }
     }
     public class WellKnownStep
     {
@@ -2026,7 +2023,6 @@ namespace NServiceBus.Pipeline.Contexts
         protected HandlingStageBehavior() { }
         public class Context : NServiceBus.Pipeline.Contexts.IncomingContext
         {
-            protected Context(NServiceBus.Pipeline.BehaviorContext context) { }
             public bool HandlerInvocationAborted { get; }
             public System.Collections.Generic.Dictionary<string, string> Headers { get; }
             public object MessageBeingHandled { get; }
@@ -2036,18 +2032,18 @@ namespace NServiceBus.Pipeline.Contexts
             public void DoNotInvokeAnyMoreHandlers() { }
         }
     }
-    public class IncomingContext : NServiceBus.Pipeline.BehaviorContext
+    public abstract class IncomingContext : NServiceBus.Pipeline.BehaviorContext
     {
-        public IncomingContext(NServiceBus.Pipeline.BehaviorContext parentContext) { }
+        protected IncomingContext(NServiceBus.Pipeline.BehaviorContext parentContext) { }
     }
     public abstract class LogicalMessageProcessingStageBehavior : NServiceBus.Pipeline.Behavior<NServiceBus.Pipeline.Contexts.LogicalMessageProcessingStageBehavior.Context>
     {
         protected LogicalMessageProcessingStageBehavior() { }
-        public class Context : NServiceBus.Pipeline.Contexts.LogicalMessagesProcessingStageBehavior.Context
+        public class Context : NServiceBus.Pipeline.Contexts.IncomingContext
         {
-            public Context(NServiceBus.Unicast.Messages.LogicalMessage logicalMessage, System.Collections.Generic.Dictionary<string, string> headers, System.Type messageType, NServiceBus.Pipeline.Contexts.LogicalMessagesProcessingStageBehavior.Context parentContext) { }
-            protected Context(NServiceBus.Pipeline.BehaviorContext parentContext) { }
+            public Context(NServiceBus.Unicast.Messages.LogicalMessage logicalMessage, System.Collections.Generic.Dictionary<string, string> headers, NServiceBus.Pipeline.Contexts.IncomingContext parentContext) { }
             public System.Collections.Generic.Dictionary<string, string> Headers { get; }
+            public bool MessageHandled { get; set; }
             public System.Type MessageType { get; set; }
         }
     }
@@ -2055,24 +2051,13 @@ namespace NServiceBus.Pipeline.Contexts
     {
         public static NServiceBus.Unicast.Messages.LogicalMessage GetLogicalMessage(this NServiceBus.Pipeline.Contexts.LogicalMessageProcessingStageBehavior.Context context) { }
     }
-    public abstract class LogicalMessagesProcessingStageBehavior : NServiceBus.Pipeline.Behavior<NServiceBus.Pipeline.Contexts.LogicalMessagesProcessingStageBehavior.Context>
-    {
-        protected LogicalMessagesProcessingStageBehavior() { }
-        public class Context : NServiceBus.PhysicalMessageProcessingStageBehavior.Context
-        {
-            public Context(System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Messages.LogicalMessage> logicalMessages, NServiceBus.PhysicalMessageProcessingStageBehavior.Context parentContext) { }
-            protected Context(NServiceBus.Pipeline.BehaviorContext parentContext) { }
-            public System.Collections.Generic.List<NServiceBus.Unicast.Messages.LogicalMessage> LogicalMessages { get; }
-            public bool MessageHandled { get; set; }
-        }
-    }
     public class OutgoingContext : NServiceBus.Pipeline.BehaviorContext
     {
-        public OutgoingContext(NServiceBus.Pipeline.BehaviorContext parentContext) { }
+        public OutgoingContext(NServiceBus.Extensibility.ContextBag parentContext) { }
     }
     public class TransportReceiveContext : NServiceBus.Pipeline.Contexts.IncomingContext
     {
-        protected TransportReceiveContext(NServiceBus.Pipeline.BehaviorContext parentContext) { }
+        public NServiceBus.TransportMessage Message { get; }
     }
 }
 namespace NServiceBus.Routing
@@ -2491,7 +2476,7 @@ namespace NServiceBus.Transports
         public DispatchOptions(NServiceBus.Routing.RoutingStrategy routingStrategy, System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints = null, NServiceBus.Transports.DispatchConsistency requiredDispatchConsistency = 1) { }
         public System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> DeliveryConstraints { get; }
         public NServiceBus.Transports.DispatchConsistency RequiredDispatchConsistency { get; }
-        public NServiceBus.Routing.RoutingStrategy RoutingStrategy { get; set; }
+        public NServiceBus.Routing.RoutingStrategy RoutingStrategy { get; }
     }
     [System.ObsoleteAttribute("No longer used, safe to remove. Will be removed in version 7.0.0.", true)]
     public interface IAuditMessages { }

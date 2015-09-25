@@ -64,16 +64,16 @@
 
                 public override Task Invoke(Context ctx, Func<Task> next)
                 {
-                    if (!ctx.GetPhysicalMessage().Headers.ContainsKey("ScenarioContextId"))
+                    if (!ctx.Message.Headers.ContainsKey("ScenarioContextId"))
                     {
                         return Task.FromResult(0);
                     }
-                    var id = new Guid(ctx.GetPhysicalMessage().Headers["ScenarioContextId"]);
+                    var id = new Guid(ctx.Message.Headers["ScenarioContextId"]);
                     if (id != ScenarioContext.Id)
                     {
                         return Task.FromResult(0);
                     }
-                    ScenarioContext.MessageId = ctx.GetPhysicalMessage().Id;
+                    ScenarioContext.MessageId = ctx.Message.Id;
                     ScenarioContext.MessageReceived = true;
 
                     return Task.FromResult(0);

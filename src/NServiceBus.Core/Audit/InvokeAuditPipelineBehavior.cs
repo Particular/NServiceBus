@@ -2,10 +2,10 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Audit;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Routing;
-    using NServiceBus.Transports;
+    using Audit;
+    using Pipeline;
+    using Routing;
+    using Transports;
 
     class InvokeAuditPipelineBehavior : PhysicalMessageProcessingStageBehavior
     {
@@ -19,13 +19,12 @@
         {
             await next().ConfigureAwait(false);
 
-            context.GetPhysicalMessage().RevertToOriginalBodyIfNeeded();
+            context.Message.RevertToOriginalBodyIfNeeded();
 
-            var processedMessage = new OutgoingMessage(context.GetPhysicalMessage().Id, context.GetPhysicalMessage().Headers, context.GetPhysicalMessage().Body);
+            var processedMessage = new OutgoingMessage(context.Message.Id, context.Message.Headers, context.Message.Body);
 
-            var auditContext = new AuditContext(context);
+            var auditContext = new AuditContext(processedMessage,context);
 
-            context.Set(processedMessage);
             context.Set<RoutingStrategy>(new DirectToTargetDestination(auditAddress));
 
             await auditPipeline.Invoke(auditContext).ConfigureAwait(false);
@@ -33,15 +32,5 @@
 
         PipelineBase<AuditContext> auditPipeline;
         string auditAddress;
-
-
-        public class Registration : RegisterStep
-        {
-            public Registration()
-                : base(WellKnownStep.AuditProcessedMessage, typeof(InvokeAuditPipelineBehavior), "Execute the audit pipeline")
-            {
-                InsertAfterIfExists("FirstLevelRetries");
-            }
-        }
     }
 }

@@ -18,7 +18,7 @@
 
         public override async Task Invoke(Context context, Func<Task> next)
         {
-            var transportMessage = context.GetPhysicalMessage();
+            var transportMessage = context.Message;
             var messageTypeString = GetSubscriptionMessageTypeFrom(transportMessage);
 
             var intent = transportMessage.MessageIntent;

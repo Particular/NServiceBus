@@ -21,7 +21,7 @@
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.Pipeline.Register<InvokeAuditPipelineBehavior.Registration>();
+            context.Pipeline.Register(WellKnownStep.AuditProcessedMessage, typeof(InvokeAuditPipelineBehavior), "Execute the audit pipeline");
             context.Pipeline.RegisterConnector<AuditToDispatchConnector>("Dispatches the audit message to the transport");
          
 

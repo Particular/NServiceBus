@@ -2,11 +2,11 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.DelayedDelivery.TimeoutManager;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Routing;
-    using NServiceBus.Timeout.Core;
-    using NServiceBus.Transports;
+    using DelayedDelivery.TimeoutManager;
+    using Pipeline;
+    using Routing;
+    using Timeout.Core;
+    using Transports;
 
     class StoreTimeoutBehavior : SatelliteBehavior
     {
@@ -20,7 +20,7 @@ namespace NServiceBus
 
         protected override async Task Terminate(PhysicalMessageProcessingStageBehavior.Context context)
         {
-            var message = context.GetPhysicalMessage();
+            var message = context.Message;
 
             //dispatch request will arrive at the same input so we need to make sure to call the correct handler
             if (message.Headers.ContainsKey(TimeoutIdToDispatchHeader))

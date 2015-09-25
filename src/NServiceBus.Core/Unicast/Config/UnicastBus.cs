@@ -62,13 +62,6 @@ namespace NServiceBus.Features
                 .ToList();
 
             ConfigureMessageRegistry(context, knownMessages);
-
-            if (context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"))
-            {
-                return;
-            }
-
-            HardcodedPipelineSteps.RegisterIncomingCoreBehaviors(context.Pipeline);
         }
 
         static void ConfigureMessageRegistry(FeatureConfigurationContext context, IEnumerable<Type> knownMessages)

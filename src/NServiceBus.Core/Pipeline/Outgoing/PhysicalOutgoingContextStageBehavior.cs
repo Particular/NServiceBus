@@ -11,7 +11,7 @@
         /// <summary>
         /// The <see cref="BehaviorContext"/> for <see cref="PhysicalOutgoingContextStageBehavior"/>.
         /// </summary>
-        public class Context : BehaviorContext
+        public class Context : OutgoingContext
         {
 
             /// <summary>

@@ -30,7 +30,7 @@ namespace NServiceBus.Transports
         /// <summary>
         /// The strategy to use when routing this message.
         /// </summary>
-        public RoutingStrategy RoutingStrategy { get; set; }
+        public RoutingStrategy RoutingStrategy { get; private set; }
 
         /// <summary>
         /// The delivery constraints that must be honored by the transport.

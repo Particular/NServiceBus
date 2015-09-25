@@ -19,9 +19,9 @@ namespace NServiceBus
 
         public async override Task Invoke(TransportReceiveContext context, Func<PhysicalMessageProcessingStageBehavior.Context, Task> next)
         {
-            var physicalMessageContext = new PhysicalMessageProcessingStageBehavior.Context(context);
-            var messageId = physicalMessageContext.GetPhysicalMessage().Id;
-
+            var messageId = context.Message.Id;
+            var physicalMessageContext = new PhysicalMessageProcessingStageBehavior.Context(context.Message,context);
+        
             var deduplicationEntry = await outboxStorage.Get(messageId, new OutboxStorageOptions(context)).ConfigureAwait(false);
             var pendingTransportOperations = new PendingTransportOperations();
 
@@ -30,19 +30,15 @@ namespace NServiceBus
                 physicalMessageContext.Set(pendingTransportOperations);
 
                 await next(physicalMessageContext).ConfigureAwait(false);
-
-                if (physicalMessageContext.AbortReceiveOperation)
-                {
-                    throw new MessageProcessingAbortedException();
-                }
-                //todo: add pending ops
+                
                 await outboxStorage.Store(new OutboxMessage(messageId), new OutboxStorageOptions(context)).ConfigureAwait(false);
             }
             else
             {
                 foreach (var operation in deduplicationEntry.TransportOperations)
                 {
-                    pendingTransportOperations.Add(new TransportOperation(new OutgoingMessage(operation.MessageId,operation.Headers,operation.Body), new DispatchOptions(null,null,DispatchConsistency.Isolated)));
+                    pendingTransportOperations.Add(new TransportOperation(new OutgoingMessage(operation.MessageId,operation.Headers,operation.Body), 
+                        new DispatchOptions(null,null,DispatchConsistency.Isolated)));
                 }
             }
 

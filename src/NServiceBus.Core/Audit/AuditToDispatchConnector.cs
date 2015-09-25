@@ -3,12 +3,11 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.Audit;
-    using NServiceBus.DeliveryConstraints;
-    using NServiceBus.Performance.TimeToBeReceived;
-    using NServiceBus.Pipeline;
-    using NServiceBus.TransportDispatch;
-    using NServiceBus.Transports;
+    using Audit;
+    using DeliveryConstraints;
+    using Performance.TimeToBeReceived;
+    using Pipeline;
+    using TransportDispatch;
 
     class AuditToDispatchConnector : StageConnector<AuditContext, DispatchContext>
     {
@@ -21,7 +20,7 @@ namespace NServiceBus
 
         public override Task Invoke(AuditContext context, Func<DispatchContext, Task> next)
         {
-            var message = context.Get<OutgoingMessage>();
+            var message = context.Message;
 
             State state;
 
@@ -33,8 +32,7 @@ namespace NServiceBus
                     message.Headers[kvp.Key] = kvp.Value;
                 }
             }
-
-
+            
             var deliveryConstraints = new List<DeliveryConstraint>();
 
             if (timeToBeReceived.HasValue)

@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus.Pipeline.Contexts
 {
-    using NServiceBus.Transports;
+    using Transports;
 
     /// <summary>
     /// Context containing a physical message.
@@ -10,24 +10,22 @@
         internal TransportReceiveContext(IncomingMessage receivedMessage, BehaviorContext parentContext)
             : base(parentContext)
         {
-            var message = new TransportMessage(receivedMessage.MessageId, receivedMessage.Headers)
+            Guard.AgainstNull("receivedMessage", receivedMessage);
+            Guard.AgainstNull("parentContext", parentContext);
+
+            Message = new TransportMessage(receivedMessage.MessageId, receivedMessage.Headers)
             {
                 Body = new byte[receivedMessage.BodyStream.Length]
             };
 
-            receivedMessage.BodyStream.Read(message.Body, 0, message.Body.Length);
+            receivedMessage.BodyStream.Read(Message.Body, 0, Message.Body.Length);
 
-            Set(message);
+            Set(Message);
         }
 
         /// <summary>
-        /// Allows context inheritance.
+        /// The physical message beeing processed.
         /// </summary>
-        protected TransportReceiveContext(BehaviorContext parentContext)
-            : base(parentContext)
-        {
-        }
-
-
+        public TransportMessage Message { get; private set; }
     }
 }

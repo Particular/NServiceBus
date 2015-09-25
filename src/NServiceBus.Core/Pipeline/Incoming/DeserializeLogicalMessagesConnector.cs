@@ -14,7 +14,7 @@
     using NServiceBus.Unicast;
     using NServiceBus.Unicast.Messages;
 
-    class DeserializeLogicalMessagesConnector : StageConnector<PhysicalMessageProcessingStageBehavior.Context, LogicalMessagesProcessingStageBehavior.Context>
+    class DeserializeLogicalMessagesConnector : StageConnector<PhysicalMessageProcessingStageBehavior.Context, LogicalMessageProcessingStageBehavior.Context>
     {
         public MessageDeserializerResolver DeserializerResolver { get; set; }
 
@@ -24,11 +24,17 @@
 
         public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
 
-        public override Task Invoke(PhysicalMessageProcessingStageBehavior.Context context, Func<LogicalMessagesProcessingStageBehavior.Context, Task> next)
+        public async override Task Invoke(PhysicalMessageProcessingStageBehavior.Context context, Func<LogicalMessageProcessingStageBehavior.Context, Task> next)
         {
-            var transportMessage = context.GetPhysicalMessage();
+            var transportMessage = context.Message;
+
             var messages = ExtractWithExceptionHandling(transportMessage);
-            return next(new LogicalMessagesProcessingStageBehavior.Context(messages, context));
+
+            foreach (var message in messages)
+            {
+                await next(new LogicalMessageProcessingStageBehavior.Context(message,context.Message.Headers, context)).ConfigureAwait(false);
+            }
+
         }
 
         List<LogicalMessage> ExtractWithExceptionHandling(TransportMessage transportMessage)

@@ -3,16 +3,17 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.DelayedDelivery;
-    using NServiceBus.DeliveryConstraints;
-    using NServiceBus.Logging;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Recoverability.SecondLevelRetries;
-    using NServiceBus.Routing;
-    using NServiceBus.TransportDispatch;
-    using NServiceBus.Transports;
+    using DelayedDelivery;
+    using DeliveryConstraints;
+    using Logging;
+    using Pipeline;
+    using Pipeline.Contexts;
+    using Recoverability.SecondLevelRetries;
+    using Routing;
+    using TransportDispatch;
+    using Transports;
 
-    class SecondLevelRetriesBehavior : PhysicalMessageProcessingStageBehavior
+    class SecondLevelRetriesBehavior : Behavior<TransportReceiveContext>
     {
         public SecondLevelRetriesBehavior(IPipelineBase<DispatchContext> dispatchPipeline, SecondLevelRetryPolicy retryPolicy, BusNotifications notifications, string localAddress)
         {
@@ -22,20 +23,24 @@ namespace NServiceBus
             this.localAddress = localAddress;
         }
 
-        public override async Task Invoke(Context context, Func<Task> next)
+        public override async Task Invoke(TransportReceiveContext context, Func<Task> next)
         {
             try
             {
                 await next().ConfigureAwait(false);
             }
+            catch (MessageProcessingAbortedException)
+            {
+                throw; // flr asked to abort
+            }
             catch (MessageDeserializationException)
             {
-                context.GetPhysicalMessage().Headers.Remove(Headers.Retries);
+                context.Message.Headers.Remove(Headers.Retries);
                 throw; // no SLR for poison messages
             }
             catch (Exception ex)
             {
-                var message = context.GetPhysicalMessage();
+                var message = context.Message;
                 var currentRetry = GetNumberOfRetries(message.Headers) + 1;
 
                 TimeSpan delay;
@@ -103,7 +108,6 @@ namespace NServiceBus
                 : base("SecondLevelRetries", typeof(SecondLevelRetriesBehavior), "Performs second level retries")
             {
                 InsertBeforeIfExists("FirstLevelRetries");
-                InsertBeforeIfExists("ReceivePerformanceDiagnosticsBehavior");
             }
         }
 

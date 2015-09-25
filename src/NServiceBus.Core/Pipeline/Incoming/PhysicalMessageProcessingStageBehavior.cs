@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus
 {
-    using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
+    using Pipeline;
+    using Pipeline.Contexts;
 
     /// <summary>
     /// A behavior in physical message processing stage.
@@ -11,31 +11,21 @@
         /// <summary>
         /// A context of behavior execution in physical message processing stage.
         /// </summary>
-        public class Context : TransportReceiveContext
+        public class Context : IncomingContext
         {
             /// <summary>
-            /// Initializes a new instance of <see cref="Context"/>.
+            /// The physical message beeing processed.
             /// </summary>
-            protected Context(BehaviorContext parentContext)
-                : base(parentContext)
-            {
-
-            }
+            public TransportMessage Message { get; private set; }
 
             /// <summary>
             /// Initializes a new instance of <see cref="Context"/>.
             /// </summary>
-            internal Context(TransportReceiveContext parentContext)
+            public Context(TransportMessage message, BehaviorContext parentContext)
                 : base(parentContext)
             {
-                
+                Message = message;
             }
-
-            /// <summary>
-            /// If set to true the receive operation will be aborted.
-            /// </summary>
-            public bool AbortReceiveOperation { get; set; }
-
         }
     }
 }

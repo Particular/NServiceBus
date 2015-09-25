@@ -6,16 +6,16 @@
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
-    using NServiceBus.DelayedDelivery;
-    using NServiceBus.DeliveryConstraints;
-    using NServiceBus.Faults;
+    using DelayedDelivery;
+    using DeliveryConstraints;
+    using Faults;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Recoverability.SecondLevelRetries;
     using NServiceBus.Routing;
-    using NServiceBus.TransportDispatch;
-    using NServiceBus.Transports;
-    using NServiceBus.Unicast.Transport;
+    using TransportDispatch;
+    using Transports;
+    using Unicast.Transport;
     using NUnit.Framework;
 
     [TestFixture]
@@ -38,8 +38,8 @@
             await behavior.Invoke(CreateContext("someid", 1), () => { throw new Exception("testex"); });
 
             Assert.AreEqual("someid", fakeDispatchPipeline.DispatchContext.Message.Headers[Headers.MessageId]);
-            Assert.AreEqual(delay, ((DelayDeliveryWith) fakeDispatchPipeline.DispatchContext.GetDeliveryConstraints().Single(c => c is DelayDeliveryWith)).Delay);
-            Assert.AreEqual("test-address-for-this-pipeline", ((DirectToTargetDestination) fakeDispatchPipeline.DispatchContext.Get<RoutingStrategy>()).Destination);
+            Assert.AreEqual(delay, ((DelayDeliveryWith)fakeDispatchPipeline.DispatchContext.GetDeliveryConstraints().Single(c => c is DelayDeliveryWith)).Delay);
+            Assert.AreEqual("test-address-for-this-pipeline", ((DirectToTargetDestination)fakeDispatchPipeline.DispatchContext.Get<RoutingStrategy>()).Destination);
             Assert.AreEqual("testex", slrNotification.Exception.Message);
         }
 
@@ -66,7 +66,7 @@
 
             Assert.Throws<Exception>(async () => await behavior.Invoke(context, () => { throw new Exception("testex"); }));
 
-            Assert.False(context.GetPhysicalMessage().Headers.ContainsKey(Headers.Retries));
+            Assert.False(context.Message.Headers.ContainsKey(Headers.Retries));
         }
 
         [Test]
@@ -78,7 +78,7 @@
             var context = CreateContext("someid", 1);
 
             Assert.Throws<MessageDeserializationException>(async () => await behavior.Invoke(context, () => { throw new MessageDeserializationException("testex"); }));
-            Assert.False(context.GetPhysicalMessage().Headers.ContainsKey(Headers.Retries));
+            Assert.False(context.Message.Headers.ContainsKey(Headers.Retries));
         }
 
         [Test]
@@ -103,7 +103,7 @@
             var retryPolicy = new FakePolicy(TimeSpan.FromSeconds(5));
             var context = CreateContext("someid", 2);
 
-            context.GetPhysicalMessage().Headers.Clear();
+            context.Message.Headers.Clear();
 
             var fakeDispatchPipeline = new FakeDispatchPipeline();
             var behavior = new SecondLevelRetriesBehavior(fakeDispatchPipeline, retryPolicy, new BusNotifications(), "MyAddress");
@@ -125,7 +125,7 @@
             var behavior = new SecondLevelRetriesBehavior(fakeDispatchPipeline, retryPolicy, new BusNotifications(), "test-address-for-this-pipeline");
             behavior.Initialize(new PipelineInfo("Test", "test-address-for-this-pipeline"));
 
-            var message = context.GetPhysicalMessage();
+            var message = context.Message;
             message.Body = Encoding.UTF8.GetBytes("modified content");
 
             await behavior.Invoke(context, () => { throw new Exception("test"); });
@@ -135,13 +135,12 @@
             Assert.AreEqual(originalContent, Encoding.UTF8.GetString(message.Body));
         }
 
-        PhysicalMessageProcessingStageBehavior.Context CreateContext(string messageId, int currentRetryCount, byte[] messageBody = null)
+        TransportReceiveContext CreateContext(string messageId, int currentRetryCount, byte[] messageBody = null)
         {
-            var context = new PhysicalMessageProcessingStageBehavior.Context(new TransportReceiveContext(new IncomingMessage(messageId, new Dictionary<string, string>
+            return new TransportReceiveContext(new IncomingMessage(messageId, new Dictionary<string, string>
             {
                 {Headers.Retries, currentRetryCount.ToString()}
-            }, new MemoryStream(messageBody ?? new byte[0])), null));
-            return context;
+            }, new MemoryStream(messageBody ?? new byte[0])), new RootContext(null));
         }
     }
 

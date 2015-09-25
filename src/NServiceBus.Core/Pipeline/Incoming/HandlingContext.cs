@@ -1,8 +1,8 @@
 ﻿namespace NServiceBus.Pipeline.Contexts
 {
     using System.Collections.Generic;
-    using NServiceBus.Unicast.Behaviors;
-    using NServiceBus.Unicast.Messages;
+    using Unicast.Behaviors;
+    using Unicast.Messages;
 
     /// <summary>
     /// A behavior that belongs to the handling stage.
@@ -21,15 +21,7 @@
                 Headers = parentContext.Headers;
                 MessageBeingHandled = parentContext.GetLogicalMessage().Instance;
                 MessageMetadata = parentContext.GetLogicalMessage().Metadata;
-                MessageId = parentContext.GetPhysicalMessage().Id;
-            }
-
-            /// <summary>
-            /// Allows context inheritance.
-            /// </summary>
-            protected Context(BehaviorContext context)
-                : base(context)
-            {
+                MessageId = Headers[NServiceBus.Headers.MessageId];
             }
 
             /// <summary>

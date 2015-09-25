@@ -11,7 +11,7 @@
             var state = new State();
 
             string timeSentString;
-            var headers = context.GetPhysicalMessage().Headers;
+            var headers = context.Message.Headers;
 
             if (headers.TryGetValue(Headers.TimeSent, out timeSentString))
             {

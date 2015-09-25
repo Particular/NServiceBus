@@ -2,10 +2,10 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Forwarding;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Routing;
-    using NServiceBus.Transports;
+    using Forwarding;
+    using Pipeline;
+    using Routing;
+    using Transports;
 
     class InvokeForwardingPipelineBehavior : PhysicalMessageProcessingStageBehavior
     {
@@ -19,9 +19,9 @@
         {
             await next().ConfigureAwait(false);
 
-            context.GetPhysicalMessage().RevertToOriginalBodyIfNeeded();
+            context.Message.RevertToOriginalBodyIfNeeded();
 
-            var processedMessage = new OutgoingMessage(context.GetPhysicalMessage().Id, context.GetPhysicalMessage().Headers, context.GetPhysicalMessage().Body);
+            var processedMessage = new OutgoingMessage(context.Message.Id, context.Message.Headers, context.Message.Body);
 
             var forwardingContext = new ForwardingContext(processedMessage,context);
 
@@ -32,15 +32,5 @@
 
         IPipelineBase<ForwardingContext> forwardingPipeline;
         string forwardingAddress;
-
-
-        public class Registration : RegisterStep
-        {
-            public Registration()
-                : base("InvokeForwardingPipeline", typeof(InvokeForwardingPipelineBehavior), "Execute the forwarding pipeline")
-            {
-                InsertAfterIfExists("FirstLevelRetries");
-            }
-        }
     }
 }

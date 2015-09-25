@@ -2,10 +2,9 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Routing;
-    using NServiceBus.Timeout.Core;
-    using NServiceBus.Transports;
+    using Routing;
+    using Timeout.Core;
+    using Transports;
 
     class DispatchTimeoutBehavior : SatelliteBehavior
     {
@@ -17,7 +16,7 @@ namespace NServiceBus
 
         protected override async Task Terminate(PhysicalMessageProcessingStageBehavior.Context context)
         {
-            var message = context.GetPhysicalMessage();
+            var message = context.Message;
             var timeoutId = message.Headers["Timeout.Id"];
 
             var timeoutData = await persister.Remove(timeoutId, new TimeoutPersistenceOptions(context)).ConfigureAwait(false);
@@ -37,15 +36,5 @@ namespace NServiceBus
 
         IDispatchMessages dispatcher;
         IPersistTimeouts persister;
-
-        public class Registration : RegisterStep
-        {
-            public Registration()
-                : base("TimeoutDispatcherProcessor", typeof(DispatchTimeoutBehavior), "Dispatches timeout messages")
-            {
-                InsertBeforeIfExists("FirstLevelRetries");
-                InsertBeforeIfExists("ReceivePerformanceDiagnosticsBehavior");
-            }
-        }
     }
 }
