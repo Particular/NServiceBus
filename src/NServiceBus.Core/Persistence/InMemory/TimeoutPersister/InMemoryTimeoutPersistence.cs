@@ -66,13 +66,10 @@ namespace NServiceBus.Persistence.InMemory.TimeoutPersister
             }
         }
 
-        public void Remove(string timeoutId)
+        public bool TryRemove(string timeoutId)
         {
-            lock (lockObject)
-            {
-                var timeoutData = storage.SingleOrDefault(t => t.Id == timeoutId);
-                storage.Remove(timeoutData);
-            }
+            TimeoutData timeoutData;
+            return TryRemove(timeoutId, out timeoutData);
         }
     }
 }

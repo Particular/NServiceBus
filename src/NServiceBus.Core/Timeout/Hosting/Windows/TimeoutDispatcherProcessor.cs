@@ -36,7 +36,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
             var timeoutId = message.Headers["Timeout.Id"];
             
 
-            IPersistTimeoutsV2 persisterV2 = TimeoutsPersister as IPersistTimeoutsV2;
+            var persisterV2 = TimeoutsPersister as IPersistTimeoutsV2;
             if (persisterV2 != null)
             {
                 var timeoutData = persisterV2.Peek(timeoutId);
@@ -55,7 +55,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
                     PipelineExecutor.CurrentContext.Set("do-not-enlist-in-native-transaction", false);
                 }
 
-                persisterV2.Remove(timeoutId);
+                return persisterV2.TryRemove(timeoutId);
             }
             else
             {

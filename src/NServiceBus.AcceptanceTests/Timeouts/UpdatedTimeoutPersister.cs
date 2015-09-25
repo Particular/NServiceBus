@@ -32,8 +32,9 @@
             return null;
         }
 
-        public void Remove(string timeoutId)
+        public bool TryRemove(string timeoutId)
         {
+            return true;
         }
     }
 }

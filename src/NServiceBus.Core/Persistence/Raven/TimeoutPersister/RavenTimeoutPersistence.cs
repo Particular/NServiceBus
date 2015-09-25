@@ -179,18 +179,10 @@ namespace NServiceBus.Persistence.Raven.TimeoutPersister
             }
         }
 
-        public void Remove(string timeoutId)
+        public bool TryRemove(string timeoutId)
         {
-            using (var session = OpenSession())
-            {
-                var timeoutData = session.Load<TimeoutData>(timeoutId);
-
-                if (timeoutData == null)
-                    return;
-
-                session.Delete(timeoutData);
-                session.SaveChanges();
-            }
+            TimeoutData timeoutData;
+            return TryRemove(timeoutId, out timeoutData);
         }
 
         IDocumentSession OpenSession()
