@@ -377,8 +377,10 @@ namespace NServiceBus.Serializers.XML.Test
             o.Start = DateTime.Now;
             o.Duration = TimeSpan.Parse("-01:15:27.123");
             o.Offset = DateTimeOffset.Now;
+            // ReSharper disable once UseObjectOrCollectionInitializer
             o.Lookup = new MyDictionary();
             o.Lookup["1"] = "1";
+            // ReSharper disable once UseObjectOrCollectionInitializer
             o.Foos = new Dictionary<string, List<Foo>>();
             o.Foos["foo1"] = new List<Foo>(new[] { new Foo { Name = "1", Title = "1" }, new Foo { Name = "2", Title = "2" } });
             o.Data = new byte[] { 1, 2, 3, 4, 5, 4, 3, 2, 1 };
