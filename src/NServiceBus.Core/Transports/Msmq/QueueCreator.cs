@@ -57,6 +57,11 @@ namespace NServiceBus.Transports.Msmq
                 {
                     return;
                 }
+                if (ex.MessageQueueErrorCode == MessageQueueErrorCode.QueueExists)
+                {
+                    //Solve the race condition problem when multiple endpoints try to create same queue (e.g. error queue).
+                    return;
+                }
                 Logger.Error(String.Format("Could not create queue {0} or check its existence. Processing will still continue.", address), ex);
             }
             catch (Exception ex)

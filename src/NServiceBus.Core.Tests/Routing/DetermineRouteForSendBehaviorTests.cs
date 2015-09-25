@@ -90,7 +90,7 @@
 
         static DetermineRouteForSendBehavior InitializeBehavior(string localAddress = null, MessageRouter router = null)
         {
-            return new DetermineRouteForSendBehavior(localAddress, router);
+            return new DetermineRouteForSendBehavior(localAddress, router, new DynamicRoutingProvider());
         }
 
         class MyMessage { }
