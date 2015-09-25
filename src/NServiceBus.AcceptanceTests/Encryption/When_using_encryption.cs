@@ -106,7 +106,11 @@
 
         public class ConfigureEncryption: IProvideConfiguration<RijndaelEncryptionServiceConfig>
         {
-            RijndaelEncryptionServiceConfig rijndaelEncryptionServiceConfig = new RijndaelEncryptionServiceConfig { Key = "gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6" };
+            RijndaelEncryptionServiceConfig rijndaelEncryptionServiceConfig = new RijndaelEncryptionServiceConfig
+            {
+                Key = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                KeyIdentifier = "A"
+            };
 
             public RijndaelEncryptionServiceConfig GetConfiguration()
             {
