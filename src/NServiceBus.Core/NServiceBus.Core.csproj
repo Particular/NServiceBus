@@ -101,6 +101,7 @@
     <Compile Include="ConsistencyGuarantees\TransactionScopes\WrapHandlersInTransactionScope.cs" />
     <Compile Include="IBusExtensions_obsolete.cs" />
     <Compile Include="ISendOnlyBusExtensions_obsoletes.cs" />
+    <Compile Include="IStartableBusExtensions_obsoletes.cs" />
     <Compile Include="IWantToRunWhenBusStartsAndStopsExtensions_obsoletes.cs" />
     <Compile Include="Routing\DynamicRoutingConfigurationExtensions.cs" />
     <Compile Include="Sagas\Saga_obsoletes.cs" />

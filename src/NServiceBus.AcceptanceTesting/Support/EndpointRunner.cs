@@ -103,7 +103,7 @@
 
                 if (!configuration.SendOnly)
                 {
-                    bus.Start();
+                    await bus.StartAsync();
                 }
 
                 if (behavior.Whens.Count != 0)

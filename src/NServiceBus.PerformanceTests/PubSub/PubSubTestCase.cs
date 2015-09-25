@@ -77,7 +77,7 @@ public class PubSubTestCase : TestCase
 
 
             Statistics.StartTime = DateTime.Now;
-            bus.Start();
+            bus.StartAsync().GetAwaiter().GetResult();
 
             while (Interlocked.Read(ref Statistics.NumberOfMessages) < NumberMessages)
                 Thread.Sleep(1000);
