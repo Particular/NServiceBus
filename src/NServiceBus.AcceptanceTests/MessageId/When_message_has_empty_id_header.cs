@@ -2,12 +2,11 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NServiceBus.Config;
-    using NServiceBus.Pipeline;
-    using NServiceBus.TransportDispatch;
-    using NServiceBus.Transports;
+    using Pipeline;
+    using TransportDispatch;
     using NUnit.Framework;
 
     public class When_message_has_empty_id_header : NServiceBusAcceptanceTest
@@ -29,8 +28,8 @@
             
             public override Task Invoke(DispatchContext context, Func<Task> next)
             {
-                context.Get<OutgoingMessage>().Headers["ScenarioContextId"] = Context.Id.ToString();
-                context.Get<OutgoingMessage>().Headers[Headers.MessageId] = "";
+                context.Message.Headers["ScenarioContextId"] = Context.Id.ToString();
+                context.Message.Headers[Headers.MessageId] = "";
 
                 return next();
             }
