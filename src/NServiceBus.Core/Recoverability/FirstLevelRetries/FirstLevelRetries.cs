@@ -36,7 +36,7 @@ namespace NServiceBus.Features
             var flrStatusStorage = new FlrStatusStorage();
             context.Container.RegisterSingleton(flrStatusStorage);
 
-            context.Pipeline.Register("FirstLevelRetries", typeof(FirstLevelRetriesBehavior), "Performs first level retries");
+            context.Pipeline.Register<FirstLevelRetriesBehavior.Registration>();
         }
        
 

@@ -45,7 +45,7 @@
 
             var messageProcessorPipeline = context.AddSatellitePipeline("Timeout Message Processor", "Timeouts", consistencyGuarantee, PushRuntimeSettings.Default, out processorAddress);
             messageProcessorPipeline.Register<MoveFaultsToErrorQueueBehavior.Registration>();
-            messageProcessorPipeline.Register("FirstLevelRetries", typeof(FirstLevelRetriesBehavior), "Performs first level retries");
+            messageProcessorPipeline.Register<FirstLevelRetriesBehavior.Registration>();
             messageProcessorPipeline.Register<StoreTimeoutBehavior.Registration>();
             context.Container.ConfigureComponent(b => new StoreTimeoutBehavior(b.Build<ExpiredTimeoutsPoller>(),
                 b.Build<IDispatchMessages>(),
@@ -57,7 +57,7 @@
             string dispatcherAddress;
             var dispatcherProcessorPipeline = context.AddSatellitePipeline("Timeout Dispatcher Processor", "TimeoutsDispatcher", consistencyGuarantee, PushRuntimeSettings.Default, out dispatcherAddress);
             dispatcherProcessorPipeline.Register<MoveFaultsToErrorQueueBehavior.Registration>();
-            dispatcherProcessorPipeline.Register("FirstLevelRetries", typeof(FirstLevelRetriesBehavior), "Performs first level retries");
+            dispatcherProcessorPipeline.Register<FirstLevelRetriesBehavior.Registration>();
             dispatcherProcessorPipeline.Register("TimeoutDispatcherProcessor", typeof(DispatchTimeoutBehavior), "Dispatches timeout messages");
 
             context.Container.ConfigureComponent(b =>
