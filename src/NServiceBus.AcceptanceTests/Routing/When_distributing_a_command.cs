@@ -14,10 +14,7 @@
         public async Task Should_round_robin()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Sender>(b => b.Given(async (bus, c) =>
-                {
-                    await bus.SendAsync(new Request());
-                }))
+                .WithEndpoint<Sender>(b => b.Given((bus, c) => bus.SendAsync(new Request())))
                 .WithEndpoint<Receiver1>()
                 .WithEndpoint<Receiver2>()
                 .Done(c => c.Receiver1TimesCalled > 4 && c.Receiver2TimesCalled > 4)
@@ -60,7 +57,7 @@
 
                 public IBus Bus { get; set; }
 
-                public async Task Handle(Response message)
+                public Task Handle(Response message)
                 {
                     switch (message.EndpointName)
                     {
@@ -72,7 +69,7 @@
                             break;
                     }
 
-                    await Bus.SendAsync(new Request());
+                    return Bus.SendAsync(new Request());
                 }
             }
         }
@@ -92,9 +89,9 @@
             {
                 public IBus Bus { get; set; }
 
-                public async Task Handle(Request message)
+                public Task Handle(Request message)
                 {
-                    await Bus.ReplyAsync(new Response
+                    return Bus.ReplyAsync(new Response
                     {
                         EndpointName = "Receiver1"
                     });
@@ -117,9 +114,9 @@
             {
                 public IBus Bus { get; set; }
 
-                public async Task Handle(Request message)
+                public Task Handle(Request message)
                 {
-                    await Bus.ReplyAsync(new Response
+                    return Bus.ReplyAsync(new Response
                     {
                         EndpointName = "Receiver2"
                     });
