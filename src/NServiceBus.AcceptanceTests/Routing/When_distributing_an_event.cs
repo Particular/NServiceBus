@@ -82,9 +82,9 @@
 
                 public IBus Bus { get; set; }
 
-                public async Task Handle(MyRequest message)
+                public Task Handle(MyRequest message)
                 {
-                    await Bus.PublishAsync(new MyEvent());
+                    return Bus.PublishAsync(new MyEvent());
                 }
             }
         }
