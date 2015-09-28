@@ -3,7 +3,7 @@ namespace NServiceBus
     using System;
     using System.Threading.Tasks;
     using System.Transactions;
-    using NServiceBus.Pipeline;
+    using Pipeline;
 
     class SuppressAmbientTransactionBehavior : PhysicalMessageProcessingStageBehavior
     {
@@ -28,8 +28,7 @@ namespace NServiceBus
             public Registration()
                 : base("HandlerTransactionScopeWrapperBehavior", typeof(SuppressAmbientTransactionBehavior), "Make sure that any ambient transaction scope is suppressed")
             {
-                InsertBeforeIfExists("FirstLevelRetries");
-                InsertBeforeIfExists("ReceivePerformanceDiagnosticsBehavior");
+                InsertBeforeIfExists(WellKnownStep.InvokeHandlers);
             }
         }
     }

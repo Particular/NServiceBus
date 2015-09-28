@@ -19,6 +19,8 @@
             context.Pipeline.Register(WellKnownStep.MutateOutgoingMessages, typeof(MutateOutgoingMessageBehavior), "Executes IMutateOutgoingMessages");
             context.Pipeline.Register(WellKnownStep.MutateOutgoingTransportMessage, typeof(MutateOutgoingTransportMessageBehavior), "Executes IMutateOutgoingTransportMessages");
 
+            context.Pipeline.Register("ForceImmediateDispatchForOperationsInSupressedScopeBehavior", typeof(ForceImmediateDispatchForOperationsInSupressedScopeBehavior), "Detects operations performed in a supressed scope and request them to be immediatly dispatched to the transport.");
+
             context.Pipeline.RegisterConnector<DispatchMessageToTransportConnector>("Starts the message dispatch pipeline");
             context.Pipeline.RegisterConnector<BatchOrImmediateDispatchConnector>("Decides if the current message should be batched or immediately be dispatched to the transport");
             context.Pipeline.RegisterConnector<BatchToImmediateDispatchConnector>("Passes batched messages over to the immediate dispatch part of the pipeline");
