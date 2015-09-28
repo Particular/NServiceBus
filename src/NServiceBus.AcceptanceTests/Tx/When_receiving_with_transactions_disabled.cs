@@ -3,9 +3,9 @@
     using System;
     using System.Threading.Tasks;
     using System.Transactions;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using ScenarioDescriptors;
     using NUnit.Framework;
 
     public class When_receiving_with_transactions_disabled : NServiceBusAcceptanceTest
