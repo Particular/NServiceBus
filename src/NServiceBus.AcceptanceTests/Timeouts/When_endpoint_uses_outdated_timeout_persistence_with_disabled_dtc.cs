@@ -4,6 +4,7 @@
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTesting.Support;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using NServiceBus.Timeout.Core;
     using NUnit.Framework;
 
     public class When_endpoint_uses_outdated_timeout_persistence_with_disabled_dtc
@@ -14,13 +15,27 @@
             var context = new Context();
 
             var scenarioException = Assert.Throws<AggregateException>(() => Scenario.Define(context)
-                    .WithEndpoint<Endpoint>()
-                    .Done(c => c.EndpointsStarted)
-                    .Run())
-                    .InnerException as ScenarioException;
+                .WithEndpoint<Endpoint>()
+                .Done(c => c.EndpointsStarted)
+                .Run())
+                .InnerException as ScenarioException;
 
             Assert.IsFalse(context.EndpointsStarted);
             StringAssert.Contains("You are using an outdated timeout persistence which can lead to message loss!", scenarioException.Message);
+        }
+
+        [Test]
+        public void Endpoint_should_start_when_warning_suppressed()
+        {
+            var context = new Context();
+
+            Scenario.Define(context)
+                .WithEndpoint<Endpoint>(c => c
+                    .CustomConfig(config => config.SuppressOutdatedTimeoutPersistenceWarning()))
+                .Done(c => c.EndpointsStarted)
+                .Run();
+
+            Assert.IsTrue(context.EndpointsStarted);
         }
 
         public class Endpoint : EndpointConfigurationBuilder

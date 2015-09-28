@@ -191,11 +191,13 @@
     <Compile Include="Timeouts\When_dispatched_timeout_already_removed_from_timeout_storage.cs" />
     <Compile Include="Timeouts\When_dispatching_deferred_message_fails_without_dtc.cs" />
     <Compile Include="Timeouts\When_endpoint_uses_no_timeout_persistence.cs" />
-    <Compile Include="Timeouts\When_endpoint_uses_outdated_persistence_but_acknowledges.cs" />
+    <Compile Include="Timeouts\When_endpoint_uses_outdated_sql_transport_with_dtc.cs" />
     <Compile Include="Timeouts\When_endpoint_uses_outdated_timeout_persistence_without_dtc.cs" />
     <Compile Include="Timeouts\When_endpoint_uses_outdated_timeout_persistence_with_disabled_dtc.cs" />
     <Compile Include="Timeouts\When_endpoint_uses_outdated_timeout_persistence_with_dtc.cs" />
+    <Compile Include="Timeouts\When_endpoint_uses_outdated_sql_transport_with_disabled_dtc.cs" />
     <Compile Include="Timeouts\When_endpoint_uses_updated_timeout_persistence.cs" />
+    <Compile Include="Timeouts\When_endpoint_uses_updated_sql_transport_with_disabled_dtc.cs" />
     <Compile Include="Transactions\FakePromotableResourceManager.cs" />
     <Compile Include="Transactions\When_receiving_a_message_with_dtc_disabled.cs" />
     <Compile Include="Transactions\When_receiving_a_message_with_dtc_enabled.cs" />
