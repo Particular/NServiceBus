@@ -5,9 +5,10 @@
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.DelayedDelivery;
-    using NServiceBus.DeliveryConstraints;
+    using DelayedDelivery;
+    using DeliveryConstraints;
     using NServiceBus.Outbox;
+    using NServiceBus.Performance.TimeToBeReceived;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Routing;
@@ -20,15 +21,17 @@
     {
 
         [Test]
-        public async Task Should_honor_stored_delivery_constraints_and_routing_strategies()
+        public async Task Should_honor_stored_delivery_constraints()
         {
             var options = new Dictionary<string, string>();
             var deliverTime = DateTime.UtcNow.AddDays(1);
+            var maxTime = TimeSpan.FromDays(1);
 
             new DirectToTargetDestination("myEndpoint").Serialize(options);
             new NonDurableDelivery().Serialize(options);
             new DelayDeliveryWith(TimeSpan.FromSeconds(10)).Serialize(options);
             new DoNotDeliverBefore(deliverTime).Serialize(options);
+            new DiscardIfNotReceivedBefore(maxTime).Serialize(options);
 
             fakeOutbox.ExistingMessage = new OutboxMessage("id", new List<TransportOperation>
             {
@@ -50,11 +53,57 @@
 
             Assert.True(fakeBatchPipeline.TransportOperations.First().DispatchOptions.DeliveryConstraints.TryGet(out doNotDeliverBefore));
             Assert.AreEqual(deliverTime.ToString(), doNotDeliverBefore.At.ToString());
-            
-            var directRouting = fakeBatchPipeline.TransportOperations.First().DispatchOptions.RoutingStrategy as DirectToTargetDestination;
-            Assert.NotNull(directRouting);
-            Assert.AreEqual("myEndpoint", directRouting.Destination);
 
+            DiscardIfNotReceivedBefore discard;
+
+            Assert.True(fakeBatchPipeline.TransportOperations.First().DispatchOptions.DeliveryConstraints.TryGet(out discard));
+            Assert.AreEqual(maxTime, discard.MaxTime);
+
+            Assert.Null(fakeOutbox.StoredMessage);
+        }
+
+        [Test]
+        public async Task Should_honor_stored_direct_routing()
+        {
+            var options = new Dictionary<string, string>();
+
+            new DirectToTargetDestination("myEndpoint").Serialize(options);
+
+            fakeOutbox.ExistingMessage = new OutboxMessage("id", new List<TransportOperation>
+            {
+                new TransportOperation("x",options,new byte[0],new Dictionary<string, string>())
+            });
+
+            var context = CreateContext();
+
+            await Invoke(context);
+            
+            var routing = fakeBatchPipeline.TransportOperations.First().DispatchOptions.RoutingStrategy as DirectToTargetDestination;
+            Assert.NotNull(routing);
+            Assert.AreEqual("myEndpoint", routing.Destination);
+            Assert.Null(fakeOutbox.StoredMessage);
+        }
+
+
+        [Test]
+        public async Task Should_honor_stored_pubsub_routing()
+        {
+            var options = new Dictionary<string, string>();
+
+            new ToAllSubscribers(typeof(MyEvent)).Serialize(options);
+
+            fakeOutbox.ExistingMessage = new OutboxMessage("id", new List<TransportOperation>
+            {
+                new TransportOperation("x",options,new byte[0],new Dictionary<string, string>())
+            });
+
+            var context = CreateContext();
+
+            await Invoke(context);
+
+            var routing = fakeBatchPipeline.TransportOperations.First().DispatchOptions.RoutingStrategy as ToAllSubscribers;
+            Assert.NotNull(routing);
+            Assert.AreEqual(typeof(MyEvent),routing.EventType);
             Assert.Null(fakeOutbox.StoredMessage);
         }
 
@@ -63,27 +112,7 @@
             var context = new TransportReceiveContext(new IncomingMessage("id", new Dictionary<string, string>(), new MemoryStream()), new RootContext(null));
             return context;
         }
-
         
-
-        //[Test]
-        //public void DeserializeDiscardIfNotReceivedBefore()
-        //{
-        //    var options = new Dictionary<string, string>();
-
-        //    var delay = TimeSpan.Parse("00:10:00");
-
-        //    new DiscardIfNotReceivedBefore(delay).Serialize(options);
-
-        //    DiscardIfNotReceivedBefore constraint;
-
-        //    new DeliveryConstraintsFactory().DeserializeConstraints(options).TryGet(out constraint);
-
-        //    Assert.AreEqual(delay, constraint.MaxTime);
-        //}
-
-
-
         [SetUp]
         public void SetUp()
         {
@@ -102,6 +131,7 @@
         FakeOutboxStorage fakeOutbox;
         TransportReceiveToPhysicalMessageProcessingConnector behavior;
 
+        class MyEvent { }
         class FakeBatchPipeline : IPipelineBase<BatchDispatchContext>
         {
             public IEnumerable<Transports.TransportOperation> TransportOperations { get; set; }
