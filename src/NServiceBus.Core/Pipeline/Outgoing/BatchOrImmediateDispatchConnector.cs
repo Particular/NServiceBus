@@ -2,17 +2,17 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.DeliveryConstraints;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Routing;
-    using NServiceBus.TransportDispatch;
-    using NServiceBus.Transports;
+    using DeliveryConstraints;
+    using Pipeline;
+    using Routing;
+    using TransportDispatch;
+    using Transports;
 
     class BatchOrImmediateDispatchConnector : StageConnector<DispatchContext, ImmediateDispatchContext>
     {
         public async override Task Invoke(DispatchContext context, Func<ImmediateDispatchContext, Task> next)
         {
-            var options = new DispatchOptions(context.GetRoutingStrategy(), context.GetDeliveryConstraints());
+            var options = new DispatchOptions(context.GetRoutingStrategy(), DispatchConsistency.Default, context.GetDeliveryConstraints());
             var operation = new TransportOperation(context.Message, options);
 
             PendingTransportOperations pendingOperations;

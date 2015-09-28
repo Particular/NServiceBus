@@ -73,6 +73,8 @@ The reason you need to do this is because we need to ensure that you have read a
             }
 
             //note: in the future we should change the persister api to give us a "outbox factory" so that we can register it in DI here instead of relying on the persister to do it
+
+            context.Pipeline.Register("ForceBatchDispatchToBeIsolated", typeof(ForceBatchDispatchToBeIsolatedBehavior), "Makes sure that we dispatch straigt to the transport so that we can safely set the outbox record to dispatched one the dispatch pipeline returns.");
         }
 
     }

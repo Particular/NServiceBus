@@ -101,7 +101,7 @@ namespace NServiceBus.DelayedDelivery.TimeoutManager
 
                     dispatchRequest.Headers["Timeout.Id"] = timeoutData.Id;
 
-                    var dispatchOptions = new DispatchOptions(new DirectToTargetDestination(dispatcherAddress));
+                    var dispatchOptions = new DispatchOptions(new DirectToTargetDestination(dispatcherAddress), DispatchConsistency.Default);
                     await dispatcher.Dispatch(new[] { new TransportOperation(dispatchRequest, dispatchOptions) }, new ContextBag()).ConfigureAwait(false);
                 }
 

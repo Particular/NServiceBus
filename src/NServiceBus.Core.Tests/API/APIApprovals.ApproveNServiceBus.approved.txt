@@ -2473,9 +2473,9 @@ namespace NServiceBus.Transports
     }
     public class DispatchOptions
     {
-        public DispatchOptions(NServiceBus.Routing.RoutingStrategy routingStrategy, System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints = null, NServiceBus.Transports.DispatchConsistency requiredDispatchConsistency = 1) { }
+        public DispatchOptions(NServiceBus.Routing.RoutingStrategy routingStrategy, NServiceBus.Transports.DispatchConsistency requiredDispatchConsistency, System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints = null) { }
         public System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> DeliveryConstraints { get; }
-        public NServiceBus.Transports.DispatchConsistency RequiredDispatchConsistency { get; }
+        public NServiceBus.Transports.DispatchConsistency RequiredDispatchConsistency { get; set; }
         public NServiceBus.Routing.RoutingStrategy RoutingStrategy { get; }
     }
     [System.ObsoleteAttribute("No longer used, safe to remove. Will be removed in version 7.0.0.", true)]

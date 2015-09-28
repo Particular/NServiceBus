@@ -69,7 +69,7 @@ namespace NServiceBus
             }
 
             var outgoingMessages = new OutgoingMessage(message.Id, message.Headers, message.Body);
-            var dispatchOptions = new DispatchOptions(new DirectToTargetDestination(destination));
+            var dispatchOptions = new DispatchOptions(new DirectToTargetDestination(destination), DispatchConsistency.Default);
             await dispatcher.Dispatch(new[] { new TransportOperation(outgoingMessages, dispatchOptions) }, context).ConfigureAwait(false);
         }
 
@@ -118,7 +118,7 @@ namespace NServiceBus
 
                 if (data.Time.AddSeconds(-1) <= DateTime.UtcNow)
                 {
-                    var sendOptions = new DispatchOptions(new DirectToTargetDestination(data.Destination));
+                    var sendOptions = new DispatchOptions(new DirectToTargetDestination(data.Destination), DispatchConsistency.Default);
                     var outgoingMessage = new OutgoingMessage(data.Headers[Headers.MessageId], data.Headers, data.State);
 
                     await dispatcher.Dispatch(new[] { new TransportOperation(outgoingMessage, sendOptions) }, context).ConfigureAwait(false);

@@ -38,10 +38,10 @@
                         .Distinct()
                         .ToList();
 
-                    var subscribers = (await querySubscriptions.GetSubscriberAddressesForMessage(eventTypesToPublish.Select(t => new MessageType(t)),new SubscriptionStorageOptions(context))
+                    var subscribers = (await querySubscriptions.GetSubscriberAddressesForMessage(eventTypesToPublish.Select(t => new MessageType(t)), new SubscriptionStorageOptions(context))
                         .ConfigureAwait(false)).ToList();
 
-                    newOps.AddRange(subscribers.Select(subscriber => new TransportOperation(publishOperation.Message, new DispatchOptions(new DirectToTargetDestination(subscriber), publishOperation.DispatchOptions.DeliveryConstraints, publishOperation.DispatchOptions.RequiredDispatchConsistency))));
+                    newOps.AddRange(subscribers.Select(subscriber => new TransportOperation(publishOperation.Message, new DispatchOptions(new DirectToTargetDestination(subscriber), publishOperation.DispatchOptions.RequiredDispatchConsistency, publishOperation.DispatchOptions.DeliveryConstraints))));
                 }
 
                 context.Replace(newOps);

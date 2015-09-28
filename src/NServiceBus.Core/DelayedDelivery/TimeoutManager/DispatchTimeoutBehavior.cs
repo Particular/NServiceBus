@@ -26,7 +26,7 @@ namespace NServiceBus
                 return;
             }
 
-            var sendOptions = new DispatchOptions(new DirectToTargetDestination(timeoutData.Destination));
+            var sendOptions = new DispatchOptions(new DirectToTargetDestination(timeoutData.Destination), DispatchConsistency.Default);
 
             timeoutData.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
             timeoutData.Headers["NServiceBus.RelatedToTimeoutId"] = timeoutData.Id;

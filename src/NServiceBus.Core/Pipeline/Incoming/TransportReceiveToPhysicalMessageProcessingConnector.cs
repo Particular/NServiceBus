@@ -16,7 +16,7 @@ namespace NServiceBus
 
     class TransportReceiveToPhysicalMessageProcessingConnector : StageConnector<TransportReceiveContext, PhysicalMessageProcessingStageBehavior.Context>
     {
-        public TransportReceiveToPhysicalMessageProcessingConnector(IPipelineBase<BatchDispatchContext> batchDispatchPipeline,IOutboxStorage outboxStorage)
+        public TransportReceiveToPhysicalMessageProcessingConnector(IPipelineBase<BatchDispatchContext> batchDispatchPipeline, IOutboxStorage outboxStorage)
         {
             this.batchDispatchPipeline = batchDispatchPipeline;
             this.outboxStorage = outboxStorage;
@@ -25,8 +25,8 @@ namespace NServiceBus
         public async override Task Invoke(TransportReceiveContext context, Func<PhysicalMessageProcessingStageBehavior.Context, Task> next)
         {
             var messageId = context.Message.Id;
-            var physicalMessageContext = new PhysicalMessageProcessingStageBehavior.Context(context.Message,context);
-        
+            var physicalMessageContext = new PhysicalMessageProcessingStageBehavior.Context(context.Message, context);
+
             var deduplicationEntry = await outboxStorage.Get(messageId, new OutboxStorageOptions(context)).ConfigureAwait(false);
             var pendingTransportOperations = new PendingTransportOperations();
 
@@ -35,8 +35,8 @@ namespace NServiceBus
                 physicalMessageContext.Set(pendingTransportOperations);
 
                 await next(physicalMessageContext).ConfigureAwait(false);
-                
-                await outboxStorage.Store(new OutboxMessage(messageId,ConvertToOutboxOperations(pendingTransportOperations.Operations)), new OutboxStorageOptions(context)).ConfigureAwait(false);
+
+                await outboxStorage.Store(new OutboxMessage(messageId, ConvertToOutboxOperations(pendingTransportOperations.Operations)), new OutboxStorageOptions(context)).ConfigureAwait(false);
             }
             else
             {
@@ -50,7 +50,7 @@ namespace NServiceBus
                 await batchDispatchPipeline.Invoke(batchDispatchContext).ConfigureAwait(false);
             }
 
-            await outboxStorage.SetAsDispatched(messageId,new OutboxStorageOptions(context)).ConfigureAwait(false);
+            await outboxStorage.SetAsDispatched(messageId, new OutboxStorageOptions(context)).ConfigureAwait(false);
         }
 
         void ConvertToPendingOperations(OutboxMessage deduplicationEntry, PendingTransportOperations pendingTransportOperations)
@@ -58,8 +58,8 @@ namespace NServiceBus
             foreach (var operation in deduplicationEntry.TransportOperations)
             {
                 var options = new DispatchOptions(DeserializeRoutingStrategy(operation.Options),
-                    DeserializeConstraints(operation.Options),
-                    DispatchConsistency.Isolated);
+                    DispatchConsistency.Isolated,
+                    DeserializeConstraints(operation.Options));
 
                 var message = new OutgoingMessage(operation.MessageId, operation.Headers, operation.Body);
 
@@ -77,7 +77,7 @@ namespace NServiceBus
                 operation.DispatchOptions.RoutingStrategy.Serialize(options);
 
                 yield return new Outbox.TransportOperation(operation.Message.MessageId,
-                    options,operation.Message.Body,operation.Message.Headers);
+                    options, operation.Message.Body, operation.Message.Headers);
             }
         }
 
