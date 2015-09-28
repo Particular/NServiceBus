@@ -113,9 +113,7 @@ namespace NServiceBus.Unicast
 
             var pipeline = new PipelineBase<DispatchContext>(builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
             var outgoingMessage = new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body);
-            var context = new DispatchContext(outgoingMessage, incomingContext);
-
-            context.Set<RoutingStrategy>(new DirectToTargetDestination(sendLocalAddress));
+            var context = new DispatchContext(outgoingMessage, new DirectToTargetDestination(sendLocalAddress), incomingContext);
 
             await pipeline.Invoke(context);
 
@@ -131,9 +129,7 @@ namespace NServiceBus.Unicast
         {
             var pipeline = new PipelineBase<DispatchContext>(builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
             var outgoingMessage = new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body);
-            var context = new DispatchContext(outgoingMessage, incomingContext);
-
-            context.Set<RoutingStrategy>(new DirectToTargetDestination(destination));
+            var context = new DispatchContext(outgoingMessage, new DirectToTargetDestination(destination), incomingContext);
 
             await pipeline.Invoke(context);
         }

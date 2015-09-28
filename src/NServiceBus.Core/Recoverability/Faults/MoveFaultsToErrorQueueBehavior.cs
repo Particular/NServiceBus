@@ -50,9 +50,9 @@ namespace NServiceBus
                     message.Headers[Headers.HostDisplayName] = hostInformation.DisplayName;
 
             
-                    var dispatchContext = new DispatchContext(new OutgoingMessage(message.Id, message.Headers, message.Body), context);
-
-                    context.Set<RoutingStrategy>(new DirectToTargetDestination(errorQueueAddress));
+                    var dispatchContext = new DispatchContext(new OutgoingMessage(message.Id, message.Headers, message.Body), 
+                        new DirectToTargetDestination(errorQueueAddress), 
+                        context);
                     
                     await dispatchPipeline.Invoke(dispatchContext).ConfigureAwait(false);
 

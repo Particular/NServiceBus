@@ -961,7 +961,8 @@ namespace NServiceBus.Audit
 {
     public class AuditContext : NServiceBus.Pipeline.BehaviorContext
     {
-        public AuditContext(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Pipeline.BehaviorContext parent) { }
+        public AuditContext(NServiceBus.Transports.OutgoingMessage message, string auditAddress, NServiceBus.Pipeline.BehaviorContext parent) { }
+        public string AuditAddress { get; }
         public NServiceBus.Transports.OutgoingMessage Message { get; }
     }
     public class static AuditContextExtensions
@@ -2083,10 +2084,6 @@ namespace NServiceBus.Routing
     {
         bool TryGetRouteAddress(string logicalEndpoint, out string address);
     }
-    public class static RoutingContextExtensions
-    {
-        public static NServiceBus.Routing.RoutingStrategy GetRoutingStrategy(this NServiceBus.TransportDispatch.DispatchContext context) { }
-    }
     public class RoutingExtensions<T> : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
         where T : NServiceBus.Routing.DynamicRoutingDefinition
     {
@@ -2444,8 +2441,9 @@ namespace NServiceBus.TransportDispatch
 {
     public class DispatchContext : NServiceBus.Pipeline.BehaviorContext
     {
-        public DispatchContext(NServiceBus.Transports.OutgoingMessage messageToDispatch, NServiceBus.Pipeline.BehaviorContext context) { }
+        public DispatchContext(NServiceBus.Transports.OutgoingMessage messageToDispatch, NServiceBus.Routing.RoutingStrategy routingStrategy, NServiceBus.Pipeline.BehaviorContext context) { }
         public NServiceBus.Transports.OutgoingMessage Message { get; }
+        public NServiceBus.Routing.RoutingStrategy RoutingStrategy { get; set; }
     }
     public class static HeaderContextExtensions
     {

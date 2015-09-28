@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using DeliveryConstraints;
     using Pipeline;
-    using Routing;
     using TransportDispatch;
     using Transports;
 
@@ -12,7 +11,7 @@
     {
         public async override Task Invoke(DispatchContext context, Func<ImmediateDispatchContext, Task> next)
         {
-            var options = new DispatchOptions(context.GetRoutingStrategy(), DispatchConsistency.Default, context.GetDeliveryConstraints());
+            var options = new DispatchOptions(context.RoutingStrategy, DispatchConsistency.Default, context.GetDeliveryConstraints());
             var operation = new TransportOperation(context.Message, options);
 
             PendingTransportOperations pendingOperations;

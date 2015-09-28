@@ -132,7 +132,7 @@ namespace NServiceBus.Core.Tests
                     throw new Exception("Failed to dispatch");
                 }
 
-                Destination = ((DirectToTargetDestination) context.GetRoutingStrategy()).Destination;
+                Destination = ((DirectToTargetDestination) context.RoutingStrategy).Destination;
                 MessageSent = context.Message;
                 return Task.FromResult(0);
             }

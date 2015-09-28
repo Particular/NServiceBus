@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using Forwarding;
     using Pipeline;
-    using Routing;
     using Transports;
 
     class InvokeForwardingPipelineBehavior : PhysicalMessageProcessingStageBehavior
@@ -23,9 +22,7 @@
 
             var processedMessage = new OutgoingMessage(context.Message.Id, context.Message.Headers, context.Message.Body);
 
-            var forwardingContext = new ForwardingContext(processedMessage,context);
-
-            context.Set<RoutingStrategy>(new DirectToTargetDestination(forwardingAddress));
+            var forwardingContext = new ForwardingContext(processedMessage, forwardingAddress, context);
 
             await forwardingPipeline.Invoke(forwardingContext).ConfigureAwait(false);
         }

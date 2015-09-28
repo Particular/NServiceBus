@@ -5,6 +5,7 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using Audit;
     using DeliveryConstraints;
+    using Routing;
     using Performance.TimeToBeReceived;
     using Pipeline;
     using TransportDispatch;
@@ -32,7 +33,7 @@ namespace NServiceBus
                     message.Headers[kvp.Key] = kvp.Value;
                 }
             }
-            
+
             var deliveryConstraints = new List<DeliveryConstraint>();
 
             if (timeToBeReceived.HasValue)
@@ -40,7 +41,7 @@ namespace NServiceBus
                 deliveryConstraints.Add(new DiscardIfNotReceivedBefore(timeToBeReceived.Value));
             }
 
-            var dispatchContext = new DispatchContext(message, context);
+            var dispatchContext = new DispatchContext(message, new DirectToTargetDestination(context.AuditAddress), context);
 
             dispatchContext.Set(deliveryConstraints);
 

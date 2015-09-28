@@ -256,7 +256,6 @@
     <Compile Include="Routing\RoutingExtensions.cs" />
     <Compile Include="Routing\StaticRoutes.cs" />
     <Compile Include="Routing\StorageDrivenPublishing\SubscribersForEvent.cs" />
-    <Compile Include="Routing\RoutingContextExtensions.cs" />
     <Compile Include="Routing\SubscribeContext.cs" />
     <Compile Include="Routing\SubscribeOptions.cs" />
     <Compile Include="Routing\UnsubscribeContext.cs" />

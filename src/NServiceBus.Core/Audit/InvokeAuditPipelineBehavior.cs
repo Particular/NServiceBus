@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using Audit;
     using Pipeline;
-    using Routing;
     using Transports;
 
     class InvokeAuditPipelineBehavior : PhysicalMessageProcessingStageBehavior
@@ -23,10 +22,8 @@
 
             var processedMessage = new OutgoingMessage(context.Message.Id, context.Message.Headers, context.Message.Body);
 
-            var auditContext = new AuditContext(processedMessage,context);
-
-            context.Set<RoutingStrategy>(new DirectToTargetDestination(auditAddress));
-
+            var auditContext = new AuditContext(processedMessage, auditAddress, context);
+            
             await auditPipeline.Invoke(auditContext).ConfigureAwait(false);
         }
 

@@ -19,18 +19,17 @@
         {
             var behavior = new RouteDeferredMessageToTimeoutManagerBehavior("tm");
             var delay = TimeSpan.FromDays(1);
-            var message = new OutgoingMessage("id",new Dictionary<string, string>(),new byte[0]);
+            var message = new OutgoingMessage("id", new Dictionary<string, string>(), new byte[0]);
 
-            var context = new DispatchContext(message,null);
+            var context = new DispatchContext(message, new DirectToTargetDestination("target"), null);
 
             context.AddDeliveryConstraint(new DelayDeliveryWith(delay));
-            context.Set<RoutingStrategy>(new DirectToTargetDestination("target"));
 
             await behavior.Invoke(context, () => Task.FromResult(0));
 
-            Assert.AreEqual("tm",((DirectToTargetDestination)context.GetRoutingStrategy()).Destination);
+            Assert.AreEqual("tm", ((DirectToTargetDestination)context.RoutingStrategy).Destination);
 
-            Assert.AreEqual(message.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo],"target");
+            Assert.AreEqual(message.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo], "target");
         }
 
 
@@ -42,11 +41,10 @@
 
             var message = new OutgoingMessage("id", new Dictionary<string, string>(), new byte[0]);
 
-            var context = new DispatchContext(message, null);
+            var context = new DispatchContext(message, new ToAllSubscribers(null), null);
             context.AddDeliveryConstraint(new DelayDeliveryWith(delay));
-            context.Set<RoutingStrategy>(new ToAllSubscribers(null));
 
-            var ex = Assert.Throws<Exception>(async ()=> await behavior.Invoke(context, () => Task.FromResult(0)));
+            var ex = Assert.Throws<Exception>(async () => await behavior.Invoke(context, () => Task.FromResult(0)));
 
             Assert.True(ex.Message.Contains("Direct routing"));
         }
@@ -59,10 +57,9 @@
 
             var message = new OutgoingMessage("id", new Dictionary<string, string>(), new byte[0]);
 
-            var context = new DispatchContext(message, null);
+            var context = new DispatchContext(message, new DirectToTargetDestination("target"), null);
             context.AddDeliveryConstraint(new DelayDeliveryWith(delay));
             context.AddDeliveryConstraint(new DiscardIfNotReceivedBefore(TimeSpan.FromSeconds(30)));
-            context.Set<RoutingStrategy>(new DirectToTargetDestination("target"));
 
             var ex = Assert.Throws<Exception>(async () => await behavior.Invoke(context, () => Task.FromResult(0)));
 
@@ -76,14 +73,13 @@
 
             var message = new OutgoingMessage("id", new Dictionary<string, string>(), new byte[0]);
 
-            var context = new DispatchContext(message, null);
+            var context = new DispatchContext(message, new DirectToTargetDestination("target"), null);
             context.AddDeliveryConstraint(new DelayDeliveryWith(delay));
-            context.Set<RoutingStrategy>(new DirectToTargetDestination("target"));
-            
-            await behavior.Invoke(context,()=> Task.FromResult(0));
+
+            await behavior.Invoke(context, () => Task.FromResult(0));
 
             Assert.LessOrEqual(DateTimeExtensions.ToUtcDateTime(message.Headers[TimeoutManagerHeaders.Expire]), DateTime.UtcNow + delay);
-          }
+        }
 
         [Test]
         public async Task Should_set_the_expiry_header_to_a_absolute_utc_time()
@@ -93,9 +89,8 @@
 
             var message = new OutgoingMessage("id", new Dictionary<string, string>(), new byte[0]);
 
-            var context = new DispatchContext(message, null);
+            var context = new DispatchContext(message, new DirectToTargetDestination("target"), null);
             context.AddDeliveryConstraint(new DoNotDeliverBefore(at));
-            context.Set<RoutingStrategy>(new DirectToTargetDestination("target"));
 
             await behavior.Invoke(context, () => Task.FromResult(0));
 

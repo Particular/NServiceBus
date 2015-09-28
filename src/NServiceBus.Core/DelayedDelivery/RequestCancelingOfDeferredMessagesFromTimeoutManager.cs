@@ -24,10 +24,8 @@
             controlMessage.Headers[Headers.SagaId] = messageKey;
             controlMessage.Headers[TimeoutManagerHeaders.ClearTimeouts] = bool.TrueString;
 
-            var dispatchContext = new DispatchContext(controlMessage, context);
-
-            context.Set<RoutingStrategy>(new DirectToTargetDestination(timeoutManagerAddress));
-
+            var dispatchContext = new DispatchContext(controlMessage, new DirectToTargetDestination(timeoutManagerAddress), context);
+            
             return dispatchPipeline.Invoke(dispatchContext);
         }
 

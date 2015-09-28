@@ -24,7 +24,7 @@ namespace NServiceBus
 
             if (context.TryGetDeliveryConstraint(out constraint))
             {
-                var currentRoutingStrategy = context.GetRoutingStrategy() as DirectToTargetDestination;
+                var currentRoutingStrategy = context.RoutingStrategy as DirectToTargetDestination;
 
                 if (currentRoutingStrategy == null)
                 {
@@ -37,7 +37,7 @@ namespace NServiceBus
                     throw new Exception("Postponed delivery of messages with TimeToBeReceived set is not supported. Remove the TimeToBeReceived attribute to postpone messages of this type.");
                 }
 
-                context.Set<RoutingStrategy>(new DirectToTargetDestination(timeoutManagerAddress));
+                context.RoutingStrategy = new DirectToTargetDestination(timeoutManagerAddress);
                 context.Message.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo] = currentRoutingStrategy.Destination;
 
                 DateTime deliverAt;
