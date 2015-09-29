@@ -149,7 +149,7 @@
 
             output.Position = 0;
 
-            var filename = string.Format("{0}.{1}.txt", GetType().Name, MethodBase.GetCurrentMethod().Name);
+            var filename = $"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}.txt";
 
             File.WriteAllBytes(filename, output.ToArray());
 

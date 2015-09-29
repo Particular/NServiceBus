@@ -15,7 +15,7 @@ namespace NServiceBus.Logging
                 if (!Enum.TryParse(threshold, true, out logLevel))
                 {
                     var logLevels = string.Join(", ", Enum.GetNames(typeof(LogLevel)));
-                    var message = string.Format("The value of '{0}' is invalid as a loglevel. Must be one of {1}.", threshold, logLevels);
+                    var message = $"The value of '{threshold}' is invalid as a loglevel. Must be one of {logLevels}.";
                     throw new Exception(message);
                 }
                 return logLevel;

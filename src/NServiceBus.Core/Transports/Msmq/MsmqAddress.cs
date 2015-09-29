@@ -33,14 +33,14 @@ namespace NServiceBus
 
             if (split.Length > 2)
             {
-                var message = string.Format("Address contains multiple @ characters. Address supplied: '{0}'", address);
+                var message = $"Address contains multiple @ characters. Address supplied: '{address}'";
                 throw new ArgumentException(message, "address");
             }
 
             var queue = split[0];
             if (string.IsNullOrWhiteSpace(queue))
             {
-                var message = string.Format("Empty queue part of address. Address supplied: '{0}'", address);
+                var message = $"Empty queue part of address. Address supplied: '{address}'";
                 throw new ArgumentException(message, "address");
             }
 
@@ -50,7 +50,7 @@ namespace NServiceBus
                 machineName = split[1];
                 if (string.IsNullOrWhiteSpace(machineName))
                 {
-                    var message = string.Format("Empty machine part of address. Address supplied: '{0}'", address);
+                    var message = $"Empty machine part of address. Address supplied: '{address}'";
                     throw new ArgumentException(message,"address");
                 }
                 machineName = ApplyLocalMachineConventions(machineName);

@@ -91,7 +91,7 @@ namespace NServiceBus.Settings
                 return result;
             }
 
-            throw new KeyNotFoundException(String.Format("The given key ({0}) was not present in the dictionary.", key));
+            throw new KeyNotFoundException($"The given key ({key}) was not present in the dictionary.");
         }
 
         /// <summary>
@@ -272,7 +272,7 @@ namespace NServiceBus.Settings
         {
             if (locked)
             {
-                throw new ConfigurationErrorsException(string.Format("Unable to set the value for key: {0}. The settings has been locked for modifications. Please move any configuration code earlier in the configuration pipeline", key));
+                throw new ConfigurationErrorsException($"Unable to set the value for key: {key}. The settings has been locked for modifications. Please move any configuration code earlier in the configuration pipeline");
             }
         }
 

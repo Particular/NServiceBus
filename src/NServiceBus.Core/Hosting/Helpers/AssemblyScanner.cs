@@ -213,7 +213,7 @@ namespace NServiceBus.Hosting.Helpers
 
                 if (ThrowExceptions)
                 {
-                    var errorMessage = String.Format("Could not load '{0}'. Consider excluding that assembly from the scanning.", assemblyPath);
+                    var errorMessage = $"Could not load '{assemblyPath}'. Consider excluding that assembly from the scanning.";
                     throw new Exception(errorMessage, ex);
                 }
             }
@@ -254,7 +254,7 @@ namespace NServiceBus.Hosting.Helpers
         internal static bool IsRuntimeAssembly(AssemblyName assemblyName)
         {
             var publicKeyToken = assemblyName.GetPublicKeyToken();
-            var lowerInvariant = BitConverter.ToString(publicKeyToken).Replace("-", String.Empty).ToLowerInvariant();
+            var lowerInvariant = BitConverter.ToString(publicKeyToken).Replace("-", string.Empty).ToLowerInvariant();
             //System
             if (lowerInvariant == "b77a5c561934e089")
             {
@@ -286,16 +286,16 @@ namespace NServiceBus.Hosting.Helpers
         {
             var sb = new StringBuilder();
 
-            sb.AppendLine(string.Format("Could not enumerate all types for '{0}'.", fileName));
+            sb.AppendLine($"Could not enumerate all types for '{fileName}'.");
 
             if (!e.LoaderExceptions.Any())
             {
-                sb.AppendLine(string.Format("Exception message: {0}", e));
+                sb.AppendLine($"Exception message: {e}");
                 return sb.ToString();
             }
 
             var nsbAssemblyName = typeof(AssemblyScanner).Assembly.GetName();
-            var nsbPublicKeyToken = BitConverter.ToString(nsbAssemblyName.GetPublicKeyToken()).Replace("-", String.Empty).ToLowerInvariant();
+            var nsbPublicKeyToken = BitConverter.ToString(nsbAssemblyName.GetPublicKeyToken()).Replace("-", string.Empty).ToLowerInvariant();
             var displayBindingRedirects = false;
             var files = new List<string>();
             var sbFileLoadException = new StringBuilder();
@@ -305,10 +305,10 @@ namespace NServiceBus.Hosting.Helpers
             {
                 var loadException = ex as FileLoadException;
 
-                if (loadException != null && loadException.FileName != null)
+                if (loadException.FileName != null)
                 {
                     var assemblyName = new AssemblyName(loadException.FileName);
-                    var assemblyPublicKeyToken = BitConverter.ToString(assemblyName.GetPublicKeyToken()).Replace("-", String.Empty).ToLowerInvariant();
+                    var assemblyPublicKeyToken = BitConverter.ToString(assemblyName.GetPublicKeyToken()).Replace("-", string.Empty).ToLowerInvariant();
                     if (nsbAssemblyName.Name == assemblyName.Name &&
                         nsbAssemblyName.CultureInfo.ToString() == assemblyName.CultureInfo.ToString() &&
                         nsbPublicKeyToken == assemblyPublicKeyToken)

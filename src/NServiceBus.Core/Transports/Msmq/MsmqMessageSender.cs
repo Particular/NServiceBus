@@ -90,7 +90,7 @@ namespace NServiceBus.Transports.Msmq
                     {
                         var msg = destination == null
                             ? "Failed to send message. Target address is null."
-                            : string.Format("Failed to send message to address: [{0}]", destination);
+                            : $"Failed to send message to address: [{destination}]";
 
                         throw new QueueNotFoundException(destination, msg, ex);
                     }
@@ -136,7 +136,7 @@ namespace NServiceBus.Transports.Msmq
                 throw new Exception("Failed to send message.", ex);
             }
 
-            throw new Exception(string.Format("Failed to send message to address: {0}", address), ex);
+            throw new Exception($"Failed to send message to address: {address}", ex);
         }
 
         MessageQueueTransactionType GetTransactionTypeForSend()

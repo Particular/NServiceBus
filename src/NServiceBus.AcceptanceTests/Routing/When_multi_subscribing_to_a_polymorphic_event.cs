@@ -97,7 +97,7 @@
 
                 public Task Handle(IMyEvent messageThatIsEnlisted)
                 {
-                    Context.AddTrace(String.Format("Got event '{0}'", messageThatIsEnlisted));
+                    Context.AddTrace($"Got event '{messageThatIsEnlisted}'");
                     if (messageThatIsEnlisted is MyEvent2)
                     {
                         Context.SubscriberGotMyEvent2 = true;

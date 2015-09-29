@@ -28,7 +28,7 @@ namespace NServiceBus
             }
             catch (Exception ex)
             {
-                throw new ArgumentException(string.Format("There is a problem with the subscription storage queue {0}. See enclosed exception for details.", Queue), ex);
+                throw new ArgumentException($"There is a problem with the subscription storage queue {Queue}. See enclosed exception for details.", ex);
             }
 
             if (!transactional && TransactionsEnabled)

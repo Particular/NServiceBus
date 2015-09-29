@@ -16,7 +16,7 @@
                               };
             mutator.MutateOutgoing(message);
 
-            Assert.AreEqual(string.Format("{0}@{1}", "encrypted value", "init_vector"), message.EncryptedSecret);
+            Assert.AreEqual($"{"encrypted value"}@{"init_vector"}", message.EncryptedSecret);
         }
     }
 

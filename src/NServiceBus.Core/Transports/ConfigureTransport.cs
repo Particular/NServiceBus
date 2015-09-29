@@ -44,7 +44,7 @@ namespace NServiceBus.Transports
             var connectionString = context.Settings.Get<TransportConnectionString>().GetConnectionStringOrNull();
             if (connectionString == null && RequiresConnectionString)
             {
-                throw new InvalidOperationException(String.Format(Message, GetConfigFileIfExists(), selectedTransportDefinition.GetType().Name, ExampleConnectionStringForErrorMessage));
+                throw new InvalidOperationException(string.Format(Message, GetConfigFileIfExists(), selectedTransportDefinition.GetType().Name, ExampleConnectionStringForErrorMessage));
             }
 
             context.Container.RegisterSingleton(selectedTransportDefinition);

@@ -32,7 +32,7 @@
 
             if (skippedFile == null)
             {
-                throw new AssertionException(string.Format("Could not find skipped file matching {0}", "dotNet.dll"));
+                throw new AssertionException($"Could not find skipped file matching {"dotNet.dll"}");
             }
             Assert.That(skippedFile.SkipReason,
                 Contains.Substring("Assembly does not reference at least one of the must referenced assemblies"));

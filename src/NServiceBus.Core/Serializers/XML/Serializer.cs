@@ -174,7 +174,7 @@
             }
             else
             {
-                return String.Format("&#x{0:X};", (int)c);
+                return $"&#x{(int) c:X};";
             }
 
             //Should not get here but just in case!
@@ -361,7 +361,7 @@
             {
                 if (IsIndexedProperty(prop))
                 {
-                    throw new NotSupportedException(string.Format("Type {0} contains an indexed property named {1}. Indexed properties are not supported on message types.", t.FullName, prop.Name));
+                    throw new NotSupportedException($"Type {t.FullName} contains an indexed property named {prop.Name}. Indexed properties are not supported on message types.");
                 }
                 WriteEntry(prop.Name, prop.PropertyType, DelegateFactory.CreateGet(prop).Invoke(obj));
             }

@@ -51,7 +51,7 @@ namespace NServiceBus.Timeout.Core
         /// </returns>
         public override string ToString()
         {
-            return string.Format("Timeout({0}) - Expires:{1}, SagaId:{2}", Id, Time, SagaId);
+            return $"Timeout({Id}) - Expires:{Time}, SagaId:{SagaId}";
         }
     }
 }

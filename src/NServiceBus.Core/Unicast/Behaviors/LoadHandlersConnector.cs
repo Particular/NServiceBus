@@ -22,7 +22,7 @@
 
             if (!context.MessageHandled && !handlersToInvoke.Any())
             {
-                var error = string.Format("No handlers could be found for message type: {0}", context.MessageType);
+                var error = $"No handlers could be found for message type: {context.MessageType}";
                 throw new InvalidOperationException(error);
             }
 

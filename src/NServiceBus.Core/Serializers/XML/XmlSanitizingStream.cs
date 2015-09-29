@@ -46,7 +46,7 @@ namespace NServiceBus.Serializers.XML {
 				default:
 				{
 					throw new ArgumentOutOfRangeException
-                        ("xmlVersion", string.Format("'{0}' is not a valid XML version.", xmlVersion));
+                        ("xmlVersion", $"'{xmlVersion}' is not a valid XML version.");
 				}
 			}
 		}

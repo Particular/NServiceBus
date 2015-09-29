@@ -1,6 +1,5 @@
 namespace NServiceBus.Config
 {
-    using System;
     using System.Configuration;
 
     /// <summary>
@@ -35,7 +34,7 @@ namespace NServiceBus.Config
         /// <summary>
         /// Returns the Messages property of the given <see cref="RijndaelExpiredKey"/> element.
         /// </summary>
-        protected override Object GetElementKey(ConfigurationElement element)
+        protected override object GetElementKey(ConfigurationElement element)
         {
             var encryptionKey = (RijndaelExpiredKey)element;
 

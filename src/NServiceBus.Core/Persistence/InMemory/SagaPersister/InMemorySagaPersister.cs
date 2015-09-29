@@ -49,7 +49,7 @@ namespace NServiceBus
         public Task<TSagaData> Get<TSagaData>(Guid sagaId, SagaPersistenceOptions options) where TSagaData : IContainSagaData
         {
             VersionedSagaEntity result;
-            if (data.TryGetValue(sagaId, out result) && (result != null) && (result.SagaEntity is TSagaData))
+            if (data.TryGetValue(sagaId, out result) && result?.SagaEntity is TSagaData)
             {
                 var clone = (TSagaData)DeepClone(result.SagaEntity);
                 result.RecordRead(clone, version);
@@ -101,7 +101,7 @@ namespace NServiceBus
                 var incomingSagaPropertyValue = uniqueProperty.GetValue(saga, null);
                 if (incomingSagaPropertyValue == null)
                 {
-                    var message = string.Format("Cannot store saga with id '{0}' since the unique property '{1}' has a null value.", saga.Id, uniqueProperty.Name);
+                    var message = $"Cannot store saga with id '{saga.Id}' since the unique property '{uniqueProperty.Name}' has a null value.";
                     throw new InvalidOperationException(message);
                 }
 
@@ -110,7 +110,7 @@ namespace NServiceBus
                     var storedSagaPropertyValue = uniqueProperty.GetValue(storedSaga.SagaEntity, null);
                     if (Equals(incomingSagaPropertyValue, storedSagaPropertyValue))
                     {
-                        var message = string.Format("Cannot store a saga. The saga with id '{0}' already has property '{1}'.", storedSaga.SagaEntity.Id, uniqueProperty.Name);
+                        var message = $"Cannot store a saga. The saga with id '{storedSaga.SagaEntity.Id}' already has property '{uniqueProperty.Name}'.";
                         throw new InvalidOperationException(message);
                     }
                 }
@@ -138,10 +138,10 @@ namespace NServiceBus
             {
                 int v;
                 if (!VersionCache.TryGetValue(sagaEntity, out v))
-                    throw new Exception(string.Format("InMemorySagaPersister in an inconsistent state: entity Id[{0}] not read.", sagaEntity.Id));
+                    throw new Exception($"InMemorySagaPersister in an inconsistent state: entity Id[{sagaEntity.Id}] not read.");
 
                 if (v != currentVersion)
-                    throw new Exception(string.Format("InMemorySagaPersister concurrency violation: saga entity Id[{0}] already saved.", sagaEntity.Id));
+                    throw new Exception($@"InMemorySagaPersister concurrency violation: saga entity Id[{sagaEntity.Id}] already saved.");
             }
         }
     }

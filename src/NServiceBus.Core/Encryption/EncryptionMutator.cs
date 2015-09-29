@@ -215,7 +215,7 @@ namespace NServiceBus.Encryption
 
             var encryptedValue = encryptionService.Encrypt(stringToEncrypt);
 
-            return string.Format("{0}@{1}", encryptedValue.EncryptedBase64Value, encryptedValue.Base64Iv);
+            return $"{encryptedValue.EncryptedBase64Value}@{encryptedValue.Base64Iv}";
         }
 
         void EncryptWireEncryptedString(WireEncryptedString wireEncryptedString)

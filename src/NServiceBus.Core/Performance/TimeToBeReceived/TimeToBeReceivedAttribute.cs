@@ -19,7 +19,7 @@ namespace NServiceBus
             TimeSpan parsed;
             if (!TimeSpan.TryParse(timeSpan, out parsed))
             {
-                var error = string.Format("Could not parse '{0}' as a timespan.", timeSpan);
+                var error = $"Could not parse '{timeSpan}' as a timespan.";
                 throw new ArgumentException(error);
             }
             Guard.AgainstNegativeAndZero("timeSpan", parsed);

@@ -57,7 +57,7 @@ namespace NServiceBus
                         new DelayDeliveryWith(delay)
                     });
 
-                    Logger.Warn(string.Format("Second Level Retry will reschedule message '{0}' after a delay of {1} because of an exception:", message.Id, delay), ex);
+                    Logger.Warn($"Second Level Retry will reschedule message '{message.Id}' after a delay of {delay} because of an exception:", ex);
 
                     await dispatchPipeline.Invoke(dispatchContext).ConfigureAwait(false);
 

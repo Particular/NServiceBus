@@ -51,9 +51,9 @@
                 {
                     var methodInfo = method;
                     var parameters = string.Join(", ", methodInfo.GetParameters().Select(x => x.ParameterType.Name + " " + x.Name));
-                    return string.Format("{0}.{1}({2})", method.ReflectedType.FullName, method.Name, parameters);
+                    return $"{method.ReflectedType.FullName}.{method.Name}({parameters})";
                 }
-                return string.Format("{0}.{1}", member.ReflectedType.FullName, member.Name);
+                return $"{member.ReflectedType.FullName}.{member.Name}";
             }
             return member.Name;
         }

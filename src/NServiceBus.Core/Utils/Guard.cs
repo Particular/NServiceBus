@@ -14,7 +14,7 @@
             if (type.GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                 .All(ctor => ctor.GetParameters().Length != 0))
             {
-                var error = string.Format("Type '{0}' must have a default constructor.", type.FullName);
+                var error = $"Type '{type.FullName}' must have a default constructor.";
                 throw new ArgumentException(error, argumentName);
             }
         }

@@ -28,7 +28,7 @@ namespace NServiceBus.Licensing
             }
 
             bool createdNew;
-            using (new Mutex(true, string.Format("NServiceBus-{0}", GitFlowVersion.MajorMinor), out createdNew))
+            using (new Mutex(true, $"NServiceBus-{GitFlowVersion.MajorMinor}", out createdNew))
             {
                 if (!createdNew)
                 {
@@ -60,7 +60,7 @@ namespace NServiceBus.Licensing
             }
             else
             {
-                var message = string.Format("Trial for Particular Service Platform is still active, trial expires on {0}.", trialLicense.ExpirationDate.Value.ToLocalTime().ToShortDateString());
+                var message = $"Trial for Particular Service Platform is still active, trial expires on {trialLicense.ExpirationDate.Value.ToLocalTime().ToShortDateString()}.";
                 Logger.Info(message);
             }
 

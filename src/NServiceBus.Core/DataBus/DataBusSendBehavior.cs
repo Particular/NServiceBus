@@ -70,7 +70,7 @@
                     else
                     {
                         property.Setter(message, null);
-                        headerKey = String.Format("{0}.{1}", message.GetType().FullName, property.Name);
+                        headerKey = $"{message.GetType().FullName}.{property.Name}";
                     }
 
                     //we use the headers to in order to allow the infrastructure (eg. the gateway) to modify the actual key

@@ -91,9 +91,9 @@
         {
             unchecked
             {
-                var hashCode = (EndpointName != null ? EndpointName.GetHashCode() : 0);
-                hashCode = (hashCode*397) ^ (UserDiscriminator != null ? UserDiscriminator.GetHashCode() : 0);
-                hashCode = (hashCode*397) ^ (TransportDiscriminator != null ? TransportDiscriminator.GetHashCode() : 0);
+                var hashCode = EndpointName?.GetHashCode() ?? 0;
+                hashCode = (hashCode*397) ^ (UserDiscriminator?.GetHashCode() ?? 0);
+                hashCode = (hashCode*397) ^ (TransportDiscriminator?.GetHashCode() ?? 0);
                 return hashCode;
             }
         }

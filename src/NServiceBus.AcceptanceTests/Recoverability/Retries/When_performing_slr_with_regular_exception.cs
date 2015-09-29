@@ -30,9 +30,9 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
 
             Assert.IsTrue(context.ForwardedToErrorQueue);
             Assert.AreEqual(3, context.Logs.Count(l => l.Message
-                .StartsWith(string.Format("Second Level Retry will reschedule message '{0}'", context.PhysicalMessageId))));
+                .StartsWith($"Second Level Retry will reschedule message '{context.PhysicalMessageId}'")));
             Assert.AreEqual(1, context.Logs.Count(l => l.Message
-                .StartsWith(string.Format("Giving up Second Level Retries for message '{0}'.", context.PhysicalMessageId))));
+                .StartsWith($"Giving up Second Level Retries for message '{context.PhysicalMessageId}'.")));
         }
     }
 }

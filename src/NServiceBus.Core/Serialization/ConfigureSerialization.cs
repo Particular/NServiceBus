@@ -15,8 +15,8 @@
         protected ConfigureSerialization()
         {
             EnableByDefault();
-            Prerequisite(context => IsDefaultSerializer(context) || IsAdditionalDeserializer(context), 
-                string.Format("{0} not enabled since serialization definition not detected.", GetType()));
+            Prerequisite(context => IsDefaultSerializer(context) || IsAdditionalDeserializer(context),
+                $@"{GetType()} not enabled since serialization definition not detected.");
         }
 
         /// <summary>

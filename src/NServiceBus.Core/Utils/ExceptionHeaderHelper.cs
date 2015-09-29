@@ -8,7 +8,7 @@
 
     static class ExceptionHeaderHelper
     {
-        static bool useLegacyStackTrace = String.Equals(ConfigurationManager.AppSettings["NServiceBus/Headers/UseLegacyExceptionStackTrace"], "true", StringComparison.OrdinalIgnoreCase);
+        static bool useLegacyStackTrace = string.Equals(ConfigurationManager.AppSettings["NServiceBus/Headers/UseLegacyExceptionStackTrace"], "true", StringComparison.OrdinalIgnoreCase);
 
         public static void SetExceptionHeaders(this TransportMessage message,Exception e, string failedQueue, string reason = null)
         {

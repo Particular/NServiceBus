@@ -16,7 +16,7 @@
         [Test]
         public void Should_convert_a_message_back_even_if_special_characters_are_contained_in_the_headers()
         {
-            var expected = String.Format("Can u see this '{0}' character.", (char)0x19);
+            var expected = $"Can u see this '{(char) 0x19}' character.";
 
             var options = new DispatchOptions(new DirectToTargetDestination("destination"), new ContextBag());
 

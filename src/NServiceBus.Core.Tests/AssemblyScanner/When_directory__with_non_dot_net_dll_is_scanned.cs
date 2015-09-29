@@ -42,7 +42,7 @@
 
                 if (skippedFile == null)
                 {
-                    throw new AssertionException(string.Format("Could not find skipped file matching {0}", notProperDll));
+                    throw new AssertionException($"Could not find skipped file matching {notProperDll}");
                 }
 
                 Assert.That(skippedFile.SkipReason, Contains.Substring("not a .NET assembly"));

@@ -180,7 +180,7 @@ namespace NServiceBus.Core.Tests.Pipeline
             public MyCustomRegistration(string pipelineStep, string before, string after)
                 : base(pipelineStep, typeof(FakeBehavior), pipelineStep)
             {
-                if (!String.IsNullOrEmpty(before))
+                if (!string.IsNullOrEmpty(before))
                 {
                     foreach (var b in before.Split(','))
                     {
@@ -189,7 +189,7 @@ namespace NServiceBus.Core.Tests.Pipeline
                     }
                 }
 
-                if (!String.IsNullOrEmpty(after))
+                if (!string.IsNullOrEmpty(after))
                 {
                     foreach (var a in after.Split(','))
                     {

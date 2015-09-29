@@ -14,11 +14,11 @@ namespace NServiceBus.Pipeline
             //}
             if (behavior.IsGenericTypeDefinition)
             {
-                throw new ArgumentException(string.Format("The behavior '{0}' is invalid since it is an open generic.", behavior.Name), paramName);
+                throw new ArgumentException($"The behavior '{behavior.Name}' is invalid since it is an open generic.", paramName);
             }
             if (!IsAssignableToIBehavior(behavior))
             {
-                throw new ArgumentException(string.Format("The behavior '{0}' is invalid since it does not implement IBehavior<T>.", behavior.Name), paramName);
+                throw new ArgumentException($@"The behavior '{behavior.Name}' is invalid since it does not implement IBehavior<T>.", paramName);
             }
         }
 

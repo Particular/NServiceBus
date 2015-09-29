@@ -13,14 +13,14 @@ namespace NServiceBus.Licensing
         public static string TryFindLicenseText()
         {
             var appConfigLicenseString = ConfigurationManager.AppSettings["NServiceBus/License"];
-            if (!String.IsNullOrEmpty(appConfigLicenseString))
+            if (!string.IsNullOrEmpty(appConfigLicenseString))
             {
                 Logger.Info(@"Using embedded license supplied via config file AppSettings/NServiceBus/License.");
                 return appConfigLicenseString;
             }
 
             var appConfigLicenseFile = ConfigurationManager.AppSettings["NServiceBus/LicensePath"];
-            if (!String.IsNullOrEmpty(appConfigLicenseFile))
+            if (!string.IsNullOrEmpty(appConfigLicenseFile))
             {
                 if (File.Exists(appConfigLicenseFile))
                 {
@@ -28,7 +28,7 @@ namespace NServiceBus.Licensing
                     return NonLockingFileReader.ReadAllTextWithoutLocking(appConfigLicenseFile);
                 }
                 //TODO: should we throw if file does not exist?
-                throw new Exception(string.Format("You have a configured licensing via AppConfigLicenseFile to use the file at '{0}'. However this file does not exist. Either place a valid license at this location or remove the app setting.", appConfigLicenseFile));
+                throw new Exception($"You have a configured licensing via AppConfigLicenseFile to use the file at '{appConfigLicenseFile}'. However this file does not exist. Either place a valid license at this location or remove the app setting.");
             }
 
             var localLicenseFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"NServiceBus\License.xml");
@@ -46,31 +46,31 @@ namespace NServiceBus.Licensing
             }
 
             var registryLicense = LoadLicenseFromRegistry();
-            if (!String.IsNullOrEmpty(registryLicense))
+            if (!string.IsNullOrEmpty(registryLicense))
             {
                 return registryLicense;
             }
 
             registryLicense = LoadLicenseFromPreviousRegistryLocation("4.3");
-            if (!String.IsNullOrEmpty(registryLicense))
+            if (!string.IsNullOrEmpty(registryLicense))
             {
                 return registryLicense;
             }
 
             registryLicense = LoadLicenseFromPreviousRegistryLocation("4.2");
-            if (!String.IsNullOrEmpty(registryLicense))
+            if (!string.IsNullOrEmpty(registryLicense))
             {
                 return registryLicense;
             }
 
             registryLicense = LoadLicenseFromPreviousRegistryLocation("4.1");
-            if (!String.IsNullOrEmpty(registryLicense))
+            if (!string.IsNullOrEmpty(registryLicense))
             {
                 return registryLicense;
             }
 
             registryLicense = LoadLicenseFromPreviousRegistryLocation("4.0");
-            if (!String.IsNullOrEmpty(registryLicense))
+            if (!string.IsNullOrEmpty(registryLicense))
             {
                 return registryLicense;
             }
@@ -82,7 +82,7 @@ namespace NServiceBus.Licensing
         {
             var hkcuLicense = GetHKCULicense(@"ParticularSoftware\NServiceBus");
             
-            if (!String.IsNullOrEmpty(hkcuLicense))
+            if (!string.IsNullOrEmpty(hkcuLicense))
             {
                 Logger.Info(@"Using embedded license found in registry [HKEY_CURRENT_USER\Software\ParticularSoftware\NServiceBus\License].");
 
@@ -90,7 +90,7 @@ namespace NServiceBus.Licensing
             }
 
             var hklmLicense = GetHKLMLicense(@"ParticularSoftware\NServiceBus");
-            if (!String.IsNullOrEmpty(hklmLicense))
+            if (!string.IsNullOrEmpty(hklmLicense))
             {
                 Logger.Info(@"Using embedded license found in registry [HKEY_LOCAL_MACHINE\Software\ParticularSoftware\NServiceBus\License].");
 
@@ -104,7 +104,7 @@ namespace NServiceBus.Licensing
         {
             var hkcuLicense = GetHKCULicense(subKey: version);
 
-            if (!String.IsNullOrEmpty(hkcuLicense))
+            if (!string.IsNullOrEmpty(hkcuLicense))
             {
                 Logger.InfoFormat(@"Using embedded license found in registry [HKEY_CURRENT_USER\Software\NServiceBus\{0}\License].", version);
 
@@ -112,7 +112,7 @@ namespace NServiceBus.Licensing
             }
 
             var hklmLicense = GetHKLMLicense(subKey: version);
-            if (!String.IsNullOrEmpty(hklmLicense))
+            if (!string.IsNullOrEmpty(hklmLicense))
             {
                 Logger.InfoFormat(@"Using embedded license found in registry [HKEY_LOCAL_MACHINE\Software\NServiceBus\{0}\License].", version);
 

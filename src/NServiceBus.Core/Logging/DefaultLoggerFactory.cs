@@ -50,7 +50,7 @@ namespace NServiceBus.Logging
             }
             var datePart = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
             var paddedLevel = messageLevel.ToString().ToUpper().PadRight(5);
-            var fullMessage = string.Format("{0} {1} {2} {3}", datePart, paddedLevel, name, message);
+            var fullMessage = $"{datePart} {paddedLevel} {name} {message}";
             lock (locker)
             {
                 rollingLogger.Write(fullMessage);

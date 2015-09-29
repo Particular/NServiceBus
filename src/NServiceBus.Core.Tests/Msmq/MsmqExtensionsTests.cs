@@ -19,7 +19,7 @@
         public void Setup()
         {
             var queueName = "permissionsTest";
-            path = string.Format(@"{0}\private$\{1}", Environment.MachineName, queueName);
+            path = $@"{Environment.MachineName}\private$\{queueName}";
             MsmqHelpers.DeleteQueue(path);
             MsmqHelpers.CreateQueue(path);
 

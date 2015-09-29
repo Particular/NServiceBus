@@ -130,7 +130,7 @@
 
                 if (mqResult != MQ_OK)
                 {
-                    throw new Exception(string.Format("Unable to read the security descriptor of queue [{0}]", formatName));
+                    throw new Exception($"Unable to read the security descriptor of queue [{formatName}]");
                 }
 
                 bool daclPresent, daclDefaulted;
@@ -189,7 +189,7 @@
                 }
             }
 
-            throw new Exception(string.Format("No ACE for SID {0} found in security descriptor", sid));
+            throw new Exception($"No ACE for SID {sid} found in security descriptor");
         }
     }
 }

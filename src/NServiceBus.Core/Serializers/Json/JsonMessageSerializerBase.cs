@@ -77,7 +77,7 @@ namespace NServiceBus.Serializers.Json
             Guard.AgainstNull("stream", stream);
             var settings = serializerSettings;
 
-            var mostConcreteType = messageTypes != null ? messageTypes.FirstOrDefault() : null;
+            var mostConcreteType = messageTypes?.FirstOrDefault();
             var requiresDynamicDeserialization = mostConcreteType != null && mostConcreteType.IsInterface;
 
             if (requiresDynamicDeserialization)

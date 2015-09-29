@@ -122,7 +122,7 @@ namespace NServiceBus.Config
                     var t = a.GetType(typeFullName, false);
 
                     if (t == null)
-                        throw new ArgumentException(string.Format("Could not process message endpoint mapping. Cannot find the type '{0}' in the assembly '{1}'. Ensure that you are using the full name for the type.", typeFullName, assemblyName));
+                        throw new ArgumentException($"Could not process message endpoint mapping. Cannot find the type '{typeFullName}' in the assembly '{assemblyName}'. Ensure that you are using the full name for the type.");
 
                     mapTypeToEndpoint(t, address);
 
@@ -130,11 +130,11 @@ namespace NServiceBus.Config
                 }
                 catch (BadImageFormatException ex)
                 {
-                    throw new ArgumentException(string.Format("Could not process message endpoint mapping. Could not load the assembly or one of its dependencies for type '{0}' in the assembly '{1}'", typeFullName, assemblyName), ex);
+                    throw new ArgumentException($"Could not process message endpoint mapping. Could not load the assembly or one of its dependencies for type '{typeFullName}' in the assembly '{assemblyName}'", ex);
                 }
                 catch (FileLoadException ex)
                 {
-                    throw new ArgumentException(string.Format("Could not process message endpoint mapping. Could not load the assembly or one of its dependencies for type '{0}' in the assembly '{1}'", typeFullName, assemblyName), ex);
+                    throw new ArgumentException($"Could not process message endpoint mapping. Could not load the assembly or one of its dependencies for type '{typeFullName}' in the assembly '{assemblyName}'", ex);
                 }
             }
 
@@ -193,32 +193,32 @@ namespace NServiceBus.Config
         /// </summary>
         public int CompareTo(MessageEndpointMapping other)
         {
-            if (!String.IsNullOrWhiteSpace(TypeFullName) || HaveMessagesMappingWithType(this))
+            if (!string.IsNullOrWhiteSpace(TypeFullName) || HaveMessagesMappingWithType(this))
             {
-                if (!String.IsNullOrWhiteSpace(other.TypeFullName) || HaveMessagesMappingWithType(other))
+                if (!string.IsNullOrWhiteSpace(other.TypeFullName) || HaveMessagesMappingWithType(other))
                     return 0;
 
                 return -1;
             }
 
-            if (!String.IsNullOrWhiteSpace(Namespace))
+            if (!string.IsNullOrWhiteSpace(Namespace))
             {
-                if (!String.IsNullOrWhiteSpace(other.TypeFullName) || HaveMessagesMappingWithType(other))
+                if (!string.IsNullOrWhiteSpace(other.TypeFullName) || HaveMessagesMappingWithType(other))
                     return 1;
 
-                if (!String.IsNullOrWhiteSpace(other.Namespace))
+                if (!string.IsNullOrWhiteSpace(other.Namespace))
                     return 0;
                 
                 return -1;
             }
 
-            if (!String.IsNullOrWhiteSpace(other.TypeFullName) || HaveMessagesMappingWithType(other))
+            if (!string.IsNullOrWhiteSpace(other.TypeFullName) || HaveMessagesMappingWithType(other))
                 return 1;
 
-            if (!String.IsNullOrWhiteSpace(other.Namespace))
+            if (!string.IsNullOrWhiteSpace(other.Namespace))
                 return 1;
 
-            if (!String.IsNullOrWhiteSpace(other.AssemblyName) || !String.IsNullOrWhiteSpace(other.Messages))
+            if (!string.IsNullOrWhiteSpace(other.AssemblyName) || !string.IsNullOrWhiteSpace(other.Messages))
                 return 0; 
 
             return -1;
@@ -226,7 +226,7 @@ namespace NServiceBus.Config
 
         static bool HaveMessagesMappingWithType(MessageEndpointMapping mapping)
         {
-            if (String.IsNullOrWhiteSpace(mapping.Messages))
+            if (string.IsNullOrWhiteSpace(mapping.Messages))
                 return false;
 
             return Type.GetType(mapping.Messages, false) != null;

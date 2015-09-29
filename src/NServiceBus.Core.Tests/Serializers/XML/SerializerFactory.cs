@@ -115,7 +115,7 @@ namespace NServiceBus.Serializers.XML.Test
 
             }
             if (!check(xmlDocument))
-              throw new Exception(string.Format("{0}, Offending XML: {1}",message, xmlResult));
+              throw new Exception($"{message}, Offending XML: {xmlResult}");
 
             return this;
         }

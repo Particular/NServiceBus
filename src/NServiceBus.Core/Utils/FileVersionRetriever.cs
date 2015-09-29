@@ -16,7 +16,7 @@
         /// <returns>SemVer compliant version.</returns>
         public static string GetFileVersion(Type type)
         {
-            if (!String.IsNullOrEmpty(type.Assembly.Location))
+            if (!string.IsNullOrEmpty(type.Assembly.Location))
             {
                 var fileVersion = FileVersionInfo.GetVersionInfo(type.Assembly.Location);
 

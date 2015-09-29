@@ -41,7 +41,7 @@ namespace NServiceBus.Pipeline
                     continue;
                 }
 
-                var message = string.Format("Step registration with id '{0}' is already registered for '{1}'.", metadata.StepId, registrations[metadata.StepId].BehaviorType);
+                var message = $"Step registration with id '{metadata.StepId}' is already registered for '{registrations[metadata.StepId].BehaviorType}'.";
                 throw new Exception(message);
             }
 
@@ -50,12 +50,12 @@ namespace NServiceBus.Pipeline
             {
                 if (!registrations.ContainsKey(metadata.ReplaceId))
                 {
-                    var message = string.Format("You can only replace an existing step registration, '{0}' registration does not exist.", metadata.ReplaceId);
+                    var message = $"You can only replace an existing step registration, '{metadata.ReplaceId}' registration does not exist.";
                     throw new Exception(message);
                 }
 
                 registrations[metadata.ReplaceId].BehaviorType = metadata.BehaviorType;
-                if (!String.IsNullOrEmpty(metadata.Description))
+                if (!string.IsNullOrEmpty(metadata.Description))
                 {
                     registrations[metadata.ReplaceId].Description = metadata.Description;
                 }
@@ -66,7 +66,7 @@ namespace NServiceBus.Pipeline
             {
                 if (!registrations.ContainsKey(metadata.RemoveId))
                 {
-                    var message = string.Format("You cannot remove step registration with id '{0}', registration does not exist.", metadata.RemoveId);
+                    var message = $"You cannot remove step registration with id '{metadata.RemoveId}', registration does not exist.";
                     throw new Exception(message);
                 }
 
@@ -75,7 +75,7 @@ namespace NServiceBus.Pipeline
                     var add = additions.First(mr => (mr.Befores != null && mr.Befores.Select(b => b.DependsOnId).Contains(metadata.RemoveId, StringComparer.CurrentCultureIgnoreCase)) ||
                                                     (mr.Afters != null && mr.Afters.Select(b => b.DependsOnId).Contains(metadata.RemoveId, StringComparer.CurrentCultureIgnoreCase)));
 
-                    var message = string.Format("You cannot remove step registration with id '{0}', registration with id '{1}' depends on it.", metadata.RemoveId, add.StepId);
+                    var message = $"You cannot remove step registration with id '{metadata.RemoveId}', registration with id '{add.StepId}' depends on it.";
                     throw new Exception(message);
                 }
 
@@ -99,7 +99,7 @@ namespace NServiceBus.Pipeline
 
             if (currentStage == null)
             {
-                throw new Exception(string.Format("Can't find any behaviors/connectors for the root context ({0})",rootContextType.FullName));
+                throw new Exception($"Can't find any behaviors/connectors for the root context ({rootContextType.FullName})");
             }
 
             var stageNumber = 1;
@@ -117,7 +117,8 @@ namespace NServiceBus.Pipeline
 
                 if (stageConnectors.Count() > 1)
                 {
-                    throw new Exception(string.Format("Multiple stage connectors found for stage {0}. Please remove one of: {1}", currentStage.Key.FullName,string.Join(";",stageConnectors.Select(sc=>sc.BehaviorType.FullName))));
+                    var connectors = string.Join(";", stageConnectors.Select(sc => sc.BehaviorType.FullName));
+                    throw new Exception($"Multiple stage connectors found for stage {currentStage.Key.FullName}. Please remove one of: {connectors}");
                 }
 
                 var stageConnector = stageConnectors.FirstOrDefault();
@@ -126,7 +127,7 @@ namespace NServiceBus.Pipeline
                 {
                     if (stageNumber < stages.Count())
                     {
-                        throw new Exception(string.Format("No stage connector found for stage {0}", currentStage.Key.FullName));    
+                        throw new Exception($"No stage connector found for stage {currentStage.Key.FullName}");    
                     }
 
                     currentStage = null;
@@ -195,7 +196,7 @@ namespace NServiceBus.Pipeline
                         }
                         else
                         {
-                            var message = string.Format("Registration '{0}' specified in the insertbefore of the '{1}' step does not exist in this stage.", beforeReference.DependsOnId, node.StepId);
+                            var message = $"Registration '{beforeReference.DependsOnId}' specified in the insertbefore of the '{node.StepId}' step does not exist in this stage.";
 
                             if (!beforeReference.Enforce)
                             {
@@ -220,7 +221,7 @@ namespace NServiceBus.Pipeline
                         }
                         else
                         {
-                            var message = string.Format("Registration '{0}' specified in the insertafter of the '{1}' step does not exist.", afterReference.DependsOnId, node.StepId);
+                            var message = $"Registration '{afterReference.DependsOnId}' specified in the insertafter of the '{node.StepId}' step does not exist.";
 
                             if (!afterReference.Enforce)
                             {

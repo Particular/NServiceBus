@@ -1,6 +1,5 @@
 namespace NServiceBus.Config
 {
-    using System;
     using System.Configuration;
 
     /// <summary>
@@ -34,11 +33,11 @@ namespace NServiceBus.Config
         /// <summary>
         /// Returns the Messages property of the given MessageEndpointMapping element.
         /// </summary>
-        protected override Object GetElementKey(ConfigurationElement element)
+        protected override object GetElementKey(ConfigurationElement element)
         {
             var messageEndpointMapping = (MessageEndpointMapping) element;
 
-            return String.Format("{0}{1}{2}{3}", messageEndpointMapping.Messages, messageEndpointMapping.AssemblyName, messageEndpointMapping.TypeFullName, messageEndpointMapping.Namespace);
+            return $"{messageEndpointMapping.Messages}{messageEndpointMapping.AssemblyName}{messageEndpointMapping.TypeFullName}{messageEndpointMapping.Namespace}";
         }
 
         /// <summary>

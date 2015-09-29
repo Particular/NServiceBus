@@ -389,17 +389,17 @@
                     return text;
                 }
 
-                if (type == typeof(Boolean))
+                if (type == typeof(bool))
                 {
                     return XmlConvert.ToBoolean(text);
                 }
 
-                if (type == typeof(Byte))
+                if (type == typeof(byte))
                 {
                     return XmlConvert.ToByte(text);
                 }
 
-                if (type == typeof(Char))
+                if (type == typeof(char))
                 {
                     return XmlConvert.ToChar(text);
                 }
@@ -429,17 +429,17 @@
                     return XmlConvert.ToGuid(text);
                 }
 
-                if (type == typeof(Int16))
+                if (type == typeof(short))
                 {
                     return XmlConvert.ToInt16(text);
                 }
 
-                if (type == typeof(Int32))
+                if (type == typeof(int))
                 {
                     return XmlConvert.ToInt32(text);
                 }
 
-                if (type == typeof(Int64))
+                if (type == typeof(long))
                 {
                     return XmlConvert.ToInt64(text);
                 }
@@ -449,7 +449,7 @@
                     return XmlConvert.ToSByte(text);
                 }
 
-                if (type == typeof(Single))
+                if (type == typeof(float))
                 {
                     return XmlConvert.ToSingle(text);
                 }
@@ -459,17 +459,17 @@
                     return XmlConvert.ToTimeSpan(text);
                 }
 
-                if (type == typeof(UInt16))
+                if (type == typeof(ushort))
                 {
                     return XmlConvert.ToUInt16(text);
                 }
 
-                if (type == typeof(UInt32))
+                if (type == typeof(uint))
                 {
                     return XmlConvert.ToUInt32(text);
                 }
 
-                if (type == typeof(UInt64))
+                if (type == typeof(ulong))
                 {
                     return XmlConvert.ToUInt64(text);
                 }

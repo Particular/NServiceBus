@@ -35,7 +35,7 @@ namespace NServiceBus.Logging
             }
             catch (Exception exception)
             {
-                var errorMessage = string.Format("NServiceBus.Logging.RollingLogger Could not write to log file {0} {1}", currentfilePath, exception);
+                var errorMessage = $"NServiceBus.Logging.RollingLogger Could not write to log file {currentfilePath} {exception}";
                 Trace.WriteLine(errorMessage);
             }
         }
@@ -168,7 +168,7 @@ namespace NServiceBus.Logging
                 }
             }
 
-            var fileName = string.Format("nsb_log_{0}_{1}.txt", today.ToString("yyyy-MM-dd"), sequenceNumber);
+            var fileName = $"nsb_log_{today.ToString("yyyy-MM-dd")}_{sequenceNumber}.txt";
             currentfilePath = Path.Combine(targetDirectory, fileName);
         }
 

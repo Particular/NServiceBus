@@ -53,7 +53,7 @@ namespace NServiceBus
 
             var secondsToSLABreach = CalculateTimeToSLABreach(snapshots);
 
-            counter.RawValue = Convert.ToInt32(Math.Min(secondsToSLABreach, Int32.MaxValue));
+            counter.RawValue = Convert.ToInt32(Math.Min(secondsToSLABreach, int.MaxValue));
         }
 
         double CalculateTimeToSLABreach(IList<DataPoint> snapshots)

@@ -71,7 +71,7 @@
                     }
                     catch (Exception exception)
                     {
-                        var message = string.Format("An error occurred when parsing the license.\r\nMessage: {0}\r\nThe exception details have been appended to your log.", exception.Message);
+                        var message = $"An error occurred when parsing the license.\r\nMessage: {exception.Message}\r\nThe exception details have been appended to your log.";
                         Logger.Warn("Error parsing license", exception);
                         MessageBox.Show(this, message, "Error parsing license", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }

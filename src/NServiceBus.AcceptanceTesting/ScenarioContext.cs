@@ -13,7 +13,7 @@
 
         public void AddTrace(string trace)
         {
-            Trace += string.Format("{0:HH:mm:ss.ffffff} - {1}{2}", DateTime.Now, trace, Environment.NewLine);
+            Trace += $"{DateTime.Now:HH:mm:ss.ffffff} - {trace}{Environment.NewLine}";
         }
 
         public ConcurrentQueue<Exception> Exceptions = new ConcurrentQueue<Exception>();
@@ -27,7 +27,7 @@
 
             public override string ToString()
             {
-                return string.Format("{0}: {1}", Level, Message);
+                return $"{Level}: {Message}";
             }
         }
     }

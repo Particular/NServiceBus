@@ -30,7 +30,7 @@
 
             if (assembly == null)
             {
-                throw new AssertionException(string.Format("Could not find loaded assembly matching {0}", containsHandlers));
+                throw new AssertionException($"Could not find loaded assembly matching {containsHandlers}");
             }
         }
     }

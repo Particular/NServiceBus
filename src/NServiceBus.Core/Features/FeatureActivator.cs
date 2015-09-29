@@ -276,7 +276,7 @@ namespace NServiceBus.Features
 
             public override string ToString()
             {
-                return string.Format("{0} [{1}]", Feature.Name, Feature.Version);
+                return $"{Feature.Name} [{Feature.Version}]";
             }
         }
 

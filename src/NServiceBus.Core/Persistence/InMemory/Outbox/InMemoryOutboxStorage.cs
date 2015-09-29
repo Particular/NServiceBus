@@ -26,7 +26,7 @@
         {
             if (!storage.TryAdd(message.MessageId, new StoredMessage(message.MessageId, message.TransportOperations)))
             {
-                throw new Exception(string.Format("Outbox message with id '{0}' is already present in storage.", message.MessageId));
+                throw new Exception($"Outbox message with id '{message.MessageId}' is already present in storage.");
             }
             return TaskEx.Completed;
         }
@@ -91,7 +91,7 @@
             {
                 unchecked
                 {
-                    return ((Id != null ? Id.GetHashCode() : 0) * 397) ^ Dispatched.GetHashCode();
+                    return ((Id?.GetHashCode() ?? 0) * 397) ^ Dispatched.GetHashCode();
                 }
             }
         }

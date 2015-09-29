@@ -35,7 +35,7 @@ namespace NServiceBus.Transports.Msmq
                 Logger.Debug("If this does not succeed (like if the remote machine is disconnected), processing will continue.");
             }
 
-            Logger.Debug(String.Format("Checking if queue exists: {0}.", address));
+            Logger.Debug($"Checking if queue exists: {address}.");
 
             try
             {
@@ -62,11 +62,11 @@ namespace NServiceBus.Transports.Msmq
                     //Solve the race condition problem when multiple endpoints try to create same queue (e.g. error queue).
                     return;
                 }
-                Logger.Error(String.Format("Could not create queue {0} or check its existence. Processing will still continue.", address), ex);
+                Logger.Error($"Could not create queue {address} or check its existence. Processing will still continue.", ex);
             }
             catch (Exception ex)
             {
-                Logger.Error(String.Format("Could not create queue {0} or check its existence. Processing will still continue.", address), ex);
+                Logger.Error($"Could not create queue {address} or check its existence. Processing will still continue.", ex);
             }
         }
         

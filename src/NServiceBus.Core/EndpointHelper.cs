@@ -65,7 +65,7 @@ namespace NServiceBus
             try
             {
                 var entryAssembly = Assembly.GetEntryAssembly();
-                if (entryAssembly != null && entryAssembly.EntryPoint != null)
+                if (entryAssembly?.EntryPoint != null)
                 {
                     entryType = entryAssembly.EntryPoint.ReflectedType;
                     return;

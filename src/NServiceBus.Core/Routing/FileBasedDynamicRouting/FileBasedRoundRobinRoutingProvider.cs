@@ -50,9 +50,9 @@ namespace NServiceBus.Routing
 
         void UpdateMapping(string queueName, bool startMonitor)
         {
-            if (Monitor.TryEnter(String.Intern(queueName)))
+            if (Monitor.TryEnter(string.Intern(queueName)))
             {
-                var fileName = String.Format("{0}.txt", queueName);
+                var fileName = $"{queueName}.txt";
                 var filePath = Path.Combine(basePath, fileName);
 
                 logger.InfoFormat("Refreshing routes for '{0}' from '{1}'", queueName, filePath);
@@ -103,7 +103,7 @@ namespace NServiceBus.Routing
             }
         }
 
-        readonly string basePath;
+        string basePath;
         readonly TimeSpan timeToWaitBeforeRaisingFileChangedEvent;
         static ILog logger = LogManager.GetLogger<FileBasedRoundRobinRoutingProvider>();
         List<MonitorFileChanges> monitoringFiles = new List<MonitorFileChanges>();

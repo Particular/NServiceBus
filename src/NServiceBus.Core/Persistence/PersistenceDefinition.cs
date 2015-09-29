@@ -18,7 +18,7 @@
             Guard.AgainstNull("action", action);
             if (storageToActionMap.ContainsKey(typeof(T)))
             {
-                throw new Exception(string.Format("Action for {0} already defined.", typeof(T)));
+                throw new Exception($"Action for {typeof(T)} already defined.");
             }
             storageToActionMap[typeof(T)] = action;
         }
@@ -77,7 +77,7 @@
         {
             if (!storageType.IsSubclassOf(typeof(StorageType)))
             {
-                throw new ArgumentException(string.Format("Storage type '{0}' is not a sub-class of StorageType", storageType.FullName), "storageType");
+                throw new ArgumentException($"Storage type '{storageType.FullName}' is not a sub-class of StorageType", "storageType");
             }
             var actionForStorage = storageToActionMap[storageType];
             actionForStorage(settings);

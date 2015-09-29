@@ -69,7 +69,7 @@
         /// </summary>
         public static implicit operator string(WireEncryptedString s)
         {
-            return s == null ? null : s.Value;
+            return s?.Value;
         }
 
         /// <summary>

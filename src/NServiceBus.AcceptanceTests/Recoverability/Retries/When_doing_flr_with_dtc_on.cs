@@ -24,11 +24,11 @@
                    .Should(c =>
                    {
                        //we add 1 since first call + X retries totals to X+1
-                       Assert.AreEqual(maxretries + 1, c.NumberOfTimesInvoked, string.Format("The FLR should by default retry {0} times", maxretries));
+                       Assert.AreEqual(maxretries + 1, c.NumberOfTimesInvoked, $"The FLR should by default retry {maxretries} times");
                        Assert.AreEqual(maxretries, c.Logs.Count(l => l.Message
-                           .StartsWith(string.Format("First Level Retry is going to retry message '{0}' because of an exception:", c.PhysicalMessageId))));
+                           .StartsWith($"First Level Retry is going to retry message '{c.PhysicalMessageId}' because of an exception:")));
                        Assert.AreEqual(1, c.Logs.Count(l => l.Message
-                           .StartsWith(string.Format("Giving up First Level Retries for message '{0}'.", c.PhysicalMessageId))));
+                           .StartsWith($"Giving up First Level Retries for message '{c.PhysicalMessageId}'.")));
                    })
                    .Run();
         }

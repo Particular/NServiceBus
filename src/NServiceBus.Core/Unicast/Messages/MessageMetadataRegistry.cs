@@ -114,7 +114,7 @@
 
             // return all inherited types
             var currentBaseType = type.BaseType;
-            var objectType = typeof(Object);
+            var objectType = typeof(object);
             while (currentBaseType != null && currentBaseType != objectType)
             {
                 yield return currentBaseType;

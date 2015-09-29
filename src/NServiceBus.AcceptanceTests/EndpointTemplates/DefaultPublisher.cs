@@ -34,11 +34,11 @@ namespace NServiceBus.AcceptanceTests.EndpointTemplates
 
                 if (context.TryGet(out  subscribersForEvent))
                 {
-                    Context.AddTrace(string.Format("Subscribers for {0} : {1}", subscribersForEvent.EventType.Name, string.Join(";", subscribersForEvent)));
+                    Context.AddTrace($"Subscribers for {subscribersForEvent.EventType.Name} : {string.Join(";", subscribersForEvent)}");
 
                     if (!subscribersForEvent.Subscribers.Any())
                     {
-                        Context.AddTrace(string.Format("No Subscribers found for message {0}", subscribersForEvent.EventType.Name));
+                        Context.AddTrace($"No Subscribers found for message {subscribersForEvent.EventType.Name}");
                     }
                 }
             }

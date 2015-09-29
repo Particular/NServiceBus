@@ -70,7 +70,7 @@ namespace NServiceBus.Encryption.Rijndael
                 }
                 if (exception == null)
                 {
-                    var message = string.Format("The new Encryption Key is too similar to the Expired Key at index {0}. This can cause issues when decrypting data. To fix this issue please ensure the new encryption key is not too similar to the existing Expired Keys.", index);
+                    var message = $"The new Encryption Key is too similar to the Expired Key at index {index}. This can cause issues when decrypting data. To fix this issue please ensure the new encryption key is not too similar to the existing Expired Keys.";
                     throw new Exception(message);
                 }
             }
@@ -92,7 +92,7 @@ namespace NServiceBus.Encryption.Rijndael
                     cryptographicExceptions.Add(exception);
                 }
             }
-            var message = string.Format("Could not decrypt message. Tried {0} keys.", decryptionKeys.Count);
+            var message = $"Could not decrypt message. Tried {decryptionKeys.Count} keys.";
             throw new AggregateException(message, cryptographicExceptions);
         }
 
@@ -149,7 +149,7 @@ namespace NServiceBus.Encryption.Rijndael
                 {
                     continue;
                 }
-                var message = string.Format("The expired key at index {0} has an invalid length of {1} bytes.", index, key.Length);
+                var message = $"The expired key at index {index} has an invalid length of {key.Length} bytes.";
                 throw new Exception(message);
             }
         }
@@ -160,7 +160,7 @@ namespace NServiceBus.Encryption.Rijndael
             {
                 return;
             }
-            var message = string.Format("The encryption key has an invalid length of {0} bytes.", key.Length);
+            var message = $"The encryption key has an invalid length of {key.Length} bytes.";
             throw new Exception(message);
         }
 

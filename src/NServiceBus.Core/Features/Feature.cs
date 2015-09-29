@@ -130,7 +130,7 @@
             {
                 if (!feature.IsSubclassOf(baseFeatureType))
                 {
-                    throw new ArgumentException(string.Format("A Feature can only depend on another Feature. '{0}' is not a Feature", feature.FullName), "features");
+                    throw new ArgumentException($"A Feature can only depend on another Feature. '{feature.FullName}' is not a Feature", "features");
                 }
             }
 
@@ -196,7 +196,7 @@
         /// </summary>
         public override string ToString()
         {
-            return string.Format("{0} [{1}]", Name, Version);
+            return $"{Name} [{Version}]";
         }
 
         internal PrerequisiteStatus CheckPrerequisites(FeatureConfigurationContext context)

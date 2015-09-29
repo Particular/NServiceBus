@@ -30,7 +30,7 @@ namespace NServiceBus
                 }
                 catch (Exception ex)
                 {
-                    var error = string.Format("Message '{0}' is corrupt and will be moved to '{1}'", message.Id, errorQueue.QueueName);
+                    var error = $"Message '{message.Id}' is corrupt and will be moved to '{errorQueue.QueueName}'";
                     Logger.Error(error, ex);
 
                     errorQueue.Send(message, MessageQueueTransactionType.Automatic);

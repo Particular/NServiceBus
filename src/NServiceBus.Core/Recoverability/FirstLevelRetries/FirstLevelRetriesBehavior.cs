@@ -49,7 +49,7 @@ namespace NServiceBus
 
                 storage.IncrementFailuresForMessage(pipelineUniqueMessageId);
 
-                Logger.Info(string.Format("First Level Retry is going to retry message '{0}' because of an exception:", messageId), ex);
+                Logger.Info($"First Level Retry is going to retry message '{messageId}' because of an exception:", ex);
                 //question: should we invoke this the first time around? feels like the naming is off?
                 notifications.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(numberOfFailures,context.GetPhysicalMessage(),ex);
 

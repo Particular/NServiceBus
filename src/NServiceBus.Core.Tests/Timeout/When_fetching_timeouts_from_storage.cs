@@ -30,7 +30,7 @@ namespace NServiceBus.Core.Tests.Timeout
             {
                 await persister.Add(new TimeoutData
                 {
-                    OwningTimeoutManager = String.Empty,
+                    OwningTimeoutManager = string.Empty,
                     Time = DateTime.UtcNow.AddHours(-1)
                 }, options);
             }
@@ -39,7 +39,7 @@ namespace NServiceBus.Core.Tests.Timeout
             {
                 await persister.Add(new TimeoutData
                 {
-                    OwningTimeoutManager = String.Empty,
+                    OwningTimeoutManager = string.Empty,
                     Time = DateTime.UtcNow.AddHours(1)
                 }, options);
             }
@@ -69,7 +69,7 @@ namespace NServiceBus.Core.Tests.Timeout
             await persister.Add(new TimeoutData
             {
                 Time = expected,
-                OwningTimeoutManager = String.Empty,
+                OwningTimeoutManager = string.Empty,
             }, options);
 
             var nextChunk = await GetNextChunk();

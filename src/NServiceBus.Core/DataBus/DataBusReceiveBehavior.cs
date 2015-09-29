@@ -32,7 +32,7 @@
                 }
                 else
                 {
-                    headerKey = String.Format("{0}.{1}", message.GetType().FullName, property.Name);
+                    headerKey = $"{message.GetType().FullName}.{property.Name}";
                 }
 
                 string dataBusKey;

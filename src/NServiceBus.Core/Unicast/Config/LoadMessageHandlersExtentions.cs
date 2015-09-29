@@ -62,12 +62,12 @@ namespace NServiceBus
             {
                 if (!RegisterHandlersInOrder.IsMessageHandler(handlerType))
                 {
-                    throw new ArgumentException(string.Format("'{0}' is not a handler type, please ensure that all types derive from IHandleMessages", handlerType));
+                    throw new ArgumentException($"'{handlerType}' is not a handler type, please ensure that all types derive from IHandleMessages");
                 }
 
                 if (list.Contains(handlerType))
                 {
-                    throw new ArgumentException(string.Format("The order in which the type '{0}' should be invoked was already specified by a previous call. You can only specify a handler type once.", handlerType));
+                    throw new ArgumentException($"The order in which the type '{handlerType}' should be invoked was already specified by a previous call. You can only specify a handler type once.");
                 }
 
                 list.Add(handlerType);

@@ -1,6 +1,5 @@
 namespace NServiceBus.Features
 {
-    using System;
     using System.Linq;
     using System.Text;
     using NServiceBus.Logging;
@@ -15,10 +14,10 @@ namespace NServiceBus.Features
 
             foreach (var diagnosticData in report.Features)
             {
-                statusText.AppendLine(string.Format("Name: {0}", diagnosticData.Name));
-                statusText.AppendLine(string.Format("Version: {0}", diagnosticData.Version));
-                statusText.AppendLine(string.Format("Enabled by Default: {0}", diagnosticData.EnabledByDefault ? "Yes" : "No"));
-                statusText.AppendLine(string.Format("Status: {0}", diagnosticData.Active ? "Enabled" : "Disabled"));
+                statusText.AppendLine($"Name: {diagnosticData.Name}");
+                statusText.AppendLine($"Version: {diagnosticData.Version}");
+                statusText.AppendLine($"Enabled by Default: {(diagnosticData.EnabledByDefault ? "Yes" : "No")}");
+                statusText.AppendLine($"Status: {(diagnosticData.Active ? "Enabled" : "Disabled")}");
                 if (!diagnosticData.Active)
                 {
                     statusText.Append("Deactivation reason: ");
@@ -34,7 +33,7 @@ namespace NServiceBus.Features
                     } 
                     else if (!diagnosticData.DependenciesAreMeet)
                     {
-                        statusText.AppendLine(string.Format("Did not meet one of the dependencies: {0}", String.Join(",", diagnosticData.Dependencies.Select(t => "[" + String.Join(",", t.Select(t1 => t1)) + "]"))));
+                        statusText.AppendLine($"Did not meet one of the dependencies: {string.Join(",", diagnosticData.Dependencies.Select(t => "[" + string.Join(",", t.Select(t1 => t1)) + "]"))}");
                     }
                     else
                     {
@@ -43,8 +42,8 @@ namespace NServiceBus.Features
                 }
                 else
                 {
-                    statusText.AppendLine(string.Format("Dependencies: {0}", diagnosticData.Dependencies.Count == 0 ? "Default" : String.Join(",", diagnosticData.Dependencies.Select(t => "[" + String.Join(",", t.Select(t1 => t1)) + "]"))));
-                    statusText.AppendLine(string.Format("Startup Tasks: {0}", diagnosticData.StartupTasks.Count == 0 ? "Default" : String.Join(",", diagnosticData.StartupTasks.Select(t => t.Name))));
+                    statusText.AppendLine($"Dependencies: {(diagnosticData.Dependencies.Count == 0 ? "Default" : string.Join(",", diagnosticData.Dependencies.Select(t => "[" + string.Join(",", t.Select(t1 => t1)) + "]")))}");
+                    statusText.AppendLine($"Startup Tasks: {(diagnosticData.StartupTasks.Count == 0 ? "Default" : string.Join(",", diagnosticData.StartupTasks.Select(t => t.Name)))}");
                 }
 
                 statusText.AppendLine();

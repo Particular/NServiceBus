@@ -141,7 +141,7 @@ namespace NServiceBus.Sagas
             var genericArguments = GetBaseSagaType(sagaType).GetGenericArguments();
             if (genericArguments.Length != 1)
             {
-                throw new Exception(string.Format("'{0}' saga type does not implement Saga<T>", sagaType));
+                throw new Exception($"'{sagaType}' saga type does not implement Saga<T>");
             }
 
             var saga = (Saga)FormatterServices.GetUninitializedObject(sagaType);
@@ -196,14 +196,14 @@ namespace NServiceBus.Sagas
                     var messageType = args[1];
                     if (!conventions.IsMessageType(messageType))
                     {
-                        var error = string.Format("A custom IFindSagas must target a valid message type as defined by the message conventions. Please change '{0}' to a valid message type or add it to the message conventions. Finder name '{1}'.", messageType.FullName, finderType.FullName);
+                        var error = $"A custom IFindSagas must target a valid message type as defined by the message conventions. Please change '{messageType.FullName}' to a valid message type or add it to the message conventions. Finder name '{finderType.FullName}'.";
                         throw new Exception(error);
                     }
 
                     var existingMapping = mapper.Mappings.SingleOrDefault(m => m.MessageType == messageType);
                     if (existingMapping != null)
                     {
-                        var bothMappingAndFinder = string.Format("A custom IFindSagas and an existing mapping where found for message '{0}'. Please either remove the message mapping for remove the finder. Finder name '{1}'.", messageType.FullName, finderType.FullName);
+                        var bothMappingAndFinder = $"A custom IFindSagas and an existing mapping where found for message '{messageType.FullName}'. Please either remove the message mapping for remove the finder. Finder name '{finderType.FullName}'.";
                         throw new Exception(bothMappingAndFinder);
                     }
                     mapper.ConfigureCustomFinder(finderType, messageType);
@@ -356,9 +356,7 @@ namespace NServiceBus.Sagas
                 if (propertyInfo == null)
                 {
                     throw new ArgumentException(
-                        String.Format(
-                            "Only public properties are supported for mapping Sagas. The lambda expression provided '{0}' is not mapping to a Property.",
-                            expression.Body));
+                        $@"Only public properties are supported for mapping Sagas. The lambda expression provided '{expression.Body}' is not mapping to a Property.");
                 }
             }
         }

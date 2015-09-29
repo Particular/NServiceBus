@@ -75,7 +75,7 @@
 
         public void Info(string message, Exception exception)
         {
-            var fullMessage = string.Format("{0} {1}", message, exception);
+            var fullMessage = $"{message} {exception}";
             Trace.WriteLine(fullMessage);
             AppendException(exception);
             RecordLog(fullMessage, "info");
@@ -96,7 +96,7 @@
 
         public void Warn(string message, Exception exception)
         {
-            var fullMessage = string.Format("{0} {1}", message, exception);
+            var fullMessage = $"{message} {exception}";
             Trace.WriteLine(fullMessage);
             AppendException(exception);
             RecordLog(fullMessage, "warn");
@@ -118,7 +118,7 @@
 
         public void Error(string message, Exception exception)
         {
-            var fullMessage = string.Format("{0} {1}", message, exception);
+            var fullMessage = $"{message} {exception}";
             Trace.WriteLine(fullMessage);
             AppendException(exception);
             RecordLog(fullMessage, "error");
@@ -140,7 +140,7 @@
 
         public void Fatal(string message, Exception exception)
         {
-            var fullMessage = string.Format("{0} {1}", message, exception);
+            var fullMessage = $"{message} {exception}";
             Trace.WriteLine(fullMessage);
             AppendException(exception);
             RecordLog(fullMessage, "fatal");

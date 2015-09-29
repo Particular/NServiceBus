@@ -195,7 +195,7 @@
                 return false;
             }
 
-            headers[Headers.IsSagaTimeoutMessage] = Boolean.TrueString;
+            headers[Headers.IsSagaTimeoutMessage] = bool.TrueString;
             return true;
         }
 

@@ -20,7 +20,7 @@
                     .Run();
 
             Assert.AreEqual(1, context.Logs.Count(l => l.Message
-                .StartsWith(string.Format("Moving message '{0}' to the error queue because processing failed due to an exception:", context.PhysicalMessageId))));
+                .StartsWith($"Moving message '{context.PhysicalMessageId}' to the error queue because processing failed due to an exception:")));
         }
 
         public class RetryEndpoint : EndpointConfigurationBuilder

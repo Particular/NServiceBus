@@ -17,7 +17,7 @@
         public void Should_set_label_when_convention_configured()
         {
             var queueName = "labelTest";
-            var path = string.Format(@"{0}\private$\{1}", Environment.MachineName, queueName);
+            var path = $@"{Environment.MachineName}\private$\{queueName}";
             try
             {
                 MsmqHelpers.DeleteQueue(path);
@@ -45,7 +45,7 @@
         public void Should_use_string_empty_label_when_no_convention_configured()
         {
             var queueName = "emptyLabelTest";
-            var path = string.Format(@".\private$\{0}", queueName);
+            var path = $@".\private$\{queueName}";
             try
             {
                 MsmqHelpers.DeleteQueue(path);

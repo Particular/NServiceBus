@@ -28,7 +28,7 @@ namespace NServiceBus.Pipeline
                 }
                 catch (Exception ex)
                 {
-                    Logger.Fatal(string.Format("Pipeline {0} failed to start.", pipeline.Id), ex);
+                    Logger.Fatal($"Pipeline {pipeline.Id} failed to start.", ex);
                     throw;
                 }
             }

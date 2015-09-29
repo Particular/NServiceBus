@@ -27,7 +27,7 @@ namespace NServiceBus.Logging
         protected internal override ILoggerFactory GetLoggingFactory()
         {
             var loggerFactory = new DefaultLoggerFactory(level.Value, directory.Value);
-            var message = string.Format("Logging to '{0}' with level {1}", directory, level);
+            var message = $"Logging to '{directory}' with level {level}";
             loggerFactory.Write(GetType().Name,LogLevel.Info,message);
             return loggerFactory;
         }
@@ -52,7 +52,7 @@ namespace NServiceBus.Logging
             Guard.AgainstNullAndEmpty("directory", directory);
             if (!IODirectory.Exists(directory))
             {
-                var message = string.Format("Could not find logging directory: '{0}'", directory);
+                var message = $"Could not find logging directory: '{directory}'";
                 throw new DirectoryNotFoundException(message);
             }
             this.directory = new Lazy<string>(() => directory);
@@ -81,7 +81,7 @@ namespace NServiceBus.Logging
                 return appDataPath;
             }
             
-            throw new Exception(GetMapPathError(string.Format("Failed since path returned ({0}) does not exist, please create it.", appDataPath)));
+            throw new Exception(GetMapPathError($"Failed since path returned ({appDataPath}) does not exist, please create it."));
         }
 
         static string TryMapPath()

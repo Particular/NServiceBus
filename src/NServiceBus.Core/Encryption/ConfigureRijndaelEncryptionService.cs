@@ -104,7 +104,7 @@ namespace NServiceBus
                 var encryptionKey = expiredKeys[index];
                 if (string.IsNullOrWhiteSpace(encryptionKey))
                 {
-                    throw new ArgumentException(string.Format("Empty encryption key detected in position {0}.", index), "expiredKeys");
+                    throw new ArgumentException($"Empty encryption key detected in position {index}.", "expiredKeys");
                 }
             }
         }

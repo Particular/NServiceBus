@@ -93,7 +93,7 @@
         {
             unchecked
             {
-                return ((Qualifier != null ? Qualifier.GetHashCode() : 0)*397) ^ (EndpointInstanceName != null ? EndpointInstanceName.GetHashCode() : 0);
+                return ((Qualifier?.GetHashCode() ?? 0)*397) ^ (EndpointInstanceName?.GetHashCode() ?? 0);
             }
         }
 

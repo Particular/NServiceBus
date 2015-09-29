@@ -29,7 +29,7 @@ namespace NServiceBus.Features
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             var transportConfig = context.Settings.GetConfigSection<TransportConfig>();
-            var maxRetries = transportConfig != null ? transportConfig.MaxRetries : 5;
+            var maxRetries = transportConfig?.MaxRetries ?? 5;
             var retryPolicy = new FirstLevelRetryPolicy(maxRetries);
             context.Container.RegisterSingleton(retryPolicy);
 

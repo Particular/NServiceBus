@@ -40,7 +40,7 @@ namespace NServiceBus
 
             if (!incomingMessage.Headers.TryGetValue(Headers.ReplyToAddress, out replyToAddress))
             {
-                throw new Exception(string.Format("No `ReplyToAddress` found on the {0} being processed", context.GetMessageType().FullName));
+                throw new Exception($"No `ReplyToAddress` found on the {context.GetMessageType().FullName} being processed");
             }
 
             return replyToAddress;

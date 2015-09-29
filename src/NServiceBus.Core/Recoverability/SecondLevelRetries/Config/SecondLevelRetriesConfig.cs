@@ -16,7 +16,7 @@ namespace NServiceBus.Config
         {
             Properties.Add(new ConfigurationProperty("Enabled", typeof(bool), true));
             Properties.Add(new ConfigurationProperty("TimeIncrease", typeof(TimeSpan), DefaultSecondLevelRetryPolicy.DefaultTimeIncrease, null, new TimeSpanValidator(TimeSpan.Zero, TimeSpan.MaxValue), ConfigurationPropertyOptions.None));
-            Properties.Add(new ConfigurationProperty("NumberOfRetries", typeof(int), DefaultSecondLevelRetryPolicy.DefaultNumberOfRetries, null, new IntegerValidator(0, Int32.MaxValue), ConfigurationPropertyOptions.None));
+            Properties.Add(new ConfigurationProperty("NumberOfRetries", typeof(int), DefaultSecondLevelRetryPolicy.DefaultNumberOfRetries, null, new IntegerValidator(0, int.MaxValue), ConfigurationPropertyOptions.None));
         }
 
         /// <summary>
