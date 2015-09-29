@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -175,6 +175,8 @@
     <Compile Include="Sagas\AuditInvokedSagaBehavior.cs" />
     <Compile Include="Sagas\RemoveIncomingHeadersBehavior.cs" />
     <Compile Include="Sagas\SagaSendBehavior.cs" />
+    <Compile Include="Timeout\Core\IPersistTimeoutsV2.cs" />
+    <Compile Include="Timeout\Core\TimeoutPersistenceVersionCheck.cs" />
     <Compile Include="Transports\ConfigureTransport.cs" />
     <Compile Include="TypesToBeRemovedInVersion5.cs" />
     <Compile Include="Unicast\Behaviors\CallbackInvocationBehavior.cs" />
