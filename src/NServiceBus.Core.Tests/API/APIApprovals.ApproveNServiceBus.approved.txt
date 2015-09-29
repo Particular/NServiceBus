@@ -518,6 +518,10 @@ namespace NServiceBus
         public ImmediateDispatchContext(System.Collections.Generic.IEnumerable<NServiceBus.Transports.TransportOperation> operations, NServiceBus.Pipeline.BehaviorContext parentContext) { }
         public System.Collections.Generic.IEnumerable<NServiceBus.Transports.TransportOperation> Operations { get; }
     }
+    public class static ImmediateDispatchOptionExtensions
+    {
+        public static void RequireImmediateDispatch(this NServiceBus.Extensibility.ExtendableOptions options) { }
+    }
     public interface INeedInitialization
     {
         void Customize(NServiceBus.BusConfiguration configuration);

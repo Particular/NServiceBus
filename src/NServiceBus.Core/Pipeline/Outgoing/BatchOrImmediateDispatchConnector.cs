@@ -2,7 +2,6 @@
 {
     using System;
     using System.Threading.Tasks;
-    using System.Transactions;
     using DeliveryConstraints;
     using Pipeline;
     using TransportDispatch;
@@ -18,7 +17,6 @@
             var options = new DispatchOptions(context.RoutingStrategy, dispatchConsistency, context.GetDeliveryConstraints());
             var operation = new TransportOperation(context.Message, options);
 
-
             PendingTransportOperations pendingOperations;
 
             if (!state.ImmediateDispatch && context.TryGet(out pendingOperations))
@@ -33,23 +31,6 @@
         public class State
         {
             public bool ImmediateDispatch { get; set; }
-        }
-    }
-
-    class ForceImmediateDispatchForOperationsInSupressedScopeBehavior : Behavior<DispatchContext>
-    {
-        public override Task Invoke(DispatchContext context, Func<Task> next)
-        {
-            var state = context.GetOrCreate<InvokeHandlersBehavior.State>();
-
-            //if there is no scope here the user must have suppressed it
-            if (state.ScopeWasPresent && Transaction.Current == null)
-            {
-                context.GetOrCreate<BatchOrImmediateDispatchConnector.State>()
-                    .ImmediateDispatch = true;
-            }
-
-            return next();
         }
     }
 }

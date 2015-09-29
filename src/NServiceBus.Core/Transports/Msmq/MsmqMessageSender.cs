@@ -45,7 +45,7 @@ namespace NServiceBus.Transports.Msmq
         {
             var dispatchOptions = transportOperation.DispatchOptions;
             var message = transportOperation.Message;
-            
+
             var routingStrategy = dispatchOptions.RoutingStrategy as DirectToTargetDestination;
 
             if (routingStrategy == null)
@@ -96,10 +96,9 @@ namespace NServiceBus.Transports.Msmq
             {
                 if (ex.MessageQueueErrorCode == MessageQueueErrorCode.QueueNotFound)
                 {
-                            : string.Format("Failed to send message to address: [{0}]", destination);
-                        var msg = destination == null
-                            ? "Failed to send message. Target address is null."
-                            : $"Failed to send message to address: [{destination}]";
+                    var msg = destination == null
+                        ? "Failed to send message. Target address is null."
+                        : $"Failed to send message to address: [{destination}]";
 
                     throw new QueueNotFoundException(destination, msg, ex);
                 }
