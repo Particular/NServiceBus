@@ -50,7 +50,7 @@
             {
                 EndpointSetup<DefaultPublisher>(b =>
                 {
-                    b.EnableFeature<TimeoutManager>();
+                    b.EnableFeature<DelayedDelivery>();
                     b.OnEndpointSubscribed<Context>((s, context) => { context.Subscribed = true; });
                 });
             }
@@ -71,7 +71,7 @@
         {
             public SagaEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.EnableFeature<TimeoutManager>())
+                EndpointSetup<DefaultServer>(c => c.EnableFeature<DelayedDelivery>())
                     .AddMapping<OpenGroupCommand>(typeof(Publisher))
                     .AddMapping<GroupPendingEvent>(typeof(Publisher));
             }

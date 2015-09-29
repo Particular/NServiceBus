@@ -43,7 +43,7 @@
             builder.CustomConfigurationSource(configSource);
             builder.EnableInstallers();
 
-            builder.DisableFeature<TimeoutManager>();
+            builder.DisableFeature<DelayedDelivery>();
             builder.DisableFeature<SecondLevelRetries>();
             await builder.DefineTransport(settings, endpointConfiguration.BuilderType);
             builder.DefineTransactions(settings);

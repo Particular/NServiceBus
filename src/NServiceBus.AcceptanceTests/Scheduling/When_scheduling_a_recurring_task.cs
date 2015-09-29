@@ -35,7 +35,7 @@
         {
             public SchedulingEndpoint()
             {
-                EndpointSetup<DefaultServer>(config => config.EnableFeature<TimeoutManager>());
+                EndpointSetup<DefaultServer>(config => config.EnableFeature<DelayedDelivery>());
             }
 
             class SetupScheduledAction : IWantToRunWhenBusStartsAndStops

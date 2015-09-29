@@ -50,7 +50,7 @@
             {
                 EndpointSetup<DefaultPublisher>(b =>
                 {
-                    b.EnableFeature<TimeoutManager>();
+                    b.EnableFeature<DelayedDelivery>();
                     b.OnEndpointSubscribed<Context>((s, context) =>
                     {
                         context.IsEventSubscriptionReceived = true;
@@ -102,7 +102,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.EnableFeature<TimeoutManager>();
+                    c.EnableFeature<DelayedDelivery>();
                     c.DisableFeature<AutoSubscribe>();
                 })
                     .AddMapping<SomethingHappenedEvent>(typeof(SagaThatPublishesAnEvent));

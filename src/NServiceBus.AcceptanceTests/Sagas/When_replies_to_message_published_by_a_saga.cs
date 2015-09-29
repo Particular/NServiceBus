@@ -75,7 +75,7 @@
             {
                 EndpointSetup<DefaultPublisher>(b =>
                 {
-                    b.EnableFeature<TimeoutManager>();
+                    b.EnableFeature<DelayedDelivery>();
                     b.OnEndpointSubscribed<Context>((s, context) => { context.Subscribed = true; });
                 });
             }

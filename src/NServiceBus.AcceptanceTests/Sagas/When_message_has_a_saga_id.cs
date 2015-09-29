@@ -102,7 +102,7 @@
         {
             public SagaEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.EnableFeature<TimeoutManager>());
+                EndpointSetup<DefaultServer>(c => c.EnableFeature<DelayedDelivery>());
             }
         }
 

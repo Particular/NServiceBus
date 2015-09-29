@@ -38,8 +38,8 @@
         {
             public Endpoint()
             {
-                // Explicitly disable TimeoutManager, although this should be default anyway
-                EndpointSetup<DefaultServer>(config => config.DisableFeature<TimeoutManager>());
+                // Explicitly disable DelayedDelivery, although this should be default anyway
+                EndpointSetup<DefaultServer>(config => config.DisableFeature<DelayedDelivery>());
             }
             public class MyMessageHandler : IHandleMessages<MyMessage>, IHandleMessages<MyOtherMessage>
             {

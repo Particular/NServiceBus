@@ -38,9 +38,8 @@
                     b =>
                     {
                         b.GetSettings().Set("DisableOutboxTransportCheck", true);
-                        b.EnableFeature<TimeoutManager>();
+                        b.EnableFeature<DelayedDelivery>();
                         b.EnableOutbox();
-                        b.EnableFeature<TimeoutManager>();
                         b.UsePersistence<FakeOutboxPersistence>();
                         b.RegisterComponents(c => c.ConfigureComponent<FakeOutbox>(DependencyLifecycle.SingleInstance));
                     });

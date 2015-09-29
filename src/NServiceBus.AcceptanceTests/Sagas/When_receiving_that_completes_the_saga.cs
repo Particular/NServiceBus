@@ -81,7 +81,7 @@
             {
                 EndpointSetup<DefaultServer>(b =>
                 {
-                    b.EnableFeature<TimeoutManager>();
+                    b.EnableFeature<DelayedDelivery>();
                     b.ExecuteTheseHandlersFirst(typeof(TestSaga10));
                 });
             }
