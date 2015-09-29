@@ -1243,6 +1243,7 @@ namespace NServiceBus.Extensibility
     {
         public ContextBag(NServiceBus.Extensibility.ContextBag parentBag = null) { }
         public T Get<T>() { }
+        public System.Collections.Generic.IEnumerable<T> GetAll<T>() { }
         public T GetOrCreate<T>()
             where T :  class, new () { }
         public void Merge(NServiceBus.Extensibility.ContextBag context) { }
@@ -1251,6 +1252,7 @@ namespace NServiceBus.Extensibility
         public bool TryGet<T>(out T result) { }
         public bool TryGetRootContext<T>(out T result)
             where T : NServiceBus.Extensibility.ContextBag { }
+        public bool TryRemove<T>(out T result) { }
     }
     public abstract class ExtendableOptions
     {
@@ -1259,6 +1261,11 @@ namespace NServiceBus.Extensibility
     public class static ExtendableOptionsExtensions
     {
         public static NServiceBus.Extensibility.ContextBag GetExtensions(this NServiceBus.Extensibility.ExtendableOptions options) { }
+    }
+    public abstract class OutgoingPipelineExtensionState
+    {
+        protected OutgoingPipelineExtensionState() { }
+        protected abstract string GenerateErrorMessageWhenNotHandled();
     }
     public interface ReadOnlyContextBag
     {
@@ -1333,6 +1340,10 @@ namespace NServiceBus.Features
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class DataBus : NServiceBus.Features.Feature
+    {
+        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+    }
+    public class DelayedDelivery : NServiceBus.Features.Feature
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
@@ -1486,10 +1497,6 @@ namespace NServiceBus.Features
     }
     [System.ObsoleteAttribute("No longer used, safe to remove. Will be removed in version 7.0.0.", true)]
     public class StorageDrivenPublishing : NServiceBus.Features.Feature
-    {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
-    }
-    public class TimeoutManager : NServiceBus.Features.Feature
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
@@ -2471,6 +2478,11 @@ namespace NServiceBus.Transports
         protected abstract void Configure(NServiceBus.Features.FeatureConfigurationContext context, string connectionString);
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
+    public class DeliveryConstraintCollection
+    {
+        public bool TryRemove<T>(out T constraint)
+            where T : NServiceBus.DeliveryConstraints.DeliveryConstraint { }
+    }
     public enum DispatchConsistency
     {
         Default = 1,
@@ -2480,7 +2492,7 @@ namespace NServiceBus.Transports
     {
         public DispatchOptions(NServiceBus.Routing.RoutingStrategy routingStrategy, NServiceBus.Extensibility.ContextBag context, System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints = null, NServiceBus.Transports.DispatchConsistency requiredDispatchConsistency = 1) { }
         public NServiceBus.Extensibility.ReadOnlyContextBag Context { get; }
-        public System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> DeliveryConstraints { get; }
+        public NServiceBus.Transports.DeliveryConstraintCollection DeliveryConstraints { get; }
         public NServiceBus.Transports.DispatchConsistency RequiredDispatchConsistency { get; }
         public NServiceBus.Routing.RoutingStrategy RoutingStrategy { get; set; }
     }

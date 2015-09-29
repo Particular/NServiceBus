@@ -1,6 +1,7 @@
 namespace NServiceBus.Extensibility
 {
     using System.Collections.Generic;
+    using System.Linq;
 
     /// <summary>
     /// A string object bag of context objects.
@@ -24,11 +25,11 @@ namespace NServiceBus.Extensibility
         {
             return Get<T>(typeof(T).FullName);
         }
-        
+
         /// <summary>
         /// Gets the requested extension, a new one will be created if needed.
         /// </summary>
-        public T GetOrCreate<T>() where T : class,new()
+        public T GetOrCreate<T>() where T : class, new()
         {
             T value;
 
@@ -55,6 +56,19 @@ namespace NServiceBus.Extensibility
             return TryGet(typeof(T).FullName, out result);
         }
 
+        /// <summary>
+        /// Tries to retrieves the specified type from the context.
+        /// </summary>
+        /// <typeparam name="T">The type to retrieve.</typeparam>
+        /// <param name="result">The type instance.</param>
+        /// <returns><code>true</code> if found, otherwise <code>false</code>.</returns>
+        public bool TryRemove<T>(out T result)
+        {
+            var success = TryGet(typeof(T).FullName, out result);
+            Remove<T>();
+            return success;
+        }
+
 
         /// <summary>
         /// Stores the type instance in the context.
@@ -66,7 +80,7 @@ namespace NServiceBus.Extensibility
             Set(typeof(T).FullName, t);
         }
 
-        
+
         /// <summary>
         /// Removes the instance type from the context.
         /// </summary>
@@ -88,6 +102,16 @@ namespace NServiceBus.Extensibility
             }
         }
 
+        /// <summary>
+        /// Gets all items assignable to <typeparamref name="T"/>.
+        /// </summary>
+        /// <typeparam name="T">The required base class or interface.</typeparam>
+        public IEnumerable<T> GetAll<T>()
+        {
+            var parentItems = parentBag?.GetAll<T>() ?? Enumerable.Empty<T>();
+            return stash.Values.OfType<T>().Concat(parentItems);
+        }
+
         void Set<T>(string key, T t)
         {
             Guard.AgainstNullAndEmpty("key", key);
@@ -97,7 +121,7 @@ namespace NServiceBus.Extensibility
         /// <summary>
         /// Walk the tree of context until one is found of the type <typeparamref name="T"/>.
         /// </summary>
-        public bool TryGetRootContext<T>(out T result) where T: ContextBag
+        public bool TryGetRootContext<T>(out T result) where T : ContextBag
         {
             var cast = this as T;
             if (cast != null)

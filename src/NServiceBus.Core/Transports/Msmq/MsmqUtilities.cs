@@ -7,7 +7,6 @@ namespace NServiceBus
     using System.Messaging;
     using System.Text;
     using System.Xml;
-    using NServiceBus.DeliveryConstraints;
     using NServiceBus.Logging;
     using NServiceBus.Performance.TimeToBeReceived;
     using NServiceBus.Transports;
@@ -140,11 +139,12 @@ namespace NServiceBus
 
 
             AssignMsmqNativeCorrelationId(message, result);
-            result.Recoverable = !sendOptions.DeliveryConstraints.Any(c => c is NonDurableDelivery);
+            NonDurableDelivery nonDurableDelivery;
+            result.Recoverable = !sendOptions.DeliveryConstraints.TryRemove(out nonDurableDelivery);
 
             DiscardIfNotReceivedBefore timeToBeReceived;
 
-            if (sendOptions.DeliveryConstraints.TryGet(out timeToBeReceived) && timeToBeReceived.MaxTime < MessageQueue.InfiniteTimeout)
+            if (sendOptions.DeliveryConstraints.TryRemove(out timeToBeReceived) && timeToBeReceived.MaxTime < MessageQueue.InfiniteTimeout)
             {
                 result.TimeToBeReceived = timeToBeReceived.MaxTime;
             }

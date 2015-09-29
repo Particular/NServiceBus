@@ -99,6 +99,7 @@
     <Compile Include="ConfigureHandlerSettings.cs" />
     <Compile Include="ConsistencyGuarantees\ConsistencyGuaranteeSettingsExtensions.cs" />
     <Compile Include="ConsistencyGuarantees\TransactionScopes\WrapHandlersInTransactionScope.cs" />
+    <Compile Include="Extensibility\OutgoingPipelineExtensionState.cs" />
     <Compile Include="IBusExtensions_obsolete.cs" />
     <Compile Include="ISendOnlyBusExtensions_obsoletes.cs" />
     <Compile Include="IStartableBusExtensions_obsoletes.cs" />
@@ -106,6 +107,7 @@
     <Compile Include="Routing\DynamicRoutingConfigurationExtensions.cs" />
     <Compile Include="Sagas\Saga_obsoletes.cs" />
     <Compile Include="TaskEx.cs" />
+    <Compile Include="Transports\DeliveryConstraintCollection.cs" />
     <Compile Include="Transports\DispatchConsistency.cs" />
     <Compile Include="Transports\IManageSubscriptionsExtensions_obsolete.cs" />
     <Compile Include="Transports\Msmq\MsmqConnectionStringBuilder.cs" />
@@ -129,17 +131,14 @@
     <Compile Include="DataBus\UseDataBusExtensions.cs" />
     <Compile Include="DelayedDelivery\ApplyDelayedDeliveryConstraintBehavior.cs" />
     <Compile Include="DelayedDelivery\DelayedDeliveryConstraint.cs" />
-    <Compile Include="DelayedDelivery\DelayedDeliveryFeature.cs" />
+    <Compile Include="DelayedDelivery\DelayedDelivery.cs" />
     <Compile Include="DelayedDelivery\DelayedDeliveryOptionExtensions.cs" />
     <Compile Include="DelayedDelivery\DoNotDeliverBefore.cs" />
-    <Compile Include="DelayedDelivery\NoOpCanceling.cs" />
     <Compile Include="DelayedDelivery\RequestCancelingOfDeferredMessagesFromTimeoutManager.cs" />
     <Compile Include="DelayedDelivery\RouteDeferredMessageToTimeoutManagerBehavior.cs" />
-    <Compile Include="DelayedDelivery\ThrowIfCannotDeferMessageBehavior.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\Persistence\IQueryTimeouts.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\Persistence\TimeoutPersistenceOptions.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\Persistence\TimeoutsChunk.cs" />
-    <Compile Include="DelayedDelivery\TimeoutManagerAddressConfiguration.cs" />
     <Compile Include="DeliveryConstraints\DeliveryConstraintContextExtensions.cs" />
     <Compile Include="Encryption\DecryptBehavior.cs" />
     <Compile Include="Encryption\EncryptBehavior.cs" />
@@ -551,7 +550,6 @@
     <Compile Include="Transports\Msmq\MsmqTransportConfigurator.cs" />
     <Compile Include="Unicast\Messages\DeserializeLogicalMessagesConnector.cs" />
     <Compile Include="Licensing\ConfigureLicenseExtensions.cs" />
-    <Compile Include="DelayedDelivery\TimeoutManager\TimeoutManager.cs" />
     <Compile Include="ConfigureQueueCreation.cs" />
     <Compile Include="Transports\ConfigurePurging.cs" />
     <Compile Include="Features\Feature.cs" />

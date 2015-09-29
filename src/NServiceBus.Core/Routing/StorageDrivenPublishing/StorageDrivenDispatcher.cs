@@ -4,6 +4,7 @@
     using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.DeliveryConstraints;
+    using NServiceBus.Extensibility;
     using NServiceBus.Pipeline;
     using NServiceBus.TransportDispatch;
     using NServiceBus.Transports;
@@ -32,6 +33,11 @@
                     currentConstraints,
                     dispatchConsistency);
                 await dispatcher.Dispatch(new [] {new TransportOperation(message, dispatchOptions)}).ConfigureAwait(false);
+                dispatchOptions.DeliveryConstraints.RaiseErrorIfNotAllConstrainstHaveBeenHandled();
+                foreach (var state in currentContext.GetAll<OutgoingPipelineExtensionState>())
+                {
+                    state.ValidateHandled();
+                }
                 return;
             }
 
@@ -60,6 +66,11 @@
                     currentConstraints,
                     dispatchConsistency);
                 await dispatcher.Dispatch(new [] { new TransportOperation(message, dispatchOptions)}).ConfigureAwait(false);
+                dispatchOptions.DeliveryConstraints.RaiseErrorIfNotAllConstrainstHaveBeenHandled();
+                foreach (var state in currentContext.GetAll<OutgoingPipelineExtensionState>())
+                {
+                    state.ValidateHandled();
+                }
             }
         }
 
