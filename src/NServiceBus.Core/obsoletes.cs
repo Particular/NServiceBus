@@ -252,7 +252,7 @@ namespace NServiceBus
         public string CorrelationId { get { throw new NotImplementedException(); } set { throw new NotImplementedException(); } }
 
         [ObsoleteEx(
-          Message = "Not used anymore, you most likely should use a `OutgoingMessageInstead`",
+          Message = "Not used anymore, you most likely should use a `OutgoingMessage` instead",
           RemoveInVersion = "7.0",
           TreatAsErrorFromVersion = "6.0")]
         public TransportMessage()
