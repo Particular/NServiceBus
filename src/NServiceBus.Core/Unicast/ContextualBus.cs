@@ -182,10 +182,7 @@ namespace NServiceBus.Unicast
             }
         }
 
-        BehaviorContext incomingContext
-        {
-            get { return contextStacker.GetCurrentOrRootContext(); }
-        }
+        BehaviorContext incomingContext => contextStacker.GetCurrentOrRootContext();
 
         TransportMessage MessageBeingProcessed
         {

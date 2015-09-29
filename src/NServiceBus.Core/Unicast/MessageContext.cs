@@ -18,10 +18,7 @@ namespace NServiceBus.Unicast
             this.transportMessage = transportMessage;
         }
 
-        IDictionary<string, string> IMessageContext.Headers
-        {
-            get { return transportMessage.Headers; }
-        }
+        IDictionary<string, string> IMessageContext.Headers => transportMessage.Headers;
 
         /// <summary>
         /// The time at which the incoming message was sent.
@@ -40,14 +37,8 @@ namespace NServiceBus.Unicast
             }
         }
 
-        string IMessageContext.Id
-        {
-            get { return transportMessage.Id; }
-        }
+        string IMessageContext.Id => transportMessage.Id;
 
-        string IMessageContext.ReplyToAddress
-        {
-            get { return transportMessage.ReplyToAddress; }
-        }
+        string IMessageContext.ReplyToAddress => transportMessage.ReplyToAddress;
     }
 }

@@ -18,11 +18,8 @@
             context.Container.ConfigureComponent<FakeDispatcher>(DependencyLifecycle.InstancePerCall);
         }
 
-        protected override bool RequiresConnectionString { get { return false; } }
+        protected override bool RequiresConnectionString => false;
 
-        protected override string ExampleConnectionStringForErrorMessage
-        {
-            get { return ""; }
-        }
+        protected override string ExampleConnectionStringForErrorMessage => "";
     }
 }

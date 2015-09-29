@@ -115,10 +115,7 @@
         {
             Defaults(s =>
             {
-                if (OnDefaults != null)
-                {
-                    OnDefaults(this);
-                }
+                OnDefaults?.Invoke(this);
             });
         }
 
@@ -133,10 +130,7 @@
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            if (OnActivation != null)
-            {
-                OnActivation(this);
-            }
+            OnActivation?.Invoke(this);
         }
     }
 }

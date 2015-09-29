@@ -11,26 +11,17 @@ namespace NServiceBus.Faults
         /// <summary>
         /// Notification when a message is moved to the error queue.
         /// </summary>
-        public IObservable<FailedMessage> MessageSentToErrorQueue
-        {
-            get { return erroneousMessageList; }
-        }
+        public IObservable<FailedMessage> MessageSentToErrorQueue => erroneousMessageList;
 
         /// <summary>
         /// Notification when a message fails a first level retry.
         /// </summary>
-        public IObservable<FirstLevelRetry> MessageHasFailedAFirstLevelRetryAttempt
-        {
-            get { return firstLevelRetryList; }
-        }
+        public IObservable<FirstLevelRetry> MessageHasFailedAFirstLevelRetryAttempt => firstLevelRetryList;
 
         /// <summary>
         /// Notification when a message is sent to second level retires queue.
         /// </summary>
-        public IObservable<SecondLevelRetry> MessageHasBeenSentToSecondLevelRetries
-        {
-            get { return secondLevelRetryList; }
-        }
+        public IObservable<SecondLevelRetry> MessageHasBeenSentToSecondLevelRetries => secondLevelRetryList;
 
         void IDisposable.Dispose()
         {

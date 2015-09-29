@@ -8,11 +8,6 @@ namespace NServiceBus.Faults
     /// </summary>
     public struct SecondLevelRetry
     {
-        Dictionary<string, string> headers;
-        byte[] body;
-        Exception exception;
-        int retryAttempt;
-
         /// <summary>
         /// Creates a new instance of <see cref="SecondLevelRetry"/>.
         /// </summary>
@@ -22,30 +17,30 @@ namespace NServiceBus.Faults
         /// <param name="retryAttempt">Number of retry attempt.</param>
         public SecondLevelRetry(Dictionary<string, string> headers, byte[] body, Exception exception, int retryAttempt)
         {
-            this.headers = headers;
-            this.body = body;
-            this.exception = exception;
-            this.retryAttempt = retryAttempt;
+            Headers = headers;
+            Body = body;
+            Exception = exception;
+            RetryAttempt = retryAttempt;
         }
 
         /// <summary>
         ///     Gets the message headers.
         /// </summary>
-        public Dictionary<string, string> Headers { get { return headers; } }
+        public Dictionary<string, string> Headers { get; }
 
         /// <summary>
         ///     Gets a byte array to the body content of the message.
         /// </summary>
-        public byte[] Body { get { return body; } }
+        public byte[] Body { get; }
 
         /// <summary>
         ///     The exception that caused this message to fail.
         /// </summary>
-        public Exception Exception { get { return exception; } }
+        public Exception Exception { get; }
 
         /// <summary>
         ///     Number of retry attempt.
         /// </summary>
-        public int RetryAttempt { get { return retryAttempt; } }
+        public int RetryAttempt { get; }
     }
 }

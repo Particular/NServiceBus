@@ -65,10 +65,7 @@ namespace NServiceBus.Features
 
             protected override void OnStop()
             {
-                if (timer != null)
-                {
-                    timer.Dispose();
-                }
+                timer?.Dispose();
             }
 
             void ClearFlrStatusStorage(object state)

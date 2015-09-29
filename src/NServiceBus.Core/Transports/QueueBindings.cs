@@ -31,17 +31,11 @@
         /// <summary>
         /// Returns the collection of all transport addresses of queues this endpoint is receiving from.
         /// </summary>
-        public IEnumerable<string> ReceivingAddresses
-        {
-            get { return receiveAddresses; }
-        }
+        public IEnumerable<string> ReceivingAddresses => receiveAddresses;
 
         /// <summary>
         /// Returns the collection of all transport addresses of queues this endpoint is sending to.
         /// </summary>
-        public IEnumerable<string> SendingAddresses
-        {
-            get { return sendingAddresses; }
-        }
+        public IEnumerable<string> SendingAddresses => sendingAddresses;
     }
 }

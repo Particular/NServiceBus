@@ -13,7 +13,7 @@
         /// <summary>
         /// The max time to wait before discarding the message.
         /// </summary>
-        public TimeSpan MaxTime { get; private set; }
+        public TimeSpan MaxTime { get; }
 
         /// <summary>
         /// Initializes the constraint with a max time.

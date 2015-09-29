@@ -27,7 +27,7 @@
                 Headers = new Dictionary<string, string>();
                 MessageId = CombGuid.Generate().ToString();
             }
-            public Dictionary<string, string> Headers { get; private set; }
+            public Dictionary<string, string> Headers { get; }
             public string MessageId { get; set; }
         }
     }

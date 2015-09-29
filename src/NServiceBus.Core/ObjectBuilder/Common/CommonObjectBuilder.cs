@@ -97,10 +97,7 @@ namespace NServiceBus.ObjectBuilder.Common
 
         void DisposeManaged()
         {
-            if (Container != null)
-            {
-                Container.Dispose();
-            }
+            Container?.Dispose();
         }
 
         public T Build<T>()

@@ -200,10 +200,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         {
             var result = CreateInstance<T>();
 
-            if (action != null)
-            {
-                action(result);
-            }
+            action?.Invoke(result);
 
             return result;
         }

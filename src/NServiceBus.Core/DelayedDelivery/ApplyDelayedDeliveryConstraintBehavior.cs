@@ -28,7 +28,7 @@
                 RequestedDelay = constraint;
             }
 
-            public DelayedDeliveryConstraint RequestedDelay { get; private set; }
+            public DelayedDeliveryConstraint RequestedDelay { get; }
         }
     }
 }

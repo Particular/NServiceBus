@@ -11,7 +11,7 @@
         /// <summary>
         /// The actual time when the message can be available to the recipient.
         /// </summary>
-        public DateTime At { get; private set; }
+        public DateTime At { get; }
 
         /// <summary>
         /// Initializes a new insatnce of <see cref="DoNotDeliverBefore"/>.

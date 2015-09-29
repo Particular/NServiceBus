@@ -66,12 +66,12 @@ namespace NServiceBus.Unicast.Subscriptions
         /// <summary>
         /// TypeName of the message.
         /// </summary>
-        public string TypeName { get; private set; }
+        public string TypeName { get; }
 
         /// <summary>
         /// Version of the message.
         /// </summary>
-        public Version Version { get; private set; }
+        public Version Version { get; }
 
         /// <summary>
         /// Overridden to append Version along with Type Name.

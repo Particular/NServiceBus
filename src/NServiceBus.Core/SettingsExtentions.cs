@@ -33,7 +33,7 @@ namespace NServiceBus
 
             if (HasConstructorThatAcceptsSettings(sectionOverrideType))
             {
-                sectionOverride = (IProvideConfiguration<T>)Activator.CreateInstance(sectionOverrideType, new object[] { settings });
+                sectionOverride = (IProvideConfiguration<T>)Activator.CreateInstance(sectionOverrideType, settings);
             }
             else
             {

@@ -43,7 +43,7 @@
                 throw new NotImplementedException();
             }
 
-            public string ContentType { get; private set; }
+            public string ContentType { get; }
         }
 
         class MyMessage { }

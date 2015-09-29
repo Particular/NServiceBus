@@ -84,9 +84,8 @@ namespace NServiceBus.Serializers.XML.Test
             using (var stream = new MemoryStream())
             {
                 var serializer = SerializerFactory.Create<T>();
-                    
-                if(config != null)
-                    config(serializer);
+
+                config?.Invoke(serializer);
 
 
                 serializer.Serialize(message, stream);

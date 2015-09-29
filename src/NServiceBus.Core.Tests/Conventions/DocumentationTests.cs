@@ -139,17 +139,14 @@
             bool IsInheritDoc(Element element)
             {
                 var lineInfoField = GetLineInfoField(element.GetType());
-                if (lineInfoField != null)
-                {
-                    var lineInfo = (XElement) lineInfoField.GetValue(element);
+                var lineInfo = (XElement) lineInfoField?.GetValue(element);
 
-                    if (lineInfo != null)
+                if (lineInfo != null)
+                {
+                    var firstNode = lineInfo.FirstNode;
+                    if (firstNode.ToString().Contains("inheritdoc"))
                     {
-                        var firstNode = lineInfo.FirstNode;
-                        if (firstNode.ToString().Contains("inheritdoc"))
-                        {
-                            return true;
-                        }
+                        return true;
                     }
                 }
                 return false;

@@ -37,19 +37,9 @@ namespace NServiceBus
 
         public override Task Cooldown()
         {
-            if (messagesPulledFromQueueCounter != null)
-            {
-                messagesPulledFromQueueCounter.Dispose();
-            }
-
-            if (successRateCounter != null)
-            {
-                successRateCounter.Dispose();
-            }
-            if (failureRateCounter != null)
-            {
-                failureRateCounter.Dispose();
-            }
+            messagesPulledFromQueueCounter?.Dispose();
+            successRateCounter?.Dispose();
+            failureRateCounter?.Dispose();
 
             return base.Cooldown();
         }

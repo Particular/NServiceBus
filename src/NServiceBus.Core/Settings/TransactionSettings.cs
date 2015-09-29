@@ -127,14 +127,11 @@ namespace NServiceBus.Settings
             var systemTransactionsGroup = ConfigurationManager.OpenMachineConfiguration()
                 .GetSectionGroup("system.transactions");
 
-            if (systemTransactionsGroup != null)
-            {
-                var machineSettings = systemTransactionsGroup.Sections.Get("machineSettings") as MachineSettingsSection;
+            var machineSettings = systemTransactionsGroup?.Sections.Get("machineSettings") as MachineSettingsSection;
 
-                if (machineSettings != null)
-                {
-                    maxTimeout = machineSettings.MaxTimeout;
-                }
+            if (machineSettings != null)
+            {
+                maxTimeout = machineSettings.MaxTimeout;
             }
 
             return maxTimeout;

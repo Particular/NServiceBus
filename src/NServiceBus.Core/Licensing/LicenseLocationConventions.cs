@@ -133,12 +133,8 @@ namespace NServiceBus.Licensing
 
             using (var registryKey = Registry.CurrentUser.OpenSubKey(keyPath))
             {
-                if (registryKey != null)
-                {
-                    return (string) registryKey.GetValue("License", null);
-                }
+                return (string) registryKey?.GetValue("License", null);
             }
-            return null;
         }
 
         static string GetHKLMLicense(string softwareKey = "NServiceBus", string subKey = null)

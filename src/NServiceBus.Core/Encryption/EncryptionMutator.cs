@@ -38,12 +38,7 @@ namespace NServiceBus.Encryption
         {
             var propertyInfo = member as PropertyInfo;
 
-            if (propertyInfo != null)
-            {
-                return propertyInfo.GetIndexParameters().Length > 0;
-            }
-
-            return false;
+            return propertyInfo?.GetIndexParameters().Length > 0;
         }
 
         bool IsEncryptedMember(MemberInfo arg)

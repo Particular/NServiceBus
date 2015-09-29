@@ -192,7 +192,7 @@ namespace NServiceBus.ContainerTests
             ConstructorDependency = constructorDependency;
         }
 
-        public ConstructorDependency ConstructorDependency { get; private set; }
+        public ConstructorDependency ConstructorDependency { get; }
 
         public SetterDependency SetterDependency { get; set; }
     }

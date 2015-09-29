@@ -35,7 +35,7 @@ namespace NServiceBus
         /// <summary>
         ///     Provides access to the settings holder.
         /// </summary>
-        public SettingsHolder Settings { get; private set; }
+        public SettingsHolder Settings { get; }
 
         /// <summary>
         ///     Gets the builder.
@@ -45,10 +45,7 @@ namespace NServiceBus
         /// <summary>
         ///     Returns types in assemblies found in the current directory.
         /// </summary>
-        public IList<Type> TypesToScan
-        {
-            get { return Settings.GetAvailableTypes(); }
-        }
+        public IList<Type> TypesToScan => Settings.GetAvailableTypes();
 
         void RunUserRegistrations(List<Action<IConfigureComponents>> registrations)
         {

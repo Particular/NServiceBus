@@ -21,17 +21,17 @@
         /// <summary>
         /// A read only copy of the settings.
         /// </summary>
-        public ReadOnlySettings Settings { get { return config.Settings; } }
+        public ReadOnlySettings Settings => config.Settings;
 
         /// <summary>
         /// Access to the container to allow for registrations.
         /// </summary>
-        public IConfigureComponents Container { get { return config.container; } }
+        public IConfigureComponents Container => config.container;
 
         /// <summary>
         /// Access to the pipeline in order to customize it.
         /// </summary>
-        public PipelineSettings Pipeline { get { return config.pipelineSettings; } }
+        public PipelineSettings Pipeline => config.pipelineSettings;
 
         /// <summary>
         /// Creates a new satellite processing pipeline.

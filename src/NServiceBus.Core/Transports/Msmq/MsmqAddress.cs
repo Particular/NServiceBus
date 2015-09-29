@@ -63,10 +63,7 @@ namespace NServiceBus
             return new MsmqAddress(queue, machineName);
         }
 
-        public bool IsRemote
-        {
-            get { return Machine != RuntimeEnvironment.MachineName; }
-        }
+        public bool IsRemote => Machine != RuntimeEnvironment.MachineName;
 
         static string ApplyLocalMachineConventions(string machineName)
         {
@@ -122,13 +119,7 @@ namespace NServiceBus
             }
         }
 
-        public string PathWithoutPrefix
-        {
-            get
-            {
-                return Machine + PRIVATE + Queue;
-            }
-        }
+        public string PathWithoutPrefix => Machine + PRIVATE + Queue;
 
         /// <summary>
         /// Returns a string representation of the address.

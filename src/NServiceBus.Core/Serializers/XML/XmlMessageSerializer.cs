@@ -68,10 +68,7 @@ namespace NServiceBus.Serializers.XML
         /// <summary>
         /// Gets the content type into which this serializer serializes the content to.
         /// </summary>
-        public string ContentType
-        {
-            get { return ContentTypes.Xml; }
-        }
+        public string ContentType => ContentTypes.Xml;
 
         /// <summary>
         ///     Serializes the given messages to the given stream.
@@ -112,15 +109,7 @@ namespace NServiceBus.Serializers.XML
 
         string TrimPotentialTrailingForwardSlashes(string value)
         {
-            if (value == null)
-            {
-                return null;
-            }
-
-            return value.TrimEnd(new[]
-            {
-                '/'
-            });
+            return value?.TrimEnd('/');
         }
 
         Conventions conventions;

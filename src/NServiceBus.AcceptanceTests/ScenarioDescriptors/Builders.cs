@@ -21,12 +21,6 @@
                        });
         }
 
-        public static RunDescriptor Default
-        {
-            get
-            {
-                return GetAllAvailable().FirstOrDefault();
-            }
-        }
+        public static RunDescriptor Default => GetAllAvailable().FirstOrDefault();
     }
 }

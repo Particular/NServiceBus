@@ -57,18 +57,12 @@ namespace NServiceBus.Sagas
         /// <summary>
         ///     Returns the list of messages that is associated with this saga.
         /// </summary>
-        public IEnumerable<SagaMessage> AssociatedMessages
-        {
-            get { return associatedMessages.Values; }
-        }
+        public IEnumerable<SagaMessage> AssociatedMessages => associatedMessages.Values;
 
         /// <summary>
         ///     Gets the list of finders for this saga.
         /// </summary>
-        public IEnumerable<SagaFinderDefinition> Finders
-        {
-            get { return sagaFinders.Values; }
-        }
+        public IEnumerable<SagaFinderDefinition> Finders => sagaFinders.Values;
 
         /// <summary>
         ///     The name of the saga.

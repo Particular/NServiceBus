@@ -21,12 +21,7 @@
         {
             var connectionStringSettings = ConfigurationManager.ConnectionStrings[connectionStringName];
 
-            if (connectionStringSettings == null)
-            {
-                return null;
-            }
-
-            return connectionStringSettings.ConnectionString;
+            return connectionStringSettings?.ConnectionString;
         }
 
 
@@ -41,14 +36,7 @@
             GetValue = () => ReadConnectionString(name);
         }
 
-        public static TransportConnectionString Default
-        {
-            get
-            {
-                return new TransportConnectionString();
-            }
-
-        }
+        public static TransportConnectionString Default => new TransportConnectionString();
 
         const string DefaultConnectionStringName = "NServiceBus/Transport";
 

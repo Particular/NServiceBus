@@ -17,10 +17,7 @@ namespace NServiceBus.Utils
         protected WeakReference(T target)
             : base(target, false) { }
 
-        public new T Target
-        {
-            get { return (T)base.Target; }
-        }
+        public new T Target => (T)base.Target;
     }
 
     internal class WeakNullReference<T> : WeakReference<T> where T : class
@@ -32,10 +29,7 @@ namespace NServiceBus.Utils
         {
         }
 
-        public override bool IsAlive
-        {
-            get { return true; }
-        }
+        public override bool IsAlive => true;
     }
 
     internal sealed class WeakKeyReference<T> : WeakReference<T> where T : class
@@ -148,10 +142,7 @@ namespace NServiceBus.Utils
         // either the key or value objects have already been garbage
         // collected. Call RemoveCollectedEntries to weed out collected
         // entries and update the count accordingly.
-        public override int Count
-        {
-            get { return dictionary.Count; }
-        }
+        public override int Count => dictionary.Count;
 
         public override void Add(TKey key, TValue value)
         {

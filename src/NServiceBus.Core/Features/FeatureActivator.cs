@@ -169,10 +169,7 @@ namespace NServiceBus.Features
         static void DisposeIfNecessary(FeatureStartupTask task)
         {
             var disposableTask = task as IDisposable;
-            if (disposableTask != null)
-            {
-                disposableTask.Dispose();
-            }
+            disposableTask?.Dispose();
         }
 
         static List<FeatureInfo> Sort(IEnumerable<FeatureInfo> features)
@@ -274,8 +271,8 @@ namespace NServiceBus.Features
                 Feature = feature;
             }
 
-            public FeatureDiagnosticData Diagnostics { get; private set; }
-            public Feature Feature { get; private set; }
+            public FeatureDiagnosticData Diagnostics { get; }
+            public Feature Feature { get; }
 
             public override string ToString()
             {

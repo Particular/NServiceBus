@@ -30,31 +30,25 @@
             return this;
         }
 
-        public bool IsDebugEnabled { get { return false; } }
-        public bool IsInfoEnabled { get { return true; } }
-        public bool IsWarnEnabled { get { return true; } }
-        public bool IsErrorEnabled { get { return true; } }
-        public bool IsFatalEnabled { get { return true; } }
+        public bool IsDebugEnabled => false;
+        public bool IsInfoEnabled => true;
+        public bool IsWarnEnabled => true;
+        public bool IsErrorEnabled => true;
+        public bool IsFatalEnabled => true;
 
 
         static void RecordLog(string message, string level)
         {
-            if (context != null)
+            context?.Logs.Enqueue(new ScenarioContext.LogItem
             {
-                context.Logs.Enqueue(new ScenarioContext.LogItem
-                {
-                    Level = level,
-                    Message = message
-                });
-            }
+                Level = level,
+                Message = message
+            });
         }
 
         static void AppendException(Exception exception)
         {
-            if (context != null)
-            {
-                context.Exceptions.Enqueue(exception);
-            }
+            context?.Exceptions.Enqueue(exception);
         }
 
         public void Debug(string message)

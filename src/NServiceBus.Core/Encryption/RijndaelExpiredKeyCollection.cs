@@ -11,13 +11,7 @@ namespace NServiceBus.Config
         /// <summary>
         /// Returns AddRemoveClearMap.
         /// </summary>
-        public override ConfigurationElementCollectionType CollectionType
-        {
-            get
-            {
-                return ConfigurationElementCollectionType.AddRemoveClearMap;
-            }
-        }
+        public override ConfigurationElementCollectionType CollectionType => ConfigurationElementCollectionType.AddRemoveClearMap;
 
         /// <summary>
         /// Creates a new <see cref="RijndaelExpiredKey"/>.
@@ -70,13 +64,7 @@ namespace NServiceBus.Config
         /// <summary>
         /// Gets the <see cref="RijndaelExpiredKey"/> for the given key.
         /// </summary>
-        new public RijndaelExpiredKey this[string key]
-        {
-            get
-            {
-                return (RijndaelExpiredKey)BaseGet(key);
-            }
-        }
+        new public RijndaelExpiredKey this[string key] => (RijndaelExpiredKey)BaseGet(key);
 
         /// <summary>
         /// Calls BaseIndexOf on the given <see cref="RijndaelExpiredKey"/>.

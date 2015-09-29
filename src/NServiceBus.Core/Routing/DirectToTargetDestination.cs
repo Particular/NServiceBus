@@ -10,7 +10,7 @@ namespace NServiceBus.Routing
         /// <summary>
         /// The destination.
         /// </summary>
-        public string Destination { get; private set; }
+        public string Destination { get; }
 
         /// <summary>
         /// Initializes the strategy.

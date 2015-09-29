@@ -16,10 +16,7 @@
 
             protected override void OnStart()
             {
-                if (SubscriptionStorage != null)
-                {
-                    SubscriptionStorage.Init();
-                }
+                SubscriptionStorage?.Init();
             }
         }
 

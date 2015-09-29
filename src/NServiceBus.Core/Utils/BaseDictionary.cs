@@ -26,10 +26,7 @@ namespace NServiceBus.Utils
         public abstract IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator();
         protected abstract void SetValue(TKey key, TValue value);
 
-        public bool IsReadOnly
-        {
-            get { return false; }
-        }
+        public bool IsReadOnly => false;
 
         public ICollection<TKey> Keys
         {
@@ -110,15 +107,9 @@ namespace NServiceBus.Utils
                 this.dictionary = dictionary;
             }
 
-            public int Count
-            {
-                get { return dictionary.Count; }
-            }
+            public int Count => dictionary.Count;
 
-            public bool IsReadOnly
-            {
-                get { return true; }
-            }
+            public bool IsReadOnly => true;
 
             public void CopyTo(T[] array, int arrayIndex)
             {

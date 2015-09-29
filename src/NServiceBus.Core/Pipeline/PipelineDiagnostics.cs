@@ -16,12 +16,12 @@
             StepsDiagnostics = new Observable<StepStarted>();
         }
 
-        internal Observable<StepStarted> StepsDiagnostics { get; private set; }
+        internal Observable<StepStarted> StepsDiagnostics { get; }
 
 
         /// <summary>
         /// Access to diagnostics for the steps of the pipeline.
         /// </summary>
-        public IObservable<StepStarted> Steps{ get { return StepsDiagnostics; }}
+        public IObservable<StepStarted> Steps => StepsDiagnostics;
     }
 }

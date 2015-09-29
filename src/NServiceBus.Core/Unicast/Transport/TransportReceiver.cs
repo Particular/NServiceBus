@@ -26,7 +26,7 @@ namespace NServiceBus.Unicast.Transport
         /// <summary>
         /// Gets the ID of this pipeline.
         /// </summary>
-        public string Id { get; private set; }
+        public string Id { get; }
 
         /// <summary>
         ///     Starts the transport listening for messages on the given local address.

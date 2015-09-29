@@ -13,17 +13,12 @@ namespace NServiceBus.Pipeline
         /// <param name="duration">Elapsed time.</param>
         public StepEnded(TimeSpan duration)
         {
-            this.duration = duration;
+            Duration = duration;
         }
 
         /// <summary>
         ///     Elapsed time.
         /// </summary>
-        public TimeSpan Duration
-        {
-            get { return duration; }
-        }
-
-        TimeSpan duration;
+        public TimeSpan Duration { get; }
     }
 }

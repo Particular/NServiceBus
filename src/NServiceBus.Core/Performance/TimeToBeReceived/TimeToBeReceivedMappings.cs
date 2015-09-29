@@ -26,10 +26,7 @@
             }
         }
 
-        public bool HasEntries
-        {
-            get { return mappings.Any(); }
-        }
+        public bool HasEntries => mappings.Any();
 
         public bool TryGetTimeToBeReceived(Type messageType, out TimeSpan timeToBeReceived)
         {

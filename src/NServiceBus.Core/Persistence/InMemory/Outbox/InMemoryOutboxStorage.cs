@@ -57,13 +57,13 @@
                 StoredAt = DateTime.UtcNow;
             }
 
-            public string Id { get; private set; }
+            public string Id { get; }
 
             public bool Dispatched { get; set; }
 
-            public DateTime StoredAt { get; set; }
+            public DateTime StoredAt { get; }
 
-            public IList<TransportOperation> TransportOperations { get; private set; }
+            public IList<TransportOperation> TransportOperations { get; }
 
             protected bool Equals(StoredMessage other)
             {

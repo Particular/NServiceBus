@@ -58,15 +58,9 @@
         {
             public string Name { get; set; }
 
-            public string Options1
-            {
-                get { return "Testing"; }
-            }
+            public string Options1 => "Testing";
 
-            public int Options2
-            {
-                get { return 5; }
-            }
+            public int Options2 => 5;
         }
     }
 }

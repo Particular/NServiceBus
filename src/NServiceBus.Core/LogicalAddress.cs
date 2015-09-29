@@ -8,9 +8,6 @@
     /// </summary>
     public sealed class LogicalAddress
     {
-        readonly string qualifier;
-        readonly EndpointInstanceName endpointInstanceName;
-
         /// <summary>
         /// Creates new qualified logical address for the provided endpoint instance name.
         /// </summary>
@@ -22,8 +19,8 @@
             {
                 throw new ArgumentNullException("qualifier");
             }
-            this.endpointInstanceName = endpointInstanceName;
-            this.qualifier = qualifier;
+            EndpointInstanceName = endpointInstanceName;
+            Qualifier = qualifier;
         }
 
         /// <summary>
@@ -32,29 +29,23 @@
         /// <param name="endpointInstanceName">The name of the instance.</param>
         public LogicalAddress(EndpointInstanceName endpointInstanceName)
         {
-            this.endpointInstanceName = endpointInstanceName;
+            EndpointInstanceName = endpointInstanceName;
         }
 
 
         /// <summary>
         /// Returns the qualifier or null for the root logical address for a given instance name.
         /// </summary>
-        public string Qualifier
-        {
-            get { return qualifier; }
-        }
+        public string Qualifier { get; }
 
         /// <summary>
         /// Returns the instance name.
         /// </summary>
-        public EndpointInstanceName EndpointInstanceName
-        {
-            get { return endpointInstanceName; }
-        }
+        public EndpointInstanceName EndpointInstanceName { get; }
 
         bool Equals(LogicalAddress other)
         {
-            return string.Equals(qualifier, other.qualifier) && Equals(endpointInstanceName, other.endpointInstanceName);
+            return string.Equals(Qualifier, other.Qualifier) && Equals(EndpointInstanceName, other.EndpointInstanceName);
         }
 
         /// <summary>
@@ -65,11 +56,11 @@
         /// </returns>
         public override string ToString()
         {
-            if (qualifier != null)
+            if (Qualifier != null)
             {
-                return endpointInstanceName + "." + qualifier;
+                return EndpointInstanceName + "." + Qualifier;
             }
-            return endpointInstanceName.ToString();
+            return EndpointInstanceName.ToString();
         }
 
         /// <summary>
@@ -102,7 +93,7 @@
         {
             unchecked
             {
-                return ((qualifier != null ? qualifier.GetHashCode() : 0)*397) ^ (endpointInstanceName != null ? endpointInstanceName.GetHashCode() : 0);
+                return ((Qualifier != null ? Qualifier.GetHashCode() : 0)*397) ^ (EndpointInstanceName != null ? EndpointInstanceName.GetHashCode() : 0);
             }
         }
 

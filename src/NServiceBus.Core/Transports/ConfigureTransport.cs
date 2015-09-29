@@ -68,10 +68,7 @@ namespace NServiceBus.Transports
         /// Used by implementations to control if a connection string is necessary.
         /// </summary>
         /// <remarks>If this is true and a connection string is not returned by <see cref="TransportConnectionString.GetConnectionStringOrNull"/> then an exception will be thrown.</remarks>
-        protected virtual bool RequiresConnectionString
-        {
-            get { return true; }
-        }
+        protected virtual bool RequiresConnectionString => true;
 
         static string GetConfigFileIfExists()
         {

@@ -91,9 +91,6 @@
         }
 
         /// <inheritdoc />
-        public IMessageContext CurrentMessageContext
-        {
-            get { return busImpl.CurrentMessageContext; }
-        }
+        public IMessageContext CurrentMessageContext => busImpl.CurrentMessageContext;
     }
 }

@@ -33,15 +33,9 @@
             int subscriberACounter;
             int subscriberBCounter;
 
-            public int SubscriberACounter
-            {
-                get { return subscriberACounter; }
-            }
+            public int SubscriberACounter => subscriberACounter;
 
-            public int SubscriberBCounter
-            {
-                get { return subscriberBCounter; }
-            }
+            public int SubscriberBCounter => subscriberBCounter;
 
             public void IncrementSubscriberACounter()
             {

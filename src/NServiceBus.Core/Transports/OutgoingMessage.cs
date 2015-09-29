@@ -38,6 +38,6 @@ namespace NServiceBus.Transports
         /// <summary>
         /// The headers for the message.
         /// </summary>
-        public Dictionary<string, string> Headers { get; private set; }
+        public Dictionary<string, string> Headers { get; }
     }
 }

@@ -40,15 +40,9 @@
         /// <summary>
         /// The <see cref="Type"/> of the message instance.
         /// </summary>
-        public Type MessageType
-        {
-            get
-            {
-                return Metadata.MessageType;
-            }
-        }
+        public Type MessageType => Metadata.MessageType;
 
-        
+
         /// <summary>
         /// Message metadata.
         /// </summary>

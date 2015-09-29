@@ -122,10 +122,7 @@
                 };
             }
 
-            public string ContentType
-            {
-                get { return "MyCustomSerializer"; }
-            }
+            public string ContentType => "MyCustomSerializer";
         }
     }
 }

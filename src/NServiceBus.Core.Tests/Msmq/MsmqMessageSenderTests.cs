@@ -75,12 +75,8 @@
             using (var queue = new MessageQueue(path))
             using (var message = queue.Receive(TimeSpan.FromSeconds(5)))
             {
-                if (message != null)
-                {
-                    return message.Label;
-                }
+                return message?.Label;
             }
-            return null;
         }
     }
 }

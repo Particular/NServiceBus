@@ -18,37 +18,24 @@ namespace NServiceBus.Pipeline
             Guard.AgainstNullAndEmpty("stepId", stepId);
             Guard.AgainstNull("behavior", behavior);
             Guard.AgainstNull("stepEnded", stepEnded);
-            this.stepId = stepId;
-            this.behavior = behavior;
-            this.stepEnded = stepEnded;
+            StepId = stepId;
+            Behavior = behavior;
+            Ended = stepEnded;
         }
 
         /// <summary>
         ///     Behavior type.
         /// </summary>
-        public Type Behavior
-        {
-            get { return behavior; }
-        }
+        public Type Behavior { get; }
 
         /// <summary>
         ///     Step identifier.
         /// </summary>
-        public string StepId
-        {
-            get { return stepId; }
-        }
+        public string StepId { get; }
 
         /// <summary>
         /// Step ended.
         /// </summary>
-        public IObservable<StepEnded> Ended
-        {
-            get { return stepEnded; }
-        }
-
-        Type behavior;
-        IObservable<StepEnded> stepEnded;
-        string stepId;
+        public IObservable<StepEnded> Ended { get; }
     }
 }

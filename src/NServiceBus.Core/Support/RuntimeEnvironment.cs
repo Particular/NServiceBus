@@ -15,10 +15,7 @@
         /// <summary>
         /// Returns the machine name where this endpoint is currently running.
         /// </summary>
-        public static string MachineName 
-        {
-            get { return MachineNameAction(); }
-        }
+        public static string MachineName => MachineNameAction();
 
 
         /// <summary>

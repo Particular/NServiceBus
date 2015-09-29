@@ -24,7 +24,7 @@ namespace NServiceBus
                 existingHeaders = new Dictionary<string, string>();
             }
 
-            headers = existingHeaders;
+            Headers = existingHeaders;
             id = existingId;
 
             //only update the "stable id" if there isn't one present already
@@ -90,10 +90,7 @@ namespace NServiceBus
         /// <summary>
         ///     Gets/sets other applicative out-of-band information.
         /// </summary>
-        public Dictionary<string, string> Headers
-        {
-            get { return headers; }
-        }
+        public Dictionary<string, string> Headers { get; } = new Dictionary<string, string>();
 
 
         /// <summary>
@@ -130,8 +127,6 @@ namespace NServiceBus
                 body = originalBody;
             }
         }
-
-        Dictionary<string, string> headers = new Dictionary<string, string>();
 
         byte[] body;
         string id;

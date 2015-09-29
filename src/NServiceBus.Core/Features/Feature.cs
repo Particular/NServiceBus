@@ -23,20 +23,17 @@
         /// <summary>
         ///     Feature name.
         /// </summary>
-        public string Name { get; private set; }
+        public string Name { get; }
 
         /// <summary>
         ///     The version for this feature.
         /// </summary>
-        public string Version
-        {
-            get { return FileVersionRetriever.GetFileVersion(GetType()); }
-        }
+        public string Version => FileVersionRetriever.GetFileVersion(GetType());
 
         /// <summary>
         ///     The list of features that this feature is depending on.
         /// </summary>
-        internal List<List<string>> Dependencies { get; private set; }
+        internal List<List<string>> Dependencies { get; }
 
         /// <summary>
         ///     Tells if this feature is enabled by default.
@@ -48,7 +45,7 @@
         /// </summary>
         public bool IsActive { get; private set; }
 
-        internal List<Type> StartupTasks { get; private set; }
+        internal List<Type> StartupTasks { get; }
 
         /// <summary>
         /// Registers default settings.
@@ -56,16 +53,13 @@
         /// <param name="settings">The settings holder.</param>
         protected void Defaults(Action<SettingsHolder> settings)
         {
-            defaults.Add(settings);
+            RegisteredDefaults.Add(settings);
         }
 
         /// <summary>
         /// Access to the registered defaults.
         /// </summary>
-        internal List<Action<SettingsHolder>> RegisteredDefaults
-        {
-            get { return defaults; }
-        }
+        internal List<Action<SettingsHolder>> RegisteredDefaults { get; } = new List<Action<SettingsHolder>>();
 
         /// <summary>
         ///     Called when the features is activated.
@@ -245,7 +239,6 @@
         static Type baseFeatureType = typeof(Feature);
         static int featureStringLength = "Feature".Length;
         List<SetupPrerequisite> setupPrerequisites = new List<SetupPrerequisite>();
-        List<Action<SettingsHolder>> defaults = new List<Action<SettingsHolder>>();
 
         class SetupPrerequisite
         {

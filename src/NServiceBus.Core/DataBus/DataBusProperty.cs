@@ -47,13 +47,7 @@
     	/// The value.
     	/// </summary>
     	// ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
-    	public T Value
-        {
-            get
-            {
-                return value;
-            }
-        }
+    	public T Value => value;
 
 
         /// <summary>

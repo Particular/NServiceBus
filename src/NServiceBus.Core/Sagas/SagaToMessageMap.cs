@@ -9,9 +9,6 @@ namespace NServiceBus
         public Type MessageType;
         public Type CustomFinderType;
 
-        public bool HasCustomFinderMap
-        {
-            get { return CustomFinderType != null; }
-        }
+        public bool HasCustomFinderMap => CustomFinderType != null;
     }
 }

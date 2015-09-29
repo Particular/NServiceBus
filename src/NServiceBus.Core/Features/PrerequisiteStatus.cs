@@ -21,7 +21,7 @@ namespace NServiceBus.Features
         /// <summary>
         /// The list of reason why the prerequisites are not fullfilled if applicable.
         /// </summary>
-        public List<string> Reasons { get; private set; }
+        public List<string> Reasons { get; }
 
         internal void ReportFailure(string description)
         {

@@ -35,7 +35,7 @@ namespace NServiceBus.Sagas
         /// <summary>
         /// Metadata for this active saga.
         /// </summary>
-        internal SagaMetadata Metadata { get; private set; }
+        internal SagaMetadata Metadata { get; }
         
         /// <summary>
         /// The actual saga instance.
@@ -44,7 +44,7 @@ namespace NServiceBus.Sagas
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
             ReplacementTypeOrMember = "context.MessageHandler.Instance")]
-        public Saga Instance { get; private set; }
+        public Saga Instance { get; }
         
         /// <summary>
         /// True if this saga was created by this incoming message.

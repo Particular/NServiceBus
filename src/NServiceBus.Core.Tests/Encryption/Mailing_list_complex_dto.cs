@@ -28,25 +28,18 @@
 
         class TestOptions
         {
-            Dictionary<TestEnum, Dictionary<string, string>> dictionary = new Dictionary<TestEnum, Dictionary<string, string>>();
-            public Dictionary<TestEnum, Dictionary<string, string>> Dictionary { get { return dictionary; } }
+            public Dictionary<TestEnum, Dictionary<string, string>> Dictionary { get; } = new Dictionary<TestEnum, Dictionary<string, string>>();
 
             public bool ContainsKey(TestEnum key)
             {
-                return dictionary.ContainsKey(key);
+                return Dictionary.ContainsKey(key);
             }
 
-            public IEnumerable<TestEnum> Keys { get { return dictionary.Keys; } }
+            public IEnumerable<TestEnum> Keys => Dictionary.Keys;
 
-            public Dictionary<string, string> this[TestEnum appEnum]
-            {
-                get
-                {
-                    return dictionary.ContainsKey(appEnum)
-                               ? dictionary[appEnum]
-                               : dictionary[appEnum] = new Dictionary<string, string>();
-                }
-            }
+            public Dictionary<string, string> this[TestEnum appEnum] => Dictionary.ContainsKey(appEnum)
+                ? Dictionary[appEnum]
+                : Dictionary[appEnum] = new Dictionary<string, string>();
         }
 
         class TestDto
@@ -56,7 +49,7 @@
                 Options = new TestOptions();
             }
 
-            public TestOptions Options { get; set; }
+            public TestOptions Options { get; }
         }
     }
 }

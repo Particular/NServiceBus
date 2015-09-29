@@ -95,10 +95,7 @@
 
             }
 
-            protected override string ExampleConnectionStringForErrorMessage
-            {
-                get { return ""; }
-            }
+            protected override string ExampleConnectionStringForErrorMessage => "";
         }
     }
 

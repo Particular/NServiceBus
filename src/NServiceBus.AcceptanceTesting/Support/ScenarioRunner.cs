@@ -91,10 +91,7 @@
             {
                 DisplayRunResult(runSummary, totalRuns);
 
-                if (reports != null)
-                {
-                    reports(runSummary);
-                }
+                reports?.Invoke(runSummary);
             }
         }
 

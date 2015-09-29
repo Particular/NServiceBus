@@ -10,10 +10,7 @@ namespace NServiceBus.Pipeline
         /// <summary>
         ///   Notification when a message is dequeued.
         /// </summary>
-        public IObservable<IObservable<StepStarted>> ReceiveStarted
-        {
-            get { return receiveStarted; }
-        }
+        public IObservable<IObservable<StepStarted>> ReceiveStarted => receiveStarted;
 
         void IDisposable.Dispose()
         {

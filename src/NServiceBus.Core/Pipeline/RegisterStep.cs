@@ -38,10 +38,11 @@ namespace NServiceBus.Pipeline
 
             container.ConfigureComponent(BehaviorType, DependencyLifecycle.InstancePerCall);
         }
-      /// <summary>
+
+        /// <summary>
         /// Gets the unique identifier for this step.
         /// </summary>
-        public string StepId { get; private set; }
+        public string StepId { get; }
 
         /// <summary>
         /// Checks if this behavior is enabled.
@@ -50,7 +51,7 @@ namespace NServiceBus.Pipeline
         {
             return true;
         }
-        
+
         /// <summary>
         /// Gets the description for this registration.
         /// </summary>
@@ -58,7 +59,7 @@ namespace NServiceBus.Pipeline
 
         internal IList<Dependency> Befores { get; private set; }
         internal IList<Dependency> Afters { get; private set; }
-        
+
         /// <summary>
         /// Gets the type of <see cref="Behavior{TContext}"/> that is being registered.
         /// </summary>
@@ -88,7 +89,7 @@ namespace NServiceBus.Pipeline
                 Befores = new List<Dependency>();
             }
 
-            Befores.Add(new Dependency(StepId,id,Dependency.DependencyDirection.Before, false));
+            Befores.Add(new Dependency(StepId, id, Dependency.DependencyDirection.Before, false));
         }
 
         /// <summary>
@@ -98,7 +99,7 @@ namespace NServiceBus.Pipeline
         {
             Guard.AgainstNull("step", step);
 
-            InsertBefore((string)step);
+            InsertBefore((string) step);
         }
 
         /// <summary>
@@ -113,7 +114,7 @@ namespace NServiceBus.Pipeline
                 Befores = new List<Dependency>();
             }
 
-            Befores.Add(new Dependency(StepId, id,Dependency.DependencyDirection.Before, true));
+            Befores.Add(new Dependency(StepId, id, Dependency.DependencyDirection.Before, true));
         }
 
         /// <summary>
@@ -124,7 +125,7 @@ namespace NServiceBus.Pipeline
         {
             Guard.AgainstNull("step", step);
 
-            InsertAfterIfExists((string)step);
+            InsertAfterIfExists((string) step);
         }
 
         /// <summary>
@@ -150,7 +151,7 @@ namespace NServiceBus.Pipeline
         {
             Guard.AgainstNull("step", step);
 
-            InsertAfter((string)step);
+            InsertAfter((string) step);
         }
 
         /// <summary>
@@ -177,11 +178,12 @@ namespace NServiceBus.Pipeline
         {
             return new DefaultRegisterStep(behavior, wellKnownStep, description);
         }
+
         internal static RegisterStep Create(string pipelineStep, Type behavior, string description)
         {
             return new DefaultRegisterStep(behavior, pipelineStep, description);
         }
-        
+
         class DefaultRegisterStep : RegisterStep
         {
             public DefaultRegisterStep(Type behavior, string stepId, string description)

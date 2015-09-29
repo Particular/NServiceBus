@@ -159,10 +159,7 @@ namespace NServiceBus.Serializers.Json
         /// <summary>
         /// Gets the content type into which this serializer serializes the content to.
         /// </summary>
-        public string ContentType
-        {
-            get { return GetContentType(); }
-        }
+        public string ContentType => GetContentType();
 
         /// <summary>
         /// Returns the supported content type.

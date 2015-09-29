@@ -18,10 +18,7 @@ namespace NServiceBus
             }
         }
 
-        public bool WasFound
-        {
-            get { return state != State.SagaNotFound; }
-        }
+        public bool WasFound => state != State.SagaNotFound;
 
         enum State
         {

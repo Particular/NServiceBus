@@ -9,27 +9,19 @@
 
     public class FakeBus : IBus
     {
-        DateTime _deferProcessAt = DateTime.MinValue;
-        int _deferWasCalled;
-        TimeSpan deferDelay = TimeSpan.MinValue;
+        int deferWasCalled;
 
         public int DeferWasCalled
         {
-            get { return _deferWasCalled; }
-            set { _deferWasCalled = value; }
+            get { return deferWasCalled; }
+            set { deferWasCalled = value; }
         }
 
-        public TimeSpan DeferDelay
-        {
-            get { return deferDelay; }
-        }
+        public TimeSpan DeferDelay { get; private set; } = TimeSpan.MinValue;
 
         public object DeferedMessage { get; set; }
 
-        public DateTime DeferProcessAt
-        {
-            get { return _deferProcessAt; }
-        }
+        public DateTime DeferProcessAt { get; } = DateTime.MinValue;
 
         public IDictionary<string, string> OutgoingHeaders
         {
@@ -56,8 +48,8 @@
 
                 if (delayConstraint != null)
                 {
-                    Interlocked.Increment(ref _deferWasCalled);
-                    deferDelay = delayConstraint.Delay;
+                    Interlocked.Increment(ref deferWasCalled);
+                    DeferDelay = delayConstraint.Delay;
                     DeferedMessage = message;
                 }
             }

@@ -1071,12 +1071,9 @@ namespace NServiceBus.Serializers.XML.Test.AlternateNamespace
 			return stringList.Remove(item);
 		}
 
-		bool ICollection<string>.IsReadOnly
-		{
-			get { return stringList.IsReadOnly; }
-		}
+		bool ICollection<string>.IsReadOnly => stringList.IsReadOnly;
 
-		int IList<string>.IndexOf(string item)
+	    int IList<string>.IndexOf(string item)
 		{
 			return stringList.IndexOf(item);
 		}

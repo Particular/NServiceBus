@@ -476,12 +476,7 @@
 
         static bool IsIndexedProperty(PropertyInfo propertyInfo)
         {
-            if (propertyInfo != null)
-            {
-                return propertyInfo.GetIndexParameters().Length > 0;
-            }
-
-            return false;
+            return propertyInfo?.GetIndexParameters().Length > 0;
         }
 
         void CreateStartElementWithNamespaces(string messageNamespace, List<string> baseTypes, string element)

@@ -21,10 +21,7 @@
         /// <summary>
         /// The root <see cref="BehaviorContext"/> for this stack.
         /// </summary>
-        public BehaviorContext Root
-        {
-            get { return rootContext; }
-        }
+        public BehaviorContext Root => rootContext;
 
         /// <summary>
         /// The current <see cref="BehaviorContext"/> at the top of the stack.

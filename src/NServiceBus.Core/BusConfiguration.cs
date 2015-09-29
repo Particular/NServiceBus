@@ -52,7 +52,7 @@ namespace NServiceBus
         /// <summary>
         ///     Access to the pipeline configuration.
         /// </summary>
-        public PipelineSettings Pipeline { get; private set; }
+        public PipelineSettings Pipeline { get; }
 
         /// <summary>
         ///     Used to configure components in the container.
@@ -143,10 +143,7 @@ namespace NServiceBus
         /// <typeparam name="T">The builder type of the <see cref="ContainerDefinition"/>.</typeparam>
         public void UseContainer<T>(Action<ContainerCustomizations> customizations = null) where T : ContainerDefinition, new()
         {
-            if (customizations != null)
-            {
-                customizations(new ContainerCustomizations(Settings));
-            }
+            customizations?.Invoke(new ContainerCustomizations(Settings));
 
             UseContainer(typeof(T));
         }

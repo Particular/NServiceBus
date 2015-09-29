@@ -26,7 +26,7 @@
             return (IBehaviorInvoker) Activator.CreateInstance(invokerType);
         }
 
-        public Type Type { get; private set; }
+        public Type Type { get; }
 
         public Task Invoke(BehaviorContext context, Func<BehaviorContext, Task> next)
         {

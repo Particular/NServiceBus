@@ -11,14 +11,7 @@ namespace NServiceBus.Config
         /// <summary>
         /// Returns AddRemoveClearMap.
         /// </summary>
-        public override ConfigurationElementCollectionType CollectionType
-        {
-            get
-            {
-                return 
-                    ConfigurationElementCollectionType.AddRemoveClearMap;
-            }
-        }
+        public override ConfigurationElementCollectionType CollectionType => ConfigurationElementCollectionType.AddRemoveClearMap;
 
         /// <summary>
         /// Creates a new MessageEndpointMapping.
@@ -77,19 +70,12 @@ namespace NServiceBus.Config
         /// <summary>
         /// Returns the base RemoveElementName.
         /// </summary>
-        public new string RemoveElementName
-        {
-            get
-            { return base.RemoveElementName; }
-        }
+        public new string RemoveElementName => base.RemoveElementName;
 
         /// <summary>
         /// Returns the base Count.
         /// </summary>
-        public new int Count
-        {
-            get { return base.Count; }
-        }
+        public new int Count => base.Count;
 
         /// <summary>
         /// Gets/sets the MessageEndpointMapping at the given index.
@@ -113,13 +99,7 @@ namespace NServiceBus.Config
         /// <summary>
         /// Gets the MessageEndpointMapping for the given name.
         /// </summary>
-        new public MessageEndpointMapping this[string Name]
-        {
-            get
-            {
-                return (MessageEndpointMapping)BaseGet(Name);
-            }
-        }
+        new public MessageEndpointMapping this[string Name] => (MessageEndpointMapping)BaseGet(Name);
 
         /// <summary>
         /// Calls BaseIndexOf on the given mapping.

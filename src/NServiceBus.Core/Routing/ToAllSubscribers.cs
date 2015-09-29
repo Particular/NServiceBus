@@ -20,7 +20,7 @@ namespace NServiceBus.Routing
         /// <summary>
         /// The event being published.
         /// </summary>
-        public Type EventType { get; private set; }
+        public Type EventType { get; }
 
         /// <summary>
         /// Serializes the strategy to the supplied dictionary.

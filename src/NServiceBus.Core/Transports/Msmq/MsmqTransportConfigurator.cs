@@ -138,18 +138,12 @@
         /// <summary>
         /// <see cref="ConfigureTransport.ExampleConnectionStringForErrorMessage"/>.
         /// </summary>
-        protected override string ExampleConnectionStringForErrorMessage
-        {
-            get { return "cacheSendConnection=true;journal=false;deadLetter=true"; }
-        }
+        protected override string ExampleConnectionStringForErrorMessage => "cacheSendConnection=true;journal=false;deadLetter=true";
 
         /// <summary>
         /// <see cref="ConfigureTransport.RequiresConnectionString"/>.
         /// </summary>
-        protected override bool RequiresConnectionString
-        {
-            get { return false; }
-        }
+        protected override bool RequiresConnectionString => false;
 
 
         ReceiveStrategy SelectReceiveStrategy(ConsistencyGuarantee minimumConsistencyGuarantee, TransactionOptions transactionOptions)
