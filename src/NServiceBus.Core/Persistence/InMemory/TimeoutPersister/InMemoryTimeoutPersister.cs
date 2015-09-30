@@ -2,10 +2,11 @@ namespace NServiceBus.InMemory.TimeoutPersister
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading;
     using Timeout.Core;
 
-    class InMemoryTimeoutPersister : IPersistTimeouts
+    class InMemoryTimeoutPersister : IPersistTimeouts, IPersistTimeoutsV2
     {
         List<TimeoutData> storage = new List<TimeoutData>();
         ReaderWriterLockSlim readerWriterLock = new ReaderWriterLockSlim();
@@ -104,6 +105,17 @@ namespace NServiceBus.InMemory.TimeoutPersister
             {
                 readerWriterLock.ExitWriteLock();
             }
+        }
+
+        public TimeoutData Peek(string timeoutId)
+        {
+            return storage.SingleOrDefault(t => t.Id == timeoutId);
+        }
+
+        public bool TryRemove(string timeoutId)
+        {
+            TimeoutData timeoutData;
+            return TryRemove(timeoutId, out timeoutData);
         }
     }
 }
