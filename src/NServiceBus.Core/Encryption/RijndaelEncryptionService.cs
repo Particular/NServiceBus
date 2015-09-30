@@ -29,7 +29,6 @@ namespace NServiceBus.Encryption.Rijndael
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
     using System.Security.Cryptography;
     using NServiceBus.Logging;
 
@@ -41,38 +40,34 @@ namespace NServiceBus.Encryption.Rijndael
         readonly string encryptionKeyIdentifier;
         byte[] encryptionKey;
         IDictionary<string, byte[]> decryptionKeys;
-        List<byte[]> orderedDecryptionKeys; // Required, as we decrypt in the configured order.
+        IList<byte[]> orderedDecryptionKeys; // Required, as we decrypt in the configured order.
 
-        public RijndaelEncryptionService(IBus bus, string encryptionKeyIdentifier, byte[] encryptionKey, IEnumerable<KeyValuePair<string, byte[]>> expiredKeys)
+        public RijndaelEncryptionService(
+            IBus bus,
+            string encryptionKeyIdentifier,
+            IDictionary<string, byte[]> keys,
+            IList<byte[]> expiredKeys
+            )
         {
             this.bus = bus;
             this.encryptionKeyIdentifier = encryptionKeyIdentifier;
-            this.encryptionKey = encryptionKey;
-            VerifyEncryptionKey(encryptionKey);
+            this.orderedDecryptionKeys = expiredKeys;
+            decryptionKeys = keys;
 
             if (string.IsNullOrEmpty(encryptionKeyIdentifier))
             {
                 Log.Error("No encryption key identifier configured. Messages with encrypted properties will fail to send. Please add an encryption key identifier to the rijndael encryption service configuration.");
             }
-
-            expiredKeys = expiredKeys ?? new List<KeyValuePair<string, byte[]>>(0);
-
-            var keys = new List<KeyValuePair<string, byte[]>>(expiredKeys);
-            VerifyExpiredKeys(keys);
-
-            orderedDecryptionKeys = keys.Select(x => x.Value).ToList();
-
-            // Current encryption key needs to be used for decryption first as this has the highest probability of being the correct key. 
-            orderedDecryptionKeys.Insert(0, encryptionKey);
-
-            decryptionKeys = keys
-                .Where(x => !string.IsNullOrEmpty(x.Key))
-                .ToDictionary(x => x.Key, x => x.Value);
-
-            if (!string.IsNullOrEmpty(encryptionKeyIdentifier))
+            else if (!keys.TryGetValue(encryptionKeyIdentifier, out encryptionKey))
             {
-                decryptionKeys.Add(encryptionKeyIdentifier, encryptionKey);
+                throw new ArgumentException("No encryption key for given encryption key identifier.", "encryptionKeyIdentifier");
             }
+            else
+            {
+                VerifyEncryptionKey(encryptionKey);
+            }
+
+            VerifyExpiredKeys(orderedDecryptionKeys);
         }
 
         public string Decrypt(EncryptedValue encryptedValue)
@@ -118,7 +113,7 @@ namespace NServiceBus.Encryption.Rijndael
                     cryptographicExceptions.Add(exception);
                 }
             }
-            var message = string.Format("Could not decrypt message. Tried {0} keys.", decryptionKeys.Keys.Count);
+            var message = string.Format("Could not decrypt message. Tried {0} keys.", orderedDecryptionKeys.Count);
             throw new AggregateException(message, cryptographicExceptions);
         }
 
@@ -173,11 +168,11 @@ namespace NServiceBus.Encryption.Rijndael
             }
         }
 
-        static void VerifyExpiredKeys(IList<KeyValuePair<string, byte[]>> keys)
+        static void VerifyExpiredKeys(IList<byte[]> keys)
         {
             for (var index = 0; index < keys.Count; index++)
             {
-                var key = keys[index].Value;
+                var key = keys[index];
                 if (IsValidKey(key))
                 {
                     continue;

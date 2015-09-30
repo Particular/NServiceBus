@@ -10,7 +10,7 @@ namespace NServiceBus.Config
         /// </summary>
         Ascii = 0,
         /// <summary>
-        /// Fey is specified as a Base64 encoded string.
+        /// Key is specified as a Base64 encoded string.
         /// </summary>
         Base64 = 1
     }

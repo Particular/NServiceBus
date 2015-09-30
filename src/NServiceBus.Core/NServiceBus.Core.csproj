@@ -115,6 +115,7 @@
     <Compile Include="Encryption\Encryptor.cs" />
     <Compile Include="Encryption\ConfigureRijndaelEncryptionService_Obsolete.cs" />
     <Compile Include="Encryption\KeyFormat.cs" />
+    <Compile Include="Encryption\RijndaelEncryptionServiceConfigValidations.cs" />
     <Compile Include="Encryption\RijndaelExpiredKey.cs" />
     <Compile Include="Encryption\RijndaelExpiredKeyCollection.cs" />
     <Compile Include="Encryption\RijndaelEncryptionService.cs" />

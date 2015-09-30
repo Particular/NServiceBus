@@ -5,13 +5,14 @@
     using System.Text;
     using EndpointTemplates;
     using AcceptanceTesting;
+    using NServiceBus.MessageMutator;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
-    public class When_using_Rijndael_with_multikey : NServiceBusAcceptanceTest
+    public class When_using_Rijndael_without_incoming_key_identifier : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_receive_decrypted_message()
+        public void Should_process_decrypted_message_without_key_identifier()
         {
             Scenario.Define<Context>()
                     .WithEndpoint<Sender>(b => b.Given((bus, context) => bus.Send(new MessageWithSecretData
@@ -35,25 +36,23 @@
         {
             public Sender()
             {
-                EndpointSetup<DefaultServer>(builder => builder.RijndaelEncryptionService("1st", Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6")))
+                EndpointSetup<DefaultServer>(builder => builder.RijndaelEncryptionService("will-be-removed-by-transport-mutator", Encoding.ASCII.GetBytes("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")))
                     .AddMapping<MessageWithSecretData>(typeof(Receiver));
             }
-
         }
 
         public class Receiver : EndpointConfigurationBuilder
         {
             public Receiver()
             {
-                byte[] key = Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6");
                 var keys = new Dictionary<string, byte[]>
                 {
-                    {"2nd", Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6") },
-                    {"1st", key  }
+                    {"new", Encoding.ASCII.GetBytes("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb") },
                 };
 
-                var expiredKeys = new[] { key };
-                EndpointSetup<DefaultServer>(builder => builder.RijndaelEncryptionService("2nd", keys, expiredKeys));
+                var expiredKeys = new[] { Encoding.ASCII.GetBytes("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa") };
+                EndpointSetup<DefaultServer>(builder => builder.RijndaelEncryptionService("new", keys, expiredKeys));
+
             }
 
             public class Handler : IHandleMessages<MessageWithSecretData>
@@ -75,5 +74,17 @@
         }
 
 
+        class RemoveKeyIdentifierHeaderMutator : IMutateIncomingTransportMessages, INeedInitialization
+        {
+            public void MutateIncoming(TransportMessage transportMessage)
+            {
+                transportMessage.Headers.Remove(Headers.KeyIdentifier);
+            }
+
+            public void Customize(BusConfiguration configuration)
+            {
+                configuration.RegisterComponents(c => c.ConfigureComponent<RemoveKeyIdentifierHeaderMutator>(DependencyLifecycle.InstancePerCall));
+            }
+        }
     }
 }

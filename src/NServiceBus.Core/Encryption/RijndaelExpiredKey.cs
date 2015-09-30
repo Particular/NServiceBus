@@ -6,7 +6,7 @@ namespace NServiceBus.Config
     /// <summary>
     /// A configuration element representing a Rijndael encryption key.
     /// </summary>
-    public class RijndaelExpiredKey : ConfigurationElement, IComparable<RijndaelExpiredKey>
+    public class RijndaelExpiredKey : ConfigurationElement
     {
 
         /// <summary>
@@ -25,10 +25,6 @@ namespace NServiceBus.Config
             }
         }
 
-        int IComparable<RijndaelExpiredKey>.CompareTo(RijndaelExpiredKey other)
-        {
-            return String.Compare(Key, other.Key, StringComparison.Ordinal);
-        }
 
         /// <summary>
         /// Identifies this key for it to be used for decryption.
@@ -44,5 +40,23 @@ namespace NServiceBus.Config
                 this["KeyIdentifier"] = value;
             } 
         }
+
+
+        /// <summary>
+        /// The data format in which the key is stored.
+        /// </summary>
+        [ConfigurationProperty("KeyFormat", IsRequired = false)]
+        public KeyFormat KeyFormat
+        {
+            get
+            {
+                return (KeyFormat)this["KeyFormat"];
+            }
+            set
+            {
+                this["KeyFormat"] = value;
+            }
+        }
+
     }
 }

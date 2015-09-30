@@ -16,7 +16,7 @@
                     .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new MessageWithSecretData
                         {
                             Secret = "betcha can't guess my secret",
-                            SubProperty = new MySecretSubProperty {Secret = "My sub secret"},
+                            SubProperty = new MySecretSubProperty { Secret = "My sub secret" },
                             CreditCards = new List<CreditCardDetails>
                                 {
                                     new CreditCardDetails
@@ -54,7 +54,12 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(builder => builder.RijndaelEncryptionService("1st", Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6")));
+                var keys = new Dictionary<string, byte[]>
+                {
+                   {"1st", Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6")}
+                };
+
+                EndpointSetup<DefaultServer>(builder => builder.RijndaelEncryptionService("1st", keys));
             }
 
             public class Handler : IHandleMessages<MessageWithSecretData>
