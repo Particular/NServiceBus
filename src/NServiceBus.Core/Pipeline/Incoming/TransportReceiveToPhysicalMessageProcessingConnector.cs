@@ -36,7 +36,9 @@ namespace NServiceBus
 
                 await next(physicalMessageContext).ConfigureAwait(false);
 
-                await outboxStorage.Store(new OutboxMessage(messageId, ConvertToOutboxOperations(pendingTransportOperations.Operations)), new OutboxStorageOptions(context)).ConfigureAwait(false);
+                var outboxMessage = new OutboxMessage(messageId, ConvertToOutboxOperations(pendingTransportOperations.Operations).ToList());
+
+                await outboxStorage.Store(outboxMessage, new OutboxStorageOptions(context)).ConfigureAwait(false);
             }
             else
             {

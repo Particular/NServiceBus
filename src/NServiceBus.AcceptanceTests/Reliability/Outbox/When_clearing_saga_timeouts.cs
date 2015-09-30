@@ -97,7 +97,7 @@
             public Task Store(OutboxMessage message, OutboxStorageOptions options)
             {
                 context.NumberOfOps += message.TransportOperations.Count();
-				return Task.FromResult(0);
+                return Task.FromResult(0);
             }
 
             public Task SetAsDispatched(string messageId, OutboxStorageOptions options)

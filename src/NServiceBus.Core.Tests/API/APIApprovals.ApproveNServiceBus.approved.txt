@@ -1771,9 +1771,9 @@ namespace NServiceBus.Outbox
     }
     public class OutboxMessage
     {
-        public OutboxMessage(string messageId, System.Collections.Generic.IEnumerable<NServiceBus.Outbox.TransportOperation> operations = null) { }
+        public OutboxMessage(string messageId, System.Collections.Generic.IList<NServiceBus.Outbox.TransportOperation> operations) { }
         public string MessageId { get; }
-        public System.Collections.Generic.IEnumerable<NServiceBus.Outbox.TransportOperation> TransportOperations { get; }
+        public System.Collections.Generic.IList<NServiceBus.Outbox.TransportOperation> TransportOperations { get; }
     }
     public class OutboxSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
