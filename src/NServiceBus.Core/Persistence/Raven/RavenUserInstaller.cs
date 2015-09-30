@@ -157,11 +157,13 @@ namespace NServiceBus.Persistence.Raven
             public List<WindowsAuthData> RequiredUsers = new List<WindowsAuthData>();
         }
 
-        // ReSharper disable NotAccessedField.Local
+#pragma warning disable 414
         class WindowsAuthData
         {
             public string Name;
+
             public bool Enabled;
+
             public List<DatabaseAccess> Databases = new List<DatabaseAccess>();
         }
 
@@ -171,7 +173,7 @@ namespace NServiceBus.Persistence.Raven
             public bool ReadOnly;
             public string TenantId;
         }
-        // ReSharper restore NotAccessedField.Local
+#pragma warning restore 414
     }
 
 }

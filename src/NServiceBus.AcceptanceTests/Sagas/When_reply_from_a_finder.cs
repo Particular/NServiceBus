@@ -7,7 +7,7 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class When_reply_from_a_finder
+    public class When_reply_from_a_finder : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_be_received_by_handler()
