@@ -46,7 +46,7 @@
                 .Done(c => c.AttemptedToRemoveTimeout && c.MessageReceived)
                 .Run();
 
-            Assert.IsTrue(context.MessageReceived, "Message should only be delivered although transaction has been aborted");
+            Assert.IsTrue(context.MessageReceived, "Message should be delivered although transaction has been aborted");
             Assert.AreEqual(2, context.NumberOfProcessingAttempts, "The rollback should cause a retry");
             Assert.IsTrue(context.AttemptedToRemoveTimeout);
         }
