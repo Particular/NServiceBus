@@ -76,8 +76,8 @@ namespace NServiceBus.Timeout.Hosting.Windows
                 destination = Address.Parse(routeExpiredTimeoutTo);
             }
 
-            TimeoutManager.RemoveTimeout(timeoutId);
             MessageSender.Send(message, new SendOptions(destination));
+            TimeoutManager.RemoveTimeout(timeoutId);
         }
 
         void HandleInternal(TransportMessage message)
