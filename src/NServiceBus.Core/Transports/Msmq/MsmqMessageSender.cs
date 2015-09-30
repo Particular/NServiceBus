@@ -4,6 +4,7 @@ namespace NServiceBus.Transports.Msmq
     using System.Messaging;
     using System.Transactions;
     using Config;
+    using NServiceBus.Pipeline;
     using Unicast;
     using Unicast.Queuing;
 
@@ -21,6 +22,11 @@ namespace NServiceBus.Transports.Msmq
         /// MsmqUnitOfWork
         /// </summary>
         public MsmqUnitOfWork UnitOfWork { get; set; }
+
+        /// <summary>
+        /// PipelineExecutor
+        /// </summary>
+        public PipelineExecutor PipelineExecutor { get; set; }
 
         /// <summary>
         /// SuppressDistributedTransactions
@@ -50,8 +56,9 @@ namespace NServiceBus.Transports.Msmq
                             toSend.ResponseQueue = new MessageQueue(NServiceBus.MsmqUtilities.GetReturnAddress(replyToAddress.ToString(), address.ToString()));
                         }
 
-
-                        if (sendOptions.EnlistInReceiveTransaction && UnitOfWork.HasActiveTransaction())
+                        bool suppressNativeTransactions;
+                        PipelineExecutor.CurrentContext.TryGet("do-not-enlist-in-native-transaction", out suppressNativeTransactions);
+                        if (sendOptions.EnlistInReceiveTransaction && UnitOfWork.HasActiveTransaction() && !suppressNativeTransactions)
                         {
                             q.Send(toSend, UnitOfWork.Transaction);
                         }

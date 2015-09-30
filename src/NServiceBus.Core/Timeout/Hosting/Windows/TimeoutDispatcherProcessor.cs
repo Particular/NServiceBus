@@ -2,6 +2,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 {
     using System;
     using Core;
+    using NServiceBus.Pipeline;
     using Satellites;
     using Transports;
     using Unicast.Transport;
@@ -19,6 +20,8 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         public TimeoutPersisterReceiver TimeoutPersisterReceiver { get; set; }
 
+        public PipelineExecutor PipelineExecutor { get; set; }
+
         public Configure Configure { get; set; }
       
         public Address InputAddress { get; set; }
@@ -28,11 +31,35 @@ namespace NServiceBus.Timeout.Hosting.Windows
         public bool Handle(TransportMessage message)
         {
             var timeoutId = message.Headers["Timeout.Id"];
-            TimeoutData timeoutData;
 
-            if (TimeoutsPersister.TryRemove(timeoutId, out timeoutData))
+            var persisterV2 = TimeoutsPersister as IPersistTimeoutsV2;
+            if (persisterV2 != null)
             {
-                MessageSender.Send(timeoutData.ToTransportMessage(), timeoutData.ToSendOptions(Configure.LocalAddress));
+                var timeoutData = persisterV2.Peek(timeoutId);
+                if (timeoutData == null)
+                {
+                    return true;
+                }
+
+                try
+                {
+                    PipelineExecutor.CurrentContext.Set("do-not-enlist-in-native-transaction", true);
+                    MessageSender.Send(timeoutData.ToTransportMessage(), timeoutData.ToSendOptions(Configure.LocalAddress));
+                }
+                finally
+                {
+                    PipelineExecutor.CurrentContext.Set("do-not-enlist-in-native-transaction", false);
+                }
+
+                return persisterV2.TryRemove(timeoutId);
+            }
+            else
+            {
+                TimeoutData timeoutData;
+                if (TimeoutsPersister.TryRemove(timeoutId, out timeoutData))
+                {
+                    MessageSender.Send(timeoutData.ToTransportMessage(), timeoutData.ToSendOptions(Configure.LocalAddress));
+                }
             }
 
             return true;
