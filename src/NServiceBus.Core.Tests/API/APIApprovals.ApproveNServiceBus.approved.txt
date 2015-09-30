@@ -2117,6 +2117,9 @@ namespace NServiceBus.Routing
 }
 namespace NServiceBus.Routing.StorageDrivenPublishing
 {
+    [System.ObsoleteAttribute("No longer an extension point, if you want to list events without subscribers you " +
+        "can take a dependency on ISubscriptionStorage and query it for the event types y" +
+        "ou want to check. Will be removed in version 7.0.0.", true)]
     public class SubscribersForEvent
     {
         public SubscribersForEvent(System.Collections.Generic.List<string> subscribers, System.Type eventType) { }
