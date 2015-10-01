@@ -40,7 +40,7 @@
                 EndpointSetup<DefaultServer>(b =>
                 {
                     b.RegisterComponents(r => r.ConfigureComponent<CheckUnitOfWorkOutcome>(DependencyLifecycle.InstancePerCall));
-                    b.DisableFeature<TimeoutManager>();
+                    b.DisableFeature<DelayedDelivery>();
                     b.DisableFeature<SecondLevelRetries>();
                     b.ExecuteTheseHandlersFirst(typeof(FirstHandler), typeof(SecondHandler));
                 })

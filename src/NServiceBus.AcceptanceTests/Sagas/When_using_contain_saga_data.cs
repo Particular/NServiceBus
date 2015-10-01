@@ -30,7 +30,7 @@
         {
             public EndpointThatHostsASaga()
             {
-                EndpointSetup<DefaultServer>(config => config.EnableFeature<TimeoutManager>());
+                EndpointSetup<DefaultServer>(config => config.EnableFeature<DelayedDelivery>());
             }
 
             public class MySaga : Saga<MySaga.MySagaData>,

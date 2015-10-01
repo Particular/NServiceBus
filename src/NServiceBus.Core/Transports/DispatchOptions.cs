@@ -1,6 +1,7 @@
 namespace NServiceBus.Transports
 {
     using System.Collections.Generic;
+    using System.Linq;
     using NServiceBus.DeliveryConstraints;
     using NServiceBus.Extensibility;
     using NServiceBus.Routing;
@@ -19,13 +20,8 @@ namespace NServiceBus.Transports
         /// <param name="requiredDispatchConsistency">The required consistency level for the dispatch operation.</param>
         public DispatchOptions(RoutingStrategy routingStrategy, ContextBag context, IEnumerable<DeliveryConstraint> deliveryConstraints = null, DispatchConsistency requiredDispatchConsistency = DispatchConsistency.Default)
         {
-            if (deliveryConstraints == null)
-            {
-                deliveryConstraints = new List<DeliveryConstraint>();
-            }
-
             RoutingStrategy = routingStrategy;
-            DeliveryConstraints = deliveryConstraints;
+            DeliveryConstraints = new DeliveryConstraintCollection(deliveryConstraints ?? Enumerable.Empty<DeliveryConstraint>());
             RequiredDispatchConsistency = requiredDispatchConsistency;
             Context = context;
         }
@@ -38,7 +34,7 @@ namespace NServiceBus.Transports
         /// <summary>
         /// The delivery constraints that must be honored by the transport.
         /// </summary>
-        public IEnumerable<DeliveryConstraint> DeliveryConstraints { get; private set; }
+        public DeliveryConstraintCollection DeliveryConstraints { get; private set; }
 
         /// <summary>
         /// The dispatch consistency the must be honored by the transport.

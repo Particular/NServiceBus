@@ -38,7 +38,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.EnableFeature<TimeoutManager>();
+                    c.EnableFeature<DelayedDelivery>();
                     c.ExecuteTheseHandlersFirst(typeof(CatchAllMessageHandler));
                 });
             }

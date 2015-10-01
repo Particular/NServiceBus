@@ -53,7 +53,7 @@
         {
             public EndpointThatHostsASaga()
             {
-                EndpointSetup<DefaultServer>(c => c.EnableFeature<TimeoutManager>())
+                EndpointSetup<DefaultServer>(c => c.EnableFeature<DelayedDelivery>())
                     .AddMapping<DoSomething>(typeof(EndpointThatRepliesToSagaMessage));
 
             }

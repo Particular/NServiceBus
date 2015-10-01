@@ -42,7 +42,7 @@
         {
             public ReceiverWithSagas()
             {
-                EndpointSetup<DefaultServer>(config => config.EnableFeature<TimeoutManager>());
+                EndpointSetup<DefaultServer>(config => config.EnableFeature<DelayedDelivery>());
             }
 
             public class MessageToSagaHandler : IHandleMessages<MessageToSaga>
@@ -143,7 +143,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.EnableFeature<TimeoutManager>();
+                    c.EnableFeature<DelayedDelivery>();
                     c.ExecuteTheseHandlersFirst(typeof(ReceiverWithOrderedSagasSaga1), typeof(ReceiverWithOrderedSagasSaga2));
                 });
             }

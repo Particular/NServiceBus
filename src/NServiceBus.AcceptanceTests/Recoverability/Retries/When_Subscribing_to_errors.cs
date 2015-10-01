@@ -51,7 +51,7 @@
                 EndpointSetup<DefaultServer>(config =>
                 {
                     config.EnableFeature<SecondLevelRetries>();
-                    config.EnableFeature<TimeoutManager>();
+                    config.EnableFeature<DelayedDelivery>();
                 })
                     .WithConfig<TransportConfig>(c => { c.MaxRetries = 3; })
                     .WithConfig<SecondLevelRetriesConfig>(c =>

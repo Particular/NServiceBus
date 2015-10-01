@@ -9,7 +9,6 @@
     {
         internal InMemoryTimeoutPersistence()
         {
-            DependsOn<TimeoutManager>();
         }
 
         /// <summary>

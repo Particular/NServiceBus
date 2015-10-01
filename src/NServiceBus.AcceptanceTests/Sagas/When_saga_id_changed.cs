@@ -43,7 +43,7 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(b => b.DisableFeature<TimeoutManager>())
+                EndpointSetup<DefaultServer>(b => b.DisableFeature<DelayedDelivery>())
                     .WithConfig<TransportConfig>(c =>
                     {
                         c.MaxRetries = 0;

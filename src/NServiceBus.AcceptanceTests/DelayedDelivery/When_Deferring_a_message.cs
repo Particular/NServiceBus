@@ -43,7 +43,7 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(config => config.EnableFeature<TimeoutManager>());
+                EndpointSetup<DefaultServer>(config => config.EnableFeature<DelayedDelivery>());
             }
             public class MyMessageHandler : IHandleMessages<MyMessage>
             {

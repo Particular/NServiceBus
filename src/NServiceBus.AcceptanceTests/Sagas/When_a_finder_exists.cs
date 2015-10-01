@@ -30,7 +30,7 @@
         {
             public SagaEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.EnableFeature<TimeoutManager>());
+                EndpointSetup<DefaultServer>(c => c.EnableFeature<DelayedDelivery>());
             }
 
             class CustomFinder : IFindSagas<TestSaga06.SagaData06>.Using<StartSagaMessage>

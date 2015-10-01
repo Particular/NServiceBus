@@ -4,6 +4,7 @@
     using System.Threading.Tasks;
     using NServiceBus.DelayedDelivery;
     using NServiceBus.DeliveryConstraints;
+    using NServiceBus.Extensibility;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
 
@@ -16,12 +17,13 @@
             if (context.TryGet(out state))
             {
                 context.AddDeliveryConstraint(state.RequestedDelay);
+                state.MarkAsHandled();
             }
 
             return next();
         }
 
-        public class State
+        public class State : OutgoingPipelineExtensionState
         {
             public State(DelayedDeliveryConstraint constraint)
             {
@@ -29,6 +31,10 @@
             }
 
             public DelayedDeliveryConstraint RequestedDelay { get; }
+            protected override string GenerateErrorMessageWhenNotHandled()
+            {
+                return "Cannot delay delivery of messages when DelayedDelivery feature is disabled.";
+            }
         }
     }
 }

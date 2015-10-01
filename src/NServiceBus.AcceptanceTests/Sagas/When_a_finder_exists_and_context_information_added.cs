@@ -39,7 +39,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.EnableFeature<TimeoutManager>();
+                    c.EnableFeature<DelayedDelivery>();
                     c.Pipeline.Register<BehaviorWhichAddsThingsToTheContext.Registration>();
                 });
             }
