@@ -4,7 +4,7 @@
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
-    public class When_endpoint_uses_updated_timeout_persistence
+    public class When_endpoint_uses_updated_timeout_persistence : NServiceBusAcceptanceTest
     {
         [Test]
         public void Endpoint_should_start()

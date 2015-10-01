@@ -11,7 +11,7 @@
     using Hosting.Helpers;
     using NUnit.Framework;
 
-    public class When_endpoint_uses_no_timeout_persistence
+    public class When_endpoint_uses_no_timeout_persistence : NServiceBusAcceptanceTest
     {
         [Test]
         public void Endpoint_should_start()

@@ -7,7 +7,7 @@
     using NServiceBus.Timeout.Core;
     using NUnit.Framework;
 
-    public class When_endpoint_uses_outdated_timeout_persistence_with_disabled_dtc
+    public class When_endpoint_uses_outdated_timeout_persistence_with_disabled_dtc : NServiceBusAcceptanceTest
     {
         [Test]
         public void Endpoint_should_not_start_and_show_warning()

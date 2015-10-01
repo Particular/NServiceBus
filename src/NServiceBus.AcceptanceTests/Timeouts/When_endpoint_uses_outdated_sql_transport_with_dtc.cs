@@ -6,7 +6,7 @@
     using NServiceBus.Transports;
     using NUnit.Framework;
 
-    public class When_endpoint_uses_outdated_sql_transport_with_dtc
+    public class When_endpoint_uses_outdated_sql_transport_with_dtc : NServiceBusAcceptanceTest
     {
         [Test]
         public void Endpoint_should_start()

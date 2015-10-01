@@ -9,7 +9,7 @@
     using NServiceBus.Timeout.Core;
     using NUnit.Framework;
 
-    public class When_dispatched_timeout_already_removed_from_timeout_storage
+    public class When_dispatched_timeout_already_removed_from_timeout_storage : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_rollback_and_not_deliver_timeout_when_using_dtc()

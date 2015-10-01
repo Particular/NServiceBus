@@ -6,7 +6,7 @@
     using NServiceBus.Transports;
     using NUnit.Framework;
 
-    public class When_endpoint_uses_updated_sql_transport_with_disabled_dtc
+    public class When_endpoint_uses_updated_sql_transport_with_disabled_dtc : NServiceBusAcceptanceTest
     {
         [Test]
         public void Endpoint_should_start()
