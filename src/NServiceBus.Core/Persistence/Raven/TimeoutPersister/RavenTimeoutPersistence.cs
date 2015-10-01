@@ -5,6 +5,7 @@ namespace NServiceBus.Persistence.Raven.TimeoutPersister
     using System.Linq;
     using System.Net;
     using System.Text;
+    using global::Raven.Abstractions.Exceptions;
     using global::Raven.Client;
     using global::Raven.Client.Linq;
     using Logging;
@@ -181,8 +182,15 @@ namespace NServiceBus.Persistence.Raven.TimeoutPersister
 
         public bool TryRemove(string timeoutId)
         {
-            TimeoutData timeoutData;
-            return TryRemove(timeoutId, out timeoutData);
+            try
+            {
+                TimeoutData timeoutData;
+                return TryRemove(timeoutId, out timeoutData);
+            }
+            catch (ConcurrencyException)
+            {
+                return false;
+            }
         }
 
         IDocumentSession OpenSession()
