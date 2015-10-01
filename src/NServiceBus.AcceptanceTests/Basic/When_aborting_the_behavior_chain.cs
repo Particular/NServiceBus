@@ -12,7 +12,7 @@
         public async Task Subsequent_handlers_will_not_be_invoked()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<MyEndpoint>(b => b.Given(bus => bus.SendLocalAsync(new SomeMessage())))
+                .WithEndpoint<MyEndpoint>(b => b.When(bus => bus.SendLocalAsync(new SomeMessage())))
                 .Done(c => c.FirstHandlerInvoked)
                 .Run();
 

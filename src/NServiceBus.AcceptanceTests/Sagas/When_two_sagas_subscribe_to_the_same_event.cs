@@ -22,7 +22,7 @@
                             DataId = Guid.NewGuid()
                         }))
                      )
-                    .WithEndpoint<Publisher>(b => b.Given((bus, context) =>
+                    .WithEndpoint<Publisher>(b => b.When((bus, context) =>
                     {
                         if (context.HasNativePubSubSupport)
                         {

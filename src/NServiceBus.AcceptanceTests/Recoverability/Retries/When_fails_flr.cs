@@ -17,7 +17,7 @@
         public async Task Should_be_moved_to_slr()
         {
             await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                    .WithEndpoint<SLREndpoint>(b => b.Given((bus, context) => bus.SendLocalAsync(new MessageToBeRetried { Id = context.Id })))
+                    .WithEndpoint<SLREndpoint>(b => b.When((bus, context) => bus.SendLocalAsync(new MessageToBeRetried { Id = context.Id })))
                     .AllowSimulatedExceptions()
                     .Done(c => c.NumberOfTimesInvoked >= 2)
                     .Repeat(r => r.For(Transports.Default))

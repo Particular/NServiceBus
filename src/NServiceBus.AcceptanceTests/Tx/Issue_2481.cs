@@ -14,7 +14,7 @@
         public async Task Should_enlist_the_receive_in_the_dtc_tx()
         {
             await Scenario.Define<Context>()
-                    .WithEndpoint<DTCEndpoint>(b => b.Given(bus => bus.SendLocalAsync(new MyMessage())))
+                    .WithEndpoint<DTCEndpoint>(b => b.When(bus => bus.SendLocalAsync(new MyMessage())))
                     .Done(c => c.HandlerInvoked)
                     .Repeat(r => r.For<AllDtcTransports>())
                     .Should(c => Assert.False(c.CanEnlistPromotable, "There should exists a DTC tx"))

@@ -14,7 +14,7 @@
         public async Task Should_contain_processing_stats_headers()
         {
             var context = await Scenario.Define<Context>()
-            .WithEndpoint<EndpointWithAuditOn>(b => b.Given(bus => bus.SendLocalAsync(new MessageToBeAudited())))
+            .WithEndpoint<EndpointWithAuditOn>(b => b.When(bus => bus.SendLocalAsync(new MessageToBeAudited())))
             .WithEndpoint<EndpointThatHandlesAuditMessages>()
             .Done(c => c.IsMessageHandledByTheAuditEndpoint)
             .Run();

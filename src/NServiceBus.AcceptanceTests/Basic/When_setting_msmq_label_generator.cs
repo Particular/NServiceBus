@@ -20,7 +20,7 @@
             try
             {
                 await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                    .WithEndpoint<EndPoint>(b => b.Given((bus, c) => bus.SendLocalAsync(new MyMessage
+                    .WithEndpoint<EndPoint>(b => b.When((bus, c) => bus.SendLocalAsync(new MyMessage
                     {
                         Id = c.Id
                     })))

@@ -13,7 +13,7 @@
         public async Task Should_receive_the_message()
         {
             await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                    .WithEndpoint<EndPoint>(b => b.Given((bus, c) => bus.SendLocalAsync(new MyMessage { Id = c.Id })))
+                    .WithEndpoint<EndPoint>(b => b.When((bus, c) => bus.SendLocalAsync(new MyMessage { Id = c.Id })))
                     .Done(c => c.WasCalled)
                     .Repeat(r => r
                         .For(Transports.Default)

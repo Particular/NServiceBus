@@ -17,7 +17,7 @@
         public async Task Should_register_via_type()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<EndpointViaType>(b => b.Given(
+                .WithEndpoint<EndpointViaType>(b => b.When(
                     (bus, c) => bus.SendLocalAsync(new MyRequest())))
                 .Done(c => c.HandlerGotTheRequest)
                 .Run();
@@ -30,7 +30,7 @@
         public async Task Should_register_via_definition()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<EndpointViaDefinition>(b => b.Given(
+                .WithEndpoint<EndpointViaDefinition>(b => b.When(
                     (bus, c) => bus.SendLocalAsync(new MyRequest())))
                 .Done(c => c.HandlerGotTheRequest)
                 .Run();

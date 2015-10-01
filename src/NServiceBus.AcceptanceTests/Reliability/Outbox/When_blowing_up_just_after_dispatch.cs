@@ -15,7 +15,7 @@
         public async Task Should_still_release_the_outgoing_messages_to_the_transport()
         {
             await Scenario.Define<Context>()
-                .WithEndpoint<NonDtcReceivingEndpoint>(b => b.Given(bus => bus.SendLocalAsync(new PlaceOrder())))
+                .WithEndpoint<NonDtcReceivingEndpoint>(b => b.When(bus => bus.SendLocalAsync(new PlaceOrder())))
                 .AllowSimulatedExceptions()
                 .Done(c => c.OrderAckReceived == 1)
                 .Repeat(r=>r.For<AllOutboxCapableStorages>())

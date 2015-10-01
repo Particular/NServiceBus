@@ -16,7 +16,7 @@
         public async Task Should_be_able_to_set_context_items_and_retrieve_it_via_a_behavior()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<SendOptionsExtensions>(b => b.Given((bus, c) =>
+                    .WithEndpoint<SendOptionsExtensions>(b => b.When((bus, c) =>
                     {
                         var options = new SendOptions();
 

@@ -14,7 +14,7 @@
         public async Task Should_wrap_the_handler_pipeline_with_a_transactionscope()
         {
             await Scenario.Define<Context>()
-                    .WithEndpoint<TransactionalEndpoint>(b => b.Given(bus => bus.SendLocalAsync(new MyMessage())))
+                    .WithEndpoint<TransactionalEndpoint>(b => b.When(bus => bus.SendLocalAsync(new MyMessage())))
                     .Done(c => c.HandlerInvoked)
                     .Repeat(r => r.For(Transports.Default))
                     .Should(c => Assert.True(c.AmbientTransactionExists, "There should exist an ambient transaction"))

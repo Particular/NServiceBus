@@ -23,7 +23,7 @@
                     c.AddTrace("Publishing MyEvent2");
                     return bus.PublishAsync(new MyEvent2());
                 }))
-                .WithEndpoint<Subscriber1>(b => b.Given(async (bus, c) =>
+                .WithEndpoint<Subscriber1>(b => b.When(async (bus, c) =>
                 {
                     c.AddTrace("Subscriber1 subscribing to both events");
                     await bus.SubscribeAsync<IMyEvent>();

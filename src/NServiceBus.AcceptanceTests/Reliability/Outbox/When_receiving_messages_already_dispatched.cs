@@ -14,7 +14,7 @@
         public async Task Should_discard_them()
         {
             await Scenario.Define<Context>()
-                    .WithEndpoint<OutboxEndpoint>(b => b.Given(async bus =>
+                    .WithEndpoint<OutboxEndpoint>(b => b.When(async bus =>
                     {
                         var duplicateMessageId = Guid.NewGuid().ToString();
 

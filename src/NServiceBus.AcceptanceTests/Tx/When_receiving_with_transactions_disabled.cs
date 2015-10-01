@@ -14,7 +14,7 @@
         public async Task Should_not_roll_the_message_back_to_the_queue_in_case_of_failure()
         {
             await Scenario.Define<Context>()
-                    .WithEndpoint<NonTransactionalEndpoint>(b => b.Given(bus => bus.SendLocalAsync(new MyMessage())))
+                    .WithEndpoint<NonTransactionalEndpoint>(b => b.When(bus => bus.SendLocalAsync(new MyMessage())))
                     .AllowSimulatedExceptions()
                     .Done(c => c.TestComplete)
                     .Repeat(r => r.For(Transports.Default))

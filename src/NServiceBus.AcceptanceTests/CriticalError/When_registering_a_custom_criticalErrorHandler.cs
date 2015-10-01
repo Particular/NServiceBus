@@ -17,7 +17,7 @@
         public async Task Critical_error_should_be_raised_inside_delegate()
         {
             await Scenario.Define<Context>()
-                .WithEndpoint<EndpointWithLocalCallback>(b => b.Given(
+                .WithEndpoint<EndpointWithLocalCallback>(b => b.When(
                     (bus, context) => bus.SendLocalAsync(new MyRequest())))
                 .AllowExceptions()
                 .Done(c => c.ExceptionReceived)

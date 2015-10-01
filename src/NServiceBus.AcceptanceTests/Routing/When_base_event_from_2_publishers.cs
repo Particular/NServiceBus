@@ -18,7 +18,7 @@
                 .WithEndpoint<Publisher2>(b =>
                         b.When(c => c.SubscribedToPublisher2, bus => bus.PublishAsync(new DerivedEvent2()))
                      )
-               .WithEndpoint<Subscriber1>(b => b.Given(async (bus, c) =>
+               .WithEndpoint<Subscriber1>(b => b.When(async (bus, c) =>
                {
                    await bus.SubscribeAsync<DerivedEvent1>();
                    await bus.SubscribeAsync<DerivedEvent2>();

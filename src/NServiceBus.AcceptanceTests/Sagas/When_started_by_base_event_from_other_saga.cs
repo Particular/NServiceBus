@@ -25,7 +25,7 @@
                         })
                 )
                 .WithEndpoint<SagaThatIsStartedByABaseEvent>(
-                    b => b.Given(async (bus, context) =>
+                    b => b.When(async (bus, context) =>
                     {
                         await bus.SubscribeAsync<BaseEvent>();
 

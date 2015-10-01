@@ -11,7 +11,7 @@ namespace NServiceBus.AcceptanceTests.BestPractices
         public async Task Should_allow_sending_events()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
+                .WithEndpoint<Endpoint>(b => b.When((bus, c) =>
                 {
                     var sendOptions = new SendOptions();
                     sendOptions.DoNotEnforceBestPractices();

@@ -14,14 +14,14 @@
         {
             var context = await Scenario.Define<Context>()
                     .WithEndpoint<Publisher>(b => b.When(c => c.Subscriber1Subscribed && c.Subscriber2Subscribed, bus => bus.PublishAsync(new MyEvent())))
-                    .WithEndpoint<Subscriber1>(b => b.Given(async (bus, c) =>
+                    .WithEndpoint<Subscriber1>(b => b.When(async (bus, c) =>
                         {
                             await bus.SubscribeAsync<IMyEvent>();
 
                             if (c.HasNativePubSubSupport)
                                 c.Subscriber1Subscribed = true;
                         }))
-                    .WithEndpoint<Subscriber2>(b => b.Given(async (bus, c) =>
+                    .WithEndpoint<Subscriber2>(b => b.When(async (bus, c) =>
                         {
                             await bus.SubscribeAsync<MyEvent>();
 

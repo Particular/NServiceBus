@@ -17,7 +17,7 @@
         {
             await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(
-                    b => b.Given(bus => bus.SendLocalAsync(new StartSaga
+                    b => b.When(bus => bus.SendLocalAsync(new StartSaga
                     {
                         DataId = Guid.NewGuid()
                     })))

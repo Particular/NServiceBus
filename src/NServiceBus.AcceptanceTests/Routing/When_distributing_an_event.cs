@@ -14,7 +14,7 @@
         public async Task Should_round_robin()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Distributor>(b => b.Given(async (bus, c) =>
+                .WithEndpoint<Distributor>(b => b.When(async (bus, c) =>
                 {
                     await bus.SendLocalAsync(new MyRequest());
                     await bus.SendLocalAsync(new MyRequest());

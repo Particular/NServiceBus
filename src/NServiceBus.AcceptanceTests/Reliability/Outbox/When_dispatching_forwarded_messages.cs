@@ -16,7 +16,7 @@
         public async Task Should_be_dispatched_immediately()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<EndpointWithAuditOn>(b => b.Given(bus => bus.SendLocalAsync(new MessageToBeForwarded())))
+                    .WithEndpoint<EndpointWithAuditOn>(b => b.When(bus => bus.SendLocalAsync(new MessageToBeForwarded())))
                     .WithEndpoint<ForwardingSpyEndpoint>()
                     .AllowSimulatedExceptions()
                     .Done(c => c.Done)

@@ -13,7 +13,7 @@
         public async Task Timeout_should_be_received_after_expiration()
         {
             await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                    .WithEndpoint<RecvMsgForTimeoutEndpt>(g => g.Given(bus => bus.SendLocalAsync(new StartSagaMessage())))
+                    .WithEndpoint<RecvMsgForTimeoutEndpt>(g => g.When(bus => bus.SendLocalAsync(new StartSagaMessage())))
                     .Done(c => c.TimeoutReceived)
                     .Run();
         }

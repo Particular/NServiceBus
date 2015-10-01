@@ -15,7 +15,7 @@
         public async Task Should_be_received_by_handler()
         {
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                .WithEndpoint<SagaEndpoint>(b => b.Given((bus, c) => bus.SendLocalAsync(new StartSagaMessage { Id = c.Id })))
+                .WithEndpoint<SagaEndpoint>(b => b.When((bus, c) => bus.SendLocalAsync(new StartSagaMessage { Id = c.Id })))
                 .Done(c => c.HandlerFired)
                 .Run();
 

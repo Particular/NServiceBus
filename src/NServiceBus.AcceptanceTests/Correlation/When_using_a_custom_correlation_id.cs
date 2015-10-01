@@ -14,7 +14,7 @@
         public async Task Should_use_the_given_id_as_the_transport_level_correlation_id()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<CorrelationEndpoint>(b => b.Given(bus =>
+                    .WithEndpoint<CorrelationEndpoint>(b => b.When(bus =>
                     {
                         var options = new SendOptions();
 
