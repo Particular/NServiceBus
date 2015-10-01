@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
     using System.Reflection;
     using System.Threading.Tasks;
@@ -11,6 +10,7 @@
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Scheduling.Messages;
     using NServiceBus.Serializers;
+    using NServiceBus.Transports;
     using NServiceBus.Unicast;
     using NServiceBus.Unicast.Messages;
 
@@ -32,12 +32,12 @@
 
             foreach (var message in messages)
             {
-                await next(new LogicalMessageProcessingStageBehavior.Context(message,context.Message.Headers, context)).ConfigureAwait(false);
+                await next(new LogicalMessageProcessingStageBehavior.Context(message, context.Message.Headers, context)).ConfigureAwait(false);
             }
 
         }
 
-        List<LogicalMessage> ExtractWithExceptionHandling(TransportMessage transportMessage)
+        List<LogicalMessage> ExtractWithExceptionHandling(IncomingMessage transportMessage)
         {
             try
             {
@@ -45,13 +45,13 @@
             }
             catch (Exception exception)
             {
-                throw new MessageDeserializationException(transportMessage.Id, exception);
+                throw new MessageDeserializationException(transportMessage.MessageId, exception);
             }
         }
 
-        List<LogicalMessage> Extract(TransportMessage physicalMessage)
+        List<LogicalMessage> Extract(IncomingMessage physicalMessage)
         {
-            if (physicalMessage.Body == null || physicalMessage.Body.Length == 0)
+            if (physicalMessage.BodyStream == null || physicalMessage.BodyStream.Length == 0)
             {
                 return new List<LogicalMessage>();
             }
@@ -89,21 +89,18 @@
                     messageMetadata.Add(metadata);
                 }
 
-                if (messageMetadata.Count == 0 && physicalMessage.MessageIntent != MessageIntentEnum.Publish)
+                if (messageMetadata.Count == 0 && physicalMessage.GetMesssageIntent() != MessageIntentEnum.Publish)
                 {
-                    log.WarnFormat("Could not determine message type from message header '{0}'. MessageId: {1}", messageTypeIdentifier, physicalMessage.Id);
+                    log.WarnFormat("Could not determine message type from message header '{0}'. MessageId: {1}", messageTypeIdentifier, physicalMessage.MessageId);
                 }
             }
 
-            using (var stream = new MemoryStream(physicalMessage.Body))
-            {
-                var messageTypes = messageMetadata.Select(metadata => metadata.MessageType).ToList();
-                var messageSerializer = DeserializerResolver.Resolve(physicalMessage.Headers[Headers.ContentType]);
-                return messageSerializer.Deserialize(stream, messageTypes)
-                    .Select(x => LogicalMessageFactory.Create(x.GetType(), x))
-                    .ToList();
-
-            }
+            // TODO: Should we rewind or the serializer?
+            var messageTypes = messageMetadata.Select(metadata => metadata.MessageType).ToList();
+            var messageSerializer = DeserializerResolver.Resolve(physicalMessage.Headers[Headers.ContentType]);
+            return messageSerializer.Deserialize(physicalMessage.BodyStream, messageTypes)
+                .Select(x => LogicalMessageFactory.Create(x.GetType(), x))
+                .ToList();
         }
 
         [ObsoleteEx(RemoveInVersion = "7.0")]

@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using NServiceBus.Transports;
     using Pipeline;
     using Pipeline.Contexts;
 
@@ -16,12 +17,12 @@
             /// <summary>
             /// The physical message beeing processed.
             /// </summary>
-            public TransportMessage Message { get; private set; }
+            public IncomingMessage Message { get; private set; }
 
             /// <summary>
             /// Initializes a new instance of <see cref="Context"/>.
             /// </summary>
-            public Context(TransportMessage message, BehaviorContext parentContext)
+            public Context(IncomingMessage message, BehaviorContext parentContext)
                 : base(parentContext)
             {
                 Message = message;

@@ -5,12 +5,13 @@
     using System.Collections.Generic;
     using System.Configuration;
     using NServiceBus.Faults;
+    using NServiceBus.Transports;
 
     static class ExceptionHeaderHelper
     {
         static bool useLegacyStackTrace = string.Equals(ConfigurationManager.AppSettings["NServiceBus/Headers/UseLegacyExceptionStackTrace"], "true", StringComparison.OrdinalIgnoreCase);
 
-        public static void SetExceptionHeaders(this TransportMessage message,Exception e, string failedQueue, string reason = null)
+        public static void SetExceptionHeaders(this IncomingMessage message,Exception e, string failedQueue, string reason = null)
         {
             var headers = message.Headers;
             SetExceptionHeaders(headers, e, failedQueue, reason, useLegacyStackTrace);

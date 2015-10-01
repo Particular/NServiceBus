@@ -35,7 +35,7 @@
 
             fakeOutbox.ExistingMessage = new OutboxMessage("id", new List<TransportOperation>
             {
-                new TransportOperation("x",options,new byte[0],new Dictionary<string, string>())
+                new TransportOperation("x",options, Stream.Null, new Dictionary<string, string>())
             });
 
             var context = CreateContext();
@@ -71,7 +71,7 @@
 
             fakeOutbox.ExistingMessage = new OutboxMessage("id", new List<TransportOperation>
             {
-                new TransportOperation("x",options,new byte[0],new Dictionary<string, string>())
+                new TransportOperation("x",options, Stream.Null, new Dictionary<string, string>())
             });
 
             var context = CreateContext();
@@ -94,7 +94,7 @@
 
             fakeOutbox.ExistingMessage = new OutboxMessage("id", new List<TransportOperation>
             {
-                new TransportOperation("x",options,new byte[0],new Dictionary<string, string>())
+                new TransportOperation("x",options, Stream.Null, new Dictionary<string, string>())
             });
 
             var context = CreateContext();

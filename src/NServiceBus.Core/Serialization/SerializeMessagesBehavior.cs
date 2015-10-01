@@ -26,23 +26,18 @@
         {
             if (context.GetOrCreate<State>().SkipSerialization)
             {
-                await next(new PhysicalOutgoingContextStageBehavior.Context(new byte[0], context)).ConfigureAwait(false);
+                await next(new PhysicalOutgoingContextStageBehavior.Context(Stream.Null, context)).ConfigureAwait(false);
                 return;
             }
 
             context.SetHeader(Headers.ContentType, messageSerializer.ContentType);
             context.SetHeader(Headers.EnclosedMessageTypes, SerializeEnclosedMessageTypes(context.GetMessageType()));
 
-            var array = Serialize(context);
-            await next(new PhysicalOutgoingContextStageBehavior.Context(array, context)).ConfigureAwait(false);
-        }
-
-        byte[] Serialize(OutgoingContext context)
-        {
-            using (var ms = new MemoryStream())
+            using (var body = new MemoryStream())
             {
-                messageSerializer.Serialize(context.GetMessageInstance(), ms);
-                return ms.ToArray();
+                messageSerializer.Serialize(context.GetMessageInstance(), body);
+                // TODO: Should we rewind?
+                await next(new PhysicalOutgoingContextStageBehavior.Context(body, context)).ConfigureAwait(false);
             }
         }
 

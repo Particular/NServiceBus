@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.OutgoingPipeline
 {
+    using System.IO;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
 
@@ -17,7 +18,7 @@
             /// <summary>
             /// Initializes an instance of <see cref="Context"/>.
             /// </summary>
-            public Context(byte[] body, OutgoingContext parentContext)
+            public Context(Stream body, OutgoingContext parentContext)
                 : base(parentContext)
             {
                 Body = body;
@@ -30,7 +31,7 @@
             /// <summary>
             /// A <see cref="byte"/> array containing the serialized contents of the outgoing message.
             /// </summary>
-            public byte[] Body { get; set; }
+            public Stream Body { get; set; }
         }
     }
 }

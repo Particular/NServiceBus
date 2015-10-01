@@ -67,7 +67,6 @@ namespace NServiceBus.Core.Tests
             var hostInfo = new HostInformation(Guid.NewGuid(), "my host");
             var context = CreateContext("someid");
 
-
             var behavior = new MoveFaultsToErrorQueueBehavior(new FakeCriticalError(), fakeDispatchPipeline, hostInfo, new BusNotifications(), "error");
             behavior.Initialize(new PipelineInfo("Test", "public-receive-address"));
 
@@ -112,8 +111,6 @@ namespace NServiceBus.Core.Tests
 
             Assert.AreEqual("testex", failedMessageNotification.Exception.Message);
         }
-
-
 
         TransportReceiveContext CreateContext(string messageId)
         {

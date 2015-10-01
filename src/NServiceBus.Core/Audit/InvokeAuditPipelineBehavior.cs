@@ -18,9 +18,10 @@
         {
             await next().ConfigureAwait(false);
 
-            context.Message.RevertToOriginalBodyIfNeeded();
+            // TODO: How to enable this?
+            // context.Message.RevertToOriginalBodyIfNeeded();
 
-            var processedMessage = new OutgoingMessage(context.Message.Id, context.Message.Headers, context.Message.Body);
+            var processedMessage = new OutgoingMessage(context.Message.MessageId, context.Message.Headers, context.Message.BodyStream);
 
             var auditContext = new AuditContext(processedMessage, auditAddress, context);
             

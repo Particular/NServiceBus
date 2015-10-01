@@ -24,7 +24,7 @@ namespace NServiceBus
 
         public async override Task Invoke(TransportReceiveContext context, Func<PhysicalMessageProcessingStageBehavior.Context, Task> next)
         {
-            var messageId = context.Message.Id;
+            var messageId = context.Message.MessageId;
             var physicalMessageContext = new PhysicalMessageProcessingStageBehavior.Context(context.Message, context);
 
             var deduplicationEntry = await outboxStorage.Get(messageId, new OutboxStorageOptions(context)).ConfigureAwait(false);

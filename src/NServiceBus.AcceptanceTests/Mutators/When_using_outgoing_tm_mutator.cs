@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Mutators
 {
+    using System.IO;
     using System.Text;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
@@ -39,7 +40,7 @@
                 {
                     context.OutgoingHeaders["HeaderSetByMutator"] = "some value";
                     context.OutgoingHeaders[Headers.EnclosedMessageTypes] = typeof(MessageThatMutatorChangesTo).FullName;
-                    context.OutgoingBody = Encoding.UTF8.GetBytes("<MessageThatMutatorChangesTo/>");
+                    context.OutgoingBody = new MemoryStream(Encoding.UTF8.GetBytes("<MessageThatMutatorChangesTo/>"));
                     return Task.FromResult(0);
                 }
 

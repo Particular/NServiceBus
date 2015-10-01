@@ -5,6 +5,7 @@ namespace NServiceBus
     using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline;
     using NServiceBus.TransportDispatch;
+    using NServiceBus.Transports;
 
     class AttachCausationHeadersBehavior : PhysicalOutgoingContextStageBehavior
     {
@@ -13,17 +14,17 @@ namespace NServiceBus
             ApplyHeaders(context);
 
             return next();
-         }
+        }
 
         void ApplyHeaders(Context context)
         {
             var conversationId = CombGuid.Generate().ToString();
 
-            TransportMessage incomingMessage;
+            IncomingMessage incomingMessage;
 
             if (context.TryGetIncomingPhysicalMessage(out incomingMessage))
             {
-                context.SetHeader(Headers.RelatedTo,incomingMessage.Id);
+                context.SetHeader(Headers.RelatedTo, incomingMessage.MessageId);
 
                 string conversationIdFromCurrentMessageContext;
                 if (incomingMessage.Headers.TryGetValue(Headers.ConversationId, out conversationIdFromCurrentMessageContext))
@@ -32,7 +33,7 @@ namespace NServiceBus
                 }
             }
 
-            context.SetHeader(Headers.ConversationId,conversationId);
+            context.SetHeader(Headers.ConversationId, conversationId);
         }
     }
 }

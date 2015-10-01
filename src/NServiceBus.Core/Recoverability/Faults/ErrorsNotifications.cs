@@ -2,6 +2,8 @@ namespace NServiceBus.Faults
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
+    using NServiceBus.Transports;
 
     /// <summary>
     /// Errors notifications.
@@ -28,33 +30,39 @@ namespace NServiceBus.Faults
             // Injected
         }
 
-        internal void InvokeMessageHasBeenSentToErrorQueue(TransportMessage message, Exception exception)
+        internal void InvokeMessageHasBeenSentToErrorQueue(IncomingMessage message, Exception exception)
         {
-            erroneousMessageList.OnNext(new FailedMessage(new Dictionary<string, string>(message.Headers), CopyOfBody(message.Body), exception));
-        }
-
-        internal void InvokeMessageHasFailedAFirstLevelRetryAttempt(int firstLevelRetryAttempt, TransportMessage message, Exception exception)
-        {
-            firstLevelRetryList.OnNext(new FirstLevelRetry(new Dictionary<string, string>(message.Headers), CopyOfBody(message.Body), exception, firstLevelRetryAttempt));
-        }
-
-        internal void InvokeMessageHasBeenSentToSecondLevelRetries(int secondLevelRetryAttempt, TransportMessage message, Exception exception)
-        {
-            secondLevelRetryList.OnNext(new SecondLevelRetry(new Dictionary<string, string>(message.Headers), CopyOfBody(message.Body), exception, secondLevelRetryAttempt));
-        }
-
-        static byte[] CopyOfBody(byte[] body)
-        {
-            if (body == null)
+            // TODO: Do we really need to copy?
+            using (var stream = new MemoryStream())
             {
-                return null;
+                CopyOfBody(message.BodyStream, stream);
+                erroneousMessageList.OnNext(new FailedMessage(new Dictionary<string, string>(message.Headers), stream, exception));
             }
+        }
 
-            var copyBody = new byte[body.Length];
+        internal void InvokeMessageHasFailedAFirstLevelRetryAttempt(int firstLevelRetryAttempt, IncomingMessage message, Exception exception)
+        {
+            // TODO: Do we really need to copy?
+            using (var stream = new MemoryStream())
+            {
+                CopyOfBody(message.BodyStream, stream);
+                firstLevelRetryList.OnNext(new FirstLevelRetry(new Dictionary<string, string>(message.Headers), stream, exception, firstLevelRetryAttempt));
+            }
+        }
 
-            Buffer.BlockCopy(body, 0, copyBody, 0, body.Length);
+        internal void InvokeMessageHasBeenSentToSecondLevelRetries(int secondLevelRetryAttempt, IncomingMessage message, Exception exception)
+        {
+            // TODO: Do we really need to copy?
+            using (var stream = new MemoryStream())
+            {
+                CopyOfBody(message.BodyStream, stream);
+                secondLevelRetryList.OnNext(new SecondLevelRetry(new Dictionary<string, string>(message.Headers), stream, exception, secondLevelRetryAttempt));
+            }
+        }
 
-            return copyBody;
+        static void CopyOfBody(Stream origin, Stream destination)
+        {
+            origin?.CopyTo(destination);
         }
 
         Observable<FailedMessage> erroneousMessageList = new Observable<FailedMessage>();

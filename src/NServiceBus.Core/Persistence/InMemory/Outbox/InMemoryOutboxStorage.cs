@@ -3,8 +3,10 @@
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
+    using System.Web.WebSockets;
     using NServiceBus.Outbox;
 
     class InMemoryOutboxStorage : IOutboxStorage
@@ -53,6 +55,14 @@
                 TransportOperations = transportOperations;
                 Id = messageId;
                 StoredAt = DateTime.UtcNow;
+
+                foreach (var operation in TransportOperations)
+                {
+                    var body = operation.Body;
+                    var ms = new MemoryStream();
+                    body.CopyTo(ms);
+                    operation.Body = ms;
+                }
             }
 
             public string Id { get; }

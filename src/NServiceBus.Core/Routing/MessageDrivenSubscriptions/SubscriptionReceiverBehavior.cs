@@ -6,6 +6,7 @@
     using System.Threading.Tasks;
     using Logging;
     using NServiceBus.Pipeline;
+    using NServiceBus.Transports;
     using NServiceBus.Unicast.Subscriptions;
     using NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions;
 
@@ -21,7 +22,7 @@
             var transportMessage = context.Message;
             var messageTypeString = GetSubscriptionMessageTypeFrom(transportMessage);
 
-            var intent = transportMessage.MessageIntent;
+            var intent = transportMessage.GetMesssageIntent();
 
             if (string.IsNullOrEmpty(messageTypeString) && intent != MessageIntentEnum.Subscribe && intent != MessageIntentEnum.Unsubscribe)
             {
@@ -39,7 +40,7 @@
                 throw new InvalidOperationException("Subscription messages need to have intent set to Subscribe/Unsubscribe.");
             }
 
-            var subscriberAddress = transportMessage.ReplyToAddress;
+            var subscriberAddress = transportMessage.GetReplyToAddress();
 
             if (subscriberAddress == null)
             {
@@ -60,13 +61,13 @@
             }
 
             var options = new SubscriptionStorageOptions(context);
-            if (transportMessage.MessageIntent == MessageIntentEnum.Subscribe)
+            if (intent == MessageIntentEnum.Subscribe)
             {
                 Logger.Info("Subscribing " + subscriberAddress + " to message type " + messageTypeString);
 
                 var mt = new MessageType(messageTypeString);
 
-                await subscriptionStorage.Subscribe(transportMessage.ReplyToAddress, new[]
+                await subscriptionStorage.Subscribe(subscriberAddress, new[]
                 {
                     mt
                 }, options).ConfigureAwait(false);
@@ -82,7 +83,7 @@
         }
 
 
-        static string GetSubscriptionMessageTypeFrom(TransportMessage msg)
+        static string GetSubscriptionMessageTypeFrom(IncomingMessage msg)
         {
             return (from header in msg.Headers where header.Key == Headers.SubscriptionMessageType select header.Value).FirstOrDefault();
         }

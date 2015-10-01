@@ -1,9 +1,10 @@
 namespace NServiceBus.Recoverability.SecondLevelRetries
 {
     using System;
+    using NServiceBus.Transports;
 
     abstract class SecondLevelRetryPolicy
     {
-        public abstract bool TryGetDelay(TransportMessage message, Exception ex, int currentRetry,out TimeSpan delay);
+        public abstract bool TryGetDelay(IncomingMessage message, Exception ex, int currentRetry,out TimeSpan delay);
     }
 }

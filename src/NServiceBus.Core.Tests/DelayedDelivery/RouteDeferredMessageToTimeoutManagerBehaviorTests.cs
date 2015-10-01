@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Threading.Tasks;
     using NServiceBus.DelayedDelivery;
     using NServiceBus.DelayedDelivery.TimeoutManager;
@@ -19,7 +20,7 @@
         {
             var behavior = new RouteDeferredMessageToTimeoutManagerBehavior("tm");
             var delay = TimeSpan.FromDays(1);
-            var message = new OutgoingMessage("id", new Dictionary<string, string>(), new byte[0]);
+            var message = new OutgoingMessage("id", new Dictionary<string, string>(), Stream.Null);
 
             var context = new DispatchContext(message, new DirectToTargetDestination("target"), null);
 
@@ -39,7 +40,7 @@
             var behavior = new RouteDeferredMessageToTimeoutManagerBehavior("tm");
             var delay = TimeSpan.FromDays(1);
 
-            var message = new OutgoingMessage("id", new Dictionary<string, string>(), new byte[0]);
+            var message = new OutgoingMessage("id", new Dictionary<string, string>(), Stream.Null);
 
             var context = new DispatchContext(message, new ToAllSubscribers(null), null);
             context.AddDeliveryConstraint(new DelayDeliveryWith(delay));
@@ -55,7 +56,7 @@
             var behavior = new RouteDeferredMessageToTimeoutManagerBehavior("tm");
             var delay = TimeSpan.FromDays(1);
 
-            var message = new OutgoingMessage("id", new Dictionary<string, string>(), new byte[0]);
+            var message = new OutgoingMessage("id", new Dictionary<string, string>(), Stream.Null);
 
             var context = new DispatchContext(message, new DirectToTargetDestination("target"), null);
             context.AddDeliveryConstraint(new DelayDeliveryWith(delay));
@@ -71,7 +72,7 @@
             var behavior = new RouteDeferredMessageToTimeoutManagerBehavior("tm");
             var delay = TimeSpan.FromDays(1);
 
-            var message = new OutgoingMessage("id", new Dictionary<string, string>(), new byte[0]);
+            var message = new OutgoingMessage("id", new Dictionary<string, string>(), Stream.Null);
 
             var context = new DispatchContext(message, new DirectToTargetDestination("target"), null);
             context.AddDeliveryConstraint(new DelayDeliveryWith(delay));
@@ -87,7 +88,7 @@
             var behavior = new RouteDeferredMessageToTimeoutManagerBehavior("tm");
             var at = DateTime.UtcNow + TimeSpan.FromDays(1);
 
-            var message = new OutgoingMessage("id", new Dictionary<string, string>(), new byte[0]);
+            var message = new OutgoingMessage("id", new Dictionary<string, string>(), Stream.Null);
 
             var context = new DispatchContext(message, new DirectToTargetDestination("target"), null);
             context.AddDeliveryConstraint(new DoNotDeliverBefore(at));

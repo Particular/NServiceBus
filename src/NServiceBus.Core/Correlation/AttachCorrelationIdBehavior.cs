@@ -5,30 +5,31 @@
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.TransportDispatch;
+    using NServiceBus.Transports;
 
     class AttachCorrelationIdBehavior : Behavior<OutgoingContext>
     {
         public override Task Invoke(OutgoingContext context, Func<Task> next)
         {
             var correlationId = context.GetOrCreate<State>().CustomCorrelationId;
-       
+
             //if we don't have a explicit correlation id set
             if (string.IsNullOrEmpty(correlationId))
             {
-                TransportMessage current;
+                IncomingMessage current;
 
                 //try to get it from the incoming message
                 if (context.TryGetIncomingPhysicalMessage(out current))
                 {
                     string incomingCorrelationId;
-                        
-                    if (current.Headers.TryGetValue(Headers.CorrelationId,out incomingCorrelationId))
+
+                    if (current.Headers.TryGetValue(Headers.CorrelationId, out incomingCorrelationId))
                     {
                         correlationId = incomingCorrelationId;
                     }
                 }
             }
-            
+
             //if we still doesn't have one we'll use the message id
             if (string.IsNullOrEmpty(correlationId))
             {

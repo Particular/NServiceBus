@@ -126,13 +126,13 @@
             behavior.Initialize(new PipelineInfo("Test", "test-address-for-this-pipeline"));
 
             var message = context.Message;
-            message.Body = Encoding.UTF8.GetBytes("modified content");
+            message.BodyStream = new MemoryStream(Encoding.UTF8.GetBytes("modified content"));
 
             await behavior.Invoke(context, () => { throw new Exception("test"); });
 
             var dispatchedMessage = fakeDispatchPipeline.DispatchContext.Message;
-            Assert.AreEqual(originalContent, Encoding.UTF8.GetString(dispatchedMessage.Body));
-            Assert.AreEqual(originalContent, Encoding.UTF8.GetString(message.Body));
+            Assert.AreEqual(originalContent, new StreamReader(dispatchedMessage.Body).ReadToEnd());
+            Assert.AreEqual(originalContent, new StreamReader(message.BodyStream).ReadToEnd());
         }
 
         TransportReceiveContext CreateContext(string messageId, int currentRetryCount, byte[] messageBody = null)
@@ -168,7 +168,7 @@
 
         public int InvokedWithCurrentRetry { get; private set; }
 
-        public override bool TryGetDelay(TransportMessage message, Exception ex, int currentRetry, out TimeSpan delay)
+        public override bool TryGetDelay(IncomingMessage message, Exception ex, int currentRetry, out TimeSpan delay)
         {
             InvokedWithCurrentRetry = currentRetry;
 

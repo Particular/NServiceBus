@@ -6,6 +6,7 @@ namespace NServiceBus.Features
     using NServiceBus.Recoverability.SecondLevelRetries;
     using NServiceBus.Settings;
     using NServiceBus.TransportDispatch;
+    using NServiceBus.Transports;
 
     /// <summary>
     /// Used to configure Second Level Retries.
@@ -28,7 +29,7 @@ namespace NServiceBus.Features
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var  retryPolicy = GetRetryPolicy(context.Settings);
+            var retryPolicy = GetRetryPolicy(context.Settings);
 
             context.Container.RegisterSingleton(typeof(SecondLevelRetryPolicy), retryPolicy);
             context.Pipeline.Register<SecondLevelRetriesBehavior.Registration>();
@@ -37,9 +38,9 @@ namespace NServiceBus.Features
             context.Container.ConfigureComponent(b =>
             {
                 var pipelinesCollection = context.Settings.Get<PipelineConfiguration>();
-             
+
                 var dispatchPipeline = new PipelineBase<DispatchContext>(b, context.Settings, pipelinesCollection.MainPipeline);
-                return new SecondLevelRetriesBehavior(dispatchPipeline,retryPolicy,b.Build<BusNotifications>(), context.Settings.LocalAddress());
+                return new SecondLevelRetriesBehavior(dispatchPipeline, retryPolicy, b.Build<BusNotifications>(), context.Settings.LocalAddress());
             }, DependencyLifecycle.InstancePerCall);
         }
 
@@ -58,7 +59,7 @@ namespace NServiceBus.Features
 
         SecondLevelRetryPolicy GetRetryPolicy(ReadOnlySettings settings)
         {
-            var customRetryPolicy = settings.GetOrDefault<Func<TransportMessage, TimeSpan>>("SecondLevelRetries.RetryPolicy");
+            var customRetryPolicy = settings.GetOrDefault<Func<IncomingMessage, TimeSpan>>("SecondLevelRetries.RetryPolicy");
 
             if (customRetryPolicy != null)
             {
@@ -71,7 +72,7 @@ namespace NServiceBus.Features
                 return new DefaultSecondLevelRetryPolicy(retriesConfig.NumberOfRetries, retriesConfig.TimeIncrease);
             }
 
-            return new DefaultSecondLevelRetryPolicy(DefaultSecondLevelRetryPolicy.DefaultNumberOfRetries,DefaultSecondLevelRetryPolicy.DefaultTimeIncrease);
+            return new DefaultSecondLevelRetryPolicy(DefaultSecondLevelRetryPolicy.DefaultNumberOfRetries, DefaultSecondLevelRetryPolicy.DefaultTimeIncrease);
         }
     }
 }

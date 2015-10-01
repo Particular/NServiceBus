@@ -135,9 +135,8 @@ namespace NServiceBus
 
             if (message.Body != null)
             {
-                result.BodyStream = new MemoryStream(message.Body);
+                result.BodyStream = message.Body;
             }
-
 
             AssignMsmqNativeCorrelationId(message, result);
             result.Recoverable = !sendOptions.DeliveryConstraints.Any(c => c is NonDurableDelivery);

@@ -117,6 +117,7 @@
     <Compile Include="Pipeline\Outgoing\ImmediateDispatchTerminator.cs" />
     <Compile Include="Transports\DispatchConsistency.cs" />
     <Compile Include="Transports\IManageSubscriptionsExtensions_obsolete.cs" />
+    <Compile Include="Transports\IncomingMessageExtensions.cs" />
     <Compile Include="Transports\Msmq\MsmqConnectionStringBuilder.cs" />
     <Compile Include="ConsistencyGuarantees\ApplyDefaultConsistencyGuaranteeBehavior.cs" />
     <Compile Include="ConsistencyGuarantees\ConsistencyGuaranteeFeature.cs" />
@@ -204,7 +205,7 @@
     <Compile Include="Extensibility\ContextBag.cs" />
     <Compile Include="Pipeline\Incoming\LogicalMessagesContextExtensions.cs" />
     <Compile Include="Pipeline\Outgoing\OutgoingPublishContext.cs" />
-    <Compile Include="Pipeline\Incoming\TransportMessageContextExtensions.cs" />
+    <Compile Include="Pipeline\Incoming\IncomingMessageContextExtensions.cs" />
     <Compile Include="Pipeline\IPipelineTerminator.cs" />
     <Compile Include="Pipeline\IStageConnector.cs" />
     <Compile Include="Pipeline\PipelineDiagnostics.cs" />

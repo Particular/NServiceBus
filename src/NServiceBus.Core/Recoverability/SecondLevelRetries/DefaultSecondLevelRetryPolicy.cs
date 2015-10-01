@@ -1,19 +1,20 @@
 namespace NServiceBus.Recoverability.SecondLevelRetries
 {
     using System;
+    using NServiceBus.Transports;
 
-    class DefaultSecondLevelRetryPolicy:SecondLevelRetryPolicy
+    class DefaultSecondLevelRetryPolicy : SecondLevelRetryPolicy
     {
         int maxRetries;
         TimeSpan timeIncrease;
 
-        public DefaultSecondLevelRetryPolicy(int maxRetries,TimeSpan timeIncrease)
+        public DefaultSecondLevelRetryPolicy(int maxRetries, TimeSpan timeIncrease)
         {
             this.maxRetries = maxRetries;
             this.timeIncrease = timeIncrease;
         }
 
-        public override bool TryGetDelay(TransportMessage message, Exception ex, int currentRetry, out TimeSpan delay)
+        public override bool TryGetDelay(IncomingMessage message, Exception ex, int currentRetry, out TimeSpan delay)
         {
             delay = TimeSpan.MinValue;
 
@@ -32,7 +33,7 @@ namespace NServiceBus.Recoverability.SecondLevelRetries
             return true;
         }
 
-        static bool HasReachedMaxTime(TransportMessage message)
+        static bool HasReachedMaxTime(IncomingMessage message)
         {
             string timestampHeader;
 
@@ -41,7 +42,7 @@ namespace NServiceBus.Recoverability.SecondLevelRetries
                 return false;
             }
 
-            
+
             if (string.IsNullOrEmpty(timestampHeader))
             {
                 return false;
@@ -56,10 +57,10 @@ namespace NServiceBus.Recoverability.SecondLevelRetries
                     return true;
                 }
             }
-                // ReSharper disable once EmptyGeneralCatchClause
-                // this code won't usually throw but in case a user has decided to hack a message/headers and for some bizarre reason 
-                // they changed the date and that parse fails, we want to make sure that doesn't prevent the message from being 
-                // forwarded to the error queue.
+            // ReSharper disable once EmptyGeneralCatchClause
+            // this code won't usually throw but in case a user has decided to hack a message/headers and for some bizarre reason 
+            // they changed the date and that parse fails, we want to make sure that doesn't prevent the message from being 
+            // forwarded to the error queue.
             catch (Exception)
             {
             }
@@ -67,7 +68,7 @@ namespace NServiceBus.Recoverability.SecondLevelRetries
             return false;
         }
 
-        
+
         public static int DefaultNumberOfRetries = 3;
         public static TimeSpan DefaultTimeIncrease = TimeSpan.FromSeconds(10);
     }

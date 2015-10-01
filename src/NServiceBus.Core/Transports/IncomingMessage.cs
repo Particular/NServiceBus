@@ -17,11 +17,11 @@ namespace NServiceBus.Transports
         /// The message headers.
         /// </summary>
         public Dictionary<string, string> Headers { get; private set; }
-        
+
         /// <summary>
         /// The message body.
         /// </summary>
-        public Stream BodyStream { get; private set; }
+        public Stream BodyStream { get; internal set; }
 
         /// <summary>
         /// Creates a new message.
@@ -29,11 +29,12 @@ namespace NServiceBus.Transports
         /// <param name="messageId">Native message id.</param>
         /// <param name="headers">The message headers.</param>
         /// <param name="bodyStream">The message body stream.</param>
-        public IncomingMessage(string messageId,Dictionary<string,string> headers,Stream bodyStream)
+        public IncomingMessage(string messageId, Dictionary<string, string> headers, Stream bodyStream)
         {
             Guard.AgainstNullAndEmpty("messageId", messageId);
             Guard.AgainstNull("bodyStream", bodyStream);
             Guard.AgainstNull("headers", headers);
+
             MessageId = messageId;
             Headers = headers;
             BodyStream = bodyStream;

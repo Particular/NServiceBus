@@ -1,18 +1,19 @@
 namespace NServiceBus.MessageMutator
 {
     using System.Collections.Generic;
+    using System.IO;
 
     /// <summary>
     /// Context class for <see cref="IMutateIncomingTransportMessages"/>.
     /// </summary>
     public class MutateIncomingTransportMessageContext
     {
-        byte[] body;
+        Stream body;
 
         /// <summary>
         /// Initializes a new instance of <see cref="MutateOutgoingTransportMessageContext"/>.
         /// </summary>
-        public MutateIncomingTransportMessageContext(byte[] body, IDictionary<string, string> headers)
+        public MutateIncomingTransportMessageContext(Stream body, IDictionary<string, string> headers)
         {
             Guard.AgainstNull("headers", headers);
             Guard.AgainstNull("body", body);
@@ -23,7 +24,7 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// The body of the message.
         /// </summary>
-        public byte[] Body
+        public Stream Body
         {
             get { return body; }
             set

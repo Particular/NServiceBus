@@ -1,6 +1,7 @@
 namespace NServiceBus.Unicast.Transport
 {
     using System.Collections.Generic;
+    using System.IO;
     using NServiceBus.Transports;
 
     /// <summary>
@@ -14,7 +15,7 @@ namespace NServiceBus.Unicast.Transport
         /// <returns>Transport Message.</returns>
         public static OutgoingMessage Create(MessageIntentEnum intent)
         {
-            var message = new OutgoingMessage(CombGuid.Generate().ToString(),new Dictionary<string, string>(),new byte[0]);
+            var message = new OutgoingMessage(CombGuid.Generate().ToString(),new Dictionary<string, string>(), Stream.Null);
             message.Headers[Headers.ControlMessageHeader] = true.ToString();
             message.Headers[Headers.MessageIntent] = intent.ToString();
 

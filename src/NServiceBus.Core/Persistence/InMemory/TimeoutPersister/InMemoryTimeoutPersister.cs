@@ -2,6 +2,7 @@ namespace NServiceBus.InMemory.TimeoutPersister
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Threading;
     using System.Threading.Tasks;
     using Timeout.Core;
@@ -46,9 +47,13 @@ namespace NServiceBus.InMemory.TimeoutPersister
             return Task.FromResult(new TimeoutsChunk(dueTimeouts, nextTimeToRunQuery));
         }
 
-        public Task Add(TimeoutData timeout, TimeoutPersistenceOptions options)
+        public async Task Add(TimeoutData timeout, TimeoutPersistenceOptions options)
         {
             timeout.Id = Guid.NewGuid().ToString();
+            var body = timeout.Body;
+            var ms = new MemoryStream();
+            await body.CopyToAsync(ms);
+            timeout.Body = ms;
             try
             {
                 readerWriterLock.EnterWriteLock();
@@ -58,8 +63,6 @@ namespace NServiceBus.InMemory.TimeoutPersister
             {
                 readerWriterLock.ExitWriteLock();
             }
-
-            return Task.FromResult(0);
         }
 
         public Task<TimeoutData> Remove(string timeoutId, TimeoutPersistenceOptions options)

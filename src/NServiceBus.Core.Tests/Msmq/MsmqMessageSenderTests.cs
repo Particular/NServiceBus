@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Messaging;
     using NServiceBus.Extensibility;
     using NServiceBus.Routing;
@@ -29,7 +30,7 @@
                     1
                 };
                 var headers = new Dictionary<string, string>();
-                var outgoingMessage = new OutgoingMessage("1", headers, bytes);
+                var outgoingMessage = new OutgoingMessage("1", headers, new MemoryStream(bytes));
                 var dispatchOptions = new DispatchOptions(new DirectToTargetDestination(queueName), DispatchConsistency.Default);
                 messageSender.Dispatch(new[] { new TransportOperation(outgoingMessage, dispatchOptions) }, new ContextBag());
                 var messageLabel = ReadMessageLabel(path);
@@ -57,7 +58,7 @@
                     1
                 };
                 var headers = new Dictionary<string, string>();
-                var outgoingMessage = new OutgoingMessage("1", headers, bytes);
+                var outgoingMessage = new OutgoingMessage("1", headers, new MemoryStream(bytes));
                 var dispatchOptions = new DispatchOptions(new DirectToTargetDestination(queueName), DispatchConsistency.Default);
                 messageSender.Dispatch(new[] { new TransportOperation(outgoingMessage, dispatchOptions) }, new ContextBag());
                 var messageLabel = ReadMessageLabel(path);

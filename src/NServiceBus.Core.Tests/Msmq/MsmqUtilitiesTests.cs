@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Messaging;
     using NServiceBus.DeliveryConstraints;
     using NServiceBus.Performance.TimeToBeReceived;
@@ -22,7 +23,7 @@
             var message = MsmqUtilities.Convert(new OutgoingMessage("message id", new Dictionary<string, string>
             {
                 {"NServiceBus.ExceptionInfo.Message", expected}
-            }, new byte[0]), options);
+            }, Stream.Null), options);
             var headers = MsmqUtilities.ExtractHeaders(message);
 
             Assert.AreEqual(expected, headers["NServiceBus.ExceptionInfo.Message"]);
@@ -38,7 +39,7 @@
             var message = MsmqUtilities.Convert(new OutgoingMessage("message id", new Dictionary<string, string>
             {
                 {"NServiceBus.ExceptionInfo.Message", expected}
-            }, new byte[0]), options);
+            }, Stream.Null), options);
             var bufferWithNulls = new byte[message.Extension.Length + (10 * sizeof(char))];
 
             Buffer.BlockCopy(message.Extension, 0, bufferWithNulls, 0, bufferWithNulls.Length - (10 * sizeof(char)));
@@ -53,7 +54,7 @@
         [Test]
         public void Should_fetch_the_replytoaddress_from_responsequeue_for_backwards_compatibility()
         {
-            var message = MsmqUtilities.Convert(new OutgoingMessage("message id", new Dictionary<string, string>(), new byte[0]), new DispatchOptions(new DirectToTargetDestination("destination"), DispatchConsistency.Default));
+            var message = MsmqUtilities.Convert(new OutgoingMessage("message id", new Dictionary<string, string>(), Stream.Null), new DispatchOptions(new DirectToTargetDestination("destination"), DispatchConsistency.Default));
 
             message.ResponseQueue = new MessageQueue(new MsmqAddress("local", Environment.MachineName).FullPath);
             var headers = MsmqUtilities.ExtractHeaders(message);
@@ -66,7 +67,7 @@
         {
             var options = new DispatchOptions(new DirectToTargetDestination("destination"), DispatchConsistency.Default, new List<DeliveryConstraint> { new DiscardIfNotReceivedBefore(TimeSpan.FromDays(1)) });
 
-            var message = MsmqUtilities.Convert(new OutgoingMessage("message id", new Dictionary<string, string>(), new byte[0]), options);
+            var message = MsmqUtilities.Convert(new OutgoingMessage("message id", new Dictionary<string, string>(), Stream.Null), options);
 
             Assert.AreEqual(TimeSpan.FromDays(1), message.TimeToBeReceived);
         }
@@ -77,8 +78,8 @@
         {
             var options = new DispatchOptions(new DirectToTargetDestination("destination"), DispatchConsistency.Default, new List<DeliveryConstraint> { new NonDurableDelivery() });
 
-            Assert.False(MsmqUtilities.Convert(new OutgoingMessage("message id", new Dictionary<string, string>(), new byte[0]), options).Recoverable);
-            Assert.True(MsmqUtilities.Convert(new OutgoingMessage("message id", new Dictionary<string, string>(), new byte[0]), new DispatchOptions(new DirectToTargetDestination("destination"), DispatchConsistency.Default, new List<DeliveryConstraint>())).Recoverable);
+            Assert.False(MsmqUtilities.Convert(new OutgoingMessage("message id", new Dictionary<string, string>(), Stream.Null), options).Recoverable);
+            Assert.True(MsmqUtilities.Convert(new OutgoingMessage("message id", new Dictionary<string, string>(), Stream.Null), new DispatchOptions(new DirectToTargetDestination("destination"), DispatchConsistency.Default, new List<DeliveryConstraint>())).Recoverable);
         }
 
     }

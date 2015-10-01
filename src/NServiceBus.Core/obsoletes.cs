@@ -409,6 +409,15 @@ namespace NServiceBus.Timeout.Core
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public const string OriginalReplyToAddress = "NServiceBus.Timeout.ReplyToAddress";
+
+        /// <summary>
+        /// Additional state.
+        /// </summary>
+        [ObsoleteEx(
+            Message = "Not used anymore",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public byte[] State { get; set; }
     }
 }
 

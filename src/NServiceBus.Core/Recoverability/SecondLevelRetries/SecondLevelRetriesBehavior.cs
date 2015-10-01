@@ -47,8 +47,9 @@ namespace NServiceBus
 
                 if (retryPolicy.TryGetDelay(message, ex, currentRetry, out delay))
                 {
-                    message.RevertToOriginalBodyIfNeeded();
-                    var messageToRetry = new OutgoingMessage(message.Id, message.Headers, message.Body);
+                    // TODO; How to enable this?
+                    // message.RevertToOriginalBodyIfNeeded();
+                    var messageToRetry = new OutgoingMessage(message.MessageId, message.Headers, message.BodyStream);
 
                     messageToRetry.Headers[Headers.Retries] = currentRetry.ToString();
                     messageToRetry.Headers[RetriesTimestamp] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
@@ -61,7 +62,7 @@ namespace NServiceBus
                         new DelayDeliveryWith(delay)
                     });
 
-                    Logger.Warn($"Second Level Retry will reschedule message '{message.Id}' after a delay of {delay} because of an exception:", ex);
+                    Logger.Warn($"Second Level Retry will reschedule message '{message.MessageId}' after a delay of {delay} because of an exception:", ex);
 
                     await dispatchPipeline.Invoke(dispatchContext).ConfigureAwait(false);
 
@@ -71,7 +72,7 @@ namespace NServiceBus
                 }
 
                 message.Headers.Remove(Headers.Retries);
-                Logger.WarnFormat("Giving up Second Level Retries for message '{0}'.", message.Id);
+                Logger.WarnFormat("Giving up Second Level Retries for message '{0}'.", message.MessageId);
                 throw;
             }
 

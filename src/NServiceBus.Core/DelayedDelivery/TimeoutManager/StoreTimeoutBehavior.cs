@@ -45,7 +45,7 @@ namespace NServiceBus
             await base.Cooldown();
         }
 
-        async Task HandleBackwardsCompatibility(TransportMessage message, PhysicalMessageProcessingStageBehavior.Context context)
+        async Task HandleBackwardsCompatibility(IncomingMessage message, PhysicalMessageProcessingStageBehavior.Context context)
         {
             var timeoutId = message.Headers[TimeoutIdToDispatchHeader];
 
@@ -68,12 +68,12 @@ namespace NServiceBus
                 return;
             }
 
-            var outgoingMessages = new OutgoingMessage(message.Id, message.Headers, message.Body);
+            var outgoingMessages = new OutgoingMessage(message.MessageId, message.Headers, message.BodyStream);
             var dispatchOptions = new DispatchOptions(new DirectToTargetDestination(destination), DispatchConsistency.Default);
             await dispatcher.Dispatch(new[] { new TransportOperation(outgoingMessages, dispatchOptions) }, context).ConfigureAwait(false);
         }
 
-        async Task HandleInternal(TransportMessage message, PhysicalMessageProcessingStageBehavior.Context context)
+        async Task HandleInternal(IncomingMessage message, PhysicalMessageProcessingStageBehavior.Context context)
         {
             var sagaId = Guid.Empty;
 
@@ -95,10 +95,10 @@ namespace NServiceBus
                 string expire;
                 if (!message.Headers.TryGetValue(TimeoutManagerHeaders.Expire, out expire))
                 {
-                    throw new InvalidOperationException("Non timeout message arrived at the timeout manager, id:" + message.Id);
+                    throw new InvalidOperationException("Non timeout message arrived at the timeout manager, id:" + message.MessageId);
                 }
 
-                var destination = message.ReplyToAddress;
+                var destination = message.GetReplyToAddress();
 
                 string routeExpiredTimeoutTo;
                 if (message.Headers.TryGetValue(TimeoutManagerHeaders.RouteExpiredTimeoutTo, out routeExpiredTimeoutTo))
@@ -110,7 +110,7 @@ namespace NServiceBus
                 {
                     Destination = destination,
                     SagaId = sagaId,
-                    State = message.Body,
+                    Body = message.BodyStream,
                     Time = DateTimeExtensions.ToUtcDateTime(expire),
                     Headers = message.Headers,
                     OwningTimeoutManager = owningTimeoutManager
@@ -119,7 +119,7 @@ namespace NServiceBus
                 if (data.Time.AddSeconds(-1) <= DateTime.UtcNow)
                 {
                     var sendOptions = new DispatchOptions(new DirectToTargetDestination(data.Destination), DispatchConsistency.Default);
-                    var outgoingMessage = new OutgoingMessage(data.Headers[Headers.MessageId], data.Headers, data.State);
+                    var outgoingMessage = new OutgoingMessage(data.Headers[Headers.MessageId], data.Headers, data.Body);
 
                     await dispatcher.Dispatch(new[] { new TransportOperation(outgoingMessage, sendOptions) }, context).ConfigureAwait(false);
                     return;

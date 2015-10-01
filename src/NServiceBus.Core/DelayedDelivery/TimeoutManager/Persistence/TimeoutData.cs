@@ -2,6 +2,7 @@ namespace NServiceBus.Timeout.Core
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
 
     /// <summary>
     /// Holds timeout information.
@@ -24,9 +25,9 @@ namespace NServiceBus.Timeout.Core
         public Guid SagaId { get; set; }
 
         /// <summary>
-        /// Additional state.
+        /// The timeout body stream.
         /// </summary>
-        public byte[] State { get; set; }
+        public Stream Body { get; set; }
 
         /// <summary>
         /// The time at which the timeout expires.

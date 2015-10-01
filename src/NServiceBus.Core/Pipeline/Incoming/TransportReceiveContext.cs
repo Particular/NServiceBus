@@ -13,19 +13,13 @@
             Guard.AgainstNull("receivedMessage", receivedMessage);
             Guard.AgainstNull("parentContext", parentContext);
 
-            Message = new TransportMessage(receivedMessage.MessageId, receivedMessage.Headers)
-            {
-                Body = new byte[receivedMessage.BodyStream.Length]
-            };
-
-            receivedMessage.BodyStream.Read(Message.Body, 0, Message.Body.Length);
-
-            Set(Message);
+            Set(receivedMessage);
+            Message = receivedMessage;
         }
 
         /// <summary>
         /// The physical message beeing processed.
         /// </summary>
-        public TransportMessage Message { get; private set; }
+        public IncomingMessage Message { get; private set; }
     }
 }
