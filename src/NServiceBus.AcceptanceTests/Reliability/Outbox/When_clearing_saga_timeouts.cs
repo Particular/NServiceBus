@@ -16,7 +16,7 @@
         public async Task Should_record_the_request_to_clear_in_outbox()
         {
             var context = await Scenario.Define<Context>()
-            .WithEndpoint<NonDtcReceivingEndpoint>(b => b.Given(bus => bus.SendLocalAsync(new PlaceOrder { DataId = Guid.NewGuid() })))
+            .WithEndpoint<NonDtcReceivingEndpoint>(b => b.When(bus => bus.SendLocalAsync(new PlaceOrder { DataId = Guid.NewGuid() })))
             .AllowExceptions()
             .Done(c => c.Done)
             .Run();

@@ -11,7 +11,7 @@
         public async Task Should_flow_causation_headers()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<CausationEndpoint>(b => b.Given(bus => bus.SendLocalAsync(new MessageSentOutsideOfHandler())))
+                    .WithEndpoint<CausationEndpoint>(b => b.When(bus => bus.SendLocalAsync(new MessageSentOutsideOfHandler())))
                     .Done(c => c.Done)
                     .Run();
 

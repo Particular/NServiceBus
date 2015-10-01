@@ -15,7 +15,7 @@ namespace NServiceBus.AcceptanceTests.Hosting
         public async Task MD5_should_not_be_used()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<MyEndpoint>(e => e.Given(b => b.SendLocalAsync(new MyMessage())))
+                .WithEndpoint<MyEndpoint>(e => e.When(b => b.SendLocalAsync(new MyMessage())))
                 .Done(c => c.Done)
                 .Run();
 

@@ -12,7 +12,7 @@
         public async Task Should_throw()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(b => b.Given(async (bus, c) =>
+                    .WithEndpoint<Endpoint>(b => b.When(async (bus, c) =>
                     {
                         try
                         {

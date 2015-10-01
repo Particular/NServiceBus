@@ -14,7 +14,7 @@
         public async Task Should_not_start_a_new_saga_if_not_found()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<SagaEndpoint>(b => b.Given(bus =>
+                .WithEndpoint<SagaEndpoint>(b => b.When(bus =>
                 {
                     var message = new MessageWithSagaId();
                     var options = new SendOptions();

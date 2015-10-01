@@ -22,7 +22,7 @@
                     DataId = Guid.NewGuid()
                 }))
                 )
-                .WithEndpoint<ReplyEndpoint>(b => b.Given(async (bus, context) =>
+                .WithEndpoint<ReplyEndpoint>(b => b.When(async (bus, context) =>
                 {
                     await bus.SubscribeAsync<DidSomething>();
                     if (context.HasNativePubSubSupport)

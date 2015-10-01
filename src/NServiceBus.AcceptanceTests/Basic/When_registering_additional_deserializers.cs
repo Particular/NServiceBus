@@ -17,7 +17,7 @@
         public async Task Two_endpoints_with_different_serializers_should_deserialize_the_message()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<CustomSerializationSender>(b => b.Given(
+                .WithEndpoint<CustomSerializationSender>(b => b.When(
                     (bus, c) =>
                     {
                         var sendOptions = new SendOptions();

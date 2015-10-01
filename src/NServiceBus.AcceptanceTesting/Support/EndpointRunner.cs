@@ -14,7 +14,6 @@
         static ILog Logger = LogManager.GetLogger<EndpointRunner>();
         EndpointBehavior behavior;
         IStartableBus bus;
-        ISendOnlyBus sendOnlyBus;
         EndpointConfiguration configuration;
         ScenarioContext scenarioContext;
         BusConfiguration busConfiguration;
@@ -27,7 +26,7 @@
                 behavior = endpointBehavior;
                 scenarioContext = run.ScenarioContext;
                 configuration =
-                    ((IEndpointConfigurationFactory)Activator.CreateInstance(endpointBehavior.EndpointBuilderType))
+                    ((IEndpointConfigurationFactory) Activator.CreateInstance(endpointBehavior.EndpointBuilderType))
                         .Get();
                 configuration.EndpointName = endpointName;
 
@@ -44,7 +43,7 @@
 
                 if (configuration.SendOnly)
                 {
-                    sendOnlyBus = Bus.CreateSendOnly(busConfiguration);
+                    bus = new IBusAdapter(Bus.CreateSendOnly(busConfiguration));
                 }
                 else
                 {
@@ -77,38 +76,30 @@
         {
             try
             {
-                foreach (var given in behavior.Givens)
-                {
-                    if (token.IsCancellationRequested)
-                    {
-                        break;
-                    }
-
-                    var action = given.GetAction(scenarioContext);
-
-                    if (configuration.SendOnly)
-                    {
-                        await action(new IBusAdapter(sendOnlyBus)).ConfigureAwait(false);
-                    }
-                    else
-                    {
-                        await action(bus).ConfigureAwait(false);
-                    }
-                }
+                await bus.StartAsync();
 
                 if (token.IsCancellationRequested)
                 {
                     return Result.Failure(new OperationCanceledException("Endpoint start was aborted"));
                 }
 
-                if (!configuration.SendOnly)
-                {
-                    await bus.StartAsync();
-                }
+                return Result.Success();
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Failed to start endpoint " + configuration.EndpointName, ex);
 
+                return Result.Failure(ex);
+            }
+        }
+
+        public async Task<Result> Whens(CancellationToken token)
+        {
+            try
+            {
                 if (behavior.Whens.Count != 0)
                 {
-                    await Task.Run(async() =>
+                    await Task.Run(async () =>
                     {
                         var executedWhens = new List<Guid>();
 
@@ -144,12 +135,11 @@
                         }
                     }, token).ConfigureAwait(false);
                 }
-
                 return Result.Success();
             }
             catch (Exception ex)
             {
-                Logger.Error("Failed to start endpoint " + configuration.EndpointName, ex);
+                Logger.Error($"Failed to execute Whens on endpoint{configuration.EndpointName}", ex);
 
                 return Result.Failure(ex);
             }
@@ -159,14 +149,7 @@
         {
             try
             {
-                if (configuration.SendOnly)
-                {
-                    sendOnlyBus.Dispose();
-                }
-                else
-                {
-                    bus.Dispose();
-                }
+                bus.Dispose();
 
                 await Cleanup();
 

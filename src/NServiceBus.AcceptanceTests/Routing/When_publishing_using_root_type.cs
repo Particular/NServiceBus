@@ -21,7 +21,7 @@
 
                             return bus.PublishAsync(message);
                         }))
-                    .WithEndpoint<Subscriber1>(b => b.Given(async (bus, context) =>
+                    .WithEndpoint<Subscriber1>(b => b.When(async (bus, context) =>
                     {
                         await bus.SubscribeAsync<EventMessage>();
 

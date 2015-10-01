@@ -16,7 +16,7 @@
         {
             var context = await Scenario.Define<Context>()
                     .WithEndpoint<Server>()
-                    .WithEndpoint<EndpointWithAuditOn>(b => b.Given(bus => bus.SendAsync(new Request())))
+                    .WithEndpoint<EndpointWithAuditOn>(b => b.When(bus => bus.SendAsync(new Request())))
                     .WithEndpoint<AuditSpyEndpoint>()
                     .Done(c => c.MessageAudited)
                     .Run();

@@ -17,7 +17,7 @@
                 .WithEndpoint<Publisher3>(b =>
                     b.When(c => c.Subscriber3Subscribed, bus => bus.PublishAsync<IFoo>())
                     )
-                .WithEndpoint<Subscriber3>(b => b.Given(async (bus, context) =>
+                .WithEndpoint<Subscriber3>(b => b.When(async (bus, context) =>
                 {
                     await bus.SubscribeAsync<IFoo>();
 
@@ -48,7 +48,7 @@
                             return bus.PublishAsync(new MyEvent(), options);
                         })
                      )
-                    .WithEndpoint<Subscriber1>(b => b.Given(async (bus, context) =>
+                    .WithEndpoint<Subscriber1>(b => b.When(async (bus, context) =>
                         {
                             await bus.SubscribeAsync<MyEvent>();
                             if (context.HasNativePubSubSupport)
@@ -61,7 +61,7 @@
                                 context.AddTrace("Subscriber1 has now asked to be subscribed to MyEvent");
                             }
                         }))
-                      .WithEndpoint<Subscriber2>(b => b.Given(async (bus, context) =>
+                      .WithEndpoint<Subscriber2>(b => b.When(async (bus, context) =>
                       {
                           await bus.SubscribeAsync<MyEvent>();
 

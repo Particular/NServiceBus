@@ -14,7 +14,7 @@
         public async Task Should_not_deliver_them_until_the_commit_phase()
         {
             await Scenario.Define<Context>()
-                    .WithEndpoint<TransactionalEndpoint>(b => b.Given(async (bus, context) =>
+                    .WithEndpoint<TransactionalEndpoint>(b => b.When(async (bus, context) =>
                         {
                             using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                             {
@@ -40,7 +40,7 @@
         public async Task Should_not_deliver_them_on_rollback()
         {
             await Scenario.Define<Context>()
-                    .WithEndpoint<TransactionalEndpoint>(b => b.Given(async bus =>
+                    .WithEndpoint<TransactionalEndpoint>(b => b.When(async bus =>
                         {
                             using (new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                             {

@@ -13,7 +13,7 @@
         {
             var context = await Scenario.Define<Context>()
                     .WithEndpoint<SagaEndpoint>(b => b
-                        .Given(bus => bus.SendLocalAsync(new StartSagaMessage { Key = "Part1_Part2"}))
+                        .When(bus => bus.SendLocalAsync(new StartSagaMessage { Key = "Part1_Part2"}))
                         .When(c => c.FirstMessageReceived, bus =>  bus.SendLocalAsync(new OtherMessage { Part1 = "Part1", Part2 = "Part2" })))
                     .AllowExceptions()
                     .Done(c => c.SecondMessageReceived)

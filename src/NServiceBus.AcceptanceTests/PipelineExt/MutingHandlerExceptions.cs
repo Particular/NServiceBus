@@ -17,7 +17,7 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
         public async Task RunDemo()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<EndpointWithCustomExceptionMuting>(b => b.Given(bus => bus.SendLocalAsync(new MessageThatWillBlowUpButExWillBeMuted())))
+                .WithEndpoint<EndpointWithCustomExceptionMuting>(b => b.When(bus => bus.SendLocalAsync(new MessageThatWillBlowUpButExWillBeMuted())))
                 .WithEndpoint<AuditSpy>()
                 .Done(c => c.MessageAudited)
                 .Run();

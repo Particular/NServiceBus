@@ -15,7 +15,7 @@
         public async Task Should_hydrate_and_invoke_the_existing_instance()
         {
             await Scenario.Define<Context>()
-                    .WithEndpoint<NonEmptySagaCtorEndpt>(b => b.Given(bus => bus.SendLocalAsync(new StartSagaMessage { SomeId = IdThatSagaIsCorrelatedOn })))
+                    .WithEndpoint<NonEmptySagaCtorEndpt>(b => b.When(bus => bus.SendLocalAsync(new StartSagaMessage { SomeId = IdThatSagaIsCorrelatedOn })))
                     .Done(c => c.SecondMessageReceived)
                     .Repeat(r => r.For(Persistence.Default))
                     .Run();

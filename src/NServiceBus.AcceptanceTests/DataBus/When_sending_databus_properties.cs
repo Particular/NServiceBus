@@ -14,7 +14,7 @@
             var payloadToSend = new byte[1024 * 1024 * 10];
 
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<Sender>(b => b.Given(bus => bus.SendAsync(new MyMessageWithLargePayload
+                    .WithEndpoint<Sender>(b => b.When(bus => bus.SendAsync(new MyMessageWithLargePayload
                     {
                         Payload = new DataBusProperty<byte[]>(payloadToSend)
                     })))

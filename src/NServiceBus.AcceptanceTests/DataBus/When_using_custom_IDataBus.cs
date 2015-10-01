@@ -16,7 +16,7 @@
         public async Task Should_be_able_to_register_via_fluent()
         {
             var context = await Scenario.Define<Context>(c => { c.TempPath = Path.GetTempFileName(); })
-                    .WithEndpoint<SenderViaFluent>(b => b.Given(bus => bus.SendAsync(new MyMessageWithLargePayload
+                    .WithEndpoint<SenderViaFluent>(b => b.When(bus => bus.SendAsync(new MyMessageWithLargePayload
                     {
                         Payload = new DataBusProperty<byte[]>(PayloadToSend)
                     })))

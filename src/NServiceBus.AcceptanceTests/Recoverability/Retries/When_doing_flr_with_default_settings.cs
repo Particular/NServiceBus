@@ -13,7 +13,7 @@
         public async Task Should_not_do_any_retries_if_transactions_are_off()
         {
             await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                    .WithEndpoint<RetryEndpoint>(b => b.Given(async (bus, context) =>
+                    .WithEndpoint<RetryEndpoint>(b => b.When(async (bus, context) =>
                     {
                         await bus.SendLocalAsync(new MessageToBeRetried { Id = context.Id });
                         await bus.SendLocalAsync(new MessageToBeRetried { Id = context.Id, SecondMessage = true });

@@ -213,8 +213,8 @@
             var endpoints = runners.Select(r => r.Instance).ToList();
 
             await StartEndpoints(endpoints, allowedExceptions, cts).ConfigureAwait(false);
-
             runDescriptor.ScenarioContext.EndpointsStarted = true;
+            await ExecuteWhens(endpoints, allowedExceptions, cts).ConfigureAwait(false);
 
             var startTime = DateTime.UtcNow;
             var maxTime = runDescriptor.TestExecutionTimeout;
@@ -259,18 +259,7 @@
 
         static async Task StartEndpoints(IEnumerable<EndpointRunner> endpoints, Func<Exception, bool> allowedExceptions, CancellationTokenSource cts)
         {
-            var token = cts.Token;
-            var tasks = endpoints.Select(endpoint => Task.Run(async () =>
-            {
-                var result = await endpoint.Start(token).ConfigureAwait(false);
-
-                if (result.Failed && !allowedExceptions(result.Exception))
-                {
-                    cts.Cancel();
-                    throw new ScenarioException("Endpoint failed to start", result.Exception);
-                }
-            })).ToArray();
-
+            var tasks = endpoints.Select(endpoint => StartEndpoint(endpoint, allowedExceptions, cts));
             var whenAll = Task.WhenAll(tasks);
             var timeoutTask = Task.Delay(TimeSpan.FromMinutes(2));
             var completedTask = await Task.WhenAny(whenAll, timeoutTask).ConfigureAwait(false);
@@ -279,11 +268,47 @@
             {
                 throw new Exception("Starting endpoints took longer than 2 minutes");
             }
+        }
 
+        static async Task StartEndpoint(EndpointRunner endpoint, Func<Exception, bool> allowedExceptions, CancellationTokenSource cts)
+        {
+            var token = cts.Token;
+            var result = await endpoint.Start(token).ConfigureAwait(false);
+
+            if (result.Failed && !allowedExceptions(result.Exception))
+            {
+                cts.Cancel();
+                throw new ScenarioException("Endpoint failed to start", result.Exception);
+            }
+        }
+
+        static async Task ExecuteWhens(IEnumerable<EndpointRunner> endpoints, Func<Exception, bool> allowedExceptions, CancellationTokenSource cts)
+        {
+            var tasks = endpoints.Select(endpoint => ExecuteWhens(endpoint, allowedExceptions, cts));
+            var whenAll = Task.WhenAll(tasks);
+            var timeoutTask = Task.Delay(TimeSpan.FromSeconds(30));
+            var completedTask = await Task.WhenAny(whenAll, timeoutTask).ConfigureAwait(false);
+
+            if (completedTask.Equals(timeoutTask))
+            {
+                throw new Exception("Executing given and whens took longer than 2 minutes");
+            }
+        }
+
+        static async Task ExecuteWhens(EndpointRunner endpoint, Func<Exception, bool> allowedExceptions, CancellationTokenSource cts)
+        {
+            var token = cts.Token;
+            var result = await endpoint.Whens(token);
+            if (result.Failed && !allowedExceptions(result.Exception))
+            {
+                cts.Cancel();
+                throw new ScenarioException("Whens failed to execute", result.Exception);
+            }
         }
 
         static async Task StopEndpoints(IEnumerable<EndpointRunner> endpoints)
         {
+            // We can get rid of Task.Run when stop is async
             var tasks = endpoints.Select(endpoint => Task.Run(async () =>
             {
                 Console.WriteLine("Stopping endpoint: {0}", endpoint.Name());

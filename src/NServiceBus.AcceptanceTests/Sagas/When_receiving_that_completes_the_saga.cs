@@ -16,7 +16,7 @@
             await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                     .WithEndpoint<RecvCompletesSagaEndpt>(b =>
                         {
-                            b.Given((bus, context) => bus.SendLocalAsync(new StartSagaMessage { SomeId = context.Id }));
+                            b.When((bus, context) => bus.SendLocalAsync(new StartSagaMessage { SomeId = context.Id }));
                             b.When(context => context.StartSagaMessageReceived, (bus, context) =>
                             {
                                 context.AddTrace("CompleteSagaMessage sent");
@@ -39,7 +39,7 @@
             await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<RecvCompletesSagaEndpt>(b =>
                 {
-                    b.Given((bus, c) => bus.SendLocalAsync(new StartSagaMessage
+                    b.When((bus, c) => bus.SendLocalAsync(new StartSagaMessage
                     {
                         SomeId = c.Id
                     }));

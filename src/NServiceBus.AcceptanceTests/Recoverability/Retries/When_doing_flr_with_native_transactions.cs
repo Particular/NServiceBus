@@ -14,7 +14,7 @@
         public async Task Should_do_5_retries_by_default_with_native_transactions()
         {
             await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                    .WithEndpoint<RetryEndpoint>(b => b.Given((bus, context) => bus.SendLocalAsync(new MessageToBeRetried { Id = context.Id })))
+                    .WithEndpoint<RetryEndpoint>(b => b.When((bus, context) => bus.SendLocalAsync(new MessageToBeRetried { Id = context.Id })))
                     .AllowSimulatedExceptions()
                     .Done(c => c.ForwardedToErrorQueue)
                     .Repeat(r => r.For(Transports.Default))

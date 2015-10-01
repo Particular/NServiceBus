@@ -11,7 +11,7 @@
         public async Task Should_allow_publishing_commands()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Endpoint>(b => b.Given((bus, c) =>
+                .WithEndpoint<Endpoint>(b => b.When((bus, c) =>
                 {
                     var publishOptions = new PublishOptions();
                     publishOptions.DoNotEnforceBestPractices();

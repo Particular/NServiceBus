@@ -11,24 +11,13 @@
         {
             behavior = new EndpointBehavior(type)
                 {
-                    Givens = new List<IGivenDefinition>(),
                     Whens = new List<IWhenDefinition>()
                 };
         }
 
-        public EndpointBehaviorBuilder<TContext> Given(Func<IBus, Task> action)
+        public EndpointBehaviorBuilder<TContext> When(Func<IBus, TContext, Task> action)
         {
-            behavior.Givens.Add(new GivenDefinition<TContext>(action));
-
-            return this;
-        }
-
-
-        public EndpointBehaviorBuilder<TContext> Given(Func<IBus, TContext, Task> action)
-        {
-            behavior.Givens.Add(new GivenDefinition<TContext>(action));
-
-            return this;
+            return When(c => true, action);
         }
 
         public EndpointBehaviorBuilder<TContext> When(Func<IBus, Task> action)

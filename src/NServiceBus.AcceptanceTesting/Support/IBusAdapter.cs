@@ -3,7 +3,7 @@
     using System;
     using System.Threading.Tasks;
 
-    public class IBusAdapter : IBus
+    public class IBusAdapter : IStartableBus 
     {
         ISendOnlyBus sendOnlyBus;
 
@@ -89,6 +89,11 @@
         public void DoNotContinueDispatchingCurrentMessageToHandlers()
         {
             throw new NotImplementedException();
+        }
+
+        public Task<IBus> StartAsync()
+        {
+            return Task.FromResult((IBus)this);
         }
 
         public IMessageContext CurrentMessageContext { get; private set; }

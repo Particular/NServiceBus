@@ -14,7 +14,7 @@
         public async Task Should_round_robin()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Sender>(b => b.When(c => c.Receiver1Ready && c.Receiver2Ready, (bus, c) => bus.SendAsync(new Request())))
+                .WithEndpoint<Sender>(b => b.When((bus, c) => bus.SendAsync(new Request())))
                 .WithEndpoint<Receiver1>()
                 .WithEndpoint<Receiver2>()
                 .Done(c => c.Receiver1TimesCalled > 4 && c.Receiver2TimesCalled > 4)
@@ -28,8 +28,6 @@
         {
             public int Receiver1TimesCalled { get; set; }
             public int Receiver2TimesCalled { get; set; }
-            public bool Receiver1Ready { get; set; }
-            public bool Receiver2Ready { get; set; }
         }
 
         public class Sender : EndpointConfigurationBuilder
@@ -87,22 +85,6 @@
                 });
             }
 
-            public class PresenceReporter : IWantToRunWhenBusStartsAndStops
-            {
-                public Context Context { get; set; }
-
-                public Task StartAsync()
-                {
-                    Context.Receiver1Ready = true;
-                    return Task.FromResult(0);
-                }
-
-                public Task StopAsync()
-                {
-                    return Task.FromResult(0);
-                }
-            }
-
             public class MyMessageHandler : IHandleMessages<Request>
             {
                 public IBus Bus { get; set; }
@@ -126,22 +108,6 @@
                     c.EndpointName("DistributingACommand.Receiver");
                     c.UseCustomLogicalToTransportAddressTranslation((address, @default) => "DistributingACommand.Receiver-2");
                 });
-            }
-
-            public class PresenceReporter : IWantToRunWhenBusStartsAndStops
-            {
-                public Context Context { get; set; }
-
-                public Task StartAsync()
-                {
-                    Context.Receiver2Ready = true;
-                    return Task.FromResult(0);
-                }
-
-                public Task StopAsync()
-                {
-                    return Task.FromResult(0);
-                }
             }
 
             public class MyMessageHandler : IHandleMessages<Request>

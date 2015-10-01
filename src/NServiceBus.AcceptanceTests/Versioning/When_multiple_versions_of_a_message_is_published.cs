@@ -22,13 +22,13 @@
                                 e.MoreInfo = "dasd";
                             });
                         }))
-                    .WithEndpoint<V1Subscriber>(b => b.Given(async (bus,c) =>
+                    .WithEndpoint<V1Subscriber>(b => b.When(async (bus,c) =>
                         {
                             await bus.SubscribeAsync<V1Event>();
                             if (c.HasNativePubSubSupport)
                                 c.V1Subscribed = true;
                         }))
-                    .WithEndpoint<V2Subscriber>(b => b.Given(async (bus,c) =>
+                    .WithEndpoint<V2Subscriber>(b => b.When(async (bus,c) =>
                         {
                             await bus.SubscribeAsync<V2Event>();
                             if (c.HasNativePubSubSupport)
