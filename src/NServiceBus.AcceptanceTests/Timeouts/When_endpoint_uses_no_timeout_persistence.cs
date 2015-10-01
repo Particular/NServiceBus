@@ -54,12 +54,10 @@
                 var types = GetTypesToUse(endpointConfiguration);
 
                 var config = Configure.With(types)
-                    //.DefineEndpointName(endpointConfiguration.EndpointName)
                     .CustomConfigurationSource(configSource)
                     .DefineBuilder(settings.GetOrNull("Builder"))
                     .DefineSerializer(settings.GetOrNull("Serializer"))
                     .DefineTransport(settings);
-                //.DefineSagaPersister(settings.GetOrNull("SagaPersister"));
 
                 return config.UnicastBus();
             }
