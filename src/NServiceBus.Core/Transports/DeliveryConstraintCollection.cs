@@ -25,7 +25,7 @@ namespace NServiceBus.Transports
         /// <returns>Success or failure</returns>
         public bool TryRemove<T>(out T constraint) where T : DeliveryConstraint
         {
-            constraint = constraints.OfType<T>().FirstOrDefault();
+            constraint = constraints.OfType<T>().SingleOrDefault();
             if (constraint != null)
             {
                 constraints.Remove(constraint);
