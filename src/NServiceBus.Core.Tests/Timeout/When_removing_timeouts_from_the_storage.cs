@@ -2,6 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
+    using System.Transactions;
     using NServiceBus.Persistence.InMemory.TimeoutPersister;
     using NServiceBus.Persistence.Raven;
     using NServiceBus.Persistence.Raven.TimeoutPersister;
@@ -46,6 +48,7 @@
     public abstract class When_removing_timeouts_from_the_storage
     {
         protected IPersistTimeouts persister;
+        protected IPersistTimeoutsV2 persisterV2;
 
         protected abstract IPersistTimeouts CreateTimeoutPersister();
 
@@ -57,6 +60,7 @@
             Configure.GetEndpointNameAction = () => "MyEndpoint";
 
             persister = CreateTimeoutPersister();
+            persisterV2 = persister as IPersistTimeoutsV2;
         }
 
         [Test]
@@ -77,6 +81,50 @@
             }
 
             Assert.AreEqual(0, GetNextChunk().Count);
+        }
+
+        [Test]
+        public void TryRemove_should_work_with_concurrent_operations()
+        {
+            var timeoutData = new TimeoutData { Id = "1", Time = DateTime.UtcNow.AddHours(-1) };
+            persister.Add(timeoutData);
+
+            var t1EnteredTx = new AutoResetEvent(false);
+            var t2EnteredTx = new AutoResetEvent(false);
+
+            bool? t1Remove = null;
+            bool? t2Remove = null;
+            var t1 = new Thread(() =>
+            {
+                using (var tx = new TransactionScope())
+                {
+                    t1EnteredTx.Set();
+                    t2EnteredTx.WaitOne();
+
+                    t1Remove = persisterV2.TryRemove(timeoutData.Id);
+                    tx.Complete();
+                }
+            });
+
+            var t2 = new Thread(() =>
+            {
+                using (var tx = new TransactionScope())
+                {
+                    t2EnteredTx.Set();
+                    t1EnteredTx.WaitOne();
+
+                    t2Remove = persisterV2.TryRemove(timeoutData.Id);
+                    tx.Complete();
+                }
+            });
+
+            t1.Start();
+            t2.Start();
+            t1.Join();
+            t2.Join();
+
+            Assert.IsTrue(t1Remove.Value || t2Remove.Value);
+            Assert.IsFalse(t1Remove.Value && t2Remove.Value);
         }
 
         protected List<Tuple<string, DateTime>> GetNextChunk()
