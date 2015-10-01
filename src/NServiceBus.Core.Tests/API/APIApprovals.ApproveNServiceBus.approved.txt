@@ -888,8 +888,8 @@ namespace NServiceBus
     public class TransportMessage
     {
         public TransportMessage(string existingId, System.Collections.Generic.Dictionary<string, string> existingHeaders) { }
-        [System.ObsoleteAttribute("Not used anymore, you most likely should use a `OutgoingMessageInstead`. Will be " +
-            "removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Not used anymore, you most likely should use a `OutgoingMessage` instead. Will be" +
+            " removed in version 7.0.0.", true)]
         public TransportMessage() { }
         public byte[] Body { get; set; }
         [System.ObsoleteAttribute("Use the value of the \'NServiceBus.CorrelationId\' header instead. Will be removed " +
