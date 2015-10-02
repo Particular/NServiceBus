@@ -9,13 +9,13 @@ namespace NServiceBus.AcceptanceTests.Timeouts
     {
         protected override void Configure(BusConfiguration config)
         {
-            config.RegisterComponents(c => c.ConfigureComponent<FakeDequer>(DependencyLifecycle.SingleInstance));
+            config.RegisterComponents(c => c.ConfigureComponent<FakeDequeuer>(DependencyLifecycle.SingleInstance));
             config.RegisterComponents(c => c.ConfigureComponent<FakeSender>(DependencyLifecycle.SingleInstance));
             config.RegisterComponents(c => c.ConfigureComponent<FakeQueueCreator>(DependencyLifecycle.SingleInstance));
         }
     }
 
-    class FakeDequer : IDequeueMessages
+    class FakeDequeuer : IDequeueMessages
     {
 
         public void Init(Address address, Unicast.Transport.TransactionSettings transactionSettings, Func<TransportMessage, bool> tryProcessMessage, Action<TransportMessage, Exception> endProcessMessage)
@@ -24,12 +24,10 @@ namespace NServiceBus.AcceptanceTests.Timeouts
 
         public void Start(int maximumConcurrencyLevel)
         {
-
         }
 
         public void Stop()
         {
-
         }
     }
 
@@ -37,7 +35,6 @@ namespace NServiceBus.AcceptanceTests.Timeouts
     {
         public void CreateQueueIfNecessary(Address address, string account)
         {
-            //no-op
         }
     }
 
@@ -45,7 +42,6 @@ namespace NServiceBus.AcceptanceTests.Timeouts
     {
         public void Send(TransportMessage message, SendOptions sendOptions)
         {
-
         }
     }
 }
