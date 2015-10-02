@@ -5,7 +5,7 @@ namespace NServiceBus.Persistence.InMemory.TimeoutPersister
     using System.Linq;
     using Timeout.Core;
 
-    public class InMemoryTimeoutPersistence : IPersistTimeouts
+    public class InMemoryTimeoutPersistence : IPersistTimeouts, IPersistTimeoutsV2
     {
         readonly IList<TimeoutData> storage = new List<TimeoutData>();
         readonly object lockObject = new object();
@@ -56,6 +56,20 @@ namespace NServiceBus.Persistence.InMemory.TimeoutPersister
             {
                 storage.Where(t => t.SagaId == sagaId).ToList().ForEach(item => storage.Remove(item));
             }
+        }
+
+        public TimeoutData Peek(string timeoutId)
+        {
+            lock (lockObject)
+            {
+                return storage.SingleOrDefault(t => t.Id == timeoutId);
+            }
+        }
+
+        public bool TryRemove(string timeoutId)
+        {
+            TimeoutData timeoutData;
+            return TryRemove(timeoutId, out timeoutData);
         }
     }
 }
