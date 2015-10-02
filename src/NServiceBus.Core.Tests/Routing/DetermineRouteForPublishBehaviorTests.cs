@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using OutgoingPipeline;
@@ -19,7 +20,7 @@
             IndirectAddressLabel addressLabel = null;
             await behavior.Invoke(context, _ =>
             {
-                addressLabel = _.AddressLabels.Cast<IndirectAddressLabel>().Single();
+                addressLabel = (IndirectAddressLabel)_.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
                 return Task.FromResult(0);
             });
 

@@ -28,7 +28,7 @@
             DirectAddressLabel addressLabel = null;
             await behavior.Invoke(context, c =>
             {
-                addressLabel = c.AddressLabels.Cast<DirectAddressLabel>().Single();
+                addressLabel = (DirectAddressLabel) c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
                 return Task.FromResult(0);
             });
 
@@ -48,7 +48,7 @@
             DirectAddressLabel addressLabel = null;
             await behavior.Invoke(context, c =>
             {
-                addressLabel = c.AddressLabels.Cast<DirectAddressLabel>().Single();
+                addressLabel = (DirectAddressLabel) c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
                 return Task.FromResult(0);
             });
             
@@ -60,7 +60,7 @@
         {
             var strategy = new FakeRoutingStrategy()
             {
-                FixedDestination = new AddressLabel[] { new DirectAddressLabel("MappedDestination")}
+                FixedDestination = new[] { new UnicastRoutingStrategy("MappedDestination")}
             };
             var behavior = InitializeBehavior(strategy:strategy);
             var options = new SendOptions();
@@ -70,7 +70,7 @@
             DirectAddressLabel addressLabel = null;
             await behavior.Invoke(context, c =>
             {
-                addressLabel = c.AddressLabels.Cast<DirectAddressLabel>().Single();
+                addressLabel = (DirectAddressLabel) c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
                 return Task.FromResult(0);
             });
             
@@ -82,7 +82,7 @@
         {
             var strategy = new FakeRoutingStrategy()
             {
-                FixedDestination = new AddressLabel[] {}
+                FixedDestination = new UnicastRoutingStrategy[] {}
             };
 
             var behavior = InitializeBehavior(strategy: strategy);
@@ -118,9 +118,9 @@
 
         class FakeRoutingStrategy : IDirectRoutingStrategy
         {
-            public IEnumerable<AddressLabel> FixedDestination { get; set; } 
+            public IEnumerable<UnicastRoutingStrategy> FixedDestination { get; set; } 
 
-            public IEnumerable<AddressLabel> Route(Type messageType, DistributionStrategy distributionStrategy, ContextBag contextBag)
+            public IEnumerable<UnicastRoutingStrategy> Route(Type messageType, DistributionStrategy distributionStrategy, ContextBag contextBag)
             {
                 return FixedDestination;
             }

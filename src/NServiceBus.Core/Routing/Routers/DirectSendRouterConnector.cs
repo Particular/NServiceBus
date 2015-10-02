@@ -48,9 +48,9 @@ namespace NServiceBus
             }
         }
 
-        static IEnumerable<AddressLabel> RouteToDestination(string physicalAddress)
+        static IEnumerable<UnicastRoutingStrategy> RouteToDestination(string physicalAddress)
         {
-            yield return new DirectAddressLabel(physicalAddress);
+            yield return new UnicastRoutingStrategy(physicalAddress);
         }
 
         string localAddress;

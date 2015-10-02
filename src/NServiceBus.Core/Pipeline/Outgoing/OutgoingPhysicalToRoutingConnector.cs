@@ -17,7 +17,7 @@
 
             var message = new OutgoingMessage(state.MessageId, state.Headers, context.Body);
 
-            return next(new RoutingContext(message, context.AddressLabels, context));
+            return next(new RoutingContext(message, context.RoutingStrategies, context));
         }
 
         public class State

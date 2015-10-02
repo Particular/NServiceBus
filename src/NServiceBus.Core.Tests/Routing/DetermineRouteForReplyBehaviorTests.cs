@@ -28,7 +28,7 @@
             DirectAddressLabel addressLabel = null;
             await behavior.Invoke(context, c =>
             {
-                addressLabel = c.AddressLabels.Cast<DirectAddressLabel>().Single();
+                addressLabel = (DirectAddressLabel) c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
                 return Task.FromResult(0);
             });
 
@@ -61,7 +61,7 @@
             DirectAddressLabel addressLabel = null;
             await behavior.Invoke(context, c =>
             {
-                addressLabel = c.AddressLabels.Cast<DirectAddressLabel>().Single();
+                addressLabel = (DirectAddressLabel) c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
                 return Task.FromResult(0);
             });
 

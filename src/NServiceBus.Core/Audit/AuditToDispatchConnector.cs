@@ -41,7 +41,7 @@ namespace NServiceBus
                 deliveryConstraints.Add(new DiscardIfNotReceivedBefore(timeToBeReceived.Value));
             }
 
-            var dispatchContext = new RoutingContext(message, new DirectAddressLabel(context.AuditAddress), context);
+            var dispatchContext = new RoutingContext(message, new UnicastRoutingStrategy(context.AuditAddress), context);
 
             dispatchContext.Set(deliveryConstraints);
 

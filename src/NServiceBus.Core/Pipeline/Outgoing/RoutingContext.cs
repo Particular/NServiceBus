@@ -13,19 +13,19 @@ namespace NServiceBus.TransportDispatch
         /// <summary>
         /// Initializes the context with the message to be dispatched.
         /// </summary>
-        public RoutingContext(OutgoingMessage messageToDispatch, IReadOnlyCollection<AddressLabel> addressLabels, BehaviorContext context) : base(context)
+        public RoutingContext(OutgoingMessage messageToDispatch, IReadOnlyCollection<RoutingStrategy> routingStrategies, BehaviorContext context) : base(context)
         {
             Message = messageToDispatch;
-            AddressLabels = addressLabels;
+            RoutingStrategies = routingStrategies;
         }
 
         /// <summary>
         /// Initializes the context with the message to be dispatched.
         /// </summary>
-        public RoutingContext(OutgoingMessage messageToDispatch, AddressLabel addressLabel, BehaviorContext context) : base(context)
+        public RoutingContext(OutgoingMessage messageToDispatch, RoutingStrategy addressLabel, BehaviorContext context) : base(context)
         {
             Message = messageToDispatch;
-            AddressLabels = new [] {addressLabel};
+            RoutingStrategies = new [] {addressLabel};
         }
 
         /// <summary>
@@ -34,8 +34,8 @@ namespace NServiceBus.TransportDispatch
         public OutgoingMessage Message { get; private set; }
 
         /// <summary>
-        /// The routing strategy for the operation to be dispatched.
+        /// The routing strategies for the operation to be dispatched.
         /// </summary>
-        public IReadOnlyCollection<AddressLabel> AddressLabels { get; set; }
+        public IReadOnlyCollection<RoutingStrategy> RoutingStrategies { get; set; }
     }
 }

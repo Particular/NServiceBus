@@ -1813,9 +1813,9 @@ namespace NServiceBus.OutgoingPipeline
     }
     public class OutgoingPhysicalMessageContext : NServiceBus.Pipeline.BehaviorContext
     {
-        public OutgoingPhysicalMessageContext(byte[] body, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.AddressLabel> addressLabels, NServiceBus.Pipeline.Contexts.OutgoingLogicalMessageContext parentContext) { }
-        public System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.AddressLabel> AddressLabels { get; }
+        public OutgoingPhysicalMessageContext(byte[] body, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.RoutingStrategy> routingStrategies, NServiceBus.Pipeline.Contexts.OutgoingLogicalMessageContext parentContext) { }
         public byte[] Body { get; set; }
+        public System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.RoutingStrategy> RoutingStrategies { get; }
     }
     public class OutgoingPublishContext : NServiceBus.Pipeline.BehaviorContext
     {
@@ -2070,9 +2070,9 @@ namespace NServiceBus.Pipeline.Contexts
     }
     public class OutgoingLogicalMessageContext : NServiceBus.Pipeline.BehaviorContext
     {
-        public OutgoingLogicalMessageContext(NServiceBus.OutgoingPipeline.OutgoingLogicalMessage message, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.AddressLabel> addressLabels, NServiceBus.Extensibility.ContextBag parentContext) { }
-        public System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.AddressLabel> AddressLabels { get; }
+        public OutgoingLogicalMessageContext(NServiceBus.OutgoingPipeline.OutgoingLogicalMessage message, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.RoutingStrategy> routingStrategies, NServiceBus.Extensibility.ContextBag parentContext) { }
         public NServiceBus.OutgoingPipeline.OutgoingLogicalMessage Message { get; }
+        public System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.RoutingStrategy> RoutingStrategies { get; set; }
         public void UpdateMessageInstance(object newInstance) { }
     }
     public class TransportReceiveContext : NServiceBus.Pipeline.Contexts.IncomingContext
@@ -2131,6 +2131,16 @@ namespace NServiceBus.Routing
         public void AddStatic(NServiceBus.EndpointName endpoint, params NServiceBus.EndpointInstanceName[] instances) { }
         public void AddStaticUsingTransportDiscriminators(NServiceBus.EndpointName endpoint, params string[] transportDiscriminators) { }
     }
+    public class MulticastRoutingStrategy : NServiceBus.Routing.RoutingStrategy
+    {
+        public MulticastRoutingStrategy(System.Type messageType) { }
+        public override NServiceBus.Routing.AddressLabel Apply(System.Collections.Generic.Dictionary<string, string> headers) { }
+    }
+    public abstract class RoutingStrategy
+    {
+        protected RoutingStrategy() { }
+        public abstract NServiceBus.Routing.AddressLabel Apply(System.Collections.Generic.Dictionary<string, string> headers);
+    }
     public class SingleInstanceRoundRobinDistributionStrategy : NServiceBus.Routing.DistributionStrategy
     {
         public SingleInstanceRoundRobinDistributionStrategy() { }
@@ -2141,6 +2151,11 @@ namespace NServiceBus.Routing
     {
         public SubscribeContext(NServiceBus.Pipeline.BehaviorContext parentContext, System.Type eventType, NServiceBus.SubscribeOptions options) { }
         public System.Type EventType { get; }
+    }
+    public class UnicastRoutingStrategy : NServiceBus.Routing.RoutingStrategy
+    {
+        public UnicastRoutingStrategy(string destination) { }
+        public override NServiceBus.Routing.AddressLabel Apply(System.Collections.Generic.Dictionary<string, string> headers) { }
     }
     public class UnsubscribeContext : NServiceBus.Pipeline.BehaviorContext
     {
@@ -2474,10 +2489,10 @@ namespace NServiceBus.TransportDispatch
     }
     public class RoutingContext : NServiceBus.Pipeline.BehaviorContext
     {
-        public RoutingContext(NServiceBus.Transports.OutgoingMessage messageToDispatch, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.AddressLabel> addressLabels, NServiceBus.Pipeline.BehaviorContext context) { }
-        public RoutingContext(NServiceBus.Transports.OutgoingMessage messageToDispatch, NServiceBus.Routing.AddressLabel addressLabel, NServiceBus.Pipeline.BehaviorContext context) { }
-        public System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.AddressLabel> AddressLabels { get; set; }
+        public RoutingContext(NServiceBus.Transports.OutgoingMessage messageToDispatch, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.RoutingStrategy> routingStrategies, NServiceBus.Pipeline.BehaviorContext context) { }
+        public RoutingContext(NServiceBus.Transports.OutgoingMessage messageToDispatch, NServiceBus.Routing.RoutingStrategy addressLabel, NServiceBus.Pipeline.BehaviorContext context) { }
         public NServiceBus.Transports.OutgoingMessage Message { get; }
+        public System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.RoutingStrategy> RoutingStrategies { get; set; }
     }
 }
 namespace NServiceBus.Transports

@@ -22,7 +22,7 @@ namespace NServiceBus.Routing
             this.physicalAddresses = physicalAddresses;
         }
 
-        public IEnumerable<AddressLabel> Route(Type messageType, DistributionStrategy distributionStrategy, ContextBag contextBag)
+        public IEnumerable<UnicastRoutingStrategy> Route(Type messageType, DistributionStrategy distributionStrategy, ContextBag contextBag)
         {
             var typesToRoute = messageMetadataRegistry.GetMessageMetadata(messageType)
                 .MessageHierarchy
@@ -35,7 +35,7 @@ namespace NServiceBus.Routing
                 e => knownEndpoints.FindInstances(e),
                 distributionStrategy.SelectDestination,
                 i => physicalAddresses.GetPhysicalAddress(i)
-                )).Select(a => new DirectAddressLabel(a));
+                )).Select(a => new UnicastRoutingStrategy(a));
         }
     }
 }

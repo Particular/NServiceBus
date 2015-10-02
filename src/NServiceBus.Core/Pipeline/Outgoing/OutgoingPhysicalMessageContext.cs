@@ -14,11 +14,11 @@
         /// <summary>
         /// Initializes an instance of the context.
         /// </summary>
-        public OutgoingPhysicalMessageContext(byte[] body, IReadOnlyCollection<AddressLabel> addressLabels, OutgoingLogicalMessageContext parentContext)
+        public OutgoingPhysicalMessageContext(byte[] body, IReadOnlyCollection<RoutingStrategy> routingStrategies, OutgoingLogicalMessageContext parentContext)
             : base(parentContext)
         {
             Body = body;
-            AddressLabels = addressLabels;
+            RoutingStrategies = routingStrategies;
         }
 
 
@@ -31,8 +31,8 @@
         public byte[] Body { get; set; }
 
         /// <summary>
-        /// The address labels for this message.
+        /// The routing strategies for this message.
         /// </summary>
-        public IReadOnlyCollection<AddressLabel> AddressLabels { get; } 
+        public IReadOnlyCollection<RoutingStrategy> RoutingStrategies { get; } 
     }
 }

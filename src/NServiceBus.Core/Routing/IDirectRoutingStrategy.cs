@@ -6,6 +6,6 @@ namespace NServiceBus.Routing
 
     interface IDirectRoutingStrategy
     {
-        IEnumerable<AddressLabel> Route(Type messageType, DistributionStrategy distributionStrategy, ContextBag contextBag);
+        IEnumerable<UnicastRoutingStrategy> Route(Type messageType, DistributionStrategy distributionStrategy, ContextBag contextBag);
     }
 }
