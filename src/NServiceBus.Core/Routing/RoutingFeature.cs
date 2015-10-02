@@ -38,7 +38,7 @@
             context.Container.ConfigureComponent(b => context.Settings.Get<Publishers>(), DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent(b => context.Settings.Get<DistributionPolicy>(), DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent<DirectRoutingStrategy>(DependencyLifecycle.SingleInstance);
-            context.Container.ConfigureComponent(b => new DirectSendRouterBehavior(LocalAddress(b), b.Build<DirectRoutingStrategy>(), b.Build<DistributionPolicy>()), DependencyLifecycle.InstancePerCall);
+            context.Container.ConfigureComponent(b => new DirectSendRouterConnector(LocalAddress(b), b.Build<DirectRoutingStrategy>(), b.Build<DistributionPolicy>()), DependencyLifecycle.InstancePerCall);
 
             var unicastBusConfig = context.Settings.GetConfigSection<UnicastBusConfig>();
             if (unicastBusConfig != null)
@@ -66,14 +66,12 @@
                 }
             }
 
-            context.Container.ConfigureComponent<DispatchStrategy>(b => new DefaultDispatchStrategy(), DependencyLifecycle.SingleInstance);
-
             var outboundRoutingPolicy = transportDefinition.GetOutboundRoutingPolicy(context.Settings);
-            context.Pipeline.Register("DirectSendRouterBehavior", typeof(DirectSendRouterBehavior), "Determines how the message being sent should be routed");
-            context.Pipeline.Register("DirectReplyRouterBehavior", typeof(DirectReplyRouterBehavior), "Determines how replies should be routed");
+            context.Pipeline.Register("DirectSendRouterConnector", typeof(DirectSendRouterConnector), "Determines how the message being sent should be routed");
+            context.Pipeline.Register("DirectReplyRouterConnector", typeof(DirectReplyRouterConnector), "Determines how replies should be routed");
             if (outboundRoutingPolicy.Publishes == OutboundRoutingType.DirectSend)
             {
-                context.Pipeline.Register("DirectPublishRouterBehavior", typeof(DirectPublishRouterBehavior), "Determines how the published messages should be routed");
+                context.Pipeline.Register("DirectPublishRouterConnector", typeof(DirectPublishRouterConnector), "Determines how the published messages should be routed");
             }
             else
             {

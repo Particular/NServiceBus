@@ -1,5 +1,6 @@
 namespace NServiceBus.TransportDispatch
 {
+    using System.Collections.Generic;
     using Routing;
     using Pipeline;
     using Transports;
@@ -12,10 +13,19 @@ namespace NServiceBus.TransportDispatch
         /// <summary>
         /// Initializes the context with the message to be dispatched.
         /// </summary>
-        public RoutingContext(OutgoingMessage messageToDispatch,RoutingStrategy routingStrategy, BehaviorContext context) : base(context)
+        public RoutingContext(OutgoingMessage messageToDispatch, IReadOnlyCollection<AddressLabel> addressLabels, BehaviorContext context) : base(context)
         {
             Message = messageToDispatch;
-            RoutingStrategy = routingStrategy;
+            AddressLabels = addressLabels;
+        }
+
+        /// <summary>
+        /// Initializes the context with the message to be dispatched.
+        /// </summary>
+        public RoutingContext(OutgoingMessage messageToDispatch, AddressLabel addressLabel, BehaviorContext context) : base(context)
+        {
+            Message = messageToDispatch;
+            AddressLabels = new [] {addressLabel};
         }
 
         /// <summary>
@@ -26,6 +36,6 @@ namespace NServiceBus.TransportDispatch
         /// <summary>
         /// The routing strategy for the operation to be dispatched.
         /// </summary>
-        public RoutingStrategy RoutingStrategy { get; set; }
+        public IReadOnlyCollection<AddressLabel> AddressLabels { get; set; }
     }
 }

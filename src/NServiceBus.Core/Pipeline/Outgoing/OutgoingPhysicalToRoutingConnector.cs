@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Routing;
     using OutgoingPipeline;
     using Pipeline;
     using TransportDispatch;
@@ -18,7 +17,7 @@
 
             var message = new OutgoingMessage(state.MessageId, state.Headers, context.Body);
 
-            return next(new RoutingContext(message, context.Get<RoutingStrategy>(), context));
+            return next(new RoutingContext(message, context.AddressLabels, context));
         }
 
         public class State

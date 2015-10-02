@@ -11,7 +11,7 @@ namespace NServiceBus
     {
         public override Task Invoke(ForwardingContext context, Func<RoutingContext, Task> next)
         {
-            return next(new RoutingContext(context.Message,new DirectToTargetDestination(context.Address), context));
+            return next(new RoutingContext(context.Message,new DirectAddressLabel(context.Address), context));
         }
     }
 }

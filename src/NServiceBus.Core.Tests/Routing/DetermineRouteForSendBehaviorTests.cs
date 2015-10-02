@@ -25,11 +25,14 @@
 
             var context = CreateContext(options);
 
-            await behavior.Invoke(context, () => Task.FromResult(0));
+            DirectAddressLabel addressLabel = null;
+            await behavior.Invoke(context, c =>
+            {
+                addressLabel = c.AddressLabels.Cast<DirectAddressLabel>().Single();
+                return Task.FromResult(0);
+            });
 
-            var routingStrategy = (DirectAddressLabel)context.Get<AddressLabel[]>().First();
-
-            Assert.AreEqual("destination endpoint", routingStrategy.Destination);
+            Assert.AreEqual("destination endpoint", addressLabel.Destination);
         }
 
         [Test]
@@ -42,11 +45,14 @@
 
             var context = CreateContext(options);
 
-            await behavior.Invoke(context, () => Task.FromResult(0));
-
-            var routingStrategy = (DirectAddressLabel)context.Get<AddressLabel[]>().First();
-
-            Assert.AreEqual("MyLocalAddress", routingStrategy.Destination);
+            DirectAddressLabel addressLabel = null;
+            await behavior.Invoke(context, c =>
+            {
+                addressLabel = c.AddressLabels.Cast<DirectAddressLabel>().Single();
+                return Task.FromResult(0);
+            });
+            
+            Assert.AreEqual("MyLocalAddress", addressLabel.Destination);
         }
 
         [Test]
@@ -61,11 +67,14 @@
 
             var context = CreateContext(options);
 
-            await behavior.Invoke(context, () => Task.FromResult(0));
-
-            var routingStrategy = (DirectAddressLabel)context.Get<AddressLabel[]>().First();
-
-            Assert.AreEqual("MappedDestination", routingStrategy.Destination);
+            DirectAddressLabel addressLabel = null;
+            await behavior.Invoke(context, c =>
+            {
+                addressLabel = c.AddressLabels.Cast<DirectAddressLabel>().Single();
+                return Task.FromResult(0);
+            });
+            
+            Assert.AreEqual("MappedDestination", addressLabel.Destination);
         }
 
         [Test]
@@ -81,7 +90,7 @@
 
             var context = CreateContext(options, new MessageWithoutRouting());
 
-            var ex = Assert.Throws<Exception>(async() => await behavior.Invoke(context, () => Task.FromResult(0)));
+            var ex = Assert.Throws<Exception>(async() => await behavior.Invoke(context, _ => Task.FromResult(0)));
 
             Assert.True(ex.Message.Contains("No destination specified"));
         }
@@ -98,13 +107,13 @@
         }
 
 
-        static DirectSendRouterBehavior InitializeBehavior(string localAddress = null,
+        static DirectSendRouterConnector InitializeBehavior(string localAddress = null,
             FakeRoutingStrategy strategy = null)
         {
             var metadataRegistry = new MessageMetadataRegistry(new Conventions());
             metadataRegistry.RegisterMessageType(typeof(MyMessage));
             metadataRegistry.RegisterMessageType(typeof(MessageWithoutRouting));
-            return new DirectSendRouterBehavior(localAddress, strategy ?? new FakeRoutingStrategy(), new DistributionPolicy());
+            return new DirectSendRouterConnector(localAddress, strategy ?? new FakeRoutingStrategy(), new DistributionPolicy());
         }
 
         class FakeRoutingStrategy : IDirectRoutingStrategy

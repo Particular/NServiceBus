@@ -19,7 +19,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="operations">The operations.</param>
         /// <param name="parentContext">The parent context.</param>
-        public DispatchContext(IEnumerable<TransportOperation> operations, BehaviorContext parentContext)
+        public DispatchContext(IReadOnlyCollection<TransportOperation> operations, BehaviorContext parentContext)
             : base(parentContext)
         {
             Operations = operations;

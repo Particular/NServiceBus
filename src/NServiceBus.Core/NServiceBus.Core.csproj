@@ -128,7 +128,7 @@
     <Compile Include="Routing\SingleInstanceRoundRobinDistributionStrategy.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\SubscriptionRouter.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\Publishers.cs" />
-    <Compile Include="Routing\Routers\DirectPublishRouterBehavior.cs" />
+    <Compile Include="Routing\Routers\DirectPublishRouterConnector.cs" />
     <Compile Include="Routing\DirectRoutingStrategy.cs" />
     <Compile Include="Routing\FileBasedDynamicRouting\FileRoutingTableSettings.cs" />
     <Compile Include="Routing\KnownEndpoints.cs" />
@@ -213,11 +213,8 @@
     <Compile Include="Pipeline\MutateTransportMessage\MutateOutgoingTransportMessageContext.cs" />
     <Compile Include="Pipeline\Outgoing\OutgoingLogicalMessage.cs" />
     <Compile Include="Pipeline\Outgoing\OutgoingPipelineFeature.cs" />
-    <Compile Include="Pipeline\Outgoing\PublishToOutgoingContextConnector.cs" />
     <Compile Include="Pipeline\Outgoing\OutgoingSendContext.cs" />
-    <Compile Include="Pipeline\Outgoing\SendToOutgoingContextConnector.cs" />
     <Compile Include="Pipeline\Outgoing\OutgoingReplyContext.cs" />
-    <Compile Include="Pipeline\Outgoing\ReplyToOutgoingContextConnector.cs" />
     <Compile Include="Performance\Counters\PerformanceCounterHelper.cs" />
     <Compile Include="Performance\Counters\PerformanceCounterInstance.cs" />
     <Compile Include="Performance\Counters\PerformanceMonitorUsersInstaller.cs" />
@@ -245,7 +242,7 @@
     <Compile Include="Reliability\Outbox\OutboxStorageOptions.cs" />
     <Compile Include="Features\RootFeature.cs" />
     <Compile Include="Routing\Routers\IndirectPublishRouterBehavior.cs" />
-    <Compile Include="Routing\Routers\DirectSendRouterBehavior.cs" />
+    <Compile Include="Routing\Routers\DirectSendRouterConnector.cs" />
     <Compile Include="Routing\DirectAddressLabel.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\IInitializableSubscriptionStorage.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\MessageDrivenUnsubscribeTerminator.cs" />
@@ -274,10 +271,6 @@
     <Compile Include="Routing\MessagingBestPractices\EnforceUnsubscribeBestPracticesBehavior.cs" />
     <Compile Include="Routing\NativeSubscribeTerminator.cs" />
     <Compile Include="Routing\NativeUnsubscribeTerminator.cs" />
-    <Compile Include="Routing\RoutingExtensions.cs" />
-    <Compile Include="Routing\StaticRoutes.cs" />
-    <Compile Include="Routing\StorageDrivenPublishing\SubscribersForEvent.cs" />
-    <Compile Include="Routing\RoutingContextExtensions.cs" />
     <Compile Include="Routing\SubscribeContext.cs" />
     <Compile Include="Routing\SubscribeOptions.cs" />
     <Compile Include="Routing\UnsubscribeContext.cs" />
@@ -286,14 +279,11 @@
     <Compile Include="Sagas\PopulateAutoCorrelationHeadersForRepliesBehavior.cs" />
     <Compile Include="Routing\DetermineRouteForReplyBehavior.cs" />
     <Compile Include="Sagas\SagaPersistenceOptions.cs" />
-    <Compile Include="Routing\Routers\DirectReplyRouterBehavior.cs" />
+    <Compile Include="Routing\Routers\DirectReplyRouterConnector.cs" />
     <Compile Include="Routing\NonDurableDelivery.cs" />
     <Compile Include="Routing\RoutingFeature.cs" />
     <Compile Include="Routing\RoutingOptionExtensions.cs" />
-    <Compile Include="Routing\RoutingStrategy.cs" />
-    <Compile Include="Routing\ToAllSubscribers.cs" />
     <Compile Include="Routing\AddressLabel.cs" />
-    <Compile Include="Routing\AddressLabelFactory.cs" />
     <Compile Include="Routing\IndirectAddressLabel.cs" />
     <Compile Include="Satellites\SatelliteBehavior.cs" />
     <Compile Include="SendOptions.cs" />
@@ -305,12 +295,6 @@
     <Compile Include="Pipeline\Outgoing\RoutingContext.cs" />
     <Compile Include="Pipeline\Outgoing\RoutingToDispatchConnector.cs" />
     <Compile Include="Pipeline\Outgoing\HeaderContextExtensions.cs" />
-    <Compile Include="TransportDispatch\DefaultDispatchStrategy.cs" />
-    <Compile Include="TransportDispatch\DispatchContext.cs" />
-    <Compile Include="TransportDispatch\DispatchFeature.cs" />
-    <Compile Include="TransportDispatch\DispatchStrategy.cs" />
-    <Compile Include="TransportDispatch\DispatchTerminator.cs" />
-    <Compile Include="TransportDispatch\HeaderContextExtensions.cs" />
     <Compile Include="Transports\OutboundRoutingPolicy.cs" />
     <Compile Include="Transports\OutboundRoutingType.cs" />
     <Compile Include="Transports\PushRuntimeSettings.cs" />
@@ -677,7 +661,6 @@
     <Compile Include="Performance\Statistics\CriticalTime\CriticalTimeCalculator.cs" />
     <Compile Include="Performance\Statistics\SLA\EstimatedTimeToSLABreachCalculator.cs" />
     <Compile Include="Causation\AttachCausationHeadersBehavior.cs" />
-    <Compile Include="Routing\StorageDrivenPublishing\StorageDrivenPublishBehavior.cs" />
     <Compile Include="Unicast\Queuing\QueueNotFoundException.cs" />
     <Compile Include="Unicast\Queuing\QueuesCreator.cs" />
     <Compile Include="Unicast\MessageHandlerRegistry.cs" />

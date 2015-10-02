@@ -52,7 +52,7 @@
             try
             {
 
-                var dispatchOptions = new DispatchOptions(new DirectToTargetDestination(destination), DispatchConsistency.Default);
+                var dispatchOptions = new DispatchOptions(new DirectAddressLabel(destination), DispatchConsistency.Default);
                 await dispatcher.Dispatch(new[] { new TransportOperation(unsubscribeMessage, dispatchOptions) }, context).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)

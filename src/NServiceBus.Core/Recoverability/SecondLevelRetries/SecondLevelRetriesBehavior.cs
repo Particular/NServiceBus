@@ -54,7 +54,7 @@ namespace NServiceBus
                     messageToRetry.Headers[RetriesTimestamp] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
 
 
-                    var dispatchContext = new RoutingContext(messageToRetry, new DirectToTargetDestination(localAddress), context);
+                    var dispatchContext = new RoutingContext(messageToRetry, new DirectAddressLabel(localAddress), context);
 
                     context.Set(new List<DeliveryConstraint>
                     {

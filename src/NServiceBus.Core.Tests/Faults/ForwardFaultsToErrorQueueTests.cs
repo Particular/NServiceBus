@@ -133,8 +133,8 @@ namespace NServiceBus.Core.Tests
                     throw new Exception("Failed to dispatch");
                 }
 
-                Destination = ((DirectAddressLabel) context.GetAddressLabels().First()).Destination;
-                MessageSent = context.Get<OutgoingMessage>();
+                Destination = ((DirectAddressLabel) context.AddressLabels.First()).Destination;
+                MessageSent = context.Message;
                 return Task.FromResult(0);
             }
         }

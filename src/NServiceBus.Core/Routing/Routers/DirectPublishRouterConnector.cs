@@ -5,35 +5,35 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline;
+    using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Routing;
-    using NServiceBus.Routing.StorageDrivenPublishing;
     using NServiceBus.TransportDispatch;
     using NServiceBus.Unicast.Queuing;
 
-    class DirectPublishRouterBehavior : Behavior<OutgoingPublishContext>
+    class DirectPublishRouterConnector : StageConnector<OutgoingPublishContext, OutgoingLogicalMessageContext>
     {
         DirectRoutingStrategy directRoutingStrategy;
         DistributionPolicy distributionPolicy;
 
-        public DirectPublishRouterBehavior(DirectRoutingStrategy directRoutingStrategy, DistributionPolicy distributionPolicy)
+        public DirectPublishRouterConnector(DirectRoutingStrategy directRoutingStrategy, DistributionPolicy distributionPolicy)
         {
             this.directRoutingStrategy = directRoutingStrategy;
             this.distributionPolicy = distributionPolicy;
         }
 
-        public override async Task Invoke(OutgoingPublishContext context, Func<Task> next)
+        public override async Task Invoke(OutgoingPublishContext context, Func<OutgoingLogicalMessageContext, Task> next)
         {
-            var eventType = context.GetMessageType();
+            var eventType = context.Message.MessageType;
             var distributionStrategy = distributionPolicy.GetDistributionStrategy(eventType);
 
-            var addressLabels = directRoutingStrategy.Route(eventType, distributionStrategy, context).ToList();
+            var addressLabels = directRoutingStrategy.Route(eventType, distributionStrategy, context)
+                .EnsureNonEmpty(() => "No destination specified for message: " + eventType)
+                .ToArray();
 
-            context.SetAddressLabels(addressLabels.EnsureNonEmpty(() => "No destination specified for message: " + eventType));
             context.SetHeader(Headers.MessageIntent, MessageIntentEnum.Send.ToString());
-            context.Set(new SubscribersForEvent(addressLabels.OfType<DirectAddressLabel>().Select(r => r.Destination).ToList(), eventType));
             try
             {
-                await next().ConfigureAwait(false);
+                await next(new OutgoingLogicalMessageContext(context.Message, addressLabels, context)).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {

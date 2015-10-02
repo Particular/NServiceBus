@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Threading.Tasks;
     using OutgoingPipeline;
     using NServiceBus.Pipeline.Contexts;
@@ -16,7 +17,7 @@
         [Test]
         public async Task Should_default_to_reply_address_of_incoming_message_for_replies()
         {
-            var behavior = new DetermineRouteForReplyBehavior();
+            var behavior = new DirectReplyRouterConnector();
             var options = new ReplyOptions();
 
             var context = new OutgoingReplyContext(new OutgoingLogicalMessage(new MyReply()), options, new TransportReceiveContext(new IncomingMessage("id", new Dictionary<string, string>
@@ -24,22 +25,25 @@
                 {Headers.ReplyToAddress, "ReplyAddressOfIncomingMessage"}
             }, new MemoryStream()), new RootContext(null)));
 
-            await behavior.Invoke(context, () => Task.FromResult(0));
+            DirectAddressLabel addressLabel = null;
+            await behavior.Invoke(context, c =>
+            {
+                addressLabel = c.AddressLabels.Cast<DirectAddressLabel>().Single();
+                return Task.FromResult(0);
+            });
 
-            var routingStrategy = (DirectToTargetDestination)context.Get<RoutingStrategy>();
-
-            Assert.AreEqual("ReplyAddressOfIncomingMessage", routingStrategy.Destination);
+            Assert.AreEqual("ReplyAddressOfIncomingMessage", addressLabel.Destination);
         }
 
         [Test]
         public void Should_throw_if_incoming_message_has_no_reply_to_address()
         {
-            var behavior = new DetermineRouteForReplyBehavior();
+            var behavior = new DirectReplyRouterConnector();
             var options = new ReplyOptions();
 
             var context = new OutgoingReplyContext(new OutgoingLogicalMessage(new MyReply()), options, new TransportReceiveContext(new IncomingMessage("id", new Dictionary<string, string>(), new MemoryStream()), new RootContext(null)));
 
-            var ex = Assert.Throws<Exception>(async () => await behavior.Invoke(context, () => Task.FromResult(0)));
+            var ex = Assert.Throws<Exception>(async () => await behavior.Invoke(context, _ => Task.FromResult(0)));
 
             Assert.True(ex.Message.Contains(typeof(MyReply).FullName));
         }
@@ -47,18 +51,21 @@
         [Test]
         public async Task Should_use_explicit_route_for_replies_if_present()
         {
-            var behavior = new DetermineRouteForReplyBehavior();
+            var behavior = new DirectReplyRouterConnector();
             var options = new ReplyOptions();
 
             options.OverrideReplyToAddressOfIncomingMessage("CustomReplyToAddress");
 
             var context = new OutgoingReplyContext(new OutgoingLogicalMessage(new MyReply()), options, new RootContext(null));
 
-            await behavior.Invoke(context, () => Task.FromResult(0));
+            DirectAddressLabel addressLabel = null;
+            await behavior.Invoke(context, c =>
+            {
+                addressLabel = c.AddressLabels.Cast<DirectAddressLabel>().Single();
+                return Task.FromResult(0);
+            });
 
-            var routingStrategy = (DirectToTargetDestination)context.Get<RoutingStrategy>();
-
-            Assert.AreEqual("CustomReplyToAddress", routingStrategy.Destination);
+            Assert.AreEqual("CustomReplyToAddress", addressLabel.Destination);
         }
 
         class MyReply

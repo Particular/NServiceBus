@@ -30,8 +30,8 @@ namespace NServiceBus
     }
     public class BatchDispatchContext : NServiceBus.Pipeline.BehaviorContext
     {
-        public BatchDispatchContext(System.Collections.Generic.IEnumerable<NServiceBus.Transports.TransportOperation> operations, NServiceBus.Pipeline.BehaviorContext parentContext) { }
-        public System.Collections.Generic.IEnumerable<NServiceBus.Transports.TransportOperation> Operations { get; }
+        public BatchDispatchContext(System.Collections.Generic.IReadOnlyCollection<NServiceBus.Transports.TransportOperation> operations, NServiceBus.Pipeline.BehaviorContext parentContext) { }
+        public System.Collections.Generic.IReadOnlyCollection<NServiceBus.Transports.TransportOperation> Operations { get; }
     }
     public class static BestPracticesOptionExtensions
     {
@@ -259,7 +259,7 @@ namespace NServiceBus
     }
     public class DispatchContext : NServiceBus.Pipeline.BehaviorContext
     {
-        public DispatchContext(System.Collections.Generic.IEnumerable<NServiceBus.Transports.TransportOperation> operations, NServiceBus.Pipeline.BehaviorContext parentContext) { }
+        public DispatchContext(System.Collections.Generic.IReadOnlyCollection<NServiceBus.Transports.TransportOperation> operations, NServiceBus.Pipeline.BehaviorContext parentContext) { }
         public System.Collections.Generic.IEnumerable<NServiceBus.Transports.TransportOperation> Operations { get; }
     }
     public class static DurableMessagesConfig
@@ -1813,7 +1813,8 @@ namespace NServiceBus.OutgoingPipeline
     }
     public class OutgoingPhysicalMessageContext : NServiceBus.Pipeline.BehaviorContext
     {
-        public OutgoingPhysicalMessageContext(byte[] body, NServiceBus.Pipeline.Contexts.OutgoingLogicalMessageContext parentContext) { }
+        public OutgoingPhysicalMessageContext(byte[] body, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.AddressLabel> addressLabels, NServiceBus.Pipeline.Contexts.OutgoingLogicalMessageContext parentContext) { }
+        public System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.AddressLabel> AddressLabels { get; }
         public byte[] Body { get; set; }
     }
     public class OutgoingPublishContext : NServiceBus.Pipeline.BehaviorContext
@@ -2069,7 +2070,8 @@ namespace NServiceBus.Pipeline.Contexts
     }
     public class OutgoingLogicalMessageContext : NServiceBus.Pipeline.BehaviorContext
     {
-        public OutgoingLogicalMessageContext(NServiceBus.OutgoingPipeline.OutgoingLogicalMessage message, NServiceBus.Extensibility.ContextBag parentContext) { }
+        public OutgoingLogicalMessageContext(NServiceBus.OutgoingPipeline.OutgoingLogicalMessage message, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.AddressLabel> addressLabels, NServiceBus.Extensibility.ContextBag parentContext) { }
+        public System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.AddressLabel> AddressLabels { get; }
         public NServiceBus.OutgoingPipeline.OutgoingLogicalMessage Message { get; }
         public void UpdateMessageInstance(object newInstance) { }
     }
@@ -2080,21 +2082,25 @@ namespace NServiceBus.Pipeline.Contexts
 }
 namespace NServiceBus.Routing
 {
+    public abstract class AddressLabel
+    {
+        protected AddressLabel() { }
+    }
     public class AllInstancesDistributionStrategy : NServiceBus.Routing.DistributionStrategy
     {
         public AllInstancesDistributionStrategy() { }
         public override System.Collections.Generic.IEnumerable<NServiceBus.EndpointInstanceName> SelectDestination(System.Collections.Generic.IEnumerable<NServiceBus.EndpointInstanceName> allInstances) { }
+    }
+    public class DirectAddressLabel : NServiceBus.Routing.AddressLabel
+    {
+        public DirectAddressLabel(string destination) { }
+        public string Destination { get; }
     }
     public class DirectRoutingDestination
     {
         public DirectRoutingDestination(NServiceBus.EndpointName endpointName) { }
         public DirectRoutingDestination(NServiceBus.EndpointInstanceName instanceName) { }
         public DirectRoutingDestination(string physicalAddress) { }
-    }
-    public class DirectRoutingSlip : NServiceBus.Routing.RoutingSlip
-    {
-        public DirectRoutingSlip(string destination) { }
-        public string Destination { get; }
     }
     public class DirectRoutingTable
     {
@@ -2113,11 +2119,10 @@ namespace NServiceBus.Routing
         protected DistributionStrategy() { }
         public abstract System.Collections.Generic.IEnumerable<NServiceBus.EndpointInstanceName> SelectDestination(System.Collections.Generic.IEnumerable<NServiceBus.EndpointInstanceName> allInstances);
     }
-    public class IndirectRoutingSlip : NServiceBus.Routing.RoutingSlip
+    public class IndirectAddressLabel : NServiceBus.Routing.AddressLabel
     {
-        public IndirectRoutingSlip(System.Type messageType) { }
+        public IndirectAddressLabel(System.Type messageType) { }
         public System.Type MessageType { get; }
-        public override void Serialize(System.Collections.Generic.Dictionary<string, string> options) { }
     }
     public class KnownEndpoints
     {
@@ -2125,15 +2130,6 @@ namespace NServiceBus.Routing
         public void AddDynamic(System.Func<NServiceBus.EndpointName, System.Collections.Generic.IEnumerable<NServiceBus.EndpointInstanceName>> dynamicRule) { }
         public void AddStatic(NServiceBus.EndpointName endpoint, params NServiceBus.EndpointInstanceName[] instances) { }
         public void AddStaticUsingTransportDiscriminators(NServiceBus.EndpointName endpoint, params string[] transportDiscriminators) { }
-    }
-        public static System.Collections.Generic.IEnumerable<NServiceBus.Routing.RoutingSlip> GetRoutingSlips(this NServiceBus.TransportDispatch.DispatchContext context) { }
-        public static void SetRoutingSlips(this NServiceBus.Pipeline.BehaviorContext context, System.Collections.Generic.IEnumerable<NServiceBus.Routing.RoutingSlip> routingSlips) { }
-        public static void SetRoutingSlips(this NServiceBus.Pipeline.BehaviorContext context, params NServiceBus.Routing.RoutingSlip[] routingSlips) { }
-    }
-    public abstract class RoutingSlip
-    {
-        protected RoutingSlip() { }
-        public abstract void Serialize(System.Collections.Generic.Dictionary<string, string> options);
     }
     public class SingleInstanceRoundRobinDistributionStrategy : NServiceBus.Routing.DistributionStrategy
     {
@@ -2478,9 +2474,10 @@ namespace NServiceBus.TransportDispatch
     }
     public class RoutingContext : NServiceBus.Pipeline.BehaviorContext
     {
-        public RoutingContext(NServiceBus.Transports.OutgoingMessage messageToDispatch, NServiceBus.Routing.RoutingStrategy routingStrategy, NServiceBus.Pipeline.BehaviorContext context) { }
+        public RoutingContext(NServiceBus.Transports.OutgoingMessage messageToDispatch, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.AddressLabel> addressLabels, NServiceBus.Pipeline.BehaviorContext context) { }
+        public RoutingContext(NServiceBus.Transports.OutgoingMessage messageToDispatch, NServiceBus.Routing.AddressLabel addressLabel, NServiceBus.Pipeline.BehaviorContext context) { }
+        public System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.AddressLabel> AddressLabels { get; set; }
         public NServiceBus.Transports.OutgoingMessage Message { get; }
-        public NServiceBus.Routing.RoutingStrategy RoutingStrategy { get; set; }
     }
 }
 namespace NServiceBus.Transports
@@ -2500,11 +2497,10 @@ namespace NServiceBus.Transports
     }
     public class DispatchOptions
     {
-        public DispatchOptions(NServiceBus.Routing.RoutingSlip routingSlip, NServiceBus.Extensibility.ContextBag context, System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints = null, NServiceBus.Transports.DispatchConsistency requiredDispatchConsistency = 1) { }
-        public NServiceBus.Extensibility.ReadOnlyContextBag Context { get; }
+        public DispatchOptions(NServiceBus.Routing.AddressLabel addressLabel, NServiceBus.Transports.DispatchConsistency requiredDispatchConsistency, System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints = null) { }
+        public NServiceBus.Routing.AddressLabel AddressLabel { get; }
         public System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> DeliveryConstraints { get; }
-        public NServiceBus.Transports.DispatchConsistency RequiredDispatchConsistency { get; }
-        public NServiceBus.Routing.RoutingSlip RoutingSlip { get; set; }
+        public NServiceBus.Transports.DispatchConsistency RequiredDispatchConsistency { get; set; }
     }
     [System.ObsoleteAttribute("No longer used, safe to remove. Will be removed in version 7.0.0.", true)]
     public interface IAuditMessages { }

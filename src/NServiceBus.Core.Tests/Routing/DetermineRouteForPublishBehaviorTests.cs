@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
+    using System.Linq;
     using System.Threading.Tasks;
     using OutgoingPipeline;
     using NServiceBus.Pipeline.Contexts;
@@ -15,11 +16,14 @@
 
             var context = new OutgoingPublishContext(new OutgoingLogicalMessage(new MyEvent()), new PublishOptions(), new RootContext(null));
 
-            await behavior.Invoke(context, () => Task.FromResult(0));
+            IndirectAddressLabel addressLabel = null;
+            await behavior.Invoke(context, _ =>
+            {
+                addressLabel = _.AddressLabels.Cast<IndirectAddressLabel>().Single();
+                return Task.FromResult(0);
+            });
 
-            var routingStrategy = (IndirectAddressLabel)context.Get<AddressLabel>();
-
-            Assert.AreEqual(typeof(MyEvent), routingStrategy.MessageType);
+            Assert.AreEqual(typeof(MyEvent), addressLabel.MessageType);
         }
 
         class MyEvent

@@ -19,7 +19,7 @@ namespace NServiceBus.Core.Tests
 
         public static OutgoingLogicalMessageContext GetOutgoingContext(object message)
         {
-            return new OutgoingLogicalMessageContext(new OutgoingLogicalMessage(message), null);
+            return new OutgoingLogicalMessageContext(new OutgoingLogicalMessage(message), null, null);
         }
     }
 }

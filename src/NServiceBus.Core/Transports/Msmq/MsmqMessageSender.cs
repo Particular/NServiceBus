@@ -103,12 +103,11 @@ namespace NServiceBus.Transports.Msmq
                     throw new QueueNotFoundException(destination, msg, ex);
                 }
 
-                    ThrowFailedToSendException(destination, ex);
-                }
-                catch (Exception ex)
-                {
-                    ThrowFailedToSendException(destination, ex);
-                }
+                ThrowFailedToSendException(destination, ex);
+            }
+            catch (Exception ex)
+            {
+                ThrowFailedToSendException(destination, ex);
             }
         }
 

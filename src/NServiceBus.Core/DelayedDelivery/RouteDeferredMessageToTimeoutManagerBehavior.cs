@@ -25,11 +25,13 @@ namespace NServiceBus
 
             if (context.TryGetDeliveryConstraint(out constraint))
             {
-                var currentRoutingStrategy = context.GetAddressLabels().First() as DirectAddressLabel;
-
-                if (currentRoutingStrategy == null)
+                if (context.AddressLabels.Any(l => l.GetType() != typeof(DirectAddressLabel)))
                 {
-                    throw new Exception("Delayed delivery using the timeoutmanager is only supported for messages with Direct routing");
+                    throw new Exception("Delayed delivery using the timeoutmanager is only supported for messages with unicast routing");
+                }
+                if (context.AddressLabels.Count > 1)
+                {
+                    throw new Exception("A deferred message cannot contain more than one destination: " + string.Join(", ",context.AddressLabels.Cast<DirectAddressLabel>().Select(l => l.Destination)));
                 }
 
                 DiscardIfNotReceivedBefore discardIfNotReceivedBefore;
@@ -38,8 +40,11 @@ namespace NServiceBus
                     throw new Exception("Postponed delivery of messages with TimeToBeReceived set is not supported. Remove the TimeToBeReceived attribute to postpone messages of this type.");
                 }
 
-                context.RoutingStrategy = new DirectToTargetDestination(timeoutManagerAddress);
-                context.Message.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo] = currentRoutingStrategy.Destination;
+                context.Message.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo] = context.AddressLabels.Cast<DirectAddressLabel>().First().Destination;
+                context.AddressLabels = new[]
+                {
+                    new DirectAddressLabel(timeoutManagerAddress)
+                }; 
 
                 DateTime deliverAt;
                 var delayConstraint = constraint as DelayDeliveryWith;

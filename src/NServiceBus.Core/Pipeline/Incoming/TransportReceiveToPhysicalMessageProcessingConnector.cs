@@ -85,30 +85,30 @@ namespace NServiceBus
                     SerializeDeliveryConstraint(constraint, options);
                 }
 
-                SerializeRoutingStategy(operation.DispatchOptions.RoutingStrategy, options);
+                SerializeRoutingStategy(operation.DispatchOptions.AddressLabel, options);
 
                 yield return new Outbox.TransportOperation(operation.Message.MessageId,
                     options, operation.Message.Body, operation.Message.Headers);
             }
         }
 
-        static void SerializeRoutingStategy(RoutingStrategy routingStrategy, Dictionary<string, string> options)
+        static void SerializeRoutingStategy(AddressLabel addressLabel, Dictionary<string, string> options)
         {
-            var toAllSubscribers = routingStrategy as ToAllSubscribers;
-            if (toAllSubscribers != null)
+            var indirect = addressLabel as IndirectAddressLabel;
+            if (indirect != null)
             {
-                options["EventType"] = toAllSubscribers.EventType.AssemblyQualifiedName;
+                options["EventType"] = indirect.MessageType.AssemblyQualifiedName;
                 return;
             }
 
-            var direct = routingStrategy as DirectToTargetDestination;
+            var direct = addressLabel as DirectAddressLabel;
             if (direct != null)
             {
                 options["Destination"] = direct.Destination;
                 return;
             }
 
-            throw new Exception($"Unknown routing strategy {routingStrategy.GetType().FullName}");
+            throw new Exception($"Unknown routing strategy {addressLabel.GetType().FullName}");
         }
 
         static void SerializeDeliveryConstraint(DeliveryConstraint constraint, Dictionary<string, string> options)
@@ -171,20 +171,20 @@ namespace NServiceBus
             }
         }
 
-        static RoutingStrategy DeserializeRoutingStrategy(Dictionary<string, string> options)
+        static AddressLabel DeserializeRoutingStrategy(Dictionary<string, string> options)
         {
             string destination;
 
             if (options.TryGetValue("Destination", out destination))
             {
-                return new DirectToTargetDestination(destination);
+                return new DirectAddressLabel(destination);
             }
 
             string eventType;
 
             if (options.TryGetValue("EventType", out eventType))
             {
-                return new ToAllSubscribers(Type.GetType(eventType, true));
+                return new IndirectAddressLabel(Type.GetType(eventType, true));
             }
 
             throw new Exception("Could not find routing strategy to deserialize");

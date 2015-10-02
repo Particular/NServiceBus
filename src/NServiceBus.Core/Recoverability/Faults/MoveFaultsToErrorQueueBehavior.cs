@@ -51,7 +51,7 @@ namespace NServiceBus
 
             
                     var dispatchContext = new RoutingContext(new OutgoingMessage(message.MessageId, message.Headers, message.Body), 
-                        new DirectToTargetDestination(errorQueueAddress), 
+                        new DirectAddressLabel(errorQueueAddress), 
                         context);
                     
                     await dispatchPipeline.Invoke(dispatchContext).ConfigureAwait(false);

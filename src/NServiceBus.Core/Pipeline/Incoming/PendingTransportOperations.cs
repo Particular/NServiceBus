@@ -12,6 +12,11 @@ namespace NServiceBus
            operations.Add(transportOperation);
         }
 
+        public void AddRange(IEnumerable<TransportOperation> transportOperations)
+        {
+            operations.AddRange(transportOperations);
+        }
+
         List<TransportOperation>  operations = new List<TransportOperation>();   
     }
 }

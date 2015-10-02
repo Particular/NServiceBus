@@ -2,19 +2,21 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline;
+    using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Routing;
     using NServiceBus.TransportDispatch;
     using NServiceBus.Unicast.Queuing;
 
-    class DirectSendRouterBehavior : Behavior<OutgoingSendContext>
+    class DirectSendRouterConnector : StageConnector<OutgoingSendContext, OutgoingLogicalMessageContext>
     {
         IDirectRoutingStrategy directRoutingStrategy;
         DistributionPolicy distributionPolicy;
 
-        public DirectSendRouterBehavior(string localAddress, 
+        public DirectSendRouterConnector(string localAddress, 
             IDirectRoutingStrategy directRoutingStrategy, 
             DistributionPolicy distributionPolicy)
         {
@@ -23,7 +25,7 @@ namespace NServiceBus
             this.distributionPolicy = distributionPolicy;
         }
 
-        public override async Task Invoke(OutgoingSendContext context, Func<Task> next)
+        public override async Task Invoke(OutgoingSendContext context, Func<OutgoingLogicalMessageContext, Task> next)
         {
             var messageType = context.Message.MessageType;
             var distributionStrategy = distributionPolicy.GetDistributionStrategy(messageType);
@@ -35,11 +37,10 @@ namespace NServiceBus
                 ? directRoutingStrategy.Route(messageType, distributionStrategy, context) 
                 : RouteToDestination(destination);
 
-            context.SetAddressLabels(addressLabels.EnsureNonEmpty(() => "No destination specified for message: " + messageType));
             context.SetHeader(Headers.MessageIntent, MessageIntentEnum.Send.ToString());
             try
             {
-                await next().ConfigureAwait(false);
+                await next(new OutgoingLogicalMessageContext(context.Message, addressLabels.EnsureNonEmpty(() => "No destination specified for message: " + messageType).ToArray(), context)).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {
@@ -52,9 +53,7 @@ namespace NServiceBus
             yield return new DirectAddressLabel(physicalAddress);
         }
 
-        DynamicRoutingProvider dynamicRouting;
         string localAddress;
-        MessageRouter messageRouter;
 
         public class State
         {
