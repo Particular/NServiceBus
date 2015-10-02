@@ -162,16 +162,22 @@ namespace NServiceBus.Persistence.Raven
         {
             public string Name;
 // ReSharper disable once NotAccessedField.Local
+#pragma warning disable 414
             public bool Enabled;
+#pragma warning restore 414
             public List<DatabaseAccess> Databases = new List<DatabaseAccess>();
         }
 
         class DatabaseAccess
         {
 // ReSharper disable once NotAccessedField.Local
+#pragma warning disable 414
             public bool Admin;
+#pragma warning restore 414
 // ReSharper disable once NotAccessedField.Local
+#pragma warning disable 414
             public bool ReadOnly;
+#pragma warning restore 414
             public string TenantId;
         }
         // ReSharper restore NotAccessedField.Local

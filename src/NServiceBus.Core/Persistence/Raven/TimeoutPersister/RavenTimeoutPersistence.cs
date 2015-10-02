@@ -5,12 +5,13 @@ namespace NServiceBus.Persistence.Raven.TimeoutPersister
     using System.Linq;
     using System.Net;
     using System.Text;
+    using global::Raven.Abstractions.Exceptions;
     using global::Raven.Client;
     using global::Raven.Client.Linq;
     using Logging;
     using Timeout.Core;
 
-    public class RavenTimeoutPersistence : IPersistTimeouts
+    public class RavenTimeoutPersistence : IPersistTimeouts, IPersistTimeoutsV2
     {
         readonly IDocumentStore store;
 
@@ -168,6 +169,27 @@ namespace NServiceBus.Persistence.Raven.TimeoutPersister
                     session.Delete(item);
 
                 session.SaveChanges();
+            }
+        }
+
+        public TimeoutData Peek(string timeoutId)
+        {
+            using (var session = OpenSession())
+            {
+                return session.Load<TimeoutData>(timeoutId);
+            }
+        }
+
+        public bool TryRemove(string timeoutId)
+        {
+            try
+            {
+                TimeoutData timeoutData;
+                return TryRemove(timeoutId, out timeoutData);
+            }
+            catch (ConcurrencyException)
+            {
+                return false;
             }
         }
 
