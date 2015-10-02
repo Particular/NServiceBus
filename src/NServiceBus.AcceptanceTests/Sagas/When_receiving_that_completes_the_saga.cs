@@ -83,6 +83,7 @@
                 {
                     b.EnableFeature<TimeoutManager>();
                     b.ExecuteTheseHandlersFirst(typeof(TestSaga10));
+                    b.LimitMessageProcessingConcurrencyTo(1); // This test only works if the endpoints processes messages sequentially
                 });
             }
 
