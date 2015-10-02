@@ -90,9 +90,9 @@
                 numberOfTimes = times;
             }
 
-            public Task Dispatch(IEnumerable<TransportOperation> outgoingMessages)
+            public Task Dispatch(IEnumerable<TransportOperation> outgoingMessages, ReadOnlyContextBag context)
             {
-                if(numberOfTimes.HasValue && FailedNumberOfTimes < numberOfTimes.Value)
+                if (numberOfTimes.HasValue && FailedNumberOfTimes < numberOfTimes.Value)
                 {
                     FailedNumberOfTimes++;
                     throw new QueueNotFoundException();

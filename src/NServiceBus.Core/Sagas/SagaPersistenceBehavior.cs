@@ -4,14 +4,14 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.DelayedDelivery.TimeoutManager;
-    using NServiceBus.Logging;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.Sagas;
-    using NServiceBus.Transports;
+    using DelayedDelivery.TimeoutManager;
+    using Logging;
+    using Pipeline;
+    using Pipeline.Contexts;
+    using Sagas;
+    using Transports;
 
-    class SagaPersistenceBehavior : HandlingStageBehavior
+    class SagaPersistenceBehavior : Behavior<InvokeHandlerContext>
     {
         ISagaPersister sagaPersister;
         ICancelDeferredMessages timeoutCancellation;
@@ -24,7 +24,7 @@
             this.sagaMetadataCollection = sagaMetadataCollection;
         }
 
-        public override async Task Invoke(Context context, Func<Task> next)
+        public override async Task Invoke(InvokeHandlerContext context, Func<Task> next)
         {
             currentContext = context;
 
@@ -112,7 +112,7 @@
             }
         }
 
-        static void RemoveSagaHeadersIfProcessingAEvent(Context context)
+        static void RemoveSagaHeadersIfProcessingAEvent(InvokeHandlerContext context)
         {
 
             // We need this for backwards compatibility because in v4.0.0 we still have this headers being sent as part of the message even if MessageIntent == MessageIntentEnum.Publish
@@ -129,7 +129,7 @@
             }
         }
 
-        static bool IsMessageAllowedToStartTheSaga(Context context, SagaMetadata sagaMetadata)
+        static bool IsMessageAllowedToStartTheSaga(InvokeHandlerContext context, SagaMetadata sagaMetadata)
         {
             string sagaType;
 
@@ -199,7 +199,7 @@
             return true;
         }
 
-        Task<IContainSagaData> TryLoadSagaEntity(SagaPersistenceOptions options, Context context)
+        Task<IContainSagaData> TryLoadSagaEntity(SagaPersistenceOptions options, InvokeHandlerContext context)
         {
             string sagaId;
             var metadata = options.Metadata;
@@ -238,7 +238,7 @@
             return finder.Find(currentContext.Builder, finderDefinition, options, context.MessageBeingHandled);
         }
 
-        IContainSagaData CreateNewSagaEntity(SagaMetadata metadata, Context context)
+        IContainSagaData CreateNewSagaEntity(SagaMetadata metadata, InvokeHandlerContext context)
         {
             var sagaEntityType = metadata.SagaEntityType;
 
@@ -257,17 +257,8 @@
             return sagaEntity;
         }
 
-        Context currentContext;
+        InvokeHandlerContext currentContext;
 
         static ILog logger = LogManager.GetLogger<SagaPersistenceBehavior>();
-
-        public class Registration : RegisterStep
-        {
-            public Registration()
-                : base(WellKnownStep.InvokeSaga, typeof(SagaPersistenceBehavior), "Invokes the saga logic")
-            {
-                InsertBefore(WellKnownStep.InvokeHandlers);
-            }
-        }
     }
 }

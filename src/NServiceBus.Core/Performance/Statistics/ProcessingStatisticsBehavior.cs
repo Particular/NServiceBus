@@ -2,16 +2,16 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Pipeline;
+    using Pipeline;
 
-    class ProcessingStatisticsBehavior : PhysicalMessageProcessingStageBehavior
+    class ProcessingStatisticsBehavior : Behavior<PhysicalMessageProcessingContext>
     {
-        public override async Task Invoke(Context context, Func<Task> next)
+        public override async Task Invoke(PhysicalMessageProcessingContext context, Func<Task> next)
         {
             var state = new State();
 
             string timeSentString;
-            var headers = context.GetPhysicalMessage().Headers;
+            var headers = context.Message.Headers;
 
             if (headers.TryGetValue(Headers.TimeSent, out timeSentString))
             {

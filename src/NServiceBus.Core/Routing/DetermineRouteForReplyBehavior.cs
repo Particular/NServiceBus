@@ -2,10 +2,10 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.OutgoingPipeline;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Routing;
-    using NServiceBus.TransportDispatch;
+    using OutgoingPipeline;
+    using Pipeline;
+    using Routing;
+    using TransportDispatch;
 
     class DetermineRouteForReplyBehavior : Behavior<OutgoingReplyContext>
     {
@@ -40,7 +40,7 @@ namespace NServiceBus
 
             if (!incomingMessage.Headers.TryGetValue(Headers.ReplyToAddress, out replyToAddress))
             {
-                throw new Exception($"No `ReplyToAddress` found on the {context.GetMessageType().FullName} being processed");
+                throw new Exception($"No `ReplyToAddress` found on the {context.Message.MessageType.FullName} being processed");
             }
 
             return replyToAddress;

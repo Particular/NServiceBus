@@ -7,9 +7,9 @@
     using NServiceBus.Sagas;
     using NServiceBus.TransportDispatch;
 
-    class AttachSagaDetailsToOutGoingMessageBehavior : Behavior<OutgoingContext>
+    class AttachSagaDetailsToOutGoingMessageBehavior : Behavior<OutgoingLogicalMessageContext>
     {
-        public override Task Invoke(OutgoingContext context, Func<Task> next)
+        public override Task Invoke(OutgoingLogicalMessageContext context, Func<Task> next)
         {
             ActiveSagaInstance saga;
 

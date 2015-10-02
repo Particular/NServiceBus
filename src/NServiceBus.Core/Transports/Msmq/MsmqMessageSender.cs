@@ -6,6 +6,7 @@ namespace NServiceBus.Transports.Msmq
     using System.Messaging;
     using System.Threading.Tasks;
     using System.Transactions;
+    using NServiceBus.Extensibility;
     using NServiceBus.Routing;
     using NServiceBus.Transports.Msmq.Config;
     using NServiceBus.Unicast.Queuing;
@@ -29,29 +30,36 @@ namespace NServiceBus.Transports.Msmq
         /// <summary>
         /// Dispatches the given operations to the transport.
         /// </summary>
-        public Task Dispatch(IEnumerable<TransportOperation> transportOperations)
+        public Task Dispatch(IEnumerable<TransportOperation> transportOperations, ReadOnlyContextBag context)
         {
             Guard.AgainstNull("transportOperations", transportOperations);
 
             foreach (var transportOperation in transportOperations)
             {
-                var dispatchOptions = transportOperation.DispatchOptions;
-                var message = transportOperation.Message;
+                ExecuteTransportOperation(context, transportOperation);
+            }
+            return TaskEx.Completed;
+        }
 
+        void ExecuteTransportOperation(ReadOnlyContextBag context, TransportOperation transportOperation)
+        {
+            var dispatchOptions = transportOperation.DispatchOptions;
+            var message = transportOperation.Message;
 
-                var routingStrategy = dispatchOptions.RoutingStrategy as DirectToTargetDestination;
+            var routingStrategy = dispatchOptions.RoutingStrategy as DirectToTargetDestination;
 
-                if (routingStrategy == null)
+            if (routingStrategy == null)
+            {
+                throw new Exception("The MSMQ transport only supports the `DirectRoutingStrategy`, strategy required " + dispatchOptions.RoutingStrategy.GetType().Name);
+            }
+
+            var destination = routingStrategy.Destination;
+
+            var destinationAddress = MsmqAddress.Parse(destination);
+            try
+            {
+                using (var q = new MessageQueue(destinationAddress.FullPath, false, settings.UseConnectionCache, QueueAccessMode.Send))
                 {
-                    throw new Exception("The MSMQ transport only supports the `DirectRoutingStrategy`, strategy required " + dispatchOptions.RoutingStrategy.GetType().Name);
-                }
-
-                var destination = routingStrategy.Destination;
-
-                var destinationAddress = MsmqAddress.Parse(destination);
-                try
-                {
-                    using (var q = new MessageQueue(destinationAddress.FullPath, false, settings.UseConnectionCache, QueueAccessMode.Send))
                     using (var toSend = MsmqUtilities.Convert(message, dispatchOptions))
                     {
                         toSend.UseDeadLetterQueue = settings.UseDeadLetterQueue;
@@ -70,40 +78,37 @@ namespace NServiceBus.Transports.Msmq
                         if (dispatchOptions.RequiredDispatchConsistency == DispatchConsistency.Isolated)
                         {
                             q.Send(toSend, label, GetIsolatedTransactionType());
-                            return TaskEx.Completed;
+                            return;
                         }
 
                         MessageQueueTransaction activeTransaction;
-                        if (dispatchOptions.Context.TryGet(out activeTransaction))
+                        if (context.TryGet(out activeTransaction))
                         {
                             q.Send(toSend, label, activeTransaction);
-
-                            return TaskEx.Completed;
+                            return;
                         }
 
                         q.Send(toSend, label, GetTransactionTypeForSend());
                     }
                 }
-                catch (MessageQueueException ex)
-                {
-                    if (ex.MessageQueueErrorCode == MessageQueueErrorCode.QueueNotFound)
-                    {
-                        var msg = destination == null
-                            ? "Failed to send message. Target address is null."
-                            : $"Failed to send message to address: [{destination}]";
-
-                        throw new QueueNotFoundException(destination, msg, ex);
-                    }
-
-                    ThrowFailedToSendException(destination, ex);
-                }
-                catch (Exception ex)
-                {
-                    ThrowFailedToSendException(destination, ex);
-                }
-                return TaskEx.Completed;
             }
-            return TaskEx.Completed;
+            catch (MessageQueueException ex)
+            {
+                if (ex.MessageQueueErrorCode == MessageQueueErrorCode.QueueNotFound)
+                {
+                    var msg = destination == null
+                        ? "Failed to send message. Target address is null."
+                        : $"Failed to send message to address: [{destination}]";
+
+                    throw new QueueNotFoundException(destination, msg, ex);
+                }
+
+                ThrowFailedToSendException(destination, ex);
+            }
+            catch (Exception ex)
+            {
+                ThrowFailedToSendException(destination, ex);
+            }
         }
 
         MessageQueueTransactionType GetIsolatedTransactionType()

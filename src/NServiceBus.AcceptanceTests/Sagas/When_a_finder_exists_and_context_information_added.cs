@@ -74,9 +74,9 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 }
             }
 
-            public class BehaviorWhichAddsThingsToTheContext : PhysicalMessageProcessingStageBehavior
+            public class BehaviorWhichAddsThingsToTheContext : Behavior<PhysicalMessageProcessingContext>
             {
-                public override Task Invoke(Context context, Func<Task> next)
+                public override Task Invoke(PhysicalMessageProcessingContext context, Func<Task> next)
                 {
                     context.Set(new State
                     {

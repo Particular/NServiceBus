@@ -14,7 +14,7 @@
         {
             if (context.Settings.GetOrDefault<bool>("Transactions.DoNotWrapHandlersExecutionInATransactionScope"))
             {
-                context.Pipeline.Register<SuppressAmbientTransactionBehavior.Registration>();
+                context.Pipeline.Register("HandlerTransactionScopeWrapperBehavior", typeof(SuppressAmbientTransactionBehavior), "Make sure that any ambient transaction scope is suppressed");
             }
             else
             {
@@ -26,7 +26,7 @@
 
                 context.Container.ConfigureComponent(b => new HandlerTransactionScopeWrapperBehavior(transactionOptions), DependencyLifecycle.InstancePerCall);
 
-                context.Pipeline.Register<HandlerTransactionScopeWrapperBehavior.Registration>();
+                context.Pipeline.Register("HandlerTransactionScopeWrapper", typeof(HandlerTransactionScopeWrapperBehavior), "Makes sure that the handlers gets wrapped in a transaction scope");
             }
         }
     }

@@ -3,14 +3,14 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.Audit;
-    using NServiceBus.DeliveryConstraints;
-    using NServiceBus.Performance.TimeToBeReceived;
-    using NServiceBus.Pipeline;
-    using NServiceBus.TransportDispatch;
-    using NServiceBus.Transports;
+    using Audit;
+    using DeliveryConstraints;
+    using Routing;
+    using Performance.TimeToBeReceived;
+    using Pipeline;
+    using TransportDispatch;
 
-    class AuditToDispatchConnector : StageConnector<AuditContext, DispatchContext>
+    class AuditToDispatchConnector : StageConnector<AuditContext, RoutingContext>
     {
         TimeSpan? timeToBeReceived;
 
@@ -19,9 +19,9 @@ namespace NServiceBus
             this.timeToBeReceived = timeToBeReceived;
         }
 
-        public override Task Invoke(AuditContext context, Func<DispatchContext, Task> next)
+        public override Task Invoke(AuditContext context, Func<RoutingContext, Task> next)
         {
-            var message = context.Get<OutgoingMessage>();
+            var message = context.Message;
 
             State state;
 
@@ -34,7 +34,6 @@ namespace NServiceBus
                 }
             }
 
-
             var deliveryConstraints = new List<DeliveryConstraint>();
 
             if (timeToBeReceived.HasValue)
@@ -42,7 +41,7 @@ namespace NServiceBus
                 deliveryConstraints.Add(new DiscardIfNotReceivedBefore(timeToBeReceived.Value));
             }
 
-            var dispatchContext = new DispatchContext(message, context);
+            var dispatchContext = new RoutingContext(message, new DirectToTargetDestination(context.AuditAddress), context);
 
             dispatchContext.Set(deliveryConstraints);
 

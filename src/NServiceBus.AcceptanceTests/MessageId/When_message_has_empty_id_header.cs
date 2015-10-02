@@ -2,12 +2,11 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NServiceBus.Config;
-    using NServiceBus.Pipeline;
-    using NServiceBus.TransportDispatch;
-    using NServiceBus.Transports;
+    using Pipeline;
+    using TransportDispatch;
     using NUnit.Framework;
 
     public class When_message_has_empty_id_header : NServiceBusAcceptanceTest
@@ -23,14 +22,14 @@
             Assert.IsFalse(string.IsNullOrWhiteSpace(context.MessageId));
         }
 
-        public class CorruptionBehavior : Behavior<DispatchContext>
+        public class CorruptionBehavior : Behavior<RoutingContext>
         {
             public Context Context { get; set; }
             
-            public override Task Invoke(DispatchContext context, Func<Task> next)
+            public override Task Invoke(RoutingContext context, Func<Task> next)
             {
-                context.Get<OutgoingMessage>().Headers["ScenarioContextId"] = Context.Id.ToString();
-                context.Get<OutgoingMessage>().Headers[Headers.MessageId] = "";
+                context.Message.Headers["ScenarioContextId"] = Context.Id.ToString();
+                context.Message.Headers[Headers.MessageId] = "";
 
                 return next();
             }
@@ -58,22 +57,22 @@
                     });
             }
 
-            class InspectRawMessageStep : PhysicalMessageProcessingStageBehavior
+            class InspectRawMessageStep : Behavior<PhysicalMessageProcessingContext>
             {
-                public When_message_has_empty_id_header.Context ScenarioContext { get; set; }
+                public Context ScenarioContext { get; set; }
 
-                public override Task Invoke(Context ctx, Func<Task> next)
+                public override Task Invoke(PhysicalMessageProcessingContext ctx, Func<Task> next)
                 {
-                    if (!ctx.GetPhysicalMessage().Headers.ContainsKey("ScenarioContextId"))
+                    if (!ctx.Message.Headers.ContainsKey("ScenarioContextId"))
                     {
                         return Task.FromResult(0);
                     }
-                    var id = new Guid(ctx.GetPhysicalMessage().Headers["ScenarioContextId"]);
+                    var id = new Guid(ctx.Message.Headers["ScenarioContextId"]);
                     if (id != ScenarioContext.Id)
                     {
                         return Task.FromResult(0);
                     }
-                    ScenarioContext.MessageId = ctx.GetPhysicalMessage().Id;
+                    ScenarioContext.MessageId = ctx.Message.Id;
                     ScenarioContext.MessageReceived = true;
 
                     return Task.FromResult(0);

@@ -31,8 +31,7 @@ namespace NServiceBus.Unicast
             BehaviorContextStacker contextStacker,
             IMessageMapper messageMapper,
             IBuilder builder,
-            ReadOnlySettings settings,
-            IDispatchMessages dispatcher)
+            ReadOnlySettings settings)
         {
             this.settings = settings;
             this.builder = builder;
@@ -41,8 +40,7 @@ namespace NServiceBus.Unicast
                 contextStacker,
                 messageMapper,
                 builder,
-                settings,
-                dispatcher);
+                settings);
         }
 
         /// <summary>
@@ -60,7 +58,7 @@ namespace NServiceBus.Unicast
             var startables = builder.BuildAll<IWantToRunWhenBusStartsAndStops>().ToList();
             runner = new StartAndStoppablesRunner(startables);
             await runner.StartAsync();
-            
+
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
             var pipelines = BuildPipelines().ToArray();
 

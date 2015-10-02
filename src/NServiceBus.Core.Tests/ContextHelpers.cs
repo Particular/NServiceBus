@@ -6,7 +6,7 @@ namespace NServiceBus.Core.Tests
 
     class ContextHelpers
     {
-        public static OutgoingContext GetOutgoingContext(ExtendableOptions options)
+        public static OutgoingLogicalMessageContext GetOutgoingContext(ExtendableOptions options)
         {
             var context = GetOutgoingContext(new MyMessage());
 
@@ -17,13 +17,9 @@ namespace NServiceBus.Core.Tests
 
         class MyMessage { }
 
-        public static OutgoingContext GetOutgoingContext(object message)
+        public static OutgoingLogicalMessageContext GetOutgoingContext(object message)
         {
-            var context = new OutgoingContext(null);
-
-            context.Set(new OutgoingLogicalMessage(message));
-
-            return context;
+            return new OutgoingLogicalMessageContext(new OutgoingLogicalMessage(message), null);
         }
     }
 }

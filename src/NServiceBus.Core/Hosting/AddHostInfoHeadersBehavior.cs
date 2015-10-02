@@ -8,7 +8,7 @@
     using NServiceBus.Support;
     using NServiceBus.TransportDispatch;
 
-    class AddHostInfoHeadersBehavior : Behavior<OutgoingContext>
+    class AddHostInfoHeadersBehavior : Behavior<OutgoingLogicalMessageContext>
     {
         HostInformation hostInformation;
         EndpointName endpointName;
@@ -19,7 +19,7 @@
             this.endpointName = endpointName;
         }
 
-        public override Task Invoke(OutgoingContext context, Func<Task> next)
+        public override Task Invoke(OutgoingLogicalMessageContext context, Func<Task> next)
         {
             context.SetHeader(Headers.OriginatingMachine, RuntimeEnvironment.MachineName);
             context.SetHeader(Headers.OriginatingEndpoint, endpointName.ToString());

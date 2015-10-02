@@ -14,6 +14,5 @@ namespace NServiceBus.Extensibility
         {
             return options.Context;
         }
-
     }
 }

@@ -4,15 +4,14 @@
     using System.IO;
     using System.Threading.Tasks;
     using System.Transactions;
-    using NServiceBus.DataBus;
-    using NServiceBus.DeliveryConstraints;
-    using NServiceBus.OutgoingPipeline;
-    using NServiceBus.Performance.TimeToBeReceived;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.TransportDispatch;
+    using DataBus;
+    using DeliveryConstraints;
+    using Performance.TimeToBeReceived;
+    using Pipeline;
+    using Pipeline.Contexts;
+    using TransportDispatch;
 
-    class DataBusSendBehavior : Behavior<OutgoingContext>
+    class DataBusSendBehavior : Behavior<OutgoingLogicalMessageContext>
     {
         public IDataBus DataBus { get; set; }
 
@@ -20,7 +19,7 @@
 
         public Conventions Conventions { get; set; }
 
-        public override async Task Invoke(OutgoingContext context, Func<Task> next)
+        public override async Task Invoke(OutgoingLogicalMessageContext context, Func<Task> next)
         {
             var timeToBeReceived = TimeSpan.MaxValue;
 
@@ -31,7 +30,7 @@
                 timeToBeReceived = constraint.MaxTime;
             }
 
-            var message = context.GetMessageInstance();
+            var message = context.Message.Instance;
 
             foreach (var property in Conventions.GetDataBusProperties(message))
             {

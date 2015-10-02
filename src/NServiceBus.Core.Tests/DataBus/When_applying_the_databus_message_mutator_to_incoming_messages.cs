@@ -7,7 +7,7 @@ namespace NServiceBus.Core.Tests.DataBus
     using System.Threading.Tasks;
     using NServiceBus.DataBus;
     using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.Unicast.Messages;
+    using Unicast.Messages;
     using NUnit.Framework;
     using Conventions = NServiceBus.Conventions;
 
@@ -20,7 +20,7 @@ namespace NServiceBus.Core.Tests.DataBus
             var propertyKey = Guid.NewGuid().ToString();
             var databusKey = Guid.NewGuid().ToString();
 
-            var message = new LogicalMessage(null, new MessageWithDataBusProperty
+            var message = new LogicalMessage(new MessageMetadata(typeof(MessageWithDataBusProperty)), new MessageWithDataBusProperty
                               {
                                   DataBusProperty = new DataBusProperty<string>("not used in this test")
                                   {
@@ -44,7 +44,7 @@ namespace NServiceBus.Core.Tests.DataBus
                 fakeDatabus.StreamsToReturn[databusKey] = stream;
 
               
-                await receiveBehavior.Invoke(new LogicalMessageProcessingStageBehavior.Context(message,new Dictionary<string, string> { { "NServiceBus.DataBus." + propertyKey, databusKey } },null,null), () => Task.FromResult(0));
+                await receiveBehavior.Invoke(new LogicalMessageProcessingContext(message,new Dictionary<string, string> { { "NServiceBus.DataBus." + propertyKey, databusKey } },null), () => Task.FromResult(0));
             }
 
             var instance = (MessageWithDataBusProperty)message.Instance;

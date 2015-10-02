@@ -2,7 +2,6 @@ namespace NServiceBus.Transports
 {
     using System.Collections.Generic;
     using NServiceBus.DeliveryConstraints;
-    using NServiceBus.Extensibility;
     using NServiceBus.Routing;
 
     /// <summary>
@@ -14,26 +13,27 @@ namespace NServiceBus.Transports
         /// Creates the send options with the given routing strategy.
         /// </summary>
         /// <param name="routingStrategy">The strategy to use when routing this message.</param>
-        /// <param name="deliveryConstraints">The delivery constraints that must be honored by the transport.</param>
-        /// <param name="context">The pipeline context if present.</param>
         /// <param name="requiredDispatchConsistency">The required consistency level for the dispatch operation.</param>
-        public DispatchOptions(RoutingStrategy routingStrategy, ContextBag context, IEnumerable<DeliveryConstraint> deliveryConstraints = null, DispatchConsistency requiredDispatchConsistency = DispatchConsistency.Default)
+        /// <param name="deliveryConstraints">The delivery constraints that must be honored by the transport.</param>
+        public DispatchOptions(RoutingStrategy routingStrategy, DispatchConsistency requiredDispatchConsistency, IEnumerable<DeliveryConstraint> deliveryConstraints = null)
         {
-            if (deliveryConstraints == null)
-            {
-                deliveryConstraints = new List<DeliveryConstraint>();
-            }
-
             RoutingStrategy = routingStrategy;
-            DeliveryConstraints = deliveryConstraints;
             RequiredDispatchConsistency = requiredDispatchConsistency;
-            Context = context;
+
+            if (deliveryConstraints != null)
+            {
+                DeliveryConstraints = deliveryConstraints;
+            }
+            else
+            {
+                DeliveryConstraints = new List<DeliveryConstraint>();
+            }
         }
 
         /// <summary>
         /// The strategy to use when routing this message.
         /// </summary>
-        public RoutingStrategy RoutingStrategy { get; set; }
+        public RoutingStrategy RoutingStrategy { get; private set; }
 
         /// <summary>
         /// The delivery constraints that must be honored by the transport.
@@ -43,11 +43,6 @@ namespace NServiceBus.Transports
         /// <summary>
         /// The dispatch consistency the must be honored by the transport.
         /// </summary>
-        public DispatchConsistency RequiredDispatchConsistency { get; private set; }
-
-        /// <summary>
-        /// Access to the behavior context.
-        /// </summary>
-        public ReadOnlyContextBag Context { get; private set; }
+        public DispatchConsistency RequiredDispatchConsistency { get; set; }
     }
 }

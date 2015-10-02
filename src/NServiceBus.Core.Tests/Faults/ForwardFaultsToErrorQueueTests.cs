@@ -4,15 +4,15 @@ namespace NServiceBus.Core.Tests
     using System.Collections.Generic;
     using System.IO;
     using System.Threading.Tasks;
-    using NServiceBus.Core.Tests.Features;
-    using NServiceBus.Faults;
-    using NServiceBus.Hosting;
+    using Features;
+    using Faults;
+    using Hosting;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Routing;
-    using NServiceBus.TransportDispatch;
-    using NServiceBus.Transports;
-    using NServiceBus.Unicast.Transport;
+    using TransportDispatch;
+    using Transports;
+    using Unicast.Transport;
     using NUnit.Framework;
 
     [TestFixture]
@@ -115,26 +115,25 @@ namespace NServiceBus.Core.Tests
 
 
 
-        PhysicalMessageProcessingStageBehavior.Context CreateContext(string messageId)
+        TransportReceiveContext CreateContext(string messageId)
         {
-            var context = new PhysicalMessageProcessingStageBehavior.Context(new TransportReceiveContext(new IncomingMessage(messageId, new Dictionary<string, string>(), new MemoryStream()), null));
-            return context;
+            return new TransportReceiveContext(new IncomingMessage(messageId, new Dictionary<string, string>(), new MemoryStream()), new RootContext(null));
         }
-        class FakeDispatchPipeline : IPipelineBase<DispatchContext>
+        class FakeDispatchPipeline : IPipelineBase<RoutingContext>
         {
             public string Destination { get; private set; }
             public OutgoingMessage MessageSent { get; private set; }
             public bool ThrowOnDispatch { get; set; }
 
-            public Task Invoke(DispatchContext context)
+            public Task Invoke(RoutingContext context)
             {
                 if (ThrowOnDispatch)
                 {
                     throw new Exception("Failed to dispatch");
                 }
 
-                Destination = ((DirectToTargetDestination) context.GetRoutingStrategy()).Destination;
-                MessageSent = context.Get<OutgoingMessage>();
+                Destination = ((DirectToTargetDestination) context.RoutingStrategy).Destination;
+                MessageSent = context.Message;
                 return Task.FromResult(0);
             }
         }

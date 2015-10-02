@@ -2,12 +2,11 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.Extensibility;
-    using NServiceBus.OutgoingPipeline;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Extensibility;
+    using Pipeline;
+    using Pipeline.Contexts;
     using NUnit.Framework;
 
     public class When_extending_sendoptions : NServiceBusAcceptanceTest
@@ -56,9 +55,9 @@
                 }
             }
 
-            public class TestingSendOptionsExtensionBehavior : Behavior<OutgoingContext>
+            public class TestingSendOptionsExtensionBehavior : Behavior<OutgoingLogicalMessageContext>
             {
-                public override Task Invoke(OutgoingContext context, Func<Task> next)
+                public override Task Invoke(OutgoingLogicalMessageContext context, Func<Task> next)
                 {
                     Context data;
                     if (context.TryGet(out data))

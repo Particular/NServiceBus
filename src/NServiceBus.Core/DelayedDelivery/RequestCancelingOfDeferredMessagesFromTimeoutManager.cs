@@ -11,7 +11,7 @@
     class RequestCancelingOfDeferredMessagesFromTimeoutManager : ICancelDeferredMessages
     {
 
-        public RequestCancelingOfDeferredMessagesFromTimeoutManager(string timeoutManagerAddress, IPipelineBase<DispatchContext> dispatchPipeline)
+        public RequestCancelingOfDeferredMessagesFromTimeoutManager(string timeoutManagerAddress, IPipelineBase<RoutingContext> dispatchPipeline)
         {
             this.timeoutManagerAddress = timeoutManagerAddress;
             this.dispatchPipeline = dispatchPipeline;
@@ -24,15 +24,13 @@
             controlMessage.Headers[Headers.SagaId] = messageKey;
             controlMessage.Headers[TimeoutManagerHeaders.ClearTimeouts] = bool.TrueString;
 
-            var dispatchContext = new DispatchContext(controlMessage, context);
-
-            context.Set<RoutingStrategy>(new DirectToTargetDestination(timeoutManagerAddress));
-
+            var dispatchContext = new RoutingContext(controlMessage, new DirectToTargetDestination(timeoutManagerAddress), context);
+            
             return dispatchPipeline.Invoke(dispatchContext);
         }
 
         string timeoutManagerAddress;
-        IPipelineBase<DispatchContext> dispatchPipeline;
+        IPipelineBase<RoutingContext> dispatchPipeline;
 
     }
 }

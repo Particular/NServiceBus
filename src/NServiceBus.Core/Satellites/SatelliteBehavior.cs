@@ -1,11 +1,11 @@
 namespace NServiceBus
 {
-    using NServiceBus.Pipeline;
+    using Pipeline;
 
     /// <summary>
     /// A base class for satellite behaviors.
     /// </summary>
-    public abstract class SatelliteBehavior: PipelineTerminator<PhysicalMessageProcessingStageBehavior.Context>
+    public abstract class SatelliteBehavior: PipelineTerminator<PhysicalMessageProcessingContext>
     {
     }
 }

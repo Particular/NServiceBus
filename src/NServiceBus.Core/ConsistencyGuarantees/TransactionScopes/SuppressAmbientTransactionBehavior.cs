@@ -3,11 +3,11 @@ namespace NServiceBus
     using System;
     using System.Threading.Tasks;
     using System.Transactions;
-    using NServiceBus.Pipeline;
+    using Pipeline;
 
-    class SuppressAmbientTransactionBehavior : PhysicalMessageProcessingStageBehavior
+    class SuppressAmbientTransactionBehavior : Behavior<PhysicalMessageProcessingContext>
     {
-        public override async Task Invoke(Context context, Func<Task> next)
+        public override async Task Invoke(PhysicalMessageProcessingContext context, Func<Task> next)
         {
             if (Transaction.Current == null)
             {
@@ -20,16 +20,6 @@ namespace NServiceBus
                 await next().ConfigureAwait(false);
 
                 tx.Complete();
-            }
-        }
-
-        public class Registration : RegisterStep
-        {
-            public Registration()
-                : base("HandlerTransactionScopeWrapperBehavior", typeof(SuppressAmbientTransactionBehavior), "Make sure that any ambient transaction scope is suppressed")
-            {
-                InsertBeforeIfExists("FirstLevelRetries");
-                InsertBeforeIfExists("ReceivePerformanceDiagnosticsBehavior");
             }
         }
     }

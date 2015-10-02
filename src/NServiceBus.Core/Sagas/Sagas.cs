@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using NServiceBus.ObjectBuilder;
+    using NServiceBus.Pipeline;
     using NServiceBus.Sagas;
 
     /// <summary>
@@ -37,8 +38,8 @@
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             // Register the Saga related behaviors for incoming messages
-            context.Pipeline.Register<SagaPersistenceBehavior.Registration>();
-            context.Pipeline.Register<InvokeSagaNotFoundBehavior.Registration>();
+            context.Pipeline.Register(WellKnownStep.InvokeSaga, typeof(SagaPersistenceBehavior), "Invokes the saga logic");
+            context.Pipeline.Register("InvokeSagaNotFound", typeof(InvokeSagaNotFoundBehavior), "Invokes saga not found logic");
             context.Pipeline.Register("AttachSagaDetailsToOutGoingMessage", typeof(AttachSagaDetailsToOutGoingMessageBehavior), "Makes sure that outgoing messages have saga info attached to them");
 
             var sagaMetaModel = context.Settings.Get<SagaMetadataCollection>();

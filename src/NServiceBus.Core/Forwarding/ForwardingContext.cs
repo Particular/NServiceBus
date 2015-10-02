@@ -1,13 +1,18 @@
 namespace NServiceBus.Forwarding
 {
-    using NServiceBus.Pipeline;
-    using NServiceBus.Transports;
+    using Pipeline;
+    using Transports;
 
     class ForwardingContext : BehaviorContext
     {
-        public ForwardingContext(OutgoingMessage messageToForward,BehaviorContext parentContext):base(parentContext)
+        public OutgoingMessage Message { get; private set; }
+
+        public string Address { get; private set; }
+
+        public ForwardingContext(OutgoingMessage messageToForward, string address, BehaviorContext parentContext) : base(parentContext)
         {
-            Set(messageToForward);
+            Message = messageToForward;
+            Address = address;
         }
     }
 }

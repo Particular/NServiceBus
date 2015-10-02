@@ -3,11 +3,11 @@
     using System;
     using System.Threading.Tasks;
     using System.Transactions;
-    using NServiceBus.DataBus;
+    using DataBus;
     using Pipeline;
     using Pipeline.Contexts;
 
-    class DataBusReceiveBehavior : LogicalMessageProcessingStageBehavior
+    class DataBusReceiveBehavior : Behavior<LogicalMessageProcessingContext>
     {
         public IDataBus DataBus { get; set; }
 
@@ -15,9 +15,9 @@
 
         public Conventions Conventions { get; set; }
 
-        public override async Task Invoke(Context context, Func<Task> next)
+        public override async Task Invoke(LogicalMessageProcessingContext context, Func<Task> next)
         {
-            var message = context.GetLogicalMessage().Instance;
+            var message = context.Message.Instance;
 
             foreach (var property in Conventions.GetDataBusProperties(message))
             {

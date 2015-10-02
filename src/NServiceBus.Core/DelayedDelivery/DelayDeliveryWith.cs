@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.DelayedDelivery
 {
     using System;
-    using System.Collections.Generic;
 
     /// <summary>
     /// Represent a constraint that the message can't be delivered before the specified delay has elapsed.
@@ -23,14 +22,5 @@
         /// The requested delay.
         /// </summary>
         public TimeSpan Delay { get; }
-
-        /// <summary>
-        /// Serializes the constraint into the passed dictionary.
-        /// </summary>
-        /// <param name="options">Dictionary where to store the data.</param>
-        public override void Serialize(Dictionary<string, string> options)
-        {
-            options["DelayDeliveryFor"] = Delay.ToString();
-        }
     }
 }

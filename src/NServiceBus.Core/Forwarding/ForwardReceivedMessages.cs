@@ -27,7 +27,7 @@
 
             context.Settings.Get<QueueBindings>().BindSending(forwardReceivedMessagesQueue);
 
-            context.Pipeline.Register<InvokeForwardingPipelineBehavior.Registration>();
+            context.Pipeline.Register("InvokeForwardingPipeline", typeof(InvokeForwardingPipelineBehavior), "Execute the forwarding pipeline");
             context.Pipeline.RegisterConnector<ForwardingToDispatchConnector>("Makes sure that forwarded messages gets dispatched to the transport");
 
             context.Container.ConfigureComponent(b =>

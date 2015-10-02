@@ -3,26 +3,24 @@ namespace NServiceBus.Unicast
     using System;
     using System.Threading.Tasks;
     using Janitor;
-    using NServiceBus.Extensibility;
-    using NServiceBus.MessageInterfaces;
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.OutgoingPipeline;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
+    using MessageInterfaces;
+    using ObjectBuilder;
+    using OutgoingPipeline;
+    using Pipeline;
+    using Pipeline.Contexts;
     using NServiceBus.Routing;
-    using NServiceBus.Settings;
-    using NServiceBus.Transports;
+    using Settings;
+    using TransportDispatch;
+    using Transports;
 
     [SkipWeaving]
     partial class ContextualBus : IBus, IContextualBus
     {
-        public ContextualBus(BehaviorContextStacker contextStacker, IMessageMapper messageMapper, IBuilder builder,
-            ReadOnlySettings settings,IDispatchMessages dispatcher)
+        public ContextualBus(BehaviorContextStacker contextStacker, IMessageMapper messageMapper, IBuilder builder, ReadOnlySettings settings)
         {
             this.messageMapper = messageMapper;
             this.contextStacker = contextStacker;
             this.builder = builder;
-            this.dispatcher = dispatcher;
             this.settings = settings;
             sendLocalAddress = settings.LocalAddress();
         }
@@ -43,9 +41,9 @@ namespace NServiceBus.Unicast
             var pipeline = new PipelineBase<OutgoingPublishContext>(builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
 
             var publishContext = new OutgoingPublishContext(
-                incomingContext,
                 new OutgoingLogicalMessage(message),
-                options);
+                options,
+                incomingContext);
 
             return pipeline.Invoke(publishContext);
         }
@@ -64,7 +62,7 @@ namespace NServiceBus.Unicast
 
             return pipeline.Invoke(subscribeContext);
         }
-        
+
         /// <summary>
         /// <see cref="IBus.UnsubscribeAsync"/>
         /// </summary>
@@ -96,9 +94,9 @@ namespace NServiceBus.Unicast
             var pipeline = new PipelineBase<OutgoingReplyContext>(builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
 
             var outgoingContext = new OutgoingReplyContext(
-                incomingContext,
                 new OutgoingLogicalMessage(message),
-                options);
+                options,
+                incomingContext);
 
             return pipeline.Invoke(outgoingContext);
         }
@@ -113,13 +111,15 @@ namespace NServiceBus.Unicast
                 return;
             }
 
-            var outgoingMessages = new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body);
-            var dispatchOptions = new DispatchOptions(new DirectToTargetDestination(sendLocalAddress), new ContextBag());
-            await dispatcher.Dispatch(new [] { new TransportOperation(outgoingMessages, dispatchOptions)});
+            var pipeline = new PipelineBase<RoutingContext>(builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
+            var outgoingMessage = new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body);
+            var context = new RoutingContext(outgoingMessage, new DirectToTargetDestination(sendLocalAddress), incomingContext);
+
+            await pipeline.Invoke(context);
 
             incomingContext.handleCurrentMessageLaterWasCalled = true;
 
-            ((HandlingStageBehavior.Context)incomingContext).DoNotInvokeAnyMoreHandlers();
+            ((InvokeHandlerContext)incomingContext).DoNotInvokeAnyMoreHandlers();
         }
 
         /// <summary>
@@ -127,9 +127,11 @@ namespace NServiceBus.Unicast
         /// </summary>
         public async Task ForwardCurrentMessageToAsync(string destination)
         {
-            var outgoingMessages = new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body);
-            var dispatchOptions = new DispatchOptions(new DirectToTargetDestination(destination), new ContextBag());
-            await dispatcher.Dispatch(new [] { new TransportOperation(outgoingMessages, dispatchOptions)});
+            var pipeline = new PipelineBase<RoutingContext>(builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
+            var outgoingMessage = new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body);
+            var context = new RoutingContext(outgoingMessage, new DirectToTargetDestination(destination), incomingContext);
+
+            await pipeline.Invoke(context);
         }
 
         public Task SendAsync<T>(Action<T> messageConstructor, NServiceBus.SendOptions options)
@@ -149,9 +151,9 @@ namespace NServiceBus.Unicast
             var pipeline = new PipelineBase<OutgoingSendContext>(builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
 
             var outgoingContext = new OutgoingSendContext(
-                incomingContext,
                 new OutgoingLogicalMessage(messageType, message),
-                options);
+                options,
+                incomingContext);
 
             return pipeline.Invoke(outgoingContext);
         }
@@ -161,7 +163,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public void DoNotContinueDispatchingCurrentMessageToHandlers()
         {
-            ((HandlingStageBehavior.Context)incomingContext).DoNotInvokeAnyMoreHandlers();
+            ((InvokeHandlerContext)incomingContext).DoNotInvokeAnyMoreHandlers();
         }
 
         /// <summary>
@@ -211,7 +213,6 @@ namespace NServiceBus.Unicast
         IMessageMapper messageMapper;
         BehaviorContextStacker contextStacker;
         IBuilder builder;
-        IDispatchMessages dispatcher;
         string sendLocalAddress;
         ReadOnlySettings settings;
     }

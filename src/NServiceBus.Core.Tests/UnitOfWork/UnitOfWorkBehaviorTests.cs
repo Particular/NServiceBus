@@ -54,10 +54,10 @@
 
             var unitOfWorkThatThrowsFromBegin = new UnitOfWorkThatThrowsFromBegin();
             var unitOfWork = new UnitOfWork();
-            
+
             builder.Register<IManageUnitsOfWork>(() => unitOfWorkThatThrowsFromBegin);
             builder.Register<IManageUnitsOfWork>(() => unitOfWork);
-            
+
             //since it is a single exception then it will not be an AggregateException 
             Assert.Throws<InvalidOperationException>(async () => await InvokeBehavior(builder));
             Assert.False(unitOfWork.EndCalled);
@@ -77,10 +77,10 @@
             var ex = new Exception("Handler failed");
             //since it is a single exception then it will not be an AggregateException 
             Assert.Throws<Exception>(async () =>
-            {                
-                await InvokeBehavior(builder,ex);
+            {
+                await InvokeBehavior(builder, ex);
             });
-            Assert.AreSame(ex, unitOfWork.ExceptionPassedToEnd );
+            Assert.AreSame(ex, unitOfWork.ExceptionPassedToEnd);
 
         }
 
@@ -111,7 +111,7 @@
             var builder = new FuncBuilder();
 
             var unitOfWorkThatThrows = new UnitOfWorkThatThrowsFromEnd();
-            var unitOfWork= new UnitOfWork();
+            var unitOfWork = new UnitOfWork();
 
             builder.Register<IManageUnitsOfWork>(() => unitOfWorkThatThrows);
             builder.Register<IManageUnitsOfWork>(() => unitOfWork);
@@ -134,18 +134,20 @@
             builder.Register<IManageUnitsOfWork>(() => unitOfWorkThatThrows);
             builder.Register<IManageUnitsOfWork>(() => unitOfWorkThatIsNeverCalled);
 
-            Assert.Throws<InvalidOperationException>(async() => await InvokeBehavior(builder));
+            Assert.Throws<InvalidOperationException>(async () => await InvokeBehavior(builder));
 
             Assert.True(normalUnitOfWork.EndCalled);
             Assert.True(unitOfWorkThatThrows.EndCalled);
             Assert.False(unitOfWorkThatIsNeverCalled.EndCalled);
         }
 
-        static Task InvokeBehavior(IBuilder builder,Exception toThrow = null)
+        static Task InvokeBehavior(IBuilder builder, Exception toThrow = null)
         {
             var runner = new UnitOfWorkBehavior();
 
-            var context = new PhysicalMessageProcessingStageBehavior.Context(new TransportReceiveContext(new IncomingMessage("fakeId",new Dictionary<string, string>(),new MemoryStream() ), new IncomingContext(new RootContext(builder))));
+            var receiveContext = new TransportReceiveContext(new IncomingMessage("fakeId", new Dictionary<string, string>(), new MemoryStream()), new RootContext(builder));
+
+            var context = new PhysicalMessageProcessingContext(receiveContext.Message, receiveContext);
 
             return runner.Invoke(context, () =>
             {

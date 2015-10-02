@@ -17,9 +17,8 @@
             var storage = new InMemoryOutboxStorage();
 
             var messageId = "myId";
-    
-            var messageToStore = new OutboxMessage(messageId);
-            messageToStore.TransportOperations.Add(new TransportOperation("x", null, null, null));
+
+            var messageToStore = new OutboxMessage(messageId, new[] { new TransportOperation("x", null, null, null) });
             await storage.Store(messageToStore, new OutboxStorageOptions(new ContextBag()));
             await storage.SetAsDispatched(messageId, new OutboxStorageOptions(new ContextBag()));
 
@@ -35,8 +34,8 @@
 
             var messageId = "myId";
 
-            var messageToStore = new OutboxMessage(messageId);
-            messageToStore.TransportOperations.Add(new TransportOperation("x", null, null, null));
+            var messageToStore = new OutboxMessage(messageId, new[] { new TransportOperation("x", null, null, null) });
+
             await storage.Store(messageToStore, new OutboxStorageOptions(new ContextBag()));
 
             storage.RemoveEntriesOlderThan(DateTime.UtcNow);
@@ -54,8 +53,8 @@
 
             var beforeStore = DateTime.UtcNow;
 
-            var messageToStore = new OutboxMessage(messageId);
-            messageToStore.TransportOperations.Add(new TransportOperation("x", null, null, null));
+            var messageToStore = new OutboxMessage(messageId, new[] { new TransportOperation("x", null, null, null) });
+
             await storage.Store(messageToStore, new OutboxStorageOptions(new ContextBag()));
 
             await storage.SetAsDispatched(messageId, new OutboxStorageOptions(new ContextBag()));

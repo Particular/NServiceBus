@@ -4,12 +4,12 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.UnitOfWork;
+    using Pipeline;
+    using UnitOfWork;
 
-
-    class UnitOfWorkBehavior : PhysicalMessageProcessingStageBehavior
+    class UnitOfWorkBehavior : Behavior<PhysicalMessageProcessingContext>
     {
-        public override async Task Invoke(Context context, Func<Task> next)
+        public override async Task Invoke(PhysicalMessageProcessingContext context, Func<Task> next)
         {
             try
             {
