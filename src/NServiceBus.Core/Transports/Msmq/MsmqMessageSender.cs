@@ -56,9 +56,7 @@ namespace NServiceBus.Transports.Msmq
                             toSend.ResponseQueue = new MessageQueue(NServiceBus.MsmqUtilities.GetReturnAddress(replyToAddress.ToString(), address.ToString()));
                         }
 
-                        bool suppressNativeTransactions;
-                        PipelineExecutor.CurrentContext.TryGet("do-not-enlist-in-native-transaction", out suppressNativeTransactions);
-                        if (sendOptions.EnlistInReceiveTransaction && UnitOfWork.HasActiveTransaction() && !suppressNativeTransactions)
+                        if (sendOptions.EnlistInReceiveTransaction && UnitOfWork.HasActiveTransaction())
                         {
                             q.Send(toSend, UnitOfWork.Transaction);
                         }
