@@ -31,7 +31,7 @@ namespace NServiceBus
             timeoutData.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
             timeoutData.Headers["NServiceBus.RelatedToTimeoutId"] = timeoutData.Id;
 
-            await dispatcher.Dispatch(new[] { new TransportOperation(new OutgoingMessage(message.Id, timeoutData.Headers, timeoutData.State), sendOptions) }, context).ConfigureAwait(false);
+            await dispatcher.Dispatch(new[] { new TransportOperation(new OutgoingMessage(message.MessageId, timeoutData.Headers, timeoutData.State), sendOptions) }, context).ConfigureAwait(false);
         }
 
         IDispatchMessages dispatcher;

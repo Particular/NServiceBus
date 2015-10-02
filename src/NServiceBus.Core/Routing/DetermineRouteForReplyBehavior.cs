@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
+    using NServiceBus.Transports;
     using OutgoingPipeline;
     using Pipeline;
     using Routing;
@@ -29,7 +30,7 @@ namespace NServiceBus
 
         static string GetReplyToAddressFromIncomingMessage(OutgoingReplyContext context)
         {
-            TransportMessage incomingMessage;
+            IncomingMessage incomingMessage;
 
             if (!context.TryGetIncomingPhysicalMessage(out incomingMessage))
             {

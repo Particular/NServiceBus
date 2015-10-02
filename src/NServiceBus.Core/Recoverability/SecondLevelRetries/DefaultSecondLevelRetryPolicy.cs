@@ -1,6 +1,7 @@
 namespace NServiceBus.Recoverability.SecondLevelRetries
 {
     using System;
+    using NServiceBus.Transports;
 
     class DefaultSecondLevelRetryPolicy:SecondLevelRetryPolicy
     {
@@ -13,7 +14,7 @@ namespace NServiceBus.Recoverability.SecondLevelRetries
             this.timeIncrease = timeIncrease;
         }
 
-        public override bool TryGetDelay(TransportMessage message, Exception ex, int currentRetry, out TimeSpan delay)
+        public override bool TryGetDelay(IncomingMessage message, Exception ex, int currentRetry, out TimeSpan delay)
         {
             delay = TimeSpan.MinValue;
 
@@ -32,7 +33,7 @@ namespace NServiceBus.Recoverability.SecondLevelRetries
             return true;
         }
 
-        static bool HasReachedMaxTime(TransportMessage message)
+        static bool HasReachedMaxTime(IncomingMessage message)
         {
             string timestampHeader;
 

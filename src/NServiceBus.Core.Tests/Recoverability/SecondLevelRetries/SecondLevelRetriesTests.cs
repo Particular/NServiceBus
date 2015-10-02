@@ -168,7 +168,7 @@
 
         public int InvokedWithCurrentRetry { get; private set; }
 
-        public override bool TryGetDelay(TransportMessage message, Exception ex, int currentRetry, out TimeSpan delay)
+        public override bool TryGetDelay(IncomingMessage message, Exception ex, int currentRetry, out TimeSpan delay)
         {
             InvokedWithCurrentRetry = currentRetry;
 

@@ -5,6 +5,7 @@
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.Pipeline;
+    using NServiceBus.Transports;
 
     static class SubscriptionBehaviorExtensions
     {
@@ -40,12 +41,12 @@
                 action(new SubscriptionEventArgs
                 {
                     MessageType = subscriptionMessageType,
-                    SubscriberReturnAddress = context.Message.ReplyToAddress
+                    SubscriberReturnAddress = context.Message.GetReplyToAddress()
                 }, scenarioContext);
             }
         }
 
-        static string GetSubscriptionMessageTypeFrom(TransportMessage msg)
+        static string GetSubscriptionMessageTypeFrom(IncomingMessage msg)
         {
             return (from header in msg.Headers where header.Key == Headers.SubscriptionMessageType select header.Value).FirstOrDefault();
         }

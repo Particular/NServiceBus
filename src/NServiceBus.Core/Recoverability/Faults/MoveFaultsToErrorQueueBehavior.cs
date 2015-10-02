@@ -37,7 +37,7 @@ namespace NServiceBus
                 {
                     var message = context.Message;
 
-                    Logger.Error($"Moving message '{message.Id}' to the error queue because processing failed due to an exception:", exception);
+                    Logger.Error($"Moving message '{message.MessageId}' to the error queue because processing failed due to an exception:", exception);
 
                     message.RevertToOriginalBodyIfNeeded();
 
@@ -50,7 +50,7 @@ namespace NServiceBus
                     message.Headers[Headers.HostDisplayName] = hostInformation.DisplayName;
 
             
-                    var dispatchContext = new RoutingContext(new OutgoingMessage(message.Id, message.Headers, message.Body), 
+                    var dispatchContext = new RoutingContext(new OutgoingMessage(message.MessageId, message.Headers, message.Body), 
                         new DirectToTargetDestination(errorQueueAddress), 
                         context);
                     

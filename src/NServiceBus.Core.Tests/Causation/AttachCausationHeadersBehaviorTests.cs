@@ -2,8 +2,10 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Threading.Tasks;
     using NServiceBus.OutgoingPipeline;
+    using NServiceBus.Transports;
     using NUnit.Framework;
 
     [TestFixture]
@@ -29,7 +31,7 @@
             var behavior = new AttachCausationHeadersBehavior();
             var context = InitializeContext();
 
-            var transportMessage = new TransportMessage("xyz", new Dictionary<string, string> { { Headers.ConversationId, incomingConversationId } });
+            var transportMessage = new IncomingMessage("xyz", new Dictionary<string, string> { { Headers.ConversationId, incomingConversationId } }, Stream.Null);
             context.Set(transportMessage);
 
             await behavior.Invoke(context, () => Task.FromResult(0));
@@ -58,7 +60,7 @@
             var behavior = new AttachCausationHeadersBehavior();
             var context = InitializeContext();
 
-            context.Set(new TransportMessage("the message id", new Dictionary<string, string>()));
+            context.Set(new IncomingMessage("the message id", new Dictionary<string, string>(), Stream.Null));
 
             await behavior.Invoke(context, () => Task.FromResult(0));
 

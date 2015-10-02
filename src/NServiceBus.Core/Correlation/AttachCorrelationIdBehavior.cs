@@ -5,6 +5,7 @@
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.TransportDispatch;
+    using NServiceBus.Transports;
 
     class AttachCorrelationIdBehavior : Behavior<OutgoingLogicalMessageContext>
     {
@@ -15,7 +16,7 @@
             //if we don't have a explicit correlation id set
             if (string.IsNullOrEmpty(correlationId))
             {
-                TransportMessage current;
+                IncomingMessage current;
 
                 //try to get it from the incoming message
                 if (context.TryGetIncomingPhysicalMessage(out current))

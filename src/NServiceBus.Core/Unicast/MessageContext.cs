@@ -2,23 +2,33 @@ namespace NServiceBus.Unicast
 {
     using System;
     using System.Collections.Generic;
+    using NServiceBus.Transports;
 
     /// <summary>
     /// Implementation of IMessageContext.
     /// </summary>
     public class MessageContext : IMessageContext
     {
-        TransportMessage transportMessage;
+        IncomingMessage incomingMessage;
 
         /// <summary>
         /// Initializes message context from the transport message.
         /// </summary>
-        public MessageContext(TransportMessage transportMessage)
+        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", ReplacementTypeOrMember = "MessageContext(IncomingMessage incomingMessage)")]
+        public MessageContext(TransportMessage incomingMessage)
         {
-            this.transportMessage = transportMessage;
+            throw new NotImplementedException();
         }
 
-        IDictionary<string, string> IMessageContext.Headers => transportMessage.Headers;
+        /// <summary>
+        /// Initializes message context from the incoming message.
+        /// </summary>
+        public MessageContext(IncomingMessage incomingMessage)
+        {
+            this.incomingMessage = incomingMessage;
+        }
+
+        IDictionary<string, string> IMessageContext.Headers => incomingMessage.Headers;
 
         /// <summary>
         /// The time at which the incoming message was sent.
@@ -28,7 +38,7 @@ namespace NServiceBus.Unicast
             get
             {
                 string timeSent;
-                if (transportMessage.Headers.TryGetValue(Headers.TimeSent, out timeSent))
+                if (incomingMessage.Headers.TryGetValue(Headers.TimeSent, out timeSent))
                 {
                     return DateTimeExtensions.ToUtcDateTime(timeSent);
                 }
@@ -37,8 +47,8 @@ namespace NServiceBus.Unicast
             }
         }
 
-        string IMessageContext.Id => transportMessage.Id;
+        string IMessageContext.Id => incomingMessage.MessageId;
 
-        string IMessageContext.ReplyToAddress => transportMessage.ReplyToAddress;
+        string IMessageContext.ReplyToAddress => incomingMessage.GetReplyToAddress();
     }
 }

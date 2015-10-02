@@ -2,6 +2,7 @@ namespace NServiceBus.Faults
 {
     using System;
     using System.Collections.Generic;
+    using NServiceBus.Transports;
 
     /// <summary>
     /// Errors notifications.
@@ -28,17 +29,17 @@ namespace NServiceBus.Faults
             // Injected
         }
 
-        internal void InvokeMessageHasBeenSentToErrorQueue(TransportMessage message, Exception exception)
+        internal void InvokeMessageHasBeenSentToErrorQueue(IncomingMessage message, Exception exception)
         {
             erroneousMessageList.OnNext(new FailedMessage(new Dictionary<string, string>(message.Headers), CopyOfBody(message.Body), exception));
         }
 
-        internal void InvokeMessageHasFailedAFirstLevelRetryAttempt(int firstLevelRetryAttempt, TransportMessage message, Exception exception)
+        internal void InvokeMessageHasFailedAFirstLevelRetryAttempt(int firstLevelRetryAttempt, IncomingMessage message, Exception exception)
         {
             firstLevelRetryList.OnNext(new FirstLevelRetry(new Dictionary<string, string>(message.Headers), CopyOfBody(message.Body), exception, firstLevelRetryAttempt));
         }
 
-        internal void InvokeMessageHasBeenSentToSecondLevelRetries(int secondLevelRetryAttempt, TransportMessage message, Exception exception)
+        internal void InvokeMessageHasBeenSentToSecondLevelRetries(int secondLevelRetryAttempt, IncomingMessage message, Exception exception)
         {
             secondLevelRetryList.OnNext(new SecondLevelRetry(new Dictionary<string, string>(message.Headers), CopyOfBody(message.Body), exception, secondLevelRetryAttempt));
         }

@@ -72,7 +72,7 @@
                     {
                         return Task.FromResult(0);
                     }
-                    ScenarioContext.MessageId = ctx.Message.Id;
+                    ScenarioContext.MessageId = ctx.Message.MessageId;
                     ScenarioContext.MessageReceived = true;
 
                     return Task.FromResult(0);

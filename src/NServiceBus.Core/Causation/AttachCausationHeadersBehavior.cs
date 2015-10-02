@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
+    using NServiceBus.Transports;
     using OutgoingPipeline;
     using Pipeline;
     using TransportDispatch;
@@ -13,17 +14,17 @@ namespace NServiceBus
             ApplyHeaders(context);
 
             return next();
-         }
+        }
 
         void ApplyHeaders(OutgoingPhysicalMessageContext context)
         {
             var conversationId = CombGuid.Generate().ToString();
 
-            TransportMessage incomingMessage;
+            IncomingMessage incomingMessage;
 
             if (context.TryGetIncomingPhysicalMessage(out incomingMessage))
             {
-                context.SetHeader(Headers.RelatedTo,incomingMessage.Id);
+                context.SetHeader(Headers.RelatedTo, incomingMessage.MessageId);
 
                 string conversationIdFromCurrentMessageContext;
                 if (incomingMessage.Headers.TryGetValue(Headers.ConversationId, out conversationIdFromCurrentMessageContext))
@@ -32,7 +33,7 @@ namespace NServiceBus
                 }
             }
 
-            context.SetHeader(Headers.ConversationId,conversationId);
+            context.SetHeader(Headers.ConversationId, conversationId);
         }
     }
 }

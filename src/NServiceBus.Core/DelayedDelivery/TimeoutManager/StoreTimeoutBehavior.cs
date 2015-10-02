@@ -45,7 +45,7 @@ namespace NServiceBus
             await base.Cooldown();
         }
 
-        async Task HandleBackwardsCompatibility(TransportMessage message, PhysicalMessageProcessingContext context)
+        async Task HandleBackwardsCompatibility(IncomingMessage message, PhysicalMessageProcessingContext context)
         {
             var timeoutId = message.Headers[TimeoutIdToDispatchHeader];
 
@@ -68,12 +68,12 @@ namespace NServiceBus
                 return;
             }
 
-            var outgoingMessages = new OutgoingMessage(message.Id, message.Headers, message.Body);
+            var outgoingMessages = new OutgoingMessage(message.MessageId, message.Headers, message.Body);
             var dispatchOptions = new DispatchOptions(new DirectToTargetDestination(destination), DispatchConsistency.Default);
             await dispatcher.Dispatch(new[] { new TransportOperation(outgoingMessages, dispatchOptions) }, context).ConfigureAwait(false);
         }
 
-        async Task HandleInternal(TransportMessage message, PhysicalMessageProcessingContext context)
+        async Task HandleInternal(IncomingMessage message, PhysicalMessageProcessingContext context)
         {
             var sagaId = Guid.Empty;
 
@@ -95,10 +95,10 @@ namespace NServiceBus
                 string expire;
                 if (!message.Headers.TryGetValue(TimeoutManagerHeaders.Expire, out expire))
                 {
-                    throw new InvalidOperationException("Non timeout message arrived at the timeout manager, id:" + message.Id);
+                    throw new InvalidOperationException("Non timeout message arrived at the timeout manager, id:" + message.MessageId);
                 }
 
-                var destination = message.ReplyToAddress;
+                var destination = message.GetReplyToAddress();
 
                 string routeExpiredTimeoutTo;
                 if (message.Headers.TryGetValue(TimeoutManagerHeaders.RouteExpiredTimeoutTo, out routeExpiredTimeoutTo))
