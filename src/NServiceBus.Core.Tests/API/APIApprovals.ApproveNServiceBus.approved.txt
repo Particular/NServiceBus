@@ -297,6 +297,19 @@ namespace NServiceBus
         public DistributionPolicy() { }
         public void SetDistributionStrategy(string endpointName, NServiceBus.Routing.DistributionStrategy distributionStrategy) { }
     }
+    public class DevelopmentTransport : NServiceBus.Transports.TransportDefinition
+    {
+        public DevelopmentTransport() { }
+        public override string ExampleConnectionStringForErrorMessage { get; }
+        public override bool RequiresConnectionString { get; }
+        protected internal override NServiceBus.Transports.TransportInfrastructure Initialize(NServiceBus.Settings.SettingsHolder settings, string connectionString) { }
+    }
+    public class DevelopmentTransportHeader
+    {
+        public DevelopmentTransportHeader() { }
+        public string Key { get; set; }
+        public string Value { get; set; }
+    }
     public class static DurableMessagesConfig
     {
         public static void DisableDurableMessages(this NServiceBus.EndpointConfiguration config) { }

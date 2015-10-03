@@ -83,6 +83,7 @@
     <Compile Include="Config\When_injecting_message_session_into_handlers.cs" />
     <Compile Include="ConventionEnforcementTests.cs" />
     <Compile Include="Correlation\When_replying_to_received_message_without_correlationid.cs" />
+    <Compile Include="ConfigureScenariosForDevelopmentTransport.cs" />
     <Compile Include="DelayedDelivery\When_deferring_a_message_to_the_past.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\When_timeout_dispatch_fails.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\When_timeout_dispatch_fails_on_timeout_data_removal.cs" />
@@ -99,6 +100,16 @@
     <Compile Include="Core\FakeTransport\ProcessingOptimizations\When_using_concurrency_limit.cs" />
     <Compile Include="Basic\When_depending_on_typed_feature.cs" />
     <Compile Include="Hosting\When_overriding_input_queue_name.cs" />
+    <Compile Include="ConfigureEndpointDevelopmentTransport.cs" />
+    <Compile Include="FakeTransport\CriticalError\When_registering_custom_critical_error_handler.cs" />
+    <Compile Include="FakeTransport\FakeDispatcher.cs" />
+    <Compile Include="FakeTransport\FakeQueueCreator.cs" />
+    <Compile Include="FakeTransport\FakeReceiver.cs" />
+    <Compile Include="FakeTransport\FakeTransport.cs" />
+    <Compile Include="FakeTransport\FakeTransportInfrastructure.cs" />
+    <Compile Include="FakeTransport\FakeTransportSetingsExtensions.cs" />
+    <Compile Include="FakeTransport\ProcessingOptimizations\When_using_concurrency_limit.cs" />
+    <Compile Include="Hosting\When_overriding_local_addresses.cs" />
     <Compile Include="Hosting\When_a_message_is_faulted.cs" />
     <Compile Include="MessageId\When_message_has_empty_id_header.cs" />
     <Compile Include="MessageId\When_message_has_no_id_header.cs" />
