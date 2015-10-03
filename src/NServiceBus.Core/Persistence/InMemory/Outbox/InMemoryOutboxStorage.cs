@@ -5,11 +5,12 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using Extensibility;
     using NServiceBus.Outbox;
 
     class InMemoryOutboxStorage : IOutboxStorage
     {
-        public Task<OutboxMessage> Get(string messageId, OutboxStorageOptions options)
+        public Task<OutboxMessage> Get(string messageId, ReadOnlyContextBag context)
         {
             StoredMessage storedMessage;
             if (!storage.TryGetValue(messageId, out storedMessage))
@@ -20,7 +21,12 @@
             return Task.FromResult(new OutboxMessage(messageId, storedMessage.TransportOperations));
         }
 
-        public Task Store(OutboxMessage message, OutboxStorageOptions options)
+        public Task<OutboxTransaction> BeginTransaction(ReadOnlyContextBag context)
+        {
+            return Task.FromResult<OutboxTransaction>(new InMemoryOutboxTransaction());
+        }
+
+        public Task Store(OutboxMessage message,OutboxTransaction transaction, ReadOnlyContextBag context)
         {
             if (!storage.TryAdd(message.MessageId, new StoredMessage(message.MessageId, message.TransportOperations.ToList())))
             {
@@ -29,7 +35,7 @@
             return TaskEx.Completed;
         }
 
-        public Task SetAsDispatched(string messageId, OutboxStorageOptions options)
+        public Task SetAsDispatched(string messageId, ReadOnlyContextBag context)
         {
             StoredMessage storedMessage;
 
@@ -43,6 +49,7 @@
 
             return TaskEx.Completed;
         }
+
 
         ConcurrentDictionary<string, StoredMessage> storage = new ConcurrentDictionary<string, StoredMessage>();
 

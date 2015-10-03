@@ -1757,9 +1757,10 @@ namespace NServiceBus.Outbox
 {
     public interface IOutboxStorage
     {
-        System.Threading.Tasks.Task<NServiceBus.Outbox.OutboxMessage> Get(string messageId, NServiceBus.Outbox.OutboxStorageOptions options);
-        System.Threading.Tasks.Task SetAsDispatched(string messageId, NServiceBus.Outbox.OutboxStorageOptions options);
-        System.Threading.Tasks.Task Store(NServiceBus.Outbox.OutboxMessage message, NServiceBus.Outbox.OutboxStorageOptions options);
+        System.Threading.Tasks.Task<NServiceBus.Outbox.OutboxTransaction> BeginTransaction(NServiceBus.Extensibility.ReadOnlyContextBag context);
+        System.Threading.Tasks.Task<NServiceBus.Outbox.OutboxMessage> Get(string messageId, NServiceBus.Extensibility.ReadOnlyContextBag options);
+        System.Threading.Tasks.Task SetAsDispatched(string messageId, NServiceBus.Extensibility.ReadOnlyContextBag options);
+        System.Threading.Tasks.Task Store(NServiceBus.Outbox.OutboxMessage message, NServiceBus.Outbox.OutboxTransaction transaction, NServiceBus.Extensibility.ReadOnlyContextBag options);
     }
     public class OutboxMessage
     {
@@ -1773,10 +1774,9 @@ namespace NServiceBus.Outbox
             " time)` instead. Will be removed in version 7.0.0.", true)]
         public void TimeToKeepDeduplicationData(System.TimeSpan time) { }
     }
-    public class OutboxStorageOptions
+    public interface OutboxTransaction : System.IDisposable
     {
-        public OutboxStorageOptions(NServiceBus.Extensibility.ReadOnlyContextBag context) { }
-        public NServiceBus.Extensibility.ReadOnlyContextBag Context { get; set; }
+        System.Threading.Tasks.Task Commit();
     }
     public class TransportOperation
     {

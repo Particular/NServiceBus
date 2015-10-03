@@ -27,18 +27,23 @@ namespace NServiceBus
             var messageId = context.Message.Id;
             var physicalMessageContext = new PhysicalMessageProcessingContext(context.Message, context);
 
-            var deduplicationEntry = await outboxStorage.Get(messageId, new OutboxStorageOptions(context)).ConfigureAwait(false);
+            var deduplicationEntry = await outboxStorage.Get(messageId, context).ConfigureAwait(false);
             var pendingTransportOperations = new PendingTransportOperations();
 
             if (deduplicationEntry == null)
             {
                 physicalMessageContext.Set(pendingTransportOperations);
 
-                await next(physicalMessageContext).ConfigureAwait(false);
+                using (var outboxTransaction = await outboxStorage.BeginTransaction(context).ConfigureAwait(false))
+                {
+                    await next(physicalMessageContext).ConfigureAwait(false);
 
-                var outboxMessage = new OutboxMessage(messageId, ConvertToOutboxOperations(pendingTransportOperations.Operations).ToList());
+                    var outboxMessage = new OutboxMessage(messageId, ConvertToOutboxOperations(pendingTransportOperations.Operations).ToList());
 
-                await outboxStorage.Store(outboxMessage, new OutboxStorageOptions(context)).ConfigureAwait(false);
+                    await outboxStorage.Store(outboxMessage, outboxTransaction, context).ConfigureAwait(false);
+
+                    await outboxTransaction.Commit().ConfigureAwait(false);
+                }
             }
             else
             {
@@ -52,7 +57,7 @@ namespace NServiceBus
                 await batchDispatchPipeline.Invoke(batchDispatchContext).ConfigureAwait(false);
             }
 
-            await outboxStorage.SetAsDispatched(messageId, new OutboxStorageOptions(context)).ConfigureAwait(false);
+            await outboxStorage.SetAsDispatched(messageId, context).ConfigureAwait(false);
         }
 
         void ConvertToPendingOperations(OutboxMessage deduplicationEntry, PendingTransportOperations pendingTransportOperations)
@@ -134,7 +139,7 @@ namespace NServiceBus
                 options["TimeToBeReceived"] = discard.MaxTime.ToString();
                 return;
             }
-       
+
             throw new Exception($"Unknown delivery constraint {constraint.GetType().FullName}");
         }
 

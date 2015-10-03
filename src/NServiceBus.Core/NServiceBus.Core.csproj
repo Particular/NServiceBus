@@ -103,6 +103,7 @@
     <Compile Include="ISendOnlyBusExtensions_obsoletes.cs" />
     <Compile Include="IStartableBusExtensions_obsoletes.cs" />
     <Compile Include="IWantToRunWhenBusStartsAndStopsExtensions_obsoletes.cs" />
+    <Compile Include="Persistence\InMemory\Outbox\InMemoryOutboxTransaction.cs" />
     <Compile Include="Pipeline\Incoming\InvokeHandlerContext.cs" />
     <Compile Include="Pipeline\Incoming\LogicalMessageProcessingContext.cs" />
     <Compile Include="Pipeline\Incoming\PendingTransportOperations.cs" />
@@ -114,6 +115,7 @@
     <Compile Include="Pipeline\Outgoing\ImmediateDispatchOptionExtensions.cs" />
     <Compile Include="Pipeline\Outgoing\OutgoingPhysicalMessageContext.cs" />
     <Compile Include="Reliability\Outbox\ForceBatchDispatchToBeIsolatedBehavior.cs" />
+    <Compile Include="Reliability\Outbox\OutboxTransaction.cs" />
     <Compile Include="Routing\DynamicRoutingConfigurationExtensions.cs" />
     <Compile Include="Sagas\Saga_obsoletes.cs" />
     <Compile Include="TaskEx.cs" />
@@ -221,7 +223,6 @@
     <Compile Include="Performance\TimeToBeReceived\DiscardIfNotReceivedBefore.cs" />
     <Compile Include="DeliveryConstraints\DeliveryConstraint.cs" />
     <Compile Include="DelayedDelivery\DelayDeliveryWith.cs" />
-    <Compile Include="Reliability\Outbox\OutboxStorageOptions.cs" />
     <Compile Include="Routing\DefaultMessageRouter.cs" />
     <Compile Include="Features\RootFeature.cs" />
     <Compile Include="Routing\DetermineRouteForPublishBehavior.cs" />
