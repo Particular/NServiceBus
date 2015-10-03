@@ -105,11 +105,12 @@
     <Compile Include="IWantToRunWhenBusStartsAndStopsExtensions_obsoletes.cs" />
     <Compile Include="Pipeline\Incoming\InvokeHandlerContext.cs" />
     <Compile Include="Pipeline\Incoming\LogicalMessageProcessingContext.cs" />
+    <Compile Include="Pipeline\Incoming\MessageProcessingBusConfigurationExtensions.cs" />
     <Compile Include="Pipeline\Incoming\PendingTransportOperations.cs" />
     <Compile Include="Pipeline\Incoming\PhysicalMessageProcessingContext.cs" />
     <Compile Include="Pipeline\Outgoing\BatchDispatchContext.cs" />
     <Compile Include="Pipeline\Outgoing\BatchToDispatchConnector.cs" />
-    <Compile Include="Pipeline\Incoming\ReceiveFeature.cs" />
+    <Compile Include="Pipeline\Incoming\MessageProcessingFeature.cs" />
     <Compile Include="Pipeline\Outgoing\ForceImmediateDispatchForOperationsInSupressedScopeBehavior.cs" />
     <Compile Include="Pipeline\Outgoing\ImmediateDispatchOptionExtensions.cs" />
     <Compile Include="Pipeline\Outgoing\OutgoingPhysicalMessageContext.cs" />
