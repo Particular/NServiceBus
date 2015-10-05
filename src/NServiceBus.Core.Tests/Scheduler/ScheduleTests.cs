@@ -15,7 +15,8 @@
         FakeBus bus = new FakeBus();
         Schedule schedule;
 
-        DefaultScheduler defaultScheduler ;
+        DefaultScheduler defaultScheduler;
+
         [SetUp]
         public void SetUp()
         {
@@ -36,15 +37,29 @@
         [Test]
         public void When_scheduling_an_action_without_a_name_the_task_should_get_the_DeclaringType_as_name()
         {
-            schedule.Every(TimeSpan.FromMinutes(5), () => {  });
+            schedule.Every(TimeSpan.FromMinutes(5), () => { });
             Assert.That(EnsureThatNameExists("ScheduleTests"));
+        }
+
+        [Test]
+        public void Ensure_retrieving_name_from_type_works_for_old_compiler()
+        {
+            schedule.Every(TimeSpan.FromMinutes(5), OldCompilerBits.ActionProvider.SimpleAction());
+            Assert.That(EnsureThatNameExists("ActionProvider"));
+        }
+
+        [Test]
+        public void Ensure_retrieving_name_from_type_works_for_new_compiler()
+        {
+            schedule.Every(TimeSpan.FromMinutes(5), NewCompilerBits.ActionProvider.SimpleAction());
+            Assert.That(EnsureThatNameExists("ActionProvider"));
         }
 
         [Test]
         public void Schedule_tasks_using_multiple_threads()
         {
             Parallel.For(0, 20, i => schedule.Every(TimeSpan.FromSeconds(1), () => { }));
-            
+
             bus.DeferWasCalled = 0;
 
             Parallel.ForEach(defaultScheduler.scheduledTasks,

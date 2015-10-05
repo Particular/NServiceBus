@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Linq;
     using System.Threading;
     using ObjectBuilder;
     using Scheduling;
@@ -29,7 +30,15 @@ namespace NServiceBus
         /// <param name="task">The <see cref="System.Action"/> to execute.</param>
         public void Every(TimeSpan timeSpan, Action task)
         {
-            Every(timeSpan, task.Method.DeclaringType.Name, task);
+            var declaringType = task.Method.DeclaringType;
+
+            while (declaringType.DeclaringType != null &&
+                declaringType.CustomAttributes.Any(a => a.AttributeType.Name == "CompilerGeneratedAttribute"))
+            {
+                declaringType = declaringType.DeclaringType;
+            }
+
+            Every(timeSpan, declaringType.Name, task);
         }
 
         /// <summary>
@@ -43,11 +52,10 @@ namespace NServiceBus
             builder.Build<DefaultScheduler>()
                 .Schedule(new TaskDefinition
                 {
-                    Every = timeSpan, 
-                    Name = name, 
+                    Every = timeSpan,
+                    Name = name,
                     Task = task
                 });
         }
-
     }
 }
