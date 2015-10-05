@@ -90,25 +90,7 @@
     <Compile Include="Encryption\When_using_Rijndael_with_config.cs" />
     <Compile Include="EndpointTemplates\DefaultPublisher.cs" />
     <Compile Include="Exceptions\StackTraceAssert.cs" />
-    <Compile Include="Exceptions\When_handler_and_Uow_End_throws.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Exceptions\When_handler_throws.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Exceptions\When_handler_throws_AggregateException.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Exceptions\When_serialization_throws.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Exceptions\When_Uow_Begin_and_different_End_throws.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Exceptions\When_Uow_Begin_throws.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Exceptions\When_Uow_End_throws.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="HostInformation\When_a_message_is_received.cs" />
