@@ -43,6 +43,12 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="NServiceBus.NewCompilerBits">
+      <HintPath>TestDlls\NServiceBus.NewCompilerBits.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.OldCompilerBits">
+      <HintPath>TestDlls\NServiceBus.OldCompilerBits.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
     </Reference>
