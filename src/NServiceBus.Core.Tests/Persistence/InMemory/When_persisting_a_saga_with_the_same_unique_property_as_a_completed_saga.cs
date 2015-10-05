@@ -2,7 +2,7 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Sagas;
+    using Extensibility;
     using NUnit.Framework;
 
     [TestFixture]
@@ -15,14 +15,13 @@
             var saga2 = new SagaWithUniquePropertyData { Id = Guid.NewGuid(), UniqueString = "whatever" };
 
             var persister = InMemoryPersisterBuilder.Build<SagaWithUniqueProperty>();
-            var options = new SagaPersistenceOptions(SagaMetadata.Create(typeof(SagaWithUniqueProperty)));
-
-            await persister.Save(saga1, options);
-            await persister.Complete(saga1, options);
-            await persister.Save(saga2, options);
-            await persister.Complete(saga2, options);
-            await persister.Save(saga1, options);
-            await persister.Complete(saga1, options);
+         
+            await persister.Save(saga1, new ContextBag());
+            await persister.Complete(saga1, new ContextBag());
+            await persister.Save(saga2, new ContextBag());
+            await persister.Complete(saga2, new ContextBag());
+            await persister.Save(saga1, new ContextBag());
+            await persister.Complete(saga1, new ContextBag());
         }
     }
 }

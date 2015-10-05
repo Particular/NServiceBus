@@ -3,6 +3,7 @@
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using NServiceBus.Extensibility;
     using NServiceBus.Features;
     using NServiceBus.Sagas;
     using NUnit.Framework;
@@ -39,7 +40,7 @@
                 // ReSharper disable once MemberCanBePrivate.Global
                 public Context Context { get; set; }
 
-                public Task<TestSaga08.SagaData08> FindBy(SomeOtherMessage message, SagaPersistenceOptions options)
+                public Task<TestSaga08.SagaData08> FindBy(SomeOtherMessage message, ReadOnlyContextBag context)
                 {
                     Context.FinderUsed = true;
                     return Task.FromResult(new TestSaga08.SagaData08

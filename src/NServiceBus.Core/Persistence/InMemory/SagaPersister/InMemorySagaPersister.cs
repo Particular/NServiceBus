@@ -5,27 +5,26 @@ namespace NServiceBus
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using NServiceBus.Sagas;
-    using NServiceBus.Utils;
+    using Extensibility;
+    using Sagas;
+    using Utils;
     using Serializers.Json;
 
-    /// <summary>
-    /// In memory implementation of ISagaPersister for quick development.
-    /// </summary>
     class InMemorySagaPersister : ISagaPersister
     {
-        int version;
-        JsonMessageSerializer serializer = new JsonMessageSerializer(null);
-        ConcurrentDictionary<Guid, VersionedSagaEntity> data = new ConcurrentDictionary<Guid, VersionedSagaEntity>();
+        public InMemorySagaPersister(SagaMetadataCollection sagaMetaModel)
+        {
+            this.sagaMetaModel = sagaMetaModel;
+        }
 
-        public Task Complete(IContainSagaData saga, SagaPersistenceOptions options)
+        public Task Complete(IContainSagaData saga, ReadOnlyContextBag context)
         {
             VersionedSagaEntity value;
             data.TryRemove(saga.Id, out value);
             return TaskEx.Completed;
         }
 
-        public Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, SagaPersistenceOptions options) where TSagaData : IContainSagaData
+        public Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, ReadOnlyContextBag context) where TSagaData : IContainSagaData
         {
             var values = data.Values.Where(x => x.SagaEntity is TSagaData);
             foreach (var entity in values)
@@ -46,7 +45,7 @@ namespace NServiceBus
             return Task.FromResult(default(TSagaData));
         }
 
-        public Task<TSagaData> Get<TSagaData>(Guid sagaId, SagaPersistenceOptions options) where TSagaData : IContainSagaData
+        public Task<TSagaData> Get<TSagaData>(Guid sagaId, ReadOnlyContextBag context) where TSagaData : IContainSagaData
         {
             VersionedSagaEntity result;
             if (data.TryGetValue(sagaId, out result) && result?.SagaEntity is TSagaData)
@@ -58,9 +57,10 @@ namespace NServiceBus
             return Task.FromResult(default(TSagaData));
         }
 
-        public Task Save(IContainSagaData saga, SagaPersistenceOptions options)
+        public Task Save(IContainSagaData saga, ReadOnlyContextBag context)
         {
-            ValidateUniqueProperties(options.Metadata, saga);
+            var metadata = sagaMetaModel.FindByEntity(saga.GetType());
+            ValidateUniqueProperties(metadata, saga);
 
             VersionedSagaEntity sagaEntity;
             if (data.TryGetValue(saga.Id, out sagaEntity))
@@ -74,17 +74,17 @@ namespace NServiceBus
             return TaskEx.Completed;
         }
 
-        public Task Update(IContainSagaData saga, SagaPersistenceOptions options)
+        public Task Update(IContainSagaData saga, ReadOnlyContextBag context)
         {
-            return Save(saga, options);
+            return Save(saga, context);
         }
 
         void ValidateUniqueProperties(SagaMetadata sagaMetaData, IContainSagaData saga)
         {
             var sagaType = saga.GetType();
             var existingSagas = (from s in data
-                where s.Value.SagaEntity.GetType() == sagaType && (s.Key != saga.Id)
-                select s.Value)
+                                 where s.Value.SagaEntity.GetType() == sagaType && (s.Key != saga.Id)
+                                 select s.Value)
                 .ToList();
             foreach (var correlationProperty in sagaMetaData.CorrelationProperties)
             {
@@ -122,6 +122,11 @@ namespace NServiceBus
             var json = serializer.SerializeObject(source);
             return (IContainSagaData)serializer.DeserializeObject(json, source.GetType());
         }
+
+        int version;
+        JsonMessageSerializer serializer = new JsonMessageSerializer(null);
+        ConcurrentDictionary<Guid, VersionedSagaEntity> data = new ConcurrentDictionary<Guid, VersionedSagaEntity>();
+        SagaMetadataCollection sagaMetaModel;
 
         class VersionedSagaEntity
         {

@@ -2,25 +2,17 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Sagas;
+    using Extensibility;
     using NUnit.Framework;
 
     [TestFixture]
     class When_saga_not_found_return_default
     {
-        SagaPersistenceOptions options;
-
-        [SetUp]
-        public void SetUp()
-        {
-            options = new SagaPersistenceOptions(SagaMetadata.Create(typeof(SimpleSagaEntitySaga)));
-        }
-
         [Test]
         public async Task Should_return_default_when_using_finding_saga_with_property()
         {
             var persister = InMemoryPersisterBuilder.Build<SimpleSagaEntitySaga>();
-            var simpleSageEntity = await persister.Get<SimpleSagaEntity>("propertyNotFound", null, options);
+            var simpleSageEntity = await persister.Get<SimpleSagaEntity>("propertyNotFound", null, new ContextBag());
             Assert.IsNull(simpleSageEntity);
         }
 
@@ -28,7 +20,7 @@
         public async Task Should_return_default_when_using_finding_saga_with_id()
         {
             var persister = InMemoryPersisterBuilder.Build<SimpleSagaEntitySaga>();
-            var simpleSageEntity = await persister.Get<SimpleSagaEntity>(Guid.Empty, options);
+            var simpleSageEntity = await persister.Get<SimpleSagaEntity>(Guid.Empty, new ContextBag());
             Assert.IsNull(simpleSageEntity);
         }
 
@@ -42,9 +34,9 @@
                 OrderSource = "CA"
             };
             var persister = InMemoryPersisterBuilder.Build<SimpleSagaEntitySaga>();
-            await persister.Save(simpleSagaEntity, options);
+            await persister.Save(simpleSagaEntity, new ContextBag());
 
-            var anotherSagaEntity = await persister.Get<AnotherSimpleSagaEntity>(id, options);
+            var anotherSagaEntity = await persister.Get<AnotherSimpleSagaEntity>(id, new ContextBag());
             Assert.IsNull(anotherSagaEntity);
         }
     }

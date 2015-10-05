@@ -4,6 +4,7 @@ namespace NServiceBus.InMemory.TimeoutPersister
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
+    using NServiceBus.Extensibility;
     using Timeout.Core;
 
     class InMemoryTimeoutPersister : IPersistTimeouts, IQueryTimeouts, IDisposable
@@ -46,7 +47,7 @@ namespace NServiceBus.InMemory.TimeoutPersister
             return Task.FromResult(new TimeoutsChunk(dueTimeouts, nextTimeToRunQuery));
         }
 
-        public Task Add(TimeoutData timeout, TimeoutPersistenceOptions options)
+        public Task Add(TimeoutData timeout, ReadOnlyContextBag context)
         {
             timeout.Id = Guid.NewGuid().ToString();
             try
@@ -62,7 +63,7 @@ namespace NServiceBus.InMemory.TimeoutPersister
             return Task.FromResult(0);
         }
 
-        public Task<TimeoutData> Remove(string timeoutId, TimeoutPersistenceOptions options)
+        public Task<TimeoutData> Remove(string timeoutId, ReadOnlyContextBag context)
         {
             try
             {
@@ -86,7 +87,7 @@ namespace NServiceBus.InMemory.TimeoutPersister
             }
         }
 
-        public Task RemoveTimeoutBy(Guid sagaId, TimeoutPersistenceOptions options)
+        public Task RemoveTimeoutBy(Guid sagaId, ReadOnlyContextBag context)
         {
             try
             {

@@ -2,7 +2,7 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Sagas;
+    using Extensibility;
     using NUnit.Framework;
 
     [TestFixture]
@@ -15,16 +15,14 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
             var saga2 = new SagaWithUniquePropertyData {Id = Guid.NewGuid(), UniqueString = "whatever"};
 
             var persister = InMemoryPersisterBuilder.Build(typeof(SagaWithUniqueProperty), typeof(SagaWithTwoUniqueProperties));
-            var options = new SagaPersistenceOptions(SagaMetadata.Create(typeof(SagaWithUniqueProperty)));
-
-            await persister.Save(saga1, options);
-            await persister.Save(saga2, options);
+             await persister.Save(saga1, new ContextBag());
+            await persister.Save(saga2, new ContextBag());
 
             Assert.Throws<InvalidOperationException>(async () => 
             {
-                var saga = await persister.Get<SagaWithUniquePropertyData>(saga2.Id, options);
+                var saga = await persister.Get<SagaWithUniquePropertyData>(saga2.Id, new ContextBag());
                 saga.UniqueString = "whatever1";
-                await persister.Update(saga, options);
+                await persister.Update(saga, new ContextBag());
             });
         }
 
@@ -35,16 +33,15 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
             var saga2 = new SagaWithTwoUniquePropertiesData { Id = Guid.NewGuid(), UniqueString = "whatever", UniqueInt = 37};
 
             var persister = InMemoryPersisterBuilder.Build(typeof(SagaWithUniqueProperty), typeof(SagaWithTwoUniqueProperties));
-            var options = new SagaPersistenceOptions(SagaMetadata.Create(typeof(SagaWithTwoUniqueProperties)));
-
-            await persister.Save(saga1, options);
-            await persister.Save(saga2, options);
+      
+            await persister.Save(saga1, new ContextBag());
+            await persister.Save(saga2, new ContextBag());
 
             Assert.Throws<InvalidOperationException>(async () =>
             {
-                var saga = await persister.Get<SagaWithTwoUniquePropertiesData>(saga2.Id, options);
+                var saga = await persister.Get<SagaWithTwoUniquePropertiesData>(saga2.Id, new ContextBag());
                 saga.UniqueInt = 5;
-                await persister.Update(saga, options);
+                await persister.Update(saga, new ContextBag());
             });
         }
     }

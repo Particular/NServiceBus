@@ -2,7 +2,7 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Sagas;
+    using Extensibility;
     using NUnit.Framework;
 
     [TestFixture]
@@ -14,11 +14,9 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
             var saga1 = new SagaWithUniquePropertyData { Id = Guid.NewGuid(), UniqueString = "whatever"};
             var saga2 = new SagaWithUniquePropertyData { Id = Guid.NewGuid(), UniqueString = "whatever" };
 
-            var options = new SagaPersistenceOptions(SagaMetadata.Create(typeof(SagaWithUniqueProperty)));
-
-            var persister = InMemoryPersisterBuilder.Build(typeof(SagaWithUniqueProperty),typeof(SagaWithTwoUniqueProperties));
-            await persister.Save(saga1, options);
-            Assert.Throws<InvalidOperationException>(() => persister.Save(saga2, options));
+             var persister = InMemoryPersisterBuilder.Build(typeof(SagaWithUniqueProperty),typeof(SagaWithTwoUniqueProperties));
+            await persister.Save(saga1, new ContextBag());
+            Assert.Throws<InvalidOperationException>(() => persister.Save(saga2, new ContextBag()));
         }
         [Test]
         public async Task It_should_enforce_uniqueness_even_for_two_unique_properties()
@@ -26,13 +24,11 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
             var saga1 = new SagaWithTwoUniquePropertiesData { Id = Guid.NewGuid(), UniqueString = "whatever", UniqueInt = 5};
             var saga2 = new SagaWithTwoUniquePropertiesData { Id = Guid.NewGuid(), UniqueString = "whatever1", UniqueInt = 3};
             var saga3 = new SagaWithTwoUniquePropertiesData { Id = Guid.NewGuid(), UniqueString = "whatever3", UniqueInt = 3 };
-
-            var options = new SagaPersistenceOptions(SagaMetadata.Create(typeof(SagaWithTwoUniqueProperties)));
-
+            
             var persister = InMemoryPersisterBuilder.Build(typeof(SagaWithUniqueProperty), typeof(SagaWithTwoUniqueProperties));
-            await persister.Save(saga1, options);
-            await persister.Save(saga2, options);
-            Assert.Throws<InvalidOperationException>(() => persister.Save(saga3, options));
+            await persister.Save(saga1, new ContextBag());
+            await persister.Save(saga2, new ContextBag());
+            Assert.Throws<InvalidOperationException>(() => persister.Save(saga3, new ContextBag()));
         }
 
     }

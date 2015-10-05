@@ -2,29 +2,22 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Sagas;
+    using NServiceBus.Extensibility;
     using NUnit.Framework;
 
     [TestFixture]
     class When_multiple_workers_retrieve_same_saga
     {
-        SagaPersistenceOptions options;
-
-        [SetUp]
-        public void SetUp()
-        {
-            options = new SagaPersistenceOptions(SagaMetadata.Create(typeof(TestSaga)));
-        }
-
+        
         [Test]
         public async Task Persister_returns_different_instance_of_saga_data()
         {
             var saga = new TestSagaData { Id = Guid.NewGuid() };
             var persister = InMemoryPersisterBuilder.Build<TestSaga>();
-            await persister.Save(saga, options);
+            await persister.Save(saga, new ContextBag());
 
-            var returnedSaga1 = await persister.Get<TestSagaData>(saga.Id, options);
-            var returnedSaga2 = await persister.Get<TestSagaData>("Id", saga.Id, options);
+            var returnedSaga1 = await persister.Get<TestSagaData>(saga.Id, new ContextBag());
+            var returnedSaga2 = await persister.Get<TestSagaData>("Id", saga.Id, new ContextBag());
             Assert.AreNotSame(returnedSaga2, returnedSaga1);
             Assert.AreNotSame(returnedSaga1, saga);
             Assert.AreNotSame(returnedSaga2, saga);
@@ -35,13 +28,13 @@
         {
             var saga = new TestSagaData { Id = Guid.NewGuid() };
             var persister = InMemoryPersisterBuilder.Build<TestSaga>();
-            await persister.Save(saga, options);
+            await persister.Save(saga, new ContextBag());
 
-            var returnedSaga1 = await Task.Run(() => persister.Get<TestSagaData>(saga.Id, options));
-            var returnedSaga2 = await persister.Get<TestSagaData>("Id", saga.Id, options);
+            var returnedSaga1 = await Task.Run(() => persister.Get<TestSagaData>(saga.Id, new ContextBag()));
+            var returnedSaga2 = await persister.Get<TestSagaData>("Id", saga.Id, new ContextBag());
 
-            await persister.Save(returnedSaga1, options);
-            var exception = Assert.Throws<Exception>(() => persister.Save(returnedSaga2, options));
+            await persister.Save(returnedSaga1, new ContextBag());
+            var exception = Assert.Throws<Exception>(() => persister.Save(returnedSaga2, new ContextBag()));
             Assert.IsTrue(exception.Message.StartsWith($"InMemorySagaPersister concurrency violation: saga entity Id[{saga.Id}] already saved."));
         }
 
@@ -50,13 +43,13 @@
         {
             var saga = new TestSagaData { Id = Guid.NewGuid() };
             var persister = InMemoryPersisterBuilder.Build<TestSaga>();
-            await persister.Save(saga, options);
+            await persister.Save(saga, new ContextBag());
 
-            var record = await persister.Get<TestSagaData>(saga.Id, options);
-            var staleRecord = await persister.Get<TestSagaData>("Id", saga.Id, options);
+            var record = await persister.Get<TestSagaData>(saga.Id, new ContextBag());
+            var staleRecord = await persister.Get<TestSagaData>("Id", saga.Id, new ContextBag());
 
-            await persister.Save(record, options);
-            var exception = Assert.Throws<Exception>(() => persister.Save(staleRecord, options));
+            await persister.Save(record, new ContextBag());
+            var exception = Assert.Throws<Exception>(() => persister.Save(staleRecord, new ContextBag()));
             Assert.IsTrue(exception.Message.StartsWith($"InMemorySagaPersister concurrency violation: saga entity Id[{saga.Id}] already saved."));
         }
 
@@ -65,12 +58,12 @@
         {
             var saga = new TestSagaData { Id = Guid.NewGuid() };
             var persister = InMemoryPersisterBuilder.Build<TestSaga>();
-            await persister.Save(saga, options);
+            await persister.Save(saga, new ContextBag());
 
-            var returnedSaga1 = await persister.Get<TestSagaData>(saga.Id, options);
-            await persister.Save(returnedSaga1, options);
+            var returnedSaga1 = await persister.Get<TestSagaData>(saga.Id, new ContextBag());
+            await persister.Save(returnedSaga1, new ContextBag());
 
-            var exception = Assert.Throws<Exception>(() => persister.Save(returnedSaga1, options));
+            var exception = Assert.Throws<Exception>(() => persister.Save(returnedSaga1, new ContextBag()));
 
             Assert.IsTrue(exception.Message.StartsWith($"InMemorySagaPersister concurrency violation: saga entity Id[{saga.Id}] already saved."));
         }
@@ -80,21 +73,21 @@
         {
             var saga = new TestSagaData { Id = Guid.NewGuid() };
             var persister = InMemoryPersisterBuilder.Build<TestSaga>();
-            await persister.Save(saga, options);
+            await persister.Save(saga, new ContextBag());
 
-            var returnedSaga1 = await Task.Run(() => persister.Get<TestSagaData>(saga.Id, options));
-            var returnedSaga2 = await persister.Get<TestSagaData>("Id", saga.Id, options);
+            var returnedSaga1 = await Task.Run(() => persister.Get<TestSagaData>(saga.Id, new ContextBag()));
+            var returnedSaga2 = await persister.Get<TestSagaData>("Id", saga.Id, new ContextBag());
 
-            await persister.Save(returnedSaga1, options);
-            var exceptionFromSaga2 = Assert.Throws<Exception>(() => persister.Save(returnedSaga2, options));
+            await persister.Save(returnedSaga1, new ContextBag());
+            var exceptionFromSaga2 = Assert.Throws<Exception>(() => persister.Save(returnedSaga2, new ContextBag()));
             Assert.IsTrue(exceptionFromSaga2.Message.StartsWith($"InMemorySagaPersister concurrency violation: saga entity Id[{saga.Id}] already saved."));
 
-            var returnedSaga3 = await Task.Run(() => persister.Get<TestSagaData>("Id", saga.Id, options));
-            var returnedSaga4 = await persister.Get<TestSagaData>(saga.Id, options);
+            var returnedSaga3 = await Task.Run(() => persister.Get<TestSagaData>("Id", saga.Id, new ContextBag()));
+            var returnedSaga4 = await persister.Get<TestSagaData>(saga.Id, new ContextBag());
 
-            await persister.Save(returnedSaga4, options);
+            await persister.Save(returnedSaga4, new ContextBag());
 
-            var exceptionFromSaga3 = Assert.Throws<Exception>(() => persister.Save(returnedSaga3, options));
+            var exceptionFromSaga3 = Assert.Throws<Exception>(() => persister.Save(returnedSaga3, new ContextBag()));
             Assert.IsTrue(exceptionFromSaga3.Message.StartsWith($"InMemorySagaPersister concurrency violation: saga entity Id[{saga.Id}] already saved."));
         }
     }
