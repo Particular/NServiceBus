@@ -6,6 +6,7 @@
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Configuration.AdvanceExtensibility;
+    using NServiceBus.Extensibility;
     using NServiceBus.Features;
     using NServiceBus.Outbox;
     using NServiceBus.Persistence;
@@ -88,21 +89,38 @@
             {
                 this.context = context;
             }
-
-            public Task<OutboxMessage> Get(string messageId, OutboxStorageOptions options)
+            public Task<OutboxMessage> Get(string messageId, ReadOnlyContextBag options)
             {
                 return Task.FromResult(default(OutboxMessage));
             }
 
-            public Task Store(OutboxMessage message, OutboxStorageOptions options)
+            public Task Store(OutboxMessage message, OutboxTransaction transaction, ReadOnlyContextBag options)
             {
                 context.NumberOfOps += message.TransportOperations.Count();
                 return Task.FromResult(0);
             }
 
-            public Task SetAsDispatched(string messageId, OutboxStorageOptions options)
+            public Task SetAsDispatched(string messageId, ReadOnlyContextBag options)
             {
                 return Task.FromResult(0);
+            }
+
+            public Task<OutboxTransaction> BeginTransaction(ReadOnlyContextBag context)
+            {
+                return Task.FromResult<OutboxTransaction>(new FakeOutboxTransaction());
+            }
+
+            class FakeOutboxTransaction : OutboxTransaction
+            {
+                public void Dispose()
+                {
+                    
+                }
+
+                public Task Commit()
+                {
+                    return Task.FromResult(0);
+                }
             }
         }
 
