@@ -1896,6 +1896,10 @@ namespace NServiceBus.Pipeline
         System.Threading.Tasks.Task Invoke(TIn context, System.Func<TOut, System.Threading.Tasks.Task> next);
     }
     public interface IPipelineTerminator { }
+    public class static MessageProcessingBusConfigurationExtensions
+    {
+        public static void DisableMainProcessingPipeline(this NServiceBus.BusConfiguration busConfiguration) { }
+    }
     public class PipelineNotifications : System.IDisposable
     {
         public PipelineNotifications() { }

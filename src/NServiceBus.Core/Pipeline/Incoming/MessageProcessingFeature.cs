@@ -4,13 +4,19 @@
     using NServiceBus.Outbox;
     using NServiceBus.Pipeline;
 
-    class ReceiveFeature : Feature
+    /// <summary>
+    /// The main NServiceBus message processing pipeline.
+    /// </summary>
+    internal class MessageProcessingFeature : Feature
     {
-        public ReceiveFeature()
+        internal MessageProcessingFeature()
         {
             EnableByDefault();
         }
 
+        /// <summary>
+        ///     Called when the features is activated.
+        /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             context.Pipeline.RegisterConnector<TransportReceiveToPhysicalMessageProcessingConnector>("Allows to abort processing the message");
