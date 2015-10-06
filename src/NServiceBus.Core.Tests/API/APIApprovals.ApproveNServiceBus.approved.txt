@@ -57,6 +57,14 @@ namespace NServiceBus
         public static NServiceBus.IStartableBus Create(NServiceBus.BusConfiguration configuration) { }
         public static NServiceBus.ISendOnlyBus CreateSendOnly(NServiceBus.BusConfiguration configuration) { }
     }
+    [System.ObsoleteAttribute("No longer used, please use the new callbacks api described in the v6 upgrade guid" +
+        "e. Will be removed in version 7.0.0.", true)]
+    public class BusAsyncResultEventArgs : System.EventArgs
+    {
+        public BusAsyncResultEventArgs() { }
+        public string MessageId { get; set; }
+        public NServiceBus.Unicast.BusAsyncResult Result { get; set; }
+    }
     public class BusConfiguration : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
         public BusConfiguration() { }
@@ -402,8 +410,6 @@ namespace NServiceBus
         public NServiceBus.HostInfoSettings UsingInstalledFilePath() { }
         public NServiceBus.HostInfoSettings UsingNames(string instanceName, string hostName) { }
     }
-    [System.ObsoleteAttribute(@"ISatellite is no longer an extension point. In order to create a satellite one must create a feature that uses AddSatellitePipeline() method and a class that inherits from SatelliteBehavior that is used for processing the messages. Will be removed in version 7.0.0.", true)]
-    public interface IAdvancedSatellite { }
     public interface IAmStartedByMessages<T> : NServiceBus.IHandleMessages<T> { }
     [System.ObsoleteAttribute("This feature has been removed. To support authorization on a per subscription mes" +
         "sage type use a pipeline step instead. Will be removed in version 7.0.0.", true)]
@@ -505,6 +511,12 @@ namespace NServiceBus
     }
     [System.ObsoleteAttribute("Will be removed in version 7.0.0.", true)]
     public interface IIncludesBuilder { }
+    [System.ObsoleteAttribute("No longer used, can safey be removed. Will be removed in version 7.0.0.", true)]
+    public interface IManageMessageHeaders
+    {
+        System.Func<object, string, string> GetHeaderAction { get; }
+        System.Action<object, string, string> SetHeaderAction { get; }
+    }
     public interface IMessage { }
     public interface IMessageContext
     {
@@ -531,8 +543,6 @@ namespace NServiceBus
     {
         public static void EnableInstallers(this NServiceBus.BusConfiguration config, string username = null) { }
     }
-    [System.ObsoleteAttribute(@"ISatellite is no longer an extension point. In order to create a satellite one must create a feature that uses AddSatellitePipeline() method and a class that inherits from SatelliteBehavior that is used for processing the messages. Will be removed in version 7.0.0.", true)]
-    public interface ISatellite { }
     public interface ISendOnlyBus : System.IDisposable
     {
         System.Threading.Tasks.Task PublishAsync(object message, NServiceBus.PublishOptions options);
@@ -1889,6 +1899,12 @@ namespace NServiceBus.Pipeline
         void Initialize(NServiceBus.Unicast.Transport.PipelineInfo pipelineInfo);
         System.Threading.Tasks.Task Warmup();
     }
+    [System.ObsoleteAttribute("Please use `Behavior<T>` instead. Will be removed in version 7.0.0.", true)]
+    public interface IBehavior<in TContext>
+        where in TContext : NServiceBus.Pipeline.BehaviorContext
+    {
+        void Invoke(TContext context, System.Action next);
+    }
     public interface IBehavior<in TIn, out TOut> : NServiceBus.Pipeline.IBehavior
         where in TIn : NServiceBus.Pipeline.BehaviorContext
         where out TOut : NServiceBus.Pipeline.BehaviorContext
@@ -1896,6 +1912,18 @@ namespace NServiceBus.Pipeline
         System.Threading.Tasks.Task Invoke(TIn context, System.Func<TOut, System.Threading.Tasks.Task> next);
     }
     public interface IPipelineTerminator { }
+    [System.ObsoleteAttribute("You can no longer get access to the pipeline context via DI. Please use a behavio" +
+        "r to get access instead. Will be removed in version 7.0.0.", true)]
+    public class PipelineExecutor : System.IDisposable
+    {
+        public PipelineExecutor(NServiceBus.Settings.ReadOnlySettings settings, NServiceBus.ObjectBuilder.IBuilder builder, NServiceBus.BusNotifications busNotifications) { }
+        public NServiceBus.Pipeline.BehaviorContext CurrentContext { get; }
+        public System.Collections.Generic.IList<NServiceBus.Pipeline.RegisterStep> Incoming { get; }
+        public System.Collections.Generic.IList<NServiceBus.Pipeline.RegisterStep> Outgoing { get; }
+        public void Dispose() { }
+        public void InvokePipeline<TContext>(System.Collections.Generic.IEnumerable<System.Type> behaviors, TContext context)
+            where TContext : NServiceBus.Pipeline.BehaviorContext { }
+    }
     public class PipelineNotifications : System.IDisposable
     {
         public PipelineNotifications() { }
@@ -2024,6 +2052,15 @@ namespace NServiceBus.Pipeline.Contexts
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public NServiceBus.Unicast.Messages.LogicalMessage Message { get; }
         public bool MessageHandled { get; set; }
+    }
+    [System.ObsoleteAttribute("Please use `OutgoingLogicalMessage` instead. Will be removed in version 7.0.0.", true)]
+    public class OutgoingContext : NServiceBus.Pipeline.BehaviorContext
+    {
+        public OutgoingContext(NServiceBus.Pipeline.BehaviorContext parentContext, NServiceBus.Unicast.DeliveryOptions deliveryOptions, NServiceBus.Unicast.Messages.LogicalMessage message) { }
+        public NServiceBus.Unicast.DeliveryOptions DeliveryOptions { get; }
+        public NServiceBus.TransportMessage IncomingMessage { get; }
+        public NServiceBus.Unicast.Messages.LogicalMessage OutgoingLogicalMessage { get; }
+        public NServiceBus.TransportMessage OutgoingMessage { get; }
     }
     public class OutgoingLogicalMessageContext : NServiceBus.Pipeline.BehaviorContext
     {
@@ -2196,6 +2233,13 @@ namespace NServiceBus.Sagas
         [System.ObsoleteAttribute("Use the new SagaMetadata. Will be removed in version 7.0.0.", true)]
         public static System.Nullable<System.Collections.Generic.KeyValuePair<string, object>> GetUniqueProperty(NServiceBus.IContainSagaData entity) { }
     }
+}
+namespace NServiceBus.Satellites
+{
+    [System.ObsoleteAttribute(@"ISatellite is no longer an extension point. In order to create a satellite one must create a feature that uses AddSatellitePipeline() method and a class that inherits from SatelliteBehavior that is used for processing the messages. Will be removed in version 7.0.0.", true)]
+    public interface IAdvancedSatellite { }
+    [System.ObsoleteAttribute(@"ISatellite is no longer an extension point. In order to create a satellite one must create a feature that uses AddSatellitePipeline() method and a class that inherits from SatelliteBehavior that is used for processing the messages. Will be removed in version 7.0.0.", true)]
+    public interface ISatellite { }
 }
 namespace NServiceBus.SecondLevelRetries.Config
 {
@@ -2652,6 +2696,17 @@ namespace NServiceBus.Unicast
     {
         public static void ForEach<T>(this NServiceBus.ObjectBuilder.IBuilder builder, System.Action<T> action) { }
     }
+    [System.ObsoleteAttribute("No longer used, please use the new callbacks api described in the v6 upgrade guid" +
+        "e. Will be removed in version 7.0.0.", true)]
+    public class BusAsyncResult : System.IAsyncResult
+    {
+        public BusAsyncResult(System.AsyncCallback callback, object state) { }
+        public object AsyncState { get; }
+        public System.Threading.WaitHandle AsyncWaitHandle { get; }
+        public bool CompletedSynchronously { get; }
+        public bool IsCompleted { get; }
+        public void Complete(int errorCode, params object[] messages) { }
+    }
     public class DeliveryMessageOptions
     {
         public DeliveryMessageOptions() { }
@@ -2915,6 +2970,11 @@ namespace NServiceBus.Unicast.Subscriptions
 }
 namespace NServiceBus.Unicast.Transport
 {
+    [System.ObsoleteAttribute("No longer used, can safey be removed. Will be removed in version 7.0.0.", true)]
+    public class static ControlMessage
+    {
+        public static NServiceBus.TransportMessage Create() { }
+    }
     public class static ControlMessageFactory
     {
         public static NServiceBus.Transports.OutgoingMessage Create(NServiceBus.MessageIntentEnum intent) { }
@@ -2925,11 +2985,38 @@ namespace NServiceBus.Unicast.Transport
         public NServiceBus.TransportMessage Message { get; }
         public System.Exception Reason { get; }
     }
+    [System.ObsoleteAttribute("No longer used, can safey be removed. Will be removed in version 7.0.0.", true)]
+    public class FinishedMessageProcessingEventArgs : System.EventArgs
+    {
+        public FinishedMessageProcessingEventArgs(NServiceBus.TransportMessage m) { }
+        public NServiceBus.TransportMessage Message { get; }
+    }
+    [System.ObsoleteAttribute("Please use `IPushMessages` instead. Will be removed in version 7.0.0.", true)]
+    public interface ITransport
+    {
+        int MaximumConcurrencyLevel { get; }
+        int MaximumMessageThroughputPerSecond { get; }
+        public event System.EventHandler<NServiceBus.Unicast.Transport.FailedMessageProcessingEventArgs> FailedMessageProcessing;
+        public event System.EventHandler<NServiceBus.Unicast.Transport.FinishedMessageProcessingEventArgs> FinishedMessageProcessing;
+        public event System.EventHandler<NServiceBus.Unicast.Transport.StartedMessageProcessingEventArgs> StartedMessageProcessing;
+        public event System.EventHandler<NServiceBus.Unicast.Transport.TransportMessageReceivedEventArgs> TransportMessageReceived;
+        void AbortHandlingCurrentMessage();
+        void ChangeMaximumConcurrencyLevel(int maximumConcurrencyLevel);
+        void ChangeMaximumMessageThroughputPerSecond(int maximumMessageThroughputPerSecond);
+        void Start(NServiceBus.Address localAddress);
+        void Stop();
+    }
     public class PipelineInfo
     {
         public PipelineInfo(string name, string transportAddress) { }
         public string Name { get; }
         public string TransportAddress { get; }
+    }
+    [System.ObsoleteAttribute("No longer used, can safey be removed. Will be removed in version 7.0.0.", true)]
+    public class StartedMessageProcessingEventArgs : System.EventArgs
+    {
+        public StartedMessageProcessingEventArgs(NServiceBus.TransportMessage m) { }
+        public NServiceBus.TransportMessage Message { get; }
     }
     public class TransactionSettings
     {
@@ -2943,6 +3030,18 @@ namespace NServiceBus.Unicast.Transport
         public bool IsTransactional { get; set; }
         public bool SuppressDistributedTransactions { get; set; }
         public System.TimeSpan TransactionTimeout { get; set; }
+    }
+    [System.ObsoleteAttribute("No longer used, can safey be removed. Will be removed in version 7.0.0.", true)]
+    public class TransportMessageAvailableEventArgs : System.EventArgs
+    {
+        public TransportMessageAvailableEventArgs(NServiceBus.TransportMessage m) { }
+        public NServiceBus.TransportMessage Message { get; }
+    }
+    [System.ObsoleteAttribute("No longer used, can safey be removed. Will be removed in version 7.0.0.", true)]
+    public class TransportMessageReceivedEventArgs : System.EventArgs
+    {
+        public TransportMessageReceivedEventArgs(NServiceBus.TransportMessage m) { }
+        public NServiceBus.TransportMessage Message { get; }
     }
     public class TransportReceiver
     {
