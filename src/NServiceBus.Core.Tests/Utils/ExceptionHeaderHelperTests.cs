@@ -82,5 +82,16 @@ namespace NServiceBus.Core.Tests.Utils
         {
             throw new Exception("My Inner Exception");
         }
+
+        [Test]
+        public void ExceptionMessageIsTruncated()
+        {
+            var exception = new Exception(new string('x', (int)Math.Pow(2, 15)));
+            var dictionary = new Dictionary<string, string>();
+
+            ExceptionHeaderHelper.SetExceptionHeaders(dictionary, exception, "queue1", "reason1", false);
+
+            Assert.AreEqual((int)Math.Pow(2, 14), dictionary["NServiceBus.ExceptionInfo.Message"].Length);
+        }
     }
 }

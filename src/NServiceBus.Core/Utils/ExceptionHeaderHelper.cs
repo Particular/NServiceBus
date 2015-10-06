@@ -30,7 +30,7 @@
             }
 
             headers["NServiceBus.ExceptionInfo.HelpLink"] = e.HelpLink;
-            headers["NServiceBus.ExceptionInfo.Message"] = e.GetMessage();
+            headers["NServiceBus.ExceptionInfo.Message"] = e.GetMessage().Truncate(16384);
             headers["NServiceBus.ExceptionInfo.Source"] = e.Source; 
             if (legacyStackTrace)
             {
@@ -55,5 +55,12 @@
                 headers["NServiceBus.ExceptionInfo.Data." + entry.Key] = entry.Value.ToString();
             }
         }
+
+        static string Truncate(this string value, int maxLength) =>
+            string.IsNullOrEmpty(value)
+                ? value
+                : (value.Length <= maxLength
+                    ? value
+                    : value.Substring(0, maxLength));
     }
 }
