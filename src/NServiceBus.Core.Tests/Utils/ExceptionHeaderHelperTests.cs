@@ -117,5 +117,16 @@ namespace NServiceBus.Core.Tests.Utils
             var failedQueue = new Address("TheErrorQueue", "TheErrorQueueMachine");
             ExceptionHeaderHelper.SetExceptionHeaders(dictionary, exception, failedQueue, "The reason", false);
         }
+
+        [Test]
+        public void ExceptionMessageIsTruncated()
+        {
+            var exception = new Exception(new string('x', (int)Math.Pow(2, 15)));
+            var dictionary = new Dictionary<string, string>();
+
+            ExceptionHeaderHelper.SetExceptionHeaders(dictionary, exception, new Address("queue1", "machine1"), "reason1", false);
+
+            Assert.AreEqual((int)Math.Pow(2, 14), dictionary["NServiceBus.ExceptionInfo.Message"].Length);
+        }
     }
 }
