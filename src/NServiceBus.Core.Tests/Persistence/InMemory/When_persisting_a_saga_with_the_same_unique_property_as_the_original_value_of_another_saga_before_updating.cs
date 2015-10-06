@@ -2,7 +2,7 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Sagas;
+    using Extensibility;
     using NUnit.Framework;
 
     [TestFixture]
@@ -14,15 +14,13 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
             var saga1 = new SagaWithUniquePropertyData{Id = Guid.NewGuid(), UniqueString = "whatever"};
             var saga2 = new SagaWithUniquePropertyData{Id = Guid.NewGuid(), UniqueString = "whatever"};
 
-            var options = new SagaPersistenceOptions(SagaMetadata.Create(typeof(SagaWithUniqueProperty)));
-
             var persister = InMemoryPersisterBuilder.Build<SagaWithUniqueProperty>();
-            await persister.Save(saga1, options);
-            saga1 = await persister.Get<SagaWithUniquePropertyData>(saga1.Id, options);
+            await persister.Save(saga1, new ContextBag());
+            saga1 = await persister.Get<SagaWithUniquePropertyData>(saga1.Id, new ContextBag());
             saga1.UniqueString = "whatever2";
-            await persister.Update(saga1, options);
+            await persister.Update(saga1, new ContextBag());
 
-            await persister.Save(saga2, options);
+            await persister.Save(saga2, new ContextBag());
         }
     }
 }

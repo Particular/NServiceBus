@@ -22,14 +22,12 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 .Run();
 
             Assert.True(context.FinderUsed);
-            Assert.AreEqual(typeof(SagaEndpoint.TestSaga07), context.Metadata.SagaType);
             Assert.AreEqual("SomeData", context.ContextBag.Get<SagaEndpoint.BehaviorWhichAddsThingsToTheContext.State>().SomeData);
         }
 
         public class Context : ScenarioContext
         {
             public bool FinderUsed { get; set; }
-            public SagaMetadata Metadata { get; set; }
             public ReadOnlyContextBag ContextBag { get; set; }
         }
 
@@ -47,10 +45,9 @@ namespace NServiceBus.AcceptanceTests.Sagas
             class CustomFinder : IFindSagas<TestSaga07.SagaData07>.Using<StartSagaMessage>
             {
                 public Context Context { get; set; }
-                public Task<TestSaga07.SagaData07> FindBy(StartSagaMessage message, SagaPersistenceOptions options)
+                public Task<TestSaga07.SagaData07> FindBy(StartSagaMessage message, ReadOnlyContextBag context)
                 {
-                    Context.Metadata = options.Metadata;
-                    Context.ContextBag = options.Context;
+                    Context.ContextBag = context;
                     Context.FinderUsed = true;
                     return Task.FromResult(default(TestSaga07.SagaData07));
                 }

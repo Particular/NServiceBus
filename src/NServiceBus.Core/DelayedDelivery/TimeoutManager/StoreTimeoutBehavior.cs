@@ -61,7 +61,7 @@ namespace NServiceBus
                 destination = routeExpiredTimeoutTo;
             }
 
-            var timeoutData = await persister.Remove(timeoutId, new TimeoutPersistenceOptions(context));
+            var timeoutData = await persister.Remove(timeoutId, context);
 
             if (timeoutData == null)
             {
@@ -88,7 +88,7 @@ namespace NServiceBus
                 if (sagaId == Guid.Empty)
                     throw new InvalidOperationException("Invalid saga id specified, clear timeouts is only supported for saga instances");
 
-                await persister.RemoveTimeoutBy(sagaId, new TimeoutPersistenceOptions(context)).ConfigureAwait(false);
+                await persister.RemoveTimeoutBy(sagaId, context).ConfigureAwait(false);
             }
             else
             {
@@ -125,7 +125,7 @@ namespace NServiceBus
                     return;
                 }
 
-                await persister.Add(data, new TimeoutPersistenceOptions(context)).ConfigureAwait(false);
+                await persister.Add(data, context).ConfigureAwait(false);
 
                 poller.NewTimeoutRegistered(data.Time);
             }

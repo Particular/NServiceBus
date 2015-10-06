@@ -4,10 +4,11 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using NServiceBus.Extensibility;
 
     class InMemoryGatewayDeduplication : IDeduplicateMessages
     {
-        public Task<bool> DeduplicateMessage(string clientId, DateTime timeReceived)
+        public Task<bool> DeduplicateMessage(string clientId, DateTime timeReceived, ReadOnlyContextBag context)
         {
             lock (persistence)
             {

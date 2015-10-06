@@ -21,12 +21,11 @@ namespace NServiceBus.Core.Tests.Timeout
         public void Run()
         {
             var stopwatch = Stopwatch.StartNew();
-            var options = new TimeoutPersistenceOptions(new ContextBag());
             var inMemoryTimeoutPersister = new InMemoryTimeoutPersister();
 
             for (var i = 0; i < 10; i++)
             {
-                var thread = new Thread(() => Runner(inMemoryTimeoutPersister, options).Wait());
+                var thread = new Thread(() => Runner(inMemoryTimeoutPersister, new ContextBag()).Wait());
                 thread.Start();
                 thread.Join();
             }
@@ -34,38 +33,38 @@ namespace NServiceBus.Core.Tests.Timeout
             Console.Out.WriteLine(stopwatch.ElapsedMilliseconds);
         }
 
-        async Task Runner(InMemoryTimeoutPersister inMemoryTimeoutPersister, TimeoutPersistenceOptions options)
+        async Task Runner(InMemoryTimeoutPersister inMemoryTimeoutPersister, ReadOnlyContextBag context)
         {
             for (var i = 0; i < 10000; i++)
             {
                 await GetNextChunk(inMemoryTimeoutPersister);
-                await Add(inMemoryTimeoutPersister, options);
+                await Add(inMemoryTimeoutPersister, context);
                 await GetNextChunk(inMemoryTimeoutPersister);
-                await TryRemove(inMemoryTimeoutPersister, options);
+                await TryRemove(inMemoryTimeoutPersister, context);
                 await GetNextChunk(inMemoryTimeoutPersister);
-                await RemoveTimeoutBy(inMemoryTimeoutPersister, options);
+                await RemoveTimeoutBy(inMemoryTimeoutPersister, context);
                 await GetNextChunk(inMemoryTimeoutPersister);
             }
         }
 
-        Task RemoveTimeoutBy(IPersistTimeouts inMemoryTimeoutPersister, TimeoutPersistenceOptions options)
+        Task RemoveTimeoutBy(IPersistTimeouts inMemoryTimeoutPersister, ReadOnlyContextBag context)
         {
             var sagaId = sagaIdGuids.GetOrAdd(Thread.CurrentThread.ManagedThreadId, new Guid());
-            return inMemoryTimeoutPersister.RemoveTimeoutBy(sagaId, options);
+            return inMemoryTimeoutPersister.RemoveTimeoutBy(sagaId, context);
         }
 
-        static async Task TryRemove(IPersistTimeouts inMemoryTimeoutPersister, TimeoutPersistenceOptions options)
+        static async Task TryRemove(IPersistTimeouts inMemoryTimeoutPersister, ReadOnlyContextBag context)
         {
-            await inMemoryTimeoutPersister.Remove(Thread.CurrentThread.Name, options);
+            await inMemoryTimeoutPersister.Remove(Thread.CurrentThread.Name, context);
         }
 
-        static Task Add(IPersistTimeouts inMemoryTimeoutPersister, TimeoutPersistenceOptions options)
+        static Task Add(IPersistTimeouts inMemoryTimeoutPersister, ReadOnlyContextBag context)
         {
             return inMemoryTimeoutPersister.Add(new TimeoutData
             {
                 Time = DateTime.Now,
                 Id = Thread.CurrentThread.Name
-            }, options);
+            }, context);
         }
 
         static async Task GetNextChunk(IQueryTimeouts inMemoryTimeoutPersister)

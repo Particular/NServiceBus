@@ -12,13 +12,11 @@ namespace NServiceBus.Core.Tests.Timeout
     public class When_fetching_timeouts_from_storage_with_inMemory
     {
         InMemoryTimeoutPersister persister;
-        TimeoutPersistenceOptions options;
-
+ 
         [SetUp]
         public void Setup()
         {
-            options = new TimeoutPersistenceOptions(new ContextBag());
-            persister = new InMemoryTimeoutPersister();
+             persister = new InMemoryTimeoutPersister();
         }
 
         [Test]
@@ -32,7 +30,7 @@ namespace NServiceBus.Core.Tests.Timeout
                 {
                     OwningTimeoutManager = string.Empty,
                     Time = DateTime.UtcNow.AddHours(-1)
-                }, options);
+                }, new ContextBag());
             }
 
             for (var i = 0; i < numberOfTimeoutsToAdd; i++)
@@ -41,7 +39,7 @@ namespace NServiceBus.Core.Tests.Timeout
                 {
                     OwningTimeoutManager = string.Empty,
                     Time = DateTime.UtcNow.AddHours(1)
-                }, options);
+                }, new ContextBag());
             }
 
             var nextChunk = await GetNextChunk();
@@ -62,7 +60,7 @@ namespace NServiceBus.Core.Tests.Timeout
                     OwningTimeoutManager = "MyEndpoint"
                 };
 
-                await persister.Add(d, options);
+                await persister.Add(d, new ContextBag());
             }
 
             var expected = DateTime.UtcNow.AddHours(1);
@@ -70,7 +68,7 @@ namespace NServiceBus.Core.Tests.Timeout
             {
                 Time = expected,
                 OwningTimeoutManager = string.Empty,
-            }, options);
+            }, new ContextBag());
 
             var nextChunk = await GetNextChunk();
 

@@ -1514,7 +1514,7 @@ namespace NServiceBus.Gateway.Deduplication
 {
     public interface IDeduplicateMessages
     {
-        System.Threading.Tasks.Task<bool> DeduplicateMessage(string clientId, System.DateTime timeReceived);
+        System.Threading.Tasks.Task<bool> DeduplicateMessage(string clientId, System.DateTime timeReceived, NServiceBus.Extensibility.ReadOnlyContextBag context);
     }
 }
 namespace NServiceBus.Hosting.Helpers
@@ -2122,7 +2122,7 @@ namespace NServiceBus.Sagas
         public interface Using<T, M> : NServiceBus.Sagas.IFinder
             where T : NServiceBus.IContainSagaData
         {
-            System.Threading.Tasks.Task<T> FindBy(M message, NServiceBus.Sagas.SagaPersistenceOptions options);
+            System.Threading.Tasks.Task<T> FindBy(M message, NServiceBus.Extensibility.ReadOnlyContextBag context);
         }
     }
     public interface IHandleSagaNotFound
@@ -2131,13 +2131,13 @@ namespace NServiceBus.Sagas
     }
     public interface ISagaPersister
     {
-        System.Threading.Tasks.Task Complete(NServiceBus.IContainSagaData saga, NServiceBus.Sagas.SagaPersistenceOptions options);
-        System.Threading.Tasks.Task<TSagaData> Get<TSagaData>(System.Guid sagaId, NServiceBus.Sagas.SagaPersistenceOptions options)
+        System.Threading.Tasks.Task Complete(NServiceBus.IContainSagaData saga, NServiceBus.Extensibility.ReadOnlyContextBag context);
+        System.Threading.Tasks.Task<TSagaData> Get<TSagaData>(System.Guid sagaId, NServiceBus.Extensibility.ReadOnlyContextBag context)
             where TSagaData : NServiceBus.IContainSagaData;
-        System.Threading.Tasks.Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, NServiceBus.Sagas.SagaPersistenceOptions options)
+        System.Threading.Tasks.Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, NServiceBus.Extensibility.ReadOnlyContextBag context)
             where TSagaData : NServiceBus.IContainSagaData;
-        System.Threading.Tasks.Task Save(NServiceBus.IContainSagaData saga, NServiceBus.Sagas.SagaPersistenceOptions options);
-        System.Threading.Tasks.Task Update(NServiceBus.IContainSagaData saga, NServiceBus.Sagas.SagaPersistenceOptions options);
+        System.Threading.Tasks.Task Save(NServiceBus.IContainSagaData saga, NServiceBus.Extensibility.ReadOnlyContextBag context);
+        System.Threading.Tasks.Task Update(NServiceBus.IContainSagaData saga, NServiceBus.Extensibility.ReadOnlyContextBag context);
     }
     public class SagaFinderDefinition
     {
@@ -2175,12 +2175,6 @@ namespace NServiceBus.Sagas
         public System.Collections.Generic.IEnumerator<NServiceBus.Sagas.SagaMetadata> GetEnumerator() { }
         public void Initialize(System.Collections.Generic.IEnumerable<System.Type> availableTypes) { }
         public void Initialize(System.Collections.Generic.IEnumerable<System.Type> availableTypes, NServiceBus.Conventions conventions) { }
-    }
-    public class SagaPersistenceOptions
-    {
-        public SagaPersistenceOptions(NServiceBus.Sagas.SagaMetadata sagaMetadata, NServiceBus.Extensibility.ReadOnlyContextBag context = null) { }
-        public NServiceBus.Extensibility.ReadOnlyContextBag Context { get; }
-        public NServiceBus.Sagas.SagaMetadata Metadata { get; }
     }
     [System.ObsoleteAttribute("There is no need for this attribute anymore, all mapped properties are automatica" +
         "lly correlated. Will be removed in version 7.0.0.", true)]
@@ -2365,9 +2359,9 @@ namespace NServiceBus.Timeout.Core
 {
     public interface IPersistTimeouts
     {
-        System.Threading.Tasks.Task Add(NServiceBus.Timeout.Core.TimeoutData timeout, NServiceBus.Timeout.Core.TimeoutPersistenceOptions options);
-        System.Threading.Tasks.Task<NServiceBus.Timeout.Core.TimeoutData> Remove(string timeoutId, NServiceBus.Timeout.Core.TimeoutPersistenceOptions options);
-        System.Threading.Tasks.Task RemoveTimeoutBy(System.Guid sagaId, NServiceBus.Timeout.Core.TimeoutPersistenceOptions options);
+        System.Threading.Tasks.Task Add(NServiceBus.Timeout.Core.TimeoutData timeout, NServiceBus.Extensibility.ReadOnlyContextBag context);
+        System.Threading.Tasks.Task<NServiceBus.Timeout.Core.TimeoutData> Remove(string timeoutId, NServiceBus.Extensibility.ReadOnlyContextBag context);
+        System.Threading.Tasks.Task RemoveTimeoutBy(System.Guid sagaId, NServiceBus.Extensibility.ReadOnlyContextBag context);
     }
     public interface IQueryTimeouts
     {
@@ -2393,11 +2387,6 @@ namespace NServiceBus.Timeout.Core
         [System.ObsoleteAttribute("Use new OutgoingMessage(timeoutData.State) instead. Will be removed in version 7." +
             "0.0.", true)]
         public NServiceBus.TransportMessage ToTransportMessage() { }
-    }
-    public class TimeoutPersistenceOptions
-    {
-        public TimeoutPersistenceOptions(NServiceBus.Extensibility.ReadOnlyContextBag context) { }
-        public NServiceBus.Extensibility.ReadOnlyContextBag Context { get; set; }
     }
     public class TimeoutsChunk
     {

@@ -13,10 +13,6 @@
 
     class SagaPersistenceBehavior : Behavior<InvokeHandlerContext>
     {
-        ISagaPersister sagaPersister;
-        ICancelDeferredMessages timeoutCancellation;
-        SagaMetadataCollection sagaMetadataCollection;
-
         public SagaPersistenceBehavior(ISagaPersister persister, ICancelDeferredMessages timeoutCancellation, SagaMetadataCollection sagaMetadataCollection)
         {
             sagaPersister = persister;
@@ -39,13 +35,12 @@
             }
 
             var sagaMetadata = sagaMetadataCollection.Find(context.MessageHandler.Instance.GetType());
-            var sagaPersistenceOptions = new SagaPersistenceOptions(sagaMetadata, context);
             var sagaInstanceState = new ActiveSagaInstance(saga, sagaMetadata);
 
             //so that other behaviors can access the saga
             context.Set(sagaInstanceState);
 
-            var loadedEntity = await TryLoadSagaEntity(sagaPersistenceOptions, context).ConfigureAwait(false);
+            var loadedEntity = await TryLoadSagaEntity(sagaMetadata, context).ConfigureAwait(false);
 
             if (loadedEntity == null)
             {
@@ -89,7 +84,7 @@
             {
                 if (!sagaInstanceState.IsNew)
                 {
-                    await sagaPersister.Complete(saga.Entity, sagaPersistenceOptions).ConfigureAwait(false);
+                    await sagaPersister.Complete(saga.Entity, context).ConfigureAwait(false);
                 }
 
                 if (saga.Entity.Id != Guid.Empty)
@@ -103,11 +98,11 @@
             {
                 if (sagaInstanceState.IsNew)
                 {
-                    await sagaPersister.Save(saga.Entity, sagaPersistenceOptions).ConfigureAwait(false);
+                    await sagaPersister.Save(saga.Entity, context).ConfigureAwait(false);
                 }
                 else
                 {
-                    await sagaPersister.Update(saga.Entity, sagaPersistenceOptions).ConfigureAwait(false);
+                    await sagaPersister.Update(saga.Entity, context).ConfigureAwait(false);
                 }
             }
         }
@@ -199,10 +194,9 @@
             return true;
         }
 
-        Task<IContainSagaData> TryLoadSagaEntity(SagaPersistenceOptions options, InvokeHandlerContext context)
+        Task<IContainSagaData> TryLoadSagaEntity(SagaMetadata metadata, InvokeHandlerContext context)
         {
             string sagaId;
-            var metadata = options.Metadata;
 
             if (context.Headers.TryGetValue(Headers.SagaId, out sagaId) && !string.IsNullOrEmpty(sagaId))
             {
@@ -213,7 +207,7 @@
 
                 var loader = (SagaLoader)Activator.CreateInstance(loaderType);
 
-                return loader.Load(sagaPersister, sagaId, options);
+                return loader.Load(sagaPersister, sagaId, context);
             }
 
             SagaFinderDefinition finderDefinition = null;
@@ -235,7 +229,7 @@
             var finderType = finderDefinition.Type;
             var finder = (SagaFinder)currentContext.Builder.Build(finderType);
 
-            return finder.Find(currentContext.Builder, finderDefinition, options, context.MessageBeingHandled);
+            return finder.Find(currentContext.Builder, finderDefinition, context, context.MessageBeingHandled);
         }
 
         IContainSagaData CreateNewSagaEntity(SagaMetadata metadata, InvokeHandlerContext context)
@@ -257,6 +251,9 @@
             return sagaEntity;
         }
 
+        ISagaPersister sagaPersister;
+        ICancelDeferredMessages timeoutCancellation;
+        SagaMetadataCollection sagaMetadataCollection;
         InvokeHandlerContext currentContext;
 
         static ILog logger = LogManager.GetLogger<SagaPersistenceBehavior>();

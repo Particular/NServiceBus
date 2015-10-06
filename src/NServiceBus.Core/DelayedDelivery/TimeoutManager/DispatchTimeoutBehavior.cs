@@ -19,7 +19,7 @@ namespace NServiceBus
             var message = context.Message;
             var timeoutId = message.Headers["Timeout.Id"];
 
-            var timeoutData = await persister.Remove(timeoutId, new TimeoutPersistenceOptions(context)).ConfigureAwait(false);
+            var timeoutData = await persister.Remove(timeoutId, context).ConfigureAwait(false);
 
             if (timeoutData == null)
             {

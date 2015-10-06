@@ -4,6 +4,7 @@
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using NServiceBus.Extensibility;
     using NServiceBus.Features;
     using NServiceBus.Sagas;
     using NUnit.Framework;
@@ -40,7 +41,7 @@
                 public IBus Bus { get; set; }
                 public Context Context { get; set; }
 
-                public async Task<TestSagaWithCustomFinder.TestSagaWithCustomFinderSagaData> FindBy(StartSagaMessage message, SagaPersistenceOptions options)
+                public async Task<TestSagaWithCustomFinder.TestSagaWithCustomFinderSagaData> FindBy(StartSagaMessage message, ReadOnlyContextBag context)
                 {
                     await Bus.ReplyAsync(new SagaNotFoundMessage
                     {

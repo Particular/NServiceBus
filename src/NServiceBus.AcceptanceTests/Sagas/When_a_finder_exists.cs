@@ -3,6 +3,7 @@
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using NServiceBus.Extensibility;
     using NServiceBus.Features;
     using NServiceBus.Sagas;
     using NUnit.Framework;
@@ -36,7 +37,7 @@
             class CustomFinder : IFindSagas<TestSaga06.SagaData06>.Using<StartSagaMessage>
             {
                 public Context Context { get; set; }
-                public Task<TestSaga06.SagaData06> FindBy(StartSagaMessage message, SagaPersistenceOptions options)
+                public Task<TestSaga06.SagaData06> FindBy(StartSagaMessage message, ReadOnlyContextBag context)
                 {
                     Context.FinderUsed = true;
                     return Task.FromResult(default(TestSaga06.SagaData06));

@@ -152,7 +152,6 @@
     <Compile Include="DelayedDelivery\RouteDeferredMessageToTimeoutManagerBehavior.cs" />
     <Compile Include="DelayedDelivery\ThrowIfCannotDeferMessageBehavior.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\Persistence\IQueryTimeouts.cs" />
-    <Compile Include="DelayedDelivery\TimeoutManager\Persistence\TimeoutPersistenceOptions.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\Persistence\TimeoutsChunk.cs" />
     <Compile Include="DelayedDelivery\TimeoutManagerAddressConfiguration.cs" />
     <Compile Include="DeliveryConstraints\DeliveryConstraintContextExtensions.cs" />
@@ -265,7 +264,6 @@
     <Compile Include="Routing\UnsubscribeOptions.cs" />
     <Compile Include="Sagas\AutoCorrelationFeature.cs" />
     <Compile Include="Sagas\PopulateAutoCorrelationHeadersForRepliesBehavior.cs" />
-    <Compile Include="Sagas\SagaPersistenceOptions.cs" />
     <Compile Include="Routing\DetermineRouteForReplyBehavior.cs" />
     <Compile Include="Routing\NonDurableDelivery.cs" />
     <Compile Include="Routing\RoutingFeature.cs" />
