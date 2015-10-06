@@ -204,6 +204,7 @@
     <Compile Include="Settings\DurableMessagesConfig.cs" />
     <Compile Include="Timeout\Core\IPersistTimeoutsV2.cs" />
     <Compile Include="Timeout\Core\TimeoutPersistenceVersionCheck.cs" />
+    <Compile Include="Timeout\Core\TimeoutPersistenceVersionCheckExtension.cs" />
     <Compile Include="Transports\ConfigurePurging_Obsolete.cs" />
     <Compile Include="Unicast\Behaviors\ForwardReceivedMessages.cs" />
     <Compile Include="Unicast\Config\LoadMessageHandlersExtentions_Obsolete.cs" />
