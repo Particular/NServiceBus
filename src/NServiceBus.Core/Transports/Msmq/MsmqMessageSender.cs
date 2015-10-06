@@ -50,7 +50,6 @@ namespace NServiceBus.Transports.Msmq
                             toSend.ResponseQueue = new MessageQueue(NServiceBus.MsmqUtilities.GetReturnAddress(replyToAddress.ToString(), address.ToString()));
                         }
 
-
                         if (sendOptions.EnlistInReceiveTransaction && UnitOfWork.HasActiveTransaction())
                         {
                             q.Send(toSend, UnitOfWork.Transaction);

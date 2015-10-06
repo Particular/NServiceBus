@@ -73,7 +73,16 @@
     <Compile Include="Exceptions\Cant_convert_to_TransportMessage\When_cant_convert_to_TransportMessage.cs" />
     <Compile Include="Exceptions\Message_without_an_id.cs" />
     <Compile Include="NonDTC\Auditing.cs" />
+    <Compile Include="NonDTC\When_dispatching_deferred_message_fails_without_dtc.cs" />
     <Compile Include="Sagas\When_message_has_a_saga_id.cs" />
+    <Compile Include="Timeouts\OutdatedTimeoutPersister.cs" />
+    <Compile Include="Timeouts\TransportWithFakeQueues.cs" />
+    <Compile Include="Timeouts\UpdatedTimeoutPersister.cs" />
+    <Compile Include="Timeouts\When_dispatched_timeout_already_removed_from_timeout_storage.cs" />
+    <Compile Include="Timeouts\When_endpoint_uses_outdated_timeout_persistence_without_dtc.cs" />
+    <Compile Include="Timeouts\When_endpoint_uses_outdated_timeout_persistence_with_disabled_dtc.cs" />
+    <Compile Include="Timeouts\When_endpoint_uses_outdated_timeout_persistence_with_dtc.cs" />
+    <Compile Include="Timeouts\When_endpoint_uses_updated_timeout_persistence.cs" />
     <Compile Include="Tx\Issue_2481.cs" />
     <Compile Include="Volatile\When_sending_to_non_durable_endpoint.cs" />
     <Compile Include="Encryption\When_using_Rijndael_with_multikey.cs" />
@@ -81,25 +90,7 @@
     <Compile Include="Encryption\When_using_Rijndael_with_config.cs" />
     <Compile Include="EndpointTemplates\DefaultPublisher.cs" />
     <Compile Include="Exceptions\StackTraceAssert.cs" />
-    <Compile Include="Exceptions\When_handler_and_Uow_End_throws.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Exceptions\When_handler_throws.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Exceptions\When_handler_throws_AggregateException.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Exceptions\When_serialization_throws.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Exceptions\When_Uow_Begin_and_different_End_throws.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Exceptions\When_Uow_Begin_throws.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Exceptions\When_Uow_End_throws.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="HostInformation\When_a_message_is_received.cs" />
