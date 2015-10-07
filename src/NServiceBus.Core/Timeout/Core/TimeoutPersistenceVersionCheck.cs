@@ -7,24 +7,7 @@
     using NServiceBus.Settings;
     using NServiceBus.Transports;
 
-    /// <summary>
-    /// 
-    /// </summary>
-    public static class TimeoutPersistenceVersionCheckExtension
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="configure"></param>
-        /// <returns></returns>
-        public static BusConfiguration SuppressOutdatedTimeoutPersistenceWarning(this BusConfiguration configure)
-        {
-            configure.Settings.Set(TimeoutPersistenceVersionCheck.SuppressOutdatedTimeoutPersistenceWarning, true);
-            return configure;
-        }
-    }
-
-    internal class TimeoutPersistenceVersionCheck : IWantToRunWhenConfigurationIsComplete
+    class TimeoutPersistenceVersionCheck : IWantToRunWhenConfigurationIsComplete
     {
         internal const string SuppressOutdatedTimeoutPersistenceWarning = "NServiceBus/suppress-outdated-timeout-persistence-warning";
         
