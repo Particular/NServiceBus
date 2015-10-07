@@ -117,7 +117,6 @@
     <Compile Include="Pipeline\Outgoing\OutgoingPhysicalMessageContext.cs" />
     <Compile Include="Reliability\Outbox\ForceBatchDispatchToBeIsolatedBehavior.cs" />
     <Compile Include="Reliability\Outbox\OutboxTransaction.cs" />
-    <Compile Include="Routing\DynamicRoutingConfigurationExtensions.cs" />
     <Compile Include="Routing\MulticastRoutingStrategy.cs" />
     <Compile Include="Routing\RoutingStrategy.cs" />
     <Compile Include="Routing\UnicastRoutingStrategy.cs" />
@@ -241,8 +240,6 @@
     <Compile Include="Performance\TimeToBeReceived\DiscardIfNotReceivedBefore.cs" />
     <Compile Include="DeliveryConstraints\DeliveryConstraint.cs" />
     <Compile Include="DelayedDelivery\DelayDeliveryWith.cs" />
-    <Compile Include="Routing\DefaultMessageRouter.cs" />
-    <Compile Include="Reliability\Outbox\OutboxStorageOptions.cs" />
     <Compile Include="Features\RootFeature.cs" />
     <Compile Include="Routing\Routers\IndirectPublishRouterBehavior.cs" />
     <Compile Include="Routing\Routers\DirectSendRouterConnector.cs" />
@@ -280,8 +277,6 @@
     <Compile Include="Routing\UnsubscribeOptions.cs" />
     <Compile Include="Sagas\AutoCorrelationFeature.cs" />
     <Compile Include="Sagas\PopulateAutoCorrelationHeadersForRepliesBehavior.cs" />
-    <Compile Include="Routing\DetermineRouteForReplyBehavior.cs" />
-    <Compile Include="Sagas\SagaPersistenceOptions.cs" />
     <Compile Include="Routing\Routers\DirectReplyRouterConnector.cs" />
     <Compile Include="Routing\NonDurableDelivery.cs" />
     <Compile Include="Routing\RoutingFeature.cs" />
