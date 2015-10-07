@@ -15,6 +15,8 @@ namespace NServiceBus.Pipeline.Contexts
         public InvokeHandlerContext(MessageHandler handler, LogicalMessageProcessingContext parentContext)
             : base(parentContext)
         {
+            Guard.AgainstNull("handler", handler);
+            Guard.AgainstNull("parentContext", parentContext);
             MessageHandler = handler;
             Headers = parentContext.Headers;
             MessageBeingHandled = parentContext.Message.Instance;
@@ -25,17 +27,17 @@ namespace NServiceBus.Pipeline.Contexts
         /// <summary>
         /// The current <see cref="IHandleMessages{T}"/> being executed.
         /// </summary>
-        public MessageHandler MessageHandler { get; private set; }
+        public MessageHandler MessageHandler { get; }
 
         /// <summary>
         /// Message headers.
         /// </summary>
-        public Dictionary<string, string> Headers { get; private set; }
+        public Dictionary<string, string> Headers { get; }
 
         /// <summary>
         /// The message instance being handled.
         /// </summary>
-        public object MessageBeingHandled { get; private set; }
+        public object MessageBeingHandled { get; }
 
         /// <summary>
         /// Call this to stop the invocation of handlers.
@@ -53,11 +55,11 @@ namespace NServiceBus.Pipeline.Contexts
         /// <summary>
         /// Metadata for the incoming message.
         /// </summary>
-        public MessageMetadata MessageMetadata { get; private set; }
+        public MessageMetadata MessageMetadata { get; }
 
         /// <summary>
         /// Id of the incoming message.
         /// </summary>
-        public string MessageId { get; private set; }
+        public string MessageId { get; }
     }
 }

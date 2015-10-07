@@ -10,9 +10,6 @@
         internal TransportReceiveContext(IncomingMessage receivedMessage, BehaviorContext parentContext)
             : base(parentContext)
         {
-            Guard.AgainstNull("receivedMessage", receivedMessage);
-            Guard.AgainstNull("parentContext", parentContext);
-
             Message = new TransportMessage(receivedMessage.MessageId, receivedMessage.Headers)
             {
                 Body = new byte[receivedMessage.BodyStream.Length]
@@ -26,6 +23,6 @@
         /// <summary>
         /// The physical message beeing processed.
         /// </summary>
-        public TransportMessage Message { get; private set; }
+        public TransportMessage Message { get; }
     }
 }
