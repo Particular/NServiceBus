@@ -7,7 +7,7 @@ namespace NServiceBus.Routing
     /// <summary>
     /// A destination of address routing.
     /// </summary>
-    public class DirectRoutingDestination
+    public class UnicastRoutingDestination
     {
         EndpointName endpointName;
         EndpointInstanceName instanceName;
@@ -17,7 +17,7 @@ namespace NServiceBus.Routing
         /// Creates a destination based on the name of the endpoint.
         /// </summary>
         /// <param name="endpointName">Destination endpoint.</param>
-        public DirectRoutingDestination(EndpointName endpointName)
+        public UnicastRoutingDestination(EndpointName endpointName)
         {
             Guard.AgainstNull("endpointName", endpointName);
             this.endpointName = endpointName;
@@ -27,7 +27,7 @@ namespace NServiceBus.Routing
         /// Creates a destination based on the name of the endpoint instance.
         /// </summary>
         /// <param name="instanceName">Destination instance name.</param>
-        public DirectRoutingDestination(EndpointInstanceName instanceName)
+        public UnicastRoutingDestination(EndpointInstanceName instanceName)
         {
             Guard.AgainstNull("instanceName",instanceName);
             this.instanceName = instanceName;
@@ -37,7 +37,7 @@ namespace NServiceBus.Routing
         /// Creates a destination based on the physical address.
         /// </summary>
         /// <param name="physicalAddress">Destination physical address.</param>
-        public DirectRoutingDestination(string physicalAddress)
+        public UnicastRoutingDestination(string physicalAddress)
         {
             Guard.AgainstNullAndEmpty("physicalAddress",physicalAddress);
             this.physicalAddress = physicalAddress;

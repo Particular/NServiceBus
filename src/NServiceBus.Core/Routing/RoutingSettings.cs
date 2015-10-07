@@ -17,12 +17,12 @@
         /// <summary>
         /// Gets the routing table for the direct routing.
         /// </summary>
-        public DirectRoutingTable DirectRoutingTable => GetOrCreate<DirectRoutingTable>();
+        public UnicastRoutingTable UnicastRoutingTable => GetOrCreate<UnicastRoutingTable>();
         
         /// <summary>
         /// Gets the known endpoints collection.
         /// </summary>
-        public KnownEndpoints KnownEndpoints => GetOrCreate<KnownEndpoints>();
+        public EndpoointInstances EndpoointInstances => GetOrCreate<EndpoointInstances>();
 
         /// <summary>
         /// Gets the distribution policy.

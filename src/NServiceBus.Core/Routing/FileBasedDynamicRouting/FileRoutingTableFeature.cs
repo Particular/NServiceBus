@@ -30,7 +30,7 @@ namespace NServiceBus.Features
 
             protected override void OnStart()
             {
-                settings.Get<KnownEndpoints>().AddDynamic(e => routingTable.GetInstances(e));
+                settings.Get<EndpoointInstances>().AddDynamic(e => routingTable.GetInstances(e));
             }
         }
     }

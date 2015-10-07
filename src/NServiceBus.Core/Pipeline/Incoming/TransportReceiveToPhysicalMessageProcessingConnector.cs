@@ -85,30 +85,30 @@ namespace NServiceBus
                     SerializeDeliveryConstraint(constraint, options);
                 }
 
-                SerializeRoutingStategy(operation.DispatchOptions.AddressLabel, options);
+                SerializeRoutingStategy(operation.DispatchOptions.AddressTag, options);
 
                 yield return new Outbox.TransportOperation(operation.Message.MessageId,
                     options, operation.Message.Body, operation.Message.Headers);
             }
         }
 
-        static void SerializeRoutingStategy(AddressLabel addressLabel, Dictionary<string, string> options)
+        static void SerializeRoutingStategy(AddressTag addressTag, Dictionary<string, string> options)
         {
-            var indirect = addressLabel as IndirectAddressLabel;
+            var indirect = addressTag as MulticastAddressTag;
             if (indirect != null)
             {
                 options["EventType"] = indirect.MessageType.AssemblyQualifiedName;
                 return;
             }
 
-            var direct = addressLabel as DirectAddressLabel;
+            var direct = addressTag as UnicastAddressTag;
             if (direct != null)
             {
                 options["Destination"] = direct.Destination;
                 return;
             }
 
-            throw new Exception($"Unknown routing strategy {addressLabel.GetType().FullName}");
+            throw new Exception($"Unknown routing strategy {addressTag.GetType().FullName}");
         }
 
         static void SerializeDeliveryConstraint(DeliveryConstraint constraint, Dictionary<string, string> options)
@@ -171,20 +171,20 @@ namespace NServiceBus
             }
         }
 
-        static AddressLabel DeserializeRoutingStrategy(Dictionary<string, string> options)
+        static AddressTag DeserializeRoutingStrategy(Dictionary<string, string> options)
         {
             string destination;
 
             if (options.TryGetValue("Destination", out destination))
             {
-                return new DirectAddressLabel(destination);
+                return new UnicastAddressTag(destination);
             }
 
             string eventType;
 
             if (options.TryGetValue("EventType", out eventType))
             {
-                return new IndirectAddressLabel(Type.GetType(eventType, true));
+                return new MulticastAddressTag(Type.GetType(eventType, true));
             }
 
             throw new Exception("Could not find routing strategy to deserialize");

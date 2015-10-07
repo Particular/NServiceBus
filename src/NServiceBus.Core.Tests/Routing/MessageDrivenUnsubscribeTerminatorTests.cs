@@ -23,7 +23,7 @@
         {
             var publishers = new Publishers();
             publishers.AddStatic("publisher1",typeof(object));
-            router = new SubscriptionRouter(publishers, new KnownEndpoints(), new TransportAddresses());
+            router = new SubscriptionRouter(publishers, new EndpoointInstances(), new TransportAddresses());
             dispatcher = new FakeDispatcher();
             terminator = new MessageDrivenUnsubscribeTerminator(router, "replyToAddress", dispatcher);
         }

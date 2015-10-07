@@ -10,14 +10,14 @@ namespace NServiceBus
     using NServiceBus.TransportDispatch;
     using NServiceBus.Unicast.Queuing;
 
-    class DirectPublishRouterConnector : StageConnector<OutgoingPublishContext, OutgoingLogicalMessageContext>
+    class UnicastPublishRouterConnector : StageConnector<OutgoingPublishContext, OutgoingLogicalMessageContext>
     {
-        DirectRoutingStrategy directRoutingStrategy;
+        UnicastRouter unicastRouter;
         DistributionPolicy distributionPolicy;
 
-        public DirectPublishRouterConnector(DirectRoutingStrategy directRoutingStrategy, DistributionPolicy distributionPolicy)
+        public UnicastPublishRouterConnector(UnicastRouter unicastRouter, DistributionPolicy distributionPolicy)
         {
-            this.directRoutingStrategy = directRoutingStrategy;
+            this.unicastRouter = unicastRouter;
             this.distributionPolicy = distributionPolicy;
         }
 
@@ -26,7 +26,7 @@ namespace NServiceBus
             var eventType = context.Message.MessageType;
             var distributionStrategy = distributionPolicy.GetDistributionStrategy(eventType);
 
-            var addressLabels = directRoutingStrategy.Route(eventType, distributionStrategy, context)
+            var addressLabels = unicastRouter.Route(eventType, distributionStrategy, context)
                 .EnsureNonEmpty(() => "No destination specified for message: " + eventType)
                 .ToArray();
 

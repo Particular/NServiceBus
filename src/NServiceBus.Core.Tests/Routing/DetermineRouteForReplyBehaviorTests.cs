@@ -17,7 +17,7 @@
         [Test]
         public async Task Should_default_to_reply_address_of_incoming_message_for_replies()
         {
-            var behavior = new DirectReplyRouterConnector();
+            var behavior = new UnicastReplyRouterConnector();
             var options = new ReplyOptions();
 
             var context = new OutgoingReplyContext(new OutgoingLogicalMessage(new MyReply()), options, new TransportReceiveContext(new IncomingMessage("id", new Dictionary<string, string>
@@ -25,20 +25,20 @@
                 {Headers.ReplyToAddress, "ReplyAddressOfIncomingMessage"}
             }, new MemoryStream()), new RootContext(null)));
 
-            DirectAddressLabel addressLabel = null;
+            UnicastAddressTag addressTag = null;
             await behavior.Invoke(context, c =>
             {
-                addressLabel = (DirectAddressLabel) c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
+                addressTag = (UnicastAddressTag) c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
                 return Task.FromResult(0);
             });
 
-            Assert.AreEqual("ReplyAddressOfIncomingMessage", addressLabel.Destination);
+            Assert.AreEqual("ReplyAddressOfIncomingMessage", addressTag.Destination);
         }
 
         [Test]
         public void Should_throw_if_incoming_message_has_no_reply_to_address()
         {
-            var behavior = new DirectReplyRouterConnector();
+            var behavior = new UnicastReplyRouterConnector();
             var options = new ReplyOptions();
 
             var context = new OutgoingReplyContext(new OutgoingLogicalMessage(new MyReply()), options, new TransportReceiveContext(new IncomingMessage("id", new Dictionary<string, string>(), new MemoryStream()), new RootContext(null)));
@@ -51,21 +51,21 @@
         [Test]
         public async Task Should_use_explicit_route_for_replies_if_present()
         {
-            var behavior = new DirectReplyRouterConnector();
+            var behavior = new UnicastReplyRouterConnector();
             var options = new ReplyOptions();
 
             options.OverrideReplyToAddressOfIncomingMessage("CustomReplyToAddress");
 
             var context = new OutgoingReplyContext(new OutgoingLogicalMessage(new MyReply()), options, new RootContext(null));
 
-            DirectAddressLabel addressLabel = null;
+            UnicastAddressTag addressTag = null;
             await behavior.Invoke(context, c =>
             {
-                addressLabel = (DirectAddressLabel) c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
+                addressTag = (UnicastAddressTag) c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
                 return Task.FromResult(0);
             });
 
-            Assert.AreEqual("CustomReplyToAddress", addressLabel.Destination);
+            Assert.AreEqual("CustomReplyToAddress", addressTag.Destination);
         }
 
         class MyReply

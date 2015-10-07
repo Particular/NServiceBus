@@ -133,7 +133,7 @@ namespace NServiceBus.Core.Tests
                     throw new Exception("Failed to dispatch");
                 }
 
-                Destination = ((DirectAddressLabel) context.RoutingStrategies.First().Apply(new Dictionary<string, string>())).Destination;
+                Destination = ((UnicastAddressTag) context.RoutingStrategies.First().Apply(new Dictionary<string, string>())).Destination;
                 MessageSent = context.Message;
                 return Task.FromResult(0);
             }

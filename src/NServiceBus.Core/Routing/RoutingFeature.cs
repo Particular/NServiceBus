@@ -20,8 +20,8 @@
             EnableByDefault();
             Defaults(s =>
             {
-                s.SetDefault<DirectRoutingTable>(new DirectRoutingTable());
-                s.SetDefault<KnownEndpoints>(new KnownEndpoints());
+                s.SetDefault<UnicastRoutingTable>(new UnicastRoutingTable());
+                s.SetDefault<EndpoointInstances>(new EndpoointInstances());
                 s.SetDefault<Publishers>(new Publishers());
                 s.SetDefault<DistributionPolicy>(new DistributionPolicy());
             });
@@ -33,17 +33,17 @@
             var canReceive = !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly");
             var transportDefinition = context.Settings.Get<TransportDefinition>();
 
-            context.Container.ConfigureComponent(b => context.Settings.Get<DirectRoutingTable>(), DependencyLifecycle.SingleInstance);
-            context.Container.ConfigureComponent(b => context.Settings.Get<KnownEndpoints>(), DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent(b => context.Settings.Get<UnicastRoutingTable>(), DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent(b => context.Settings.Get<EndpoointInstances>(), DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent(b => context.Settings.Get<Publishers>(), DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent(b => context.Settings.Get<DistributionPolicy>(), DependencyLifecycle.SingleInstance);
-            context.Container.ConfigureComponent<DirectRoutingStrategy>(DependencyLifecycle.SingleInstance);
-            context.Container.ConfigureComponent(b => new DirectSendRouterConnector(LocalAddress(b), b.Build<DirectRoutingStrategy>(), b.Build<DistributionPolicy>()), DependencyLifecycle.InstancePerCall);
+            context.Container.ConfigureComponent<UnicastRouter>(DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent(b => new UnicastSendRouterConnector(LocalAddress(b), b.Build<UnicastRouter>(), b.Build<DistributionPolicy>()), DependencyLifecycle.InstancePerCall);
 
             var unicastBusConfig = context.Settings.GetConfigSection<UnicastBusConfig>();
             if (unicastBusConfig != null)
             {
-                var routeTable = context.Settings.Get<DirectRoutingTable>();
+                var routeTable = context.Settings.Get<UnicastRoutingTable>();
                 var publishers = context.Settings.Get<Publishers>();
                 var legacyRoutingConfig = unicastBusConfig.MessageEndpointMappings;
                 var conventions = context.Settings.Get<Conventions>();
@@ -67,15 +67,15 @@
             }
 
             var outboundRoutingPolicy = transportDefinition.GetOutboundRoutingPolicy(context.Settings);
-            context.Pipeline.Register("DirectSendRouterConnector", typeof(DirectSendRouterConnector), "Determines how the message being sent should be routed");
-            context.Pipeline.Register("DirectReplyRouterConnector", typeof(DirectReplyRouterConnector), "Determines how replies should be routed");
+            context.Pipeline.Register("UnicastSendRouterConnector", typeof(UnicastSendRouterConnector), "Determines how the message being sent should be routed");
+            context.Pipeline.Register("UnicastReplyRouterConnector", typeof(UnicastReplyRouterConnector), "Determines how replies should be routed");
             if (outboundRoutingPolicy.Publishes == OutboundRoutingType.DirectSend)
             {
-                context.Pipeline.Register("DirectPublishRouterConnector", typeof(DirectPublishRouterConnector), "Determines how the published messages should be routed");
+                context.Pipeline.Register("UnicastPublishRouterConnector", typeof(UnicastPublishRouterConnector), "Determines how the published messages should be routed");
             }
             else
             {
-                context.Pipeline.Register("IndirectPublishRouterBehavior", typeof(IndirectPublishRouterBehavior), "Determines how the published messages should be routed");                
+                context.Pipeline.Register("MulticastPublishRouterBehavior", typeof(MulticastPublishRouterBehavior), "Determines how the published messages should be routed");                
             }
 
             if (canReceive)
@@ -138,17 +138,17 @@
                 {
                     //TODO: 133
                     var subscriptions = builder.Build<ISubscriptionStorage>();
-                    settings.Get<DirectRoutingTable>().AddDynamic((t, c) => QuerySubscriptionStore(subscriptions, t, c));
+                    settings.Get<UnicastRoutingTable>().AddDynamic((t, c) => QuerySubscriptionStore(subscriptions, t, c));
                 }
             }
 
-            private static IEnumerable<DirectRoutingDestination> QuerySubscriptionStore(ISubscriptionStorage subscriptions, Type messageType, ContextBag contextBag)
+            private static IEnumerable<UnicastRoutingDestination> QuerySubscriptionStore(ISubscriptionStorage subscriptions, Type messageType, ContextBag contextBag)
             {
                 var messageTypes = new[]
                 {
                     new MessageType(messageType)
                 };
-                return subscriptions.GetSubscriberAddressesForMessage(messageTypes, new SubscriptionStorageOptions(contextBag)).GetAwaiter().GetResult().Select(s => new DirectRoutingDestination(s));
+                return subscriptions.GetSubscriberAddressesForMessage(messageTypes, new SubscriptionStorageOptions(contextBag)).GetAwaiter().GetResult().Select(s => new UnicastRoutingDestination(s));
             }
         }
     }

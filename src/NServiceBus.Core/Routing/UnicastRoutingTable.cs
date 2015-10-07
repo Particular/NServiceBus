@@ -6,59 +6,59 @@ namespace NServiceBus.Routing
     using NServiceBus.Extensibility;
 
     /// <summary>
-    /// Manages the direct routing table.
+    /// Manages the unicast routing table.
     /// </summary>
-    public class DirectRoutingTable
+    public class UnicastRoutingTable
     {
-        List<Func<Type, ContextBag, IEnumerable<DirectRoutingDestination>>> rules = new List<Func<Type, ContextBag, IEnumerable<DirectRoutingDestination>>>();
+        List<Func<Type, ContextBag, IEnumerable<UnicastRoutingDestination>>> rules = new List<Func<Type, ContextBag, IEnumerable<UnicastRoutingDestination>>>();
 
-        internal IEnumerable<DirectRoutingDestination> GetDestinationsFor(Type messageType, ContextBag contextBag)
+        internal IEnumerable<UnicastRoutingDestination> GetDestinationsFor(Type messageType, ContextBag contextBag)
         {
             return rules.SelectMany(r => r(messageType, contextBag)).Distinct();
         }
 
         /// <summary>
-        /// Adds a static direct route.
+        /// Adds a static unicast route.
         /// </summary>
         /// <param name="messageType">Message type.</param>
         /// <param name="destination">Destination endpoint.</param>
         public void AddStatic(Type messageType, EndpointName destination)
         {
-            rules.Add((t, c) => StaticRule(t, messageType, new DirectRoutingDestination(destination)));
+            rules.Add((t, c) => StaticRule(t, messageType, new UnicastRoutingDestination(destination)));
         }
 
 
         /// <summary>
-        /// Adds a static direct route.
+        /// Adds a static unicast route.
         /// </summary>
         /// <param name="messageType">Message type.</param>
         /// <param name="destination">Destination endpoint instance.</param>
         public void AddStatic(Type messageType, EndpointInstanceName destination)
         {
-            rules.Add((t, c) => StaticRule(t, messageType, new DirectRoutingDestination(destination)));
+            rules.Add((t, c) => StaticRule(t, messageType, new UnicastRoutingDestination(destination)));
         }
 
 
         /// <summary>
-        /// Adds a static direct route.
+        /// Adds a static unicast route.
         /// </summary>
         /// <param name="messageType">Message type.</param>
         /// <param name="destinationAddress">Destination endpoint instance address.</param>
         public void AddStatic(Type messageType, string destinationAddress)
         {
-            rules.Add((t, c) => StaticRule(t, messageType, new DirectRoutingDestination(destinationAddress)));
+            rules.Add((t, c) => StaticRule(t, messageType, new UnicastRoutingDestination(destinationAddress)));
         }
 
         /// <summary>
-        /// Adds a rule for generating direct routes.
+        /// Adds a rule for generating unicast routes.
         /// </summary>
         /// <param name="dynamicRule">The rule.</param>
-        public void AddDynamic(Func<Type, ContextBag, IEnumerable<DirectRoutingDestination>> dynamicRule)
+        public void AddDynamic(Func<Type, ContextBag, IEnumerable<UnicastRoutingDestination>> dynamicRule)
         {
             rules.Add(dynamicRule);
         }
 
-        private static IEnumerable<DirectRoutingDestination> StaticRule(Type messageBeingRouted, Type configuredMessage, DirectRoutingDestination configuredDestination)
+        private static IEnumerable<UnicastRoutingDestination> StaticRule(Type messageBeingRouted, Type configuredMessage, UnicastRoutingDestination configuredDestination)
         {
             if (messageBeingRouted == configuredMessage)
             {

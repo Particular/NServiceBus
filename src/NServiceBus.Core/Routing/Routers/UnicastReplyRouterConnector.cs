@@ -11,7 +11,7 @@ namespace NServiceBus
     using Routing;
     using TransportDispatch;
 
-    class DirectReplyRouterConnector : StageConnector<OutgoingReplyContext, OutgoingLogicalMessageContext>
+    class UnicastReplyRouterConnector : StageConnector<OutgoingReplyContext, OutgoingLogicalMessageContext>
     {
         public override async Task Invoke(OutgoingReplyContext context, Func<OutgoingLogicalMessageContext, Task> next)
         {

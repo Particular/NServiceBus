@@ -4,7 +4,7 @@ namespace NServiceBus.Routing
     using System.Collections.Generic;
     using NServiceBus.Extensibility;
 
-    interface IDirectRoutingStrategy
+    interface IUnicastRouter
     {
         IEnumerable<UnicastRoutingStrategy> Route(Type messageType, DistributionStrategy distributionStrategy, ContextBag contextBag);
     }

@@ -39,7 +39,7 @@
 
             Assert.AreEqual("someid", fakeDispatchPipeline.RoutingContext.Message.MessageId);
             Assert.AreEqual(delay, ((DelayDeliveryWith)fakeDispatchPipeline.RoutingContext.GetDeliveryConstraints().Single(c => c is DelayDeliveryWith)).Delay);
-            Assert.AreEqual("test-address-for-this-pipeline", ((DirectAddressLabel)fakeDispatchPipeline.RoutingContext.RoutingStrategies.First().Apply(new Dictionary<string, string>())).Destination);
+            Assert.AreEqual("test-address-for-this-pipeline", ((UnicastAddressTag)fakeDispatchPipeline.RoutingContext.RoutingStrategies.First().Apply(new Dictionary<string, string>())).Destination);
             Assert.AreEqual("testex", slrNotification.Exception.Message);
         }
 

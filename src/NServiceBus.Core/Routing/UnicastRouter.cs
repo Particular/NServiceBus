@@ -7,18 +7,18 @@ namespace NServiceBus.Routing
     using NServiceBus.Transports;
     using NServiceBus.Unicast.Messages;
 
-    class DirectRoutingStrategy : IDirectRoutingStrategy
+    class UnicastRouter : IUnicastRouter
     {
-        KnownEndpoints knownEndpoints;
+        EndpoointInstances endpoointInstances;
         TransportAddresses physicalAddresses;
         MessageMetadataRegistry messageMetadataRegistry;
-        DirectRoutingTable directRoutingTable;
+        UnicastRoutingTable unicastRoutingTable;
 
-        public DirectRoutingStrategy(MessageMetadataRegistry messageMetadataRegistry, DirectRoutingTable directRoutingTable, KnownEndpoints knownEndpoints, TransportAddresses physicalAddresses)
+        public UnicastRouter(MessageMetadataRegistry messageMetadataRegistry, UnicastRoutingTable unicastRoutingTable, EndpoointInstances endpoointInstances, TransportAddresses physicalAddresses)
         {
             this.messageMetadataRegistry = messageMetadataRegistry;
-            this.directRoutingTable = directRoutingTable;
-            this.knownEndpoints = knownEndpoints;
+            this.unicastRoutingTable = unicastRoutingTable;
+            this.endpoointInstances = endpoointInstances;
             this.physicalAddresses = physicalAddresses;
         }
 
@@ -29,10 +29,10 @@ namespace NServiceBus.Routing
                 .Distinct()
                 .ToList();
 
-            var destinationEndpoints = typesToRoute.SelectMany(t => directRoutingTable.GetDestinationsFor(t, contextBag)).Distinct().ToList();
+            var destinationEndpoints = typesToRoute.SelectMany(t => unicastRoutingTable.GetDestinationsFor(t, contextBag)).Distinct().ToList();
 
             return destinationEndpoints.SelectMany(d => d.Resolve(
-                e => knownEndpoints.FindInstances(e),
+                e => endpoointInstances.FindInstances(e),
                 distributionStrategy.SelectDestination,
                 i => physicalAddresses.GetPhysicalAddress(i)
                 )).Select(a => new UnicastRoutingStrategy(a));

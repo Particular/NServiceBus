@@ -25,14 +25,14 @@
 
             var context = CreateContext(options);
 
-            DirectAddressLabel addressLabel = null;
+            UnicastAddressTag addressTag = null;
             await behavior.Invoke(context, c =>
             {
-                addressLabel = (DirectAddressLabel) c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
+                addressTag = (UnicastAddressTag) c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
                 return Task.FromResult(0);
             });
 
-            Assert.AreEqual("destination endpoint", addressLabel.Destination);
+            Assert.AreEqual("destination endpoint", addressTag.Destination);
         }
 
         [Test]
@@ -45,14 +45,14 @@
 
             var context = CreateContext(options);
 
-            DirectAddressLabel addressLabel = null;
+            UnicastAddressTag addressTag = null;
             await behavior.Invoke(context, c =>
             {
-                addressLabel = (DirectAddressLabel) c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
+                addressTag = (UnicastAddressTag) c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
                 return Task.FromResult(0);
             });
             
-            Assert.AreEqual("MyLocalAddress", addressLabel.Destination);
+            Assert.AreEqual("MyLocalAddress", addressTag.Destination);
         }
 
         [Test]
@@ -67,14 +67,14 @@
 
             var context = CreateContext(options);
 
-            DirectAddressLabel addressLabel = null;
+            UnicastAddressTag addressTag = null;
             await behavior.Invoke(context, c =>
             {
-                addressLabel = (DirectAddressLabel) c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
+                addressTag = (UnicastAddressTag) c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
                 return Task.FromResult(0);
             });
             
-            Assert.AreEqual("MappedDestination", addressLabel.Destination);
+            Assert.AreEqual("MappedDestination", addressTag.Destination);
         }
 
         [Test]
@@ -107,16 +107,16 @@
         }
 
 
-        static DirectSendRouterConnector InitializeBehavior(string localAddress = null,
+        static UnicastSendRouterConnector InitializeBehavior(string localAddress = null,
             FakeRoutingStrategy strategy = null)
         {
             var metadataRegistry = new MessageMetadataRegistry(new Conventions());
             metadataRegistry.RegisterMessageType(typeof(MyMessage));
             metadataRegistry.RegisterMessageType(typeof(MessageWithoutRouting));
-            return new DirectSendRouterConnector(localAddress, strategy ?? new FakeRoutingStrategy(), new DistributionPolicy());
+            return new UnicastSendRouterConnector(localAddress, strategy ?? new FakeRoutingStrategy(), new DistributionPolicy());
         }
 
-        class FakeRoutingStrategy : IDirectRoutingStrategy
+        class FakeRoutingStrategy : IUnicastRouter
         {
             public IEnumerable<UnicastRoutingStrategy> FixedDestination { get; set; } 
 

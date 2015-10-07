@@ -11,6 +11,6 @@
         /// Applies the routing strategy to the message.
         /// </summary>
         /// <param name="headers">Message headers.</param>
-        public abstract AddressLabel Apply(Dictionary<string, string> headers);
+        public abstract AddressTag Apply(Dictionary<string, string> headers);
     }
 }

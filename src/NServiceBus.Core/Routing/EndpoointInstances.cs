@@ -7,14 +7,14 @@ namespace NServiceBus.Routing
     /// <summary>
     /// Stores the information about instances of known endpoints.
     /// </summary>
-    public class KnownEndpoints
+    public class EndpoointInstances
     {
         List<Func<EndpointName, IEnumerable<EndpointInstanceName>>> rules = new List<Func<EndpointName, IEnumerable<EndpointInstanceName>>>();
 
         internal IEnumerable<EndpointInstanceName> FindInstances(EndpointName endpoint)
         {
             var distinctInstances = rules.SelectMany(r => r(endpoint)).Distinct();
-            return distinctInstances.EnsureNonEmpty(() => $"No instances configured for endpoint {endpoint}.");
+            return distinctInstances.EnsureNonEmpty(() => $"The list of instances of endpoint {endpoint} has not been provided to the routing module. Plase use 'BusConfiguration.Routing().EndpointInstances' to supply this information.");
         }
 
 

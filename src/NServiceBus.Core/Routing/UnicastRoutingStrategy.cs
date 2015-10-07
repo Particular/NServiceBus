@@ -21,9 +21,9 @@
         /// Applies the routing strategy to the message.
         /// </summary>
         /// <param name="headers">Message headers.</param>
-        public override AddressLabel Apply(Dictionary<string, string> headers)
+        public override AddressTag Apply(Dictionary<string, string> headers)
         {
-            return new DirectAddressLabel(destination);
+            return new UnicastAddressTag(destination);
         }
     }
 }

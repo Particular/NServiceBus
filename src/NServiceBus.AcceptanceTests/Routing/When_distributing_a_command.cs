@@ -44,7 +44,7 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.Routing().UseFileBasedEndpointInstanceLists().LookForFilesIn(basePath);
-                    c.Routing().DirectRoutingTable.AddStatic(typeof(Request), new EndpointName("DistributingACommand.Receiver"));
+                    c.Routing().UnicastRoutingTable.AddStatic(typeof(Request), new EndpointName("DistributingACommand.Receiver"));
                 });
             }
 

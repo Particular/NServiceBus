@@ -11,17 +11,17 @@ namespace NServiceBus
     using NServiceBus.TransportDispatch;
     using NServiceBus.Unicast.Queuing;
 
-    class DirectSendRouterConnector : StageConnector<OutgoingSendContext, OutgoingLogicalMessageContext>
+    class UnicastSendRouterConnector : StageConnector<OutgoingSendContext, OutgoingLogicalMessageContext>
     {
-        IDirectRoutingStrategy directRoutingStrategy;
+        IUnicastRouter unicastRouter;
         DistributionPolicy distributionPolicy;
 
-        public DirectSendRouterConnector(string localAddress, 
-            IDirectRoutingStrategy directRoutingStrategy, 
+        public UnicastSendRouterConnector(string localAddress, 
+            IUnicastRouter unicastRouter, 
             DistributionPolicy distributionPolicy)
         {
             this.localAddress = localAddress;
-            this.directRoutingStrategy = directRoutingStrategy;
+            this.unicastRouter = unicastRouter;
             this.distributionPolicy = distributionPolicy;
         }
 
@@ -34,7 +34,7 @@ namespace NServiceBus
             var destination = state.ExplicitDestination ?? (state.RouteToLocalInstance ? localAddress : null);
 
             var addressLabels = string.IsNullOrEmpty(destination) 
-                ? directRoutingStrategy.Route(messageType, distributionStrategy, context) 
+                ? unicastRouter.Route(messageType, distributionStrategy, context) 
                 : RouteToDestination(destination);
 
             context.SetHeader(Headers.MessageIntent, MessageIntentEnum.Send.ToString());

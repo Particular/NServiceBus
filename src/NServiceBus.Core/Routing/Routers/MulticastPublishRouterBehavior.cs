@@ -8,7 +8,7 @@ namespace NServiceBus
     using Routing;
     using TransportDispatch;
 
-    class IndirectPublishRouterBehavior : StageConnector<OutgoingPublishContext, OutgoingLogicalMessageContext>
+    class MulticastPublishRouterBehavior : StageConnector<OutgoingPublishContext, OutgoingLogicalMessageContext>
     {
         public override Task Invoke(OutgoingPublishContext context, Func<OutgoingLogicalMessageContext, Task> next)
         {

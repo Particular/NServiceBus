@@ -5,13 +5,13 @@ namespace NServiceBus.Routing
     /// <summary>
     /// Represents a route that should deliver the message to all interested subscribers.
     /// </summary>
-    public class IndirectAddressLabel:AddressLabel
+    public class MulticastAddressTag:AddressTag
     {
         /// <summary>
-        /// Initializes a new insatnce of <see cref="IndirectAddressLabel"/>.
+        /// Initializes a new insatnce of <see cref="MulticastAddressTag"/>.
         /// </summary>
         /// <param name="messageType">The event being published.</param>
-        public IndirectAddressLabel(Type messageType)
+        public MulticastAddressTag(Type messageType)
         {
             MessageType = messageType;
         }
