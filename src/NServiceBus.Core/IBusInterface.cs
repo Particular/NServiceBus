@@ -1,11 +1,9 @@
 namespace NServiceBus
 {
-    using System;
-
     /// <summary>
-    /// Provides the subset of bus operations that is applicable for a send only bus.
+    /// Provides interface for interacting with the bus.
     /// </summary>
-    public interface ISendOnlyBus : IDisposable
+    public interface IBusInterface
     {
         /// <summary>
         /// Creates a <see cref="IBusContext"/> which can be used to access several bus operations like send, publish, subscribe and more.

@@ -3,6 +3,8 @@ namespace NServiceBus.Transport
     using System;
     using System.Threading.Tasks;
     using Logging;
+    using NServiceBus.MessageInterfaces;
+    using NServiceBus.Settings;
     using Unicast;
     using Unicast.Transport;
     using ObjectBuilder;
@@ -12,11 +14,21 @@ namespace NServiceBus.Transport
 
     class TransportReceiver
     {
-        public TransportReceiver(string id, IBuilder builder, IPushMessages receiver, PushSettings pushSettings, PipelineBase<TransportReceiveContext> pipeline, PushRuntimeSettings pushRuntimeSettings)
+        public TransportReceiver(
+            string id, 
+            IBuilder builder, 
+            IPushMessages receiver, 
+            PushSettings pushSettings, 
+            PipelineBase<TransportReceiveContext> pipeline, 
+            PushRuntimeSettings pushRuntimeSettings,
+            IMessageMapper messageMapper,
+            ReadOnlySettings settings)
         {
             Id = id;
             this.pipeline = pipeline;
             this.pushRuntimeSettings = pushRuntimeSettings;
+            this.messageMapper = messageMapper;
+            this.settings = settings;
             this.pushSettings = pushSettings;
             this.receiver = receiver;
             this.builder = builder;
@@ -59,15 +71,11 @@ namespace NServiceBus.Transport
         {
             using (var childBuilder = builder.CreateChildBuilder())
             {
-                var configurer = (IConfigureComponents)childBuilder;
-
                 var context = new TransportReceiveContext(new IncomingMessage(pushContext.MessageId, pushContext.Headers, pushContext.BodyStream), new RootContext(childBuilder));
-
                 context.Merge(pushContext.Context);
-
                 var contextStacker = new BehaviorContextStacker(context);
-                var contextualBus = new ContextualBus(contextStacker, childBuilder.Build<StaticBus>());
-                configurer.ConfigureComponent(c => contextualBus, DependencyLifecycle.SingleInstance);
+                var contextualBus = new ContextualBusInterface(contextStacker, new BusOperations(messageMapper, settings));
+                context.Set(contextualBus);
                 await pipeline.Invoke(contextStacker).ConfigureAwait(false);
             }
         }
@@ -77,6 +85,8 @@ namespace NServiceBus.Transport
         IBuilder builder;
         PipelineBase<TransportReceiveContext> pipeline;
         PushRuntimeSettings pushRuntimeSettings;
+        readonly IMessageMapper messageMapper;
+        readonly ReadOnlySettings settings;
         IPushMessages receiver;
 
         bool isStarted;

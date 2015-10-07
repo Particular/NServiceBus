@@ -5,6 +5,7 @@
     using EndpointTemplates;
     using NServiceBus.Config;
     using NServiceBus.Config.ConfigurationSource;
+    using NServiceBus.Settings;
     using NUnit.Framework;
 
     public class When_a_config_override_is_found : NServiceBusAcceptanceTest
@@ -35,15 +36,18 @@
 
             public class ErrorQueueExtractor : IWantToRunWhenBusStartsAndStops
             {
-                public ErrorQueueExtractor(Configure configure, Context context)
+                ReadOnlySettings settings;
+                Context context;
+
+                public ErrorQueueExtractor(ReadOnlySettings settings, Context context)
                 {
-                    this.configure = configure;
+                    this.settings = settings;
                     this.context = context;
                 }
 
-                public Task StartAsync()
+                public Task StartAsync(ISendOnlyBus bus)
                 {
-                    context.ErrorQueueUsedByTheEndpoint = configure.Settings.GetConfigSection<MessageForwardingInCaseOfFaultConfig>().ErrorQueue;
+                    context.ErrorQueueUsedByTheEndpoint = settings.GetConfigSection<MessageForwardingInCaseOfFaultConfig>().ErrorQueue;
                     return Task.FromResult(0);
                 }
 
@@ -51,9 +55,6 @@
                 {
                     return Task.FromResult(0);
                 }
-
-                Configure configure;
-                Context context;
             }
 
             public class ConfigErrorQueue : IProvideConfiguration<MessageForwardingInCaseOfFaultConfig>

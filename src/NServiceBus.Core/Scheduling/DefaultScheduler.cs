@@ -8,19 +8,12 @@ namespace NServiceBus.Scheduling
 
     class DefaultScheduler
     {
-        public DefaultScheduler(IBus bus)
-        {
-            this.bus = bus;
-        }
-
         public void Schedule(TaskDefinition taskDefinition)
         {
             scheduledTasks[taskDefinition.Id] = taskDefinition;
-            logger.DebugFormat("Task '{0}' (with id {1}) scheduled with timeSpan {2}", taskDefinition.Name, taskDefinition.Id, taskDefinition.Every);
-            DeferTask(taskDefinition);
         }
 
-        public void Start(Guid taskId)
+        public void Start(Guid taskId, IMessageHandlerContext busContext)
         {
             TaskDefinition taskDefinition;
 
@@ -30,7 +23,7 @@ namespace NServiceBus.Scheduling
                 return;
             }
 
-            DeferTask(taskDefinition);
+            DeferTask(taskDefinition, busContext);
             ExecuteTask(taskDefinition);
         }
 
@@ -60,14 +53,14 @@ namespace NServiceBus.Scheduling
                 }, TaskContinuationOptions.ExecuteSynchronously);
         }
 
-        void DeferTask(TaskDefinition taskDefinition)
+        static void DeferTask(TaskDefinition taskDefinition, IBusContext bus)
         {
             var options = new SendOptions();
 
             options.DelayDeliveryWith(taskDefinition.Every);
             options.RouteToLocalEndpointInstance();
 
-            bus.CreateSendContext().SendAsync(new Messages.ScheduledTask
+            bus.SendAsync(new Messages.ScheduledTask
             {
                 TaskId = taskDefinition.Id,
                 Name = taskDefinition.Name,
@@ -76,7 +69,7 @@ namespace NServiceBus.Scheduling
         }
 
         static ILog logger = LogManager.GetLogger<DefaultScheduler>();
-        IBus bus;
         internal ConcurrentDictionary<Guid, TaskDefinition> scheduledTasks = new ConcurrentDictionary<Guid, TaskDefinition>();
+
     }
 }

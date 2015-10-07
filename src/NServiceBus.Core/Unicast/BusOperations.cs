@@ -11,12 +11,12 @@ namespace NServiceBus.Unicast
     using NServiceBus.TransportDispatch;
     using NServiceBus.Transports;
 
-    internal class StaticBus
+    class BusOperations
     {
         IMessageMapper messageMapper;
         ReadOnlySettings settings;
 
-        public StaticBus(IMessageMapper messageMapper, ReadOnlySettings settings)
+        public BusOperations(IMessageMapper messageMapper, ReadOnlySettings settings)
         {
             this.messageMapper = messageMapper;
             this.settings = settings;

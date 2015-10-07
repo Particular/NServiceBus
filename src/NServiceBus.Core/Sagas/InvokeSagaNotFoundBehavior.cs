@@ -4,6 +4,7 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using Logging;
     using NServiceBus.Pipeline;
+    using NServiceBus.Unicast;
     using Pipeline.Contexts;
     using Sagas;
 
@@ -28,8 +29,15 @@ namespace NServiceBus
             foreach (var handler in context.Builder.BuildAll<IHandleSagaNotFound>())
             {
                 logger.DebugFormat("Invoking SagaNotFoundHandler ('{0}')", handler.GetType().FullName);
-                await handler.Handle(context.Message.Instance, new MessageProcessingContext(context));
+                await handler.Handle(context.Message.Instance, new MessageProcessingContext(context, busOperations));
             }
         }
+
+        public InvokeSagaNotFoundBehavior(BusOperations busOperations)
+        {
+            this.busOperations = busOperations;
+        }
+
+        BusOperations busOperations;
     }
 }

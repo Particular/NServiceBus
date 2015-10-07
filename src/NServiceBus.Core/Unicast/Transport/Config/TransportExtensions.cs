@@ -114,4 +114,19 @@ namespace NServiceBus
             return this;
         }
     }
+
+    /// <summary>
+    /// Allows you to read which transport connectionstring has been set.
+    /// </summary>
+    public static class ConfigureTransportConnectionString
+    {
+        /// <summary>
+        /// Gets the transport connectionstring.
+        /// </summary>
+        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", Message = "Not available any more.")]
+        public static string TransportConnectionString(this Configure config)
+        {
+           throw new NotImplementedException();
+        }
+    }
 }

@@ -190,25 +190,12 @@ namespace NServiceBus
         }
     }
 
-    public partial class Configure
-    {
-        [ObsoleteEx(
-            Message = "Static headers is no longer accessible via this object",
+    [ObsoleteEx(
+            Message = "This is no longer a public API",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
-        public IDictionary<string, string> OutgoingHeaders
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        [ObsoleteEx(
-            TreatAsErrorFromVersion = "6",
-            RemoveInVersion = "7",
-            ReplacementTypeOrMember = "ReadOnlySettings.LocalAddress()")]
-        public string LocalAddress
-        {
-            get { throw new NotImplementedException(); }
-        }
+    public class Configure
+    {
     }
 
     [ObsoleteEx(
@@ -329,33 +316,6 @@ namespace NServiceBus
             TreatAsErrorFromVersion = "6.0")]
         public Dictionary<string, string> Headers { get; } = new Dictionary<string, string>();
 
-    }
-
-    public partial interface IBus
-    {
-        [ObsoleteEx(
-            RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0",
-            Message = "Replaced by NServiceBus.Callbacks package")]
-        void Return<T>(T errorEnum);
-
-        [ObsoleteEx(
-            RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0",
-            ReplacementTypeOrMember = "SendLocalAsync(object message, SendLocalOptions options)")]
-        ICallback Defer(TimeSpan delay, object message);
-
-        [ObsoleteEx(
-            RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0",
-            ReplacementTypeOrMember = "SendLocalAsync(object message, SendLocalOptions options)")]
-        ICallback Defer(DateTime processAt, object message);
-
-        [ObsoleteEx(
-            Message = "Please use `IMessageHandlerContext` provided to message handlers instead.",
-            RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0")]
-        IMessageContext CurrentMessageContext { get; }
     }
 }
 
@@ -531,7 +491,7 @@ namespace NServiceBus.Unicast
     using ObjectBuilder;
     using Settings;
 
-    internal partial class ContextualBus
+    internal partial class ContextualBusInterface
     {
         [ObsoleteEx(
             RemoveInVersion = "7.0",
@@ -628,7 +588,7 @@ namespace NServiceBus.Unicast
     }
 
     [ObsoleteEx(
-        Message = "UnicastBus has been made internal. Use either IBus or ISendOnlyBus.",
+        Message = "UnicastBus has been made internal. Use IBusInterface.",
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7")]
     public class UnicastBus : IStartableBus
@@ -676,7 +636,7 @@ namespace NServiceBus.Unicast
 
 
         [ObsoleteEx(
-            ReplacementTypeOrMember = "ISendOnlyBus.PublishAsync(object message, PublishOptions options)",
+            ReplacementTypeOrMember = "IBusContext.PublishAsync(object message, PublishOptions options)",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public Task PublishAsync(object message, NServiceBus.PublishOptions options)
@@ -685,7 +645,7 @@ namespace NServiceBus.Unicast
         }
 
         [ObsoleteEx(
-            ReplacementTypeOrMember = "ISendOnlyBus.PublishAsync<T>(Action<T> messageConstructor, PublishOptions options)",
+            ReplacementTypeOrMember = "IBusContext.PublishAsync<T>(Action<T> messageConstructor, PublishOptions options)",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public Task PublishAsync<T>(Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions)
@@ -694,7 +654,7 @@ namespace NServiceBus.Unicast
         }
 
         [ObsoleteEx(
-            ReplacementTypeOrMember = "ISendOnlyBus.SendAsync(object message, SendOptions options)",
+            ReplacementTypeOrMember = "IBusContext.SendAsync(object message, SendOptions options)",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public Task SendAsync(object message, NServiceBus.SendOptions options)
@@ -703,7 +663,7 @@ namespace NServiceBus.Unicast
         }
 
         [ObsoleteEx(
-            ReplacementTypeOrMember = "ISendOnlyBus.SendAsync<T>(Action<T> messageConstructor, SendOptions options)",
+            ReplacementTypeOrMember = "IBusContext.SendAsync<T>(Action<T> messageConstructor, SendOptions options)",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public Task SendAsync<T>(Action<T> messageConstructor, NServiceBus.SendOptions options)
@@ -730,7 +690,7 @@ namespace NServiceBus.Unicast
         }
 
         [ObsoleteEx(
-            ReplacementTypeOrMember = "IBus.ReplyAsync<T>(object message, ReplyOptions options)",
+            ReplacementTypeOrMember = "IMessageProcessingContext.ReplyAsync<T>(object message, ReplyOptions options)",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public Task ReplyAsync(object message, NServiceBus.ReplyOptions options)
@@ -739,7 +699,7 @@ namespace NServiceBus.Unicast
         }
 
         [ObsoleteEx(
-            ReplacementTypeOrMember = "IBus.ReplyAsync<T>(Action<T> messageConstructor, ReplyOptions options)",
+            ReplacementTypeOrMember = "IMessageProcessingContext.ReplyAsync<T>(Action<T> messageConstructor, ReplyOptions options)",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public Task ReplyAsync<T>(Action<T> messageConstructor, NServiceBus.ReplyOptions options)
@@ -763,7 +723,7 @@ namespace NServiceBus.Unicast
         }
 
         [ObsoleteEx(
-            ReplacementTypeOrMember = "IBus.HandleCurrentMessageLaterAsync()",
+            ReplacementTypeOrMember = "IMessageHandlerContext.HandleCurrentMessageLaterAsync()",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public Task HandleCurrentMessageLaterAsync()
@@ -772,7 +732,7 @@ namespace NServiceBus.Unicast
         }
 
         [ObsoleteEx(
-            ReplacementTypeOrMember = "IBus.ForwardCurrentMessageToAsync(string destination)",
+            ReplacementTypeOrMember = "IMessageProcessingContext.ForwardCurrentMessageToAsync(string destination)",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public Task ForwardCurrentMessageToAsync(string destination)
@@ -781,7 +741,7 @@ namespace NServiceBus.Unicast
         }
 
         [ObsoleteEx(
-            ReplacementTypeOrMember = "IBus.DoNotContinueDispatchingCurrentMessageToHandlers()",
+            ReplacementTypeOrMember = "IMessageHandlerContext.DoNotContinueDispatchingCurrentMessageToHandlers()",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public void DoNotContinueDispatchingCurrentMessageToHandlers()
@@ -790,7 +750,7 @@ namespace NServiceBus.Unicast
         }
 
         [ObsoleteEx(
-            ReplacementTypeOrMember = "IStartableBus.StartAsync()",
+            ReplacementTypeOrMember = "IStartableEndpoint.StartAsync()",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public Task<IBus> StartAsync()
@@ -808,7 +768,7 @@ namespace NServiceBus.Unicast
         }
 
         [ObsoleteEx(
-            ReplacementTypeOrMember = "IBus.Dispose()",
+            Message = "N/A",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public void Dispose()
@@ -826,7 +786,7 @@ namespace NServiceBus.Unicast
         }
 
         [ObsoleteEx(
-            ReplacementTypeOrMember = "IBus.Subscribe<T>()",
+            ReplacementTypeOrMember = "IBusContext.Subscribe<T>()",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public void Subscribe<T>()
@@ -835,7 +795,7 @@ namespace NServiceBus.Unicast
         }
 
         [ObsoleteEx(
-            ReplacementTypeOrMember = "IBus.Unsubscribe(Type messageType)",
+            ReplacementTypeOrMember = "IBusContext.Unsubscribe(Type messageType)",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public void Unsubscribe(Type messageType)
@@ -844,7 +804,7 @@ namespace NServiceBus.Unicast
         }
 
         [ObsoleteEx(
-            ReplacementTypeOrMember = "IBus.Unsubscribe<T>()",
+            ReplacementTypeOrMember = "IBusContext.Unsubscribe<T>()",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public void Unsubscribe<T>()
@@ -987,7 +947,7 @@ namespace NServiceBus
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
             Message = "Headers can be set using the ``.SetHeader` method on the context object passed into your behavior or mutator")]
-        public static void SetMessageHeader(this ISendOnlyBus bus, object msg, string key, string value)
+        public static void SetMessageHeader(this IBusInterface bus, object msg, string key, string value)
         {
             throw new NotImplementedException();
         }
@@ -1516,7 +1476,6 @@ namespace NServiceBus.Unicast
     }
 }
 
-
 namespace NServiceBus
 {
     using System;
@@ -1864,3 +1823,76 @@ namespace NServiceBus.Unicast.Transport
 }
 
 #pragma warning restore 0067
+namespace NServiceBus
+{
+    using System;
+    using System.Threading.Tasks;
+    using NServiceBus.ObjectBuilder;
+
+    [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "IFinalizeConfiguration")]
+    public interface IWantToRunBeforeConfigurationIsFinalized
+    {
+        /// <summary>
+        /// Invoked before configuration is finalized and locked.
+        /// </summary>
+        void Run(Configure config);
+    }
+
+    [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "ISendOnlyBus")]
+    public interface IBus
+    {
+    }
+
+    [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "IStartableEndpoint")]
+    public interface IStartableBus
+    {
+        Task<IBus> StartAsync();
+    }
+
+    public static class Bus
+    {
+        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "Endpoint.Create")]
+        public static IBus Create(BusConfiguration configuration)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "BusConfiguration.SendOnly")]
+        public static IBusInterface CreateSendOnly(BusConfiguration configuration)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", Message = "Use extension methods provided on ISendOnlyBus")]
+    public class Schedule
+    {
+        public Schedule(IBuilder builder)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Every(TimeSpan timeSpan, Action task)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Every(TimeSpan timeSpan, string name, Action task)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+
+namespace NServiceBus.Installation
+{
+    using System.Threading.Tasks;
+
+    [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "IInstall")]
+    public interface INeedToInstallSomething
+    {
+        Task InstallAsync(string identity, Configure config);
+    }
+}
+
+

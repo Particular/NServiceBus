@@ -28,7 +28,7 @@ namespace NServiceBus.Features
                 this.routingTable = routingTable;
             }
 
-            protected override void OnStart()
+            protected override void OnStart(IBusInterface sendOnlyBus)
             {
                 settings.Get<EndpointInstances>().AddDynamic(e => routingTable.GetInstances(e));
             }

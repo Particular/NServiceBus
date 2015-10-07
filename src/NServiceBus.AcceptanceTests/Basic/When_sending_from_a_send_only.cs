@@ -70,7 +70,7 @@
                 {
                     public Context Context { get; set; }
 
-                    protected override void OnStart()
+                    protected override void OnStart(IBusInterface sendOnlyBus)
                     {
                         Context.SendOnlyEndpointWasStarted = true;
                     }

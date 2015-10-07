@@ -2,18 +2,19 @@ namespace NServiceBus
 {
     using System.Threading.Tasks;
     using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Unicast;
 
     class MessageHandlerContext : MessageProcessingContext, IMessageHandlerContext
     {
-        public MessageHandlerContext(InvokeHandlerContext context)
-            : base(context)
+        public MessageHandlerContext(InvokeHandlerContext context, BusOperations busOperations)
+            : base(context, busOperations)
         {
             this.context = context;
         }
 
         public Task HandleCurrentMessageLaterAsync()
         {
-            return Bus.HandleCurrentMessageLaterAsync(context);
+            return BusOperations.HandleCurrentMessageLaterAsync(context);
         }
 
         public void DoNotContinueDispatchingCurrentMessageToHandlers()

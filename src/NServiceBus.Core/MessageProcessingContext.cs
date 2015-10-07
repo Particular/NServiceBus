@@ -5,11 +5,12 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Transports;
+    using NServiceBus.Unicast;
 
     class MessageProcessingContext : BusContext, IMessageProcessingContext
     {
-        public MessageProcessingContext(IncomingContext context)
-            : base(context)
+        public MessageProcessingContext(IncomingContext context, BusOperations busOperations)
+            : base(context, busOperations)
         {
             this.context = context;
             incomingMessage = context.Get<IncomingMessage>();
@@ -23,17 +24,17 @@ namespace NServiceBus
 
         public Task ReplyAsync(object message, ReplyOptions options)
         {
-            return Bus.ReplyAsync(message, options, context);
+            return BusOperations.ReplyAsync(message, options, context);
         }
 
         public Task ReplyAsync<T>(Action<T> messageConstructor, ReplyOptions options)
         {
-            return Bus.ReplyAsync(messageConstructor, options, context);
+            return BusOperations.ReplyAsync(messageConstructor, options, context);
         }
 
         public Task ForwardCurrentMessageToAsync(string destination)
         {
-            return Bus.ForwardCurrentMessageToAsync(destination, context);
+            return BusOperations.ForwardCurrentMessageToAsync(destination, context);
         }
 
         IncomingContext context;

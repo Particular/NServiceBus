@@ -15,7 +15,7 @@
 
             var runner = new StartAndStoppablesRunner(thingsToBeStarted);
 
-            await runner.StartAsync();
+            await runner.StartAsync(null);
 
             Assert.True(startable1.Started);
             Assert.True(startable2.Started);
@@ -31,7 +31,7 @@
 
             var runner = new StartAndStoppablesRunner(thingsToBeStarted);
 
-            Assert.Throws<InvalidOperationException>(async () => await runner.StartAsync());
+            Assert.Throws<InvalidOperationException>(async () => await runner.StartAsync(null));
 
             Assert.True(startable1.Started);
             Assert.False(startable2.Started);
@@ -46,7 +46,7 @@
 
             var runner = new StartAndStoppablesRunner(thingsToBeStarted);
 
-            Assert.Throws<InvalidOperationException>(async () => await runner.StartAsync());
+            Assert.Throws<InvalidOperationException>(async () => await runner.StartAsync(null));
 
             Assert.True(startable1.Started);
         }
@@ -59,7 +59,7 @@
             var thingsToBeStarted = new IWantToRunWhenBusStartsAndStops[] { startable1, startable2 };
 
             var runner = new StartAndStoppablesRunner(thingsToBeStarted);
-            await runner.StartAsync();
+            await runner.StartAsync(null);
 
             await runner.StopAsync();
 
@@ -78,7 +78,7 @@
             var runner = new StartAndStoppablesRunner(thingsToBeStarted);
             try
             {
-                await runner.StartAsync();
+                await runner.StartAsync(null);
             }
 // ReSharper disable once EmptyGeneralCatchClause
             catch
@@ -104,7 +104,7 @@
             var runner = new StartAndStoppablesRunner(thingsToBeStarted);
             try
             {
-                await runner.StartAsync();
+                await runner.StartAsync(null);
             }
 // ReSharper disable once EmptyGeneralCatchClause
             catch
@@ -128,7 +128,7 @@
             var runner = new StartAndStoppablesRunner(thingsToBeStarted);
             try
             {
-                await runner.StartAsync();
+                await runner.StartAsync(null);
             }
 // ReSharper disable once EmptyGeneralCatchClause
             catch
@@ -146,7 +146,7 @@
             public bool Started { get; set; }
             public bool Stopped { get; set; }
 
-            public Task StartAsync()
+            public Task StartAsync(IBusInterface sendOnlyBus)
             {
                 Started = true;
                 return Task.FromResult(0);
@@ -164,7 +164,7 @@
             public bool Started { get; set; }
             public bool Stopped { get; set; }
 
-            public Task StartAsync()
+            public Task StartAsync(IBusInterface sendOnlyBus)
             {
                 Started = true;
                 return Task.FromResult(0);
@@ -181,7 +181,7 @@
         {
             public bool Stopped { get; set; }
 
-            public Task StartAsync()
+            public Task StartAsync(IBusInterface sendOnlyBus)
             {
                 throw new InvalidOperationException("SyncThrowingStart");
             }
@@ -197,7 +197,7 @@
         {
             public bool Stopped { get; set; }
 
-            public async Task StartAsync()
+            public async Task StartAsync(IBusInterface sendOnlyBus)
             {
                 await Task.Delay(20);
                 throw new InvalidOperationException("AsyncThrowingStart");
@@ -214,7 +214,7 @@
         {
             public bool Started { get; set; }
 
-            public Task StartAsync()
+            public Task StartAsync(IBusInterface sendOnlyBus)
             {
                 Started = true;
                 return Task.FromResult(0);
@@ -230,7 +230,7 @@
         {
             public bool Started { get; set; }
 
-            public Task StartAsync()
+            public Task StartAsync(IBusInterface sendOnlyBus)
             {
                 Started = true;
                 return Task.FromResult(0);

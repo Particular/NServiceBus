@@ -14,7 +14,7 @@
         {
             public IInitializableSubscriptionStorage SubscriptionStorage { get; set; }
 
-            protected override void OnStart()
+            protected override void OnStart(IBusInterface sendOnlyBus)
             {
                 SubscriptionStorage?.Init();
             }

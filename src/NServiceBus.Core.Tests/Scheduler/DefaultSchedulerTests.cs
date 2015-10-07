@@ -8,13 +8,13 @@
     [TestFixture]
     public class DefaultSchedulerTests
     {
-        FakeBus bus = new FakeBus();
+        FakeHandlingContext handlingContext = new FakeHandlingContext();
         DefaultScheduler scheduler;
 
         [SetUp]
         public void SetUp()
         {
-            scheduler = new DefaultScheduler(bus);
+            scheduler = new DefaultScheduler();
         }
 
         [Test]
@@ -28,13 +28,6 @@
         }
 
         [Test]
-        public void When_scheduling_a_task_defer_should_be_called()
-        {
-            scheduler.Schedule(new TaskDefinition{Every = TimeSpan.FromSeconds(5)});
-            Assert.That(bus.Context.DeferWasCalled > 0);
-        }
-
-        [Test]
         public void When_starting_a_task_defer_should_be_called()
         {
             var task = new TaskDefinition
@@ -45,10 +38,10 @@
 
             scheduler.Schedule(task);
 
-            var deferCount = bus.Context.DeferWasCalled;
-            scheduler.Start(taskId);
+            var deferCount = handlingContext.DeferWasCalled;
+            scheduler.Start(taskId, handlingContext);
             
-            Assert.That(bus.Context.DeferWasCalled > deferCount);
+            Assert.That(handlingContext.DeferWasCalled > deferCount);
         }
 
         [Test]
@@ -64,7 +57,7 @@
             var taskId = task.Id;
 
             scheduler.Schedule(task);            
-            scheduler.Start(taskId);
+            scheduler.Start(taskId, handlingContext);
 
             Thread.Sleep(100); // Wait for the task...
 

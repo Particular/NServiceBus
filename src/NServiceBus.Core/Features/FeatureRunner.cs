@@ -16,9 +16,9 @@ namespace NServiceBus.Features
             this.featureActivator = featureActivator;
         }
 
-        public void Start()
+        public void Start(IBusInterface sendOnlyBus)
         {
-            featureActivator.StartFeatures(builder);
+            featureActivator.StartFeatures(builder, sendOnlyBus);
         }
 
         public void Stop()

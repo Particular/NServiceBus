@@ -136,14 +136,16 @@
                 this.builder = builder;
             }
 
-            protected override void OnStart()
+            protected override void OnStart(IBusInterface sendOnlyBus)
             {
                 var transportDefinition = settings.Get<TransportDefinition>();
                 if (transportDefinition.GetOutboundRoutingPolicy(settings).Publishes == OutboundRoutingType.DirectSend) //Publish via send
                 {
-                    //TODO: 133
-                    var subscriptions = builder.Build<ISubscriptionStorage>();
-                    settings.Get<UnicastRoutingTable>().AddDynamic((t, c) => QuerySubscriptionStore(subscriptions, t, c));
+                    var subscriptions = builder.BuildAll<ISubscriptionStorage>().FirstOrDefault();
+                    if (subscriptions != null)
+                    {
+                        settings.Get<UnicastRoutingTable>().AddDynamic((t, c) => QuerySubscriptionStore(subscriptions, t, c));
+                    }
                 }
             }
 

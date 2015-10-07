@@ -7,7 +7,7 @@
     [TestFixture]
     public class ScheduledTaskMessageHandlerTests
     {
-        FakeBus bus = new FakeBus();
+        FakeHandlingContext handlingContext = new FakeHandlingContext();
         DefaultScheduler scheduler;
         ScheduledTaskMessageHandler handler;
         Guid taskId;
@@ -15,7 +15,7 @@
         [SetUp]
         public void SetUp()
         {
-            scheduler = new DefaultScheduler(bus);
+            scheduler = new DefaultScheduler();
             handler = new ScheduledTaskMessageHandler(scheduler);
 
             var task = new TaskDefinition
@@ -34,9 +34,9 @@
             {
                 Every = TimeSpan.FromSeconds(5),
                 TaskId = taskId
-            }, null);
+            }, handlingContext);
 
-            Assert.That(((Messages.ScheduledTask)bus.Context.DeferedMessage).TaskId, Is.EqualTo(taskId));
+            Assert.That(((Messages.ScheduledTask)handlingContext.DeferedMessage).TaskId, Is.EqualTo(taskId));
         }
     }
 }

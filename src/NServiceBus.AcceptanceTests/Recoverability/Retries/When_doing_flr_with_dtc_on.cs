@@ -58,7 +58,7 @@
 
                 public BusNotifications BusNotifications { get; set; }
 
-                public Task StartAsync()
+                public Task StartAsync(IBusInterface bus)
                 {
                     BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e =>
                     {

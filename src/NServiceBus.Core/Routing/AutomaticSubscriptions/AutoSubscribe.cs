@@ -43,7 +43,7 @@
 
                     var messageTypesHandled = GetMessageTypesHandledByThisEndpoint(handlerRegistry, conventions, settings);
 
-                    return new ApplySubscriptions(messageTypesHandled, b.Build<IBus>());
+                    return new ApplySubscriptions(messageTypesHandled);
                 }, DependencyLifecycle.SingleInstance);
             }
             else
@@ -61,7 +61,7 @@
                         messageTypesToSubscribe = messageTypesToSubscribe.Where(t => subscriptionRouter.GetAddressesForEventType(t).Any())
                             .ToList();
                     }
-                    return new ApplySubscriptions(messageTypesToSubscribe, b.Build<IBus>());
+                    return new ApplySubscriptions(messageTypesToSubscribe);
 
                 }, DependencyLifecycle.SingleInstance);
             }
@@ -81,15 +81,14 @@
 
         class ApplySubscriptions : FeatureStartupTask
         {
-            public ApplySubscriptions(IEnumerable<Type> eventsToSubscribe, IBus bus)
+            public ApplySubscriptions(IEnumerable<Type> eventsToSubscribe)
             {
                 this.eventsToSubscribe = eventsToSubscribe;
-                this.bus = bus;
             }
 
-            protected override void OnStart()
+            protected override void OnStart(IBusInterface sendOnlyBus)
             {
-                var sendContext = bus.CreateSendContext();
+                var sendContext = sendOnlyBus.CreateSendContext();
                 foreach (var eventType in eventsToSubscribe)
                 {
                     sendContext.SubscribeAsync(eventType).GetAwaiter().GetResult();
@@ -98,7 +97,6 @@
             }
 
             IEnumerable<Type> eventsToSubscribe;
-            IBus bus;
 
             static ILog Logger = LogManager.GetLogger<ApplySubscriptions>();
         }

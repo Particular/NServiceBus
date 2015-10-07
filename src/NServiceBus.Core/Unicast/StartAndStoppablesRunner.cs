@@ -15,12 +15,12 @@
             wantToRunWhenBusStartsAndStopses = wantToRunWhenBusStartsAndStops;
         }
 
-        public Task StartAsync()
+        public Task StartAsync(IBusInterface sendOnlyBus)
         {
             var startableTasks = new List<Task>();
             foreach (var startable in wantToRunWhenBusStartsAndStopses)
             {
-                var task = startable.StartAsync();
+                var task = startable.StartAsync(sendOnlyBus);
 
                 var startable1 = startable;
                 task.ContinueWith(t =>

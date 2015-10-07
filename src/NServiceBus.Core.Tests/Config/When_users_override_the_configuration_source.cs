@@ -1,34 +1,55 @@
 namespace NServiceBus.Core.Tests.Config
 {
+    using System.Threading.Tasks;
     using NServiceBus.Config.ConfigurationSource;
+    using NServiceBus.Features;
+    using NServiceBus.Settings;
     using NUnit.Framework;
 
     [TestFixture]
     public class When_users_override_the_configuration_source
     {
-        IConfigurationSource userConfigurationSource;
-
-        Configure config;
-
-        [SetUp]
-        public void SetUp()
-        {
-            userConfigurationSource = new UserConfigurationSource();
-
-            var builder = new BusConfiguration();
-            builder.CustomConfigurationSource(userConfigurationSource);
-
-            config = builder.BuildConfiguration();
-        }
-      
         [Test]
-        public void NService_bus_should_resolve_configuration_from_that_source()
+        public async Task NService_bus_should_resolve_configuration_from_that_source()
         {
-            var section = config.Settings.GetConfigSection<TestConfigurationSection>();
+            var builder = new BusConfiguration();
 
-            Assert.AreEqual(section.TestSetting,"TestValue");
+            builder.SendOnly();
+            builder.TypesToScanInternal(new[] { typeof(ConfigSectionValidatorFeature) });
+            builder.EnableFeature<ConfigSectionValidatorFeature>();
+            builder.CustomConfigurationSource(new UserConfigurationSource());
+
+            var endpoint = await Endpoint.StartAsync(builder);
+            await endpoint.StopAsync();
         }
 
+        class ConfigSectionValidatorFeature : Feature
+        {
+            public ConfigSectionValidatorFeature()
+            {
+                RegisterStartupTask<ValidatorTask>();
+            }
+
+            protected internal override void Setup(FeatureConfigurationContext context)
+            {
+            }
+
+            class ValidatorTask : FeatureStartupTask
+            {
+                ReadOnlySettings settings;
+
+                public ValidatorTask(ReadOnlySettings settings)
+                {
+                    this.settings = settings;
+                }
+
+                protected override void OnStart(IBusInterface bus)
+                {
+                    var section = settings.GetConfigSection<TestConfigurationSection>();
+                    Assert.AreEqual(section.TestSetting, "TestValue");
+                }
+            }
+        }
     }
 
     public class UserConfigurationSource : IConfigurationSource

@@ -13,7 +13,8 @@
     {
         static ILog Logger = LogManager.GetLogger<EndpointRunner>();
         EndpointBehavior behavior;
-        IStartableBus bus;
+        IStartableEndpoint startable;
+        IEndpoint endpoint;
         EndpointConfiguration configuration;
         ScenarioContext scenarioContext;
         BusConfiguration busConfiguration;
@@ -26,7 +27,7 @@
                 behavior = endpointBehavior;
                 scenarioContext = run.ScenarioContext;
                 configuration =
-                    ((IEndpointConfigurationFactory) Activator.CreateInstance(endpointBehavior.EndpointBuilderType))
+                    ((IEndpointConfigurationFactory)Activator.CreateInstance(endpointBehavior.EndpointBuilderType))
                         .Get();
                 configuration.EndpointName = endpointName;
 
@@ -43,13 +44,15 @@
 
                 if (configuration.SendOnly)
                 {
-                    bus = new IBusAdapter(Bus.CreateSendOnly(busConfiguration));
+                    busConfiguration.SendOnly();
                 }
-                else
-                {
-                    bus = Bus.Create(busConfiguration);
-                    var transportDefinition = busConfiguration.GetSettings().Get<TransportDefinition>();
 
+                var initializable = Endpoint.Create(busConfiguration);
+                startable = await initializable.Initialize().ConfigureAwait(false);
+
+                if (!configuration.SendOnly)
+                {
+                    var transportDefinition = busConfiguration.GetSettings().Get<TransportDefinition>();
                     scenarioContext.HasNativePubSubSupport = transportDefinition.HasNativePubSubSupport;
                 }
 
@@ -76,7 +79,7 @@
         {
             try
             {
-                await bus.StartAsync();
+                endpoint = await startable.StartAsync().ConfigureAwait(false);
 
                 if (token.IsCancellationRequested)
                 {
@@ -102,7 +105,7 @@
                     await Task.Run(async () =>
                     {
                         var executedWhens = new List<Guid>();
-                        var sendContext = bus.CreateSendContext();
+                        var sendContext = endpoint.CreateSendContext();
 
                         while (!token.IsCancellationRequested)
                         {
@@ -127,7 +130,7 @@
                                 {
                                     continue;
                                 }
-                                
+
                                 if (await when.ExecuteAction(scenarioContext, sendContext))
                                 {
                                     executedWhens.Add(when.Id);
@@ -150,9 +153,9 @@
         {
             try
             {
-                bus.Dispose();
+                await endpoint.StopAsync().ConfigureAwait(false);
 
-                await Cleanup();
+                await Cleanup().ConfigureAwait(false);
 
                 return Result.Success();
             }
