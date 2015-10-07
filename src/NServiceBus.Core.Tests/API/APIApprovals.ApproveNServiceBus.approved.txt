@@ -1294,10 +1294,11 @@ namespace NServiceBus.Faults
     }
     public struct FailedMessage
     {
-        public FailedMessage(System.Collections.Generic.Dictionary<string, string> headers, byte[] body, System.Exception exception) { }
+        public FailedMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, System.Exception exception) { }
         public byte[] Body { get; }
         public System.Exception Exception { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
+        public string MessageId { get; }
     }
     public class static FaultsHeaderKeys
     {
@@ -1305,10 +1306,11 @@ namespace NServiceBus.Faults
     }
     public struct FirstLevelRetry
     {
-        public FirstLevelRetry(System.Collections.Generic.Dictionary<string, string> headers, byte[] body, System.Exception exception, int retryAttempt) { }
+        public FirstLevelRetry(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, System.Exception exception, int retryAttempt) { }
         public byte[] Body { get; }
         public System.Exception Exception { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
+        public string MessageId { get; }
         public int RetryAttempt { get; }
     }
     [System.ObsoleteAttribute(@"IManageMessageFailures is no longer an extension point. If you want full control over what happens when a message fails (including retries) please override the MoveFaultsToErrorQueue behavior. If you just want to get notified when messages are being moved please use BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e=>{}). Will be removed in version 7.0.0.", true)]

@@ -31,12 +31,12 @@ namespace NServiceBus.Faults
 
         internal void InvokeMessageHasBeenSentToErrorQueue(IncomingMessage message, Exception exception)
         {
-            erroneousMessageList.OnNext(new FailedMessage(new Dictionary<string, string>(message.Headers), CopyOfBody(message.Body), exception));
+            erroneousMessageList.OnNext(new FailedMessage(message.MessageId, new Dictionary<string, string>(message.Headers), CopyOfBody(message.Body), exception));
         }
 
         internal void InvokeMessageHasFailedAFirstLevelRetryAttempt(int firstLevelRetryAttempt, IncomingMessage message, Exception exception)
         {
-            firstLevelRetryList.OnNext(new FirstLevelRetry(new Dictionary<string, string>(message.Headers), CopyOfBody(message.Body), exception, firstLevelRetryAttempt));
+            firstLevelRetryList.OnNext(new FirstLevelRetry(message.MessageId, new Dictionary<string, string>(message.Headers), CopyOfBody(message.Body), exception, firstLevelRetryAttempt));
         }
 
         internal void InvokeMessageHasBeenSentToSecondLevelRetries(int secondLevelRetryAttempt, IncomingMessage message, Exception exception)

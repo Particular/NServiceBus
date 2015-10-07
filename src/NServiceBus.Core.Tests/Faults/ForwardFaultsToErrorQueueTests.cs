@@ -38,7 +38,7 @@ namespace NServiceBus.Core.Tests
 
             Assert.AreEqual(errorQueueAddress, fakeDispatchPipeline.Destination);
 
-            Assert.AreEqual("someid", fakeDispatchPipeline.MessageSent.Headers[Headers.MessageId]);
+            Assert.AreEqual("someid", fakeDispatchPipeline.MessageSent.MessageId);
         }
         [Test]
         public void ShouldInvokeCriticalErrorIfForwardingFails()
@@ -108,7 +108,7 @@ namespace NServiceBus.Core.Tests
                 throw new Exception("testex");
             });
 
-            Assert.AreEqual("someid", failedMessageNotification.Headers[Headers.MessageId]);
+            Assert.AreEqual("someid", failedMessageNotification.MessageId);
 
             Assert.AreEqual("testex", failedMessageNotification.Exception.Message);
         }

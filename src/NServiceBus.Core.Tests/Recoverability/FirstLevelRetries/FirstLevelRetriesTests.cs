@@ -96,7 +96,7 @@
             {
                 Assert.AreEqual(0, flr.RetryAttempt);
                 Assert.AreEqual("test", flr.Exception.Message);
-                Assert.AreEqual("someid", flr.Headers[Headers.MessageId]);
+                Assert.AreEqual("someid", flr.MessageId);
 
                 notificationFired = true;
             });

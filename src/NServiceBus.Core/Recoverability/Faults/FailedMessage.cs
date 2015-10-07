@@ -11,11 +11,13 @@ namespace NServiceBus.Faults
         /// <summary>
         /// Creates a new instance of <see cref="FailedMessage"/>.
         /// </summary>
+        /// <param name="messageId">The id of the failed message.</param>
         /// <param name="headers">Message headers.</param>
         /// <param name="body">Message body.</param>
         /// <param name="exception">Exception thrown.</param>
-        public FailedMessage(Dictionary<string, string> headers, byte[] body, Exception exception)
+        public FailedMessage(string messageId, Dictionary<string, string> headers, byte[] body, Exception exception)
         {
+            MessageId = messageId;
             Headers = headers;
             Body = body;
             Exception = exception;
@@ -35,5 +37,10 @@ namespace NServiceBus.Faults
         ///     The exception that caused this message to fail.
         /// </summary>
         public Exception Exception { get; }
+
+        /// <summary>
+        /// The id of the failed message.
+        /// </summary>
+        public string MessageId { get; }
     }
 }
