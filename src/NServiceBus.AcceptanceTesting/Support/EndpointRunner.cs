@@ -13,7 +13,8 @@
     {
         static ILog Logger = LogManager.GetLogger<EndpointRunner>();
         EndpointBehavior behavior;
-        IStartableBus bus;
+        IStartableEndpoint startable;
+        IStoppableEndpoint stoppable;
         EndpointConfiguration configuration;
         ScenarioContext scenarioContext;
         BusConfiguration busConfiguration;
@@ -43,13 +44,15 @@
 
                 if (configuration.SendOnly)
                 {
-                    bus = new IBusAdapter(Bus.CreateSendOnly(busConfiguration));
+                    busConfiguration.SendOnly();
                 }
-                else
-                {
-                    bus = Bus.Create(busConfiguration);
-                    var transportDefinition = busConfiguration.GetSettings().Get<TransportDefinition>();
 
+                var initializable = Endpoint.Create(busConfiguration);
+                startable = await initializable.Initialize().ConfigureAwait(false);
+
+                if (!configuration.SendOnly)
+                { 
+                    var transportDefinition = busConfiguration.GetSettings().Get<TransportDefinition>();
                     scenarioContext.HasNativePubSubSupport = transportDefinition.HasNativePubSubSupport;
                 }
 
@@ -76,7 +79,7 @@
         {
             try
             {
-                await bus.StartAsync();
+                stoppable = await startable.StartAsync().ConfigureAwait(false);
 
                 if (token.IsCancellationRequested)
                 {
@@ -115,21 +118,24 @@
                                 break;
                             }
 
-                            foreach (var when in behavior.Whens)
+                            using (var sendContext = stoppable.CreateOutgoingContext())
                             {
-                                if (token.IsCancellationRequested)
+                                foreach (var when in behavior.Whens)
                                 {
-                                    break;
-                                }
+                                    if (token.IsCancellationRequested)
+                                    {
+                                        break;
+                                    }
 
-                                if (executedWhens.Contains(when.Id))
-                                {
-                                    continue;
-                                }
+                                    if (executedWhens.Contains(when.Id))
+                                    {
+                                        continue;
+                                    }
 
-                                if (await when.ExecuteAction(scenarioContext, bus))
-                                {
-                                    executedWhens.Add(when.Id);
+                                    if (await when.ExecuteAction(scenarioContext, sendContext))
+                                    {
+                                        executedWhens.Add(when.Id);
+                                    }
                                 }
                             }
                         }
@@ -149,9 +155,9 @@
         {
             try
             {
-                bus.Dispose();
+                await stoppable.StopAsync().ConfigureAwait(false);
 
-                await Cleanup();
+                await Cleanup().ConfigureAwait(false);
 
                 return Result.Success();
             }

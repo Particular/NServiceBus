@@ -13,7 +13,7 @@ namespace NServiceBus
         public MessageProcessingContext(IncomingContext context)
         {
             this.context = context;
-            bus = context.Builder.Build<ContextualBus>();
+            bus = context.Get<ContextualBus>();
             incomingMessage = context.Get<IncomingMessage>();
             Extensions = context;
         }

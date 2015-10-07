@@ -93,7 +93,7 @@
     <Compile Include="Audit\ConfigureAudit.cs" />
     <Compile Include="Audit\AuditToDispatchConnector.cs" />
     <Compile Include="Audit\InvokeAuditPipelineBehavior.cs" />
-    <Compile Include="Bus.cs" />
+    <Compile Include="Endpoint.cs" />
     <Compile Include="BusConfiguration.cs" />
     <Compile Include="IMessageProcessingContext.cs" />
     <Compile Include="IMessageProcessingContextExtensions.cs" />
@@ -107,6 +107,11 @@
     <Compile Include="IMessageHandlerContext.cs" />
     <Compile Include="IMessageHandlerContextExtensions.cs" />
     <Compile Include="IHandleMessages.cs" />
+    <Compile Include="IInitializableEndpoint.cs" />
+    <Compile Include="IStoppableEndpoint.cs" />
+    <Compile Include="Pipeline\BehaviorContextStacker.cs" />
+    <Compile Include="Scheduling\ScheduleBehavior.cs" />
+    <Compile Include="StartableEndpoint.cs" />
     <Compile Include="ISendOnlyBusExtensions_obsoletes.cs" />
     <Compile Include="IStartableBusExtensions_obsoletes.cs" />
     <Compile Include="IWantToRunWhenBusStartsAndStopsExtensions_obsoletes.cs" />
@@ -360,11 +365,10 @@
     <Compile Include="Routing\AutomaticSubscriptions\AutoSubscribe.cs" />
     <Compile Include="Routing\AutomaticSubscriptions\AutoSubscribeSettingsExtensions.cs" />
     <Compile Include="Routing\AutomaticSubscriptions\AutoSubscribeSettings.cs" />
-    <Compile Include="Configure.cs" />
+    <Compile Include="InitializableEndpoint.cs" />
     <Compile Include="Audit\AuditConfig.cs" />
     <Compile Include="ContentTypes.cs" />
     <Compile Include="DataBus\DataBusProperty.cs" />
-    <Compile Include="Distributor\MasterNode\DefaultMasterNodeAddress.cs" />
     <Compile Include="DataBus\DataBusReceiveBehavior.cs" />
     <Compile Include="DataBus\DataBusSendBehavior.cs" />
     <Compile Include="Encryption\MemberInfoExtensions.cs" />
@@ -442,7 +446,6 @@
     <Compile Include="Unicast\ContextualBus.cs" />
     <Compile Include="MessageDeserializationException.cs" />
     <Compile Include="Hosting\AuditHostInformationBehavior.cs" />
-    <Compile Include="Unicast\IContextualBus.cs" />
     <Compile Include="Unicast\IRealBus.cs" />
     <Compile Include="Unicast\Transport\PipelineInfo.cs" />
     <Compile Include="Unicast\UnicastBusInternal_RemoveInV7.cs" />
@@ -456,11 +459,10 @@
     <Compile Include="ConsistencyGuarantees\TransactionScopes\SuppressAmbientTransactionBehavior.cs" />
     <Compile Include="Performance\Statistics\ReceivePerformanceDiagnosticsBehavior.cs" />
     <Compile Include="ConsistencyGuarantees\TransactionScopes\HandlerTransactionScopeWrapperBehavior.cs" />
-    <Compile Include="Unicast\UnicastBusInternal_IBusImpl.cs" />
     <Compile Include="Utils\Guard.cs" />
     <Compile Include="Utils\ExceptionHeaderHelper.cs" />
     <Compile Include="Utils\ElevateChecker.cs" />
-    <Compile Include="IStartableBus.cs" />
+    <Compile Include="IStartableEndpoint.cs" />
     <Compile Include="IWantToRunWhenBusStartsAndStops.cs" />
     <Compile Include="Licensing\AuditInvalidLicenseBehavior.cs" />
     <Compile Include="Licensing\LicenseReminder.cs" />
@@ -496,7 +498,6 @@
     <Compile Include="Persistence\PersistenceDefinition.cs" />
     <Compile Include="Persistence\PersistenceConfig.cs" />
     <Compile Include="Pipeline\BehaviorContext.cs" />
-    <Compile Include="Pipeline\BehaviorContextStacker.cs" />
     <Compile Include="Pipeline\MutateInstanceMessage\MutateIncomingMessageBehavior.cs" />
     <Compile Include="Pipeline\MutateTransportMessage\MutateIncomingTransportMessageBehavior.cs" />
     <Compile Include="Pipeline\StepRegistrationsCoordinator.cs" />
@@ -609,8 +610,8 @@
     <Compile Include="Hosting\Helpers\AssemblyScannerResults.cs" />
     <Compile Include="InternalsVisibleTo.cs" />
     <Compile Include="WindowsIdentityEnrichment\WindowsIdentityEnricher.cs" />
-    <Compile Include="Installation\INeedToInstallSomething.cs" />
-    <Compile Include="IWantToRunBeforeConfigurationIsFinalized.cs" />
+    <Compile Include="Installation\IInstall.cs" />
+    <Compile Include="IFinalizeConfiguration.cs" />
     <Compile Include="Licensing\LicenseManager.cs" />
     <Compile Include="Logging\ILog.cs" />
     <Compile Include="Logging\ILoggerFactory.cs" />

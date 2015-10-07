@@ -40,7 +40,7 @@
 
                 public ReadOnlySettings Settings { get; set; }
 
-                public Task StartAsync()
+                public Task StartAsync(ISendOnlyBus bus)
                 {
                     Context.Address = Settings.RootLogicalAddress().ToString();
                     return Task.FromResult(0);

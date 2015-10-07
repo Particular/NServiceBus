@@ -21,9 +21,9 @@
 
             var builder = new FakeBuilder(typeof(FeatureWithStartupTask.Runner));
 
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(null));
+            featureSettings.SetupFeatures(new FeatureConfigurationContext(null, null, null));
 
-            featureSettings.StartFeatures(builder);
+            featureSettings.StartFeatures(builder, null);
             featureSettings.StopFeatures(builder);
 
             Assert.True(FeatureWithStartupTask.Runner.Started);
@@ -41,9 +41,9 @@
 
             var builder = new FakeBuilder(typeof(FeatureWithStartupTaskWhichIsDisposable.Runner));
 
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(null));
+            featureSettings.SetupFeatures(new FeatureConfigurationContext(null, null, null));
 
-            featureSettings.StartFeatures(builder);
+            featureSettings.StartFeatures(builder, null);
             featureSettings.StopFeatures(builder);
 
             Assert.True(FeatureWithStartupTaskWhichIsDisposable.Runner.Disposed);
@@ -59,7 +59,7 @@
 
             public class Runner:FeatureStartupTask
             {
-                protected override void OnStart()
+                protected override void OnStart(ISendOnlyBus sendOnlyBus)
                 {
                     Started = true;
                 }
@@ -84,7 +84,7 @@
 
             public class Runner : FeatureStartupTask, IDisposable
             {
-                protected override void OnStart()
+                protected override void OnStart(ISendOnlyBus sendOnlyBus)
                 {
                 }
 

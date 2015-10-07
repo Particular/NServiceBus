@@ -14,7 +14,7 @@ namespace NServiceBus.Scheduling
 
         public Task Handle(ScheduledTask message, IMessageHandlerContext context)
         {
-            scheduler.Start(message.TaskId);
+            scheduler.Start(message.TaskId, context);
             return TaskEx.Completed;
         }
     }

@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using System;
     using NServiceBus.Settings;
 
     /// <summary>
@@ -28,9 +29,12 @@ namespace NServiceBus
             config.Settings.Set("Endpoint.DurableMessages", false);
         }
 
-        internal static bool GetDurableMessagesEnabled(ReadOnlySettings settings)
+        /// <summary>
+        /// Returns whether durable messages are on or off.
+        /// </summary>
+        public static bool DurableMessagesEnabled(this ReadOnlySettings settings)
         {
-            Guard.AgainstNull("settings", settings);
+            Guard.AgainstNull(nameof(settings), settings);
             bool durableMessagesEnabled;
             if (settings.TryGet("Endpoint.DurableMessages", out durableMessagesEnabled))
             {
@@ -42,10 +46,10 @@ namespace NServiceBus
         /// <summary>
         /// Returns whether durable messages are on or off.
         /// </summary>
+        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "DurableMessagesEnabled")]
         public static bool DurableMessagesEnabled(this Configure config)
         {
-            Guard.AgainstNull("config", config);
-            return GetDurableMessagesEnabled(config.Settings);
+            throw new NotImplementedException();
         }
     }
 }

@@ -116,8 +116,8 @@ namespace NServiceBus
         /// <param name="message">The message to send.</param>
         public static Task SendLocalAsync(this ISendOnlyBus bus, object message)
         {
-            Guard.AgainstNull(nameof(bus), bus);
-            Guard.AgainstNull(nameof(message), message);
+            Guard.AgainstNull("bus", bus);
+            Guard.AgainstNull("message", message);
 
             var options = new SendOptions();
 
@@ -134,14 +134,66 @@ namespace NServiceBus
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
         public static Task SendLocalAsync<T>(this ISendOnlyBus bus, Action<T> messageConstructor)
         {
-            Guard.AgainstNull(nameof(bus), bus);
-            Guard.AgainstNull(nameof(messageConstructor), messageConstructor);
+            Guard.AgainstNull("bus", bus);
+            Guard.AgainstNull("messageConstructor", messageConstructor);
 
             var options = new SendOptions();
 
             options.RouteToLocalEndpointInstance();
 
             return bus.SendAsync(messageConstructor, options);
+        }
+
+        /// <summary>
+        /// Subscribes to receive published messages of the specified type.
+        /// This method is only necessary if you turned off auto-subscribe.
+        /// </summary>
+        /// <param name="bus">Object being extended.</param>
+        /// <param name="messageType">The type of message to subscribe to.</param>
+        public static Task SubscribeAsync(this ISendOnlyBus bus, Type messageType)
+        {
+            Guard.AgainstNull("bus", bus);
+            Guard.AgainstNull("messageType", messageType);
+
+            return bus.SubscribeAsync(messageType, new SubscribeOptions());
+        }
+
+        /// <summary>
+        /// Subscribes to receive published messages of type T.
+        /// This method is only necessary if you turned off auto-subscribe.
+        /// </summary>
+        /// <param name="bus">Object being extended.</param>
+        /// <typeparam name="T">The type of message to subscribe to.</typeparam>
+        public static Task SubscribeAsync<T>(this ISendOnlyBus bus)
+        {
+            Guard.AgainstNull("bus", bus);
+
+            return bus.SubscribeAsync(typeof(T), new SubscribeOptions());
+        }
+
+        /// <summary>
+        /// Unsubscribes from receiving published messages of the specified type.
+        /// </summary>
+        /// <param name="bus">Object being extended.</param>
+        /// <param name="messageType">The type of message to subscribe to.</param>
+        public static Task UnsubscribeAsync(this ISendOnlyBus bus, Type messageType)
+        {
+            Guard.AgainstNull("bus", bus);
+            Guard.AgainstNull("messageType", messageType);
+
+            return bus.UnsubscribeAsync(messageType, new UnsubscribeOptions());
+        }
+
+        /// <summary>
+        /// Unsubscribes from receiving published messages of the specified type.
+        /// </summary>
+        /// <param name="bus">Object being extended.</param>
+        /// <typeparam name="T">The type of message to unsubscribe from.</typeparam>
+        public static Task UnsubscribeAsync<T>(this ISendOnlyBus bus)
+        {
+            Guard.AgainstNull("bus", bus);
+
+            return bus.UnsubscribeAsync(typeof(T), new UnsubscribeOptions());
         }
     }
 }

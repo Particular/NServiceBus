@@ -5,6 +5,7 @@
     using NServiceBus.MessageInterfaces;
     using NServiceBus.Serialization;
     using NServiceBus.Serializers.XML;
+    using NServiceBus.Settings;
 
     /// <summary>
     /// Used to configure xml as a message serializer.
@@ -31,16 +32,16 @@
         {
             public IMessageMapper Mapper { get; set; }
             public XmlMessageSerializer Serializer { get; set; }
-            public Configure Config { get; set; }
+            public ReadOnlySettings Settings { get; set; }
 
-            protected override void OnStart()
+            protected override void OnStart(ISendOnlyBus sendOnlyBus)
             {
                 if (Mapper == null)
                 {
                     return;
                 }
 
-                var messageTypes = Config.TypesToScan.Where(Config.Settings.Get<Conventions>().IsMessageType).ToList();
+                var messageTypes = Settings.GetAvailableTypes().Where(Settings.Get<Conventions>().IsMessageType).ToList();
 
                 Mapper.Initialize(messageTypes);
                 Serializer.Initialize(messageTypes);

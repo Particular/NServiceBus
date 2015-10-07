@@ -19,7 +19,7 @@
                 .Where(conventions.IsMessageType)
                 .ToList();
 
-            var defaultToDurableMessages = DurableMessagesConfig.GetDurableMessagesEnabled(context.Settings);
+            var defaultToDurableMessages = DurableMessagesConfig.DurableMessagesEnabled(context.Settings);
 
             var messageDurability = new Dictionary<Type, bool>();
 

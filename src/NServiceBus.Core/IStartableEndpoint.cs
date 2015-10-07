@@ -3,14 +3,14 @@ namespace NServiceBus
 	using System.Threading.Tasks;
 
 	/// <summary>
-    /// The interface used for starting and stopping an IBus.
+    /// Represents an endpoint int the start-up phase.
     /// </summary>
-    public interface IStartableBus : IBus
+    public interface IStartableEndpoint
     {
         /// <summary>
         /// Starts the bus and returns a reference to it.
         /// </summary>
         /// <returns>A reference to the bus.</returns>
-        Task<IBus> StartAsync();
+        Task<IStoppableEndpoint> StartAsync();
     }
 }

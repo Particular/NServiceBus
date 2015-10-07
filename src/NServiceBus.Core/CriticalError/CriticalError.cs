@@ -37,8 +37,8 @@ namespace NServiceBus
                 return;
             }
 
-            builder.Build<IStartableBus>()
-                .Dispose();
+            builder.Build<IStoppableEndpoint>()
+                .StopAsync().GetAwaiter().GetResult();
         }
 
         /// <summary>

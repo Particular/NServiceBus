@@ -32,7 +32,7 @@ namespace NServiceBus.Features
         {
             public IDataBus DataBus { get; set; }
 
-            protected override void OnStart()
+            protected override void OnStart(ISendOnlyBus sendOnlyBus)
             {
                 DataBus.Start();
             }

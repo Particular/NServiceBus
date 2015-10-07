@@ -33,7 +33,7 @@
 
             public TimeSpan TimeToKeepDeduplicationData { get; set; }
 
-            protected override void OnStart()
+            protected override void OnStart(ISendOnlyBus sendOnlyBus)
             {
                 cleanupTimer = new Timer(PerformCleanup, null, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
             }
