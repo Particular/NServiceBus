@@ -21,7 +21,8 @@
                             Payload = new DataBusProperty<byte[]>(PayloadToSend) 
                         })))
                     .WithEndpoint<Receiver>()
-                    .Done(context => context.ReceivedPayload != null)
+                    .AllowExceptions(e => e.Message.Contains("A queue with the same path name already exists"))
+                    .Done(ctx => ctx.ReceivedPayload != null)
                     .Repeat(r => r.For<AllSerializers>())
                     .Should(c => Assert.AreEqual(PayloadToSend, c.ReceivedPayload, "The large payload should be marshalled correctly using the databus"))
                     .Run();

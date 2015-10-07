@@ -2,7 +2,6 @@ namespace NServiceBus.Timeout.Hosting.Windows
 {
     using System;
     using Core;
-    using NServiceBus.Pipeline;
     using NServiceBus.Settings;
     using Satellites;
     using Transports;
@@ -20,8 +19,6 @@ namespace NServiceBus.Timeout.Hosting.Windows
         public IPersistTimeouts TimeoutsPersister { get; set; }
 
         public TimeoutPersisterReceiver TimeoutPersisterReceiver { get; set; }
-
-        public PipelineExecutor PipelineExecutor { get; set; }
 
         public Configure Configure { get; set; }
       
