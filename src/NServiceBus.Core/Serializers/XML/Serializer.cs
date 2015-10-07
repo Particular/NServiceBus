@@ -9,7 +9,6 @@
     using System.Text;
     using System.Xml;
     using System.Xml.Linq;
-    using NServiceBus.MessageInterfaces;
     using NServiceBus.Utils.Reflection;
 
     class Serializer : IDisposable
@@ -19,7 +18,7 @@
         const string DefaultNamespace = "http://tempuri.net";
 
         List<Type> namespacesToAdd = new List<Type>();
-        IMessageMapper mapper;
+        Type messageType;
         StreamWriter writer;
         object message;
         Conventions conventions;
@@ -27,9 +26,9 @@
         bool skipWrappingRawXml;
         string @namespace;
 
-        public Serializer(IMessageMapper mapper, Stream stream, object message, Conventions conventions, XmlSerializerCache cache, bool skipWrappingRawXml, string @namespace = DefaultNamespace)
+        public Serializer(Type messageType, Stream stream, object message, Conventions conventions, XmlSerializerCache cache, bool skipWrappingRawXml, string @namespace = DefaultNamespace)
         {
-            this.mapper = mapper;
+            this.messageType = messageType;
             writer = new StreamWriter(stream, Encoding.UTF8, 1024, true);
             this.message = message;
             this.conventions = conventions;
@@ -41,16 +40,10 @@
         public void Serialize()
         {
             writer.WriteLine("<?xml version=\"1.0\" ?>");
-            var t = mapper.GetMappedTypeFor(message.GetType());
-
-            WriteObject(t.SerializationFriendlyName(), t, message, true);
+            WriteRoot(message);
             writer.Flush();
         }
 
-        string GetNamespace(object target)
-        {
-            return mapper.GetMappedTypeFor(target.GetType()).Namespace;
-        }
 
         static string FormatAsString(object value)
         {
@@ -272,13 +265,10 @@
         }
 #pragma warning restore 652
 
-        List<string> GetBaseTypes(object message)
+        List<string> GetBaseTypes()
         {
             var result = new List<string>();
-
-            var t = mapper.GetMappedTypeFor(message.GetType());
-
-            var baseType = t.BaseType;
+            var baseType = messageType.BaseType;
             while (baseType != typeof(object) && baseType != null)
             {
                 if (conventions.IsMessageType(baseType))
@@ -292,7 +282,7 @@
                 baseType = baseType.BaseType;
             }
 
-            foreach (var i in t.GetInterfaces())
+            foreach (var i in messageType.GetInterfaces())
             {
                 if (conventions.IsMessageType(i))
                 {
@@ -306,7 +296,19 @@
             return result;
         }
 
-        void WriteObject(string name, Type type, object value, bool useNS = false)
+        void WriteRoot(object value)
+        {
+            var element = messageType.SerializationFriendlyName();
+            var messageNamespace = messageType.Namespace;
+            var baseTypes = GetBaseTypes();
+            CreateStartElementWithNamespaces(messageNamespace, baseTypes, element);
+
+            Write(messageType, value);
+
+            writer.WriteLine("</{0}>", element);
+        }
+
+        void WriteObject(string name, Type type, object value)
         {
             var element = name;
 
@@ -322,16 +324,7 @@
                 return;
             }
 
-            if (useNS)
-            {
-                var messageNamespace = GetNamespace(value);
-                var baseTypes = GetBaseTypes(value);
-                CreateStartElementWithNamespaces(messageNamespace, baseTypes, element);
-            }
-            else
-            {
-                writer.WriteLine("<{0}>", element);
-            }
+            writer.WriteLine("<{0}>", element);
 
             Write(type, value);
 

@@ -75,7 +75,9 @@ namespace NServiceBus.Serializers.XML
         /// </summary>
         public void Serialize(object message, Stream stream)
         {
-            using (var serializer = new Serializer(mapper, stream, message, conventions, cache, SkipWrappingRawXml, Namespace))
+
+            var messageType = mapper.GetMappedTypeFor(message.GetType());
+            using (var serializer = new Serializer(messageType, stream, message, conventions, cache, SkipWrappingRawXml, Namespace))
             {
                 serializer.Serialize();
             }
