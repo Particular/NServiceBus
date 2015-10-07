@@ -1,10 +1,12 @@
 ﻿namespace NServiceBus.AcceptanceTests.Mutators
 {
+    using System;
+    using System.IO;
     using System.Text;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.MessageMutator;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using MessageMutator;
     using NUnit.Framework;
 
     public class When_using_outgoing_tm_mutator : NServiceBusAcceptanceTest
@@ -35,12 +37,14 @@
 
             class MyTransportMessageMutator : IMutateOutgoingTransportMessages, INeedInitialization
             {
-                public Task MutateOutgoing(MutateOutgoingTransportMessageContext context)
+                public void MutateOutgoing(MutateOutgoingTransportMessageContext context)
                 {
-                    context.OutgoingHeaders["HeaderSetByMutator"] = "some value";
-                    context.OutgoingHeaders[Headers.EnclosedMessageTypes] = typeof(MessageThatMutatorChangesTo).FullName;
-                    context.OutgoingBody = Encoding.UTF8.GetBytes("<MessageThatMutatorChangesTo/>");
-                    return Task.FromResult(0);
+                    context.SetHeader("HeaderSetByMutator", "some value");
+                    context.SetHeader(Headers.EnclosedMessageTypes,typeof(MessageThatMutatorChangesTo).FullName);
+
+                    context.RegisterStreamMutation(stream => new HardcodedBufferDecorator(Encoding.UTF8.GetBytes("<MessageThatMutatorChangesTo/>"),stream));
+
+                    return;
                 }
 
                 public void Customize(BusConfiguration configuration)
@@ -54,7 +58,7 @@
                 Context testContext;
                 IBus bus;
 
-                public MessageToBeMutatedHandler(Context testContext,IBus bus)
+                public MessageToBeMutatedHandler(Context testContext, IBus bus)
                 {
                     this.testContext = testContext;
                     this.bus = bus;
@@ -77,5 +81,60 @@
         public class MessageThatMutatorChangesTo : ICommand
         {
         }
+    }
+
+    class HardcodedBufferDecorator:Stream
+    {
+        readonly byte[] hardcodedBuffer;
+        readonly Stream decoratedStream;
+
+        public HardcodedBufferDecorator(byte[] hardcodedBuffer, Stream decoratedStream)
+        {
+            this.hardcodedBuffer = hardcodedBuffer;
+            this.decoratedStream = decoratedStream;
+        }
+
+        public override void Flush()
+        {
+        }
+
+        public override long Seek(long offset, SeekOrigin origin)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void SetLength(long value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int Read(byte[] buffer, int offset, int count)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Write(byte[] buffer, int offset, int count)
+        {
+            if (valueWritten)
+            {
+                return;
+            }
+
+            decoratedStream.Write(hardcodedBuffer,0, hardcodedBuffer.Length);
+            valueWritten = true;
+        }
+
+        public override bool CanRead => true;
+
+        public override bool CanSeek => false;
+        public override bool CanWrite => true;
+        public override long Length => hardcodedBuffer.Length;
+        public override long Position
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+
+        bool valueWritten;
     }
 }
