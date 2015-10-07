@@ -66,7 +66,7 @@
                     "DynamicRouting.SubscriberB.2"
                 });
 
-                EndpointSetup<DefaultServer>(c => c.Routing().EnableAutoRefreshFileBasedRoutingTable()
+                EndpointSetup<DefaultServer>(c => c.Routing().UseFileBasedEndpointInstanceLists()
                     .LookForFilesIn(basePath));
             }
 
