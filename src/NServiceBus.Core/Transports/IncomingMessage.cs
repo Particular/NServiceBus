@@ -47,7 +47,7 @@ namespace NServiceBus.Transports
 
             string originalMessageId;
 
-            if (headers.TryGetValue(NServiceBus.Headers.MessageId, out originalMessageId))
+            if (headers.TryGetValue(NServiceBus.Headers.MessageId, out originalMessageId) && !string.IsNullOrEmpty(originalMessageId))
             {
                 MessageId = originalMessageId;
             }
