@@ -42,16 +42,6 @@ namespace NServiceBus
         public static void DoNotEnforceBestPractices(this NServiceBus.OutgoingPipeline.OutgoingPublishContext context) { }
         public static void DoNotEnforceBestPractices(this NServiceBus.Routing.UnsubscribeContext context) { }
     }
-    public class BinarySerializer : NServiceBus.Serialization.SerializationDefinition
-    {
-        public BinarySerializer() { }
-        protected internal override System.Type ProvidedByFeature() { }
-    }
-    public class BsonSerializer : NServiceBus.Serialization.SerializationDefinition
-    {
-        public BsonSerializer() { }
-        protected internal override System.Type ProvidedByFeature() { }
-    }
     public class static Bus
     {
         public static NServiceBus.IStartableBus Create(NServiceBus.BusConfiguration configuration) { }
@@ -199,8 +189,6 @@ namespace NServiceBus
     }
     public class static ContentTypes
     {
-        public const string Binary = "application/binary";
-        public const string Bson = "application/bson";
         public const string Json = "application/json";
         public const string Xml = "text/xml";
     }
@@ -1336,15 +1324,6 @@ namespace NServiceBus.Features
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
-    public class BinarySerialization : NServiceBus.Serialization.ConfigureSerialization
-    {
-        protected override System.Type GetSerializerType(NServiceBus.Features.FeatureConfigurationContext context) { }
-        protected override void RegisterSerializer(NServiceBus.Features.FeatureConfigurationContext context, System.Type serializerType) { }
-    }
-    public class BsonSerialization : NServiceBus.Serialization.ConfigureSerialization
-    {
-        protected override System.Type GetSerializerType(NServiceBus.Features.FeatureConfigurationContext context) { }
-    }
     public class CriticalTimeMonitoring : NServiceBus.Features.Feature
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
@@ -2268,48 +2247,17 @@ namespace NServiceBus.Serialization
         public SerializationExtentions(NServiceBus.Settings.SettingsHolder settings) { }
     }
 }
-namespace NServiceBus.Serializers.Binary
-{
-    public class BinaryMessageSerializer : NServiceBus.Serialization.IMessageSerializer
-    {
-        public BinaryMessageSerializer() { }
-        public string ContentType { get; }
-        public object[] Deserialize(System.IO.Stream stream, System.Collections.Generic.IList<System.Type> messageTypes = null) { }
-        public void Serialize(object message, System.IO.Stream stream) { }
-    }
-    public class SimpleMessageMapper : NServiceBus.IMessageCreator, NServiceBus.MessageInterfaces.IMessageMapper
-    {
-        public SimpleMessageMapper() { }
-    }
-}
 namespace NServiceBus.Serializers.Json
 {
-    public class BsonMessageSerializer : NServiceBus.Serializers.Json.JsonMessageSerializerBase
-    {
-        public BsonMessageSerializer(NServiceBus.MessageInterfaces.IMessageMapper messageMapper) { }
-        protected internal override Newtonsoft.Json.JsonReader CreateJsonReader(System.IO.Stream stream) { }
-        protected internal override Newtonsoft.Json.JsonWriter CreateJsonWriter(System.IO.Stream stream) { }
-        protected internal override string GetContentType() { }
-    }
-    public class JsonMessageSerializer : NServiceBus.Serializers.Json.JsonMessageSerializerBase
+    public class JsonMessageSerializer : NServiceBus.Serialization.IMessageSerializer
     {
         public JsonMessageSerializer(NServiceBus.MessageInterfaces.IMessageMapper messageMapper) { }
-        public System.Text.Encoding Encoding { get; set; }
-        protected internal override Newtonsoft.Json.JsonReader CreateJsonReader(System.IO.Stream stream) { }
-        protected internal override Newtonsoft.Json.JsonWriter CreateJsonWriter(System.IO.Stream stream) { }
-        public object DeserializeObject(string value, System.Type type) { }
-        protected internal override string GetContentType() { }
-        public string SerializeObject(object value) { }
-    }
-    public abstract class JsonMessageSerializerBase : NServiceBus.Serialization.IMessageSerializer
-    {
-        protected internal JsonMessageSerializerBase(NServiceBus.MessageInterfaces.IMessageMapper messageMapper) { }
         public string ContentType { get; }
-        protected internal abstract Newtonsoft.Json.JsonReader CreateJsonReader(System.IO.Stream stream);
-        protected internal abstract Newtonsoft.Json.JsonWriter CreateJsonWriter(System.IO.Stream stream);
+        public System.Text.Encoding Encoding { get; set; }
         public object[] Deserialize(System.IO.Stream stream, System.Collections.Generic.IList<System.Type> messageTypes) { }
-        protected internal abstract string GetContentType();
+        public object DeserializeObject(string value, System.Type type) { }
         public void Serialize(object message, System.IO.Stream stream) { }
+        public string SerializeObject(object value) { }
     }
 }
 namespace NServiceBus.Serializers.XML
