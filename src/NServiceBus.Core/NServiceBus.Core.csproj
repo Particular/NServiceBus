@@ -100,6 +100,7 @@
     <Compile Include="ConsistencyGuarantees\ConsistencyGuaranteeSettingsExtensions.cs" />
     <Compile Include="ConsistencyGuarantees\TransactionScopes\WrapHandlersInTransactionScope.cs" />
     <Compile Include="EnumerableEx.cs" />
+    <Compile Include="Hosting\AddWindowsIdentityHeaderBehavior.cs" />
     <Compile Include="IBusExtensions_obsolete.cs" />
     <Compile Include="ISendOnlyBusExtensions_obsoletes.cs" />
     <Compile Include="IStartableBusExtensions_obsoletes.cs" />
@@ -380,7 +381,6 @@
     <Compile Include="IMessageCreator.cs" />
     <Compile Include="IMessageHandler.cs" />
     <Compile Include="Unicast\StartAndStoppablesRunner.cs" />
-    <Compile Include="WindowsIdentityEnrichment\ConfigureWindowsIdentityEnricher.cs" />
     <Compile Include="Persistence\EnabledPersistence.cs" />
     <Compile Include="Persistence\Msmq\Msmq.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionPersistence.cs" />
@@ -599,7 +599,6 @@
     <Compile Include="Hosting\Helpers\AssemblyScanner.cs" />
     <Compile Include="Hosting\Helpers\AssemblyScannerResults.cs" />
     <Compile Include="InternalsVisibleTo.cs" />
-    <Compile Include="WindowsIdentityEnrichment\WindowsIdentityEnricher.cs" />
     <Compile Include="Installation\INeedToInstallSomething.cs" />
     <Compile Include="IWantToRunBeforeConfigurationIsFinalized.cs" />
     <Compile Include="Licensing\LicenseManager.cs" />
