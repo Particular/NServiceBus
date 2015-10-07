@@ -86,7 +86,7 @@ public abstract class TestCase
             Value = pi.GetValue(this, null)
         }).ToList();
 
-        Console.Out.WriteLine("Settings: {0}",string.Join(" ",settings.Select(s=>string.Format("{0}={1}",s.Name,s.Value))));
+        Console.Out.WriteLine("Settings: {0}",string.Join(" ",settings.Select(s=> $"{s.Name}={s.Value}")));
     }
 
 }

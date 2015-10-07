@@ -7,8 +7,8 @@
         public static DateTime? First;
         public static DateTime Last;
         public static DateTime StartTime;
-        public static Int64 NumberOfMessages;
-        public static Int64 NumberOfRetries;
+        public static long NumberOfMessages;
+        public static long NumberOfRetries;
         public static TimeSpan SendTimeNoTx = TimeSpan.Zero;
         public static TimeSpan SendTimeWithTx = TimeSpan.Zero;
 
