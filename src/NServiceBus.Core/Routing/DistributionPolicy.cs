@@ -11,7 +11,10 @@ namespace NServiceBus.Routing
     {
         List<Tuple<Func<Type, bool>,DistributionStrategy>> strategies = new List<Tuple<Func<Type, bool>, DistributionStrategy>>();
 
-        internal DistributionPolicy()
+        /// <summary>
+        /// Creates a new distribution policy.
+        /// </summary>
+        public DistributionPolicy()
         {
             strategies.Add(new Tuple<Func<Type, bool>, DistributionStrategy>(_ => true, new SingleInstanceRoundRobinDistributionStrategy()));
         }

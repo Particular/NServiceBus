@@ -78,7 +78,7 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.EndpointName("DistributingACommand.Receiver");
-                    c.UseCustomLogicalToTransportAddressTranslation((address, @default) => "DistributingACommand.Receiver-1");
+                    c.ScaleOut().UniqueQueuePerEndpointInstance("1");
                 });
             }
 
@@ -103,7 +103,7 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.EndpointName("DistributingACommand.Receiver");
-                    c.UseCustomLogicalToTransportAddressTranslation((address, @default) => "DistributingACommand.Receiver-2");
+                    c.ScaleOut().UniqueQueuePerEndpointInstance("2");
                 });
             }
 
