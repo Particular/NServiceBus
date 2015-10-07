@@ -45,7 +45,18 @@ namespace NServiceBus.Transports
             Guard.AgainstNull("bodyStream", bodyStream);
             Guard.AgainstNull("headers", headers);
 
-            MessageId = messageId;
+            string originalMessageId;
+
+            if (headers.TryGetValue(NServiceBus.Headers.MessageId, out originalMessageId))
+            {
+                MessageId = originalMessageId;
+            }
+            else
+            {
+                MessageId = messageId;
+            }
+
+
             Headers = headers;
             BodyStream = bodyStream;
 
