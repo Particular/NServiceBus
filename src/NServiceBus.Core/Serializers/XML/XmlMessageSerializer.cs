@@ -831,12 +831,8 @@ namespace NServiceBus.Serializers.XML
         public void Serialize(object message, Stream stream)
         {
             InitializeNamespaces(message);
-            var messageBuilder = SerializeMessage(message);
+            var builder = SerializeMessage(message);
 
-            var builder = new StringBuilder();
-            builder.AppendLine("<?xml version=\"1.0\" ?>");
-
-            builder.Append(messageBuilder);
             var buffer = Encoding.UTF8.GetBytes(builder.ToString());
             stream.Write(buffer, 0, buffer.Length);
         }
@@ -850,9 +846,23 @@ namespace NServiceBus.Serializers.XML
         StringBuilder SerializeMessage(object message)
         {
             var messageBuilder = new StringBuilder();
-            var t = mapper.GetMappedTypeFor(message.GetType());
 
-            WriteObject(t.SerializationFriendlyName(), t, message, messageBuilder, true);
+            messageBuilder.AppendLine("<?xml version=\"1.0\" ?>");
+
+            var t = mapper.GetMappedTypeFor(message.GetType());
+            var baseTypes = GetBaseTypes(message);
+
+            var objectBuilder = new StringBuilder();
+            var elementName = t.SerializationFriendlyName();
+
+            WriteObject(elementName, t, message, objectBuilder);
+
+            var startElementBuilder = new StringBuilder();
+            var ns = GetNamespace(message);
+            CreateStartElementWithNamespaces(ns, baseTypes, startElementBuilder, elementName);
+
+            objectBuilder.Replace(string.Format("<{0}>", elementName), startElementBuilder.ToString());
+            messageBuilder.AppendLine(objectBuilder.ToString().TrimEnd());
 
             return messageBuilder;
         }
@@ -906,7 +916,7 @@ namespace NServiceBus.Serializers.XML
         {
             var element = name;
 
-            if (type == typeof(object) && (value.GetType().IsSimpleType()))
+            if (type == typeof(object) && value.GetType().IsSimpleType())
             {
                 if (!namespacesToAdd.Contains(value.GetType()))
                 {
@@ -920,17 +930,7 @@ namespace NServiceBus.Serializers.XML
                 return;
             }
 
-
-            if (useNS)
-            {
-                var @namespace = InitializeNamespaces(value);
-                var baseTypes = GetBaseTypes(value);
-                CreateStartElementWithNamespaces(@namespace, baseTypes, builder, element);
-            }
-            else
-            {
-                builder.AppendFormat("<{0}>\n", element);
-            }
+            builder.AppendFormat("<{0}>\n", element);
 
             Write(builder, type, value);
 

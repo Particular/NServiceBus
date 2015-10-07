@@ -14,9 +14,9 @@ namespace NServiceBus.Config
         /// </summary>
         public SecondLevelRetriesConfig()
         {
-            base.Properties.Add(new ConfigurationProperty("Enabled", typeof(bool), true));
-            base.Properties.Add(new ConfigurationProperty("TimeIncrease", typeof(TimeSpan), SecondLevelRetriesConfiguration.DefaultTimeIncrease, null, new TimeSpanValidator(TimeSpan.Zero, TimeSpan.MaxValue), ConfigurationPropertyOptions.None));
-            base.Properties.Add(new ConfigurationProperty("NumberOfRetries", typeof(int), SecondLevelRetriesConfiguration.DefaultNumberOfRetries, null, new IntegerValidator(0, Int32.MaxValue), ConfigurationPropertyOptions.None));
+            Properties.Add(new ConfigurationProperty("Enabled", typeof(bool), true));
+            Properties.Add(new ConfigurationProperty("TimeIncrease", typeof(TimeSpan), SecondLevelRetriesConfiguration.DefaultTimeIncrease, null, new TimeSpanValidator(TimeSpan.Zero, TimeSpan.MaxValue), ConfigurationPropertyOptions.None));
+            Properties.Add(new ConfigurationProperty("NumberOfRetries", typeof(int), SecondLevelRetriesConfiguration.DefaultNumberOfRetries, null, new IntegerValidator(0, Int32.MaxValue), ConfigurationPropertyOptions.None));
         }
 
         /// <summary>
