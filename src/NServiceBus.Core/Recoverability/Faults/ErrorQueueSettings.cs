@@ -14,7 +14,7 @@ namespace NServiceBus.Faults
 
             if (settings.TryGet("errorQueue", out errorQueue))
             {
-                Logger.Debug("Error queue retrieved from code configuration via 'BusConfiguration.ErrorQueue().");
+                Logger.Debug("Error queue retrieved from code configuration via 'BusConfiguration.SendFailedMessagesTo().");
                 return errorQueue;
             }
 
