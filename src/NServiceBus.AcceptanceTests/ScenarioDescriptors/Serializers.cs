@@ -5,29 +5,6 @@
 
     public static class Serializers
     {
-        public static readonly RunDescriptor Binary = new RunDescriptor
-            {
-                Key = "Binary",
-                Settings =
-                    new Dictionary<string, string>
-                        {
-                            {
-                                "Serializer", typeof (BinarySerializer).AssemblyQualifiedName
-                            }
-                        }
-            };
-
-        public static readonly RunDescriptor Bson = new RunDescriptor
-            {
-                Key = "Bson",
-                Settings =
-                    new Dictionary<string, string>
-                        {
-                            {
-                                "Serializer", typeof (BsonSerializer).AssemblyQualifiedName
-                            }
-                        }
-            };
 
         public static readonly RunDescriptor Xml = new RunDescriptor
             {

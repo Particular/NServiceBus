@@ -237,10 +237,7 @@
     <Compile Include="Scheduler\ScheduledTaskMessageHandlerTests.cs" />
     <Compile Include="Scheduler\ScheduleTests.cs" />
     <Compile Include="Recoverability\SecondLevelRetries\SecondLevelRetriesTests.cs" />
-    <Compile Include="Serializers\Binary\BinarySerializerTest.cs" />
-    <Compile Include="Serializers\Json\BsonMessageSerializerTest.cs" />
     <Compile Include="Serializers\Json\JsonMessageSerializerTest.cs" />
-    <Compile Include="Serializers\Json\JsonMessageSerializerTestBase.cs" />
     <Compile Include="Serializers\XML\Using_Infer_Type_With_Mixed_Namespace.cs" />
     <Compile Include="Serializers\XML\Using_Infer_Type_With_Nested_Class.cs" />
     <Compile Include="Serializers\XML\Command1.cs" />

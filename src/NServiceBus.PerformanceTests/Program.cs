@@ -88,14 +88,6 @@
                     configuration.UseSerialization<JsonSerializer>();
                     break;
 
-                case "bson":
-                    configuration.UseSerialization<BsonSerializer>();
-                    break;
-
-                case "bin":
-                    configuration.UseSerialization<BinarySerializer>();
-                    break;
-
                 default:
                     throw new InvalidOperationException("Illegal serialization format " + args[2]);
             }
