@@ -2,11 +2,11 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Transports;
     using OutgoingPipeline;
     using Pipeline;
     using Routing;
     using TransportDispatch;
+    using Transports;
 
     class DetermineRouteForReplyBehavior : Behavior<OutgoingReplyContext>
     {

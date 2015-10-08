@@ -1,12 +1,11 @@
 ﻿namespace NServiceBus.Features
 {
-    using NServiceBus.Config;
+    using Config;
+    using DelayedDelivery;
+    using DeliveryConstraints;
     using NServiceBus.DelayedDelivery;
-    using NServiceBus.DeliveryConstraints;
-    using NServiceBus.Features.DelayedDelivery;
-    using NServiceBus.Pipeline;
-    using NServiceBus.TransportDispatch;
-
+    using Pipeline;
+    using TransportDispatch;
 
     class DelayedDeliveryFeature : Feature
     {
@@ -54,7 +53,6 @@
             else
             {
                 DoNotClearTimeouts(context);
-
             }
 
             context.Pipeline.Register("ApplyDelayedDeliveryConstraint", typeof(ApplyDelayedDeliveryConstraintBehavior), "Applied relevant delayed delivery constraints requested by the user");

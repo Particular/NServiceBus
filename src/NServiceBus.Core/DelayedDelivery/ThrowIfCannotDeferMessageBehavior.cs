@@ -2,8 +2,8 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Pipeline;
-    using NServiceBus.TransportDispatch;
+    using Pipeline;
+    using TransportDispatch;
 
     class ThrowIfCannotDeferMessageBehavior : Behavior<RoutingContext>
     {

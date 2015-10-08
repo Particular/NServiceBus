@@ -2,10 +2,10 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.OutgoingPipeline;
-    using NServiceBus.Pipeline;
-    using NServiceBus.TransportDispatch;
-    using NServiceBus.Transports;
+    using OutgoingPipeline;
+    using Pipeline;
+    using TransportDispatch;
+    using Transports;
 
     class PopulateAutoCorrelationHeadersForRepliesBehavior : Behavior<OutgoingReplyContext>
     {

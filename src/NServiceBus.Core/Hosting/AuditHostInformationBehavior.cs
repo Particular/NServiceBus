@@ -2,10 +2,10 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Audit;
-    using NServiceBus.Hosting;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Support;
+    using Audit;
+    using Hosting;
+    using Pipeline;
+    using Support;
 
     class AuditHostInformationBehavior : Behavior<AuditContext>
     {
@@ -26,7 +26,8 @@
             return next();
         }
 
-        HostInformation hostInfo;
         EndpointName endpointName;
+
+        HostInformation hostInfo;
     }
 }

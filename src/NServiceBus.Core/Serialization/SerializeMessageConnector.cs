@@ -4,19 +4,16 @@
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.OutgoingPipeline;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.Serialization;
-    using NServiceBus.TransportDispatch;
-    using NServiceBus.Unicast.Messages;
+    using OutgoingPipeline;
+    using Pipeline;
+    using Pipeline.Contexts;
+    using Serialization;
+    using TransportDispatch;
+    using Unicast.Messages;
 
     //todo: rename to LogicalOutgoingContext
     class SerializeMessageConnector : StageConnector<OutgoingLogicalMessageContext, OutgoingPhysicalMessageContext>
     {
-        IMessageSerializer messageSerializer;
-        MessageMetadataRegistry messageMetadataRegistry;
-
         public SerializeMessageConnector(IMessageSerializer messageSerializer, MessageMetadataRegistry messageMetadataRegistry)
         {
             this.messageSerializer = messageSerializer;
@@ -54,20 +51,22 @@
             return string.Join(";", distinctTypes.Select(t => t.AssemblyQualifiedName));
         }
 
+        MessageMetadataRegistry messageMetadataRegistry;
+        IMessageSerializer messageSerializer;
+
         public class State
         {
             public bool SkipSerialization { get; set; }
         }
-
     }
 
     /// <summary>
-    /// Allows users to control serialization.
+    ///     Allows users to control serialization.
     /// </summary>
     public static class SerializationContextExtensions
     {
         /// <summary>
-        /// Requests the serializer to skip serializing the message.
+        ///     Requests the serializer to skip serializing the message.
         /// </summary>
         public static void SkipSerialization(this OutgoingLogicalMessageContext context)
         {

@@ -4,14 +4,14 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
-    using NServiceBus.Logging;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Routing;
-    using NServiceBus.Routing.MessageDrivenSubscriptions;
-    using NServiceBus.Transports;
-    using NServiceBus.Unicast.Queuing;
-    using NServiceBus.Unicast.Transport;
+    using Extensibility;
+    using Logging;
+    using Pipeline;
+    using Routing;
+    using Routing.MessageDrivenSubscriptions;
+    using Transports;
+    using Unicast.Queuing;
+    using Unicast.Transport;
 
     class MessageDrivenUnsubscribeTerminator : PipelineTerminator<UnsubscribeContext>
     {
@@ -57,9 +57,11 @@
             var state = context.GetOrCreate<Settings>();
             try
             {
-
                 var dispatchOptions = new DispatchOptions(new DirectToTargetDestination(destination), DispatchConsistency.Default);
-                await dispatcher.Dispatch(new[] { new TransportOperation(unsubscribeMessage, dispatchOptions) }, context).ConfigureAwait(false);
+                await dispatcher.Dispatch(new[]
+                {
+                    new TransportOperation(unsubscribeMessage, dispatchOptions)
+                }, context).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {
@@ -77,6 +79,11 @@
             }
         }
 
+        IDispatchMessages dispatcher;
+        string replyToAddress;
+
+        SubscriptionRouter subscriptionRouter;
+
         public class Settings
         {
             public Settings()
@@ -88,10 +95,6 @@
             public TimeSpan RetryDelay { get; set; }
             public int MaxRetries { get; set; }
         }
-
-        SubscriptionRouter subscriptionRouter;
-        string replyToAddress;
-        IDispatchMessages dispatcher;
 
         static ILog Logger = LogManager.GetLogger<MessageDrivenUnsubscribeTerminator>();
     }

@@ -1,17 +1,17 @@
 ﻿namespace NServiceBus.Features
 {
     using System;
-    using NServiceBus.CircuitBreakers;
+    using CircuitBreakers;
+    using DelayedDelivery;
+    using DeliveryConstraints;
     using NServiceBus.DelayedDelivery;
     using NServiceBus.DelayedDelivery.TimeoutManager;
-    using NServiceBus.DeliveryConstraints;
-    using NServiceBus.Features.DelayedDelivery;
-    using NServiceBus.Settings;
-    using NServiceBus.Timeout.Core;
-    using NServiceBus.Transports;
+    using Settings;
+    using Timeout.Core;
+    using Transports;
 
     /// <summary>
-    /// Used to configure the timeout manager that provides message deferral.
+    ///     Used to configure the timeout manager that provides message deferral.
     /// </summary>
     public class TimeoutManager : Feature
     {
@@ -35,7 +35,7 @@
         }
 
         /// <summary>
-        /// See <see cref="Feature.Setup"/>.
+        ///     See <see cref="Feature.Setup" />.
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {

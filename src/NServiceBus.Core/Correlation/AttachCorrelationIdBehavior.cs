@@ -2,10 +2,10 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.TransportDispatch;
-    using NServiceBus.Transports;
+    using Pipeline;
+    using Pipeline.Contexts;
+    using TransportDispatch;
+    using Transports;
 
     class AttachCorrelationIdBehavior : Behavior<OutgoingLogicalMessageContext>
     {

@@ -2,9 +2,9 @@
 {
     using System;
     using System.Threading.Tasks;
-    using EndpointTemplates;
     using AcceptanceTesting;
-    using NServiceBus.Features;
+    using EndpointTemplates;
+    using Features;
 
     public class When_doing_request_response_between_sagas : NServiceBusAcceptanceTest
     {
@@ -17,7 +17,6 @@
 
         public class Endpoint : EndpointConfigurationBuilder
         {
-
             public Endpoint()
             {
                 EndpointSetup<DefaultServer>(config => config.EnableFeature<TimeoutManager>());
@@ -53,11 +52,11 @@
                     mapper.ConfigureMapping<InitiateRequestingSaga>(m => m.Id).ToSaga(s => s.CorrIdForResponse);
                     mapper.ConfigureMapping<ResponseFromOtherSaga>(m => m.SomeCorrelationId).ToSaga(s => s.CorrIdForResponse);
                 }
+
                 public class RequestResponseRequestingSagaData : ContainSagaData
                 {
                     public virtual Guid CorrIdForResponse { get; set; } //wont be needed in the future
                 }
-
             }
 
             public class RequestResponseRespondingSaga : Saga<RequestResponseRespondingSaga.RequestResponseRespondingSagaData>,
@@ -72,7 +71,10 @@
                     if (Context.ReplyFromNonInitiatingHandler)
                     {
                         Data.CorrIdForRequest = message.SomeIdThatTheResponseSagaCanCorrelateBackToUs; //wont be needed in the future
-                        await Bus.SendLocalAsync(new SendReplyFromNonInitiatingHandler { SagaIdSoWeCanCorrelate = Data.Id });
+                        await Bus.SendLocalAsync(new SendReplyFromNonInitiatingHandler
+                        {
+                            SagaIdSoWeCanCorrelate = Data.Id
+                        });
                     }
 
                     if (Context.ReplyFromTimeout)
@@ -89,29 +91,21 @@
                     await Bus.ReplyAsync(new ResponseFromOtherSaga());
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestResponseRespondingSagaData> mapper)
+                public Task Handle(SendReplyFromNonInitiatingHandler message)
                 {
-                    mapper.ConfigureMapping<RequestToRespondingSaga>(m => m.SomeIdThatTheResponseSagaCanCorrelateBackToUs).ToSaga(s => s.CorrIdForRequest);
-                    //this line is just needed so we can test the non initiating handler case
-                    mapper.ConfigureMapping<SendReplyFromNonInitiatingHandler>(m => m.SagaIdSoWeCanCorrelate).ToSaga(s => s.CorrIdForRequest);
+                    return SendReply();
                 }
-
-                public class RequestResponseRespondingSagaData : ContainSagaData
-                {
-                    public virtual Guid CorrIdForRequest { get; set; }
-                }
-
-
-                public class DelayReply { }
 
                 public Task Timeout(DelayReply state)
                 {
                     return SendReply();
                 }
 
-                public Task Handle(SendReplyFromNonInitiatingHandler message)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestResponseRespondingSagaData> mapper)
                 {
-                    return SendReply();
+                    mapper.ConfigureMapping<RequestToRespondingSaga>(m => m.SomeIdThatTheResponseSagaCanCorrelateBackToUs).ToSaga(s => s.CorrIdForRequest);
+                    //this line is just needed so we can test the non initiating handler case
+                    mapper.ConfigureMapping<SendReplyFromNonInitiatingHandler>(m => m.SagaIdSoWeCanCorrelate).ToSaga(s => s.CorrIdForRequest);
                 }
 
                 Task SendReply()
@@ -121,6 +115,16 @@
                     {
                         SomeCorrelationId = Data.CorrIdForRequest //wont be needed in the future
                     });
+                }
+
+                public class RequestResponseRespondingSagaData : ContainSagaData
+                {
+                    public virtual Guid CorrIdForRequest { get; set; }
+                }
+
+
+                public class DelayReply
+                {
                 }
             }
         }

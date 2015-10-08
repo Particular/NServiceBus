@@ -3,12 +3,11 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.Pipeline;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NServiceBus.Routing;
     using NUnit.Framework;
+    using Pipeline;
 
     [TestFixture]
     public class When_starting_an_endpoint_with_a_saga : NServiceBusAcceptanceTest
@@ -17,9 +16,9 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
         public async Task Should_autoSubscribe_the_saga_messageHandler_by_default()
         {
             var context = await Scenario.Define<Context>()
-                   .WithEndpoint<Subscriber>()
-                   .Done(c => c.EventsSubscribedTo.Count >= 2)
-                   .Run();
+                .WithEndpoint<Subscriber>()
+                .Done(c => c.EventsSubscribedTo.Count >= 2)
+                .Run();
 
             Assert.True(context.EventsSubscribedTo.Contains(typeof(MyEvent)), "Events only handled by sagas should be auto subscribed");
             Assert.True(context.EventsSubscribedTo.Contains(typeof(MyEventBase)), "Sagas should be auto subscribed even when handling a base class event");
@@ -31,6 +30,7 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
             {
                 EventsSubscribedTo = new List<Type>();
             }
+
             public List<Type> EventsSubscribedTo { get; }
         }
 
@@ -45,8 +45,6 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
 
             public class SubscriptionSpy : Behavior<SubscribeContext>
             {
-                Context testContext;
-
                 public SubscriptionSpy(Context testContext)
                 {
                     this.testContext = testContext;
@@ -58,6 +56,8 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
 
                     testContext.EventsSubscribedTo.Add(context.EventType);
                 }
+
+                Context testContext;
             }
 
             public class AutoSubscriptionSaga : Saga<AutoSubscriptionSaga.AutoSubscriptionSagaData>, IAmStartedByMessages<MyEvent>
@@ -67,16 +67,16 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
                     return Task.FromResult(0);
                 }
 
-                public class AutoSubscriptionSagaData : ContainSagaData
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<AutoSubscriptionSagaData> mapper)
                 {
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<AutoSubscriptionSagaData> mapper)
+                public class AutoSubscriptionSagaData : ContainSagaData
                 {
                 }
             }
 
-            public class MySagaThatReactsOnASuperClassEvent : Saga<MySagaThatReactsOnASuperClassEvent.SuperClassEventSagaData>, 
+            public class MySagaThatReactsOnASuperClassEvent : Saga<MySagaThatReactsOnASuperClassEvent.SuperClassEventSagaData>,
                 IAmStartedByMessages<MyEventBase>
             {
                 public Task Handle(MyEventBase message)
@@ -84,25 +84,32 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
                     return Task.FromResult(0);
                 }
 
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SuperClassEventSagaData> mapper)
+                {
+                }
+
 
                 public class SuperClassEventSagaData : ContainSagaData
                 {
                 }
-
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SuperClassEventSagaData> mapper)
-                {
-                }
             }
-
         }
 
 
-        public class MyEventBase : IEvent { }
+        public class MyEventBase : IEvent
+        {
+        }
 
-        public class MyEventWithParent : MyEventBase { }
+        public class MyEventWithParent : MyEventBase
+        {
+        }
 
-        public class MyMessage : IMessage { }
+        public class MyMessage : IMessage
+        {
+        }
 
-        public class MyEvent : IEvent { }
+        public class MyEvent : IEvent
+        {
+        }
     }
 }

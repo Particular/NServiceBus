@@ -1,10 +1,10 @@
 namespace NServiceBus.Faults
 {
     using System;
-    using NServiceBus.Config;
-    using NServiceBus.Logging;
-    using NServiceBus.Settings;
-    using NServiceBus.Utils;
+    using Config;
+    using Logging;
+    using Settings;
+    using Utils;
 
     static class ErrorQueueSettings
     {
@@ -52,7 +52,7 @@ Please take on of the following actions:
             }
 
             throw new Exception(
-@"Faults forwarding requires an error queue to be specified. 
+                @"Faults forwarding requires an error queue to be specified. 
 Please take on of the following actions: 
 - set the error queue at configuration time using 'BusConfiguration.SendFailedMessagesTo()'
 - add a 'MessageForwardingInCaseOfFaultConfig' section to your app.config

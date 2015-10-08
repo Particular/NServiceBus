@@ -5,9 +5,9 @@ namespace NServiceBus
     using System.Messaging;
     using System.Threading.Tasks;
     using System.Transactions;
-    using NServiceBus.Extensibility;
-    using NServiceBus.Logging;
-    using NServiceBus.Transports;
+    using Extensibility;
+    using Logging;
+    using Transports;
 
     class ReceiveWithTransactionScope : ReceiveStrategy
     {

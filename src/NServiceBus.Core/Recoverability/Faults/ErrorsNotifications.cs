@@ -2,25 +2,25 @@ namespace NServiceBus.Faults
 {
     using System;
     using System.Collections.Generic;
-    using NServiceBus.Transports;
+    using Transports;
 
     /// <summary>
-    /// Errors notifications.
+    ///     Errors notifications.
     /// </summary>
     public class ErrorsNotifications : IDisposable
     {
         /// <summary>
-        /// Notification when a message is moved to the error queue.
+        ///     Notification when a message is moved to the error queue.
         /// </summary>
         public IObservable<FailedMessage> MessageSentToErrorQueue => erroneousMessageList;
 
         /// <summary>
-        /// Notification when a message fails a first level retry.
+        ///     Notification when a message fails a first level retry.
         /// </summary>
         public IObservable<FirstLevelRetry> MessageHasFailedAFirstLevelRetryAttempt => firstLevelRetryList;
 
         /// <summary>
-        /// Notification when a message is sent to second level retires queue.
+        ///     Notification when a message is sent to second level retires queue.
         /// </summary>
         public IObservable<SecondLevelRetry> MessageHasBeenSentToSecondLevelRetries => secondLevelRetryList;
 

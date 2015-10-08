@@ -3,8 +3,8 @@
     using System;
     using System.Diagnostics;
     using System.Threading.Tasks;
+    using Audit;
     using Logging;
-    using NServiceBus.Audit;
     using Pipeline;
 
     class NotifyOnInvalidLicenseBehavior : Behavior<AuditContext>
@@ -16,7 +16,7 @@
 
         public override async Task Invoke(AuditContext context, Func<Task> next)
         {
-            context.AddAuditData(Headers.HasLicenseExpired,licenseExpired.ToString().ToLower());
+            context.AddAuditData(Headers.HasLicenseExpired, licenseExpired.ToString().ToLower());
 
             await next().ConfigureAwait(false);
 
@@ -26,7 +26,6 @@
             }
         }
 
-        static ILog Log = LogManager.GetLogger<NotifyOnInvalidLicenseBehavior>();
         bool licenseExpired;
 
         public class Registration : RegisterStep
@@ -37,5 +36,7 @@
                 InsertBeforeIfExists(WellKnownStep.AuditProcessedMessage);
             }
         }
+
+        static ILog Log = LogManager.GetLogger<NotifyOnInvalidLicenseBehavior>();
     }
 }

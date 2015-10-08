@@ -2,12 +2,12 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
-    using NServiceBus.OutgoingPipeline;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Routing;
-    using NServiceBus.TransportDispatch;
-    using NServiceBus.Unicast.Queuing;
+    using Extensibility;
+    using OutgoingPipeline;
+    using Pipeline;
+    using Routing;
+    using TransportDispatch;
+    using Unicast.Queuing;
 
     class DetermineRouteForSendBehavior : Behavior<OutgoingSendContext>
     {

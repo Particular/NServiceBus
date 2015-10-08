@@ -3,12 +3,12 @@ namespace NServiceBus.Features
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using NServiceBus.Config;
-    using NServiceBus.Logging;
-    using NServiceBus.Settings;
-    using NServiceBus.Transports;
-    using NServiceBus.Unicast;
-    using NServiceBus.Unicast.Messages;
+    using Config;
+    using Logging;
+    using Settings;
+    using Transports;
+    using Unicast;
+    using Unicast.Messages;
 
     class UnicastBus : Feature
     {

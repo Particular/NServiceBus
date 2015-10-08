@@ -2,7 +2,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
 {
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
+    using AcceptanceTesting;
     using NUnit.Framework;
 
     public class When_performing_slr_with_regular_exception : When_performing_slr

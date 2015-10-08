@@ -2,20 +2,20 @@ namespace NServiceBus.Unicast.Transport
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Logging;
-    using NServiceBus.MessageInterfaces;
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.Settings;
-    using NServiceBus.Transports;
+    using Logging;
+    using MessageInterfaces;
+    using ObjectBuilder;
+    using Pipeline;
+    using Pipeline.Contexts;
+    using Settings;
+    using Transports;
 
     /// <summary>
     ///     Default implementation of a NServiceBus transport.
     /// </summary>
     public class TransportReceiver
     {
-        internal TransportReceiver(string id, IBuilder builder, IPushMessages receiver, PushSettings pushSettings, PipelineBase<TransportReceiveContext> pipeline,PushRuntimeSettings pushRuntimeSettings)
+        internal TransportReceiver(string id, IBuilder builder, IPushMessages receiver, PushSettings pushSettings, PipelineBase<TransportReceiveContext> pipeline, PushRuntimeSettings pushRuntimeSettings)
         {
             Id = id;
             this.pipeline = pipeline;
@@ -26,7 +26,7 @@ namespace NServiceBus.Unicast.Transport
         }
 
         /// <summary>
-        /// Gets the ID of this pipeline.
+        ///     Gets the ID of this pipeline.
         /// </summary>
         public string Id { get; }
 
@@ -47,7 +47,7 @@ namespace NServiceBus.Unicast.Transport
             await pipeline.Warmup().ConfigureAwait(false);
 
             receiver.Start(pushRuntimeSettings);
-   
+
             isStarted = true;
         }
 
@@ -71,7 +71,7 @@ namespace NServiceBus.Unicast.Transport
         {
             using (var childBuilder = builder.CreateChildBuilder())
             {
-                var configurer = (IConfigureComponents)childBuilder;
+                var configurer = (IConfigureComponents) childBuilder;
 
                 var context = new TransportReceiveContext(pushContext.Message, new RootContext(childBuilder));
 
@@ -84,14 +84,14 @@ namespace NServiceBus.Unicast.Transport
             }
         }
 
-        static ILog Logger = LogManager.GetLogger<TransportReceiver>();
-
         IBuilder builder;
-        PipelineBase<TransportReceiveContext> pipeline;
-        PushRuntimeSettings pushRuntimeSettings;
-        IPushMessages receiver;
 
         bool isStarted;
+        PipelineBase<TransportReceiveContext> pipeline;
+        PushRuntimeSettings pushRuntimeSettings;
         PushSettings pushSettings;
+        IPushMessages receiver;
+
+        static ILog Logger = LogManager.GetLogger<TransportReceiver>();
     }
 }

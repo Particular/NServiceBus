@@ -4,9 +4,9 @@
     using System.Linq;
     using System.Threading.Tasks;
     using Janitor;
-    using NServiceBus.Settings;
-    using NServiceBus.Unicast.Transport;
     using ObjectBuilder;
+    using Settings;
+    using Unicast.Transport;
 
     [SkipWeaving]
     class PipelineBase<T> : IPipelineBase<T>
@@ -17,7 +17,7 @@
             busNotifications = builder.Build<BusNotifications>();
 
             var coordinator = new StepRegistrationsCoordinator(pipelineModifications.Removals, pipelineModifications.Replacements);
-          
+
             foreach (var rego in pipelineModifications.Additions.Where(x => x.IsEnabled(settings)))
             {
                 coordinator.Register(rego);
@@ -26,6 +26,13 @@
             steps = coordinator.BuildPipelineModelFor<T>();
 
             behaviors = steps.Select(r => r.CreateBehavior(builder)).ToArray();
+        }
+
+        public Task Invoke(T context)
+        {
+            var lookupSteps = steps.ToDictionary(rs => rs.BehaviorType, ss => ss.StepId);
+            var pipeline = new BehaviorChain(behaviors, lookupSteps, busNotifications);
+            return pipeline.Invoke(new BehaviorContextStacker(context));
         }
 
         public void Initialize(PipelineInfo pipelineInfo)
@@ -50,13 +57,6 @@
             {
                 await result.ConfigureAwait(false);
             }
-        }
-
-        public Task Invoke(T context)
-        {
-            var lookupSteps = steps.ToDictionary(rs => rs.BehaviorType, ss => ss.StepId);
-            var pipeline = new BehaviorChain(behaviors, lookupSteps, busNotifications);
-            return pipeline.Invoke(new BehaviorContextStacker(context));
         }
 
         public Task Invoke(BehaviorContextStacker contextStacker)

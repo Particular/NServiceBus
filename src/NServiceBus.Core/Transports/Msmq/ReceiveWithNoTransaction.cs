@@ -4,15 +4,14 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Messaging;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
-    using NServiceBus.Logging;
-    using NServiceBus.Transports;
+    using Extensibility;
+    using Logging;
+    using Transports;
 
     class ReceiveWithNoTransaction : ReceiveStrategy
     {
         public override async Task ReceiveMessage(MessageQueue inputQueue, MessageQueue errorQueue, Func<PushContext, Task> onMessage)
         {
-
             var message = inputQueue.Receive(TimeSpan.FromMilliseconds(10), MessageQueueTransactionType.None);
 
             Dictionary<string, string> headers;

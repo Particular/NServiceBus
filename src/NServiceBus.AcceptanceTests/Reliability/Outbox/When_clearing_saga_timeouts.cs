@@ -3,14 +3,14 @@
     using System;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.Configuration.AdvanceExtensibility;
-    using NServiceBus.Extensibility;
-    using NServiceBus.Features;
+    using AcceptanceTesting;
+    using Configuration.AdvanceExtensibility;
+    using EndpointTemplates;
+    using Extensibility;
+    using Features;
     using NServiceBus.Outbox;
-    using NServiceBus.Persistence;
     using NUnit.Framework;
+    using Persistence;
 
     public class When_clearing_saga_timeouts : NServiceBusAcceptanceTest
     {
@@ -18,10 +18,13 @@
         public async Task Should_record_the_request_to_clear_in_outbox()
         {
             var context = await Scenario.Define<Context>()
-            .WithEndpoint<NonDtcReceivingEndpoint>(b => b.When(bus => bus.SendLocalAsync(new PlaceOrder { DataId = Guid.NewGuid() })))
-            .AllowExceptions()
-            .Done(c => c.Done)
-            .Run();
+                .WithEndpoint<NonDtcReceivingEndpoint>(b => b.When(bus => bus.SendLocalAsync(new PlaceOrder
+                {
+                    DataId = Guid.NewGuid()
+                })))
+                .AllowExceptions()
+                .Done(c => c.Done)
+                .Run();
 
             Assert.AreEqual(2, context.NumberOfOps, "Request to clear and a done signal should be in the outbox");
         }
@@ -83,12 +86,11 @@
 
         class FakeOutbox : IOutboxStorage
         {
-            Context context;
-
             public FakeOutbox(Context context)
             {
                 this.context = context;
             }
+
             public Task<OutboxMessage> Get(string messageId, ReadOnlyContextBag options)
             {
                 return Task.FromResult(default(OutboxMessage));
@@ -110,11 +112,12 @@
                 return Task.FromResult<OutboxTransaction>(new FakeOutboxTransaction());
             }
 
+            Context context;
+
             class FakeOutboxTransaction : OutboxTransaction
             {
                 public void Dispose()
                 {
-                    
                 }
 
                 public Task Commit()

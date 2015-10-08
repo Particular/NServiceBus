@@ -2,10 +2,10 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
+    using ScenarioDescriptors;
 
     public class When_publishing_with_only_local_messagehandlers : NServiceBusAcceptanceTest
     {
@@ -47,16 +47,14 @@
         {
             public MessageDrivenPublisher()
             {
-                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) =>
-                {
-                    context.LocalEndpointSubscribed = true;
-                }))
-                .AddMapping<EventHandledByLocalEndpoint>(typeof(MessageDrivenPublisher)); //an explicit mapping is needed
+                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) => { context.LocalEndpointSubscribed = true; }))
+                    .AddMapping<EventHandledByLocalEndpoint>(typeof(MessageDrivenPublisher)); //an explicit mapping is needed
             }
 
-            class CatchAllHandler:IHandleMessages<IEvent> //not enough for auto subscribe to work
+            class CatchAllHandler : IHandleMessages<IEvent> //not enough for auto subscribe to work
             {
                 public Context Context { get; set; }
+
                 public Task Handle(IEvent message)
                 {
                     Context.CatchAllHandlerGotTheMessage = true;
@@ -81,9 +79,10 @@
                 EndpointSetup<DefaultServer>();
             }
 
-            class CatchAllHandler : IHandleMessages<IEvent> 
+            class CatchAllHandler : IHandleMessages<IEvent>
             {
                 public Context Context { get; set; }
+
                 public Task Handle(IEvent message)
                 {
                     Context.CatchAllHandlerGotTheMessage = true;
@@ -99,6 +98,7 @@
                 }
             }
         }
+
         [Serializable]
         public class EventHandledByLocalEndpoint : IEvent
         {

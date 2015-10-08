@@ -4,8 +4,8 @@ namespace NServiceBus.Settings
     using System.Configuration;
     using System.Transactions;
     using System.Transactions.Configuration;
-    using NServiceBus.ConsistencyGuarantees;
-    using NServiceBus.Unicast.Transport;
+    using ConsistencyGuarantees;
+    using Unicast.Transport;
 
     /// <summary>
     ///     Configuration class for Transaction settings.
@@ -27,7 +27,7 @@ namespace NServiceBus.Settings
             config.Settings.SetDefault("Transactions.SuppressDistributedTransactions", true);
 
             config.Settings.Set<ConsistencyGuarantee>(ConsistencyGuarantee.AtMostOnce);
-     
+
             return this;
         }
 
@@ -42,7 +42,7 @@ namespace NServiceBus.Settings
 
             return this;
         }
-              
+
         /// <summary>
         ///     Sets the isolation level of the transaction.
         /// </summary>

@@ -1,7 +1,8 @@
 ﻿namespace NServiceBus.Core.Tests.Reliability.Outbox
 {
+    using System;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
+    using Extensibility;
     using NServiceBus.Outbox;
 
     class FakeOutboxStorage : IOutboxStorage
@@ -10,7 +11,7 @@
         public OutboxMessage StoredMessage { get; set; }
 
         public bool WasDispatched { get; set; }
-        
+
         public Task<OutboxMessage> Get(string messageId, ReadOnlyContextBag options)
         {
             if (ExistingMessage != null && ExistingMessage.MessageId == messageId)
@@ -35,7 +36,7 @@
 
         public Task<OutboxTransaction> BeginTransaction(ReadOnlyContextBag context)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 }

@@ -4,13 +4,11 @@ namespace NServiceBus.Pipeline
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.Logging;
-    using NServiceBus.Unicast.Transport;
+    using Logging;
+    using Unicast.Transport;
 
     class PipelineCollection
     {
-        TransportReceiver[] pipelines;
-
         public PipelineCollection(IEnumerable<TransportReceiver> pipelines)
         {
             this.pipelines = pipelines.ToArray();
@@ -43,6 +41,8 @@ namespace NServiceBus.Pipeline
                 Logger.DebugFormat("Stopped {0} pipeline", pipeline.Id);
             }
         }
+
+        TransportReceiver[] pipelines;
 
 
         static ILog Logger = LogManager.GetLogger<PipelineCollection>();

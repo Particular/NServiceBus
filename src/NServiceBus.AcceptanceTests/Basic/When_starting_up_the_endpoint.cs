@@ -3,8 +3,8 @@
     using System;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
 
     public class When_starting_up_the_endpoint : NServiceBusAcceptanceTest
@@ -28,7 +28,6 @@
 
         class EndPoint : EndpointConfigurationBuilder
         {
-            static bool initialized;
             public EndPoint()
             {
                 if (initialized)
@@ -36,11 +35,10 @@
                     return;
                 }
                 initialized = true;
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.UseTransport<MsmqTransport>();
-                });
+                EndpointSetup<DefaultServer>(c => { c.UseTransport<MsmqTransport>(); });
             }
+
+            static bool initialized;
         }
     }
 }

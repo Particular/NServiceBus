@@ -2,9 +2,9 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Audit;
-    using NServiceBus.Features;
-    using NServiceBus.Pipeline;
+    using Audit;
+    using Features;
+    using Pipeline;
 
     class ReceiveStatisticsFeature : Feature
     {
@@ -12,6 +12,7 @@
         {
             EnableByDefault();
         }
+
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             context.Pipeline.Register("ReceivePerformanceDiagnosticsBehavior", typeof(ReceivePerformanceDiagnosticsBehavior), "Provides various performance counters for receive statistics");
@@ -25,12 +26,11 @@
     {
         public override Task Invoke(AuditContext context, Func<Task> next)
         {
-
             ProcessingStatisticsBehavior.State state;
 
             if (context.TryGet(out state))
             {
-                context.AddAuditData(Headers.ProcessingStarted,DateTimeExtensions.ToWireFormattedString(state.ProcessingStarted));
+                context.AddAuditData(Headers.ProcessingStarted, DateTimeExtensions.ToWireFormattedString(state.ProcessingStarted));
                 context.AddAuditData(Headers.ProcessingEnded, DateTimeExtensions.ToWireFormattedString(state.ProcessingEnded));
             }
 

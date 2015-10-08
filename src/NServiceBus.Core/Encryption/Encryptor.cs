@@ -5,16 +5,16 @@
     using System.Linq;
     using System.Reflection;
     using System.Text;
-    using NServiceBus.Encryption;
-    using NServiceBus.Logging;
-    using NServiceBus.ObjectBuilder;
+    using Encryption;
+    using Logging;
+    using ObjectBuilder;
 
     /// <summary>
-    /// Used to configure encryption.
+    ///     Used to configure encryption.
     /// </summary>
-    public class Encryptor:Feature
+    public class Encryptor : Feature
     {
-        Func<IBuilder, IEncryptionService> serviceConstructor;
+        static ILog log = LogManager.GetLogger<Encryptor>();
 
         internal Encryptor()
         {
@@ -43,8 +43,8 @@
             {
                 if (encryptionServiceConstructorDefined)
                 {
-                    var message = 
-@"You have configured a encryption service via either ConfigurationBuilder.RijndaelEncryptionService or ConfigurationBuilder.RegisterEncryptionService however no properties were found on type that require encryption. 
+                    var message =
+                        @"You have configured a encryption service via either ConfigurationBuilder.RijndaelEncryptionService or ConfigurationBuilder.RegisterEncryptionService however no properties were found on type that require encryption. 
 Perhaps you forgot to define your encryption message conventions or to define message properties using as WireEncryptedString.";
                     log.Warn(message);
                 }
@@ -62,7 +62,7 @@ Perhaps you forgot to define your encryption message conventions or to define me
         }
 
         /// <summary>
-        /// <see cref="Feature.Setup"/>.
+        ///     <see cref="Feature.Setup" />.
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
@@ -72,7 +72,7 @@ Perhaps you forgot to define your encryption message conventions or to define me
             context.Pipeline.Register<EncryptBehavior.EncryptRegistration>();
             context.Pipeline.Register<DecryptBehavior.DecryptRegistration>();
         }
-        static ILog log = LogManager.GetLogger<Encryptor>();
+
+        Func<IBuilder, IEncryptionService> serviceConstructor;
     }
 }
-

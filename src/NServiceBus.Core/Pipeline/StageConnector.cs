@@ -2,17 +2,17 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Unicast.Transport;
+    using Unicast.Transport;
 
     /// <summary>
-    /// Connects two stages of the pipeline.
+    ///     Connects two stages of the pipeline.
     /// </summary>
-    public abstract class StageConnector<TFrom, TTo> :IStageConnector, IBehavior<TFrom, TTo> 
+    public abstract class StageConnector<TFrom, TTo> : IStageConnector, IBehavior<TFrom, TTo>
         where TFrom : BehaviorContext
         where TTo : BehaviorContext
     {
         /// <summary>
-        /// Contains information about the pipeline this behavior is part of.
+        ///     Contains information about the pipeline this behavior is part of.
         /// </summary>
         protected PipelineInfo PipelineInfo { get; private set; }
 

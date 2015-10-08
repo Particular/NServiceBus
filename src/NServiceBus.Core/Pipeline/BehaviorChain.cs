@@ -6,7 +6,7 @@
     using System.Linq;
     using System.Threading.Tasks;
     using Janitor;
-    using NServiceBus.Pipeline;
+    using Pipeline;
 
     class BehaviorChain : IDisposable
     {
@@ -16,6 +16,10 @@
             this.notifications = notifications;
 
             itemDescriptors = behaviorList.ToArray();
+        }
+
+        public void Dispose()
+        {
         }
 
         public async Task Invoke(BehaviorContextStacker contextStacker)
@@ -55,11 +59,6 @@
                     context.Remove<PipelineDiagnostics>();
                 }
             }
-        }
-
-        public void Dispose()
-        {
-            
         }
 
         async Task<BehaviorContext> InvokeNext(BehaviorContext context, BehaviorContextStacker contextStacker, int currentIndex)
@@ -107,11 +106,12 @@
             }
         }
 
-        [SkipWeaving]
-        BusNotifications notifications;
-        [SkipWeaving]
-        BehaviorInstance[] itemDescriptors;
-        Dictionary<Type, string> lookupSteps;
         PipelineDiagnostics diagnostics;
+
+        [SkipWeaving] BehaviorInstance[] itemDescriptors;
+
+        Dictionary<Type, string> lookupSteps;
+
+        [SkipWeaving] BusNotifications notifications;
     }
 }

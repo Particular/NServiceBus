@@ -2,10 +2,10 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.Extensibility;
-    using NServiceBus.Features;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Extensibility;
+    using Features;
     using NServiceBus.Sagas;
     using NUnit.Framework;
 
@@ -16,7 +16,10 @@
         public async Task Should_be_received_by_handler()
         {
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                .WithEndpoint<SagaEndpoint>(b => b.When((bus, c) => bus.SendLocalAsync(new StartSagaMessage { Id = c.Id })))
+                .WithEndpoint<SagaEndpoint>(b => b.When((bus, c) => bus.SendLocalAsync(new StartSagaMessage
+                {
+                    Id = c.Id
+                })))
                 .Done(c => c.HandlerFired)
                 .Run();
 

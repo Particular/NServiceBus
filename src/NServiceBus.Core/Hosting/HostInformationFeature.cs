@@ -3,14 +3,12 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using NServiceBus.Hosting;
-    using NServiceBus.Support;
-    using NServiceBus.Utils;
+    using Hosting;
+    using Support;
+    using Utils;
 
     class HostInformationFeature : Feature
     {
-        internal const string HostIdSettingsKey = "NServiceBus.HostInformation.HostId";
-
         public HostInformationFeature()
         {
             EnableByDefault();
@@ -32,11 +30,12 @@
                 });
             });
         }
+
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             var hostInformation = new HostInformation(context.Settings.Get<Guid>(HostIdSettingsKey),
-                        context.Settings.Get<string>("NServiceBus.HostInformation.DisplayName"),
-                        context.Settings.Get<Dictionary<string, string>>("NServiceBus.HostInformation.Properties"));
+                context.Settings.Get<string>("NServiceBus.HostInformation.DisplayName"),
+                context.Settings.Get<Dictionary<string, string>>("NServiceBus.HostInformation.Properties"));
 
             context.Container.RegisterSingleton(hostInformation);
 
@@ -46,5 +45,7 @@
             context.Container.ConfigureComponent(b => new AddHostInfoHeadersBehavior(hostInformation, context.Settings.EndpointName()), DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent(b => new AuditHostInformationBehavior(hostInformation, context.Settings.EndpointName()), DependencyLifecycle.SingleInstance);
         }
+
+        internal const string HostIdSettingsKey = "NServiceBus.HostInformation.HostId";
     }
 }

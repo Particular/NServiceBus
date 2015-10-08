@@ -3,9 +3,9 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.MessageMutator;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using MessageMutator;
     using NUnit.Framework;
 
     public class When_mutating : NServiceBusAcceptanceTest
@@ -14,10 +14,10 @@
         public async Task Context_should_be_populated()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<Sender>(b => b.When((bus, c) => bus.SendAsync(new StartMessage())))
-                    .WithEndpoint<Receiver>()
-                    .Done(c => c.WasCalled)
-                    .Run(TimeSpan.FromHours(1));
+                .WithEndpoint<Sender>(b => b.When((bus, c) => bus.SendAsync(new StartMessage())))
+                .WithEndpoint<Receiver>()
+                .Done(c => c.WasCalled)
+                .Run(TimeSpan.FromHours(1));
 
             Assert.True(context.WasCalled, "The message handler should be called");
         }
@@ -46,8 +46,6 @@
 
             public class StartMessageHandler : IHandleMessages<StartMessage>
             {
-                IBus bus;
-
                 public StartMessageHandler(IBus bus)
                 {
                     this.bus = bus;
@@ -57,22 +55,27 @@
                 {
                     return bus.SendLocalAsync(new LoopMessage());
                 }
+
+                IBus bus;
             }
+
             public class LoopMessageHandler : IHandleMessages<LoopMessage>
             {
-                Context testContext;
                 public LoopMessageHandler(Context testContext)
                 {
                     this.testContext = testContext;
                 }
+
                 public Task Handle(LoopMessage message)
                 {
                     testContext.WasCalled = true;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
 
-            public class Mutator:
+            public class Mutator :
                 IMutateIncomingMessages,
                 IMutateIncomingTransportMessages,
                 IMutateOutgoingMessages,
@@ -123,9 +126,9 @@
         public class StartMessage : IMessage
         {
         }
+
         public class LoopMessage : IMessage
         {
         }
     }
-
 }

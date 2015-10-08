@@ -3,20 +3,18 @@ namespace NServiceBus.Core.Tests.Timeout
     using System;
     using System.Linq;
     using System.Threading.Tasks;
+    using Extensibility;
     using InMemory.TimeoutPersister;
-    using NServiceBus.Extensibility;
     using NServiceBus.Timeout.Core;
     using NUnit.Framework;
 
     [TestFixture]
     public class When_fetching_timeouts_from_storage_with_inMemory
     {
-        InMemoryTimeoutPersister persister;
- 
         [SetUp]
         public void Setup()
         {
-             persister = new InMemoryTimeoutPersister();
+            persister = new InMemoryTimeoutPersister();
         }
 
         [Test]
@@ -67,7 +65,7 @@ namespace NServiceBus.Core.Tests.Timeout
             await persister.Add(new TimeoutData
             {
                 Time = expected,
-                OwningTimeoutManager = string.Empty,
+                OwningTimeoutManager = string.Empty
             }, new ContextBag());
 
             var nextChunk = await GetNextChunk();
@@ -81,5 +79,7 @@ namespace NServiceBus.Core.Tests.Timeout
         {
             return persister.GetNextChunk(DateTime.UtcNow.AddYears(-3));
         }
+
+        InMemoryTimeoutPersister persister;
     }
 }

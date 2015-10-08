@@ -2,12 +2,12 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
+    using Features;
     using Logging;
-    using NServiceBus.Features;
-    using NServiceBus.Settings;
     using Pipeline;
     using Pipeline.Contexts;
     using Recoverability.FirstLevelRetries;
+    using Settings;
 
     class FirstLevelRetriesBehavior : Behavior<TransportReceiveContext>
     {
@@ -54,11 +54,10 @@ namespace NServiceBus
             }
         }
 
-        FlrStatusStorage storage;
-        FirstLevelRetryPolicy retryPolicy;
         BusNotifications notifications;
+        FirstLevelRetryPolicy retryPolicy;
 
-        static ILog Logger = LogManager.GetLogger<FirstLevelRetriesBehavior>();
+        FlrStatusStorage storage;
 
         public class Registration : RegisterStep
         {
@@ -71,5 +70,7 @@ namespace NServiceBus
                 return settings.IsFeatureActive(typeof(FirstLevelRetries));
             }
         }
+
+        static ILog Logger = LogManager.GetLogger<FirstLevelRetriesBehavior>();
     }
 }

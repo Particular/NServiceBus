@@ -2,11 +2,11 @@
 {
     using System;
     using System.Collections.Generic;
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.Pipeline.Contexts;
+    using Contexts;
+    using ObjectBuilder;
 
     /// <summary>
-    /// A stack of <see cref="BehaviorContext"/>s.
+    ///     A stack of <see cref="BehaviorContext" />s.
     /// </summary>
     class BehaviorContextStacker : IDisposable
     {
@@ -21,7 +21,7 @@
         }
 
         /// <summary>
-        /// The current <see cref="BehaviorContext"/> at the top of the stack.
+        ///     The current <see cref="BehaviorContext" /> at the top of the stack.
         /// </summary>
         BehaviorContext Current
         {
@@ -37,7 +37,14 @@
         }
 
         /// <summary>
-        /// Retrieves either the <see cref="Current"/> context or, of it is null, the root context.
+        ///     <see cref="IDisposable.Dispose" />.
+        /// </summary>
+        public void Dispose()
+        {
+        }
+
+        /// <summary>
+        ///     Retrieves either the <see cref="Current" /> context or, of it is null, the root context.
         /// </summary>
         public BehaviorContext GetCurrentOrRootContext()
         {
@@ -51,7 +58,7 @@
         }
 
         /// <summary>
-        /// Pushes a new <see cref="BehaviorContext"/> onto the stack.
+        ///     Pushes a new <see cref="BehaviorContext" /> onto the stack.
         /// </summary>
         public void Push(BehaviorContext item)
         {
@@ -59,18 +66,11 @@
         }
 
         /// <summary>
-        /// Removes the top <see cref="BehaviorContext"/> from the stack.
+        ///     Removes the top <see cref="BehaviorContext" /> from the stack.
         /// </summary>
         public void Pop()
         {
             behaviorContextStack.Pop();
-        }
-
-        /// <summary>
-        /// <see cref="IDisposable.Dispose"/>.
-        /// </summary>
-        public void Dispose()
-        {
         }
 
         Stack<BehaviorContext> behaviorContextStack = new Stack<BehaviorContext>();

@@ -3,14 +3,14 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.DelayedDelivery;
-    using NServiceBus.DelayedDelivery.TimeoutManager;
-    using NServiceBus.DeliveryConstraints;
+    using DelayedDelivery;
+    using DelayedDelivery.TimeoutManager;
+    using DeliveryConstraints;
     using NServiceBus.Performance.TimeToBeReceived;
     using NServiceBus.Routing;
-    using NServiceBus.TransportDispatch;
-    using NServiceBus.Transports;
     using NUnit.Framework;
+    using TransportDispatch;
+    using Transports;
 
     class RouteDeferredMessageToTimeoutManagerBehaviorTests
     {
@@ -27,7 +27,7 @@
 
             await behavior.Invoke(context, () => Task.FromResult(0));
 
-            Assert.AreEqual("tm", ((DirectToTargetDestination)context.RoutingStrategy).Destination);
+            Assert.AreEqual("tm", ((DirectToTargetDestination) context.RoutingStrategy).Destination);
 
             Assert.AreEqual(message.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo], "target");
         }
@@ -65,6 +65,7 @@
 
             Assert.True(ex.Message.Contains("TimeToBeReceived"));
         }
+
         [Test]
         public async Task Should_set_the_expiry_header_to_a_absolute_utc_time_calculated_based_on_delay()
         {

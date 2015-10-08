@@ -4,14 +4,11 @@
     using System.Diagnostics;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.Unicast.Transport;
+    using Unicast.Transport;
 
     [DebuggerDisplay("{Type.Name}")]
     class BehaviorInstance
     {
-        IBehavior instance;
-        IBehaviorInvoker invoker;
-
         public BehaviorInstance(Type behaviorType, IBehavior instance)
         {
             this.instance = instance;
@@ -19,14 +16,14 @@
             invoker = CreateInvoker(Type);
         }
 
+        public Type Type { get; }
+
         static IBehaviorInvoker CreateInvoker(Type type)
         {
             var behaviorInterface = type.GetInterfaces().First(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IBehavior<,>));
             var invokerType = typeof(BehaviorInvoker<,>).MakeGenericType(behaviorInterface.GetGenericArguments());
             return (IBehaviorInvoker) Activator.CreateInstance(invokerType);
         }
-
-        public Type Type { get; }
 
         public Task Invoke(BehaviorContext context, Func<BehaviorContext, Task> next)
         {
@@ -47,5 +44,8 @@
         {
             return instance.Warmup();
         }
+
+        IBehavior instance;
+        IBehaviorInvoker invoker;
     }
 }

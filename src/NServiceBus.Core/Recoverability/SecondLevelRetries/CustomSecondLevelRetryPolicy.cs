@@ -1,12 +1,10 @@
 namespace NServiceBus.Recoverability.SecondLevelRetries
 {
     using System;
-    using NServiceBus.Transports;
+    using Transports;
 
     class CustomSecondLevelRetryPolicy : SecondLevelRetryPolicy
     {
-        Func<IncomingMessage, TimeSpan> customRetryPolicy;
-
         public CustomSecondLevelRetryPolicy(Func<IncomingMessage, TimeSpan> customRetryPolicy)
         {
             this.customRetryPolicy = customRetryPolicy;
@@ -18,5 +16,7 @@ namespace NServiceBus.Recoverability.SecondLevelRetries
 
             return delay != TimeSpan.Zero;
         }
+
+        Func<IncomingMessage, TimeSpan> customRetryPolicy;
     }
 }

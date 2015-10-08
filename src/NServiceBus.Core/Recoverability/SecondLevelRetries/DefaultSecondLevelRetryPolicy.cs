@@ -1,14 +1,11 @@
 namespace NServiceBus.Recoverability.SecondLevelRetries
 {
     using System;
-    using NServiceBus.Transports;
+    using Transports;
 
-    class DefaultSecondLevelRetryPolicy:SecondLevelRetryPolicy
+    class DefaultSecondLevelRetryPolicy : SecondLevelRetryPolicy
     {
-        int maxRetries;
-        TimeSpan timeIncrease;
-
-        public DefaultSecondLevelRetryPolicy(int maxRetries,TimeSpan timeIncrease)
+        public DefaultSecondLevelRetryPolicy(int maxRetries, TimeSpan timeIncrease)
         {
             this.maxRetries = maxRetries;
             this.timeIncrease = timeIncrease;
@@ -28,7 +25,7 @@ namespace NServiceBus.Recoverability.SecondLevelRetries
                 return false;
             }
 
-            delay = TimeSpan.FromTicks(timeIncrease.Ticks * currentRetry);
+            delay = TimeSpan.FromTicks(timeIncrease.Ticks*currentRetry);
 
             return true;
         }
@@ -42,7 +39,7 @@ namespace NServiceBus.Recoverability.SecondLevelRetries
                 return false;
             }
 
-            
+
             if (string.IsNullOrEmpty(timestampHeader))
             {
                 return false;
@@ -68,7 +65,10 @@ namespace NServiceBus.Recoverability.SecondLevelRetries
             return false;
         }
 
-        
+        int maxRetries;
+        TimeSpan timeIncrease;
+
+
         public static int DefaultNumberOfRetries = 3;
         public static TimeSpan DefaultTimeIncrease = TimeSpan.FromSeconds(10);
     }

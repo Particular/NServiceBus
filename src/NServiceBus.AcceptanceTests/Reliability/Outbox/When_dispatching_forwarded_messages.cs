@@ -3,25 +3,24 @@
     using System;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using AcceptanceTesting;
+    using Configuration.AdvanceExtensibility;
+    using EndpointTemplates;
     using NServiceBus.Config;
-    using NServiceBus.Configuration.AdvanceExtensibility;
-    using NServiceBus.Pipeline;
     using NUnit.Framework;
+    using Pipeline;
 
     public class When_dispatching_forwarded_messages : NServiceBusAcceptanceTest
     {
-
         [Test]
         public async Task Should_be_dispatched_immediately()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<EndpointWithAuditOn>(b => b.When(bus => bus.SendLocalAsync(new MessageToBeForwarded())))
-                    .WithEndpoint<ForwardingSpyEndpoint>()
-                    .AllowSimulatedExceptions()
-                    .Done(c => c.Done)
-                    .Run();
+                .WithEndpoint<EndpointWithAuditOn>(b => b.When(bus => bus.SendLocalAsync(new MessageToBeForwarded())))
+                .WithEndpoint<ForwardingSpyEndpoint>()
+                .AllowSimulatedExceptions()
+                .Done(c => c.Done)
+                .Run();
 
             Assert.True(context.Done);
         }
@@ -42,12 +41,14 @@
                         b.EnableOutbox();
                         b.Pipeline.Register("BlowUpAfterDispatchBehavior", typeof(BlowUpAfterDispatchBehavior), "For testing");
                     })
-                     .WithConfig<UnicastBusConfig>(c => c.ForwardReceivedMessagesTo = "forward_receiver_outbox");
+                    .WithConfig<UnicastBusConfig>(c => c.ForwardReceivedMessagesTo = "forward_receiver_outbox");
             }
 
             class BlowUpAfterDispatchBehavior : Behavior<BatchDispatchContext>
             {
-                public async override Task Invoke(BatchDispatchContext context, Func<Task> next)
+                static bool called;
+
+                public override async Task Invoke(BatchDispatchContext context, Func<Task> next)
                 {
                     if (!context.Operations.Any(op => op.Message.Headers[Headers.EnclosedMessageTypes].Contains(typeof(MessageToBeForwarded).Name)))
                     {
@@ -67,8 +68,6 @@
 
                     throw new SimulatedException();
                 }
-
-                static bool called;
             }
 
 

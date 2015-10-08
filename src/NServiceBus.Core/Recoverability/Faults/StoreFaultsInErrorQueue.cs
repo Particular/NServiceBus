@@ -1,10 +1,10 @@
 namespace NServiceBus.Features
 {
-    using NServiceBus.Faults;
-    using NServiceBus.Hosting;
-    using NServiceBus.Pipeline;
-    using NServiceBus.TransportDispatch;
-    using NServiceBus.Transports;
+    using Faults;
+    using Hosting;
+    using Pipeline;
+    using TransportDispatch;
+    using Transports;
 
     class StoreFaultsInErrorQueue : Feature
     {
@@ -16,7 +16,6 @@ namespace NServiceBus.Features
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-
             var errorQueue = ErrorQueueSettings.GetConfiguredErrorQueue(context.Settings);
 
             context.Container.ConfigureComponent(b =>
@@ -37,7 +36,5 @@ namespace NServiceBus.Features
 
             context.Pipeline.Register<MoveFaultsToErrorQueueBehavior.Registration>();
         }
-
-
     }
 }

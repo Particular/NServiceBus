@@ -1,15 +1,15 @@
 namespace NServiceBus.Features
 {
-    using NServiceBus.MessagingBestPractices;
-    using NServiceBus.Pipeline;
+    using MessagingBestPractices;
+    using Pipeline;
 
     /// <summary>
-    /// Makes sure that messaging best practices are followed.
+    ///     Makes sure that messaging best practices are followed.
     /// </summary>
     public class BestPracticeEnforcement : Feature
     {
         /// <summary>
-        /// Initializes a new instance of <see cref="BestPracticeEnforcement"/>.
+        ///     Initializes a new instance of <see cref="BestPracticeEnforcement" />.
         /// </summary>
         internal BestPracticeEnforcement()
         {
@@ -17,7 +17,7 @@ namespace NServiceBus.Features
         }
 
         /// <summary>
-        /// Initializes the feature.
+        ///     Initializes the feature.
         /// </summary>
         /// <param name="context">The feature context.</param>
         protected internal override void Setup(FeatureConfigurationContext context)
@@ -49,6 +49,5 @@ namespace NServiceBus.Features
                 typeof(EnforceUnsubscribeBestPracticesBehavior),
                 "Enforces unsubscribe messaging best practices");
         }
-
     }
 }
