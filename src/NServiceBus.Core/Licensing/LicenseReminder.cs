@@ -1,6 +1,7 @@
 namespace NServiceBus.Features
 {
     using System;
+    using System.Diagnostics;
     using Logging;
     using NServiceBus.Licensing;
 
@@ -19,18 +20,23 @@ namespace NServiceBus.Features
 
                 var licenseExpired = LicenseManager.HasLicenseExpired();
 
-                context.Pipeline.Register<NotifyOnInvalidLicenseBehavior.Registration>();
+                if (!licenseExpired)
+                {
+                    return;
+                }
 
-                context.Container.ConfigureComponent(b => new NotifyOnInvalidLicenseBehavior(licenseExpired),DependencyLifecycle.SingleInstance);
+                context.Pipeline.Register("LicenseReminder", typeof(AuditInvalidLicenseBehavior), "Audits that the message was processed by an endpoint with an expired license");
 
+                if (Debugger.IsAttached)
+                {
+                    context.Pipeline.Register("LogErrorOnInvalidLicense", typeof(LogErrorOnInvalidLicenseBehavior), "Logs an error when running in debug mode with an expired license");
+                }
             }
             catch (Exception ex)
             {
                 //we only log here to prevent licensing issue to abort startup and cause production outages
                 Logger.Fatal("Failed to initialize the license", ex);
             }
-
-
         }
 
         static ILog Logger = LogManager.GetLogger<LicenseReminder>();

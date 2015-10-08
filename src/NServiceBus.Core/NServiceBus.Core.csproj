@@ -104,6 +104,7 @@
     <Compile Include="ISendOnlyBusExtensions_obsoletes.cs" />
     <Compile Include="IStartableBusExtensions_obsoletes.cs" />
     <Compile Include="IWantToRunWhenBusStartsAndStopsExtensions_obsoletes.cs" />
+    <Compile Include="Licensing\LogErrorOnInvalidLicenseBehavior.cs" />
     <Compile Include="Persistence\InMemory\Outbox\InMemoryOutboxTransaction.cs" />
     <Compile Include="Pipeline\Incoming\InvokeHandlerContext.cs" />
     <Compile Include="Pipeline\Incoming\LogicalMessageProcessingContext.cs" />
@@ -452,7 +453,7 @@
     <Compile Include="Utils\ElevateChecker.cs" />
     <Compile Include="IStartableBus.cs" />
     <Compile Include="IWantToRunWhenBusStartsAndStops.cs" />
-    <Compile Include="Licensing\NotifyOnInvalidLicenseBehavior.cs" />
+    <Compile Include="Licensing\AuditInvalidLicenseBehavior.cs" />
     <Compile Include="Licensing\LicenseReminder.cs" />
     <Compile Include="Licensing\LicenseLocationConventions.cs" />
     <Compile Include="Licensing\NonLockingFileReader.cs" />
