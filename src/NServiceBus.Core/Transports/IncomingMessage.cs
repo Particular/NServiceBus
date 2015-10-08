@@ -54,6 +54,8 @@ namespace NServiceBus.Transports
             else
             {
                 MessageId = messageId;
+
+                headers[NServiceBus.Headers.MessageId] = messageId;
             }
 
 

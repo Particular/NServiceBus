@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.MessageId
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
@@ -19,6 +20,7 @@
                     .Run();
 
             Assert.IsFalse(string.IsNullOrWhiteSpace(context.MessageId));
+            Assert.AreEqual(context.MessageId, context.Headers[Headers.MessageId], "Should populate the NServiceBus.MessageId header with the new value");
         }
 
         public class CorruptionBehavior : Behavior<DispatchContext>
@@ -37,6 +39,7 @@
         {
             public bool MessageReceived { get; set; }
             public string MessageId { get; set; }
+            public IDictionary<string, string> Headers { get; set; }
         }
 
         public class Endpoint : EndpointConfigurationBuilder
@@ -54,6 +57,7 @@
                 public Task Handle(Message message)
                 {
                     Context.MessageId = Bus.CurrentMessageContext.Id;
+                    Context.Headers = Bus.CurrentMessageContext.Headers;
                     Context.MessageReceived = true;
 
                     return Task.FromResult(0);
