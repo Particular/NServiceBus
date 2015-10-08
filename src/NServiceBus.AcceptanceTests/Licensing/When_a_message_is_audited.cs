@@ -1,5 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Licensing
 {
+    using System.Diagnostics;
+    using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -17,6 +19,11 @@
                     .Run();
 
             Assert.IsTrue(context.HasDiagnosticLicensingHeaders);
+
+            if (Debugger.IsAttached)
+            {
+                Assert.True(context.Logs.Any(m => m.Level == "error" && m.Message.StartsWith("Your license has expired")), "Error should be logged");
+            }
         }
 
 
@@ -30,7 +37,7 @@
         {
             public EndpointWithAuditOn()
             {
-                EndpointSetup<DefaultServer>(c=>c.License(ExpiredLicense))
+                EndpointSetup<DefaultServer>(c => c.License(ExpiredLicense))
                     .AuditTo<AuditSpyEndpoint>();
             }
 
@@ -49,7 +56,7 @@
             {
                 EndpointSetup<DefaultServer>();
             }
-            
+
             public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
             {
                 public Context Context { get; set; }
@@ -72,7 +79,7 @@
         {
         }
 
-       static string ExpiredLicense = @"<?xml version=""1.0"" encoding=""utf-8""?>
+        static string ExpiredLicense = @"<?xml version=""1.0"" encoding=""utf-8""?>
 <license id = ""b13ba7a3-5fe8-4745-a041-2d6a9f7462cf"" expiration=""2015-03-18T00:00:00.0000000"" type=""Subscription"" Applications=""All"" NumberOfNodes=""4"" UpgradeProtectionExpiration=""2015-03-18"">
   <name>Ultimate Test</name>
   <Signature xmlns = ""http://www.w3.org/2000/09/xmldsig#"">
