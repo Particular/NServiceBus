@@ -518,7 +518,6 @@
     <Compile Include="Serialization\SerializeMessageConnector.cs" />
     <Compile Include="Pipeline\Outgoing\OutgoingPhysicalToRoutingConnector.cs" />
     <Compile Include="Pipeline\MutateInstanceMessage\MutateOutgoingMessageBehavior.cs" />
-    <Compile Include="Pipeline\MutateTransportMessage\MutateOutgoingTransportMessageBehavior.cs" />
     <Compile Include="Pipeline\PipelineBase.cs" />
     <Compile Include="Pipeline\RootContext.cs" />
     <Compile Include="Routing\MessagingBestPractices\EnforceSendBestPracticesBehavior.cs" />

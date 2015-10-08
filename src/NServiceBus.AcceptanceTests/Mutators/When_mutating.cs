@@ -105,17 +105,16 @@
                     return Task.FromResult(0);
                 }
 
-                public Task MutateOutgoing(MutateOutgoingTransportMessageContext context)
+                public void MutateOutgoing(MutateOutgoingTransportMessageContext context)
                 {
-                    Assert.IsNotEmpty(context.OutgoingHeaders);
-                    Assert.IsNotNull(context.OutgoingBody);
-                    IReadOnlyDictionary<string, string> incomingHeaders;
+                    //todo
+                    //Assert.IsNotEmpty(context.OutgoingHeaders);
+                     IReadOnlyDictionary<string, string> incomingHeaders;
                     context.TryGetIncomingHeaders(out incomingHeaders);
                     object incomingmessage;
                     context.TryGetIncomingMessage(out incomingmessage);
                     Assert.IsNotEmpty(incomingHeaders);
                     Assert.IsNotNull(incomingmessage);
-                    return Task.FromResult(0);
                 }
             }
         }

@@ -70,10 +70,10 @@
                     return Task.FromResult(0);
                 }
 
-                public Task MutateOutgoing(MutateOutgoingTransportMessageContext context)
+                public void MutateOutgoing(MutateOutgoingTransportMessageContext context)
                 {
-                    context.OutgoingBody[0]--;
-                    return Task.FromResult(0);
+                    //todo
+                    //context.OutgoingBody[0]--;
                 }
             }
 

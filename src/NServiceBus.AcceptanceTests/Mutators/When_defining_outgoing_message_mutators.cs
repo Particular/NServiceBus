@@ -49,10 +49,9 @@
                 {
                     this.testContext = testContext;
                 }
-                public Task MutateOutgoing(MutateOutgoingTransportMessageContext context)
+                public void MutateOutgoing(MutateOutgoingTransportMessageContext context)
                 {
                     testContext.TransportMutatorCalled = true;
-                    return Task.FromResult(0);
                 }
 
             }
