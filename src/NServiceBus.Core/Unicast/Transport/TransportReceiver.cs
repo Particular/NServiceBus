@@ -3,9 +3,11 @@ namespace NServiceBus.Unicast.Transport
     using System;
     using System.Threading.Tasks;
     using NServiceBus.Logging;
+    using NServiceBus.MessageInterfaces;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Settings;
     using NServiceBus.Transports;
 
     /// <summary>
@@ -70,15 +72,15 @@ namespace NServiceBus.Unicast.Transport
             using (var childBuilder = builder.CreateChildBuilder())
             {
                 var configurer = (IConfigureComponents)childBuilder;
-                var behaviorContextStacker = new BehaviorContextStacker(childBuilder);
-                configurer.RegisterSingleton(behaviorContextStacker);
-                configurer.ConfigureComponent<ContextualBus>(DependencyLifecycle.SingleInstance);
 
-                var context = new TransportReceiveContext(pushContext.Message, behaviorContextStacker.Root);
+                var context = new TransportReceiveContext(pushContext.Message, new RootContext(childBuilder));
 
                 context.Merge(pushContext.Context);
 
-                await pipeline.Invoke(context).ConfigureAwait(false);
+                var contextStacker = new BehaviorContextStacker(context);
+                var contextualBus = new ContextualBus(contextStacker, childBuilder.Build<IMessageMapper>(), childBuilder, childBuilder.Build<ReadOnlySettings>());
+                configurer.ConfigureComponent<IBus>(c => contextualBus, DependencyLifecycle.SingleInstance);
+                await pipeline.Invoke(contextStacker).ConfigureAwait(false);
             }
         }
 
