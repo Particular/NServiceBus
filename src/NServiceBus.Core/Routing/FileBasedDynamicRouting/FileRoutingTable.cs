@@ -63,33 +63,41 @@ namespace NServiceBus.Routing
 
         void UpdateMapping(string queueName, bool startMonitor)
         {
-            if (Monitor.TryEnter(string.Intern(queueName)))
+            try
             {
-                var fileName = $"{queueName}.txt";
-                var filePath = Path.Combine(basePath, fileName);
-
-                logger.InfoFormat("Refreshing routes for '{0}' from '{1}'", queueName, filePath);
-
-                if (startMonitor)
+                if (Monitor.TryEnter(string.Intern(queueName)))
                 {
-                    logger.InfoFormat("Monitoring '{0}' for changes.", queueName);
+                    var fileName = $"{queueName}.txt";
+                    var filePath = Path.Combine(basePath, fileName);
 
-                    StartMonitoring(basePath, queueName, fileName);
+                    logger.InfoFormat("Refreshing routes for '{0}' from '{1}'", queueName, filePath);
+
+                    if (startMonitor)
+                    {
+                        logger.InfoFormat("Monitoring '{0}' for changes.", queueName);
+
+                        StartMonitoring(basePath, queueName, fileName);
+                    }
+
+                    if (!File.Exists(filePath))
+                    {
+                        logger.DebugFormat("No file found for '{0}'.", queueName);
+
+                        routeMapping[queueName] = new CacheRoute(new string[0]);
+                        return;
+                    }
+
+                    logger.DebugFormat("Reading '{0}' file.", fileName);
+
+                    routeMapping[queueName] = new CacheRoute(ReadAllLinesWithoutLocking(filePath).ToArray());
+
+                    logger.DebugFormat("Routing updated for {0}.", queueName);
                 }
 
-                if (!File.Exists(filePath))
-                {
-                    logger.DebugFormat("No file found for '{0}'.", queueName);
-
-                    routeMapping[queueName] = new CacheRoute(new string[0]);
-                    return;
-                }
-
-                logger.DebugFormat("Reading '{0}' file.", fileName);
-
-                routeMapping[queueName] = new CacheRoute(ReadAllLinesWithoutLocking(filePath).ToArray());
-
-                logger.DebugFormat("Routing updated for {0}.", queueName);
+            }
+            finally
+            {
+                Monitor.Exit(string.Intern(queueName));
             }
         }
 
