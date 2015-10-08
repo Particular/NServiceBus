@@ -316,7 +316,7 @@ namespace NServiceBus
     }
     public class static FileBasedRoutingConfigurationExtensions
     {
-        public static NServiceBus.FileRoutingTableSettings EnableAutoRefreshFileBasedRoutingTable(this NServiceBus.RoutingSettings config) { }
+        public static NServiceBus.FileRoutingTableSettings UseFileBasedEndpointInstanceLists(this NServiceBus.RoutingSettings config) { }
     }
     public class FileRoutingTableSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
@@ -741,9 +741,9 @@ namespace NServiceBus
     }
     public class RoutingSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
-        public NServiceBus.Routing.DirectRoutingTable DirectRoutingTable { get; }
         public NServiceBus.Routing.DistributionPolicy DistributionPolicy { get; }
-        public NServiceBus.Routing.KnownEndpoints KnownEndpoints { get; }
+        public NServiceBus.Routing.EndpointInstances EndpointInstances { get; }
+        public NServiceBus.Routing.UnicastRoutingTable UnicastRoutingTable { get; }
     }
     public class static RoutingSettingsExtensions
     {
@@ -2082,36 +2082,18 @@ namespace NServiceBus.Pipeline.Contexts
 }
 namespace NServiceBus.Routing
 {
-    public abstract class AddressLabel
+    public abstract class AddressTag
     {
-        protected AddressLabel() { }
+        protected AddressTag() { }
     }
     public class AllInstancesDistributionStrategy : NServiceBus.Routing.DistributionStrategy
     {
         public AllInstancesDistributionStrategy() { }
         public override System.Collections.Generic.IEnumerable<NServiceBus.EndpointInstanceName> SelectDestination(System.Collections.Generic.IEnumerable<NServiceBus.EndpointInstanceName> allInstances) { }
     }
-    public class DirectAddressLabel : NServiceBus.Routing.AddressLabel
-    {
-        public DirectAddressLabel(string destination) { }
-        public string Destination { get; }
-    }
-    public class DirectRoutingDestination
-    {
-        public DirectRoutingDestination(NServiceBus.EndpointName endpointName) { }
-        public DirectRoutingDestination(NServiceBus.EndpointInstanceName instanceName) { }
-        public DirectRoutingDestination(string physicalAddress) { }
-    }
-    public class DirectRoutingTable
-    {
-        public DirectRoutingTable() { }
-        public void AddDynamic(System.Func<System.Type, NServiceBus.Extensibility.ContextBag, System.Collections.Generic.IEnumerable<NServiceBus.Routing.DirectRoutingDestination>> dynamicRule) { }
-        public void AddStatic(System.Type messageType, NServiceBus.EndpointName destination) { }
-        public void AddStatic(System.Type messageType, NServiceBus.EndpointInstanceName destination) { }
-        public void AddStatic(System.Type messageType, string destinationAddress) { }
-    }
     public class DistributionPolicy
     {
+        public DistributionPolicy() { }
         public void SetDistributionStrategy(NServiceBus.Routing.DistributionStrategy distributionStrategy, System.Func<System.Type, bool> typeMatchingRule) { }
     }
     public abstract class DistributionStrategy
@@ -2119,27 +2101,27 @@ namespace NServiceBus.Routing
         protected DistributionStrategy() { }
         public abstract System.Collections.Generic.IEnumerable<NServiceBus.EndpointInstanceName> SelectDestination(System.Collections.Generic.IEnumerable<NServiceBus.EndpointInstanceName> allInstances);
     }
-    public class IndirectAddressLabel : NServiceBus.Routing.AddressLabel
+    public class EndpointInstances
     {
-        public IndirectAddressLabel(System.Type messageType) { }
-        public System.Type MessageType { get; }
-    }
-    public class KnownEndpoints
-    {
-        public KnownEndpoints() { }
+        public EndpointInstances() { }
         public void AddDynamic(System.Func<NServiceBus.EndpointName, System.Collections.Generic.IEnumerable<NServiceBus.EndpointInstanceName>> dynamicRule) { }
         public void AddStatic(NServiceBus.EndpointName endpoint, params NServiceBus.EndpointInstanceName[] instances) { }
         public void AddStaticUsingTransportDiscriminators(NServiceBus.EndpointName endpoint, params string[] transportDiscriminators) { }
     }
+    public class MulticastAddressTag : NServiceBus.Routing.AddressTag
+    {
+        public MulticastAddressTag(System.Type messageType) { }
+        public System.Type MessageType { get; }
+    }
     public class MulticastRoutingStrategy : NServiceBus.Routing.RoutingStrategy
     {
         public MulticastRoutingStrategy(System.Type messageType) { }
-        public override NServiceBus.Routing.AddressLabel Apply(System.Collections.Generic.Dictionary<string, string> headers) { }
+        public override NServiceBus.Routing.AddressTag Apply(System.Collections.Generic.Dictionary<string, string> headers) { }
     }
     public abstract class RoutingStrategy
     {
         protected RoutingStrategy() { }
-        public abstract NServiceBus.Routing.AddressLabel Apply(System.Collections.Generic.Dictionary<string, string> headers);
+        public abstract NServiceBus.Routing.AddressTag Apply(System.Collections.Generic.Dictionary<string, string> headers);
     }
     public class SingleInstanceRoundRobinDistributionStrategy : NServiceBus.Routing.DistributionStrategy
     {
@@ -2152,10 +2134,29 @@ namespace NServiceBus.Routing
         public SubscribeContext(NServiceBus.Pipeline.BehaviorContext parentContext, System.Type eventType, NServiceBus.SubscribeOptions options) { }
         public System.Type EventType { get; }
     }
+    public class UnicastAddressTag : NServiceBus.Routing.AddressTag
+    {
+        public UnicastAddressTag(string destination) { }
+        public string Destination { get; }
+    }
+    public class UnicastRoutingDestination
+    {
+        public UnicastRoutingDestination(NServiceBus.EndpointName endpointName) { }
+        public UnicastRoutingDestination(NServiceBus.EndpointInstanceName instanceName) { }
+        public UnicastRoutingDestination(string physicalAddress) { }
+    }
     public class UnicastRoutingStrategy : NServiceBus.Routing.RoutingStrategy
     {
         public UnicastRoutingStrategy(string destination) { }
-        public override NServiceBus.Routing.AddressLabel Apply(System.Collections.Generic.Dictionary<string, string> headers) { }
+        public override NServiceBus.Routing.AddressTag Apply(System.Collections.Generic.Dictionary<string, string> headers) { }
+    }
+    public class UnicastRoutingTable
+    {
+        public UnicastRoutingTable() { }
+        public void AddDynamic(System.Func<System.Type, NServiceBus.Extensibility.ContextBag, System.Collections.Generic.IEnumerable<NServiceBus.Routing.UnicastRoutingDestination>> dynamicRule) { }
+        public void AddStatic(System.Type messageType, NServiceBus.EndpointName destination) { }
+        public void AddStatic(System.Type messageType, NServiceBus.EndpointInstanceName destination) { }
+        public void AddStatic(System.Type messageType, string destinationAddress) { }
     }
     public class UnsubscribeContext : NServiceBus.Pipeline.BehaviorContext
     {
@@ -2512,8 +2513,8 @@ namespace NServiceBus.Transports
     }
     public class DispatchOptions
     {
-        public DispatchOptions(NServiceBus.Routing.AddressLabel addressLabel, NServiceBus.Transports.DispatchConsistency requiredDispatchConsistency, System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints = null) { }
-        public NServiceBus.Routing.AddressLabel AddressLabel { get; }
+        public DispatchOptions(NServiceBus.Routing.AddressTag addressTag, NServiceBus.Transports.DispatchConsistency requiredDispatchConsistency, System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints = null) { }
+        public NServiceBus.Routing.AddressTag AddressTag { get; }
         public System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> DeliveryConstraints { get; }
         public NServiceBus.Transports.DispatchConsistency RequiredDispatchConsistency { get; set; }
     }
