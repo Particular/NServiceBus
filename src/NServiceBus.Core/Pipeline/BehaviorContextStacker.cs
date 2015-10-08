@@ -2,18 +2,22 @@
 {
     using System;
     using System.Collections.Generic;
+    using NServiceBus.ObjectBuilder;
+    using NServiceBus.Pipeline.Contexts;
 
     /// <summary>
     /// A stack of <see cref="BehaviorContext"/>s.
     /// </summary>
     class BehaviorContextStacker : IDisposable
     {
-        /// <summary>
-        /// Initializes a new instance of <see cref="BehaviorContextStacker"/>.
-        /// </summary>
         public BehaviorContextStacker(BehaviorContext rootContext)
         {
             this.rootContext = rootContext;
+        }
+
+        public BehaviorContextStacker(IBuilder builder)
+            : this(new RootContext(builder))
+        {
         }
 
         /// <summary>

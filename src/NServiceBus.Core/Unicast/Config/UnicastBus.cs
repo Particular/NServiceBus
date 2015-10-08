@@ -5,7 +5,6 @@ namespace NServiceBus.Features
     using System.Linq;
     using NServiceBus.Config;
     using NServiceBus.Logging;
-    using NServiceBus.Pipeline;
     using NServiceBus.Settings;
     using NServiceBus.Transports;
     using NServiceBus.Unicast;

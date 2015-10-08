@@ -27,19 +27,11 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// Initializes a new instance of <see cref="UnicastBus"/>.
         /// </summary>
-        public UnicastBusInternal(
-            IMessageMapper messageMapper,
-            IBuilder builder,
-            ReadOnlySettings settings)
+        public UnicastBusInternal(IMessageMapper messageMapper, IBuilder builder, ReadOnlySettings settings)
         {
             this.settings = settings;
             this.builder = builder;
-
-            busImpl = new ContextualBus(
-                new BehaviorContextStacker(new RootContext(builder)), 
-                messageMapper,
-                builder,
-                settings);
+            busImpl = new ContextualBus(new BehaviorContextStacker(builder), messageMapper, builder, settings);
         }
 
         /// <summary>
