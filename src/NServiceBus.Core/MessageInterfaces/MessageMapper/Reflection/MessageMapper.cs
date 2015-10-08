@@ -1,7 +1,6 @@
 namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 {
     using System;
-    using System.Collections;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
@@ -53,24 +52,6 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
                 return;
             }
 
-            if (typeof(IEnumerable).IsAssignableFrom(t))
-            {
-                InitType(t.GetElementType());
-
-                foreach (var interfaceType in t.GetInterfaces())
-                {
-					foreach (var g in interfaceType.GetGenericArguments())
-					{
-						if(g == t)
-							continue;
-
-						InitType(g);
-					}
-                }
-
-                return;
-            }
-
             var typeName = GetTypeName(t);
 
             //already handled this type, prevent infinite recursion
@@ -93,16 +74,6 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
             }
 
             nameToType[typeName] = t.TypeHandle;
-
-            foreach (var field in t.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy))
-            {
-                InitType(field.FieldType);
-            }
-
-            foreach (var prop in t.GetProperties())
-            {
-                InitType(prop.PropertyType);
-            }
         }
 
         void GenerateImplementationFor(Type interfaceType)
