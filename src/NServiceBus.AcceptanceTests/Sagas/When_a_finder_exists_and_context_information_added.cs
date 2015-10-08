@@ -2,13 +2,13 @@ namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.Extensibility;
-    using NServiceBus.Features;
-    using NServiceBus.Pipeline;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Extensibility;
+    using Features;
     using NServiceBus.Sagas;
     using NUnit.Framework;
+    using Pipeline;
 
     [TestFixture]
     public class When_a_finder_exists_and_context_information_added
@@ -45,6 +45,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
             class CustomFinder : IFindSagas<TestSaga07.SagaData07>.Using<StartSagaMessage>
             {
                 public Context Context { get; set; }
+
                 public Task<TestSaga07.SagaData07> FindBy(StartSagaMessage message, ReadOnlyContextBag context)
                 {
                     Context.ContextBag = context;

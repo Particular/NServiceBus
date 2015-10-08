@@ -2,10 +2,10 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Transports;
     using OutgoingPipeline;
     using Pipeline;
     using TransportDispatch;
+    using Transports;
 
     class AttachCausationHeadersBehavior : Behavior<OutgoingPhysicalMessageContext>
     {

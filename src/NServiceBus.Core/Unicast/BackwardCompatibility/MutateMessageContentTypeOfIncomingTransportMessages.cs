@@ -2,16 +2,16 @@
 {
     using System.Threading.Tasks;
     using MessageMutator;
-    using NServiceBus.Unicast.Transport;
     using Serialization;
-    
+    using Unicast.Transport;
+
     [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "Exist only for compatibility between V4 and V3. No longer needed in V6")]
     class MutateMessageContentTypeOfIncomingTransportMessages : IMutateIncomingTransportMessages, INeedInitialization
     {
         public IMessageSerializer Serializer { get; set; }
 
         /// <summary>
-        /// Ensure that the content type which is introduced in V4.0.0 and later versions is present in the header.
+        ///     Ensure that the content type which is introduced in V4.0.0 and later versions is present in the header.
         /// </summary>
         /// <param name="transportMessage">Transport Message to mutate.</param>
         public Task MutateIncoming(MutateIncomingTransportMessageContext transportMessage)

@@ -7,18 +7,18 @@
     using System.Messaging;
     using System.Security;
     using System.Transactions;
-    using NServiceBus.ConsistencyGuarantees;
-    using NServiceBus.Logging;
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.Settings;
-    using NServiceBus.Transports;
-    using NServiceBus.Transports.Msmq;
-    using NServiceBus.Transports.Msmq.Config;
-    using NServiceBus.Utils;
-    using TransactionSettings = NServiceBus.Unicast.Transport.TransactionSettings;
+    using ConsistencyGuarantees;
+    using Logging;
+    using ObjectBuilder;
+    using Settings;
+    using Transports;
+    using Transports.Msmq;
+    using Transports.Msmq.Config;
+    using Utils;
+    using TransactionSettings = Unicast.Transport.TransactionSettings;
 
     /// <summary>
-    /// Used to configure the MSMQ transport.
+    ///     Used to configure the MSMQ transport.
     /// </summary>
     public class MsmqTransportConfigurator : ConfigureTransport
     {
@@ -28,10 +28,74 @@
             RegisterStartupTask<CheckQueuePermissions>();
         }
 
+        /// <summary>
+        ///     <see cref="ConfigureTransport.ExampleConnectionStringForErrorMessage" />.
+        /// </summary>
+        protected override string ExampleConnectionStringForErrorMessage => "cacheSendConnection=true;journal=false;deadLetter=true";
+
+        /// <summary>
+        ///     <see cref="ConfigureTransport.RequiresConnectionString" />.
+        /// </summary>
+        protected override bool RequiresConnectionString => false;
+
+
+        /// <summary>
+        ///     Initializes a new instance of <see cref="ConfigureTransport" />.
+        /// </summary>
+        protected override void Configure(FeatureConfigurationContext context, string connectionString)
+        {
+            new CheckMachineNameForComplianceWithDtcLimitation().Check();
+
+            Func<IReadOnlyDictionary<string, string>, string> getMessageLabel;
+            context.Settings.TryGet("Msmq.GetMessageLabel", out getMessageLabel);
+
+            var settings = new MsmqSettings();
+            if (connectionString != null)
+            {
+                settings = new MsmqConnectionStringBuilder(connectionString).RetrieveSettings();
+            }
+
+            var messageLabelGenerator = context.Settings.GetMessageLabelGenerator();
+            context.Container.ConfigureComponent(b => new MsmqMessageSender(settings, messageLabelGenerator), DependencyLifecycle.InstancePerCall);
+
+            context.Container.ConfigureComponent<QueueCreator>(DependencyLifecycle.InstancePerCall)
+                .ConfigureProperty(t => t.Settings, settings);
+
+
+            if (context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"))
+            {
+                return;
+            }
+
+            var transactionSettings = new TransactionSettings(context.Settings);
+
+            var transactionOptions = new TransactionOptions
+            {
+                IsolationLevel = transactionSettings.IsolationLevel,
+                Timeout = transactionSettings.TransactionTimeout
+            };
+
+            context.Container.ConfigureComponent(b => new MessagePump(b.Build<CriticalError>(), guarantee => SelectReceiveStrategy(guarantee, transactionOptions)), DependencyLifecycle.InstancePerCall);
+        }
+
+
+        ReceiveStrategy SelectReceiveStrategy(ConsistencyGuarantee minimumConsistencyGuarantee, TransactionOptions transactionOptions)
+        {
+            if (minimumConsistencyGuarantee == ConsistencyGuarantee.ExactlyOnce)
+            {
+                return new ReceiveWithTransactionScope(transactionOptions);
+            }
+
+            if (minimumConsistencyGuarantee == ConsistencyGuarantee.AtMostOnce)
+            {
+                return new ReceiveWithNoTransaction();
+            }
+
+            return new ReceiveWithNativeTransaction();
+        }
+
         class CheckQueuePermissions : FeatureStartupTask
         {
-            IBuilder builder;
-
             public CheckQueuePermissions(IBuilder builder)
             {
                 this.builder = builder;
@@ -83,81 +147,19 @@
                     var logMessage = $"Queue [{queue.QueueName}] is running with [{QueueCreator.LocalEveryoneGroupName}] and [{QueueCreator.LocalAnonymousLogonName}] permissions. Consider setting appropriate permissions, if required by your organization. For more information, please consult the documentation.";
 
                     if (Debugger.IsAttached)
+                    {
                         Logger.Info(logMessage);
+                    }
                     else
+                    {
                         Logger.Warn(logMessage);
+                    }
                 }
             }
 
+            IBuilder builder;
+
             static ILog Logger = LogManager.GetLogger<CheckQueuePermissions>();
         }
-
-
-        /// <summary>
-        /// Initializes a new instance of <see cref="ConfigureTransport"/>.
-        /// </summary>
-        protected override void Configure(FeatureConfigurationContext context, string connectionString)
-        {
-            new CheckMachineNameForComplianceWithDtcLimitation().Check();
-
-            Func<IReadOnlyDictionary<string, string>, string> getMessageLabel;
-            context.Settings.TryGet("Msmq.GetMessageLabel", out getMessageLabel);
-
-            var settings = new MsmqSettings();
-            if (connectionString != null)
-            {
-                settings = new MsmqConnectionStringBuilder(connectionString).RetrieveSettings();
-            }
-
-            var messageLabelGenerator = context.Settings.GetMessageLabelGenerator();
-            context.Container.ConfigureComponent(b => new MsmqMessageSender(settings, messageLabelGenerator), DependencyLifecycle.InstancePerCall);
-
-            context.Container.ConfigureComponent<QueueCreator>(DependencyLifecycle.InstancePerCall)
-                .ConfigureProperty(t => t.Settings, settings);
-
-
-            if (context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"))
-            {
-                return;
-            }
-
-            var transactionSettings = new TransactionSettings(context.Settings);
-
-            var transactionOptions = new TransactionOptions
-            {
-                IsolationLevel = transactionSettings.IsolationLevel,
-                Timeout = transactionSettings.TransactionTimeout
-            };
-
-            context.Container.ConfigureComponent(b => new MessagePump(b.Build<CriticalError>(), guarantee => SelectReceiveStrategy(guarantee, transactionOptions)), DependencyLifecycle.InstancePerCall);
-        }
-
-        /// <summary>
-        /// <see cref="ConfigureTransport.ExampleConnectionStringForErrorMessage"/>.
-        /// </summary>
-        protected override string ExampleConnectionStringForErrorMessage => "cacheSendConnection=true;journal=false;deadLetter=true";
-
-        /// <summary>
-        /// <see cref="ConfigureTransport.RequiresConnectionString"/>.
-        /// </summary>
-        protected override bool RequiresConnectionString => false;
-
-
-        ReceiveStrategy SelectReceiveStrategy(ConsistencyGuarantee minimumConsistencyGuarantee, TransactionOptions transactionOptions)
-        {
-            if (minimumConsistencyGuarantee == ConsistencyGuarantee.ExactlyOnce)
-            {
-                return new ReceiveWithTransactionScope(transactionOptions);
-            }
-
-            if (minimumConsistencyGuarantee == ConsistencyGuarantee.AtMostOnce)
-            {
-                return new ReceiveWithNoTransaction();
-            }
-
-            return new ReceiveWithNativeTransaction();
-        }
-
-
     }
 }

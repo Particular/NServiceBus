@@ -5,10 +5,10 @@
     using System.IO;
     using System.Threading.Tasks;
     using Core.Tests;
-    using NServiceBus.Transports;
     using NUnit.Framework;
     using ObjectBuilder;
     using Pipeline.Contexts;
+    using Transports;
     using UnitOfWork;
 
     [TestFixture]
@@ -61,7 +61,6 @@
             //since it is a single exception then it will not be an AggregateException 
             Assert.Throws<InvalidOperationException>(async () => await InvokeBehavior(builder));
             Assert.False(unitOfWork.EndCalled);
-
         }
 
         [Test]
@@ -76,12 +75,8 @@
 
             var ex = new Exception("Handler failed");
             //since it is a single exception then it will not be an AggregateException 
-            Assert.Throws<Exception>(async () =>
-            {
-                await InvokeBehavior(builder, ex);
-            });
+            Assert.Throws<Exception>(async () => { await InvokeBehavior(builder, ex); });
             Assert.AreSame(ex, unitOfWork.ExceptionPassedToEnd);
-
         }
 
         [Test]
@@ -159,58 +154,6 @@
             });
         }
 
-        class UnitOfWorkThatThrowsFromEnd : IManageUnitsOfWork
-        {
-            public bool BeginCalled;
-            public bool EndCalled;
-            public Exception ExceptionThrownFromEnd = new InvalidOperationException();
-
-            public void Begin()
-            {
-                BeginCalled = true;
-            }
-
-            public void End(Exception ex = null)
-            {
-                EndCalled = true;
-                throw ExceptionThrownFromEnd;
-            }
-
-        }
-
-        class UnitOfWorkThatThrowsFromBegin : IManageUnitsOfWork
-        {
-            public bool EndCalled;
-            public Exception ExceptionThrownFromEnd = new InvalidOperationException();
-
-            public void Begin()
-            {
-                throw ExceptionThrownFromEnd;
-            }
-
-            public void End(Exception ex = null)
-            {
-                EndCalled = true;
-            }
-        }
-
-        class UnitOfWork : IManageUnitsOfWork
-        {
-            public bool BeginCalled;
-            public bool EndCalled;
-            public Exception ExceptionPassedToEnd;
-            public void Begin()
-            {
-                BeginCalled = true;
-            }
-
-            public void End(Exception ex = null)
-            {
-                ExceptionPassedToEnd = ex;
-                EndCalled = true;
-            }
-        }
-
         [Test]
         public async Task Verify_order()
         {
@@ -234,25 +177,6 @@
             Assert.AreEqual(1, unitOfWork3.EndCallIndex);
         }
 
-        class CountingUnitOfWork : IManageUnitsOfWork
-        {
-            static int BeginCallCount;
-            static int EndCallCount;
-            public int EndCallIndex;
-            public int BeginCallIndex;
-
-            public void Begin()
-            {
-                BeginCallCount++;
-                BeginCallIndex = BeginCallCount;
-            }
-            public void End(Exception ex = null)
-            {
-                EndCallCount++;
-                EndCallIndex = EndCallCount;
-            }
-        }
-
         [Test]
         public void Should_pass_exception_to_cleanup()
         {
@@ -271,23 +195,94 @@
             Assert.AreSame(throwingUoW.ExceptionThrownFromEnd, exception);
         }
 
+        class UnitOfWorkThatThrowsFromEnd : IManageUnitsOfWork
+        {
+            public void Begin()
+            {
+                BeginCalled = true;
+            }
+
+            public void End(Exception ex = null)
+            {
+                EndCalled = true;
+                throw ExceptionThrownFromEnd;
+            }
+
+            public bool BeginCalled;
+            public bool EndCalled;
+            public Exception ExceptionThrownFromEnd = new InvalidOperationException();
+        }
+
+        class UnitOfWorkThatThrowsFromBegin : IManageUnitsOfWork
+        {
+            public void Begin()
+            {
+                throw ExceptionThrownFromEnd;
+            }
+
+            public void End(Exception ex = null)
+            {
+                EndCalled = true;
+            }
+
+            public bool EndCalled;
+            public Exception ExceptionThrownFromEnd = new InvalidOperationException();
+        }
+
+        class UnitOfWork : IManageUnitsOfWork
+        {
+            public void Begin()
+            {
+                BeginCalled = true;
+            }
+
+            public void End(Exception ex = null)
+            {
+                ExceptionPassedToEnd = ex;
+                EndCalled = true;
+            }
+
+            public bool BeginCalled;
+            public bool EndCalled;
+            public Exception ExceptionPassedToEnd;
+        }
+
+        class CountingUnitOfWork : IManageUnitsOfWork
+        {
+            public void Begin()
+            {
+                BeginCallCount++;
+                BeginCallIndex = BeginCallCount;
+            }
+
+            public void End(Exception ex = null)
+            {
+                EndCallCount++;
+                EndCallIndex = EndCallCount;
+            }
+
+            public int BeginCallIndex;
+            public int EndCallIndex;
+            static int BeginCallCount;
+            static int EndCallCount;
+        }
+
         class CaptureExceptionPassedToEndUnitOfWork : IManageUnitsOfWork
         {
             public void Begin()
             {
             }
+
             public void End(Exception ex = null)
             {
                 Exception = ex;
             }
+
             public Exception Exception;
         }
 
         class OrderAwareUnitOfWork : IManageUnitsOfWork
         {
-            string name;
-            List<string> order;
-
             public OrderAwareUnitOfWork(string name, List<string> order)
             {
                 this.name = name;
@@ -303,6 +298,9 @@
             {
                 order.Add(name);
             }
+
+            string name;
+            List<string> order;
         }
     }
 }

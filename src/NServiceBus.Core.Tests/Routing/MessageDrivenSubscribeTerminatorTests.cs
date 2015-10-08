@@ -7,24 +7,22 @@
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
     using NServiceBus.Routing.MessageDrivenSubscriptions;
-    using NServiceBus.Transports;
-    using NServiceBus.Unicast.Queuing;
     using NUnit.Framework;
+    using Transports;
+    using Unicast.Queuing;
 
     [TestFixture]
     public class MessageDrivenSubscribeTerminatorTests
     {
-        MessageDrivenSubscribeTerminator terminator;
-        SubscriptionRouter router;
-        StaticRoutes staticRoutes;
-        FakeDispatcher dispatcher;
-
         [SetUp]
         public void SetUp()
         {
             staticRoutes = new StaticRoutes();
             SetupStaticRoutes();
-            router = new SubscriptionRouter(staticRoutes, new[] { typeof(object) });
+            router = new SubscriptionRouter(staticRoutes, new[]
+            {
+                typeof(object)
+            });
             dispatcher = new FakeDispatcher();
             terminator = new MessageDrivenSubscribeTerminator(router, "replyToAddress", dispatcher);
         }
@@ -67,28 +65,26 @@
             Assert.AreEqual(11, dispatcher.FailedNumberOfTimes);
         }
 
-        private void SetupStaticRoutes()
+        void SetupStaticRoutes()
         {
             staticRoutes.Register(typeof(object), "publisher1");
         }
 
+        FakeDispatcher dispatcher;
+        SubscriptionRouter router;
+        StaticRoutes staticRoutes;
+        MessageDrivenSubscribeTerminator terminator;
+
         class FakeDispatcher : IDispatchMessages
         {
-            int? numberOfTimes;
-
             public FakeDispatcher()
             {
                 DispatchedOperations = new List<IEnumerable<TransportOperation>>();
             }
 
-            public int FailedNumberOfTimes { get; private set; } = 0;
+            public int FailedNumberOfTimes { get; private set; }
 
             public List<IEnumerable<TransportOperation>> DispatchedOperations { get; }
-
-            public void FailDispatch(int times)
-            {
-                numberOfTimes = times;
-            }
 
             public Task Dispatch(IEnumerable<TransportOperation> outgoingMessages, ReadOnlyContextBag context)
             {
@@ -101,6 +97,13 @@
                 DispatchedOperations.Add(outgoingMessages);
                 return Task.FromResult(0);
             }
+
+            public void FailDispatch(int times)
+            {
+                numberOfTimes = times;
+            }
+
+            int? numberOfTimes;
         }
 
         class FakeContext : BehaviorContext

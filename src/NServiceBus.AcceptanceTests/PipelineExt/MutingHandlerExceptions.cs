@@ -1,15 +1,14 @@
-﻿
-namespace NServiceBus.AcceptanceTests.PipelineExt
+﻿namespace NServiceBus.AcceptanceTests.PipelineExt
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.Pipeline;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
+    using Pipeline;
 
     /// <summary>
-    /// This is a demo on how pipeline overrides can be used to control which messages that gets audited by NServiceBus
+    ///     This is a demo on how pipeline overrides can be used to control which messages that gets audited by NServiceBus
     /// </summary>
     public class MutingHandlerExceptions : NServiceBusAcceptanceTest
     {
@@ -52,7 +51,7 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
                         //invoke the handler/rest of the pipeline
                         await next().ConfigureAwait(false);
                     }
-                    //catch specifix exceptions or
+                        //catch specifix exceptions or
                     catch (Exception ex)
                     {
                         //modify this to your liking

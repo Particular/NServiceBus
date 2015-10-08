@@ -1,8 +1,8 @@
 ﻿namespace NServiceBus.AcceptanceTests.Licensing
 {
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
 
     public class When_a_message_is_audited : NServiceBusAcceptanceTest
@@ -11,10 +11,10 @@
         public async Task Should_add_the_license_diagnostic_headers()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<EndpointWithAuditOn>(b => b.When(bus => bus.SendLocalAsync(new MessageToBeAudited())))
-                    .WithEndpoint<AuditSpyEndpoint>()
-                    .Done(c => c.HasDiagnosticLicensingHeaders)
-                    .Run();
+                .WithEndpoint<EndpointWithAuditOn>(b => b.When(bus => bus.SendLocalAsync(new MessageToBeAudited())))
+                .WithEndpoint<AuditSpyEndpoint>()
+                .Done(c => c.HasDiagnosticLicensingHeaders)
+                .Run();
 
             Assert.IsTrue(context.HasDiagnosticLicensingHeaders);
         }

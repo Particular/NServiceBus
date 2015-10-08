@@ -2,15 +2,13 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.StaticHeaders;
-    using NServiceBus.TransportDispatch;
+    using Pipeline;
+    using Pipeline.Contexts;
+    using StaticHeaders;
+    using TransportDispatch;
 
-    class ApplyStaticHeadersBehavior:Behavior<OutgoingLogicalMessageContext>
+    class ApplyStaticHeadersBehavior : Behavior<OutgoingLogicalMessageContext>
     {
-        CurrentStaticHeaders currentStaticHeaders;
-
         public ApplyStaticHeadersBehavior(CurrentStaticHeaders currentStaticHeaders)
         {
             this.currentStaticHeaders = currentStaticHeaders;
@@ -20,10 +18,12 @@ namespace NServiceBus
         {
             foreach (var staticHeader in currentStaticHeaders)
             {
-                context.SetHeader(staticHeader.Key,staticHeader.Value);
+                context.SetHeader(staticHeader.Key, staticHeader.Value);
             }
 
             return next();
         }
+
+        CurrentStaticHeaders currentStaticHeaders;
     }
 }

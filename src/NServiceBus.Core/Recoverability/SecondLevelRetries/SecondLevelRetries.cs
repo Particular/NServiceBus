@@ -1,15 +1,15 @@
 namespace NServiceBus.Features
 {
     using System;
-    using NServiceBus.Config;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Recoverability.SecondLevelRetries;
-    using NServiceBus.Settings;
-    using NServiceBus.TransportDispatch;
-    using NServiceBus.Transports;
+    using Config;
+    using Pipeline;
+    using Recoverability.SecondLevelRetries;
+    using Settings;
+    using TransportDispatch;
+    using Transports;
 
     /// <summary>
-    /// Used to configure Second Level Retries.
+    ///     Used to configure Second Level Retries.
     /// </summary>
     public class SecondLevelRetries : Feature
     {
@@ -25,11 +25,11 @@ namespace NServiceBus.Features
         }
 
         /// <summary>
-        /// See <see cref="Feature.Setup"/>.
+        ///     See <see cref="Feature.Setup" />.
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var  retryPolicy = GetRetryPolicy(context.Settings);
+            var retryPolicy = GetRetryPolicy(context.Settings);
 
             context.Container.RegisterSingleton(typeof(SecondLevelRetryPolicy), retryPolicy);
             context.Pipeline.Register<SecondLevelRetriesBehavior.Registration>();
@@ -38,9 +38,9 @@ namespace NServiceBus.Features
             context.Container.ConfigureComponent(b =>
             {
                 var pipelinesCollection = context.Settings.Get<PipelineConfiguration>();
-             
+
                 var dispatchPipeline = new PipelineBase<RoutingContext>(b, context.Settings, pipelinesCollection.MainPipeline);
-                return new SecondLevelRetriesBehavior(dispatchPipeline,retryPolicy,b.Build<BusNotifications>(), context.Settings.LocalAddress());
+                return new SecondLevelRetriesBehavior(dispatchPipeline, retryPolicy, b.Build<BusNotifications>(), context.Settings.LocalAddress());
             }, DependencyLifecycle.InstancePerCall);
         }
 
@@ -49,10 +49,14 @@ namespace NServiceBus.Features
             var retriesConfig = context.Settings.GetConfigSection<SecondLevelRetriesConfig>();
 
             if (retriesConfig == null)
+            {
                 return true;
+            }
 
             if (retriesConfig.NumberOfRetries == 0)
+            {
                 return false;
+            }
 
             return retriesConfig.Enabled;
         }
@@ -72,7 +76,7 @@ namespace NServiceBus.Features
                 return new DefaultSecondLevelRetryPolicy(retriesConfig.NumberOfRetries, retriesConfig.TimeIncrease);
             }
 
-            return new DefaultSecondLevelRetryPolicy(DefaultSecondLevelRetryPolicy.DefaultNumberOfRetries,DefaultSecondLevelRetryPolicy.DefaultTimeIncrease);
+            return new DefaultSecondLevelRetryPolicy(DefaultSecondLevelRetryPolicy.DefaultNumberOfRetries, DefaultSecondLevelRetryPolicy.DefaultTimeIncrease);
         }
     }
 }

@@ -1,10 +1,10 @@
 namespace NServiceBus.Features
 {
     using System;
-    using NServiceBus.Performance.Counters;
+    using Performance.Counters;
 
     /// <summary>
-    /// Used to configure SLAMonitoring.
+    ///     Used to configure SLAMonitoring.
     /// </summary>
     public class SLAMonitoring : Feature
     {
@@ -15,7 +15,7 @@ namespace NServiceBus.Features
         }
 
         /// <summary>
-        /// <see cref="Feature.Setup"/>.
+        ///     <see cref="Feature.Setup" />.
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
@@ -45,6 +45,5 @@ namespace NServiceBus.Features
 
             return false;
         }
-
     }
 }

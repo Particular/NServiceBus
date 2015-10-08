@@ -3,10 +3,11 @@
     using System;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Features;
     using NUnit.Framework;
+    using ScenarioDescriptors;
 
     public class When_doing_flr_with_native_transactions : NServiceBusAcceptanceTest
     {
@@ -14,19 +15,22 @@
         public async Task Should_do_5_retries_by_default_with_native_transactions()
         {
             await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                    .WithEndpoint<RetryEndpoint>(b => b.When((bus, context) => bus.SendLocalAsync(new MessageToBeRetried { Id = context.Id })))
-                    .AllowSimulatedExceptions()
-                    .Done(c => c.ForwardedToErrorQueue)
-                    .Repeat(r => r.For(Transports.Default))
-                    .Should(c =>
-                    {
-                        Assert.AreEqual(5 + 1, c.NumberOfTimesInvoked, "The FLR should by default retry 5 times");
-                        Assert.AreEqual(5, c.Logs.Count(l => l.Message
-                            .StartsWith($"First Level Retry is going to retry message '{c.PhysicalMessageId}' because of an exception:")));
-                        Assert.AreEqual(1, c.Logs.Count(l => l.Message
-                            .StartsWith($"Giving up First Level Retries for message '{c.PhysicalMessageId}'.")));
-                    })
-                    .Run();
+                .WithEndpoint<RetryEndpoint>(b => b.When((bus, context) => bus.SendLocalAsync(new MessageToBeRetried
+                {
+                    Id = context.Id
+                })))
+                .AllowSimulatedExceptions()
+                .Done(c => c.ForwardedToErrorQueue)
+                .Repeat(r => r.For(Transports.Default))
+                .Should(c =>
+                {
+                    Assert.AreEqual(5 + 1, c.NumberOfTimesInvoked, "The FLR should by default retry 5 times");
+                    Assert.AreEqual(5, c.Logs.Count(l => l.Message
+                        .StartsWith($"First Level Retry is going to retry message '{c.PhysicalMessageId}' because of an exception:")));
+                    Assert.AreEqual(1, c.Logs.Count(l => l.Message
+                        .StartsWith($"Giving up First Level Retries for message '{c.PhysicalMessageId}'.")));
+                })
+                .Run();
         }
 
         public class Context : ScenarioContext
@@ -47,7 +51,7 @@
                 EndpointSetup<DefaultServer>(b =>
                 {
                     b.Transactions().DisableDistributedTransactions();
-                    b.DisableFeature<Features.SecondLevelRetries>();
+                    b.DisableFeature<SecondLevelRetries>();
                 });
             }
 
@@ -59,10 +63,7 @@
 
                 public Task StartAsync()
                 {
-                    BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e =>
-                    {
-                        Context.ForwardedToErrorQueue = true;
-                    });
+                    BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e => { Context.ForwardedToErrorQueue = true; });
                     return Task.FromResult(0);
                 }
 
@@ -82,7 +83,9 @@
                 public Task Handle(MessageToBeRetried message)
                 {
                     if (message.Id != Context.Id)
+                    {
                         return Task.FromResult(0); // messages from previous test runs must be ignored
+                    }
 
                     Context.PhysicalMessageId = Bus.CurrentMessageContext.Id;
                     Context.NumberOfTimesInvoked++;
@@ -97,6 +100,4 @@
             public Guid Id { get; set; }
         }
     }
-
-
 }

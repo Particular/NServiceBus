@@ -4,9 +4,9 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Messaging;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
-    using NServiceBus.Logging;
-    using NServiceBus.Transports;
+    using Extensibility;
+    using Logging;
+    using Transports;
 
     class ReceiveWithNativeTransaction : ReceiveStrategy
     {

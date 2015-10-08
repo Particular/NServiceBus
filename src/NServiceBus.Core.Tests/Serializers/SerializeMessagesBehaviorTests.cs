@@ -4,9 +4,9 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Threading.Tasks;
-    using NServiceBus.Serialization;
-    using NServiceBus.Unicast.Messages;
     using NUnit.Framework;
+    using Serialization;
+    using Unicast.Messages;
     using Conventions = NServiceBus.Conventions;
 
     public class SerializeMessagesBehaviorTests
@@ -20,7 +20,7 @@
 
             var context = ContextHelpers.GetOutgoingContext(new MyMessage());
             var behavior = new SerializeMessageConnector(new FakeSerializer("myContentType"), registry);
-            
+
             await behavior.Invoke(context, c => Task.FromResult(0));
 
             Assert.AreEqual("myContentType", context.GetOrCreate<OutgoingPhysicalToRoutingConnector.State>().Headers[Headers.ContentType]);
@@ -35,7 +35,6 @@
 
             public void Serialize(object message, Stream stream)
             {
-                
             }
 
             public object[] Deserialize(Stream stream, IList<Type> messageTypes = null)
@@ -46,6 +45,8 @@
             public string ContentType { get; }
         }
 
-        class MyMessage { }
+        class MyMessage
+        {
+        }
     }
 }

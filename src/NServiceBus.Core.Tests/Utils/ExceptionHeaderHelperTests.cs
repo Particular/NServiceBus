@@ -3,7 +3,7 @@ namespace NServiceBus.Core.Tests.Utils
     using System;
     using System.Collections.Generic;
     using System.Runtime.CompilerServices;
-    using NServiceBus.Faults;
+    using Faults;
     using NUnit.Framework;
 
     [TestFixture]
@@ -28,7 +28,6 @@ namespace NServiceBus.Core.Tests.Utils
             Assert.AreEqual("A fake help link", dictionary["NServiceBus.ExceptionInfo.HelpLink"]);
             Assert.AreEqual("NServiceBus.Core.Tests", dictionary["NServiceBus.ExceptionInfo.Source"]);
         }
-
 
 
         [Test]
@@ -73,7 +72,10 @@ namespace NServiceBus.Core.Tests.Utils
             }
             catch (Exception exception)
             {
-                throw new AggregateException("My Exception", exception) { HelpLink = "A fake help link" };
+                throw new AggregateException("My Exception", exception)
+                {
+                    HelpLink = "A fake help link"
+                };
             }
         }
 
@@ -86,12 +88,12 @@ namespace NServiceBus.Core.Tests.Utils
         [Test]
         public void ExceptionMessageIsTruncated()
         {
-            var exception = new Exception(new string('x', (int)Math.Pow(2, 15)));
+            var exception = new Exception(new string('x', (int) Math.Pow(2, 15)));
             var dictionary = new Dictionary<string, string>();
 
             ExceptionHeaderHelper.SetExceptionHeaders(dictionary, exception, "queue1", "reason1", false);
 
-            Assert.AreEqual((int)Math.Pow(2, 14), dictionary["NServiceBus.ExceptionInfo.Message"].Length);
+            Assert.AreEqual((int) Math.Pow(2, 14), dictionary["NServiceBus.ExceptionInfo.Message"].Length);
         }
     }
 }

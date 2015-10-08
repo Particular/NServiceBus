@@ -6,16 +6,14 @@ namespace NServiceBus.Core.Tests.Timeout
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
-    using NServiceBus.InMemory.TimeoutPersister;
+    using Extensibility;
+    using InMemory.TimeoutPersister;
     using NServiceBus.Timeout.Core;
     using NUnit.Framework;
 
     [TestFixture]
     public class InMemoryTimeoutPersisterThreadTests
     {
-        ConcurrentDictionary<int, Guid> sagaIdGuids = new ConcurrentDictionary<int, Guid>();
-
         [Test]
         [Explicit]
         public void Run()
@@ -71,9 +69,10 @@ namespace NServiceBus.Core.Tests.Timeout
         {
             for (var i = 0; i < 10; i++)
             {
-                (await inMemoryTimeoutPersister.GetNextChunk(DateTime.MinValue)).DueTimeouts.ToList();   
+                (await inMemoryTimeoutPersister.GetNextChunk(DateTime.MinValue)).DueTimeouts.ToList();
             }
         }
-    }
 
+        ConcurrentDictionary<int, Guid> sagaIdGuids = new ConcurrentDictionary<int, Guid>();
+    }
 }

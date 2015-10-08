@@ -2,7 +2,7 @@ namespace NServiceBus.Sagas
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
+    using Extensibility;
 
     //this class in only here until we can move to a better saga persister api
     class LoadSagaByIdWrapper<T> : SagaLoader where T : IContainSagaData

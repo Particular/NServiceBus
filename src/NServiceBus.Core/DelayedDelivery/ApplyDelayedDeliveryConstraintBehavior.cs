@@ -2,12 +2,12 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.DelayedDelivery;
-    using NServiceBus.DeliveryConstraints;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
+    using DelayedDelivery;
+    using DeliveryConstraints;
+    using Pipeline;
+    using Pipeline.Contexts;
 
-    class ApplyDelayedDeliveryConstraintBehavior:Behavior<OutgoingLogicalMessageContext>
+    class ApplyDelayedDeliveryConstraintBehavior : Behavior<OutgoingLogicalMessageContext>
     {
         public override Task Invoke(OutgoingLogicalMessageContext context, Func<Task> next)
         {

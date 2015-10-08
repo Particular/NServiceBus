@@ -1,9 +1,9 @@
 namespace NServiceBus.Features
 {
-    using NServiceBus.Performance.Counters;
+    using Performance.Counters;
 
     /// <summary>
-    /// Used to configure CriticalTimeMonitoring.
+    ///     Used to configure CriticalTimeMonitoring.
     /// </summary>
     public class CriticalTimeMonitoring : Feature
     {
@@ -12,7 +12,7 @@ namespace NServiceBus.Features
         }
 
         /// <summary>
-        /// <see cref="Feature.Setup"/>.
+        ///     <see cref="Feature.Setup" />.
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {

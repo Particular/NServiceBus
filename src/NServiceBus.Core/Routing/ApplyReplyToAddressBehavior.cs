@@ -2,13 +2,12 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.TransportDispatch;
+    using Pipeline;
+    using Pipeline.Contexts;
+    using TransportDispatch;
 
     class ApplyReplyToAddressBehavior : Behavior<OutgoingLogicalMessageContext>
     {
-
         public ApplyReplyToAddressBehavior(string replyToAddress)
         {
             this.replyToAddress = replyToAddress;
@@ -22,6 +21,5 @@
         }
 
         string replyToAddress;
-
     }
 }

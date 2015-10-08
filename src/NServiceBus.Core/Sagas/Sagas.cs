@@ -3,9 +3,9 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.Pipeline;
     using NServiceBus.Sagas;
+    using ObjectBuilder;
+    using Pipeline;
 
     /// <summary>
     ///     Used to configure saga.
@@ -68,7 +68,7 @@
 
                 if (finder.Properties.TryGetValue("custom-finder-clr-type", out customFinderType))
                 {
-                    container.ConfigureComponent((Type)customFinderType, DependencyLifecycle.InstancePerCall);
+                    container.ConfigureComponent((Type) customFinderType, DependencyLifecycle.InstancePerCall);
                 }
             }
         }

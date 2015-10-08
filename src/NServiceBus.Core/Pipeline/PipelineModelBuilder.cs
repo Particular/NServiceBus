@@ -3,11 +3,13 @@ namespace NServiceBus.Pipeline
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using NServiceBus.Logging;
+    using Logging;
 
     class PipelineModelBuilder
     {
-        public PipelineModelBuilder(Type rootContextType,List<RegisterStep> additions, List<RemoveStep> removals, List<ReplaceBehavior> replacements)
+        static ILog Logger = LogManager.GetLogger<PipelineModelBuilder>();
+
+        public PipelineModelBuilder(Type rootContextType, List<RegisterStep> additions, List<RemoveStep> removals, List<ReplaceBehavior> replacements)
         {
             this.rootContextType = rootContextType;
             this.additions = additions;
@@ -17,7 +19,6 @@ namespace NServiceBus.Pipeline
 
         public IList<RegisterStep> Build()
         {
-
             var registrations = new Dictionary<string, RegisterStep>(StringComparer.CurrentCultureIgnoreCase);
             var listOfBeforeAndAfterIds = new List<string>();
 
@@ -86,7 +87,6 @@ namespace NServiceBus.Pipeline
                 .ToList();
 
 
-
             var finalOrder = new List<RegisterStep>();
 
             if (!registrations.Any())
@@ -127,7 +127,7 @@ namespace NServiceBus.Pipeline
                 {
                     if (stageNumber < stages.Count())
                     {
-                        throw new Exception($"No stage connector found for stage {currentStage.Key.FullName}");    
+                        throw new Exception($"No stage connector found for stage {currentStage.Key.FullName}");
                     }
 
                     currentStage = null;
@@ -142,16 +142,14 @@ namespace NServiceBus.Pipeline
                     }
                     else
                     {
-
                         var args = stageConnector.BehaviorType.BaseType.GetGenericArguments();
                         var stageEndType = args[1];
 
-                        currentStage = stages.SingleOrDefault(stage => stage.Key == stageEndType);      
-                    }      
+                        currentStage = stages.SingleOrDefault(stage => stage.Key == stageEndType);
+                    }
                 }
 
                 stageNumber++;
-
             }
 
             return finalOrder;
@@ -164,7 +162,6 @@ namespace NServiceBus.Pipeline
 
         static IEnumerable<RegisterStep> Sort(IList<RegisterStep> registrations)
         {
-
             if (!registrations.Any())
             {
                 return registrations;
@@ -264,15 +261,27 @@ namespace NServiceBus.Pipeline
             return output;
         }
 
-        Type rootContextType;
         List<RegisterStep> additions;
         List<RemoveStep> removals;
         List<ReplaceBehavior> replacements;
-        static ILog Logger = LogManager.GetLogger<PipelineModelBuilder>();
+
+        Type rootContextType;
 
 
         class Node
         {
+            public Node(RegisterStep registerStep)
+            {
+                rego = registerStep;
+                Befores = registerStep.Befores;
+                Afters = registerStep.Afters;
+                StepId = registerStep.StepId;
+
+                OutputContext = registerStep.GetOutputContext();
+            }
+
+            public Type OutputContext { get; private set; }
+
             internal void Visit(ICollection<RegisterStep> output)
             {
                 if (visited)
@@ -290,25 +299,14 @@ namespace NServiceBus.Pipeline
                 }
             }
 
-            public Node(RegisterStep registerStep)
-            {
-                rego = registerStep;
-                Befores = registerStep.Befores;
-                Afters = registerStep.Afters;
-                StepId = registerStep.StepId;
-
-                OutputContext = registerStep.GetOutputContext();
-            }
+            public IList<Dependency> Afters;
+            public IList<Dependency> Befores;
+            internal List<Node> previous = new List<Node>();
+            RegisterStep rego;
 
             public string StepId;
-            RegisterStep rego;
-            public IList<Dependency> Befores;
-            public IList<Dependency> Afters;
-            internal List<Node> previous = new List<Node>();
             bool visited;
-            public Type OutputContext { get; private set; }
         }
-
 
 
         class CaseInsensitiveIdComparer : IEqualityComparer<RemoveStep>
@@ -323,7 +321,6 @@ namespace NServiceBus.Pipeline
                 return obj.RemoveId.ToLower().GetHashCode();
             }
         }
-
     }
 
     static class RegisterStepExtensions
@@ -333,7 +330,7 @@ namespace NServiceBus.Pipeline
             return typeof(IStageConnector).IsAssignableFrom(step.BehaviorType);
         }
 
-        public  static Type GetContextType(this Type behaviorType)
+        public static Type GetContextType(this Type behaviorType)
         {
             var behaviorInterface = behaviorType.GetBehaviorInterface();
 
@@ -341,6 +338,7 @@ namespace NServiceBus.Pipeline
 
             return type;
         }
+
         public static Type GetBehaviorInterface(this Type behaviorType)
         {
             var behaviorInterface = behaviorType.GetInterfaces().First(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IBehavior<,>));
@@ -374,6 +372,5 @@ namespace NServiceBus.Pipeline
 
             return type;
         }
-
     }
 }

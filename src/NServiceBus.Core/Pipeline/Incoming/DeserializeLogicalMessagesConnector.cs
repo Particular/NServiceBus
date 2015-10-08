@@ -7,22 +7,22 @@
     using System.Reflection;
     using System.Threading.Tasks;
     using Logging;
-    using NServiceBus.Transports;
     using Pipeline;
     using Pipeline.Contexts;
     using Scheduling.Messages;
     using Serializers;
+    using Transports;
     using Unicast.Messages;
 
     class DeserializeLogicalMessagesConnector : StageConnector<PhysicalMessageProcessingContext, LogicalMessageProcessingContext>
     {
         public MessageDeserializerResolver DeserializerResolver { get; set; }
-        
+
         public LogicalMessageFactory LogicalMessageFactory { get; set; }
 
         public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
 
-        public async override Task Invoke(PhysicalMessageProcessingContext context, Func<LogicalMessageProcessingContext, Task> next)
+        public override async Task Invoke(PhysicalMessageProcessingContext context, Func<LogicalMessageProcessingContext, Task> next)
         {
             var incomingMessage = context.Message;
 
@@ -30,9 +30,8 @@
 
             foreach (var message in messages)
             {
-                await next(new LogicalMessageProcessingContext(message,context.Message.Headers, context)).ConfigureAwait(false);
+                await next(new LogicalMessageProcessingContext(message, context.Message.Headers, context)).ConfigureAwait(false);
             }
-
         }
 
         List<LogicalMessage> ExtractWithExceptionHandling(IncomingMessage message)
@@ -100,7 +99,6 @@
                 return messageSerializer.Deserialize(stream, messageTypes)
                     .Select(x => LogicalMessageFactory.Create(x.GetType(), x))
                     .ToList();
-
             }
         }
 

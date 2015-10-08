@@ -2,13 +2,13 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Hosting;
-    using NServiceBus.Logging;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.Routing;
-    using NServiceBus.TransportDispatch;
-    using NServiceBus.Transports;
+    using Hosting;
+    using Logging;
+    using Pipeline;
+    using Pipeline.Contexts;
+    using Routing;
+    using TransportDispatch;
+    using Transports;
 
     class MoveFaultsToErrorQueueBehavior : Behavior<TransportReceiveContext>
     {
@@ -49,14 +49,14 @@ namespace NServiceBus
                     message.Headers[Headers.HostId] = hostInformation.HostId.ToString("N");
                     message.Headers[Headers.HostDisplayName] = hostInformation.DisplayName;
 
-            
-                    var dispatchContext = new RoutingContext(new OutgoingMessage(message.MessageId, message.Headers, message.Body), 
-                        new DirectToTargetDestination(errorQueueAddress), 
+
+                    var dispatchContext = new RoutingContext(new OutgoingMessage(message.MessageId, message.Headers, message.Body),
+                        new DirectToTargetDestination(errorQueueAddress),
                         context);
-                    
+
                     await dispatchPipeline.Invoke(dispatchContext).ConfigureAwait(false);
 
-                    notifications.Errors.InvokeMessageHasBeenSentToErrorQueue(message,exception);
+                    notifications.Errors.InvokeMessageHasBeenSentToErrorQueue(message, exception);
                 }
                 catch (Exception ex)
                 {
@@ -68,10 +68,9 @@ namespace NServiceBus
 
         CriticalError criticalError;
         IPipelineBase<RoutingContext> dispatchPipeline;
+        string errorQueueAddress;
         HostInformation hostInformation;
         BusNotifications notifications;
-        string errorQueueAddress;
-        static ILog Logger = LogManager.GetLogger<MoveFaultsToErrorQueueBehavior>();
 
         public class Registration : RegisterStep
         {
@@ -82,5 +81,7 @@ namespace NServiceBus
                 InsertBeforeIfExists("SecondLevelRetries");
             }
         }
+
+        static ILog Logger = LogManager.GetLogger<MoveFaultsToErrorQueueBehavior>();
     }
 }

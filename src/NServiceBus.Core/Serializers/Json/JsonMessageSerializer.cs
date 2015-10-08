@@ -7,35 +7,19 @@ namespace NServiceBus.Serializers.Json
     using System.Linq;
     using System.Runtime.Serialization.Formatters;
     using System.Text;
+    using Internal;
     using MessageInterfaces;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Converters;
-    using NServiceBus.Serialization;
-    using NServiceBus.Serializers.Json.Internal;
+    using Serialization;
 
     /// <summary>
-    /// JSON message serializer.
+    ///     JSON message serializer.
     /// </summary>
     public class JsonMessageSerializer : IMessageSerializer
     {
-        IMessageMapper messageMapper;
-        JsonSerializerSettings serializerSettings = new JsonSerializerSettings
-        {
-            TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple,
-            TypeNameHandling = TypeNameHandling.Auto,
-            Converters =
-            {
-                new IsoDateTimeConverter
-                {
-                    DateTimeStyles = DateTimeStyles.RoundtripKind
-                },
-                new XContainerConverter()
-            }
-        };
-        Encoding encoding = Encoding.UTF8;
-
         /// <summary>
-        /// Initializes a new instance of <see cref="JsonMessageSerializer"/>.
+        ///     Initializes a new instance of <see cref="JsonMessageSerializer" />.
         /// </summary>
         public JsonMessageSerializer(IMessageMapper messageMapper)
         {
@@ -44,10 +28,24 @@ namespace NServiceBus.Serializers.Json
 
 
         /// <summary>
-        /// Serializes the given set of messages into the given stream.
+        ///     Gets or sets the stream encoding.
+        /// </summary>
+        public Encoding Encoding
+        {
+            get { return encoding; }
+            set
+            {
+                Guard.AgainstNull("value", value);
+                encoding = value;
+            }
+        }
+
+
+        /// <summary>
+        ///     Serializes the given set of messages into the given stream.
         /// </summary>
         /// <param name="message">Message to serialize.</param>
-        /// <param name="stream">Stream for <paramref name="message"/> to be serialized into.</param>
+        /// <param name="stream">Stream for <paramref name="message" /> to be serialized into.</param>
         public void Serialize(object message, Stream stream)
         {
             Guard.AgainstNull("stream", stream);
@@ -61,10 +59,13 @@ namespace NServiceBus.Serializers.Json
         }
 
         /// <summary>
-        /// Deserializes from the given stream a set of messages.
+        ///     Deserializes from the given stream a set of messages.
         /// </summary>
         /// <param name="stream">Stream that contains messages.</param>
-        /// <param name="messageTypes">The list of message types to deserialize. If null the types must be inferred from the serialized data.</param>
+        /// <param name="messageTypes">
+        ///     The list of message types to deserialize. If null the types must be inferred from the
+        ///     serialized data.
+        /// </param>
         /// <returns>Deserialized messages.</returns>
         public object[] Deserialize(Stream stream, IList<Type> messageTypes)
         {
@@ -105,7 +106,7 @@ namespace NServiceBus.Serializers.Json
                 if (requiresDynamicDeserialization)
                 {
                     //We can safely use the first type on the list to create an array because multi-message Publish requires messages to be of same type.
-                    return (object[])jsonSerializer.Deserialize(reader, mostConcreteType.MakeArrayType());
+                    return (object[]) jsonSerializer.Deserialize(reader, mostConcreteType.MakeArrayType());
                 }
                 return jsonSerializer.Deserialize<object[]>(reader);
             }
@@ -131,6 +132,11 @@ namespace NServiceBus.Serializers.Json
             };
         }
 
+        /// <summary>
+        ///     Gets the content type into which this serializer serializes the content to.
+        /// </summary>
+        public string ContentType => ContentTypes.Json;
+
         static IEnumerable<Type> FindRootTypes(IEnumerable<Type> messageTypesToDeserialize)
         {
             Type currentRoot = null;
@@ -153,7 +159,10 @@ namespace NServiceBus.Serializers.Json
         JsonWriter CreateJsonWriter(Stream stream)
         {
             var streamWriter = new StreamWriter(stream, Encoding);
-            return new JsonTextWriter(streamWriter) {Formatting = Formatting.None};
+            return new JsonTextWriter(streamWriter)
+            {
+                Formatting = Formatting.None
+            };
         }
 
         JsonReader CreateJsonReader(Stream stream)
@@ -163,7 +172,7 @@ namespace NServiceBus.Serializers.Json
         }
 
         /// <summary>
-        /// Non strongly typed deserialization.
+        ///     Non strongly typed deserialization.
         /// </summary>
         public object DeserializeObject(string value, Type type)
         {
@@ -173,7 +182,7 @@ namespace NServiceBus.Serializers.Json
         }
 
         /// <summary>
-        /// Serializes the given object to a json string.
+        ///     Serializes the given object to a json string.
         /// </summary>
         /// <param name="value">The actual object.</param>
         /// <returns>The json string.</returns>
@@ -182,24 +191,22 @@ namespace NServiceBus.Serializers.Json
             Guard.AgainstNull("value", value);
             return JsonConvert.SerializeObject(value);
         }
-        
 
-        /// <summary>
-        /// Gets or sets the stream encoding.
-        /// </summary>
-        public Encoding Encoding
+        Encoding encoding = Encoding.UTF8;
+        IMessageMapper messageMapper;
+
+        JsonSerializerSettings serializerSettings = new JsonSerializerSettings
         {
-            get { return encoding; }
-            set
+            TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple,
+            TypeNameHandling = TypeNameHandling.Auto,
+            Converters =
             {
-                Guard.AgainstNull("value", value);
-                encoding = value;
+                new IsoDateTimeConverter
+                {
+                    DateTimeStyles = DateTimeStyles.RoundtripKind
+                },
+                new XContainerConverter()
             }
-        }
-
-        /// <summary>
-        /// Gets the content type into which this serializer serializes the content to.
-        /// </summary>
-        public string ContentType => ContentTypes.Json;
+        };
     }
 }

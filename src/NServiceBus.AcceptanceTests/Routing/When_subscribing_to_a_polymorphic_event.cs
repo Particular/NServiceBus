@@ -2,9 +2,9 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.Features;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Features;
     using NUnit.Framework;
 
     public class When_subscribing_to_a_polymorphic_event : NServiceBusAcceptanceTest
@@ -13,23 +13,27 @@
         public async Task Event_should_be_delivered()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<Publisher>(b => b.When(c => c.Subscriber1Subscribed && c.Subscriber2Subscribed, bus => bus.PublishAsync(new MyEvent())))
-                    .WithEndpoint<Subscriber1>(b => b.When(async (bus, c) =>
-                        {
-                            await bus.SubscribeAsync<IMyEvent>();
+                .WithEndpoint<Publisher>(b => b.When(c => c.Subscriber1Subscribed && c.Subscriber2Subscribed, bus => bus.PublishAsync(new MyEvent())))
+                .WithEndpoint<Subscriber1>(b => b.When(async (bus, c) =>
+                {
+                    await bus.SubscribeAsync<IMyEvent>();
 
-                            if (c.HasNativePubSubSupport)
-                                c.Subscriber1Subscribed = true;
-                        }))
-                    .WithEndpoint<Subscriber2>(b => b.When(async (bus, c) =>
-                        {
-                            await bus.SubscribeAsync<MyEvent>();
+                    if (c.HasNativePubSubSupport)
+                    {
+                        c.Subscriber1Subscribed = true;
+                    }
+                }))
+                .WithEndpoint<Subscriber2>(b => b.When(async (bus, c) =>
+                {
+                    await bus.SubscribeAsync<MyEvent>();
 
-                            if (c.HasNativePubSubSupport)
-                                c.Subscriber2Subscribed = true;
-                        }))
-                    .Done(c => c.Subscriber1GotTheEvent && c.Subscriber2GotTheEvent)
-                    .Run();
+                    if (c.HasNativePubSubSupport)
+                    {
+                        c.Subscriber2Subscribed = true;
+                    }
+                }))
+                .Done(c => c.Subscriber1GotTheEvent && c.Subscriber2GotTheEvent)
+                .Run();
 
             Assert.True(context.Subscriber1GotTheEvent);
             Assert.True(context.Subscriber2GotTheEvent);
@@ -92,7 +96,7 @@
             public Subscriber2()
             {
                 EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>())
-                        .AddMapping<MyEvent>(typeof(Publisher));
+                    .AddMapping<MyEvent>(typeof(Publisher));
             }
 
             public class MyEventHandler : IHandleMessages<MyEvent>

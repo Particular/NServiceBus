@@ -4,13 +4,11 @@
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
-    using NServiceBus.DelayedDelivery;
-    using NServiceBus.Extensibility;
+    using DelayedDelivery;
+    using Extensibility;
 
     public class FakeBus : IBus
     {
-        int deferWasCalled;
-
         public int DeferWasCalled
         {
             get { return deferWasCalled; }
@@ -57,43 +55,6 @@
         }
 
         public Task SendAsync<T>(Action<T> messageConstructor, SendOptions options)
-        {
-            throw new NotImplementedException();
-        }
-
-        [Obsolete("", true)]
-        public ICallback SendAsync(Address address, object message)
-        {
-            throw new NotImplementedException();
-        }
-
-        [Obsolete("", true)]
-        public ICallback SendAsync<T>(Address address, Action<T> messageConstructor)
-        {
-            throw new NotImplementedException();
-        }
-
-        [Obsolete("", true)]
-        public ICallback SendAsync(string destination, string correlationId, object message)
-        {
-            throw new NotImplementedException();
-        }
-
-        [Obsolete("", true)]
-        public ICallback SendAsync(Address address, string correlationId, object message)
-        {
-            throw new NotImplementedException();
-        }
-
-        [Obsolete("", true)]
-        public ICallback SendAsync<T>(string destination, string correlationId, Action<T> messageConstructor)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        [Obsolete("", true)]
-        public ICallback SendAsync<T>(Address address, string correlationId, Action<T> messageConstructor)
         {
             throw new NotImplementedException();
         }
@@ -159,5 +120,44 @@
         public void Dispose()
         {
         }
+
+        [Obsolete("", true)]
+        public ICallback SendAsync(Address address, object message)
+        {
+            throw new NotImplementedException();
+        }
+
+        [Obsolete("", true)]
+        public ICallback SendAsync<T>(Address address, Action<T> messageConstructor)
+        {
+            throw new NotImplementedException();
+        }
+
+        [Obsolete("", true)]
+        public ICallback SendAsync(string destination, string correlationId, object message)
+        {
+            throw new NotImplementedException();
+        }
+
+        [Obsolete("", true)]
+        public ICallback SendAsync(Address address, string correlationId, object message)
+        {
+            throw new NotImplementedException();
+        }
+
+        [Obsolete("", true)]
+        public ICallback SendAsync<T>(string destination, string correlationId, Action<T> messageConstructor)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        [Obsolete("", true)]
+        public ICallback SendAsync<T>(Address address, string correlationId, Action<T> messageConstructor)
+        {
+            throw new NotImplementedException();
+        }
+
+        int deferWasCalled;
     }
 }

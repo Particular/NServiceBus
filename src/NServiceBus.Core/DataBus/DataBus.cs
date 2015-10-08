@@ -2,10 +2,10 @@ namespace NServiceBus.Features
 {
     using System;
     using NServiceBus.DataBus;
-    using NServiceBus.Settings;
+    using Settings;
 
     /// <summary>
-    /// Used to configure the databus. 
+    ///     Used to configure the databus.
     /// </summary>
     public class DataBus : Feature
     {
@@ -28,16 +28,6 @@ namespace NServiceBus.Features
             return dataBusDefinition.ProvidedByFeature();
         }
 
-        class IDataBusInitializer : FeatureStartupTask
-        {
-            public IDataBus DataBus { get; set; }
-
-            protected override void OnStart()
-            {
-                DataBus.Start();
-            }
-        }
-
         /// <summary>
         ///     Called when the features is activated.
         /// </summary>
@@ -50,6 +40,16 @@ namespace NServiceBus.Features
 
             context.Pipeline.Register<DataBusReceiveBehavior.Registration>();
             context.Pipeline.Register<DataBusSendBehavior.Registration>();
+        }
+
+        class IDataBusInitializer : FeatureStartupTask
+        {
+            public IDataBus DataBus { get; set; }
+
+            protected override void OnStart()
+            {
+                DataBus.Start();
+            }
         }
     }
 }

@@ -4,15 +4,13 @@
     using System.Collections.Generic;
     using System.Messaging;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
+    using ScenarioDescriptors;
 
     public class When_setting_msmq_label_generator : NServiceBusAcceptanceTest
     {
-        const string auditQueue = @".\private$\labelAuditQueue";
-
         [Test]
         public async Task Should_receive_the_message_and_label()
         {
@@ -50,9 +48,11 @@
                 return null;
             }
             using (var queue = new MessageQueue(auditQueue))
-            using (var message = queue.Receive(TimeSpan.FromSeconds(5)))
             {
-                return message?.Label;
+                using (var message = queue.Receive(TimeSpan.FromSeconds(5)))
+                {
+                    return message?.Label;
+                }
             }
         }
 
@@ -67,7 +67,6 @@
 
         public class EndPoint : EndpointConfigurationBuilder, IWantToRunBeforeConfigurationIsFinalized
         {
-            static bool initialized;
             public EndPoint()
             {
                 if (initialized)
@@ -84,6 +83,11 @@
 
             static Context Context { get; set; }
 
+            public void Run(Configure config)
+            {
+                Context = config.Builder.Build<Context>();
+            }
+
 
             string GetMessageLabel(IReadOnlyDictionary<string, string> headers)
             {
@@ -91,10 +95,7 @@
                 return "MyLabel";
             }
 
-            public void Run(Configure config)
-            {
-                Context = config.Builder.Build<Context>();
-            }
+            static bool initialized;
         }
 
         [Serializable]
@@ -112,14 +113,16 @@
             public Task Handle(MyMessage message)
             {
                 if (Context.Id != message.Id)
+                {
                     return Task.FromResult(0);
+                }
 
                 Context.WasCalled = true;
 
                 return Task.FromResult(0);
             }
         }
+
+        const string auditQueue = @".\private$\labelAuditQueue";
     }
-
-
 }

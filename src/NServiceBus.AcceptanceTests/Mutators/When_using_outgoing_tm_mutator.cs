@@ -2,9 +2,9 @@
 {
     using System.Text;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.MessageMutator;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using MessageMutator;
     using NUnit.Framework;
 
     public class When_using_outgoing_tm_mutator : NServiceBusAcceptanceTest
@@ -13,9 +13,9 @@
         public async Task Should_be_able_to_update_message()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(b => b.When(bus => bus.SendLocalAsync(new MessageToBeMutated())))
-                    .Done(c => c.MessageProcessed)
-                    .Run();
+                .WithEndpoint<Endpoint>(b => b.When(bus => bus.SendLocalAsync(new MessageToBeMutated())))
+                .Done(c => c.MessageProcessed)
+                .Run();
 
             Assert.True(context.CanAddHeaders);
         }
@@ -51,10 +51,7 @@
 
             class MessageToBeMutatedHandler : IHandleMessages<MessageThatMutatorChangesTo>
             {
-                Context testContext;
-                IBus bus;
-
-                public MessageToBeMutatedHandler(Context testContext,IBus bus)
+                public MessageToBeMutatedHandler(Context testContext, IBus bus)
                 {
                     this.testContext = testContext;
                     this.bus = bus;
@@ -66,8 +63,10 @@
                     testContext.MessageProcessed = true;
                     return Task.FromResult(0);
                 }
-            }
 
+                IBus bus;
+                Context testContext;
+            }
         }
 
         public class MessageToBeMutated : ICommand

@@ -1,13 +1,12 @@
 namespace NServiceBus.Features
 {
-    using NServiceBus.Transports;
+    using Transports;
 
     /// <summary>
-    /// Allows subscribers to register by sending a subscription message to this endpoint.
+    ///     Allows subscribers to register by sending a subscription message to this endpoint.
     /// </summary>
     public class MessageDrivenSubscriptions : Feature
     {
-
         internal MessageDrivenSubscriptions()
         {
             EnableByDefault();
@@ -15,7 +14,7 @@ namespace NServiceBus.Features
         }
 
         /// <summary>
-        /// See <see cref="Feature.Setup"/>.
+        ///     See <see cref="Feature.Setup" />.
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {

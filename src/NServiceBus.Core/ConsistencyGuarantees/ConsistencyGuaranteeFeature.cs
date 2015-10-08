@@ -1,13 +1,14 @@
 ﻿namespace NServiceBus.Features
 {
-    using NServiceBus.Transports;
+    using Transports;
 
-    class ConsistencyGuaranteeFeature:Feature
+    class ConsistencyGuaranteeFeature : Feature
     {
         public ConsistencyGuaranteeFeature()
         {
             EnableByDefault();
         }
+
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             var transportDefault = context.Settings.Get<TransportDefinition>().GetDefaultConsistencyGuarantee();

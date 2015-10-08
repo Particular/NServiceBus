@@ -2,13 +2,12 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.ConsistencyGuarantees;
-    using NServiceBus.Pipeline;
-    using NServiceBus.TransportDispatch;
+    using ConsistencyGuarantees;
+    using Pipeline;
+    using TransportDispatch;
 
-    class ApplyDefaultConsistencyGuaranteeBehavior:Behavior<RoutingContext>
+    class ApplyDefaultConsistencyGuaranteeBehavior : Behavior<RoutingContext>
     {
-      
         public ApplyDefaultConsistencyGuaranteeBehavior(ConsistencyGuarantee transportDefault)
         {
             this.transportDefault = transportDefault;
@@ -27,6 +26,5 @@ namespace NServiceBus
         }
 
         ConsistencyGuarantee transportDefault;
-
     }
 }

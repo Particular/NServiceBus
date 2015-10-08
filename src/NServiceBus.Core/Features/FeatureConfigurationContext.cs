@@ -1,40 +1,38 @@
 ﻿namespace NServiceBus.Features
 {
-    using NServiceBus.ConsistencyGuarantees;
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Settings;
-    using NServiceBus.Transports;
+    using ConsistencyGuarantees;
+    using ObjectBuilder;
+    using Pipeline;
+    using Settings;
+    using Transports;
 
     /// <summary>
-    /// The context available to features when they are activated.
+    ///     The context available to features when they are activated.
     /// </summary>
     public class FeatureConfigurationContext
     {
-        Configure config;
-
         internal FeatureConfigurationContext(Configure config)
         {
             this.config = config;
         }
 
         /// <summary>
-        /// A read only copy of the settings.
+        ///     A read only copy of the settings.
         /// </summary>
         public ReadOnlySettings Settings => config.Settings;
 
         /// <summary>
-        /// Access to the container to allow for registrations.
+        ///     Access to the container to allow for registrations.
         /// </summary>
         public IConfigureComponents Container => config.container;
 
         /// <summary>
-        /// Access to the pipeline in order to customize it.
+        ///     Access to the pipeline in order to customize it.
         /// </summary>
         public PipelineSettings Pipeline => config.pipelineSettings;
 
         /// <summary>
-        /// Creates a new satellite processing pipeline.
+        ///     Creates a new satellite processing pipeline.
         /// </summary>
         public PipelineSettings AddSatellitePipeline(string name, string qualifier, ConsistencyGuarantee consistencyGuarantee, PushRuntimeSettings runtimeSettings, out string transportAddress)
         {
@@ -52,5 +50,7 @@
 
             return newPipeline;
         }
+
+        Configure config;
     }
 }

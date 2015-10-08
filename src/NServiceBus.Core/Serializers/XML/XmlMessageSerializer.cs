@@ -4,8 +4,8 @@ namespace NServiceBus.Serializers.XML
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using NServiceBus.MessageInterfaces;
-    using NServiceBus.Serialization;
+    using MessageInterfaces;
+    using Serialization;
 
     /// <summary>
     ///     Implementation of the message serializer over XML supporting interface-based messages.
@@ -36,7 +36,8 @@ namespace NServiceBus.Serializers.XML
         }
 
         /// <summary>
-        ///     If true, then the serializer will use a sanitizing stream to skip invalid characters from the stream before parsing.
+        ///     If true, then the serializer will use a sanitizing stream to skip invalid characters from the stream before
+        ///     parsing.
         /// </summary>
         public bool SanitizeInput { get; set; }
 
@@ -66,7 +67,7 @@ namespace NServiceBus.Serializers.XML
         }
 
         /// <summary>
-        /// Gets the content type into which this serializer serializes the content to.
+        ///     Gets the content type into which this serializer serializes the content to.
         /// </summary>
         public string ContentType => ContentTypes.Xml;
 
@@ -75,7 +76,6 @@ namespace NServiceBus.Serializers.XML
         /// </summary>
         public void Serialize(object message, Stream stream)
         {
-
             var messageType = mapper.GetMappedTypeFor(message.GetType());
             using (var serializer = new Serializer(messageType, stream, message, conventions, cache, SkipWrappingRawXml, Namespace))
             {
@@ -114,10 +114,10 @@ namespace NServiceBus.Serializers.XML
             return value?.TrimEnd('/');
         }
 
+        XmlSerializerCache cache = new XmlSerializerCache();
+
         Conventions conventions;
         IMessageMapper mapper;
-
-        XmlSerializerCache cache = new XmlSerializerCache();
 
         string nameSpace = "http://tempuri.net";
     }

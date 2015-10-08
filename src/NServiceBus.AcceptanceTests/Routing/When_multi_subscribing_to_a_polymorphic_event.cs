@@ -2,9 +2,9 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.Features;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Features;
     using NUnit.Framework;
 
     public class When_multi_subscribing_to_a_polymorphic_event : NServiceBusAcceptanceTest
@@ -56,13 +56,13 @@
             public Publisher1()
             {
                 EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((args, context) =>
-               {
-                   context.AddTrace("Publisher1 OnEndpointSubscribed " + args.MessageType);
-                   if (args.MessageType.Contains(typeof(IMyEvent).Name))
-                   {
-                       context.Publisher1HasASubscriberForIMyEvent = true;
-                   }
-               }));
+                {
+                    context.AddTrace("Publisher1 OnEndpointSubscribed " + args.MessageType);
+                    if (args.MessageType.Contains(typeof(IMyEvent).Name))
+                    {
+                        context.Publisher1HasASubscriberForIMyEvent = true;
+                    }
+                }));
             }
         }
 

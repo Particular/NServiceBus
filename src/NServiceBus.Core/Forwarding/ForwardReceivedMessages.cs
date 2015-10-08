@@ -1,12 +1,12 @@
 ﻿namespace NServiceBus.Features
 {
-    using NServiceBus.Config;
-    using NServiceBus.Forwarding;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Transports;
+    using Config;
+    using Forwarding;
+    using Pipeline;
+    using Transports;
 
     /// <summary>
-    /// Provides message forwarding capabilities.
+    ///     Provides message forwarding capabilities.
     /// </summary>
     public class ForwardReceivedMessages : Feature
     {
@@ -18,7 +18,7 @@
         }
 
         /// <summary>
-        /// Invoked if the feature is activated.
+        ///     Invoked if the feature is activated.
         /// </summary>
         /// <param name="context">The feature context.</param>
         protected internal override void Setup(FeatureConfigurationContext context)

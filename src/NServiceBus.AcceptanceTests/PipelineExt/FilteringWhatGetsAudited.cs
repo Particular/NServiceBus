@@ -1,17 +1,16 @@
-﻿
-namespace NServiceBus.AcceptanceTests.PipelineExt
+﻿namespace NServiceBus.AcceptanceTests.PipelineExt
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NServiceBus.Audit;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
     using NUnit.Framework;
+    using Pipeline;
+    using Pipeline.Contexts;
 
     /// <summary>
-    /// This is a demo on how pipeline overrides can be used to control which messages that gets audited by NServiceBus
+    ///     This is a demo on how pipeline overrides can be used to control which messages that gets audited by NServiceBus
     /// </summary>
     public class FilteringWhatGetsAudited : NServiceBusAcceptanceTest
     {

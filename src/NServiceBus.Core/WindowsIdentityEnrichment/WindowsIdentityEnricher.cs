@@ -3,7 +3,7 @@ namespace NServiceBus
     using System.Security.Principal;
     using System.Threading;
     using System.Threading.Tasks;
-    using NServiceBus.MessageMutator;
+    using MessageMutator;
 
     class WindowsIdentityEnricher : IMutateOutgoingTransportMessages
     {

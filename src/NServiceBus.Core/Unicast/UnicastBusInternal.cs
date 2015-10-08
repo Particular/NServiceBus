@@ -5,27 +5,27 @@ namespace NServiceBus.Unicast
     using System.Linq;
     using System.Security.Principal;
     using System.Threading.Tasks;
-    using NServiceBus.Config;
-    using NServiceBus.ConsistencyGuarantees;
-    using NServiceBus.Faults;
-    using NServiceBus.Features;
-    using NServiceBus.Licensing;
-    using NServiceBus.Logging;
-    using NServiceBus.MessageInterfaces;
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.Settings;
-    using NServiceBus.Transports;
-    using NServiceBus.Unicast.Transport;
+    using Config;
+    using ConsistencyGuarantees;
+    using Faults;
+    using Features;
+    using Licensing;
+    using Logging;
+    using MessageInterfaces;
+    using ObjectBuilder;
+    using Pipeline;
+    using Pipeline.Contexts;
+    using Settings;
+    using Transport;
+    using Transports;
 
     /// <summary>
-    /// A unicast implementation of <see cref="IBus"/> for NServiceBus.
+    ///     A unicast implementation of <see cref="IBus" /> for NServiceBus.
     /// </summary>
     partial class UnicastBusInternal : IStartableBus
     {
         /// <summary>
-        /// Initializes a new instance of <see cref="UnicastBus"/>.
+        ///     Initializes a new instance of <see cref="UnicastBus" />.
         /// </summary>
         public UnicastBusInternal(IMessageMapper messageMapper, IBuilder builder, ReadOnlySettings settings)
         {
@@ -35,7 +35,7 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IStartableBus.StartAsync"/>.
+        ///     <see cref="IStartableBus.StartAsync" />.
         /// </summary>
         public async Task<IBus> StartAsync()
         {
@@ -59,6 +59,14 @@ namespace NServiceBus.Unicast
             started = true;
 
             return this;
+        }
+
+        /// <summary>
+        ///     <see cref="IDisposable.Dispose" />.
+        /// </summary>
+        public void Dispose()
+        {
+            //Injected at compile time
         }
 
         IEnumerable<TransportReceiver> BuildPipelines()
@@ -129,14 +137,6 @@ namespace NServiceBus.Unicast
             return receiver;
         }
 
-        /// <summary>
-        /// <see cref="IDisposable.Dispose"/>.
-        /// </summary>
-        public void Dispose()
-        {
-            //Injected at compile time
-        }
-
         // ReSharper disable once UnusedMember.Local
         void DisposeManaged()
         {
@@ -172,14 +172,15 @@ namespace NServiceBus.Unicast
             featureRunner.Stop();
         }
 
+        IBuilder builder;
+        ContextualBus busImpl;
+        PipelineCollection pipelineCollection;
+
+        StartAndStoppablesRunner runner;
+        ReadOnlySettings settings;
+
         volatile bool started;
 
         static ILog Log = LogManager.GetLogger<UnicastBus>();
-
-        StartAndStoppablesRunner runner;
-        PipelineCollection pipelineCollection;
-        ContextualBus busImpl;
-        ReadOnlySettings settings;
-        IBuilder builder;
     }
 }

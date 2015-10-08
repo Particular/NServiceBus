@@ -2,15 +2,13 @@
 {
     using System;
     using System.Threading;
-    using NServiceBus.InMemory.Outbox;
+    using InMemory.Outbox;
 
     /// <summary>
-    /// Used to configure in memory outbox persistence.
+    ///     Used to configure in memory outbox persistence.
     /// </summary>
     public class InMemoryOutboxPersistence : Feature
     {
-        internal const string TimeToKeepDeduplicationEntries = "Outbox.TimeToKeepDeduplicationEntries";
-
         internal InMemoryOutboxPersistence()
         {
             DependsOn<Outbox>();
@@ -18,7 +16,7 @@
         }
 
         /// <summary>
-        /// See <see cref="Feature.Setup"/>.
+        ///     See <see cref="Feature.Setup" />.
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
@@ -56,5 +54,7 @@
 // ReSharper disable once NotAccessedField.Local
             Timer cleanupTimer;
         }
+
+        internal const string TimeToKeepDeduplicationEntries = "Outbox.TimeToKeepDeduplicationEntries";
     }
 }

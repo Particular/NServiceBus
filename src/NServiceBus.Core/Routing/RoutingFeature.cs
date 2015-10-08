@@ -1,12 +1,12 @@
 ﻿namespace NServiceBus.Features
 {
     using System.Linq;
-    using NServiceBus.Config;
-    using NServiceBus.Routing;
-    using NServiceBus.Routing.MessageDrivenSubscriptions;
-    using NServiceBus.Settings;
-    using NServiceBus.Transports;
-    using NServiceBus.Unicast.Routing;
+    using Config;
+    using Routing;
+    using Routing.MessageDrivenSubscriptions;
+    using Settings;
+    using Transports;
+    using Unicast.Routing;
 
     class RoutingFeature : Feature
     {
@@ -14,6 +14,7 @@
         {
             EnableByDefault();
         }
+
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             var canReceive = !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly");
@@ -22,19 +23,19 @@
 
             context.Container.ConfigureComponent<DynamicRoutingProvider>(DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent(b => new DetermineRouteForSendBehavior(context.Settings.LocalAddress(),
-               new DefaultMessageRouter(staticRoutes), b.Build<DynamicRoutingProvider>()), DependencyLifecycle.InstancePerCall);
+                new DefaultMessageRouter(staticRoutes), b.Build<DynamicRoutingProvider>()), DependencyLifecycle.InstancePerCall);
 
             if (!transportDefinition.HasNativePubSubSupport)
             {
                 //todo: add the routing behavior
                 //context.Container.ConfigureComponent<DispatchStrategy>(b => new StorageDrivenDispatcher(b.Build<IQuerySubscriptions>(), b.Build<MessageMetadataRegistry>()), DependencyLifecycle.SingleInstance);
             }
-    
+
             context.Pipeline.Register("DetermineRouteForSend", typeof(DetermineRouteForSendBehavior), "Determines how the message being sent should be routed");
             context.Pipeline.Register("DetermineRouteForReply", typeof(DetermineRouteForReplyBehavior), "Determines how replies should be routed");
             context.Pipeline.Register("DetermineRouteForPublish", typeof(DetermineRouteForPublishBehavior), "Determines how the published messages should be routed");
             context.Pipeline.Register("StorageDrivenPublish", typeof(StorageDrivenPublishBehavior), "Forks publish operations to individual sends using the subscription storage");
-            
+
             if (canReceive)
             {
                 context.Pipeline.Register("ApplyReplyToAddress", typeof(ApplyReplyToAddressBehavior), "Applies the public reply to address to outgoing messages");
@@ -51,7 +52,7 @@
                 if (transportDefinition.HasNativePubSubSupport)
                 {
                     context.Container.RegisterSingleton(transportDefinition.GetSubscriptionManager());
-                    
+
                     context.Pipeline.Register("NativeSubscribeTerminator", typeof(NativeSubscribeTerminator), "Requests the transport to subscribe to a given message type");
                     context.Pipeline.Register("NativeUnsubscribeTerminator", typeof(NativeUnsubscribeTerminator), "Requests the transport to unsubscribe to a given message type");
                 }
@@ -73,7 +74,6 @@
                     context.Container.ConfigureComponent(b => new MessageDrivenSubscribeTerminator(subscriptionRouter, replyToAddress, b.Build<IDispatchMessages>()), DependencyLifecycle.SingleInstance);
                     context.Container.ConfigureComponent(b => new MessageDrivenUnsubscribeTerminator(subscriptionRouter, replyToAddress, b.Build<IDispatchMessages>()), DependencyLifecycle.SingleInstance);
                 }
-
             }
         }
 
@@ -93,10 +93,7 @@
 
             foreach (var mapping in messageEndpointMappings)
             {
-                mapping.Configure((messageType, address) =>
-                {
-                    routes.Register(messageType, address);
-                });
+                mapping.Configure((messageType, address) => { routes.Register(messageType, address); });
             }
 
 

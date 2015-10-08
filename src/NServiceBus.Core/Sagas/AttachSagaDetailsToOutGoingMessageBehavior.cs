@@ -2,10 +2,10 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.Sagas;
-    using NServiceBus.TransportDispatch;
+    using Pipeline;
+    using Pipeline.Contexts;
+    using Sagas;
+    using TransportDispatch;
 
     class AttachSagaDetailsToOutGoingMessageBehavior : Behavior<OutgoingLogicalMessageContext>
     {

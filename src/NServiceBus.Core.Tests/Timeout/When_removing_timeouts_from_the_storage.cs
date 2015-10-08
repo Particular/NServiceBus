@@ -3,8 +3,8 @@
     using System;
     using System.Linq;
     using System.Threading.Tasks;
+    using Extensibility;
     using InMemory.TimeoutPersister;
-    using NServiceBus.Extensibility;
     using NServiceBus.Timeout.Core;
     using NUnit.Framework;
 
@@ -15,10 +15,18 @@
         public async Task Should_remove_timeouts_by_id()
         {
             var persister = new InMemoryTimeoutPersister();
-            var t1 = new TimeoutData { Id = "1", Time = DateTime.UtcNow.AddHours(-1) };
+            var t1 = new TimeoutData
+            {
+                Id = "1",
+                Time = DateTime.UtcNow.AddHours(-1)
+            };
             await persister.Add(t1, new ContextBag());
 
-            var t2 = new TimeoutData { Id = "2", Time = DateTime.UtcNow.AddHours(-1) };
+            var t2 = new TimeoutData
+            {
+                Id = "2",
+                Time = DateTime.UtcNow.AddHours(-1)
+            };
             await persister.Add(t2, new ContextBag());
 
             var firstChunk = await persister.GetNextChunk(DateTime.UtcNow.AddYears(-3));

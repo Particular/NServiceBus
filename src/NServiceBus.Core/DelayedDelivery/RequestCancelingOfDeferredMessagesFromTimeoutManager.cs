@@ -1,16 +1,15 @@
 ﻿namespace NServiceBus.DelayedDelivery
 {
     using System.Threading.Tasks;
-    using NServiceBus.DelayedDelivery.TimeoutManager;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Routing;
-    using NServiceBus.TransportDispatch;
-    using NServiceBus.Transports;
-    using NServiceBus.Unicast.Transport;
+    using Pipeline;
+    using Routing;
+    using TimeoutManager;
+    using TransportDispatch;
+    using Transports;
+    using Unicast.Transport;
 
     class RequestCancelingOfDeferredMessagesFromTimeoutManager : ICancelDeferredMessages
     {
-
         public RequestCancelingOfDeferredMessagesFromTimeoutManager(string timeoutManagerAddress, IPipelineBase<RoutingContext> dispatchPipeline)
         {
             this.timeoutManagerAddress = timeoutManagerAddress;
@@ -25,12 +24,12 @@
             controlMessage.Headers[TimeoutManagerHeaders.ClearTimeouts] = bool.TrueString;
 
             var dispatchContext = new RoutingContext(controlMessage, new DirectToTargetDestination(timeoutManagerAddress), context);
-            
+
             return dispatchPipeline.Invoke(dispatchContext);
         }
 
-        string timeoutManagerAddress;
         IPipelineBase<RoutingContext> dispatchPipeline;
 
+        string timeoutManagerAddress;
     }
 }

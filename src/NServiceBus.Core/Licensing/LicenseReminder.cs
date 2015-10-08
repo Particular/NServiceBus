@@ -1,8 +1,8 @@
 namespace NServiceBus.Features
 {
     using System;
+    using Licensing;
     using Logging;
-    using NServiceBus.Licensing;
 
     class LicenseReminder : Feature
     {
@@ -21,16 +21,13 @@ namespace NServiceBus.Features
 
                 context.Pipeline.Register<NotifyOnInvalidLicenseBehavior.Registration>();
 
-                context.Container.ConfigureComponent(b => new NotifyOnInvalidLicenseBehavior(licenseExpired),DependencyLifecycle.SingleInstance);
-
+                context.Container.ConfigureComponent(b => new NotifyOnInvalidLicenseBehavior(licenseExpired), DependencyLifecycle.SingleInstance);
             }
             catch (Exception ex)
             {
                 //we only log here to prevent licensing issue to abort startup and cause production outages
                 Logger.Fatal("Failed to initialize the license", ex);
             }
-
-
         }
 
         static ILog Logger = LogManager.GetLogger<LicenseReminder>();

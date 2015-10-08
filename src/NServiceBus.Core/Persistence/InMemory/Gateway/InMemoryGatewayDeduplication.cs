@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
+    using Extensibility;
 
     class InMemoryGatewayDeduplication : IDeduplicateMessages
     {
@@ -14,11 +14,32 @@
             {
                 var item = persistence.SingleOrDefault(m => m.Id == clientId);
                 if (item != null)
+                {
                     return Task.FromResult(false);
+                }
 
-                return Task.FromResult(persistence.Add(new GatewayMessage { Id = clientId, TimeReceived = timeReceived }));
+                return Task.FromResult(persistence.Add(new GatewayMessage
+                {
+                    Id = clientId,
+                    TimeReceived = timeReceived
+                }));
             }
         }
+
+        public int DeleteDeliveredMessages(DateTime until)
+        {
+            int count;
+            lock (persistence)
+            {
+                var items = persistence.Where(msg => msg.TimeReceived <= until).ToList();
+                count = items.Count();
+
+                items.ForEach(item => persistence.Remove(item));
+            }
+            return count;
+        }
+
+        ISet<GatewayMessage> persistence = new HashSet<GatewayMessage>(new MessageDataComparer());
 
         class MessageDataComparer : IEqualityComparer<GatewayMessage>
         {
@@ -33,20 +54,6 @@
             }
         }
 
-        ISet<GatewayMessage> persistence = new HashSet<GatewayMessage>(new MessageDataComparer());
-
-        public int DeleteDeliveredMessages(DateTime until)
-        {
-            int count;
-            lock (persistence)
-            {
-                var items = persistence.Where(msg => msg.TimeReceived <= until).ToList();
-                count = items.Count();
-
-                items.ForEach(item => persistence.Remove(item));
-            }
-            return count;
-        }
         class GatewayMessage
         {
             public string Id { get; set; }

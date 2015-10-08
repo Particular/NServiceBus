@@ -2,8 +2,8 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
 
     public class When_a_message_is_audited : NServiceBusAcceptanceTest
@@ -12,10 +12,10 @@
         public async Task Should_add_host_related_headers()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<EndpointWithAuditOn>(b => b.When((bus, c) => bus.SendLocalAsync(new MessageToBeAudited())))
-                    .WithEndpoint<AuditSpyEndpoint>()
-                    .Done(c => c.Done)
-                    .Run();
+                .WithEndpoint<EndpointWithAuditOn>(b => b.When((bus, c) => bus.SendLocalAsync(new MessageToBeAudited())))
+                .WithEndpoint<AuditSpyEndpoint>()
+                .Done(c => c.Done)
+                .Run();
 
             Assert.IsNotNull(context.HostId);
             Assert.IsNotNull(context.HostName);

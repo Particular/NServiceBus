@@ -2,17 +2,19 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
+    using Extensibility;
     using NUnit.Framework;
 
     [TestFixture]
     class When_multiple_workers_retrieve_same_saga
     {
-        
         [Test]
         public async Task Persister_returns_different_instance_of_saga_data()
         {
-            var saga = new TestSagaData { Id = Guid.NewGuid() };
+            var saga = new TestSagaData
+            {
+                Id = Guid.NewGuid()
+            };
             var persister = InMemoryPersisterBuilder.Build<TestSaga>();
             await persister.Save(saga, new ContextBag());
 
@@ -26,7 +28,10 @@
         [Test]
         public async Task Save_fails_when_data_changes_between_read_and_update()
         {
-            var saga = new TestSagaData { Id = Guid.NewGuid() };
+            var saga = new TestSagaData
+            {
+                Id = Guid.NewGuid()
+            };
             var persister = InMemoryPersisterBuilder.Build<TestSaga>();
             await persister.Save(saga, new ContextBag());
 
@@ -41,7 +46,10 @@
         [Test]
         public async Task Save_fails_when_data_changes_between_read_and_update_on_same_thread()
         {
-            var saga = new TestSagaData { Id = Guid.NewGuid() };
+            var saga = new TestSagaData
+            {
+                Id = Guid.NewGuid()
+            };
             var persister = InMemoryPersisterBuilder.Build<TestSaga>();
             await persister.Save(saga, new ContextBag());
 
@@ -56,7 +64,10 @@
         [Test]
         public async Task Save_fails_when_writing_same_data_twice()
         {
-            var saga = new TestSagaData { Id = Guid.NewGuid() };
+            var saga = new TestSagaData
+            {
+                Id = Guid.NewGuid()
+            };
             var persister = InMemoryPersisterBuilder.Build<TestSaga>();
             await persister.Save(saga, new ContextBag());
 
@@ -71,7 +82,10 @@
         [Test]
         public async Task Save_process_is_repeatable()
         {
-            var saga = new TestSagaData { Id = Guid.NewGuid() };
+            var saga = new TestSagaData
+            {
+                Id = Guid.NewGuid()
+            };
             var persister = InMemoryPersisterBuilder.Build<TestSaga>();
             await persister.Save(saga, new ContextBag());
 

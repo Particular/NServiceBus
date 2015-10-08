@@ -3,9 +3,9 @@
     using System;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Transports;
+    using AcceptanceTesting;
+    using Pipeline;
+    using Transports;
 
     static class SubscriptionBehaviorExtensions
     {
@@ -23,9 +23,6 @@
 
     class SubscriptionBehavior<TContext> : Behavior<PhysicalMessageProcessingContext> where TContext : ScenarioContext
     {
-        Action<SubscriptionEventArgs, TContext> action;
-        TContext scenarioContext;
-
         public SubscriptionBehavior(Action<SubscriptionEventArgs, TContext> action, TContext scenarioContext)
         {
             this.action = action;
@@ -50,6 +47,9 @@
         {
             return (from header in msg.Headers where header.Key == Headers.SubscriptionMessageType select header.Value).FirstOrDefault();
         }
+
+        Action<SubscriptionEventArgs, TContext> action;
+        TContext scenarioContext;
 
         internal class Registration : RegisterStep
         {

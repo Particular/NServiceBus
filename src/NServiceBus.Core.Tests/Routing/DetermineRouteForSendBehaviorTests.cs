@@ -2,10 +2,10 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Routing;
     using NUnit.Framework;
+    using OutgoingPipeline;
 
     [TestFixture]
     public class DetermineRouteForSendBehaviorTests
@@ -22,7 +22,7 @@
 
             await behavior.Invoke(context, () => Task.FromResult(0));
 
-            var routingStrategy = (DirectToTargetDestination)context.Get<RoutingStrategy>();
+            var routingStrategy = (DirectToTargetDestination) context.Get<RoutingStrategy>();
 
             Assert.AreEqual("destination endpoint", routingStrategy.Destination);
         }
@@ -39,7 +39,7 @@
 
             await behavior.Invoke(context, () => Task.FromResult(0));
 
-            var routingStrategy = (DirectToTargetDestination)context.Get<RoutingStrategy>();
+            var routingStrategy = (DirectToTargetDestination) context.Get<RoutingStrategy>();
 
             Assert.AreEqual("MyLocalAddress", routingStrategy.Destination);
         }
@@ -56,7 +56,7 @@
 
             await behavior.Invoke(context, () => Task.FromResult(0));
 
-            var routingStrategy = (DirectToTargetDestination)context.Get<RoutingStrategy>();
+            var routingStrategy = (DirectToTargetDestination) context.Get<RoutingStrategy>();
 
             Assert.AreEqual("MappedDestination", routingStrategy.Destination);
         }
@@ -71,7 +71,7 @@
 
             var context = CreateContext(options, new MessageWithoutRouting());
 
-            var ex = Assert.Throws<Exception>(async() => await behavior.Invoke(context, () => Task.FromResult(0)));
+            var ex = Assert.Throws<Exception>(async () => await behavior.Invoke(context, () => Task.FromResult(0)));
 
             Assert.True(ex.Message.Contains("No destination specified"));
         }
@@ -93,9 +93,13 @@
             return new DetermineRouteForSendBehavior(localAddress, router, new DynamicRoutingProvider());
         }
 
-        class MyMessage { }
+        class MyMessage
+        {
+        }
 
-        class MessageWithoutRouting { }
+        class MessageWithoutRouting
+        {
+        }
 
         class FakeRouter : MessageRouter
         {

@@ -5,10 +5,10 @@
     using System.Linq;
     using System.Threading.Tasks;
     using Logging;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Transports;
-    using NServiceBus.Unicast.Subscriptions;
-    using NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions;
+    using Pipeline;
+    using Transports;
+    using Unicast.Subscriptions;
+    using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
     class SubscriptionReceiverBehavior : Behavior<PhysicalMessageProcessingContext>
     {
@@ -90,9 +90,7 @@
 
         ISubscriptionStorage subscriptionStorage;
 
-        static ILog Logger = LogManager.GetLogger<SubscriptionReceiverBehavior>();
-
-        public class Registration:RegisterStep
+        public class Registration : RegisterStep
         {
             public Registration()
                 : base("ProcessSubscriptionRequests", typeof(SubscriptionReceiverBehavior), "Check for subscription messages and execute the requested behavior to subscribe or unsubscribe.")
@@ -100,5 +98,7 @@
                 InsertAfterIfExists(WellKnownStep.ExecuteUnitOfWork);
             }
         }
+
+        static ILog Logger = LogManager.GetLogger<SubscriptionReceiverBehavior>();
     }
 }
