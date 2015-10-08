@@ -4,6 +4,7 @@
     using Extensibility;
     using OutgoingPipeline;
     using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Routing;
     using NUnit.Framework;
 
     [TestFixture]
@@ -13,7 +14,7 @@
         public async Task Should_set_the_reply_to_header_to_configured_address()
         {
             var behavior = new ApplyReplyToAddressBehavior("MyAddress");
-            var context = new OutgoingLogicalMessageContext(new OutgoingLogicalMessage(new MyMessage()),  new ContextBag());
+            var context = new OutgoingLogicalMessageContext(new OutgoingLogicalMessage(new MyMessage()), new RoutingStrategy[] {},  new ContextBag());
 
             await behavior.Invoke(context, () => Task.FromResult(0));
 

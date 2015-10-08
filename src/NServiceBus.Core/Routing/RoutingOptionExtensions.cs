@@ -14,7 +14,7 @@
         {
             Guard.AgainstNullAndEmpty("destination", destination);
 
-            option.Context.GetOrCreate<DetermineRouteForSendBehavior.State>()
+            option.Context.GetOrCreate<UnicastSendRouterConnector.State>()
                 .ExplicitDestination = destination;
         }
 
@@ -27,7 +27,7 @@
         {
             Guard.AgainstNullAndEmpty("destination", destination);
 
-            option.Context.GetOrCreate<DetermineRouteForReplyBehavior.State>()
+            option.Context.GetOrCreate<UnicastReplyRouterConnector.State>()
                 .ExplicitDestination = destination;
         }
 
@@ -37,7 +37,7 @@
         /// <param name="option">Context being extended.</param>
         public static void RouteToLocalEndpointInstance(this SendOptions option)
         {
-            option.Context.GetOrCreate<DetermineRouteForSendBehavior.State>()
+            option.Context.GetOrCreate<UnicastSendRouterConnector.State>()
                 .RouteToLocalInstance = true;
         }
     }

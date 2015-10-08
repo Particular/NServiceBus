@@ -69,7 +69,7 @@
 
         static OutgoingPhysicalMessageContext InitializeContext()
         {
-            var context = new OutgoingPhysicalMessageContext(null, ContextHelpers.GetOutgoingContext(new SendOptions()));
+            var context = new OutgoingPhysicalMessageContext(null, null, ContextHelpers.GetOutgoingContext(new SendOptions()));
             return context;
         }
     }

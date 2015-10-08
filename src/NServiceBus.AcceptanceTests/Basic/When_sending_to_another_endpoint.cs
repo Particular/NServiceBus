@@ -50,8 +50,10 @@
         {
             public Sender()
             {
-                EndpointSetup<DefaultServer>(c => c.AddHeaderToAllOutgoingMessages("MyStaticHeader", "StaticHeaderValue"))
-                    .AddMapping<MyMessage>(typeof(Receiver));
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    c.AddHeaderToAllOutgoingMessages("MyStaticHeader", "StaticHeaderValue");
+                }).AddMapping<MyMessage>(typeof(Receiver));
             }
         }
 

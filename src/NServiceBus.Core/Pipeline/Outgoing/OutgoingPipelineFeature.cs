@@ -11,9 +11,6 @@
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.Pipeline.RegisterConnector<PublishToOutgoingContextConnector>("Connect the publish stage to the outgoing stage");
-            context.Pipeline.RegisterConnector<SendToOutgoingContextConnector>("Connect the send stage to the outgoing stage");
-            context.Pipeline.RegisterConnector<ReplyToOutgoingContextConnector>("Connect the reply stage to the outgoing stage");
             context.Pipeline.RegisterConnector<SerializeMessageConnector>("Converts a logical message into a physical message");
 
             context.Pipeline.Register(WellKnownStep.MutateOutgoingMessages, typeof(MutateOutgoingMessageBehavior), "Executes IMutateOutgoingMessages");

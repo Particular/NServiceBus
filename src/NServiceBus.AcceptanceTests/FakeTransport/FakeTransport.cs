@@ -3,15 +3,11 @@
     using System;
     using System.Collections.Generic;
     using NServiceBus.ConsistencyGuarantees;
+    using NServiceBus.Settings;
     using NServiceBus.Transports;
 
     public class FakeTransport : TransportDefinition
     {
-        protected override void Configure(BusConfiguration config)
-        {
-            config.EnableFeature<FakeTransportConfigurator>();
-        }
-
         public override IEnumerable<Type> GetSupportedDeliveryConstraints()
         {
             return new List<Type>();
@@ -32,9 +28,19 @@
             return null;
         }
 
+        protected override void Configure(BusConfiguration config)
+        {
+            config.EnableFeature<FakeTransportConfigurator>();
+        }
+
         public override string ToTransportAddress(LogicalAddress logicalAddress)
         {
             return logicalAddress.ToString();
+        }
+
+        public override OutboundRoutingPolicy GetOutboundRoutingPolicy(ReadOnlySettings settings)
+        {
+            return new OutboundRoutingPolicy(OutboundRoutingType.DirectSend, OutboundRoutingType.DirectSend, OutboundRoutingType.DirectSend);
         }
     }
 }

@@ -1,5 +1,7 @@
 ﻿namespace NServiceBus.OutgoingPipeline
 {
+    using System.Collections.Generic;
+    using NServiceBus.Routing;
     using Pipeline;
     using Pipeline.Contexts;
 
@@ -12,10 +14,11 @@
         /// <summary>
         /// Initializes an instance of the context.
         /// </summary>
-        public OutgoingPhysicalMessageContext(byte[] body, OutgoingLogicalMessageContext parentContext)
+        public OutgoingPhysicalMessageContext(byte[] body, IReadOnlyCollection<RoutingStrategy> routingStrategies, OutgoingLogicalMessageContext parentContext)
             : base(parentContext)
         {
             Body = body;
+            RoutingStrategies = routingStrategies;
         }
 
 
@@ -26,5 +29,10 @@
         /// A <see cref="byte"/> array containing the serialized contents of the outgoing message.
         /// </summary>
         public byte[] Body { get; set; }
+
+        /// <summary>
+        /// The routing strategies for this message.
+        /// </summary>
+        public IReadOnlyCollection<RoutingStrategy> RoutingStrategies { get; } 
     }
 }

@@ -92,7 +92,6 @@
             static ILog Logger = LogManager.GetLogger<CheckQueuePermissions>();
         }
 
-
         /// <summary>
         /// Initializes a new instance of <see cref="ConfigureTransport"/>.
         /// </summary>
@@ -116,20 +115,17 @@
                 .ConfigureProperty(t => t.Settings, settings);
 
 
-            if (context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"))
+            if (!context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"))
             {
-                return;
+                var transactionSettings = new TransactionSettings(context.Settings);
+                var transactionOptions = new TransactionOptions
+                {
+                    IsolationLevel = transactionSettings.IsolationLevel,
+                    Timeout = transactionSettings.TransactionTimeout
+                };
+
+                context.Container.ConfigureComponent(b => new MessagePump(b.Build<CriticalError>(), guarantee => SelectReceiveStrategy(guarantee, transactionOptions)), DependencyLifecycle.InstancePerCall);
             }
-
-            var transactionSettings = new TransactionSettings(context.Settings);
-
-            var transactionOptions = new TransactionOptions
-            {
-                IsolationLevel = transactionSettings.IsolationLevel,
-                Timeout = transactionSettings.TransactionTimeout
-            };
-
-            context.Container.ConfigureComponent(b => new MessagePump(b.Build<CriticalError>(), guarantee => SelectReceiveStrategy(guarantee, transactionOptions)), DependencyLifecycle.InstancePerCall);
         }
 
         /// <summary>

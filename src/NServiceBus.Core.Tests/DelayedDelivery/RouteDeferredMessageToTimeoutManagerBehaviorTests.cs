@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.DelayedDelivery;
     using NServiceBus.DelayedDelivery.TimeoutManager;
@@ -21,13 +22,13 @@
             var delay = TimeSpan.FromDays(1);
             var message = new OutgoingMessage("id", new Dictionary<string, string>(), new byte[0]);
 
-            var context = new RoutingContext(message, new DirectToTargetDestination("target"), null);
+            var context = new RoutingContext(message, new UnicastRoutingStrategy("target"), null);
 
             context.AddDeliveryConstraint(new DelayDeliveryWith(delay));
 
             await behavior.Invoke(context, () => Task.FromResult(0));
 
-            Assert.AreEqual("tm", ((DirectToTargetDestination)context.RoutingStrategy).Destination);
+            Assert.AreEqual("tm", ((UnicastAddressTag)context.RoutingStrategies.First().Apply(new Dictionary<string, string>())).Destination);
 
             Assert.AreEqual(message.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo], "target");
         }
@@ -41,12 +42,12 @@
 
             var message = new OutgoingMessage("id", new Dictionary<string, string>(), new byte[0]);
 
-            var context = new RoutingContext(message, new ToAllSubscribers(null), null);
+            var context = new RoutingContext(message, new MulticastRoutingStrategy(null), null);
             context.AddDeliveryConstraint(new DelayDeliveryWith(delay));
 
             var ex = Assert.Throws<Exception>(async () => await behavior.Invoke(context, () => Task.FromResult(0)));
 
-            Assert.True(ex.Message.Contains("Direct routing"));
+            Assert.True(ex.Message.Contains("unicast routing"));
         }
 
         [Test]
@@ -57,7 +58,7 @@
 
             var message = new OutgoingMessage("id", new Dictionary<string, string>(), new byte[0]);
 
-            var context = new RoutingContext(message, new DirectToTargetDestination("target"), null);
+            var context = new RoutingContext(message, new UnicastRoutingStrategy("target"), null);
             context.AddDeliveryConstraint(new DelayDeliveryWith(delay));
             context.AddDeliveryConstraint(new DiscardIfNotReceivedBefore(TimeSpan.FromSeconds(30)));
 
@@ -73,7 +74,7 @@
 
             var message = new OutgoingMessage("id", new Dictionary<string, string>(), new byte[0]);
 
-            var context = new RoutingContext(message, new DirectToTargetDestination("target"), null);
+            var context = new RoutingContext(message, new UnicastRoutingStrategy("target"), null);
             context.AddDeliveryConstraint(new DelayDeliveryWith(delay));
 
             await behavior.Invoke(context, () => Task.FromResult(0));
@@ -89,7 +90,7 @@
 
             var message = new OutgoingMessage("id", new Dictionary<string, string>(), new byte[0]);
 
-            var context = new RoutingContext(message, new DirectToTargetDestination("target"), null);
+            var context = new RoutingContext(message, new UnicastRoutingStrategy("target"), null);
             context.AddDeliveryConstraint(new DoNotDeliverBefore(at));
 
             await behavior.Invoke(context, () => Task.FromResult(0));

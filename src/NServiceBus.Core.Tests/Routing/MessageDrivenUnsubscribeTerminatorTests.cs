@@ -16,15 +16,14 @@
     {
         MessageDrivenUnsubscribeTerminator terminator;
         SubscriptionRouter router;
-        StaticRoutes staticRoutes;
         FakeDispatcher dispatcher;
 
         [SetUp]
         public void SetUp()
         {
-            staticRoutes = new StaticRoutes();
-            SetupStaticRoutes();
-            router = new SubscriptionRouter(staticRoutes, new[] { typeof(object) });
+            var publishers = new Publishers();
+            publishers.AddStatic("publisher1",typeof(object));
+            router = new SubscriptionRouter(publishers, new EndpointInstances(), new TransportAddresses());
             dispatcher = new FakeDispatcher();
             terminator = new MessageDrivenUnsubscribeTerminator(router, "replyToAddress", dispatcher);
         }
@@ -65,11 +64,6 @@
 
             Assert.AreEqual(0, dispatcher.DispatchedOperations.Count);
             Assert.AreEqual(11, dispatcher.FailedNumberOfTimes);
-        }
-
-        private void SetupStaticRoutes()
-        {
-            staticRoutes.Register(typeof(object), "publisher1");
         }
 
         class FakeDispatcher : IDispatchMessages

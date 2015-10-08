@@ -1,16 +1,20 @@
 namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.Transports;
+    using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Unicast.Queuing;
     using OutgoingPipeline;
     using Pipeline;
     using Routing;
     using TransportDispatch;
+    using Transports;
 
-    class DetermineRouteForReplyBehavior : Behavior<OutgoingReplyContext>
+    class UnicastReplyRouterConnector : StageConnector<OutgoingReplyContext, OutgoingLogicalMessageContext>
     {
-        public override Task Invoke(OutgoingReplyContext context, Func<Task> next)
+        public override async Task Invoke(OutgoingReplyContext context, Func<OutgoingLogicalMessageContext, Task> next)
         {
             var state = context.GetOrCreate<State>();
 
@@ -23,9 +27,16 @@ namespace NServiceBus
 
             context.SetHeader(Headers.MessageIntent, MessageIntentEnum.Reply.ToString());
 
-            context.Set<RoutingStrategy>(new DirectToTargetDestination(replyToAddress));
+            var addressLabels = RouteToDestination(replyToAddress).EnsureNonEmpty(() => "No destination specified.").ToArray();
 
-            return next();
+            try
+            {
+                await next(new OutgoingLogicalMessageContext(context.Message, addressLabels, context)).ConfigureAwait(false);
+            }
+            catch (QueueNotFoundException ex)
+            {
+                throw new Exception($"The destination queue '{ex.Queue}' could not be found. It may be the case that the given queue just hasn't been created yet, or has been deleted.", ex);
+            }
         }
 
         static string GetReplyToAddressFromIncomingMessage(OutgoingReplyContext context)
@@ -45,6 +56,11 @@ namespace NServiceBus
             }
 
             return replyToAddress;
+        }
+
+        static IEnumerable<UnicastRoutingStrategy> RouteToDestination(string physicalAddress)
+        {
+            yield return new UnicastRoutingStrategy(physicalAddress);
         }
 
         public class State

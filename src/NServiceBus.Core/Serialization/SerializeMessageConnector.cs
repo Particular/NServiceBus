@@ -27,7 +27,7 @@
         {
             if (context.GetOrCreate<State>().SkipSerialization)
             {
-                await next(new OutgoingPhysicalMessageContext(new byte[0], context)).ConfigureAwait(false);
+                await next(new OutgoingPhysicalMessageContext(new byte[0], context.RoutingStrategies, context)).ConfigureAwait(false);
                 return;
             }
 
@@ -35,7 +35,7 @@
             context.SetHeader(Headers.EnclosedMessageTypes, SerializeEnclosedMessageTypes(context.Message.MessageType));
 
             var array = Serialize(context);
-            await next(new OutgoingPhysicalMessageContext(array, context)).ConfigureAwait(false);
+            await next(new OutgoingPhysicalMessageContext(array, context.RoutingStrategies, context)).ConfigureAwait(false);
         }
 
         byte[] Serialize(OutgoingLogicalMessageContext context)

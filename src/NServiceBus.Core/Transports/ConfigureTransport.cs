@@ -31,6 +31,11 @@ namespace NServiceBus.Transports
                 var defaultTransportAddress = transport.Translate(s.RootLogicalAddress());
                 s.SetDefault("NServiceBus.LocalAddress", defaultTransportAddress);
             });
+
+            Defaults(s =>
+            {
+                s.SetDefault<TransportAddresses>(new TransportAddresses());
+            });
         }
 
         /// <summary>
@@ -40,6 +45,9 @@ namespace NServiceBus.Transports
         {
             var selectedTransportDefinition = context.Settings.Get<TransportDefinition>();
             context.Settings.Get<QueueBindings>().BindReceiving(context.Settings.LocalAddress());
+            var transportAddresses = context.Settings.Get<TransportAddresses>();
+            transportAddresses.RegisterTransportDefault(x => selectedTransportDefinition.ToTransportAddress(new LogicalAddress(x)));
+            context.Container.ConfigureComponent(b => transportAddresses, DependencyLifecycle.SingleInstance);
 
             var connectionString = context.Settings.Get<TransportConnectionString>().GetConnectionStringOrNull();
             if (connectionString == null && RequiresConnectionString)
@@ -48,7 +56,6 @@ namespace NServiceBus.Transports
             }
 
             context.Container.RegisterSingleton(selectedTransportDefinition);
-
           
             Configure(context, connectionString);
         }

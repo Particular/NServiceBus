@@ -46,12 +46,12 @@ namespace NServiceBus.Transports.Msmq
             var dispatchOptions = transportOperation.DispatchOptions;
             var message = transportOperation.Message;
 
-            var routingStrategy = dispatchOptions.RoutingStrategy as DirectToTargetDestination;
+                var routingStrategy = dispatchOptions.AddressTag as UnicastAddressTag;
 
-            if (routingStrategy == null)
-            {
-                throw new Exception("The MSMQ transport only supports the `DirectRoutingStrategy`, strategy required " + dispatchOptions.RoutingStrategy.GetType().Name);
-            }
+                if (routingStrategy == null)
+                {
+                    throw new Exception("The MSMQ transport only supports the `DirectRoutingStrategy`, strategy required " + dispatchOptions.AddressTag.GetType().Name);
+                }
 
             var destination = routingStrategy.Destination;
 

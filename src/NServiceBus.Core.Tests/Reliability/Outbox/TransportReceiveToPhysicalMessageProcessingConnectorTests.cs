@@ -79,7 +79,7 @@
 
             await Invoke(context);
 
-            var routing = fakeBatchPipeline.TransportOperations.First().DispatchOptions.RoutingStrategy as DirectToTargetDestination;
+            var routing = fakeBatchPipeline.TransportOperations.First().DispatchOptions.AddressTag as UnicastAddressTag;
             Assert.NotNull(routing);
             Assert.AreEqual("myEndpoint", routing.Destination);
             Assert.Null(fakeOutbox.StoredMessage);
@@ -102,9 +102,9 @@
 
             await Invoke(context);
 
-            var routing = fakeBatchPipeline.TransportOperations.First().DispatchOptions.RoutingStrategy as ToAllSubscribers;
+            var routing = fakeBatchPipeline.TransportOperations.First().DispatchOptions.AddressTag as MulticastAddressTag;
             Assert.NotNull(routing);
-            Assert.AreEqual(typeof(MyEvent), routing.EventType);
+            Assert.AreEqual(typeof(MyEvent), routing.MessageType);
             Assert.Null(fakeOutbox.StoredMessage);
         }
 

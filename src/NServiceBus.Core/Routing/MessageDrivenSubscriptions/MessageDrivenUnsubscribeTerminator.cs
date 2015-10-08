@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.Extensibility;
     using NServiceBus.Logging;
@@ -27,12 +26,7 @@
             var eventType = context.EventType;
 
             var publisherAddresses = subscriptionRouter.GetAddressesForEventType(eventType)
-                .ToList();
-
-            if (!publisherAddresses.Any())
-            {
-                throw new Exception($"No destination could be found for message type {eventType}. Check the <MessageEndpointMappings> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.");
-            }
+                .EnsureNonEmpty(() => string.Format("No publisher address could be found for message type {0}. Please ensure the configured publisher endpoint has at least one known instance.", eventType));
 
             var unsubscribeTasks = new List<Task>();
             foreach (var publisherAddress in publisherAddresses)
@@ -58,7 +52,7 @@
             try
             {
 
-                var dispatchOptions = new DispatchOptions(new DirectToTargetDestination(destination), DispatchConsistency.Default);
+                var dispatchOptions = new DispatchOptions(new UnicastAddressTag(destination), DispatchConsistency.Default);
                 await dispatcher.Dispatch(new[] { new TransportOperation(unsubscribeMessage, dispatchOptions) }, context).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)

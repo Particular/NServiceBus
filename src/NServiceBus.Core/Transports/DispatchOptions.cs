@@ -12,12 +12,12 @@ namespace NServiceBus.Transports
         /// <summary>
         /// Creates the send options with the given routing strategy.
         /// </summary>
-        /// <param name="routingStrategy">The strategy to use when routing this message.</param>
+        /// <param name="addressTag">The address to use when routing this message.</param>
         /// <param name="requiredDispatchConsistency">The required consistency level for the dispatch operation.</param>
         /// <param name="deliveryConstraints">The delivery constraints that must be honored by the transport.</param>
-        public DispatchOptions(RoutingStrategy routingStrategy, DispatchConsistency requiredDispatchConsistency, IEnumerable<DeliveryConstraint> deliveryConstraints = null)
+        public DispatchOptions(AddressTag addressTag, DispatchConsistency requiredDispatchConsistency, IEnumerable<DeliveryConstraint> deliveryConstraints = null)
         {
-            RoutingStrategy = routingStrategy;
+            AddressTag = addressTag;
             RequiredDispatchConsistency = requiredDispatchConsistency;
 
             if (deliveryConstraints != null)
@@ -33,7 +33,7 @@ namespace NServiceBus.Transports
         /// <summary>
         /// The strategy to use when routing this message.
         /// </summary>
-        public RoutingStrategy RoutingStrategy { get; private set; }
+        public AddressTag AddressTag { get; private set; }
 
         /// <summary>
         /// The delivery constraints that must be honored by the transport.

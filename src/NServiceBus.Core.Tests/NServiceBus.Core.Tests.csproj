@@ -156,7 +156,6 @@
     <Compile Include="Hosting\HostInfoSettingsTests.cs" />
     <Compile Include="Logging\DefaultFactoryTests.cs" />
     <Compile Include="Msmq\MsmqMessageSenderTests.cs" />
-    <Compile Include="FileBasedRoundRobinRoutingTests.cs" />
     <Compile Include="Persistence\InMemory\InMemoryPersisterBuilder.cs" />
     <Compile Include="Persistence\InMemory\When_persisting_a_saga_with_the_same_unique_property_as_a_completed_saga.cs" />
     <Compile Include="Persistence\InMemory\When_saving_a_null_unique_property.cs" />
@@ -166,7 +165,6 @@
     <Compile Include="Pipeline\PipelineModelBuilderTests.cs" />
     <Compile Include="Routing\DetermineRouteForReplyBehaviorTests.cs" />
     <Compile Include="Msmq\ConnectionStringParserTests.cs" />
-    <Compile Include="Routing\FileBasedRoundRobinRoutingDistributorTests.cs" />
     <Compile Include="Sagas\SagaModelTests.cs" />
     <Compile Include="Sagas\SagaMetadataCreationTests.cs" />
     <Compile Include="Recoverability\SecondLevelRetries\DefaultRetryPolicyTests.cs" />

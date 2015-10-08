@@ -1,6 +1,8 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using DeliveryConstraints;
     using Pipeline;
@@ -14,18 +16,24 @@
             var state = context.GetOrCreate<State>();
             var dispatchConsistency = state.ImmediateDispatch ? DispatchConsistency.Isolated : DispatchConsistency.Default;
 
-            var options = new DispatchOptions(context.RoutingStrategy, dispatchConsistency, context.GetDeliveryConstraints());
-            var operation = new TransportOperation(context.Message, options);
+            var operations = context.RoutingStrategies
+                .Select(rs =>
+                {
+                    var headers = new Dictionary<string, string>(context.Message.Headers);
+                    var addressLabel = rs.Apply(headers);
+                    var message = new OutgoingMessage(context.Message.MessageId, context.Message.Headers, context.Message.Body);
+                    return new TransportOperation(message, new DispatchOptions(addressLabel, dispatchConsistency, context.GetDeliveryConstraints()));
+                });            
 
             PendingTransportOperations pendingOperations;
 
             if (!state.ImmediateDispatch && context.TryGet(out pendingOperations))
             {
-                pendingOperations.Add(operation);
+                pendingOperations.AddRange(operations);
                 return;
             }
 
-            await next(new DispatchContext(new[] { operation }, context)).ConfigureAwait(false);
+            await next(new DispatchContext(operations.ToArray(), context)).ConfigureAwait(false);
         }
 
         public class State

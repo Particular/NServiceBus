@@ -8,6 +8,7 @@
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.Features;
+    using NServiceBus.Settings;
     using NServiceBus.Transports;
     using NUnit.Framework;
 
@@ -49,17 +50,13 @@
                 {
                     c.ScaleOut().UniqueQueuePerEndpointInstance();
                     c.UseTransport<TransportThatDoesNotSetADefaultDiscriminator>();
-                });
+                })
+                .IncludeType<TransportThatDoesNotSetADefaultDiscriminatorConfigurator>();
             }
         }
 
         public class TransportThatDoesNotSetADefaultDiscriminator : TransportDefinition
         {
-            protected override void Configure(BusConfiguration config)
-            {
-                config.EnableFeature<TransportThatDoesNotSetADefaultDiscriminatorConfigurator>();
-            }
-
             public override IEnumerable<Type> GetSupportedDeliveryConstraints()
             {
                 return new List<Type>();
@@ -85,6 +82,10 @@
                 throw new NotImplementedException();
             }
 
+            public override OutboundRoutingPolicy GetOutboundRoutingPolicy(ReadOnlySettings settings)
+            {
+                return new OutboundRoutingPolicy(OutboundRoutingType.DirectSend, OutboundRoutingType.DirectSend, OutboundRoutingType.DirectSend);
+            }
         }
 
         public class TransportThatDoesNotSetADefaultDiscriminatorConfigurator : ConfigureTransport

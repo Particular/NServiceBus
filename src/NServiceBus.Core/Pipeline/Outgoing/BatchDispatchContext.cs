@@ -12,14 +12,14 @@ namespace NServiceBus
         /// <summary>
         /// The captured transport operations to dispatch.
         /// </summary>
-        public IEnumerable<TransportOperation> Operations { get; private set; }
+        public IReadOnlyCollection<TransportOperation> Operations { get; private set; }
 
         /// <summary>
         /// Create a new batch dispatch context.
         /// </summary>
         /// <param name="operations">The operations to dispatch.</param>
         /// <param name="parentContext">The parent receive context.</param>
-        public BatchDispatchContext(IEnumerable<TransportOperation> operations, BehaviorContext parentContext)
+        public BatchDispatchContext(IReadOnlyCollection<TransportOperation> operations, BehaviorContext parentContext)
             : base(parentContext)
         {
             Operations = operations;

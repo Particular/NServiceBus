@@ -3,6 +3,7 @@ namespace NServiceBus.Core.Tests
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Threading.Tasks;
     using Features;
     using Faults;
@@ -132,7 +133,7 @@ namespace NServiceBus.Core.Tests
                     throw new Exception("Failed to dispatch");
                 }
 
-                Destination = ((DirectToTargetDestination) context.RoutingStrategy).Destination;
+                Destination = ((UnicastAddressTag) context.RoutingStrategies.First().Apply(new Dictionary<string, string>())).Destination;
                 MessageSent = context.Message;
                 return Task.FromResult(0);
             }

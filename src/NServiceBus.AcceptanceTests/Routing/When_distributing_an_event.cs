@@ -66,7 +66,7 @@
                     "DynamicRouting.SubscriberB.2"
                 });
 
-                EndpointSetup<DefaultServer>(c => c.UseDynamicRouting<FileBasedRoundRobinDistribution>()
+                EndpointSetup<DefaultServer>(c => c.Routing().UseFileBasedEndpointInstanceLists()
                     .LookForFilesIn(basePath));
             }
 
