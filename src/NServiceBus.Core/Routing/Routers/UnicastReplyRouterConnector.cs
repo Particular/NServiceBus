@@ -10,6 +10,7 @@ namespace NServiceBus
     using Pipeline;
     using Routing;
     using TransportDispatch;
+    using Transports;
 
     class UnicastReplyRouterConnector : StageConnector<OutgoingReplyContext, OutgoingLogicalMessageContext>
     {
