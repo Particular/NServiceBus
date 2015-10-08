@@ -7,7 +7,7 @@ namespace NServiceBus.Routing
     /// <summary>
     /// Stores the information about instances of known endpoints.
     /// </summary>
-    public class EndpoointInstances
+    public class EndpointInstances
     {
         List<Func<EndpointName, IEnumerable<EndpointInstanceName>>> rules = new List<Func<EndpointName, IEnumerable<EndpointInstanceName>>>();
 

@@ -9,16 +9,16 @@ namespace NServiceBus.Routing
 
     class UnicastRouter : IUnicastRouter
     {
-        EndpoointInstances endpoointInstances;
+        EndpointInstances endpointInstances;
         TransportAddresses physicalAddresses;
         MessageMetadataRegistry messageMetadataRegistry;
         UnicastRoutingTable unicastRoutingTable;
 
-        public UnicastRouter(MessageMetadataRegistry messageMetadataRegistry, UnicastRoutingTable unicastRoutingTable, EndpoointInstances endpoointInstances, TransportAddresses physicalAddresses)
+        public UnicastRouter(MessageMetadataRegistry messageMetadataRegistry, UnicastRoutingTable unicastRoutingTable, EndpointInstances endpointInstances, TransportAddresses physicalAddresses)
         {
             this.messageMetadataRegistry = messageMetadataRegistry;
             this.unicastRoutingTable = unicastRoutingTable;
-            this.endpoointInstances = endpoointInstances;
+            this.endpointInstances = endpointInstances;
             this.physicalAddresses = physicalAddresses;
         }
 
@@ -32,7 +32,7 @@ namespace NServiceBus.Routing
             var destinationEndpoints = typesToRoute.SelectMany(t => unicastRoutingTable.GetDestinationsFor(t, contextBag)).Distinct().ToList();
 
             return destinationEndpoints.SelectMany(d => d.Resolve(
-                e => endpoointInstances.FindInstances(e),
+                e => endpointInstances.FindInstances(e),
                 distributionStrategy.SelectDestination,
                 i => physicalAddresses.GetPhysicalAddress(i)
                 )).Select(a => new UnicastRoutingStrategy(a));

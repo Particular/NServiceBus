@@ -7,10 +7,10 @@
 
     class SubscriptionRouter
     {
-        public SubscriptionRouter(Publishers publishers, EndpoointInstances endpoointInstances, TransportAddresses physicalAddresses)
+        public SubscriptionRouter(Publishers publishers, EndpointInstances endpointInstances, TransportAddresses physicalAddresses)
         {
             this.publishers = publishers;
-            this.endpoointInstances = endpoointInstances;
+            this.endpointInstances = endpointInstances;
             this.physicalAddresses = physicalAddresses;
         }
 
@@ -18,13 +18,13 @@
         {
             var publisherAddresses = publishers
                 .GetPublisherFor(messageType).SelectMany(p => p
-                    .Resolve(e => endpoointInstances.FindInstances(e), i => physicalAddresses.GetPhysicalAddress(i)));
+                    .Resolve(e => endpointInstances.FindInstances(e), i => physicalAddresses.GetPhysicalAddress(i)));
 
             return publisherAddresses;
         }
 
         Publishers publishers;
-        EndpoointInstances endpoointInstances;
+        EndpointInstances endpointInstances;
         TransportAddresses physicalAddresses;
     }
 }

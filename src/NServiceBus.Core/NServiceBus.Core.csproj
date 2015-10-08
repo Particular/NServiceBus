@@ -133,7 +133,7 @@
     <Compile Include="Routing\Routers\UnicastPublishRouterConnector.cs" />
     <Compile Include="Routing\UnicastRouter.cs" />
     <Compile Include="Routing\FileBasedDynamicRouting\FileRoutingTableSettings.cs" />
-    <Compile Include="Routing\EndpoointInstances.cs" />
+    <Compile Include="Routing\EndpointInstances.cs" />
     <Compile Include="Transports\TransportAddresses.cs" />
     <Compile Include="Routing\UnicastRoutingTable.cs" />
     <Compile Include="Routing\RoutingSettings.cs" />

@@ -21,7 +21,7 @@
             Defaults(s =>
             {
                 s.SetDefault<UnicastRoutingTable>(new UnicastRoutingTable());
-                s.SetDefault<EndpoointInstances>(new EndpoointInstances());
+                s.SetDefault<EndpointInstances>(new EndpointInstances());
                 s.SetDefault<Publishers>(new Publishers());
                 s.SetDefault<DistributionPolicy>(new DistributionPolicy());
             });
@@ -34,7 +34,7 @@
             var transportDefinition = context.Settings.Get<TransportDefinition>();
 
             context.Container.ConfigureComponent(b => context.Settings.Get<UnicastRoutingTable>(), DependencyLifecycle.SingleInstance);
-            context.Container.ConfigureComponent(b => context.Settings.Get<EndpoointInstances>(), DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent(b => context.Settings.Get<EndpointInstances>(), DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent(b => context.Settings.Get<Publishers>(), DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent(b => context.Settings.Get<DistributionPolicy>(), DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent<UnicastRouter>(DependencyLifecycle.SingleInstance);

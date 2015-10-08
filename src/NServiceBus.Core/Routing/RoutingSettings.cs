@@ -22,7 +22,7 @@
         /// <summary>
         /// Gets the known endpoints collection.
         /// </summary>
-        public EndpoointInstances EndpoointInstances => GetOrCreate<EndpoointInstances>();
+        public EndpointInstances EndpointInstances => GetOrCreate<EndpointInstances>();
 
         /// <summary>
         /// Gets the distribution policy.
