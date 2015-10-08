@@ -5,7 +5,6 @@ namespace NServiceBus.Features
     using System.Linq;
     using NServiceBus.Config;
     using NServiceBus.Logging;
-    using NServiceBus.Pipeline;
     using NServiceBus.Settings;
     using NServiceBus.Transports;
     using NServiceBus.Unicast;
@@ -51,8 +50,6 @@ namespace NServiceBus.Features
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             context.Container.ConfigureComponent<BusNotifications>(DependencyLifecycle.SingleInstance);
-            context.Container.ConfigureComponent<BehaviorContextStacker>(DependencyLifecycle.SingleInstance);
-            context.Container.ConfigureComponent(b => b.Build<BehaviorContextStacker>().GetCurrentOrRootContext(), DependencyLifecycle.InstancePerCall);
 
             //Hack because we can't register as IStartableBus because it would automatically register as IBus and overrode the proper IBus registration.
             context.Container.ConfigureComponent<UnicastBusInternal>(DependencyLifecycle.SingleInstance);

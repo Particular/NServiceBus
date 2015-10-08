@@ -18,12 +18,10 @@
             itemDescriptors = behaviorList.ToArray();
         }
 
-        public async Task Invoke(BehaviorContext context)
+        public async Task Invoke(BehaviorContextStacker contextStacker)
         {
-            var contextStacker = context.Builder.Build<BehaviorContextStacker>();
-            
             var outerPipe = false;
-
+            var context = contextStacker.GetCurrentOrRootContext();
             try
             {
                 if (!context.TryGet(out diagnostics))

@@ -10,23 +10,20 @@
     /// </summary>
     class BehaviorContextStacker : IDisposable
     {
-        /// <summary>
-        /// Initializes a new instance of <see cref="BehaviorContextStacker"/>.
-        /// </summary>
-        public BehaviorContextStacker(IBuilder rootBuilder)
+        public BehaviorContextStacker(BehaviorContext rootContext)
         {
-            rootContext = new RootContext(rootBuilder);
+            this.rootContext = rootContext;
         }
 
-        /// <summary>
-        /// The root <see cref="BehaviorContext"/> for this stack.
-        /// </summary>
-        public BehaviorContext Root => rootContext;
+        public BehaviorContextStacker(IBuilder builder)
+            : this(new RootContext(builder))
+        {
+        }
 
         /// <summary>
         /// The current <see cref="BehaviorContext"/> at the top of the stack.
         /// </summary>
-        public BehaviorContext Current
+        BehaviorContext Current
         {
             get
             {
@@ -40,7 +37,7 @@
         }
 
         /// <summary>
-        /// Retrieves either the <see cref="Current"/> context or, of it is null, the <see cref="Root"/> context.
+        /// Retrieves either the <see cref="Current"/> context or, of it is null, the root context.
         /// </summary>
         public BehaviorContext GetCurrentOrRootContext()
         {
@@ -77,6 +74,6 @@
         }
 
         Stack<BehaviorContext> behaviorContextStack = new Stack<BehaviorContext>();
-        RootContext rootContext;
+        BehaviorContext rootContext;
     }
 }

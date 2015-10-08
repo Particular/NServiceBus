@@ -56,7 +56,14 @@
         {
             var lookupSteps = steps.ToDictionary(rs => rs.BehaviorType, ss => ss.StepId);
             var pipeline = new BehaviorChain(behaviors, lookupSteps, busNotifications);
-            return pipeline.Invoke(context);
+            return pipeline.Invoke(new BehaviorContextStacker(context));
+        }
+
+        public Task Invoke(BehaviorContextStacker contextStacker)
+        {
+            var lookupSteps = steps.ToDictionary(rs => rs.BehaviorType, ss => ss.StepId);
+            var pipeline = new BehaviorChain(behaviors, lookupSteps, busNotifications);
+            return pipeline.Invoke(contextStacker);
         }
 
         BehaviorInstance[] behaviors;
