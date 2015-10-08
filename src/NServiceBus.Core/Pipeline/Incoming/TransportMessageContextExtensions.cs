@@ -1,6 +1,7 @@
 namespace NServiceBus.Pipeline
 {
     using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Transports;
     using OutgoingPipeline;
 
     /// <summary>
@@ -11,9 +12,9 @@ namespace NServiceBus.Pipeline
         /// <summary>
         /// Returns the incoming physical message if there is one currently processed.
         /// </summary>
-        public static bool TryGetIncomingPhysicalMessage(this OutgoingReplyContext context, out TransportMessage message)
+        public static bool TryGetIncomingPhysicalMessage(this OutgoingReplyContext context, out IncomingMessage message)
         {
-            Guard.AgainstNull("context", context);
+            Guard.AgainstNull(nameof(context), context);
 
             return context.TryGet(out message);
         }
@@ -21,9 +22,9 @@ namespace NServiceBus.Pipeline
         /// <summary>
         /// Returns the incoming physical message if there is one currently processed.
         /// </summary>
-        public static bool TryGetIncomingPhysicalMessage(this OutgoingLogicalMessageContext context, out TransportMessage message)
+        public static bool TryGetIncomingPhysicalMessage(this OutgoingLogicalMessageContext context, out IncomingMessage message)
         {
-            Guard.AgainstNull("context", context);
+            Guard.AgainstNull(nameof(context), context);
 
             return context.TryGet(out message);
         }
@@ -31,9 +32,9 @@ namespace NServiceBus.Pipeline
         /// <summary>
         /// Returns the incoming physical message if there is one currently processed.
         /// </summary>
-        public static bool TryGetIncomingPhysicalMessage(this OutgoingPhysicalMessageContext context, out TransportMessage message)
+        public static bool TryGetIncomingPhysicalMessage(this OutgoingPhysicalMessageContext context, out IncomingMessage message)
         {
-            Guard.AgainstNull("context", context);
+            Guard.AgainstNull(nameof(context), context);
 
             return context.TryGet(out message);
         }

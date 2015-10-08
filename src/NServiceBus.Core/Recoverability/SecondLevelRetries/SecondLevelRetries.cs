@@ -6,6 +6,7 @@ namespace NServiceBus.Features
     using NServiceBus.Recoverability.SecondLevelRetries;
     using NServiceBus.Settings;
     using NServiceBus.TransportDispatch;
+    using NServiceBus.Transports;
 
     /// <summary>
     /// Used to configure Second Level Retries.
@@ -56,9 +57,9 @@ namespace NServiceBus.Features
             return retriesConfig.Enabled;
         }
 
-        SecondLevelRetryPolicy GetRetryPolicy(ReadOnlySettings settings)
+        static SecondLevelRetryPolicy GetRetryPolicy(ReadOnlySettings settings)
         {
-            var customRetryPolicy = settings.GetOrDefault<Func<TransportMessage, TimeSpan>>("SecondLevelRetries.RetryPolicy");
+            var customRetryPolicy = settings.GetOrDefault<Func<IncomingMessage, TimeSpan>>("SecondLevelRetries.RetryPolicy");
 
             if (customRetryPolicy != null)
             {

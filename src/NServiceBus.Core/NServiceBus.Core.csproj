@@ -123,6 +123,7 @@
     <Compile Include="Pipeline\Outgoing\ImmediateDispatchTerminator.cs" />
     <Compile Include="Transports\DispatchConsistency.cs" />
     <Compile Include="Transports\IManageSubscriptionsExtensions_obsolete.cs" />
+    <Compile Include="Transports\IncomingMessageExtensions.cs" />
     <Compile Include="Transports\Msmq\MsmqConnectionStringBuilder.cs" />
     <Compile Include="ConsistencyGuarantees\ApplyDefaultConsistencyGuaranteeBehavior.cs" />
     <Compile Include="ConsistencyGuarantees\ConsistencyGuaranteeFeature.cs" />
@@ -630,7 +631,6 @@
     <Compile Include="DelayedDelivery\TimeoutManager\StoreTimeoutBehavior.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\ExpiredTimeoutsPoller.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\TimeoutManagerHeaders.cs" />
-    <Compile Include="TransportMessage.cs" />
     <Compile Include="Licensing\LicenseExpiredForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -660,7 +660,6 @@
     <Compile Include="Persistence\Msmq\SubscriptionStorage\Entry.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionStorage.cs" />
     <Compile Include="Unicast\Transport\ControlMessageFactory.cs" />
-    <Compile Include="Unicast\Transport\FailedMessageProcessingEventArgs.cs" />
     <Compile Include="Unicast\Transport\Config\UseTransportExtensions.cs" />
     <Compile Include="Recoverability\FirstLevelRetries\FlrStatusStorage.cs" />
     <Compile Include="Unicast\Transport\TransportReceiver.cs" />

@@ -1,4 +1,4 @@
-namespace NServiceBus
+namespace NServiceBus.Transports.Msmq
 {
     using System;
     using System.Collections.Concurrent;
@@ -7,10 +7,9 @@ namespace NServiceBus
     using System.Messaging;
     using System.Threading;
     using System.Threading.Tasks;
-    using NServiceBus.CircuitBreakers;
-    using NServiceBus.ConsistencyGuarantees;
-    using NServiceBus.Logging;
-    using NServiceBus.Transports;
+    using CircuitBreakers;
+    using ConsistencyGuarantees;
+    using Logging;
 
     class MessagePump : IPushMessages, IDisposable
     {
@@ -18,6 +17,11 @@ namespace NServiceBus
         {
             this.criticalError = criticalError;
             this.receiveStrategyFactory = receiveStrategyFactory;
+        }
+
+        public void Dispose()
+        {
+            // Injected
         }
 
         public void Init(Func<PushContext, Task> pipe, PushSettings settings)
@@ -78,7 +82,10 @@ namespace NServiceBus
 
             // ReSharper disable once MethodSupportsCancellation
             var timeoutTask = Task.Delay(TimeSpan.FromSeconds(30));
-            var allTasks = runningReceiveTasks.Values.Concat(new[] { messagePumpTask });
+            var allTasks = runningReceiveTasks.Values.Concat(new[]
+            {
+                messagePumpTask
+            });
             var finishedTask = await Task.WhenAny(Task.WhenAll(allTasks), timeoutTask).ConfigureAwait(false);
 
             if (finishedTask.Equals(timeoutTask))
@@ -90,11 +97,6 @@ namespace NServiceBus
             runningReceiveTasks.Clear();
             inputQueue.Dispose();
             errorQueue.Dispose();
-        }
-
-        public void Dispose()
-        {
-            // Injected
         }
 
         [DebuggerNonUserCode]
@@ -197,7 +199,7 @@ namespace NServiceBus
                         Task toBeRemoved;
                         runningReceiveTasks.TryRemove(t, out toBeRemoved);
                     }, TaskContinuationOptions.ExecuteSynchronously)
-                    .Ignore();
+                        .Ignore();
 
                     runningReceiveTasks.AddOrUpdate(task, task, (k, v) => task)
                         .Ignore();
@@ -218,19 +220,20 @@ namespace NServiceBus
             }
         }
 
-        Task messagePumpTask;
-        ConcurrentDictionary<Task, Task> runningReceiveTasks;
-        SemaphoreSlim concurrencyLimiter;
-        CancellationTokenSource cancellationTokenSource;
         CancellationToken cancellationToken;
-        Func<PushContext, Task> pipeline;
-        ReceiveStrategy receiveStrategy;
+        CancellationTokenSource cancellationTokenSource;
+        SemaphoreSlim concurrencyLimiter;
         CriticalError criticalError;
-        Func<ConsistencyGuarantee, ReceiveStrategy> receiveStrategyFactory;
-        RepeatedFailuresOverTimeCircuitBreaker peekCircuitBreaker;
-        RepeatedFailuresOverTimeCircuitBreaker receiveCircuitBreaker;
         MessageQueue errorQueue;
         MessageQueue inputQueue;
+
+        Task messagePumpTask;
+        RepeatedFailuresOverTimeCircuitBreaker peekCircuitBreaker;
+        Func<PushContext, Task> pipeline;
+        RepeatedFailuresOverTimeCircuitBreaker receiveCircuitBreaker;
+        ReceiveStrategy receiveStrategy;
+        Func<ConsistencyGuarantee, ReceiveStrategy> receiveStrategyFactory;
+        ConcurrentDictionary<Task, Task> runningReceiveTasks;
 
         static ILog Logger = LogManager.GetLogger<ReceiveWithNativeTransaction>();
 

@@ -112,7 +112,7 @@ namespace NServiceBus.Unicast
             }
 
             var pipeline = new PipelineBase<RoutingContext>(builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
-            var outgoingMessage = new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body);
+            var outgoingMessage = new OutgoingMessage(MessageBeingProcessed.MessageId, MessageBeingProcessed.Headers, MessageBeingProcessed.Body);
             var context = new RoutingContext(outgoingMessage, new DirectToTargetDestination(sendLocalAddress), incomingContext);
 
             await pipeline.Invoke(context);
@@ -128,7 +128,7 @@ namespace NServiceBus.Unicast
         public async Task ForwardCurrentMessageToAsync(string destination)
         {
             var pipeline = new PipelineBase<RoutingContext>(builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
-            var outgoingMessage = new OutgoingMessage(MessageBeingProcessed.Id, MessageBeingProcessed.Headers, MessageBeingProcessed.Body);
+            var outgoingMessage = new OutgoingMessage(MessageBeingProcessed.MessageId, MessageBeingProcessed.Headers, MessageBeingProcessed.Body);
             var context = new RoutingContext(outgoingMessage, new DirectToTargetDestination(destination), incomingContext);
 
             await pipeline.Invoke(context);
@@ -173,7 +173,7 @@ namespace NServiceBus.Unicast
         {
             get
             {
-                TransportMessage current;
+                IncomingMessage current;
 
                 if (!incomingContext.TryGet(out current))
                 {
@@ -186,11 +186,11 @@ namespace NServiceBus.Unicast
 
         BehaviorContext incomingContext => contextStacker.GetCurrentOrRootContext();
 
-        TransportMessage MessageBeingProcessed
+        IncomingMessage MessageBeingProcessed
         {
             get
             {
-                TransportMessage current;
+                IncomingMessage current;
 
                 if (!incomingContext.TryGet(out current))
                 {

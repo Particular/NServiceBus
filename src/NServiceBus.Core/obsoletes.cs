@@ -225,7 +225,7 @@ namespace NServiceBus
     {
     }
 
-    public partial class TransportMessage
+    public class TransportMessage
     {
         [ObsoleteEx(
             Message = "Not used anymore, you most likely should use a `OutgoingMessage` instead",
@@ -266,6 +266,61 @@ namespace NServiceBus
             get { throw new NotImplementedException(); }
             set { throw new NotImplementedException(); }
         }
+
+        /// <summary>
+        ///     Gets/sets a byte array to the body content of the message.
+        /// </summary>
+        [ObsoleteEx(
+            Message = "Use the value of the 'IncomingMessage.Body' instead",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public byte[] Body { get { throw new NotImplementedException(); } set { throw new NotImplementedException(); } }
+
+        [ObsoleteEx(
+          Message = "Not used anymore, you most likely should use a `IncomingMessage` instead",
+          RemoveInVersion = "7.0",
+          TreatAsErrorFromVersion = "6.0")]
+        public TransportMessage(string existingId, Dictionary<string, string> existingHeaders)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        ///     Gets/sets the identifier of this message bundle.
+        /// </summary>
+        [ObsoleteEx(
+            Message = "Use the value of the 'IncomingMessage.MessageId' or 'OutgoingMesssage.MessageId' instead",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public string Id { get { throw new NotImplementedException(); } }
+
+        /// <summary>
+        ///     Gets/sets the reply-to address of the message bundle - replaces 'ReturnAddress'.
+        /// </summary>
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "GetReplyToAddress(this IncomingMessage message)",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public string ReplyToAddress { get { throw new NotImplementedException(); } }
+
+        /// <summary>
+        ///     Indicates to the infrastructure the message intent (publish, or regular send).
+        /// </summary>
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "GetMessageIntent(this IncomingMessage message)",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public MessageIntentEnum MessageIntent { get { throw new NotImplementedException(); } }
+
+        /// <summary>
+        ///     Gets/sets other applicative out-of-band information.
+        /// </summary>
+        [ObsoleteEx(
+            Message = "Use the value of the 'IncomingMessage.Headers' or 'OutgoingMesssage.Headers' instead",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public Dictionary<string, string> Headers { get; } = new Dictionary<string, string>();
+
     }
 
     public partial interface IBus
@@ -1333,6 +1388,14 @@ namespace NServiceBus.Unicast.Transport
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public bool DoNotWrapHandlersExecutionInATransactionScope { get; set; }
+    }
+
+    /// <summary>
+    /// Defines the event data for the failed message processing event.
+    /// </summary>
+    [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "Use the pipeline to catch failures")]
+    public class FailedMessageProcessingEventArgs : EventArgs
+    {
     }
 }
 

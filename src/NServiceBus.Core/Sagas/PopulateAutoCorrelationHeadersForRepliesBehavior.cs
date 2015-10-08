@@ -5,6 +5,7 @@
     using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline;
     using NServiceBus.TransportDispatch;
+    using NServiceBus.Transports;
 
     class PopulateAutoCorrelationHeadersForRepliesBehavior : Behavior<OutgoingReplyContext>
     {
@@ -17,11 +18,10 @@
 
         static void FlowDetailsForRequestingSagaToOutgoingMessage(OutgoingReplyContext context)
         {
-            TransportMessage incomingMessage;
+            IncomingMessage incomingMessage;
 
             if (context.TryGetIncomingPhysicalMessage(out incomingMessage))
             {
-
                 string sagaId;
 
                 incomingMessage.Headers.TryGetValue(Headers.OriginatingSagaId, out sagaId);

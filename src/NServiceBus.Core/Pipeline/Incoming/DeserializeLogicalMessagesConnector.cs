@@ -7,6 +7,7 @@
     using System.Reflection;
     using System.Threading.Tasks;
     using Logging;
+    using NServiceBus.Transports;
     using Pipeline;
     using Pipeline.Contexts;
     using Scheduling.Messages;
@@ -23,9 +24,9 @@
 
         public async override Task Invoke(PhysicalMessageProcessingContext context, Func<LogicalMessageProcessingContext, Task> next)
         {
-            var transportMessage = context.Message;
+            var incomingMessage = context.Message;
 
-            var messages = ExtractWithExceptionHandling(transportMessage);
+            var messages = ExtractWithExceptionHandling(incomingMessage);
 
             foreach (var message in messages)
             {
@@ -34,19 +35,19 @@
 
         }
 
-        List<LogicalMessage> ExtractWithExceptionHandling(TransportMessage transportMessage)
+        List<LogicalMessage> ExtractWithExceptionHandling(IncomingMessage message)
         {
             try
             {
-                return Extract(transportMessage);
+                return Extract(message);
             }
             catch (Exception exception)
             {
-                throw new MessageDeserializationException(transportMessage.Id, exception);
+                throw new MessageDeserializationException(message.MessageId, exception);
             }
         }
 
-        List<LogicalMessage> Extract(TransportMessage physicalMessage)
+        List<LogicalMessage> Extract(IncomingMessage physicalMessage)
         {
             if (physicalMessage.Body == null || physicalMessage.Body.Length == 0)
             {
@@ -86,9 +87,9 @@
                     messageMetadata.Add(metadata);
                 }
 
-                if (messageMetadata.Count == 0 && physicalMessage.MessageIntent != MessageIntentEnum.Publish)
+                if (messageMetadata.Count == 0 && physicalMessage.GetMesssageIntent() != MessageIntentEnum.Publish)
                 {
-                    log.WarnFormat("Could not determine message type from message header '{0}'. MessageId: {1}", messageTypeIdentifier, physicalMessage.Id);
+                    log.WarnFormat("Could not determine message type from message header '{0}'. MessageId: {1}", messageTypeIdentifier, physicalMessage.MessageId);
                 }
             }
 

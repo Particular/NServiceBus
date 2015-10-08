@@ -11,20 +11,29 @@ namespace NServiceBus.Faults
         /// <summary>
         /// Creates a new instance of <see cref="FirstLevelRetry"/>.
         /// </summary>
+        /// <param name="messageId">The id of the failed message.</param>
         /// <param name="headers">Message headers.</param>
         /// <param name="body">Message body.</param>
         /// <param name="exception">Exception thrown.</param>
         /// <param name="retryAttempt">Number of retry attempt.</param>
-        public FirstLevelRetry(Dictionary<string, string> headers, byte[] body, Exception exception, int retryAttempt)
+        public FirstLevelRetry(string messageId,Dictionary<string, string> headers, byte[] body, Exception exception, int retryAttempt)
         {
+            Guard.AgainstNullAndEmpty("messageId", messageId);
             Guard.AgainstNull("headers", headers);
             Guard.AgainstNull("body", body);
             Guard.AgainstNull("exception", exception);
+
+            MessageId = messageId;
             Headers = headers;
             Body = body;
             Exception = exception;
             RetryAttempt = retryAttempt;
         }
+
+        /// <summary>
+        /// Id of the failed message.
+        /// </summary>
+        public string MessageId { get; }
 
         /// <summary>
         ///     Gets the message headers.

@@ -37,7 +37,7 @@
 
             await behavior.Invoke(CreateContext("someid", 1), () => { throw new Exception("testex"); });
 
-            Assert.AreEqual("someid", fakeDispatchPipeline.RoutingContext.Message.Headers[Headers.MessageId]);
+            Assert.AreEqual("someid", fakeDispatchPipeline.RoutingContext.Message.MessageId);
             Assert.AreEqual(delay, ((DelayDeliveryWith)fakeDispatchPipeline.RoutingContext.GetDeliveryConstraints().Single(c => c is DelayDeliveryWith)).Delay);
             Assert.AreEqual("test-address-for-this-pipeline", ((DirectToTargetDestination)fakeDispatchPipeline.RoutingContext.RoutingStrategy).Destination);
             Assert.AreEqual("testex", slrNotification.Exception.Message);
@@ -168,7 +168,7 @@
 
         public int InvokedWithCurrentRetry { get; private set; }
 
-        public override bool TryGetDelay(TransportMessage message, Exception ex, int currentRetry, out TimeSpan delay)
+        public override bool TryGetDelay(IncomingMessage message, Exception ex, int currentRetry, out TimeSpan delay)
         {
             InvokedWithCurrentRetry = currentRetry;
 

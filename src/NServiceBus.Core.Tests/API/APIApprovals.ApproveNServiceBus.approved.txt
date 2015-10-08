@@ -717,8 +717,8 @@ namespace NServiceBus
     }
     public class PhysicalMessageProcessingContext : NServiceBus.Pipeline.Contexts.IncomingContext
     {
-        public PhysicalMessageProcessingContext(NServiceBus.TransportMessage message, NServiceBus.Pipeline.BehaviorContext parentContext) { }
-        public NServiceBus.TransportMessage Message { get; }
+        public PhysicalMessageProcessingContext(NServiceBus.Transports.IncomingMessage message, NServiceBus.Pipeline.BehaviorContext parentContext) { }
+        public NServiceBus.Transports.IncomingMessage Message { get; }
     }
     public class PipelineDiagnostics
     {
@@ -893,21 +893,33 @@ namespace NServiceBus
     }
     public class TransportMessage
     {
-        public TransportMessage(string existingId, System.Collections.Generic.Dictionary<string, string> existingHeaders) { }
         [System.ObsoleteAttribute("Not used anymore, you most likely should use a `OutgoingMessage` instead. Will be" +
             " removed in version 7.0.0.", true)]
         public TransportMessage() { }
+        [System.ObsoleteAttribute("Not used anymore, you most likely should use a `IncomingMessage` instead. Will be" +
+            " removed in version 7.0.0.", true)]
+        public TransportMessage(string existingId, System.Collections.Generic.Dictionary<string, string> existingHeaders) { }
+        [System.ObsoleteAttribute("Use the value of the \'IncomingMessage.Body\' instead. Will be removed in version 7" +
+            ".0.0.", true)]
         public byte[] Body { get; set; }
         [System.ObsoleteAttribute("Use the value of the \'NServiceBus.CorrelationId\' header instead. Will be removed " +
             "in version 7.0.0.", true)]
         public string CorrelationId { get; set; }
+        [System.ObsoleteAttribute("Use the value of the \'IncomingMessage.Headers\' or \'OutgoingMesssage.Headers\' inst" +
+            "ead. Will be removed in version 7.0.0.", true)]
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
+        [System.ObsoleteAttribute("Use the value of the \'IncomingMessage.MessageId\' or \'OutgoingMesssage.MessageId\' " +
+            "instead. Will be removed in version 7.0.0.", true)]
         public string Id { get; }
+        [System.ObsoleteAttribute("Please use `GetMessageIntent(this IncomingMessage message)` instead. Will be remo" +
+            "ved in version 7.0.0.", true)]
         public NServiceBus.MessageIntentEnum MessageIntent { get; }
         [System.ObsoleteAttribute("For sending purposes use DeliveryMessageOptions.NonDurable (note the negation). W" +
             "hen receiving look at the new \'NServiceBus.NonDurableMessage\' header. Will be re" +
             "moved in version 7.0.0.", true)]
         public bool Recoverable { get; set; }
+        [System.ObsoleteAttribute("Please use `GetReplyToAddress(this IncomingMessage message)` instead. Will be rem" +
+            "oved in version 7.0.0.", true)]
         public string ReplyToAddress { get; }
         [System.ObsoleteAttribute("For sending purposes use DeliveryMessageOptions.TimeToBeReceived. When receiving " +
             "look at the new \'NServiceBus.TimeToBeReceived\' header. Will be removed in versio" +
@@ -1282,10 +1294,11 @@ namespace NServiceBus.Faults
     }
     public struct FailedMessage
     {
-        public FailedMessage(System.Collections.Generic.Dictionary<string, string> headers, byte[] body, System.Exception exception) { }
+        public FailedMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, System.Exception exception) { }
         public byte[] Body { get; }
         public System.Exception Exception { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
+        public string MessageId { get; }
     }
     public class static FaultsHeaderKeys
     {
@@ -1293,10 +1306,11 @@ namespace NServiceBus.Faults
     }
     public struct FirstLevelRetry
     {
-        public FirstLevelRetry(System.Collections.Generic.Dictionary<string, string> headers, byte[] body, System.Exception exception, int retryAttempt) { }
+        public FirstLevelRetry(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, System.Exception exception, int retryAttempt) { }
         public byte[] Body { get; }
         public System.Exception Exception { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
+        public string MessageId { get; }
         public int RetryAttempt { get; }
     }
     [System.ObsoleteAttribute(@"IManageMessageFailures is no longer an extension point. If you want full control over what happens when a message fails (including retries) please override the MoveFaultsToErrorQueue behavior. If you just want to get notified when messages are being moved please use BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e=>{}). Will be removed in version 7.0.0.", true)]
@@ -1979,9 +1993,9 @@ namespace NServiceBus.Pipeline
     }
     public class static TransportMessageContextExtensions
     {
-        public static bool TryGetIncomingPhysicalMessage(this NServiceBus.OutgoingPipeline.OutgoingReplyContext context, out NServiceBus.TransportMessage message) { }
-        public static bool TryGetIncomingPhysicalMessage(this NServiceBus.Pipeline.Contexts.OutgoingLogicalMessageContext context, out NServiceBus.TransportMessage message) { }
-        public static bool TryGetIncomingPhysicalMessage(this NServiceBus.OutgoingPipeline.OutgoingPhysicalMessageContext context, out NServiceBus.TransportMessage message) { }
+        public static bool TryGetIncomingPhysicalMessage(this NServiceBus.OutgoingPipeline.OutgoingReplyContext context, out NServiceBus.Transports.IncomingMessage message) { }
+        public static bool TryGetIncomingPhysicalMessage(this NServiceBus.Pipeline.Contexts.OutgoingLogicalMessageContext context, out NServiceBus.Transports.IncomingMessage message) { }
+        public static bool TryGetIncomingPhysicalMessage(this NServiceBus.OutgoingPipeline.OutgoingPhysicalMessageContext context, out NServiceBus.Transports.IncomingMessage message) { }
     }
     public class WellKnownStep
     {
@@ -2049,7 +2063,7 @@ namespace NServiceBus.Pipeline.Contexts
     }
     public class TransportReceiveContext : NServiceBus.Pipeline.Contexts.IncomingContext
     {
-        public NServiceBus.TransportMessage Message { get; }
+        public NServiceBus.Transports.IncomingMessage Message { get; }
     }
 }
 namespace NServiceBus.Routing
@@ -2218,7 +2232,10 @@ namespace NServiceBus.SecondLevelRetries.Config
 {
     public class SecondLevelRetriesSettings
     {
+        [System.ObsoleteAttribute("Please use `CustomRetryPolicy(Func<IncomingMessage, TimeSpan> customPolicy)` inst" +
+            "ead. Will be removed in version 7.0.0.", true)]
         public void CustomRetryPolicy(System.Func<NServiceBus.TransportMessage, System.TimeSpan> customPolicy) { }
+        public void CustomRetryPolicy(System.Func<NServiceBus.Transports.IncomingMessage, System.TimeSpan> customPolicy) { }
     }
 }
 namespace NServiceBus.Serialization
@@ -2478,9 +2495,15 @@ namespace NServiceBus.Transports
     public class IncomingMessage
     {
         public IncomingMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, System.IO.Stream bodyStream) { }
+        public byte[] Body { get; set; }
         public System.IO.Stream BodyStream { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string MessageId { get; }
+    }
+    public class static IncomingMessageExtensions
+    {
+        public static NServiceBus.MessageIntentEnum GetMesssageIntent(this NServiceBus.Transports.IncomingMessage message) { }
+        public static string GetReplyToAddress(this NServiceBus.Transports.IncomingMessage message) { }
     }
     [System.ObsoleteAttribute("Please use `IDispatchMessages` instead. Will be removed in version 7.0.0.", true)]
     public interface IPublishMessages
@@ -2673,7 +2696,10 @@ namespace NServiceBus.Unicast
     public interface IMessageHandlerRegistry { }
     public class MessageContext : NServiceBus.IMessageContext
     {
-        public MessageContext(NServiceBus.TransportMessage transportMessage) { }
+        [System.ObsoleteAttribute("Please use `MessageContext(IncomingMessage incomingMessage)` instead. Will be rem" +
+            "oved in version 7.0.0.", true)]
+        public MessageContext(NServiceBus.TransportMessage incomingMessage) { }
+        public MessageContext(NServiceBus.Transports.IncomingMessage incomingMessage) { }
         public System.DateTime TimeSent { get; }
     }
     public class MessageEventArgs : System.EventArgs
@@ -2916,11 +2942,10 @@ namespace NServiceBus.Unicast.Transport
     {
         public static NServiceBus.Transports.OutgoingMessage Create(NServiceBus.MessageIntentEnum intent) { }
     }
+    [System.ObsoleteAttribute("Use the pipeline to catch failures. Will be removed in version 7.0.0.", true)]
     public class FailedMessageProcessingEventArgs : System.EventArgs
     {
-        public FailedMessageProcessingEventArgs(NServiceBus.TransportMessage message, System.Exception exception) { }
-        public NServiceBus.TransportMessage Message { get; }
-        public System.Exception Reason { get; }
+        public FailedMessageProcessingEventArgs() { }
     }
     [System.ObsoleteAttribute("No longer used, can safey be removed. Will be removed in version 7.0.0.", true)]
     public class FinishedMessageProcessingEventArgs : System.EventArgs

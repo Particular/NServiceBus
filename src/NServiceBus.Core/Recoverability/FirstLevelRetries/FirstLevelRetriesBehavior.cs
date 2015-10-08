@@ -30,7 +30,7 @@ namespace NServiceBus
             }
             catch (Exception ex)
             {
-                var messageId = context.Message.Id;
+                var messageId = context.Message.MessageId;
                 var pipelineUniqueMessageId = PipelineInfo.Name + messageId;
 
                 var numberOfFailures = storage.GetFailuresForMessage(pipelineUniqueMessageId);
