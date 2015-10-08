@@ -25,7 +25,7 @@
     internal class TimeoutPersistenceVersionCheck : IWantToRunWhenConfigurationIsComplete
     {
         internal const string SuppressOutdatedTimeoutPersistenceWarning = "NServiceBus/suppress-outdated-timeout-persistence-warning";
-        internal const string SuppressOutdatedTransportWarning = "NServiceBus/suppress-outdated-persistence-warning";
+        internal const string SuppressOutdatedTransportWarning = "NServiceBus/suppress-outdated-transport-warning";
 
         readonly IBuilder builder;
 
