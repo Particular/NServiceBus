@@ -4,8 +4,7 @@ namespace NServiceBus.Settings
     using System.Configuration;
     using System.Transactions;
     using System.Transactions.Configuration;
-    using NServiceBus.ConsistencyGuarantees;
-    using NServiceBus.Unicast.Transport;
+    using ConsistencyGuarantees;
 
     /// <summary>
     ///     Configuration class for Transaction settings.
@@ -18,7 +17,7 @@ namespace NServiceBus.Settings
         }
 
         /// <summary>
-        ///     Configures the <see cref="TransportReceiver" /> not to not use any transactions.
+        ///     Configures the endpoint not to not use any transactions.
         /// </summary>
         public TransactionSettings Disable()
         {
@@ -32,7 +31,7 @@ namespace NServiceBus.Settings
         }
 
         /// <summary>
-        ///     Configures the <see cref="TransportReceiver" /> to use transactions.
+        ///     Configures the endpoint to use transactions.
         /// </summary>
         public TransactionSettings Enable()
         {
@@ -58,7 +57,7 @@ namespace NServiceBus.Settings
         }
 
         /// <summary>
-        ///     Configures the <see cref="TransportReceiver" /> not to enlist in Distributed Transactions.
+        ///     Configures the endpoint not to enlist in Distributed Transactions.
         /// </summary>
         public TransactionSettings DisableDistributedTransactions()
         {
@@ -69,7 +68,7 @@ namespace NServiceBus.Settings
         }
 
         /// <summary>
-        ///     Configures the <see cref="TransportReceiver" /> to enlist in Distributed Transactions.
+        ///     Configures the endpoint to enlist in Distributed Transactions.
         /// </summary>
         public TransactionSettings EnableDistributedTransactions()
         {

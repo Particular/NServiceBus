@@ -4,8 +4,8 @@ namespace NServiceBus.Pipeline
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.Logging;
-    using NServiceBus.Unicast.Transport;
+    using Logging;
+    using Transport;
 
     class PipelineCollection
     {

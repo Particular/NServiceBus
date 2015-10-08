@@ -494,7 +494,7 @@ namespace NServiceBus
     }
     [System.ObsoleteAttribute("Will be removed in version 7.0.0.", true)]
     public interface IIncludesBuilder { }
-    [System.ObsoleteAttribute("No longer used, can safey be removed. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("No longer used, can safely be removed. Will be removed in version 7.0.0.", true)]
     public interface IManageMessageHeaders
     {
         System.Func<object, string, string> GetHeaderAction { get; }
@@ -2619,9 +2619,11 @@ namespace NServiceBus.Transports
     }
     public class PushContext
     {
-        public PushContext(NServiceBus.Transports.IncomingMessage message, NServiceBus.Extensibility.ContextBag context) { }
+        public PushContext(string messageId, System.Collections.Generic.Dictionary<string, string> headers, System.IO.Stream bodyStream, NServiceBus.Extensibility.ContextBag context) { }
+        public System.IO.Stream BodyStream { get; }
         public NServiceBus.Extensibility.ContextBag Context { get; }
-        public NServiceBus.Transports.IncomingMessage Message { get; }
+        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
+        public string MessageId { get; }
     }
     public class PushRuntimeSettings
     {
@@ -3026,7 +3028,7 @@ namespace NServiceBus.Unicast.Subscriptions
 }
 namespace NServiceBus.Unicast.Transport
 {
-    [System.ObsoleteAttribute("No longer used, can safey be removed. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("No longer used, can safely be removed. Will be removed in version 7.0.0.", true)]
     public class static ControlMessage
     {
         public static NServiceBus.TransportMessage Create() { }
@@ -3040,7 +3042,7 @@ namespace NServiceBus.Unicast.Transport
     {
         public FailedMessageProcessingEventArgs() { }
     }
-    [System.ObsoleteAttribute("No longer used, can safey be removed. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("No longer used, can safely be removed. Will be removed in version 7.0.0.", true)]
     public class FinishedMessageProcessingEventArgs : System.EventArgs
     {
         public FinishedMessageProcessingEventArgs(NServiceBus.TransportMessage m) { }
@@ -3067,7 +3069,7 @@ namespace NServiceBus.Unicast.Transport
         public string Name { get; }
         public string TransportAddress { get; }
     }
-    [System.ObsoleteAttribute("No longer used, can safey be removed. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("No longer used, can safely be removed. Will be removed in version 7.0.0.", true)]
     public class StartedMessageProcessingEventArgs : System.EventArgs
     {
         public StartedMessageProcessingEventArgs(NServiceBus.TransportMessage m) { }
@@ -3086,23 +3088,37 @@ namespace NServiceBus.Unicast.Transport
         public bool SuppressDistributedTransactions { get; set; }
         public System.TimeSpan TransactionTimeout { get; set; }
     }
-    [System.ObsoleteAttribute("No longer used, can safey be removed. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("No longer used, can safely be removed. Will be removed in version 7.0.0.", true)]
     public class TransportMessageAvailableEventArgs : System.EventArgs
     {
         public TransportMessageAvailableEventArgs(NServiceBus.TransportMessage m) { }
         public NServiceBus.TransportMessage Message { get; }
     }
-    [System.ObsoleteAttribute("No longer used, can safey be removed. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("No longer used, can safely be removed. Will be removed in version 7.0.0.", true)]
     public class TransportMessageReceivedEventArgs : System.EventArgs
     {
         public TransportMessageReceivedEventArgs(NServiceBus.TransportMessage m) { }
         public NServiceBus.TransportMessage Message { get; }
     }
-    public class TransportReceiver
+    [System.ObsoleteAttribute("No longer used, can safely be removed. Will be removed in version 7.0.0.", true)]
+    public class TransportReceiver : NServiceBus.Unicast.Transport.ITransport, System.IDisposable
     {
-        public string Id { get; }
-        public async System.Threading.Tasks.Task Start() { }
-        public async System.Threading.Tasks.Task Stop() { }
+        public TransportReceiver(NServiceBus.Unicast.Transport.TransactionSettings transactionSettings, int maximumConcurrencyLevel, int maximumThroughput, NServiceBus.Transports.IDequeueMessages receiver, NServiceBus.Faults.IManageMessageFailures manageMessageFailures, NServiceBus.Settings.ReadOnlySettings settings, NServiceBus.Configure config, NServiceBus.Unicast.Transport.TransactionSettings transactionSettings1) { }
+        public NServiceBus.Faults.IManageMessageFailures FailureManager { get; set; }
+        public int MaximumConcurrencyLevel { get; }
+        public int MaximumMessageThroughputPerSecond { get; }
+        public NServiceBus.Transports.IDequeueMessages Receiver { get; set; }
+        public NServiceBus.Unicast.Transport.TransactionSettings TransactionSettings { get; }
+        public event System.EventHandler<NServiceBus.Unicast.Transport.FailedMessageProcessingEventArgs> FailedMessageProcessing;
+        public event System.EventHandler<NServiceBus.Unicast.Transport.FinishedMessageProcessingEventArgs> FinishedMessageProcessing;
+        public event System.EventHandler<NServiceBus.Unicast.Transport.StartedMessageProcessingEventArgs> StartedMessageProcessing;
+        public event System.EventHandler<NServiceBus.Unicast.Transport.TransportMessageReceivedEventArgs> TransportMessageReceived;
+        public void AbortHandlingCurrentMessage() { }
+        public void ChangeMaximumConcurrencyLevel(int maximumConcurrencyLevel) { }
+        public void ChangeMaximumMessageThroughputPerSecond(int maximumMessageThroughputPerSecond) { }
+        public void Dispose() { }
+        public void Start(NServiceBus.Address address) { }
+        public void Stop() { }
     }
 }
 namespace NServiceBus.UnitOfWork

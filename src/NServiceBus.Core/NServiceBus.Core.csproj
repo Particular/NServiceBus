@@ -670,7 +670,7 @@
     <Compile Include="Unicast\Transport\ControlMessageFactory.cs" />
     <Compile Include="Unicast\Transport\Config\UseTransportExtensions.cs" />
     <Compile Include="Recoverability\FirstLevelRetries\FlrStatusStorage.cs" />
-    <Compile Include="Unicast\Transport\TransportReceiver.cs" />
+    <Compile Include="Transports\TransportReceiver.cs" />
     <Compile Include="Unicast\Transport\TransactionSettings.cs" />
     <Compile Include="Unicast\Transport\TransportConnectionString.cs" />
     <Compile Include="Unicast\UnicastBusInternal.cs" />

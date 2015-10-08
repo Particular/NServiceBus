@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Config
 {
     using System.Configuration;
-    using Unicast.Transport;
 
     /// <summary>
     /// Settings that applies to the transport.
@@ -9,7 +8,7 @@
     public class TransportConfig : ConfigurationSection
     {
         /// <summary>
-        /// Specifies the maximum concurrency level this <see cref="TransportReceiver"/> is able to support.
+        /// Specifies the maximum concurrency level this endpoint is able to support.
         /// </summary>
         [ConfigurationProperty("MaximumConcurrencyLevel", IsRequired = false, DefaultValue = 0)]
         public int MaximumConcurrencyLevel
