@@ -70,6 +70,7 @@
     <Compile Include="Basic\When_registering_additional_deserializers.cs" />
     <Compile Include="Basic\When_setting_msmq_label_generator.cs" />
     <Compile Include="Basic\When_deferring_to_non_local.cs" />
+    <Compile Include="Config\When_a_config_override_is_found - Copy.cs" />
     <Compile Include="DelayedDelivery\When_TimeoutManager_is_disabled.cs" />
     <Compile Include="Basic\When_starting_up_the_endpoint.cs" />
     <Compile Include="FakeTransport\FakeTransportSetingsExtensions.cs" />
@@ -206,7 +207,7 @@
     <Compile Include="Basic\When_handling_current_message_later.cs" />
     <Compile Include="Basic\When_multiple_mappings_exists.cs" />
     <Compile Include="Correlation\When_using_a_custom_correlation_id.cs" />
-    <Compile Include="Config\When_a_config_override_is_found.cs" />
+    <Compile Include="Config\When_only_abstract_config_override_is_found.cs" />
     <Compile Include="Encryption\When_using_encryption_with_custom_service.cs" />
     <Compile Include="Reliability\Outbox\When_sending_from_a_non_dtc_endpoint.cs" />
     <Compile Include="Reliability\Outbox\When_receiving_a_message.cs" />
