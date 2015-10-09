@@ -70,7 +70,6 @@
     <Compile Include="Basic\When_registering_additional_deserializers.cs" />
     <Compile Include="Basic\When_setting_msmq_label_generator.cs" />
     <Compile Include="Basic\When_deferring_to_non_local.cs" />
-    <Compile Include="Config\When_a_config_override_is_found - Copy.cs" />
     <Compile Include="DelayedDelivery\When_TimeoutManager_is_disabled.cs" />
     <Compile Include="Basic\When_starting_up_the_endpoint.cs" />
     <Compile Include="FakeTransport\FakeTransportSetingsExtensions.cs" />
