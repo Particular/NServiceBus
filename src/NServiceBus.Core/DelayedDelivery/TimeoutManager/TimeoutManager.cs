@@ -60,6 +60,11 @@
             dispatcherProcessorPipeline.Register<MoveFaultsToErrorQueueBehavior.Registration>();
             dispatcherProcessorPipeline.Register<FirstLevelRetriesBehavior.Registration>();
             dispatcherProcessorPipeline.Register("TimeoutDispatcherProcessor", typeof(DispatchTimeoutBehavior), "Dispatches timeout messages");
+            context.Container.ConfigureComponent(b => new DispatchTimeoutBehavior(
+                b.Build<IDispatchMessages>(),
+                b.Build<IPersistTimeouts>(),
+                requiredTransactionSupport),
+                DependencyLifecycle.InstancePerCall);
 
             context.Container.ConfigureComponent(b =>
             {

@@ -53,7 +53,7 @@ namespace NServiceBus.Core.Tests.Timeout
 
         static async Task TryRemove(IPersistTimeouts inMemoryTimeoutPersister, ContextBag context)
         {
-            await inMemoryTimeoutPersister.Remove(Thread.CurrentThread.Name, context);
+            await inMemoryTimeoutPersister.TryRemove(Thread.CurrentThread.Name, context);
         }
 
         static Task Add(IPersistTimeouts inMemoryTimeoutPersister, ContextBag context)

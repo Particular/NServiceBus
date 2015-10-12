@@ -65,15 +65,51 @@ namespace NServiceBus.Core.Tests.Timeout
         }
 
         [Test]
-        public async Task When_existing_is_removed_existing_is_outted()
+        public async Task TryRemove_when_existing_is_removed_should_return_true()
         {
-           var persister = new InMemoryTimeoutPersister();
+            var persister = new InMemoryTimeoutPersister();
             var inputTimeout = new TimeoutData();
-
             await persister.Add(inputTimeout, new ContextBag());
-            var result = await persister.Remove(inputTimeout.Id, new ContextBag());
-            
+
+            var result = await persister.TryRemove(inputTimeout.Id, new ContextBag());
+
+            Assert.IsTrue(result);
+        }
+
+        [Test]
+        public async Task TryRemove_when_non_existing_is_removed_should_return_false()
+        {
+            var persister = new InMemoryTimeoutPersister();
+            var inputTimeout = new TimeoutData();
+            await persister.Add(inputTimeout, new ContextBag());
+
+            var result = await persister.TryRemove(Guid.NewGuid().ToString(), new ContextBag());
+
+            Assert.False(result);
+        }
+
+        [Test]
+        public async Task Peek_when_timeout_exists_should_return_timeout()
+        {
+            var persister = new InMemoryTimeoutPersister();
+            var inputTimeout = new TimeoutData();
+            await persister.Add(inputTimeout, new ContextBag());
+
+            var result = await persister.Peek(inputTimeout.Id, new ContextBag());
+
             Assert.AreSame(inputTimeout, result);
+        }
+
+        [Test]
+        public async Task Peek_when_timeout_does_not_exist_should_return_null()
+        {
+            var persister = new InMemoryTimeoutPersister();
+            var inputTimeout = new TimeoutData();
+            await persister.Add(inputTimeout, new ContextBag());
+
+            var result = await persister.Peek(Guid.NewGuid().ToString(), new ContextBag());
+
+            Assert.IsNull(result);
         }
 
         [Test]
@@ -88,9 +124,9 @@ namespace NServiceBus.Core.Tests.Timeout
             
             await persister.Add(inputTimeout, new ContextBag());
             await persister.RemoveTimeoutBy(newGuid, new ContextBag());
-            var result = await persister.Remove(inputTimeout.Id, new ContextBag());
+            var result = await persister.TryRemove(inputTimeout.Id, new ContextBag());
 
-            Assert.IsNull(result);
+            Assert.IsFalse(result);
         }
 
         [Test]
