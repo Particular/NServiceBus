@@ -6,6 +6,7 @@
     using EndpointTemplates;
     using AcceptanceTesting;
     using Features;
+    using NServiceBus.Timeout.Core;
     using NUnit.Framework;
     using ScenarioDescriptors;
     using Unicast.Subscriptions;
@@ -21,19 +22,23 @@
         {
             Scenario.Define<Context>()
                     .WithEndpoint<Publisher>(b =>
+                    {
                         b.Given((bus, context) => Subscriptions.OnEndpointSubscribed(s =>
-                            {
-                                if (s.SubscriberReturnAddress.Queue != "MyEndpoint")
-                                    return;
+                        {
+                            if (s.SubscriberReturnAddress.Queue != "MyEndpoint")
+                                return;
 
-                                context.NumberOfSubcriptionsReceived++;
-                            }))
-                        .When(c => c.NumberOfSubcriptionsReceived >= 2, (bus, c) =>
+                            context.NumberOfSubcriptionsReceived++;
+                        }))
+                            .When(c => c.NumberOfSubcriptionsReceived >= 2, (bus, c) =>
                             {
                                 c.SubcribersOfTheEvent = Configure.Instance.Builder.Build<ISubscriptionStorage>()
-                                                                  .GetSubscriberAddressesForMessage(new[] { new MessageType(typeof(MyEvent)) }).Select(a => a.ToString()).ToList();
-                            })
-                     )
+                                    .GetSubscriberAddressesForMessage(new[]
+                                    {
+                                        new MessageType(typeof(MyEvent))
+                                    }).Select(a => a.ToString()).ToList();
+                            });
+                    })
                     .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
                         {
                             bus.Subscribe<MyEvent>();

@@ -4,6 +4,7 @@
     using System.Transactions;
     using AcceptanceTesting;
     using EndpointTemplates;
+    using NServiceBus.Timeout.Core;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
@@ -14,7 +15,10 @@
         {
 
             Scenario.Define<Context>()
-                    .WithEndpoint<NonDTCEndpoint>(b => b.Given(bus => bus.SendLocal(new MyMessage())))
+                    .WithEndpoint<NonDTCEndpoint>(b =>
+                    {
+                        b.Given(bus => bus.SendLocal(new MyMessage()));
+                    })
                     .Done(c => c.HandlerInvoked)
                     .Repeat(r => r.For<AllDtcTransports>())
                     .Should(c =>
@@ -40,7 +44,7 @@
             public NonDTCEndpoint()
             {
                 Configure.Transactions.Advanced(a => a.DisableDistributedTransactions());
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>(c => c.SuppressOutdatedTimeoutDispatchWarning());
             }
 
             public class MyMessageHandler : IHandleMessages<MyMessage>

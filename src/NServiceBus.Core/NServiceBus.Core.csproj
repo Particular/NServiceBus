@@ -158,6 +158,8 @@
     <Compile Include="MessageMutator\ApplyIncomingTransportMessageMutatorsBehavior.cs" />
     <Compile Include="Audit\AuditBehavior.cs" />
     <Compile Include="Sagas\SagaSendBehavior.cs" />
+    <Compile Include="Timeout\Core\TimeoutPersistenceVersionCheck.cs" />
+    <Compile Include="Timeout\Core\TimeoutPersistenceVersionCheckExtension.cs" />
     <Compile Include="Transports\ConfigureTransport.cs" />
     <Compile Include="TypesToBeRemovedInVersion5.cs" />
     <Compile Include="Unicast\Behaviors\CallbackInvocationBehavior.cs" />

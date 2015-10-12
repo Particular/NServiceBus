@@ -4,6 +4,7 @@
     using Config;
     using EndpointTemplates;
     using AcceptanceTesting;
+    using NServiceBus.Timeout.Core;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
@@ -15,7 +16,10 @@
         public void Should_be_moved_to_slr()
         {
             Scenario.Define<Context>()
-                    .WithEndpoint<SLREndpoint>(b => b.Given(bus => bus.SendLocal(new MessageToBeRetried())))
+                    .WithEndpoint<SLREndpoint>(b =>
+                    {
+                        b.Given(bus => bus.SendLocal(new MessageToBeRetried()));
+                    })
                     .Done(c => c.NumberOfTimesInvoked >= 2)
                     .Repeat(r => r.For(Transports.Default))
                     .Should(context =>
