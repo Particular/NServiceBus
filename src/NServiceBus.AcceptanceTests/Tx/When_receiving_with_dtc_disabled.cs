@@ -3,9 +3,10 @@
     using System;
     using System.Threading.Tasks;
     using System.Transactions;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using NServiceBus.ConsistencyGuarantees;
+    using ScenarioDescriptors;
     using NUnit.Framework;
 
     public class When_receiving_with_dtc_disabled : NServiceBusAcceptanceTest
@@ -39,7 +40,7 @@
         {
             public NonDTCEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.Transactions().DisableDistributedTransactions().WrapHandlersExecutionInATransactionScope());
+                EndpointSetup<DefaultServer>(c => c.RequiredConsistency(ConsistencyGuarantee.AtLeastOnce));
             }
 
             public class MyMessageHandler : IHandleMessages<MyMessage>
@@ -48,9 +49,14 @@
 
                 public Task Handle(MyMessage messageThatIsEnlisted)
                 {
-                    Context.DistributedIdentifierBefore = Transaction.Current.TransactionInformation.DistributedIdentifier;
+                    using (var tx = new TransactionScope())
+                    {
+                        Context.DistributedIdentifierBefore = Transaction.Current.TransactionInformation.DistributedIdentifier;
 
-                    Context.CanEnlistPromotable = Transaction.Current.EnlistPromotableSinglePhase(new FakePromotableResourceManager());
+                        Context.CanEnlistPromotable = Transaction.Current.EnlistPromotableSinglePhase(new FakePromotableResourceManager());
+
+                        tx.Complete();
+                    }
 
                     Context.HandlerInvoked = true;
 

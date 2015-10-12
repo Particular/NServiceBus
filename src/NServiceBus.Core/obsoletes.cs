@@ -1388,6 +1388,19 @@ namespace NServiceBus.Unicast.Transport
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public bool DoNotWrapHandlersExecutionInATransactionScope { get; set; }
+
+        [ObsoleteEx(
+               Message = "Use settings.GetRequiredTransactionSupportForReceives() to figure out if DTC transactions are allowed",
+               RemoveInVersion = "7.0",
+               TreatAsErrorFromVersion = "6.0")]
+        public bool SuppressDistributedTransactions { get; set; }
+
+
+        [ObsoleteEx(
+                   Message = "Use settings.GetRequiredTransactionSupportForReceives() to figure out if transactions is enabled",
+                   RemoveInVersion = "7.0",
+                   TreatAsErrorFromVersion = "6.0")]
+        public bool IsTransactional { get; set; }
     }
 
     /// <summary>
@@ -1771,6 +1784,39 @@ namespace NServiceBus.Transports
             {
                 throw new NotImplementedException();
             }
+        }
+    }
+}
+
+
+namespace NServiceBus.Settings
+{
+    using System;
+
+    public partial class TransactionSettings
+    {
+        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", Message = "Use config.RequiredConsistency(ConsistencyGuarantee.AtMostOnce)")]
+        public TransactionSettings Disable()
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", Message = "Use config.RequiredConsistency(ConsistencyGuarantee.AtLeastOnce) or config.RequiredConsistency(ConsistencyGuarantee.ExactlyOnce)")]
+        public TransactionSettings Enable()
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", Message = "Use config.RequiredConsistency(ConsistencyGuarantee.AtLeastOnce)")]
+        public TransactionSettings DisableDistributedTransactions()
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", Message = "Use config.RequiredConsistency(ConsistencyGuarantee.ExactlyOnce)")]
+        public TransactionSettings EnableDistributedTransactions()
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -4,51 +4,23 @@ namespace NServiceBus.Settings
     using System.Configuration;
     using System.Transactions;
     using System.Transactions.Configuration;
-    using NServiceBus.ConsistencyGuarantees;
-    using NServiceBus.Unicast.Transport;
 
     /// <summary>
-    ///     Configuration class for Transaction settings.
+    /// Configuration class for Transaction settings.
     /// </summary>
-    public class TransactionSettings
+    public partial class TransactionSettings
     {
         internal TransactionSettings(BusConfiguration config)
         {
             this.config = config;
         }
-
+        
         /// <summary>
-        ///     Configures the <see cref="TransportReceiver" /> not to not use any transactions.
-        /// </summary>
-        public TransactionSettings Disable()
-        {
-            config.Settings.Set("Transactions.Enabled", false);
-            config.Settings.SetDefault("Transactions.DoNotWrapHandlersExecutionInATransactionScope", true);
-            config.Settings.SetDefault("Transactions.SuppressDistributedTransactions", true);
-
-            config.Settings.Set<ConsistencyGuarantee>(ConsistencyGuarantee.AtMostOnce);
-     
-            return this;
-        }
-
-        /// <summary>
-        ///     Configures the <see cref="TransportReceiver" /> to use transactions.
-        /// </summary>
-        public TransactionSettings Enable()
-        {
-            config.Settings.Set("Transactions.Enabled", true);
-            config.Settings.SetDefault("Transactions.DoNotWrapHandlersExecutionInATransactionScope", false);
-            config.Settings.SetDefault("Transactions.SuppressDistributedTransactions", false);
-
-            return this;
-        }
-              
-        /// <summary>
-        ///     Sets the isolation level of the transaction.
+        /// Sets the isolation level of the transaction.
         /// </summary>
         /// <param name="isolationLevel">
-        ///     A <see cref="IsolationLevel" /> enumeration that specifies the isolation level of the
-        ///     transaction.
+        /// A <see cref="IsolationLevel" /> enumeration that specifies the isolation level of the
+        /// transaction.
         /// </param>
         public TransactionSettings IsolationLevel(IsolationLevel isolationLevel)
         {
@@ -56,31 +28,10 @@ namespace NServiceBus.Settings
 
             return this;
         }
-
+        
         /// <summary>
-        ///     Configures the <see cref="TransportReceiver" /> not to enlist in Distributed Transactions.
-        /// </summary>
-        public TransactionSettings DisableDistributedTransactions()
-        {
-            config.Settings.Set("Transactions.SuppressDistributedTransactions", true);
-            config.Settings.SetDefault("Transactions.DoNotWrapHandlersExecutionInATransactionScope", true);
-            config.Settings.Set<ConsistencyGuarantee>(ConsistencyGuarantee.AtLeastOnce);
-            return this;
-        }
-
-        /// <summary>
-        ///     Configures the <see cref="TransportReceiver" /> to enlist in Distributed Transactions.
-        /// </summary>
-        public TransactionSettings EnableDistributedTransactions()
-        {
-            config.Settings.Set("Transactions.SuppressDistributedTransactions", false);
-            config.Settings.Set<ConsistencyGuarantee>(ConsistencyGuarantee.ExactlyOnce);
-            return this;
-        }
-
-        /// <summary>
-        ///     Configures this endpoint so that <see cref="IHandleMessages{T}">handlers</see> are not wrapped in a
-        ///     <see cref="TransactionScope" />.
+        /// Configures this endpoint so that <see cref="IHandleMessages{T}">handlers</see> are not wrapped in a
+        /// <see cref="TransactionScope" />.
         /// </summary>
         public TransactionSettings DoNotWrapHandlersExecutionInATransactionScope()
         {
@@ -89,8 +40,8 @@ namespace NServiceBus.Settings
         }
 
         /// <summary>
-        ///     Configures this endpoint so that <see cref="IHandleMessages{T}">handlers</see> not wrapped in a
-        ///     <see cref="TransactionScope" />.
+        /// Configures this endpoint so that <see cref="IHandleMessages{T}">handlers</see> not wrapped in a
+        /// <see cref="TransactionScope" />.
         /// </summary>
         public TransactionSettings WrapHandlersExecutionInATransactionScope()
         {
@@ -99,11 +50,11 @@ namespace NServiceBus.Settings
         }
 
         /// <summary>
-        ///     Sets the default timeout period for the transaction.
+        /// Sets the default timeout period for the transaction.
         /// </summary>
         /// <param name="defaultTimeout">
-        ///     A <see cref="TimeSpan" /> value that specifies the default timeout period for the
-        ///     transaction.
+        /// A <see cref="TimeSpan" /> value that specifies the default timeout period for the
+        /// transaction.
         /// </param>
         public TransactionSettings DefaultTimeout(TimeSpan defaultTimeout)
         {

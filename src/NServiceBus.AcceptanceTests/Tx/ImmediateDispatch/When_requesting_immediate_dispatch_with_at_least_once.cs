@@ -3,6 +3,7 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
+    using NServiceBus.ConsistencyGuarantees;
     using NUnit.Framework;
 
     public class When_requesting_immediate_dispatch_with_at_least_once : NServiceBusAcceptanceTest
@@ -28,7 +29,7 @@
         {
             public AtLeastOnceEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.Transactions().DisableDistributedTransactions());
+                EndpointSetup<DefaultServer>(c => c.RequiredConsistency(ConsistencyGuarantee.AtLeastOnce));
             }
 
             public class InitiatingMessageHandler : IHandleMessages<InitiatingMessage>

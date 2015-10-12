@@ -39,11 +39,8 @@ namespace NServiceBus
             Settings.Set<QueueBindings>(new QueueBindings());
 
             Settings.SetDefault("Endpoint.SendOnly", false);
-            Settings.SetDefault("Transactions.Enabled", true);
             Settings.SetDefault("Transactions.IsolationLevel", IsolationLevel.ReadCommitted);
             Settings.SetDefault("Transactions.DefaultTimeout", TransactionManager.DefaultTimeout);
-            Settings.SetDefault("Transactions.SuppressDistributedTransactions", false);
-            Settings.SetDefault("Transactions.DoNotWrapHandlersExecutionInATransactionScope", false);
             Settings.SetDefault("DefaultSerializer", new XmlSerializer());
 
             conventionsBuilder = new ConventionsBuilder(Settings);

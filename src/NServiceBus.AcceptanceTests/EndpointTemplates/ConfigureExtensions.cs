@@ -48,19 +48,7 @@
 
             config.UseTransport(transportType).ConnectionString(settings["Transport.ConnectionString"]);
         }
-
-        public static void DefineTransactions(this BusConfiguration config, IDictionary<string, string> settings)
-        {
-            if (settings.ContainsKey("Transactions.Disable"))
-            {
-                config.Transactions().Disable();
-            }
-            if (settings.ContainsKey("Transactions.SuppressDistributedTransactions"))
-            {
-                config.Transactions().DisableDistributedTransactions();
-            }
-        }
-
+        
         public static async Task DefinePersistence(this BusConfiguration config, IDictionary<string, string> settings)
         {
             if (!settings.ContainsKey("Persistence"))

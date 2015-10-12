@@ -3,6 +3,7 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
+    using NServiceBus.ConsistencyGuarantees;
     using NUnit.Framework;
 
     public class When_requesting_immediate_dispatch_with_at_most_once : NServiceBusAcceptanceTest
@@ -29,7 +30,7 @@
         {
             public NonTransactionalEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.Transactions().Disable());
+                EndpointSetup<DefaultServer>(c => c.RequiredConsistency(ConsistencyGuarantee.AtMostOnce));
             }
 
             public class InitiatingMessageHandler : IHandleMessages<InitiatingMessage>

@@ -4,6 +4,7 @@
     using System.Configuration;
     using System.ServiceProcess;
     using Logging;
+    using ConsistencyGuarantees;
     using Persistence;
     using Transports;
 
@@ -16,7 +17,7 @@
         {
             Defaults(s => s.SetDefault(InMemoryOutboxPersistence.TimeToKeepDeduplicationEntries, TimeSpan.FromDays(5)));
 
-            Prerequisite(c => c.Settings.Get<bool>("Transactions.Enabled"), "Outbox isn't needed since the receive transactions has been turned off");
+            Prerequisite(c => c.Settings.GetRequiredTransactionSupportForReceives() > TransactionSupport.None, "Outbox isn't needed since the receive transactions has been turned off");
 
             Prerequisite(c =>
             {
