@@ -7,15 +7,14 @@
     using System.Messaging;
     using System.Security;
     using System.Transactions;
-    using NServiceBus.ConsistencyGuarantees;
-    using NServiceBus.Logging;
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.Settings;
-    using NServiceBus.Transports;
-    using NServiceBus.Transports.Msmq;
-    using NServiceBus.Transports.Msmq.Config;
-    using NServiceBus.Utils;
-    using TransactionSettings = NServiceBus.Unicast.Transport.TransactionSettings;
+    using Logging;
+    using ObjectBuilder;
+    using Settings;
+    using Transports;
+    using Transports.Msmq;
+    using Transports.Msmq.Config;
+    using Utils;
+    using TransactionSettings = Unicast.Transport.TransactionSettings;
 
     /// <summary>
     /// Used to configure the MSMQ transport.
@@ -139,14 +138,14 @@
         protected override bool RequiresConnectionString => false;
 
 
-        ReceiveStrategy SelectReceiveStrategy(ConsistencyGuarantee minimumConsistencyGuarantee, TransactionOptions transactionOptions)
+        ReceiveStrategy SelectReceiveStrategy(TransactionSupport minimumConsistencyGuarantee, TransactionOptions transactionOptions)
         {
-            if (minimumConsistencyGuarantee == ConsistencyGuarantee.ExactlyOnce)
+            if (minimumConsistencyGuarantee == TransactionSupport.Distributed)
             {
                 return new ReceiveWithTransactionScope(transactionOptions);
             }
 
-            if (minimumConsistencyGuarantee == ConsistencyGuarantee.AtMostOnce)
+            if (minimumConsistencyGuarantee == TransactionSupport.None)
             {
                 return new ReceiveWithNoTransaction();
             }

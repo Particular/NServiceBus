@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Pipeline
 {
     using System.Collections.Generic;
-    using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.Transports;
 
     class PipelineModifications
@@ -13,21 +12,20 @@
 
     class SatellitePipelineModifications : PipelineModifications
     {
-        public string Name { get; private set; }
-
-        public string ReceiveAddress { get; private set; }
-        
-        public ConsistencyGuarantee ConsistencyGuarantee { get; private set; }
-
-        public PushRuntimeSettings RuntimeSettings { get; private set; }
-
-
-        public SatellitePipelineModifications(string name, string receiveAddress, ConsistencyGuarantee consistencyGuarantee, PushRuntimeSettings runtimeSettings)
+        public SatellitePipelineModifications(string name, string receiveAddress, TransactionSupport requiredTransactionSupport, PushRuntimeSettings runtimeSettings)
         {
             Name = name;
             ReceiveAddress = receiveAddress;
-            ConsistencyGuarantee = consistencyGuarantee;
+            RequiredTransactionSupport = requiredTransactionSupport;
             RuntimeSettings = runtimeSettings;
         }
+
+        public string Name { get; private set; }
+
+        public string ReceiveAddress { get; private set; }
+
+        public TransactionSupport RequiredTransactionSupport { get; private set; }
+
+        public PushRuntimeSettings RuntimeSettings { get; private set; }
     }
 }

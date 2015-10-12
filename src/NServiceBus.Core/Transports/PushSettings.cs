@@ -1,7 +1,5 @@
 ﻿namespace NServiceBus.Transports
 {
-    using NServiceBus.ConsistencyGuarantees;
-
     /// <summary>
     /// Contains information necessary to set up a message pump for receiving messages.
     /// </summary>
@@ -13,15 +11,15 @@
         /// <param name="inputQueue">Input queue name.</param>
         /// <param name="errorQueue">Error queue name.</param>
         /// <param name="purgeOnStartup"><code>true</code> to purge <paramref name="inputQueue"/> at startup.</param>
-        /// <param name="requiredConsistency">The minimum level of consistency required when receiving messages.</param>
-        public PushSettings(string inputQueue, string errorQueue, bool purgeOnStartup, ConsistencyGuarantee requiredConsistency)
+        /// <param name="requiredTransactionSupport">The required transaction support required for the receive operations.</param>
+        public PushSettings(string inputQueue, string errorQueue, bool purgeOnStartup, TransactionSupport requiredTransactionSupport)
         {
             Guard.AgainstNullAndEmpty("inputQueue", inputQueue);
             Guard.AgainstNullAndEmpty("errorQueue", errorQueue);
-            Guard.AgainstNull("requiredConsistency", requiredConsistency);
+            Guard.AgainstNull("requiredTransactionSupport", requiredTransactionSupport);
 
             PurgeOnStartup = purgeOnStartup;
-            RequiredConsistency = requiredConsistency;
+            RequiredTransactionSupport = requiredTransactionSupport;
             InputQueue = inputQueue;
             ErrorQueue = errorQueue;
         }
@@ -42,8 +40,8 @@
         public bool PurgeOnStartup { get; private set; }
 
         /// <summary>
-        /// The minimum consistency level requested by the user.
+        /// The required transaction support required for the receive operations.
         /// </summary>
-        public ConsistencyGuarantee RequiredConsistency { get; private set; }
+        public TransactionSupport RequiredTransactionSupport { get; private set; }
     }
 }

@@ -1,20 +1,55 @@
 namespace NServiceBus.ConsistencyGuarantees
 {
-    using NServiceBus.Settings;
-    using NServiceBus.Transports;
+    using System;
+    using Settings;
+    using Transports;
 
-    static class ConsistencyGuaranteeSettingsExtensions
+    /// <summary>
+    /// Extension methods to provide access to various consitency releated convenience methods.
+    /// </summary>
+    public static class ConsistencyGuaranteeSettingsExtensions
     {
-        public static ConsistencyGuarantee GetConsistencyGuarantee(this ReadOnlySettings settings)
+        /// <summary>
+        /// Returns the transactions required by the transport.
+        /// </summary>
+        public static TransactionSupport GetRequiredTransactionSupportForReceives(this ReadOnlySettings settings)
         {
-            ConsistencyGuarantee explicitConsistencyGuarantee;
+            var transportTransactionSupport = settings.Get<TransportDefinition>().GetTransactionSupport();
 
-            if (settings.TryGet(out explicitConsistencyGuarantee))
+            ConsistencyGuarantee requestedConsistencyGuarantee;
+            
+            //if user haven't asked for a explicit level use what the transport supports
+            if (!settings.TryGet(out requestedConsistencyGuarantee))
             {
-                return explicitConsistencyGuarantee;
+                return transportTransactionSupport;
             }
 
-            return settings.Get<TransportDefinition>().GetDefaultConsistencyGuarantee();
+            if (requestedConsistencyGuarantee == ConsistencyGuarantee.AtMostOnce)
+            {
+                return TransactionSupport.None;
+            }
+
+            if (requestedConsistencyGuarantee == ConsistencyGuarantee.ExactlyOnce)
+            {
+                if (transportTransactionSupport != TransactionSupport.Distributed)
+                {
+                    throw new Exception($"Requested consistency of `{ConsistencyGuarantee.ExactlyOnce}` can't be satisfied since the transport only supports `{transportTransactionSupport}`");
+                }
+
+                return TransactionSupport.Distributed;
+            }
+
+            if (transportTransactionSupport == TransactionSupport.None)
+            {
+                throw new Exception($"Requested consistency of `{ConsistencyGuarantee.AtLeastOnce}` can't be satisfied since the transport only supports `{TransactionSupport.None}`");
+            }
+
+            if (transportTransactionSupport > TransactionSupport.SingleQueue)
+            {
+                return TransactionSupport.MultiQueue;
+            }
+
+            return TransactionSupport.SingleQueue;
         }
     }
 }

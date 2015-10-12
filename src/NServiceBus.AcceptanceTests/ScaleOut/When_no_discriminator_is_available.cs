@@ -6,7 +6,6 @@
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.Features;
     using NServiceBus.Settings;
     using NServiceBus.Transports;
@@ -24,7 +23,6 @@
                     .WithEndpoint<IndividualizedEndpoint>().Done(c => c.EndpointsStarted)
                     .AllowExceptions()
                     .Run();
-
             }
             catch (AggregateException e)
             {
@@ -43,7 +41,6 @@
 
         public class IndividualizedEndpoint : EndpointConfigurationBuilder
         {
-
             public IndividualizedEndpoint()
             {
                 EndpointSetup<DefaultServer>(c =>
@@ -51,7 +48,7 @@
                     c.ScaleOut().UniqueQueuePerEndpointInstance();
                     c.UseTransport<TransportThatDoesNotSetADefaultDiscriminator>();
                 })
-                .IncludeType<TransportThatDoesNotSetADefaultDiscriminatorConfigurator>();
+                    .IncludeType<TransportThatDoesNotSetADefaultDiscriminatorConfigurator>();
             }
         }
 
@@ -62,9 +59,9 @@
                 return new List<Type>();
             }
 
-            public override ConsistencyGuarantee GetDefaultConsistencyGuarantee()
+            public override TransactionSupport GetTransactionSupport()
             {
-                return ConsistencyGuarantee.AtLeastOnce;
+                return TransactionSupport.SingleQueue;
             }
 
             public override IManageSubscriptions GetSubscriptionManager()
@@ -90,15 +87,11 @@
 
         public class TransportThatDoesNotSetADefaultDiscriminatorConfigurator : ConfigureTransport
         {
+            protected override string ExampleConnectionStringForErrorMessage => "";
 
             protected override void Configure(FeatureConfigurationContext context, string connectionString)
             {
-
             }
-
-            protected override string ExampleConnectionStringForErrorMessage => "";
         }
     }
-
-
 }

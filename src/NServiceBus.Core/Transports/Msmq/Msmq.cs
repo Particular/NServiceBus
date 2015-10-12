@@ -3,12 +3,11 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Text;
-    using NServiceBus.ConsistencyGuarantees;
-    using NServiceBus.Features;
-    using NServiceBus.Performance.TimeToBeReceived;
-    using NServiceBus.Settings;
-    using NServiceBus.Support;
-    using NServiceBus.Transports;
+    using Features;
+    using Performance.TimeToBeReceived;
+    using Settings;
+    using Support;
+    using Transports;
 
     /// <summary>
     /// Transport definition for MSMQ.
@@ -21,7 +20,6 @@ namespace NServiceBus
         public MsmqTransport()
         {
             RequireOutboxConsent = true;
-            HasSupportForMultiQueueNativeTransactions = true;
         }
 
         /// <summary>
@@ -36,11 +34,11 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// MSMQ will by default be exactly once using the DTC. 
+        /// Gets the supported transactionallity for this transport.
         /// </summary>
-        public override ConsistencyGuarantee GetDefaultConsistencyGuarantee()
+        public override TransactionSupport GetTransactionSupport()
         {
-            return ConsistencyGuarantee.ExactlyOnce;
+            return TransactionSupport.Distributed;
         }
 
         /// <summary>
