@@ -14,7 +14,6 @@
             IsTransactional = settings.Get<bool>("Transactions.Enabled");
             TransactionTimeout = settings.Get<TimeSpan>("Transactions.DefaultTimeout");
             IsolationLevel = settings.Get<IsolationLevel>("Transactions.IsolationLevel");
-            SuppressDistributedTransactions = settings.Get<bool>("Transactions.SuppressDistributedTransactions");
         }
 
         /// <summary>
@@ -33,10 +32,5 @@
         /// Only relevant when <see cref="IsTransactional"/> is set to true.
         /// </summary>
         public IsolationLevel IsolationLevel { get; set; }
-
-        /// <summary>
-        /// If true the transport won't enlist in distributed transactions.
-        /// </summary>
-        public bool SuppressDistributedTransactions { get; set; }
     }
 }

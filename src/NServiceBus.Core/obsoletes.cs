@@ -1388,6 +1388,12 @@ namespace NServiceBus.Unicast.Transport
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public bool DoNotWrapHandlersExecutionInATransactionScope { get; set; }
+
+        [ObsoleteEx(
+               Message = "Use settings.GetRequiredTransactionSupportForReceives() to figure out if DTC transactions are allowed",
+               RemoveInVersion = "7.0",
+               TreatAsErrorFromVersion = "6.0")]
+        public bool SuppressDistributedTransactions { get; set; }
     }
 
     /// <summary>
