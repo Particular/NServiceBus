@@ -33,7 +33,7 @@
         {
             public DTCEndpoint()
             {
-                EndpointSetup<DefaultServer>(c=>c.Transactions().Enable());
+                EndpointSetup<DefaultServer>();
             }
 
             public class MyMessageHandler : IHandleMessages<MyMessage>

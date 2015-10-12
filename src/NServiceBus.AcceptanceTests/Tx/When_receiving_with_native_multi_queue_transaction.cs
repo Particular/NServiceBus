@@ -5,6 +5,7 @@
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
+    using NServiceBus.ConsistencyGuarantees;
     using NUnit.Framework;
 
     public class When_receiving_with_native_multi_queue_transaction : NServiceBusAcceptanceTest
@@ -36,8 +37,7 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.Transactions()
-                    .DisableDistributedTransactions());
+                EndpointSetup<DefaultServer>(c => c.RequiredConsistency(ConsistencyGuarantee.AtLeastOnce));
             }
 
             public class MyMessageHandler : IHandleMessages<MyMessage>

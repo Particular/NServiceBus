@@ -11,6 +11,7 @@
     using Encryption;
     using Saga;
     using System;
+    using NServiceBus.ConsistencyGuarantees;
     using MsmqTransport = NServiceBus.MsmqTransport;
 
     class Program
@@ -75,7 +76,7 @@
 
             if (suppressDTC)
             {
-                configuration.Transactions().DisableDistributedTransactions();
+                configuration.RequiredConsistency(ConsistencyGuarantee.AtLeastOnce);
             }
 
             switch (args[2].ToLower())

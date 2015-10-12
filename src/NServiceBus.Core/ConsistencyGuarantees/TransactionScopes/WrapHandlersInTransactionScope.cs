@@ -12,9 +12,16 @@
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            if (context.Settings.GetOrDefault<bool>("Transactions.DoNotWrapHandlersExecutionInATransactionScope"))
+            bool doNotWrap;
+
+            if (!context.Settings.TryGet("Transactions.DoNotWrapHandlersExecutionInATransactionScope", out doNotWrap))
             {
-                context.Pipeline.Register("HandlerTransactionScopeWrapperBehavior", typeof(SuppressAmbientTransactionBehavior), "Make sure that any ambient transaction scope is suppressed");
+                return;
+            }
+
+            if (doNotWrap)
+            {
+                context.Pipeline.Register("SuppressAmbientTransaction", typeof(SuppressAmbientTransactionBehavior), "Make sure that any ambient transaction scope is suppressed");
             }
             else
             {

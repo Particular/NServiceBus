@@ -4,41 +4,17 @@ namespace NServiceBus.Settings
     using System.Configuration;
     using System.Transactions;
     using System.Transactions.Configuration;
-    using NServiceBus.ConsistencyGuarantees;
-    using NServiceBus.Unicast.Transport;
 
     /// <summary>
     /// Configuration class for Transaction settings.
     /// </summary>
-    public class TransactionSettings
+    public partial class TransactionSettings
     {
         internal TransactionSettings(BusConfiguration config)
         {
             this.config = config;
         }
-
-        /// <summary>
-        /// Configures the <see cref="TransportReceiver" /> not to not use any transactions.
-        /// </summary>
-        public TransactionSettings Disable()
-        {
-            config.Settings.SetDefault("Transactions.DoNotWrapHandlersExecutionInATransactionScope", true);
-
-            config.Settings.Set<ConsistencyGuarantee>(ConsistencyGuarantee.AtMostOnce);
-
-            return this;
-        }
-
-        /// <summary>
-        /// Configures the <see cref="TransportReceiver" /> to use transactions.
-        /// </summary>
-        public TransactionSettings Enable()
-        {
-            config.Settings.SetDefault("Transactions.DoNotWrapHandlersExecutionInATransactionScope", false);
-
-            return this;
-        }
-
+        
         /// <summary>
         /// Sets the isolation level of the transaction.
         /// </summary>
@@ -52,26 +28,7 @@ namespace NServiceBus.Settings
 
             return this;
         }
-
-        /// <summary>
-        /// Configures the <see cref="TransportReceiver" /> not to enlist in Distributed Transactions.
-        /// </summary>
-        public TransactionSettings DisableDistributedTransactions()
-        {
-            config.Settings.SetDefault("Transactions.DoNotWrapHandlersExecutionInATransactionScope", true);
-            config.Settings.Set<ConsistencyGuarantee>(ConsistencyGuarantee.AtLeastOnce);
-            return this;
-        }
-
-        /// <summary>
-        /// Configures the <see cref="TransportReceiver" /> to enlist in Distributed Transactions.
-        /// </summary>
-        public TransactionSettings EnableDistributedTransactions()
-        {
-            config.Settings.Set<ConsistencyGuarantee>(ConsistencyGuarantee.ExactlyOnce);
-            return this;
-        }
-
+        
         /// <summary>
         /// Configures this endpoint so that <see cref="IHandleMessages{T}">handlers</see> are not wrapped in a
         /// <see cref="TransactionScope" />.

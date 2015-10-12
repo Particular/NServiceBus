@@ -248,7 +248,6 @@
     <Compile Include="Tx\When_receiving_with_dtc_enabled.cs" />
     <Compile Include="Tx\When_receiving_with_the_default_settings.cs" />
     <Compile Include="Tx\ImmediateDispatch\When_requesting_immediate_dispatch_with_at_most_once.cs" />
-    <Compile Include="NonTx\When_sending_inside_ambient_tx.cs" />
     <Compile Include="Tx\When_sending_within_an_ambient_transaction.cs" />
     <Compile Include="ScenarioDescriptors\Serializers.cs" />
     <Compile Include="ScenarioDescriptors\Transports.cs" />

@@ -1787,3 +1787,36 @@ namespace NServiceBus.Transports
         }
     }
 }
+
+
+namespace NServiceBus.Settings
+{
+    using System;
+
+    public partial class TransactionSettings
+    {
+        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", Message = "Use config.RequiredConsistency(ConsistencyGuarantee.AtMostOnce)")]
+        public TransactionSettings Disable()
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", Message = "Use config.RequiredConsistency(ConsistencyGuarantee.AtLeastOnce) or config.RequiredConsistency(ConsistencyGuarantee.ExactlyOnce)")]
+        public TransactionSettings Enable()
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", Message = "Use config.RequiredConsistency(ConsistencyGuarantee.AtLeastOnce)")]
+        public TransactionSettings DisableDistributedTransactions()
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", Message = "Use config.RequiredConsistency(ConsistencyGuarantee.ExactlyOnce)")]
+        public TransactionSettings EnableDistributedTransactions()
+        {
+            throw new NotImplementedException();
+        }
+    }
+}

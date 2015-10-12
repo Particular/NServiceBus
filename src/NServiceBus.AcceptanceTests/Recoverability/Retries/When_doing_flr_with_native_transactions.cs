@@ -6,6 +6,7 @@
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
+    using NServiceBus.ConsistencyGuarantees;
     using NUnit.Framework;
 
     public class When_doing_flr_with_native_transactions : NServiceBusAcceptanceTest
@@ -46,7 +47,7 @@
             {
                 EndpointSetup<DefaultServer>(b =>
                 {
-                    b.Transactions().DisableDistributedTransactions();
+                    b.RequiredConsistency(ConsistencyGuarantee.AtLeastOnce);
                     b.DisableFeature<Features.SecondLevelRetries>();
                 });
             }
