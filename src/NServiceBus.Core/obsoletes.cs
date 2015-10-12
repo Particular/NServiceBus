@@ -1394,6 +1394,13 @@ namespace NServiceBus.Unicast.Transport
                RemoveInVersion = "7.0",
                TreatAsErrorFromVersion = "6.0")]
         public bool SuppressDistributedTransactions { get; set; }
+
+
+        [ObsoleteEx(
+                   Message = "Use settings.GetRequiredTransactionSupportForReceives() to figure out if transactions is enabled",
+                   RemoveInVersion = "7.0",
+                   TreatAsErrorFromVersion = "6.0")]
+        public bool IsTransactional { get; set; }
     }
 
     /// <summary>

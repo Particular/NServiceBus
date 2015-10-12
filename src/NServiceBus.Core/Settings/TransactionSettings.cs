@@ -8,7 +8,7 @@ namespace NServiceBus.Settings
     using NServiceBus.Unicast.Transport;
 
     /// <summary>
-    ///     Configuration class for Transaction settings.
+    /// Configuration class for Transaction settings.
     /// </summary>
     public class TransactionSettings
     {
@@ -18,35 +18,33 @@ namespace NServiceBus.Settings
         }
 
         /// <summary>
-        ///     Configures the <see cref="TransportReceiver" /> not to not use any transactions.
+        /// Configures the <see cref="TransportReceiver" /> not to not use any transactions.
         /// </summary>
         public TransactionSettings Disable()
         {
-            config.Settings.Set("Transactions.Enabled", false);
             config.Settings.SetDefault("Transactions.DoNotWrapHandlersExecutionInATransactionScope", true);
-         
+
             config.Settings.Set<ConsistencyGuarantee>(ConsistencyGuarantee.AtMostOnce);
-     
+
             return this;
         }
 
         /// <summary>
-        ///     Configures the <see cref="TransportReceiver" /> to use transactions.
+        /// Configures the <see cref="TransportReceiver" /> to use transactions.
         /// </summary>
         public TransactionSettings Enable()
         {
-            config.Settings.Set("Transactions.Enabled", true);
             config.Settings.SetDefault("Transactions.DoNotWrapHandlersExecutionInATransactionScope", false);
-        
+
             return this;
         }
-              
+
         /// <summary>
-        ///     Sets the isolation level of the transaction.
+        /// Sets the isolation level of the transaction.
         /// </summary>
         /// <param name="isolationLevel">
-        ///     A <see cref="IsolationLevel" /> enumeration that specifies the isolation level of the
-        ///     transaction.
+        /// A <see cref="IsolationLevel" /> enumeration that specifies the isolation level of the
+        /// transaction.
         /// </param>
         public TransactionSettings IsolationLevel(IsolationLevel isolationLevel)
         {
@@ -56,7 +54,7 @@ namespace NServiceBus.Settings
         }
 
         /// <summary>
-        ///     Configures the <see cref="TransportReceiver" /> not to enlist in Distributed Transactions.
+        /// Configures the <see cref="TransportReceiver" /> not to enlist in Distributed Transactions.
         /// </summary>
         public TransactionSettings DisableDistributedTransactions()
         {
@@ -66,7 +64,7 @@ namespace NServiceBus.Settings
         }
 
         /// <summary>
-        ///     Configures the <see cref="TransportReceiver" /> to enlist in Distributed Transactions.
+        /// Configures the <see cref="TransportReceiver" /> to enlist in Distributed Transactions.
         /// </summary>
         public TransactionSettings EnableDistributedTransactions()
         {
@@ -75,8 +73,8 @@ namespace NServiceBus.Settings
         }
 
         /// <summary>
-        ///     Configures this endpoint so that <see cref="IHandleMessages{T}">handlers</see> are not wrapped in a
-        ///     <see cref="TransactionScope" />.
+        /// Configures this endpoint so that <see cref="IHandleMessages{T}">handlers</see> are not wrapped in a
+        /// <see cref="TransactionScope" />.
         /// </summary>
         public TransactionSettings DoNotWrapHandlersExecutionInATransactionScope()
         {
@@ -85,8 +83,8 @@ namespace NServiceBus.Settings
         }
 
         /// <summary>
-        ///     Configures this endpoint so that <see cref="IHandleMessages{T}">handlers</see> not wrapped in a
-        ///     <see cref="TransactionScope" />.
+        /// Configures this endpoint so that <see cref="IHandleMessages{T}">handlers</see> not wrapped in a
+        /// <see cref="TransactionScope" />.
         /// </summary>
         public TransactionSettings WrapHandlersExecutionInATransactionScope()
         {
@@ -95,11 +93,11 @@ namespace NServiceBus.Settings
         }
 
         /// <summary>
-        ///     Sets the default timeout period for the transaction.
+        /// Sets the default timeout period for the transaction.
         /// </summary>
         /// <param name="defaultTimeout">
-        ///     A <see cref="TimeSpan" /> value that specifies the default timeout period for the
-        ///     transaction.
+        /// A <see cref="TimeSpan" /> value that specifies the default timeout period for the
+        /// transaction.
         /// </param>
         public TransactionSettings DefaultTimeout(TimeSpan defaultTimeout)
         {

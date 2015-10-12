@@ -2,6 +2,7 @@
 {
     using Config;
     using Logging;
+    using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.Transports;
 
     /// <summary>
@@ -41,9 +42,11 @@
                 context.Settings.Get<QueueBindings>().BindSending(storageQueue);
             }
 
+            var transactionsEnabled = context.Settings.GetRequiredTransactionSupportForReceives() > TransactionSupport.None;
+
             context.Container.ConfigureComponent<MsmqSubscriptionStorage>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(s => s.Queue, MsmqAddress.Parse(storageQueue))
-                .ConfigureProperty(s => s.TransactionsEnabled, context.Settings.Get<bool>("Transactions.Enabled"));
+                .ConfigureProperty(s => s.TransactionsEnabled, transactionsEnabled);
         }
 
         static ILog Logger = LogManager.GetLogger(typeof(MsmqSubscriptionPersistence));
