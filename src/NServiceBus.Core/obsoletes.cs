@@ -1740,3 +1740,37 @@ namespace NServiceBus.Unicast.Transport
         }
     }
 }
+
+namespace NServiceBus.Transports
+{
+    using System;
+
+    public abstract partial class TransportDefinition
+    {
+        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", Message = "GetTransactionSupport")]
+        public bool? HasSupportForDistributedTransactions
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            protected set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "GetTransactionSupport")]
+        public bool HasSupportForMultiQueueNativeTransactions
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            protected set
+            {
+                throw new NotImplementedException();
+            }
+        }
+    }
+}

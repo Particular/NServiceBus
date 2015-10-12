@@ -1,17 +1,18 @@
 ﻿namespace NServiceBus.Features
 {
     using System;
-    using NServiceBus.CircuitBreakers;
+    using CircuitBreakers;
     using NServiceBus.DelayedDelivery;
     using NServiceBus.DelayedDelivery.TimeoutManager;
-    using NServiceBus.DeliveryConstraints;
-    using NServiceBus.Features.DelayedDelivery;
-    using NServiceBus.Settings;
-    using NServiceBus.Timeout.Core;
-    using NServiceBus.Transports;
+    using DeliveryConstraints;
+    using DelayedDelivery;
+    using NServiceBus.ConsistencyGuarantees;
+    using Settings;
+    using Timeout.Core;
+    using Transports;
 
     /// <summary>
-    /// Used to configure the timeout manager that provides message deferral.
+    ///     Used to configure the timeout manager that provides message deferral.
     /// </summary>
     public class TimeoutManager : Feature
     {
@@ -35,15 +36,15 @@
         }
 
         /// <summary>
-        /// See <see cref="Feature.Setup"/>.
+        ///     See <see cref="Feature.Setup" />.
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             string processorAddress;
 
-            var consistencyGuarantee = context.Settings.Get<TransportDefinition>().GetDefaultConsistencyGuarantee();
+            var requiredTransactionSupport = context.Settings.GetRequiredTransactionSupportForReceives();
 
-            var messageProcessorPipeline = context.AddSatellitePipeline("Timeout Message Processor", "Timeouts", consistencyGuarantee, PushRuntimeSettings.Default, out processorAddress);
+            var messageProcessorPipeline = context.AddSatellitePipeline("Timeout Message Processor", "Timeouts", requiredTransactionSupport, PushRuntimeSettings.Default, out processorAddress);
             messageProcessorPipeline.Register<MoveFaultsToErrorQueueBehavior.Registration>();
             messageProcessorPipeline.Register<FirstLevelRetriesBehavior.Registration>();
             messageProcessorPipeline.Register<StoreTimeoutBehavior.Registration>();
@@ -55,7 +56,7 @@
             context.Settings.Get<TimeoutManagerAddressConfiguration>().Set(processorAddress);
 
             string dispatcherAddress;
-            var dispatcherProcessorPipeline = context.AddSatellitePipeline("Timeout Dispatcher Processor", "TimeoutsDispatcher", consistencyGuarantee, PushRuntimeSettings.Default, out dispatcherAddress);
+            var dispatcherProcessorPipeline = context.AddSatellitePipeline("Timeout Dispatcher Processor", "TimeoutsDispatcher", requiredTransactionSupport, PushRuntimeSettings.Default, out dispatcherAddress);
             dispatcherProcessorPipeline.Register<MoveFaultsToErrorQueueBehavior.Registration>();
             dispatcherProcessorPipeline.Register<FirstLevelRetriesBehavior.Registration>();
             dispatcherProcessorPipeline.Register("TimeoutDispatcherProcessor", typeof(DispatchTimeoutBehavior), "Dispatches timeout messages");

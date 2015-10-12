@@ -2,9 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
-    using NServiceBus.ConsistencyGuarantees;
-    using NServiceBus.Settings;
-    using NServiceBus.Transports;
+    using Settings;
+    using Transports;
 
     public class FakeTransport : TransportDefinition
     {
@@ -13,9 +12,9 @@
             return new List<Type>();
         }
 
-        public override ConsistencyGuarantee GetDefaultConsistencyGuarantee()
+        public override TransactionSupport GetTransactionSupport()
         {
-            return ConsistencyGuarantee.AtLeastOnce;
+            return TransactionSupport.SingleQueue;
         }
 
         public override IManageSubscriptions GetSubscriptionManager()

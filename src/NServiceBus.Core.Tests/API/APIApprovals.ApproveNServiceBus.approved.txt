@@ -657,11 +657,11 @@ namespace NServiceBus
     {
         public MsmqTransport() { }
         protected internal override void Configure(NServiceBus.BusConfiguration config) { }
-        public override NServiceBus.ConsistencyGuarantees.ConsistencyGuarantee GetDefaultConsistencyGuarantee() { }
         public override string GetDiscriminatorForThisEndpointInstance() { }
         public override NServiceBus.Transports.OutboundRoutingPolicy GetOutboundRoutingPolicy(NServiceBus.Settings.ReadOnlySettings settings) { }
         public override NServiceBus.Transports.IManageSubscriptions GetSubscriptionManager() { }
         public override System.Collections.Generic.IEnumerable<System.Type> GetSupportedDeliveryConstraints() { }
+        public override NServiceBus.Transports.TransactionSupport GetTransactionSupport() { }
         public override string ToTransportAddress(NServiceBus.LogicalAddress logicalAddress) { }
     }
     public class NonDurableDelivery : NServiceBus.DeliveryConstraints.DeliveryConstraint
@@ -1182,6 +1182,10 @@ namespace NServiceBus.ConsistencyGuarantees
         AtLeastOnce = 2,
         ExactlyOnce = 3,
     }
+    public class static ConsistencyGuaranteeSettingsExtensions
+    {
+        public static NServiceBus.Transports.TransactionSupport GetRequiredTransactionSupportForReceives(this NServiceBus.Settings.ReadOnlySettings settings) { }
+    }
 }
 namespace NServiceBus.Container
 {
@@ -1391,7 +1395,7 @@ namespace NServiceBus.Features
         public NServiceBus.ObjectBuilder.IConfigureComponents Container { get; }
         public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
         public NServiceBus.Settings.ReadOnlySettings Settings { get; }
-        public NServiceBus.Pipeline.PipelineSettings AddSatellitePipeline(string name, string qualifier, NServiceBus.ConsistencyGuarantees.ConsistencyGuarantee consistencyGuarantee, NServiceBus.Transports.PushRuntimeSettings runtimeSettings, out string transportAddress) { }
+        public NServiceBus.Pipeline.PipelineSettings AddSatellitePipeline(string name, string qualifier, NServiceBus.Transports.TransactionSupport requiredTransactionSupport, NServiceBus.Transports.PushRuntimeSettings runtimeSettings, out string transportAddress) { }
     }
     public class FeatureDiagnosticData
     {
@@ -2627,11 +2631,11 @@ namespace NServiceBus.Transports
     }
     public class PushSettings
     {
-        public PushSettings(string inputQueue, string errorQueue, bool purgeOnStartup, NServiceBus.ConsistencyGuarantees.ConsistencyGuarantee requiredConsistency) { }
+        public PushSettings(string inputQueue, string errorQueue, bool purgeOnStartup, NServiceBus.Transports.TransactionSupport requiredTransactionSupport) { }
         public string ErrorQueue { get; }
         public string InputQueue { get; }
         public bool PurgeOnStartup { get; }
-        public NServiceBus.ConsistencyGuarantees.ConsistencyGuarantee RequiredConsistency { get; }
+        public NServiceBus.Transports.TransactionSupport RequiredTransactionSupport { get; }
     }
     public class QueueBindings
     {
@@ -2640,6 +2644,13 @@ namespace NServiceBus.Transports
         public System.Collections.Generic.IEnumerable<string> SendingAddresses { get; }
         public void BindReceiving(string address) { }
         public void BindSending(string transportAddress) { }
+    }
+    public enum TransactionSupport
+    {
+        None = 0,
+        SingleQueue = 1,
+        MultiQueue = 2,
+        Distributed = 3,
     }
     public class TransportAddresses
     {
@@ -2652,15 +2663,17 @@ namespace NServiceBus.Transports
         protected TransportDefinition() { }
         public bool HasNativePubSubSupport { get; set; }
         public bool HasSupportForCentralizedPubSub { get; set; }
+        [System.ObsoleteAttribute("GetTransactionSupport. Will be removed in version 7.0.0.", true)]
         public System.Nullable<bool> HasSupportForDistributedTransactions { get; set; }
+        [System.ObsoleteAttribute("Please use `GetTransactionSupport` instead. Will be removed in version 7.0.0.", true)]
         public bool HasSupportForMultiQueueNativeTransactions { get; set; }
         public bool RequireOutboxConsent { get; set; }
         protected internal void Configure(NServiceBus.BusConfiguration config) { }
-        public abstract NServiceBus.ConsistencyGuarantees.ConsistencyGuarantee GetDefaultConsistencyGuarantee();
         public abstract string GetDiscriminatorForThisEndpointInstance();
         public abstract NServiceBus.Transports.OutboundRoutingPolicy GetOutboundRoutingPolicy(NServiceBus.Settings.ReadOnlySettings settings);
         public abstract NServiceBus.Transports.IManageSubscriptions GetSubscriptionManager();
         public abstract System.Collections.Generic.IEnumerable<System.Type> GetSupportedDeliveryConstraints();
+        public abstract NServiceBus.Transports.TransactionSupport GetTransactionSupport();
         public abstract string ToTransportAddress(NServiceBus.LogicalAddress logicalAddress);
     }
     public class TransportOperation
@@ -2668,14 +2681,6 @@ namespace NServiceBus.Transports
         public TransportOperation(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Transports.DispatchOptions dispatchOptions) { }
         public NServiceBus.Transports.DispatchOptions DispatchOptions { get; }
         public NServiceBus.Transports.OutgoingMessage Message { get; }
-    }
-    public class TransportPublishOptions
-    {
-        public TransportPublishOptions(System.Type eventType, NServiceBus.ConsistencyGuarantees.ConsistencyGuarantee minimumConsistencyGuarantee, System.Collections.Generic.List<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints, NServiceBus.Pipeline.BehaviorContext context) { }
-        public NServiceBus.Pipeline.BehaviorContext Context { get; }
-        public System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> DeliveryConstraints { get; }
-        public System.Type EventType { get; }
-        public NServiceBus.ConsistencyGuarantees.ConsistencyGuarantee MinimumConsistencyGuarantee { get; }
     }
 }
 namespace NServiceBus.Transports.Msmq.Config

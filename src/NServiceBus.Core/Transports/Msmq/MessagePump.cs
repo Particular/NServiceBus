@@ -8,12 +8,11 @@ namespace NServiceBus.Transports.Msmq
     using System.Threading;
     using System.Threading.Tasks;
     using CircuitBreakers;
-    using ConsistencyGuarantees;
     using Logging;
 
     class MessagePump : IPushMessages, IDisposable
     {
-        public MessagePump(CriticalError criticalError, Func<ConsistencyGuarantee, ReceiveStrategy> receiveStrategyFactory)
+        public MessagePump(CriticalError criticalError, Func<TransactionSupport, ReceiveStrategy> receiveStrategyFactory)
         {
             this.criticalError = criticalError;
             this.receiveStrategyFactory = receiveStrategyFactory;
@@ -28,7 +27,7 @@ namespace NServiceBus.Transports.Msmq
         {
             pipeline = pipe;
 
-            receiveStrategy = receiveStrategyFactory(settings.RequiredConsistency);
+            receiveStrategy = receiveStrategyFactory(settings.RequiredTransactionSupport);
 
             peekCircuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("MsmqPeek", TimeSpan.FromSeconds(30), ex => criticalError.Raise("Failed to peek " + settings.InputQueue, ex));
             receiveCircuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("MsmqReceive", TimeSpan.FromSeconds(30), ex => criticalError.Raise("Failed to receive from " + settings.InputQueue, ex));
@@ -45,7 +44,7 @@ namespace NServiceBus.Transports.Msmq
             inputQueue = new MessageQueue(inputAddress.FullPath, false, true, QueueAccessMode.Receive);
             errorQueue = new MessageQueue(errorAddress.FullPath, false, true, QueueAccessMode.Send);
 
-            if (settings.RequiredConsistency != ConsistencyGuarantee.AtMostOnce && !QueueIsTransactional())
+            if (settings.RequiredTransactionSupport != TransactionSupport.None && !QueueIsTransactional())
             {
                 throw new ArgumentException("Queue must be transactional if you configure your endpoint to be transactional (" + settings.InputQueue + ").");
             }
@@ -232,7 +231,7 @@ namespace NServiceBus.Transports.Msmq
         Func<PushContext, Task> pipeline;
         RepeatedFailuresOverTimeCircuitBreaker receiveCircuitBreaker;
         ReceiveStrategy receiveStrategy;
-        Func<ConsistencyGuarantee, ReceiveStrategy> receiveStrategyFactory;
+        Func<TransactionSupport, ReceiveStrategy> receiveStrategyFactory;
         ConcurrentDictionary<Task, Task> runningReceiveTasks;
 
         static ILog Logger = LogManager.GetLogger<ReceiveWithNativeTransaction>();

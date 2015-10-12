@@ -39,8 +39,7 @@
     {
         public AllDtcTransports()
         {
-            AllTransportsFilter.Run(t => t.HasSupportForDistributedTransactions.HasValue
-                                         && !t.HasSupportForDistributedTransactions.Value, Remove);
+            AllTransportsFilter.Run(t => t.GetTransactionSupport() != TransactionSupport.Distributed, Remove);
         }
     }
 
@@ -48,7 +47,7 @@
     {
         public AllNativeMultiQueueTransactionTransports()
         {
-            AllTransportsFilter.Run(t => !t.HasSupportForMultiQueueNativeTransactions, Remove);
+            AllTransportsFilter.Run(t => t.GetTransactionSupport() > TransactionSupport.MultiQueue, Remove);
         }
     }
 
