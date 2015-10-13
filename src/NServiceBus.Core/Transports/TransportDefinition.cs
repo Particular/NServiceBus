@@ -25,11 +25,14 @@ namespace NServiceBus.Transports
         public bool RequireOutboxConsent { get; set; }
 
         /// <summary>
-        /// Gives implementations access to the <see cref="BusConfiguration" /> instance at configuration time.
+        /// Configures transport for receiving.
         /// </summary>
-        protected internal virtual void Configure(BusConfiguration config)
-        {
-        }
+        protected internal abstract void ConfigureForReceiving(TransportReceivingConfigurationContext context);
+
+        /// <summary>
+        /// Configures transport for sending.
+        /// </summary>
+        protected internal abstract void ConfigureForSending(TransportSendingConfigurationContext context);
 
         /// <summary>
         /// Returns the list of supported delivery constraints for this transport.
@@ -63,5 +66,15 @@ namespace NServiceBus.Transports
         /// Returns the outbound routing policy selected for the transport.
         /// </summary>
         public abstract OutboundRoutingPolicy GetOutboundRoutingPolicy(ReadOnlySettings settings);
+
+        /// <summary>
+        /// Gets an example connection string to use when reporting lack of configured connection string to the user.
+        /// </summary>
+        public abstract string ExampleConnectionStringForErrorMessage { get; }
+
+        /// <summary>
+        /// Used by implementations to control if a connection string is necessary.
+        /// </summary>
+        public virtual bool RequiresConnectionString => true;        
     }
 }

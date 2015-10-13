@@ -137,6 +137,7 @@
     <Compile Include="Routing\FileBasedDynamicRouting\FileRoutingTableSettings.cs" />
     <Compile Include="Routing\EndpointInstances.cs" />
     <Compile Include="Transports\TransactionSupport.cs" />
+    <Compile Include="Transports\Sending.cs" />
     <Compile Include="Transports\TransportAddresses.cs" />
     <Compile Include="Routing\UnicastRoutingTable.cs" />
     <Compile Include="Routing\RoutingSettings.cs" />
@@ -308,6 +309,9 @@
     <Compile Include="Transports\PushContext.cs" />
     <Compile Include="Transports\QueueBindings.cs" />
     <Compile Include="Transports\IncomingMessage.cs" />
+    <Compile Include="Transports\TransportDispatcher.cs" />
+    <Compile Include="Transports\TransportReceivingConfigurationContext.cs" />
+    <Compile Include="Transports\TransportSendingConfigurationContext.cs" />
     <Compile Include="Transports\TransportOperation.cs" />
     <Compile Include="Transports\DispatchOptions.cs" />
     <Compile Include="Pipeline\Outgoing\HeaderOptionExtensions.cs" />
@@ -378,6 +382,9 @@
     <Compile Include="IMessageCreator.cs" />
     <Compile Include="IMessageHandler.cs" />
     <Compile Include="Unicast\StartAndStoppablesRunner.cs" />
+    <Compile Include="Unicast\Transport\Config\InboundTransport.cs" />
+    <Compile Include="Unicast\Transport\Config\OutboundTransport.cs" />
+    <Compile Include="Unicast\Transport\Config\OutboundTransports.cs" />
     <Compile Include="WindowsIdentityEnrichment\ConfigureWindowsIdentityEnricher.cs" />
     <Compile Include="Persistence\EnabledPersistence.cs" />
     <Compile Include="Persistence\Msmq\Msmq.cs" />
@@ -517,7 +524,7 @@
     <Compile Include="Settings\TransactionSettingsExtentions.cs" />
     <Compile Include="Support\RuntimeEnvironment.cs" />
     <Compile Include="Performance\TimeToBeReceived\TimeToBeReceivedAttribute.cs" />
-    <Compile Include="Transports\ConfigureTransport.cs" />
+    <Compile Include="Transports\Receiving.cs" />
     <Compile Include="Transports\Msmq\CheckMachineNameForComplianceWithDtcLimitation.cs" />
     <Compile Include="Pipeline\Incoming\InvokeHandlerTerminator.cs" />
     <Compile Include="Pipeline\Incoming\LoadHandlersConnector.cs" />

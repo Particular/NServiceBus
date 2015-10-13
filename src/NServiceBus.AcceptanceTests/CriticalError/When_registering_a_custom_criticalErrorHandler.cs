@@ -30,7 +30,7 @@
                 .Run();
         }
 
-        public class Context : FakeTransportContext
+        public class Context : ScenarioContext
         {
             public Exception Exception { get; set; }
             public string Message { get; set; }
@@ -54,7 +54,7 @@
                         context.Message = s;
                         context.ExceptionReceived = true;
                     });
-                }).IncludeType<FakeTransportConfigurator>();
+                });
             }
 
             public class MyRequestHandler : IHandleMessages<MyRequest>

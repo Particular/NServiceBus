@@ -3,6 +3,7 @@
     using NServiceBus.Configuration.AdvanceExtensibility;
     using NServiceBus.Routing;
     using NServiceBus.Settings;
+    using NServiceBus.Transports;
 
     /// <summary>
     /// Exposes settings related to routing.
@@ -28,6 +29,11 @@
         /// Gets the distribution policy.
         /// </summary>
         public DistributionPolicy DistributionPolicy => GetOrCreate<DistributionPolicy>();
+
+        /// <summary>
+        /// Gets the transport addresses.
+        /// </summary>
+        public TransportAddresses TransportAddresses => GetOrCreate<TransportAddresses>();
 
         T GetOrCreate<T>()
             where T : new()

@@ -13,7 +13,12 @@ namespace NServiceBus.Transports.Msmq
         /// <summary>
         /// The current runtime settings.
         /// </summary>
-        public MsmqSettings Settings { get; set; }
+        MsmqSettings settings;
+
+        public QueueCreator(MsmqSettings settings)
+        {
+            this.settings = settings;
+        }
 
         ///<summary>
         /// Utility method for creating a queue if it does not exist.
@@ -49,7 +54,7 @@ namespace NServiceBus.Transports.Msmq
                 Logger.Warn("Queue " + queuePath + " does not exist.");
                 Logger.Debug("Going to create queue: " + queuePath);
 
-                CreateQueue(queuePath, account, Settings.UseTransactionalQueues);
+                CreateQueue(queuePath, account, settings.UseTransactionalQueues);
             }
             catch (MessageQueueException ex)
             {
@@ -105,5 +110,6 @@ namespace NServiceBus.Transports.Msmq
         internal static string LocalAdministratorsGroupName = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null).Translate(typeof(NTAccount)).ToString();
         internal static string LocalEveryoneGroupName = new SecurityIdentifier(WellKnownSidType.WorldSid, null).Translate(typeof(NTAccount)).ToString();
         internal static string LocalAnonymousLogonName = new SecurityIdentifier(WellKnownSidType.AnonymousSid, null).Translate(typeof(NTAccount)).ToString();
+
     }
 }

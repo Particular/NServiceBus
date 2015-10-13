@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using NServiceBus.Extensibility;
     using NServiceBus.Utils.Reflection;
     using Transports;
 
@@ -9,19 +10,20 @@ namespace NServiceBus
     /// </summary>
     public static class UseTransportExtensions
     {
-        const string TransportDefinitionTypeKey = "transportDefinitionType";
-
         /// <summary>
         /// Configures NServiceBus to use the given transport.
         /// </summary>
         public static TransportExtensions<T> UseTransport<T>(this BusConfiguration busConfiguration) where T : TransportDefinition, new()
         {
-            Guard.AgainstNull("busConfiguration", busConfiguration);
+            Guard.AgainstNull(nameof(busConfiguration), busConfiguration);
             var type = typeof(TransportExtensions<>).MakeGenericType(typeof(T));
-            var extension = (TransportExtensions<T>)Activator.CreateInstance(type, busConfiguration.Settings);
+            var contextBag = new ContextBag();
+            var extension = (TransportExtensions<T>)Activator.CreateInstance(type, contextBag);
 
-            busConfiguration.Settings.Set(TransportDefinitionTypeKey, typeof(T));
-
+            var transportDefinition = new T();
+            busConfiguration.Settings.Set<InboundTransport>(new InboundTransport(transportDefinition, contextBag));
+            busConfiguration.Settings.Set<TransportDefinition>(transportDefinition);
+            AddOutboundTransport(busConfiguration, transportDefinition, contextBag, true);
             return extension;
         }
 
@@ -30,31 +32,51 @@ namespace NServiceBus
         /// </summary>
         public static TransportExtensions UseTransport(this BusConfiguration busConfiguration, Type transportDefinitionType)
         {
-            Guard.AgainstNull("busConfiguration", busConfiguration);
-            Guard.AgainstNull("transportDefinitionType", transportDefinitionType);
-            Guard.TypeHasDefaultConstructor(transportDefinitionType, "transportDefinitionType");
+            Guard.AgainstNull(nameof(busConfiguration), busConfiguration);
+            Guard.AgainstNull(nameof(transportDefinitionType), transportDefinitionType);
+            Guard.TypeHasDefaultConstructor(transportDefinitionType, nameof(transportDefinitionType));
 
-            busConfiguration.Settings.Set(TransportDefinitionTypeKey, transportDefinitionType);
+            var contextBag = new ContextBag();
+            var transportDefinition = transportDefinitionType.Construct<TransportDefinition>();
 
-            return new TransportExtensions(busConfiguration.Settings);
-        }
-
-        internal static void SetupTransport(BusConfiguration busConfiguration)
-        {
-            var transportDefinition = GetTransportDefinition(busConfiguration);
+            busConfiguration.Settings.Set<InboundTransport>(new InboundTransport(transportDefinition, contextBag));
             busConfiguration.Settings.Set<TransportDefinition>(transportDefinition);
-            transportDefinition.Configure(busConfiguration);
+            AddOutboundTransport(busConfiguration, transportDefinition, contextBag, true);
+            return new TransportExtensions(contextBag);
         }
 
-        static TransportDefinition GetTransportDefinition(BusConfiguration busConfiguration)
+        /// <summary>
+        /// Configures NServiceBus to use the given transport for sending messages out.
+        /// </summary>
+        public static TransportExtensions<T> UseAdditionalOutgoingTransport<T>(this BusConfiguration busConfiguration) where T : TransportDefinition, new()
         {
-            Type transportDefinitionType;
-            if (!busConfiguration.Settings.TryGet(TransportDefinitionTypeKey, out transportDefinitionType))
-            {
-                return new MsmqTransport();
-            }
+            Guard.AgainstNull(nameof(busConfiguration), busConfiguration);
+            var type = typeof(TransportExtensions<>).MakeGenericType(typeof(T));
+            var contextBag = new ContextBag();
+            var extension = (TransportExtensions<T>)Activator.CreateInstance(type, contextBag);
 
-            return transportDefinitionType.Construct<TransportDefinition>();
+            var transportDefinition = new T();
+            AddOutboundTransport(busConfiguration, transportDefinition, contextBag, false);
+            return extension;
+        }
+
+        static void AddOutboundTransport(BusConfiguration busConfiguration, TransportDefinition transportDefinition, ContextBag contextBag, bool isDefault)
+        {
+            OutboundTransports outboundTransports;
+            if (!busConfiguration.Settings.TryGet(out outboundTransports))
+            {
+                outboundTransports = new OutboundTransports();
+                busConfiguration.Settings.Set<OutboundTransports>(outboundTransports);
+            }
+            outboundTransports.Add(transportDefinition, contextBag, isDefault);
+        }
+
+        internal static void EnsureTransportConfigured(BusConfiguration busConfiguration)
+        {
+            if (!busConfiguration.Settings.HasExplicitValue<TransportDefinition>())
+            {
+                busConfiguration.UseTransport<MsmqTransport>();
+            }
         }
     }
 }

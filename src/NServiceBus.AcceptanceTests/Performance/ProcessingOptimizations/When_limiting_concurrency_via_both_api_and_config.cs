@@ -13,7 +13,7 @@ namespace NServiceBus.AcceptanceTests.Config
         [Test]
         public async Task Should_throw()
         {
-            var context = await Scenario.Define<FakeTransportContext>()
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<ThrottledEndpoint>(b => b.CustomConfig(c => c.LimitMessageProcessingConcurrencyTo(10)))
                 .AllowExceptions()
                 .Done(c => c.EndpointsStarted)
@@ -22,12 +22,15 @@ namespace NServiceBus.AcceptanceTests.Config
             Assert.True(context.Exceptions.First().Message.Contains("specified both via API and configuration"));
         }
 
+        public class Context : ScenarioContext
+        {
+        }
+
         class ThrottledEndpoint : EndpointConfigurationBuilder
         {
             public ThrottledEndpoint()
             {
                 EndpointSetup<DefaultServer>(c => c.UseTransport<FakeTransport>())
-                    .IncludeType<FakeTransportConfigurator>()
                     .WithConfig<TransportConfig>(c => c.MaximumConcurrencyLevel = 8);
 
             }

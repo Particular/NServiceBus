@@ -121,13 +121,10 @@ public class PrimeSubscriptionStorage : Feature
 
             subscriptionStorage.Init();
 
-            var creator = new QueueCreator
+            var creator = new QueueCreator(new MsmqSettings
             {
-                Settings = new MsmqSettings
-                {
-                    UseTransactionalQueues = true
-                }
-            };
+                UseTransactionalQueues = true
+            });
 
             var numberOfSubscribers = Settings.Get<int>("NumberOfSubscribers");
             for (var i = 0; i < numberOfSubscribers; i++)
