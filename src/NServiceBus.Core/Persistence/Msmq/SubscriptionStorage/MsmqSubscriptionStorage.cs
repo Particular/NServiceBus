@@ -6,17 +6,21 @@ namespace NServiceBus
     using System.Messaging;
     using System.Threading.Tasks;
     using System.Transactions;
+    using Extensibility;
     using Logging;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
     using MessageType = Unicast.Subscriptions.MessageType;
 
-    /// <summary>
-    /// Provides functionality for managing message subscriptions
-    /// using MSMQ.
-    /// </summary>
     class MsmqSubscriptionStorage : IInitializableSubscriptionStorage, IDisposable
     {
         public bool TransactionsEnabled { get; set; }
+        public bool DontUseExternalTransaction { get; set; }
+        public MsmqAddress Queue { get; set; }
+
+        public void Dispose()
+        {
+            // Filled in by Janitor.fody
+        }
 
         public void Init()
         {
@@ -32,11 +36,21 @@ namespace NServiceBus
             }
 
             if (!transactional && TransactionsEnabled)
+            {
                 throw new ArgumentException("Queue must be transactional (" + Queue + ").");
+            }
 
-            var messageReadPropertyFilter = new MessagePropertyFilter { Id = true, Body = true, Label = true };
+            var messageReadPropertyFilter = new MessagePropertyFilter
+            {
+                Id = true,
+                Body = true,
+                Label = true
+            };
 
-            q.Formatter = new XmlMessageFormatter(new[] { typeof(string) });
+            q.Formatter = new XmlMessageFormatter(new[]
+            {
+                typeof(string)
+            });
 
             q.MessageReadPropertyFilter = messageReadPropertyFilter;
 
@@ -46,12 +60,16 @@ namespace NServiceBus
                 var messageTypeString = m.Body as string;
                 var messageType = new MessageType(messageTypeString); //this will parse both 2.6 and 3.0 type strings
 
-                entries.Add(new Entry { MessageType = messageType, Subscriber = subscriber });
+                entries.Add(new Entry
+                {
+                    MessageType = messageType,
+                    Subscriber = subscriber
+                });
                 AddToLookup(subscriber, messageType, m.Id);
             }
         }
 
-        public Task<IEnumerable<string>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes, SubscriptionStorageOptions options)
+        public Task<IEnumerable<string>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes, ContextBag context)
         {
             var subscribers = new List<string>();
             var result = new List<string>();
@@ -77,7 +95,7 @@ namespace NServiceBus
             return Task.FromResult((IEnumerable<string>) subscribers);
         }
 
-        public Task Subscribe(string address, IEnumerable<MessageType> messageTypes, SubscriptionStorageOptions options)
+        public Task Subscribe(string address, IEnumerable<MessageType> messageTypes, ContextBag context)
         {
             lock (locker)
             {
@@ -99,10 +117,10 @@ namespace NServiceBus
                         Add(address, messageType);
 
                         var entry = new Entry
-                                    {
-                                        MessageType = messageType,
-                                        Subscriber = address
-                                    };
+                        {
+                            MessageType = messageType,
+                            Subscriber = address
+                        };
                         entries.Add(entry);
 
                         log.DebugFormat("Subscriber {0} added for message {1}.", address, messageType);
@@ -112,7 +130,7 @@ namespace NServiceBus
             return TaskEx.Completed;
         }
 
-        public Task Unsubscribe(string address, IEnumerable<MessageType> messageTypes, SubscriptionStorageOptions options)
+        public Task Unsubscribe(string address, IEnumerable<MessageType> messageTypes, ContextBag context)
         {
             lock (locker)
             {
@@ -135,50 +153,38 @@ namespace NServiceBus
             return TaskEx.Completed;
         }
 
-        /// <summary>
-        /// Adds a message to the subscription store.
-        /// </summary>
-        public void Add(string subscriber, MessageType messageType)
+        void Add(string subscriber, MessageType messageType)
         {
             var toSend = new Message
-                         {
-                             Formatter = q.Formatter,
-                             Recoverable = true, 
-                             Label = subscriber, 
-                             Body = messageType.TypeName + ", Version=" + messageType.Version
-                         };
+            {
+                Formatter = q.Formatter,
+                Recoverable = true,
+                Label = subscriber,
+                Body = messageType.TypeName + ", Version=" + messageType.Version
+            };
 
             q.Send(toSend, GetTransactionType());
 
             AddToLookup(subscriber, messageType, toSend.Id);
         }
 
-        /// <summary>
-        /// Removes a message from the subscription store.
-        /// </summary>
-        public void Remove(string subscriber, MessageType messageType)
+        void Remove(string subscriber, MessageType messageType)
         {
             var messageId = RemoveFromLookup(subscriber, messageType);
 
             if (messageId == null)
+            {
                 return;
+            }
 
             q.ReceiveById(messageId, GetTransactionType());
         }
 
-        /// <summary>
-        /// Checks if configuration is wrong - endpoint isn't transactional and
-        /// object isn't configured to handle own transactions.
-        /// </summary>
         bool ConfigurationIsWrong()
         {
             return (Transaction.Current == null && !DontUseExternalTransaction);
         }
 
-        /// <summary>
-        /// Returns the transaction type (automatic or single) that should be used
-        /// based on the configuration of enlisting into external transactions.
-        /// </summary>
         MessageQueueTransactionType GetTransactionType()
         {
             if (!TransactionsEnabled)
@@ -200,22 +206,6 @@ namespace NServiceBus
             return t;
         }
 
-        /// <summary>
-        /// Gets/sets whether or not to use a transaction started outside the
-        /// subscription store.
-        /// </summary>
-        public virtual bool DontUseExternalTransaction { get; set; }
-
-        /// <summary>
-        /// Sets the address of the queue where subscription messages will be stored.
-        /// For a local queue, just use its name - msmq specific info isn't needed.
-        /// </summary>
-        public MsmqAddress Queue{get;set;}
-
-        /// <summary>
-        /// Adds a message to the lookup to find message from
-        /// subscriber, to message type, to message id
-        /// </summary>
         void AddToLookup(string subscriber, MessageType typeName, string messageId)
         {
             lock (lookup)
@@ -254,21 +244,13 @@ namespace NServiceBus
             return messageId;
         }
 
-        MessageQueue q;
-
-        /// <summary>
-        /// lookup from subscriber, to message type, to message id.
-        /// </summary>
-        Dictionary<string, Dictionary<MessageType, string>> lookup = new Dictionary<string, Dictionary<MessageType, string>>(StringComparer.OrdinalIgnoreCase);
-
         List<Entry> entries = new List<Entry>();
         object locker = new object();
 
-        static ILog log = LogManager.GetLogger(typeof(ISubscriptionStorage));
+        Dictionary<string, Dictionary<MessageType, string>> lookup = new Dictionary<string, Dictionary<MessageType, string>>(StringComparer.OrdinalIgnoreCase);
 
-        public void Dispose()
-        {
-            // Filled in by Janitor.fody
-        }
+        MessageQueue q;
+
+        static ILog log = LogManager.GetLogger(typeof(ISubscriptionStorage));
     }
 }

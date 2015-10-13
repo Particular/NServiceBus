@@ -5,10 +5,10 @@ namespace NServiceBus
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using Extensibility;
-    using Sagas;
-    using Utils;
-    using Serializers.Json;
+    using NServiceBus.Extensibility;
+    using NServiceBus.Sagas;
+    using NServiceBus.Serializers.Json;
+    using NServiceBus.Utils;
 
     class InMemorySagaPersister : ISagaPersister
     {
@@ -17,14 +17,14 @@ namespace NServiceBus
             this.sagaMetaModel = sagaMetaModel;
         }
 
-        public Task Complete(IContainSagaData saga, ReadOnlyContextBag context)
+        public Task Complete(IContainSagaData saga, ContextBag context)
         {
             VersionedSagaEntity value;
             data.TryRemove(saga.Id, out value);
             return TaskEx.Completed;
         }
 
-        public Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, ReadOnlyContextBag context) where TSagaData : IContainSagaData
+        public Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, ContextBag context) where TSagaData : IContainSagaData
         {
             var values = data.Values.Where(x => x.SagaEntity is TSagaData);
             foreach (var entity in values)
@@ -38,26 +38,26 @@ namespace NServiceBus
                 {
                     continue;
                 }
-                var clone = (TSagaData)DeepClone(entity.SagaEntity);
+                var clone = (TSagaData) DeepClone(entity.SagaEntity);
                 entity.RecordRead(clone, version);
                 return Task.FromResult(clone);
             }
             return Task.FromResult(default(TSagaData));
         }
 
-        public Task<TSagaData> Get<TSagaData>(Guid sagaId, ReadOnlyContextBag context) where TSagaData : IContainSagaData
+        public Task<TSagaData> Get<TSagaData>(Guid sagaId, ContextBag context) where TSagaData : IContainSagaData
         {
             VersionedSagaEntity result;
             if (data.TryGetValue(sagaId, out result) && result?.SagaEntity is TSagaData)
             {
-                var clone = (TSagaData)DeepClone(result.SagaEntity);
+                var clone = (TSagaData) DeepClone(result.SagaEntity);
                 result.RecordRead(clone, version);
                 return Task.FromResult(clone);
             }
             return Task.FromResult(default(TSagaData));
         }
 
-        public Task Save(IContainSagaData saga, ReadOnlyContextBag context)
+        public Task Save(IContainSagaData saga, ContextBag context)
         {
             var metadata = sagaMetaModel.FindByEntity(saga.GetType());
             ValidateUniqueProperties(metadata, saga);
@@ -68,13 +68,20 @@ namespace NServiceBus
                 sagaEntity.ConcurrencyCheck(saga, version);
             }
 
-            data.AddOrUpdate(saga.Id, id => new VersionedSagaEntity { SagaEntity = DeepClone(saga) }, (id, original) => new VersionedSagaEntity { SagaEntity = DeepClone(saga), VersionCache = original.VersionCache });
+            data.AddOrUpdate(saga.Id, id => new VersionedSagaEntity
+            {
+                SagaEntity = DeepClone(saga)
+            }, (id, original) => new VersionedSagaEntity
+            {
+                SagaEntity = DeepClone(saga),
+                VersionCache = original.VersionCache
+            });
 
             Interlocked.Increment(ref version);
             return TaskEx.Completed;
         }
 
-        public Task Update(IContainSagaData saga, ReadOnlyContextBag context)
+        public Task Update(IContainSagaData saga, ContextBag context)
         {
             return Save(saga, context);
         }
@@ -83,8 +90,8 @@ namespace NServiceBus
         {
             var sagaType = saga.GetType();
             var existingSagas = (from s in data
-                                 where s.Value.SagaEntity.GetType() == sagaType && (s.Key != saga.Id)
-                                 select s.Value)
+                where s.Value.SagaEntity.GetType() == sagaType && (s.Key != saga.Id)
+                select s.Value)
                 .ToList();
             foreach (var correlationProperty in sagaMetaData.CorrelationProperties)
             {
@@ -120,20 +127,17 @@ namespace NServiceBus
         IContainSagaData DeepClone(IContainSagaData source)
         {
             var json = serializer.SerializeObject(source);
-            return (IContainSagaData)serializer.DeserializeObject(json, source.GetType());
+            return (IContainSagaData) serializer.DeserializeObject(json, source.GetType());
         }
 
-        int version;
-        JsonMessageSerializer serializer = new JsonMessageSerializer(null);
         ConcurrentDictionary<Guid, VersionedSagaEntity> data = new ConcurrentDictionary<Guid, VersionedSagaEntity>();
         SagaMetadataCollection sagaMetaModel;
+        JsonMessageSerializer serializer = new JsonMessageSerializer(null);
+
+        int version;
 
         class VersionedSagaEntity
         {
-            public IContainSagaData SagaEntity;
-
-            public WeakKeyDictionary<IContainSagaData, int> VersionCache = new WeakKeyDictionary<IContainSagaData, int>();
-
             public void RecordRead(IContainSagaData sagaEntity, int currentVersion)
             {
                 VersionCache[sagaEntity] = currentVersion;
@@ -143,11 +147,19 @@ namespace NServiceBus
             {
                 int v;
                 if (!VersionCache.TryGetValue(sagaEntity, out v))
+                {
                     throw new Exception($"InMemorySagaPersister in an inconsistent state: entity Id[{sagaEntity.Id}] not read.");
+                }
 
                 if (v != currentVersion)
+                {
                     throw new Exception($@"InMemorySagaPersister concurrency violation: saga entity Id[{sagaEntity.Id}] already saved.");
+                }
             }
+
+            public IContainSagaData SagaEntity;
+
+            public WeakKeyDictionary<IContainSagaData, int> VersionCache = new WeakKeyDictionary<IContainSagaData, int>();
         }
     }
 }

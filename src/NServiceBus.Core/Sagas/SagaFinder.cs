@@ -1,12 +1,12 @@
 ﻿namespace NServiceBus
 {
     using System.Threading.Tasks;
-    using Extensibility;
-    using ObjectBuilder;
-    using Sagas;
+    using NServiceBus.Extensibility;
+    using NServiceBus.ObjectBuilder;
+    using NServiceBus.Sagas;
 
     abstract class SagaFinder
     {
-        internal abstract Task<IContainSagaData> Find(IBuilder builder, SagaFinderDefinition finderDefinition, ReadOnlyContextBag context, object message);
+        public abstract Task<IContainSagaData> Find(IBuilder builder, SagaFinderDefinition finderDefinition, ContextBag context, object message);
     }
 }

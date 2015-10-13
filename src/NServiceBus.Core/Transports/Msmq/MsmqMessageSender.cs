@@ -30,7 +30,7 @@ namespace NServiceBus.Transports.Msmq
         /// <summary>
         /// Dispatches the given operations to the transport.
         /// </summary>
-        public Task Dispatch(IEnumerable<TransportOperation> transportOperations, ReadOnlyContextBag context)
+        public Task Dispatch(IEnumerable<TransportOperation> transportOperations, ContextBag context)
         {
             Guard.AgainstNull("transportOperations", transportOperations);
 

@@ -7,7 +7,7 @@ namespace NServiceBus.AcceptanceTests.FakeTransport
 
     class FakeDispatcher : IDispatchMessages
     {
-        public Task Dispatch(IEnumerable<TransportOperation> outgoingMessages, ReadOnlyContextBag context)
+        public Task Dispatch(IEnumerable<TransportOperation> outgoingMessages, ContextBag context)
         {
             return Task.FromResult(0);
         }

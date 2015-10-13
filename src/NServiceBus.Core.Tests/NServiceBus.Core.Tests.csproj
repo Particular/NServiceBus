@@ -127,6 +127,7 @@
     <Compile Include="Causation\AttachCausationHeadersBehaviorTests.cs" />
     <Compile Include="ContextHelpers.cs" />
     <Compile Include="DelayedDelivery\RouteDeferredMessageToTimeoutManagerBehaviorTests.cs" />
+    <Compile Include="ExceptionTests - Copy.cs" />
     <Compile Include="Msmq\MsmqExtensionsTests.cs" />
     <Compile Include="Msmq\MsmqHelpers.cs" />
     <Compile Include="Msmq\MsmqAddressTests.cs" />

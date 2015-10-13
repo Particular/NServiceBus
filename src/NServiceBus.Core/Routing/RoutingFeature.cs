@@ -148,7 +148,7 @@
                 {
                     new MessageType(messageType)
                 };
-                return subscriptions.GetSubscriberAddressesForMessage(messageTypes, new SubscriptionStorageOptions(contextBag)).GetAwaiter().GetResult().Select(s => new UnicastRoutingDestination(s));
+                return subscriptions.GetSubscriberAddressesForMessage(messageTypes, contextBag).GetAwaiter().GetResult().Select(s => new UnicastRoutingDestination(s));
             }
         }
     }
