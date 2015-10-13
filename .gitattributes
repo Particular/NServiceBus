@@ -22,6 +22,8 @@
 *.pptx	-text -diff
 *.xap	-text -diff
 *.ico	-text -diff
+*.ttf	-text -diff
+*.otf	-text -diff
 
 *.cs text diff=csharp
 *.config text diff=csharp
@@ -53,9 +55,11 @@
 *.fs text
 *.fsx text
 *.hs text
-
+*.targets text
 *.psm1 text
 *.ps1 text
+*.md text
+*.DotSettings text
 *.txt text eol=crlf
 *.bat text eol=crlf
 
