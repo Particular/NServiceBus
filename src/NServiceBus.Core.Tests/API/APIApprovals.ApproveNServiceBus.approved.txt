@@ -1281,7 +1281,9 @@ namespace NServiceBus.Extensibility
         public void Merge(NServiceBus.Extensibility.ContextBag context) { }
         public void Remove<T>() { }
         public void Set<T>(T t) { }
+        public void Set<T>(string key, T t) { }
         public bool TryGet<T>(out T result) { }
+        public bool TryGet<T>(string key, out T result) { }
         public bool TryGetRootContext<T>(out T result)
             where T : NServiceBus.Extensibility.ContextBag { }
     }
@@ -1297,6 +1299,7 @@ namespace NServiceBus.Extensibility
     {
         T Get<T>();
         bool TryGet<T>(out T result);
+        bool TryGet<T>(string key, out T result);
     }
 }
 namespace NServiceBus.Faults
@@ -1533,7 +1536,7 @@ namespace NServiceBus.Gateway.Deduplication
 {
     public interface IDeduplicateMessages
     {
-        System.Threading.Tasks.Task<bool> DeduplicateMessage(string clientId, System.DateTime timeReceived, NServiceBus.Extensibility.ReadOnlyContextBag context);
+        System.Threading.Tasks.Task<bool> DeduplicateMessage(string clientId, System.DateTime timeReceived, NServiceBus.Extensibility.ContextBag context);
     }
 }
 namespace NServiceBus.Hosting.Helpers
@@ -2233,13 +2236,13 @@ namespace NServiceBus.Sagas
     }
     public interface ISagaPersister
     {
-        System.Threading.Tasks.Task Complete(NServiceBus.IContainSagaData saga, NServiceBus.Extensibility.ReadOnlyContextBag context);
-        System.Threading.Tasks.Task<TSagaData> Get<TSagaData>(System.Guid sagaId, NServiceBus.Extensibility.ReadOnlyContextBag context)
+        System.Threading.Tasks.Task Complete(NServiceBus.IContainSagaData saga, NServiceBus.Extensibility.ContextBag context);
+        System.Threading.Tasks.Task<TSagaData> Get<TSagaData>(System.Guid sagaId, NServiceBus.Extensibility.ContextBag context)
             where TSagaData : NServiceBus.IContainSagaData;
-        System.Threading.Tasks.Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, NServiceBus.Extensibility.ReadOnlyContextBag context)
+        System.Threading.Tasks.Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, NServiceBus.Extensibility.ContextBag context)
             where TSagaData : NServiceBus.IContainSagaData;
-        System.Threading.Tasks.Task Save(NServiceBus.IContainSagaData saga, NServiceBus.Extensibility.ReadOnlyContextBag context);
-        System.Threading.Tasks.Task Update(NServiceBus.IContainSagaData saga, NServiceBus.Extensibility.ReadOnlyContextBag context);
+        System.Threading.Tasks.Task Save(NServiceBus.IContainSagaData saga, NServiceBus.Extensibility.ContextBag context);
+        System.Threading.Tasks.Task Update(NServiceBus.IContainSagaData saga, NServiceBus.Extensibility.ContextBag context);
     }
     public class SagaFinderDefinition
     {
@@ -2440,9 +2443,9 @@ namespace NServiceBus.Timeout.Core
 {
     public interface IPersistTimeouts
     {
-        System.Threading.Tasks.Task Add(NServiceBus.Timeout.Core.TimeoutData timeout, NServiceBus.Extensibility.ReadOnlyContextBag context);
-        System.Threading.Tasks.Task<NServiceBus.Timeout.Core.TimeoutData> Remove(string timeoutId, NServiceBus.Extensibility.ReadOnlyContextBag context);
-        System.Threading.Tasks.Task RemoveTimeoutBy(System.Guid sagaId, NServiceBus.Extensibility.ReadOnlyContextBag context);
+        System.Threading.Tasks.Task Add(NServiceBus.Timeout.Core.TimeoutData timeout, NServiceBus.Extensibility.ContextBag context);
+        System.Threading.Tasks.Task<NServiceBus.Timeout.Core.TimeoutData> Remove(string timeoutId, NServiceBus.Extensibility.ContextBag context);
+        System.Threading.Tasks.Task RemoveTimeoutBy(System.Guid sagaId, NServiceBus.Extensibility.ContextBag context);
     }
     public interface IQueryTimeouts
     {
@@ -2549,7 +2552,7 @@ namespace NServiceBus.Transports
     }
     public interface IDispatchMessages
     {
-        System.Threading.Tasks.Task Dispatch(System.Collections.Generic.IEnumerable<NServiceBus.Transports.TransportOperation> outgoingMessages, NServiceBus.Extensibility.ReadOnlyContextBag context);
+        System.Threading.Tasks.Task Dispatch(System.Collections.Generic.IEnumerable<NServiceBus.Transports.TransportOperation> outgoingMessages, NServiceBus.Extensibility.ContextBag context);
     }
     public interface IManageSubscriptions
     {
@@ -2719,7 +2722,7 @@ namespace NServiceBus.Transports.Msmq
     public class MsmqMessageSender : NServiceBus.Transports.IDispatchMessages
     {
         public MsmqMessageSender(NServiceBus.Transports.Msmq.Config.MsmqSettings settings, NServiceBus.MsmqLabelGenerator messageLabelGenerator) { }
-        public System.Threading.Tasks.Task Dispatch(System.Collections.Generic.IEnumerable<NServiceBus.Transports.TransportOperation> transportOperations, NServiceBus.Extensibility.ReadOnlyContextBag context) { }
+        public System.Threading.Tasks.Task Dispatch(System.Collections.Generic.IEnumerable<NServiceBus.Transports.TransportOperation> transportOperations, NServiceBus.Extensibility.ContextBag context) { }
     }
     [System.ObsoleteAttribute("The msmq transaction is now available via the pipeline context. Will be removed i" +
         "n version 7.0.0.", true)]
@@ -2993,14 +2996,9 @@ namespace NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions
     }
     public interface ISubscriptionStorage
     {
-        System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<string>> GetSubscriberAddressesForMessage(System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Subscriptions.MessageType> messageTypes, NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.SubscriptionStorageOptions options);
-        System.Threading.Tasks.Task Subscribe(string client, System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Subscriptions.MessageType> messageTypes, NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.SubscriptionStorageOptions options);
-        System.Threading.Tasks.Task Unsubscribe(string client, System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Subscriptions.MessageType> messageTypes, NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.SubscriptionStorageOptions options);
-    }
-    public class SubscriptionStorageOptions
-    {
-        public SubscriptionStorageOptions(NServiceBus.Extensibility.ContextBag context) { }
-        public NServiceBus.Extensibility.ReadOnlyContextBag Context { get; }
+        System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<string>> GetSubscriberAddressesForMessage(System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Subscriptions.MessageType> messageTypes, NServiceBus.Extensibility.ContextBag context);
+        System.Threading.Tasks.Task Subscribe(string client, System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Subscriptions.MessageType> messageTypes, NServiceBus.Extensibility.ContextBag context);
+        System.Threading.Tasks.Task Unsubscribe(string client, System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Subscriptions.MessageType> messageTypes, NServiceBus.Extensibility.ContextBag context);
     }
 }
 namespace NServiceBus.Unicast.Subscriptions

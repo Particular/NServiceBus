@@ -24,11 +24,11 @@ namespace NServiceBus.Extensibility
         {
             return Get<T>(typeof(T).FullName);
         }
-        
+
         /// <summary>
         /// Gets the requested extension, a new one will be created if needed.
         /// </summary>
-        public T GetOrCreate<T>() where T : class,new()
+        public T GetOrCreate<T>() where T : class, new()
         {
             T value;
 
@@ -66,7 +66,7 @@ namespace NServiceBus.Extensibility
             Set(typeof(T).FullName, t);
         }
 
-        
+
         /// <summary>
         /// Removes the instance type from the context.
         /// </summary>
@@ -88,7 +88,10 @@ namespace NServiceBus.Extensibility
             }
         }
 
-        void Set<T>(string key, T t)
+        /// <summary>
+        /// Stores the passed instance in the context.
+        /// </summary>
+        public void Set<T>(string key, T t)
         {
             Guard.AgainstNullAndEmpty("key", key);
             stash[key] = t;
@@ -97,7 +100,7 @@ namespace NServiceBus.Extensibility
         /// <summary>
         /// Walk the tree of context until one is found of the type <typeparamref name="T"/>.
         /// </summary>
-        public bool TryGetRootContext<T>(out T result) where T: ContextBag
+        public bool TryGetRootContext<T>(out T result) where T : ContextBag
         {
             var cast = this as T;
             if (cast != null)
@@ -114,7 +117,15 @@ namespace NServiceBus.Extensibility
 
             return parentBag.TryGetRootContext(out result);
         }
-        bool TryGet<T>(string key, out T result)
+
+        /// <summary>
+        /// Tries to retrieves the specified type from the context.
+        /// </summary>
+        /// <typeparam name="T">The type to retrieve.</typeparam>
+        /// <param name="key">The key of the value being looked up.</param>
+        /// <param name="result">The type instance.</param>
+        /// <returns><code>true</code> if found, otherwise <code>false</code>.</returns>
+        public bool TryGet<T>(string key, out T result)
         {
             Guard.AgainstNullAndEmpty("key", key);
             object value;
@@ -138,7 +149,6 @@ namespace NServiceBus.Extensibility
             result = default(T);
             return false;
         }
-
         T Get<T>(string key)
         {
             Guard.AgainstNullAndEmpty("key", key);

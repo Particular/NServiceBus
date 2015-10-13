@@ -60,7 +60,6 @@
                 return;
             }
 
-            var options = new SubscriptionStorageOptions(context);
             if (incomingMessage.GetMesssageIntent() == MessageIntentEnum.Subscribe)
             {
                 Logger.Info("Subscribing " + subscriberAddress + " to message type " + messageTypeString);
@@ -70,7 +69,7 @@
                 await subscriptionStorage.Subscribe(incomingMessage.GetReplyToAddress(), new[]
                 {
                     mt
-                }, options).ConfigureAwait(false);
+                }, context).ConfigureAwait(false);
 
                 return;
             }
@@ -79,7 +78,7 @@
             await subscriptionStorage.Unsubscribe(subscriberAddress, new[]
             {
                 new MessageType(messageTypeString)
-            }, options).ConfigureAwait(false);
+            }, context).ConfigureAwait(false);
         }
 
 

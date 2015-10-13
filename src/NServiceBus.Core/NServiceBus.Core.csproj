@@ -121,6 +121,7 @@
     <Compile Include="Routing\MulticastRoutingStrategy.cs" />
     <Compile Include="Routing\RoutingStrategy.cs" />
     <Compile Include="Routing\UnicastRoutingStrategy.cs" />
+    <Compile Include="Sagas\SagaLoader.cs" />
     <Compile Include="Sagas\Saga_obsoletes.cs" />
     <Compile Include="Routing\AllInstancesDistributionStrategy.cs" />
     <Compile Include="Routing\UnicastRoutingDestination.cs" />
@@ -248,7 +249,6 @@
     <Compile Include="Routing\MessageDrivenSubscriptions\MessageDrivenUnsubscribeTerminator.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\MessageDrivenSubscribeTerminator.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\MessageDrivenSubscriptions.cs" />
-    <Compile Include="Routing\MessageDrivenSubscriptions\SubscriptionStorageOptions.cs" />
     <Compile Include="Routing\DistributionStrategy.cs" />
     <Compile Include="Routing\MessagingBestPractices\BestPracticeEnforcement.cs" />
     <Compile Include="Routing\MessagingBestPractices\EnforceBestPracticesOptions.cs" />

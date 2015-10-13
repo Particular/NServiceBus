@@ -7,6 +7,7 @@
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
+    using NServiceBus.Extensibility;
     using NServiceBus.Features;
     using NServiceBus.Persistence;
     using NServiceBus.Unicast.Subscriptions;
@@ -78,7 +79,7 @@
             }
         }
 
-        public class HardCodedPersistenceFeature:Feature
+        public class HardCodedPersistenceFeature : Feature
         {
             protected override void Setup(FeatureConfigurationContext context)
             {
@@ -88,30 +89,30 @@
 
         public class HardcodedSubscriptionManager : ISubscriptionStorage
         {
-            Task<IEnumerable<string>> addressTask;
-
             public HardcodedSubscriptionManager()
             {
                 addressTask = Task.FromResult(new[]
-{
+                {
                     "publishingfromsendonly.subscriber"
                 }.AsEnumerable());
             }
 
-            public Task Subscribe(string client, IEnumerable<MessageType> messageTypes, SubscriptionStorageOptions options)
+            public Task Subscribe(string client, IEnumerable<MessageType> messageTypes, ContextBag context)
             {
                 return Task.FromResult(0);
             }
 
-            public Task Unsubscribe(string client, IEnumerable<MessageType> messageTypes, SubscriptionStorageOptions options)
+            public Task Unsubscribe(string client, IEnumerable<MessageType> messageTypes, ContextBag context)
             {
                 return Task.FromResult(0);
             }
 
-            public Task<IEnumerable<string>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes, SubscriptionStorageOptions options)
+            public Task<IEnumerable<string>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes, ContextBag context)
             {
                 return addressTask;
             }
+
+            Task<IEnumerable<string>> addressTask;
         }
     }
 }

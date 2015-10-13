@@ -5,12 +5,77 @@ namespace NServiceBus.InMemory.TimeoutPersister
     using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.Extensibility;
-    using Timeout.Core;
+    using NServiceBus.Timeout.Core;
 
     class InMemoryTimeoutPersister : IPersistTimeouts, IQueryTimeouts, IDisposable
     {
-        List<TimeoutData> storage = new List<TimeoutData>();
-        ReaderWriterLockSlim readerWriterLock = new ReaderWriterLockSlim();
+        public void Dispose()
+        {
+        }
+
+        public Task Add(TimeoutData timeout, ContextBag context)
+        {
+            timeout.Id = Guid.NewGuid().ToString();
+            try
+            {
+                readerWriterLock.EnterWriteLock();
+                storage.Add(timeout);
+            }
+            finally
+            {
+                readerWriterLock.ExitWriteLock();
+            }
+
+            return Task.FromResult(0);
+        }
+
+        public Task<TimeoutData> Remove(string timeoutId, ContextBag context)
+        {
+            try
+            {
+                readerWriterLock.EnterWriteLock();
+
+                for (var index = 0; index < storage.Count; index++)
+                {
+                    var data = storage[index];
+                    if (data.Id == timeoutId)
+                    {
+                        storage.RemoveAt(index);
+                        return Task.FromResult(data);
+                    }
+                }
+
+                return Task.FromResult<TimeoutData>(null);
+            }
+            finally
+            {
+                readerWriterLock.ExitWriteLock();
+            }
+        }
+
+        public Task RemoveTimeoutBy(Guid sagaId, ContextBag context)
+        {
+            try
+            {
+                readerWriterLock.EnterWriteLock();
+                for (var index = 0; index < storage.Count;)
+                {
+                    var timeoutData = storage[index];
+                    if (timeoutData.SagaId == sagaId)
+                    {
+                        storage.RemoveAt(index);
+                        continue;
+                    }
+                    index++;
+                }
+            }
+            finally
+            {
+                readerWriterLock.ExitWriteLock();
+            }
+
+            return Task.FromResult(0);
+        }
 
         public Task<TimeoutsChunk> GetNextChunk(DateTime startSlice)
         {
@@ -47,73 +112,7 @@ namespace NServiceBus.InMemory.TimeoutPersister
             return Task.FromResult(new TimeoutsChunk(dueTimeouts, nextTimeToRunQuery));
         }
 
-        public Task Add(TimeoutData timeout, ReadOnlyContextBag context)
-        {
-            timeout.Id = Guid.NewGuid().ToString();
-            try
-            {
-                readerWriterLock.EnterWriteLock();
-                storage.Add(timeout);
-            }
-            finally
-            {
-                readerWriterLock.ExitWriteLock();
-            }
-
-            return Task.FromResult(0);
-        }
-
-        public Task<TimeoutData> Remove(string timeoutId, ReadOnlyContextBag context)
-        {
-            try
-            {
-                readerWriterLock.EnterWriteLock();
-
-                for (var index = 0; index < storage.Count; index++)
-                {
-                    var data = storage[index];
-                    if (data.Id == timeoutId)
-                    {
-                        storage.RemoveAt(index);
-                        return Task.FromResult(data);
-                    }
-                }
-
-                return Task.FromResult<TimeoutData>(null);
-            }
-            finally
-            {
-                readerWriterLock.ExitWriteLock();
-            }
-        }
-
-        public Task RemoveTimeoutBy(Guid sagaId, ReadOnlyContextBag context)
-        {
-            try
-            {
-                readerWriterLock.EnterWriteLock();
-                for (var index = 0; index < storage.Count; )
-                {
-                    var timeoutData = storage[index];
-                    if (timeoutData.SagaId == sagaId)
-                    {
-                        storage.RemoveAt(index);
-                        continue;
-                    }
-                    index++;
-                }
-            }
-            finally
-            {
-                readerWriterLock.ExitWriteLock();
-            }
-
-            return Task.FromResult(0);
-        }
-
-        public void Dispose()
-        {
-            
-        }
+        ReaderWriterLockSlim readerWriterLock = new ReaderWriterLockSlim();
+        List<TimeoutData> storage = new List<TimeoutData>();
     }
 }

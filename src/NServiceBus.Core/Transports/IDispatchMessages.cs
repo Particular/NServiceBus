@@ -2,7 +2,7 @@ namespace NServiceBus.Transports
 {
     using System.Threading.Tasks;
     using System.Collections.Generic;
-    using NServiceBus.Extensibility;
+    using Extensibility;
 
     /// <summary>
     /// Abstraction of the capability to dispatch messages.
@@ -12,6 +12,6 @@ namespace NServiceBus.Transports
         /// <summary>
         /// Dispatches the given operations to the transport.
         /// </summary>
-        Task Dispatch(IEnumerable<TransportOperation> outgoingMessages, ReadOnlyContextBag context);
+        Task Dispatch(IEnumerable<TransportOperation> outgoingMessages, ContextBag context);
     }
 }

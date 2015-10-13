@@ -8,6 +8,7 @@ using NServiceBus;
 using NServiceBus.Configuration.AdvanceExtensibility;
 using NServiceBus.Extensibility;
 using NServiceBus.Features;
+using NServiceBus.Persistence.Legacy;
 using NServiceBus.Settings;
 using NServiceBus.Transports.Msmq;
 using NServiceBus.Transports.Msmq.Config;
@@ -15,7 +16,6 @@ using NServiceBus.Unicast.Subscriptions;
 using NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions;
 using PublishTestMessages;
 using Runner;
-using MsmqTransport = NServiceBus.MsmqTransport;
 
 public class PubSubTestCase : TestCase
 {
@@ -62,7 +62,7 @@ public class PubSubTestCase : TestCase
                 configuration.UsePersistence<InMemoryPersistence>();
                 break;
             case "msmq":
-                configuration.UsePersistence<NServiceBus.Persistence.Legacy.MsmqPersistence>();
+                configuration.UsePersistence<MsmqPersistence>();
                 break;
         }
 
@@ -70,22 +70,26 @@ public class PubSubTestCase : TestCase
         using (var bus = Bus.Create(configuration))
         {
             Parallel.For(
-          0,
-          NumberMessages,
-          new ParallelOptions { MaxDegreeOfParallelism = NumberOfThreads },
-          x => bus.SendLocalAsync(new PerformPublish()).GetAwaiter().GetResult());
+                0,
+                NumberMessages,
+                new ParallelOptions
+                {
+                    MaxDegreeOfParallelism = NumberOfThreads
+                },
+                x => bus.SendLocalAsync(new PerformPublish()).GetAwaiter().GetResult());
 
 
             Statistics.StartTime = DateTime.Now;
             bus.StartAsync().GetAwaiter().GetResult();
 
             while (Interlocked.Read(ref Statistics.NumberOfMessages) < NumberMessages)
+            {
                 Thread.Sleep(1000);
+            }
 
 
             Statistics.Dump();
         }
-
     }
 }
 
@@ -102,14 +106,14 @@ public class PrimeSubscriptionStorage : Feature
 
     class PrimeSubscriptionStorageTask : FeatureStartupTask
     {
+        public ReadOnlySettings Settings { get; set; }
+
+        public IInitializableSubscriptionStorage SubscriptionStorage { get; set; }
+
         protected override void OnStart()
         {
             PrimeSubscriptionStorage(SubscriptionStorage);
         }
-
-        public ReadOnlySettings Settings { get; set; }
-
-        public IInitializableSubscriptionStorage SubscriptionStorage { get; set; }
 
         void PrimeSubscriptionStorage(IInitializableSubscriptionStorage subscriptionStorage)
         {
@@ -134,9 +138,9 @@ public class PrimeSubscriptionStorage : Feature
                 using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                 {
                     subscriptionStorage.Subscribe(subscriberAddress, new List<MessageType>
-                {
-                    testEventMessage
-                }, new SubscriptionStorageOptions(new ContextBag())).GetAwaiter().GetResult();
+                    {
+                        testEventMessage
+                    }, new ContextBag()).GetAwaiter().GetResult();
 
                     tx.Complete();
                 }
@@ -148,6 +152,7 @@ public class PrimeSubscriptionStorage : Feature
 class PublishEventHandler : IHandleMessages<PerformPublish>
 {
     public IBus Bus { get; set; }
+
     public Task Handle(PerformPublish message)
     {
         return Bus.PublishAsync<TestEvent>();

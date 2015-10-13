@@ -14,21 +14,21 @@ namespace NServiceBus.Timeout.Core
         /// </summary>
         /// <param name="timeout">Timeout data.</param>
         /// <param name="context">The current pipeline context.</param>
-        Task Add(TimeoutData timeout, ReadOnlyContextBag context);
+        Task Add(TimeoutData timeout, ContextBag context);
 
         /// <summary>
         /// Removes the timeout if it hasn't been previously removed.
         /// </summary>
         /// <param name="timeoutId">The timeout id to remove.</param>
         /// <param name="context">The current pipeline context.</param>
-        /// <returns><see cref="TimeoutData"/> of the timeout if it was successfully removed. <c>null</c> otherwise.</returns>
-        Task<TimeoutData> Remove(string timeoutId, ReadOnlyContextBag context);
+        /// <returns><see cref="TimeoutData" /> of the timeout if it was successfully removed. <c>null</c> otherwise.</returns>
+        Task<TimeoutData> Remove(string timeoutId, ContextBag context);
 
         /// <summary>
         /// Removes the timeouts by saga id.
         /// </summary>
         /// <param name="sagaId">The saga id of the timeouts to remove.</param>
         /// <param name="context">The current pipeline context.</param>
-        Task RemoveTimeoutBy(Guid sagaId, ReadOnlyContextBag context);
+        Task RemoveTimeoutBy(Guid sagaId, ContextBag context);
     }
 }

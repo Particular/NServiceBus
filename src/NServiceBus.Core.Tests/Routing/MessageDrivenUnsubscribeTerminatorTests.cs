@@ -84,7 +84,7 @@
                 numberOfTimes = times;
             }
 
-            public Task Dispatch(IEnumerable<TransportOperation> outgoingMessages, ReadOnlyContextBag context)
+            public Task Dispatch(IEnumerable<TransportOperation> outgoingMessages, ContextBag context)
             {
                 if (numberOfTimes.HasValue && FailedNumberOfTimes < numberOfTimes.Value)
                 {

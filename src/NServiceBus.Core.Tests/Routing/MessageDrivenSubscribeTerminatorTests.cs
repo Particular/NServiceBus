@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Extensibility;
+    using NServiceBus.Extensibility;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
     using NServiceBus.Routing.MessageDrivenSubscriptions;
@@ -14,10 +14,6 @@
     [TestFixture]
     public class MessageDrivenSubscribeTerminatorTests
     {
-        MessageDrivenSubscribeTerminator terminator;
-        SubscriptionRouter router;
-        FakeDispatcher dispatcher;
-
         [SetUp]
         public void SetUp()
         {
@@ -66,25 +62,22 @@
             Assert.AreEqual(11, dispatcher.FailedNumberOfTimes);
         }
 
+        FakeDispatcher dispatcher;
+        SubscriptionRouter router;
+        MessageDrivenSubscribeTerminator terminator;
+
         class FakeDispatcher : IDispatchMessages
         {
-            int? numberOfTimes;
-
             public FakeDispatcher()
             {
                 DispatchedOperations = new List<IEnumerable<TransportOperation>>();
             }
 
-            public int FailedNumberOfTimes { get; private set; } = 0;
+            public int FailedNumberOfTimes { get; private set; }
 
             public List<IEnumerable<TransportOperation>> DispatchedOperations { get; }
 
-            public void FailDispatch(int times)
-            {
-                numberOfTimes = times;
-            }
-
-            public Task Dispatch(IEnumerable<TransportOperation> outgoingMessages, ReadOnlyContextBag context)
+            public Task Dispatch(IEnumerable<TransportOperation> outgoingMessages, ContextBag context)
             {
                 if (numberOfTimes.HasValue && FailedNumberOfTimes < numberOfTimes.Value)
                 {
@@ -95,6 +88,13 @@
                 DispatchedOperations.Add(outgoingMessages);
                 return Task.FromResult(0);
             }
+
+            public void FailDispatch(int times)
+            {
+                numberOfTimes = times;
+            }
+
+            int? numberOfTimes;
         }
 
         class FakeContext : BehaviorContext

@@ -14,8 +14,6 @@ namespace NServiceBus.Core.Tests.Timeout
     [TestFixture]
     public class InMemoryTimeoutPersisterThreadTests
     {
-        ConcurrentDictionary<int, Guid> sagaIdGuids = new ConcurrentDictionary<int, Guid>();
-
         [Test]
         [Explicit]
         public void Run()
@@ -33,7 +31,7 @@ namespace NServiceBus.Core.Tests.Timeout
             Console.Out.WriteLine(stopwatch.ElapsedMilliseconds);
         }
 
-        async Task Runner(InMemoryTimeoutPersister inMemoryTimeoutPersister, ReadOnlyContextBag context)
+        async Task Runner(InMemoryTimeoutPersister inMemoryTimeoutPersister, ContextBag context)
         {
             for (var i = 0; i < 10000; i++)
             {
@@ -47,18 +45,18 @@ namespace NServiceBus.Core.Tests.Timeout
             }
         }
 
-        Task RemoveTimeoutBy(IPersistTimeouts inMemoryTimeoutPersister, ReadOnlyContextBag context)
+        Task RemoveTimeoutBy(IPersistTimeouts inMemoryTimeoutPersister, ContextBag context)
         {
             var sagaId = sagaIdGuids.GetOrAdd(Thread.CurrentThread.ManagedThreadId, new Guid());
             return inMemoryTimeoutPersister.RemoveTimeoutBy(sagaId, context);
         }
 
-        static async Task TryRemove(IPersistTimeouts inMemoryTimeoutPersister, ReadOnlyContextBag context)
+        static async Task TryRemove(IPersistTimeouts inMemoryTimeoutPersister, ContextBag context)
         {
             await inMemoryTimeoutPersister.Remove(Thread.CurrentThread.Name, context);
         }
 
-        static Task Add(IPersistTimeouts inMemoryTimeoutPersister, ReadOnlyContextBag context)
+        static Task Add(IPersistTimeouts inMemoryTimeoutPersister, ContextBag context)
         {
             return inMemoryTimeoutPersister.Add(new TimeoutData
             {
@@ -71,9 +69,10 @@ namespace NServiceBus.Core.Tests.Timeout
         {
             for (var i = 0; i < 10; i++)
             {
-                (await inMemoryTimeoutPersister.GetNextChunk(DateTime.MinValue)).DueTimeouts.ToList();   
+                (await inMemoryTimeoutPersister.GetNextChunk(DateTime.MinValue)).DueTimeouts.ToList();
             }
         }
-    }
 
+        ConcurrentDictionary<int, Guid> sagaIdGuids = new ConcurrentDictionary<int, Guid>();
+    }
 }
