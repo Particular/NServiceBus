@@ -138,6 +138,8 @@
     <Compile Include="Sagas\ActiveSagaInstance.cs" />
     <Compile Include="Sagas\ActiveSagaInstances.cs" />
     <Compile Include="Sagas\SagaPersistenceBehavior.cs" />
+    <Compile Include="Timeout\Core\TimeoutPersistenceVersionCheck.cs" />
+    <Compile Include="Timeout\Core\TimeoutPersistenceVersionCheckExtension.cs" />
     <Compile Include="UnitOfWork\UnitOfWorkBehavior.cs" />
     <Compile Include="Pipeline\IBehavior.cs" />
     <Compile Include="Pipeline\BehaviorChain.cs" />
