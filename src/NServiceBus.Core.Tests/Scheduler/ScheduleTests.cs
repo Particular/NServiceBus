@@ -36,10 +36,22 @@
         }
 
         [Test]
-        public void When_scheduling_an_action_without_a_name_the_task_should_get_the_DeclaringType_as_name()
+        public void When_scheduling_an_anonymous_action_the_task_should_get_the_DeclaringType_as_name()
         {
             Schedule.Every(TimeSpan.FromMinutes(5)).Action(() => {  });
             Assert.That(EnsureThatNameExists("ScheduleTests"));
+        }
+
+        [Test]
+        public void When_scheduling_an_action_without_a_name_the_task_should_get_the_DeclaringType_as_name()
+        {
+            Schedule.Every(TimeSpan.FromMinutes(5)).Action(SomeSchedulingAction);
+            Assert.That(EnsureThatNameExists("ScheduleTests"));
+        }
+
+        void SomeSchedulingAction()
+        {
+            
         }
 
         [Test]
