@@ -2,38 +2,23 @@ namespace NServiceBus.AcceptanceTests.FakeTransport
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Settings;
     using NServiceBus.Transports;
     using CriticalError = NServiceBus.CriticalError;
 
     class FakeReceiver : IPushMessages
     {
-        public FakeTransportContext Context { get; set; }
-        public ReadOnlySettings Settings { get; set; }
-
-        public CriticalError CriticalError { get; set; }
+        CriticalError criticalError;
+        Exception throwCritical;
 
         public void Init(Func<PushContext, Task> pipe, PushSettings settings)
         {
-            isMain = !settings.InputQueue.Contains("#");
-            throwCritical = Settings.Get<Exception>("FakeTransport.RaiseCriticalErrorDuringStartup");
-
-            if (isMain)
-            {
-                Context.PushSettings = settings;
-            }
         }
 
         public void Start(PushRuntimeSettings limitations)
         {
             if (throwCritical != null)
             {
-                CriticalError.Raise(throwCritical.Message, throwCritical);
-            }
-
-            if (isMain)
-            {
-                Context.PushRuntimeSettings = limitations;
+                criticalError.Raise(throwCritical.Message, throwCritical);
             }
         }
 
@@ -42,7 +27,10 @@ namespace NServiceBus.AcceptanceTests.FakeTransport
             return Task.FromResult(0);
         }
 
-        bool isMain;
-        Exception throwCritical;
+        public FakeReceiver(CriticalError criticalError, Exception throwCritical)
+        {
+            this.criticalError = criticalError;
+            this.throwCritical = throwCritical;
+        }
     }
 }

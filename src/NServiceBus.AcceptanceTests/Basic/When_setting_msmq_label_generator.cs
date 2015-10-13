@@ -24,10 +24,12 @@
                     {
                         Id = c.Id
                     })))
-                    .Done(c => c.WasCalled && ReadMessageLabel() == "MyLabel")
+                    .Done(c => c.WasCalled)
                     .Repeat(r => r.For<MsmqOnly>())
                     .Should(c => Assert.True(c.WasCalled, "The message handler should be called"))
                     .Run();
+
+                Assert.AreEqual("MyLabel", ReadMessageLabel());
             }
             finally
             {

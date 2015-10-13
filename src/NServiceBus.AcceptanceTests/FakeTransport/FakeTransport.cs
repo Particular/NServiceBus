@@ -7,6 +7,17 @@
 
     public class FakeTransport : TransportDefinition
     {
+        protected override void ConfigureForReceiving(TransportReceivingConfigurationContext context)
+        {
+            context.SetMessagePumpFactory(c => new FakeReceiver(c, context.ExtensionSettings.GetOrCreate<Exception>()));
+            context.SetQueueCreatorFactory(() => new FakeQueueCreator());
+        }
+
+        protected override void ConfigureForSending(TransportSendingConfigurationContext context)
+        {
+            context.SetDispatcherFactory(() => new FakeDispatcher());
+        }
+
         public override IEnumerable<Type> GetSupportedDeliveryConstraints()
         {
             return new List<Type>();
@@ -27,11 +38,6 @@
             return null;
         }
 
-        protected override void Configure(BusConfiguration config)
-        {
-            config.EnableFeature<FakeTransportConfigurator>();
-        }
-
         public override string ToTransportAddress(LogicalAddress logicalAddress)
         {
             return logicalAddress.ToString();
@@ -41,5 +47,9 @@
         {
             return new OutboundRoutingPolicy(OutboundRoutingType.DirectSend, OutboundRoutingType.DirectSend, OutboundRoutingType.DirectSend);
         }
+
+        public override bool RequiresConnectionString => false;
+
+        public override string ExampleConnectionStringForErrorMessage => null;
     }
 }

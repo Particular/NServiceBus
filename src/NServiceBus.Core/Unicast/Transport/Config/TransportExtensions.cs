@@ -1,8 +1,7 @@
 namespace NServiceBus
 {
     using System;
-    using NServiceBus.Configuration.AdvanceExtensibility;
-    using NServiceBus.Settings;
+    using NServiceBus.Extensibility;
     using NServiceBus.Transports;
     using NServiceBus.Unicast.Transport;
 
@@ -15,7 +14,7 @@ namespace NServiceBus
         /// <summary>
         /// Initializes a new instance of <see cref="TransportExtensions{T}"/>.
         /// </summary>
-        public TransportExtensions(SettingsHolder settings)
+        public TransportExtensions(ContextBag settings)
             : base(settings)
         {
         }
@@ -51,15 +50,20 @@ namespace NServiceBus
     /// <summary>
     /// This class provides implementers of transports with an extension mechanism for custom settings via extention methods.
     /// </summary>
-    public class TransportExtensions : ExposeSettings
+    public class TransportExtensions
     {
+        /// <summary>
+        /// Allows accessing the settings for this transport.
+        /// </summary>
+        public ContextBag Settings { get; }
+
         /// <summary>
         /// Initializes a new instance of <see cref="TransportExtensions"/>.
         /// </summary>
-        public TransportExtensions(SettingsHolder settings)
-            : base(settings)
+        public TransportExtensions(ContextBag settings)
         {
-            settings.Set<TransportAddresses>(new TransportAddresses());
+            Settings = settings;
+            settings.Set(TransportConnectionString.Default);
         }
 
         /// <summary>
@@ -68,7 +72,7 @@ namespace NServiceBus
         public TransportExtensions ConnectionString(string connectionString)
         {
             Guard.AgainstNullAndEmpty(nameof(connectionString), connectionString);
-            Settings.Set<TransportConnectionString>(new TransportConnectionString(() => connectionString));
+            Settings.Set(new TransportConnectionString(() => connectionString));
             return this;
         }
 
@@ -77,8 +81,8 @@ namespace NServiceBus
         /// </summary>
         public TransportExtensions ConnectionStringName(string name)
         {
-            Guard.AgainstNullAndEmpty("name", name);
-            Settings.Set<TransportConnectionString>(new TransportConnectionString(name));
+            Guard.AgainstNullAndEmpty(nameof(name), name);
+            Settings.Set(new TransportConnectionString(name));
             return this;
         }
 
@@ -87,50 +91,9 @@ namespace NServiceBus
         /// </summary>
         public TransportExtensions ConnectionString(Func<string> connectionString)
         {
-            Guard.AgainstNull("connectionString", connectionString);
-            Settings.Set<TransportConnectionString>(new TransportConnectionString(connectionString));
+            Guard.AgainstNull(nameof(connectionString), connectionString);
+            Settings.Set(new TransportConnectionString(connectionString));
             return this;
-        }
-
-        /// <summary>
-        /// Adds a rule for translating endpoint instance names to physical addresses in direct routing.
-        /// </summary>
-        /// <param name="rule">The rule.</param>
-        public TransportExtensions AddAddressTranslationRule(Func<EndpointInstanceName, string> rule)
-        {
-            Settings.Get<TransportAddresses>().AddRule(rule);
-            return this;
-        }
-
-        /// <summary>
-        /// Adds an exception to the translation rules for a given endpoint instance.
-        /// </summary>
-        /// <param name="endpointInstance">Name of the instance for which the exception is created.</param>
-        /// <param name="transportAddress">Transport address of that instance.</param>
-        public TransportExtensions AddAddressTranslationException(EndpointInstanceName endpointInstance, string transportAddress)
-        {
-            Settings.Get<TransportAddresses>().AddException(endpointInstance, transportAddress);
-            return this;
-        }
-    }
-
-    /// <summary>
-    /// Allows you to read which transport connectionstring has been set.
-    /// </summary>
-    public static class ConfigureTransportConnectionString
-    {
-        /// <summary>
-        /// Gets the transport connectionstring.
-        /// </summary>
-        public static string TransportConnectionString(this Configure config)
-        {
-            Guard.AgainstNull("config", config);
-            TransportConnectionString conn;
-            if (config.Settings.TryGet(out conn))
-            {
-                return conn.GetConnectionStringOrNull();
-            }
-            return null;
         }
     }
 }
