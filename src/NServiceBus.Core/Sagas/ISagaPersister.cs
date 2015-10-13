@@ -14,8 +14,9 @@ namespace NServiceBus.Sagas
         /// Saves the saga entity to the persistence store.
         /// </summary>
         /// <param name="saga">The saga entity to save.</param>
+        /// <param name="metadata">Metadata about this saga type.</param>
         /// <param name="context">The current pipeline context.</param>
-        Task Save(IContainSagaData saga, ContextBag context);
+        Task Save(IContainSagaData saga,SagaMetadata metadata, ContextBag context);
 
         /// <summary>
         /// Updates an existing saga entity in the persistence store.

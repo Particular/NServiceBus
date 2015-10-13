@@ -13,8 +13,8 @@
         {
             var saga = new SagaWithUniquePropertyData { Id = Guid.NewGuid(), UniqueString = "whatever" };
 
-            var persister = InMemoryPersisterBuilder.Build<SagaWithUniqueProperty>();
-            await persister.Save(saga, new ContextBag());
+            var persister = new InMemorySagaPersister();
+            await persister.Save(saga,SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(), new ContextBag());
             var sagaData = await persister.Get<SagaWithUniquePropertyData>(saga.Id, new ContextBag());
             await persister.Complete(saga, new ContextBag());
             var completedSagaData = await persister.Get<SagaWithUniquePropertyData>(saga.Id, new ContextBag());

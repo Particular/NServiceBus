@@ -2,7 +2,7 @@
 {
     using System;
     using System.Threading.Tasks;
-    using Extensibility;
+    using NServiceBus.Extensibility;
     using NUnit.Framework;
 
     [TestFixture]
@@ -11,16 +11,24 @@
         [Test]
         public async Task It_should_persist_successfully()
         {
-            var saga1 = new SagaWithUniquePropertyData { Id = Guid.NewGuid(), UniqueString = "whatever" };
-            var saga2 = new SagaWithUniquePropertyData { Id = Guid.NewGuid(), UniqueString = "whatever" };
+            var saga1 = new SagaWithUniquePropertyData
+            {
+                Id = Guid.NewGuid(),
+                UniqueString = "whatever"
+            };
+            var saga2 = new SagaWithUniquePropertyData
+            {
+                Id = Guid.NewGuid(),
+                UniqueString = "whatever"
+            };
 
-            var persister = InMemoryPersisterBuilder.Build<SagaWithUniqueProperty>();
-         
-            await persister.Save(saga1, new ContextBag());
+            var persister = new InMemorySagaPersister();
+
+            await persister.Save(saga1, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(), new ContextBag());
             await persister.Complete(saga1, new ContextBag());
-            await persister.Save(saga2, new ContextBag());
+            await persister.Save(saga2, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(), new ContextBag());
             await persister.Complete(saga2, new ContextBag());
-            await persister.Save(saga1, new ContextBag());
+            await persister.Save(saga1, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(), new ContextBag());
             await persister.Complete(saga1, new ContextBag());
         }
     }

@@ -6,18 +6,15 @@ namespace NServiceBus.Sagas
     using System.Linq.Expressions;
     using System.Reflection;
     using System.Runtime.Serialization;
-    using NServiceBus.Utils.Reflection;
+    using Utils.Reflection;
 
     /// <summary>
-    ///     Contains metadata for known sagas.
+    /// Contains metadata for known sagas.
     /// </summary>
     public class SagaMetadata
     {
-        Dictionary<string, SagaMessage> associatedMessages;
-        Dictionary<string, SagaFinderDefinition> sagaFinders;
-
         /// <summary>
-        ///     Initializes a new instance of the <see cref="SagaMetadata" /> class.
+        /// Initializes a new instance of the <see cref="SagaMetadata" /> class.
         /// </summary>
         /// <param name="name">The name of the saga.</param>
         /// <param name="sagaType">The type for this saga.</param>
@@ -49,48 +46,48 @@ namespace NServiceBus.Sagas
             }
         }
 
+        /// <summary>
+        /// Returns the list of messages that is associated with this saga.
+        /// </summary>
+        public IEnumerable<SagaMessage> AssociatedMessages => associatedMessages.Values;
+
+        /// <summary>
+        /// Gets the list of finders for this saga.
+        /// </summary>
+        public IEnumerable<SagaFinderDefinition> Finders => sagaFinders.Values;
+
+        /// <summary>
+        /// The name of the saga.
+        /// </summary>
+        public string Name { get; private set; }
+
+        /// <summary>
+        /// The name of the saga data entity.
+        /// </summary>
+        public string EntityName { get; private set; }
+
+        /// <summary>
+        /// The type of the related saga entity.
+        /// </summary>
+        public Type SagaEntityType { get; private set; }
+
+        /// <summary>
+        /// The type for this saga.
+        /// </summary>
+        public Type SagaType { get; private set; }
+
+        /// <summary>
+        /// Properties this saga is correlated on.
+        /// </summary>
+        public List<CorrelationProperty> CorrelationProperties { get; private set; }
+
         internal static bool IsSagaType(Type t)
         {
             return typeof(Saga).IsAssignableFrom(t) && t != typeof(Saga) && !t.IsGenericType;
         }
 
         /// <summary>
-        ///     Returns the list of messages that is associated with this saga.
-        /// </summary>
-        public IEnumerable<SagaMessage> AssociatedMessages => associatedMessages.Values;
-
-        /// <summary>
-        ///     Gets the list of finders for this saga.
-        /// </summary>
-        public IEnumerable<SagaFinderDefinition> Finders => sagaFinders.Values;
-
-        /// <summary>
-        ///     The name of the saga.
-        /// </summary>
-        public string Name { get; private set; }
-
-        /// <summary>
-        ///     The name of the saga data entity.
-        /// </summary>
-        public string EntityName { get; private set; }
-
-        /// <summary>
-        ///     The type of the related saga entity.
-        /// </summary>
-        public Type SagaEntityType { get; private set; }
-
-        /// <summary>
-        ///     The type for this saga.
-        /// </summary>
-        public Type SagaType { get; private set; }
-
-        /// <summary>
-        ///     Properties this saga is correlated on.
-        /// </summary>
-        public List<CorrelationProperty> CorrelationProperties { get; private set; }
-
-        /// <summary>
-        ///     True if the specified message type is allowed to start the saga.
+        /// True if the specified message type is allowed to start the saga.
         /// </summary>
         public bool IsMessageAllowedToStartTheSaga(string messageType)
         {
@@ -104,9 +101,9 @@ namespace NServiceBus.Sagas
         }
 
         /// <summary>
-        ///     Gets the configured finder for this message.
+        /// Gets the configured finder for this message.
         /// </summary>
-        /// <param name="messageType">The message <see cref="MemberInfo.Name"/>.</param>
+        /// <param name="messageType">The message <see cref="MemberInfo.Name" />.</param>
         /// <param name="finderDefinition">The finder if present.</param>
         /// <returns>True if finder exists.</returns>
         public bool TryGetFinder(string messageType, out SagaFinderDefinition finderDefinition)
@@ -144,7 +141,7 @@ namespace NServiceBus.Sagas
                 throw new Exception($"'{sagaType}' saga type does not implement Saga<T>");
             }
 
-            var saga = (Saga)FormatterServices.GetUninitializedObject(sagaType);
+            var saga = (Saga) FormatterServices.GetUninitializedObject(sagaType);
             var mapper = new SagaMapper();
             saga.ConfigureHowToFindSaga(mapper);
 
@@ -219,7 +216,6 @@ namespace NServiceBus.Sagas
                 {
                     {"custom-finder-clr-type", mapping.CustomFinderType}
                 }));
-
             }
             else
             {
@@ -274,10 +270,30 @@ namespace NServiceBus.Sagas
             }
         }
 
+        static Type GetBaseSagaType(Type t)
+        {
+            var currentType = t.BaseType;
+            var previousType = t;
+
+            while (currentType != null)
+            {
+                if (currentType == typeof(Saga))
+                {
+                    return previousType;
+                }
+
+                previousType = currentType;
+                currentType = currentType.BaseType;
+            }
+
+            throw new InvalidOperationException();
+        }
+
+        Dictionary<string, SagaMessage> associatedMessages;
+        Dictionary<string, SagaFinderDefinition> sagaFinders;
+
         class SagaMapper : IConfigureHowToFindSagaWithMessage
         {
-            public List<SagaToMessageMap> Mappings = new List<SagaToMessageMap>();
-
             void IConfigureHowToFindSagaWithMessage.ConfigureMapping<TSagaEntity, TMessage>(Expression<Func<TSagaEntity, object>> sagaEntityProperty, Expression<Func<TMessage, object>> messageExpression)
             {
                 var sagaProp = Reflect<TSagaEntity>.GetProperty(sagaEntityProperty, true);
@@ -286,7 +302,7 @@ namespace NServiceBus.Sagas
 
                 ThrowIfNotPropertyLambdaExpression(sagaEntityProperty, sagaProp);
                 var compiledMessageExpression = messageExpression.Compile();
-                var messageFunc = new Func<object, object>(o => compiledMessageExpression((TMessage)o));
+                var messageFunc = new Func<object, object>(o => compiledMessageExpression((TMessage) o));
 
                 Mappings.Add(new SagaToMessageMap
                 {
@@ -308,7 +324,7 @@ namespace NServiceBus.Sagas
                     return;
                 }
 
-                var memberExpr = ((UnaryExpression)messageExpression.Body).Operand as MemberExpression;
+                var memberExpr = ((UnaryExpression) messageExpression.Body).Operand as MemberExpression;
 
                 if (memberExpr == null)
                 {
@@ -359,25 +375,8 @@ namespace NServiceBus.Sagas
                         $@"Only public properties are supported for mapping Sagas. The lambda expression provided '{expression.Body}' is not mapping to a Property.");
                 }
             }
-        }
 
-        static Type GetBaseSagaType(Type t)
-        {
-            var currentType = t.BaseType;
-            var previousType = t;
-
-            while (currentType != null)
-            {
-                if (currentType == typeof(Saga))
-                {
-                    return previousType;
-                }
-
-                previousType = currentType;
-                currentType = currentType.BaseType;
-            }
-
-            throw new InvalidOperationException();
+            public List<SagaToMessageMap> Mappings = new List<SagaToMessageMap>();
         }
     }
 }
