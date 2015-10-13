@@ -3,9 +3,11 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using NServiceBus.Hosting;
-    using NServiceBus.Support;
-    using NServiceBus.Utils;
+    using System.Security.Principal;
+    using System.Threading;
+    using Hosting;
+    using Support;
+    using Utils;
 
     class HostInformationFeature : Feature
     {
@@ -45,6 +47,37 @@
 
             context.Container.ConfigureComponent(b => new AddHostInfoHeadersBehavior(hostInformation, context.Settings.EndpointName()), DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent(b => new AuditHostInformationBehavior(hostInformation, context.Settings.EndpointName()), DependencyLifecycle.SingleInstance);
+
+            string identity;
+
+            if (!TryGetCurrentIdentity(out identity))
+            {
+                return;
+            }
+
+            context.Pipeline.Register("AddWindowsIdentityHeader", typeof(AddWindowsIdentityHeaderBehavior), "Adds the identity of the current thread outgoing headers");
+            context.Container.ConfigureComponent(b => new AddWindowsIdentityHeaderBehavior(identity), DependencyLifecycle.SingleInstance);
+        }
+
+        static bool TryGetCurrentIdentity(out string identity)
+        {
+            if (Thread.CurrentPrincipal != null && Thread.CurrentPrincipal.Identity != null && !string.IsNullOrEmpty(Thread.CurrentPrincipal.Identity.Name))
+            {
+                identity = Thread.CurrentPrincipal.Identity.Name;
+
+                return true;
+            }
+            using (var windowsIdentity = WindowsIdentity.GetCurrent())
+            {
+                if (windowsIdentity == null)
+                {
+                    identity = null;
+                    return false;
+                }
+
+                identity = windowsIdentity.Name;
+                return true;
+            }
         }
     }
 }

@@ -2,8 +2,8 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
 
     public class When_a_message_is_audited : NServiceBusAcceptanceTest
@@ -21,6 +21,7 @@
             Assert.IsNotNull(context.HostName);
             Assert.IsNotNull(context.Endpoint);
             Assert.IsNotNull(context.Machine);
+            Assert.IsNotNull(context.Identity);
         }
 
         public class Context : ScenarioContext
@@ -30,6 +31,7 @@
             public string HostName { get; set; }
             public string Endpoint { get; set; }
             public string Machine { get; set; }
+            public string Identity { get; set; }
         }
 
         public class EndpointWithAuditOn : EndpointConfigurationBuilder
@@ -67,6 +69,7 @@
                     Context.HostName = Bus.CurrentMessageContext.Headers[Headers.HostDisplayName];
                     Context.Endpoint = Bus.CurrentMessageContext.Headers[Headers.ProcessingEndpoint];
                     Context.Machine = Bus.CurrentMessageContext.Headers[Headers.ProcessingMachine];
+                    Context.Identity = Bus.CurrentMessageContext.Headers[Headers.WindowsIdentityName];
                     Context.Done = true;
                     return Task.FromResult(0);
                 }
