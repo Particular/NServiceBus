@@ -6,27 +6,21 @@ namespace NServiceBus.Unicast
     using System.Security.Principal;
     using System.Threading.Tasks;
     using Config;
+    using ConsistencyGuarantees;
     using Faults;
     using Features;
     using Licensing;
     using Logging;
     using MessageInterfaces;
-    using NServiceBus.ConsistencyGuarantees;
     using ObjectBuilder;
     using Pipeline;
     using Pipeline.Contexts;
     using Settings;
+    using NServiceBus.Transport;
     using Transports;
-    using Transport;
 
-    /// <summary>
-    /// A unicast implementation of <see cref="IBus"/> for NServiceBus.
-    /// </summary>
-    partial class UnicastBusInternal : IStartableBus
+     partial class UnicastBusInternal : IStartableBus
     {
-        /// <summary>
-        /// Initializes a new instance of <see cref="UnicastBus"/>.
-        /// </summary>
         public UnicastBusInternal(IMessageMapper messageMapper, IBuilder builder, ReadOnlySettings settings)
         {
             this.settings = settings;
@@ -34,9 +28,6 @@ namespace NServiceBus.Unicast
             busImpl = new ContextualBus(new BehaviorContextStacker(builder), messageMapper, builder, settings);
         }
 
-        /// <summary>
-        /// <see cref="IStartableBus.StartAsync"/>.
-        /// </summary>
         public async Task<IBus> StartAsync()
         {
             LicenseManager.PromptUserForLicenseIfTrialHasExpired();
@@ -129,10 +120,7 @@ namespace NServiceBus.Unicast
             return receiver;
         }
 
-        /// <summary>
-        /// <see cref="IDisposable.Dispose"/>.
-        /// </summary>
-        public void Dispose()
+       public void Dispose()
         {
             //Injected at compile time
         }

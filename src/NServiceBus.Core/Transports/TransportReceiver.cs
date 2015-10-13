@@ -1,21 +1,20 @@
-namespace NServiceBus.Unicast.Transport
+namespace NServiceBus.Transport
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Logging;
-    using NServiceBus.MessageInterfaces;
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.Settings;
-    using NServiceBus.Transports;
+    using Logging;
+    using MessageInterfaces;
+    using Settings;
+    using Unicast;
+    using Unicast.Transport;
+    using ObjectBuilder;
+    using Pipeline;
+    using Pipeline.Contexts;
+    using Transports;
 
-    /// <summary>
-    ///     Default implementation of a NServiceBus transport.
-    /// </summary>
-    public class TransportReceiver
+    class TransportReceiver
     {
-        internal TransportReceiver(string id, IBuilder builder, IPushMessages receiver, PushSettings pushSettings, PipelineBase<TransportReceiveContext> pipeline,PushRuntimeSettings pushRuntimeSettings)
+        public TransportReceiver(string id, IBuilder builder, IPushMessages receiver, PushSettings pushSettings, PipelineBase<TransportReceiveContext> pipeline, PushRuntimeSettings pushRuntimeSettings)
         {
             Id = id;
             this.pipeline = pipeline;
@@ -25,14 +24,8 @@ namespace NServiceBus.Unicast.Transport
             this.builder = builder;
         }
 
-        /// <summary>
-        /// Gets the ID of this pipeline.
-        /// </summary>
         public string Id { get; }
 
-        /// <summary>
-        ///     Starts the transport listening for messages on the given local address.
-        /// </summary>
         public async Task Start()
         {
             if (isStarted)
@@ -47,13 +40,10 @@ namespace NServiceBus.Unicast.Transport
             await pipeline.Warmup().ConfigureAwait(false);
 
             receiver.Start(pushRuntimeSettings);
-   
+
             isStarted = true;
         }
 
-        /// <summary>
-        ///     Stops the transport.
-        /// </summary>
         public async Task Stop()
         {
             if (!isStarted)
@@ -73,7 +63,7 @@ namespace NServiceBus.Unicast.Transport
             {
                 var configurer = (IConfigureComponents)childBuilder;
 
-                var context = new TransportReceiveContext(pushContext.Message, new RootContext(childBuilder));
+                var context = new TransportReceiveContext(new IncomingMessage(pushContext.MessageId, pushContext.Headers, pushContext.BodyStream), new RootContext(childBuilder));
 
                 context.Merge(pushContext.Context);
 

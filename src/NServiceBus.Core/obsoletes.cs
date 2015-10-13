@@ -1497,7 +1497,7 @@ namespace NServiceBus
 {
     using System;
 
-    [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", Message = "No longer used, can safey be removed")]
+    [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", Message = "No longer used, can safely be removed")]
     public interface IManageMessageHeaders
     {
         Action<object, string, string> SetHeaderAction { get; }
@@ -1629,7 +1629,7 @@ namespace NServiceBus.Unicast.Transport
 {
     using System;
 
-    [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", Message = "No longer used, can safey be removed")]
+    [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", Message = "No longer used, can safely be removed")]
     public static class ControlMessage
     {
         public static TransportMessage Create()
@@ -1674,7 +1674,7 @@ namespace NServiceBus.Unicast.Transport
     using System;
 
 
-    [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", Message = "No longer used, can safey be removed")]
+    [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", Message = "No longer used, can safely be removed")]
     public class TransportMessageReceivedEventArgs : EventArgs
     {
         public TransportMessageReceivedEventArgs(TransportMessage m)
@@ -1693,7 +1693,7 @@ namespace NServiceBus.Unicast.Transport
 {
     using System;
 
-    [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", Message = "No longer used, can safey be removed")]
+    [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", Message = "No longer used, can safely be removed")]
     public class StartedMessageProcessingEventArgs : EventArgs
     {
         public StartedMessageProcessingEventArgs(TransportMessage m)
@@ -1706,7 +1706,7 @@ namespace NServiceBus.Unicast.Transport
         }
     }
 
-    [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", Message = "No longer used, can safey be removed")]
+    [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", Message = "No longer used, can safely be removed")]
     public class FinishedMessageProcessingEventArgs : EventArgs
     {
         public FinishedMessageProcessingEventArgs(TransportMessage m)
@@ -1723,7 +1723,7 @@ namespace NServiceBus.Unicast.Transport
 {
     using System;
 
-    [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", Message = "No longer used, can safey be removed")]
+    [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", Message = "No longer used, can safely be removed")]
     public class TransportMessageAvailableEventArgs : EventArgs
     {
         public TransportMessageAvailableEventArgs(TransportMessage m)
@@ -1774,3 +1774,69 @@ namespace NServiceBus.Transports
         }
     }
 }
+#pragma warning disable 0067
+namespace NServiceBus.Unicast.Transport
+{
+    using System;
+    using Faults;
+    using Settings;
+    using Transports;
+
+    [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", Message = "No longer used, can safely be removed")]
+    public class TransportReceiver : ITransport, IDisposable
+    {
+        public TransportReceiver(TransactionSettings transactionSettings, int maximumConcurrencyLevel, int maximumThroughput, IDequeueMessages receiver, IManageMessageFailures manageMessageFailures, ReadOnlySettings settings, Configure config, TransactionSettings transactionSettings1)
+        {
+            TransactionSettings = transactionSettings1;
+            throw new NotImplementedException();
+        }
+
+        public IDequeueMessages Receiver { get; set; }
+
+
+        public IManageMessageFailures FailureManager { get; set; }
+
+
+        public void Dispose()
+        {
+        }
+
+
+        public event EventHandler<StartedMessageProcessingEventArgs> StartedMessageProcessing;
+
+        public event EventHandler<FinishedMessageProcessingEventArgs> FinishedMessageProcessing;
+
+        public event EventHandler<FailedMessageProcessingEventArgs> FailedMessageProcessing;
+
+        public virtual int MaximumConcurrencyLevel { get; private set; }
+
+        public void ChangeMaximumConcurrencyLevel(int maximumConcurrencyLevel)
+        {
+        }
+        public int MaximumMessageThroughputPerSecond { get; private set; }
+
+        public void ChangeMaximumMessageThroughputPerSecond(int maximumMessageThroughputPerSecond)
+        {
+
+        }
+
+        public event EventHandler<TransportMessageReceivedEventArgs> TransportMessageReceived;
+
+
+        public void Start(Address address)
+        {
+
+        }
+
+        public void AbortHandlingCurrentMessage()
+        {
+        }
+
+        public void Stop()
+        {
+        }
+        public TransactionSettings TransactionSettings { get; private set; }
+    }
+}
+
+#pragma warning restore 0067

@@ -5,9 +5,9 @@ namespace NServiceBus
     using System.Messaging;
     using System.Threading.Tasks;
     using System.Transactions;
-    using NServiceBus.Extensibility;
-    using NServiceBus.Logging;
-    using NServiceBus.Transports;
+    using Extensibility;
+    using Logging;
+    using Transports;
 
     class ReceiveWithTransactionScope : ReceiveStrategy
     {
@@ -41,9 +41,9 @@ namespace NServiceBus
 
                 using (var bodyStream = message.BodyStream)
                 {
-                    var incomingMessage = new IncomingMessage(message.Id, headers, bodyStream);
+                    var pushContext = new PushContext(message.Id, headers, bodyStream, new ContextBag());
 
-                    await onMessage(new PushContext(incomingMessage, new ContextBag())).ConfigureAwait(false);
+                    await onMessage(pushContext).ConfigureAwait(false);
                 }
 
                 scope.Complete();
