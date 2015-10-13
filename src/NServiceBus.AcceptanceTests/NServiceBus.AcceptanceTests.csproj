@@ -142,6 +142,7 @@
     <Compile Include="Routing\When_publishing_an_event_implementing_two_unrelated_interfaces.cs" />
     <Compile Include="ApiExtension\When_extending_the_publish_api.cs" />
     <Compile Include="Routing\When_overriding_public_return_address.cs" />
+    <Compile Include="Sagas\When_updating_correlation_property.cs" />
     <Compile Include="Sagas\When_a_finder_exists_and_context_information_added.cs" />
     <Compile Include="Sagas\When_a_finder_exists_and_found_saga.cs" />
     <Compile Include="Recoverability\Retries\When_performing_slr_with_regular_exception.cs" />
