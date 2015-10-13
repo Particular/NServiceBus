@@ -21,61 +21,6 @@ namespace NServiceBus
         protected override async Task Terminate(PhysicalMessageProcessingContext context)
         {
             var message = context.Message;
-
-            //dispatch request will arrive at the same input so we need to make sure to call the correct handler
-            if (message.Headers.ContainsKey(TimeoutIdToDispatchHeader))
-            {
-                await HandleBackwardsCompatibility(message, context).ConfigureAwait(false);
-            }
-            else
-            {
-                await HandleInternal(message, context).ConfigureAwait(false);
-            }
-        }
-
-        public override Task Warmup()
-        {
-            poller.Start();
-            return base.Warmup();
-        }
-
-        public override async Task Cooldown()
-        {
-            await poller.Stop();
-            await base.Cooldown();
-        }
-
-        async Task HandleBackwardsCompatibility(IncomingMessage message, PhysicalMessageProcessingContext context)
-        {
-            var timeoutId = message.Headers[TimeoutIdToDispatchHeader];
-
-            var destination = message.Headers[TimeoutDestinationHeader];
-
-            //clear headers 
-            message.Headers.Remove(TimeoutIdToDispatchHeader);
-            message.Headers.Remove(TimeoutDestinationHeader);
-
-            string routeExpiredTimeoutTo;
-            if (message.Headers.TryGetValue(TimeoutManagerHeaders.RouteExpiredTimeoutTo, out routeExpiredTimeoutTo))
-            {
-                destination = routeExpiredTimeoutTo;
-            }
-
-            var timeoutData = await persister.Peek(timeoutId, context);
-
-            if (timeoutData == null)
-            {
-                return;
-            }
-
-            var outgoingMessages = new OutgoingMessage(message.MessageId, message.Headers, message.Body);
-            var dispatchOptions = new DispatchOptions(new UnicastAddressTag(destination), DispatchConsistency.Default);
-            await dispatcher.Dispatch(new[] { new TransportOperation(outgoingMessages, dispatchOptions) }, context).ConfigureAwait(false);
-            await persister.TryRemove(timeoutId, context);
-        }
-
-        async Task HandleInternal(IncomingMessage message, PhysicalMessageProcessingContext context)
-        {
             var sagaId = Guid.Empty;
 
             string sagaIdString;
@@ -132,13 +77,22 @@ namespace NServiceBus
             }
         }
 
+        public override Task Warmup()
+        {
+            poller.Start();
+            return base.Warmup();
+        }
+
+        public override async Task Cooldown()
+        {
+            await poller.Stop();
+            await base.Cooldown();
+        }
+
         ExpiredTimeoutsPoller poller;
         IDispatchMessages dispatcher;
         IPersistTimeouts persister;
         string owningTimeoutManager;
-
-        const string TimeoutDestinationHeader = "NServiceBus.Timeout.Destination";
-        const string TimeoutIdToDispatchHeader = "NServiceBus.Timeout.TimeoutIdToDispatch";
 
         public class Registration : RegisterStep
         {
