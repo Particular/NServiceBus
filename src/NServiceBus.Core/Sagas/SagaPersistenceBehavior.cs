@@ -78,7 +78,7 @@
             {
                 return;
             }
-            sagaInstanceState.ValidateIdHasNotChanged();
+            sagaInstanceState.ValidateChanges();
 
             if (saga.Completed)
             {

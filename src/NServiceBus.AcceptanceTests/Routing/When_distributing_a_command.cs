@@ -9,7 +9,7 @@
 
     public class When_distributing_a_command : NServiceBusAcceptanceTest
     {
-        [Test]
+        [Test, Explicit("Flaky on the buildserver - https://github.com/Particular/NServiceBus/issues/3003")]
         public async Task Should_round_robin()
         {
             var context = await Scenario.Define<Context>()
@@ -131,6 +131,5 @@
         {
             public string EndpointName { get; set; }
         }
-
     }
 }

@@ -1,15 +1,15 @@
 namespace NServiceBus.Sagas
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
 
     /// <summary>
     /// Represents a saga instance being processed on the pipeline.
     /// </summary>
     public class ActiveSagaInstance
     {
-        Guid sagaId;
-
-        internal ActiveSagaInstance(Saga saga,SagaMetadata metadata)
+        internal ActiveSagaInstance(Saga saga, SagaMetadata metadata)
         {
             Instance = saga;
             Metadata = metadata;
@@ -24,10 +24,10 @@ namespace NServiceBus.Sagas
         /// The type of the saga.
         /// </summary>
         [ObsoleteEx(
-            TreatAsErrorFromVersion = "6", 
-            RemoveInVersion = "7", 
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
             ReplacementTypeOrMember = ".Metadata.SagaType")]
-        public Type SagaType 
+        public Type SagaType
         {
             get { throw new NotImplementedException(); }
         }
@@ -36,7 +36,7 @@ namespace NServiceBus.Sagas
         /// Metadata for this active saga.
         /// </summary>
         internal SagaMetadata Metadata { get; }
-        
+
         /// <summary>
         /// The actual saga instance.
         /// </summary>
@@ -45,12 +45,12 @@ namespace NServiceBus.Sagas
             RemoveInVersion = "7",
             ReplacementTypeOrMember = "context.MessageHandler.Instance")]
         public Saga Instance { get; }
-        
+
         /// <summary>
         /// True if this saga was created by this incoming message.
         /// </summary>
         public bool IsNew { get; private set; }
-                     
+
         /// <summary>
         /// True if no saga instance could be found for this message.
         /// </summary>
@@ -70,6 +70,15 @@ namespace NServiceBus.Sagas
         internal void AttachExistingEntity(IContainSagaData loadedEntity)
         {
             AttachEntity(loadedEntity);
+
+            var properties = loadedEntity.GetType().GetProperties();
+
+            foreach (var correlatedProperty in Metadata.CorrelationProperties)
+            {
+                var propertyInfo = properties.Single(p => p.Name == correlatedProperty.Name);
+
+                correlatedPropertyValues[correlatedProperty.Name] = propertyInfo.GetValue(loadedEntity).ToString();
+            }
         }
 
         void AttachEntity(IContainSagaData sagaEntity)
@@ -78,17 +87,40 @@ namespace NServiceBus.Sagas
             Instance.Entity = sagaEntity;
             SagaId = sagaEntity.Id.ToString();
         }
+
         internal void MarkAsNotFound()
         {
             NotFound = true;
         }
 
-        internal void ValidateIdHasNotChanged()
+        internal void ValidateChanges()
         {
             if (sagaId != Instance.Entity.Id)
             {
                 throw new Exception("A modification of IContainSagaData.Id has been detected. This property is for infrastructure purposes only and should not be modified. SagaType: " + Metadata.SagaType.FullName);
             }
+
+            if (!correlatedPropertyValues.Any())
+            {
+                return;
+            }
+
+            var properties = Instance.Entity.GetType().GetProperties();
+            foreach (var correlatedPropertyValue in correlatedPropertyValues)
+            {
+                var propertyInfo = properties.Single(p => p.Name == correlatedPropertyValue.Key);
+                var newValue = propertyInfo.GetValue(Instance.Entity).ToString();
+
+                if (correlatedPropertyValue.Value != newValue)
+                {
+                    throw new Exception(
+                        $@"We detected that the value of the correlated property '{correlatedPropertyValue.Key}' on saga '{Metadata.SagaType.Name}' has changed from '{correlatedPropertyValue.Value}' to '{newValue}'. 
+Changing the value of correlated properties at runtime is currently not supported.");
+                }
+            }
         }
+
+        Dictionary<string, string> correlatedPropertyValues = new Dictionary<string, string>();
+        Guid sagaId;
     }
 }
