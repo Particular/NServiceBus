@@ -18,10 +18,13 @@
         public async Task Should_record_the_request_to_clear_in_outbox()
         {
             var context = await Scenario.Define<Context>()
-            .WithEndpoint<NonDtcReceivingEndpoint>(b => b.When(bus => bus.SendLocalAsync(new PlaceOrder { DataId = Guid.NewGuid() })))
-            .AllowExceptions()
-            .Done(c => c.Done)
-            .Run();
+                .WithEndpoint<NonDtcReceivingEndpoint>(b => b.When(bus => bus.SendLocalAsync(new PlaceOrder
+                {
+                    DataId = Guid.NewGuid()
+                })))
+                .AllowExceptions()
+                .Done(c => c.Done)
+                .Run();
 
             Assert.AreEqual(2, context.NumberOfOps, "Request to clear and a done signal should be in the outbox");
         }
@@ -83,38 +86,38 @@
 
         class FakeOutbox : IOutboxStorage
         {
-            Context context;
-
             public FakeOutbox(Context context)
             {
-                this.context = context;
+                testContext = context;
             }
-            public Task<OutboxMessage> Get(string messageId, ReadOnlyContextBag options)
+
+            public Task<OutboxMessage> Get(string messageId, ContextBag context)
             {
                 return Task.FromResult(default(OutboxMessage));
             }
 
-            public Task Store(OutboxMessage message, OutboxTransaction transaction, ReadOnlyContextBag options)
+            public Task Store(OutboxMessage message, OutboxTransaction transaction, ContextBag context)
             {
-                context.NumberOfOps += message.TransportOperations.Count();
+                testContext.NumberOfOps += message.TransportOperations.Count();
                 return Task.FromResult(0);
             }
 
-            public Task SetAsDispatched(string messageId, ReadOnlyContextBag options)
+            public Task SetAsDispatched(string messageId, ContextBag context)
             {
                 return Task.FromResult(0);
             }
 
-            public Task<OutboxTransaction> BeginTransaction(ReadOnlyContextBag context)
+            public Task<OutboxTransaction> BeginTransaction(ContextBag context)
             {
                 return Task.FromResult<OutboxTransaction>(new FakeOutboxTransaction());
             }
+
+            Context testContext;
 
             class FakeOutboxTransaction : OutboxTransaction
             {
                 public void Dispose()
                 {
-                    
                 }
 
                 public Task Commit()

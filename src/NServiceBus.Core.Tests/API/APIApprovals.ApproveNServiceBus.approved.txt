@@ -1779,10 +1779,10 @@ namespace NServiceBus.Outbox
 {
     public interface IOutboxStorage
     {
-        System.Threading.Tasks.Task<NServiceBus.Outbox.OutboxTransaction> BeginTransaction(NServiceBus.Extensibility.ReadOnlyContextBag context);
-        System.Threading.Tasks.Task<NServiceBus.Outbox.OutboxMessage> Get(string messageId, NServiceBus.Extensibility.ReadOnlyContextBag options);
-        System.Threading.Tasks.Task SetAsDispatched(string messageId, NServiceBus.Extensibility.ReadOnlyContextBag options);
-        System.Threading.Tasks.Task Store(NServiceBus.Outbox.OutboxMessage message, NServiceBus.Outbox.OutboxTransaction transaction, NServiceBus.Extensibility.ReadOnlyContextBag options);
+        System.Threading.Tasks.Task<NServiceBus.Outbox.OutboxTransaction> BeginTransaction(NServiceBus.Extensibility.ContextBag context);
+        System.Threading.Tasks.Task<NServiceBus.Outbox.OutboxMessage> Get(string messageId, NServiceBus.Extensibility.ContextBag context);
+        System.Threading.Tasks.Task SetAsDispatched(string messageId, NServiceBus.Extensibility.ContextBag context);
+        System.Threading.Tasks.Task Store(NServiceBus.Outbox.OutboxMessage message, NServiceBus.Outbox.OutboxTransaction transaction, NServiceBus.Extensibility.ContextBag context);
     }
     public class OutboxMessage
     {
