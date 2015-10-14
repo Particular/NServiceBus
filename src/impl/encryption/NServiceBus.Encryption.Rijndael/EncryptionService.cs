@@ -23,7 +23,6 @@ namespace NServiceBus.Encryption.Rijndael
             set
             {
                 key = value;
-                VerifyKeysAreNotTooSimilar();
             }
         }
 
@@ -37,7 +36,6 @@ namespace NServiceBus.Encryption.Rijndael
             set
             {
                 expiredKeys = value;
-                VerifyKeysAreNotTooSimilar();
             }
         }
 
@@ -114,37 +112,6 @@ namespace NServiceBus.Encryption.Rijndael
                         EncryptedBase64Value = Convert.ToBase64String(memoryStream.ToArray()),
                         Base64Iv = Convert.ToBase64String(rijndael.IV)
                     };
-                }
-            }
-        }
-
-        void VerifyKeysAreNotTooSimilar()
-        {
-            if (ExpiredKeys == null)
-            {
-                return;
-            }
-            if (Key == null)
-            {
-                return;
-            }
-            for (var index = 0; index < ExpiredKeys.Count; index++)
-            {
-                var decryption = ExpiredKeys[index];
-                CryptographicException exception = null;
-                var encryptedValue = ((IEncryptionService)this).Encrypt("a");
-                try
-                {
-                    Decrypt(encryptedValue, decryption);
-                }
-                catch (CryptographicException cryptographicException)
-                {
-                    exception = cryptographicException;
-                }
-                if (exception == null)
-                {
-                    var message = string.Format("The new Encryption Key is too similar to the Expired Key at index {0}. This can cause issues when decrypting data. To fix this issue please ensure the new encryption key is not too similar to the existing Expired Keys.", index);
-                    throw new Exception(message);
                 }
             }
         }
