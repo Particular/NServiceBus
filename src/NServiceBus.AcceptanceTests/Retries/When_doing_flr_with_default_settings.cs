@@ -5,6 +5,7 @@
     using Faults;
     using EndpointTemplates;
     using AcceptanceTesting;
+    using NServiceBus.Timeout.Core;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
@@ -28,7 +29,11 @@
             Scenario.Define<Context>()
                     .WithEndpoint<RetryEndpoint>(b =>
                         {
-                            b.CustomConfig(c => Configure.Transactions.Advanced(a => a.DisableDistributedTransactions()));
+                            b.CustomConfig(c =>
+                            {
+                                Configure.Transactions.Advanced(a => a.DisableDistributedTransactions());
+                                c.SuppressOutdatedTimeoutDispatchWarning();
+                            });
                             b.Given(bus => bus.SendLocal(new MessageToBeRetried()));
                         })
                     .Done(c => c.HandedOverToSlr || c.NumberOfTimesInvoked > 5)

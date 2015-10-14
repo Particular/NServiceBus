@@ -132,6 +132,8 @@
     <Compile Include="Serializers\XML\Config\XmlSerializationSettings.cs" />
     <Compile Include="Serializers\XML\Config\XmlSerializerConfigurationExtensions.cs" />
     <Compile Include="Settings\SerializationSettings.cs" />
+    <Compile Include="Timeout\Core\TimeoutPersistenceVersionCheck.cs" />
+    <Compile Include="Timeout\Core\TimeoutPersistenceVersionCheckExtension.cs" />
     <Compile Include="Transports\Msmq\CorrelationIdMutatorForBackwardsCompatibilityWithV3.cs" />
     <Compile Include="Settings\ScaleOutSettings.cs" />
     <Compile Include="Transports\Msmq\Config\MsmqTransport.cs" />

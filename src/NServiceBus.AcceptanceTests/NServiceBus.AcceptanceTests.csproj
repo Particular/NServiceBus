@@ -164,6 +164,9 @@
     <Compile Include="ScenarioDescriptors\SagaPersisters.cs" />
     <Compile Include="ScenarioDescriptors\SubscriptionStorages.cs" />
     <Compile Include="Scheduling\When_scheduling_a_recurring_task.cs" />
+    <Compile Include="Timeouts\When_endpoint_disables_dtc.cs" />
+    <Compile Include="Timeouts\When_endpoint_does_not_disable_dtc.cs" />
+    <Compile Include="Timeouts\When_endpoint_uses_no_timeout_persistence.cs" />
     <Compile Include="Transactions\FakePromotableResourceManager.cs" />
     <Compile Include="Transactions\When_receiving_a_message_with_dtc_disabled.cs" />
     <Compile Include="Transactions\When_receiving_a_message_with_dtc_enabled.cs" />
