@@ -2,12 +2,13 @@ namespace NServiceBus.Unicast
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using NServiceBus.Transports;
 
     /// <summary>
     /// Implementation of IMessageContext.
     /// </summary>
-    public class MessageContext : IMessageContext
+    class MessageContext
     {
         IncomingMessage incomingMessage;
 
@@ -26,9 +27,10 @@ namespace NServiceBus.Unicast
         public MessageContext(IncomingMessage incomingMessage)
         {
             this.incomingMessage = incomingMessage;
+            Headers = new ReadOnlyDictionary<string, string>(incomingMessage.Headers);
         }
 
-        IDictionary<string, string> IMessageContext.Headers => incomingMessage.Headers;
+        public IReadOnlyDictionary<string, string> Headers { get; }
 
         /// <summary>
         /// The time at which the incoming message was sent.
@@ -38,7 +40,7 @@ namespace NServiceBus.Unicast
             get
             {
                 string timeSent;
-                if (incomingMessage.Headers.TryGetValue(Headers.TimeSent, out timeSent))
+                if (incomingMessage.Headers.TryGetValue(NServiceBus.Headers.TimeSent, out timeSent))
                 {
                     return DateTimeExtensions.ToUtcDateTime(timeSent);
                 }
@@ -47,8 +49,8 @@ namespace NServiceBus.Unicast
             }
         }
 
-        string IMessageContext.Id => incomingMessage.MessageId;
+        public string Id => incomingMessage.MessageId;
 
-        string IMessageContext.ReplyToAddress => incomingMessage.GetReplyToAddress();
+        public string ReplyToAddress => incomingMessage.GetReplyToAddress();
     }
 }

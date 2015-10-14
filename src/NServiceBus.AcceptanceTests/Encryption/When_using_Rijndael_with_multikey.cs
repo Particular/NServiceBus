@@ -56,7 +56,7 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(MessageWithSecretData message)
+                public Task Handle(MessageWithSecretData message, IMessageHandlerContext context)
                 {
                     Context.Secret = message.Secret.Value;
                     Context.Done = true;

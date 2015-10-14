@@ -36,12 +36,12 @@
 
             public class TestSaga01 : Saga<TestSagaData01>, IAmStartedByMessages<StartSagaMessage>, IHandleTimeouts<StartSagaMessage>
             {
-                public Context Context { get; set; }
+                public Context TestContext { get; set; }
 
-                public Task Handle(StartSagaMessage message)
+                public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
                     Data.SomeId = message.SomeId;
-                    return RequestTimeoutAsync(TimeSpan.FromMilliseconds(100), message);
+                    return RequestTimeoutAsync(context, TimeSpan.FromMilliseconds(100), message);
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData01> mapper)
@@ -50,10 +50,10 @@
                         .ToSaga(s => s.SomeId);
                 }
 
-                public Task Timeout(StartSagaMessage message)
+                public Task Timeout(StartSagaMessage message, IMessageHandlerContext context)
                 {
                     MarkAsComplete();
-                    Context.TimeoutReceived = true;
+                    TestContext.TimeoutReceived = true;
                     return Task.FromResult(0);
                 }
             }

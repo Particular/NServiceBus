@@ -38,18 +38,18 @@
 
             public class TwoSaga1Saga1 : Saga<TwoSaga1Saga1Data>, IAmStartedByMessages<StartSaga1>, IHandleMessages<MessageSaga1WillHandle>
             {
-                public Task Handle(StartSaga1 message)
+                public Task Handle(StartSaga1 message, IMessageHandlerContext context)
                 {
                     Data.DataId = message.DataId;
-                    return Bus.SendLocalAsync(new MessageSaga1WillHandle
+                    return context.SendLocalAsync(new MessageSaga1WillHandle
                     {
                         DataId = message.DataId
                     });
                 }
 
-                public async Task Handle(MessageSaga1WillHandle message)
+                public async Task Handle(MessageSaga1WillHandle message, IMessageHandlerContext context)
                 {
-                    await Bus.SendLocalAsync(new StartSaga2
+                    await context.SendLocalAsync(new StartSaga2
                     {
                         DataId = message.DataId
                     });
@@ -73,7 +73,7 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(StartSaga2 message)
+                public Task Handle(StartSaga2 message, IMessageHandlerContext context)
                 {
                     Data.DataId = message.DataId;
                     Context.DidSaga2ReceiveMessage = true;

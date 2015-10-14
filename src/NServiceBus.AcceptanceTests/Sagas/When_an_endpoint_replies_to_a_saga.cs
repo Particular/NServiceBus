@@ -40,11 +40,9 @@
 
             class DoSomethingHandler : IHandleMessages<DoSomething>
             {
-                public IBus Bus { get; set; }
-
-                public Task Handle(DoSomething message)
+                public Task Handle(DoSomething message, IMessageHandlerContext context)
                 {
-                    return Bus.ReplyAsync(new DoSomethingResponse { RunId = message.RunId });
+                    return context.ReplyAsync(new DoSomethingResponse { RunId = message.RunId });
                 }
             }
         }
@@ -62,7 +60,7 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(object message)
+                public Task Handle(object message, IMessageHandlerContext context)
                 {
                     var lostMessage = message as DoSomethingResponse;
                     if (lostMessage != null && lostMessage.RunId == Context.RunId)
@@ -74,20 +72,22 @@
             }
 
 
-            public class CorrelationTestSaga : Saga<CorrelationTestSaga.CorrelationTestSagaData>, IAmStartedByMessages<StartSaga>, IHandleMessages<DoSomethingResponse>
+            public class CorrelationTestSaga : Saga<CorrelationTestSaga.CorrelationTestSagaData>, 
+                IAmStartedByMessages<StartSaga>, 
+                IHandleMessages<DoSomethingResponse>
             {
-                public Context Context { get; set; }
+                public Context TestContext { get; set; }
 
-                public Task Handle(StartSaga message)
+                public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
                     Data.RunId = message.RunId;
-                    return Bus.SendAsync(new DoSomething { RunId = message.RunId });
+                    return context.SendAsync(new DoSomething { RunId = message.RunId });
                 }
 
-                public Task Handle(DoSomethingResponse message)
+                public Task Handle(DoSomethingResponse message, IMessageHandlerContext context)
                 {
-                    Context.Done = true;
-                    Context.DidSagaReplyMessageGetCorrelated = message.RunId == Data.RunId;
+                    TestContext.Done = true;
+                    TestContext.DidSagaReplyMessageGetCorrelated = message.RunId == Data.RunId;
                     MarkAsComplete();
                     return Task.FromResult(0);
                 }

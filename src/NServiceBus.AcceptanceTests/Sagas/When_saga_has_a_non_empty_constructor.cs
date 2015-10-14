@@ -35,20 +35,20 @@
             }
 
             public class TestSaga11 : Saga<TestSagaData11>,
-                IAmStartedByMessages<StartSagaMessage>, IHandleMessages<OtherMessage>
+                IAmStartedByMessages<StartSagaMessage>, 
+                IHandleMessages<OtherMessage>
             {
-                Context context;
+                Context testContext;
 
-                // ReSharper disable once UnusedParameter.Local
-                public TestSaga11(IBus bus, Context context)
+                public TestSaga11(Context testContext)
                 {
-                    this.context = context;
+                    this.testContext = testContext;
                 }
-
-                public Task Handle(StartSagaMessage message)
+                
+                public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
                     Data.SomeId = message.SomeId;
-                    return Bus.SendLocalAsync(new OtherMessage { SomeId = message.SomeId });
+                    return context.SendLocalAsync(new OtherMessage { SomeId = message.SomeId });
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData11> mapper)
@@ -59,9 +59,9 @@
                         .ToSaga(s => s.SomeId);
                 }
 
-                public Task Handle(OtherMessage message)
+                public Task Handle(OtherMessage message, IMessageHandlerContext context)
                 {
-                    context.SecondMessageReceived = true;
+                    testContext.SecondMessageReceived = true;
                     return Task.FromResult(0);
                 }
             }

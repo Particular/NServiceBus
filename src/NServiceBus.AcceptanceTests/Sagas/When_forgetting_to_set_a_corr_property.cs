@@ -40,7 +40,7 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(StartSagaMessage message)
+                public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
                     //oops I forgot Data.SomeId = message.SomeId
                     return Task.FromResult(0);

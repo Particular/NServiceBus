@@ -12,6 +12,6 @@ namespace NServiceBus
         /// <summary>
         /// Called when the timeout has expired.
         /// </summary>
-        Task Timeout(T state);
+        Task Timeout(T state, IMessageHandlerContext context);
     }
 }

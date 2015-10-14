@@ -56,7 +56,7 @@ namespace NServiceBus.AcceptanceTests.Audit
             {
                 public Context MyContext { get; set; }
 
-                public Task Handle(MessageToBeAudited message)
+                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
                     MyContext.IsMessageHandlingComplete = true;
                     return Task.FromResult(0);
@@ -77,7 +77,7 @@ namespace NServiceBus.AcceptanceTests.Audit
             {
                 public Context MyContext { get; set; }
 
-                public Task Handle(MessageToBeAudited message)
+                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
                     MyContext.IsMessageHandlingComplete = true;
                     return Task.FromResult(0);
@@ -97,7 +97,7 @@ namespace NServiceBus.AcceptanceTests.Audit
             {
                 public Context MyContext { get; set; }
 
-                public Task Handle(MessageToBeAudited message)
+                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
                     MyContext.IsMessageHandledByTheAuditEndpoint = true;
                     return Task.FromResult(0);

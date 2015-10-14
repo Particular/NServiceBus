@@ -42,34 +42,32 @@
 
             public class MyMessageHandler : IHandleMessages<MyMessage>
             {
-                public Context Context { get; set; }
-                public IBus Bus { get; set; }
+                public Context TestContext { get; set; }
 
-                public async Task Handle(MyMessage @event)
+                public async Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
-                    if (Context.FirstAttempt)
+                    if (TestContext.FirstAttempt)
                     {
-                        await Bus.SendLocalAsync(new MessageHandledEvent
+                        await context.SendLocalAsync(new MessageHandledEvent
                         {
                             HasFailed = true
                         });
-                        Context.FirstAttempt = false;
+                        TestContext.FirstAttempt = false;
                         throw new SimulatedException();
                     }
 
-                    await Bus.SendLocalAsync(new MessageHandledEvent());
+                    await context.SendLocalAsync(new MessageHandledEvent());
                 }
             }
 
             public class MessageHandledEventHandler : IHandleMessages<MessageHandledEvent>
             {
-                public Context Context { get; set; }
-                public IBus Bus { get; set; }
+                public Context TestContext { get; set; }
 
-                public Task Handle(MessageHandledEvent @event)
+                public Task Handle(MessageHandledEvent message, IMessageHandlerContext context)
                 {
-                    Context.MessageHandled = true;
-                    Context.HasFailed |= @event.HasFailed;
+                    TestContext.MessageHandled = true;
+                    TestContext.HasFailed |= message.HasFailed;
                     return Task.FromResult(0);
                 }
             }

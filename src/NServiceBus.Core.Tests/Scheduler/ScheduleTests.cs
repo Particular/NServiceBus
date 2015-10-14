@@ -64,7 +64,7 @@
 
             Parallel.ForEach(defaultScheduler.scheduledTasks,
                               t => new ScheduledTaskMessageHandler(defaultScheduler).Handle(
-                                  new Messages.ScheduledTask { TaskId = t.Key }));
+                                  new Messages.ScheduledTask { TaskId = t.Key }, null));
 
             Assert.That(bus.DeferWasCalled, Is.EqualTo(20));
         }

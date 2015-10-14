@@ -94,7 +94,7 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(StartSagaMessage message)
+                public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
                     Context.AddTrace("Saga started");
 
@@ -105,7 +105,7 @@
                     return Task.FromResult(0);
                 }
 
-                public Task Handle(CompleteSagaMessage message)
+                public Task Handle(CompleteSagaMessage message, IMessageHandlerContext context)
                 {
                     Context.AddTrace("CompleteSagaMessage received");
                     MarkAsComplete();
@@ -113,7 +113,7 @@
                     return Task.FromResult(0);
                 }
 
-                public Task Handle(AnotherMessage message)
+                public Task Handle(AnotherMessage message, IMessageHandlerContext context)
                 {
                     Context.AddTrace("AnotherMessage received");
                     Context.SagaReceivedAnotherMessage = true;
@@ -143,7 +143,7 @@
         public class CompletionHandler : IHandleMessages<AnotherMessage>
         {
             public Context Context { get; set; }
-            public Task Handle(AnotherMessage message)
+            public Task Handle(AnotherMessage message, IMessageHandlerContext context)
             {
                 Context.AnotherMessageReceived = true;
                 return Task.FromResult(0);

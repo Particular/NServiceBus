@@ -5,14 +5,14 @@
 
     class TestSaga : Saga<SagaData>, IAmStartedByMessages<StartSagaMessage>, IHandleMessages<CompleteSagaMessage>
     {
-        public Task Handle(StartSagaMessage message)
+        public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
         {
             Data.Number = message.Id;
             Data.NumCalls++;
             return Task.FromResult(0);
         }
 
-        public Task Handle(CompleteSagaMessage message)
+        public Task Handle(CompleteSagaMessage message, IMessageHandlerContext context)
         {
             MarkAsComplete();
 

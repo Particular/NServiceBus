@@ -79,7 +79,7 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(IMyEvent messageThatIsEnlisted)
+                public Task Handle(IMyEvent messageThatIsEnlisted, IMessageHandlerContext context)
                 {
                     Context.Subscriber1GotTheEvent = true;
                     return Task.FromResult(0);
@@ -99,7 +99,7 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(MyEvent messageThatIsEnlisted)
+                public Task Handle(MyEvent messageThatIsEnlisted, IMessageHandlerContext context)
                 {
                     Context.Subscriber2GotTheEvent = true;
                     return Task.FromResult(0);

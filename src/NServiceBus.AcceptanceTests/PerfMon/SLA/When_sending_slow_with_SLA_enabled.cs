@@ -60,7 +60,7 @@
         {
             public Context Context { get; set; }
 
-            public async Task Handle(MyMessage message)
+            public async Task Handle(MyMessage message, IMessageHandlerContext context)
             {
                 await Task.Delay(1000);
                 Context.WasCalled = true;

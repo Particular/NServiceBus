@@ -96,7 +96,7 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(IEventA @event)
+                public Task Handle(IEventA @event, IMessageHandlerContext context)
                 {
                     if (@event.ContextId != Context.Id)
                     {
@@ -112,7 +112,7 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(IEventB @event)
+                public Task Handle(IEventB @event, IMessageHandlerContext context)
                 {
                     if (@event.ContextId != Context.Id)
                     {

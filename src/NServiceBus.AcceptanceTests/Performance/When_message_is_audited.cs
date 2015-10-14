@@ -27,7 +27,7 @@
         public class Context : ScenarioContext
         {
             public bool IsMessageHandledByTheAuditEndpoint { get; set; }
-            public IDictionary<string, string> Headers { get; set; }
+            public IReadOnlyDictionary<string, string> Headers { get; set; }
         }
 
         public class EndpointWithAuditOn : EndpointConfigurationBuilder
@@ -48,7 +48,7 @@
                     this.context = context;
                 }
 
-                public Task Handle(MessageToBeAudited message)
+                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context1)
                 {
                     return Task.FromResult(0);
                 }
@@ -65,19 +65,17 @@
 
             class AuditMessageHandler : IHandleMessages<MessageToBeAudited>
             {
-                Context context;
-                IBus bus;
+                Context testContext;
 
-                public AuditMessageHandler(Context context, IBus bus)
+                public AuditMessageHandler(Context testContext)
                 {
-                    this.context = context;
-                    this.bus = bus;
+                    this.testContext = testContext;
                 }
 
-                public Task Handle(MessageToBeAudited message)
+                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
-                    context.Headers = bus.CurrentMessageContext.Headers;
-                    context.IsMessageHandledByTheAuditEndpoint = true;
+                    testContext.Headers = context.MessageHeaders;
+                    testContext.IsMessageHandledByTheAuditEndpoint = true;
                     return Task.FromResult(0);
                 }
             }

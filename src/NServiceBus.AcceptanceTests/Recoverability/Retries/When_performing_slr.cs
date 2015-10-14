@@ -80,7 +80,6 @@
             class ErrorNotificationSpy : IWantToRunWhenBusStartsAndStops
             {
                 public Context Context { get; set; }
-                public IBus Bus { get; set; }
                 public BusNotifications BusNotifications { get; set; }
 
                 public Task StartAsync()
@@ -101,13 +100,11 @@
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
             {
-                public IBus Bus { get; set; }
+                public Context TestContext { get; set; }
 
-                public Context Context { get; set; }
-
-                public Task Handle(MessageToBeRetried message)
+                public Task Handle(MessageToBeRetried message, IMessageHandlerContext context)
                 {
-                    Context.PhysicalMessageId = Bus.CurrentMessageContext.Id;
+                    TestContext.PhysicalMessageId = context.MessageId;
                     throw new SimulatedException();
                 }
             }

@@ -3,16 +3,16 @@
     using System;
 
     public static partial class IBusExtensions
-    {                
+    {
         /// <summary>
         /// Sends the message to the endpoint which sent the message currently being handled on this thread.
         /// </summary>
         /// <param name="bus">Object being extended.</param>
         /// <param name="message">The message to send.</param>
         [ObsoleteEx(
+            Message = "Please use `IMessageHandlerContext.ReplyAsync(object message)` provided to message handlers instead.",
             TreatAsErrorFromVersion = "6",
-            RemoveInVersion = "7",
-            ReplacementTypeOrMember = "ReplyAsync(object message)")]
+            RemoveInVersion = "7")]
         public static void Reply(this IBus bus, object message)
         {
             throw new NotImplementedException();
@@ -25,23 +25,23 @@
         /// <param name="bus">Object being extended.</param>
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
         [ObsoleteEx(
+            Message = "Please use `IMessageHandlerContext.ReplyAsync<T>(Action<T> messageConstructor)` provided to message handlers instead.",
             TreatAsErrorFromVersion = "6",
-            RemoveInVersion = "7",
-            ReplacementTypeOrMember = "ReplyAsync<T>(Action<T> messageConstructor)")]
+            RemoveInVersion = "7")]
         public static void Reply<T>(this IBus bus, Action<T> messageConstructor)
         {
             throw new NotImplementedException();
         }
-        
+
         /// <summary>
         /// Sends the message back to the current bus.
         /// </summary>
         /// <param name="bus">Object being extended.</param>
         /// <param name="message">The message to send.</param>
         [ObsoleteEx(
+            Message = "Please use `IMessageHandlerContext.SendLocalAsync(object message)` provided to message handlers instead.",
             TreatAsErrorFromVersion = "6",
-            RemoveInVersion = "7",
-            ReplacementTypeOrMember = "SendLocalAsync(object message)")]
+            RemoveInVersion = "7")]
         public static void SendLocal(this IBus bus, object message)
         {
             throw new NotImplementedException();
@@ -54,9 +54,9 @@
         /// <param name="bus">Object being extended.</param>
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
         [ObsoleteEx(
+            Message = "Please use `IMessageHandlerContext.SendLocalAsync<T>(Action<T> messageConstructor)` provided to message handlers instead.",
             TreatAsErrorFromVersion = "6",
-            RemoveInVersion = "7",
-            ReplacementTypeOrMember = "SendLocalAsync<T>(Action<T> messageConstructor)")]
+            RemoveInVersion = "7")]
         public static void SendLocal<T>(this IBus bus, Action<T> messageConstructor)
         {
             throw new NotImplementedException();
@@ -67,9 +67,9 @@
         /// messages so it can be handled later.
         /// </summary>
         [ObsoleteEx(
+            Message = "Please use `IMessageHandlerContext.HandleCurrentMessageLaterAsync()` provided to message handlers instead.",
             TreatAsErrorFromVersion = "6",
-            RemoveInVersion = "7",
-            ReplacementTypeOrMember = "HandleCurrentMessageLaterAsync()")]
+            RemoveInVersion = "7")]
         public static void HandleCurrentMessageLater(this IBus bus)
         {
             throw new NotImplementedException();
@@ -80,14 +80,27 @@
         /// all of its transport-level properties and headers.
         /// </summary>
         [ObsoleteEx(
+            Message = "Please use `IMessageHandlerContext.ForwardCurrentMessageToAsync(string destination)` provided to message handlers instead.",
             TreatAsErrorFromVersion = "6",
-            RemoveInVersion = "7",
-            ReplacementTypeOrMember = "ForwardCurrentMessageToAsync(string destination)")]
+            RemoveInVersion = "7")]
         public static void ForwardCurrentMessageTo(this IBus bus, string destination)
         {
             throw new NotImplementedException();
         }
-        
+
+        /// <summary>		
+        /// Tells the bus to stop dispatching the current message to additional		
+        /// handlers.		
+        /// </summary>
+        [ObsoleteEx(
+            Message = "Please use `IMessageHandlerContext.DoNotContinueDispatchingCurrentMessageToHandlers()` provided to message handlers instead.",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public static void DoNotContinueDispatchingCurrentMessageToHandlers(this IBus bus)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Subscribes to receive published messages of the specified type.
         /// This method is only necessary if you turned off auto-subscribe.

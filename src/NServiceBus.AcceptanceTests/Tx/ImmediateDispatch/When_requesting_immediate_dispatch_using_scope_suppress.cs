@@ -37,12 +37,11 @@
 
             public class InitiatingMessageHandler : IHandleMessages<InitiatingMessage>
             {
-                public IBus Bus { get; set; }
-                public async Task Handle(InitiatingMessage message)
+                public async Task Handle(InitiatingMessage message, IMessageHandlerContext context)
                 {
                     using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
                     {
-                        await Bus.SendLocalAsync(new MessageToBeDispatchedImmediately());
+                        await context.SendLocalAsync(new MessageToBeDispatchedImmediately());
                     }
 
                     throw new SimulatedException();
@@ -53,7 +52,7 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(MessageToBeDispatchedImmediately message)
+                public Task Handle(MessageToBeDispatchedImmediately message, IMessageHandlerContext context)
                 {
                     Context.MessageDispatched = true;
                     return Task.FromResult(0);

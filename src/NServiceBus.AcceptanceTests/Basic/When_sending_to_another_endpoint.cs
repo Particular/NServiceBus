@@ -39,7 +39,7 @@
 
             public int TimesCalled { get; set; }
 
-            public IDictionary<string, string> ReceivedHeaders { get; set; }
+            public IReadOnlyDictionary<string, string> ReceivedHeaders { get; set; }
 
             public Guid Id { get; set; }
 
@@ -66,24 +66,22 @@
 
             public class MyMessageHandler : IHandleMessages<MyMessage>
             {
-                public Context Context { get; set; }
+                public Context TestContext { get; set; }
 
-                public IBus Bus { get; set; }
-
-                public Task Handle(MyMessage message)
+                public Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
-                    if (Context.Id != message.Id)
+                    if (TestContext.Id != message.Id)
                         return Task.FromResult(0);
 
-                    Assert.AreEqual(Bus.CurrentMessageContext.Id, "MyMessageId");
+                    Assert.AreEqual(context.MessageId, "MyMessageId");
 
-                    Context.TimesCalled++;
+                    TestContext.TimesCalled++;
 
-                    Context.MyHeader = Bus.CurrentMessageContext.Headers["MyHeader"];
+                    TestContext.MyHeader = context.MessageHeaders["MyHeader"];
 
-                    Context.ReceivedHeaders = Bus.CurrentMessageContext.Headers;
+                    TestContext.ReceivedHeaders = context.MessageHeaders;
 
-                    Context.WasCalled = true;
+                    TestContext.WasCalled = true;
 
                     return Task.FromResult(0);
                 }

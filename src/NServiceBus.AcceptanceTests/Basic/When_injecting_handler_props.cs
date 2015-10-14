@@ -43,13 +43,11 @@
             {
                 public Context Context { get; set; }
 
-                public IBus Bus { get; set; }
-
                 public string Name { get; set; }
 
                 public int Number { get; set; }
 
-                public Task Handle(MyMessage message)
+                public Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
                     Context.Number = Number;
                     Context.Name = Name;

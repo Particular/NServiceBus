@@ -49,7 +49,7 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(MyMessage message)
+                public Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
                     return Task.FromResult(0);
                 }

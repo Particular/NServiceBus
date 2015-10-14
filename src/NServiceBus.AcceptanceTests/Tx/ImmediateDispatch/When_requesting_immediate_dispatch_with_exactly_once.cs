@@ -34,15 +34,14 @@
 
             public class InitiatingMessageHandler : IHandleMessages<InitiatingMessage>
             {
-                public IBus Bus { get; set; }
-                public async Task Handle(InitiatingMessage message)
+                public async Task Handle(InitiatingMessage message, IMessageHandlerContext context)
                 {
                     var options = new SendOptions();
 
                     options.RequireImmediateDispatch();
                     options.RouteToLocalEndpointInstance();
 
-                    await Bus.SendAsync(new MessageToBeDispatchedImmediately(), options);
+                    await context.SendAsync(new MessageToBeDispatchedImmediately(), options);
 
                     throw new SimulatedException();
                 }
@@ -52,7 +51,7 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(MessageToBeDispatchedImmediately message)
+                public Task Handle(MessageToBeDispatchedImmediately message, IMessageHandlerContext context)
                 {
                     Context.MessageDispatched = true;
                     return Task.FromResult(0);

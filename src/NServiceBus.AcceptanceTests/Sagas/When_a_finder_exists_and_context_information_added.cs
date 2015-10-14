@@ -57,7 +57,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
             {
                 public Context Context { get; set; }
 
-                public Task Handle(StartSagaMessage message)
+                public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
                     return Task.FromResult(0);
                 }

@@ -59,7 +59,7 @@
 
             public class MyRequestHandler : IHandleMessages<MyRequest>
             {
-                public Task Handle(MyRequest request)
+                public Task Handle(MyRequest request, IMessageHandlerContext context)
                 {
                     return Task.FromResult(0);
                 }

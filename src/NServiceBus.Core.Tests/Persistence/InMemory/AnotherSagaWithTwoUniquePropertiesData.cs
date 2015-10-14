@@ -11,7 +11,7 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
             mapper.ConfigureMapping<M1>(m => m.UniqueString).ToSaga(s => s.UniqueString);
         }
 
-        public Task Handle(M1 message)
+        public Task Handle(M1 message, IMessageHandlerContext context)
         {
             throw new NotImplementedException();
         }

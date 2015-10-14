@@ -48,13 +48,12 @@
 
             class Handler : IHandleMessages<Message>
             {
-                public Context Context { get; set; }
-                public IBus Bus { get; set; }
+                public Context TestContext { get; set; }
 
-                public Task Handle(Message message)
+                public Task Handle(Message message, IMessageHandlerContext context)
                 {
-                    Context.MessageId = Bus.CurrentMessageContext.Id;
-                    Context.MessageReceived = true;
+                    TestContext.MessageId = context.MessageId;
+                    TestContext.MessageReceived = true;
 
                     return Task.FromResult(0);
                 }

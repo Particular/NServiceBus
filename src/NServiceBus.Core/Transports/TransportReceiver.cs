@@ -69,7 +69,7 @@ namespace NServiceBus.Transport
 
                 var contextStacker = new BehaviorContextStacker(context);
                 var contextualBus = new ContextualBus(contextStacker, childBuilder.Build<IMessageMapper>(), childBuilder, childBuilder.Build<ReadOnlySettings>());
-                configurer.ConfigureComponent<IBus>(c => contextualBus, DependencyLifecycle.SingleInstance);
+                configurer.ConfigureComponent(c => contextualBus, DependencyLifecycle.SingleInstance);
                 await pipeline.Invoke(contextStacker).ConfigureAwait(false);
             }
         }

@@ -59,7 +59,7 @@
 
         public class SimpleHandler : IHandleMessages<SimpleMessage>
         {
-            public Task Handle(SimpleMessage message)
+            public Task Handle(SimpleMessage message, IMessageHandlerContext context)
             {
                 return Task.FromResult(0);
             }
@@ -67,7 +67,7 @@
 
         public class GenericTypeDefinitionHandler<T> : IHandleMessages<SimpleMessage>
         {
-            public Task Handle(SimpleMessage message)
+            public Task Handle(SimpleMessage message, IMessageHandlerContext context)
             {
                 return Task.FromResult(0);
             }
@@ -87,7 +87,7 @@
 
         public abstract class AbstractHandler : IHandleMessages<SimpleMessage>
         {
-            public Task Handle(SimpleMessage message)
+            public Task Handle(SimpleMessage message, IMessageHandlerContext context)
             {
                 return Task.FromResult(0);
             }

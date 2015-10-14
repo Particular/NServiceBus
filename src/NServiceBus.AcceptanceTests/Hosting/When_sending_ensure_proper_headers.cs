@@ -30,7 +30,7 @@
         public class Context : ScenarioContext
         {
             public bool WasCalled { get; set; }
-            public IDictionary<string, string> ReceivedHeaders { get; set; }
+            public IReadOnlyDictionary<string, string> ReceivedHeaders { get; set; }
             public Guid Id { get; set; }
         }
 
@@ -60,17 +60,15 @@
 
         public class MyMessageHandler : IHandleMessages<MyMessage>
         {
-            public Context Context { get; set; }
+            public Context TestContext { get; set; }
 
-            public IBus Bus { get; set; }
-
-            public Task Handle(MyMessage message)
+            public Task Handle(MyMessage message, IMessageHandlerContext context)
             {
-                if (Context.Id != message.Id)
+                if (TestContext.Id != message.Id)
                     return Task.FromResult(0);
 
-                Context.ReceivedHeaders = Bus.CurrentMessageContext.Headers;
-                Context.WasCalled = true;
+                TestContext.ReceivedHeaders = context.MessageHeaders;
+                TestContext.WasCalled = true;
 
                 return Task.FromResult(0);
             }

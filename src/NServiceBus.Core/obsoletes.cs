@@ -32,6 +32,14 @@ namespace NServiceBus
     using System.Reflection;
 
     [ObsoleteEx(
+        Message = "Please use `IMessageHandlerContext` provided to message handlers instead.",
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0")]
+    public interface IMessageContext
+    {
+    }
+
+    [ObsoleteEx(
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0",
         Message = "Replaced by NServiceBus.Callbacks package")]
@@ -342,6 +350,12 @@ namespace NServiceBus
             TreatAsErrorFromVersion = "6.0",
             ReplacementTypeOrMember = "SendLocalAsync(object message, SendLocalOptions options)")]
         ICallback Defer(DateTime processAt, object message);
+
+        [ObsoleteEx(
+            Message = "Please use `IMessageHandlerContext` provided to message handlers instead.",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        IMessageContext CurrentMessageContext { get; }
     }
 }
 
@@ -647,7 +661,7 @@ namespace NServiceBus.Unicast
         }
 
         [ObsoleteEx(
-            ReplacementTypeOrMember = "IBus.CurrentMessageContext",
+            Message = "Please use `IMessageHandlerContext` provided to message handlers instead.",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public IMessageContext CurrentMessageContext

@@ -46,7 +46,7 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(MyMessage messageThatIsEnlisted)
+                public Task Handle(MyMessage messageThatIsEnlisted, IMessageHandlerContext context)
                 {
                     Context.DistributedIdentifierBefore = Transaction.Current.TransactionInformation.DistributedIdentifier;
 

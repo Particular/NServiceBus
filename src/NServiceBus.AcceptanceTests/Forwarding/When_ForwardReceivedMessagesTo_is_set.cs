@@ -37,7 +37,7 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(MessageToForward message)
+                public Task Handle(MessageToForward message, IMessageHandlerContext context)
                 {
                     Context.GotForwardedMessage = true;
 
@@ -56,7 +56,7 @@
 
             public class MessageToForwardHandler : IHandleMessages<MessageToForward>
             {
-                public Task Handle(MessageToForward message)
+                public Task Handle(MessageToForward message, IMessageHandlerContext context)
                 {
                     return Task.FromResult(0);
                 }

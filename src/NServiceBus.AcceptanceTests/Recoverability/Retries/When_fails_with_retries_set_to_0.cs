@@ -45,7 +45,7 @@
                 public Context Context { get; set; }
 
                 public BusNotifications BusNotifications { get; set; }
-                public IBus Bus { get; set; }
+                public ISendOnlyBus Bus { get; set; }
 
                 public Task StartAsync()
                 {
@@ -68,7 +68,7 @@
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
             {
                 public Context Context { get; set; }
-                public Task Handle(MessageToBeRetried message)
+                public Task Handle(MessageToBeRetried message, IMessageHandlerContext context)
                 {
                     if (Context.Id != message.ContextId)
                     {

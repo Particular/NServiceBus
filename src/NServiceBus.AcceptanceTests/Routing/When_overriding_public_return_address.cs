@@ -33,11 +33,9 @@
 
             public class MessageHandler : IHandleMessages<MyMessage>
             {
-                public IBus Bus { get; set; }
-
-                public Task Handle(MyMessage messageThatIsEnlisted)
+                public Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
-                    return Bus.ReplyAsync(new MyReply());
+                    return context.ReplyAsync(new MyReply());
                 }
             }
         }
@@ -55,7 +53,7 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(MyReply messageThatIsEnlisted)
+                public Task Handle(MyReply messageThatIsEnlisted, IMessageHandlerContext context)
                 {
                     Context.GotReply = true;
                     return Task.FromResult(0);

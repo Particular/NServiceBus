@@ -73,7 +73,10 @@ namespace NServiceBus.Features
                 return false;
             }
 
-            return type.GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == IHandleMessagesType);
+            return type.GetInterfaces()
+                .Where(@interface => @interface.IsGenericType)
+                .Select(@interface => @interface.GetGenericTypeDefinition())
+                .Any(genericTypeDef => genericTypeDef == IHandleMessagesType);
         }
 
         static Type IHandleMessagesType = typeof(IHandleMessages<>);

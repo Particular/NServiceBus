@@ -54,11 +54,11 @@
                 IAmStartedByMessages<StartSagaMessage>,
                 IHandleMessages<SomeOtherMessage>
             {
-                public Context Context { get; set; }
+                public Context TestContext { get; set; }
 
-                public Task Handle(StartSagaMessage message)
+                public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
-                    return Bus.SendLocalAsync(new SomeOtherMessage());
+                    return context.SendLocalAsync(new SomeOtherMessage());
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData08> mapper)
@@ -71,9 +71,9 @@
                     public virtual string Property { get; set; }
                 }
 
-                public Task Handle(SomeOtherMessage message)
+                public Task Handle(SomeOtherMessage message, IMessageHandlerContext context)
                 {
-                    Context.Completed = true;
+                    TestContext.Completed = true;
                     return Task.FromResult(0);
                 }
             }

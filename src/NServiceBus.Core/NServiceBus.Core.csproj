@@ -95,12 +95,16 @@
     <Compile Include="Audit\InvokeAuditPipelineBehavior.cs" />
     <Compile Include="Bus.cs" />
     <Compile Include="BusConfiguration.cs" />
+    <Compile Include="MessageHandlerContext.cs" />
     <Compile Include="Causation\MessageCausation.cs" />
     <Compile Include="ConfigureHandlerSettings.cs" />
     <Compile Include="ConsistencyGuarantees\ConsistencyGuaranteeSettingsExtensions.cs" />
     <Compile Include="ConsistencyGuarantees\TransactionScopes\WrapHandlersInTransactionScope.cs" />
     <Compile Include="EnumerableEx.cs" />
     <Compile Include="IBusExtensions_obsolete.cs" />
+    <Compile Include="IMessageHandlerContext.cs" />
+    <Compile Include="IMessageHandlerContextExtensions.cs" />
+    <Compile Include="IHandleMessages.cs" />
     <Compile Include="ISendOnlyBusExtensions_obsoletes.cs" />
     <Compile Include="IStartableBusExtensions_obsoletes.cs" />
     <Compile Include="IWantToRunWhenBusStartsAndStopsExtensions_obsoletes.cs" />
@@ -374,9 +378,7 @@
     <Compile Include="IdGeneration\CombGuid.cs" />
     <Compile Include="IEvent.cs" />
     <Compile Include="IMessage.cs" />
-    <Compile Include="IMessageContext.cs" />
     <Compile Include="IMessageCreator.cs" />
-    <Compile Include="IMessageHandler.cs" />
     <Compile Include="Unicast\StartAndStoppablesRunner.cs" />
     <Compile Include="WindowsIdentityEnrichment\ConfigureWindowsIdentityEnricher.cs" />
     <Compile Include="Persistence\EnabledPersistence.cs" />

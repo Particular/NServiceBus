@@ -24,24 +24,6 @@ namespace NServiceBus
         internal protected abstract void ConfigureHowToFindSaga(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration);
 
         /// <summary>
-        /// Bus object used for retrieving the sender endpoint which caused this saga to start.
-        /// Necessary for <see cref="ReplyToOriginator" />.
-        /// </summary>
-        public IBus Bus
-        {
-            get
-            {
-                if (bus == null)
-                    throw new InvalidOperationException("No IBus instance available, please configure one and also verify that you're not defining your own Bus property in your saga since that hides the one in the base class");
-
-                return bus;
-            }
-            set { bus = value; }
-        }
-
-        IBus bus;
-
-        /// <summary>
         /// Indicates that the saga is complete.
         /// In order to set this value, use the <see cref="MarkAsComplete" /> method.
         /// </summary>
@@ -50,18 +32,20 @@ namespace NServiceBus
         /// <summary>
         /// Request for a timeout to occur at the given <see cref="DateTime"/>.
         /// </summary>
+        /// <param name="context">The context which is used to send the timeout.</param>
         /// <param name="at"><see cref="DateTime"/> to send timeout <typeparamref name="TTimeoutMessageType"/>.</param>
-        protected Task RequestTimeoutAsync<TTimeoutMessageType>(DateTime at) where TTimeoutMessageType : new()
+        protected Task RequestTimeoutAsync<TTimeoutMessageType>(IMessageHandlerContext context, DateTime at) where TTimeoutMessageType : new()
         {
-            return RequestTimeoutAsync(at, new TTimeoutMessageType());
+            return RequestTimeoutAsync(context, at, new TTimeoutMessageType());
         }
 
         /// <summary>
         /// Request for a timeout to occur at the given <see cref="DateTime"/>.
         /// </summary>
+        /// <param name="context">The context which is used to send the timeout.</param>
         /// <param name="at"><see cref="DateTime"/> to send timeout <paramref name="timeoutMessage"/>.</param>
         /// <param name="timeoutMessage">The message to send after <paramref name="at"/> is reached.</param>
-        protected Task RequestTimeoutAsync<TTimeoutMessageType>(DateTime at, TTimeoutMessageType timeoutMessage)
+        protected Task RequestTimeoutAsync<TTimeoutMessageType>(IMessageHandlerContext context, DateTime at, TTimeoutMessageType timeoutMessage)
         {
             if (at.Kind == DateTimeKind.Unspecified)
             {
@@ -77,41 +61,43 @@ namespace NServiceBus
 
             SetTimeoutHeaders(options);
 
-            return Bus.SendAsync(timeoutMessage, options);
+            return context.SendAsync(timeoutMessage, options);
         }
 
         /// <summary>
         /// Request for a timeout to occur within the give <see cref="TimeSpan"/>.
         /// </summary>
+        /// <param name="context">The context which is used to send the timeout.</param>
         /// <param name="within">Given <see cref="TimeSpan"/> to delay timeout message by.</param>
-        protected Task RequestTimeoutAsync<TTimeoutMessageType>(TimeSpan within) where TTimeoutMessageType : new()
+        protected Task RequestTimeoutAsync<TTimeoutMessageType>(IMessageHandlerContext context, TimeSpan within) where TTimeoutMessageType : new()
         {
-            return RequestTimeoutAsync(within, new TTimeoutMessageType());
+            return RequestTimeoutAsync(context, within, new TTimeoutMessageType());
         }
 
         /// <summary>
         /// Request for a timeout to occur within the given <see cref="TimeSpan"/>.
         /// </summary>
+        /// <param name="context">The context which is used to send the timeout.</param>
         /// <param name="within">Given <see cref="TimeSpan"/> to delay timeout message by.</param>
         /// <param name="timeoutMessage">The message to send after <paramref name="within"/> expires.</param>
-        protected Task RequestTimeoutAsync<TTimeoutMessageType>(TimeSpan within, TTimeoutMessageType timeoutMessage)
+        protected Task RequestTimeoutAsync<TTimeoutMessageType>(IMessageHandlerContext context, TimeSpan within, TTimeoutMessageType timeoutMessage)
         {
             VerifySagaCanHandleTimeout(timeoutMessage);
 
-            var context = new SendOptions();
+            var sendOptions = new SendOptions();
 
-            context.DelayDeliveryWith(within);
-            context.RouteToLocalEndpointInstance();
+            sendOptions.DelayDeliveryWith(within);
+            sendOptions.RouteToLocalEndpointInstance();
 
-            SetTimeoutHeaders(context);
+            SetTimeoutHeaders(sendOptions);
 
-            return Bus.SendAsync(timeoutMessage, context);
+            return context.SendAsync(timeoutMessage, sendOptions);
         }
 
         /// <summary>
         /// Sends the <paramref name="message"/> using the bus to the endpoint that caused this saga to start.
         /// </summary>
-        protected Task ReplyToOriginatorAsync(object message)
+        protected Task ReplyToOriginatorAsync(IMessageHandlerContext context, object message)
         {
             if (string.IsNullOrEmpty(Entity.Originator))
             {
@@ -132,7 +118,7 @@ namespace NServiceBus
                 SagaIdToUse = null
             });
 
-            return Bus.ReplyAsync(message, options);
+            return context.ReplyAsync(message, options);
         }
 
         /// <summary>

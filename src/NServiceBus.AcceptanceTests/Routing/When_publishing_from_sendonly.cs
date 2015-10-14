@@ -57,7 +57,7 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(MyEvent messageThatIsEnlisted)
+                public Task Handle(MyEvent messageThatIsEnlisted, IMessageHandlerContext context)
                 {
                     Context.SubscriberGotTheEvent = true;
 

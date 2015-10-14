@@ -41,15 +41,15 @@
                 IHandleTimeouts<TimeoutHitsNotFoundSaga.MyTimeout>,
                 IHandleMessages<SomeOtherMessage>
             {
-                public Context Context { get; set; }
+                public Context TestContext { get; set; }
 
-                public async Task Handle(StartSaga message)
+                public async Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
                     Data.DataId = message.DataId;
 
                     //this will cause the message to be delivered right away
-                    await RequestTimeoutAsync<MyTimeout>(TimeSpan.Zero);
-                    await Bus.SendLocalAsync(new SomeOtherMessage { DataId = Guid.NewGuid() });
+                    await RequestTimeoutAsync<MyTimeout>(context, TimeSpan.Zero);
+                    await context.SendLocalAsync(new SomeOtherMessage { DataId = Guid.NewGuid() });
 
                     MarkAsComplete();
                 }
@@ -67,27 +67,27 @@
 
                 public class MyTimeout { }
 
-                public Task Handle(object message)
+                public Task Handle(object message, IMessageHandlerContext context)
                 {
                     if (message is SomeOtherMessage)
                     {
-                        Context.NotFoundHandlerCalledForRegularMessage = true;
+                        TestContext.NotFoundHandlerCalledForRegularMessage = true;
                     }
 
 
                     if (message is MyTimeout)
                     {
-                        Context.NotFoundHandlerCalledForTimeout = true;
+                        TestContext.NotFoundHandlerCalledForTimeout = true;
                     }
                     return Task.FromResult(0);
                 }
 
-                public Task Handle(SomeOtherMessage message)
+                public Task Handle(SomeOtherMessage message, IMessageHandlerContext context)
                 {
                     return Task.FromResult(0);
                 }
 
-                public Task Timeout(MyTimeout state)
+                public Task Timeout(MyTimeout state, IMessageHandlerContext context)
                 {
                     return Task.FromResult(0);
                 }

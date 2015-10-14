@@ -8,11 +8,11 @@ namespace NServiceBus
     /// </summary>
     public interface ISendOnlyBus : IDisposable
     {
-       /// <summary>
+        /// <summary>
         ///  Publish the message to subscribers.
-       /// </summary>
-       /// <param name="message">The message to publish.</param>
-       /// <param name="options">The options for the publish.</param>
+        /// </summary>
+        /// <param name="message">The message to publish.</param>
+        /// <param name="options">The options for the publish.</param>
         Task PublishAsync(object message, PublishOptions options);
 
         /// <summary>

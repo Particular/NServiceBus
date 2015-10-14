@@ -54,7 +54,7 @@
                     this.context = context;
                 }
 
-                public Task Handle(MessageThatFails message)
+                public Task Handle(MessageThatFails message, IMessageHandlerContext context1)
                 {
                     context.MessageFailed = true;
                     throw new SimulatedException();
@@ -73,34 +73,32 @@
 
             class ErrorMessageHandler : IHandleMessages<MessageThatFails>
             {
-                Context context;
-                IBus bus;
+                Context testContext;
 
-                public ErrorMessageHandler(Context context, IBus bus)
+                public ErrorMessageHandler(Context testContext)
                 {
-                    this.context = context;
-                    this.bus = bus;
+                    this.testContext = testContext;
                 }
 
-                public Task Handle(MessageThatFails message)
+                public Task Handle(MessageThatFails message, IMessageHandlerContext context)
                 {
                     var errorProcessingStarted = DateTime.Now;
-                    if (context.FirstTimeProcessedByErrorHandler == null)
+                    if (testContext.FirstTimeProcessedByErrorHandler == null)
                     {
-                        context.FirstTimeProcessedByErrorHandler = errorProcessingStarted;
+                        testContext.FirstTimeProcessedByErrorHandler = errorProcessingStarted;
                     }
 
-                    var ttbr = TimeSpan.Parse(bus.CurrentMessageContext.Headers[Headers.TimeToBeReceived]);
-                    var ttbrExpired = errorProcessingStarted > (context.FirstTimeProcessedByErrorHandler.Value + ttbr);
+                    var ttbr = TimeSpan.Parse(context.MessageHeaders[Headers.TimeToBeReceived]);
+                    var ttbrExpired = errorProcessingStarted > (testContext.FirstTimeProcessedByErrorHandler.Value + ttbr);
                     if (ttbrExpired)
                     {
-                        context.TTBRHasExpiredAndMessageIsStillInErrorQueue = true;
-                        var timeElapsedSinceFirstHandlingOfErrorMessage = errorProcessingStarted - context.FirstTimeProcessedByErrorHandler.Value;
+                        testContext.TTBRHasExpiredAndMessageIsStillInErrorQueue = true;
+                        var timeElapsedSinceFirstHandlingOfErrorMessage = errorProcessingStarted - testContext.FirstTimeProcessedByErrorHandler.Value;
                         Console.WriteLine("Error message not removed because of TTBR({0}) after {1}. Success.", ttbr, timeElapsedSinceFirstHandlingOfErrorMessage);
                     }
                     else
                     {
-                        return bus.HandleCurrentMessageLaterAsync();
+                        return context.HandleCurrentMessageLaterAsync();
                     }
 
                     return Task.FromResult(0); // ignore messages from previous test runs

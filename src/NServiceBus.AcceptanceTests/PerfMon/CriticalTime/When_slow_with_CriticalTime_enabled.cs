@@ -58,7 +58,7 @@
         public class MyMessageHandler : IHandleMessages<MyMessage>
         {
             public Context Context { get; set; }
-            public async Task Handle(MyMessage message)
+            public async Task Handle(MyMessage message, IMessageHandlerContext context)
             {
                 await Task.Delay(2000);
                 Context.WasCalled = true;

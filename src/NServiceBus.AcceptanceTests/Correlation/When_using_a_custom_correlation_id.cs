@@ -45,14 +45,13 @@
 
             public class SendMessageWithCorrelationHandler : IHandleMessages<MessageWithCustomCorrelationId>
             {
-                public IBus Bus { get; set; }
-                public Context Context { get; set; }
+                public Context TestContext { get; set; }
 
-                public Task Handle(MessageWithCustomCorrelationId message)
+                public Task Handle(MessageWithCustomCorrelationId message, IMessageHandlerContext context)
                 {
-                    Context.CorrelationIdReceived = Bus.CurrentMessageContext.Headers[Headers.CorrelationId];
+                    TestContext.CorrelationIdReceived = context.MessageHeaders[Headers.CorrelationId];
 
-                    Context.GotRequest = true;
+                    TestContext.GotRequest = true;
 
                     return Task.FromResult(0);
                 }

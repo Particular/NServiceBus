@@ -33,19 +33,21 @@
                 EndpointSetup<DefaultServer>(config => config.EnableFeature<TimeoutManager>());
             }
 
-            public class SendFromTimeoutSaga1 : Saga<SendFromTimeoutSaga1.SendFromTimeoutSaga1Data>, IAmStartedByMessages<StartSaga1>, IHandleTimeouts<Saga1Timeout>
+            public class SendFromTimeoutSaga1 : Saga<SendFromTimeoutSaga1.SendFromTimeoutSaga1Data>, 
+                IAmStartedByMessages<StartSaga1>, 
+                IHandleTimeouts<Saga1Timeout>
             {
-                public Context Context { get; set; }
+                public Context TestContext { get; set; }
 
-                public Task Handle(StartSaga1 message)
+                public Task Handle(StartSaga1 message, IMessageHandlerContext context)
                 {
                     Data.DataId = message.DataId;
-                    return RequestTimeoutAsync(TimeSpan.FromSeconds(1), new Saga1Timeout());
+                    return RequestTimeoutAsync(context, TimeSpan.FromSeconds(1), new Saga1Timeout());
                 }
 
-                public async Task Timeout(Saga1Timeout state)
+                public async Task Timeout(Saga1Timeout state, IMessageHandlerContext context)
                 {
-                    await Bus.SendLocalAsync(new StartSaga2
+                    await context.SendLocalAsync(new StartSaga2
                     {
                         DataId = Data.DataId
                     });
@@ -67,7 +69,7 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(StartSaga2 message)
+                public Task Handle(StartSaga2 message, IMessageHandlerContext context)
                 {
                     Data.DataId = message.DataId;
                     Context.DidSaga2ReceiveMessage = true;

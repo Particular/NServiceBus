@@ -47,7 +47,7 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(SendMessage message)
+                public Task Handle(SendMessage message, IMessageHandlerContext context)
                 {
                     Context.Secret = message.Secret;
                     Context.WasCalled = true;

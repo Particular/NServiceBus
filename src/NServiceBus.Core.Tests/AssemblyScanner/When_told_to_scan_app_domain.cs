@@ -26,7 +26,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
 
         class SomeHandlerThatEnsuresThatWeKeepReferencingNsbCore : IHandleMessages<string>
         {
-            public Task Handle(string message)
+            public Task Handle(string message, IMessageHandlerContext context)
             {
                 return Task.FromResult(0);
             }

@@ -18,7 +18,7 @@ namespace NServiceBus.Unicast
     using NServiceBus.Transport;
     using Transports;
 
-     partial class UnicastBusInternal : IStartableBus
+    partial class UnicastBusInternal : IStartableBus
     {
         public UnicastBusInternal(IMessageMapper messageMapper, IBuilder builder, ReadOnlySettings settings)
         {
@@ -55,8 +55,8 @@ namespace NServiceBus.Unicast
             var pipelinesCollection = settings.Get<PipelineConfiguration>();
 
             var dequeueLimitations = GeDequeueLimitationsForReceivePipeline();
-            var requiredTransactionSupport= settings.GetRequiredTransactionSupportForReceives();
-            
+            var requiredTransactionSupport = settings.GetRequiredTransactionSupportForReceives();
+
             var pushSettings = new PushSettings(settings.LocalAddress(), errorQueue, settings.GetOrDefault<bool>("Transport.PurgeOnStartup"), requiredTransactionSupport);
 
 
@@ -117,9 +117,15 @@ namespace NServiceBus.Unicast
             return receiver;
         }
 
-       public void Dispose()
+        public void Dispose()
         {
             //Injected at compile time
+        }
+
+        [Obsolete("", true)]
+        public IMessageContext CurrentMessageContext
+        {
+            get { throw new NotImplementedException(); }
         }
 
         // ReSharper disable once UnusedMember.Local

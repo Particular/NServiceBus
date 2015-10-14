@@ -66,20 +66,19 @@
 
             class FirstHandler : IHandleMessages<SomeMessage>
             {
-                public Context Context { get; set; }
-                public IBus Bus { get; set; }
+                public Context TestContext { get; set; }
 
-                public Task Handle(SomeMessage message)
+                public Task Handle(SomeMessage message, IMessageHandlerContext context)
                 {
-                    if (message.Id != Context.Id)
+                    if (message.Id != TestContext.Id)
                     {
                         return Task.FromResult(0);
                     }
-                    Context.FirstHandlerInvocationCount++;
+                    TestContext.FirstHandlerInvocationCount++;
 
-                    if (Context.FirstHandlerInvocationCount == 1)
+                    if (TestContext.FirstHandlerInvocationCount == 1)
                     {
-                        return Bus.HandleCurrentMessageLaterAsync();
+                        return context.HandleCurrentMessageLaterAsync();
                     }
 
                     return Task.FromResult(0);
@@ -89,7 +88,7 @@
             class SecondHandler : IHandleMessages<SomeMessage>
             {
                 public Context Context { get; set; }
-                public Task Handle(SomeMessage message)
+                public Task Handle(SomeMessage message, IMessageHandlerContext context)
                 {
                     if (message.Id != Context.Id)
                     {

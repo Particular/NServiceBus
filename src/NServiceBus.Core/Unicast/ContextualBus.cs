@@ -79,16 +79,10 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IBus.ReplyAsync"/>
+        /// Sends the message to the endpoint which sent the message currently being handled on this thread.
         /// </summary>
-        public Task ReplyAsync<T>(Action<T> messageConstructor, NServiceBus.ReplyOptions options)
-        {
-            return ReplyAsync(messageMapper.CreateInstance(messageConstructor), options);
-        }
-
-        /// <summary>
-        /// <see cref="IBus.ReplyAsync"/>
-        /// </summary>
+        /// <param name="message">The message to send.</param>
+        /// <param name="options">Options for this reply.</param>
         public Task ReplyAsync(object message, NServiceBus.ReplyOptions options)
         {
             var pipeline = new PipelineBase<OutgoingReplyContext>(builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
@@ -102,7 +96,19 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IBus.HandleCurrentMessageLaterAsync"/>
+        /// Instantiates a message of type T and performs a regular <see cref="ReplyAsync"/>.
+        /// </summary>
+        /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+        /// <param name="messageConstructor">An action which initializes properties of the message.</param>
+        /// <param name="options">Options for this reply.</param>
+        public Task ReplyAsync<T>(Action<T> messageConstructor, NServiceBus.ReplyOptions options)
+        {
+            return ReplyAsync(messageMapper.CreateInstance(messageConstructor), options);
+        }
+
+        /// <summary>
+        /// Moves the message being handled to the back of the list of available 
+        /// messages so it can be handled later.
         /// </summary>
         public async Task HandleCurrentMessageLaterAsync()
         {
@@ -124,7 +130,8 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IBus.ForwardCurrentMessageToAsync"/>
+        /// Forwards the current message being handled to the destination maintaining
+        /// all of its transport-level properties and headers.
         /// </summary>
         public async Task ForwardCurrentMessageToAsync(string destination)
         {
@@ -161,17 +168,21 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// <see cref="IBus.DoNotContinueDispatchingCurrentMessageToHandlers"/>
+        /// Tells the bus to stop dispatching the current message to additional
+        /// handlers.
         /// </summary>
         public void DoNotContinueDispatchingCurrentMessageToHandlers()
         {
             ((InvokeHandlerContext)incomingContext).DoNotInvokeAnyMoreHandlers();
         }
 
-        /// <summary>
-        /// <see cref="IBus.CurrentMessageContext"/>.
-        /// </summary>
+        [Obsolete("", true)]
         public IMessageContext CurrentMessageContext
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public MessageContext MessageContext
         {
             get
             {

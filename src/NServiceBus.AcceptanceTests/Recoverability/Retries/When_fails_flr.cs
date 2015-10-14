@@ -61,33 +61,30 @@
                     });
             }
 
-
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
             {
-                public Context Context { get; set; }
+                public Context TestContext { get; set; }
 
-                public IBus Bus { get; set; }
-
-                public Task Handle(MessageToBeRetried message)
+                public Task Handle(MessageToBeRetried message, IMessageHandlerContext context)
                 {
-                    if (message.Id != Context.Id)
+                    if (message.Id != TestContext.Id)
                         return Task.FromResult(0); // messages from previous test runs must be ignored
 
-                    Context.NumberOfTimesInvoked++;
+                    TestContext.NumberOfTimesInvoked++;
 
-                    if (Context.NumberOfTimesInvoked == 1)
-                        Context.TimeOfFirstAttempt = DateTime.UtcNow;
+                    if (TestContext.NumberOfTimesInvoked == 1)
+                        TestContext.TimeOfFirstAttempt = DateTime.UtcNow;
 
-                    if (Context.NumberOfTimesInvoked == 2)
+                    if (TestContext.NumberOfTimesInvoked == 2)
                     {
-                        Context.TimeOfSecondAttempt = DateTime.UtcNow;
+                        TestContext.TimeOfSecondAttempt = DateTime.UtcNow;
                     }
 
                     string retries;
 
-                    if (Bus.CurrentMessageContext.Headers.TryGetValue(Headers.Retries, out retries))
+                    if (context.MessageHeaders.TryGetValue(Headers.Retries, out retries))
                     {
-                        Context.NumberOfSlrRetriesPerformed = int.Parse(retries);
+                        TestContext.NumberOfSlrRetriesPerformed = int.Parse(retries);
                     }
 
 

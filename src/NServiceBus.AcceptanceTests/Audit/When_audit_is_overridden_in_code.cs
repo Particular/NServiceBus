@@ -29,9 +29,7 @@
 
             class Handler : IHandleMessages<MessageToBeAudited>
             {
-                public IBus Bus { get; set; }
-
-                public Task Handle(MessageToBeAudited message)
+                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
                     return Task.FromResult(0);
                 }
@@ -50,7 +48,7 @@
             {
                 public Context MyContext { get; set; }
 
-                public Task Handle(MessageToBeAudited message)
+                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
                     MyContext.MessageAudited = true;
                     return Task.FromResult(0);

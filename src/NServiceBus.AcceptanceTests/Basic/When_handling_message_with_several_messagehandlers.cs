@@ -49,7 +49,7 @@
         {
             public Context Context { get; set; }
 
-            public Task Handle(MyMessage message)
+            public Task Handle(MyMessage message, IMessageHandlerContext context)
             {
                 if (Context.Id != message.Id)
                     return Task.FromResult(0);
@@ -64,7 +64,7 @@
         {
             public Context Context { get; set; }
 
-            public Task Handle(MyMessage message)
+            public Task Handle(MyMessage message, IMessageHandlerContext context)
             {
                 if (Context.Id != message.Id)
                     return Task.FromResult(0);

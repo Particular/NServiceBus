@@ -28,7 +28,6 @@
 
         public class Endpoint : EndpointConfigurationBuilder
         {
-
             public Endpoint()
             {
                 EndpointSetup<DefaultServer>(config => config.EnableFeature<TimeoutManager>());
@@ -38,21 +37,19 @@
                 IAmStartedByMessages<InitiateRequestingSaga>,
                 IHandleMessages<AnotherRequest>
             {
-                public Context Context { get; set; }
-
-                public Task Handle(InitiateRequestingSaga message)
+                public Task Handle(InitiateRequestingSaga message, IMessageHandlerContext context)
                 {
                     Data.CorrIdForResponse = message.SomeCorrelationId; //wont be needed in the future
 
-                    return Bus.SendLocalAsync(new AnotherRequest
+                    return context.SendLocalAsync(new AnotherRequest
                     {
                         SomeCorrelationId = Data.CorrIdForResponse //wont be needed in the future
                     });
                 }
 
-                public async Task Handle(AnotherRequest message)
+                public async Task Handle(AnotherRequest message, IMessageHandlerContext context)
                 {
-                    await ReplyToOriginatorAsync(new MyReplyToOriginator());
+                    await ReplyToOriginatorAsync(context, new MyReplyToOriginator());
                     MarkAsComplete();
                 }
 
@@ -72,13 +69,12 @@
 
             class MyReplyToOriginatorHandler : IHandleMessages<MyReplyToOriginator>
             {
-                public Context Context { get; set; }
-                public IBus Bus { get; set; }
+                public Context TestContext { get; set; }
 
-                public Task Handle(MyReplyToOriginator message)
+                public Task Handle(MyReplyToOriginator message, IMessageHandlerContext context)
                 {
-                    Context.Intent = (MessageIntentEnum)Enum.Parse(typeof(MessageIntentEnum), Bus.CurrentMessageContext.Headers[Headers.MessageIntent]);
-                    Context.Done = true;
+                    TestContext.Intent = (MessageIntentEnum)Enum.Parse(typeof(MessageIntentEnum), context.MessageHeaders[Headers.MessageIntent]);
+                    TestContext.Done = true;
                     return Task.FromResult(0);
                 }
             }

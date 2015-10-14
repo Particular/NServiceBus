@@ -28,7 +28,7 @@
         /// </summary>
         public IEnumerable<MessageHandler> GetHandlersFor(Type messageType)
         {
-            Guard.AgainstNull("messageType", messageType);
+            Guard.AgainstNull(nameof(messageType), messageType);
             if (!conventions.IsMessageType(messageType))
             {
                 return Enumerable.Empty<MessageHandler>();
@@ -57,7 +57,7 @@
         /// </summary>
         public void RegisterHandler(Type handlerType)
         {
-            Guard.AgainstNull("handlerType", handlerType);
+            Guard.AgainstNull(nameof(handlerType), handlerType);
             if (handlerType.IsAbstract)
             {
                 return;
@@ -109,7 +109,7 @@
             methodList.Add(delegateHolder);
         }
 
-        static Func<object, object, Task> GetMethod(Type targetType, Type messageType, Type interfaceGenericType)
+        static Func<object, object, IMessageHandlerContext, Task> GetMethod(Type targetType, Type messageType, Type interfaceGenericType)
         {
             var interfaceType = interfaceGenericType.MakeGenericType(messageType);
 
@@ -126,29 +126,16 @@
 
             var target = Expression.Parameter(typeof(object));
             var messageParam = Expression.Parameter(typeof(object));
+            var contextParam = Expression.Parameter(typeof(IMessageHandlerContext));
 
             var castTarget = Expression.Convert(target, targetType);
 
             var methodParameters = methodInfo.GetParameters();
             var messageCastParam = Expression.Convert(messageParam, methodParameters.ElementAt(0).ParameterType);
 
+            Expression body = Expression.Call(castTarget, methodInfo, messageCastParam, contextParam);
 
-            Expression body;
-            if (methodInfo.ReturnType == typeof(Task))
-            {
-                // call the handler and return it's Task
-                body = Expression.Call(castTarget, methodInfo, messageCastParam);
-            }
-            else
-            {
-                // wrap the synchronous handler in a wrapper returning Task.FromResult(0);
-                // remove this code once all handler interfaces are moved changed to async.
-                body = Expression.Block(
-                Expression.Call(castTarget, methodInfo, messageCastParam),
-                Expression.Call(typeof(Task), "FromResult", new[] { typeof(int) }, Expression.Constant(0)));
-            }
-
-            return Expression.Lambda<Func<object, object, Task>>(body, target, messageParam).Compile();
+            return Expression.Lambda<Func<object, object, IMessageHandlerContext, Task>>(body, target, messageParam, contextParam).Compile();
         }
 
         static IEnumerable<Type> GetMessageTypesBeingHandledBy(Type type)
@@ -167,7 +154,7 @@
         class DelegateHolder
         {
             public RuntimeTypeHandle MessageType;
-            public Func<object, object, Task> MethodDelegate;
+            public Func<object, object, IMessageHandlerContext, Task> MethodDelegate;
         }
     }
 }

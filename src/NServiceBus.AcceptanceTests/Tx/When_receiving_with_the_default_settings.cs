@@ -38,7 +38,7 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(MyMessage messageThatIsEnlisted)
+                public Task Handle(MyMessage messageThatIsEnlisted, IMessageHandlerContext context)
                 {
                     Context.AmbientTransactionExists = (Transaction.Current != null);
                     Context.HandlerInvoked = true;

@@ -60,11 +60,9 @@
 
             class DidSomethingHandler : IHandleMessages<DidSomething>
             {
-                public IBus Bus { get; set; }
-
-                public Task Handle(DidSomething message)
+                public Task Handle(DidSomething message, IMessageHandlerContext context)
                 {
-                    return Bus.ReplyAsync(new DidSomethingResponse { ReceivedDataId = message.DataId });
+                    return context.ReplyAsync(new DidSomethingResponse { ReceivedDataId = message.DataId });
                 }
             }
         }
@@ -84,13 +82,13 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(StartSaga message)
+                public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
                     Data.DataId = message.DataId;
-                    return Bus.PublishAsync(new DidSomething { DataId = message.DataId });
+                    return context.PublishAsync(new DidSomething { DataId = message.DataId });
                 }
 
-                public Task Handle(DidSomethingResponse message)
+                public Task Handle(DidSomethingResponse message, IMessageHandlerContext context)
                 {
                     Context.DidSagaReplyMessageGetCorrelated = message.ReceivedDataId == Data.DataId;
                     MarkAsComplete();

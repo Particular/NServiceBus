@@ -47,7 +47,7 @@
             public class SagaIdChangedSaga : Saga<SagaIdChangedSaga.SagaIdChangedSagaData>,
                 IAmStartedByMessages<StartSaga>
             {
-                public Task Handle(StartSaga message)
+                public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
                     Data.DataId = message.DataId;
                     Data.Id = Guid.NewGuid();

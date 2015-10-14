@@ -52,9 +52,7 @@
             {
                 public Context Context { get; set; }
 
-                public IBus Bus { get; set; }
-
-                public Task Handle(Response message)
+                public Task Handle(Response message, IMessageHandlerContext context)
                 {
                     switch (message.EndpointName)
                     {
@@ -66,7 +64,7 @@
                             break;
                     }
 
-                    return Bus.SendAsync(new Request());
+                    return context.SendAsync(new Request());
                 }
             }
         }
@@ -84,11 +82,9 @@
 
             public class MyMessageHandler : IHandleMessages<Request>
             {
-                public IBus Bus { get; set; }
-
-                public Task Handle(Request message)
+                public Task Handle(Request message, IMessageHandlerContext context)
                 {
-                    return Bus.ReplyAsync(new Response
+                    return context.ReplyAsync(new Response
                     {
                         EndpointName = "Receiver1"
                     });
@@ -109,11 +105,9 @@
 
             public class MyMessageHandler : IHandleMessages<Request>
             {
-                public IBus Bus { get; set; }
-
-                public Task Handle(Request message)
+                public Task Handle(Request message, IMessageHandlerContext context)
                 {
-                    return Bus.ReplyAsync(new Response
+                    return context.ReplyAsync(new Response
                     {
                         EndpointName = "Receiver2"
                     });

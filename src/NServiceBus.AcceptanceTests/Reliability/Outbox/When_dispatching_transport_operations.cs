@@ -31,7 +31,7 @@
         public class Context : ScenarioContext
         {
             public bool DispatchedMessageReceived { get; set; }
-            public IDictionary<string, string> HeadersOnDispatchedMessage { get; set; }
+            public IReadOnlyDictionary<string, string> HeadersOnDispatchedMessage { get; set; }
         }
 
         public class NonDtcReceivingEndpoint : EndpointConfigurationBuilder
@@ -48,24 +48,20 @@
 
             class PlaceOrderHandler : IHandleMessages<PlaceOrder>
             {
-                public IBus Bus { get; set; }
-
-                public Task Handle(PlaceOrder message)
+                public Task Handle(PlaceOrder message, IMessageHandlerContext context)
                 {
-                    return Bus.SendLocalAsync(new MessageToDispatch());
+                    return context.SendLocalAsync(new MessageToDispatch());
                 }
             }
 
             class MessageToDispatchHandler : IHandleMessages<MessageToDispatch>
             {
-                public Context Context { get; set; }
+                public Context TestContext { get; set; }
 
-                public IBus Bus { get; set; }
-
-                public Task Handle(MessageToDispatch message)
+                public Task Handle(MessageToDispatch message, IMessageHandlerContext context)
                 {
-                    Context.HeadersOnDispatchedMessage = Bus.CurrentMessageContext.Headers;
-                    Context.DispatchedMessageReceived = true;
+                    TestContext.HeadersOnDispatchedMessage = context.MessageHeaders;
+                    TestContext.DispatchedMessageReceived = true;
                     return Task.FromResult(0);
                 }
             }
