@@ -1,9 +1,34 @@
-﻿using System;
+//https://github.com/hibernating-rhinos/rhino-esb/blob/master/license.txt
+//Copyright (c) 2005 - 2009 Ayende Rahien (ayende@ayende.com)
+//All rights reserved.
+
+//Redistribution and use in source and binary forms, with or without modification,
+//are permitted provided that the following conditions are met:
+
+//    * Redistributions of source code must retain the above copyright notice,
+//    this list of conditions and the following disclaimer.
+//    * Redistributions in binary form must reproduce the above copyright notice,
+//    this list of conditions and the following disclaimer in the documentation
+//    and/or other materials provided with the distribution.
+//    * Neither the name of Ayende Rahien nor the names of its
+//    contributors may be used to endorse or promote products derived from this
+//    software without specific prior written permission.
+
+//THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+//ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+//WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+//DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+//FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+//DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+//SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+//CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+//OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+//THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
 using Common.Logging;
-
 namespace NServiceBus.Encryption.Rijndael
 {
     /// <summary>
@@ -13,60 +38,44 @@ namespace NServiceBus.Encryption.Rijndael
     /// </summary>
     public class EncryptionService : IEncryptionService
     {
-        byte[] key;
         /// <summary>
         /// Symmetric key used for encryption.
         /// </summary>
-        public byte[] Key
-        {
-            get { return key; }
-            set
-            {
-                key = value;
-            }
-        }
+        public byte[] Key { get; set; }
 
-        List<byte[]> expiredKeys;
         /// <summary>
         /// Expired keys that are being phased out but still used for decryption
         /// </summary>
-        public List<byte[]> ExpiredKeys
-        {
-            get { return expiredKeys; }
-            set
-            {
-                expiredKeys = value;
-            }
-        }
+        public List<byte[]> ExpiredKeys { get; set; }
+
+        /// <summary>
+        /// Key identifier to use to identify current encryption key.
+        /// </summary>
+        public string EncryptionKeyIdentifier { get; set; }
+
+        /// <summary>
+        /// Bus instance to get and set message headers.
+        /// </summary>
+        public IBus Bus { get; set; }
+
+        /// <summary>
+        /// Key lookup dictionary based on key identifier header.
+        /// </summary>
+        public IDictionary<string, byte[]> Keys { get; set; }
 
         string IEncryptionService.Decrypt(EncryptedValue encryptedValue)
         {
-            if (Key == null)
+            string keyIdentifier;
+            if (TryGetKeyIdentifierHeader(out keyIdentifier))
             {
-                Logger.Warn("Cannot decrypt because a Key was not configured. Please specify 'RijndaelEncryptionServiceConfig' in your application's configuration file.");
-                return encryptedValue.EncryptedBase64Value;
+                return DecryptUsingKeyIdentifier(encryptedValue, keyIdentifier);
+            }
+            else
+            {
+                Logger.WarnFormat("Encrypted message has no '" + Headers.RijndaelKeyIdentifier + "' header. Possibility of data corruption. Please upgrade endpoints that send message with encrypted properties.");
+                return DecryptUsingAllKeys(encryptedValue);
             }
 
-            var decryptionKeys = new List<byte[]> { Key };
-            if (ExpiredKeys != null)
-            {
-                decryptionKeys.AddRange(ExpiredKeys);
-            }
-            var cryptographicExceptions = new List<CryptographicException>();
-
-            foreach (var key in decryptionKeys)
-            {
-                try
-                {
-                    return Decrypt(encryptedValue, key);
-                }
-                catch (CryptographicException exception)
-                {
-                    cryptographicExceptions.Add(exception);
-                }
-            }
-            var message = string.Format("Could not decrypt message. Tried {0} keys.", decryptionKeys.Count);
-            throw new AggregateException(message, cryptographicExceptions);
         }
 
         static string Decrypt(EncryptedValue encryptedValue, byte[] key)
@@ -89,8 +98,14 @@ namespace NServiceBus.Encryption.Rijndael
 
         EncryptedValue IEncryptionService.Encrypt(string value)
         {
+            if (string.IsNullOrEmpty(EncryptionKeyIdentifier))
+                throw new InvalidOperationException("It is required to set the rijndael key identifer.");
+
             if (Key == null)
                 throw new InvalidOperationException("Cannot encrypt because a Key was not configured. Please specify 'RijndaelEncryptionServiceConfig' in your application's configuration file.");
+
+
+            AddKeyIdentifierHeader();
 
             using (var rijndael = new RijndaelManaged())
             {
@@ -114,6 +129,58 @@ namespace NServiceBus.Encryption.Rijndael
                     };
                 }
             }
+        }
+
+        string DecryptUsingAllKeys(EncryptedValue encryptedValue)
+        {
+            var cryptographicExceptions = new List<CryptographicException>();
+
+            foreach (var key in ExpiredKeys)
+            {
+                try
+                {
+                    return Decrypt(encryptedValue, key);
+                }
+                catch (CryptographicException exception)
+                {
+                    cryptographicExceptions.Add(exception);
+                }
+            }
+            var message = string.Format("Could not decrypt message. Tried {0} keys.", ExpiredKeys.Count);
+            throw new AggregateException(message, cryptographicExceptions);
+        }
+
+        private string DecryptUsingKeyIdentifier(EncryptedValue encryptedValue, string keyIdentifier)
+        {
+            byte[] decryptionKey;
+
+            if (!Keys.TryGetValue(keyIdentifier, out decryptionKey))
+            {
+                throw new InvalidOperationException("Decryption key not available for key identifier '" + keyIdentifier + "'. Please add this key to the rijndael encryption service configuration. Key identifiers are case sensitive.");
+            }
+
+            try
+            {
+                return Decrypt(encryptedValue, decryptionKey);
+            }
+            catch (CryptographicException ex)
+            {
+                throw new InvalidOperationException("Unable to decrypt property using configured decryption key specified in key identifier header.", ex);
+            }
+        }
+
+        protected virtual void AddKeyIdentifierHeader()
+        {
+            var headers = Bus.OutgoingHeaders;
+            if (!headers.ContainsKey(Headers.RijndaelKeyIdentifier))
+            {
+                headers.Add(Headers.RijndaelKeyIdentifier, EncryptionKeyIdentifier);
+            }
+        }
+
+        protected virtual bool TryGetKeyIdentifierHeader(out string keyIdentifier)
+        {
+            return Bus.CurrentMessageContext.Headers.TryGetValue(Headers.RijndaelKeyIdentifier, out keyIdentifier);
         }
 
         static readonly ILog Logger = LogManager.GetLogger(typeof(EncryptionService));
