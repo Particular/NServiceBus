@@ -10,29 +10,6 @@
     using System.Xml.Linq;
     using NServiceBus.Utils.Reflection;
 
-    class RawXmlTextWriter : XmlTextWriter
-    {
-        readonly XmlWriterSettings settings;
-
-        public RawXmlTextWriter(Stream w, XmlWriterSettings settings) : base(w, null /*writes UTF-8 and omits the 'encoding' attribute in XML declaration*/)
-        {
-            this.settings = settings;
-        }
-
-        public override void WriteEndElement()
-        {
-            WriteFullEndElement();
-        }
-
-        public override void Close()
-        {
-            if (settings.CloseOutput)
-            {
-                base.Close();
-            }
-        }
-    }
-
     class Serializer : IDisposable
     {
         const string BaseType = "baseType";
@@ -46,7 +23,7 @@
         XmlSerializerCache cache;
         bool skipWrappingRawXml;
         string @namespace;
-        
+
         public Serializer(Type messageType, Stream stream, object message, Conventions conventions, XmlSerializerCache cache, bool skipWrappingRawXml, string @namespace = DefaultNamespace)
         {
             this.messageType = messageType;
@@ -99,7 +76,6 @@
                 descendant.Name = newXmlns.GetName(descendant.Name.LocalName);
             }
         }
-
 
         List<string> GetBaseTypes()
         {
@@ -325,6 +301,29 @@
         public void Dispose()
         {
             //Injected at compile time
+        }
+
+        private class RawXmlTextWriter : XmlTextWriter
+        {
+            readonly XmlWriterSettings settings;
+
+            public RawXmlTextWriter(Stream w, XmlWriterSettings settings) : base(w, null /*writes UTF-8 and omits the 'encoding' attribute in XML declaration*/)
+            {
+                this.settings = settings;
+            }
+
+            public override void WriteEndElement()
+            {
+                WriteFullEndElement();
+            }
+
+            public override void Close()
+            {
+                if (settings.CloseOutput)
+                {
+                    base.Close();
+                }
+            }
         }
     }
 }
