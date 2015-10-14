@@ -4,8 +4,6 @@
     using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
-    using NServiceBus.Config;
-    using NServiceBus.Features;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
@@ -43,18 +41,12 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(b => b.DisableFeature<TimeoutManager>())
-                    .WithConfig<TransportConfig>(c =>
-                    {
-                        c.MaxRetries = 0;
-                    });
+                EndpointSetup<DefaultServer>();
             }
 
             public class SagaIdChangedSaga : Saga<SagaIdChangedSaga.SagaIdChangedSagaData>,
                 IAmStartedByMessages<StartSaga>
             {
-                public Context Context { get; set; }
-
                 public Task Handle(StartSaga message)
                 {
                     Data.DataId = message.DataId;

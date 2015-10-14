@@ -95,11 +95,40 @@ namespace NServiceBus.Sagas
 
         internal void ValidateChanges()
         {
-            if (sagaId != Instance.Entity.Id)
-            {
-                throw new Exception("A modification of IContainSagaData.Id has been detected. This property is for infrastructure purposes only and should not be modified. SagaType: " + Metadata.SagaType.FullName);
-            }
+            ValidateSagaIdIsNotModified();
 
+            if (IsNew)
+            {
+                ValidateAllCorrelationPropertiesHaveValues();
+            }
+            else
+            {
+                ValidateCorrelationPropertiesNotModified();
+            }
+        }
+
+        void ValidateAllCorrelationPropertiesHaveValues()
+        {
+            var properties = Instance.Entity.GetType().GetProperties();
+
+            foreach (var correlatedProperty in Metadata.CorrelationProperties)
+            {
+                var propertyInfo = properties.Single(p => p.Name == correlatedProperty.Name);
+
+                var value = propertyInfo.GetValue(Instance.Entity);
+                var defaultValue = GetDefault(propertyInfo.PropertyType);
+
+                if (value.Equals(defaultValue))
+                {
+                    throw new Exception(
+                        $@"We detected that the correlated property '{correlatedProperty.Name}' on saga '{Metadata.SagaType.Name}' does not have a value'. 
+All correlated properties must have a non null or empty value assigned to them when a new saga instance is created.");
+                }
+            }
+        }
+
+        void ValidateCorrelationPropertiesNotModified()
+        {
             if (!correlatedPropertyValues.Any())
             {
                 return;
@@ -118,6 +147,23 @@ namespace NServiceBus.Sagas
 Changing the value of correlated properties at runtime is currently not supported.");
                 }
             }
+        }
+
+        void ValidateSagaIdIsNotModified()
+        {
+            if (sagaId != Instance.Entity.Id)
+            {
+                throw new Exception("A modification of IContainSagaData.Id has been detected. This property is for infrastructure purposes only and should not be modified. SagaType: " + Metadata.SagaType.FullName);
+            }
+        }
+
+        static object GetDefault(Type type)
+        {
+            if (type.IsValueType)
+            {
+                return Activator.CreateInstance(type);
+            }
+            return null;
         }
 
         Dictionary<string, string> correlatedPropertyValues = new Dictionary<string, string>();

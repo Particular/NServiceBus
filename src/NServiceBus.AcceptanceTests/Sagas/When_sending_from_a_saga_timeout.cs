@@ -28,7 +28,6 @@
 
         public class Endpoint : EndpointConfigurationBuilder
         {
-
             public Endpoint()
             {
                 EndpointSetup<DefaultServer>(config => config.EnableFeature<TimeoutManager>());
@@ -46,7 +45,10 @@
 
                 public async Task Timeout(Saga1Timeout state)
                 {
-                    await Bus.SendLocalAsync(new StartSaga2());
+                    await Bus.SendLocalAsync(new StartSaga2
+                    {
+                        DataId = Data.DataId
+                    });
                     MarkAsComplete();
                 }
 
