@@ -1,9 +1,9 @@
 ﻿namespace NServiceBus.Features
 {
     using System.Threading.Tasks;
-    using Extensibility;
+    using NServiceBus.Extensibility;
     using NServiceBus.Outbox;
-    using Pipeline;
+    using NServiceBus.Pipeline;
 
     class ReceiveFeature : Feature
     {
@@ -48,22 +48,22 @@
 
         class NoOpOutbox : IOutboxStorage
         {
-            public Task<OutboxMessage> Get(string messageId, ReadOnlyContextBag options)
+            public Task<OutboxMessage> Get(string messageId, ContextBag options)
             {
                 return Task.FromResult<OutboxMessage>(null);
             }
 
-            public Task Store(OutboxMessage message, OutboxTransaction transaction, ReadOnlyContextBag options)
+            public Task Store(OutboxMessage message, OutboxTransaction transaction, ContextBag options)
             {
                 return TaskEx.Completed;
             }
 
-            public Task SetAsDispatched(string messageId, ReadOnlyContextBag options)
+            public Task SetAsDispatched(string messageId, ContextBag options)
             {
                 return TaskEx.Completed;
             }
 
-            public Task<OutboxTransaction> BeginTransaction(ReadOnlyContextBag context)
+            public Task<OutboxTransaction> BeginTransaction(ContextBag context)
             {
                 return Task.FromResult<OutboxTransaction>(new NoOpOutboxTransaction());
             }
@@ -74,7 +74,6 @@
     {
         public void Dispose()
         {
-            
         }
 
         public Task Commit()

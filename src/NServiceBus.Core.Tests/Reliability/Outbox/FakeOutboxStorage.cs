@@ -11,7 +11,7 @@
 
         public bool WasDispatched { get; set; }
         
-        public Task<OutboxMessage> Get(string messageId, ReadOnlyContextBag options)
+        public Task<OutboxMessage> Get(string messageId, ContextBag options)
         {
             if (ExistingMessage != null && ExistingMessage.MessageId == messageId)
             {
@@ -21,19 +21,19 @@
             return Task.FromResult(default(OutboxMessage));
         }
 
-        public Task Store(OutboxMessage message, OutboxTransaction transaction, ReadOnlyContextBag options)
+        public Task Store(OutboxMessage message, OutboxTransaction transaction, ContextBag options)
         {
             StoredMessage = message;
             return Task.FromResult(0);
         }
 
-        public Task SetAsDispatched(string messageId, ReadOnlyContextBag options)
+        public Task SetAsDispatched(string messageId, ContextBag options)
         {
             WasDispatched = true;
             return Task.FromResult(0);
         }
 
-        public Task<OutboxTransaction> BeginTransaction(ReadOnlyContextBag context)
+        public Task<OutboxTransaction> BeginTransaction(ContextBag context)
         {
             throw new System.NotImplementedException();
         }

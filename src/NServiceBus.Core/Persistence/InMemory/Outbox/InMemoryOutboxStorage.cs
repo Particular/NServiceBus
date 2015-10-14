@@ -5,12 +5,12 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using Extensibility;
+    using NServiceBus.Extensibility;
     using NServiceBus.Outbox;
 
     class InMemoryOutboxStorage : IOutboxStorage
     {
-        public Task<OutboxMessage> Get(string messageId, ReadOnlyContextBag context)
+        public Task<OutboxMessage> Get(string messageId, ContextBag context)
         {
             StoredMessage storedMessage;
             if (!storage.TryGetValue(messageId, out storedMessage))
@@ -21,12 +21,12 @@
             return Task.FromResult(new OutboxMessage(messageId, storedMessage.TransportOperations));
         }
 
-        public Task<OutboxTransaction> BeginTransaction(ReadOnlyContextBag context)
+        public Task<OutboxTransaction> BeginTransaction(ContextBag context)
         {
             return Task.FromResult<OutboxTransaction>(new InMemoryOutboxTransaction());
         }
 
-        public Task Store(OutboxMessage message,OutboxTransaction transaction, ReadOnlyContextBag context)
+        public Task Store(OutboxMessage message, OutboxTransaction transaction, ContextBag context)
         {
             if (!storage.TryAdd(message.MessageId, new StoredMessage(message.MessageId, message.TransportOperations.ToList())))
             {
@@ -35,7 +35,7 @@
             return TaskEx.Completed;
         }
 
-        public Task SetAsDispatched(string messageId, ReadOnlyContextBag context)
+        public Task SetAsDispatched(string messageId, ContextBag context)
         {
             StoredMessage storedMessage;
 
@@ -48,6 +48,21 @@
             storedMessage.Dispatched = true;
 
             return TaskEx.Completed;
+        }
+
+        public void RemoveEntriesOlderThan(DateTime dateTime)
+        {
+            var entriesToRemove = storage
+                .Where(e => e.Value.Dispatched && e.Value.StoredAt < dateTime)
+                .Select(e => e.Key)
+                .ToList();
+
+            foreach (var entry in entriesToRemove)
+            {
+                StoredMessage toRemove;
+
+                storage.TryRemove(entry, out toRemove);
+            }
         }
 
 
@@ -89,30 +104,15 @@
                 {
                     return false;
                 }
-                return Equals((StoredMessage)obj);
+                return Equals((StoredMessage) obj);
             }
 
             public override int GetHashCode()
             {
                 unchecked
                 {
-                    return ((Id?.GetHashCode() ?? 0) * 397) ^ Dispatched.GetHashCode();
+                    return ((Id?.GetHashCode() ?? 0)*397) ^ Dispatched.GetHashCode();
                 }
-            }
-        }
-
-        public void RemoveEntriesOlderThan(DateTime dateTime)
-        {
-            var entriesToRemove = storage
-                .Where(e => e.Value.Dispatched && e.Value.StoredAt < dateTime)
-                .Select(e => e.Key)
-                .ToList();
-
-            foreach (var entry in entriesToRemove)
-            {
-                StoredMessage toRemove;
-
-                storage.TryRemove(entry, out toRemove);
             }
         }
     }
