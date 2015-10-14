@@ -13,7 +13,7 @@
     {
         internal TimeoutManager()
         {
-            Defaults(s => s.SetDefault("TimeToWaitBeforeTriggeringCriticalErrorForTimeoutPersisterReceiver", TimeSpan.FromSeconds(2)));
+            Defaults(s => s.SetDefault("TimeToWaitBeforeTriggeringCriticalErrorForTimeoutPersisterReceiver", TimeSpan.FromMinutes(2)));
 
             DependsOn<TimeoutManagerBasedDeferral>();
            
