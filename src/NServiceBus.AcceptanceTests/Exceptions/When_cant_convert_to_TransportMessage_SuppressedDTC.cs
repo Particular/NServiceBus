@@ -4,6 +4,7 @@
      using System.Linq;
      using NServiceBus.AcceptanceTesting;
      using NServiceBus.AcceptanceTests.EndpointTemplates;
+     using NServiceBus.Timeout.Core;
      using NUnit.Framework;
 
      public class When_cant_convert_to_TransportMessage_SuppressedDTC : NServiceBusAcceptanceTest
@@ -33,7 +34,7 @@
              public Sender()
              {
                  Configure.Transactions.Advanced(settings => settings.DisableDistributedTransactions());
-                 EndpointSetup<DefaultServer>()
+                 EndpointSetup<DefaultServer>(c => c.SuppressOutdatedTimeoutDispatchWarning())
                      .AddMapping<Message>(typeof(Receiver));
              }
          }
@@ -44,7 +45,7 @@
              {
                  SerializerCorrupter.Corrupt();
                  Configure.Transactions.Advanced(settings => settings.DisableDistributedTransactions());
-                 EndpointSetup<DefaultServer>()
+                 EndpointSetup<DefaultServer>(c => c.SuppressOutdatedTimeoutDispatchWarning())
                      .AllowExceptions();
              }
          }

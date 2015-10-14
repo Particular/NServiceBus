@@ -7,6 +7,7 @@
     using Config;
     using EndpointTemplates;
     using AcceptanceTesting.Support;
+    using NServiceBus.Timeout.Core;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
@@ -31,10 +32,18 @@
             Scenario.Define(() => new Context { NumberOfTestMessages = NumberOfTestMessages })
                     .WithEndpoint<ClientEndpoint>(b =>
                         {
-                            b.CustomConfig(c => Configure.Transactions.Advanced(a => a.DisableDistributedTransactions()));
+                            b.CustomConfig(c =>
+                            {
+                                Configure.Transactions.Advanced(a => a.DisableDistributedTransactions());
+                                c.SuppressOutdatedTimeoutDispatchWarning();
+                            });
                             SendMessages(b);
                         })
-                    .WithEndpoint<ServerEndpoint>(b => b.CustomConfig(c => Configure.Transactions.Advanced(a => a.DisableDistributedTransactions())))
+                    .WithEndpoint<ServerEndpoint>(b => b.CustomConfig(c =>
+                    {
+                        Configure.Transactions.Advanced(a => a.DisableDistributedTransactions());
+                        c.SuppressOutdatedTimeoutDispatchWarning();
+                    }))
                     .Done(c => c.Complete)
                     .Repeat(r => r.For(Transports.Default))
                     .Report(DisplayTestResults)
