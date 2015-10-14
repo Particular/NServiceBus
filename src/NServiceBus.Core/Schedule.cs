@@ -1,6 +1,8 @@
 namespace NServiceBus
 {
     using System;
+    using System.Linq;
+    using System.Runtime.CompilerServices;
     using Scheduling;
 
     public class Schedule
@@ -20,8 +22,15 @@ namespace NServiceBus
         }
 
         public void Action(Action task)
-        {            
-            Action(task.Method.DeclaringType.Name, task);
+        {
+            var declaringType = task.Method.DeclaringType;
+            
+            while (declaringType.DeclaringType != null && declaringType.GetCustomAttributes(typeof(CompilerGeneratedAttribute), false).Any())
+            {
+                declaringType = declaringType.DeclaringType;
+            }
+            
+            Action(declaringType.Name, task);
         }
 
         public void Action(string name, Action task)

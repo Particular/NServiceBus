@@ -4,6 +4,7 @@
      using System.Linq;
      using NServiceBus.AcceptanceTesting;
      using NServiceBus.AcceptanceTests.EndpointTemplates;
+     using NServiceBus.Timeout.Core;
      using NUnit.Framework;
 
      public class When_cant_convert_to_TransportMessage_SuppressedDTC : NServiceBusAcceptanceTest
@@ -36,6 +37,7 @@
                      configure =>
                      {
                          Configure.Transactions.Advanced(settings => settings.DisableDistributedTransactions());
+                         configure.SuppressOutdatedTimeoutDispatchWarning();
                      })
                      .AddMapping<Message>(typeof (Receiver));
              }
@@ -50,6 +52,7 @@
                      configure =>
                      {
                          Configure.Transactions.Advanced(settings => settings.DisableDistributedTransactions());
+                         configure.SuppressOutdatedTimeoutDispatchWarning();
                      })
                      .AllowExceptions();
              }
