@@ -12,11 +12,6 @@ namespace NServiceBus
 
     class InMemorySagaPersister : ISagaPersister
     {
-        public InMemorySagaPersister(SagaMetadataCollection sagaMetaModel)
-        {
-            this.sagaMetaModel = sagaMetaModel;
-        }
-
         public Task Complete(IContainSagaData saga, ContextBag context)
         {
             VersionedSagaEntity value;
@@ -57,9 +52,8 @@ namespace NServiceBus
             return Task.FromResult(default(TSagaData));
         }
 
-        public Task Save(IContainSagaData saga, ContextBag context)
+        public Task Save(IContainSagaData saga, SagaMetadata metadata, ContextBag context)
         {
-            var metadata = sagaMetaModel.FindByEntity(saga.GetType());
             ValidateUniqueProperties(metadata, saga);
 
             VersionedSagaEntity sagaEntity;
@@ -83,7 +77,23 @@ namespace NServiceBus
 
         public Task Update(IContainSagaData saga, ContextBag context)
         {
-            return Save(saga, context);
+            VersionedSagaEntity sagaEntity;
+            if (data.TryGetValue(saga.Id, out sagaEntity))
+            {
+                sagaEntity.ConcurrencyCheck(saga, version);
+            }
+
+            data.AddOrUpdate(saga.Id, id => new VersionedSagaEntity
+            {
+                SagaEntity = DeepClone(saga)
+            }, (id, original) => new VersionedSagaEntity
+            {
+                SagaEntity = DeepClone(saga),
+                VersionCache = original.VersionCache
+            });
+
+            Interlocked.Increment(ref version);
+            return TaskEx.Completed;
         }
 
         void ValidateUniqueProperties(SagaMetadata sagaMetaData, IContainSagaData saga)
@@ -131,7 +141,6 @@ namespace NServiceBus
         }
 
         ConcurrentDictionary<Guid, VersionedSagaEntity> data = new ConcurrentDictionary<Guid, VersionedSagaEntity>();
-        SagaMetadataCollection sagaMetaModel;
         JsonMessageSerializer serializer = new JsonMessageSerializer(null);
 
         int version;

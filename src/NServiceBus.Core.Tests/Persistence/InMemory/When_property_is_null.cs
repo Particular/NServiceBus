@@ -2,7 +2,7 @@
 {
     using System;
     using System.Threading.Tasks;
-    using Extensibility;
+    using NServiceBus.Extensibility;
     using NUnit.Framework;
 
     [TestFixture]
@@ -13,14 +13,14 @@
         {
             var sagaId = Guid.NewGuid();
             var saga = new SagaData
-                       {
-                           Id = sagaId,
-                           Property = null
-                       };
+            {
+                Id = sagaId,
+                Property = null
+            };
 
-            var persister = InMemoryPersisterBuilder.Build<Saga>();
+            var persister = new InMemorySagaPersister();
 
-            await persister.Save(saga, new ContextBag());
+            await persister.Save(saga, SagaMetadataHelper.GetMetadata<Saga>(), new ContextBag());
 
             var sagaData = await persister.Get<SagaData>("Property", null, new ContextBag());
             var sagaDataWithPropertyValue = await persister.Get<SagaData>("Property", "a value", new ContextBag());
@@ -35,15 +35,15 @@
             {
             }
         }
+
         public class SagaData : IContainSagaData
         {
+            public string Property { get; set; }
             public Guid Id { get; set; }
 
             public string Originator { get; set; }
 
             public string OriginalMessageId { get; set; }
-
-            public string Property { get; set; }
         }
     }
 }

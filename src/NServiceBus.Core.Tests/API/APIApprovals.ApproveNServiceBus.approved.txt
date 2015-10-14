@@ -2241,7 +2241,7 @@ namespace NServiceBus.Sagas
             where TSagaData : NServiceBus.IContainSagaData;
         System.Threading.Tasks.Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, NServiceBus.Extensibility.ContextBag context)
             where TSagaData : NServiceBus.IContainSagaData;
-        System.Threading.Tasks.Task Save(NServiceBus.IContainSagaData saga, NServiceBus.Extensibility.ContextBag context);
+        System.Threading.Tasks.Task Save(NServiceBus.IContainSagaData saga, NServiceBus.Sagas.SagaMetadata metadata, NServiceBus.Extensibility.ContextBag context);
         System.Threading.Tasks.Task Update(NServiceBus.IContainSagaData saga, NServiceBus.Extensibility.ContextBag context);
     }
     public class SagaFinderDefinition

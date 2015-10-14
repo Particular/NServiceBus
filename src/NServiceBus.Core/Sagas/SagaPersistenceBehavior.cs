@@ -4,12 +4,12 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using DelayedDelivery.TimeoutManager;
-    using Logging;
-    using Pipeline;
-    using Pipeline.Contexts;
-    using Sagas;
-    using Transports;
+    using NServiceBus.DelayedDelivery.TimeoutManager;
+    using NServiceBus.Logging;
+    using NServiceBus.Pipeline;
+    using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Sagas;
+    using NServiceBus.Transports;
 
     class SagaPersistenceBehavior : Behavior<InvokeHandlerContext>
     {
@@ -98,7 +98,7 @@
             {
                 if (sagaInstanceState.IsNew)
                 {
-                    await sagaPersister.Save(saga.Entity, context).ConfigureAwait(false);
+                    await sagaPersister.Save(saga.Entity, sagaMetadata, context).ConfigureAwait(false);
                 }
                 else
                 {
@@ -109,7 +109,6 @@
 
         static void RemoveSagaHeadersIfProcessingAEvent(InvokeHandlerContext context)
         {
-
             // We need this for backwards compatibility because in v4.0.0 we still have this headers being sent as part of the message even if MessageIntent == MessageIntentEnum.Publish
             string messageIntentString;
             if (context.Headers.TryGetValue(Headers.MessageIntent, out messageIntentString))
@@ -205,7 +204,7 @@
                 //since we have a saga id available we can now shortcut the finders and just load the saga
                 var loaderType = typeof(LoadSagaByIdWrapper<>).MakeGenericType(sagaEntityType);
 
-                var loader = (SagaLoader)Activator.CreateInstance(loaderType);
+                var loader = (SagaLoader) Activator.CreateInstance(loaderType);
 
                 return loader.Load(sagaPersister, sagaId, context);
             }
@@ -227,7 +226,7 @@
             }
 
             var finderType = finderDefinition.Type;
-            var finder = (SagaFinder)currentContext.Builder.Build(finderType);
+            var finder = (SagaFinder) currentContext.Builder.Build(finderType);
 
             return finder.Find(currentContext.Builder, finderDefinition, context, context.MessageBeingHandled);
         }
@@ -236,7 +235,7 @@
         {
             var sagaEntityType = metadata.SagaEntityType;
 
-            var sagaEntity = (IContainSagaData)Activator.CreateInstance(sagaEntityType);
+            var sagaEntity = (IContainSagaData) Activator.CreateInstance(sagaEntityType);
 
             sagaEntity.Id = CombGuid.Generate();
             sagaEntity.OriginalMessageId = context.MessageId;
@@ -251,10 +250,11 @@
             return sagaEntity;
         }
 
+        InvokeHandlerContext currentContext;
+        SagaMetadataCollection sagaMetadataCollection;
+
         ISagaPersister sagaPersister;
         ICancelDeferredMessages timeoutCancellation;
-        SagaMetadataCollection sagaMetadataCollection;
-        InvokeHandlerContext currentContext;
 
         static ILog logger = LogManager.GetLogger<SagaPersistenceBehavior>();
     }

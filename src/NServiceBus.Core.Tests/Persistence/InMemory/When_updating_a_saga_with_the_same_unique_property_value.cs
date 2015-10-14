@@ -2,7 +2,7 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
     using System;
     using System.Threading.Tasks;
-    using Extensibility;
+    using NServiceBus.Extensibility;
     using NUnit.Framework;
 
     [TestFixture]
@@ -12,13 +12,13 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
         public async Task It_should_persist_successfully()
         {
             var saga1 = new SagaWithUniquePropertyData
-                {
-                    Id = Guid.NewGuid(),
-                    UniqueString = "whatever"
-                };
-            var persister = InMemoryPersisterBuilder.Build<SagaWithUniqueProperty>();
-         
-            await persister.Save(saga1, new ContextBag());
+            {
+                Id = Guid.NewGuid(),
+                UniqueString = "whatever"
+            };
+            var persister = new InMemorySagaPersister();
+
+            await persister.Save(saga1, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(), new ContextBag());
             saga1 = await persister.Get<SagaWithUniquePropertyData>(saga1.Id, new ContextBag());
             await persister.Update(saga1, new ContextBag());
         }

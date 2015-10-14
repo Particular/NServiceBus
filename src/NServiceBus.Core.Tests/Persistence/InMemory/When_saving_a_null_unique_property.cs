@@ -18,9 +18,9 @@
                            Property = null
                        };
 
-            var persister = InMemoryPersisterBuilder.Build<Saga>();
+            var persister = new InMemorySagaPersister();
     
-            var exception = Assert.Throws<InvalidOperationException>(() => persister.Save(saga, new ContextBag()));
+            var exception = Assert.Throws<InvalidOperationException>(() => persister.Save(saga, SagaMetadataHelper.GetMetadata<Saga>(), new ContextBag()));
             Assert.AreEqual("Cannot store saga with id '895e60e0-7be3-490a-afca-fe69184474ca' since the unique property 'Property' has a null value.", exception.Message);
         }
 
