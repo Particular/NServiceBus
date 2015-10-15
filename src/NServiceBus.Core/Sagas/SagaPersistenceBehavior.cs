@@ -98,7 +98,7 @@
             {
                 if (sagaInstanceState.IsNew)
                 {
-                    await sagaPersister.Save(saga.Entity, sagaMetadata, context).ConfigureAwait(false);
+                    await sagaPersister.Save(saga.Entity, sagaInstanceState.CurrentCorrelationProperties, context).ConfigureAwait(false);
                 }
                 else
                 {

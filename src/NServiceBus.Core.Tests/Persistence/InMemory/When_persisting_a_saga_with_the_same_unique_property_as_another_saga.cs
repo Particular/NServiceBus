@@ -15,8 +15,8 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
             var saga2 = new SagaWithUniquePropertyData { Id = Guid.NewGuid(), UniqueString = "whatever" };
 
             var persister = new InMemorySagaPersister();
-            await persister.Save(saga1, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(), new ContextBag());
-            Assert.Throws<InvalidOperationException>(() => persister.Save(saga2, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(), new ContextBag()));
+            await persister.Save(saga1, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(saga1), new ContextBag());
+            Assert.Throws<InvalidOperationException>(() => persister.Save(saga2, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(saga2), new ContextBag()));
         }
         [Test]
         public async Task It_should_enforce_uniqueness_even_for_two_unique_properties()
@@ -26,9 +26,9 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
             var saga3 = new SagaWithTwoUniquePropertiesData { Id = Guid.NewGuid(), UniqueString = "whatever3", UniqueInt = 3 };
 
             var persister = new InMemorySagaPersister();
-            await persister.Save(saga1, SagaMetadataHelper.GetMetadata<SagaWithTwoUniqueProperties>(), new ContextBag());
-            await persister.Save(saga2, SagaMetadataHelper.GetMetadata<SagaWithTwoUniqueProperties>(), new ContextBag());
-            Assert.Throws<InvalidOperationException>(() => persister.Save(saga3, SagaMetadataHelper.GetMetadata<SagaWithTwoUniqueProperties>(), new ContextBag()));
+            await persister.Save(saga1, SagaMetadataHelper.GetMetadata<SagaWithTwoUniqueProperties>(saga1), new ContextBag());
+            await persister.Save(saga2, SagaMetadataHelper.GetMetadata<SagaWithTwoUniqueProperties>(saga2), new ContextBag());
+            Assert.Throws<InvalidOperationException>(() => persister.Save(saga3, SagaMetadataHelper.GetMetadata<SagaWithTwoUniqueProperties>(saga3), new ContextBag()));
         }
 
     }

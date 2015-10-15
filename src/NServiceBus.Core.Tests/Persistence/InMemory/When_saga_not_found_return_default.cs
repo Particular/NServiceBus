@@ -34,7 +34,7 @@
                 OrderSource = "CA"
             };
             var persister = new InMemorySagaPersister();
-            await persister.Save(simpleSagaEntity, SagaMetadataHelper.GetMetadata<SimpleSagaEntitySaga>(), new ContextBag());
+            await persister.Save(simpleSagaEntity, SagaMetadataHelper.GetMetadata<SimpleSagaEntitySaga>(simpleSagaEntity), new ContextBag());
 
             var anotherSagaEntity = await persister.Get<AnotherSimpleSagaEntity>(id, new ContextBag());
             Assert.IsNull(anotherSagaEntity);

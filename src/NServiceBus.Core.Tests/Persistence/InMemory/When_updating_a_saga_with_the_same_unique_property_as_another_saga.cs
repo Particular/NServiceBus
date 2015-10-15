@@ -23,8 +23,8 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
             };
 
             var persister = new InMemorySagaPersister();
-            await persister.Save(saga1, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(), new ContextBag());
-            await persister.Save(saga2, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(), new ContextBag());
+            await persister.Save(saga1, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(saga1), new ContextBag());
+            await persister.Save(saga2, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(saga2), new ContextBag());
         }
 
         [Test]
@@ -45,8 +45,8 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
 
             var persister = new InMemorySagaPersister();
 
-            await persister.Save(saga1, SagaMetadataHelper.GetMetadata<SagaWithTwoUniqueProperties>(), new ContextBag());
-            await persister.Save(saga2, SagaMetadataHelper.GetMetadata<SagaWithTwoUniqueProperties>(), new ContextBag());
+            await persister.Save(saga1, SagaMetadataHelper.GetMetadata<SagaWithTwoUniqueProperties>(saga1), new ContextBag());
+            await persister.Save(saga2, SagaMetadataHelper.GetMetadata<SagaWithTwoUniqueProperties>(saga2), new ContextBag());
         }
     }
 }

@@ -77,7 +77,7 @@ namespace NServiceBus.Sagas
             {
                 var propertyInfo = properties.Single(p => p.Name == correlatedProperty.Name);
 
-                correlatedPropertyValues[correlatedProperty.Name] = propertyInfo.GetValue(loadedEntity).ToString();
+                correlatedPropertyValues[correlatedProperty.Name] = propertyInfo.GetValue(loadedEntity);
             }
         }
 
@@ -92,6 +92,8 @@ namespace NServiceBus.Sagas
         {
             NotFound = true;
         }
+
+        internal IDictionary<string, object> CurrentCorrelationProperties => correlatedPropertyValues;
 
         internal void ValidateChanges()
         {
@@ -124,6 +126,8 @@ namespace NServiceBus.Sagas
                         $@"We detected that the correlated property '{correlatedProperty.Name}' on saga '{Metadata.SagaType.Name}' does not have a value'. 
 All correlated properties must have a non null or empty value assigned to them when a new saga instance is created.");
                 }
+
+                correlatedPropertyValues[correlatedProperty.Name] = value;
             }
         }
 
@@ -135,15 +139,15 @@ All correlated properties must have a non null or empty value assigned to them w
             }
 
             var properties = Instance.Entity.GetType().GetProperties();
-            foreach (var correlatedPropertyValue in correlatedPropertyValues)
+            foreach (var existingPropertyValue in correlatedPropertyValues)
             {
-                var propertyInfo = properties.Single(p => p.Name == correlatedPropertyValue.Key);
-                var newValue = propertyInfo.GetValue(Instance.Entity).ToString();
+                var propertyInfo = properties.Single(p => p.Name == existingPropertyValue.Key);
+                var currentValue = propertyInfo.GetValue(Instance.Entity);
 
-                if (correlatedPropertyValue.Value != newValue)
+                if (!existingPropertyValue.Value.Equals(currentValue))
                 {
                     throw new Exception(
-                        $@"We detected that the value of the correlated property '{correlatedPropertyValue.Key}' on saga '{Metadata.SagaType.Name}' has changed from '{correlatedPropertyValue.Value}' to '{newValue}'. 
+                        $@"We detected that the value of the correlated property '{existingPropertyValue.Key}' on saga '{Metadata.SagaType.Name}' has changed from '{existingPropertyValue.Value}' to '{currentValue}'. 
 Changing the value of correlated properties at runtime is currently not supported.");
                 }
             }
@@ -166,7 +170,7 @@ Changing the value of correlated properties at runtime is currently not supporte
             return null;
         }
 
-        Dictionary<string, string> correlatedPropertyValues = new Dictionary<string, string>();
+        Dictionary<string, object> correlatedPropertyValues = new Dictionary<string, object>();
         Guid sagaId;
     }
 }
