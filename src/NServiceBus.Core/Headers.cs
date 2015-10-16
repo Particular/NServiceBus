@@ -217,5 +217,15 @@
         /// Indicates that the message was sent as a non durable message.
         /// </summary>
         public const string NonDurableMessage = "NServiceBus.NonDurableMessage";
+
+        /// <summary>
+        /// Indicates the ultimate destination of a message.
+        /// </summary>
+        public const string UltimateDestination = "NServiceBus.UltimateDestination";
+
+        /// <summary>
+        /// Indicates where to send the message next.
+        /// </summary>
+        public const string SendVia = "NServiceBus.SendVia";
     }
 }

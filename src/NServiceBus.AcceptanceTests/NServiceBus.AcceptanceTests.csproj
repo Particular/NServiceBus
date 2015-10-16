@@ -67,6 +67,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Basic\When_deferring_to_non_local_via_a_proxy.cs" />
     <Compile Include="Basic\When_registering_additional_deserializers.cs" />
     <Compile Include="Basic\When_setting_msmq_label_generator.cs" />
     <Compile Include="Basic\When_deferring_to_non_local.cs" />
@@ -135,6 +136,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Routing\When_distributing_an_event.cs" />
+    <Compile Include="Routing\When_sending_a_command_via_a_proxy.cs" />
     <Compile Include="Routing\When_publishing_from_sendonly.cs" />
     <Compile Include="MessageId\When_message_has_empty_id_header.cs" />
     <Compile Include="Routing\When_publishing_an_event_implementing_two_unrelated_interfaces.cs" />

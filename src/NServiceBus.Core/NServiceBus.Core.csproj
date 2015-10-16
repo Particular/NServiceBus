@@ -118,10 +118,14 @@
     <Compile Include="Pipeline\Outgoing\OutgoingPhysicalMessageContext.cs" />
     <Compile Include="Reliability\Outbox\ForceBatchDispatchToBeIsolatedBehavior.cs" />
     <Compile Include="Reliability\Outbox\OutboxTransaction.cs" />
+    <Compile Include="Routing\Itinerary.cs" />
     <Compile Include="Routing\MulticastRoutingStrategy.cs" />
     <Compile Include="Routing\RoutingStrategy.cs" />
     <Compile Include="Routing\UnicastRoutingStrategy.cs" />
     <Compile Include="Sagas\SagaLoader.cs" />
+    <Compile Include="Routing\DirectRoutingImmediateDestination.cs" />
+    <Compile Include="Routing\UnicastRoutingRoute.cs" />
+    <Compile Include="Routing\EndpointInstanceData.cs" />
     <Compile Include="Sagas\Saga_obsoletes.cs" />
     <Compile Include="Routing\AllInstancesDistributionStrategy.cs" />
     <Compile Include="Routing\UnicastRoutingDestination.cs" />
@@ -244,6 +248,7 @@
     <Compile Include="DelayedDelivery\DelayDeliveryWith.cs" />
     <Compile Include="Features\RootFeature.cs" />
     <Compile Include="Routing\Routers\MulticastPublishRouterBehavior.cs" />
+    <Compile Include="Routing\Routers\MulticastPublishRouterConnector.cs" />
     <Compile Include="Routing\Routers\UnicastSendRouterConnector.cs" />
     <Compile Include="Routing\UnicastAddressTag.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\IInitializableSubscriptionStorage.cs" />

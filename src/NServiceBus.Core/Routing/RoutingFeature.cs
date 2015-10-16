@@ -72,15 +72,15 @@
             }
 
             var outboundRoutingPolicy = transportDefinition.GetOutboundRoutingPolicy(context.Settings);
-            context.Pipeline.Register("UnicastSendRouterConnector", typeof(UnicastSendRouterConnector), "Determines how the message being sent should be routed");
-            context.Pipeline.Register("UnicastReplyRouterConnector", typeof(UnicastReplyRouterConnector), "Determines how replies should be routed");
+            context.Pipeline.Register("DirectSendRouterConnector", typeof(UnicastSendRouterConnector), "Determines how the message being sent should be routed");
+            context.Pipeline.Register("DirectReplyRouterConnector", typeof(UnicastReplyRouterConnector), "Determines how replies should be routed");
             if (outboundRoutingPolicy.Publishes == OutboundRoutingType.DirectSend)
             {
-                context.Pipeline.Register("UnicastPublishRouterConnector", typeof(UnicastPublishRouterConnector), "Determines how the published messages should be routed");
+                context.Pipeline.Register("DirectPublishRouterConnector", typeof(UnicastPublishRouterConnector), "Determines how the published messages should be routed");
             }
             else
             {
-                context.Pipeline.Register("MulticastPublishRouterBehavior", typeof(MulticastPublishRouterBehavior), "Determines how the published messages should be routed");                
+                context.Pipeline.Register("MulticastPublishRouterConnector", typeof(MulticastPublishRouterConnector), "Determines how the published messages should be routed");                
             }
 
             if (canReceive)
@@ -143,7 +143,8 @@
                 {
                     //TODO: 133
                     var subscriptions = builder.Build<ISubscriptionStorage>();
-                    settings.Get<UnicastRoutingTable>().AddDynamic((t, c) => QuerySubscriptionStore(subscriptions, t, c));
+                    var directRoutingTable = settings.Get<UnicastRoutingTable>();
+                    directRoutingTable.AddDynamic((t, c) => QuerySubscriptionStore(subscriptions, t, c));
                 }
             }
 

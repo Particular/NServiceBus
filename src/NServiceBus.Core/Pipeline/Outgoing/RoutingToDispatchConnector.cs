@@ -21,7 +21,7 @@
                 {
                     var headers = new Dictionary<string, string>(context.Message.Headers);
                     var addressLabel = rs.Apply(headers);
-                    var message = new OutgoingMessage(context.Message.MessageId, context.Message.Headers, context.Message.Body);
+                    var message = new OutgoingMessage(context.Message.MessageId, headers, context.Message.Body);
                     return new TransportOperation(message, new DispatchOptions(addressLabel, dispatchConsistency, context.GetDeliveryConstraints()));
                 });            
 

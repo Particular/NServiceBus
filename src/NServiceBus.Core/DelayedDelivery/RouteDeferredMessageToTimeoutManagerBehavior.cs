@@ -42,13 +42,8 @@ namespace NServiceBus
                     throw new Exception("Postponed delivery of messages with TimeToBeReceived set is not supported. Remove the TimeToBeReceived attribute to postpone messages of this type.");
                 }
 
-                //Hack 133
-                var ultimateDestination = ((UnicastAddressTag)context.RoutingStrategies.First().Apply(new Dictionary<string, string>())).Destination;
-                context.Message.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo] = ultimateDestination;
-                context.RoutingStrategies = new[]
-                {
-                    new UnicastRoutingStrategy(timeoutManagerAddress)
-                }; 
+                var newRoutingStrategies = context.RoutingStrategies.Cast<UnicastRoutingStrategy>().Select(s => s.SendVia(timeoutManagerAddress)).ToArray();
+                context.RoutingStrategies = newRoutingStrategies;
 
                 DateTime deliverAt;
                 var delayConstraint = constraint as DelayDeliveryWith;

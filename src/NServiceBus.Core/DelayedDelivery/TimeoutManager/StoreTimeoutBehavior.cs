@@ -45,9 +45,15 @@ namespace NServiceBus
                 }
 
                 var destination = message.GetReplyToAddress();
-
                 string routeExpiredTimeoutTo;
-                if (message.Headers.TryGetValue(TimeoutManagerHeaders.RouteExpiredTimeoutTo, out routeExpiredTimeoutTo))
+
+                var itinerary = Itinerary.ExtractFrom(message.Headers);
+                if (!itinerary.IsEmpty)
+                {
+                    var newItinerary = itinerary.Advance(out destination);
+                    newItinerary.Store(message.Headers);
+                }
+                else if (message.Headers.TryGetValue(TimeoutManagerHeaders.RouteExpiredTimeoutTo, out routeExpiredTimeoutTo))
                 {
                     destination = routeExpiredTimeoutTo;
                 }
