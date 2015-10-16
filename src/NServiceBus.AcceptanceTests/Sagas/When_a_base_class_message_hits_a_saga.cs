@@ -49,8 +49,6 @@
                     }
                     else
                     {
-                        Data.SomeId = message.SomeId;
-
                         return context.SendLocalAsync(new StartSagaMessage
                         {
                             SomeId = message.SomeId

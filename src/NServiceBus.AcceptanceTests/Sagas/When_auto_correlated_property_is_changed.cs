@@ -8,7 +8,7 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class When_saga_id_changed : NServiceBusAcceptanceTest
+    public class When_auto_correlated_property_is_changed : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_throw()
@@ -23,8 +23,7 @@
                 .Done(c => c.Exceptions.Any())
                 .Run();
 
-            Assert.True(context.Exceptions.Any(e =>
-                e.Message.Contains("A modification of IContainSagaData.Id has been detected. This property is for infrastructure purposes only and should not be modified. SagaType: " + typeof(Endpoint.SagaIdChangedSaga))));
+            Assert.True(context.Exceptions.Any(ex => ex.Message.Contains("Changing the value of correlated properties at runtime is currently not supported")));
         }
 
         public class Context : ScenarioContext
@@ -38,21 +37,21 @@
                 EndpointSetup<DefaultServer>();
             }
 
-            public class SagaIdChangedSaga : Saga<SagaIdChangedSaga.SagaIdChangedSagaData>,
+            public class CorrIdChangedSaga : Saga<CorrIdChangedSaga.CorrIdChangedSagaData>,
                 IAmStartedByMessages<StartSaga>
             {
                 public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
-                    Data.Id = Guid.NewGuid();
+                    Data.DataId = Guid.NewGuid();
                     return Task.FromResult(0);
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaIdChangedSagaData> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<CorrIdChangedSagaData> mapper)
                 {
                     mapper.ConfigureMapping<StartSaga>(m => m.DataId).ToSaga(s => s.DataId);
                 }
 
-                public class SagaIdChangedSagaData : ContainSagaData
+                public class CorrIdChangedSagaData : ContainSagaData
                 {
                     public virtual Guid DataId { get; set; }
                 }

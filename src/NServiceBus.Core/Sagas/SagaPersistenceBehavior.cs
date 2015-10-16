@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.DelayedDelivery.TimeoutManager;
@@ -78,8 +79,7 @@
             {
                 return;
             }
-            sagaInstanceState.ValidateChanges();
-
+            
             if (saga.Completed)
             {
                 if (!sagaInstanceState.IsNew)
@@ -96,9 +96,11 @@
             }
             else
             {
+                sagaInstanceState.ValidateChanges();
+
                 if (sagaInstanceState.IsNew)
                 {
-                    await sagaPersister.Save(saga.Entity, sagaInstanceState.CurrentCorrelationProperties, context).ConfigureAwait(false);
+                    await sagaPersister.Save(saga.Entity, sagaInstanceState.CorrelationProperties, context).ConfigureAwait(false);
                 }
                 else
                 {
@@ -245,6 +247,20 @@
             if (context.Headers.TryGetValue(Headers.ReplyToAddress, out replyToAddress))
             {
                 sagaEntity.Originator = replyToAddress;
+            }
+
+            var lookupValues = context.GetOrCreate<SagaLookupValues>();
+
+
+            SagaLookupValues.LookupValue value;
+            if (lookupValues.TryGet(sagaEntityType,out value))
+            {
+                var propertyInfo = sagaEntityType.GetProperty(value.PropertyName);
+
+                var convertedValue = TypeDescriptor.GetConverter(propertyInfo.PropertyType)
+                    .ConvertFromInvariantString(value.PropertyValue.ToString());
+
+                propertyInfo.SetValue(sagaEntity, convertedValue);
             }
 
             return sagaEntity;

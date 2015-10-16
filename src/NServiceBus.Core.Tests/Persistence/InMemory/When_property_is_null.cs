@@ -9,7 +9,7 @@
     class When_mapping_to_a_null_property_value
     {
         [Test]
-        public async Task Should_retrieve_saga_with_null()
+        public void Should_throw()
         {
             var sagaId = Guid.NewGuid();
             var saga = new SagaData
@@ -20,19 +20,15 @@
 
             var persister = new InMemorySagaPersister();
 
-            await persister.Save(saga, SagaMetadataHelper.GetMetadata<Saga>(saga), new ContextBag());
-
-            var sagaData = await persister.Get<SagaData>("Property", null, new ContextBag());
-            var sagaDataWithPropertyValue = await persister.Get<SagaData>("Property", "a value", new ContextBag());
-
-            Assert.AreEqual(sagaId, sagaData.Id);
-            Assert.IsNull(sagaDataWithPropertyValue);
+            Assert.Throws<InvalidOperationException>(async () => await persister.Save(saga, SagaMetadataHelper.GetMetadata<Saga>(saga), new ContextBag()));
         }
 
         class Saga : Saga<SagaData>,IAmStartedByMessages<StartMessage>
         {
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
             {
+                mapper.ConfigureMapping<MyMessage>(m => m.Property)
+                    .ToSaga(s => s.Property);
             }
 
             public Task Handle(StartMessage message, IMessageHandlerContext context)
@@ -49,6 +45,11 @@
             public string Originator { get; set; }
 
             public string OriginalMessageId { get; set; }
+        }
+
+        class MyMessage
+        {
+            public string Property { get; set; }
         }
     }
 }

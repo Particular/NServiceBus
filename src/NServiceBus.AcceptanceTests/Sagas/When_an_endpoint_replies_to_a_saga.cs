@@ -80,7 +80,6 @@
 
                 public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
-                    Data.RunId = message.RunId;
                     return context.SendAsync(new DoSomething { RunId = message.RunId });
                 }
 
@@ -106,7 +105,6 @@
         }
 
 
-        [Serializable]
         public class StartSaga : ICommand
         {
             public Guid RunId { get; set; }

@@ -3,6 +3,7 @@ namespace NServiceBus.Sagas
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Reflection;
 
     /// <summary>
     /// Represents a saga instance being processed on the pipeline.
@@ -70,15 +71,6 @@ namespace NServiceBus.Sagas
         internal void AttachExistingEntity(IContainSagaData loadedEntity)
         {
             AttachEntity(loadedEntity);
-
-            var properties = loadedEntity.GetType().GetProperties();
-
-            foreach (var correlatedProperty in Metadata.CorrelationProperties)
-            {
-                var propertyInfo = properties.Single(p => p.Name == correlatedProperty.Name);
-
-                correlatedPropertyValues[correlatedProperty.Name] = propertyInfo.GetValue(loadedEntity);
-            }
         }
 
         void AttachEntity(IContainSagaData sagaEntity)
@@ -86,6 +78,26 @@ namespace NServiceBus.Sagas
             sagaId = sagaEntity.Id;
             Instance.Entity = sagaEntity;
             SagaId = sagaEntity.Id.ToString();
+
+            var properties = sagaEntity.GetType().GetProperties();
+
+            foreach (var correlatedProperty in Metadata.CorrelationProperties)
+            {
+                var propertyInfo = properties.Single(p => p.Name == correlatedProperty.Name);
+                var propertyValue = propertyInfo.GetValue(sagaEntity);
+
+                var defaultValue = GetDefault(propertyInfo.PropertyType);
+
+                var hasValue = propertyValue != null && !propertyValue.Equals(defaultValue);
+
+                correlationProperties.Add(new CorrelationProperty
+                {
+                    PropertyInfo = propertyInfo,
+                    Value = propertyValue,
+                    HasExistingValue = hasValue
+                });
+            }
+
         }
 
         internal void MarkAsNotFound()
@@ -93,8 +105,7 @@ namespace NServiceBus.Sagas
             NotFound = true;
         }
 
-        internal IDictionary<string, object> CurrentCorrelationProperties => correlatedPropertyValues;
-
+   
         internal void ValidateChanges()
         {
             ValidateSagaIdIsNotModified();
@@ -103,51 +114,35 @@ namespace NServiceBus.Sagas
             {
                 ValidateAllCorrelationPropertiesHaveValues();
             }
-            else
-            {
-                ValidateCorrelationPropertiesNotModified();
-            }
+
+            ValidateCorrelationPropertiesNotModified();
         }
 
         void ValidateAllCorrelationPropertiesHaveValues()
         {
-            var properties = Instance.Entity.GetType().GetProperties();
-
-            foreach (var correlatedProperty in Metadata.CorrelationProperties)
+              foreach (var correlationProperty in correlationProperties)
             {
-                var propertyInfo = properties.Single(p => p.Name == correlatedProperty.Name);
+                var defaultValue = GetDefault(correlationProperty.PropertyInfo.PropertyType);
 
-                var value = propertyInfo.GetValue(Instance.Entity);
-                var defaultValue = GetDefault(propertyInfo.PropertyType);
-
-                if (value.Equals(defaultValue))
+                if (correlationProperty.Value.Equals(defaultValue))
                 {
                     throw new Exception(
-                        $@"We detected that the correlated property '{correlatedProperty.Name}' on saga '{Metadata.SagaType.Name}' does not have a value'. 
+                        $@"We detected that the correlated property '{correlationProperty.PropertyInfo.Name}' on saga '{Metadata.SagaType.Name}' does not have a value'. 
 All correlated properties must have a non null or empty value assigned to them when a new saga instance is created.");
                 }
-
-                correlatedPropertyValues[correlatedProperty.Name] = value;
             }
         }
 
         void ValidateCorrelationPropertiesNotModified()
         {
-            if (!correlatedPropertyValues.Any())
+            foreach (var correlationProperty in correlationProperties.Where(cp=>cp.HasExistingValue))
             {
-                return;
-            }
+                var currentValue = correlationProperty.PropertyInfo.GetValue(Instance.Entity);
 
-            var properties = Instance.Entity.GetType().GetProperties();
-            foreach (var existingPropertyValue in correlatedPropertyValues)
-            {
-                var propertyInfo = properties.Single(p => p.Name == existingPropertyValue.Key);
-                var currentValue = propertyInfo.GetValue(Instance.Entity);
-
-                if (!existingPropertyValue.Value.Equals(currentValue))
+                if (correlationProperty.Value.ToString() != currentValue.ToString())
                 {
                     throw new Exception(
-                        $@"We detected that the value of the correlated property '{existingPropertyValue.Key}' on saga '{Metadata.SagaType.Name}' has changed from '{existingPropertyValue.Value}' to '{currentValue}'. 
+                        $@"We detected that the value of the correlated property '{correlationProperty.PropertyInfo.Name}' on saga '{Metadata.SagaType.Name}' has changed from '{correlationProperty.Value}' to '{currentValue}'. 
 Changing the value of correlated properties at runtime is currently not supported.");
                 }
             }
@@ -170,7 +165,18 @@ Changing the value of correlated properties at runtime is currently not supporte
             return null;
         }
 
-        Dictionary<string, object> correlatedPropertyValues = new Dictionary<string, object>();
+        internal IDictionary<string, object> CorrelationProperties
+        {
+            get { return correlationProperties.ToDictionary(cp => cp.PropertyInfo.Name, cp => cp.Value); }
+        }
+        List<CorrelationProperty> correlationProperties = new List<CorrelationProperty>();
         Guid sagaId;
+
+        class CorrelationProperty
+        {
+            public PropertyInfo PropertyInfo;
+            public object Value;
+            public bool HasExistingValue;
+        }
     }
 }

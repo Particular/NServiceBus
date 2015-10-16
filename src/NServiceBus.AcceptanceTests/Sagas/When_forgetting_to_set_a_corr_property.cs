@@ -7,26 +7,28 @@
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
-    //note: this test will be obsolete if/when we implement https://github.com/Particular/NServiceBus/issues/313
     public class When_forgetting_to_set_a_corr_property : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_blow_up()
+        public async Task Should_not_matter()
         {
+            var id = Guid.NewGuid();
+
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<NullPropertyEndpoint>(b => b.When(bus => bus.SendLocalAsync(new StartSagaMessage
                 {
-                    SomeId = Guid.NewGuid()
+                    SomeId = id
                 })))
-                .AllowExceptions()
-                .Done(c => c.Exceptions.Any())
+                .Done(c => c.Done || c.Exceptions.Any())
                 .Run();
 
-            Assert.True(context.Exceptions.Any(ex => ex.Message.Contains("All correlated properties must have a non null or empty value assigned to them when a new saga instance is created")));
+            Assert.AreEqual(context.SomeId, id.ToString());
         }
 
         public class Context : ScenarioContext
         {
+            public string SomeId { get; set; }
+            public bool Done { get; set; }
         }
 
         public class NullPropertyEndpoint : EndpointConfigurationBuilder
@@ -43,7 +45,18 @@
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
                     //oops I forgot Data.SomeId = message.SomeId
-                    return Task.FromResult(0);
+                    if (message.SecondMessage)
+                    {
+                        Context.SomeId = Data.SomeId;
+                        Context.Done = true;
+                        return Task.FromResult(0);
+                    }
+
+                    return context.SendLocalAsync(new StartSagaMessage
+                    {
+                        SomeId = message.SomeId,
+                        SecondMessage = true
+                    });
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NullCorrPropertySagaData> mapper)
@@ -55,17 +68,17 @@
 
             public class NullCorrPropertySagaData : IContainSagaData
             {
-                public virtual Guid SomeId { get; set; }
+                public virtual string SomeId { get; set; }
                 public virtual Guid Id { get; set; }
                 public virtual string Originator { get; set; }
                 public virtual string OriginalMessageId { get; set; }
             }
         }
 
-        [Serializable]
         public class StartSagaMessage : ICommand
         {
             public Guid SomeId { get; set; }
+            public bool SecondMessage { get; set; }
         }
     }
 }

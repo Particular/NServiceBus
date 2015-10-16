@@ -31,8 +31,6 @@
 
                 public Task Handle(InitiateRequestingSaga message, IMessageHandlerContext context)
                 {
-                    Data.CorrIdForResponse = message.Id;
-
                     return context.SendLocalAsync(new RequestToRespondingSaga
                     {
                         SomeIdThatTheResponseSagaCanCorrelateBackToUs = Data.CorrIdForResponse //wont be needed in the future
@@ -71,17 +69,13 @@
                 {
                     if (TestContext.ReplyFromNonInitiatingHandler)
                     {
-                        Data.CorrIdForRequest = message.SomeIdThatTheResponseSagaCanCorrelateBackToUs; //wont be needed in the future
                         await context.SendLocalAsync(new SendReplyFromNonInitiatingHandler { SagaIdSoWeCanCorrelate = Data.Id });
                     }
 
                     if (TestContext.ReplyFromTimeout)
                     {
-                        Data.CorrIdForRequest = message.SomeIdThatTheResponseSagaCanCorrelateBackToUs; //wont be needed in the future
                         await RequestTimeoutAsync<DelayReply>(context, TimeSpan.FromSeconds(1));
                     }
-
-                    Data.CorrIdForRequest = Guid.NewGuid();
 
                     // Both reply and reply to originator work here since the sender of the incoming message is the requesting saga
                     // also note we don't set the correlation ID since auto correlation happens to work for this special case 

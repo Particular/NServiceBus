@@ -6,7 +6,7 @@ namespace NServiceBus.Sagas
     using System.Linq.Expressions;
     using System.Reflection;
     using System.Runtime.Serialization;
-    using Utils.Reflection;
+    using NServiceBus.Utils.Reflection;
 
     /// <summary>
     /// Contains metadata for known sagas.
@@ -36,6 +36,17 @@ namespace NServiceBus.Sagas
             {
                 throw new Exception($@"
 Sagas must have at least one message that is allowed to start the saga. Please add at least one `IAmStartedByMessages` to your {name} saga.");
+            }
+
+            foreach (var correlationProperty in correlationProperties)
+            {
+                if (!AllowedCorrelationPropertyTypes.Contains(correlationProperty.Type))
+                {
+                    var supportedTypes = string.Join(",", AllowedCorrelationPropertyTypes.Select(t => t.Name));
+
+                    throw new Exception($@"
+{correlationProperty.Type.Name} is not supported for correlated properties. Please change the correlation property {correlationProperty.Name} on saga {name} to any of the supported types, {supportedTypes}, or use a custom saga finder.");
+                }
             }
 
             associatedMessages = new Dictionary<string, SagaMessage>();
@@ -163,7 +174,7 @@ Sagas must have at least one message that is allowed to start the saga. Please a
             {
                 if (!mapping.HasCustomFinderMap && correlationProperties.All(cp => cp.Name != mapping.SagaPropName))
                 {
-                    correlationProperties.Add(new CorrelationProperty(mapping.SagaPropName));
+                    correlationProperties.Add(new CorrelationProperty(mapping.SagaPropName, mapping.SagaPropType));
                 }
 
                 SetFinderForMessage(mapping, sagaEntityType, finders);
@@ -299,6 +310,18 @@ Sagas must have at least one message that is allowed to start the saga. Please a
         Dictionary<string, SagaMessage> associatedMessages;
         Dictionary<string, SagaFinderDefinition> sagaFinders;
 
+        static Type[] AllowedCorrelationPropertyTypes =
+        {
+            typeof(Guid),
+            typeof(string),
+            typeof(long),
+            typeof(ulong),
+            typeof(int),
+            typeof(uint),
+            typeof(short),
+            typeof(ushort)
+        };
+
         class SagaMapper : IConfigureHowToFindSagaWithMessage
         {
             void IConfigureHowToFindSagaWithMessage.ConfigureMapping<TSagaEntity, TMessage>(Expression<Func<TSagaEntity, object>> sagaEntityProperty, Expression<Func<TMessage, object>> messageExpression)
@@ -315,6 +338,7 @@ Sagas must have at least one message that is allowed to start the saga. Please a
                 {
                     MessageProp = messageFunc,
                     SagaPropName = sagaProp.Name,
+                    SagaPropType = sagaProp.PropertyType,
                     MessageType = typeof(TMessage)
                 });
             }

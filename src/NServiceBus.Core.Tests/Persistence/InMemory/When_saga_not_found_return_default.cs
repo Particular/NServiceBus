@@ -12,7 +12,7 @@
         public async Task Should_return_default_when_using_finding_saga_with_property()
         {
             var persister = new InMemorySagaPersister();
-            var simpleSageEntity = await persister.Get<SimpleSagaEntity>("propertyNotFound", null, new ContextBag());
+            var simpleSageEntity = await persister.Get<SimpleSagaEntity>("propertyNotFound", "someValue", new ContextBag());
             Assert.IsNull(simpleSageEntity);
         }
 

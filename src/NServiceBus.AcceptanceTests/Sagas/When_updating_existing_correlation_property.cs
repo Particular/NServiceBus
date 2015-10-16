@@ -7,19 +7,21 @@
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
-    public class When_updating_correlation_property : NServiceBusAcceptanceTest
+    public class When_updating_existing_correlation_property : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_blow_up()
         {
-            await Scenario.Define<Context>()
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<ChangePropertyEndpoint>(b => b.When(bus => bus.SendLocalAsync(new StartSagaMessage
                 {
                     SomeId = Guid.NewGuid()
                 })))
-                .AllowExceptions(ex => ex.Message.Contains("Changing the value of correlated properties at runtime is currently not supported"))
+                .AllowExceptions()
                 .Done(c => c.Exceptions.Any())
                 .Run();
+
+            Assert.True(context.Exceptions.Any(ex => ex.Message.Contains("Changing the value of correlated properties at runtime is currently not supported")));
         }
 
         public class Context : ScenarioContext
@@ -35,24 +37,18 @@
 
             public class ChangeCorrPropertySaga : Saga<ChangeCorrPropertySagaData>, IAmStartedByMessages<StartSagaMessage>
             {
-                public Context TestContext { get; set; }
-
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
                     if (message.SecondMessage)
                     {
                         Data.SomeId = Guid.NewGuid(); //this is not allowed
+                        return Task.FromResult(0);
                     }
-                    else
-                    {
-                        Data.SomeId = message.SomeId;
-                    }
-
 
                     return context.SendLocalAsync(new StartSagaMessage
                     {
-                        SomeId = message.SomeId,
-                        SecondMessage = true
+                        SecondMessage = true,
+                        SomeId = Data.SomeId
                     });
                 }
 
@@ -72,11 +68,9 @@
             }
         }
 
-        [Serializable]
         public class StartSagaMessage : ICommand
         {
             public Guid SomeId { get; set; }
-
             public bool SecondMessage { get; set; }
         }
     }
