@@ -7,17 +7,18 @@
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
-    public class When_updating_correlation_property : NServiceBusAcceptanceTest
+    //note: this test will be obsolete if/when we implement https://github.com/Particular/NServiceBus/issues/313
+    public class When_forgetting_to_set_a_corr_property : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_blow_up()
         {
             await Scenario.Define<Context>()
-                .WithEndpoint<ChangePropertyEndpoint>(b => b.When(bus => bus.SendLocalAsync(new StartSagaMessage
+                .WithEndpoint<NullPropertyEndpoint>(b => b.When(bus => bus.SendLocalAsync(new StartSagaMessage
                 {
                     SomeId = Guid.NewGuid()
                 })))
-                .AllowExceptions(ex => ex.Message.Contains("Changing the value of correlated properties at runtime is currently not supported"))
+                .AllowExceptions(ex => ex.Message.Contains("All correlated properties must have a non null or empty value assigned to them when a new saga instance is created"))
                 .Done(c => c.Exceptions.Any())
                 .Run();
         }
@@ -26,44 +27,31 @@
         {
         }
 
-        public class ChangePropertyEndpoint : EndpointConfigurationBuilder
+        public class NullPropertyEndpoint : EndpointConfigurationBuilder
         {
-            public ChangePropertyEndpoint()
+            public NullPropertyEndpoint()
             {
                 EndpointSetup<DefaultServer>();
             }
 
-            public class ChangeCorrPropertySaga : Saga<ChangeCorrPropertySagaData>, IAmStartedByMessages<StartSagaMessage>
+            public class NullCorrPropertySaga : Saga<NullCorrPropertySagaData>, IAmStartedByMessages<StartSagaMessage>
             {
                 public Context Context { get; set; }
 
                 public Task Handle(StartSagaMessage message)
                 {
-                    if (message.SecondMessage)
-                    {
-                        Data.SomeId = Guid.NewGuid(); //this is not allowed
-                    }
-                    else
-                    {
-                        Data.SomeId = message.SomeId;
-                    }
-
-
-                    return Bus.SendLocalAsync(new StartSagaMessage
-                    {
-                        SomeId = message.SomeId,
-                        SecondMessage = true
-                    });
+                    //oops I forgot Data.SomeId = message.SomeId
+                    return Task.FromResult(0);
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ChangeCorrPropertySagaData> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NullCorrPropertySagaData> mapper)
                 {
                     mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
                         .ToSaga(s => s.SomeId);
                 }
             }
 
-            public class ChangeCorrPropertySagaData : IContainSagaData
+            public class NullCorrPropertySagaData : IContainSagaData
             {
                 public virtual Guid SomeId { get; set; }
                 public virtual Guid Id { get; set; }
@@ -76,8 +64,6 @@
         public class StartSagaMessage : ICommand
         {
             public Guid SomeId { get; set; }
-
-            public bool SecondMessage { get; set; }
         }
     }
 }

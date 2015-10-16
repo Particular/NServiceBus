@@ -14,7 +14,7 @@
         public async Task Should_not_fire_notfound_for_tm()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Endpoint>(b => b.When(bus => bus.SendLocalAsync(new StartSaga())))
+                .WithEndpoint<Endpoint>(b => b.When(bus => bus.SendLocalAsync(new StartSaga { DataId = Guid.NewGuid() })))
                 .Done(c => c.NotFoundHandlerCalledForRegularMessage)
                 .Run();
 
@@ -36,7 +36,7 @@
             }
 
             public class TimeoutHitsNotFoundSaga : Saga<TimeoutHitsNotFoundSaga.TimeoutHitsNotFoundSagaData>,
-                IAmStartedByMessages<StartSaga>, 
+                IAmStartedByMessages<StartSaga>,
                 IHandleSagaNotFound,
                 IHandleTimeouts<TimeoutHitsNotFoundSaga.MyTimeout>,
                 IHandleMessages<SomeOtherMessage>

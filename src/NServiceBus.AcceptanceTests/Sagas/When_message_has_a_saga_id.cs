@@ -16,7 +16,10 @@
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<SagaEndpoint>(b => b.When(bus =>
                 {
-                    var message = new MessageWithSagaId();
+                    var message = new MessageWithSagaId
+                    {
+                        DataId = Guid.NewGuid()
+                    };
                     var options = new SendOptions();
 
                     options.SetHeader(Headers.SagaId, Guid.NewGuid().ToString());
