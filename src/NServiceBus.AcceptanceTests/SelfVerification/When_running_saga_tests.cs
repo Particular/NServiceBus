@@ -14,7 +14,9 @@
         {
             // Because otherwise NHibernate gets cranky!
             var sagaEntities = Assembly.GetExecutingAssembly().GetTypes()
-                .Where(t => typeof(IContainSagaData).IsAssignableFrom(t) && !t.IsInterface)
+                .Where(t => typeof(IContainSagaData).IsAssignableFrom(t) && !t.IsInterface &&
+                //only include core tests
+                t.Namespace != null && t.Namespace.StartsWith("NServiceBus.AcceptanceTests"))
                 .ToArray();
 
             var offenders = 0;
