@@ -2444,8 +2444,9 @@ namespace NServiceBus.Timeout.Core
     public interface IPersistTimeouts
     {
         System.Threading.Tasks.Task Add(NServiceBus.Timeout.Core.TimeoutData timeout, NServiceBus.Extensibility.ContextBag context);
-        System.Threading.Tasks.Task<NServiceBus.Timeout.Core.TimeoutData> Remove(string timeoutId, NServiceBus.Extensibility.ContextBag context);
+        System.Threading.Tasks.Task<NServiceBus.Timeout.Core.TimeoutData> Peek(string timeoutId, NServiceBus.Extensibility.ContextBag context);
         System.Threading.Tasks.Task RemoveTimeoutBy(System.Guid sagaId, NServiceBus.Extensibility.ContextBag context);
+        System.Threading.Tasks.Task<bool> TryRemove(string timeoutId, NServiceBus.Extensibility.ContextBag context);
     }
     public interface IQueryTimeouts
     {

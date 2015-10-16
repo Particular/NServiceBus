@@ -2,6 +2,7 @@ namespace NServiceBus.InMemory.TimeoutPersister
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.Extensibility;
@@ -10,6 +11,7 @@ namespace NServiceBus.InMemory.TimeoutPersister
     class InMemoryTimeoutPersister : IPersistTimeouts, IQueryTimeouts, IDisposable
     {
         public void Dispose()
+
         {
         }
 
@@ -29,7 +31,20 @@ namespace NServiceBus.InMemory.TimeoutPersister
             return Task.FromResult(0);
         }
 
-        public Task<TimeoutData> Remove(string timeoutId, ContextBag context)
+        public Task<TimeoutData> Peek(string timeoutId, ContextBag context)
+        {
+            try
+            {
+                readerWriterLock.EnterReadLock();
+                return Task.FromResult(storage.SingleOrDefault(t => t.Id.ToString() == timeoutId));
+            }
+            finally
+            {
+                readerWriterLock.ExitReadLock();
+            }
+        }
+
+        public Task<bool> TryRemove(string timeoutId, ContextBag context)
         {
             try
             {
@@ -41,11 +56,11 @@ namespace NServiceBus.InMemory.TimeoutPersister
                     if (data.Id == timeoutId)
                     {
                         storage.RemoveAt(index);
-                        return Task.FromResult(data);
+                        return Task.FromResult(true);
                     }
                 }
 
-                return Task.FromResult<TimeoutData>(null);
+                return Task.FromResult(false);
             }
             finally
             {
