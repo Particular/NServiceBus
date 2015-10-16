@@ -13,14 +13,16 @@
         [Test]
         public async Task Should_blow_up()
         {
-            await Scenario.Define<Context>()
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<NullPropertyEndpoint>(b => b.When(bus => bus.SendLocalAsync(new StartSagaMessage
                 {
                     SomeId = Guid.NewGuid()
                 })))
-                .AllowExceptions(ex => ex.Message.Contains("All correlated properties must have a non null or empty value assigned to them when a new saga instance is created"))
+                .AllowExceptions()
                 .Done(c => c.Exceptions.Any())
                 .Run();
+
+            Assert.True(context.Exceptions.Any(ex => ex.Message.Contains("All correlated properties must have a non null or empty value assigned to them when a new saga instance is created")));
         }
 
         public class Context : ScenarioContext

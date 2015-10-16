@@ -30,9 +30,9 @@
             };
 
             var persister = new InMemorySagaPersister();
-            await persister.Save(saga1, SagaMetadataHelper.GetMetadata<SagaWithTwoUniqueProperties>(), new ContextBag());
-            await persister.Save(saga2, SagaMetadataHelper.GetMetadata<AnotherSagaWithTwoUniqueProperties>(), new ContextBag());
-            await persister.Save(saga3, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(), new ContextBag());
+            await persister.Save(saga1, SagaMetadataHelper.GetMetadata<SagaWithTwoUniqueProperties>(saga1), new ContextBag());
+            await persister.Save(saga2, SagaMetadataHelper.GetMetadata<AnotherSagaWithTwoUniqueProperties>(saga2), new ContextBag());
+            await persister.Save(saga3, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(saga3), new ContextBag());
         }
     }
 }

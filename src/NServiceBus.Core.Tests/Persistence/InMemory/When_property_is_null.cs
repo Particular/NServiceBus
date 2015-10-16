@@ -20,7 +20,7 @@
 
             var persister = new InMemorySagaPersister();
 
-            await persister.Save(saga, SagaMetadataHelper.GetMetadata<Saga>(), new ContextBag());
+            await persister.Save(saga, SagaMetadataHelper.GetMetadata<Saga>(saga), new ContextBag());
 
             var sagaData = await persister.Get<SagaData>("Property", null, new ContextBag());
             var sagaDataWithPropertyValue = await persister.Get<SagaData>("Property", "a value", new ContextBag());

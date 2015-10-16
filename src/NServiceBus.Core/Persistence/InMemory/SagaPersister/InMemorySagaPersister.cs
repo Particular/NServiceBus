@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
@@ -52,9 +53,9 @@ namespace NServiceBus
             return Task.FromResult(default(TSagaData));
         }
 
-        public Task Save(IContainSagaData saga, SagaMetadata metadata, ContextBag context)
+        public Task Save(IContainSagaData saga, IDictionary<string, object> correlationProperties, ContextBag context)
         {
-            ValidateUniqueProperties(metadata, saga);
+            ValidateUniqueProperties(correlationProperties, saga);
 
             VersionedSagaEntity sagaEntity;
             if (data.TryGetValue(saga.Id, out sagaEntity))
@@ -96,27 +97,18 @@ namespace NServiceBus
             return TaskEx.Completed;
         }
 
-        void ValidateUniqueProperties(SagaMetadata sagaMetaData, IContainSagaData saga)
+        void ValidateUniqueProperties(IDictionary<string, object> correlationProperties, IContainSagaData saga)
         {
             var sagaType = saga.GetType();
             var existingSagas = (from s in data
                 where s.Value.SagaEntity.GetType() == sagaType && (s.Key != saga.Id)
                 select s.Value)
                 .ToList();
-            foreach (var correlationProperty in sagaMetaData.CorrelationProperties)
+            foreach (var correlationProperty in correlationProperties)
             {
-                if (correlationProperty.Name == null)
-                {
-                    continue;
-                }
+                var uniqueProperty = sagaType.GetProperty(correlationProperty.Key);
 
-                var uniqueProperty = sagaType.GetProperty(correlationProperty.Name);
-                if (!uniqueProperty.CanRead)
-                {
-                    continue;
-                }
-                var incomingSagaPropertyValue = uniqueProperty.GetValue(saga, null);
-                if (incomingSagaPropertyValue == null)
+                if (correlationProperty.Value == null)
                 {
                     var message = $"Cannot store saga with id '{saga.Id}' since the unique property '{uniqueProperty.Name}' has a null value.";
                     throw new InvalidOperationException(message);
@@ -125,7 +117,7 @@ namespace NServiceBus
                 foreach (var storedSaga in existingSagas)
                 {
                     var storedSagaPropertyValue = uniqueProperty.GetValue(storedSaga.SagaEntity, null);
-                    if (Equals(incomingSagaPropertyValue, storedSagaPropertyValue))
+                    if (Equals(correlationProperty.Value, storedSagaPropertyValue))
                     {
                         var message = $"Cannot store a saga. The saga with id '{storedSaga.SagaEntity.Id}' already has property '{uniqueProperty.Name}'.";
                         throw new InvalidOperationException(message);

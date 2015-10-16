@@ -1,6 +1,7 @@
 namespace NServiceBus.Sagas
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using NServiceBus.Extensibility;
 
@@ -13,10 +14,10 @@ namespace NServiceBus.Sagas
         /// <summary>
         /// Saves the saga entity to the persistence store.
         /// </summary>
-        /// <param name="saga">The saga entity to save.</param>
-        /// <param name="metadata">Metadata about this saga type.</param>
+        /// <param name="sagaInstance">The saga instance to save.</param>
+        /// <param name="correlationProperties">The correlation properties and their values.</param>
         /// <param name="context">The current pipeline context.</param>
-        Task Save(IContainSagaData saga,SagaMetadata metadata, ContextBag context);
+        Task Save(IContainSagaData sagaInstance, IDictionary<string, object> correlationProperties, ContextBag context);
 
         /// <summary>
         /// Updates an existing saga entity in the persistence store.

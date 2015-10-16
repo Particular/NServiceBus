@@ -2,7 +2,7 @@
 {
     using System;
     using System.Threading.Tasks;
-    using Extensibility;
+    using NServiceBus.Extensibility;
     using NUnit.Framework;
 
     [TestFixture]
@@ -11,10 +11,13 @@
         [Test]
         public async Task Should_delete_the_saga()
         {
-            var saga = new TestSagaData { Id = Guid.NewGuid() };
+            var saga = new TestSagaData
+            {
+                Id = Guid.NewGuid()
+            };
             var persister = new InMemorySagaPersister();
-        
-            await persister.Save(saga, SagaMetadataHelper.GetMetadata<TestSaga>(), new ContextBag());
+
+            await persister.Save(saga, SagaMetadataHelper.GetMetadata<TestSaga>(saga), new ContextBag());
             var sagaData = await persister.Get<TestSagaData>(saga.Id, new ContextBag());
             await persister.Complete(saga, new ContextBag());
             var completedSaga = await persister.Get<TestSagaData>(saga.Id, new ContextBag());
