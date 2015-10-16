@@ -23,9 +23,7 @@ namespace NServiceBus.Core.Tests.Config
         public void Should_for_our_code_exclude_everything_but_NServiceBus_by_default()
         {
             CollectionAssert.AreEquivalent(new string[0],
-                foundAssemblies.Where(a => !a.FullName.StartsWith("NServiceBus") && !a.FullName.StartsWith("Obsolete")
-                    // FSharp is used as an example external assembly in other tests that is not excluded by default
-                    && !a.FullName.StartsWith("TestAssembly")).ToArray());
+                foundAssemblies.Where(a => !a.FullName.StartsWith("NServiceBus") && !a.FullName.StartsWith("Obsolete")));
         }
 
         [Test]
