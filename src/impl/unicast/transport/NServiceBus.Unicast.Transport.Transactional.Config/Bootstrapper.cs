@@ -51,5 +51,6 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
         public static IsolationLevel IsolationLevel { get; set; }
         public static TimeSpan TransactionTimeout { get; set; }
         public static bool SupressDTC { get; set; }
+        public static bool SuppressOutdatedTimeoutDispatchWarning { get; set; }
     }
 }
