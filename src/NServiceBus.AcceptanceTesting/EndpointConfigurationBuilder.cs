@@ -72,6 +72,22 @@
             return this;
         }
 
+        public EndpointConfigurationBuilder EndpointSetup<T>(Action<BusConfiguration, IDictionary<Type, string>> configurationBuilderCustomization) where T : IEndpointSetupTemplate, new()
+        {
+            if (configurationBuilderCustomization == null)
+            {
+                configurationBuilderCustomization = (b, r) => { };
+            }
+            configuration.GetConfiguration = (settings, routingTable) =>
+            {
+                var endpointSetupTemplate = new T();
+                var scenarioConfigSource = new ScenarioConfigSource(configuration, routingTable);
+                return endpointSetupTemplate.GetConfiguration(settings, configuration, scenarioConfigSource, b => configurationBuilderCustomization(b, routingTable));
+            };
+
+            return this;
+        }
+
         EndpointConfiguration IEndpointConfigurationFactory.Get()
         {
             return CreateScenario();

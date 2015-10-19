@@ -32,10 +32,10 @@ namespace NServiceBus.Routing
             var destinationEndpoints = typesToRoute.SelectMany(t => unicastRoutingTable.GetDestinationsFor(t, contextBag)).Distinct().ToList();
 
             return destinationEndpoints.SelectMany(d => d.Resolve(
-                e => endpointInstances.FindInstances(e),
+                e => endpointInstances.FindInstances(e).Select(i => i.Name),
                 distributionStrategy.SelectDestination,
                 i => physicalAddresses.GetPhysicalAddress(i)
-                )).Select(a => new UnicastRoutingStrategy(a));
+                ));
         }
     }
 }

@@ -112,7 +112,6 @@ namespace NServiceBus.Unicast
             }
 
             var pipeline = new PipelineBase<RoutingContext>(builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
-
             var outgoingMessage = new OutgoingMessage(MessageBeingProcessed.MessageId, MessageBeingProcessed.Headers, MessageBeingProcessed.Body);
             var context = new RoutingContext(outgoingMessage, new UnicastRoutingStrategy(sendLocalAddress), incomingContext);
 
@@ -129,7 +128,6 @@ namespace NServiceBus.Unicast
         public async Task ForwardCurrentMessageToAsync(string destination)
         {
             var pipeline = new PipelineBase<RoutingContext>(builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
-
             var outgoingMessage = new OutgoingMessage(MessageBeingProcessed.MessageId, MessageBeingProcessed.Headers, MessageBeingProcessed.Body);
             var context = new RoutingContext(outgoingMessage, new UnicastRoutingStrategy(destination), incomingContext);
 

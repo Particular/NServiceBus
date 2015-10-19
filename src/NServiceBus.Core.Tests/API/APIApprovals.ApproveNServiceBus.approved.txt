@@ -377,9 +377,11 @@ namespace NServiceBus
         public const string RouteTo = "NServiceBus.Header.RouteTo";
         public const string SagaId = "NServiceBus.SagaId";
         public const string SagaType = "NServiceBus.SagaType";
+        public const string SendVia = "NServiceBus.SendVia";
         public const string SubscriptionMessageType = "SubscriptionMessageType";
         public const string TimeSent = "NServiceBus.TimeSent";
         public const string TimeToBeReceived = "NServiceBus.TimeToBeReceived";
+        public const string UltimateDestination = "NServiceBus.UltimateDestination";
         public const string WindowsIdentityName = "WinIdName";
     }
     public class static HostInfoConfigurationExtensions
@@ -2098,6 +2100,13 @@ namespace NServiceBus.Routing
         public AllInstancesDistributionStrategy() { }
         public override System.Collections.Generic.IEnumerable<NServiceBus.EndpointInstanceName> SelectDestination(System.Collections.Generic.IEnumerable<NServiceBus.EndpointInstanceName> allInstances) { }
     }
+    public sealed class DirectRoutingImmediateDestination
+    {
+        public DirectRoutingImmediateDestination(NServiceBus.EndpointInstanceName instanceName) { }
+        public DirectRoutingImmediateDestination(string physicalAddress) { }
+        public override bool Equals(object obj) { }
+        public override int GetHashCode() { }
+    }
     public class DistributionPolicy
     {
         public DistributionPolicy() { }
@@ -2108,12 +2117,29 @@ namespace NServiceBus.Routing
         protected DistributionStrategy() { }
         public abstract System.Collections.Generic.IEnumerable<NServiceBus.EndpointInstanceName> SelectDestination(System.Collections.Generic.IEnumerable<NServiceBus.EndpointInstanceName> allInstances);
     }
+    public class EndpointInstanceData
+    {
+        public EndpointInstanceData(NServiceBus.EndpointInstanceName name) { }
+        public System.Collections.Generic.Dictionary<string, object> ExtensionData { get; }
+        public NServiceBus.EndpointInstanceName Name { get; }
+    }
     public class EndpointInstances
     {
         public EndpointInstances() { }
+        public void AddDynamic(System.Func<NServiceBus.EndpointName, System.Collections.Generic.IEnumerable<NServiceBus.Routing.EndpointInstanceData>> dynamicRule) { }
         public void AddDynamic(System.Func<NServiceBus.EndpointName, System.Collections.Generic.IEnumerable<NServiceBus.EndpointInstanceName>> dynamicRule) { }
+        public void AddStatic(NServiceBus.EndpointName endpoint, params NServiceBus.Routing.EndpointInstanceData[] instances) { }
         public void AddStatic(NServiceBus.EndpointName endpoint, params NServiceBus.EndpointInstanceName[] instances) { }
         public void AddStaticUsingTransportDiscriminators(NServiceBus.EndpointName endpoint, params string[] transportDiscriminators) { }
+    }
+    public class Itinerary
+    {
+        public Itinerary(string ultimateDestination, params string[] sendVia) { }
+        public bool IsEmpty { get; }
+        public NServiceBus.Routing.Itinerary Advance(out string immediateDestination) { }
+        public static NServiceBus.Routing.Itinerary Empty() { }
+        public static NServiceBus.Routing.Itinerary ExtractFrom(System.Collections.Generic.IDictionary<string, string> headers) { }
+        public void Store(System.Collections.Generic.IDictionary<string, string> headers) { }
     }
     public class MulticastAddressTag : NServiceBus.Routing.AddressTag
     {
@@ -2146,24 +2172,38 @@ namespace NServiceBus.Routing
         public UnicastAddressTag(string destination) { }
         public string Destination { get; }
     }
-    public class UnicastRoutingDestination
+    public sealed class UnicastRoutingDestination
     {
         public UnicastRoutingDestination(NServiceBus.EndpointName endpointName) { }
         public UnicastRoutingDestination(NServiceBus.EndpointInstanceName instanceName) { }
         public UnicastRoutingDestination(string physicalAddress) { }
+        public override bool Equals(object obj) { }
+        public override int GetHashCode() { }
+    }
+    public sealed class UnicastRoutingRoute
+    {
+        public UnicastRoutingRoute(NServiceBus.Routing.UnicastRoutingDestination ultimateDestination, NServiceBus.Routing.DirectRoutingImmediateDestination immediateDestination = null) { }
+        public override bool Equals(object obj) { }
+        public override int GetHashCode() { }
     }
     public class UnicastRoutingStrategy : NServiceBus.Routing.RoutingStrategy
     {
-        public UnicastRoutingStrategy(string destination) { }
+        public UnicastRoutingStrategy(string ultimateDestination, params string[] route) { }
         public override NServiceBus.Routing.AddressTag Apply(System.Collections.Generic.Dictionary<string, string> headers) { }
+        public NServiceBus.Routing.UnicastRoutingStrategy SendVia(string next) { }
     }
     public class UnicastRoutingTable
     {
         public UnicastRoutingTable() { }
+        public void AddDynamic(System.Func<System.Type, NServiceBus.Extensibility.ContextBag, System.Collections.Generic.IEnumerable<NServiceBus.Routing.UnicastRoutingRoute>> dynamicRule) { }
         public void AddDynamic(System.Func<System.Type, NServiceBus.Extensibility.ContextBag, System.Collections.Generic.IEnumerable<NServiceBus.Routing.UnicastRoutingDestination>> dynamicRule) { }
+        public void AddStatic(System.Type messageType, NServiceBus.Routing.UnicastRoutingRoute route) { }
         public void AddStatic(System.Type messageType, NServiceBus.EndpointName destination) { }
+        public void AddStatic(System.Type messageType, NServiceBus.EndpointName destination, NServiceBus.EndpointInstanceName sendVia) { }
+        public void AddStatic(System.Type messageType, NServiceBus.EndpointName destination, string sendVia) { }
         public void AddStatic(System.Type messageType, NServiceBus.EndpointInstanceName destination) { }
         public void AddStatic(System.Type messageType, string destinationAddress) { }
+        public void AddStatic(System.Type messageType, string destinationAddress, string sendVia) { }
     }
     public class UnsubscribeContext : NServiceBus.Pipeline.BehaviorContext
     {

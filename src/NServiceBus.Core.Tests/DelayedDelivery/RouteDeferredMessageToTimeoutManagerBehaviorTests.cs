@@ -28,9 +28,11 @@
 
             await behavior.Invoke(context, () => Task.FromResult(0));
 
-            Assert.AreEqual("tm", ((UnicastAddressTag)context.RoutingStrategies.First().Apply(new Dictionary<string, string>())).Destination);
+            var headers = new Dictionary<string, string>();
+            var addressLabel = context.RoutingStrategies.First().Apply(headers);
+            Assert.AreEqual("tm", ((UnicastAddressTag)addressLabel).Destination);
 
-            Assert.AreEqual(message.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo], "target");
+            Assert.AreEqual(headers[Headers.UltimateDestination], "target");
         }
 
 
