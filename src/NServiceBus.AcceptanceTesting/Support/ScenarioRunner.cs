@@ -298,7 +298,7 @@
         static async Task ExecuteWhens(EndpointRunner endpoint, Func<Exception, bool> allowedExceptions, CancellationTokenSource cts)
         {
             var token = cts.Token;
-            var result = await endpoint.Whens(token);
+            var result = await endpoint.Whens(token).ConfigureAwait(false);
             if (result.Failed && !allowedExceptions(result.Exception))
             {
                 cts.Cancel();
