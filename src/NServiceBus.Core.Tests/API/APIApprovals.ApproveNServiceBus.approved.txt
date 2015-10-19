@@ -385,6 +385,8 @@ namespace NServiceBus
         public const string RouteTo = "NServiceBus.Header.RouteTo";
         public const string SagaId = "NServiceBus.SagaId";
         public const string SagaType = "NServiceBus.SagaType";
+        public const string SubscriberEndpoint = "NServiceBus.SubscriberEndpoint";
+        public const string SubscriberTransportAddress = "NServiceBus.SubscriberAddress";
         public const string SubscriptionMessageType = "SubscriptionMessageType";
         public const string TimeSent = "NServiceBus.TimeSent";
         public const string TimeToBeReceived = "NServiceBus.TimeToBeReceived";
@@ -991,6 +993,17 @@ namespace NServiceBus
             "n 7.0.0.", true)]
         public System.TimeSpan TimeToBeReceived { get; set; }
     }
+    public sealed class UnicastRoutingTarget
+    {
+        public NServiceBus.EndpointName EndpointName { get; }
+        public NServiceBus.EndpointInstanceName InstanceName { get; }
+        public string TransportAddress { get; }
+        public override bool Equals(object obj) { }
+        public override int GetHashCode() { }
+        public static NServiceBus.UnicastRoutingTarget ToAnonymousInstance(NServiceBus.EndpointName endpoint, string transportAddress) { }
+        public static NServiceBus.UnicastRoutingTarget ToEndpointInstance(NServiceBus.EndpointInstanceName instanceName) { }
+        public static NServiceBus.UnicastRoutingTarget ToTransportAddress(string transportAddress) { }
+    }
     public class UnsubscribeOptions : NServiceBus.Extensibility.ExtendableOptions
     {
         public UnsubscribeOptions() { }
@@ -1127,12 +1140,6 @@ namespace NServiceBus.Config
         public MessageForwardingInCaseOfFaultConfig() { }
         [System.Configuration.ConfigurationPropertyAttribute("ErrorQueue", IsRequired=true)]
         public string ErrorQueue { get; set; }
-    }
-    public class MsmqSubscriptionStorageConfig : System.Configuration.ConfigurationSection
-    {
-        public MsmqSubscriptionStorageConfig() { }
-        [System.Configuration.ConfigurationPropertyAttribute("Queue", IsRequired=true)]
-        public string Queue { get; set; }
     }
     public class RijndaelEncryptionServiceConfig : System.Configuration.ConfigurationSection
     {
@@ -1525,10 +1532,6 @@ namespace NServiceBus.Features
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
-    public class MsmqSubscriptionPersistence : NServiceBus.Features.Feature
-    {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
-    }
     public class MsmqTransportConfigurator : NServiceBus.Features.Feature
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
@@ -1918,10 +1921,6 @@ namespace NServiceBus.Performance.TimeToBeReceived
         public System.TimeSpan MaxTime { get; }
     }
 }
-namespace NServiceBus.Persistence.Legacy
-{
-    public class MsmqPersistence : NServiceBus.Persistence.PersistenceDefinition { }
-}
 namespace NServiceBus.Persistence
 {
     public abstract class PersistenceDefinition
@@ -2185,7 +2184,7 @@ namespace NServiceBus.Routing
     public class AllInstancesDistributionStrategy : NServiceBus.Routing.DistributionStrategy
     {
         public AllInstancesDistributionStrategy() { }
-        public override System.Collections.Generic.IEnumerable<NServiceBus.EndpointInstanceName> SelectDestination(System.Collections.Generic.IEnumerable<NServiceBus.EndpointInstanceName> allInstances) { }
+        public override System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> SelectDestination(System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> allInstances) { }
     }
     public class DistributionPolicy
     {
@@ -2195,14 +2194,21 @@ namespace NServiceBus.Routing
     public abstract class DistributionStrategy
     {
         protected DistributionStrategy() { }
-        public abstract System.Collections.Generic.IEnumerable<NServiceBus.EndpointInstanceName> SelectDestination(System.Collections.Generic.IEnumerable<NServiceBus.EndpointInstanceName> allInstances);
+        public abstract System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> SelectDestination(System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> allInstances);
     }
     public class EndpointInstances
     {
         public EndpointInstances() { }
         public void AddDynamic(System.Func<NServiceBus.EndpointName, System.Collections.Generic.IEnumerable<NServiceBus.EndpointInstanceName>> dynamicRule) { }
         public void AddStatic(NServiceBus.EndpointName endpoint, params NServiceBus.EndpointInstanceName[] instances) { }
-        public void AddStaticUsingTransportDiscriminators(NServiceBus.EndpointName endpoint, params string[] transportDiscriminators) { }
+    }
+    public interface IUnicastRoute
+    {
+        System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> Resolve(System.Func<NServiceBus.EndpointName, System.Collections.Generic.IEnumerable<NServiceBus.EndpointInstanceName>> instanceResolver);
+    }
+    public class static MessageDrivenSubscriptionsConfigExtensions
+    {
+        public static void UseLegacyMessageDrivenSubscriptionMode(this NServiceBus.BusConfiguration busConfiguration) { }
     }
     public class MulticastAddressTag : NServiceBus.Routing.AddressTag
     {
@@ -2223,7 +2229,7 @@ namespace NServiceBus.Routing
     {
         public SingleInstanceRoundRobinDistributionStrategy() { }
         [System.Runtime.CompilerServices.IteratorStateMachineAttribute(typeof(NServiceBus.Routing.SingleInstanceRoundRobinDistributionStrategy.<SelectDestination>d__3))]
-        public override System.Collections.Generic.IEnumerable<NServiceBus.EndpointInstanceName> SelectDestination(System.Collections.Generic.IEnumerable<NServiceBus.EndpointInstanceName> currentAllInstances) { }
+        public override System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> SelectDestination(System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> currentAllInstances) { }
     }
     public class SubscribeContext : NServiceBus.Pipeline.BehaviorContext
     {
@@ -2235,12 +2241,6 @@ namespace NServiceBus.Routing
         public UnicastAddressTag(string destination) { }
         public string Destination { get; }
     }
-    public class UnicastRoutingDestination
-    {
-        public UnicastRoutingDestination(NServiceBus.EndpointName endpointName) { }
-        public UnicastRoutingDestination(NServiceBus.EndpointInstanceName instanceName) { }
-        public UnicastRoutingDestination(string physicalAddress) { }
-    }
     public class UnicastRoutingStrategy : NServiceBus.Routing.RoutingStrategy
     {
         public UnicastRoutingStrategy(string destination) { }
@@ -2249,7 +2249,7 @@ namespace NServiceBus.Routing
     public class UnicastRoutingTable
     {
         public UnicastRoutingTable() { }
-        public void AddDynamic(System.Func<System.Type, NServiceBus.Extensibility.ContextBag, System.Collections.Generic.IEnumerable<NServiceBus.Routing.UnicastRoutingDestination>> dynamicRule) { }
+        public void AddDynamic(System.Func<System.Type, NServiceBus.Extensibility.ContextBag, System.Collections.Generic.IEnumerable<NServiceBus.Routing.IUnicastRoute>> dynamicRule) { }
         public void AddStatic(System.Type messageType, NServiceBus.EndpointName destination) { }
         public void AddStatic(System.Type messageType, NServiceBus.EndpointInstanceName destination) { }
         public void AddStatic(System.Type messageType, string destinationAddress) { }
@@ -2258,6 +2258,13 @@ namespace NServiceBus.Routing
     {
         public UnsubscribeContext(NServiceBus.Pipeline.BehaviorContext parentContext, System.Type eventType, NServiceBus.UnsubscribeOptions options) { }
         public System.Type EventType { get; }
+    }
+}
+namespace NServiceBus.Routing.Legacy
+{
+    public class static ConfigureMSMQDistributor
+    {
+        public static void EnlistWithLegacyMSMQDistributor(this NServiceBus.BusConfiguration config, string masterNodeAddress, string masterNodeControlAddress, int capacity) { }
     }
 }
 namespace NServiceBus.Routing.MessageDrivenSubscriptions
@@ -2747,8 +2754,8 @@ namespace NServiceBus.Transports
     public class TransportAddresses
     {
         public TransportAddresses() { }
-        public void AddException(NServiceBus.EndpointInstanceName endpointInstance, string physicalAddress) { }
         public void AddRule(System.Func<NServiceBus.EndpointInstanceName, string> dynamicRule) { }
+        public void AddSpecialCase(NServiceBus.EndpointInstanceName endpointInstance, string physicalAddress) { }
     }
     public abstract class TransportDefinition
     {
@@ -3033,9 +3040,15 @@ namespace NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions
     }
     public interface ISubscriptionStorage
     {
-        System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<string>> GetSubscriberAddressesForMessage(System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Subscriptions.MessageType> messageTypes, NServiceBus.Extensibility.ContextBag context);
-        System.Threading.Tasks.Task Subscribe(string client, System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Subscriptions.MessageType> messageTypes, NServiceBus.Extensibility.ContextBag context);
-        System.Threading.Tasks.Task Unsubscribe(string client, System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Subscriptions.MessageType> messageTypes, NServiceBus.Extensibility.ContextBag context);
+        System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber>> GetSubscriberAddressesForMessage(System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Subscriptions.MessageType> messageTypes, NServiceBus.Extensibility.ContextBag context);
+        System.Threading.Tasks.Task Subscribe(NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber subscriber, System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Subscriptions.MessageType> messageTypes, NServiceBus.Extensibility.ContextBag context);
+        System.Threading.Tasks.Task Unsubscribe(NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber subscriber, System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Subscriptions.MessageType> messageTypes, NServiceBus.Extensibility.ContextBag context);
+    }
+    public class Subscriber
+    {
+        public Subscriber(string transportAddress, NServiceBus.EndpointName endpoint) { }
+        public NServiceBus.EndpointName Endpoint { get; }
+        public string TransportAddress { get; }
     }
 }
 namespace NServiceBus.Unicast.Subscriptions

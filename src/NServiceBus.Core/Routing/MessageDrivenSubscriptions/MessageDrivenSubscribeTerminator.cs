@@ -14,11 +14,13 @@
 
     class MessageDrivenSubscribeTerminator : PipelineTerminator<SubscribeContext>
     {
-        public MessageDrivenSubscribeTerminator(SubscriptionRouter subscriptionRouter, string replyToAddress, IDispatchMessages dispatcher)
+        public MessageDrivenSubscribeTerminator(SubscriptionRouter subscriptionRouter, string subscriberAddress, EndpointName subscriberEndpointName, IDispatchMessages dispatcher, bool legacyMode)
         {
             this.subscriptionRouter = subscriptionRouter;
-            this.replyToAddress = replyToAddress;
+            this.subscriberAddress = subscriberAddress;
+            this.subscriberEndpointName = subscriberEndpointName;
             this.dispatcher = dispatcher;
+            this.legacyMode = legacyMode;
         }
 
         protected override Task Terminate(SubscribeContext context)
@@ -36,8 +38,16 @@
                 var subscriptionMessage = ControlMessageFactory.Create(MessageIntentEnum.Subscribe);
 
                 subscriptionMessage.Headers[Headers.SubscriptionMessageType] = eventType.AssemblyQualifiedName;
-                subscriptionMessage.Headers[Headers.ReplyToAddress] = replyToAddress;
 
+                if (legacyMode)
+                {
+                    subscriptionMessage.Headers[Headers.ReplyToAddress] = subscriberAddress;
+                }
+                else
+                {
+                    subscriptionMessage.Headers[Headers.SubscriberTransportAddress] = subscriberAddress;
+                    subscriptionMessage.Headers[Headers.SubscriberEndpoint] = subscriberEndpointName.ToString();
+                }
                 var address = publisherAddress;
 
                 subscribeTasks.Add(SendSubscribeMessageWithRetries(address, subscriptionMessage, eventType.AssemblyQualifiedName, context));
@@ -83,8 +93,10 @@
         }
 
         SubscriptionRouter subscriptionRouter;
-        string replyToAddress;
+        string subscriberAddress;
+        readonly EndpointName subscriberEndpointName;
         IDispatchMessages dispatcher;
+        readonly bool legacyMode;
 
         static ILog Logger = LogManager.GetLogger<MessageDrivenUnsubscribeTerminator>();
     }

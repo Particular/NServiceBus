@@ -34,17 +34,16 @@ namespace NServiceBus.Routing
         /// <param name="instances">A static list of endpoint's instances.</param>
         public void AddStatic(EndpointName endpoint, params EndpointInstanceName[] instances)
         {
+            Guard.AgainstNull(nameof(endpoint), endpoint);
+            if (instances.Length == 0)
+            {
+                throw new ArgumentException("The list of instances can't be empty.", nameof(instances));
+            }
+            if (instances.Any(i => i.EndpointName != endpoint))
+            {
+                throw new ArgumentException("At least one of the instances belongs to a different endpoint than specified in the 'endpoint' parameter.", nameof(instances));
+            }
             rules.Add(e => StaticRule(e, endpoint, instances));   
-        }
-
-        /// <summary>
-        /// Adds static information about an endpoint.
-        /// </summary>
-        /// <param name="endpoint">Name of the endpoint.</param>
-        /// <param name="transportDiscriminators">A static list of endpoint instances' transport discriminators.</param>
-        public void AddStaticUsingTransportDiscriminators(EndpointName endpoint, params string[] transportDiscriminators)
-        {
-            AddStatic(endpoint, transportDiscriminators.Select(d => new EndpointInstanceName(endpoint, null, d)).ToArray());
         }
 
         private static IEnumerable<EndpointInstanceName> StaticRule(EndpointName endpointBeingQueried, EndpointName configuredEndpoint, EndpointInstanceName[] configuredInstances)

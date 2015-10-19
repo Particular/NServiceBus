@@ -38,10 +38,15 @@
             var subscriptionMessageType = GetSubscriptionMessageTypeFrom(context.Message);
             if (subscriptionMessageType != null)
             {
+                string returnAddress;
+                if (!context.Message.Headers.TryGetValue(Headers.SubscriberTransportAddress, out returnAddress))
+                {
+                    context.Message.Headers.TryGetValue(Headers.ReplyToAddress, out returnAddress);
+                }
                 action(new SubscriptionEventArgs
                 {
                     MessageType = subscriptionMessageType,
-                    SubscriberReturnAddress = context.Message.GetReplyToAddress()
+                    SubscriberReturnAddress = returnAddress
                 }, scenarioContext);
             }
         }

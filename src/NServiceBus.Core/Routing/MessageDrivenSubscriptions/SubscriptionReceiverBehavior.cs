@@ -40,7 +40,17 @@
                 throw new InvalidOperationException("Subscription messages need to have intent set to Subscribe/Unsubscribe.");
             }
 
-            var subscriberAddress = incomingMessage.GetReplyToAddress();
+            string subscriberAddress;
+            EndpointName subscriberEndpoint = null;
+
+            if (incomingMessage.Headers.TryGetValue(Headers.SubscriberTransportAddress, out subscriberAddress))
+            {
+                subscriberEndpoint = new EndpointName(incomingMessage.Headers[Headers.SubscriberEndpoint]);
+            }
+            else
+            {
+                subscriberAddress = incomingMessage.GetReplyToAddress();
+            }
 
             if (subscriberAddress == null)
             {
@@ -66,7 +76,7 @@
 
                 var mt = new MessageType(messageTypeString);
 
-                await subscriptionStorage.Subscribe(incomingMessage.GetReplyToAddress(), new[]
+                await subscriptionStorage.Subscribe(new Subscriber(subscriberAddress, subscriberEndpoint), new[]
                 {
                     mt
                 }, context).ConfigureAwait(false);
@@ -75,7 +85,7 @@
             }
 
             Logger.Info("Unsubscribing " + subscriberAddress + " from message type " + messageTypeString);
-            await subscriptionStorage.Unsubscribe(subscriberAddress, new[]
+            await subscriptionStorage.Unsubscribe(new Subscriber(subscriberAddress, subscriberEndpoint), new[]
             {
                 new MessageType(messageTypeString)
             }, context).ConfigureAwait(false);

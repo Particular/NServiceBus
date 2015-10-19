@@ -19,7 +19,7 @@ namespace NServiceBus.Transports
         /// </summary>
         /// <param name="endpointInstance">Name of the instance for which the exception is created.</param>
         /// <param name="physicalAddress">Physical address of that instance.</param>
-        public void AddException([NotNull] EndpointInstanceName endpointInstance, string physicalAddress)
+        public void AddSpecialCase([NotNull] EndpointInstanceName endpointInstance, string physicalAddress)
         {
             Guard.AgainstNull(nameof(endpointInstance),endpointInstance);
             Guard.AgainstNullAndEmpty(nameof(physicalAddress), physicalAddress);
@@ -42,7 +42,7 @@ namespace NServiceBus.Transports
             this.transportDefault = transportDefault;
         }
 
-        internal string GetPhysicalAddress(EndpointInstanceName endpointInstance)
+        internal string GetTransportAddress(EndpointInstanceName endpointInstance)
         {
             string exception;
             if (exceptions.TryGetValue(endpointInstance, out exception))

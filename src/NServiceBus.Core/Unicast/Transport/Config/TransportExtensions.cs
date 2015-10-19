@@ -110,7 +110,7 @@ namespace NServiceBus
         /// <param name="transportAddress">Transport address of that instance.</param>
         public TransportExtensions AddAddressTranslationException(EndpointInstanceName endpointInstance, string transportAddress)
         {
-            Settings.Get<TransportAddresses>().AddException(endpointInstance, transportAddress);
+            Settings.Get<TransportAddresses>().AddSpecialCase(endpointInstance, transportAddress);
             return this;
         }
     }

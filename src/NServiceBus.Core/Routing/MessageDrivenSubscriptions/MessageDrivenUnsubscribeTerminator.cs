@@ -14,11 +14,13 @@
 
     class MessageDrivenUnsubscribeTerminator : PipelineTerminator<UnsubscribeContext>
     {
-        public MessageDrivenUnsubscribeTerminator(SubscriptionRouter subscriptionRouter, string replyToAddress, IDispatchMessages dispatcher)
+        public MessageDrivenUnsubscribeTerminator(SubscriptionRouter subscriptionRouter, string replyToAddress, EndpointName endpointName, IDispatchMessages dispatcher, bool legacyMode)
         {
             this.subscriptionRouter = subscriptionRouter;
             this.replyToAddress = replyToAddress;
+            this.endpointName = endpointName;
             this.dispatcher = dispatcher;
+            this.legacyMode = legacyMode;
         }
 
         protected override Task Terminate(UnsubscribeContext context)
@@ -36,7 +38,15 @@
                 var unsubscribeMessage = ControlMessageFactory.Create(MessageIntentEnum.Unsubscribe);
 
                 unsubscribeMessage.Headers[Headers.SubscriptionMessageType] = eventType.AssemblyQualifiedName;
-                unsubscribeMessage.Headers[Headers.ReplyToAddress] = replyToAddress;
+                if (legacyMode)
+                {
+                    unsubscribeMessage.Headers[Headers.ReplyToAddress] = replyToAddress;
+                }
+                else
+                {
+                    unsubscribeMessage.Headers[Headers.SubscriberTransportAddress] = replyToAddress;
+                    unsubscribeMessage.Headers[Headers.SubscriberEndpoint] = endpointName.ToString();
+                }
 
                 unsubscribeTasks.Add(SendUnsubscribeMessageWithRetries(publisherAddress, unsubscribeMessage, eventType.AssemblyQualifiedName, context));
             }
@@ -83,7 +93,9 @@
 
         SubscriptionRouter subscriptionRouter;
         string replyToAddress;
+        readonly EndpointName endpointName;
         IDispatchMessages dispatcher;
+        readonly bool legacyMode;
 
         static ILog Logger = LogManager.GetLogger<MessageDrivenUnsubscribeTerminator>();
     }

@@ -29,13 +29,35 @@ namespace NServiceBus.Routing
                 .Distinct()
                 .ToList();
 
-            var destinationEndpoints = typesToRoute.SelectMany(t => unicastRoutingTable.GetDestinationsFor(t, contextBag)).Distinct().ToList();
+            var routes = typesToRoute.SelectMany(t => unicastRoutingTable.GetDestinationsFor(t, contextBag)).Distinct().ToList();
 
-            return destinationEndpoints.SelectMany(d => d.Resolve(
-                e => endpointInstances.FindInstances(e),
-                distributionStrategy.SelectDestination,
-                i => physicalAddresses.GetPhysicalAddress(i)
-                )).Select(a => new UnicastRoutingStrategy(a));
+            var destinations = routes.SelectMany(d => d.Resolve(e => endpointInstances.FindInstances(e))).Distinct();
+
+            var destinationsByEndpoint = destinations.GroupBy(d => d.EndpointName, d => d);
+
+            var selectedDestinations = SelectDestinationsForEachEndpoint(distributionStrategy, destinationsByEndpoint);
+
+            return selectedDestinations.Select(destination => new UnicastRoutingStrategy(destination.Resolve(physicalAddresses.GetTransportAddress)));
+        }
+
+        static IEnumerable<UnicastRoutingTarget> SelectDestinationsForEachEndpoint(DistributionStrategy distributionStrategy, IEnumerable<IGrouping<EndpointName, UnicastRoutingTarget>> destinationsByEndpoint)
+        {
+            foreach (var group in destinationsByEndpoint)
+            {
+                Func<IEnumerable<UnicastRoutingTarget>, IEnumerable<UnicastRoutingTarget>> selector;
+                if (@group.Key == null)
+                {
+                    selector = x => x;
+                }
+                else
+                {
+                    selector = distributionStrategy.SelectDestination;
+                }
+                foreach (var destination in selector(@group))
+                {
+                    yield return destination;
+                }
+            }
         }
     }
 }

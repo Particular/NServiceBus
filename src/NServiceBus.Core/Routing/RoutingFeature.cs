@@ -7,6 +7,7 @@
     using NServiceBus.Config;
     using NServiceBus.Extensibility;
     using NServiceBus.ObjectBuilder;
+    using NServiceBus.OutgoingPipeline;
     using NServiceBus.Routing;
     using NServiceBus.Routing.MessageDrivenSubscriptions;
     using NServiceBus.Settings;
@@ -97,8 +98,10 @@
                     context.Pipeline.Register("MessageDrivenSubscribeTerminator", typeof(MessageDrivenSubscribeTerminator), "Sends subscription requests when message driven subscriptions is in use");
                     context.Pipeline.Register("MessageDrivenUnsubscribeTerminator", typeof(MessageDrivenUnsubscribeTerminator), "Sends requests to unsubscribe when message driven subscriptions is in use");
 
-                    context.Container.ConfigureComponent(b => new MessageDrivenSubscribeTerminator(b.Build<SubscriptionRouter>(), ReplyToAddress(b), b.Build<IDispatchMessages>()), DependencyLifecycle.SingleInstance);
-                    context.Container.ConfigureComponent(b => new MessageDrivenUnsubscribeTerminator(b.Build<SubscriptionRouter>(), ReplyToAddress(b), b.Build<IDispatchMessages>()), DependencyLifecycle.SingleInstance);
+                    var legacyMode = context.Settings.GetOrDefault<bool>("NServiceBus.Routing.UseLegacyMessageDrivenSubscriptionMode");
+
+                    context.Container.ConfigureComponent(b => new MessageDrivenSubscribeTerminator(b.Build<SubscriptionRouter>(), ReplyToAddress(b), context.Settings.EndpointName(), b.Build<IDispatchMessages>(), legacyMode), DependencyLifecycle.SingleInstance);
+                    context.Container.ConfigureComponent(b => new MessageDrivenUnsubscribeTerminator(b.Build<SubscriptionRouter>(), ReplyToAddress(b), context.Settings.EndpointName(), b.Build<IDispatchMessages>(), legacyMode), DependencyLifecycle.SingleInstance);
                 }
                 else
                 {
@@ -126,7 +129,7 @@
             return builder.Build<ReadOnlySettings>().LocalAddress();
         }
 
-        public class SubscriptionStoreRouteInformationProvider : FeatureStartupTask
+        class SubscriptionStoreRouteInformationProvider : FeatureStartupTask
         {
             ReadOnlySettings settings;
             IBuilder builder;
@@ -151,13 +154,40 @@
                 return TaskEx.Completed;
             }
 
-            private static IEnumerable<UnicastRoutingDestination> QuerySubscriptionStore(ISubscriptionStorage subscriptions, Type messageType, ContextBag contextBag)
+            private static IEnumerable<IUnicastRoute> QuerySubscriptionStore(ISubscriptionStorage subscriptions, Type messageType, ContextBag contextBag)
             {
+                if (!(contextBag is OutgoingPublishContext))
+                {
+                    return Enumerable.Empty<UnicastRoute>();
+                }
                 var messageTypes = new[]
                 {
                     new MessageType(messageType)
                 };
-                return subscriptions.GetSubscriberAddressesForMessage(messageTypes, contextBag).GetAwaiter().GetResult().Select(s => new UnicastRoutingDestination(s));
+                var subscribers = subscriptions.GetSubscriberAddressesForMessage(messageTypes, contextBag).GetAwaiter().GetResult();
+                return subscribers.Select(s => new SubscriberDestination(s));
+            }
+
+            private class SubscriberDestination : IUnicastRoute
+            {
+                UnicastRoutingTarget target;
+
+                public SubscriberDestination(Subscriber subscriber)
+                {
+                    if (subscriber.Endpoint != null)
+                    {
+                        target = UnicastRoutingTarget.ToAnonymousInstance(subscriber.Endpoint, subscriber.TransportAddress);
+                    }
+                    else
+                    {
+                        target = UnicastRoutingTarget.ToTransportAddress(subscriber.TransportAddress);
+                    }
+                }
+
+                public IEnumerable<UnicastRoutingTarget> Resolve(Func<EndpointName, IEnumerable<EndpointInstanceName>> instanceResolver)
+                {
+                    yield return target;
+                }
             }
         }
     }

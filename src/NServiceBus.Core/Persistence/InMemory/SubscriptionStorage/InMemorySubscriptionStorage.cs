@@ -10,48 +10,45 @@ namespace NServiceBus.InMemory.SubscriptionStorage
 
     class InMemorySubscriptionStorage : ISubscriptionStorage
     {
-        public Task Subscribe(string address, IEnumerable<MessageType> messageTypes, ContextBag context)
+        public Task Subscribe(Subscriber subscriber, IEnumerable<MessageType> messageTypes, ContextBag context)
         {
             foreach (var m in messageTypes)
             {
-                var dict = storage.GetOrAdd(m, type => new ConcurrentDictionary<string, object>(StringComparer.OrdinalIgnoreCase));
+                var dict = storage.GetOrAdd(m, type => new ConcurrentDictionary<string, Subscriber>(StringComparer.OrdinalIgnoreCase));
 
-                dict.AddOrUpdate(address, addValueFactory, updateValueFactory);
+                dict.AddOrUpdate(subscriber.TransportAddress, _ => subscriber, (_, __) => subscriber);
             }
             return TaskEx.Completed;
         }
 
-        public Task Unsubscribe(string address, IEnumerable<MessageType> messageTypes, ContextBag context)
+        public Task Unsubscribe(Subscriber subscriber, IEnumerable<MessageType> messageTypes, ContextBag context)
         {
             foreach (var m in messageTypes)
             {
-                ConcurrentDictionary<string, object> dict;
+                ConcurrentDictionary<string, Subscriber> dict;
                 if (storage.TryGetValue(m, out dict))
                 {
-                    object _;
-                    dict.TryRemove(address, out _);
+                    Subscriber _;
+                    dict.TryRemove(subscriber.TransportAddress, out _);
                 }
             }
             return TaskEx.Completed;
         }
 
-        public Task<IEnumerable<string>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes, ContextBag context)
+        public Task<IEnumerable<Subscriber>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes, ContextBag context)
         {
-            var result = new HashSet<string>();
+            var result = new HashSet<Subscriber>();
             foreach (var m in messageTypes)
             {
-                ConcurrentDictionary<string, object> list;
+                ConcurrentDictionary<string, Subscriber> list;
                 if (storage.TryGetValue(m, out list))
                 {
-                    result.UnionWith(list.Keys);
+                    result.UnionWith(list.Values);
                 }
             }
-            return Task.FromResult((IEnumerable<string>) result);
+            return Task.FromResult((IEnumerable<Subscriber>) result);
         }
 
-        Func<string, object> addValueFactory = a => null;
-
-        ConcurrentDictionary<MessageType, ConcurrentDictionary<string, object>> storage = new ConcurrentDictionary<MessageType, ConcurrentDictionary<string, object>>();
-        Func<string, object, object> updateValueFactory = (a, o) => null;
+        ConcurrentDictionary<MessageType, ConcurrentDictionary<string, Subscriber>> storage = new ConcurrentDictionary<MessageType, ConcurrentDictionary<string, Subscriber>>();
     }
 }
