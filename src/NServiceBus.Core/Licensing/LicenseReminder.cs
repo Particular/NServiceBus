@@ -10,16 +10,20 @@ namespace NServiceBus.Features
         public LicenseReminder()
         {
             EnableByDefault();
+
+            Defaults(s => s.SetDefault(LicenseTextSettingsKey, null));
         }
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             try
             {
-                LicenseManager.InitializeLicense();
+                var licenseManager = new LicenseManager();
+                licenseManager.InitializeLicense(context.Settings.Get<string>(LicenseTextSettingsKey));
 
-                var licenseExpired = LicenseManager.HasLicenseExpired();
+                context.Container.RegisterSingleton(licenseManager);
 
+                var licenseExpired = licenseManager.HasLicenseExpired();
                 if (!licenseExpired)
                 {
                     return;
@@ -40,5 +44,7 @@ namespace NServiceBus.Features
         }
 
         static ILog Logger = LogManager.GetLogger<LicenseReminder>();
+
+        public const string LicenseTextSettingsKey = "LicenseText";
     }
 }

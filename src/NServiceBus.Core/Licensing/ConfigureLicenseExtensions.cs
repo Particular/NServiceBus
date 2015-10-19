@@ -18,10 +18,10 @@ namespace NServiceBus
         /// <param name="licenseText">The license text.</param>
         public static void License(this BusConfiguration config, string licenseText)
         {
-            Guard.AgainstNullAndEmpty("licenseText", licenseText);
-            Guard.AgainstNull("config", config);
+            Guard.AgainstNullAndEmpty(nameof(licenseText), licenseText);
+            Guard.AgainstNull(nameof(config), config);
             Logger.Info(@"Using license supplied via fluent API.");
-            LicenseManager.InitializeLicenseText(licenseText);
+            config.Settings.Set(Features.LicenseReminder.LicenseTextSettingsKey, licenseText);
         }
 
 
@@ -32,8 +32,8 @@ namespace NServiceBus
         /// <param name="licenseFile">A relative or absolute path to the license file.</param>
         public static void LicensePath(this BusConfiguration config, string licenseFile)
         {
-            Guard.AgainstNull("config", config);
-            Guard.AgainstNullAndEmpty("licenseFile", licenseFile);
+            Guard.AgainstNull(nameof(config), config);
+            Guard.AgainstNullAndEmpty(nameof(licenseFile), licenseFile);
             if (!File.Exists(licenseFile))
             {
                 throw new FileNotFoundException("License file not found", licenseFile);

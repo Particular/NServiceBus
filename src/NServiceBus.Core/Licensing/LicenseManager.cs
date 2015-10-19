@@ -7,19 +7,89 @@ namespace NServiceBus.Licensing
     using Microsoft.Win32;
     using Particular.Licensing;
 
-    static class LicenseManager
+    class LicenseManager
     {
-        internal static bool HasLicenseExpired()
+        internal bool HasLicenseExpired()
         {
             return license == null || LicenseExpirationChecker.HasLicenseExpired(license);
         }
 
-        internal static void InitializeLicenseText(string license)
+        internal void InitializeLicense(string licenseText)
         {
-            licenseText = license;
+            //only do this if not been configured by the fluent API
+            if (licenseText == null)
+            {
+                licenseText = GetExistingLicense();
+            }
+
+            if (string.IsNullOrWhiteSpace(licenseText))
+            {
+                license = GetTrialLicense();
+                PromptUserForLicenseIfTrialHasExpired();
+                return;
+            }
+
+            LicenseVerifier.Verify(licenseText);
+
+            var foundLicense = LicenseDeserializer.Deserialize(licenseText);
+
+            if (LicenseExpirationChecker.HasLicenseExpired(foundLicense))
+            {
+                Logger.Fatal("Your license has expired! You can renew it at http://particular.net/licensing.");
+                return;
+            }
+
+            if (foundLicense.UpgradeProtectionExpiration != null)
+            {
+                Logger.InfoFormat("License upgrade protection expires on: {0}", foundLicense.UpgradeProtectionExpiration);
+            }
+            else
+            {
+                Logger.InfoFormat("License expires on {0}", foundLicense.ExpirationDate);
+            }
+
+            license = foundLicense;
         }
 
-        internal static void PromptUserForLicenseIfTrialHasExpired()
+        static License GetTrialLicense()
+        {
+            var trialStartDate = TrialStartDateStore.GetTrialStartDate();
+            var trialLicense = License.TrialLicense(trialStartDate);
+
+            //Check trial is still valid
+            if (LicenseExpirationChecker.HasLicenseExpired(trialLicense))
+            {
+                Logger.WarnFormat("Trial for the Particular Service Platform has expired");
+            }
+            else
+            {
+                var message = $"Trial for Particular Service Platform is still active, trial expires on {trialLicense.ExpirationDate.Value.ToLocalTime().ToShortDateString()}.";
+                Logger.Info(message);
+            }
+
+            return trialLicense;
+        }
+
+        static string GetExistingLicense()
+        {
+            string existingLicense;
+
+            //look in HKCU
+            if (UserSidChecker.IsNotSystemSid() && new RegistryLicenseStore().TryReadLicense(out existingLicense))
+            {
+                return existingLicense;
+            }
+
+            //look in HKLM
+            if (new RegistryLicenseStore(Registry.LocalMachine).TryReadLicense(out existingLicense))
+            {
+                return existingLicense;
+            }
+
+            return LicenseLocationConventions.TryFindLicenseText();
+        }
+
+        void PromptUserForLicenseIfTrialHasExpired()
         {
             if (!(Debugger.IsAttached && SystemInformation.UserInteractive))
             {
@@ -48,84 +118,8 @@ namespace NServiceBus.Licensing
             }
         }
 
-        static License GetTrialLicense()
-        {
-            var trialStartDate = TrialStartDateStore.GetTrialStartDate();
-            var trialLicense = License.TrialLicense(trialStartDate);
-
-            //Check trial is still valid
-            if (LicenseExpirationChecker.HasLicenseExpired(trialLicense))
-            {
-                Logger.WarnFormat("Trial for the Particular Service Platform has expired");
-            }
-            else
-            {
-                var message = $"Trial for Particular Service Platform is still active, trial expires on {trialLicense.ExpirationDate.Value.ToLocalTime().ToShortDateString()}.";
-                Logger.Info(message);
-            }
-
-            return trialLicense;
-        }
-
-        internal static void InitializeLicense()
-        {
-            //only do this if not been configured by the fluent API
-            if (licenseText == null)
-            {
-                licenseText = GetExistingLicense();
-            }
-
-            if (string.IsNullOrWhiteSpace(licenseText))
-            {
-                license = GetTrialLicense();
-                return;
-            }
-
-            LicenseVerifier.Verify(licenseText);
-
-            var foundLicense = LicenseDeserializer.Deserialize(licenseText);
-
-            if (LicenseExpirationChecker.HasLicenseExpired(foundLicense))
-            {
-                Logger.Fatal(" You can renew it at http://particular.net/licensing.");
-                return;
-            }
-
-            if (foundLicense.UpgradeProtectionExpiration != null)
-            {
-                Logger.InfoFormat("UpgradeProtectionExpiration: {0}", foundLicense.UpgradeProtectionExpiration);
-            }
-            else
-            {
-                Logger.InfoFormat("Expires on {0}", foundLicense.ExpirationDate);
-            }
-
-            license = foundLicense;
-        }
-
-        static string GetExistingLicense()
-        {
-            string existingLicense;
-
-            //look in HKCU
-            if (UserSidChecker.IsNotSystemSid() && new RegistryLicenseStore().TryReadLicense(out existingLicense))
-            {
-                return existingLicense;
-            }
-
-            //look in HKLM
-            if (new RegistryLicenseStore(Registry.LocalMachine).TryReadLicense(out existingLicense))
-            {
-                return existingLicense;
-            }
-
-            return LicenseLocationConventions.TryFindLicenseText();
-        }
-
         static ILog Logger = LogManager.GetLogger(typeof(LicenseManager));
-        static string licenseText;
-        static License license;
 
-
+        License license;
     }
 }
