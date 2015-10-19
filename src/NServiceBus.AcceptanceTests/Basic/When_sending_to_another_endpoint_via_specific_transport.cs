@@ -57,13 +57,12 @@
                     c.UseAdditionalOutgoingTransport<MsmqTransport>();
 
                     var msmqEndpoint = new EndpointName("SendingToAnotherEndpointViaSpecificTransport.MsmqReceiver");
-                    c.Routing().UnicastRoutingTable.AddStatic(typeof(MyMessage), msmqEndpoint);
                     var fakeTransportEndpoint = new EndpointName("SendingToAnotherEndpointViaSpecificTransport.FakeTransportReceiver");
+
+                    c.Routing().UnicastRoutingTable.AddStatic(typeof(MyMessage), msmqEndpoint);
                     c.Routing().UnicastRoutingTable.AddStatic(typeof(MyMessage), fakeTransportEndpoint);
 
-                    var instanceData = new EndpointInstanceData(new EndpointInstanceName(msmqEndpoint, null, null));
-                    instanceData.UseTransport<MsmqTransport>();
-                    c.Routing().EndpointInstances.AddStatic(msmqEndpoint, instanceData);
+                    c.Routing().EndpointInstances.AddStatic(msmqEndpoint, new EndpointInstanceData(new EndpointInstanceName(msmqEndpoint, null, null)).UseTransport<MsmqTransport>());
                     c.Routing().EndpointInstances.AddStatic(fakeTransportEndpoint, new EndpointInstanceData(new EndpointInstanceName(fakeTransportEndpoint, null, null)));
                 });
             }

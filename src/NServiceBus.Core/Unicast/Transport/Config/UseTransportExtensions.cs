@@ -44,7 +44,38 @@ namespace NServiceBus
             AddOutboundTransport(busConfiguration, transportDefinition, contextBag, true);
             return new TransportExtensions(contextBag);
         }
+        
+        static void AddOutboundTransport(BusConfiguration busConfiguration, TransportDefinition transportDefinition, ContextBag contextBag, bool isDefault)
+        {
+            OutboundTransports outboundTransports;
+            if (!busConfiguration.Settings.TryGet(out outboundTransports))
+            {
+                outboundTransports = new OutboundTransports();
+                busConfiguration.Settings.Set<OutboundTransports>(outboundTransports);
+            }
+            outboundTransports.Add(transportDefinition, contextBag, isDefault);
+        }
 
+        internal static void EnsureTransportConfigured(BusConfiguration busConfiguration)
+        {
+            if (!busConfiguration.Settings.HasExplicitValue<TransportDefinition>())
+            {
+                busConfiguration.UseTransport<MsmqTransport>();
+            }
+        }
+    }
+}
+
+namespace NServiceBus.Transports
+{
+    using System;
+    using NServiceBus.Extensibility;
+
+    /// <summary>
+    /// Extension methods to configure transport.
+    /// </summary>
+    public static class UseTransportExtensions
+    {
         /// <summary>
         /// Configures NServiceBus to use the given transport for sending messages out.
         /// </summary>

@@ -12,10 +12,11 @@ namespace NServiceBus.Transports
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="instanceData"></param>
-        public static void UseTransport<T>(this EndpointInstanceData instanceData)
+        public static EndpointInstanceData UseTransport<T>(this EndpointInstanceData instanceData)
             where T : TransportDefinition, new()
         {
             instanceData.ExtensionData["NServiceBus.Transports.SpecificTransport"] = typeof(T).AssemblyQualifiedName;
+            return instanceData;
         }
     }
 }
