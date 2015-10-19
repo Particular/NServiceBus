@@ -182,24 +182,9 @@ namespace NServiceBus.Unicast
             get { throw new NotImplementedException(); }
         }
 
-        public MessageContext MessageContext
-        {
-            get
-            {
-                IncomingMessage current;
-
-                if (!incomingContext.TryGet(out current))
-                {
-                    return null;
-                }
-
-                return new MessageContext(current);
-            }
-        }
-
         BehaviorContext incomingContext => contextStacker.GetCurrentOrRootContext();
 
-        IncomingMessage MessageBeingProcessed
+        public IncomingMessage MessageBeingProcessed
         {
             get
             {

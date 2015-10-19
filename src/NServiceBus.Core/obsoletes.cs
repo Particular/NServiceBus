@@ -443,6 +443,11 @@ namespace NServiceBus.Unicast
             set { throw new NotImplementedException(); }
         }
     }
+
+    [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0")]
+    public class MessageContext : IMessageContext
+    {
+    }
 }
 
 namespace NServiceBus.Timeout.Core

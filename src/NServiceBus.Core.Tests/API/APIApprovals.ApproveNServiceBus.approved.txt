@@ -2816,6 +2816,11 @@ namespace NServiceBus.Unicast
     [System.ObsoleteAttribute("Not a public API. Please use `MessageHandlerRegistry` instead. Will be removed in" +
         " version 7.0.0.", true)]
     public interface IMessageHandlerRegistry { }
+    [System.ObsoleteAttribute("Will be removed in version 7.0.0.", true)]
+    public class MessageContext : NServiceBus.IMessageContext
+    {
+        public MessageContext() { }
+    }
     public class MessageEventArgs : System.EventArgs
     {
         public MessageEventArgs(object msg) { }

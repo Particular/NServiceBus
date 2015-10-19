@@ -652,7 +652,6 @@
     <Compile Include="Unicast\BuilderExtensions.cs" />
     <Compile Include="Unicast\Config\LoadMessageHandlersExtentions.cs" />
     <Compile Include="Unicast\MessagesEventArgs.cs" />
-    <Compile Include="Unicast\MessageContext.cs" />
     <Compile Include="Unicast\MessageEventArgs.cs" />
     <Compile Include="Unicast\Messages\MessageMetadataRegistry.cs" />
     <Compile Include="Unicast\Messages\MessageMetadata.cs" />

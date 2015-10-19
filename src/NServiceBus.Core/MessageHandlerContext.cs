@@ -3,6 +3,7 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using NServiceBus.Transports;
     using NServiceBus.Unicast;
 
     class MessageHandlerContext : IMessageHandlerContext
@@ -14,11 +15,11 @@ namespace NServiceBus
             this.bus = bus;
         }
 
-        public string MessageId => bus.MessageContext.Id;
+        public string MessageId => bus.MessageBeingProcessed.MessageId;
 
-        public string ReplyToAddress => bus.MessageContext.ReplyToAddress;
+        public string ReplyToAddress => bus.MessageBeingProcessed.GetReplyToAddress();
 
-        public IReadOnlyDictionary<string, string> MessageHeaders => bus.MessageContext.Headers;
+        public IReadOnlyDictionary<string, string> MessageHeaders => bus.MessageBeingProcessed.Headers;
 
         public Task SendAsync(object message, SendOptions options)
         {
