@@ -35,17 +35,17 @@ namespace NServiceBus.Licensing
 
             if (LicenseExpirationChecker.HasLicenseExpired(foundLicense))
             {
-                Logger.Fatal(" You can renew it at http://particular.net/licensing.");
+                Logger.Fatal("Your license has expired! You can renew it at http://particular.net/licensing.");
                 return;
             }
 
             if (foundLicense.UpgradeProtectionExpiration != null)
             {
-                Logger.InfoFormat("UpgradeProtectionExpiration: {0}", foundLicense.UpgradeProtectionExpiration);
+                Logger.InfoFormat("License upgrade protection expires on: {0}", foundLicense.UpgradeProtectionExpiration);
             }
             else
             {
-                Logger.InfoFormat("Expires on {0}", foundLicense.ExpirationDate);
+                Logger.InfoFormat("License expires on {0}", foundLicense.ExpirationDate);
             }
 
             license = foundLicense;
