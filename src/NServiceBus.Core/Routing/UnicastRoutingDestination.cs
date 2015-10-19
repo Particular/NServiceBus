@@ -12,6 +12,7 @@ namespace NServiceBus.Routing
         EndpointName endpointName;
         EndpointInstanceName instanceName;
         string physicalAddress;
+        Dictionary<string, string> extensionInformation; 
 
         /// <summary>
         /// Creates a destination based on the name of the endpoint.
@@ -27,41 +28,47 @@ namespace NServiceBus.Routing
         /// Creates a destination based on the name of the endpoint instance.
         /// </summary>
         /// <param name="instanceName">Destination instance name.</param>
-        public UnicastRoutingDestination(EndpointInstanceName instanceName)
+        /// <param name="extensionInformation">Extension information.</param>
+        public UnicastRoutingDestination(EndpointInstanceName instanceName, Dictionary<string, string> extensionInformation = null)
         {
             Guard.AgainstNull(nameof(instanceName),instanceName);
             this.instanceName = instanceName;
+            this.extensionInformation = extensionInformation ?? new Dictionary<string, string>();
         }
 
         /// <summary>
         /// Creates a destination based on the physical address.
         /// </summary>
         /// <param name="physicalAddress">Destination physical address.</param>
-        public UnicastRoutingDestination(string physicalAddress)
+        /// <param name="extensionInformation">Extension information.</param>
+        public UnicastRoutingDestination(string physicalAddress, Dictionary<string, string> extensionInformation = null)
         {
             Guard.AgainstNullAndEmpty(nameof(physicalAddress),physicalAddress);
             this.physicalAddress = physicalAddress;
+            this.extensionInformation = extensionInformation ?? new Dictionary<string, string>();
         }
 
-        internal IEnumerable<string> Resolve(Func<EndpointName, IEnumerable<EndpointInstanceName>> instanceResolver,
+        internal IEnumerable<Tuple<string, Dictionary<string, string>>> Resolve(
+            Func<EndpointName, IEnumerable<EndpointInstanceData>> instanceResolver,
             Func<IEnumerable<EndpointInstanceName>, IEnumerable<EndpointInstanceName>> instanceSelector,
             Func<EndpointInstanceName, string> addressResolver
             )
         {
             if (physicalAddress != null)
             {
-                yield return physicalAddress;
+                yield return Tuple.Create(physicalAddress, extensionInformation);
             }
             else if (instanceName != null)
             {
-                yield return addressResolver(instanceName);
+                yield return Tuple.Create(addressResolver(instanceName), extensionInformation);
             }
             else
             {
-                var addresses = instanceSelector(instanceResolver(endpointName)).Select(addressResolver);
+                var instances = instanceResolver(endpointName).ToDictionary(i => i.Name, i => i.ExtensionData);
+                var addresses = instanceSelector(instances.Keys).Select(i => new { Address = addressResolver(i), Data = instances[i]});
                 foreach (var address in addresses)
                 {
-                    yield return address;
+                    yield return Tuple.Create(address.Address, address.Data);
                 }
             }
         }

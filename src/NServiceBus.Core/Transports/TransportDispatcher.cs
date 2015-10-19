@@ -8,14 +8,14 @@ namespace NServiceBus.Transports
     /// <summary>
     /// Provides access to the dispatchers.
     /// </summary>
-    class TransportDispatcher
+    public class TransportDispatcher
     {
         IDispatchMessages defaultDispatcher;
-        IReadOnlyCollection<Tuple<IDispatchMessages, TransportDefinition>> dispatchers;
+        IReadOnlyCollection<Tuple<IDispatchMessages, string>> dispatchers;
 
         internal TransportDispatcher(
             IDispatchMessages defaultDispatcher,
-            IReadOnlyCollection<Tuple<IDispatchMessages, TransportDefinition>> dispatchers)
+            IReadOnlyCollection<Tuple<IDispatchMessages, string>> dispatchers)
         {
             if (defaultDispatcher == null)
             {
@@ -25,7 +25,12 @@ namespace NServiceBus.Transports
             this.dispatchers = dispatchers;
         }
 
-        public Task UseDispatcher(Func<IDispatchMessages, Task> action)
+        /// <summary>
+        /// Uses the default dispatcher.
+        /// </summary>
+        /// <param name="action">A callback that makes use of the default dispatcher.</param>
+        /// <returns></returns>
+        public Task UseDefaultDispatcher(Func<IDispatchMessages, Task> action)
         {
             if (defaultDispatcher == null)
             {
@@ -33,8 +38,14 @@ namespace NServiceBus.Transports
             }
             return action(defaultDispatcher);
         }
-        
-        public Task UseDispatcherFor(TransportDefinition transport, Func<IDispatchMessages, Task> action)
+
+        /// <summary>
+        /// Allows to use a specific transport dispatcher.
+        /// </summary>
+        /// <param name="transport">Specific transport.</param>
+        /// <param name="action">A callback that makes use of the selected dispatcher.</param>
+        /// <returns></returns>
+        public Task UseDispatcher(string transport, Func<IDispatchMessages, Task> action)
         {
             var dispatcher = dispatchers.Single(d => d.Item2 == transport).Item1;
             return action(dispatcher);

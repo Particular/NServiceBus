@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
@@ -132,7 +133,7 @@
             public class ProxyBehavior : Behavior<TransportReceiveContext>
             {
                 public Context Context { get; set; }
-                public IDispatchMessages Dispatcher { get; set; }
+                public TransportDispatcher Dispatcher { get; set; }
                 
                 public override async Task Invoke(TransportReceiveContext context, Func<Task> next)
                 {
@@ -140,11 +141,11 @@
                     string destination;
                     itinerary.Advance(out destination);
                     var outgoingMessage = new OutgoingMessage(context.Message.MessageId, context.Message.Headers, context.Message.Body);
-                    var addressLabel = new UnicastAddressTag(destination);
-                    await Dispatcher.Dispatch(new[]
+                    var addressLabel = new UnicastAddressTag(destination, new Dictionary<string, string>());
+                    await Dispatcher.UseDefaultDispatcher(d =>d.Dispatch(new[]
                     {
                         new TransportOperation(outgoingMessage, new DispatchOptions(addressLabel, DispatchConsistency.Default))
-                    }, context);
+                    }, context)).ConfigureAwait(false);
                     await next().ConfigureAwait(false);
                 }
             }

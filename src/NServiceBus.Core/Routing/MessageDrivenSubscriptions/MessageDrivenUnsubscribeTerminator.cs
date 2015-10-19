@@ -52,8 +52,8 @@
             try
             {
 
-                var dispatchOptions = new DispatchOptions(new UnicastAddressTag(destination), DispatchConsistency.Default);
-                await dispatcher.UseDispatcher(d => d.Dispatch(new[] { new TransportOperation(unsubscribeMessage, dispatchOptions) }, context)).ConfigureAwait(false);
+                var dispatchOptions = new DispatchOptions(new UnicastAddressTag(destination, new Dictionary<string, string>()), DispatchConsistency.Default);
+                await dispatcher.UseDefaultDispatcher(d => d.Dispatch(new[] { new TransportOperation(unsubscribeMessage, dispatchOptions) }, context)).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {

@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using System.Linq;
     using System.Threading.Tasks;
     using Pipeline;
     using Transports;
@@ -11,9 +12,27 @@
             this.dispatcher = dispatcher;
         }
 
-        protected override Task Terminate(DispatchContext context)
+        protected override async Task Terminate(DispatchContext context)
         {
-            return dispatcher.UseDispatcher(d => d.Dispatch(context.Operations, context));
+            var opsByTransport = context.Operations.GroupBy(o =>
+            {
+                string selectedTransport;
+                return o.DispatchOptions.AddressTag.TryGet("NServiceBus.Transports.SpecificTransport", out selectedTransport)
+                    ? selectedTransport
+                    : null;
+            }, o => o);
+
+            foreach (var group in opsByTransport)
+            {
+                if (group.Key == null)
+                {
+                    await dispatcher.UseDefaultDispatcher(d => d.Dispatch(group, context)).ConfigureAwait(false);
+                }
+                else
+                {
+                    await dispatcher.UseDispatcher(group.Key, d => d.Dispatch(group, context)).ConfigureAwait(false);
+                }
+            }
         }
 
         TransportDispatcher dispatcher;

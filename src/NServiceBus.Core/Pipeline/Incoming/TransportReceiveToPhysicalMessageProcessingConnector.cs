@@ -94,6 +94,11 @@ namespace NServiceBus
 
         static void SerializeRoutingStategy(AddressTag addressTag, Dictionary<string, string> options)
         {
+            foreach (var extensionValue in addressTag.GetExtensionValues())
+            {
+                options["AddressTag." + extensionValue.Key] = extensionValue.Value;
+            }
+
             var indirect = addressTag as MulticastAddressTag;
             if (indirect != null)
             {
@@ -175,16 +180,19 @@ namespace NServiceBus
         {
             string destination;
 
+            var extensionData = options.Where(kvp => kvp.Key.StartsWith("AddressTag."));
+            var extensionDict = extensionData.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+
             if (options.TryGetValue("Destination", out destination))
             {
-                return new UnicastAddressTag(destination);
+                return new UnicastAddressTag(destination, extensionDict);
             }
 
             string eventType;
 
             if (options.TryGetValue("EventType", out eventType))
             {
-                return new MulticastAddressTag(Type.GetType(eventType, true));
+                return new MulticastAddressTag(Type.GetType(eventType, true), extensionDict);
             }
 
             throw new Exception("Could not find routing strategy to deserialize");

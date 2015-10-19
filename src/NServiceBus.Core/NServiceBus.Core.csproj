@@ -140,6 +140,7 @@
     <Compile Include="Routing\UnicastRouter.cs" />
     <Compile Include="Routing\FileBasedDynamicRouting\FileRoutingTableSettings.cs" />
     <Compile Include="Routing\EndpointInstances.cs" />
+    <Compile Include="Transports\EndpointInstanceDataExtensions.cs" />
     <Compile Include="Transports\TransactionSupport.cs" />
     <Compile Include="Transports\Sending.cs" />
     <Compile Include="Transports\TransportAddresses.cs" />

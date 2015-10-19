@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using Routing;
     using Timeout.Core;
@@ -27,12 +28,12 @@ namespace NServiceBus
                 return;
             }
 
-            var sendOptions = new DispatchOptions(new UnicastAddressTag(timeoutData.Destination), dispatchConsistency);
+            var sendOptions = new DispatchOptions(new UnicastAddressTag(timeoutData.Destination, new Dictionary<string, string>()), dispatchConsistency);
 
             timeoutData.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
             timeoutData.Headers["NServiceBus.RelatedToTimeoutId"] = timeoutData.Id;
 
-            await dispatcher.UseDispatcher(d => d.Dispatch(new[] { new TransportOperation(new OutgoingMessage(message.MessageId, timeoutData.Headers, timeoutData.State), sendOptions) }, context)).ConfigureAwait(false);
+            await dispatcher.UseDefaultDispatcher(d => d.Dispatch(new[] { new TransportOperation(new OutgoingMessage(message.MessageId, timeoutData.Headers, timeoutData.State), sendOptions) }, context)).ConfigureAwait(false);
 
             await persister.TryRemove(timeoutId, context).ConfigureAwait(false);
         }

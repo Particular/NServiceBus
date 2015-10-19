@@ -17,14 +17,14 @@ namespace NServiceBus.Transports
             var outboundTransports = context.Settings.Get<OutboundTransports>().Transports;
             context.Container.ConfigureComponent(c =>
             {
-                var dispatchers = new List<Tuple<IDispatchMessages, TransportDefinition>>();
+                var dispatchers = new List<Tuple<IDispatchMessages, string>>();
                 IDispatchMessages defaultDispatcher = null;
 
                 foreach (var transport in outboundTransports)
                 {
                     var sendConfigContext = transport.Configure(context.Settings);
                     var d = sendConfigContext.DispatcherFactory();
-                    dispatchers.Add(Tuple.Create(d, transport.Definition));
+                    dispatchers.Add(Tuple.Create(d, transport.Definition.GetType().AssemblyQualifiedName));
                     if (transport.IsDefault)
                     {
                         defaultDispatcher = d;

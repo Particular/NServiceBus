@@ -24,13 +24,13 @@ namespace NServiceBus.Routing
             Guard.AgainstNull(nameof(ultimateDestination), ultimateDestination);
         }
 
-        internal IEnumerable<UnicastRoutingStrategy> Resolve(Func<EndpointName, IEnumerable<EndpointInstanceName>> instanceResolver,
+        internal IEnumerable<UnicastRoutingStrategy> Resolve(Func<EndpointName, IEnumerable<EndpointInstanceData>> instanceResolver,
             Func<IEnumerable<EndpointInstanceName>, IEnumerable<EndpointInstanceName>> instanceSelector,
             Func<EndpointInstanceName, string> addressResolver
             )
         {
             return ultimateDestination.Resolve(instanceResolver, instanceSelector, addressResolver)
-                .Select(d => new UnicastRoutingStrategy(d, immediateDestination.Resolve(addressResolver)));
+                .Select(d => new UnicastRoutingStrategy(d.Item1, d.Item2, immediateDestination.Resolve(addressResolver)));
         }
 
         bool Equals(UnicastRoutingRoute other)

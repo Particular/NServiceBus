@@ -69,6 +69,7 @@
   <ItemGroup>
     <Compile Include="Basic\When_deferring_to_non_local_via_a_proxy.cs" />
     <Compile Include="Basic\When_registering_additional_deserializers.cs" />
+    <Compile Include="Basic\When_sending_to_another_endpoint_via_specific_transport.cs" />
     <Compile Include="Basic\When_setting_msmq_label_generator.cs" />
     <Compile Include="Basic\When_deferring_to_non_local.cs" />
     <Compile Include="DelayedDelivery\When_TimeoutManager_is_disabled.cs" />

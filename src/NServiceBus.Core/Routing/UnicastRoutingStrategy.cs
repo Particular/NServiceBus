@@ -10,13 +10,15 @@
     {
         string ultimateDestination;
         string[] route;
+        Dictionary<string, string> extensionData;
 
         /// <summary>
         /// Creates new routing strategy.
         /// </summary>
-        public UnicastRoutingStrategy(string ultimateDestination, params string[] route)
+        public UnicastRoutingStrategy(string ultimateDestination, Dictionary<string, string> extensionData = null, params string[] route)
         {
             this.ultimateDestination = ultimateDestination;
+            this.extensionData = extensionData ?? new Dictionary<string, string>();
             this.route = route;
         }
 
@@ -26,7 +28,7 @@
         /// <param name="next">The immediate destination.</param>
         public UnicastRoutingStrategy SendVia(string next)
         {
-            return new UnicastRoutingStrategy(ultimateDestination, new[] { next}.Concat(route).ToArray());
+            return new UnicastRoutingStrategy(ultimateDestination, extensionData, new[] { next}.Concat(route).ToArray());
         }
 
         /// <summary>
@@ -39,7 +41,7 @@
             string immediateDestination;
             var newItinerary = itinerary.Advance(out immediateDestination);
             newItinerary.Store(headers);
-            return new UnicastAddressTag(immediateDestination);
+            return new UnicastAddressTag(immediateDestination, extensionData);
         }
     }
 }

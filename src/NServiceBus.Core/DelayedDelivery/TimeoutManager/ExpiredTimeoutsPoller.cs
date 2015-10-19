@@ -1,6 +1,7 @@
 namespace NServiceBus.DelayedDelivery.TimeoutManager
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.CircuitBreakers;
@@ -101,9 +102,9 @@ namespace NServiceBus.DelayedDelivery.TimeoutManager
 
                     dispatchRequest.Headers["Timeout.Id"] = timeoutData.Id;
 
-                    var dispatchOptions = new DispatchOptions(new UnicastAddressTag(dispatcherAddress), DispatchConsistency.Default);
+                    var dispatchOptions = new DispatchOptions(new UnicastAddressTag(dispatcherAddress, new Dictionary<string, string>()), DispatchConsistency.Default);
                     var transportOperation = new TransportOperation(dispatchRequest, dispatchOptions);
-                    await dispatcher.UseDispatcher(d => d.Dispatch(new[] { transportOperation }, new ContextBag())).ConfigureAwait(false);
+                    await dispatcher.UseDefaultDispatcher(d => d.Dispatch(new[] { transportOperation }, new ContextBag())).ConfigureAwait(false);
                 }
 
                 lock (lockObject)

@@ -15,7 +15,7 @@ namespace NServiceBus.Routing
         /// <summary>
         /// The extension data.
         /// </summary>
-        public Dictionary<string, object> ExtensionData { get; }
+        public Dictionary<string, string> ExtensionData { get; }
 
         /// <summary>
         /// Creates new endpoint data object.
@@ -24,7 +24,7 @@ namespace NServiceBus.Routing
         public EndpointInstanceData(EndpointInstanceName name)
         {
             Name = name;
-            ExtensionData = new Dictionary<string, object>();
+            ExtensionData = new Dictionary<string, string>();
         }
     }
 }

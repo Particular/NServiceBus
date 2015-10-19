@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using DelayedDelivery.TimeoutManager;
     using Pipeline;
@@ -70,10 +71,10 @@ namespace NServiceBus
 
                 if (data.Time.AddSeconds(-1) <= DateTime.UtcNow)
                 {
-                    var sendOptions = new DispatchOptions(new UnicastAddressTag(data.Destination), DispatchConsistency.Default);
+                    var sendOptions = new DispatchOptions(new UnicastAddressTag(data.Destination, new Dictionary<string, string>()), DispatchConsistency.Default);
                     var outgoingMessage = new OutgoingMessage(message.MessageId, data.Headers, data.State);
 
-                    await dispatcher.UseDispatcher(d => d.Dispatch(new[] { new TransportOperation(outgoingMessage, sendOptions) }, context)).ConfigureAwait(false);
+                    await dispatcher.UseDefaultDispatcher(d => d.Dispatch(new[] { new TransportOperation(outgoingMessage, sendOptions) }, context)).ConfigureAwait(false);
                     return;
                 }
 

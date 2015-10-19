@@ -24,7 +24,7 @@
         /// <param name="headers">Message headers.</param>
         public override AddressTag Apply(Dictionary<string, string> headers)
         {
-            return new MulticastAddressTag(messageType);
+            return new MulticastAddressTag(messageType, new Dictionary<string, string>());
         }
     }
 }

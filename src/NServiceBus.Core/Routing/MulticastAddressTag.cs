@@ -1,6 +1,7 @@
 namespace NServiceBus.Routing
 {
     using System;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Represents a route that should deliver the message to all interested subscribers.
@@ -11,7 +12,9 @@ namespace NServiceBus.Routing
         /// Initializes a new insatnce of <see cref="MulticastAddressTag"/>.
         /// </summary>
         /// <param name="messageType">The event being published.</param>
-        public MulticastAddressTag(Type messageType)
+        /// <param name="extensionData">Extension data.</param>
+        public MulticastAddressTag(Type messageType, Dictionary<string, string> extensionData)
+            : base(extensionData)
         {
             MessageType = messageType;
         }
