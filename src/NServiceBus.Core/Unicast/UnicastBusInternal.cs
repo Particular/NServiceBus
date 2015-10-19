@@ -9,7 +9,6 @@ namespace NServiceBus.Unicast
     using ConsistencyGuarantees;
     using Faults;
     using Features;
-    using Licensing;
     using Logging;
     using MessageInterfaces;
     using ObjectBuilder;
@@ -30,8 +29,6 @@ namespace NServiceBus.Unicast
 
         public async Task<IBus> StartAsync()
         {
-            LicenseManager.PromptUserForLicenseIfTrialHasExpired();
-
             if (started)
             {
                 return this;
