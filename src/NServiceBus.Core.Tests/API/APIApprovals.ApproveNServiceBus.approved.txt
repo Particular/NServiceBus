@@ -1318,6 +1318,10 @@ namespace NServiceBus.Extensibility
     {
         public static NServiceBus.Extensibility.ContextBag GetExtensions(this NServiceBus.Extensibility.ExtendableOptions options) { }
     }
+    public class static MessageHandlerContextExtensions
+    {
+        public static NServiceBus.Extensibility.ContextBag GetExtensions(this NServiceBus.IMessageHandlerContext handlerContext) { }
+    }
     public interface ReadOnlyContextBag
     {
         T Get<T>();

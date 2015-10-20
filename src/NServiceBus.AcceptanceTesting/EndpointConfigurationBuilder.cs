@@ -62,11 +62,22 @@
             {
                 configurationBuilderCustomization = b => { };
             }
-            configuration.GetConfiguration = (settings, routingTable) =>
+            configuration.GetConfiguration = async (settings, routingTable) =>
                 {
                     var endpointSetupTemplate = new T();
                     var scenarioConfigSource = new ScenarioConfigSource(configuration, routingTable);
-                    return endpointSetupTemplate.GetConfiguration(settings, configuration, scenarioConfigSource, configurationBuilderCustomization);
+                    var endpointConfiguration = await endpointSetupTemplate.GetConfiguration(settings, configuration, scenarioConfigSource, configurationBuilderCustomization);
+
+                    endpointConfiguration.Pipeline.Register(
+                        "MarshallTestContextOnHandlerContextBehavior", 
+                        typeof(MarshallTestContextOnHandlerContextBehavior), 
+                        "Makes the provided ScenarioContext accessible in the MessageHandlerContext");
+                    endpointConfiguration.RegisterComponents(c => c
+                        .ConfigureComponent(b => new MarshallTestContextOnHandlerContextBehavior(
+                            settings.ScenarioContext),
+                            DependencyLifecycle.SingleInstance));
+
+                    return endpointConfiguration;
                 };
 
             return this;

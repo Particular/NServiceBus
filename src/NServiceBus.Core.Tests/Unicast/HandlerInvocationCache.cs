@@ -95,7 +95,7 @@
             cache.RegisterHandler(typeof(StubHandler));
 
             var handler = cache.GetCachedHandlerForMessage<StubMessage>();
-            var handlerContext = new MessageHandlerContext(null);
+            var handlerContext = new MessageHandlerContext(null, null);
             await handler.Invoke(new StubMessage(), handlerContext);
 
             Assert.AreSame(handlerContext, ((StubHandler)handler.Instance).HandlerContext);
@@ -156,7 +156,7 @@
             cache.RegisterHandler(typeof(StubHandler));
 
             var handler = cache.GetCachedHandlerForMessage<StubTimeoutState>();
-            var handlerContext = new MessageHandlerContext(null);
+            var handlerContext = new MessageHandlerContext(null, null);
             await handler.Invoke(new StubTimeoutState(), handlerContext);
 
             Assert.AreSame(handlerContext, ((StubHandler)handler.Instance).HandlerContext);

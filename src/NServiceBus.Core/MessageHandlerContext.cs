@@ -3,17 +3,19 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using NServiceBus.Extensibility;
     using NServiceBus.Transports;
     using NServiceBus.Unicast;
 
     class MessageHandlerContext : IMessageHandlerContext
     {
-        ContextualBus bus;
-
-        public MessageHandlerContext(ContextualBus bus)
+        public MessageHandlerContext(ContextualBus bus, ContextBag context)
         {
             this.bus = bus;
+            Context = context;
         }
+
+        public ContextBag Context { get; }
 
         public string MessageId => bus.MessageBeingProcessed.MessageId;
 
@@ -65,5 +67,7 @@ namespace NServiceBus
         {
             bus.DoNotContinueDispatchingCurrentMessageToHandlers();
         }
+
+        ContextualBus bus;
     }
 }
