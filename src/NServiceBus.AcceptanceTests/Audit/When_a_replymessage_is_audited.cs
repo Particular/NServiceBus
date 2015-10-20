@@ -64,12 +64,10 @@
 
             public class MessageToBeAuditedHandler : IHandleMessages<ResponseToBeAudited>
             {
-                public Context Context { get; set; }
-
                 public Task Handle(ResponseToBeAudited message, IMessageHandlerContext context)
                 {
                     Assert.AreEqual(context.MessageHeaders["MyHeader"], "SomeValue");
-                    Context.MessageProcessed = true;
+                    context.GetScenarioContext<Context>().MessageProcessed = true;
                     return Task.FromResult(0);
                 }
             }

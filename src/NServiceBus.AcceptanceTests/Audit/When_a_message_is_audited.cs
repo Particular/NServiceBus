@@ -100,16 +100,14 @@
 
             public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
             {
-                public Context Context { get; set; }
-
                 public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
-                    if (message.RunId != Context.RunId)
+                    if (message.RunId != context.GetScenarioContext<Context>().RunId)
                     {
                         return Task.FromResult(0);
                     }
 
-                    Context.Done = true;
+                    context.GetScenarioContext<Context>().Done = true;
 
                     return Task.FromResult(0);
                 }
