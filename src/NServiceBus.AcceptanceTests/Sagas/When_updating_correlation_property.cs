@@ -35,9 +35,9 @@
 
             public class ChangeCorrPropertySaga : Saga<ChangeCorrPropertySagaData>, IAmStartedByMessages<StartSagaMessage>
             {
-                public Context Context { get; set; }
+                public Context TestContext { get; set; }
 
-                public Task Handle(StartSagaMessage message)
+                public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
                     if (message.SecondMessage)
                     {
@@ -49,7 +49,7 @@
                     }
 
 
-                    return Bus.SendLocalAsync(new StartSagaMessage
+                    return context.SendLocalAsync(new StartSagaMessage
                     {
                         SomeId = message.SomeId,
                         SecondMessage = true

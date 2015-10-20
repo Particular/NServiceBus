@@ -61,7 +61,7 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
 
             public class NotAutoSubscribedSaga : Saga<NotAutoSubscribedSaga.NotAutoSubscribedSagaSagaData>, IAmStartedByMessages<MyEvent>
             {
-                public Task Handle(MyEvent message)
+                public Task Handle(MyEvent message, IMessageHandlerContext context)
                 {
                     return Task.FromResult(0);
                 }
@@ -78,7 +78,7 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
             public class NotAutosubsubscribedSagaThatReactsOnASuperClassEvent : Saga<NotAutosubsubscribedSagaThatReactsOnASuperClassEvent.NotAutosubscribeSuperClassEventSagaData>,
                 IAmStartedByMessages<MyEventBase>
             {
-                public Task Handle(MyEventBase message)
+                public Task Handle(MyEventBase message, IMessageHandlerContext context)
                 {
                     return Task.FromResult(0);
                 }

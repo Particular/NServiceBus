@@ -38,19 +38,18 @@
 
             public class MyMessageHandler : IHandleMessages<MyMessage>
             {
-                public Context Context { get; set; }
+                public Context TestContext { get; set; }
 
-                public IBus Bus { get; set; }
-                public async Task Handle(MyMessage message)
+                public async Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
-                    await Bus.SendLocalAsync(new CompleteTest
+                    await context.SendLocalAsync(new CompleteTest
                     {
                         EnlistedInTheAmbientTx = true
                     });
 
                     using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
                     {
-                        await Bus.SendLocalAsync(new CompleteTest());
+                        await context.SendLocalAsync(new CompleteTest());
                     }
 
                     throw new SimulatedException();
@@ -61,7 +60,7 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(CompleteTest message)
+                public Task Handle(CompleteTest message, IMessageHandlerContext context)
                 {
                     if (!Context.MessageEnlistedInTheAmbientTxReceived)
                         Context.MessageEnlistedInTheAmbientTxReceived = message.EnlistedInTheAmbientTx;

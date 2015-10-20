@@ -39,7 +39,7 @@
 
             class Handler : IHandleMessages<Message>
             {
-                public Task Handle(Message message)
+                public Task Handle(Message message, IMessageHandlerContext context)
                 {
                     throw new SimulatedException();
                 }
@@ -58,7 +58,7 @@
             {
                 public Context MyContext { get; set; }
 
-                public Task Handle(Message message)
+                public Task Handle(Message message, IMessageHandlerContext context)
                 {
                     MyContext.MessageReceived = true;
                     return Task.FromResult(0);

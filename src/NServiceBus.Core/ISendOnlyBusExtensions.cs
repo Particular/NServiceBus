@@ -8,7 +8,6 @@ namespace NServiceBus
     /// </summary>
     public static partial class ISendOnlyBusExtensions
     {
-
         /// <summary>
         /// Publish the message to subscribers.
         /// </summary>
@@ -48,8 +47,8 @@ namespace NServiceBus
         /// <param name="message">The message to send.</param>
         public static Task SendAsync(this ISendOnlyBus bus, object message)
         {
-            Guard.AgainstNull("bus", bus);
-            Guard.AgainstNull("message", message);
+            Guard.AgainstNull(nameof(bus), bus);
+            Guard.AgainstNull(nameof(message), message);
 
             return bus.SendAsync(message, new SendOptions());
         }
@@ -65,8 +64,8 @@ namespace NServiceBus
         /// </remarks>
         public static Task SendAsync<T>(this ISendOnlyBus bus, Action<T> messageConstructor)
         {
-            Guard.AgainstNull("bus", bus);
-            Guard.AgainstNull("messageConstructor", messageConstructor);
+            Guard.AgainstNull(nameof(bus), bus);
+            Guard.AgainstNull(nameof(messageConstructor), messageConstructor);
 
             return bus.SendAsync(messageConstructor, new SendOptions());
         }
@@ -79,9 +78,9 @@ namespace NServiceBus
         /// <param name="message">The message to send.</param>
         public static Task SendAsync(this ISendOnlyBus bus, string destination, object message)
         {
-            Guard.AgainstNull("bus", bus);
-            Guard.AgainstNullAndEmpty("destination", destination);
-            Guard.AgainstNull("message", message);
+            Guard.AgainstNull(nameof(bus), bus);
+            Guard.AgainstNullAndEmpty(nameof(destination), destination);
+            Guard.AgainstNull(nameof(message), message);
 
             var options = new SendOptions();
 
@@ -99,13 +98,48 @@ namespace NServiceBus
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
         public static Task SendAsync<T>(this ISendOnlyBus bus, string destination, Action<T> messageConstructor)
         {
-            Guard.AgainstNull("bus", bus);
-            Guard.AgainstNullAndEmpty("destination", destination);
-            Guard.AgainstNull("messageConstructor", messageConstructor);
+            Guard.AgainstNull(nameof(bus), bus);
+            Guard.AgainstNullAndEmpty(nameof(destination), destination);
+            Guard.AgainstNull(nameof(messageConstructor), messageConstructor);
 
             var options = new SendOptions();
 
             options.SetDestination(destination);
+
+            return bus.SendAsync(messageConstructor, options);
+        }
+
+        /// <summary>
+        /// Sends the message back to the current bus.
+        /// </summary>
+        /// <param name="bus">Object being extended.</param>
+        /// <param name="message">The message to send.</param>
+        public static Task SendLocalAsync(this ISendOnlyBus bus, object message)
+        {
+            Guard.AgainstNull(nameof(bus), bus);
+            Guard.AgainstNull(nameof(message), message);
+
+            var options = new SendOptions();
+
+            options.RouteToLocalEndpointInstance();
+
+            return bus.SendAsync(message, options);
+        }
+
+        /// <summary>
+        /// Instantiates a message of type T and sends it back to the current bus.
+        /// </summary>
+        /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+        /// <param name="bus">Object being extended.</param>
+        /// <param name="messageConstructor">An action which initializes properties of the message.</param>
+        public static Task SendLocalAsync<T>(this ISendOnlyBus bus, Action<T> messageConstructor)
+        {
+            Guard.AgainstNull(nameof(bus), bus);
+            Guard.AgainstNull(nameof(messageConstructor), messageConstructor);
+
+            var options = new SendOptions();
+
+            options.RouteToLocalEndpointInstance();
 
             return bus.SendAsync(messageConstructor, options);
         }

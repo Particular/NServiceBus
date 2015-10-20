@@ -83,7 +83,7 @@
             IAmStartedByMessages<SagaWithNonMessageFinder.StartSagaMessage>
         {
 
-            public Task Handle(StartSagaMessage message)
+            public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
             {
                 return Task.FromResult(0);
             }
@@ -129,7 +129,7 @@
             IAmStartedByMessages<SagaWithMappingAndFinder.StartSagaMessage>
         {
 
-            public Task Handle(StartSagaMessage message)
+            public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
             {
                 return Task.FromResult(0);
             }
@@ -239,12 +239,12 @@
             {
             }
 
-            public Task Handle(MessageThatStartsTheSaga message)
+            public Task Handle(MessageThatStartsTheSaga message, IMessageHandlerContext context)
             {
                 return Task.FromResult(0);
             }
 
-            public Task Handle(MessageThatDoesNotStartTheSaga message)
+            public Task Handle(MessageThatDoesNotStartTheSaga message, IMessageHandlerContext context)
             {
                 return Task.FromResult(0);
             }
@@ -303,17 +303,17 @@
                     .ToSaga(s => s.SomeId);
             }
 
-            public Task Handle(StartMessage1 message)
+            public Task Handle(StartMessage1 message, IMessageHandlerContext context)
             {
                 throw new NotImplementedException();
             }
 
-            public Task Handle(StartMessage2 message)
+            public Task Handle(StartMessage2 message, IMessageHandlerContext context)
             {
                 throw new NotImplementedException();
             }
 
-            public Task Handle(Message3 message)
+            public Task Handle(Message3 message, IMessageHandlerContext context)
             {
                 throw new NotImplementedException();
             }
@@ -322,7 +322,7 @@
             {
             }
 
-            public Task Timeout(MyTimeout state)
+            public Task Timeout(MyTimeout state, IMessageHandlerContext context)
             {
                 return TaskEx.Completed;
             }
@@ -361,7 +361,7 @@
                     .ToSaga(s => s.Id);
             }
 
-            public Task Handle(SomeMessage message)
+            public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {
                 return Task.FromResult(0);
             }
@@ -388,7 +388,7 @@
                     .ToSaga(s => s.Id);
             }
 
-            public Task Handle(SomeMessageWithField message)
+            public Task Handle(SomeMessageWithField message, IMessageHandlerContext context)
             {
                 return Task.FromResult(0);
             }
@@ -427,7 +427,7 @@
                 }
             }
 
-            public Task Handle(SomeMessage message)
+            public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {
                 return Task.FromResult(0);
             }

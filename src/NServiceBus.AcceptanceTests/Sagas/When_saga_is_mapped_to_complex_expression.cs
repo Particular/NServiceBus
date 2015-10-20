@@ -39,7 +39,7 @@
                 IAmStartedByMessages<StartSagaMessage>, IAmStartedByMessages<OtherMessage>
             {
                 public Context Context { get; set; }
-                public Task Handle(StartSagaMessage message)
+                public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
                     Data.KeyValue = message.Key;
                     Context.FirstMessageReceived = true;
@@ -52,7 +52,7 @@
                         .ToSaga(s => s.KeyValue);
                 }
 
-                public Task Handle(OtherMessage message)
+                public Task Handle(OtherMessage message, IMessageHandlerContext context)
                 {
                     Context.SecondMessageReceived = true;
                     return Task.FromResult(0);

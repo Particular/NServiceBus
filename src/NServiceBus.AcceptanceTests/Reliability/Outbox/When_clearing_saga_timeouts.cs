@@ -55,7 +55,7 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(SignalDone message)
+                public Task Handle(SignalDone message, IMessageHandlerContext context)
                 {
                     Context.Done = true;
                     return Task.FromResult(0);
@@ -64,11 +64,11 @@
 
             class PlaceOrderSaga : Saga<PlaceOrderSaga.PlaceOrderSagaData>, IAmStartedByMessages<PlaceOrder>
             {
-                public async Task Handle(PlaceOrder message)
+                public async Task Handle(PlaceOrder message, IMessageHandlerContext context)
                 {
                     Data.DataId = message.DataId;
 
-                    await Bus.SendLocalAsync(new SignalDone());
+                    await context.SendLocalAsync(new SignalDone());
                     MarkAsComplete();
                 }
 

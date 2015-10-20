@@ -49,9 +49,7 @@
             {
                 public Context Context { get; set; }
 
-                public IBus Bus { get; set; }
-
-                public Task Handle(MyBaseCommand message)
+                public Task Handle(MyBaseCommand message, IMessageHandlerContext context)
                 {
                     Context.WasCalled1 = true;
                     return Task.Delay(2000); // Just to be sure the other receiver is finished
@@ -70,9 +68,7 @@
             {
                 public Context Context { get; set; }
 
-                public IBus Bus { get; set; }
-
-                public Task Handle(MyBaseCommand message)
+                public Task Handle(MyBaseCommand message, IMessageHandlerContext context)
                 {
                     Context.WasCalled2 = true;
                     return Task.Delay(2000); // Just to be sure the other receiver is finished

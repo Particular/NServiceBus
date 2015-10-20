@@ -11,7 +11,7 @@
     {
         static TwoPhaseCommitEnlistment enlistment = new TwoPhaseCommitEnlistment();
 
-        public Task Handle(EncryptionTestMessage message)
+        public Task Handle(EncryptionTestMessage message, IMessageHandlerContext context)
         {
             if (!Statistics.First.HasValue)
             {

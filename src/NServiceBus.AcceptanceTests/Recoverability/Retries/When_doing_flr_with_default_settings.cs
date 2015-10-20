@@ -46,7 +46,7 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(MessageToBeRetried message)
+                public Task Handle(MessageToBeRetried message, IMessageHandlerContext context)
                 {
                     if (message.Id != Context.Id)
                         return Task.FromResult(0); // messages from previous test runs must be ignored

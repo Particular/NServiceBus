@@ -57,12 +57,10 @@
 
             class OpenGroupCommandHandler : IHandleMessages<OpenGroupCommand>
             {
-                public IBus Bus { get; set; }
-
-                public Task Handle(OpenGroupCommand message)
+                public Task Handle(OpenGroupCommand message, IMessageHandlerContext context)
                 {
                     Console.WriteLine("Received OpenGroupCommand for RunId:{0} ... and publishing GroupPendingEvent", message.DataId);
-                    return Bus.PublishAsync(new GroupPendingEvent { DataId = message.DataId });
+                    return context.PublishAsync(new GroupPendingEvent { DataId = message.DataId });
                 }
             }
         }
@@ -76,21 +74,23 @@
                     .AddMapping<GroupPendingEvent>(typeof(Publisher));
             }
 
-            public class Saga1 : Saga<Saga1.MySaga1Data>, IAmStartedByMessages<GroupPendingEvent>, IHandleMessages<CompleteSaga1Now>
+            public class Saga1 : Saga<Saga1.MySaga1Data>, 
+                IAmStartedByMessages<GroupPendingEvent>, 
+                IHandleMessages<CompleteSaga1Now>
             {
-                public Context Context { get; set; }
+                public Context TestContext { get; set; }
 
-                public Task Handle(GroupPendingEvent message)
+                public Task Handle(GroupPendingEvent message, IMessageHandlerContext context)
                 {
                     Data.DataId = message.DataId;
                     Console.Out.WriteLine("Saga1 received GroupPendingEvent for RunId: {0}", message.DataId);
-                    return Bus.SendLocalAsync(new CompleteSaga1Now { DataId = message.DataId });
+                    return context.SendLocalAsync(new CompleteSaga1Now { DataId = message.DataId });
                 }
 
-                public Task Handle(CompleteSaga1Now message)
+                public Task Handle(CompleteSaga1Now message, IMessageHandlerContext context)
                 {
                     Console.Out.WriteLine("Saga1 received CompleteSaga1Now for RunId:{0} and MarkAsComplete", message.DataId);
-                    Context.DidSaga1EventHandlerGetInvoked = true;
+                    TestContext.DidSaga1EventHandlerGetInvoked = true;
 
                     MarkAsComplete();
 
@@ -107,24 +107,25 @@
                 {
                     public virtual Guid DataId { get; set; }
                 }
-
             }
 
-            public class Saga2 : Saga<Saga2.MySaga2Data>, IAmStartedByMessages<StartSaga2>, IHandleMessages<GroupPendingEvent>
+            public class Saga2 : Saga<Saga2.MySaga2Data>, 
+                IAmStartedByMessages<StartSaga2>, 
+                IHandleMessages<GroupPendingEvent>
             {
-                public Context Context { get; set; }
+                public Context TestContext { get; set; }
 
-                public Task Handle(StartSaga2 message)
+                public Task Handle(StartSaga2 message, IMessageHandlerContext context)
                 {
                     var dataId = Guid.NewGuid();
                     Console.Out.WriteLine("Saga2 sending OpenGroupCommand for RunId: {0}", dataId);
                     Data.DataId = dataId;
-                    return Bus.SendAsync(new OpenGroupCommand { DataId = dataId });
+                    return context.SendAsync(new OpenGroupCommand { DataId = dataId });
                 }
 
-                public Task Handle(GroupPendingEvent message)
+                public Task Handle(GroupPendingEvent message, IMessageHandlerContext context)
                 {
-                    Context.DidSaga2EventHandlerGetInvoked = true;
+                    TestContext.DidSaga2EventHandlerGetInvoked = true;
                     Console.Out.WriteLine("Saga2 received GroupPendingEvent for RunId: {0} and MarkAsComplete", message.DataId);
                     MarkAsComplete();
                     return Task.FromResult(0);

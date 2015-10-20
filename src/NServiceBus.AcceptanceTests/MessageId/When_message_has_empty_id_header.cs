@@ -39,7 +39,7 @@
         {
             public bool MessageReceived { get; set; }
             public string MessageId { get; set; }
-            public IDictionary<string, string> Headers { get; set; }
+            public IReadOnlyDictionary<string, string> Headers { get; set; }
         }
 
         public class Endpoint : EndpointConfigurationBuilder
@@ -51,14 +51,13 @@
 
             class Handler : IHandleMessages<Message>
             {
-                public Context Context { get; set; }
-                public IBus Bus { get; set; }
+                public Context TestContext { get; set; }
 
-                public Task Handle(Message message)
+                public Task Handle(Message message, IMessageHandlerContext context)
                 {
-                    Context.MessageId = Bus.CurrentMessageContext.Id;
-                    Context.Headers = Bus.CurrentMessageContext.Headers;
-                    Context.MessageReceived = true;
+                    TestContext.MessageId = context.MessageId;
+                    TestContext.Headers = context.MessageHeaders;
+                    TestContext.MessageReceived = true;
 
                     return Task.FromResult(0);
                 }

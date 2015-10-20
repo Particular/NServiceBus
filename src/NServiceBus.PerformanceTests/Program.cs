@@ -129,7 +129,7 @@
                                   args[5]);
         }
 
-        static void SeedSagaMessages(IBus bus,int numberOfMessages, string inputQueue, int concurrency)
+        static void SeedSagaMessages(ISendOnlyBus bus,int numberOfMessages, string inputQueue, int concurrency)
         {
             for (var i = 0; i < numberOfMessages / concurrency; i++)
             {
@@ -145,7 +145,7 @@
 
         }
 
-        static TimeSpan SeedInputQueue(IBus bus,int numberOfMessages, string inputQueue, int numberOfThreads, bool createTransaction, bool twoPhaseCommit, bool encryption)
+        static TimeSpan SeedInputQueue(ISendOnlyBus bus,int numberOfMessages, string inputQueue, int numberOfThreads, bool createTransaction, bool twoPhaseCommit, bool encryption)
         {
             var sw = new Stopwatch();
 

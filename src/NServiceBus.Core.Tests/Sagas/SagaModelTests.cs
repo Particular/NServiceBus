@@ -87,12 +87,12 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
                 public int UniqueProperty { get; set; }
             }
 
-            public Task Handle(Message1 message)
+            public Task Handle(Message1 message, IMessageHandlerContext context)
             {
                 throw new NotImplementedException();
             }
 
-            public Task Handle(Message2 message)
+            public Task Handle(Message2 message, IMessageHandlerContext context)
             {
                 throw new NotImplementedException();
             }

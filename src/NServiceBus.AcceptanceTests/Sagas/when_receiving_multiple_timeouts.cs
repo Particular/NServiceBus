@@ -43,38 +43,41 @@
                 });
             }
 
-            public class MultTimeoutsSaga1 : Saga<MultTimeoutsSaga1.MultTimeoutsSaga1Data>, IAmStartedByMessages<StartSaga1>, IHandleTimeouts<Saga1Timeout>, IHandleTimeouts<Saga2Timeout>
+            public class MultTimeoutsSaga1 : Saga<MultTimeoutsSaga1.MultTimeoutsSaga1Data>, 
+                IAmStartedByMessages<StartSaga1>, 
+                IHandleTimeouts<Saga1Timeout>, 
+                IHandleTimeouts<Saga2Timeout>
             {
-                public Context Context { get; set; }
+                public Context TestContext { get; set; }
 
-                public async Task Handle(StartSaga1 message)
+                public async Task Handle(StartSaga1 message, IMessageHandlerContext context)
                 {
-                    if (message.ContextId != Context.Id)
+                    if (message.ContextId != TestContext.Id)
                         return;
 
                     Data.ContextId = message.ContextId;
 
-                    await RequestTimeoutAsync(TimeSpan.FromSeconds(5), new Saga1Timeout { ContextId = Context.Id });
-                    await RequestTimeoutAsync(TimeSpan.FromMilliseconds(10), new Saga2Timeout { ContextId = Context.Id });
+                    await RequestTimeoutAsync(context, TimeSpan.FromSeconds(5), new Saga1Timeout { ContextId = TestContext.Id });
+                    await RequestTimeoutAsync(context, TimeSpan.FromMilliseconds(10), new Saga2Timeout { ContextId = TestContext.Id });
                 }
 
-                public Task Timeout(Saga1Timeout state)
+                public Task Timeout(Saga1Timeout state, IMessageHandlerContext context)
                 {
                     MarkAsComplete();
 
-                    if (state.ContextId == Context.Id)
+                    if (state.ContextId == TestContext.Id)
                     {
-                        Context.Saga1TimeoutFired = true;
+                        TestContext.Saga1TimeoutFired = true;
                     }
 
                     return Task.FromResult(0);
                 }
 
-                public Task Timeout(Saga2Timeout state)
+                public Task Timeout(Saga2Timeout state, IMessageHandlerContext context)
                 {
-                    if (state.ContextId == Context.Id)
+                    if (state.ContextId == TestContext.Id)
                     {
-                        Context.Saga2TimeoutFired = true;
+                        TestContext.Saga2TimeoutFired = true;
                     }
 
                     return Task.FromResult(0);
@@ -96,7 +99,7 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(object message)
+                public Task Handle(object message, IMessageHandlerContext context)
                 {
                     if (((dynamic)message).ContextId != Context.Id) return Task.FromResult(0);
 
@@ -108,7 +111,7 @@
 
             public class CatchAllMessageHandler : IHandleMessages<object>
             {
-                public Task Handle(object message)
+                public Task Handle(object message, IMessageHandlerContext context)
                 {
                     return Task.FromResult(0);
                 }

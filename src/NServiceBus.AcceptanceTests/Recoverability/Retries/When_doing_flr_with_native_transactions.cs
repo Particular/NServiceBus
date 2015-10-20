@@ -75,17 +75,15 @@
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
             {
-                public IBus Bus { get; set; }
+                public Context TestContext { get; set; }
 
-                public Context Context { get; set; }
-
-                public Task Handle(MessageToBeRetried message)
+                public Task Handle(MessageToBeRetried message, IMessageHandlerContext context)
                 {
-                    if (message.Id != Context.Id)
+                    if (message.Id != TestContext.Id)
                         return Task.FromResult(0); // messages from previous test runs must be ignored
 
-                    Context.PhysicalMessageId = Bus.CurrentMessageContext.Id;
-                    Context.NumberOfTimesInvoked++;
+                    TestContext.PhysicalMessageId = context.MessageId;
+                    TestContext.NumberOfTimesInvoked++;
 
                     throw new SimulatedException();
                 }

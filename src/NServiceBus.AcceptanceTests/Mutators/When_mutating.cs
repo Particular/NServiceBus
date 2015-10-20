@@ -46,16 +46,9 @@
 
             public class StartMessageHandler : IHandleMessages<StartMessage>
             {
-                IBus bus;
-
-                public StartMessageHandler(IBus bus)
+                public Task Handle(StartMessage message, IMessageHandlerContext context)
                 {
-                    this.bus = bus;
-                }
-
-                public Task Handle(StartMessage message)
-                {
-                    return bus.SendLocalAsync(new LoopMessage());
+                    return context.SendLocalAsync(new LoopMessage());
                 }
             }
             public class LoopMessageHandler : IHandleMessages<LoopMessage>
@@ -65,7 +58,7 @@
                 {
                     this.testContext = testContext;
                 }
-                public Task Handle(LoopMessage message)
+                public Task Handle(LoopMessage message, IMessageHandlerContext context)
                 {
                     testContext.WasCalled = true;
                     return Task.FromResult(0);

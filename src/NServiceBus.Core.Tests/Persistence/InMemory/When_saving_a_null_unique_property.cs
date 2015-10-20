@@ -26,7 +26,7 @@
 
         class Saga : Saga<SagaData>, IHandleMessages<M1>
         {
-            public Task Handle(M1 message)
+            public Task Handle(M1 message, IMessageHandlerContext context)
             {
                 throw new NotImplementedException();
             }

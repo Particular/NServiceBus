@@ -104,9 +104,6 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.XML" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="TestAssembly">
-      <HintPath>Lib\TestAssembly.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="API\APIApprovals.cs" />
@@ -338,6 +335,10 @@
     <None Include="TestDlls\AssemblyWithSN.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="TestDlls\NServiceBus.NewCompilerBits.dll" />
+    <Content Include="TestDlls\NServiceBus.OldCompilerBits.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

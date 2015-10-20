@@ -63,13 +63,11 @@
 
             class MessageHandler : IHandleMessages<MessageWhichFailsRetries>
             {
-                public IBus Bus { get; set; }
+                public Context TestContext { get; set; }
 
-                public Context Context { get; set; }
-
-                public Task Handle(MessageWhichFailsRetries message)
+                public Task Handle(MessageWhichFailsRetries message, IMessageHandlerContext context)
                 {
-                    Context.PhysicalMessageId = Bus.CurrentMessageContext.Id;
+                    TestContext.PhysicalMessageId = context.MessageId;
                     throw new SimulatedException();
                 }
             }

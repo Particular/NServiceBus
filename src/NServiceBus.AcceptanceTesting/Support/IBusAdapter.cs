@@ -76,26 +76,12 @@
             throw new NotImplementedException();
         }
 
-        public Task HandleCurrentMessageLaterAsync()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task ForwardCurrentMessageToAsync(string destination)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void DoNotContinueDispatchingCurrentMessageToHandlers()
-        {
-            throw new NotImplementedException();
-        }
+        [Obsolete("", true)]
+        public IMessageContext CurrentMessageContext { get; }
 
         public Task<IBus> StartAsync()
         {
             return Task.FromResult((IBus)this);
         }
-
-        public IMessageContext CurrentMessageContext { get; private set; }
     }
 }

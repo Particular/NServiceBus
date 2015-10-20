@@ -47,16 +47,14 @@
 
             public class MessageToSagaHandler : IHandleMessages<MessageToSaga>
             {
-                public IBus Bus { get; set; }
-
-                public Task Handle(MessageToSaga message)
+                public Task Handle(MessageToSaga message, IMessageHandlerContext context)
                 {
                     var options = new SendOptions();
 
                     options.DelayDeliveryWith(TimeSpan.FromSeconds(10));
                     options.RouteToLocalEndpointInstance();
 
-                    return Bus.SendAsync(new FinishMessage(), options);
+                    return context.SendAsync(new FinishMessage(), options);
                 }
             }
 
@@ -64,7 +62,7 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(FinishMessage message)
+                public Task Handle(FinishMessage message, IMessageHandlerContext context)
                 {
                     // This acts as a safe guard to abort the test earlier
                     Context.Done = true;
@@ -75,13 +73,13 @@
             public class CantBeFoundSaga1 : Saga<CantBeFoundSaga1.CantBeFoundSaga1Data>, IAmStartedByMessages<StartSaga>, IHandleMessages<MessageToSaga>
             {
 
-                public Task Handle(StartSaga message)
+                public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
                     Data.MessageId = message.Id;
                     return Task.FromResult(0);
                 }
 
-                public Task Handle(MessageToSaga message)
+                public Task Handle(MessageToSaga message, IMessageHandlerContext context)
                 {
                     return Task.FromResult(0);
                 }
@@ -101,13 +99,13 @@
             public class CantBeFoundSaga2 : Saga<CantBeFoundSaga2.CantBeFoundSaga2Data>, IAmStartedByMessages<StartSaga>, IHandleMessages<MessageToSaga>
             {
 
-                public Task Handle(StartSaga message)
+                public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
                     Data.MessageId = message.Id;
                     return Task.FromResult(0);
                 }
 
-                public Task Handle(MessageToSaga message)
+                public Task Handle(MessageToSaga message, IMessageHandlerContext context)
                 {
                     return Task.FromResult(0);
                 }
@@ -128,7 +126,7 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(object message)
+                public Task Handle(object message, IMessageHandlerContext context)
                 {
                     Context.TimesFired++;
                     Context.Done = true;
@@ -150,16 +148,14 @@
 
             public class MessageToSagaHandler : IHandleMessages<MessageToSaga>
             {
-                public IBus Bus { get; set; }
-
-                public Task Handle(MessageToSaga message)
+                public Task Handle(MessageToSaga message, IMessageHandlerContext context)
                 {
                     var options = new SendOptions();
 
                     options.DelayDeliveryWith(TimeSpan.FromSeconds(10));
                     options.RouteToLocalEndpointInstance();
 
-                    return Bus.SendAsync(new FinishMessage(), options);
+                    return context.SendAsync(new FinishMessage(), options);
                 }
             }
 
@@ -167,7 +163,7 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(FinishMessage message)
+                public Task Handle(FinishMessage message, IMessageHandlerContext context)
                 {
                     // This acts as a safe guard to abort the test earlier
                     Context.Done = true;
@@ -177,13 +173,13 @@
 
             public class ReceiverWithOrderedSagasSaga1 : Saga<ReceiverWithOrderedSagasSaga1.ReceiverWithOrderedSagasSaga1Data>, IAmStartedByMessages<StartSaga>, IHandleMessages<MessageToSaga>
             {
-                public Task Handle(StartSaga message)
+                public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
                     Data.MessageId = message.Id;
                     return Task.FromResult(0);
                 }
 
-                public Task Handle(MessageToSaga message)
+                public Task Handle(MessageToSaga message, IMessageHandlerContext context)
                 {
                     return Task.FromResult(0);
                 }
@@ -204,13 +200,13 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(StartSaga message)
+                public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
                     Data.MessageId = message.Id;
                     return Task.FromResult(0);
                 }
 
-                public Task Handle(MessageToSaga message)
+                public Task Handle(MessageToSaga message, IMessageHandlerContext context)
                 {
                     Data.MessageId = message.Id;
                     Context.Done = true;
@@ -233,7 +229,7 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(object message)
+                public Task Handle(object message, IMessageHandlerContext context)
                 {
                     Context.TimesFired++;
                     return Task.FromResult(0);

@@ -27,7 +27,7 @@
             {
                 public SagaEndpointContext Context { get; set; }
 
-                public Task Handle(StartSagaMessage message)
+                public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
                     Context.SagaStarted = true;
                     Data.SomeId = message.SomeId;
@@ -49,16 +49,14 @@
 
             public class InterceptingHandler : IHandleMessages<StartSagaMessage>
             {
-                public SagaEndpointContext Context { get; set; }
+                public SagaEndpointContext TestContext { get; set; }
 
-                public IBus Bus { get; set; }
-
-                public Task Handle(StartSagaMessage message)
+                public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
-                    Context.InterceptingHandlerCalled = true;
+                    TestContext.InterceptingHandlerCalled = true;
 
-                    if (Context.InterceptSaga)
-                        Bus.DoNotContinueDispatchingCurrentMessageToHandlers();
+                    if (TestContext.InterceptSaga)
+                        context.DoNotContinueDispatchingCurrentMessageToHandlers();
 
                     return Task.FromResult(0);
                 }

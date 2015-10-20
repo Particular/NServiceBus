@@ -81,7 +81,7 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(MessageThatIsEnlisted messageThatIsEnlisted)
+                public Task Handle(MessageThatIsEnlisted messageThatIsEnlisted, IMessageHandlerContext context)
                 {
                     Context.MessageThatIsEnlistedHandlerWasCalled = true;
                     Context.TimesCalled++;
@@ -99,7 +99,7 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(MessageThatIsNotEnlisted messageThatIsNotEnlisted)
+                public Task Handle(MessageThatIsNotEnlisted messageThatIsNotEnlisted, IMessageHandlerContext context)
                 {
                     Context.MessageThatIsNotEnlistedHandlerWasCalled = true;
                     Context.NonTransactionalHandlerCalledFirst = !Context.MessageThatIsEnlistedHandlerWasCalled;

@@ -82,7 +82,7 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
 
             class MyMessageHandler : IHandleMessages<MyMessage>
             {
-                public Task Handle(MyMessage message)
+                public Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
                     return Task.FromResult(0);
                 }
@@ -91,14 +91,14 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
 
             public class EventMessageHandler : IHandleMessages<MyEvent>
             {
-                public Task Handle(MyEvent message)
+                public Task Handle(MyEvent message, IMessageHandlerContext context)
                 {
                     return Task.FromResult(0);
                 }
             }
             public class MyEventWithNoRoutingHandler : IHandleMessages<MyEventWithNoRouting>
             {
-                public Task Handle(MyEventWithNoRouting message)
+                public Task Handle(MyEventWithNoRouting message, IMessageHandlerContext context)
                 {
                     return Task.FromResult(0);
                 }
@@ -106,7 +106,7 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
 
             public class CommandMessageHandler : IHandleMessages<MyCommand>
             {
-                public Task Handle(MyCommand message)
+                public Task Handle(MyCommand message, IMessageHandlerContext context)
                 {
                     return Task.FromResult(0);
                 }

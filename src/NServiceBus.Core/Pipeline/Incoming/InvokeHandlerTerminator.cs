@@ -2,6 +2,7 @@
 {
     using System.Threading.Tasks;
     using System.Transactions;
+    using NServiceBus.Unicast;
     using Pipeline;
     using Pipeline.Contexts;
     using Sagas;
@@ -20,8 +21,13 @@
             }
 
             var messageHandler = context.MessageHandler;
-            await messageHandler.Invoke(context.MessageBeingHandled).ConfigureAwait(false);
+            await messageHandler
+                .Invoke(
+                    context.MessageBeingHandled,
+                    new MessageHandlerContext(context.Builder.Build<ContextualBus>()))
+                .ConfigureAwait(false);
         }
+
         public class State
         {
             public bool ScopeWasPresent { get; set; }

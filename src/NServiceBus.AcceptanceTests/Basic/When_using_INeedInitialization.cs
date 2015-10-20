@@ -51,7 +51,7 @@
 
             public class SendMessageToSender : IWantToRunWhenBusStartsAndStops
             {
-                public IBus Bus { get; set; }
+                public ISendOnlyBus Bus { get; set; }
 
                 public Task StartAsync()
                 {
@@ -78,11 +78,9 @@
 
         public class SendMessageHandler : IHandleMessages<SendMessage>
         {
-            public IBus Bus { get; set; }
-
-            public Task Handle(SendMessage message)
+            public Task Handle(SendMessage message, IMessageHandlerContext context)
             {
-                return Bus.SendAsync("ineedinitialization_receiver", new MyMessage());
+                return context.SendAsync("ineedinitialization_receiver", new MyMessage());
             }
         }
 
@@ -90,9 +88,7 @@
         {
             public Context Context { get; set; }
 
-            public IBus Bus { get; set; }
-
-            public Task Handle(MyMessage message)
+            public Task Handle(MyMessage message, IMessageHandlerContext context)
             {
                 Context.WasCalled = true;
                 return Task.FromResult(0);

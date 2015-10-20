@@ -41,34 +41,28 @@
 
             public class MessageSentOutsideHandlersHandler : IHandleMessages<MessageSentOutsideOfHandler>
             {
-                public IBus Bus { get; set; }
+                public Context TestContext { get; set; }
 
-                public Context Context { get; set; }
-
-                public Task Handle(MessageSentOutsideOfHandler message)
+                public Task Handle(MessageSentOutsideOfHandler message, IMessageHandlerContext context)
                 {
-                    Context.FirstConversationId = Bus.CurrentMessageContext.Headers[Headers.ConversationId];
-                    Context.MessageIdOfFirstMessage = Bus.CurrentMessageContext.Id;
+                    TestContext.FirstConversationId = context.MessageHeaders[Headers.ConversationId];
+                    TestContext.MessageIdOfFirstMessage = context.MessageId;
 
-                    return Bus.SendLocalAsync(new MessageSentInsideHandler());
+                    return context.SendLocalAsync(new MessageSentInsideHandler());
                 }
             }
 
             public class MessageSentInsideHandlersHandler : IHandleMessages<MessageSentInsideHandler>
             {
-                public IBus Bus { get; set; }
+                public Context TestContext { get; set; }
 
-                public Context Context { get; set; }
-
-
-
-                public Task Handle(MessageSentInsideHandler message)
+                public Task Handle(MessageSentInsideHandler message, IMessageHandlerContext context)
                 {
-                    Context.ConversationIdReceived = Bus.CurrentMessageContext.Headers[Headers.ConversationId];
+                    TestContext.ConversationIdReceived = context.MessageHeaders[Headers.ConversationId];
 
-                    Context.RelatedToReceived = Bus.CurrentMessageContext.Headers[Headers.RelatedTo];
+                    TestContext.RelatedToReceived = context.MessageHeaders[Headers.RelatedTo];
 
-                    Context.Done = true;
+                    TestContext.Done = true;
 
                     return Task.FromResult(0);
                 }

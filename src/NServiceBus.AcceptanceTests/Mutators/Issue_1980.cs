@@ -55,7 +55,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(V2Message message)
+                public Task Handle(V2Message message, IMessageHandlerContext context)
                 {
                     testContext.V2MessageReceived = true;
                     return Task.FromResult(0);
@@ -69,7 +69,7 @@
                 {
                     this.testContext = testContext;
                 }
-                public Task Handle(V1Message message)
+                public Task Handle(V1Message message, IMessageHandlerContext context)
                 {
                     testContext.V1MessageReceived = true;
 

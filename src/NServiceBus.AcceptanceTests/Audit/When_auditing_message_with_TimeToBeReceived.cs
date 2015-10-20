@@ -39,16 +39,16 @@
 
             class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
             {
-                Context context;
+                Context testContext;
 
-                public MessageToBeAuditedHandler(Context context)
+                public MessageToBeAuditedHandler(Context testContext)
                 {
-                    this.context = context;
+                    this.testContext = testContext;
                 }
 
-                public Task Handle(MessageToBeAudited message)
+                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
-                    context.IsMessageHandlingComplete = true;
+                    testContext.IsMessageHandlingComplete = true;
                     return Task.FromResult(0);
                 }
             }
@@ -64,34 +64,32 @@
 
             class AuditMessageHandler : IHandleMessages<MessageToBeAudited>
             {
-                Context context;
-                IBus bus;
+                Context textContext;
 
-                public AuditMessageHandler(Context context, IBus bus)
+                public AuditMessageHandler(Context textContext)
                 {
-                    this.context = context;
-                    this.bus = bus;
+                    this.textContext = textContext;
                 }
 
-                public Task Handle(MessageToBeAudited message)
+                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
                     var auditProcessingStarted = DateTime.Now;
-                    if (context.FirstTimeProcessedByAudit == null)
+                    if (textContext.FirstTimeProcessedByAudit == null)
                     {
-                        context.FirstTimeProcessedByAudit = auditProcessingStarted;
+                        textContext.FirstTimeProcessedByAudit = auditProcessingStarted;
                     }
 
-                    var ttbr = TimeSpan.Parse(bus.CurrentMessageContext.Headers[Headers.TimeToBeReceived]);
-                    var ttbrExpired = auditProcessingStarted > (context.FirstTimeProcessedByAudit.Value + ttbr);
+                    var ttbr = TimeSpan.Parse(context.MessageHeaders[Headers.TimeToBeReceived]);
+                    var ttbrExpired = auditProcessingStarted > (textContext.FirstTimeProcessedByAudit.Value + ttbr);
                     if (ttbrExpired)
                     {
-                        context.TTBRHasExpiredAndMessageIsStillInAuditQueue = true;
-                        var timeElapsedSinceFirstHandlingOfAuditMessage = auditProcessingStarted - context.FirstTimeProcessedByAudit.Value;
+                        textContext.TTBRHasExpiredAndMessageIsStillInAuditQueue = true;
+                        var timeElapsedSinceFirstHandlingOfAuditMessage = auditProcessingStarted - textContext.FirstTimeProcessedByAudit.Value;
                         Console.WriteLine("Audit message not removed because of TTBR({0}) after {1}. Success.", ttbr, timeElapsedSinceFirstHandlingOfAuditMessage);
                     }
                     else
                     {
-                        return bus.HandleCurrentMessageLaterAsync();
+                        return context.HandleCurrentMessageLaterAsync();
                     }
 
                     return Task.FromResult(0);

@@ -70,27 +70,5 @@
 
             return busImpl.ReplyAsync(messageConstructor, options);
         }
-
-        /// <inheritdoc />
-        public Task HandleCurrentMessageLaterAsync()
-        {
-            return busImpl.HandleCurrentMessageLaterAsync();
-        }
-        
-        /// <inheritdoc />
-        public Task ForwardCurrentMessageToAsync(string destination)
-        {
-            Guard.AgainstNullAndEmpty("destination", destination);
-            return busImpl.ForwardCurrentMessageToAsync(destination);
-        }
-        
-        /// <inheritdoc />
-        public void DoNotContinueDispatchingCurrentMessageToHandlers()
-        {
-            busImpl.DoNotContinueDispatchingCurrentMessageToHandlers();
-        }
-
-        /// <inheritdoc />
-        public IMessageContext CurrentMessageContext => busImpl.CurrentMessageContext;
     }
 }

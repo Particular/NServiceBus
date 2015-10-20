@@ -36,17 +36,20 @@
                 EndpointSetup<DefaultServer>();
             }
 
-            public class TestSaga09 : Saga<TestSagaData09>, IAmStartedByMessages<StartSagaMessage>,IHandleMessages<SecondSagaMessage>
+            public class TestSaga09 : Saga<TestSagaData09>, 
+                IAmStartedByMessages<StartSagaMessage>,
+                IHandleMessages<SecondSagaMessage>
             {
-                public Context Context { get; set; }
-                public Task Handle(StartSagaMessage message)
+                public Context TestContext { get; set; }
+
+                public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
                     Data.SomeId = message.SomeId;
 
-                    return Bus.SendLocalAsync(new SecondSagaMessage
-                        {
-                            SomeId = Data.SomeId
-                        });
+                    return context.SendLocalAsync(new SecondSagaMessage
+                    {
+                        SomeId = Data.SomeId
+                    });
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData09> mapper)
@@ -57,15 +60,15 @@
                       .ToSaga(s => s.SomeId);
                 }
 
-                public Task Handle(SecondSagaMessage message)
+                public Task Handle(SecondSagaMessage message, IMessageHandlerContext context)
                 {
-                    Context.NumberOfTimesInvoked++;
-                    var shouldFail = Context.NumberOfTimesInvoked < 2; //1 FLR and 1 SLR
+                    TestContext.NumberOfTimesInvoked++;
+                    var shouldFail = TestContext.NumberOfTimesInvoked < 2; //1 FLR and 1 SLR
 
                     if(shouldFail)
                         throw new SimulatedException();
 
-                    Context.SecondMessageProcessed = true;
+                    TestContext.SecondMessageProcessed = true;
 
                     return Task.FromResult(0);
                 }

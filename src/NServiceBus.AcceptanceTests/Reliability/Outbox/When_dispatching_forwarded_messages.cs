@@ -74,7 +74,7 @@
 
             public class MessageToBeForwardedHandler : IHandleMessages<MessageToBeForwarded>
             {
-                public Task Handle(MessageToBeForwarded message)
+                public Task Handle(MessageToBeForwarded message, IMessageHandlerContext context)
                 {
                     return Task.FromResult(0);
                 }
@@ -91,9 +91,8 @@
             public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeForwarded>
             {
                 public Context Context { get; set; }
-                public IBus Bus { get; set; }
 
-                public Task Handle(MessageToBeForwarded message)
+                public Task Handle(MessageToBeForwarded message, IMessageHandlerContext context)
                 {
                     Context.Done = true;
                     return Task.FromResult(0);

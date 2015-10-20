@@ -65,7 +65,7 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(MyMessage messageThatIsEnlisted)
+                public Task Handle(MyMessage messageThatIsEnlisted, IMessageHandlerContext context)
                 {
                     Context.CanEnlistPromotable = Transaction.Current.EnlistPromotableSinglePhase(new FakePromotableResourceManager());
                     Context.HandlerInvoked = true;

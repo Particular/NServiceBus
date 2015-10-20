@@ -71,7 +71,7 @@
 
             public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
             {
-                public Task Handle(MessageToBeAudited message)
+                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
                     return Task.FromResult(0);
                 }
@@ -88,9 +88,8 @@
             public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
             {
                 public Context Context { get; set; }
-                public IBus Bus { get; set; }
 
-                public Task Handle(MessageToBeAudited message)
+                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
                     Context.Done = true;
                     return Task.FromResult(0);

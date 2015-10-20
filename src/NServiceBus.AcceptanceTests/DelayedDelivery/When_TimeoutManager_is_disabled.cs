@@ -43,10 +43,9 @@
             }
             public class MyMessageHandler : IHandleMessages<MyMessage>, IHandleMessages<MyOtherMessage>
             {
-                public Context Context { get; set; }
-                public IBus Bus { get; set; }
+                public Context TestContext { get; set; }
 
-                public async Task Handle(MyMessage message)
+                public async Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
                     try
                     {
@@ -54,18 +53,18 @@
                         opts.DelayDeliveryWith(TimeSpan.FromSeconds(5));
                         opts.RouteToLocalEndpointInstance();
 
-                        await Bus.SendAsync(new MyOtherMessage(), opts);
+                        await context.SendAsync(new MyOtherMessage(), opts);
                     }
                     catch (Exception x)
                     {
                         Console.WriteLine(x.Message);
-                        Context.ExceptionThrown = true;
+                        TestContext.ExceptionThrown = true;
                     }
                 }
 
-                public Task Handle(MyOtherMessage message)
+                public Task Handle(MyOtherMessage message, IMessageHandlerContext context)
                 {
-                    Context.SecondMessageReceived = true;
+                    TestContext.SecondMessageReceived = true;
 
                     return Task.FromResult(0);
                 }

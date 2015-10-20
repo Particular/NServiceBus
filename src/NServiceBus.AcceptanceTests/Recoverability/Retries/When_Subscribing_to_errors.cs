@@ -66,7 +66,7 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(MessageToBeRetried message)
+                public Task Handle(MessageToBeRetried message, IMessageHandlerContext context)
                 {
                     if (message.Id != Context.Id)
                     {
@@ -92,7 +92,7 @@
 
             public BusNotifications Notifications { get; set; }
 
-            public IBus Bus { get; set; }
+            public ISendOnlyBus Bus { get; set; }
 
             public Task StartAsync()
             {

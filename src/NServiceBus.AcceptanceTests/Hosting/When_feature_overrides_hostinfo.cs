@@ -57,13 +57,11 @@ namespace NServiceBus.AcceptanceTests.Hosting
 
         public class MyMessageHandler : IHandleMessages<MyMessage>
         {
-            public IBus Bus { get; set; }
+            public Context TestContext { get; set; }
 
-            public Context Context { get; set; }
-
-            public Task Handle(MyMessage message)
+            public Task Handle(MyMessage message, IMessageHandlerContext context)
             {
-                Context.OriginatingHostId = new Guid(Bus.CurrentMessageContext.Headers[Headers.OriginatingHostId]);
+                TestContext.OriginatingHostId = new Guid(context.MessageHeaders[Headers.OriginatingHostId]);
                 return Task.FromResult(0);
             }
         }

@@ -114,7 +114,6 @@
     <Compile Include="Basic\When_sending_with_conventions.cs" />
     <Compile Include="Basic\When_sending_from_a_send_only.cs" />
     <Compile Include="Basic\When_using_a_greedy_convention.cs" />
-    <Compile Include="Basic\When_incoming_headers_should_be_shared.cs" />
     <Compile Include="Hosting\When_sending_ensure_proper_headers.cs" />
     <Compile Include="Performance\MessageDurability\When_sending_a_non_durable_message.cs" />
     <Compile Include="Hosting\When_a_message_is_audited.cs" />
@@ -164,7 +163,6 @@
     <Compile Include="MessageId\When_message_has_no_id_header.cs" />
     <Compile Include="Hosting\When_feature_overrides_hostinfo.cs" />
     <Compile Include="Routing\When_distributing_a_command.cs" />
-    <Compile Include="Sagas\When_reply_from_a_finder.cs" />
     <Compile Include="Sagas\When_message_has_a_saga_id.cs" />
     <Compile Include="Recoverability\Retries\When_Subscribing_to_errors.cs" />
     <Compile Include="Sagas\When_timeout_hit_not_found_saga.cs" />

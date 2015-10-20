@@ -95,7 +95,7 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(IMyEvent messageThatIsEnlisted)
+                public Task Handle(IMyEvent messageThatIsEnlisted, IMessageHandlerContext context)
                 {
                     Context.AddTrace($"Got event '{messageThatIsEnlisted}'");
                     if (messageThatIsEnlisted is MyEvent2)

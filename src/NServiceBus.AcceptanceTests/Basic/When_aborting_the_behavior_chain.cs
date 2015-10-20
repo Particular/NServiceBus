@@ -40,13 +40,11 @@
             {
                 public Context Context { get; set; }
 
-                public IBus Bus { get; set; }
-
-                public Task Handle(SomeMessage message)
+                public Task Handle(SomeMessage message, IMessageHandlerContext context)
                 {
                     Context.FirstHandlerInvoked = true;
 
-                    Bus.DoNotContinueDispatchingCurrentMessageToHandlers();
+                    context.DoNotContinueDispatchingCurrentMessageToHandlers();
 
                     return Task.FromResult(0);
                 }
@@ -56,7 +54,7 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(SomeMessage message)
+                public Task Handle(SomeMessage message, IMessageHandlerContext context)
                 {
                     Context.SecondHandlerInvoked = true;
 

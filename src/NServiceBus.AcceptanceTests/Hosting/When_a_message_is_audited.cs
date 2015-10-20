@@ -42,7 +42,7 @@
 
             public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
             {
-                public Task Handle(MessageToBeAudited message)
+                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
                     return Task.FromResult(0);
                 }
@@ -58,16 +58,15 @@
 
             public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
             {
-                public Context Context { get; set; }
-                public IBus Bus { get; set; }
+                public Context TestContext { get; set; }
 
-                public Task Handle(MessageToBeAudited message)
+                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
-                    Context.HostId = Bus.CurrentMessageContext.Headers[Headers.HostId];
-                    Context.HostName = Bus.CurrentMessageContext.Headers[Headers.HostDisplayName];
-                    Context.Endpoint = Bus.CurrentMessageContext.Headers[Headers.ProcessingEndpoint];
-                    Context.Machine = Bus.CurrentMessageContext.Headers[Headers.ProcessingMachine];
-                    Context.Done = true;
+                    TestContext.HostId = context.MessageHeaders[Headers.HostId];
+                    TestContext.HostName = context.MessageHeaders[Headers.HostDisplayName];
+                    TestContext.Endpoint = context.MessageHeaders[Headers.ProcessingEndpoint];
+                    TestContext.Machine = context.MessageHeaders[Headers.ProcessingMachine];
+                    TestContext.Done = true;
                     return Task.FromResult(0);
                 }
             }

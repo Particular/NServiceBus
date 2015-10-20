@@ -22,6 +22,7 @@
         {
             public bool WasCalled { get; set; }
         }
+
         public class Endpoint : EndpointConfigurationBuilder
         {
             public Endpoint()
@@ -35,13 +36,12 @@
                     return TimeSpan.MaxValue;
                 }));
             }
+
             public class MyMessageHandler : IHandleMessages<MyMessage>
             {
                 public Context Context { get; set; }
 
-                public IBus Bus { get; set; }
-
-                public Task Handle(MyMessage message)
+                public Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
                     Context.WasCalled = true;
                     return Task.FromResult(0);

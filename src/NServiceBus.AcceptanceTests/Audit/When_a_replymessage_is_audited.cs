@@ -41,14 +41,13 @@
 
             class RequestHandler : IHandleMessages<Request>
             {
-                public IBus Bus { get; set; }
-                public Task Handle(Request message)
+                public Task Handle(Request message, IMessageHandlerContext context)
                 {
                     var replyOptions = new ReplyOptions();
 
                     replyOptions.SetHeader("MyHeader", "SomeValue");
 
-                    return Bus.ReplyAsync(new ResponseToBeAudited(), replyOptions);
+                    return context.ReplyAsync(new ResponseToBeAudited(), replyOptions);
                 }
             }
         }
@@ -65,13 +64,11 @@
 
             public class MessageToBeAuditedHandler : IHandleMessages<ResponseToBeAudited>
             {
-                public IBus Bus { get; set; }
-
                 public Context Context { get; set; }
 
-                public Task Handle(ResponseToBeAudited message)
+                public Task Handle(ResponseToBeAudited message, IMessageHandlerContext context)
                 {
-                    Assert.AreEqual(Bus.CurrentMessageContext.Headers["MyHeader"], "SomeValue");
+                    Assert.AreEqual(context.MessageHeaders["MyHeader"], "SomeValue");
                     Context.MessageProcessed = true;
                     return Task.FromResult(0);
                 }
@@ -103,7 +100,7 @@
 
             public class MessageToBeAuditedHandler : IHandleMessages<ResponseToBeAudited>
             {
-                public Task Handle(ResponseToBeAudited message)
+                public Task Handle(ResponseToBeAudited message, IMessageHandlerContext context)
                 {
                     return Task.FromResult(0);
                 }

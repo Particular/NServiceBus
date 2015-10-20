@@ -52,17 +52,15 @@
             class MessageToBeMutatedHandler : IHandleMessages<MessageThatMutatorChangesTo>
             {
                 Context testContext;
-                IBus bus;
 
-                public MessageToBeMutatedHandler(Context testContext,IBus bus)
+                public MessageToBeMutatedHandler(Context testContext)
                 {
                     this.testContext = testContext;
-                    this.bus = bus;
                 }
 
-                public Task Handle(MessageThatMutatorChangesTo message)
+                public Task Handle(MessageThatMutatorChangesTo message, IMessageHandlerContext context)
                 {
-                    testContext.CanAddHeaders = bus.CurrentMessageContext.Headers.ContainsKey("HeaderSetByMutator");
+                    testContext.CanAddHeaders = context.MessageHeaders.ContainsKey("HeaderSetByMutator");
                     testContext.MessageProcessed = true;
                     return Task.FromResult(0);
                 }

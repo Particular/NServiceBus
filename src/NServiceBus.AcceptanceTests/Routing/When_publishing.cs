@@ -147,7 +147,7 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(IFoo messageThatIsEnlisted)
+                public Task Handle(IFoo messageThatIsEnlisted, IMessageHandlerContext context)
                 {
                     Context.Subscriber3GotTheEvent = true;
                     return Task.FromResult(0);
@@ -166,14 +166,12 @@
 
             public class MyEventHandler : IHandleMessages<MyEvent>
             {
-                public Context Context { get; set; }
+                public Context TestContext { get; set; }
 
-                public IBus Bus { get; set; }
-
-                public Task Handle(MyEvent messageThatIsEnlisted)
+                public Task Handle(MyEvent message, IMessageHandlerContext context)
                 {
-                    Assert.AreEqual(Bus.CurrentMessageContext.Headers["MyHeader"], "SomeValue");
-                    Context.Subscriber1GotTheEvent = true;
+                    Assert.AreEqual(context.MessageHeaders["MyHeader"], "SomeValue");
+                    TestContext.Subscriber1GotTheEvent = true;
                     return Task.FromResult(0);
                 }
             }
@@ -191,7 +189,7 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(MyEvent messageThatIsEnlisted)
+                public Task Handle(MyEvent messageThatIsEnlisted, IMessageHandlerContext context)
                 {
                     Context.Subscriber2GotTheEvent = true;
                     return Task.FromResult(0);

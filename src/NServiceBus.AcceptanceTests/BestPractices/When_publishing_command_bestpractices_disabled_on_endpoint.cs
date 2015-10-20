@@ -41,12 +41,12 @@
 
             public class Handler : IHandleMessages<MyEvent>, IHandleMessages<MyCommand>
             {
-                public Task Handle(MyEvent message)
+                public Task Handle(MyEvent message, IMessageHandlerContext context)
                 {
                     return Task.FromResult(0);
                 }
 
-                public Task Handle(MyCommand message)
+                public Task Handle(MyCommand message, IMessageHandlerContext context)
                 {
                     return Task.FromResult(0);
                 }

@@ -151,11 +151,9 @@ public class PrimeSubscriptionStorage : Feature
 
 class PublishEventHandler : IHandleMessages<PerformPublish>
 {
-    public IBus Bus { get; set; }
-
-    public Task Handle(PerformPublish message)
+    public Task Handle(PerformPublish message, IMessageHandlerContext context)
     {
-        return Bus.PublishAsync<TestEvent>();
+        return context.PublishAsync<TestEvent>();
     }
 }
 

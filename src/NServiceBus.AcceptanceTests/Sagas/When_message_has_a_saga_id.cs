@@ -50,19 +50,19 @@
             {
             }
 
-            public Task Handle(MessageWithSagaId message)
+            public Task Handle(MessageWithSagaId message, IMessageHandlerContext context)
             {
                 Context.MessageHandlerCalled = true;
                 return Task.FromResult(0);
             }
 
-            public Task Handle(object message)
+            public Task Handle(object message, IMessageHandlerContext context)
             {
                 Context.NotFoundHandlerCalled = true;
                 return Task.FromResult(0);
             }
 
-            public Task Timeout(MessageWithSagaId state)
+            public Task Timeout(MessageWithSagaId state, IMessageHandlerContext context)
             {
                 Context.TimeoutHandlerCalled = true;
                 return Task.FromResult(0);
@@ -73,7 +73,7 @@
         {
             public Context Context { get; set; }
 
-            public Task Handle(MessageWithSagaId message)
+            public Task Handle(MessageWithSagaId message, IMessageHandlerContext context)
             {
                 Data.DataId = message.DataId;
 

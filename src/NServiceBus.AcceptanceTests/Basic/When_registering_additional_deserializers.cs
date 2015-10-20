@@ -62,7 +62,7 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(MyRequest request)
+                public Task Handle(MyRequest request, IMessageHandlerContext context)
                 {
                     Context.HandlerGotTheRequest = true;
                     return Task.FromResult(0);

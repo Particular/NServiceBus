@@ -89,7 +89,7 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(BaseEvent message)
+                public Task Handle(BaseEvent message, IMessageHandlerContext context)
                 {
                     if (message.GetType().FullName.Contains("DerivedEvent1"))
                         Context.GotTheEventFromPublisher1 = true;

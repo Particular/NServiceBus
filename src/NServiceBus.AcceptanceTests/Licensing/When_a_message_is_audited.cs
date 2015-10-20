@@ -43,7 +43,7 @@
 
             public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
             {
-                public Task Handle(MessageToBeAudited message)
+                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
                     return Task.FromResult(0);
                 }
@@ -59,16 +59,15 @@
 
             public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
             {
-                public Context Context { get; set; }
-                public IBus Bus { get; set; }
+                public Context TestContext { get; set; }
 
-                public Task Handle(MessageToBeAudited message)
+                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
                     string licenseExpired;
 
-                    Context.HasDiagnosticLicensingHeaders = Bus.CurrentMessageContext.Headers.TryGetValue(Headers.HasLicenseExpired, out licenseExpired);
+                    TestContext.HasDiagnosticLicensingHeaders = context.MessageHeaders.TryGetValue(Headers.HasLicenseExpired, out licenseExpired);
 
-                    Context.Done = true;
+                    TestContext.Done = true;
 
                     return Task.FromResult(0);
                 }

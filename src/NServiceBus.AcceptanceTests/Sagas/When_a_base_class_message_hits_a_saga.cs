@@ -39,19 +39,19 @@
 
             public class TestSaga04 : Saga<TestSaga04.SagaData04>, IAmStartedByMessages<StartSagaMessageBase>
             {
-                public Context Context { get; set; }
+                public Context TestContext { get; set; }
 
-                public Task Handle(StartSagaMessageBase message)
+                public Task Handle(StartSagaMessageBase message, IMessageHandlerContext context)
                 {
                     if (Data.SomeId != Guid.Empty)
                     {
-                        Context.SecondMessageFoundExistingSaga = true;
+                        TestContext.SecondMessageFoundExistingSaga = true;
                     }
                     else
                     {
                         Data.SomeId = message.SomeId;
 
-                        return Bus.SendLocalAsync(new StartSagaMessage
+                        return context.SendLocalAsync(new StartSagaMessage
                         {
                             SomeId = message.SomeId
                         });

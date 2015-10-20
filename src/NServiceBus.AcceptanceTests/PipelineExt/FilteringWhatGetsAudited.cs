@@ -38,17 +38,15 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
 
             class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
             {
-                public IBus Bus { get; set; }
-
-                public Task Handle(MessageToBeAudited message)
+                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
-                    return Bus.SendLocalAsync(new Message3());
+                    return context.SendLocalAsync(new Message3());
                 }
             }
 
             class Message3Handler : IHandleMessages<Message3>
             {
-                public Task Handle(Message3 message)
+                public Task Handle(Message3 message, IMessageHandlerContext context)
                 {
                     return Task.FromResult(0);
                 }
@@ -135,7 +133,7 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
             {
                 public Context MyContext { get; set; }
 
-                public Task Handle(MessageToBeAudited message)
+                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
                     MyContext.WrongMessageAudited = true;
                     return Task.FromResult(0);
@@ -146,7 +144,7 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
             {
                 public Context MyContext { get; set; }
 
-                public Task Handle(Message3 message)
+                public Task Handle(Message3 message, IMessageHandlerContext context)
                 {
                     MyContext.Done = true;
                     return Task.FromResult(0);

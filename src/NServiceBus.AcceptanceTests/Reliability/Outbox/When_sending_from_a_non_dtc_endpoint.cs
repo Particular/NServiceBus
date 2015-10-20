@@ -40,11 +40,9 @@
 
             class PlaceOrderHandler : IHandleMessages<PlaceOrder>
             {
-                public IBus Bus { get; set; }
-
-                public Task Handle(PlaceOrder message)
+                public Task Handle(PlaceOrder message, IMessageHandlerContext context)
                 {
-                    return Bus.SendLocalAsync(new SendOrderAcknowledgement());
+                    return context.SendLocalAsync(new SendOrderAcknowledgement());
                 }
             }
 
@@ -52,7 +50,7 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(SendOrderAcknowledgement message)
+                public Task Handle(SendOrderAcknowledgement message, IMessageHandlerContext context)
                 {
                     Context.OrderAckReceived = true;
                     return Task.FromResult(0);

@@ -72,7 +72,7 @@
             {
                 public SagaContext Context { get; set; }
 
-                public Task Handle(BaseEvent message)
+                public Task Handle(BaseEvent message, IMessageHandlerContext context)
                 {
                     Data.DataId = message.DataId;
                     MarkAsComplete();
