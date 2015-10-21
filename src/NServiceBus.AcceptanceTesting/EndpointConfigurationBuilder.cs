@@ -68,15 +68,6 @@
                     var scenarioConfigSource = new ScenarioConfigSource(configuration, routingTable);
                     var endpointConfiguration = await endpointSetupTemplate.GetConfiguration(settings, configuration, scenarioConfigSource, configurationBuilderCustomization);
 
-                    endpointConfiguration.Pipeline.Register(
-                        "MarshallTestContextOnHandlerContextBehavior", 
-                        typeof(MarshallTestContextOnHandlerContextBehavior), 
-                        "Makes the provided ScenarioContext accessible in the MessageHandlerContext");
-                    endpointConfiguration.RegisterComponents(c => c
-                        .ConfigureComponent(b => new MarshallTestContextOnHandlerContextBehavior(
-                            settings.ScenarioContext),
-                            DependencyLifecycle.SingleInstance));
-
                     return endpointConfiguration;
                 };
 

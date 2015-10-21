@@ -52,8 +52,6 @@
     <Compile Include="Customization\BusConfigExtensions.cs" />
     <Compile Include="Customization\Conventions.cs" />
     <Compile Include="IScenarioVerification.cs" />
-    <Compile Include="MarshallTestContextOnHandlerContextBehavior.cs" />
-    <Compile Include="MessageHandlerAcceptanceTestingExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScenarioVerification.cs" />
     <Compile Include="ScenarioWithContext.cs" />
