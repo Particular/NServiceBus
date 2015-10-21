@@ -11,9 +11,11 @@
     /// </summary>
     public class TimeoutManager : Feature
     {
+        const int MinutesToWaitBeforeErrorForTimeoutPersisterReceiver = 2;
+
         internal TimeoutManager()
         {
-            Defaults(s => s.SetDefault("TimeToWaitBeforeTriggeringCriticalErrorForTimeoutPersisterReceiver", TimeSpan.FromSeconds(2)));
+            Defaults(s => s.SetDefault("TimeToWaitBeforeTriggeringCriticalErrorForTimeoutPersisterReceiver", TimeSpan.FromMinutes(MinutesToWaitBeforeErrorForTimeoutPersisterReceiver)));
 
             DependsOn<TimeoutManagerBasedDeferral>();
            
