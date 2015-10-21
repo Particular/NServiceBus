@@ -47,34 +47,33 @@ namespace NServiceBus.Encryption.Rijndael
         /// </summary>
         public List<byte[]> ExpiredKeys { get; set; }
 
+        /// <summary>
+        /// Key identifier to use to identify current encryption key.
+        /// </summary>
+        public string EncryptionKeyIdentifier { private get; set; }
+
+        /// <summary>
+        /// Bus instance to get and set message headers.
+        /// </summary>
+        public IBus Bus { private get; set; }
+
+        /// <summary>
+        /// Key lookup dictionary based on key identifier header.
+        /// </summary>
+        public IDictionary<string, byte[]> Keys { private get; set; }
+
         string IEncryptionService.Decrypt(EncryptedValue encryptedValue)
         {
-            if (Key == null)
+            string keyIdentifier;
+            if (TryGetKeyIdentifierHeader(out keyIdentifier))
             {
-                Logger.Warn("Cannot decrypt because a Key was not configured. Please specify 'RijndaelEncryptionServiceConfig' in your application's configuration file.");
-                return encryptedValue.EncryptedBase64Value;
+                return DecryptUsingKeyIdentifier(encryptedValue, keyIdentifier);
             }
-
-            var decryptionKeys = new List<byte[]> { Key };
-            if (ExpiredKeys != null)
+            else
             {
-                decryptionKeys.AddRange(ExpiredKeys);
+                Logger.WarnFormat("Encrypted message has no '" + Headers.RijndaelKeyIdentifier + "' header. Possibility of data corruption. Please upgrade endpoints that send message with encrypted properties.");
+                return DecryptUsingAllKeys(encryptedValue);
             }
-            var cryptographicExceptions = new List<CryptographicException>();
-
-            foreach (var key in decryptionKeys)
-            {
-                try
-                {
-                    return Decrypt(encryptedValue, key);
-                }
-                catch (CryptographicException exception)
-                {
-                    cryptographicExceptions.Add(exception);
-                }
-            }
-            var message = string.Format("Could not decrypt message. Tried {0} keys.", decryptionKeys.Count);
-            throw new AggregateException(message, cryptographicExceptions);
         }
 
         static string Decrypt(EncryptedValue encryptedValue, byte[] key)
@@ -100,6 +99,11 @@ namespace NServiceBus.Encryption.Rijndael
             if (Key == null)
                 throw new InvalidOperationException("Cannot encrypt because a Key was not configured. Please specify 'RijndaelEncryptionServiceConfig' in your application's configuration file.");
 
+            if (string.IsNullOrEmpty(EncryptionKeyIdentifier))
+                throw new InvalidOperationException("It is required to set the rijndael key identifer.");
+
+            AddKeyIdentifierHeader();
+
             using (var rijndael = new RijndaelManaged())
             {
                 rijndael.Key = Key;
@@ -124,27 +128,56 @@ namespace NServiceBus.Encryption.Rijndael
             }
         }
 
-        internal void VerifyKeysAreNotTooSimilar()
+        string DecryptUsingAllKeys(EncryptedValue encryptedValue)
         {
-            for (var index = 0; index < ExpiredKeys.Count; index++)
+            var cryptographicExceptions = new List<CryptographicException>();
+
+            foreach (var key in ExpiredKeys)
             {
-                var decryption = ExpiredKeys[index];
-                CryptographicException exception = null;
-                var encryptedValue = ((IEncryptionService)this).Encrypt("a");
                 try
                 {
-                    Decrypt(encryptedValue, decryption);
+                    return Decrypt(encryptedValue, key);
                 }
-                catch (CryptographicException cryptographicException)
+                catch (CryptographicException exception)
                 {
-                    exception = cryptographicException;
-                }
-                if (exception == null)
-                {
-                    var message = string.Format("The new Encryption Key is too similar to the Expired Key at index {0}. This can cause issues when decrypting data. To fix this issue please ensure the new encryption key is not too similar to the existing Expired Keys.", index);
-                    throw new Exception(message);
+                    cryptographicExceptions.Add(exception);
                 }
             }
+            var message = string.Format("Could not decrypt message. Tried {0} keys.", ExpiredKeys.Count);
+            throw new AggregateException(message, cryptographicExceptions);
+        }
+
+        private string DecryptUsingKeyIdentifier(EncryptedValue encryptedValue, string keyIdentifier)
+        {
+            byte[] decryptionKey;
+
+            if (!Keys.TryGetValue(keyIdentifier, out decryptionKey))
+            {
+                throw new InvalidOperationException("Decryption key not available for key identifier '" + keyIdentifier + "'. Please add this key to the rijndael encryption service configuration. Key identifiers are case sensitive.");
+            }
+
+            try
+            {
+                return Decrypt(encryptedValue, decryptionKey);
+            }
+            catch (CryptographicException ex)
+            {
+                throw new InvalidOperationException("Unable to decrypt property using configured decryption key specified in key identifier header.", ex);
+            }
+        }
+
+        protected virtual void AddKeyIdentifierHeader()
+        {
+            var headers = Bus.OutgoingHeaders;
+            if (!headers.ContainsKey(Headers.RijndaelKeyIdentifier))
+            {
+                headers.Add(Headers.RijndaelKeyIdentifier, EncryptionKeyIdentifier);
+            }
+        }
+
+        protected virtual bool TryGetKeyIdentifierHeader(out string keyIdentifier)
+        {
+            return Bus.CurrentMessageContext.Headers.TryGetValue(Headers.RijndaelKeyIdentifier, out keyIdentifier);
         }
 
         static readonly ILog Logger = LogManager.GetLogger(typeof(EncryptionService));

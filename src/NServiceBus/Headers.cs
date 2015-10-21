@@ -241,6 +241,11 @@
         public const string MessageIntent = "NServiceBus.MessageIntent";
 
         /// <summary>
+        /// The identification of the key used for encryption.
+        /// </summary>
+        public const string RijndaelKeyIdentifier = "NServiceBus.RijndaelKeyIdentifier";
+
+        /// <summary>
         /// Get the header with the given key. Cannot be used to change its value.
         /// </summary>
         /// <param name="msg">The message to retrieve a header from.</param>

@@ -8,6 +8,7 @@ namespace NServiceBus
     using Encryption;
     using Encryption.Rijndael;
     using Logging;
+    using NServiceBus.ObjectBuilder;
 
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure.
@@ -24,52 +25,136 @@ namespace NServiceBus
             if (section == null)
                 Logger.Warn("Could not find configuration section for Rijndael Encryption Service.");
 
-            var encryptionService = new EncryptionService();
 
-            if (section != null)
+            if (section == null) throw new InvalidOperationException("No RijndaelEncryptionServiceConfig section present.");
+
+            if (string.IsNullOrWhiteSpace(section.Key))
             {
-                if (string.IsNullOrWhiteSpace(section.Key))
-                {
-                    throw new Exception("The RijndaelEncryptionServiceConfig has an empty 'Key' attribute.");
-                }
-                var expiredKeys = ExtractExpiredKeysFromConfigSection(section);
-
-                encryptionService.Key = Encoding.ASCII.GetBytes(section.Key);
-                encryptionService.ExpiredKeys = expiredKeys.Select(x => Encoding.ASCII.GetBytes(x)).ToList();
+                throw new Exception("The RijndaelEncryptionServiceConfig has an empty 'Key' attribute.");
             }
 
-            encryptionService.VerifyKeysAreNotTooSimilar();
+            ValidateConfigSection(section);
 
-            config.Configurer.RegisterSingleton<IEncryptionService>(encryptionService);
+            Func<IBuilder, IEncryptionService> initWithBus = builder => CreateEncryptionService(
+                builder.Build<IBus>(),
+                section.KeyIdentifier,
+                ExtractKeysFromConfigSection(section),
+                ExtractDecryptionKeysFromConfigSection(section)
+                );
+
+            // ReSharper disable once RedundantTypeArgumentsOfMethod
+            config.Configurer.ConfigureComponent<IEncryptionService>(initWithBus, DependencyLifecycle.SingleInstance);
 
             return config;
         }
 
-        internal static List<string> ExtractExpiredKeysFromConfigSection(RijndaelEncryptionServiceConfig section)
+        internal static EncryptionService CreateEncryptionService(
+            IBus bus,
+            string encryptionKeyIdentifier,
+            IDictionary<string, byte[]> keys,
+            List<byte[]> expiredKeys
+            )
         {
+            byte[] encryptionKey = null;
+
+            if (string.IsNullOrEmpty(encryptionKeyIdentifier))
+            {
+                Logger.Error("No encryption key identifier configured. Messages with encrypted properties will fail to send. Please add an encryption key identifier to the rijndael encryption service configuration.");
+            }
+            else if (!keys.TryGetValue(encryptionKeyIdentifier, out encryptionKey))
+            {
+                throw new ArgumentException("No encryption key for given encryption key identifier.", "encryptionKeyIdentifier");
+            }
+            else
+            {
+                // VerifyEncryptionKey(encryptionKey);
+            }
+
+            return new EncryptionService
+            {
+                Bus = bus,
+                ExpiredKeys = expiredKeys,
+                Key = encryptionKey,
+                EncryptionKeyIdentifier = encryptionKeyIdentifier,
+                Keys = keys
+            };
+        }
+
+        internal static void ValidateConfigSection(RijndaelEncryptionServiceConfig section)
+        {
+            if (section == null)
+            {
+                throw new Exception("No RijndaelEncryptionServiceConfig defined. Please specify a valid 'RijndaelEncryptionServiceConfig' in your application's configuration file.");
+            }
             if (section.ExpiredKeys == null)
             {
-                return new List<string>();
+                throw new Exception("RijndaelEncryptionServiceConfig.ExpiredKeys is null.");
             }
-            var encryptionKeys = section.ExpiredKeys
-                .Cast<RijndaelExpiredKey>()
-                .Select(x => x.Key)
-                .ToList();
-            if (encryptionKeys.Any(string.IsNullOrWhiteSpace))
+            if (string.IsNullOrWhiteSpace(section.Key))
             {
-                throw new Exception("The RijndaelEncryptionServiceConfig has a 'ExpiredKeys' property defined however some keys have no data.");
+                throw new Exception("The RijndaelEncryptionServiceConfig has an empty 'Key' property.");
             }
-            if (encryptionKeys.Any(x => x == section.Key))
+            if (RijndaelEncryptionServiceConfigValidations.ExpiredKeysHaveWhiteSpace(section))
+            {
+                throw new Exception("The RijndaelEncryptionServiceConfig has a 'ExpiredKeys' property defined however some keys have no 'Key' property set.");
+            }
+            if (RijndaelEncryptionServiceConfigValidations.OneOrMoreExpiredKeysHaveNoKeyIdentifier(section))
+            {
+                Logger.Warn("The RijndaelEncryptionServiceConfig has a 'ExpiredKeys' property defined however some keys have no 'KeyIdentifier' property value. Please verify if this is intentional.");
+            }
+            if (RijndaelEncryptionServiceConfigValidations.EncryptionKeyListedInExpiredKeys(section))
             {
                 throw new Exception("The RijndaelEncryptionServiceConfig has a 'Key' that is also defined inside the 'ExpiredKeys'.");
             }
-
-            if (encryptionKeys.Count != encryptionKeys.Distinct().Count())
+            if (RijndaelEncryptionServiceConfigValidations.ExpiredKeysHaveDuplicateKeys(section))
             {
-                throw new Exception("The RijndaelEncryptionServiceConfig has overlapping ExpiredKeys defined. Please ensure that no keys overlap in the 'ExpiredKeys' property.");
+                throw new Exception("The RijndaelEncryptionServiceConfig has ExpiredKeys defined with duplicate 'Key' properties.");
             }
-            return encryptionKeys;
+            if (RijndaelEncryptionServiceConfigValidations.ConfigurationHasDuplicateKeyIdentifiers(section))
+            {
+                throw new Exception("The RijndaelEncryptionServiceConfig has duplicate KeyIdentifiers defined with the same key identifier. Key identifiers must be unique in the complete configuration section.");
+            }
         }
+
+        internal static List<byte[]> ExtractDecryptionKeysFromConfigSection(RijndaelEncryptionServiceConfig section)
+        {
+            var o = new List<byte[]>();
+            o.Add(ParseKey(section.Key));
+            o.AddRange(section.ExpiredKeys
+                .Cast<RijndaelExpiredKey>()
+                .Select(x => ParseKey(x.Key)));
+
+            return o;
+        }
+
+        static byte[] ParseKey(string key)
+        {
+            return Encoding.ASCII.GetBytes(key);
+        }
+
+        internal static IDictionary<string, byte[]> ExtractKeysFromConfigSection(RijndaelEncryptionServiceConfig section)
+        {
+            var result = new Dictionary<string, byte[]>();
+
+            AddKeyIdentifierItems(section, result);
+
+            foreach (RijndaelExpiredKey item in section.ExpiredKeys)
+            {
+                AddKeyIdentifierItems(item, result);
+            }
+
+            return result;
+        }
+
+        static void AddKeyIdentifierItems(dynamic item, Dictionary<string, byte[]> result)
+        {
+            if (!string.IsNullOrEmpty(item.KeyIdentifier))
+            {
+                var key = ParseKey(item.Key);
+                result.Add(item.KeyIdentifier, key);
+            }
+        }
+
         private static readonly ILog Logger = LogManager.GetLogger(typeof(RijndaelEncryptionServiceConfig));
     }
 }

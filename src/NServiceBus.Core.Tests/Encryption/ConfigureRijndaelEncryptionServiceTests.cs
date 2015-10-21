@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.Encryption
 {
     using System;
+    using System.Collections.Generic;
     using System.Configuration;
     using System.IO;
     using System.Linq;
@@ -32,15 +33,15 @@
 
             var section = ReadSectionFromText<RijndaelEncryptionServiceConfig>(xml);
             var keys = section.ExpiredKeys.Cast<RijndaelExpiredKey>()
-                .Select(x=>x.Key)
+                .Select(x => x.Key)
                 .ToList();
             Assert.AreEqual("key1", section.Key);
-            Assert.AreEqual(2,keys.Count);
-            Assert.Contains("key2",keys);
-            Assert.Contains("key3",keys);
+            Assert.AreEqual(2, keys.Count);
+            Assert.Contains("key2", keys);
+            Assert.Contains("key3", keys);
         }
 
-        static T ReadSectionFromText<T>(string s) where T: ConfigurationSection
+        static T ReadSectionFromText<T>(string s) where T : ConfigurationSection
         {
             var xml = s.Replace("'", "\"");
             var tempPath = Path.GetTempFileName();
@@ -54,7 +55,7 @@
                 };
 
                 var configuration = ConfigurationManager.OpenMappedExeConfiguration(fileMap, ConfigurationUserLevel.None);
-                return (T) configuration.GetSection(typeof(T).Name);
+                return (T)configuration.GetSection(typeof(T).Name);
             }
             finally
             {
@@ -78,8 +79,8 @@
                     }
                 }
             };
-            var exception = Assert.Throws<Exception>(() => ConfigureRijndaelEncryptionService.ExtractExpiredKeysFromConfigSection(config));
-            Assert.AreEqual("The RijndaelEncryptionServiceConfig has a 'ExpiredKeys' property defined however some keys have no data.", exception.Message);
+            var exception = Assert.Throws<Exception>(() => ConfigureRijndaelEncryptionService.ValidateConfigSection(config));
+            Assert.AreEqual("The RijndaelEncryptionServiceConfig has an empty 'Key' property.", exception.Message);
         }
 
         [Test]
@@ -92,12 +93,12 @@
                     new RijndaelExpiredKey()
                 }
             };
-            var exception = Assert.Throws<Exception>(() => ConfigureRijndaelEncryptionService.ExtractExpiredKeysFromConfigSection(config));
-            Assert.AreEqual("The RijndaelEncryptionServiceConfig has a 'ExpiredKeys' property defined however some keys have no data.", exception.Message);
+            var exception = Assert.Throws<Exception>(() => ConfigureRijndaelEncryptionService.ValidateConfigSection(config));
+            Assert.AreEqual("The RijndaelEncryptionServiceConfig has an empty 'Key' property.", exception.Message);
         }
 
         [Test]
-        public void Should_for_duplicate_between_key_and_keys_in_config()
+        public void Should_throw_for_duplicate_between_key_and_keys_in_config()
         {
             var config = new RijndaelEncryptionServiceConfig
             {
@@ -110,30 +111,124 @@
                     }
                 }
             };
-            var exception = Assert.Throws<Exception>(() => ConfigureRijndaelEncryptionService.ExtractExpiredKeysFromConfigSection(config));
+            var exception = Assert.Throws<Exception>(() => ConfigureRijndaelEncryptionService.ValidateConfigSection(config));
             Assert.AreEqual("The RijndaelEncryptionServiceConfig has a 'Key' that is also defined inside the 'ExpiredKeys'.", exception.Message);
         }
 
+
         [Test]
-        public void Duplicates_should_be_skipped()
+        public void Should_correctly_parse_key_identifiers_containing_multiple_keys()
         {
-            var config = new RijndaelEncryptionServiceConfig
+            var section = new RijndaelEncryptionServiceConfig
             {
-                ExpiredKeys = new RijndaelExpiredKeyCollection
+                KeyIdentifier = "1",
+                ExpiredKeys =
                 {
                     new RijndaelExpiredKey
                     {
-                        Key = "a"
-                    },
-                    new RijndaelExpiredKey
-                    {
-                        Key = "a"
+                        KeyIdentifier = "2",
+                        Key = "Key"
                     }
                 }
             };
-            var keys = ConfigureRijndaelEncryptionService.ExtractExpiredKeysFromConfigSection(config);
 
-            Assert.That(new[]{"a"}, Is.EquivalentTo(keys));
+            var keys = ConfigureRijndaelEncryptionService.ExtractKeysFromConfigSection(section);
+
+            ICollection<string> expected = new[]
+            {
+                "1",
+                "2",
+            };
+
+            Assert.AreEqual(expected, keys.Keys);
+        }
+
+        [Test]
+        public void Should_have_correct_number_of_extracted_keys_without_key_identifier()
+        {
+            var section = new RijndaelEncryptionServiceConfig
+            {
+                Key = "a",
+                ExpiredKeys =
+                {
+                    new RijndaelExpiredKey
+                    {
+                        Key = "b"
+                    }
+                }
+            };
+
+            var result = ConfigureRijndaelEncryptionService.ExtractDecryptionKeysFromConfigSection(section);
+
+            Assert.AreEqual(2, result.Count, "Key count");
+        }
+
+        [Test]
+        public void Should_have_correct_number_of_extracted_keys_with_empty_key_identifier()
+        {
+            var section = new RijndaelEncryptionServiceConfig
+            {
+                Key = "a",
+                KeyIdentifier = "a;",
+                ExpiredKeys =
+                {
+                    new RijndaelExpiredKey
+                    {
+                        Key = "b",
+                        KeyIdentifier = ";b"
+                    }
+                }
+            };
+
+            var result = ConfigureRijndaelEncryptionService.ExtractDecryptionKeysFromConfigSection(section);
+
+            Assert.AreEqual(2, result.Count, "Key count");
+        }
+
+        [Test]
+        public void Should_trow_for_duplicate_expiredkeys_key_values()
+        {
+            Assert.Throws<ConfigurationErrorsException>(() =>
+            {
+                new RijndaelEncryptionServiceConfig
+                {
+                    ExpiredKeys =
+                    {
+                        new RijndaelExpiredKey
+                        {
+                            Key = "b",
+                            KeyIdentifier = "1"
+                        },
+                        new RijndaelExpiredKey
+                        {
+                            Key = "b",
+                            KeyIdentifier = "2"
+                        }
+                    }
+                };
+            });
+        }
+
+        [Test]
+        public void Should_have_correct_number_of_extracted_keys_with_key_identifier()
+        {
+            var section = new RijndaelEncryptionServiceConfig
+            {
+                Key = "a",
+                KeyIdentifier = "a",
+                ExpiredKeys =
+                {
+                    new RijndaelExpiredKey
+                    {
+                        Key = "b",
+                        KeyIdentifier = "b"
+                    }
+                }
+            };
+
+            var result = ConfigureRijndaelEncryptionService.ExtractDecryptionKeysFromConfigSection(section);
+
+            Assert.AreEqual(2, result.Count, "Key count");
         }
     }
 

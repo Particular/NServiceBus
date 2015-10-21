@@ -34,5 +34,20 @@ namespace NServiceBus.Config
                 this["ExpiredKeys"] = value;
             }
         }
+        /// <summary>
+        /// The encryption key identfier used for decryption.
+        /// </summary>
+        [ConfigurationProperty("KeyIdentifier", IsRequired = false)]
+        public string KeyIdentifier
+        {
+            get
+            {
+                return this["KeyIdentifier"] as string;
+            }
+            set
+            {
+                this["KeyIdentifier"] = value;
+            }
+        }
     }
 }

@@ -143,10 +143,21 @@
             }
         }
 
+
         private static void SetupRijndaelTestEncryptionService()
         {
-            var encryptConfig = Configure.Instance.Configurer.ConfigureComponent<NServiceBus.Encryption.Rijndael.EncryptionService>(DependencyLifecycle.SingleInstance);
-            encryptConfig.ConfigureProperty(s => s.Key, Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6"));
+            // ReSharper disable once RedundantTypeArgumentsOfMethod
+            Configure.Instance.Configurer.ConfigureComponent<NServiceBus.Encryption.Rijndael.EncryptionService>(b =>
+                
+                new NServiceBus.Encryption.Rijndael.EncryptionService
+                {
+                    Bus = b.Build<IBus>(),
+                    EncryptionKeyIdentifier = "ID",
+                    Keys = new Dictionary<string, byte[]> { { "ID", Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6") } },
+                    ExpiredKeys = new List<byte[]>()
+                },
+                DependencyLifecycle.SingleInstance
+                );
         }
 
         static void DumpSetting(string[] args)

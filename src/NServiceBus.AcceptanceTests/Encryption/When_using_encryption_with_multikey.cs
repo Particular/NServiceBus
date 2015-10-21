@@ -57,7 +57,8 @@
                 {
                     return new RijndaelEncryptionServiceConfig
                     {
-                        Key = "gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6"
+                        Key = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        KeyIdentifier = "a"
                     };
                 }
             }
@@ -87,12 +88,14 @@
                 {
                     return new RijndaelEncryptionServiceConfig
                     {
-                        Key = "adDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6",
+                        Key = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                        KeyIdentifier = "b",
                         ExpiredKeys = new RijndaelExpiredKeyCollection
                         {
                             new RijndaelExpiredKey
                             {
-                                Key = "gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6"
+                                Key = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                                KeyIdentifier = "a"
                             }
                         }
                     };
