@@ -58,6 +58,7 @@
     <Compile Include="ConfigureRijndaelEncryptionService.cs" />
     <Compile Include="RijndaelEncryptionServiceConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RijndaelEncryptionServiceConfigValidations.cs" />
     <Compile Include="RijndaelExpiredKey.cs" />
     <Compile Include="RijndaelExpiredKeyCollection.cs" />
   </ItemGroup>

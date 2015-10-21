@@ -1,12 +1,12 @@
-﻿using System;
+using System;
 using System.Configuration;
-
 namespace NServiceBus.Config
 {
+
     /// <summary>
     /// A configuration element representing a Rijndael encryption key.
     /// </summary>
-    public class RijndaelExpiredKey : ConfigurationElement, IComparable<RijndaelExpiredKey>
+    public class RijndaelExpiredKey : ConfigurationElement
     {
 
         /// <summary>
@@ -25,11 +25,20 @@ namespace NServiceBus.Config
             }
         }
 
-
-        int IComparable<RijndaelExpiredKey>.CompareTo(RijndaelExpiredKey other)
+        /// <summary>
+        /// The encryption key identfier used for decryption.
+        /// </summary>
+        [ConfigurationProperty("KeyIdentifier", IsRequired = false)]
+        public string KeyIdentifier
         {
-            return String.Compare(Key, other.Key, StringComparison.Ordinal);
+            get
+            {
+                return this["KeyIdentifier"] as string;
+            }
+            set
+            {
+                this["KeyIdentifier"] = value;
+            }
         }
-
     }
 }

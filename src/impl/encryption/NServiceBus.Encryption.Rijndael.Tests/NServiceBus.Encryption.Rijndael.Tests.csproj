@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="EncryptionServiceTests.cs" />
     <Compile Include="ConfigureRijndaelEncryptionServiceTests.cs" />
+    <Compile Include="RijndaelEncryptionServiceConfigValidationsTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
