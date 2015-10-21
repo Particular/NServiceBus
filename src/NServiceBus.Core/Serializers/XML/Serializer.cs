@@ -50,7 +50,7 @@
             writer.Flush();
         }
 
-        private static void ForceEmptyTagsWithNewlines(XDocument document)
+        static void ForceEmptyTagsWithNewlines(XDocument document)
         {
             // this is to force compatibility with previous implementation,
             // in particular, to support nested objects with null properties in them.
@@ -303,7 +303,7 @@
             //Injected at compile time
         }
 
-        private class RawXmlTextWriter : XmlTextWriter
+        class RawXmlTextWriter : XmlTextWriter
         {
             readonly XmlWriterSettings settings;
 
