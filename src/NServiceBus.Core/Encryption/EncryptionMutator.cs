@@ -101,7 +101,7 @@ namespace NServiceBus.Encryption
                 {
                     continue;
                 }
-                
+
                 var child = member.GetValue(root);
 
                 var items = child as IEnumerable;
