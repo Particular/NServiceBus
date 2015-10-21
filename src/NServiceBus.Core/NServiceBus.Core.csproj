@@ -15,7 +15,8 @@
     <AssemblyOriginatorKeyFile>..\NServiceBus.snk</AssemblyOriginatorKeyFile>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <TargetFrameworkProfile />
-    <NuGetPackageImportStamp>580ed512</NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
     <CreateDeploymentPackage>False</CreateDeploymentPackage>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -113,6 +114,8 @@
     <Compile Include="Encryption\EncryptedValue.cs" />
     <Compile Include="Encryption\Encryptor.cs" />
     <Compile Include="Encryption\ConfigureRijndaelEncryptionService_Obsolete.cs" />
+    <Compile Include="Encryption\KeyFormat.cs" />
+    <Compile Include="Encryption\RijndaelEncryptionServiceConfigValidations.cs" />
     <Compile Include="Encryption\RijndaelExpiredKey.cs" />
     <Compile Include="Encryption\RijndaelExpiredKeyCollection.cs" />
     <Compile Include="Encryption\RijndaelEncryptionService.cs" />

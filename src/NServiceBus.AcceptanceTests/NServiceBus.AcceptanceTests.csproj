@@ -13,7 +13,8 @@
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <TargetFrameworkProfile />
-    <NuGetPackageImportStamp>71aa651c</NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
     <CreateDeploymentPackage>False</CreateDeploymentPackage>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -83,6 +84,7 @@
     <Compile Include="Basic\When_TimeToBeReceived_has_expired.cs" />
     <Compile Include="Basic\When_Deferring_a_message.cs" />
     <Compile Include="Basic\When_using_callback_to_get_message.cs" />
+    <Compile Include="Encryption\When_using_Rijndael_without_incoming_key_identifier.cs" />
     <Compile Include="HostInformation\When_feature_overrides_hostid.cs" />
     <Compile Include="PerfMon\CriticalTime\When_deferring_a_message.cs" />
     <Compile Include="PubSub\When_publishing_from_sendonly.cs" />
@@ -116,6 +118,7 @@
     <Compile Include="ScenarioDescriptors\AllTransactionSettings.cs" />
     <Compile Include="ScenarioDescriptors\TransactionSettings.cs" />
     <Compile Include="NonDTC\When_dispatching_deferred_message_fails_without_dtc.cs" />
+    <Compile Include="Timeouts\TemporarilyUnavailableTimeoutPersister.cs" />
     <Compile Include="Timeouts\OutdatedTimeoutPersister.cs" />
     <Compile Include="Timeouts\TransportWithFakeQueues.cs" />
     <Compile Include="Timeouts\UpdatedTimeoutPersister.cs" />
@@ -123,6 +126,7 @@
     <Compile Include="Timeouts\When_endpoint_uses_outdated_timeout_persistence_without_dtc.cs" />
     <Compile Include="Timeouts\When_endpoint_uses_outdated_timeout_persistence_with_disabled_dtc.cs" />
     <Compile Include="Timeouts\When_endpoint_uses_outdated_timeout_persistence_with_dtc.cs" />
+    <Compile Include="Timeouts\When_timeout_storage_is_unavailable_temporarily.cs" />
     <Compile Include="Timeouts\When_endpoint_uses_updated_timeout_persistence.cs" />
     <Compile Include="Tx\Issue_2481.cs" />
     <Compile Include="Volatile\When_sending_to_non_durable_endpoint.cs" />
