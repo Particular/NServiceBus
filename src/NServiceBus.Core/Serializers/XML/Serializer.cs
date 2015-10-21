@@ -6,7 +6,6 @@
     using System.IO;
     using System.Linq;
     using System.Reflection;
-    using System.Text;
     using System.Xml;
     using System.Xml.Linq;
     using NServiceBus.Utils.Reflection;
@@ -17,9 +16,8 @@
 
         const string DefaultNamespace = "http://tempuri.net";
 
-        List<Type> namespacesToAdd = new List<Type>();
         Type messageType;
-        StreamWriter writer;
+        XmlWriter writer;
         object message;
         Conventions conventions;
         XmlSerializerCache cache;
@@ -29,241 +27,55 @@
         public Serializer(Type messageType, Stream stream, object message, Conventions conventions, XmlSerializerCache cache, bool skipWrappingRawXml, string @namespace = DefaultNamespace)
         {
             this.messageType = messageType;
-            writer = new StreamWriter(stream, Encoding.UTF8, 1024, true);
             this.message = message;
             this.conventions = conventions;
             this.cache = cache;
             this.skipWrappingRawXml = skipWrappingRawXml;
             this.@namespace = @namespace;
+            writer = new RawXmlTextWriter(stream, new XmlWriterSettings { CloseOutput = false });
         }
 
         public void Serialize()
         {
-            writer.WriteLine("<?xml version=\"1.0\" ?>");
-            WriteRoot(message);
+            var doc = new XDocument(new XDeclaration("1.0", null, null));
+            
+            var elementName = messageType.SerializationFriendlyName();
+            doc.Add(new XElement(elementName));
+            WriteObject(doc.Root, elementName, messageType, message, true);
+
+            SetDefaultNamespace(doc.Root, $"{@namespace}/{messageType.Namespace}");
+            ForceEmptyTagsWithNewlines(doc);
+
+            doc.WriteTo(writer);
             writer.Flush();
         }
 
-
-        static string FormatAsString(object value)
+        static void ForceEmptyTagsWithNewlines(XDocument document)
         {
-            if (value == null)
-            {
-                return "null";
-            }
-            if (value is bool)
-            {
-                return XmlConvert.ToString((bool)value);
-            }
-            if (value is byte)
-            {
-                return XmlConvert.ToString((byte)value);
-            }
-            if (value is char)
-            {
-                return Escape((char)value);
-            }
-            if (value is double)
-            {
-                return XmlConvert.ToString((double)value);
-            }
-            if (value is ulong)
-            {
-                return XmlConvert.ToString((ulong)value);
-            }
-            if (value is uint)
-            {
-                return XmlConvert.ToString((uint)value);
-            }
-            if (value is ushort)
-            {
-                return XmlConvert.ToString((ushort)value);
-            }
-            if (value is long)
-            {
-                return XmlConvert.ToString((long)value);
-            }
-            if (value is int)
-            {
-                return XmlConvert.ToString((int)value);
-            }
-            if (value is short)
-            {
-                return XmlConvert.ToString((short)value);
-            }
-            if (value is sbyte)
-            {
-                return XmlConvert.ToString((sbyte)value);
-            }
-            if (value is decimal)
-            {
-                return XmlConvert.ToString((decimal)value);
-            }
-            if (value is float)
-            {
-                return XmlConvert.ToString((float)value);
-            }
-            if (value is Guid)
-            {
-                return XmlConvert.ToString((Guid)value);
-            }
-            if (value is DateTime)
-            {
-                return XmlConvert.ToString((DateTime)value, XmlDateTimeSerializationMode.RoundtripKind);
-            }
-            if (value is DateTimeOffset)
-            {
-                return XmlConvert.ToString((DateTimeOffset)value);
-            }
-            if (value is TimeSpan)
-            {
-                return XmlConvert.ToString((TimeSpan)value);
-            }
-            if (value is string)
-            {
-                return Escape((string)value);
-            }
+            // this is to force compatibility with previous implementation,
+            // in particular, to support nested objects with null properties in them.
 
-            return Escape(value.ToString());
+            foreach (var childElement in 
+                from x in document.DescendantNodes().OfType<XElement>()
+                where x.IsEmpty && !x.HasAttributes
+                select x)
+            {
+                childElement.Value = "\n";
+            }
         }
 
-#pragma warning disable 652
-
-        static string Escape(char c)
+        static void SetDefaultNamespace(XElement element, XNamespace newXmlns)
         {
-            if (c == 0x9 || c == 0xA || c == 0xD
-                || (0x20 <= c && c <= 0xD7FF)
-                || (0xE000 <= c && c <= 0xFFFD)
-                || (0x10000 <= c && c <= 0x10ffff)
-                )
+            var currentXmlns = element.GetDefaultNamespace();
+            if (currentXmlns == newXmlns)
+                return;
+
+            foreach (var descendant in element.DescendantsAndSelf()
+                .Where(e => e.Name.Namespace == currentXmlns))
             {
-                string ss = null;
-                switch (c)
-                {
-                    case '<':
-                        ss = "&lt;";
-                        break;
-
-                    case '>':
-                        ss = "&gt;";
-                        break;
-
-                    case '"':
-                        ss = "&quot;";
-                        break;
-
-                    case '\'':
-                        ss = "&apos;";
-                        break;
-
-                    case '&':
-                        ss = "&amp;";
-                        break;
-                }
-                if (ss != null)
-                {
-                    return ss;
-                }
+                descendant.Name = newXmlns.GetName(descendant.Name.LocalName);
             }
-            else
-            {
-                return $"&#x{(int) c:X};";
-            }
-
-            //Should not get here but just in case!
-            return c.ToString();
         }
-
-        static string Escape(string stringToEscape)
-        {
-            if (string.IsNullOrEmpty(stringToEscape))
-            {
-                return stringToEscape;
-            }
-
-            StringBuilder builder = null; // initialize if we need it
-
-            var startIndex = 0;
-            for (var i = 0; i < stringToEscape.Length; ++i)
-            {
-                var c = stringToEscape[i];
-                if (c == 0x9 || c == 0xA || c == 0xD
-                    || (0x20 <= c && c <= 0xD7FF)
-                    || (0xE000 <= c && c <= 0xFFFD)
-                    || (0x10000 <= c && c <= 0x10ffff)
-                    )
-                {
-                    string ss = null;
-                    switch (c)
-                    {
-                        case '<':
-                            ss = "&lt;";
-                            break;
-
-                        case '>':
-                            ss = "&gt;";
-                            break;
-
-                        case '"':
-                            ss = "&quot;";
-                            break;
-
-                        case '\'':
-                            ss = "&apos;";
-                            break;
-
-                        case '&':
-                            ss = "&amp;";
-                            break;
-                    }
-                    if (ss != null)
-                    {
-                        if (builder == null)
-                        {
-                            builder = new StringBuilder(stringToEscape.Length + ss.Length);
-                        }
-                        if (startIndex < i)
-                        {
-                            builder.Append(stringToEscape, startIndex, i - startIndex);
-                        }
-                        startIndex = i + 1;
-                        builder.Append(ss);
-                    }
-                }
-                else
-                {
-                    // invalid characters
-                    if (builder == null)
-                    {
-                        builder = new StringBuilder(stringToEscape.Length + 8);
-                    }
-                    if (startIndex < i)
-                    {
-                        builder.Append(stringToEscape, startIndex, i - startIndex);
-                    }
-                    startIndex = i + 1;
-                    builder.AppendFormat("&#x{0:X};", (int)c);
-                }
-            }
-
-            if (startIndex < stringToEscape.Length)
-            {
-                if (builder == null)
-                {
-                    return stringToEscape;
-                }
-                builder.Append(stringToEscape, startIndex, stringToEscape.Length - startIndex);
-            }
-
-            if (builder != null)
-            {
-                return builder.ToString();
-            }
-
-            //Should not get here but just in case!
-            return stringToEscape;
-        }
-#pragma warning restore 652
 
         List<string> GetBaseTypes()
         {
@@ -296,49 +108,46 @@
             return result;
         }
 
-        void WriteRoot(object value)
+        void WriteObject(XElement elem, string name, Type type, object value, bool useNS = false)
         {
-            var element = messageType.SerializationFriendlyName();
-            var messageNamespace = messageType.Namespace;
-            var baseTypes = GetBaseTypes();
-            CreateStartElementWithNamespaces(messageNamespace, baseTypes, element);
-
-            Write(messageType, value);
-
-            writer.WriteLine("</{0}>", element);
-        }
-
-        void WriteObject(string name, Type type, object value)
-        {
-            var element = name;
-
             if (type == typeof(object) && value.GetType().IsSimpleType())
             {
-                if (!namespacesToAdd.Contains(value.GetType()))
+                var typeOfValue = value.GetType();
+                var ns = (XNamespace)typeOfValue.Name;
+                var prefix = typeOfValue.Name.ToLower();
+                if (!elem.Attributes().Any(a => a.IsNamespaceDeclaration && a.Name.LocalName == prefix))
                 {
-                    namespacesToAdd.Add(value.GetType());
+                    elem.Add(new XAttribute(XNamespace.Xmlns + prefix, ns.NamespaceName));
                 }
 
-                writer.Write("<{0}>{1}</{0}>\n", value.GetType().Name.ToLower() + ":" + name, FormatAsString(value));
+                elem.Add(new XElement(ns + name, value));
 
                 return;
             }
 
-            writer.WriteLine("<{0}>", element);
+            if (useNS)
+            {
+                var baseTypes = GetBaseTypes();
+                WriteElementNamespaces(elem, baseTypes);
+            }
+            else
+            {
+                var xe = new XElement(name);
+                elem.Add(xe);
+                elem = xe;
+            }
 
-            Write(type, value);
-
-            writer.WriteLine("</{0}>", element);
+            Write(elem, type, value);
         }
 
-        void Write(Type t, object obj)
+        void Write(XElement elem, Type t, object obj)
         {
             if (obj == null)
             {
                 // For null entries in a nullable array
                 // See https://github.com/Particular/NServiceBus/issues/2706
                 if (t.IsNullableType())
-                    writer.Write("null");
+                    elem.Value = "null";
 
                 return;
             }
@@ -356,16 +165,16 @@
                 {
                     throw new NotSupportedException($"Type {t.FullName} contains an indexed property named {prop.Name}. Indexed properties are not supported on message types.");
                 }
-                WriteEntry(prop.Name, prop.PropertyType, DelegateFactory.CreateGet(prop).Invoke(obj));
+                WriteEntry(elem, prop.Name, prop.PropertyType, DelegateFactory.CreateGet(prop).Invoke(obj));
             }
 
             foreach (var field in cache.typeToFields[t])
             {
-                WriteEntry(field.Name, field.FieldType, DelegateFactory.CreateGet(field).Invoke(obj));
+                WriteEntry(elem, field.Name, field.FieldType, DelegateFactory.CreateGet(field).Invoke(obj));
             }
         }
 
-        void WriteEntry(string name, Type type, object value)
+        void WriteEntry(XElement elem, string name, Type type, object value)
         {
             if (value == null)
             {
@@ -380,7 +189,7 @@
                     var nullableType = typeof(Nullable<>).MakeGenericType(args);
                     if (type == nullableType)
                     {
-                        WriteEntry(name, typeof(string), "null");
+                        WriteEntry(elem, name, typeof(string), "null");
                         return;
                     }
                 }
@@ -393,11 +202,11 @@
                 var container = (XContainer)value;
                 if (skipWrappingRawXml)
                 {
-                    writer.WriteLine("{0}", container);
+                    elem.Add(XElement.Parse(container.ToString()));
                 }
                 else
                 {
-                    writer.WriteLine("<{0}>{1}</{0}>", name, container);
+                    elem.Add(new XElement(name, XElement.Parse(container.ToString())));
                 }
 
                 return;
@@ -405,18 +214,18 @@
 
             if (type.IsValueType || type == typeof(string) || type == typeof(Uri) || type == typeof(char))
             {
-                writer.WriteLine("<{0}>{1}</{0}>", name, FormatAsString(value));
+                elem.Add(new XElement(name, value));
                 return;
             }
 
             if (typeof(IEnumerable).IsAssignableFrom(type))
             {
-                writer.WriteLine("<{0}>", name);
-
+                var xe = new XElement(name);
+                
                 if (type == typeof(byte[]))
                 {
                     var base64String = Convert.ToBase64String((byte[])value);
-                    writer.Write(base64String);
+                    xe.Value = base64String;
                 }
                 else
                 {
@@ -451,20 +260,20 @@
                     {
                         if (obj != null && obj.GetType().IsSimpleType())
                         {
-                            WriteEntry(obj.GetType().Name, obj.GetType(), obj);
+                            WriteEntry(xe, obj.GetType().Name, obj.GetType(), obj);
                         }
                         else
                         {
-                            WriteObject(baseType.SerializationFriendlyName(), baseType, obj);
+                            WriteObject(xe, baseType.SerializationFriendlyName(), baseType, obj);
                         }
                     }
                 }
 
-                writer.WriteLine("</{0}>", name);
+                elem.Add(xe);
                 return;
             }
 
-            WriteObject(name, type, value);
+            WriteObject(elem, name, type, value);
         }
 
         static bool IsIndexedProperty(PropertyInfo propertyInfo)
@@ -472,18 +281,10 @@
             return propertyInfo?.GetIndexParameters().Length > 0;
         }
 
-        void CreateStartElementWithNamespaces(string messageNamespace, List<string> baseTypes, string element)
+        void WriteElementNamespaces(XElement elem, IReadOnlyList<string> baseTypes)
         {
-            writer.Write(
-                "<{0} xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"",
-                element);
-
-            writer.Write(" xmlns=\"{0}/{1}\"", @namespace, messageNamespace);
-
-            foreach (var t in namespacesToAdd)
-            {
-                writer.Write(" xmlns:{0}=\"{1}\"", t.Name.ToLower(), t.Name);
-            }
+            elem.Add(new XAttribute(XNamespace.Xmlns + "xsi", "http://www.w3.org/2001/XMLSchema-instance"),
+                     new XAttribute(XNamespace.Xmlns + "xsd", "http://www.w3.org/2001/XMLSchema"));
 
             for (var i = 0; i < baseTypes.Count; i++)
             {
@@ -493,15 +294,36 @@
                     prefix += i;
                 }
 
-                writer.Write(" xmlns:{0}=\"{1}\"", prefix, baseTypes[i]);
+                elem.Add(new XAttribute(XNamespace.Xmlns + prefix, baseTypes[i]));
             }
-
-            writer.WriteLine(">");
         }
 
         public void Dispose()
         {
             //Injected at compile time
+        }
+
+        class RawXmlTextWriter : XmlTextWriter
+        {
+            readonly XmlWriterSettings settings;
+
+            public RawXmlTextWriter(Stream w, XmlWriterSettings settings) : base(w, null /*writes UTF-8 and omits the 'encoding' attribute in XML declaration*/)
+            {
+                this.settings = settings;
+            }
+
+            public override void WriteEndElement()
+            {
+                WriteFullEndElement();
+            }
+
+            public override void Close()
+            {
+                if (settings.CloseOutput)
+                {
+                    base.Close();
+                }
+            }
         }
     }
 }

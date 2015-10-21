@@ -3,6 +3,7 @@ namespace NServiceBus.Serializers.XML.Test
     using System;
     using System.IO;
     using System.Text;
+    using System.Xml.Linq;
     using NUnit.Framework;
 
     [Serializable]
@@ -120,15 +121,17 @@ namespace NServiceBus.Serializers.XML.Test
                 var reader = new StreamReader(stream);
                 var xml = reader.ReadToEnd();
 
-                Assert.AreEqual(@"<?xml version=""1.0"" ?>
+                var expected = XDocument.Parse(@"<?xml version=""1.0"" ?>
 <MessageWithNullableArray xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://tempuri.net/NServiceBus.Serializers.XML.Test"">
 <SagaId>00000000-0000-0000-0000-000000000000</SagaId>
 <SomeInts>
-<NullableOfInt32>
-null</NullableOfInt32>
+<NullableOfInt32>null</NullableOfInt32>
 </SomeInts>
 </MessageWithNullableArray>
-", xml);
+");
+                var actual = XDocument.Parse(xml);
+
+                Assert.AreEqual(expected.ToString(), actual.ToString());
             }
         }
 
