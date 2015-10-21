@@ -2,7 +2,9 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Threading.Tasks;
+    using NServiceBus.Extensibility;
 
     /// <summary>
     /// The context of the currently processed message for a message handler.
@@ -10,7 +12,7 @@ namespace NServiceBus
     public interface IMessageHandlerContext
     {
         /// <summary>
-        /// Returns the Id of the message.
+        /// The Id of the currently processed message.
         /// </summary>
         string MessageId { get; }
 
@@ -23,6 +25,12 @@ namespace NServiceBus
         /// Gets the list of key/value pairs found in the header of the message.
         /// </summary>
         IReadOnlyDictionary<string, string> MessageHeaders { get; }
+
+        /// <summary>
+        /// A <see cref="ContextBag"/> which can be used for extensibility.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Advanced)]
+        ContextBag Extensions { get; }
 
         /// <summary>
         /// Sends the provided message.

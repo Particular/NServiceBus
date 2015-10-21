@@ -508,6 +508,7 @@ namespace NServiceBus
     }
     public interface IMessageHandlerContext
     {
+        NServiceBus.Extensibility.ContextBag Extensions { get; }
         System.Collections.Generic.IReadOnlyDictionary<string, string> MessageHeaders { get; }
         string MessageId { get; }
         string ReplyToAddress { get; }
@@ -1317,10 +1318,6 @@ namespace NServiceBus.Extensibility
     public class static ExtendableOptionsExtensions
     {
         public static NServiceBus.Extensibility.ContextBag GetExtensions(this NServiceBus.Extensibility.ExtendableOptions options) { }
-    }
-    public class static MessageHandlerContextExtensions
-    {
-        public static NServiceBus.Extensibility.ContextBag GetExtensions(this NServiceBus.IMessageHandlerContext handlerContext) { }
     }
     public interface ReadOnlyContextBag
     {

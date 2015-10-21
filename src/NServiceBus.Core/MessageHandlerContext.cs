@@ -12,16 +12,16 @@ namespace NServiceBus
         public MessageHandlerContext(ContextualBus bus, ContextBag context)
         {
             this.bus = bus;
-            Context = context;
+            Extensions = context;
         }
-
-        public ContextBag Context { get; }
 
         public string MessageId => bus.MessageBeingProcessed.MessageId;
 
         public string ReplyToAddress => bus.MessageBeingProcessed.GetReplyToAddress();
 
         public IReadOnlyDictionary<string, string> MessageHeaders => bus.MessageBeingProcessed.Headers;
+        
+        public ContextBag Extensions { get; }
 
         public Task SendAsync(object message, SendOptions options)
         {

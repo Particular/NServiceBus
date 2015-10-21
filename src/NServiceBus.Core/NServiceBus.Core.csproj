@@ -109,7 +109,6 @@
     <Compile Include="IStartableBusExtensions_obsoletes.cs" />
     <Compile Include="IWantToRunWhenBusStartsAndStopsExtensions_obsoletes.cs" />
     <Compile Include="Licensing\LogErrorOnInvalidLicenseBehavior.cs" />
-    <Compile Include="MessageHandlerContextExtensions.cs" />
     <Compile Include="Persistence\InMemory\Outbox\InMemoryOutboxTransaction.cs" />
     <Compile Include="Pipeline\Incoming\InvokeHandlerContext.cs" />
     <Compile Include="Pipeline\Incoming\LogicalMessageProcessingContext.cs" />
