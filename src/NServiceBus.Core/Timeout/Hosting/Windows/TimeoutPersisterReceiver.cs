@@ -29,7 +29,9 @@ namespace NServiceBus.Timeout.Hosting.Windows
         {
             circuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("TimeoutStorageConnectivity", TimeToWaitBeforeTriggeringCriticalError,
                 ex =>
-                    CriticalError.Raise("Repeated failures when fetching timeouts from storage, endpoint will be terminated.", ex));
+                {
+                    CriticalError.Raise("Repeated failures when fetching timeouts from storage, endpoint will be terminated.", ex);
+                });
 
             TimeoutManager.TimeoutPushed = TimeoutsManagerOnTimeoutPushed;
 
