@@ -531,7 +531,7 @@ namespace NServiceBus.Unicast
     using ObjectBuilder;
     using Settings;
 
-    partial class ContextualBus
+    internal partial class ContextualBus
     {
         [ObsoleteEx(
             RemoveInVersion = "7.0",
