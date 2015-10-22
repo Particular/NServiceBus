@@ -32,12 +32,16 @@ namespace NServiceBus
 
             using (var bodyStream = message.BodyStream)
             {
-                var pushContext = new PushContext(message.Id, headers, bodyStream, new ContextBag());
+                var pushContext = new PushContext(message.Id, headers, bodyStream, new NullTransaction(), new ContextBag());
 
                 await onMessage(pushContext).ConfigureAwait(false);
             }
         }
 
         static ILog Logger = LogManager.GetLogger<ReceiveWithNoTransaction>();
+
+        private class NullTransaction : TransportTransaction
+        {
+        }
     }
 }

@@ -16,6 +16,7 @@
         {
             DependsOn<Outbox>();
             RegisterStartupTask<OutboxCleaner>();
+            Defaults(s => s.EnableFeature(typeof(InMemoryTransactionalStorageFeature)));
         }
 
         /// <summary>

@@ -7,11 +7,12 @@
     /// </summary>
     public class TransportReceiveContext : BehaviorContext
     {
-        internal TransportReceiveContext(IncomingMessage receivedMessage, BehaviorContext parentContext)
+        internal TransportReceiveContext(IncomingMessage receivedMessage, TransportTransaction transportTransaction, BehaviorContext parentContext)
             : base(parentContext)
         {
             Message = receivedMessage;
             Set(Message);
+            Set(transportTransaction);
         }
 
         /// <summary>

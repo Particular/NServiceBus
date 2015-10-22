@@ -84,7 +84,7 @@
             {
                 if (!sagaInstanceState.IsNew)
                 {
-                    await sagaPersister.Complete(saga.Entity, context).ConfigureAwait(false);
+                    await sagaPersister.Complete(saga.Entity, context.SynchronizedStorageSession, context).ConfigureAwait(false);
                 }
 
                 if (saga.Entity.Id != Guid.Empty)
@@ -108,11 +108,11 @@
                         sagaCorrelationProperty = new SagaCorrelationProperty(correlationProperty.PropertyInfo.Name,correlationProperty.Value);
                     }
 
-                    await sagaPersister.Save(saga.Entity, sagaCorrelationProperty, context).ConfigureAwait(false);
+                    await sagaPersister.Save(saga.Entity, sagaCorrelationProperty, context.SynchronizedStorageSession, context).ConfigureAwait(false);
                 }
                 else
                 {
-                    await sagaPersister.Update(saga.Entity, context).ConfigureAwait(false);
+                    await sagaPersister.Update(saga.Entity, context.SynchronizedStorageSession, context).ConfigureAwait(false);
                 }
             }
         }
@@ -216,7 +216,7 @@
 
                 var loader = (SagaLoader) Activator.CreateInstance(loaderType);
 
-                return loader.Load(sagaPersister, sagaId, context);
+                return loader.Load(sagaPersister, sagaId, context.SynchronizedStorageSession, context);
             }
 
             SagaFinderDefinition finderDefinition = null;
@@ -238,7 +238,7 @@
             var finderType = finderDefinition.Type;
             var finder = (SagaFinder) currentContext.Builder.Build(finderType);
 
-            return finder.Find(currentContext.Builder, finderDefinition, context, context.MessageBeingHandled);
+            return finder.Find(currentContext.Builder, finderDefinition, context.SynchronizedStorageSession, context, context.MessageBeingHandled);
         }
 
         IContainSagaData CreateNewSagaEntity(SagaMetadata metadata, InvokeHandlerContext context)

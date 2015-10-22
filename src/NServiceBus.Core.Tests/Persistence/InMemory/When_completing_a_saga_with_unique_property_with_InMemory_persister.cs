@@ -14,10 +14,17 @@
             var saga = new SagaWithUniquePropertyData { Id = Guid.NewGuid(), UniqueString = "whatever" };
 
             var persister = new InMemorySagaPersister();
-            await persister.Save(saga,SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(saga), new ContextBag());
-            var sagaData = await persister.Get<SagaWithUniquePropertyData>(saga.Id, new ContextBag());
-            await persister.Complete(saga, new ContextBag());
-            var completedSagaData = await persister.Get<SagaWithUniquePropertyData>(saga.Id, new ContextBag());
+            var insertSession = new InMemorySynchronizedStorageSession();
+            await persister.Save(saga,SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(saga), insertSession, new ContextBag());
+            await insertSession.CompleteAsync();
+
+            var sagaData = await persister.Get<SagaWithUniquePropertyData>(saga.Id, new InMemorySynchronizedStorageSession(), new ContextBag());
+
+            var completeSession = new InMemorySynchronizedStorageSession();
+            await persister.Complete(saga, completeSession, new ContextBag());
+            await completeSession.CompleteAsync();
+
+            var completedSagaData = await persister.Get<SagaWithUniquePropertyData>(saga.Id, new InMemorySynchronizedStorageSession(), new ContextBag());
 
             Assert.NotNull(sagaData);
             Assert.Null(completedSagaData);

@@ -36,12 +36,13 @@ namespace NServiceBus
 
                 using (var outboxTransaction = await outboxStorage.BeginTransaction(context).ConfigureAwait(false))
                 {
+                    context.Set(outboxTransaction);
                     await next(physicalMessageContext).ConfigureAwait(false);
 
                     var outboxMessage = new OutboxMessage(messageId, ConvertToOutboxOperations(pendingTransportOperations.Operations).ToList());
-
                     await outboxStorage.Store(outboxMessage, outboxTransaction, context).ConfigureAwait(false);
 
+                    context.Remove<OutboxTransaction>();
                     await outboxTransaction.Commit().ConfigureAwait(false);
                 }
             }

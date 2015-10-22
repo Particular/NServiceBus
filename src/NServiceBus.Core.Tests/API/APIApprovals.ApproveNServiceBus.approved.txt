@@ -24,6 +24,11 @@ namespace NServiceBus
     {
         public AllAssemblies() { }
     }
+    public class AmbientTransaction : NServiceBus.Transports.TransportTransaction
+    {
+        public AmbientTransaction(System.Transactions.Transaction transaction) { }
+        public System.Transactions.Transaction Transaction { get; }
+    }
     public class static AutoSubscribeSettingsExtensions
     {
         public static NServiceBus.AutomaticSubscriptions.Config.AutoSubscribeSettings AutoSubscribe(this NServiceBus.BusConfiguration config) { }
@@ -549,6 +554,7 @@ namespace NServiceBus
     }
     public interface IMessageHandlerContext : NServiceBus.IBusContext, NServiceBus.IMessageProcessingContext
     {
+        NServiceBus.Persistence.SynchronizedStorageSession SynchronizedStorageSession { get; }
         void DoNotContinueDispatchingCurrentMessageToHandlers();
         System.Threading.Tasks.Task HandleCurrentMessageLater();
     }
@@ -1928,6 +1934,19 @@ namespace NServiceBus.Performance.TimeToBeReceived
 }
 namespace NServiceBus.Persistence
 {
+    public interface CompletableSynchronizedStorageSession : NServiceBus.Persistence.SynchronizedStorageSession, System.IDisposable
+    {
+        System.Threading.Tasks.Task CompleteAsync();
+    }
+    public interface ISynchronizedStorage
+    {
+        System.Threading.Tasks.Task<NServiceBus.Persistence.CompletableSynchronizedStorageSession> OpenSession(NServiceBus.Extensibility.ContextBag contextBag);
+    }
+    public interface ISynchronizedStorageAdapter
+    {
+        bool TryAdapt(NServiceBus.Outbox.OutboxTransaction transaction, out NServiceBus.Persistence.CompletableSynchronizedStorageSession session);
+        bool TryAdapt(NServiceBus.Transports.TransportTransaction transportTransaction, out NServiceBus.Persistence.CompletableSynchronizedStorageSession session);
+    }
     public abstract class PersistenceDefinition
     {
         protected PersistenceDefinition() { }
@@ -1961,6 +1980,7 @@ namespace NServiceBus.Persistence
         public sealed class Subscriptions : NServiceBus.Persistence.StorageType { }
         public sealed class Timeouts : NServiceBus.Persistence.StorageType { }
     }
+    public interface SynchronizedStorageSession { }
 }
 namespace NServiceBus.Pipeline
 {
@@ -2114,12 +2134,13 @@ namespace NServiceBus.Pipeline.Contexts
     }
     public class InvokeHandlerContext : NServiceBus.Pipeline.Contexts.IncomingContext, NServiceBus.IBusContext, NServiceBus.IMessageHandlerContext, NServiceBus.IMessageProcessingContext
     {
-        public InvokeHandlerContext(NServiceBus.Unicast.Behaviors.MessageHandler handler, string messageId, string replyToAddress, System.Collections.Generic.Dictionary<string, string> headers, NServiceBus.Unicast.Messages.MessageMetadata messageMetadata, object messageBeingHandled, NServiceBus.Pipeline.BehaviorContext parentContext) { }
+        public InvokeHandlerContext(NServiceBus.Unicast.Behaviors.MessageHandler handler, string messageId, string replyToAddress, System.Collections.Generic.Dictionary<string, string> headers, NServiceBus.Unicast.Messages.MessageMetadata messageMetadata, object messageBeingHandled, NServiceBus.Persistence.CompletableSynchronizedStorageSession storageSession, NServiceBus.Pipeline.BehaviorContext parentContext) { }
         public bool HandlerInvocationAborted { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public object MessageBeingHandled { get; }
         public NServiceBus.Unicast.Behaviors.MessageHandler MessageHandler { get; }
         public NServiceBus.Unicast.Messages.MessageMetadata MessageMetadata { get; }
+        public NServiceBus.Persistence.SynchronizedStorageSession SynchronizedStorageSession { get; }
         public void DoNotContinueDispatchingCurrentMessageToHandlers() { }
         public System.Threading.Tasks.Task HandleCurrentMessageLater() { }
     }
@@ -2306,7 +2327,7 @@ namespace NServiceBus.Sagas
         public interface Using<T, M> : NServiceBus.Sagas.IFinder
             where T : NServiceBus.IContainSagaData
         {
-            System.Threading.Tasks.Task<T> FindBy(M message, NServiceBus.Extensibility.ReadOnlyContextBag context);
+            System.Threading.Tasks.Task<T> FindBy(M message, NServiceBus.Persistence.SynchronizedStorageSession storageSession, NServiceBus.Extensibility.ReadOnlyContextBag context);
         }
     }
     public interface IHandleSagaNotFound
@@ -2315,13 +2336,13 @@ namespace NServiceBus.Sagas
     }
     public interface ISagaPersister
     {
-        System.Threading.Tasks.Task Complete(NServiceBus.IContainSagaData saga, NServiceBus.Extensibility.ContextBag context);
-        System.Threading.Tasks.Task<TSagaData> Get<TSagaData>(System.Guid sagaId, NServiceBus.Extensibility.ContextBag context)
+        System.Threading.Tasks.Task Complete(NServiceBus.IContainSagaData saga, NServiceBus.Persistence.SynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context);
+        System.Threading.Tasks.Task<TSagaData> Get<TSagaData>(System.Guid sagaId, NServiceBus.Persistence.SynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context)
             where TSagaData : NServiceBus.IContainSagaData;
-        System.Threading.Tasks.Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, NServiceBus.Extensibility.ContextBag context)
+        System.Threading.Tasks.Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, NServiceBus.Persistence.SynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context)
             where TSagaData : NServiceBus.IContainSagaData;
-        System.Threading.Tasks.Task Save(NServiceBus.IContainSagaData sagaInstance, NServiceBus.Sagas.SagaCorrelationProperty correlationProperty, NServiceBus.Extensibility.ContextBag context);
-        System.Threading.Tasks.Task Update(NServiceBus.IContainSagaData saga, NServiceBus.Extensibility.ContextBag context);
+        System.Threading.Tasks.Task Save(NServiceBus.IContainSagaData sagaInstance, NServiceBus.Sagas.SagaCorrelationProperty correlationProperty, NServiceBus.Persistence.SynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context);
+        System.Threading.Tasks.Task Update(NServiceBus.IContainSagaData saga, NServiceBus.Persistence.SynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context);
     }
     public class SagaCorrelationProperty
     {
@@ -2706,11 +2727,12 @@ namespace NServiceBus.Transports
     }
     public class PushContext
     {
-        public PushContext(string messageId, System.Collections.Generic.Dictionary<string, string> headers, System.IO.Stream bodyStream, NServiceBus.Extensibility.ContextBag context) { }
+        public PushContext(string messageId, System.Collections.Generic.Dictionary<string, string> headers, System.IO.Stream bodyStream, NServiceBus.Transports.TransportTransaction transportTransaction, NServiceBus.Extensibility.ContextBag context) { }
         public System.IO.Stream BodyStream { get; }
         public NServiceBus.Extensibility.ContextBag Context { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string MessageId { get; }
+        public NServiceBus.Transports.TransportTransaction TransportTransaction { get; }
     }
     public class PushRuntimeSettings
     {
@@ -2787,6 +2809,7 @@ namespace NServiceBus.Transports
         public NServiceBus.Settings.ReadOnlySettings GlobalSettings { get; }
         public void SetDispatcherFactory(System.Func<NServiceBus.Transports.IDispatchMessages> dispatcherFactory) { }
     }
+    public interface TransportTransaction { }
 }
 namespace NServiceBus.Transports.Msmq.Config
 {

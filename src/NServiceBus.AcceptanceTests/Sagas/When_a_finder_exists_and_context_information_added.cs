@@ -6,6 +6,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Extensibility;
     using NServiceBus.Features;
+    using NServiceBus.Persistence;
     using NServiceBus.Pipeline;
     using NServiceBus.Sagas;
     using NUnit.Framework;
@@ -45,7 +46,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
             class CustomFinder : IFindSagas<TestSaga07.SagaData07>.Using<StartSagaMessage>
             {
                 public Context Context { get; set; }
-                public Task<TestSaga07.SagaData07> FindBy(StartSagaMessage message, ReadOnlyContextBag context)
+                public Task<TestSaga07.SagaData07> FindBy(StartSagaMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context)
                 {
                     Context.ContextBag = context;
                     Context.FinderUsed = true;

@@ -2,6 +2,7 @@ namespace NServiceBus.Sagas
 {
     using System.Threading.Tasks;
     using Extensibility;
+    using NServiceBus.Persistence;
 
     /// <summary>
     /// Interface indicating that implementers can find sagas of the given type.
@@ -17,7 +18,7 @@ namespace NServiceBus.Sagas
             /// <summary>
             /// Finds a saga entity of the type T using a message of type M.
             /// </summary>
-            Task<T> FindBy(M message, ReadOnlyContextBag context);
+            Task<T> FindBy(M message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context);
         }
     }
 }

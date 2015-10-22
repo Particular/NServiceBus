@@ -131,7 +131,7 @@ namespace NServiceBus.Core.Tests
 
         TransportReceiveContext CreateContext(string messageId)
         {
-            return new TransportReceiveContext(new IncomingMessage(messageId, new Dictionary<string, string>(), new MemoryStream()), new RootContext(null));
+            return new TransportReceiveContext(new IncomingMessage(messageId, new Dictionary<string, string>(), new MemoryStream()), null, new RootContext(null));
         }
         class FakeDispatchPipeline : IPipelineBase<RoutingContext>
         {

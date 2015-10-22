@@ -6,6 +6,7 @@
     using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.Extensibility;
+    using NServiceBus.Persistence;
     using NServiceBus.Unicast.Behaviors;
     using NUnit.Framework;
     using PublishOptions = NServiceBus.PublishOptions;
@@ -257,5 +258,7 @@
         {
             throw new NotImplementedException();
         }
+
+        public SynchronizedStorageSession SynchronizedStorageSession => null;
     }
 }

@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.Extensibility;
+    using NServiceBus.Persistence;
     using NServiceBus.Sagas;
     using NUnit.Framework;
     using Conventions = NServiceBus.Conventions;
@@ -233,7 +234,7 @@
 
             public class Finder : IFindSagas<SagaData>.Using<StartSagaMessage>
             {
-                public Task<SagaData> FindBy(StartSagaMessage message, ReadOnlyContextBag context)
+                public Task<SagaData> FindBy(StartSagaMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context)
                 {
                     return Task.FromResult(default(SagaData));
                 }
@@ -266,7 +267,7 @@
 
             public class Finder : IFindSagas<SagaData>.Using<StartSagaMessage>
             {
-                public Task<SagaData> FindBy(StartSagaMessage message, ReadOnlyContextBag context)
+                public Task<SagaData> FindBy(StartSagaMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context)
                 {
                     return Task.FromResult(default(SagaData));
                 }
@@ -471,7 +472,7 @@
 
             internal class CustomFinder : IFindSagas<SagaData>.Using<SomeMessage>
             {
-                public Task<SagaData> FindBy(SomeMessage message, ReadOnlyContextBag context)
+                public Task<SagaData> FindBy(SomeMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context)
                 {
                     return Task.FromResult(default(SagaData));
                 }

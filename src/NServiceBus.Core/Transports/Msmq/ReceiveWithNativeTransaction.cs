@@ -43,7 +43,7 @@ namespace NServiceBus
 
                         context.Set(msmqTransaction);
 
-                        var pushContext = new PushContext(message.Id, headers, bodyStream, context);
+                        var pushContext = new PushContext(message.Id, headers, bodyStream, new NativeMsmqTransaction(msmqTransaction), context);
 
                         await onMessage(pushContext).ConfigureAwait(false);
                     }

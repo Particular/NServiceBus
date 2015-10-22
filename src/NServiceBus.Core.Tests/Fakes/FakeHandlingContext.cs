@@ -6,6 +6,7 @@
     using System.Threading.Tasks;
     using NServiceBus.DelayedDelivery;
     using NServiceBus.Extensibility;
+    using NServiceBus.Persistence;
 
     public class FakeHandlingContext : IMessageHandlerContext
     {
@@ -83,6 +84,8 @@
         {
             throw new NotImplementedException();
         }
+
+        public SynchronizedStorageSession SynchronizedStorageSession => null;
 
         public int DeferWasCalled
         {
