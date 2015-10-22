@@ -5,6 +5,7 @@
     using EndpointTemplates;
     using AcceptanceTesting;
     using NServiceBus.Features;
+    using NServiceBus.Sagas;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
@@ -41,17 +42,18 @@
 
                 public Task Handle(StartSaga1 message, IMessageHandlerContext context)
                 {
-                    Data.DataId = message.DataId;
-                    return RequestTimeoutAsync(context, TimeSpan.FromSeconds(1), new Saga1Timeout());
+                    context.GetSagaData<SendFromTimeoutSaga1Data>().DataId = message.DataId;
+                    return context.RequestTimeoutAsync(TimeSpan.FromSeconds(1), new Saga1Timeout());
                 }
 
                 public async Task Timeout(Saga1Timeout state, IMessageHandlerContext context)
                 {
                     await context.SendLocalAsync(new StartSaga2
                     {
-                        DataId = Data.DataId
+                        DataId = context.GetSagaData<SendFromTimeoutSaga1Data>().DataId
                     });
-                    MarkAsComplete();
+
+                    context.MarkAsComplete();
                 }
 
                 public class SendFromTimeoutSaga1Data : ContainSagaData
@@ -67,12 +69,12 @@
 
             public class SendFromTimeoutSaga2 : Saga<SendFromTimeoutSaga2.SendFromTimeoutSaga2Data>, IAmStartedByMessages<StartSaga2>
             {
-                public Context Context { get; set; }
+                public Context TestContext { get; set; }
 
                 public Task Handle(StartSaga2 message, IMessageHandlerContext context)
                 {
-                    Data.DataId = message.DataId;
-                    Context.DidSaga2ReceiveMessage = true;
+                    context.GetSagaData<SendFromTimeoutSaga2Data>().DataId = message.DataId;
+                    TestContext.DidSaga2ReceiveMessage = true;
                     return Task.FromResult(0);
                 }
 

@@ -5,6 +5,7 @@
     using EndpointTemplates;
     using AcceptanceTesting;
     using NServiceBus.Features;
+    using NServiceBus.Sagas;
     using NUnit.Framework;
 
     public class When_using_a_received_message_for_timeout : NServiceBusAcceptanceTest
@@ -40,8 +41,8 @@
 
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
-                    Data.SomeId = message.SomeId;
-                    return RequestTimeoutAsync(context, TimeSpan.FromMilliseconds(100), message);
+                    context.GetSagaData<TestSagaData01>().SomeId = message.SomeId;
+                    return context.RequestTimeoutAsync(TimeSpan.FromMilliseconds(100), message);
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData01> mapper)
@@ -52,7 +53,7 @@
 
                 public Task Timeout(StartSagaMessage message, IMessageHandlerContext context)
                 {
-                    MarkAsComplete();
+                    context.MarkAsComplete();
                     TestContext.TimeoutReceived = true;
                     return Task.FromResult(0);
                 }

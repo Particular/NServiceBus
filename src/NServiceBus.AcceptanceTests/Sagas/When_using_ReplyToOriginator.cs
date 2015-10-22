@@ -5,6 +5,7 @@
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.Features;
+    using NServiceBus.Sagas;
     using NUnit.Framework;
 
     public class When_using_ReplyToOriginator : NServiceBusAcceptanceTest
@@ -39,18 +40,18 @@
             {
                 public Task Handle(InitiateRequestingSaga message, IMessageHandlerContext context)
                 {
-                    Data.CorrIdForResponse = message.SomeCorrelationId; //wont be needed in the future
+                    context.GetSagaData<RequestingSagaData>().CorrIdForResponse = message.SomeCorrelationId; //wont be needed in the future
 
                     return context.SendLocalAsync(new AnotherRequest
                     {
-                        SomeCorrelationId = Data.CorrIdForResponse //wont be needed in the future
+                        SomeCorrelationId = message.SomeCorrelationId //wont be needed in the future
                     });
                 }
 
                 public async Task Handle(AnotherRequest message, IMessageHandlerContext context)
                 {
-                    await ReplyToOriginatorAsync(context, new MyReplyToOriginator());
-                    MarkAsComplete();
+                    await context.ReplyToOriginatorAsync(new MyReplyToOriginator());
+                    context.MarkAsComplete();
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestingSagaData> mapper)

@@ -4,6 +4,7 @@
     using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
+    using NServiceBus.Sagas;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
@@ -49,8 +50,9 @@
             {
                 public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
-                    Data.DataId = message.DataId;
-                    Data.Id = Guid.NewGuid();
+                    var data = context.GetSagaData<SagaIdChangedSagaData>();
+                    data.DataId = message.DataId;
+                    data.Id = Guid.NewGuid();
                     return Task.FromResult(0);
                 }
 
@@ -68,7 +70,7 @@
 
             class ErrorNotificationSpy : IWantToRunWhenBusStartsAndStops
             {
-                public Context Context { get; set; }
+                public Context TestContext { get; set; }
 
                 public BusNotifications BusNotifications { get; set; }
 
@@ -76,8 +78,8 @@
                 {
                     BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e =>
                     {
-                        Context.ExceptionMessage = e.Exception.Message;
-                        Context.MessageFailed = true;
+                        TestContext.ExceptionMessage = e.Exception.Message;
+                        TestContext.MessageFailed = true;
                     });
                     return Task.FromResult(0);
                 }

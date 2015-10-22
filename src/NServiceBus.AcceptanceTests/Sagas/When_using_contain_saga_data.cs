@@ -5,6 +5,7 @@
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Features;
+    using NServiceBus.Sagas;
     using NUnit.Framework;
 
     public class When_using_contain_saga_data : NServiceBusAcceptanceTest
@@ -41,14 +42,14 @@
 
                 public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
-                    Data.DataId = message.DataId;
+                    context.GetSagaData<MySagaData>().DataId = message.DataId;
 
-                    return RequestTimeoutAsync(context, TimeSpan.FromSeconds(5), new TimeHasPassed());
+                    return context.RequestTimeoutAsync(TimeSpan.FromSeconds(5), new TimeHasPassed());
                 }
 
                 public Task Timeout(TimeHasPassed state, IMessageHandlerContext context)
                 {
-                    MarkAsComplete();
+                    context.MarkAsComplete();
                     TestContext.TimeoutReceived = true;
                     return Task.FromResult(0);
                 }

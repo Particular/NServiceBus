@@ -2,19 +2,21 @@
 {
     using System.Threading.Tasks;
     using NServiceBus;
+    using NServiceBus.Sagas;
 
     class TestSaga : Saga<SagaData>, IAmStartedByMessages<StartSagaMessage>, IHandleMessages<CompleteSagaMessage>
     {
         public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
         {
-            Data.Number = message.Id;
-            Data.NumCalls++;
+            var data = context.GetSagaData<SagaData>();
+            data.Number = message.Id;
+            data.NumCalls++;
             return Task.FromResult(0);
         }
 
         public Task Handle(CompleteSagaMessage message, IMessageHandlerContext context)
         {
-            MarkAsComplete();
+            context.MarkAsComplete();
 
             return Task.FromResult(0);
         }

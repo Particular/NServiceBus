@@ -6,6 +6,7 @@
     using AcceptanceTesting;
     using Features;
     using NServiceBus.AcceptanceTests.Routing;
+    using NServiceBus.Sagas;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
@@ -70,13 +71,13 @@
 
             public class SagaStartedByBaseEvent : Saga<SagaStartedByBaseEvent.SagaStartedByBaseEventSagaData>, IAmStartedByMessages<BaseEvent>
             {
-                public SagaContext Context { get; set; }
+                public SagaContext TestContext { get; set; }
 
                 public Task Handle(BaseEvent message, IMessageHandlerContext context)
                 {
-                    Data.DataId = message.DataId;
-                    MarkAsComplete();
-                    Context.DidSagaComplete = true;
+                    context.GetSagaData<SagaStartedByBaseEventSagaData>().DataId = message.DataId;
+                    context.MarkAsComplete();
+                    TestContext.DidSagaComplete = true;
                     return Task.FromResult(0);
                 }
 

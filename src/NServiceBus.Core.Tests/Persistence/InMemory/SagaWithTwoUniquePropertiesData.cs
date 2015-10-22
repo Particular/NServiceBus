@@ -2,7 +2,7 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
     using System;
 
-    class SagaWithTwoUniqueProperties:Saga<SagaWithTwoUniquePropertiesData>
+    class SagaWithTwoUniqueProperties : Saga<SagaWithTwoUniquePropertiesData>
     {
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithTwoUniquePropertiesData> mapper)
         {
@@ -19,14 +19,13 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
 
     public class SagaWithTwoUniquePropertiesData : IContainSagaData
     {
+        public string UniqueString { get; set; }
+
+        public int UniqueInt { get; set; }
         public Guid Id { get; set; }
 
         public string Originator { get; set; }
 
         public string OriginalMessageId { get; set; }
-
-        public string UniqueString { get; set; }
-
-        public int UniqueInt { get; set; }
     }
 }

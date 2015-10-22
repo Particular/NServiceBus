@@ -6,6 +6,7 @@
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NServiceBus.Features;
+    using NServiceBus.Sagas;
     using NUnit.Framework;
 
     public class When_sending_from_a_saga_handle : NServiceBusAcceptanceTest
@@ -40,7 +41,8 @@
             {
                 public Task Handle(StartSaga1 message, IMessageHandlerContext context)
                 {
-                    Data.DataId = message.DataId;
+                    context.GetSagaData<TwoSaga1Saga1Data>().DataId = message.DataId;
+
                     return context.SendLocalAsync(new MessageSaga1WillHandle
                     {
                         DataId = message.DataId
@@ -53,7 +55,8 @@
                     {
                         DataId = message.DataId
                     });
-                    MarkAsComplete();
+
+                    context.MarkAsComplete();
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TwoSaga1Saga1Data> mapper)
@@ -71,12 +74,12 @@
 
             public class TwoSaga1Saga2 : Saga<TwoSaga1Saga2.TwoSaga1Saga2Data>, IAmStartedByMessages<StartSaga2>
             {
-                public Context Context { get; set; }
+                public Context TestContext { get; set; }
 
                 public Task Handle(StartSaga2 message, IMessageHandlerContext context)
                 {
-                    Data.DataId = message.DataId;
-                    Context.DidSaga2ReceiveMessage = true;
+                    context.GetSagaData<TwoSaga1Saga2Data>().DataId = message.DataId;
+                    TestContext.DidSaga2ReceiveMessage = true;
 
                     return Task.FromResult(0);
                 }

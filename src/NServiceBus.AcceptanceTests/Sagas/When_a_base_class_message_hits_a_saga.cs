@@ -5,6 +5,7 @@
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Features;
+    using NServiceBus.Sagas;
     using NUnit.Framework;
 
     [TestFixture]
@@ -43,13 +44,14 @@
 
                 public Task Handle(StartSagaMessageBase message, IMessageHandlerContext context)
                 {
-                    if (Data.SomeId != Guid.Empty)
+                    var data = context.GetSagaData<SagaData04>();
+                    if (data.SomeId != Guid.Empty)
                     {
                         TestContext.SecondMessageFoundExistingSaga = true;
                     }
                     else
                     {
-                        Data.SomeId = message.SomeId;
+                        data.SomeId = message.SomeId;
 
                         return context.SendLocalAsync(new StartSagaMessage
                         {

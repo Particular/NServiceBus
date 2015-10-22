@@ -4,6 +4,7 @@
     using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
+    using NServiceBus.Sagas;
     using NUnit.Framework;
 
     public class When_a_existing_saga_instance_exists : NServiceBusAcceptanceTest
@@ -40,16 +41,17 @@
 
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
-                    Data.SomeId = message.SomeId;
+                    var data = context.GetSagaData<TestSagaData05>();
+                    data.SomeId = message.SomeId;
 
                     if (message.SecondMessage)
                     {
-                        TestContext.SecondSagaId = Data.Id;
+                        TestContext.SecondSagaId = data.Id;
                         TestContext.SecondMessageReceived = true;
                     }
                     else
                     {
-                        TestContext.FirstSagaId = Data.Id;
+                        TestContext.FirstSagaId = data.Id;
                         return context.SendLocalAsync(new StartSagaMessage { SomeId = message.SomeId, SecondMessage = true });
                     }
 

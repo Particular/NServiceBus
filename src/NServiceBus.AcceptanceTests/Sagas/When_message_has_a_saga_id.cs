@@ -75,7 +75,7 @@
 
             public Task Handle(MessageWithSagaId message, IMessageHandlerContext context)
             {
-                Data.DataId = message.DataId;
+                context.GetSagaData<SagaData>().DataId = message.DataId;
 
                 Context.OtherSagaStarted = true;
 

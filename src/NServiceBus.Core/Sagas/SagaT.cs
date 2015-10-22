@@ -11,18 +11,18 @@ namespace NServiceBus
     /// <typeparam name="TSagaData">A type that implements <see cref="IContainSagaData"/>.</typeparam>
     public abstract class Saga<TSagaData> : Saga where TSagaData : IContainSagaData, new()
     {
-        /// <summary>
-        /// The saga's strongly typed data. Wraps <see cref="Saga.Entity"/>.
-        /// </summary>
-        public TSagaData Data
-        {
-            get { return (TSagaData)Entity; }
-            set
-            {
-                Guard.AgainstNull("value", value);
-                Entity = value;
-            }
-        }
+//        /// <summary>
+//        /// The saga's strongly typed data. Wraps <see cref="Saga.Entity"/>.
+//        /// </summary>
+//        public TSagaData Data
+//        {
+//            get { return (TSagaData)Entity; }
+//            set
+//            {
+//                Guard.AgainstNull(nameof(value), value);
+//                Entity = value;
+//            }
+//        }
 
 
         /// <summary>

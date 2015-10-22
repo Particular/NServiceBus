@@ -72,10 +72,9 @@
 
             public class CantBeFoundSaga1 : Saga<CantBeFoundSaga1.CantBeFoundSaga1Data>, IAmStartedByMessages<StartSaga>, IHandleMessages<MessageToSaga>
             {
-
                 public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
-                    Data.MessageId = message.Id;
+                    context.GetSagaData<CantBeFoundSaga1Data>().MessageId = message.Id;
                     return Task.FromResult(0);
                 }
 
@@ -98,10 +97,9 @@
 
             public class CantBeFoundSaga2 : Saga<CantBeFoundSaga2.CantBeFoundSaga2Data>, IAmStartedByMessages<StartSaga>, IHandleMessages<MessageToSaga>
             {
-
                 public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
-                    Data.MessageId = message.Id;
+                    context.GetSagaData<CantBeFoundSaga2Data>().MessageId = message.Id;
                     return Task.FromResult(0);
                 }
 
@@ -124,12 +122,12 @@
 
             public class SagaNotFound : IHandleSagaNotFound
             {
-                public Context Context { get; set; }
+                public Context TestContext { get; set; }
 
                 public Task Handle(object message, IMessageHandlerContext context)
                 {
-                    Context.TimesFired++;
-                    Context.Done = true;
+                    TestContext.TimesFired++;
+                    TestContext.Done = true;
                     return Task.FromResult(0);
                 }
             }
@@ -175,7 +173,7 @@
             {
                 public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
-                    Data.MessageId = message.Id;
+                    context.GetSagaData<ReceiverWithOrderedSagasSaga1Data>().MessageId = message.Id;
                     return Task.FromResult(0);
                 }
 
@@ -198,18 +196,18 @@
 
             public class ReceiverWithOrderedSagasSaga2 : Saga<ReceiverWithOrderedSagasSaga2.ReceiverWithOrderedSagasSaga2Data>, IHandleMessages<StartSaga>, IAmStartedByMessages<MessageToSaga>
             {
-                public Context Context { get; set; }
+                public Context TestContext { get; set; }
 
                 public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
-                    Data.MessageId = message.Id;
+                    context.GetSagaData<ReceiverWithOrderedSagasSaga2Data>().MessageId = message.Id;
                     return Task.FromResult(0);
                 }
 
                 public Task Handle(MessageToSaga message, IMessageHandlerContext context)
                 {
-                    Data.MessageId = message.Id;
-                    Context.Done = true;
+                    context.GetSagaData<ReceiverWithOrderedSagasSaga2Data>().MessageId = message.Id;
+                    TestContext.Done = true;
                     return Task.FromResult(0);
                 }
 
@@ -227,11 +225,11 @@
 
             public class SagaNotFound : IHandleSagaNotFound
             {
-                public Context Context { get; set; }
+                public Context TestContext { get; set; }
 
                 public Task Handle(object message, IMessageHandlerContext context)
                 {
-                    Context.TimesFired++;
+                    TestContext.TimesFired++;
                     return Task.FromResult(0);
                 }
             }

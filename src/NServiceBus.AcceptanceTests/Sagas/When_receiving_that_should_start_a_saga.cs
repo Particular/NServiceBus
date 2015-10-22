@@ -4,6 +4,7 @@
     using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
+    using NServiceBus.Sagas;
 
     public class When_receiving_that_should_start_a_saga : NServiceBusAcceptanceTest
     {
@@ -25,12 +26,12 @@
 
             public class TestSaga03 : Saga<TestSaga03.TestSagaData03>, IAmStartedByMessages<StartSagaMessage>
             {
-                public SagaEndpointContext Context { get; set; }
+                public SagaEndpointContext TestContext { get; set; }
 
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
-                    Context.SagaStarted = true;
-                    Data.SomeId = message.SomeId;
+                    TestContext.SagaStarted = true;
+                    context.GetSagaData<TestSagaData03>().SomeId = message.SomeId;
                     return Task.FromResult(0);
                 }
 

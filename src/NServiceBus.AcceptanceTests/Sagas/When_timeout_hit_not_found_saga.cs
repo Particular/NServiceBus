@@ -45,13 +45,13 @@
 
                 public async Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
-                    Data.DataId = message.DataId;
+                    context.GetSagaData<TimeoutHitsNotFoundSagaData>().DataId = message.DataId;
 
                     //this will cause the message to be delivered right away
-                    await RequestTimeoutAsync<MyTimeout>(context, TimeSpan.Zero);
+                    await context.RequestTimeoutAsync<MyTimeout>(TimeSpan.Zero);
                     await context.SendLocalAsync(new SomeOtherMessage { DataId = Guid.NewGuid() });
 
-                    MarkAsComplete();
+                    context.MarkAsComplete();
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TimeoutHitsNotFoundSagaData> mapper)
