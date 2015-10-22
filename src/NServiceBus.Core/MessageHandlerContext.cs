@@ -3,16 +3,16 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using NServiceBus.Extensibility;
     using NServiceBus.Transports;
     using NServiceBus.Unicast;
 
     class MessageHandlerContext : IMessageHandlerContext
     {
-        ContextualBus bus;
-
-        public MessageHandlerContext(ContextualBus bus)
+        public MessageHandlerContext(ContextualBus bus, ContextBag context)
         {
             this.bus = bus;
+            Extensions = context;
         }
 
         public string MessageId => bus.MessageBeingProcessed.MessageId;
@@ -20,6 +20,8 @@ namespace NServiceBus
         public string ReplyToAddress => bus.MessageBeingProcessed.GetReplyToAddress();
 
         public IReadOnlyDictionary<string, string> MessageHeaders => bus.MessageBeingProcessed.Headers;
+        
+        public ContextBag Extensions { get; }
 
         public Task SendAsync(object message, SendOptions options)
         {
@@ -65,5 +67,7 @@ namespace NServiceBus
         {
             bus.DoNotContinueDispatchingCurrentMessageToHandlers();
         }
+
+        ContextualBus bus;
     }
 }

@@ -62,11 +62,13 @@
             {
                 configurationBuilderCustomization = b => { };
             }
-            configuration.GetConfiguration = (settings, routingTable) =>
+            configuration.GetConfiguration = async (settings, routingTable) =>
                 {
                     var endpointSetupTemplate = new T();
                     var scenarioConfigSource = new ScenarioConfigSource(configuration, routingTable);
-                    return endpointSetupTemplate.GetConfiguration(settings, configuration, scenarioConfigSource, configurationBuilderCustomization);
+                    var endpointConfiguration = await endpointSetupTemplate.GetConfiguration(settings, configuration, scenarioConfigSource, configurationBuilderCustomization);
+
+                    return endpointConfiguration;
                 };
 
             return this;

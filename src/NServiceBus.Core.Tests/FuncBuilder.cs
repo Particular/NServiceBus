@@ -59,14 +59,17 @@
                     result = Activator.CreateInstance(typeToBuild);
                 }
 
-                //enable property injection
-                var propertyInfos = result.GetType().GetProperties().Where(pi => pi.CanWrite).Where(pi => pi.PropertyType != result.GetType());
-                var propsWithoutFuncs = propertyInfos
-                    .Select(p => p.PropertyType)
-                    .Intersect(funcs.Select(f => f.Item1)).ToList();
+                if (result != null)
+                {
+                    //enable property injection
+                    var propertyInfos = result.GetType().GetProperties().Where(pi => pi.CanWrite).Where(pi => pi.PropertyType != result.GetType());
+                    var propsWithoutFuncs = propertyInfos
+                        .Select(p => p.PropertyType)
+                        .Intersect(funcs.Select(f => f.Item1)).ToList();
 
-                propsWithoutFuncs.ForEach(propertyTypeToSet => propertyInfos.First(p => p.PropertyType == propertyTypeToSet)
-                                                      .SetValue(result, Build(propertyTypeToSet), null));
+                    propsWithoutFuncs.ForEach(propertyTypeToSet => propertyInfos.First(p => p.PropertyType == propertyTypeToSet)
+                        .SetValue(result, Build(propertyTypeToSet), null));
+                }
 
                 return result;
 

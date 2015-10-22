@@ -24,7 +24,7 @@
             await messageHandler
                 .Invoke(
                     context.MessageBeingHandled,
-                    new MessageHandlerContext(context.Builder.Build<ContextualBus>()))
+                    new MessageHandlerContext(context.Builder.Build<ContextualBus>(), context))
                 .ConfigureAwait(false);
         }
 

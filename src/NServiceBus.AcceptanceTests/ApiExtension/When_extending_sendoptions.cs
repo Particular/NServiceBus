@@ -45,12 +45,12 @@
 
             class SendMessageHandler : IHandleMessages<SendMessage>
             {
-                public Context Context { get; set; }
+                public Context TestContext { get; set; }
 
                 public Task Handle(SendMessage message, IMessageHandlerContext context)
                 {
-                    Context.Secret = message.Secret;
-                    Context.WasCalled = true;
+                    TestContext.Secret = message.Secret;
+                    TestContext.WasCalled = true;
                     return Task.FromResult(0);
                 }
             }
