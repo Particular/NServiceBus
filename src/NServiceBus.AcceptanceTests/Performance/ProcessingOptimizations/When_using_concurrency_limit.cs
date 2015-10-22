@@ -5,7 +5,6 @@
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.Extensibility;
     using NServiceBus.Settings;
     using NServiceBus.Transports;

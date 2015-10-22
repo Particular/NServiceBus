@@ -4,7 +4,6 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Text;
     using System.Transactions;
-    using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.Features;
     using NServiceBus.Performance.TimeToBeReceived;
     using NServiceBus.Settings;

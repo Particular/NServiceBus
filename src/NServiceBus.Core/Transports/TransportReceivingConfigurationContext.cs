@@ -11,7 +11,6 @@ namespace NServiceBus.Transports
     {
         Func<CriticalError, IPushMessages> messagePumpFactory;
         Func<ICreateQueues> queueCreatorFactory;
-        string connectionString;
 
         /// <summary>
         /// Extension settings for this transport.
@@ -27,11 +26,12 @@ namespace NServiceBus.Transports
         /// Connection string or null if a given transport does not require it.
         /// </summary>
         public string ConnectionString { get; }
+
         internal TransportReceivingConfigurationContext(ContextBag extensionSettings, ReadOnlySettings settings, string connectionString)
         {
             ExtensionSettings = extensionSettings;
             Settings = settings;
-            this.connectionString = connectionString;
+            ConnectionString = connectionString;
         }
 
         internal Func<CriticalError, IPushMessages> MessagePumpFactory => messagePumpFactory;
