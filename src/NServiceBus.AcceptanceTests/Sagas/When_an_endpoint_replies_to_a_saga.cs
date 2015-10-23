@@ -80,15 +80,15 @@
 
                 public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
-                    Data.RunId = message.RunId;
+                    context.GetSagaData<CorrelationTestSagaData>().RunId = message.RunId;
                     return context.SendAsync(new DoSomething { RunId = message.RunId });
                 }
 
                 public Task Handle(DoSomethingResponse message, IMessageHandlerContext context)
                 {
                     TestContext.Done = true;
-                    TestContext.DidSagaReplyMessageGetCorrelated = message.RunId == Data.RunId;
-                    MarkAsComplete();
+                    TestContext.DidSagaReplyMessageGetCorrelated = message.RunId == context.GetSagaData<CorrelationTestSagaData>().RunId;
+                    context.MarkAsComplete();
                     return Task.FromResult(0);
                 }
 

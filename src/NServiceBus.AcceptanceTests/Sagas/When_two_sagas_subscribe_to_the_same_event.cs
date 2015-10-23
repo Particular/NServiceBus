@@ -6,6 +6,7 @@
     using AcceptanceTesting;
     using NServiceBus.AcceptanceTests.Routing;
     using NServiceBus.Features;
+    using NServiceBus.Sagas;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
@@ -82,7 +83,7 @@
 
                 public Task Handle(GroupPendingEvent message, IMessageHandlerContext context)
                 {
-                    Data.DataId = message.DataId;
+                    context.GetSagaData<MySaga1Data>().DataId = message.DataId;
                     Console.Out.WriteLine("Saga1 received GroupPendingEvent for RunId: {0}", message.DataId);
                     return context.SendLocalAsync(new CompleteSaga1Now { DataId = message.DataId });
                 }
@@ -92,7 +93,7 @@
                     Console.Out.WriteLine("Saga1 received CompleteSaga1Now for RunId:{0} and MarkAsComplete", message.DataId);
                     TestContext.DidSaga1EventHandlerGetInvoked = true;
 
-                    MarkAsComplete();
+                    context.MarkAsComplete();
 
                     return Task.FromResult(0);
                 }
@@ -119,7 +120,7 @@
                 {
                     var dataId = Guid.NewGuid();
                     Console.Out.WriteLine("Saga2 sending OpenGroupCommand for RunId: {0}", dataId);
-                    Data.DataId = dataId;
+                    context.GetSagaData<MySaga2Data>().DataId = dataId;
                     return context.SendAsync(new OpenGroupCommand { DataId = dataId });
                 }
 
@@ -127,7 +128,7 @@
                 {
                     TestContext.DidSaga2EventHandlerGetInvoked = true;
                     Console.Out.WriteLine("Saga2 received GroupPendingEvent for RunId: {0} and MarkAsComplete", message.DataId);
-                    MarkAsComplete();
+                    context.MarkAsComplete();
                     return Task.FromResult(0);
                 }
 

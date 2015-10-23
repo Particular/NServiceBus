@@ -5,6 +5,7 @@
     using EndpointTemplates;
     using AcceptanceTesting;
     using NServiceBus.Features;
+    using NServiceBus.Sagas;
 
     public class When_doing_request_response_between_sagas : NServiceBusAcceptanceTest
     {
@@ -31,11 +32,11 @@
 
                 public Task Handle(InitiateRequestingSaga message, IMessageHandlerContext context)
                 {
-                    Data.CorrIdForResponse = message.Id;
+                    context.GetSagaData<RequestResponseRequestingSagaData>().CorrIdForResponse = message.Id;
 
                     return context.SendLocalAsync(new RequestToRespondingSaga
                     {
-                        SomeIdThatTheResponseSagaCanCorrelateBackToUs = Data.CorrIdForResponse //wont be needed in the future
+                        SomeIdThatTheResponseSagaCanCorrelateBackToUs = message.Id //wont be needed in the future
                     });
                 }
 
@@ -43,7 +44,7 @@
                 {
                     TestContext.DidRequestingSagaGetTheResponse = true;
 
-                    MarkAsComplete();
+                    context.MarkAsComplete();
 
                     return Task.FromResult(0);
                 }
@@ -69,19 +70,22 @@
 
                 public async Task Handle(RequestToRespondingSaga message, IMessageHandlerContext context)
                 {
+                    var data = context.GetSagaData<RequestResponseRespondingSagaData>();
+
                     if (TestContext.ReplyFromNonInitiatingHandler)
                     {
-                        Data.CorrIdForRequest = message.SomeIdThatTheResponseSagaCanCorrelateBackToUs; //wont be needed in the future
-                        await context.SendLocalAsync(new SendReplyFromNonInitiatingHandler { SagaIdSoWeCanCorrelate = Data.Id });
+                        
+                        data.CorrIdForRequest = message.SomeIdThatTheResponseSagaCanCorrelateBackToUs; //wont be needed in the future
+                        await context.SendLocalAsync(new SendReplyFromNonInitiatingHandler { SagaIdSoWeCanCorrelate = data.Id });
                     }
 
                     if (TestContext.ReplyFromTimeout)
                     {
-                        Data.CorrIdForRequest = message.SomeIdThatTheResponseSagaCanCorrelateBackToUs; //wont be needed in the future
-                        await RequestTimeoutAsync<DelayReply>(context, TimeSpan.FromSeconds(1));
+                        data.CorrIdForRequest = message.SomeIdThatTheResponseSagaCanCorrelateBackToUs; //wont be needed in the future
+                        await context.RequestTimeoutAsync<DelayReply>(TimeSpan.FromSeconds(1));
                     }
 
-                    Data.CorrIdForRequest = Guid.NewGuid();
+                    data.CorrIdForRequest = Guid.NewGuid();
 
                     // Both reply and reply to originator work here since the sender of the incoming message is the requesting saga
                     // also note we don't set the correlation ID since auto correlation happens to work for this special case 
@@ -116,9 +120,9 @@
                 Task SendReply(IMessageHandlerContext context)
                 {
                     //reply to originator must be used here since the sender of the incoming message the timeoutmanager and not the requesting saga
-                    return ReplyToOriginatorAsync(context, new ResponseFromOtherSaga //change this line to Bus.ReplyAsync(new ResponseFromOtherSaga  and see it fail
+                    return context.ReplyToOriginatorAsync(new ResponseFromOtherSaga //change this line to Bus.ReplyAsync(new ResponseFromOtherSaga  and see it fail
                     {
-                        SomeCorrelationId = Data.CorrIdForRequest //wont be needed in the future
+                        SomeCorrelationId = context.GetSagaData<RequestResponseRespondingSagaData>().CorrIdForRequest //wont be needed in the future
                     });
                 }
             }

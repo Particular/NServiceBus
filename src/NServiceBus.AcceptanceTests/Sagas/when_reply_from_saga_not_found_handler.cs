@@ -62,7 +62,7 @@
 
                 public Task Handle(StartSaga1 message, IMessageHandlerContext context)
                 {
-                    Data.ContextId = message.ContextId;
+                    context.GetSagaData<NotFoundHandlerSaga1Data>().ContextId = message.ContextId;
                     return Task.FromResult(0);
                 }
 

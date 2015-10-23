@@ -5,6 +5,7 @@
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using NServiceBus.Sagas;
     using NUnit.Framework;
 
     public class When_updating_correlation_property : NServiceBusAcceptanceTest
@@ -41,13 +42,12 @@
                 {
                     if (message.SecondMessage)
                     {
-                        Data.SomeId = Guid.NewGuid(); //this is not allowed
+                        context.GetSagaData<ChangeCorrPropertySagaData>().SomeId = Guid.NewGuid(); //this is not allowed
                     }
                     else
                     {
-                        Data.SomeId = message.SomeId;
+                        context.GetSagaData<ChangeCorrPropertySagaData>().SomeId = message.SomeId;
                     }
-
 
                     return context.SendLocalAsync(new StartSagaMessage
                     {

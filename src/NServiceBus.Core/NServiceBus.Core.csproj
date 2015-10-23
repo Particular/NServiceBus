@@ -125,6 +125,7 @@
     <Compile Include="Routing\MulticastRoutingStrategy.cs" />
     <Compile Include="Routing\RoutingStrategy.cs" />
     <Compile Include="Routing\UnicastRoutingStrategy.cs" />
+    <Compile Include="Sagas\MessageHandlerContextSagaExtensions.cs" />
     <Compile Include="Sagas\SagaLoader.cs" />
     <Compile Include="Sagas\Saga_obsoletes.cs" />
     <Compile Include="Routing\AllInstancesDistributionStrategy.cs" />

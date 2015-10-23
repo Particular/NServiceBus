@@ -4,6 +4,7 @@
     using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
+    using NServiceBus.Sagas;
     using NUnit.Framework;
 
     public class When_saga_is_mapped_to_complex_expression : NServiceBusAcceptanceTest
@@ -38,11 +39,12 @@
             public class TestSaga02 : Saga<TestSagaData02>,
                 IAmStartedByMessages<StartSagaMessage>, IAmStartedByMessages<OtherMessage>
             {
-                public Context Context { get; set; }
+                public Context TestContext { get; set; }
+
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
-                    Data.KeyValue = message.Key;
-                    Context.FirstMessageReceived = true;
+                    context.GetSagaData<TestSagaData02>().KeyValue = message.Key;
+                    TestContext.FirstMessageReceived = true;
                     return Task.FromResult(0);
                 }
 
@@ -54,7 +56,7 @@
 
                 public Task Handle(OtherMessage message, IMessageHandlerContext context)
                 {
-                    Context.SecondMessageReceived = true;
+                    TestContext.SecondMessageReceived = true;
                     return Task.FromResult(0);
                 }
             }

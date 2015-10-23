@@ -10,6 +10,7 @@
     using NServiceBus.Features;
     using NServiceBus.Outbox;
     using NServiceBus.Persistence;
+    using NServiceBus.Sagas;
     using NUnit.Framework;
 
     public class When_clearing_saga_timeouts : NServiceBusAcceptanceTest
@@ -66,10 +67,10 @@
             {
                 public async Task Handle(PlaceOrder message, IMessageHandlerContext context)
                 {
-                    Data.DataId = message.DataId;
+                    context.GetSagaData<PlaceOrderSagaData>().DataId = message.DataId;
 
                     await context.SendLocalAsync(new SignalDone());
-                    MarkAsComplete();
+                    context.MarkAsComplete();
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<PlaceOrderSagaData> mapper)

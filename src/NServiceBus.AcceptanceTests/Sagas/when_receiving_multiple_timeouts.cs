@@ -55,15 +55,15 @@
                     if (message.ContextId != TestContext.Id)
                         return;
 
-                    Data.ContextId = message.ContextId;
+                    context.GetSagaData<MultTimeoutsSaga1Data>().ContextId = message.ContextId;
 
-                    await RequestTimeoutAsync(context, TimeSpan.FromSeconds(5), new Saga1Timeout { ContextId = TestContext.Id });
-                    await RequestTimeoutAsync(context, TimeSpan.FromMilliseconds(10), new Saga2Timeout { ContextId = TestContext.Id });
+                    await context.RequestTimeoutAsync(TimeSpan.FromSeconds(5), new Saga1Timeout { ContextId = TestContext.Id });
+                    await context.RequestTimeoutAsync(TimeSpan.FromMilliseconds(10), new Saga2Timeout { ContextId = TestContext.Id });
                 }
 
                 public Task Timeout(Saga1Timeout state, IMessageHandlerContext context)
                 {
-                    MarkAsComplete();
+                    context.MarkAsComplete();
 
                     if (state.ContextId == TestContext.Id)
                     {

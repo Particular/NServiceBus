@@ -6,7 +6,6 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
     {
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SimpleSagaEntity> mapper)
         {
-            
         }
     }
     public class SimpleSagaEntity : IContainSagaData

@@ -7,6 +7,7 @@
     using Features;
     using NServiceBus.AcceptanceTests.Routing;
     using NServiceBus.Config;
+    using NServiceBus.Sagas;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
@@ -80,18 +81,18 @@
 
             public class ReplyToPubMsgSaga : Saga<ReplyToPubMsgSaga.ReplyToPubMsgSagaData>, IAmStartedByMessages<StartSaga>, IHandleMessages<DidSomethingResponse>
             {
-                public Context Context { get; set; }
+                public Context TestContext { get; set; }
 
                 public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
-                    Data.DataId = message.DataId;
+                    context.GetSagaData<ReplyToPubMsgSagaData>().DataId = message.DataId;
                     return context.PublishAsync(new DidSomething { DataId = message.DataId });
                 }
 
                 public Task Handle(DidSomethingResponse message, IMessageHandlerContext context)
                 {
-                    Context.DidSagaReplyMessageGetCorrelated = message.ReceivedDataId == Data.DataId;
-                    MarkAsComplete();
+                    TestContext.DidSagaReplyMessageGetCorrelated = message.ReceivedDataId == context.GetSagaData<ReplyToPubMsgSagaData>().DataId;
+                    context.MarkAsComplete();
                     return Task.FromResult(0);
                 }
 

@@ -5,6 +5,7 @@
     using EndpointTemplates;
     using AcceptanceTesting;
     using NServiceBus.Features;
+    using NServiceBus.Sagas;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
@@ -92,31 +93,31 @@
                 IHandleMessages<CompleteSagaMessage>,
                 IHandleMessages<AnotherMessage>
             {
-                public Context Context { get; set; }
+                public Context TestContext { get; set; }
 
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
-                    Context.AddTrace("Saga started");
+                    TestContext.AddTrace("Saga started");
 
-                    Data.SomeId = message.SomeId;
+                    context.GetSagaData<TestSagaData10>().SomeId = message.SomeId;
 
-                    Context.StartSagaMessageReceived = true;
+                    TestContext.StartSagaMessageReceived = true;
 
                     return Task.FromResult(0);
                 }
 
                 public Task Handle(CompleteSagaMessage message, IMessageHandlerContext context)
                 {
-                    Context.AddTrace("CompleteSagaMessage received");
-                    MarkAsComplete();
-                    Context.SagaCompleted = true;
+                    TestContext.AddTrace("CompleteSagaMessage received");
+                    context.MarkAsComplete();
+                    TestContext.SagaCompleted = true;
                     return Task.FromResult(0);
                 }
 
                 public Task Handle(AnotherMessage message, IMessageHandlerContext context)
                 {
-                    Context.AddTrace("AnotherMessage received");
-                    Context.SagaReceivedAnotherMessage = true;
+                    TestContext.AddTrace("AnotherMessage received");
+                    TestContext.SagaReceivedAnotherMessage = true;
                     return Task.FromResult(0);
                 }
 

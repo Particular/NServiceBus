@@ -6,6 +6,7 @@
     using AcceptanceTesting;
     using Features;
     using NServiceBus.AcceptanceTests.Routing;
+    using NServiceBus.Sagas;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
@@ -66,18 +67,18 @@
 
                 public async Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
-                    Data.DataId = message.DataId;
+                    context.GetSagaData<EventFromOtherSaga1Data>().DataId = message.DataId;
 
                     //Publish the event, which will start the second saga
                     await context.PublishAsync<SomethingHappenedEvent>(m => { m.DataId = message.DataId; });
 
                     //Request a timeout
-                    await RequestTimeoutAsync<Timeout1>(context, TimeSpan.FromSeconds(5));
+                    await context.RequestTimeoutAsync<Timeout1>(TimeSpan.FromSeconds(5));
                 }
 
                 public Task Timeout(Timeout1 state, IMessageHandlerContext context)
                 {
-                    MarkAsComplete();
+                    context.MarkAsComplete();
                     TestContext.DidSaga1Complete = true;
                     return Task.FromResult(0);
                 }
@@ -115,19 +116,19 @@
                 IAmStartedByMessages<SomethingHappenedEvent>, 
                 IHandleTimeouts<EventFromOtherSaga2.Saga2Timeout>
             {
-                public Context Context { get; set; }
+                public Context TestContext { get; set; }
 
                 public Task Handle(SomethingHappenedEvent message, IMessageHandlerContext context)
                 {
-                    Data.DataId = message.DataId;
+                    context.GetSagaData<EventFromOtherSaga2Data>().DataId = message.DataId;
                     //Request a timeout
-                    return RequestTimeoutAsync<Saga2Timeout>(context, TimeSpan.FromSeconds(5));
+                    return context.RequestTimeoutAsync<Saga2Timeout>(TimeSpan.FromSeconds(5));
                 }
 
                 public Task Timeout(Saga2Timeout state, IMessageHandlerContext context)
                 {
-                    MarkAsComplete();
-                    Context.DidSaga2Complete = true;
+                    context.MarkAsComplete();
+                    TestContext.DidSaga2Complete = true;
                     return Task.FromResult(0);
                 }
 

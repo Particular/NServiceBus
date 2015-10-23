@@ -4,6 +4,7 @@
     using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
+    using NServiceBus.Sagas;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
@@ -47,7 +48,7 @@
                 
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
-                    Data.SomeId = message.SomeId;
+                    context.GetSagaData<TestSagaData11>().SomeId = message.SomeId;
                     return context.SendLocalAsync(new OtherMessage { SomeId = message.SomeId });
                 }
 
