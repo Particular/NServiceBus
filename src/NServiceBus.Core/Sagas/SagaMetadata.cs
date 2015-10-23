@@ -56,12 +56,12 @@ Sagas must have at least one message that is allowed to start the saga. Please a
         /// <summary>
         /// Returns the list of messages that is associated with this saga.
         /// </summary>
-        public IEnumerable<SagaMessage> AssociatedMessages => associatedMessages.Values;
+        public IReadOnlyCollection<SagaMessage> AssociatedMessages => associatedMessages.Values.ToList();
 
         /// <summary>
         /// Gets the list of finders for this saga.
         /// </summary>
-        public IEnumerable<SagaFinderDefinition> Finders => sagaFinders.Values;
+        public IReadOnlyCollection<SagaFinderDefinition> Finders => sagaFinders.Values.ToList();
 
         /// <summary>
         /// The name of the saga.
