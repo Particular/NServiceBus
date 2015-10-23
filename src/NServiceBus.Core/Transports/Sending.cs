@@ -1,10 +1,8 @@
 namespace NServiceBus.Transports
 {
-    using System;
-    using System.Collections.Generic;
     using NServiceBus.Features;
 
-    internal class Sending : Feature
+    class Sending : Feature
     {
         public Sending()
         {
@@ -14,23 +12,12 @@ namespace NServiceBus.Transports
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var outboundTransports = context.Settings.Get<OutboundTransports>().Transports;
+            var transport = context.Settings.Get<OutboundTransport>();
             context.Container.ConfigureComponent(c =>
             {
-                var dispatchers = new List<Tuple<IDispatchMessages, TransportDefinition>>();
-                IDispatchMessages defaultDispatcher = null;
-
-                foreach (var transport in outboundTransports)
-                {
-                    var sendConfigContext = transport.Configure(context.Settings);
-                    var d = sendConfigContext.DispatcherFactory();
-                    dispatchers.Add(Tuple.Create(d, transport.Definition));
-                    if (transport.IsDefault)
-                    {
-                        defaultDispatcher = d;
-                    }
-                }
-                return new TransportDispatcher(defaultDispatcher, dispatchers);
+                var sendConfigContext = transport.Configure(context.Settings);
+                var dispatcher = sendConfigContext.DispatcherFactory();
+                return dispatcher;
             }, DependencyLifecycle.SingleInstance);
         }
     }

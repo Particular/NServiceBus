@@ -45,30 +45,9 @@ namespace NServiceBus
             return new TransportExtensions(contextBag);
         }
 
-        /// <summary>
-        /// Configures NServiceBus to use the given transport for sending messages out.
-        /// </summary>
-        public static TransportExtensions<T> UseAdditionalOutgoingTransport<T>(this BusConfiguration busConfiguration) where T : TransportDefinition, new()
-        {
-            Guard.AgainstNull(nameof(busConfiguration), busConfiguration);
-            var type = typeof(TransportExtensions<>).MakeGenericType(typeof(T));
-            var contextBag = new ContextBag();
-            var extension = (TransportExtensions<T>)Activator.CreateInstance(type, contextBag);
-
-            var transportDefinition = new T();
-            AddOutboundTransport(busConfiguration, transportDefinition, contextBag, false);
-            return extension;
-        }
-
         static void AddOutboundTransport(BusConfiguration busConfiguration, TransportDefinition transportDefinition, ContextBag contextBag, bool isDefault)
         {
-            OutboundTransports outboundTransports;
-            if (!busConfiguration.Settings.TryGet(out outboundTransports))
-            {
-                outboundTransports = new OutboundTransports();
-                busConfiguration.Settings.Set<OutboundTransports>(outboundTransports);
-            }
-            outboundTransports.Add(transportDefinition, contextBag, isDefault);
+            busConfiguration.Settings.Set<OutboundTransport>(new OutboundTransport(transportDefinition, contextBag, isDefault));
         }
 
         internal static void EnsureTransportConfigured(BusConfiguration busConfiguration)

@@ -14,7 +14,7 @@
 
     class MessageDrivenUnsubscribeTerminator : PipelineTerminator<UnsubscribeContext>
     {
-        public MessageDrivenUnsubscribeTerminator(SubscriptionRouter subscriptionRouter, string replyToAddress, TransportDispatcher dispatcher)
+        public MessageDrivenUnsubscribeTerminator(SubscriptionRouter subscriptionRouter, string replyToAddress, IDispatchMessages dispatcher)
         {
             this.subscriptionRouter = subscriptionRouter;
             this.replyToAddress = replyToAddress;
@@ -53,7 +53,7 @@
             {
 
                 var dispatchOptions = new DispatchOptions(new UnicastAddressTag(destination), DispatchConsistency.Default);
-                await dispatcher.UseDispatcher(d => d.Dispatch(new[] { new TransportOperation(unsubscribeMessage, dispatchOptions) }, context)).ConfigureAwait(false);
+                await dispatcher.Dispatch(new[] { new TransportOperation(unsubscribeMessage, dispatchOptions) }, context).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {
@@ -85,7 +85,7 @@
 
         SubscriptionRouter subscriptionRouter;
         string replyToAddress;
-        TransportDispatcher dispatcher;
+        IDispatchMessages dispatcher;
 
         static ILog Logger = LogManager.GetLogger<MessageDrivenUnsubscribeTerminator>();
     }

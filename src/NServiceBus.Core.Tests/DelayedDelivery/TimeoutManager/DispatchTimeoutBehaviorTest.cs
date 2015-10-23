@@ -18,7 +18,7 @@
         {
             var messageDispatcher = new FakeMessageDispatcher();
             var timeoutPersister = new InMemoryTimeoutPersister();
-            var testee = new DispatchTimeoutBehavior(new TransportDispatcher(messageDispatcher, new List<Tuple<IDispatchMessages, TransportDefinition>>()), timeoutPersister, TransactionSupport.Distributed);
+            var testee = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransactionSupport.Distributed);
             var timeoutData = CreateTimeout();
             await timeoutPersister.Add(timeoutData, null);
 
@@ -33,7 +33,7 @@
         {
             var messageDispatcher = new FailingMessageDispatcher();
             var timeoutPersister = new InMemoryTimeoutPersister();
-            var testee = new DispatchTimeoutBehavior(new TransportDispatcher(messageDispatcher, new List<Tuple<IDispatchMessages, TransportDefinition>>()), timeoutPersister, TransactionSupport.Distributed);
+            var testee = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransactionSupport.Distributed);
             var timeoutData = CreateTimeout();
             await timeoutPersister.Add(timeoutData, null);
 
@@ -48,7 +48,7 @@
         {
             var messageDispatcher = new FakeMessageDispatcher();
             var timeoutPersister = new InMemoryTimeoutPersister();
-            var testee = new DispatchTimeoutBehavior(new TransportDispatcher(messageDispatcher, new List<Tuple<IDispatchMessages, TransportDefinition>>()), timeoutPersister, TransactionSupport.Distributed);
+            var testee = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransactionSupport.Distributed);
             var timeoutData = CreateTimeout();
             await timeoutPersister.Add(timeoutData, null);
 
@@ -65,7 +65,7 @@
         {
             var messageDispatcher = new FakeMessageDispatcher();
             var timeoutPersister = new InMemoryTimeoutPersister();
-            var testee = new DispatchTimeoutBehavior(new TransportDispatcher(messageDispatcher, new List<Tuple<IDispatchMessages, TransportDefinition>>()), timeoutPersister, nonDtcTxSettings);
+            var testee = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, nonDtcTxSettings);
             var timeoutData = CreateTimeout();
             await timeoutPersister.Add(timeoutData, null);
 
