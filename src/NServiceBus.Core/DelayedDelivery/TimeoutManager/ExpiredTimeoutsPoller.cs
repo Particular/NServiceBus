@@ -13,7 +13,7 @@ namespace NServiceBus.DelayedDelivery.TimeoutManager
 
     class ExpiredTimeoutsPoller : IDisposable
     {
-        public ExpiredTimeoutsPoller(IQueryTimeouts timeoutsFetcher, IDispatchMessages dispatcher, string dispatcherAddress, RepeatedFailuresOverTimeCircuitBreaker circuitBreaker)
+        public ExpiredTimeoutsPoller(IQueryTimeouts timeoutsFetcher, TransportDispatcher dispatcher, string dispatcherAddress, RepeatedFailuresOverTimeCircuitBreaker circuitBreaker)
         {
             this.timeoutsFetcher = timeoutsFetcher;
             this.dispatcher = dispatcher;
@@ -102,7 +102,8 @@ namespace NServiceBus.DelayedDelivery.TimeoutManager
                     dispatchRequest.Headers["Timeout.Id"] = timeoutData.Id;
 
                     var dispatchOptions = new DispatchOptions(new UnicastAddressTag(dispatcherAddress), DispatchConsistency.Default);
-                    await dispatcher.Dispatch(new[] { new TransportOperation(dispatchRequest, dispatchOptions) }, new ContextBag()).ConfigureAwait(false);
+                    var transportOperation = new TransportOperation(dispatchRequest, dispatchOptions);
+                    await dispatcher.UseDispatcher(d => d.Dispatch(new[] { transportOperation }, new ContextBag())).ConfigureAwait(false);
                 }
 
                 lock (lockObject)
@@ -136,7 +137,7 @@ namespace NServiceBus.DelayedDelivery.TimeoutManager
         }
 
         IQueryTimeouts timeoutsFetcher;
-        IDispatchMessages dispatcher;
+        TransportDispatcher dispatcher;
         string dispatcherAddress;
         RepeatedFailuresOverTimeCircuitBreaker circuitBreaker;
         object lockObject = new object();

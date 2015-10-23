@@ -6,16 +6,16 @@
 
     class ImmediateDispatchTerminator : PipelineTerminator<DispatchContext>
     {
-        public ImmediateDispatchTerminator(IDispatchMessages dispatcher)
+        public ImmediateDispatchTerminator(TransportDispatcher dispatcher)
         {
             this.dispatcher = dispatcher;
         }
 
         protected override Task Terminate(DispatchContext context)
         {
-            return dispatcher.Dispatch(context.Operations, context);
+            return dispatcher.UseDispatcher(d => d.Dispatch(context.Operations, context));
         }
 
-        IDispatchMessages dispatcher;
+        TransportDispatcher dispatcher;
     }
 }

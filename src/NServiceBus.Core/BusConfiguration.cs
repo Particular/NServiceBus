@@ -212,7 +212,7 @@ namespace NServiceBus
 
             Configure.ActivateAndInvoke<INeedInitialization>(scannedTypes, t => t.Customize(this));
 
-            UseTransportExtensions.SetupTransport(this);
+            UseTransportExtensions.EnsureTransportConfigured(this);
             var container = customBuilder ?? new AutofacObjectBuilder();
 
             Settings.SetDefault<IConfigurationSource>(configurationSourceToUse);

@@ -3,15 +3,16 @@ namespace NServiceBus.Unicast.Queuing
     using System.Threading.Tasks;
     using Installation;
     using Logging;
+    using NServiceBus.ObjectBuilder;
     using Transports;
 
     class QueuesCreator : INeedToInstallSomething
     {
-        readonly ICreateQueues queueCreator;
+        IBuilder builder;
 
-        public QueuesCreator(ICreateQueues queueCreator)
+        public QueuesCreator(IBuilder builder)
         {
-            this.queueCreator = queueCreator;
+            this.builder = builder;
         }
 
         public Task InstallAsync(string identity, Configure config)
@@ -20,33 +21,33 @@ namespace NServiceBus.Unicast.Queuing
             {
                 return TaskEx.Completed;
             }
-
             if (!config.CreateQueues())
             {
                 return TaskEx.Completed;
             }
-
+            var queueCreator = builder.Build<ICreateQueues>();
             var queueBindings = config.Settings.Get<QueueBindings>();
 
             foreach (var receiveLogicalAddress in queueBindings.ReceivingAddresses)
             {
-                CreateQueue(identity, receiveLogicalAddress);
+                CreateQueue(queueCreator, identity, receiveLogicalAddress);
             }
 
             foreach (var sendingAddress in queueBindings.SendingAddresses)
             {
-                CreateQueue(identity, sendingAddress);
+                CreateQueue(queueCreator, identity, sendingAddress);
             }
 
             return TaskEx.Completed;
         }
 
-        void CreateQueue(string identity, string transportAddress)
+        void CreateQueue(ICreateQueues queueCreator, string identity, string transportAddress)
         {
             queueCreator.CreateQueueIfNecessary(transportAddress, identity);
             Logger.DebugFormat("Verified that the queue: [{0}] existed", transportAddress);
         }
 
         static ILog Logger = LogManager.GetLogger<QueuesCreator>();
+
     }
 }

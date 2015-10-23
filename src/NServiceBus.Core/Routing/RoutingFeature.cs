@@ -24,6 +24,7 @@
                 s.SetDefault<EndpointInstances>(new EndpointInstances());
                 s.SetDefault<Publishers>(new Publishers());
                 s.SetDefault<DistributionPolicy>(new DistributionPolicy());
+                s.SetDefault<TransportAddresses>(new TransportAddresses());
             });
             RegisterStartupTask<SubscriptionStoreRouteInformationProvider>();
         }
@@ -39,6 +40,10 @@
             context.Container.ConfigureComponent(b => context.Settings.Get<DistributionPolicy>(), DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent<UnicastRouter>(DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent(b => new UnicastSendRouterConnector(LocalAddress(b), b.Build<UnicastRouter>(), b.Build<DistributionPolicy>()), DependencyLifecycle.InstancePerCall);
+
+            var transportAddresses = context.Settings.Get<TransportAddresses>();
+            transportAddresses.RegisterTransportDefault(x => transportDefinition.ToTransportAddress(new LogicalAddress(x)));
+            context.Container.ConfigureComponent(b => transportAddresses, DependencyLifecycle.SingleInstance);
 
             var unicastBusConfig = context.Settings.GetConfigSection<UnicastBusConfig>();
             if (unicastBusConfig != null)
@@ -91,8 +96,8 @@
                     context.Pipeline.Register("MessageDrivenSubscribeTerminator", typeof(MessageDrivenSubscribeTerminator), "Sends subscription requests when message driven subscriptions is in use");
                     context.Pipeline.Register("MessageDrivenUnsubscribeTerminator", typeof(MessageDrivenUnsubscribeTerminator), "Sends requests to unsubscribe when message driven subscriptions is in use");
 
-                    context.Container.ConfigureComponent(b => new MessageDrivenSubscribeTerminator(b.Build<SubscriptionRouter>(), ReplyToAddress(b), b.Build<IDispatchMessages>()), DependencyLifecycle.SingleInstance);
-                    context.Container.ConfigureComponent(b => new MessageDrivenUnsubscribeTerminator(b.Build<SubscriptionRouter>(), ReplyToAddress(b), b.Build<IDispatchMessages>()), DependencyLifecycle.SingleInstance);
+                    context.Container.ConfigureComponent(b => new MessageDrivenSubscribeTerminator(b.Build<SubscriptionRouter>(), ReplyToAddress(b), b.Build<TransportDispatcher>()), DependencyLifecycle.SingleInstance);
+                    context.Container.ConfigureComponent(b => new MessageDrivenUnsubscribeTerminator(b.Build<SubscriptionRouter>(), ReplyToAddress(b), b.Build<TransportDispatcher>()), DependencyLifecycle.SingleInstance);
                 }
                 else
                 {

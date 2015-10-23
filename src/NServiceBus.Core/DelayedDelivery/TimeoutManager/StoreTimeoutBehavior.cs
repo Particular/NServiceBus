@@ -10,7 +10,7 @@ namespace NServiceBus
 
     class StoreTimeoutBehavior : SatelliteBehavior
     {
-        public StoreTimeoutBehavior(ExpiredTimeoutsPoller poller, IDispatchMessages dispatcher, IPersistTimeouts persister, string owningTimeoutManager)
+        public StoreTimeoutBehavior(ExpiredTimeoutsPoller poller, TransportDispatcher dispatcher, IPersistTimeouts persister, string owningTimeoutManager)
         {
             this.poller = poller;
             this.dispatcher = dispatcher;
@@ -67,7 +67,7 @@ namespace NServiceBus
                     var sendOptions = new DispatchOptions(new UnicastAddressTag(data.Destination), DispatchConsistency.Default);
                     var outgoingMessage = new OutgoingMessage(message.MessageId, data.Headers, data.State);
 
-                    await dispatcher.Dispatch(new[] { new TransportOperation(outgoingMessage, sendOptions) }, context).ConfigureAwait(false);
+                    await dispatcher.UseDispatcher(d => d.Dispatch(new[] { new TransportOperation(outgoingMessage, sendOptions) }, context)).ConfigureAwait(false);
                     return;
                 }
 
@@ -90,7 +90,7 @@ namespace NServiceBus
         }
 
         ExpiredTimeoutsPoller poller;
-        IDispatchMessages dispatcher;
+        TransportDispatcher dispatcher;
         IPersistTimeouts persister;
         string owningTimeoutManager;
 

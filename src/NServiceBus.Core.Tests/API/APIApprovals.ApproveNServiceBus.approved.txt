@@ -176,10 +176,6 @@ namespace NServiceBus
         public static void RijndaelEncryptionService(this NServiceBus.BusConfiguration config) { }
         public static void RijndaelEncryptionService(this NServiceBus.BusConfiguration config, string encryptionKey, System.Collections.Generic.List<string> expiredKeys = null) { }
     }
-    public class static ConfigureTransportConnectionString
-    {
-        public static string TransportConnectionString(this NServiceBus.Configure config) { }
-    }
     public abstract class ContainSagaData : NServiceBus.IContainSagaData
     {
         protected ContainSagaData() { }
@@ -681,7 +677,10 @@ namespace NServiceBus
     public class MsmqTransport : NServiceBus.Transports.TransportDefinition
     {
         public MsmqTransport() { }
-        protected internal override void Configure(NServiceBus.BusConfiguration config) { }
+        public override string ExampleConnectionStringForErrorMessage { get; }
+        public override bool RequiresConnectionString { get; }
+        protected internal override void ConfigureForReceiving(NServiceBus.Transports.TransportReceivingConfigurationContext context) { }
+        protected internal override void ConfigureForSending(NServiceBus.Transports.TransportSendingConfigurationContext context) { }
         public override string GetDiscriminatorForThisEndpointInstance() { }
         public override NServiceBus.Transports.OutboundRoutingPolicy GetOutboundRoutingPolicy(NServiceBus.Settings.ReadOnlySettings settings) { }
         public override NServiceBus.Transports.IManageSubscriptions GetSubscriptionManager() { }
@@ -768,6 +767,7 @@ namespace NServiceBus
     {
         public NServiceBus.Routing.DistributionPolicy DistributionPolicy { get; }
         public NServiceBus.Routing.EndpointInstances EndpointInstances { get; }
+        public NServiceBus.Transports.TransportAddresses TransportAddresses { get; }
         public NServiceBus.Routing.UnicastRoutingTable UnicastRoutingTable { get; }
     }
     public class static RoutingSettingsExtensions
@@ -910,11 +910,10 @@ namespace NServiceBus
     {
         public static NServiceBus.Settings.TransactionSettings Transactions(this NServiceBus.BusConfiguration config) { }
     }
-    public class TransportExtensions : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
+    public class TransportExtensions
     {
-        public TransportExtensions(NServiceBus.Settings.SettingsHolder settings) { }
-        public NServiceBus.TransportExtensions AddAddressTranslationException(NServiceBus.EndpointInstanceName endpointInstance, string transportAddress) { }
-        public NServiceBus.TransportExtensions AddAddressTranslationRule(System.Func<NServiceBus.EndpointInstanceName, string> rule) { }
+        public TransportExtensions(NServiceBus.Extensibility.ContextBag settings) { }
+        public NServiceBus.Extensibility.ContextBag Settings { get; }
         public NServiceBus.TransportExtensions ConnectionString(string connectionString) { }
         public NServiceBus.TransportExtensions ConnectionString(System.Func<string> connectionString) { }
         public NServiceBus.TransportExtensions ConnectionStringName(string name) { }
@@ -922,7 +921,7 @@ namespace NServiceBus
     public class TransportExtensions<T> : NServiceBus.TransportExtensions
         where T : NServiceBus.Transports.TransportDefinition
     {
-        public TransportExtensions(NServiceBus.Settings.SettingsHolder settings) { }
+        public TransportExtensions(NServiceBus.Extensibility.ContextBag settings) { }
         public NServiceBus.TransportExtensions<T> ConnectionString(string connectionString) { }
         public NServiceBus.TransportExtensions<T> ConnectionString(System.Func<string> connectionString) { }
         public NServiceBus.TransportExtensions<T> ConnectionStringName(string name) { }
@@ -974,6 +973,8 @@ namespace NServiceBus
     }
     public class static UseTransportExtensions
     {
+        public static NServiceBus.TransportExtensions<T> UseAdditionalOutgoingTransport<T>(this NServiceBus.BusConfiguration busConfiguration)
+            where T : NServiceBus.Transports.TransportDefinition, new () { }
         public static NServiceBus.TransportExtensions<T> UseTransport<T>(this NServiceBus.BusConfiguration busConfiguration)
             where T : NServiceBus.Transports.TransportDefinition, new () { }
         public static NServiceBus.TransportExtensions UseTransport(this NServiceBus.BusConfiguration busConfiguration, System.Type transportDefinitionType) { }
@@ -1497,11 +1498,9 @@ namespace NServiceBus.Features
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
-    public class MsmqTransportConfigurator : NServiceBus.Transports.ConfigureTransport
+    public class MsmqTransportConfigurator : NServiceBus.Features.Feature
     {
-        protected override string ExampleConnectionStringForErrorMessage { get; }
-        protected override bool RequiresConnectionString { get; }
-        protected override void Configure(NServiceBus.Features.FeatureConfigurationContext context, string connectionString) { }
+        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class Outbox : NServiceBus.Features.Feature
     {
@@ -2530,14 +2529,6 @@ namespace NServiceBus.TransportDispatch
 }
 namespace NServiceBus.Transports
 {
-    public abstract class ConfigureTransport : NServiceBus.Features.Feature
-    {
-        protected ConfigureTransport() { }
-        protected abstract string ExampleConnectionStringForErrorMessage { get; }
-        protected virtual bool RequiresConnectionString { get; }
-        protected abstract void Configure(NServiceBus.Features.FeatureConfigurationContext context, string connectionString);
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
-    }
     public enum DispatchConsistency
     {
         Default = 1,
@@ -2691,6 +2682,7 @@ namespace NServiceBus.Transports
     public abstract class TransportDefinition
     {
         protected TransportDefinition() { }
+        public abstract string ExampleConnectionStringForErrorMessage { get; }
         public bool HasNativePubSubSupport { get; set; }
         public bool HasSupportForCentralizedPubSub { get; set; }
         [System.ObsoleteAttribute("GetTransactionSupport. Will be removed in version 7.0.0.", true)]
@@ -2698,7 +2690,9 @@ namespace NServiceBus.Transports
         [System.ObsoleteAttribute("Please use `GetTransactionSupport` instead. Will be removed in version 7.0.0.", true)]
         public bool HasSupportForMultiQueueNativeTransactions { get; set; }
         public bool RequireOutboxConsent { get; set; }
-        protected internal void Configure(NServiceBus.BusConfiguration config) { }
+        public virtual bool RequiresConnectionString { get; }
+        protected internal abstract void ConfigureForReceiving(NServiceBus.Transports.TransportReceivingConfigurationContext context);
+        protected internal abstract void ConfigureForSending(NServiceBus.Transports.TransportSendingConfigurationContext context);
         public abstract string GetDiscriminatorForThisEndpointInstance();
         public abstract NServiceBus.Transports.OutboundRoutingPolicy GetOutboundRoutingPolicy(NServiceBus.Settings.ReadOnlySettings settings);
         public abstract NServiceBus.Transports.IManageSubscriptions GetSubscriptionManager();
@@ -2711,6 +2705,21 @@ namespace NServiceBus.Transports
         public TransportOperation(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Transports.DispatchOptions dispatchOptions) { }
         public NServiceBus.Transports.DispatchOptions DispatchOptions { get; }
         public NServiceBus.Transports.OutgoingMessage Message { get; }
+    }
+    public class TransportReceivingConfigurationContext
+    {
+        public string ConnectionString { get; }
+        public NServiceBus.Extensibility.ContextBag ExtensionSettings { get; }
+        public NServiceBus.Settings.ReadOnlySettings Settings { get; }
+        public void SetMessagePumpFactory(System.Func<NServiceBus.CriticalError, NServiceBus.Transports.IPushMessages> messagePumpFactory) { }
+        public void SetQueueCreatorFactory(System.Func<NServiceBus.Transports.ICreateQueues> queueCreatorFactory) { }
+    }
+    public class TransportSendingConfigurationContext
+    {
+        public string ConnectionString { get; }
+        public NServiceBus.Extensibility.ContextBag ExtensionSettings { get; }
+        public NServiceBus.Settings.ReadOnlySettings GlobalSettings { get; }
+        public void SetDispatcherFactory(System.Func<NServiceBus.Transports.IDispatchMessages> dispatcherFactory) { }
     }
 }
 namespace NServiceBus.Transports.Msmq.Config

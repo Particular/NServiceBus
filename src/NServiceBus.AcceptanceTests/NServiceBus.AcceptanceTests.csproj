@@ -87,8 +87,6 @@
     <Compile Include="FakeTransport\FakeQueueCreator.cs" />
     <Compile Include="FakeTransport\FakeReceiver.cs" />
     <Compile Include="FakeTransport\FakeTransport.cs" />
-    <Compile Include="FakeTransport\FakeTransportConfigurator.cs" />
-    <Compile Include="FakeTransport\FakeTransportContext.cs" />
     <Compile Include="Performance\ProcessingOptimizations\When_limiting_concurrency_via_both_api_and_config.cs" />
     <Compile Include="Performance\ProcessingOptimizations\When_using_concurrency_limit.cs" />
     <Compile Include="Recoverability\Retries\When_message_fails_retries.cs" />
