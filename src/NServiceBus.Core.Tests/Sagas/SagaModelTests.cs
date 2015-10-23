@@ -1,6 +1,7 @@
 namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.Sagas;
@@ -10,7 +11,6 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
     [TestFixture]
     public class SagaModelTests
     {
-
         SagaMetadataCollection GetModel(params Type[] types)
         {
             var sagaMetaModel = new SagaMetadataCollection();
@@ -55,11 +55,11 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
             Assert.AreEqual(typeof(MySaga).FullName, metadata.Name);
 
             Assert.AreEqual(2, metadata.AssociatedMessages.Count());
-            Assert.AreEqual(1, metadata.AssociatedMessages.Count(am => am.MessageType == typeof(Message1).FullName && am.IsAllowedToStartSaga == false));
-            Assert.AreEqual(1, metadata.AssociatedMessages.Count(am => am.MessageType == typeof(Message2).FullName && am.IsAllowedToStartSaga == false));
+            Assert.AreEqual(1, metadata.AssociatedMessages.Count(am => am.MessageType == typeof(Message1).FullName && am.IsAllowedToStartSaga));
+            Assert.AreEqual(1, metadata.AssociatedMessages.Count(am => am.MessageType == typeof(Message2).FullName && !am.IsAllowedToStartSaga));
 
             Assert.AreEqual(1, metadata.CorrelationProperties.Count);
-            Assert.AreEqual("UniqueProperty", metadata.CorrelationProperties[0].Name);
+            Assert.AreEqual("UniqueProperty", metadata.CorrelationProperties.First().Name);
 
             Assert.AreEqual(2, metadata.Finders.Count());
             Assert.AreEqual(1, metadata.Finders.Count(f => f.MessageType == typeof(Message1).FullName));
@@ -69,13 +69,23 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
         [Test]
         public void FilterOutNonSagaTypes()
         {
-            var model = GetModel(typeof(MySaga),typeof(string));
+            var model = GetModel(typeof(MySaga), typeof(string));
 
             Assert.AreEqual(1, model.Count());
         }
 
-        class MySaga : Saga<MySaga.MyEntity>,IHandleMessages<Message1>,IHandleMessages<Message2>
+        class MySaga : Saga<MySaga.MyEntity>, IAmStartedByMessages<Message1>, IHandleMessages<Message2>
         {
+            public Task Handle(Message1 message, IMessageHandlerContext context)
+            {
+                throw new NotImplementedException();
+            }
+
+            public Task Handle(Message2 message, IMessageHandlerContext context)
+            {
+                throw new NotImplementedException();
+            }
+
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyEntity> mapper)
             {
                 mapper.ConfigureMapping<Message1>(m => m.UniqueProperty).ToSaga(s => s.UniqueProperty);
@@ -85,16 +95,6 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
             public class MyEntity : ContainSagaData
             {
                 public int UniqueProperty { get; set; }
-            }
-
-            public Task Handle(Message1 message, IMessageHandlerContext context)
-            {
-                throw new NotImplementedException();
-            }
-
-            public Task Handle(Message2 message, IMessageHandlerContext context)
-            {
-                throw new NotImplementedException();
             }
         }
 
@@ -106,6 +106,40 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
         class Message2 : IMessage
         {
             public int UniqueProperty { get; set; }
+        }
+    }
+
+    [TestFixture]
+    public class When_saga_has_no_start_message
+    {
+
+        [Test]
+        public void Should_throw()
+        {
+            var ex = Assert.Throws<Exception>(()=> SagaMetadata.Create(typeof(SagaWithNoStartMessage), new List<Type>(), new Conventions()));
+
+            StringAssert.Contains("Sagas must have at least one message that is allowed to start the saga",ex.Message);
+        }
+
+
+        class SagaWithNoStartMessage : Saga<SagaWithNoStartMessage.MyEntity>, IHandleMessages<Message1>
+        {
+            public Task Handle(Message1 message, IMessageHandlerContext context)
+            {
+                throw new NotImplementedException();
+            }
+
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyEntity> mapper)
+            {
+            }
+
+            public class MyEntity : ContainSagaData
+            {
+
+            }
+        }
+        class Message1 : IMessage
+        {
         }
     }
 }

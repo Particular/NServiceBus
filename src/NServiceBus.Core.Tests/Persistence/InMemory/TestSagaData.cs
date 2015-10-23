@@ -2,22 +2,26 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
 
-    class TestSaga:Saga<TestSagaData>
+    class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartMessage>
     {
+        public Task Handle(StartMessage message, IMessageHandlerContext context)
+        {
+            throw new NotImplementedException();
+        }
+
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
         {
-            
         }
     }
+
+    class StartMessage
+    {
+    }
+
     public class TestSagaData : IContainSagaData
     {
-        public Guid Id { get; set; }
-
-        public string Originator { get; set; }
-
-        public string OriginalMessageId { get; set; }
-
         public RelatedClass RelatedClass { get; set; }
 
         public IList<OrderLine> OrderLines { get; set; }
@@ -29,7 +33,11 @@
         public TestComponent TestComponent { get; set; }
 
         public PolymorphicPropertyBase PolymorphicRelatedProperty { get; set; }
- 
+        public Guid Id { get; set; }
+
+        public string Originator { get; set; }
+
+        public string OriginalMessageId { get; set; }
     }
 
     public class PolymorphicProperty : PolymorphicPropertyBase
@@ -44,7 +52,8 @@
 
     public enum StatusEnum
     {
-        SomeStatus, AnotherStatus
+        SomeStatus,
+        AnotherStatus
     }
 
     public class TestComponent
@@ -58,7 +67,6 @@
         public Guid Id { get; set; }
 
         public Guid ProductId { get; set; }
-
     }
 
     public class RelatedClass

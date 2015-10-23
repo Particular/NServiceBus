@@ -23,13 +23,20 @@ namespace NServiceBus.Sagas
         /// <param name="correlationProperties">Properties this saga is correlated on.</param>
         /// <param name="messages">The messages collection that a saga handles.</param>
         /// <param name="finders">The finder definition collection that can find this saga.</param>
-        public SagaMetadata(string name, Type sagaType, string entityName, Type sagaEntityType, List<CorrelationProperty> correlationProperties, IEnumerable<SagaMessage> messages, IEnumerable<SagaFinderDefinition> finders)
+        public SagaMetadata(string name, Type sagaType, string entityName, Type sagaEntityType, IReadOnlyCollection<CorrelationProperty> correlationProperties, IReadOnlyCollection<SagaMessage> messages, IReadOnlyCollection<SagaFinderDefinition> finders)
         {
             Name = name;
             EntityName = entityName;
             SagaEntityType = sagaEntityType;
             SagaType = sagaType;
             CorrelationProperties = correlationProperties;
+
+
+            if (!messages.Any(m => m.IsAllowedToStartSaga))
+            {
+                throw new Exception($@"
+Sagas must have at least one message that is allowed to start the saga. Please add at least one `IAmStartedByMessages` to your {name} saga.");
+            }
 
             associatedMessages = new Dictionary<string, SagaMessage>();
 
@@ -79,7 +86,7 @@ namespace NServiceBus.Sagas
         /// <summary>
         /// Properties this saga is correlated on.
         /// </summary>
-        public List<CorrelationProperty> CorrelationProperties { get; private set; }
+        public IReadOnlyCollection<CorrelationProperty> CorrelationProperties { get; private set; }
 
         internal static bool IsSagaType(Type t)
         {

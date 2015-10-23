@@ -1,13 +1,19 @@
 namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
     using System;
+    using System.Threading.Tasks;
 
-    class SagaWithTwoUniqueProperties:Saga<SagaWithTwoUniquePropertiesData>
+    class SagaWithTwoUniqueProperties:Saga<SagaWithTwoUniquePropertiesData>,IAmStartedByMessages<StartMessage>
     {
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithTwoUniquePropertiesData> mapper)
         {
             mapper.ConfigureMapping<M11>(m => m.UniqueInt).ToSaga(s => s.UniqueInt);
             mapper.ConfigureMapping<M11>(m => m.UniqueString).ToSaga(s => s.UniqueString);
+        }
+
+        public Task Handle(StartMessage message, IMessageHandlerContext context)
+        {
+            throw new NotImplementedException();
         }
     }
 

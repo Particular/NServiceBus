@@ -47,7 +47,7 @@
             Assert.AreEqual("UniqueProperty", metadata.CorrelationProperties.Single().Name);
         }
 
-        class MySaga : Saga<MySaga.MyEntity>
+        class MySaga : Saga<MySaga.MyEntity>, IAmStartedByMessages<StartMessage>
         {
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyEntity> mapper)
             {
@@ -58,7 +58,14 @@
             {
                 public int UniqueProperty { get; set; }
             }
+
+            public Task Handle(StartMessage message, IMessageHandlerContext context)
+            {
+                throw new NotImplementedException(); 
+            }
         }
+        
+        
 
         class M1
         {
@@ -69,20 +76,16 @@
         public void When_finder_for_non_message()
         {
             var availableTypes = new List<Type>
-                                 {
-                                     typeof(SagaWithNonMessageFinder.Finder)
-                                 };
-            var exception = Assert.Throws<Exception>(() =>
             {
-                SagaMetadata.Create(typeof(SagaWithNonMessageFinder), availableTypes, new Conventions());
-            });
+                typeof(SagaWithNonMessageFinder.Finder)
+            };
+            var exception = Assert.Throws<Exception>(() => { SagaMetadata.Create(typeof(SagaWithNonMessageFinder), availableTypes, new Conventions()); });
             Assert.AreEqual("A custom IFindSagas must target a valid message type as defined by the message conventions. Please change 'NServiceBus.Core.Tests.Sagas.TypeBasedSagas.SagaMetadataCreationTests+SagaWithNonMessageFinder+StartSagaMessage' to a valid message type or add it to the message conventions. Finder name 'NServiceBus.Core.Tests.Sagas.TypeBasedSagas.SagaMetadataCreationTests+SagaWithNonMessageFinder+Finder'.", exception.Message);
         }
 
         public class SagaWithNonMessageFinder : Saga<SagaWithNonMessageFinder.SagaData>,
             IAmStartedByMessages<SagaWithNonMessageFinder.StartSagaMessage>
         {
-
             public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
             {
                 return Task.FromResult(0);
@@ -115,20 +118,16 @@
         public void When_a_finder_and_a_mapping_exists_for_same_property()
         {
             var availableTypes = new List<Type>
-                                 {
-                                     typeof(SagaWithMappingAndFinder.Finder)
-                                 };
-            var exception = Assert.Throws<Exception>(() =>
             {
-                SagaMetadata.Create(typeof(SagaWithMappingAndFinder), availableTypes, new Conventions());
-            });
+                typeof(SagaWithMappingAndFinder.Finder)
+            };
+            var exception = Assert.Throws<Exception>(() => { SagaMetadata.Create(typeof(SagaWithMappingAndFinder), availableTypes, new Conventions()); });
             Assert.AreEqual("A custom IFindSagas and an existing mapping where found for message 'NServiceBus.Core.Tests.Sagas.TypeBasedSagas.SagaMetadataCreationTests+SagaWithMappingAndFinder+StartSagaMessage'. Please either remove the message mapping for remove the finder. Finder name 'NServiceBus.Core.Tests.Sagas.TypeBasedSagas.SagaMetadataCreationTests+SagaWithMappingAndFinder+Finder'.", exception.Message);
         }
 
         public class SagaWithMappingAndFinder : Saga<SagaWithMappingAndFinder.SagaData>,
             IAmStartedByMessages<SagaWithMappingAndFinder.StartSagaMessage>
         {
-
             public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
             {
                 return Task.FromResult(0);
@@ -166,7 +165,7 @@
             Assert.AreEqual("UniqueProperty", metadata.CorrelationProperties.Single().Name);
         }
 
-        class MySagaWithMappedAndUniqueProperty : Saga<MySagaWithMappedAndUniqueProperty.SagaData>
+        class MySagaWithMappedAndUniqueProperty : Saga<MySagaWithMappedAndUniqueProperty.SagaData>, IAmStartedByMessages<MySagaWithMappedAndUniqueProperty.StartMessage>
         {
             public class SagaData : ContainSagaData
             {
@@ -177,6 +176,16 @@
             {
                 mapper.ConfigureMapping<SomeMessage>(m => m.SomeProperty)
                     .ToSaga(s => s.UniqueProperty);
+            }
+
+
+            public Task Handle(StartMessage message, IMessageHandlerContext context)
+            {
+                throw new NotImplementedException();
+            }
+
+            public class StartMessage
+            {
             }
         }
 
@@ -187,7 +196,7 @@
             Assert.AreEqual("UniqueProperty", metadata.CorrelationProperties.Single().Name);
         }
 
-        class MySagaWithMappedProperty : Saga<MySagaWithMappedProperty.SagaData>
+        class MySagaWithMappedProperty : Saga<MySagaWithMappedProperty.SagaData>, IAmStartedByMessages<StartMessage>
         {
             public class SagaData : ContainSagaData
             {
@@ -199,6 +208,15 @@
                 mapper.ConfigureMapping<SomeMessage>(m => m.SomeProperty)
                     .ToSaga(s => s.UniqueProperty);
             }
+
+            public Task Handle(StartMessage message, IMessageHandlerContext context)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        class StartMessage
+        {
         }
 
         [Test, Ignore("Not sure we should enforce this yet")]
@@ -221,11 +239,11 @@
             IAmStartedByMessages<MySagaWithUnmappedStartProperty.MessageThatStartsTheSaga>,
             IHandleMessages<MySagaWithUnmappedStartProperty.MessageThatDoesNotStartTheSaga>
         {
-
             public class MessageThatStartsTheSaga : IMessage
             {
                 public int SomeProperty { get; set; }
             }
+
             public class MessageThatDoesNotStartTheSaga : IMessage
             {
                 public int SomeProperty { get; set; }
@@ -275,7 +293,6 @@
             IHandleMessages<SagaWith2StartersAnd1Handler.Message3>,
             IHandleTimeouts<SagaWith2StartersAnd1Handler.MyTimeout>
         {
-
             public class StartMessage1 : IMessage
             {
                 public string SomeId { get; set; }
@@ -350,7 +367,6 @@
         class SagaWithIdMappedToNonGuidMessageProperty : Saga<SagaWithIdMappedToNonGuidMessageProperty.SagaData>,
             IAmStartedByMessages<SomeMessage>
         {
-
             public class SagaData : ContainSagaData
             {
             }
@@ -398,9 +414,9 @@
         public void DetectAndRegisterCustomFindersUsingScanning()
         {
             var availableTypes = new List<Type>
-                                 {
-                                     typeof(MySagaWithScannedFinder.CustomFinder)
-                                 };
+            {
+                typeof(MySagaWithScannedFinder.CustomFinder)
+            };
             var metadata = SagaMetadata.Create(typeof(MySagaWithScannedFinder), availableTypes, new Conventions());
 
             var finder = GetFinder(metadata, typeof(SomeMessage).FullName);
@@ -441,7 +457,7 @@
             Assert.AreEqual(typeof(SagaWithInheritanceChain.SagaData), metadata.SagaEntityType);
         }
 
-        class SagaWithInheritanceChain : SagaWithInheritanceChainBase<SagaWithInheritanceChain.SagaData, SagaWithInheritanceChain.SomeOtherData>
+        class SagaWithInheritanceChain : SagaWithInheritanceChainBase<SagaWithInheritanceChain.SagaData, SagaWithInheritanceChain.SomeOtherData>,IAmStartedByMessages<StartMessage>
         {
             public class SagaData : ContainSagaData
             {
@@ -451,6 +467,11 @@
             public class SomeOtherData
             {
                 public string SomeData { get; set; }
+            }
+
+            public Task Handle(StartMessage message, IMessageHandlerContext context)
+            {
+                throw new NotImplementedException();
             }
         }
 
@@ -474,7 +495,6 @@
 
             return finder;
         }
-
     }
 
     class SomeMessageWithField : IMessage
@@ -488,5 +508,4 @@
     {
         public int SomeProperty { get; set; }
     }
-
 }

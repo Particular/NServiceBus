@@ -2283,9 +2283,9 @@ namespace NServiceBus.Sagas
     }
     public class SagaMetadata
     {
-        public SagaMetadata(string name, System.Type sagaType, string entityName, System.Type sagaEntityType, System.Collections.Generic.List<NServiceBus.Sagas.CorrelationProperty> correlationProperties, System.Collections.Generic.IEnumerable<NServiceBus.Sagas.SagaMessage> messages, System.Collections.Generic.IEnumerable<NServiceBus.Sagas.SagaFinderDefinition> finders) { }
+        public SagaMetadata(string name, System.Type sagaType, string entityName, System.Type sagaEntityType, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Sagas.CorrelationProperty> correlationProperties, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Sagas.SagaMessage> messages, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Sagas.SagaFinderDefinition> finders) { }
         public System.Collections.Generic.IEnumerable<NServiceBus.Sagas.SagaMessage> AssociatedMessages { get; }
-        public System.Collections.Generic.List<NServiceBus.Sagas.CorrelationProperty> CorrelationProperties { get; }
+        public System.Collections.Generic.IReadOnlyCollection<NServiceBus.Sagas.CorrelationProperty> CorrelationProperties { get; }
         public string EntityName { get; }
         public System.Collections.Generic.IEnumerable<NServiceBus.Sagas.SagaFinderDefinition> Finders { get; }
         public string Name { get; }
