@@ -80,7 +80,7 @@ namespace NServiceBus.Extensibility
         /// Merges the passed context into this one.
         /// </summary>
         /// <param name="context">The source context.</param>
-        public void Merge(ContextBag context)
+        internal void Merge(ContextBag context)
         {
             foreach (var kvp in context.stash)
             {
@@ -100,7 +100,7 @@ namespace NServiceBus.Extensibility
         /// <summary>
         /// Walk the tree of context until one is found of the type <typeparamref name="T"/>.
         /// </summary>
-        public bool TryGetRootContext<T>(out T result) where T : ContextBag
+        internal bool TryGetRootContext<T>(out T result) where T : ContextBag
         {
             var cast = this as T;
             if (cast != null)

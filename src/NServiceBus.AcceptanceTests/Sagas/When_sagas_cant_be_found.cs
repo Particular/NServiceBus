@@ -124,12 +124,12 @@
 
             public class SagaNotFound : IHandleSagaNotFound
             {
-                public Context Context { get; set; }
+                public Context TestContext { get; set; }
 
-                public Task Handle(object message, IMessageHandlerContext context)
+                public Task Handle(object message, IMessageProcessingContext context)
                 {
-                    Context.TimesFired++;
-                    Context.Done = true;
+                    TestContext.TimesFired++;
+                    TestContext.Done = true;
                     return Task.FromResult(0);
                 }
             }
@@ -227,11 +227,11 @@
 
             public class SagaNotFound : IHandleSagaNotFound
             {
-                public Context Context { get; set; }
+                public Context TestContext { get; set; }
 
-                public Task Handle(object message, IMessageHandlerContext context)
+                public Task Handle(object message, IMessageProcessingContext context)
                 {
-                    Context.TimesFired++;
+                    TestContext.TimesFired++;
                     return Task.FromResult(0);
                 }
             }

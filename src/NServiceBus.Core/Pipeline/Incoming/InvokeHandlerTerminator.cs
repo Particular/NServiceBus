@@ -2,7 +2,6 @@
 {
     using System.Threading.Tasks;
     using System.Transactions;
-    using NServiceBus.Unicast;
     using Pipeline;
     using Pipeline.Contexts;
     using Sagas;
@@ -24,7 +23,7 @@
             await messageHandler
                 .Invoke(
                     context.MessageBeingHandled,
-                    new MessageHandlerContext(context.Builder.Build<ContextualBus>(), context))
+                    new MessageHandlerContext(context))
                 .ConfigureAwait(false);
         }
 
