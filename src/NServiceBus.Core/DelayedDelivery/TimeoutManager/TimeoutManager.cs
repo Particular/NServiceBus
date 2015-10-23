@@ -49,7 +49,7 @@
             messageProcessorPipeline.Register<FirstLevelRetriesBehavior.Registration>();
             messageProcessorPipeline.Register<StoreTimeoutBehavior.Registration>();
             context.Container.ConfigureComponent(b => new StoreTimeoutBehavior(b.Build<ExpiredTimeoutsPoller>(),
-                b.Build<TransportDispatcher>(),
+                b.Build<IDispatchMessages>(),
                 b.Build<IPersistTimeouts>(),
                 context.Settings.EndpointName().ToString()), DependencyLifecycle.SingleInstance);
 
@@ -61,7 +61,7 @@
             dispatcherProcessorPipeline.Register<FirstLevelRetriesBehavior.Registration>();
             dispatcherProcessorPipeline.Register("TimeoutDispatcherProcessor", typeof(DispatchTimeoutBehavior), "Dispatches timeout messages");
             context.Container.ConfigureComponent(b => new DispatchTimeoutBehavior(
-                b.Build<TransportDispatcher>(),
+                b.Build<IDispatchMessages>(),
                 b.Build<IPersistTimeouts>(),
                 requiredTransactionSupport),
                 DependencyLifecycle.InstancePerCall);
@@ -76,7 +76,7 @@
                     waitTime,
                     ex => criticalError.Raise("Repeated failures when fetching timeouts from storage, endpoint will be terminated.", ex));
 
-                return new ExpiredTimeoutsPoller(b.Build<IQueryTimeouts>(), b.Build<TransportDispatcher>(), dispatcherAddress, circuitBreaker);
+                return new ExpiredTimeoutsPoller(b.Build<IQueryTimeouts>(), b.Build<IDispatchMessages>(), dispatcherAddress, circuitBreaker);
             }, DependencyLifecycle.SingleInstance);
         }
 

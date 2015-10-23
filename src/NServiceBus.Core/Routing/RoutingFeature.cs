@@ -96,8 +96,8 @@
                     context.Pipeline.Register("MessageDrivenSubscribeTerminator", typeof(MessageDrivenSubscribeTerminator), "Sends subscription requests when message driven subscriptions is in use");
                     context.Pipeline.Register("MessageDrivenUnsubscribeTerminator", typeof(MessageDrivenUnsubscribeTerminator), "Sends requests to unsubscribe when message driven subscriptions is in use");
 
-                    context.Container.ConfigureComponent(b => new MessageDrivenSubscribeTerminator(b.Build<SubscriptionRouter>(), ReplyToAddress(b), b.Build<TransportDispatcher>()), DependencyLifecycle.SingleInstance);
-                    context.Container.ConfigureComponent(b => new MessageDrivenUnsubscribeTerminator(b.Build<SubscriptionRouter>(), ReplyToAddress(b), b.Build<TransportDispatcher>()), DependencyLifecycle.SingleInstance);
+                    context.Container.ConfigureComponent(b => new MessageDrivenSubscribeTerminator(b.Build<SubscriptionRouter>(), ReplyToAddress(b), b.Build<IDispatchMessages>()), DependencyLifecycle.SingleInstance);
+                    context.Container.ConfigureComponent(b => new MessageDrivenUnsubscribeTerminator(b.Build<SubscriptionRouter>(), ReplyToAddress(b), b.Build<IDispatchMessages>()), DependencyLifecycle.SingleInstance);
                 }
                 else
                 {

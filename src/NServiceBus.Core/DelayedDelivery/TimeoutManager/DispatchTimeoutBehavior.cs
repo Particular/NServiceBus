@@ -8,7 +8,7 @@ namespace NServiceBus
 
     class DispatchTimeoutBehavior : SatelliteBehavior
     {
-        public DispatchTimeoutBehavior(TransportDispatcher dispatcher, IPersistTimeouts persister, TransactionSupport transactionSupport)
+        public DispatchTimeoutBehavior(IDispatchMessages dispatcher, IPersistTimeouts persister, TransactionSupport transactionSupport)
         {
             this.dispatcher = dispatcher;
             this.persister = persister;
@@ -32,7 +32,7 @@ namespace NServiceBus
             timeoutData.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
             timeoutData.Headers["NServiceBus.RelatedToTimeoutId"] = timeoutData.Id;
 
-            await dispatcher.UseDispatcher(d => d.Dispatch(new[] { new TransportOperation(new OutgoingMessage(message.MessageId, timeoutData.Headers, timeoutData.State), sendOptions) }, context)).ConfigureAwait(false);
+            await dispatcher.Dispatch(new[] { new TransportOperation(new OutgoingMessage(message.MessageId, timeoutData.Headers, timeoutData.State), sendOptions) }, context).ConfigureAwait(false);
 
             await persister.TryRemove(timeoutId, context).ConfigureAwait(false);
         }
@@ -45,7 +45,7 @@ namespace NServiceBus
                 : DispatchConsistency.Isolated;
         }
 
-        TransportDispatcher dispatcher;
+        IDispatchMessages dispatcher;
         IPersistTimeouts persister;
         readonly DispatchConsistency dispatchConsistency;
     }
