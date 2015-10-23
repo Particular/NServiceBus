@@ -973,8 +973,6 @@ namespace NServiceBus
     }
     public class static UseTransportExtensions
     {
-        public static NServiceBus.TransportExtensions<T> UseAdditionalOutgoingTransport<T>(this NServiceBus.BusConfiguration busConfiguration)
-            where T : NServiceBus.Transports.TransportDefinition, new () { }
         public static NServiceBus.TransportExtensions<T> UseTransport<T>(this NServiceBus.BusConfiguration busConfiguration)
             where T : NServiceBus.Transports.TransportDefinition, new () { }
         public static NServiceBus.TransportExtensions UseTransport(this NServiceBus.BusConfiguration busConfiguration, System.Type transportDefinitionType) { }
