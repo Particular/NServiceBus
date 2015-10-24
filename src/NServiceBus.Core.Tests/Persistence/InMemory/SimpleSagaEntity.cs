@@ -1,12 +1,18 @@
 namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
     using System;
+    using System.Threading.Tasks;
 
-    class SimpleSagaEntitySaga:Saga<SimpleSagaEntity>
+    class SimpleSagaEntitySaga:Saga<SimpleSagaEntity>,IAmStartedByMessages<StartMessage>
     {
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SimpleSagaEntity> mapper)
         {
             
+        }
+
+        public Task Handle(StartMessage message, IMessageHandlerContext context)
+        {
+            throw new NotImplementedException();
         }
     }
     public class SimpleSagaEntity : IContainSagaData

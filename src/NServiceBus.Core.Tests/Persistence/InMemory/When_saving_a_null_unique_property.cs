@@ -24,7 +24,7 @@
             Assert.AreEqual("Cannot store saga with id '895e60e0-7be3-490a-afca-fe69184474ca' since the unique property 'Property' has a null value.", exception.Message);
         }
 
-        class Saga : Saga<SagaData>, IHandleMessages<M1>
+        class Saga : Saga<SagaData>, IAmStartedByMessages<M1>
         {
             public Task Handle(M1 message, IMessageHandlerContext context)
             {

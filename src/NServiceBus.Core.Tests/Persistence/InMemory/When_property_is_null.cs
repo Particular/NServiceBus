@@ -29,10 +29,15 @@
             Assert.IsNull(sagaDataWithPropertyValue);
         }
 
-        class Saga : Saga<SagaData>
+        class Saga : Saga<SagaData>,IAmStartedByMessages<StartMessage>
         {
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
             {
+            }
+
+            public Task Handle(StartMessage message, IMessageHandlerContext context)
+            {
+                throw new NotImplementedException();
             }
         }
 

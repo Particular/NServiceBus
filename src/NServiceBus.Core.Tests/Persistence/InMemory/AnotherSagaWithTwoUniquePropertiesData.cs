@@ -3,7 +3,7 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
     using System;
     using System.Threading.Tasks;
 
-    class AnotherSagaWithTwoUniqueProperties:Saga<AnotherSagaWithTwoUniquePropertiesData>, IHandleMessages<M1>
+    class AnotherSagaWithTwoUniqueProperties:Saga<AnotherSagaWithTwoUniquePropertiesData>, IAmStartedByMessages<M1>
     {
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<AnotherSagaWithTwoUniquePropertiesData> mapper)
         {

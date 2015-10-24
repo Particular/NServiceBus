@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
     using System.Transactions;
     using NServiceBus.ObjectBuilder;
@@ -12,6 +11,7 @@
     using NServiceBus.Unicast.Behaviors;
     using NServiceBus.Unicast.Messages;
     using NUnit.Framework;
+    using Conventions = NServiceBus.Conventions;
 
     [TestFixture]
     public class InvokeHandlerTerminatorTest
@@ -124,7 +124,7 @@
 
         static ActiveSagaInstance AssociateSagaWithMessage(FakeSaga saga, InvokeHandlerContext behaviorContext)
         {
-            var sagaInstance = new ActiveSagaInstance(saga, new SagaMetadata(string.Empty, typeof(FakeSaga), string.Empty, null, null, Enumerable.Empty<SagaMessage>(), Enumerable.Empty<SagaFinderDefinition>()));
+            var sagaInstance = new ActiveSagaInstance(saga, SagaMetadata.Create(typeof(FakeSaga), new List<Type>(), new Conventions()));
             behaviorContext.Set(sagaInstance);
             return sagaInstance;
         }
@@ -157,11 +157,28 @@
             return behaviorContext;
         }
 
-        class FakeSaga : Saga
+        class FakeSaga : Saga<FakeSaga.FakeSagaData>, IAmStartedByMessages<StartMessage>
         {
+            public Task Handle(StartMessage message, IMessageHandlerContext context)
+            {
+                throw new NotImplementedException();
+            }
+
             protected internal override void ConfigureHowToFindSaga(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration)
             {
             }
+
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<FakeSagaData> mapper)
+            {
+            }
+
+            public class FakeSagaData : ContainSagaData
+            {
+            }
+        }
+
+        class StartMessage
+        {
         }
 
         class FakeMessageHandler
