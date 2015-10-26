@@ -139,12 +139,12 @@ namespace NServiceBus.Unicast
         /// Forwards the current message being handled to the destination maintaining
         /// all of its transport-level properties and headers.
         /// </summary>
-        public async Task ForwardCurrentMessageToAsync(string destination, IncomingContext incomingContext)
+        public async Task ForwardCurrentMessageToAsync(string destination, IncomingContext context)
         {
-            var messageBeingProcessed = incomingContext.Get<IncomingMessage>();
+            var messageBeingProcessed = context.Get<IncomingMessage>();
 
             var pipeline = new PipelineBase<RoutingContext>(
-                incomingContext.Builder,
+                context.Builder,
                 settings,
                 settings.Get<PipelineConfiguration>().MainPipeline);
 
@@ -153,26 +153,26 @@ namespace NServiceBus.Unicast
                 messageBeingProcessed.Headers, 
                 messageBeingProcessed.Body);
 
-            var context = new RoutingContext(outgoingMessage, new UnicastRoutingStrategy(destination), incomingContext);
+            var routingContext = new RoutingContext(outgoingMessage, new UnicastRoutingStrategy(destination), context);
 
-            await pipeline.Invoke(context).ConfigureAwait(false);
+            await pipeline.Invoke(routingContext).ConfigureAwait(false);
         }
 
         /// <summary>
         /// Moves the message being handled to the back of the list of available 
         /// messages so it can be handled later.
         /// </summary>
-        public async Task HandleCurrentMessageLaterAsync(InvokeHandlerContext incomingContext)
+        public async Task HandleCurrentMessageLaterAsync(InvokeHandlerContext context)
         {
-            if (incomingContext.handleCurrentMessageLaterWasCalled)
+            if (context.handleCurrentMessageLaterWasCalled)
             {
                 return;
             }
 
-            var messageBeingProcessed = incomingContext.Get<IncomingMessage>();
+            var messageBeingProcessed = context.Get<IncomingMessage>();
 
             var pipeline = new PipelineBase<RoutingContext>(
-                incomingContext.Builder, 
+                context.Builder, 
                 settings, 
                 settings.Get<PipelineConfiguration>().MainPipeline);
 
@@ -181,12 +181,12 @@ namespace NServiceBus.Unicast
                 messageBeingProcessed.Headers, 
                 messageBeingProcessed.Body);
 
-            var context = new RoutingContext(outgoingMessage, new UnicastRoutingStrategy(settings.LocalAddress()), incomingContext);
+            var routingContext = new RoutingContext(outgoingMessage, new UnicastRoutingStrategy(settings.LocalAddress()), context);
 
-            await pipeline.Invoke(context);
+            await pipeline.Invoke(routingContext).ConfigureAwait(false);
 
-            incomingContext.handleCurrentMessageLaterWasCalled = true;
-            incomingContext.DoNotInvokeAnyMoreHandlers();
+            context.handleCurrentMessageLaterWasCalled = true;
+            context.DoNotInvokeAnyMoreHandlers();
         }
     }
 }
