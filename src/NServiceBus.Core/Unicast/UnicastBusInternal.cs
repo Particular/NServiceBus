@@ -10,7 +10,6 @@ namespace NServiceBus.Unicast
     using Faults;
     using Features;
     using Logging;
-    using MessageInterfaces;
     using ObjectBuilder;
     using Pipeline;
     using Pipeline.Contexts;
@@ -20,11 +19,11 @@ namespace NServiceBus.Unicast
 
     partial class UnicastBusInternal : IStartableBus
     {
-        public UnicastBusInternal(IMessageMapper messageMapper, IBuilder builder, ReadOnlySettings settings)
+        public UnicastBusInternal(IBuilder builder, ReadOnlySettings settings, StaticBus bus)
         {
             this.settings = settings;
             this.builder = builder;
-            busImpl = new ContextualBus(new BehaviorContextStacker(builder), messageMapper, builder, settings);
+            busImpl = new ContextualBus(new BehaviorContextStacker(builder), bus);
         }
 
         public async Task<IBus> StartAsync()
