@@ -13,7 +13,7 @@ namespace NServiceBus
 
         public Task HandleCurrentMessageLaterAsync()
         {
-            return bus.HandleCurrentMessageLaterAsync(context);
+            return Bus.HandleCurrentMessageLaterAsync(context);
         }
 
         public void DoNotContinueDispatchingCurrentMessageToHandlers()
