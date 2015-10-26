@@ -50,9 +50,8 @@ namespace NServiceBus.Features
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             context.Container.ConfigureComponent<BusNotifications>(DependencyLifecycle.SingleInstance);
-
-            //Hack because we can't register as IStartableBus because it would automatically register as IBus and overrode the proper IBus registration.
-            context.Container.ConfigureComponent<UnicastBusInternal>(DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent<RunningEndpoint>(DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent<BusOperations>(DependencyLifecycle.SingleInstance);
 
             var knownMessages = context.Settings.GetAvailableTypes()
                 .Where(context.Settings.Get<Conventions>().IsMessageType)

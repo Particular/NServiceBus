@@ -45,21 +45,20 @@
                 public Context Context { get; set; }
 
                 public BusNotifications BusNotifications { get; set; }
-                public ISendOnlyBus Bus { get; set; }
 
-                public Task StartAsync()
+                public Task StartAsync(IBusContext context)
                 {
                     BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e =>
                     {
                         Context.GaveUp = true;
                     });
-                    return Bus.SendLocalAsync(new MessageToBeRetried
+                    return context.SendLocalAsync(new MessageToBeRetried
                     {
                         ContextId = Context.Id
                     });
                 }
 
-                public Task StopAsync()
+                public Task StopAsync(IBusContext context)
                 {
                     return Task.FromResult(0);
                 }

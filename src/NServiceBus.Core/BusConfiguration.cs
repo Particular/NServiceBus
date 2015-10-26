@@ -100,6 +100,14 @@ namespace NServiceBus
         }
 
         /// <summary>
+        /// Configures the bus to be send-only.
+        /// </summary>
+        public void SendOnly()
+        {
+            sendOnly = true;
+        }
+
+        /// <summary>
         ///     Overrides the default configuration source.
         /// </summary>
         public void CustomConfigurationSource(IConfigurationSource configurationSource)
@@ -171,6 +179,16 @@ namespace NServiceBus
         }
 
         /// <summary>
+        /// Register specific instance to run when endpoint starts and stops.
+        /// </summary>
+        /// <param name="callbackObject">Callback object.</param>
+        public void RunWhenEndpointStartsAndStops(IWantToRunWhenBusStartsAndStops callbackObject)
+        {
+            Guard.AgainstNull(nameof(callbackObject), callbackObject);
+            startables.Add(callbackObject);
+        }
+
+        /// <summary>
         /// Sets the public return address of this endpoint.
         /// </summary>
         /// <param name="address">The public address.</param>
@@ -191,7 +209,7 @@ namespace NServiceBus
         /// <summary>
         ///     Creates the configuration object.
         /// </summary>
-        internal Configure BuildConfiguration()
+        internal InitializableEndpoint Build()
         {
             if (scannedTypes == null)
             {
@@ -209,8 +227,8 @@ namespace NServiceBus
             }
 
             Settings.SetDefault("TypesToScan", scannedTypes);
-
-            Configure.ActivateAndInvoke<INeedInitialization>(scannedTypes, t => t.Customize(this));
+            Settings.Set("Endpoint.SendOnly", sendOnly);
+            ActivateAndInvoke<INeedInitialization>(scannedTypes, t => t.Customize(this));
 
             UseTransportExtensions.EnsureTransportConfigured(this);
             var container = customBuilder ?? new AutofacObjectBuilder();
@@ -233,7 +251,26 @@ namespace NServiceBus
 
             Settings.SetDefault<Conventions>(conventionsBuilder.Conventions);
 
-            return new Configure(Settings, container, registrations, Pipeline, pipelineCollection);
+            return new InitializableEndpoint(Settings, container, registrations, Pipeline, pipelineCollection, startables);
+        }
+
+        static void ForAllTypes<T>(IEnumerable<Type> types, Action<Type> action) where T : class
+        {
+            // ReSharper disable HeapView.SlowDelegateCreation
+            foreach (var type in types.Where(t => typeof(T).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface)))
+            {
+                action(type);
+            }
+            // ReSharper restore HeapView.SlowDelegateCreation
+        }
+
+        static void ActivateAndInvoke<T>(IList<Type> types, Action<T> action) where T : class
+        {
+            ForAllTypes<T>(types, t =>
+            {
+                var instanceToInvoke = (T)Activator.CreateInstance(t);
+                action(instanceToInvoke);
+            });
         }
 
         List<Type> GetAllowedTypes(string path)
@@ -267,11 +304,13 @@ namespace NServiceBus
         IContainer customBuilder;
         EndpointName endpointName;
         Func<LogicalAddress, string, string> addressTranslation;
+        List<IWantToRunWhenBusStartsAndStops> startables = new List<IWantToRunWhenBusStartsAndStops>();
         IList<Type> scannedTypes;
         List<Type> excludedTypes = new List<Type>();
         List<string> excludedAssemblies = new List<string>();
         bool scanAssembliesInNestedDirectories;
         string publicReturnAddress;
         PipelineConfiguration pipelineCollection;
+        bool sendOnly;
     }
 }

@@ -1,6 +1,7 @@
 namespace NServiceBus.Features
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.DataBus;
     using NServiceBus.Settings;
 
@@ -32,9 +33,9 @@ namespace NServiceBus.Features
         {
             public IDataBus DataBus { get; set; }
 
-            protected override void OnStart()
+            protected override Task OnStart(IBusContext context)
             {
-                DataBus.Start();
+                return DataBus.Start();
             }
         }
 

@@ -93,9 +93,7 @@
 
             public BusNotifications Notifications { get; set; }
 
-            public ISendOnlyBus Bus { get; set; }
-
-            public Task StartAsync()
+            public Task StartAsync(IBusContext context)
             {
                 unsubscribeStreams.Add(Notifications.Errors.MessageSentToErrorQueue.Subscribe(message =>
                 {
@@ -105,13 +103,13 @@
                 unsubscribeStreams.Add(Notifications.Errors.MessageHasFailedAFirstLevelRetryAttempt.Subscribe(message => Context.TotalNumberOfFLRTimesInvoked++));
                 unsubscribeStreams.Add(Notifications.Errors.MessageHasBeenSentToSecondLevelRetries.Subscribe(message => Context.NumberOfSLRRetriesPerformed++));
 
-                return Bus.SendLocalAsync(new MessageToBeRetried
+                return context.SendLocalAsync(new MessageToBeRetried
                 {
                     Id = Context.Id
                 });
             }
 
-            public Task StopAsync()
+            public Task StopAsync(IBusContext context)
             {
                 foreach (var unsubscribeStream in unsubscribeStreams)
                 {

@@ -85,8 +85,8 @@ namespace NServiceBus
 
         public override async Task Cooldown()
         {
-            await poller.Stop();
-            await base.Cooldown();
+            await poller.Stop().ConfigureAwait(false);
+            await base.Cooldown().ConfigureAwait(false);
         }
 
         ExpiredTimeoutsPoller poller;

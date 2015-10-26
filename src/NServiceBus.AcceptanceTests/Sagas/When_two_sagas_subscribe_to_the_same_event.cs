@@ -16,12 +16,6 @@
         public async Task Should_invoke_all_handlers_on_all_sagas()
         {
             await Scenario.Define<Context>()
-                    .WithEndpoint<SagaEndpoint>(b =>
-                        b.When(c => c.Subscribed, bus => bus.SendLocalAsync(new StartSaga2
-                        {
-                            DataId = Guid.NewGuid()
-                        }))
-                     )
                     .WithEndpoint<Publisher>(b => b.When((bus, context) =>
                     {
                         if (context.HasNativePubSubSupport)
@@ -31,6 +25,12 @@
                         }
                         return Task.FromResult(0);
                     }))
+                    .WithEndpoint<SagaEndpoint>(b =>
+                        b.When(c => c.Subscribed, bus => bus.SendLocalAsync(new StartSaga2
+                        {
+                            DataId = Guid.NewGuid()
+                        }))
+                     )
                     .Done(c => c.DidSaga1EventHandlerGetInvoked && c.DidSaga2EventHandlerGetInvoked)
                     .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>()) // exclude the brokers since c.Subscribed won't get set for them
                     .Should(c => Assert.True(c.DidSaga1EventHandlerGetInvoked && c.DidSaga2EventHandlerGetInvoked))

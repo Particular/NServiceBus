@@ -19,9 +19,7 @@ namespace NServiceBus
             var extension = (TransportExtensions<T>)Activator.CreateInstance(type, busConfiguration.Settings);
 
             var transportDefinition = new T();
-            busConfiguration.Settings.Set<InboundTransport>(new InboundTransport(transportDefinition));
-            busConfiguration.Settings.Set<TransportDefinition>(transportDefinition);
-            AddOutboundTransport(busConfiguration, transportDefinition, true);
+            ConfigureTransport(busConfiguration, transportDefinition);
             return extension;
         }
 
@@ -35,16 +33,15 @@ namespace NServiceBus
             Guard.TypeHasDefaultConstructor(transportDefinitionType, nameof(transportDefinitionType));
 
             var transportDefinition = transportDefinitionType.Construct<TransportDefinition>();
-
-            busConfiguration.Settings.Set<InboundTransport>(new InboundTransport(transportDefinition));
-            busConfiguration.Settings.Set<TransportDefinition>(transportDefinition);
-            AddOutboundTransport(busConfiguration, transportDefinition, true);
+            ConfigureTransport(busConfiguration, transportDefinition);
             return new TransportExtensions(busConfiguration.Settings);
         }
 
-        static void AddOutboundTransport(BusConfiguration busConfiguration, TransportDefinition transportDefinition, bool isDefault)
+        static void ConfigureTransport(BusConfiguration busConfiguration, TransportDefinition transportDefinition)
         {
-            busConfiguration.Settings.Set<OutboundTransport>(new OutboundTransport(transportDefinition, isDefault));
+            busConfiguration.Settings.Set<InboundTransport>(new InboundTransport(transportDefinition));
+            busConfiguration.Settings.Set<TransportDefinition>(transportDefinition);
+            busConfiguration.Settings.Set<OutboundTransport>(new OutboundTransport(transportDefinition, true));
         }
 
         internal static void EnsureTransportConfigured(BusConfiguration busConfiguration)

@@ -1,25 +1,14 @@
 ﻿namespace NServiceBus.Pipeline
 {
-    using System;
     using System.Collections.Generic;
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.Pipeline.Contexts;
 
-    /// <summary>
-    /// A stack of <see cref="BehaviorContext"/>s.
-    /// </summary>
-    class BehaviorContextStacker : IDisposable
+    class BehaviorContextStacker
     {
         public BehaviorContextStacker(BehaviorContext rootContext)
         {
             this.rootContext = rootContext;
         }
-
-        public BehaviorContextStacker(IBuilder builder)
-            : this(new RootContext(builder))
-        {
-        }
-
+        
         /// <summary>
         /// The current <see cref="BehaviorContext"/> at the top of the stack.
         /// </summary>
@@ -65,14 +54,7 @@
         {
             behaviorContextStack.Pop();
         }
-
-        /// <summary>
-        /// <see cref="IDisposable.Dispose"/>.
-        /// </summary>
-        public void Dispose()
-        {
-        }
-
+        
         Stack<BehaviorContext> behaviorContextStack = new Stack<BehaviorContext>();
         BehaviorContext rootContext;
     }

@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions
 {
+    using System.Threading.Tasks;
     using NServiceBus.Features;
 
     internal class StorageInitializer : Feature
@@ -14,9 +15,10 @@
         {
             public IInitializableSubscriptionStorage SubscriptionStorage { get; set; }
 
-            protected override void OnStart()
+            protected override Task OnStart(IBusContext context)
             {
                 SubscriptionStorage?.Init();
+                return TaskEx.Completed;
             }
         }
 

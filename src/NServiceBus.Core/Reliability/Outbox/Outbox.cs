@@ -3,6 +3,7 @@
     using System;
     using System.Configuration;
     using System.ServiceProcess;
+    using System.Threading.Tasks;
     using Logging;
     using Persistence;
     using Transports;
@@ -81,7 +82,7 @@ The reason you need to do this is because we need to ensure that you have read a
 
     class DtcRunningWarning : FeatureStartupTask
     {
-        protected override void OnStart()
+        protected override Task OnStart(IBusContext context)
         {
             try
             {
@@ -103,6 +104,7 @@ Because you have configured this endpoint to run with Outbox enabled we recommen
                 // Ignore if we can't check it.
             }
 
+            return TaskEx.Completed;
         }
 
         static ILog log = LogManager.GetLogger<DtcRunningWarning>();

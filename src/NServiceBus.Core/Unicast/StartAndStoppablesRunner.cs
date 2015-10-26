@@ -15,12 +15,12 @@
             wantToRunWhenBusStartsAndStopses = wantToRunWhenBusStartsAndStops;
         }
 
-        public Task StartAsync()
+        public Task StartAsync(IBusContext context)
         {
             var startableTasks = new List<Task>();
             foreach (var startable in wantToRunWhenBusStartsAndStopses)
             {
-                var task = startable.StartAsync();
+                var task = startable.StartAsync(context);
 
                 var startable1 = startable;
                 task.ContinueWith(t =>
@@ -39,7 +39,7 @@
             return Task.WhenAll(startableTasks.ToArray());
         }
 
-        public async Task StopAsync()
+        public async Task StopAsync(IBusContext context)
         {
             var stoppables = Interlocked.Exchange(ref thingsRanAtStartup, new ConcurrentBag<IWantToRunWhenBusStartsAndStops>());
             if (!stoppables.Any())
@@ -52,7 +52,7 @@
             {
                 try
                 {
-                    var task = stoppable.StopAsync();
+                    var task = stoppable.StopAsync(context);
 
                     var stoppable1 = stoppable;
                     task.ContinueWith(t =>
