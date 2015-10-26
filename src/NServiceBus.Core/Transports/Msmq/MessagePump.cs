@@ -151,7 +151,7 @@ namespace NServiceBus.Transports.Msmq
 
                     await concurrencyLimiter.WaitAsync(cancellationToken).ConfigureAwait(false);
 
-                    var task = Task.Run(async () =>
+                    var receiveTask = Task.Run(async () =>
                     {
                         try
                         {
@@ -185,6 +185,8 @@ namespace NServiceBus.Transports.Msmq
                         }
                     }, cancellationToken);
 
+                    runningReceiveTasks.TryAdd(receiveTask, receiveTask);
+
                     // We insert the original task into the runningReceiveTasks because we want to await the completion
                     // of the running receives. ExecuteSynchronously is a request to execute the continuation as part of
                     // the transition of the antecedents completion phase. This means in most of the cases the continuation
@@ -193,15 +195,12 @@ namespace NServiceBus.Transports.Msmq
                     // antecedent task is aborted the continuation will be scheduled. But in this case we don't need to await
                     // the continuation to complete because only really care about the receive operations. The final operation
                     // when shutting down is a clear of the running tasks anyway.
-                    task.ContinueWith(t =>
+                    receiveTask.ContinueWith(t =>
                     {
                         Task toBeRemoved;
                         runningReceiveTasks.TryRemove(t, out toBeRemoved);
                     }, TaskContinuationOptions.ExecuteSynchronously)
-                        .Ignore();
-
-                    runningReceiveTasks.AddOrUpdate(task, task, (k, v) => task)
-                        .Ignore();
+                    .Ignore();
                 }
             }
         }
