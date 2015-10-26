@@ -83,15 +83,15 @@ namespace NServiceBus.Unicast
         /// </summary>
         /// <param name="message">The message to send.</param>
         /// <param name="options">Options for this reply.</param>
-        /// <param name="incomingContext">The context of the incoming message</param>
-        public Task ReplyAsync(object message, NServiceBus.ReplyOptions options, BehaviorContext incomingContext)
+        /// <param name="context">The context of the incoming message</param>
+        public Task ReplyAsync(object message, NServiceBus.ReplyOptions options, BehaviorContext context)
         {
             var pipeline = new PipelineBase<OutgoingReplyContext>(builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
 
             var outgoingContext = new OutgoingReplyContext(
                 new OutgoingLogicalMessage(message),
                 options,
-                incomingContext);
+                context);
 
             return pipeline.Invoke(outgoingContext);
         }
@@ -102,51 +102,51 @@ namespace NServiceBus.Unicast
         /// <typeparam name="T">The type of message, usually an interface.</typeparam>
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
         /// <param name="options">Options for this reply.</param>
-        /// <param name="incomingContext">The context of the incoming message</param>
-        public Task ReplyAsync<T>(Action<T> messageConstructor, NServiceBus.ReplyOptions options, BehaviorContext incomingContext)
+        /// <param name="context">The context of the incoming message</param>
+        public Task ReplyAsync<T>(Action<T> messageConstructor, NServiceBus.ReplyOptions options, BehaviorContext context)
         {
-            return ReplyAsync(messageMapper.CreateInstance(messageConstructor), options, incomingContext);
+            return ReplyAsync(messageMapper.CreateInstance(messageConstructor), options, context);
         }
 
         /// <summary>
         /// Moves the message being handled to the back of the list of available 
         /// messages so it can be handled later.
         /// </summary>
-        public async Task HandleCurrentMessageLaterAsync(InvokeHandlerContext incomingContext)
+        public async Task HandleCurrentMessageLaterAsync(InvokeHandlerContext context)
         {
-            if (incomingContext.handleCurrentMessageLaterWasCalled)
+            if (context.handleCurrentMessageLaterWasCalled)
             {
                 return;
             }
 
-            var messageBeingProcessed = incomingContext.Get<IncomingMessage>();
+            var messageBeingProcessed = context.Get<IncomingMessage>();
 
             var pipeline = new PipelineBase<RoutingContext>(builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
 
             var outgoingMessage = new OutgoingMessage(messageBeingProcessed.MessageId, messageBeingProcessed.Headers, messageBeingProcessed.Body);
-            var context = new RoutingContext(outgoingMessage, new UnicastRoutingStrategy(sendLocalAddress), incomingContext);
+            var routingContext = new RoutingContext(outgoingMessage, new UnicastRoutingStrategy(sendLocalAddress), context);
 
-            await pipeline.Invoke(context);
+            await pipeline.Invoke(routingContext).ConfigureAwait(false);
 
-            incomingContext.handleCurrentMessageLaterWasCalled = true;
+            context.handleCurrentMessageLaterWasCalled = true;
 
-            incomingContext.DoNotInvokeAnyMoreHandlers();
+            context.DoNotInvokeAnyMoreHandlers();
         }
 
         /// <summary>
         /// Forwards the current message being handled to the destination maintaining
         /// all of its transport-level properties and headers.
         /// </summary>
-        public async Task ForwardCurrentMessageToAsync(string destination, IncomingContext incomingContext)
+        public async Task ForwardCurrentMessageToAsync(string destination, IncomingContext context)
         {
-            var messageBeingProcessed = incomingContext.Get<IncomingMessage>();
+            var messageBeingProcessed = context.Get<IncomingMessage>();
 
             var pipeline = new PipelineBase<RoutingContext>(builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
 
             var outgoingMessage = new OutgoingMessage(messageBeingProcessed.MessageId, messageBeingProcessed.Headers, messageBeingProcessed.Body);
-            var context = new RoutingContext(outgoingMessage, new UnicastRoutingStrategy(destination), incomingContext);
+            var routingContext = new RoutingContext(outgoingMessage, new UnicastRoutingStrategy(destination), context);
 
-            await pipeline.Invoke(context);
+            await pipeline.Invoke(routingContext).ConfigureAwait(false);
         }
 
         public Task SendAsync<T>(Action<T> messageConstructor, NServiceBus.SendOptions options)
