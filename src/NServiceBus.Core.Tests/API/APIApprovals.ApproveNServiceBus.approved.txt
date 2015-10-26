@@ -413,6 +413,26 @@ namespace NServiceBus
         System.Threading.Tasks.Task SubscribeAsync(System.Type eventType, NServiceBus.SubscribeOptions options);
         System.Threading.Tasks.Task UnsubscribeAsync(System.Type eventType, NServiceBus.UnsubscribeOptions options);
     }
+    public interface IBusContext
+    {
+        NServiceBus.Extensibility.ContextBag Extensions { get; }
+        System.Threading.Tasks.Task PublishAsync(object message, NServiceBus.PublishOptions options);
+        System.Threading.Tasks.Task PublishAsync<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions);
+        System.Threading.Tasks.Task SendAsync(object message, NServiceBus.SendOptions options);
+        System.Threading.Tasks.Task SendAsync<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options);
+    }
+    public class static IBusContextExtensions
+    {
+        public static System.Threading.Tasks.Task PublishAsync(this NServiceBus.IBusContext context, object message) { }
+        public static System.Threading.Tasks.Task PublishAsync<T>(this NServiceBus.IBusContext context) { }
+        public static System.Threading.Tasks.Task PublishAsync<T>(this NServiceBus.IBusContext context, System.Action<T> messageConstructor) { }
+        public static System.Threading.Tasks.Task SendAsync(this NServiceBus.IBusContext context, object message) { }
+        public static System.Threading.Tasks.Task SendAsync<T>(this NServiceBus.IBusContext context, System.Action<T> messageConstructor) { }
+        public static System.Threading.Tasks.Task SendAsync(this NServiceBus.IBusContext context, string destination, object message) { }
+        public static System.Threading.Tasks.Task SendAsync<T>(this NServiceBus.IBusContext context, string destination, System.Action<T> messageConstructor) { }
+        public static System.Threading.Tasks.Task SendLocalAsync(this NServiceBus.IBusContext context, object message) { }
+        public static System.Threading.Tasks.Task SendLocalAsync<T>(this NServiceBus.IBusContext context, System.Action<T> messageConstructor) { }
+    }
     public class static IBusExtensions
     {
         [System.ObsoleteAttribute("Please use `IMessageHandlerContext.DoNotContinueDispatchingCurrentMessageToHandle" +
@@ -502,63 +522,24 @@ namespace NServiceBus
         T CreateInstance<T>(System.Action<T> action);
         object CreateInstance(System.Type messageType);
     }
-    public interface IMessageHandlerContext
+    public interface IMessageHandlerContext : NServiceBus.IBusContext, NServiceBus.IMessageProcessingContext
     {
-        NServiceBus.Extensibility.ContextBag Extensions { get; }
-        System.Collections.Generic.IReadOnlyDictionary<string, string> MessageHeaders { get; }
-        string MessageId { get; }
-        string ReplyToAddress { get; }
         void DoNotContinueDispatchingCurrentMessageToHandlers();
-        System.Threading.Tasks.Task ForwardCurrentMessageToAsync(string destination);
         System.Threading.Tasks.Task HandleCurrentMessageLaterAsync();
-        System.Threading.Tasks.Task PublishAsync(object message, NServiceBus.PublishOptions options);
-        System.Threading.Tasks.Task PublishAsync<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions);
-        System.Threading.Tasks.Task ReplyAsync(object message, NServiceBus.ReplyOptions options);
-        System.Threading.Tasks.Task ReplyAsync<T>(System.Action<T> messageConstructor, NServiceBus.ReplyOptions options);
-        System.Threading.Tasks.Task SendAsync(object message, NServiceBus.SendOptions options);
-        System.Threading.Tasks.Task SendAsync<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options);
     }
-    public class static IMessageHandlerContextExtensions
+    public interface IMessageProcessingContext : NServiceBus.IBusContext
     {
-        public static System.Threading.Tasks.Task PublishAsync(this NServiceBus.IMessageHandlerContext context, object message) { }
-        public static System.Threading.Tasks.Task PublishAsync<T>(this NServiceBus.IMessageHandlerContext context) { }
-        public static System.Threading.Tasks.Task PublishAsync<T>(this NServiceBus.IMessageHandlerContext context, System.Action<T> messageConstructor) { }
-        public static System.Threading.Tasks.Task ReplyAsync(this NServiceBus.IMessageHandlerContext context, object message) { }
-        public static System.Threading.Tasks.Task ReplyAsync<T>(this NServiceBus.IMessageHandlerContext context, System.Action<T> messageConstructor) { }
-        public static System.Threading.Tasks.Task SendAsync(this NServiceBus.IMessageHandlerContext context, object message) { }
-        public static System.Threading.Tasks.Task SendAsync<T>(this NServiceBus.IMessageHandlerContext context, System.Action<T> messageConstructor) { }
-        public static System.Threading.Tasks.Task SendAsync(this NServiceBus.IMessageHandlerContext context, string destination, object message) { }
-        public static System.Threading.Tasks.Task SendAsync<T>(this NServiceBus.IMessageHandlerContext context, string destination, System.Action<T> messageConstructor) { }
-        public static System.Threading.Tasks.Task SendLocalAsync(this NServiceBus.IMessageHandlerContext context, object message) { }
-        public static System.Threading.Tasks.Task SendLocalAsync<T>(this NServiceBus.IMessageHandlerContext context, System.Action<T> messageConstructor) { }
-    }
-    public interface IMessageProcessingContext
-    {
-        NServiceBus.Extensibility.ContextBag Extensions { get; }
         System.Collections.Generic.IReadOnlyDictionary<string, string> MessageHeaders { get; }
         string MessageId { get; }
         string ReplyToAddress { get; }
         System.Threading.Tasks.Task ForwardCurrentMessageToAsync(string destination);
-        System.Threading.Tasks.Task PublishAsync(object message, NServiceBus.PublishOptions options);
-        System.Threading.Tasks.Task PublishAsync<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions);
         System.Threading.Tasks.Task ReplyAsync(object message, NServiceBus.ReplyOptions options);
         System.Threading.Tasks.Task ReplyAsync<T>(System.Action<T> messageConstructor, NServiceBus.ReplyOptions options);
-        System.Threading.Tasks.Task SendAsync(object message, NServiceBus.SendOptions options);
-        System.Threading.Tasks.Task SendAsync<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options);
     }
     public class static IMessageProcessingContextExtensions
     {
-        public static System.Threading.Tasks.Task PublishAsync(this NServiceBus.IMessageProcessingContext context, object message) { }
-        public static System.Threading.Tasks.Task PublishAsync<T>(this NServiceBus.IMessageProcessingContext context) { }
-        public static System.Threading.Tasks.Task PublishAsync<T>(this NServiceBus.IMessageProcessingContext context, System.Action<T> messageConstructor) { }
         public static System.Threading.Tasks.Task ReplyAsync(this NServiceBus.IMessageProcessingContext context, object message) { }
         public static System.Threading.Tasks.Task ReplyAsync<T>(this NServiceBus.IMessageProcessingContext context, System.Action<T> messageConstructor) { }
-        public static System.Threading.Tasks.Task SendAsync(this NServiceBus.IMessageProcessingContext context, object message) { }
-        public static System.Threading.Tasks.Task SendAsync<T>(this NServiceBus.IMessageProcessingContext context, System.Action<T> messageConstructor) { }
-        public static System.Threading.Tasks.Task SendAsync(this NServiceBus.IMessageProcessingContext context, string destination, object message) { }
-        public static System.Threading.Tasks.Task SendAsync<T>(this NServiceBus.IMessageProcessingContext context, string destination, System.Action<T> messageConstructor) { }
-        public static System.Threading.Tasks.Task SendLocalAsync(this NServiceBus.IMessageProcessingContext context, object message) { }
-        public static System.Threading.Tasks.Task SendLocalAsync<T>(this NServiceBus.IMessageProcessingContext context, System.Action<T> messageConstructor) { }
     }
     public class static ImmediateDispatchOptionExtensions
     {

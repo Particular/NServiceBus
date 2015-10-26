@@ -23,7 +23,8 @@ namespace NServiceBus.Unicast
         {
             this.settings = settings;
             this.builder = builder;
-            busImpl = new ContextualBus(new BehaviorContextStacker(builder), bus);
+            this.bus = bus;
+            rootContext = new RootContext(builder);
         }
 
         public async Task<IBus> StartAsync()
@@ -131,7 +132,6 @@ namespace NServiceBus.Unicast
         void DisposeManaged()
         {
             InnerShutdown();
-            busImpl.Dispose();
             builder.Dispose();
         }
 
@@ -168,8 +168,9 @@ namespace NServiceBus.Unicast
 
         StartAndStoppablesRunner runner;
         PipelineCollection pipelineCollection;
-        ContextualBus busImpl;
         ReadOnlySettings settings;
         IBuilder builder;
+        RootContext rootContext;
+        StaticBus bus;
     }
 }
