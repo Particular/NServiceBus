@@ -13,7 +13,7 @@ namespace NServiceBus
         public MessageProcessingContext(IncomingContext context)
         {
             this.context = context;
-            bus = context.Builder.Build<ContextualBus>();
+            bus = context.Builder.Build<StaticBus>();
             incomingMessage = context.Get<IncomingMessage>();
             Extensions = context;
         }
@@ -28,22 +28,22 @@ namespace NServiceBus
 
         public Task SendAsync(object message, SendOptions options)
         {
-            return bus.SendAsync(message, options);
+            return bus.SendAsync(message, options, context);
         }
 
         public Task SendAsync<T>(Action<T> messageConstructor, SendOptions options)
         {
-            return bus.SendAsync(messageConstructor, options);
+            return bus.SendAsync(messageConstructor, options, context);
         }
 
         public Task PublishAsync(object message, PublishOptions options)
         {
-            return bus.PublishAsync(message, options);
+            return bus.PublishAsync(message, options, context);
         }
 
         public Task PublishAsync<T>(Action<T> messageConstructor, PublishOptions publishOptions)
         {
-            return bus.PublishAsync(messageConstructor, publishOptions);
+            return bus.PublishAsync(messageConstructor, publishOptions, context);
         }
 
         public Task ReplyAsync(object message, ReplyOptions options)
@@ -61,7 +61,7 @@ namespace NServiceBus
             return bus.ForwardCurrentMessageToAsync(destination, context);
         }
 
-        protected ContextualBus bus;
+        protected StaticBus bus;
         IncomingMessage incomingMessage;
         IncomingContext context;
     }
