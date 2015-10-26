@@ -387,6 +387,7 @@
     <Compile Include="IMessage.cs" />
     <Compile Include="IMessageCreator.cs" />
     <Compile Include="Unicast\StartAndStoppablesRunner.cs" />
+    <Compile Include="Unicast\StaticBus.cs" />
     <Compile Include="Unicast\Transport\Config\InboundTransport.cs" />
     <Compile Include="Unicast\Transport\Config\OutboundTransport.cs" />
     <Compile Include="WindowsIdentityEnrichment\ConfigureWindowsIdentityEnricher.cs" />
