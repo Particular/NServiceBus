@@ -3,8 +3,6 @@ namespace NServiceBus.Transport
     using System;
     using System.Threading.Tasks;
     using Logging;
-    using MessageInterfaces;
-    using Settings;
     using Unicast;
     using Unicast.Transport;
     using ObjectBuilder;
