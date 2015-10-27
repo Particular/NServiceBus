@@ -37,6 +37,16 @@ namespace NServiceBus.Transports.Msmq
         public void Send(TransportMessage message, Address address)
         {
             var queuePath = MsmqUtilities.GetFullPath(address);
+
+
+            bool suppressNativeTransactions;
+            PipelineExecutor.CurrentContext.TryGet("do-not-enlist-in-native-transaction", out suppressNativeTransactions);
+            var transactionType = GetTransactionTypeForSend();
+            if (message.TimeToBeReceived < MessageQueue.InfiniteTimeout && WillUseTransactionThatSupportsMultipleOperations(suppressNativeTransactions, transactionType))
+            {
+                throw new Exception($"Failed to send message to address: {address.Queue}@{address.Machine}. Sending messages with a custom TimeToBeReceived is not supported on transactional MSMQ.");
+            }
+
             try
             {
                 using (var q = new MessageQueue(queuePath, false, Settings.UseConnectionCache, QueueAccessMode.Send))
@@ -50,16 +60,13 @@ namespace NServiceBus.Transports.Msmq
                             toSend.ResponseQueue =
                                 new MessageQueue(MsmqUtilities.GetReturnAddress(message.ReplyToAddress.ToString(),
                                                                                 address.ToString()));
-
-                        bool suppressNativeTransactions;
-                        PipelineExecutor.CurrentContext.TryGet("do-not-enlist-in-native-transaction", out suppressNativeTransactions);
                         if (UnitOfWork.HasActiveTransaction() && !suppressNativeTransactions)
                         {
                             q.Send(toSend, UnitOfWork.Transaction);
                         }
                         else
                         {
-                            q.Send(toSend, GetTransactionTypeForSend());
+                            q.Send(toSend, transactionType);
                         }
                     }
                 }
@@ -81,6 +88,13 @@ namespace NServiceBus.Transports.Msmq
             {
                 ThrowFailedToSendException(address, ex);
             }
+        }
+
+        bool WillUseTransactionThatSupportsMultipleOperations(bool suppressNativeTransactions, MessageQueueTransactionType transactionType)
+        {
+            var willUseReceiveTransaction = UnitOfWork.HasActiveTransaction() && !suppressNativeTransactions;
+            var willUseAutomaticTransaction = transactionType == MessageQueueTransactionType.Automatic;
+            return willUseReceiveTransaction || willUseAutomaticTransaction;
         }
 
         static void ThrowFailedToSendException(Address address, Exception ex)
