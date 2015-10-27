@@ -218,7 +218,6 @@
     <Compile Include="Forwarding\InvokeForwardingPipelineBehavior.cs" />
     <Compile Include="Hosting\AddHostInfoHeadersBehavior.cs" />
     <Compile Include="Hosting\HostInformationFeature.cs" />
-    <Compile Include="IBusExtensions.cs" />
     <Compile Include="DataBus\IDataBusProperty.cs" />
     <Compile Include="ISendOnlyBusExtensions.cs" />
     <Compile Include="Pipeline\MutateTransportMessage\IMutateOutgoingTransportMessages.cs" />

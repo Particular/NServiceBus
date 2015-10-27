@@ -22,17 +22,11 @@ namespace NServiceBus.Unicast
             this.settings = settings;
         }
 
-        /// <summary>
-        /// <see cref="ISendOnlyBus.PublishAsync"/>
-        /// </summary>
         public Task PublishAsync<T>(Action<T> messageConstructor, NServiceBus.PublishOptions options, BehaviorContext context)
         {
             return PublishAsync(messageMapper.CreateInstance(messageConstructor), options, context);
         }
 
-        /// <summary>
-        /// <see cref="ISendOnlyBus.PublishAsync"/>
-        /// </summary>
         public Task PublishAsync(object message, NServiceBus.PublishOptions options, BehaviorContext context)
         {
             var pipeline = new PipelineBase<OutgoingPublishContext>(
@@ -48,9 +42,6 @@ namespace NServiceBus.Unicast
             return pipeline.Invoke(publishContext);
         }
 
-        /// <summary>
-        /// <see cref="IBus.SubscribeAsync"/>
-        /// </summary>
         public Task SubscribeAsync(Type eventType, SubscribeOptions options, BehaviorContext context)
         {
             var pipeline = new PipelineBase<SubscribeContext>(context.Builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
@@ -63,9 +54,6 @@ namespace NServiceBus.Unicast
             return pipeline.Invoke(subscribeContext);
         }
 
-        /// <summary>
-        /// <see cref="IBus.UnsubscribeAsync"/>
-        /// </summary>
         public Task UnsubscribeAsync(Type eventType, UnsubscribeOptions options, BehaviorContext context)
         {
             var pipeline = new PipelineBase<UnsubscribeContext>(context.Builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
@@ -102,12 +90,6 @@ namespace NServiceBus.Unicast
             return pipeline.Invoke(outgoingContext);
         }
 
-        /// <summary>
-        /// Sends the message to the endpoint which sent the message currently being handled on this thread.
-        /// </summary>
-        /// <param name="message">The message to send.</param>
-        /// <param name="options">Options for this reply.</param>
-        /// <param name="context">The context of the incoming message</param>
         public Task ReplyAsync(object message, NServiceBus.ReplyOptions options, BehaviorContext context)
         {
             var pipeline = new PipelineBase<OutgoingReplyContext>(
@@ -123,22 +105,11 @@ namespace NServiceBus.Unicast
             return pipeline.Invoke(outgoingContext);
         }
 
-        /// <summary>
-        /// Instantiates a message of type T and performs a regular <see cref="ReplyAsync"/>.
-        /// </summary>
-        /// <typeparam name="T">The type of message, usually an interface.</typeparam>
-        /// <param name="messageConstructor">An action which initializes properties of the message.</param>
-        /// <param name="options">Options for this reply.</param>
-        /// <param name="context">The context of the incoming message</param>
         public Task ReplyAsync<T>(Action<T> messageConstructor, NServiceBus.ReplyOptions options, BehaviorContext context)
         {
             return ReplyAsync(messageMapper.CreateInstance(messageConstructor), options, context);
         }
 
-        /// <summary>
-        /// Forwards the current message being handled to the destination maintaining
-        /// all of its transport-level properties and headers.
-        /// </summary>
         public async Task ForwardCurrentMessageToAsync(string destination, IncomingContext context)
         {
             var messageBeingProcessed = context.Get<IncomingMessage>();
@@ -158,10 +129,6 @@ namespace NServiceBus.Unicast
             await pipeline.Invoke(routingContext).ConfigureAwait(false);
         }
 
-        /// <summary>
-        /// Moves the message being handled to the back of the list of available 
-        /// messages so it can be handled later.
-        /// </summary>
         public async Task HandleCurrentMessageLaterAsync(InvokeHandlerContext context)
         {
             if (context.handleCurrentMessageLaterWasCalled)

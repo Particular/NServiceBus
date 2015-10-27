@@ -89,9 +89,10 @@
 
             protected override void OnStart()
             {
+                var sendContext = bus.CreateSendContext();
                 foreach (var eventType in eventsToSubscribe)
                 {
-                    bus.SubscribeAsync(eventType).GetAwaiter().GetResult();
+                    sendContext.SubscribeAsync(eventType).GetAwaiter().GetResult();
                     Logger.DebugFormat("Auto subscribed to event {0}", eventType);
                 }
             }
