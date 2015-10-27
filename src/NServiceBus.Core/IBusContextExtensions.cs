@@ -142,5 +142,57 @@ namespace NServiceBus
         {
             return context.PublishAsync(messageConstructor, new PublishOptions());
         }
+
+        /// <summary>
+        /// Subscribes to receive published messages of the specified type.
+        /// This method is only necessary if you turned off auto-subscribe.
+        /// </summary>
+        /// <param name="context">Object being extended.</param>
+        /// <param name="messageType">The type of message to subscribe to.</param>
+        public static Task SubscribeAsync(this IBusContext context, Type messageType)
+        {
+            Guard.AgainstNull(nameof(context), context);
+            Guard.AgainstNull(nameof(messageType), messageType);
+
+            return context.SubscribeAsync(messageType, new SubscribeOptions());
+        }
+
+        /// <summary>
+        /// Subscribes to receive published messages of type T.
+        /// This method is only necessary if you turned off auto-subscribe.
+        /// </summary>
+        /// <param name="context">Object being extended.</param>
+        /// <typeparam name="T">The type of message to subscribe to.</typeparam>
+        public static Task SubscribeAsync<T>(this IBusContext context)
+        {
+            Guard.AgainstNull(nameof(context), context);
+
+            return context.SubscribeAsync(typeof(T), new SubscribeOptions());
+        }
+
+        /// <summary>
+        /// Unsubscribes from receiving published messages of the specified type.
+        /// </summary>
+        /// <param name="context">Object being extended.</param>
+        /// <param name="messageType">The type of message to subscribe to.</param>
+        public static Task UnsubscribeAsync(this IBusContext context, Type messageType)
+        {
+            Guard.AgainstNull(nameof(context), context);
+            Guard.AgainstNull(nameof(messageType), messageType);
+
+            return context.UnsubscribeAsync(messageType, new UnsubscribeOptions());
+        }
+
+        /// <summary>
+        /// Unsubscribes from receiving published messages of the specified type.
+        /// </summary>
+        /// <param name="context">Object being extended.</param>
+        /// <typeparam name="T">The type of message to unsubscribe from.</typeparam>
+        public static Task UnsubscribeAsync<T>(this IBusContext context)
+        {
+            Guard.AgainstNull(nameof(context), context);
+
+            return context.UnsubscribeAsync(typeof(T), new UnsubscribeOptions());
+        }
     }
 }

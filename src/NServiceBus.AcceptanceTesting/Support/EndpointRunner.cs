@@ -102,6 +102,7 @@
                     await Task.Run(async () =>
                     {
                         var executedWhens = new List<Guid>();
+                        var sendContext = bus.CreateSendContext();
 
                         while (!token.IsCancellationRequested)
                         {
@@ -126,8 +127,8 @@
                                 {
                                     continue;
                                 }
-
-                                if (await when.ExecuteAction(scenarioContext, bus))
+                                
+                                if (await when.ExecuteAction(scenarioContext, sendContext))
                                 {
                                     executedWhens.Add(when.Id);
                                 }

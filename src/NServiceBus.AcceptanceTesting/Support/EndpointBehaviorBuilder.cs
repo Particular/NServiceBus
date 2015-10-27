@@ -15,24 +15,24 @@
                 };
         }
 
-        public EndpointBehaviorBuilder<TContext> When(Func<IBus, TContext, Task> action)
+        public EndpointBehaviorBuilder<TContext> When(Func<IBusContext, TContext, Task> action)
         {
             return When(c => true, action);
         }
 
-        public EndpointBehaviorBuilder<TContext> When(Func<IBus, Task> action)
+        public EndpointBehaviorBuilder<TContext> When(Func<IBusContext, Task> action)
         {
             return When(c => true, action);
         }
 
-        public EndpointBehaviorBuilder<TContext> When(Predicate<TContext> condition, Func<IBus, Task> action)
+        public EndpointBehaviorBuilder<TContext> When(Predicate<TContext> condition, Func<IBusContext, Task> action)
         {
             behavior.Whens.Add(new WhenDefinition<TContext>(condition, action));
 
             return this;
         }
 
-        public EndpointBehaviorBuilder<TContext> When(Predicate<TContext> condition, Func<IBus, TContext, Task> action)
+        public EndpointBehaviorBuilder<TContext> When(Predicate<TContext> condition, Func<IBusContext, TContext, Task> action)
         {
             behavior.Whens.Add(new WhenDefinition<TContext>(condition,action));
 
