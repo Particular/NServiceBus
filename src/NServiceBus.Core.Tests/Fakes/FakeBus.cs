@@ -78,6 +78,11 @@
             throw new NotImplementedException();
         }
 
+        public IBusContext CreateSendContext()
+        {
+            throw new NotImplementedException();
+        }
+
         [Obsolete("", true)]
         public void Return<T>(T errorEnum)
         {
