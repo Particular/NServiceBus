@@ -223,6 +223,16 @@
             throw new NotImplementedException();
         }
 
+        public Task SubscribeAsync(Type eventType, SubscribeOptions options)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task UnsubscribeAsync(Type eventType, UnsubscribeOptions options)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task ReplyAsync(object message, ReplyOptions options)
         {
             throw new NotImplementedException();

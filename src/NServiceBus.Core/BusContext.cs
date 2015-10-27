@@ -39,6 +39,16 @@ namespace NServiceBus
             return Bus.PublishAsync(messageConstructor, publishOptions, context);
         }
 
+        public Task SubscribeAsync(Type eventType, SubscribeOptions options)
+        {
+            return Bus.SubscribeAsync(eventType, options, context);
+        }
+
+        public Task UnsubscribeAsync(Type eventType, UnsubscribeOptions options)
+        {
+            return Bus.UnsubscribeAsync(eventType, options, context);
+        }
+
         BehaviorContext context;
     }
 }
