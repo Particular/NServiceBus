@@ -15,19 +15,13 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
             mapper.ConfigureMapping<M12>(m => m.UniqueString).ToSaga(s => s.UniqueString);
         }
     }
-
-    class M12
+    public class SagaWithUniquePropertyData : ContainSagaData
     {
         public string UniqueString { get; set; }
     }
 
-    public class SagaWithUniquePropertyData : IContainSagaData
+    class M12
     {
         public string UniqueString { get; set; }
-        public Guid Id { get; set; }
-
-        public string Originator { get; set; }
-
-        public string OriginalMessageId { get; set; }
     }
 }

@@ -20,7 +20,7 @@
     {
     }
 
-    public class TestSagaData : IContainSagaData
+    public class TestSagaData : ContainSagaData
     {
         public RelatedClass RelatedClass { get; set; }
 
@@ -33,11 +33,6 @@
         public TestComponent TestComponent { get; set; }
 
         public PolymorphicPropertyBase PolymorphicRelatedProperty { get; set; }
-        public Guid Id { get; set; }
-
-        public string Originator { get; set; }
-
-        public string OriginalMessageId { get; set; }
     }
 
     public class PolymorphicProperty : PolymorphicPropertyBase

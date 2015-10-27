@@ -39,5 +39,9 @@
             var anotherSagaEntity = await persister.Get<AnotherSimpleSagaEntity>(id, new ContextBag());
             Assert.IsNull(anotherSagaEntity);
         }
+
+        public class AnotherSimpleSagaEntity : ContainSagaData
+        {
+        }
     }
 }

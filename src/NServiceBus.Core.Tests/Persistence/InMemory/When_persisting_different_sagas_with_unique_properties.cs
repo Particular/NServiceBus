@@ -11,28 +11,20 @@
         [Test]
         public async Task It_should_persist_successfully()
         {
-            var saga1 = new SagaWithTwoUniquePropertiesData
+             var saga1 = new SagaWithUniquePropertyData
             {
                 Id = Guid.NewGuid(),
-                UniqueString = "whatever",
-                UniqueInt = 5
+                UniqueString = "whatever"
             };
-            var saga2 = new AnotherSagaWithTwoUniquePropertiesData
-            {
-                Id = Guid.NewGuid(),
-                UniqueString = "whatever",
-                UniqueInt = 5
-            };
-            var saga3 = new SagaWithUniquePropertyData
+            var saga2 = new AnotherSagaWithUniquePropertyData
             {
                 Id = Guid.NewGuid(),
                 UniqueString = "whatever"
             };
 
             var persister = new InMemorySagaPersister();
-            await persister.Save(saga1, SagaMetadataHelper.GetMetadata<SagaWithTwoUniqueProperties>(saga1), new ContextBag());
-            await persister.Save(saga2, SagaMetadataHelper.GetMetadata<AnotherSagaWithTwoUniqueProperties>(saga2), new ContextBag());
-            await persister.Save(saga3, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(saga3), new ContextBag());
-        }
+            await persister.Save(saga1, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(saga1), new ContextBag());
+            await persister.Save(saga2, SagaMetadataHelper.GetMetadata<AnotherSagaTwoUniqueProperty>(saga2), new ContextBag());
+         }
     }
 }

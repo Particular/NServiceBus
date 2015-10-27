@@ -2,7 +2,6 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Concurrent;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
@@ -38,7 +37,7 @@ namespace NServiceBus
                 {
                     continue;
                 }
-                var clone = (TSagaData)DeepClone(entity.SagaEntity);
+                var clone = (TSagaData) DeepClone(entity.SagaEntity);
                 entity.RecordRead(clone, version);
                 return Task.FromResult(clone);
             }
@@ -50,16 +49,19 @@ namespace NServiceBus
             VersionedSagaEntity result;
             if (data.TryGetValue(sagaId, out result) && result?.SagaEntity is TSagaData)
             {
-                var clone = (TSagaData)DeepClone(result.SagaEntity);
+                var clone = (TSagaData) DeepClone(result.SagaEntity);
                 result.RecordRead(clone, version);
                 return Task.FromResult(clone);
             }
             return Task.FromResult(default(TSagaData));
         }
 
-        public Task Save(IContainSagaData saga, IDictionary<string, object> correlationProperties, ContextBag context)
+        public Task Save(IContainSagaData saga, SagaCorrelationProperty correlationProperty, ContextBag context)
         {
-            ValidateUniqueProperties(correlationProperties, saga);
+            if (correlationProperty != SagaCorrelationProperty.None)
+            {
+                ValidateUniqueProperties(correlationProperty, saga);
+            }
 
             VersionedSagaEntity sagaEntity;
             if (data.TryGetValue(saga.Id, out sagaEntity))
@@ -101,31 +103,28 @@ namespace NServiceBus
             return TaskEx.Completed;
         }
 
-        void ValidateUniqueProperties(IDictionary<string, object> correlationProperties, IContainSagaData saga)
+        void ValidateUniqueProperties(SagaCorrelationProperty correlationProperty, IContainSagaData saga)
         {
             var sagaType = saga.GetType();
             var existingSagas = (from s in data
-                                 where s.Value.SagaEntity.GetType() == sagaType && (s.Key != saga.Id)
-                                 select s.Value)
+                where s.Value.SagaEntity.GetType() == sagaType && (s.Key != saga.Id)
+                select s.Value)
                 .ToList();
-            foreach (var correlationProperty in correlationProperties)
+            var uniqueProperty = sagaType.GetProperty(correlationProperty.Name);
+
+            if (correlationProperty.Value == null)
             {
-                var uniqueProperty = sagaType.GetProperty(correlationProperty.Key);
+                var message = $"Cannot store saga with id '{saga.Id}' since the unique property '{uniqueProperty.Name}' has a null value.";
+                throw new InvalidOperationException(message);
+            }
 
-                if (correlationProperty.Value == null)
+            foreach (var storedSaga in existingSagas)
+            {
+                var storedSagaPropertyValue = uniqueProperty.GetValue(storedSaga.SagaEntity, null);
+                if (Equals(correlationProperty.Value, storedSagaPropertyValue))
                 {
-                    var message = $"Cannot store saga with id '{saga.Id}' since the unique property '{uniqueProperty.Name}' has a null value.";
+                    var message = $"Cannot store a saga. The saga with id '{storedSaga.SagaEntity.Id}' already has property '{uniqueProperty.Name}'.";
                     throw new InvalidOperationException(message);
-                }
-
-                foreach (var storedSaga in existingSagas)
-                {
-                    var storedSagaPropertyValue = uniqueProperty.GetValue(storedSaga.SagaEntity, null);
-                    if (Equals(correlationProperty.Value, storedSagaPropertyValue))
-                    {
-                        var message = $"Cannot store a saga. The saga with id '{storedSaga.SagaEntity.Id}' already has property '{uniqueProperty.Name}'.";
-                        throw new InvalidOperationException(message);
-                    }
                 }
             }
         }
@@ -133,7 +132,7 @@ namespace NServiceBus
         IContainSagaData DeepClone(IContainSagaData source)
         {
             var json = serializer.SerializeObject(source);
-            return (IContainSagaData)serializer.DeserializeObject(json, source.GetType());
+            return (IContainSagaData) serializer.DeserializeObject(json, source.GetType());
         }
 
         ConcurrentDictionary<Guid, VersionedSagaEntity> data = new ConcurrentDictionary<Guid, VersionedSagaEntity>();

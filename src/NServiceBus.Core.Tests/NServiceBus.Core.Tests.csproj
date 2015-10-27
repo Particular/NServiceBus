@@ -136,6 +136,7 @@
     <Compile Include="Routing\MessageDrivenSubscribeTerminatorTests.cs" />
     <Compile Include="Routing\MessageDrivenUnsubscribeTerminatorTests.cs" />
     <Compile Include="Routing\SubscriptionRouterTests.cs" />
+    <Compile Include="Sagas\When_saga_has_multiple_correlated_properties.cs" />
     <Compile Include="Sagas\When_saga_is_correlated_on_a_unsupported_property_type.cs" />
     <Compile Include="Sagas\When_saga_has_no_start_message.cs" />
     <Compile Include="Serializers\MessageDeserializerResolverTests.cs" />
@@ -160,7 +161,6 @@
     <Compile Include="Msmq\MsmqMessageSenderTests.cs" />
     <Compile Include="Persistence\InMemory\SagaMetadataHelper.cs" />
     <Compile Include="Persistence\InMemory\When_persisting_a_saga_with_the_same_unique_property_as_a_completed_saga.cs" />
-    <Compile Include="Persistence\InMemory\When_saving_a_null_unique_property.cs" />
     <Compile Include="Persistence\PersistenceExtentionsTests.cs" />
     <Compile Include="Persistence\PersistenceStorageMergerTests.cs" />
     <Compile Include="Pipeline\HandlerTransactionScopeWrapperBehaviorTests.cs" />
@@ -181,18 +181,15 @@
     <Compile Include="Features\FeatureTests.cs" />
     <Compile Include="Hosting\PathUtilities_Tests.cs" />
     <Compile Include="Logging\RollingLoggerTests.cs" />
-    <Compile Include="Persistence\InMemory\AnotherSagaWithTwoUniquePropertiesData.cs" />
-    <Compile Include="Persistence\InMemory\AnotherSimpleSagaEntity.cs" />
+    <Compile Include="Persistence\InMemory\AnotherSagaWithUniquePropertyData.cs" />
     <Compile Include="Persistence\InMemory\InMemoryOutboxPersisterTests.cs" />
-    <Compile Include="Persistence\InMemory\SagaWithTwoUniquePropertiesData.cs" />
     <Compile Include="Persistence\InMemory\SagaWithUniquePropertyData.cs" />
-    <Compile Include="Persistence\InMemory\SimpleSagaEntity.cs" />
+    <Compile Include="Persistence\InMemory\SimpleSagaEntitySaga.cs" />
     <Compile Include="Persistence\InMemory\TestSagaData.cs" />
     <Compile Include="Persistence\InMemory\When_completing_a_saga_with_the_InMemory_persister.cs" />
     <Compile Include="Persistence\InMemory\When_completing_a_saga_with_unique_property_with_InMemory_persister.cs" />
     <Compile Include="Persistence\InMemory\When_multiple_workers_retrieve_same_saga.cs" />
     <Compile Include="Persistence\InMemory\When_persisting_a_saga_with_the_same_unique_property_as_another_saga.cs" />
-    <Compile Include="Persistence\InMemory\When_property_is_null.cs" />
     <Compile Include="Persistence\InMemory\When_persisting_a_saga_with_the_same_unique_property_as_the_original_value_of_another_saga_before_updating.cs" />
     <Compile Include="Persistence\InMemory\When_persisting_different_sagas_with_unique_properties.cs" />
     <Compile Include="Persistence\InMemory\When_saga_not_found_return_default.cs" />
