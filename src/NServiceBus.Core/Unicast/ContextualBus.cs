@@ -14,22 +14,6 @@ namespace NServiceBus.Unicast
             this.bus = bus;
         }
 
-        /// <summary>
-        /// <see cref="ISendOnlyBus.PublishAsync"/>
-        /// </summary>
-        public Task PublishAsync<T>(Action<T> messageConstructor, NServiceBus.PublishOptions options)
-        {
-            return bus.PublishAsync(messageConstructor, options, incomingContext);
-        }
-
-        /// <summary>
-        /// <see cref="ISendOnlyBus.PublishAsync"/>
-        /// </summary>
-        public Task PublishAsync(object message, NServiceBus.PublishOptions options)
-        {
-            return bus.PublishAsync(message, options, incomingContext);
-        }
-
         public Task SendAsync<T>(Action<T> messageConstructor, NServiceBus.SendOptions options)
         {
             return bus.SendAsync(messageConstructor, options, incomingContext);

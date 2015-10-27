@@ -220,7 +220,6 @@
     <Compile Include="Hosting\AddHostInfoHeadersBehavior.cs" />
     <Compile Include="Hosting\HostInformationFeature.cs" />
     <Compile Include="DataBus\IDataBusProperty.cs" />
-    <Compile Include="ISendOnlyBusExtensions.cs" />
     <Compile Include="Pipeline\MutateTransportMessage\IMutateOutgoingTransportMessages.cs" />
     <Compile Include="Pipeline\MutateInstanceMessage\MutateOutgoingMessageContext.cs" />
     <Compile Include="Pipeline\MutateTransportMessage\MutateOutgoingTransportMessageContext.cs" />

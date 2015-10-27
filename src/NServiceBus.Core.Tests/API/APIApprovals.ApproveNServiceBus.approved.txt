@@ -557,10 +557,6 @@ namespace NServiceBus
     public interface ISendOnlyBus : System.IDisposable
     {
         NServiceBus.IBusContext CreateSendContext();
-        System.Threading.Tasks.Task PublishAsync(object message, NServiceBus.PublishOptions options);
-        System.Threading.Tasks.Task PublishAsync<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions);
-        System.Threading.Tasks.Task SendAsync(object message, NServiceBus.SendOptions options);
-        System.Threading.Tasks.Task SendAsync<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options);
     }
     public class static ISendOnlyBusExtensions
     {
@@ -572,9 +568,6 @@ namespace NServiceBus
         [System.ObsoleteAttribute("Please use `PublishAsyn<T>(Action<T> messageConstructor)` instead. Will be remove" +
             "d in version 7.0.0.", true)]
         public static void Publish<T>(this NServiceBus.ISendOnlyBus bus, System.Action<T> messageConstructor) { }
-        public static System.Threading.Tasks.Task PublishAsync(this NServiceBus.ISendOnlyBus bus, object message) { }
-        public static System.Threading.Tasks.Task PublishAsync<T>(this NServiceBus.ISendOnlyBus bus) { }
-        public static System.Threading.Tasks.Task PublishAsync<T>(this NServiceBus.ISendOnlyBus bus, System.Action<T> messageConstructor) { }
         [System.ObsoleteAttribute("Please use `SendAsync(object message)` instead. Will be removed in version 7.0.0." +
             "", true)]
         public static void Send(this NServiceBus.ISendOnlyBus bus, object message) { }
@@ -587,12 +580,6 @@ namespace NServiceBus
         [System.ObsoleteAttribute("Please use `SendAsync<T>(string destination, Action<T> messageConstructor)` inste" +
             "ad. Will be removed in version 7.0.0.", true)]
         public static void Send<T>(this NServiceBus.ISendOnlyBus bus, string destination, System.Action<T> messageConstructor) { }
-        public static System.Threading.Tasks.Task SendAsync(this NServiceBus.ISendOnlyBus bus, object message) { }
-        public static System.Threading.Tasks.Task SendAsync<T>(this NServiceBus.ISendOnlyBus bus, System.Action<T> messageConstructor) { }
-        public static System.Threading.Tasks.Task SendAsync(this NServiceBus.ISendOnlyBus bus, string destination, object message) { }
-        public static System.Threading.Tasks.Task SendAsync<T>(this NServiceBus.ISendOnlyBus bus, string destination, System.Action<T> messageConstructor) { }
-        public static System.Threading.Tasks.Task SendLocalAsync(this NServiceBus.ISendOnlyBus bus, object message) { }
-        public static System.Threading.Tasks.Task SendLocalAsync<T>(this NServiceBus.ISendOnlyBus bus, System.Action<T> messageConstructor) { }
     }
     [System.ObsoleteAttribute("Please use `BusConfiguration.ExecuteTheseHandlersFirst` instead. Will be removed " +
         "in version 7.0.0.", true)]
