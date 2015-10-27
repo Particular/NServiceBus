@@ -410,8 +410,6 @@ namespace NServiceBus
         NServiceBus.ICallback Defer(System.DateTime processAt, object message);
         [System.ObsoleteAttribute("Replaced by NServiceBus.Callbacks package. Will be removed in version 7.0.0.", true)]
         void Return<T>(T errorEnum);
-        System.Threading.Tasks.Task SubscribeAsync(System.Type eventType, NServiceBus.SubscribeOptions options);
-        System.Threading.Tasks.Task UnsubscribeAsync(System.Type eventType, NServiceBus.UnsubscribeOptions options);
     }
     public interface IBusContext
     {
@@ -467,15 +465,11 @@ namespace NServiceBus
         public static void Subscribe(this NServiceBus.IBus bus, System.Type messageType) { }
         [System.ObsoleteAttribute("Please use `SubscribeAsync<T>()` instead. Will be removed in version 7.0.0.", true)]
         public static void Subscribe<T>(this NServiceBus.IBus bus) { }
-        public static System.Threading.Tasks.Task SubscribeAsync(this NServiceBus.IBus bus, System.Type messageType) { }
-        public static System.Threading.Tasks.Task SubscribeAsync<T>(this NServiceBus.IBus bus) { }
         [System.ObsoleteAttribute("Please use `UnsubscribeAsync(Type messageType)` instead. Will be removed in versi" +
             "on 7.0.0.", true)]
         public static void Unsubscribe(this NServiceBus.IBus bus, System.Type messageType) { }
         [System.ObsoleteAttribute("Please use `UnsubscribeAsync<T>()` instead. Will be removed in version 7.0.0.", true)]
         public static void Unsubscribe<T>(this NServiceBus.IBus bus) { }
-        public static System.Threading.Tasks.Task UnsubscribeAsync(this NServiceBus.IBus bus, System.Type messageType) { }
-        public static System.Threading.Tasks.Task UnsubscribeAsync<T>(this NServiceBus.IBus bus) { }
     }
     [System.ObsoleteAttribute("Replaced by NServiceBus.Callbacks package. Will be removed in version 7.0.0.", true)]
     public interface ICallback { }

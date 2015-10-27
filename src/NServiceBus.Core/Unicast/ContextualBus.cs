@@ -30,22 +30,6 @@ namespace NServiceBus.Unicast
             return bus.PublishAsync(message, options, incomingContext);
         }
 
-        /// <summary>
-        /// <see cref="IBus.SubscribeAsync"/>
-        /// </summary>
-        public Task SubscribeAsync(Type eventType, SubscribeOptions options)
-        {
-            return bus.SubscribeAsync(eventType, options, incomingContext);
-        }
-
-        /// <summary>
-        /// <see cref="IBus.UnsubscribeAsync"/>
-        /// </summary>
-        public Task UnsubscribeAsync(Type eventType, UnsubscribeOptions options)
-        {
-            return bus.UnsubscribeAsync(eventType, options, incomingContext);
-        }
-
         public Task SendAsync<T>(Action<T> messageConstructor, NServiceBus.SendOptions options)
         {
             return bus.SendAsync(messageConstructor, options, incomingContext);
