@@ -420,6 +420,8 @@ namespace NServiceBus
         System.Threading.Tasks.Task PublishAsync<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions);
         System.Threading.Tasks.Task SendAsync(object message, NServiceBus.SendOptions options);
         System.Threading.Tasks.Task SendAsync<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options);
+        System.Threading.Tasks.Task SubscribeAsync(System.Type eventType, NServiceBus.SubscribeOptions options);
+        System.Threading.Tasks.Task UnsubscribeAsync(System.Type eventType, NServiceBus.UnsubscribeOptions options);
     }
     public class static IBusContextExtensions
     {
@@ -432,6 +434,10 @@ namespace NServiceBus
         public static System.Threading.Tasks.Task SendAsync<T>(this NServiceBus.IBusContext context, string destination, System.Action<T> messageConstructor) { }
         public static System.Threading.Tasks.Task SendLocalAsync(this NServiceBus.IBusContext context, object message) { }
         public static System.Threading.Tasks.Task SendLocalAsync<T>(this NServiceBus.IBusContext context, System.Action<T> messageConstructor) { }
+        public static System.Threading.Tasks.Task SubscribeAsync(this NServiceBus.IBusContext context, System.Type messageType) { }
+        public static System.Threading.Tasks.Task SubscribeAsync<T>(this NServiceBus.IBusContext context) { }
+        public static System.Threading.Tasks.Task UnsubscribeAsync(this NServiceBus.IBusContext context, System.Type messageType) { }
+        public static System.Threading.Tasks.Task UnsubscribeAsync<T>(this NServiceBus.IBusContext context) { }
     }
     public class static IBusExtensions
     {
@@ -556,6 +562,7 @@ namespace NServiceBus
     }
     public interface ISendOnlyBus : System.IDisposable
     {
+        NServiceBus.IBusContext CreateSendContext();
         System.Threading.Tasks.Task PublishAsync(object message, NServiceBus.PublishOptions options);
         System.Threading.Tasks.Task PublishAsync<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions);
         System.Threading.Tasks.Task SendAsync(object message, NServiceBus.SendOptions options);
@@ -2906,6 +2913,7 @@ namespace NServiceBus.Unicast
         [System.ObsoleteAttribute("ReadOnlySettings should be accessed inside feature, the pipeline and start/stop i" +
             "nfrastructure only. Will be removed in version 7.0.0.", true)]
         public NServiceBus.Settings.ReadOnlySettings Settings { get; }
+        public NServiceBus.IBusContext CreateSendContext() { }
         [System.ObsoleteAttribute("Please use `SendLocalAsync(object message, SendLocalOptions options)` instead. Wi" +
             "ll be removed in version 7.0.0.", true)]
         public NServiceBus.ICallback Defer(System.TimeSpan delay, object message) { }

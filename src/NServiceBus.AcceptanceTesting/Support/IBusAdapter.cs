@@ -60,7 +60,7 @@
 
         public IBusContext CreateSendContext()
         {
-            throw new NotImplementedException();
+            return sendOnlyBus.CreateSendContext();
         }
 
         [Obsolete("", true)]
