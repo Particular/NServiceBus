@@ -2262,8 +2262,9 @@ namespace NServiceBus.Sagas
     }
     public class CorrelationProperty
     {
-        public CorrelationProperty(string name) { }
+        public CorrelationProperty(string name, System.Type type) { }
         public string Name { get; }
+        public System.Type Type { get; }
     }
     public interface IFinder { }
     public abstract class IFindSagas<T>

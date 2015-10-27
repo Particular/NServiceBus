@@ -1,15 +1,13 @@
 namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Extensibility;
-    using ObjectBuilder;
-    using Sagas;
+    using NServiceBus.Extensibility;
+    using NServiceBus.ObjectBuilder;
+    using NServiceBus.Sagas;
 
-    /// <summary>
-    /// Finds the given type of saga by looking it up based on the given property.
-    /// </summary>
-    class PropertySagaFinder<TSagaData> : SagaFinder where TSagaData : IContainSagaData
+    class PropertySagaFinder<TSagaData> : SagaFinder where TSagaData : class, IContainSagaData
     {
         public PropertySagaFinder(ISagaPersister sagaPersister)
         {
@@ -28,9 +26,42 @@ namespace NServiceBus
                 return await sagaPersister.Get<TSagaData>((Guid) propertyValue, context).ConfigureAwait(false);
             }
 
+            var lookupValues = context.GetOrCreate<SagaLookupValues>();
+
+            lookupValues.Add<TSagaData>(sagaPropertyName,propertyValue);
+
             return await sagaPersister.Get<TSagaData>(sagaPropertyName, propertyValue, context).ConfigureAwait(false);
         }
 
         ISagaPersister sagaPersister;
+    }
+
+
+    class SagaLookupValues
+    {
+        public void Add<TSagaData>(string propertyName, object propertyValue)
+        {
+            entries[typeof(TSagaData)] = new LookupValue
+            {
+                PropertyName = propertyName,
+                PropertyValue = propertyValue
+            };
+        }
+
+        public bool TryGet(Type sagaType, out LookupValue value)
+        {
+            return entries.TryGetValue(sagaType, out value);
+        }
+
+        Dictionary<Type, LookupValue>  entries = new Dictionary<Type, LookupValue>();
+
+        public class LookupValue
+        {
+            public string PropertyName { get; set; }
+            public object PropertyValue { get; set; }
+
+        }
+
+
     }
 }

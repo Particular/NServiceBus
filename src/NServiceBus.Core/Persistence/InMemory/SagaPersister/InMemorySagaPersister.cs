@@ -22,6 +22,8 @@ namespace NServiceBus
 
         public Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, ContextBag context) where TSagaData : IContainSagaData
         {
+            Guard.AgainstNull(nameof(propertyValue), propertyValue);
+
             var values = data.Values.Where(x => x.SagaEntity is TSagaData);
             foreach (var entity in values)
             {
@@ -30,11 +32,13 @@ namespace NServiceBus
                 {
                     continue;
                 }
-                if (!Equals(prop.GetValue(entity.SagaEntity, null), propertyValue))
+                var existingValue = prop.GetValue(entity.SagaEntity);
+
+                if (existingValue.ToString() != propertyValue.ToString())
                 {
                     continue;
                 }
-                var clone = (TSagaData) DeepClone(entity.SagaEntity);
+                var clone = (TSagaData)DeepClone(entity.SagaEntity);
                 entity.RecordRead(clone, version);
                 return Task.FromResult(clone);
             }
@@ -46,7 +50,7 @@ namespace NServiceBus
             VersionedSagaEntity result;
             if (data.TryGetValue(sagaId, out result) && result?.SagaEntity is TSagaData)
             {
-                var clone = (TSagaData) DeepClone(result.SagaEntity);
+                var clone = (TSagaData)DeepClone(result.SagaEntity);
                 result.RecordRead(clone, version);
                 return Task.FromResult(clone);
             }
@@ -101,8 +105,8 @@ namespace NServiceBus
         {
             var sagaType = saga.GetType();
             var existingSagas = (from s in data
-                where s.Value.SagaEntity.GetType() == sagaType && (s.Key != saga.Id)
-                select s.Value)
+                                 where s.Value.SagaEntity.GetType() == sagaType && (s.Key != saga.Id)
+                                 select s.Value)
                 .ToList();
             foreach (var correlationProperty in correlationProperties)
             {
@@ -129,7 +133,7 @@ namespace NServiceBus
         IContainSagaData DeepClone(IContainSagaData source)
         {
             var json = serializer.SerializeObject(source);
-            return (IContainSagaData) serializer.DeserializeObject(json, source.GetType());
+            return (IContainSagaData)serializer.DeserializeObject(json, source.GetType());
         }
 
         ConcurrentDictionary<Guid, VersionedSagaEntity> data = new ConcurrentDictionary<Guid, VersionedSagaEntity>();

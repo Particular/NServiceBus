@@ -44,8 +44,6 @@
                     {
                         b.GetSettings().Set("DisableOutboxTransportCheck", true);
                         b.EnableFeature<TimeoutManager>();
-                        b.EnableOutbox();
-                        b.EnableFeature<TimeoutManager>();
                         b.UsePersistence<FakeOutboxPersistence>();
                         b.RegisterComponents(c => c.ConfigureComponent<FakeOutbox>(DependencyLifecycle.SingleInstance));
                     });
@@ -64,17 +62,15 @@
 
             class PlaceOrderSaga : Saga<PlaceOrderSaga.PlaceOrderSagaData>, IAmStartedByMessages<PlaceOrder>
             {
-                public async Task Handle(PlaceOrder message, IMessageHandlerContext context)
+                public Task Handle(PlaceOrder message, IMessageHandlerContext context)
                 {
-                    Data.DataId = message.DataId;
-
-                    await context.SendLocalAsync(new SignalDone());
                     MarkAsComplete();
+                    return context.SendLocalAsync(new SignalDone());
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<PlaceOrderSagaData> mapper)
                 {
-                    mapper.ConfigureMapping<PlaceOrderSagaData>(m => m.DataId).ToSaga(s => s.DataId);
+                    mapper.ConfigureMapping<PlaceOrder>(m => m.DataId).ToSaga(s => s.DataId);
                 }
 
                 public class PlaceOrderSagaData : ContainSagaData
