@@ -1,6 +1,5 @@
 namespace NServiceBus
 {
-    using NServiceBus.Extensibility;
     using NServiceBus.Settings;
     using NServiceBus.Transports;
     using NServiceBus.Unicast.Transport;
