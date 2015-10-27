@@ -36,7 +36,7 @@
                 TaskId = taskId
             }, null);
 
-            Assert.That(((Messages.ScheduledTask)bus.DeferedMessage).TaskId, Is.EqualTo(taskId));
+            Assert.That(((Messages.ScheduledTask)bus.Context.DeferedMessage).TaskId, Is.EqualTo(taskId));
         }
     }
 }
