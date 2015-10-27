@@ -52,5 +52,10 @@
 
             return bus.UnsubscribeAsync(eventType, options, rootContext);
         }
+
+        public IBusContext CreateSendContext()
+        {
+            return new BusContext(rootContext);
+        }
     }
 }

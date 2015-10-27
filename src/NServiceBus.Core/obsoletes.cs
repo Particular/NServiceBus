@@ -757,6 +757,11 @@ namespace NServiceBus.Unicast
             throw new NotImplementedException();
         }
 
+        public IBusContext CreateSendContext()
+        {
+            throw new NotImplementedException();
+        }
+
         [ObsoleteEx(
             ReplacementTypeOrMember = "IBus.HandleCurrentMessageLaterAsync()",
             RemoveInVersion = "7.0",

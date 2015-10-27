@@ -56,6 +56,11 @@ namespace NServiceBus.Unicast
             return bus.SendAsync(message, options, incomingContext);
         }
 
+        public IBusContext CreateSendContext()
+        {
+            return new BusContext(incomingContext);
+        }
+
         [Obsolete("", true)]
         public IMessageContext CurrentMessageContext
         {
