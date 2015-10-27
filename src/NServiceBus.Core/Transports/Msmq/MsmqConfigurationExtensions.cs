@@ -18,10 +18,10 @@ namespace NServiceBus
         /// In some cases it may be useful to use the <see cref="Headers.ControlMessageHeader"/> key to determine if a message is a control message.
         /// The only exception to this rule is received messages with corrupted headers. These messages will be forwarded to the error queue with no label applied.
         /// </remarks>
-        public static void ApplyLabelToMessages(this TransportExtensions<MsmqTransport> transportExtensions, MsmqLabelGenerator generateLabel)
+        public static void ApplyLabelToMessages(this TransportExtensions<MsmqTransport> transportExtensions, MsmqLabelGenerator labelGenerator)
         {
-            Guard.AgainstNull(nameof(generateLabel), generateLabel);
-            transportExtensions.Settings.Set(generateLabel);
+            Guard.AgainstNull(nameof(labelGenerator), labelGenerator);
+            transportExtensions.Settings.Set<MsmqLabelGenerator>(labelGenerator);
         }
 
         internal static MsmqLabelGenerator GetMessageLabelGenerator(this ReadOnlySettings settings)

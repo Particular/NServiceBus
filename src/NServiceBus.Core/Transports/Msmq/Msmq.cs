@@ -75,7 +75,10 @@ namespace NServiceBus
             var settings = new MsmqConnectionStringBuilder(context.ConnectionString).RetrieveSettings();
 
             MsmqLabelGenerator messageLabelGenerator;
-            context.ExtensionSettings.TryGet(out messageLabelGenerator);
+            if (!context.GlobalSettings.TryGet(out messageLabelGenerator))
+            {
+                messageLabelGenerator = headers => string.Empty;
+            }
             context.SetDispatcherFactory(() => new MsmqMessageSender(settings, messageLabelGenerator));
         }
 

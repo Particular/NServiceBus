@@ -699,7 +699,7 @@ namespace NServiceBus
     }
     public class static MsmqConfigurationExtensions
     {
-        public static void ApplyLabelToMessages(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> transportExtensions, NServiceBus.MsmqLabelGenerator generateLabel) { }
+        public static void ApplyLabelToMessages(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> transportExtensions, NServiceBus.MsmqLabelGenerator labelGenerator) { }
     }
     public delegate string MsmqLabelGenerator(System.Collections.Generic.IReadOnlyDictionary<string, string> headers);
     public class MsmqTransport : NServiceBus.Transports.TransportDefinition
@@ -938,10 +938,11 @@ namespace NServiceBus
     {
         public static NServiceBus.Settings.TransactionSettings Transactions(this NServiceBus.BusConfiguration config) { }
     }
-    public class TransportExtensions
+    public class TransportExtensions : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
-        public TransportExtensions(NServiceBus.Extensibility.ContextBag settings) { }
-        public NServiceBus.Extensibility.ContextBag Settings { get; }
+        public TransportExtensions(NServiceBus.Settings.SettingsHolder settings) { }
+        public NServiceBus.TransportExtensions AddAddressTranslationException(NServiceBus.EndpointInstanceName endpointInstance, string transportAddress) { }
+        public NServiceBus.TransportExtensions AddAddressTranslationRule(System.Func<NServiceBus.EndpointInstanceName, string> rule) { }
         public NServiceBus.TransportExtensions ConnectionString(string connectionString) { }
         public NServiceBus.TransportExtensions ConnectionString(System.Func<string> connectionString) { }
         public NServiceBus.TransportExtensions ConnectionStringName(string name) { }
@@ -949,7 +950,7 @@ namespace NServiceBus
     public class TransportExtensions<T> : NServiceBus.TransportExtensions
         where T : NServiceBus.Transports.TransportDefinition
     {
-        public TransportExtensions(NServiceBus.Extensibility.ContextBag settings) { }
+        public TransportExtensions(NServiceBus.Settings.SettingsHolder settings) { }
         public NServiceBus.TransportExtensions<T> ConnectionString(string connectionString) { }
         public NServiceBus.TransportExtensions<T> ConnectionString(System.Func<string> connectionString) { }
         public NServiceBus.TransportExtensions<T> ConnectionStringName(string name) { }
@@ -2733,7 +2734,6 @@ namespace NServiceBus.Transports
     public class TransportReceivingConfigurationContext
     {
         public string ConnectionString { get; }
-        public NServiceBus.Extensibility.ContextBag ExtensionSettings { get; }
         public NServiceBus.Settings.ReadOnlySettings Settings { get; }
         public void SetMessagePumpFactory(System.Func<NServiceBus.CriticalError, NServiceBus.Transports.IPushMessages> messagePumpFactory) { }
         public void SetQueueCreatorFactory(System.Func<NServiceBus.Transports.ICreateQueues> queueCreatorFactory) { }
@@ -2741,7 +2741,6 @@ namespace NServiceBus.Transports
     public class TransportSendingConfigurationContext
     {
         public string ConnectionString { get; }
-        public NServiceBus.Extensibility.ContextBag ExtensionSettings { get; }
         public NServiceBus.Settings.ReadOnlySettings GlobalSettings { get; }
         public void SetDispatcherFactory(System.Func<NServiceBus.Transports.IDispatchMessages> dispatcherFactory) { }
     }

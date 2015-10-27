@@ -17,13 +17,12 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(busConfiguration), busConfiguration);
             var type = typeof(TransportExtensions<>).MakeGenericType(typeof(T));
-            var contextBag = new ContextBag();
-            var extension = (TransportExtensions<T>)Activator.CreateInstance(type, contextBag);
+            var extension = (TransportExtensions<T>)Activator.CreateInstance(type, busConfiguration.Settings);
 
             var transportDefinition = new T();
-            busConfiguration.Settings.Set<InboundTransport>(new InboundTransport(transportDefinition, contextBag));
+            busConfiguration.Settings.Set<InboundTransport>(new InboundTransport(transportDefinition));
             busConfiguration.Settings.Set<TransportDefinition>(transportDefinition);
-            AddOutboundTransport(busConfiguration, transportDefinition, contextBag, true);
+            AddOutboundTransport(busConfiguration, transportDefinition, true);
             return extension;
         }
 
@@ -36,18 +35,17 @@ namespace NServiceBus
             Guard.AgainstNull(nameof(transportDefinitionType), transportDefinitionType);
             Guard.TypeHasDefaultConstructor(transportDefinitionType, nameof(transportDefinitionType));
 
-            var contextBag = new ContextBag();
             var transportDefinition = transportDefinitionType.Construct<TransportDefinition>();
 
-            busConfiguration.Settings.Set<InboundTransport>(new InboundTransport(transportDefinition, contextBag));
+            busConfiguration.Settings.Set<InboundTransport>(new InboundTransport(transportDefinition));
             busConfiguration.Settings.Set<TransportDefinition>(transportDefinition);
-            AddOutboundTransport(busConfiguration, transportDefinition, contextBag, true);
-            return new TransportExtensions(contextBag);
+            AddOutboundTransport(busConfiguration, transportDefinition, true);
+            return new TransportExtensions(busConfiguration.Settings);
         }
 
-        static void AddOutboundTransport(BusConfiguration busConfiguration, TransportDefinition transportDefinition, ContextBag contextBag, bool isDefault)
+        static void AddOutboundTransport(BusConfiguration busConfiguration, TransportDefinition transportDefinition, bool isDefault)
         {
-            busConfiguration.Settings.Set<OutboundTransport>(new OutboundTransport(transportDefinition, contextBag, isDefault));
+            busConfiguration.Settings.Set<OutboundTransport>(new OutboundTransport(transportDefinition, isDefault));
         }
 
         internal static void EnsureTransportConfigured(BusConfiguration busConfiguration)

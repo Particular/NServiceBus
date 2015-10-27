@@ -1,7 +1,6 @@
 namespace NServiceBus.Transports
 {
     using System;
-    using NServiceBus.Extensibility;
     using NServiceBus.Settings;
 
     /// <summary>
@@ -10,11 +9,6 @@ namespace NServiceBus.Transports
     public class TransportSendingConfigurationContext
     {
         Func<IDispatchMessages> dispatcherFactory;
-
-        /// <summary>
-        /// Extension settings for this transprt.
-        /// </summary>
-        public ContextBag ExtensionSettings { get; }
 
         /// <summary>
         /// Global settings.
@@ -26,9 +20,8 @@ namespace NServiceBus.Transports
         /// </summary>
         public string ConnectionString { get; }
 
-        internal TransportSendingConfigurationContext(ContextBag extensionSettings, ReadOnlySettings globalSettings, string connectionString)
+        internal TransportSendingConfigurationContext(ReadOnlySettings globalSettings, string connectionString)
         {
-            ExtensionSettings = extensionSettings;
             this.GlobalSettings = globalSettings;
             ConnectionString = connectionString;
         }

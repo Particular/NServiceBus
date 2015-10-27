@@ -9,7 +9,7 @@
     {
         protected override void ConfigureForReceiving(TransportReceivingConfigurationContext context)
         {
-            context.SetMessagePumpFactory(c => new FakeReceiver(c, context.ExtensionSettings.GetOrCreate<Exception>()));
+            context.SetMessagePumpFactory(c => new FakeReceiver(c, context.Settings.Get<Exception>()));
             context.SetQueueCreatorFactory(() => new FakeQueueCreator());
         }
 

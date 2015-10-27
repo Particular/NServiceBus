@@ -1,7 +1,6 @@
 namespace NServiceBus.Transports
 {
     using System;
-    using NServiceBus.Extensibility;
     using NServiceBus.Settings;
 
     /// <summary>
@@ -11,12 +10,7 @@ namespace NServiceBus.Transports
     {
         Func<CriticalError, IPushMessages> messagePumpFactory;
         Func<ICreateQueues> queueCreatorFactory;
-
-        /// <summary>
-        /// Extension settings for this transport.
-        /// </summary>
-        public ContextBag ExtensionSettings { get; }
-
+        
         /// <summary>
         /// Global Settings.
         /// </summary>
@@ -27,9 +21,8 @@ namespace NServiceBus.Transports
         /// </summary>
         public string ConnectionString { get; }
 
-        internal TransportReceivingConfigurationContext(ContextBag extensionSettings, ReadOnlySettings settings, string connectionString)
+        internal TransportReceivingConfigurationContext(ReadOnlySettings settings, string connectionString)
         {
-            ExtensionSettings = extensionSettings;
             Settings = settings;
             ConnectionString = connectionString;
         }

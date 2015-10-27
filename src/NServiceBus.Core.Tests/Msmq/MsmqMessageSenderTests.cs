@@ -50,7 +50,7 @@
             {
                 MsmqHelpers.DeleteQueue(path);
                 MsmqHelpers.CreateQueue(path);
-                var messageSender = new MsmqMessageSender(new MsmqSettings(), null);
+                var messageSender = new MsmqMessageSender(new MsmqSettings(), pairs => string.Empty);
 
                 var bytes = new byte[]
                 {

@@ -21,7 +21,8 @@ namespace NServiceBus.Transports.Msmq
         /// </summary>
         public MsmqMessageSender(MsmqSettings settings, MsmqLabelGenerator messageLabelGenerator)
         {
-            Guard.AgainstNull("settings", settings);
+            Guard.AgainstNull(nameof(settings), settings);
+            Guard.AgainstNull(nameof(messageLabelGenerator), messageLabelGenerator);
 
             this.settings = settings;
             this.messageLabelGenerator = messageLabelGenerator;
@@ -118,10 +119,6 @@ namespace NServiceBus.Transports.Msmq
 
         string GetLabel(OutgoingMessage message)
         {
-            if (messageLabelGenerator == null)
-            {
-                return string.Empty;
-            }
             var messageLabel = messageLabelGenerator(new ReadOnlyDictionary<string, string>(message.Headers));
             if (messageLabel == null)
             {
