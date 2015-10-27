@@ -97,13 +97,13 @@
 
             public class SagaNotFound : IHandleSagaNotFound
             {
-                public Context Context { get; set; }
+                public Context TestContext { get; set; }
 
-                public Task Handle(object message, IMessageHandlerContext context)
+                public Task Handle(object message, IMessageProcessingContext context)
                 {
-                    if (((dynamic)message).ContextId != Context.Id) return Task.FromResult(0);
+                    if (((dynamic)message).ContextId != TestContext.Id) return Task.FromResult(0);
 
-                    Context.SagaNotFound = true;
+                    TestContext.SagaNotFound = true;
 
                     return Task.FromResult(0);
                 }

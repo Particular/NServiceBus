@@ -13,6 +13,6 @@ namespace NServiceBus.Sagas
         /// Implementors will implement this method, likely using an injected IBus
         /// to send responses to the client who sent the message.
         /// </summary>
-        Task Handle(object message, IMessageHandlerContext context);
+        Task Handle(object message, IMessageProcessingContext context);
     }
 }

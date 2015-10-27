@@ -87,7 +87,7 @@
 
             public class SagaNotFound : IHandleSagaNotFound
             {
-                public Task Handle(object message, IMessageHandlerContext context)
+                public Task Handle(object message, IMessageProcessingContext context)
                 {
                     return context.ReplyAsync(new Reply());
                 }

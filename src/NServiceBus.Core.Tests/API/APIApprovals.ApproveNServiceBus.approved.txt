@@ -532,6 +532,34 @@ namespace NServiceBus
         public static System.Threading.Tasks.Task SendLocalAsync(this NServiceBus.IMessageHandlerContext context, object message) { }
         public static System.Threading.Tasks.Task SendLocalAsync<T>(this NServiceBus.IMessageHandlerContext context, System.Action<T> messageConstructor) { }
     }
+    public interface IMessageProcessingContext
+    {
+        NServiceBus.Extensibility.ContextBag Extensions { get; }
+        System.Collections.Generic.IReadOnlyDictionary<string, string> MessageHeaders { get; }
+        string MessageId { get; }
+        string ReplyToAddress { get; }
+        System.Threading.Tasks.Task ForwardCurrentMessageToAsync(string destination);
+        System.Threading.Tasks.Task PublishAsync(object message, NServiceBus.PublishOptions options);
+        System.Threading.Tasks.Task PublishAsync<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions);
+        System.Threading.Tasks.Task ReplyAsync(object message, NServiceBus.ReplyOptions options);
+        System.Threading.Tasks.Task ReplyAsync<T>(System.Action<T> messageConstructor, NServiceBus.ReplyOptions options);
+        System.Threading.Tasks.Task SendAsync(object message, NServiceBus.SendOptions options);
+        System.Threading.Tasks.Task SendAsync<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options);
+    }
+    public class static IMessageProcessingContextExtensions
+    {
+        public static System.Threading.Tasks.Task PublishAsync(this NServiceBus.IMessageProcessingContext context, object message) { }
+        public static System.Threading.Tasks.Task PublishAsync<T>(this NServiceBus.IMessageProcessingContext context) { }
+        public static System.Threading.Tasks.Task PublishAsync<T>(this NServiceBus.IMessageProcessingContext context, System.Action<T> messageConstructor) { }
+        public static System.Threading.Tasks.Task ReplyAsync(this NServiceBus.IMessageProcessingContext context, object message) { }
+        public static System.Threading.Tasks.Task ReplyAsync<T>(this NServiceBus.IMessageProcessingContext context, System.Action<T> messageConstructor) { }
+        public static System.Threading.Tasks.Task SendAsync(this NServiceBus.IMessageProcessingContext context, object message) { }
+        public static System.Threading.Tasks.Task SendAsync<T>(this NServiceBus.IMessageProcessingContext context, System.Action<T> messageConstructor) { }
+        public static System.Threading.Tasks.Task SendAsync(this NServiceBus.IMessageProcessingContext context, string destination, object message) { }
+        public static System.Threading.Tasks.Task SendAsync<T>(this NServiceBus.IMessageProcessingContext context, string destination, System.Action<T> messageConstructor) { }
+        public static System.Threading.Tasks.Task SendLocalAsync(this NServiceBus.IMessageProcessingContext context, object message) { }
+        public static System.Threading.Tasks.Task SendLocalAsync<T>(this NServiceBus.IMessageProcessingContext context, System.Action<T> messageConstructor) { }
+    }
     public class static ImmediateDispatchOptionExtensions
     {
         public static void RequireImmediateDispatch(this NServiceBus.Extensibility.ExtendableOptions options) { }
@@ -1301,14 +1329,11 @@ namespace NServiceBus.Extensibility
         public T Get<T>() { }
         public T GetOrCreate<T>()
             where T :  class, new () { }
-        public void Merge(NServiceBus.Extensibility.ContextBag context) { }
         public void Remove<T>() { }
         public void Set<T>(T t) { }
         public void Set<T>(string key, T t) { }
         public bool TryGet<T>(out T result) { }
         public bool TryGet<T>(string key, out T result) { }
-        public bool TryGetRootContext<T>(out T result)
-            where T : NServiceBus.Extensibility.ContextBag { }
     }
     public abstract class ExtendableOptions
     {
@@ -2253,7 +2278,7 @@ namespace NServiceBus.Sagas
     }
     public interface IHandleSagaNotFound
     {
-        System.Threading.Tasks.Task Handle(object message, NServiceBus.IMessageHandlerContext context);
+        System.Threading.Tasks.Task Handle(object message, NServiceBus.IMessageProcessingContext context);
     }
     public interface ISagaPersister
     {

@@ -67,7 +67,7 @@
 
                 public class MyTimeout { }
 
-                public Task Handle(object message, IMessageHandlerContext context)
+                public Task Handle(object message, IMessageProcessingContext context)
                 {
                     if (message is SomeOtherMessage)
                     {

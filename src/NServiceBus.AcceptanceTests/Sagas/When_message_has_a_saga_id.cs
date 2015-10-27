@@ -40,7 +40,7 @@
             IHandleTimeouts<MessageWithSagaId>,
             IHandleSagaNotFound
         {
-            public Context Context { get; set; }
+            public Context TestContext { get; set; }
 
             public class MessageWithSagaIdSagaData : ContainSagaData
             {
@@ -52,19 +52,19 @@
 
             public Task Handle(MessageWithSagaId message, IMessageHandlerContext context)
             {
-                Context.MessageHandlerCalled = true;
+                TestContext.MessageHandlerCalled = true;
                 return Task.FromResult(0);
             }
 
-            public Task Handle(object message, IMessageHandlerContext context)
+            public Task Handle(object message, IMessageProcessingContext context)
             {
-                Context.NotFoundHandlerCalled = true;
+                TestContext.NotFoundHandlerCalled = true;
                 return Task.FromResult(0);
             }
 
             public Task Timeout(MessageWithSagaId state, IMessageHandlerContext context)
             {
-                Context.TimeoutHandlerCalled = true;
+                TestContext.TimeoutHandlerCalled = true;
                 return Task.FromResult(0);
             }
         }

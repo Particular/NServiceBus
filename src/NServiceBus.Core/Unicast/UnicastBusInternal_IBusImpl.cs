@@ -52,23 +52,5 @@
 
             return busImpl.UnsubscribeAsync(eventType, options);
         }
-
-        /// <inheritdoc />
-        public Task ReplyAsync(object message, NServiceBus.ReplyOptions options)
-        {
-            Guard.AgainstNull("message", message);
-            Guard.AgainstNull("options", options);
-
-            return busImpl.ReplyAsync(message, options);
-        }
-
-        /// <inheritdoc />
-        public Task ReplyAsync<T>(Action<T> messageConstructor, NServiceBus.ReplyOptions options)
-        {
-            Guard.AgainstNull("messageConstructor", messageConstructor);
-            Guard.AgainstNull("options", options);
-
-            return busImpl.ReplyAsync(messageConstructor, options);
-        }
     }
 }

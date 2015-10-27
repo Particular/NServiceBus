@@ -58,14 +58,14 @@
 
             public class SagaNotFound : IHandleSagaNotFound
             {
-                public Context Context { get; set; }
+                public Context TestContext { get; set; }
 
-                public Task Handle(object message, IMessageHandlerContext context)
+                public Task Handle(object message, IMessageProcessingContext context)
                 {
                     var lostMessage = message as DoSomethingResponse;
-                    if (lostMessage != null && lostMessage.RunId == Context.RunId)
+                    if (lostMessage != null && lostMessage.RunId == TestContext.RunId)
                     {
-                        Context.Done = true;
+                        TestContext.Done = true;
                     }
                     return Task.FromResult(0);
                 }
