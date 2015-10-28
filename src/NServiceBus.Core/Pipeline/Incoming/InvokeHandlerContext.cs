@@ -48,7 +48,7 @@ namespace NServiceBus.Pipeline.Contexts
         }
 
         /// <summary>
-        /// <code>true</code> if DoNotInvokeAnyMoreHandlers has been called.
+        /// <code>true</code> if <see cref="DoNotInvokeAnyMoreHandlers"/>  has been called.
         /// </summary>
         public bool HandlerInvocationAborted { get; private set; }
 

@@ -3,7 +3,7 @@ namespace NServiceBus.Pipeline
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using NServiceBus.Logging;
+    using Logging;
 
     class PipelineModelBuilder
     {
@@ -17,7 +17,6 @@ namespace NServiceBus.Pipeline
 
         public IList<RegisterStep> Build()
         {
-
             var registrations = new Dictionary<string, RegisterStep>(StringComparer.CurrentCultureIgnoreCase);
             var listOfBeforeAndAfterIds = new List<string>();
 
@@ -54,10 +53,11 @@ namespace NServiceBus.Pipeline
                     throw new Exception(message);
                 }
 
-                registrations[metadata.ReplaceId].BehaviorType = metadata.BehaviorType;
+                var registerStep = registrations[metadata.ReplaceId];
+                registerStep.BehaviorType = metadata.BehaviorType;
                 if (!string.IsNullOrEmpty(metadata.Description))
                 {
-                    registrations[metadata.ReplaceId].Description = metadata.Description;
+                    registerStep.Description = metadata.Description;
                 }
             }
 
@@ -84,8 +84,6 @@ namespace NServiceBus.Pipeline
 
             var stages = registrations.Values.GroupBy(r => r.GetInputContext())
                 .ToList();
-
-
 
             var finalOrder = new List<RegisterStep>();
 
@@ -142,10 +140,8 @@ namespace NServiceBus.Pipeline
                     }
                     else
                     {
-
                         var args = stageConnector.BehaviorType.BaseType.GetGenericArguments();
                         var stageEndType = args[1];
-
                         currentStage = stages.SingleOrDefault(stage => stage.Key == stageEndType);      
                     }      
                 }
@@ -164,76 +160,27 @@ namespace NServiceBus.Pipeline
 
         static IEnumerable<RegisterStep> Sort(IList<RegisterStep> registrations)
         {
-
             if (!registrations.Any())
             {
                 return registrations;
             }
 
-
             // Step 1: create nodes for graph
-            var nameToNodeDict = new Dictionary<string, Node>();
+            var nameToNode = new Dictionary<string, Node>();
             var allNodes = new List<Node>();
             foreach (var rego in registrations)
             {
                 // create entries to preserve order within
                 var node = new Node(rego);
-                nameToNodeDict[rego.StepId] = node;
+                nameToNode[rego.StepId] = node;
                 allNodes.Add(node);
             }
 
             // Step 2: create edges from InsertBefore/InsertAfter values
             foreach (var node in allNodes)
             {
-                if (node.Befores != null)
-                {
-                    foreach (var beforeReference in node.Befores)
-                    {
-                        Node referencedNode;
-                        if (nameToNodeDict.TryGetValue(beforeReference.DependsOnId, out referencedNode))
-                        {
-                            referencedNode.previous.Add(node);
-                        }
-                        else
-                        {
-                            var message = $"Registration '{beforeReference.DependsOnId}' specified in the insertbefore of the '{node.StepId}' step does not exist in this stage.";
-
-                            if (!beforeReference.Enforce)
-                            {
-                                Logger.Debug(message);
-                            }
-                            else
-                            {
-                                throw new Exception(message);
-                            }
-                        }
-                    }
-                }
-
-                if (node.Afters != null)
-                {
-                    foreach (var afterReference in node.Afters)
-                    {
-                        Node referencedNode;
-                        if (nameToNodeDict.TryGetValue(afterReference.DependsOnId, out referencedNode))
-                        {
-                            node.previous.Add(referencedNode);
-                        }
-                        else
-                        {
-                            var message = $"Registration '{afterReference.DependsOnId}' specified in the insertafter of the '{node.StepId}' step does not exist.";
-
-                            if (!afterReference.Enforce)
-                            {
-                                Logger.Debug(message);
-                            }
-                            else
-                            {
-                                throw new Exception(message);
-                            }
-                        }
-                    }
-                }
+                ProcessBefores(node, nameToNode);
+                ProcessAfters(node, nameToNode);
             }
 
             // Step 3: Perform Topological Sort
@@ -262,6 +209,67 @@ namespace NServiceBus.Pipeline
                 }
             }
             return output;
+        }
+
+        static void ProcessBefores(Node node, Dictionary<string, Node> nameToNode)
+        {
+            if (node.Befores == null)
+            {
+                return;
+            }
+            foreach (var beforeReference in node.Befores)
+            {
+                Node referencedNode;
+                if (nameToNode.TryGetValue(beforeReference.DependsOnId, out referencedNode))
+                {
+                    referencedNode.previous.Add(node);
+                    continue;
+                }
+                var currentStepIds = GetCurrentIds(nameToNode);
+                var message = $"Registration '{beforeReference.DependsOnId}' specified in the insertbefore of the '{node.StepId}' step does not exist in this stage. Current StepIds: {currentStepIds}";
+
+                if (!beforeReference.Enforce)
+                {
+                    Logger.Debug(message);
+                }
+                else
+                {
+                    throw new Exception(message);
+                }
+            }
+        }
+
+        static void ProcessAfters(Node node, Dictionary<string, Node> nameToNode)
+        {
+            if (node.Afters == null)
+            {
+                return;
+            }
+            foreach (var afterReference in node.Afters)
+            {
+                Node referencedNode;
+                if (nameToNode.TryGetValue(afterReference.DependsOnId, out referencedNode))
+                {
+                    node.previous.Add(referencedNode);
+                    continue;
+                }
+                var currentStepIds = GetCurrentIds(nameToNode);
+                var message = $"Registration '{afterReference.DependsOnId}' specified in the insertafter of the '{node.StepId}' step does not exist. Current StepIds: {currentStepIds}";
+
+                if (!afterReference.Enforce)
+                {
+                    Logger.Debug(message);
+                }
+                else
+                {
+                    throw new Exception(message);
+                }
+            }
+        }
+
+        static string GetCurrentIds(Dictionary<string, Node> nameToNodeDict)
+        {
+            return $"'{string.Join("', '", nameToNodeDict.Keys)}'";
         }
 
         Type rootContextType;
@@ -333,18 +341,16 @@ namespace NServiceBus.Pipeline
             return typeof(IStageConnector).IsAssignableFrom(step.BehaviorType);
         }
 
-        public  static Type GetContextType(this Type behaviorType)
+        public static Type GetContextType(this Type behaviorType)
         {
             var behaviorInterface = behaviorType.GetBehaviorInterface();
-
-            var type = behaviorInterface.GetGenericArguments()[0];
-
-            return type;
+            return behaviorInterface.GetGenericArguments()[0];
         }
+
         public static Type GetBehaviorInterface(this Type behaviorType)
         {
-            var behaviorInterface = behaviorType.GetInterfaces().First(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IBehavior<,>));
-            return behaviorInterface;
+            return behaviorType.GetInterfaces()
+                .First(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IBehavior<,>));
         }
 
         public static Type GetOutputContext(this RegisterStep step)
@@ -355,10 +361,7 @@ namespace NServiceBus.Pipeline
         public static Type GetOutputContext(this Type behaviorType)
         {
             var behaviorInterface = GetBehaviorInterface(behaviorType);
-
-            var type = behaviorInterface.GetGenericArguments()[1];
-
-            return type;
+            return behaviorInterface.GetGenericArguments()[1];
         }
 
         public static Type GetInputContext(this RegisterStep step)
@@ -369,10 +372,7 @@ namespace NServiceBus.Pipeline
         public static Type GetInputContext(this Type behaviorType)
         {
             var behaviorInterface = GetBehaviorInterface(behaviorType);
-
-            var type = behaviorInterface.GetGenericArguments()[0];
-
-            return type;
+            return behaviorInterface.GetGenericArguments()[0];
         }
 
     }
