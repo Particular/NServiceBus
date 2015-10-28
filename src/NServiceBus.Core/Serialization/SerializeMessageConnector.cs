@@ -25,7 +25,7 @@
 
         public override async Task Invoke(OutgoingLogicalMessageContext context, Func<OutgoingPhysicalMessageContext, Task> next)
         {
-            if (context.GetOrCreate<State>().SkipSerialization)
+            if (context.ShouldSkipSerialization())
             {
                 await next(new OutgoingPhysicalMessageContext(new byte[0], context.RoutingStrategies, context)).ConfigureAwait(false);
                 return;
@@ -54,24 +54,5 @@
             return string.Join(";", distinctTypes.Select(t => t.AssemblyQualifiedName));
         }
 
-        public class State
-        {
-            public bool SkipSerialization { get; set; }
-        }
-
-    }
-
-    /// <summary>
-    /// Allows users to control serialization.
-    /// </summary>
-    public static class SerializationContextExtensions
-    {
-        /// <summary>
-        /// Requests the serializer to skip serializing the message.
-        /// </summary>
-        public static void SkipSerialization(this OutgoingLogicalMessageContext context)
-        {
-            context.GetOrCreate<SerializeMessageConnector.State>().SkipSerialization = true;
-        }
     }
 }

@@ -893,6 +893,7 @@ namespace NServiceBus
     }
     public class static SerializationContextExtensions
     {
+        public static bool ShouldSkipSerialization(this NServiceBus.Pipeline.Contexts.OutgoingLogicalMessageContext context) { }
         public static void SkipSerialization(this NServiceBus.Pipeline.Contexts.OutgoingLogicalMessageContext context) { }
     }
     public class static SettingsExtentions
