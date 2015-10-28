@@ -10,6 +10,7 @@ namespace NServiceBus.Core.Tests
     using Hosting;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Recoverability.Faults;
     using NServiceBus.Routing;
     using TransportDispatch;
     using Transports;
@@ -27,15 +28,12 @@ namespace NServiceBus.Core.Tests
             var behavior = new MoveFaultsToErrorQueueBehavior(new FakeCriticalError(),
                 fakeDispatchPipeline, 
                 new HostInformation(Guid.NewGuid(), "my host"),
-                new BusNotifications(), errorQueueAddress);
+                new BusNotifications(), errorQueueAddress, new FaultsStatusStorage());
 
             var context = CreateContext("someid");
             behavior.Initialize(new PipelineInfo("Test", "public-receive-address"));
 
-            await behavior.Invoke(context, () =>
-            {
-                throw new Exception("testex");
-            });
+            await ThrowException(behavior, context);
 
             Assert.AreEqual(errorQueueAddress, fakeDispatchPipeline.Destination);
 
@@ -48,14 +46,11 @@ namespace NServiceBus.Core.Tests
             var fakeDispatchPipeline = new FakeDispatchPipeline{ThrowOnDispatch = true};
 
 
-            var behavior = new MoveFaultsToErrorQueueBehavior(criticalError, fakeDispatchPipeline, new HostInformation(Guid.NewGuid(), "my host"), new BusNotifications(), "error");
+            var behavior = new MoveFaultsToErrorQueueBehavior(criticalError, fakeDispatchPipeline, new HostInformation(Guid.NewGuid(), "my host"), new BusNotifications(), "error", new FaultsStatusStorage());
             behavior.Initialize(new PipelineInfo("Test", "public-receive-address"));
 
             //the ex should bubble to force the transport to rollback. If not the message will be lost
-            Assert.Throws<Exception>(async () => await behavior.Invoke(CreateContext("someid"), () =>
-            {
-                throw new Exception("testex");
-            }));
+            Assert.Throws<Exception>(async () => await ThrowException(behavior, CreateContext("someid")));
 
             Assert.True(criticalError.ErrorRaised);
         }
@@ -69,13 +64,10 @@ namespace NServiceBus.Core.Tests
             var context = CreateContext("someid");
 
 
-            var behavior = new MoveFaultsToErrorQueueBehavior(new FakeCriticalError(), fakeDispatchPipeline, hostInfo, new BusNotifications(), "error");
+            var behavior = new MoveFaultsToErrorQueueBehavior(new FakeCriticalError(), fakeDispatchPipeline, hostInfo, new BusNotifications(), "error", new FaultsStatusStorage());
             behavior.Initialize(new PipelineInfo("Test", "public-receive-address"));
 
-            await behavior.Invoke(context, () =>
-            {
-                throw new Exception("testex");
-            });
+            await ThrowException(behavior, context);
 
             //host info
             Assert.AreEqual(hostInfo.HostId.ToString("N"), fakeDispatchPipeline.MessageSent.Headers[Headers.HostId]);
@@ -98,23 +90,31 @@ namespace NServiceBus.Core.Tests
                 fakeDispatchPipeline, 
                 new HostInformation(Guid.NewGuid(), "my host"),
                 notifications, 
-                "error");
+                "error",
+                new FaultsStatusStorage());
             var failedMessageNotification = new FailedMessage();
 
             notifications.Errors.MessageSentToErrorQueue.Subscribe(f => { failedMessageNotification = f; });
 
             behavior.Initialize(new PipelineInfo("Test", "public-receive-address"));
-            await behavior.Invoke(CreateContext("someid"), () =>
-            {
-                throw new Exception("testex");
-            });
+            await ThrowException(behavior, CreateContext("someid"));
 
             Assert.AreEqual("someid", failedMessageNotification.MessageId);
 
             Assert.AreEqual("testex", failedMessageNotification.Exception.Message);
         }
+        static async Task ThrowException(MoveFaultsToErrorQueueBehavior behavior, TransportReceiveContext context)
+        {
+            try
+            {
+                await behavior.Invoke(context, () => { throw new Exception("testex"); });
+            }
+            catch (MessageProcessingAbortedException)
+            {
+            }
 
-
+            await behavior.Invoke(context, () => Task.FromResult(0));
+        }
 
         TransportReceiveContext CreateContext(string messageId)
         {

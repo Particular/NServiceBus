@@ -89,7 +89,10 @@
     <Compile Include="FakeTransport\FakeTransport.cs" />
     <Compile Include="Performance\ProcessingOptimizations\When_limiting_concurrency_via_both_api_and_config.cs" />
     <Compile Include="Performance\ProcessingOptimizations\When_using_concurrency_limit.cs" />
+    <Compile Include="Recoverability\Retries\When_exception_thrown_before_move_to_error_queue_behavior.cs" />
+    <Compile Include="Recoverability\Retries\When_exception_thrown_during_retries.cs" />
     <Compile Include="Recoverability\Retries\When_message_fails_retries.cs" />
+    <Compile Include="Recoverability\Retries\When_exception_thrown_before_slr_behavior.cs" />
     <Compile Include="Recoverability\When_error_is_overridden_in_code.cs" />
     <Compile Include="BestPractices\When_publishing_command_bestpractices_disabled.cs" />
     <Compile Include="BestPractices\When_unsubscribing_to_command_bestpractices_disabled_on_endpoint.cs" />

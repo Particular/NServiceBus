@@ -3,6 +3,8 @@ namespace NServiceBus.Features
     using NServiceBus.Faults;
     using NServiceBus.Hosting;
     using NServiceBus.Pipeline;
+    using NServiceBus.Recoverability.Faults;
+    using NServiceBus.Recoverability.SecondLevelRetries;
     using NServiceBus.TransportDispatch;
     using NServiceBus.Transports;
 
@@ -19,6 +21,9 @@ namespace NServiceBus.Features
 
             var errorQueue = ErrorQueueSettings.GetConfiguredErrorQueue(context.Settings);
 
+            var faultsStorage = new FaultsStatusStorage();
+            context.Container.RegisterSingleton(typeof(FaultsStatusStorage), faultsStorage);
+
             context.Container.ConfigureComponent(b =>
             {
                 var pipelinesCollection = context.Settings.Get<PipelineConfiguration>();
@@ -30,7 +35,8 @@ namespace NServiceBus.Features
                     dispatchPipeline,
                     b.Build<HostInformation>(),
                     b.Build<BusNotifications>(),
-                    errorQueue);
+                    errorQueue, 
+                    faultsStorage);
             }, DependencyLifecycle.InstancePerCall);
 
             context.Settings.Get<QueueBindings>().BindSending(errorQueue);
