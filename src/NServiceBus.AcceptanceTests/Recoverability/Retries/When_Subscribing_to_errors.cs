@@ -17,7 +17,8 @@
         public async Task Should_retain_exception_details_over_FLR_and_SLR()
         {
             await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                .WithEndpoint<SLREndpoint>()
+                .WithEndpoint<SLREndpoint>(b => b
+                    .DoNotFailOnErrorMessages())
                 .AllowSimulatedExceptions()
                 .Done(c => c.MessageSentToError)
                 .Repeat(r => r.For<AllTransports>())

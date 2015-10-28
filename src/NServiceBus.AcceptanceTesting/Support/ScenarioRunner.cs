@@ -237,13 +237,9 @@
                 await StopEndpoints(endpoints).ConfigureAwait(false);
             }
 
-            var exceptions = runDescriptor.ScenarioContext.Exceptions
-                        .Where(ex => !allowedExceptions(ex))
-                        .ToList();
-
-            if (exceptions.Any())
+            if (runDescriptor.ScenarioContext.FailedMessages.Any(kvp => endpoints.Single(e => e.Name() == kvp.Key).FailOnErrorMessage))
             {
-                throw new AggregateException(exceptions);
+                throw new MessagesFailedException(runDescriptor.ScenarioContext);
             }
         }
 

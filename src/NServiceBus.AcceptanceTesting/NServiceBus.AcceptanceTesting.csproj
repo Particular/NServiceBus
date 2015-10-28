@@ -64,10 +64,12 @@
     <Compile Include="Support\EndpointBehaviorBuilder.cs" />
     <Compile Include="Support\EndpointConfiguration.cs" />
     <Compile Include="Support\EndpointRunner.cs" />
+    <Compile Include="Support\FailTestOnErrorMessageFeature.cs" />
     <Compile Include="Support\IBusAdapter.cs" />
     <Compile Include="Support\IEndpointSetupTemplate.cs" />
     <Compile Include="Support\IScenarioWithEndpointBehavior.cs" />
     <Compile Include="Support\IWhenDefinition.cs" />
+    <Compile Include="Support\MessagesFailedException.cs" />
     <Compile Include="Support\RunDescriptor.cs" />
     <Compile Include="Support\RunDescriptorsBuilder.cs" />
     <Compile Include="Scenario.cs" />
