@@ -15,13 +15,13 @@
     <copyright>$copyright$</copyright>
     <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
     <frameworkAssemblies>
-      <frameworkAssembly assemblyName="System" targetFramework="net451" />
-      <frameworkAssembly assemblyName="System.Core" targetFramework="net451" />
+      <frameworkAssembly assemblyName="System" targetFramework="net452" />
+      <frameworkAssembly assemblyName="System.Core" targetFramework="net452" />
     </frameworkAssemblies>
     <dependencies/>
   </metadata>
   <files>
-    <file src="..\..\binaries\NServiceBus.Core.???" target="lib\net451" />
+    <file src="..\..\binaries\NServiceBus.Core.???" target="lib\net452" />
     <file src="..\..\packaging\nuget\tools\init.ps1" target="tools" />
   </files>
 </package>
