@@ -30,8 +30,10 @@ namespace NServiceBus.Features
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             var  retryPolicy = GetRetryPolicy(context.Settings);
+            var slrStorage = new SlrStatusStorage();
 
             context.Container.RegisterSingleton(typeof(SecondLevelRetryPolicy), retryPolicy);
+            context.Container.RegisterSingleton(typeof(SlrStatusStorage), slrStorage);
             context.Pipeline.Register<SecondLevelRetriesBehavior.Registration>();
 
 
@@ -40,7 +42,7 @@ namespace NServiceBus.Features
                 var pipelinesCollection = context.Settings.Get<PipelineConfiguration>();
              
                 var dispatchPipeline = new PipelineBase<RoutingContext>(b, context.Settings, pipelinesCollection.MainPipeline);
-                return new SecondLevelRetriesBehavior(dispatchPipeline,retryPolicy,b.Build<BusNotifications>(), context.Settings.LocalAddress());
+                return new SecondLevelRetriesBehavior(dispatchPipeline,retryPolicy,b.Build<BusNotifications>(), context.Settings.LocalAddress(), slrStorage);
             }, DependencyLifecycle.InstancePerCall);
         }
 
