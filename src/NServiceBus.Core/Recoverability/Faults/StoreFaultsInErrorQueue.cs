@@ -1,5 +1,7 @@
 namespace NServiceBus.Features
 {
+    using System;
+    using System.Threading;
     using NServiceBus.Faults;
     using NServiceBus.Hosting;
     using NServiceBus.Pipeline;
@@ -12,7 +14,10 @@ namespace NServiceBus.Features
         internal StoreFaultsInErrorQueue()
         {
             EnableByDefault();
+
             Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Send only endpoints can't be used to forward received messages to the error queue as the endpoint requires receive capabilities");
+
+            RegisterStartupTask<FaultsStatusStorageCleaner>();
         }
 
         protected internal override void Setup(FeatureConfigurationContext context)
@@ -43,6 +48,31 @@ namespace NServiceBus.Features
             context.Pipeline.Register<MoveFaultsToErrorQueueBehavior.Registration>();
         }
 
+        class FaultsStatusStorageCleaner : FeatureStartupTask
+        {
+            public FaultsStatusStorageCleaner(FaultsStatusStorage statusStorage)
+            {
+                this.statusStorage = statusStorage;
+            }
 
+            protected override void OnStart()
+            {
+                timer = new Timer(ClearFaultsStatusStorage, null, ClearingInterval, ClearingInterval);
+            }
+
+            protected override void OnStop()
+            {
+                timer?.Dispose();
+            }
+
+            void ClearFaultsStatusStorage(object state)
+            {
+                statusStorage.ClearAllExceptions();
+            }
+
+            static readonly TimeSpan ClearingInterval = TimeSpan.FromMinutes(5);
+            FaultsStatusStorage statusStorage;
+            Timer timer;
+        }
     }
 }

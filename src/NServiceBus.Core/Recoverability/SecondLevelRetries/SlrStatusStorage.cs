@@ -21,6 +21,11 @@
             failedMessages.TryRemove(messageId, out exc);
         }
 
+        public void ClearAllExceptions()
+        {
+            failedMessages.Clear();
+        }
+
         ConcurrentDictionary<string, Exception> failedMessages = new ConcurrentDictionary<string, Exception>();
     }
 }

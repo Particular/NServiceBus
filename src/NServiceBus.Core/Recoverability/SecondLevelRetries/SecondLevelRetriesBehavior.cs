@@ -121,7 +121,7 @@ namespace NServiceBus
         SecondLevelRetryPolicy retryPolicy;
         BusNotifications notifications;
         string localAddress;
-        readonly SlrStatusStorage slrStatusStorage;
+        SlrStatusStorage slrStatusStorage;
 
         static ILog Logger = LogManager.GetLogger<SecondLevelRetriesBehavior>();
 

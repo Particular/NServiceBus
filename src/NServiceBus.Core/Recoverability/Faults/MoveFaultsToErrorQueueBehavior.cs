@@ -32,9 +32,9 @@ namespace NServiceBus
             {
                 try
                 {
-                    faultsStatusStorage.ClearExceptions(uniqueMessageId);
-
                     await MoveToErrorQueue(context, context.Message, exception);
+
+                    faultsStatusStorage.ClearExceptions(uniqueMessageId);
 
                     return;
                 }
@@ -90,7 +90,7 @@ namespace NServiceBus
         HostInformation hostInformation;
         BusNotifications notifications;
         string errorQueueAddress;
-        readonly FaultsStatusStorage faultsStatusStorage;
+        FaultsStatusStorage faultsStatusStorage;
         static ILog Logger = LogManager.GetLogger<MoveFaultsToErrorQueueBehavior>();
 
         public class Registration : RegisterStep

@@ -1,6 +1,7 @@
 namespace NServiceBus.Features
 {
     using System;
+    using System.Threading;
     using NServiceBus.Config;
     using NServiceBus.Pipeline;
     using NServiceBus.Recoverability.SecondLevelRetries;
@@ -22,6 +23,8 @@ namespace NServiceBus.Features
             Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Send only endpoints can't use SLR since it requires receive capabilities");
 
             Prerequisite(IsEnabledInConfig, "SLR was disabled in config");
+
+            RegisterStartupTask<SlrStatusStorageCleaner>();
         }
 
         /// <summary>
@@ -75,6 +78,33 @@ namespace NServiceBus.Features
             }
 
             return new DefaultSecondLevelRetryPolicy(DefaultSecondLevelRetryPolicy.DefaultNumberOfRetries,DefaultSecondLevelRetryPolicy.DefaultTimeIncrease);
+        }
+
+        class SlrStatusStorageCleaner : FeatureStartupTask
+        {
+            public SlrStatusStorageCleaner(SlrStatusStorage statusStorage)
+            {
+                this.statusStorage = statusStorage;
+            }
+
+            protected override void OnStart()
+            {
+                timer = new Timer(ClearSlrStatusStorage, null, ClearingInterval, ClearingInterval);
+            }
+
+            protected override void OnStop()
+            {
+                timer?.Dispose();
+            }
+
+            void ClearSlrStatusStorage(object state)
+            {
+                statusStorage.ClearAllExceptions();
+            }
+
+            static readonly TimeSpan ClearingInterval = TimeSpan.FromMinutes(5);
+            SlrStatusStorage statusStorage;
+            Timer timer;
         }
     }
 }
