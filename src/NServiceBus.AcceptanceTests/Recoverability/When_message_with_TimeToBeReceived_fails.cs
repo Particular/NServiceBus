@@ -17,7 +17,6 @@
                 .When(bus => bus.SendLocalAsync(new MessageThatFails()))
                 .DoNotFailOnErrorMessages())
             .WithEndpoint<EndpointThatHandlesErrorMessages>()
-            .AllowSimulatedExceptions()
             .Done(c => c.MessageFailed && c.TTBRHasExpiredAndMessageIsStillInErrorQueue)
             .Run();
 

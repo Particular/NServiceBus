@@ -17,7 +17,6 @@
                     .WithEndpoint<NonTransactionalEndpoint>(b => b
                         .When(bus => bus.SendLocalAsync(new MyMessage()))
                         .DoNotFailOnErrorMessages())
-                    .AllowSimulatedExceptions()
                     .Done(c => c.TestComplete)
                     .Repeat(r => r.For<AllDtcTransports>())
                     .Should(c => Assert.False(c.MessageEnlistedInTheAmbientTxReceived, "The enlisted bus.SendAsync should not commit"))

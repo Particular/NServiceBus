@@ -15,7 +15,6 @@
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                     .WithEndpoint<RetryEndpoint>(b => b
                         .DoNotFailOnErrorMessages())
-                    .AllowSimulatedExceptions()
                     .Done(c => c.GaveUp)
                     .Run();
 

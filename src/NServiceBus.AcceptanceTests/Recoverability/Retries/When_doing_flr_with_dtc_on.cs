@@ -20,7 +20,6 @@
                    .WithEndpoint<RetryEndpoint>(b => b
                         .When((bus, context) => bus.SendLocalAsync(new MessageToBeRetried { Id = context.Id }))
                         .DoNotFailOnErrorMessages())
-                   .AllowSimulatedExceptions()
                    .Done(c => c.GaveUpOnRetries)
                    .Repeat(r => r.For<AllDtcTransports>())
                    .Should(c =>

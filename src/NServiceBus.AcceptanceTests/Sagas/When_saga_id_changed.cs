@@ -4,46 +4,57 @@
     using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
+    using NServiceBus.AcceptanceTesting.Support;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using NServiceBus.Features;
     using NUnit.Framework;
 
     [TestFixture]
     public class When_saga_id_changed : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_throw()
+        public void Should_throw()
         {
-            var context = await Scenario.Define<Context>()
+            var e2 = Assert.Throws<AggregateException>(async () => await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(
                     b => b.When(bus => bus.SendLocalAsync(new StartSaga
                     {
                         DataId = Guid.NewGuid()
                     })))
-                .AllowExceptions()
-                .Done(c => c.Exceptions.Any())
-                .Run();
+                .Done(c => c.FailedMessages.Any())
+                .Run());
 
-            Assert.True(context.Exceptions.Any(e =>
+            var exception = e2.InnerException as MessagesFailedException;
+
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(1, exception.FailedMessages.Count);
+            Assert.AreEqual(((Context)exception.ScenarioContext).MessageId, exception.FailedMessages.Single().MessageId, "Message should be moved to errorqueue");
+
+            Assert.True(exception.ScenarioContext.Exceptions.Any(e =>
                 e.Message.Contains("A modification of IContainSagaData.Id has been detected. This property is for infrastructure purposes only and should not be modified. SagaType: " + typeof(Endpoint.SagaIdChangedSaga))));
         }
 
         public class Context : ScenarioContext
         {
+            public string MessageId { get; set; }
         }
 
         public class Endpoint : EndpointConfigurationBuilder
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>(e => e.DisableFeature<SecondLevelRetries>());
             }
 
             public class SagaIdChangedSaga : Saga<SagaIdChangedSaga.SagaIdChangedSagaData>,
                 IAmStartedByMessages<StartSaga>
             {
+                public Context TestContext { get; set; }
+
                 public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
                     Data.Id = Guid.NewGuid();
+                    TestContext.MessageId = context.MessageId;
                     return Task.FromResult(0);
                 }
 

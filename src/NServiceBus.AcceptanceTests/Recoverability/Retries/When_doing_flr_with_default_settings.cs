@@ -20,7 +20,6 @@
                         await bus.SendLocalAsync(new MessageToBeRetried { Id = context.Id, SecondMessage = true });
                     })
                     .DoNotFailOnErrorMessages())
-                .AllowSimulatedExceptions()
                 .Done(c => c.SecondMessageReceived || c.NumberOfTimesInvoked > 1)
                 .Repeat(r => r.For(Transports.Default))
                 .Should(c => Assert.AreEqual(1, c.NumberOfTimesInvoked, "No retries should be in use if transactions are off"))

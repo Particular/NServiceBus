@@ -17,7 +17,6 @@
                     .WithEndpoint<RetryEndpoint>(b => b
                         .When((bus, context) => bus.SendLocalAsync(new MessageToBeRetried { Id = context.Id }))
                         .DoNotFailOnErrorMessages())
-                    .AllowSimulatedExceptions()
                     .Done(c => c.ForwardedToErrorQueue)
                     .Repeat(r => r.For(Transports.Default))
                     .Should(c =>

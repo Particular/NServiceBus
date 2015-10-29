@@ -14,7 +14,6 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
                 .WithEndpoint<RetryEndpoint>(b => b
                     .When(bus => bus.SendLocalAsync(new MessageToBeRetried()))
                     .DoNotFailOnErrorMessages())
-                .AllowSimulatedExceptions()
                 .Done(c => c.SlrChecksum != default(byte))
                 .Run();
 
@@ -28,7 +27,6 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
                 .WithEndpoint<RetryEndpoint>(b => b
                     .When(bus => bus.SendLocalAsync(new MessageToBeRetried()))
                     .DoNotFailOnErrorMessages())
-                .AllowSimulatedExceptions()
                 .Done(c => c.ForwardedToErrorQueue)
                 .Run();
 

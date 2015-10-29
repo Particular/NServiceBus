@@ -15,7 +15,6 @@
         {
             await Scenario.Define<Context>()
                     .WithEndpoint<SagaMsgThruSlrEndpt>(b => b.When(bus => bus.SendLocalAsync(new StartSagaMessage { SomeId = Guid.NewGuid() })))
-                    .AllowSimulatedExceptions()
                     .Done(c => c.SecondMessageProcessed)
                     .Repeat(r => r.For(Transports.Default))
                     .Run();

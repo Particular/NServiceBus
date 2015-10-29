@@ -17,7 +17,6 @@
             var context = await Scenario.Define<Context>()
                     .WithEndpoint<EndpointWithAuditOn>(b => b.When(bus => bus.SendLocalAsync(new MessageToBeAudited())))
                     .WithEndpoint<AuditSpyEndpoint>()
-                    .AllowSimulatedExceptions()
                     .Done(c => c.Done)
                     .Run();
 

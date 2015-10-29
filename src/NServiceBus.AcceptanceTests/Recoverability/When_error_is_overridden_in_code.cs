@@ -17,7 +17,6 @@
                     .When(bus => bus.SendLocalAsync(new Message()))
                     .DoNotFailOnErrorMessages())
                 .WithEndpoint<ErrorSpy>()
-                .AllowSimulatedExceptions()
                 .Done(c => c.MessageReceived)
                 .Run();
 

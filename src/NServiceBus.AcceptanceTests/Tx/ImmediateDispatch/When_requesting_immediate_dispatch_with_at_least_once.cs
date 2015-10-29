@@ -12,7 +12,6 @@
         {
             var context = await Scenario.Define<Context>()
                     .WithEndpoint<AtLeastOnceEndpoint>(b => b.When(bus => bus.SendLocalAsync(new InitiatingMessage())))
-                    .AllowSimulatedExceptions()
                     .Done(c => c.MessageDispatched)
                     .Run();
 

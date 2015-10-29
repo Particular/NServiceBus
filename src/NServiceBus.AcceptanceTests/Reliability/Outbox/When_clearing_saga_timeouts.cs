@@ -22,7 +22,6 @@
                 {
                     DataId = Guid.NewGuid()
                 })))
-                .AllowExceptions()
                 .Done(c => c.Done)
                 .Run();
 

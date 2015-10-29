@@ -13,7 +13,6 @@
                 .WithEndpoint<RetryEndpoint>(b => b
                     .When(bus => bus.SendLocalAsync(new MessageToBeRetried()))
                     .DoNotFailOnErrorMessages())
-                .AllowExceptions(e => e is MessageDeserializationException)
                 .Done(c => c.SlrChecksum != default(byte))
                 .Run();
 

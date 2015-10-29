@@ -17,7 +17,6 @@
                 {
                     SomeId = Guid.NewGuid()
                 })))
-                .AllowExceptions()
                 .Done(c => c.Exceptions.Any())
                 .Run();
 

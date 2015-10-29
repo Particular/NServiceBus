@@ -15,7 +15,6 @@ namespace NServiceBus.AcceptanceTests.Config
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<ThrottledEndpoint>(b => b.CustomConfig(c => c.LimitMessageProcessingConcurrencyTo(10)))
-                .AllowExceptions()
                 .Done(c => c.EndpointsStarted)
                 .Run();
 

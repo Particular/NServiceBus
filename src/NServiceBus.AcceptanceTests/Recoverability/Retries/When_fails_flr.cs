@@ -20,7 +20,6 @@
                     .WithEndpoint<SLREndpoint>(b => b
                         .When((bus, context) => bus.SendLocalAsync(new MessageToBeRetried { Id = context.Id }))
                         .DoNotFailOnErrorMessages())
-                    .AllowSimulatedExceptions()
                     .Done(c => c.NumberOfTimesInvoked >= 2)
                     .Repeat(r => r.For(Transports.Default))
                     .Should(context =>

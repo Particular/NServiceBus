@@ -19,7 +19,6 @@
             var context = await Scenario.Define<Context>()
                     .WithEndpoint<EndpointWithAuditOn>(b => b.When(bus => bus.SendLocalAsync(new MessageToBeForwarded())))
                     .WithEndpoint<ForwardingSpyEndpoint>()
-                    .AllowSimulatedExceptions()
                     .Done(c => c.Done)
                     .Run();
 

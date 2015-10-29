@@ -15,7 +15,6 @@
             await Scenario.Define<Context>(c => { c.FirstAttempt = true; })
                  .WithEndpoint<Endpoint>(b => b.When(bus => bus.SendLocalAsync(new MyMessage())))
                  .Done(c => c.MessageHandled)
-                 .AllowSimulatedExceptions()
                  .Repeat(r => r.For<AllNativeMultiQueueTransactionTransports>())
                  .Should(c =>
                  {

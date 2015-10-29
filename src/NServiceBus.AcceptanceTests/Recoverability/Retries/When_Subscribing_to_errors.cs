@@ -19,7 +19,6 @@
             await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<SLREndpoint>(b => b
                     .DoNotFailOnErrorMessages())
-                .AllowSimulatedExceptions()
                 .Done(c => c.MessageSentToError)
                 .Repeat(r => r.For<AllTransports>())
                 .Should(c =>

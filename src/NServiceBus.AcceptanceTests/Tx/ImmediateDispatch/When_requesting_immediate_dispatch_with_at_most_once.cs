@@ -14,7 +14,6 @@
                     .WithEndpoint<NonTransactionalEndpoint>(b => b
                         .When(bus => bus.SendLocalAsync(new InitiatingMessage()))
                         .DoNotFailOnErrorMessages())
-                    .AllowSimulatedExceptions()
                     .Done(c => c.MessageDispatched)
                     .Run();
 
