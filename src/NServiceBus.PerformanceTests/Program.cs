@@ -23,11 +23,11 @@
 
             if (!int.TryParse(testCaseToRun, out numberOfThreads))
             {
-                var testCase = TestCase.Load(testCaseToRun,args);
+                var testCase = TestCase.Load(testCaseToRun, args);
 
                 testCase.Run();
                 testCase.DumpSettings();
-              
+
                 return;
             }
 
@@ -93,30 +93,35 @@
             }
             configuration.UsePersistence<InMemoryPersistence>();
             configuration.RijndaelEncryptionService("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6");
-            
 
-            using (var startableBus = Bus.Create(configuration))
+            if (saga)
             {
-                if (saga)
+                configuration.RunWhenEndpointStartsAndStops(new StartActionRunner(b =>
                 {
-                    SeedSagaMessages(startableBus,numberOfMessages, endpointName, concurrency);
-                }
-                else
-                {
-                    Statistics.SendTimeNoTx = SeedInputQueue(startableBus,numberOfMessages / 2, endpointName, numberOfThreads, false, twoPhaseCommit, encryption);
-                    Statistics.SendTimeWithTx = SeedInputQueue(startableBus,numberOfMessages / 2, endpointName, numberOfThreads, true, twoPhaseCommit, encryption);
-                }
-
-                Statistics.StartTime = DateTime.Now;
-
-                startableBus.StartAsync().GetAwaiter().GetResult();
-
-                while (Interlocked.Read(ref Statistics.NumberOfMessages) < numberOfMessages)
-                    Thread.Sleep(1000);
-
-                DumpSetting(args);
-                Statistics.Dump();
+                    SeedSagaMessages(b, numberOfMessages, endpointName, concurrency);
+                }));
             }
+            else
+            {
+                configuration.RunWhenEndpointStartsAndStops(new StartActionRunner(b =>
+                {
+                    Statistics.SendTimeNoTx = SeedInputQueue(b, numberOfMessages / 2, endpointName, numberOfThreads, false, twoPhaseCommit, encryption);
+                    Statistics.SendTimeWithTx = SeedInputQueue(b, numberOfMessages / 2, endpointName, numberOfThreads, true, twoPhaseCommit, encryption);
+                }));
+            }
+
+            var startableBus = Endpoint.Create(configuration).Initialize().GetAwaiter().GetResult();
+
+            Statistics.StartTime = DateTime.Now;
+            var stoppable = startableBus.StartAsync().GetAwaiter().GetResult();
+            while (Interlocked.Read(ref Statistics.NumberOfMessages) < numberOfMessages)
+            {
+                Thread.Sleep(1000);
+            }
+            stoppable.StopAsync().GetAwaiter().GetResult();
+
+            DumpSetting(args);
+            Statistics.Dump();
         }
 
         static void DumpSetting(string[] args)
@@ -128,8 +133,8 @@
                                   args[3],
                                   args[5]);
         }
-
-        static void SeedSagaMessages(ISendOnlyBus bus,int numberOfMessages, string inputQueue, int concurrency)
+        
+        static void SeedSagaMessages(ISendOnlyBus bus, int numberOfMessages, string inputQueue, int concurrency)
         {
             for (var i = 0; i < numberOfMessages / concurrency; i++)
             {
@@ -142,14 +147,13 @@
                     }).GetAwaiter().GetResult();
                 }
             }
-
         }
 
-        static TimeSpan SeedInputQueue(ISendOnlyBus bus,int numberOfMessages, string inputQueue, int numberOfThreads, bool createTransaction, bool twoPhaseCommit, bool encryption)
+        static TimeSpan SeedInputQueue(ISendOnlyBus bus, int numberOfMessages, string inputQueue, int numberOfThreads, bool createTransaction, bool twoPhaseCommit, bool encryption)
         {
             var sw = new Stopwatch();
 
-         
+
             sw.Start();
             Parallel.For(
                 0,

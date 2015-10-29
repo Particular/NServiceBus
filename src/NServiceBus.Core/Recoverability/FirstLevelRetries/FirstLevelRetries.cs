@@ -58,7 +58,7 @@ namespace NServiceBus.Features
                 this.statusStorage = statusStorage;
             }
 
-            protected override void OnStart()
+            protected override void OnStart(ISendOnlyBus sendOnlyBus)
             {
                 timer = new Timer(ClearFlrStatusStorage, null, ClearingInterval, ClearingInterval);
             }

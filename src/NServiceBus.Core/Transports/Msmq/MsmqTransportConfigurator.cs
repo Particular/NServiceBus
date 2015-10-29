@@ -4,12 +4,11 @@
     using System.Linq;
     using System.Messaging;
     using System.Security;
-    using Logging;
-    using ObjectBuilder;
-    using Settings;
-    using Transports;
-    using Transports.Msmq;
-    using Utils;
+    using NServiceBus.Logging;
+    using NServiceBus.Settings;
+    using NServiceBus.Transports;
+    using NServiceBus.Transports.Msmq;
+    using NServiceBus.Utils;
 
     /// <summary>
     /// Used to configure the MSMQ transport.
@@ -26,16 +25,15 @@
 
         class CheckQueuePermissions : FeatureStartupTask
         {
-            IBuilder builder;
+            ReadOnlySettings settings;
 
-            public CheckQueuePermissions(IBuilder builder)
+            public CheckQueuePermissions(ReadOnlySettings settings)
             {
-                this.builder = builder;
+                this.settings = settings;
             }
 
-            protected override void OnStart()
+            protected override void OnStart(ISendOnlyBus sendOnlyBus)
             {
-                var settings = builder.Build<ReadOnlySettings>();
                 var queueBindings = settings.Get<QueueBindings>();
                 var boundQueueAddresses = queueBindings.ReceivingAddresses.Concat(queueBindings.SendingAddresses);
 

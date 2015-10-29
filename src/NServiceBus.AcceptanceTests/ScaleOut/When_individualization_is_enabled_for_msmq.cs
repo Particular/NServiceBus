@@ -41,7 +41,7 @@
 
                 public ReadOnlySettings ReadOnlySettings { get; set; }
 
-                public Task StartAsync()
+                public Task StartAsync(ISendOnlyBus bus)
                 {
                     Context.Address = ReadOnlySettings.Get<TransportDefinition>().ToTransportAddress(ReadOnlySettings.RootLogicalAddress());
                     Context.EndpointName = ReadOnlySettings.EndpointName().ToString();

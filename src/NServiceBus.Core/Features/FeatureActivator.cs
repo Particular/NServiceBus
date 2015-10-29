@@ -138,7 +138,7 @@ namespace NServiceBus.Features
             }
         }
 
-        public void StartFeatures(IBuilder builder)
+        public void StartFeatures(IBuilder builder, ISendOnlyBus sendOnlyBus)
         {
             foreach (var feature in features.Where(f => f.Feature.IsActive))
             {
@@ -146,7 +146,7 @@ namespace NServiceBus.Features
                 {
                     var task = (FeatureStartupTask) builder.Build(taskType);
 
-                    task.PerformStartup();
+                    task.PerformStartup(sendOnlyBus);
                 }
             }
         }

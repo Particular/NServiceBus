@@ -13,7 +13,7 @@
         public async Task Should_log_warning_if_queue_is_configured_with_anon_and_everyone_permissions()
         {
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                .WithEndpoint<EndPoint>(b => b.When((bus, c) => Task.FromResult(0)))
+                .WithEndpoint<Endpoint>(b => b.When((bus, c) => Task.FromResult(0)))
                 .Run();
 
             var logItem = context.Logs.FirstOrDefault(item => item.Message.Contains(@"[Everyone] and [NT AUTHORITY\ANONYMOUS LOGON]"));
@@ -26,10 +26,10 @@
             public Guid Id { get; set; }
         }
 
-        class EndPoint : EndpointConfigurationBuilder
+        class Endpoint : EndpointConfigurationBuilder
         {
             static bool initialized;
-            public EndPoint()
+            public Endpoint()
             {
                 if (initialized)
                 {

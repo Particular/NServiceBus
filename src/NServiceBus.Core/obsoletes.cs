@@ -190,25 +190,12 @@ namespace NServiceBus
         }
     }
 
-    public partial class Configure
-    {
-        [ObsoleteEx(
-            Message = "Static headers is no longer accessible via this object",
+    [ObsoleteEx(
+            Message = "This is no longer a public API",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
-        public IDictionary<string, string> OutgoingHeaders
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        [ObsoleteEx(
-            TreatAsErrorFromVersion = "6",
-            RemoveInVersion = "7",
-            ReplacementTypeOrMember = "ReadOnlySettings.LocalAddress()")]
-        public string LocalAddress
-        {
-            get { throw new NotImplementedException(); }
-        }
+    public class Configure
+    {
     }
 
     [ObsoleteEx(
@@ -1511,7 +1498,6 @@ namespace NServiceBus.Unicast
     }
 }
 
-
 namespace NServiceBus
 {
     using System;
@@ -1859,3 +1845,71 @@ namespace NServiceBus.Unicast.Transport
 }
 
 #pragma warning restore 0067
+namespace NServiceBus
+{
+    using System;
+    using System.Threading.Tasks;
+    using NServiceBus.ObjectBuilder;
+
+    [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "IFinalizeConfiguration")]
+    public interface IWantToRunBeforeConfigurationIsFinalized
+    {
+        /// <summary>
+        /// Invoked before configuration is finalized and locked.
+        /// </summary>
+        void Run(Configure config);
+    }
+
+    [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "IStartableEndpoint")]
+    public interface IStartableBus
+    {
+        Task<IBus> StartAsync();
+    }
+
+    public static class Bus
+    {
+        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "Endpoint.Create")]
+        public static IBus Create(BusConfiguration configuration)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "BusConfiguration.SendOnly")]
+        public static ISendOnlyBus CreateSendOnly(BusConfiguration configuration)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", Message = "Use extension methods provided on ISendOnlyBus")]
+    public class Schedule
+    {
+        public Schedule(IBuilder builder)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Every(TimeSpan timeSpan, Action task)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Every(TimeSpan timeSpan, string name, Action task)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+
+namespace NServiceBus.Installation
+{
+    using System.Threading.Tasks;
+
+    [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "IInstall")]
+    public interface INeedToInstallSomething
+    {
+        Task InstallAsync(string identity, Configure config);
+    }
+}
+
+

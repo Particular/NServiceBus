@@ -57,6 +57,7 @@
     <Compile Include="Saga\SagaData.cs" />
     <Compile Include="Saga\StartSagaMessage.cs" />
     <Compile Include="Encryption\EncryptionTestMessage.cs" />
+    <Compile Include="StartActionRunner.cs" />
     <Compile Include="StatisticsUoW.cs" />
     <Compile Include="PubSub\PubSubTestCase.cs" />
     <Compile Include="PubSub\TestCase.cs" />

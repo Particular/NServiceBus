@@ -13,7 +13,7 @@
         /// <summary>
         /// Method called at startup.
         /// </summary>
-        Task StartAsync();
+        Task StartAsync(ISendOnlyBus bus);
 
         /// <summary>
         /// Method called on shutdown.

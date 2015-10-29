@@ -12,7 +12,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
         public void Should_not_scan_nested_directories_by_default()
         {
             var busConfiguration = new BusConfiguration();
-            busConfiguration.BuildConfiguration();
+            busConfiguration.Build();
 
             var scanedTypes = busConfiguration.Settings.Get<IList<Type>>("TypesToScan");
             var foundTypeFromNestedAssembly = scanedTypes.Any(x => x.Name == "NestedClass");
@@ -25,7 +25,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
         {
             var busConfiguration = new BusConfiguration();
             busConfiguration.ScanAssembliesInNestedDirectories();
-            busConfiguration.BuildConfiguration();
+            busConfiguration.Build();
 
             var scanedTypes = busConfiguration.Settings.Get<IList<Type>>("TypesToScan");
             var foundTypeFromNestedAssembly = scanedTypes.Any(x => x.Name == "NestedClass");

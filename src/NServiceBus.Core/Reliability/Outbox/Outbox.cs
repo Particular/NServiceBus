@@ -81,7 +81,7 @@ The reason you need to do this is because we need to ensure that you have read a
 
     class DtcRunningWarning : FeatureStartupTask
     {
-        protected override void OnStart()
+        protected override void OnStart(ISendOnlyBus sendOnlyBus)
         {
             try
             {
