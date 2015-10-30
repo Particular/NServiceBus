@@ -14,7 +14,7 @@ namespace NServiceBus.Unicast
     using Transports;
 
     [SkipWeaving]
-    internal partial class ContextualBus : IBus, IContextualBus
+    partial class ContextualBus : IBus, IContextualBus
     {
         public ContextualBus(BehaviorContextStacker contextStacker, IMessageMapper messageMapper, IBuilder builder, ReadOnlySettings settings)
         {
