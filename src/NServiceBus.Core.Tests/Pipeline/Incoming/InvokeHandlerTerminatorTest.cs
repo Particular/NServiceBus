@@ -152,7 +152,7 @@
             // register a builder returning a contextual bus to avoid NullReferenceExceptions
             var funcBuilder = new FuncBuilder();
             behaviorContext.Set(typeof(IBuilder).FullName, funcBuilder);
-            funcBuilder.Register(typeof(ContextualBus), () => null);
+            behaviorContext.Set((ContextualBus) null);
 
             return behaviorContext;
         }

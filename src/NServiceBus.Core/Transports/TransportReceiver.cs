@@ -61,15 +61,14 @@ namespace NServiceBus.Transport
         {
             using (var childBuilder = builder.CreateChildBuilder())
             {
-                var configurer = (IConfigureComponents)childBuilder;
-
                 var context = new TransportReceiveContext(new IncomingMessage(pushContext.MessageId, pushContext.Headers, pushContext.BodyStream), new RootContext(childBuilder));
 
                 context.Merge(pushContext.Context);
 
                 var contextStacker = new BehaviorContextStacker(context);
                 var contextualBus = new ContextualBus(contextStacker, childBuilder.Build<IMessageMapper>(), childBuilder, childBuilder.Build<ReadOnlySettings>());
-                configurer.ConfigureComponent(c => contextualBus, DependencyLifecycle.SingleInstance);
+
+                context.Set(contextualBus);
                 await pipeline.Invoke(contextStacker).ConfigureAwait(false);
             }
         }
