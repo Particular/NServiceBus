@@ -10,7 +10,7 @@ namespace NServiceBus.Unicast
             this.busOperations = busOperations;
         }
         
-        public IBusContext CreateSendContext()
+        public IBusContext CreateBusContext()
         {
             return new BusContext(incomingContext, busOperations);
         }

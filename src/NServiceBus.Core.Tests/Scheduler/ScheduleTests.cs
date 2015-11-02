@@ -11,41 +11,41 @@
     public class ScheduleTests
     {
         const string ACTION_NAME = "my action";
-        FakeBus bus;
         DefaultScheduler scheduler;
+        IBusContext context;
 
         [SetUp]
         public void SetUp()
         {
             scheduler = new DefaultScheduler();
-            bus = new FakeBus(scheduler);
+            context = new FakeBus(scheduler).CreateBusContext();
         }
 
         [Test]
         public void When_scheduling_an_action_with_a_name_the_task_should_get_that_name()
         {
-            bus.ScheduleEvery(TimeSpan.FromMinutes(5), ACTION_NAME, () => { });
+            context.ScheduleEvery(TimeSpan.FromMinutes(5), ACTION_NAME, () => { });
             Assert.That(EnsureThatNameExists(ACTION_NAME));
         }
 
         [Test]
         public void When_scheduling_an_action_without_a_name_the_task_should_get_the_DeclaringType_as_name()
         {
-            bus.ScheduleEvery(TimeSpan.FromMinutes(5), () => { });
+            context.ScheduleEvery(TimeSpan.FromMinutes(5), () => { });
             Assert.That(EnsureThatNameExists("ScheduleTests"));
         }
 
         [Test]
         public void Ensure_retrieving_name_from_type_works_for_old_compiler()
         {
-            bus.ScheduleEvery(TimeSpan.FromMinutes(5), OldCompilerBits.ActionProvider.SimpleAction());
+            context.ScheduleEvery(TimeSpan.FromMinutes(5), OldCompilerBits.ActionProvider.SimpleAction());
             Assert.That(EnsureThatNameExists("ActionProvider"));
         }
 
         [Test]
         public void Ensure_retrieving_name_from_type_works_for_new_compiler()
         {
-            bus.ScheduleEvery(TimeSpan.FromMinutes(5), NewCompilerBits.ActionProvider.SimpleAction());
+            context.ScheduleEvery(TimeSpan.FromMinutes(5), NewCompilerBits.ActionProvider.SimpleAction());
             Assert.That(EnsureThatNameExists("ActionProvider"));
         }
 
@@ -63,7 +63,7 @@
             {
                 this.defaultScheduler = defaultScheduler;
             }
-            public IBusContext CreateSendContext()
+            public IBusContext CreateBusContext()
             {
                 return new FakeBusContext(defaultScheduler, SentMessages);
             }

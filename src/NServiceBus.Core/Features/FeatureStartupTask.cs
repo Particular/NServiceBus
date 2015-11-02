@@ -8,7 +8,7 @@
         /// <summary>
         /// Will be called when the endpoint starts up if the feature has been activated.
         /// </summary>
-        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "OnStart")]
+        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "OnStart(IBusInterface bus)")]
         protected virtual void OnStart()
         {
         }

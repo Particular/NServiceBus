@@ -6,20 +6,20 @@ namespace Runner
 
     public class StartActionRunner : IWantToRunWhenBusStartsAndStops
     {
-        Action<IBusInterface> seedAction;
+        Action<IBusContext> seedAction;
 
-        public StartActionRunner(Action<IBusInterface> seedAction)
+        public StartActionRunner(Action<IBusContext> seedAction)
         {
             this.seedAction = seedAction;
         }
 
-        public Task StartAsync(IBusInterface bus)
+        public Task StartAsync(IBusContext context)
         {
-            seedAction(bus);
+            seedAction(context);
             return Task.FromResult(0);
         }
 
-        public Task StopAsync()
+        public Task StopAsync(IBusContext context)
         {
             return Task.FromResult(0);
         }

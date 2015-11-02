@@ -12,8 +12,9 @@ namespace NServiceBus.Unicast
 
     partial class RunningEndpoint : IEndpoint
     {
-        public RunningEndpoint(IBuilder builder, ReadOnlySettings settings, PipelineCollection pipelineCollection, StartAndStoppablesRunner startAndStoppablesRunner, FeatureRunner featureRunner)
+        public RunningEndpoint(IBuilder builder, ReadOnlySettings settings, PipelineCollection pipelineCollection, StartAndStoppablesRunner startAndStoppablesRunner, FeatureRunner featureRunner, IBusContext busContext)
         {
+            this.busContext = busContext;
             this.pipelineCollection = pipelineCollection;
             this.startAndStoppablesRunner = startAndStoppablesRunner;
             this.featureRunner = featureRunner;
@@ -32,13 +33,13 @@ namespace NServiceBus.Unicast
 
             featureRunner.Stop();
             await pipelineCollection.Stop();
-            await startAndStoppablesRunner.StopAsync();
+            await startAndStoppablesRunner.StopAsync(busContext);
             builder.Dispose();
 
             stopped = true;
             Log.Info("Shutdown complete.");
         }
-        public IBusContext CreateSendContext()
+        public IBusContext CreateBusContext()
         {
             return new BusContext(new RootContext(builder), busOperations);
         }
@@ -51,5 +52,6 @@ namespace NServiceBus.Unicast
         BusOperations busOperations;
 
         static ILog Log = LogManager.GetLogger<UnicastBus>();
+        readonly IBusContext busContext;
     }
 }

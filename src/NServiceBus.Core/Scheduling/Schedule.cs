@@ -17,7 +17,7 @@ namespace NServiceBus
         /// <param name="bus">Bus.</param>
         /// <param name="timeSpan">The interval to repeatedly execute the <paramref name="task"/>.</param>
         /// <param name="task">The <see cref="System.Action"/> to execute.</param>
-        public static void ScheduleEvery(this IBusInterface bus, TimeSpan timeSpan, Action task)
+        public static void ScheduleEvery(this IBusContext bus, TimeSpan timeSpan, Action task)
         {
             Guard.AgainstNull(nameof(task), task);
             Guard.AgainstNegativeAndZero(nameof(timeSpan), timeSpan);
@@ -39,7 +39,7 @@ namespace NServiceBus
         /// <param name="timeSpan">The interval to repeatedly execute the <paramref name="task"/>.</param>
         /// <param name="task">The <see cref="System.Action"/> to execute.</param>
         /// <param name="name">The name to use used for logging inside the new <see cref="Thread"/>.</param>
-        public static void ScheduleEvery(this IBusInterface bus, TimeSpan timeSpan, string name, Action task)
+        public static void ScheduleEvery(this IBusContext bus, TimeSpan timeSpan, string name, Action task)
         {
             Guard.AgainstNull(nameof(task), task);
             Guard.AgainstNullAndEmpty(nameof(name), name);
@@ -53,7 +53,7 @@ namespace NServiceBus
             Schedule(taskDefinition, bus);
         }
 
-        static void Schedule(TaskDefinition taskDefinition, IBusInterface bus)
+        static void Schedule(TaskDefinition taskDefinition, IBusContext context)
         {
             logger.DebugFormat("Task '{0}' (with id {1}) scheduled with timeSpan {2}", taskDefinition.Name, taskDefinition.Id, taskDefinition.Every);
 
@@ -62,7 +62,7 @@ namespace NServiceBus
             options.RouteToLocalEndpointInstance();
             options.Context.GetOrCreate<ScheduleBehavior.State>().TaskDefinition = taskDefinition;
 
-            bus.CreateSendContext().SendAsync(new Scheduling.Messages.ScheduledTask
+            context.SendAsync(new Scheduling.Messages.ScheduledTask
             {
                 TaskId = taskDefinition.Id,
                 Name = taskDefinition.Name,

@@ -40,13 +40,13 @@
 
                 public ReadOnlySettings Settings { get; set; }
 
-                public Task StartAsync(IBusInterface bus)
+                public Task StartAsync(IBusContext context)
                 {
                     Context.Address = Settings.RootLogicalAddress().ToString();
                     return Task.FromResult(0);
                 }
 
-                public Task StopAsync()
+                public Task StopAsync(IBusContext context)
                 {
                     return Task.FromResult(0);
                 }

@@ -61,7 +61,7 @@
             var runner = new StartAndStoppablesRunner(thingsToBeStarted);
             await runner.StartAsync(null);
 
-            await runner.StopAsync();
+            await runner.StopAsync(null);
 
             Assert.True(startable1.Stopped);
             Assert.True(startable2.Stopped);
@@ -86,7 +86,7 @@
                 // ignored
             }
 
-            await runner.StopAsync();
+            await runner.StopAsync(null);
 
             Assert.True(startable1.Stopped);
             Assert.True(startable2.Stopped);
@@ -112,7 +112,7 @@
                 // ignored
             }
 
-            Assert.DoesNotThrow(async() => await runner.StopAsync());
+            Assert.DoesNotThrow(async() => await runner.StopAsync(null));
             Assert.True(startable1.Stopped);
             Assert.True(startable2.Stopped);
         }
@@ -136,7 +136,7 @@
                 // ignored
             }
 
-            Assert.DoesNotThrow(async () => await runner.StopAsync());
+            Assert.DoesNotThrow(async () => await runner.StopAsync(null));
             Assert.True(startable1.Stopped);
             Assert.True(startable2.Stopped);
         }
@@ -146,13 +146,13 @@
             public bool Started { get; set; }
             public bool Stopped { get; set; }
 
-            public Task StartAsync(IBusInterface sendOnlyBus)
+            public Task StartAsync(IBusContext context)
             {
                 Started = true;
                 return Task.FromResult(0);
             }
 
-            public Task StopAsync()
+            public Task StopAsync(IBusContext context)
             {
                 Stopped = true;
                 return Task.FromResult(0);
@@ -164,13 +164,13 @@
             public bool Started { get; set; }
             public bool Stopped { get; set; }
 
-            public Task StartAsync(IBusInterface sendOnlyBus)
+            public Task StartAsync(IBusContext context)
             {
                 Started = true;
                 return Task.FromResult(0);
             }
 
-            public Task StopAsync()
+            public Task StopAsync(IBusContext context)
             {
                 Stopped = true;
                 return Task.FromResult(0);
@@ -181,12 +181,12 @@
         {
             public bool Stopped { get; set; }
 
-            public Task StartAsync(IBusInterface sendOnlyBus)
+            public Task StartAsync(IBusContext context)
             {
                 throw new InvalidOperationException("SyncThrowingStart");
             }
 
-            public Task StopAsync()
+            public Task StopAsync(IBusContext context)
             {
                 Stopped = true;
                 return Task.FromResult(0);
@@ -197,13 +197,13 @@
         {
             public bool Stopped { get; set; }
 
-            public async Task StartAsync(IBusInterface sendOnlyBus)
+            public async Task StartAsync(IBusContext context)
             {
-                await Task.Delay(20);
+                await Task.Yield();
                 throw new InvalidOperationException("AsyncThrowingStart");
             }
 
-            public Task StopAsync()
+            public Task StopAsync(IBusContext context)
             {
                 Stopped = true;
                 return Task.FromResult(0);
@@ -214,13 +214,13 @@
         {
             public bool Started { get; set; }
 
-            public Task StartAsync(IBusInterface sendOnlyBus)
+            public Task StartAsync(IBusContext context)
             {
                 Started = true;
                 return Task.FromResult(0);
             }
 
-            public Task StopAsync()
+            public Task StopAsync(IBusContext context)
             {
                 throw new InvalidOperationException("SyncThrowingStop");
             }
@@ -230,15 +230,15 @@
         {
             public bool Started { get; set; }
 
-            public Task StartAsync(IBusInterface sendOnlyBus)
+            public Task StartAsync(IBusContext context)
             {
                 Started = true;
                 return Task.FromResult(0);
             }
 
-            public async Task StopAsync()
+            public async Task StopAsync(IBusContext context)
             {
-                await Task.Delay(20);
+                await Task.Yield();
                 throw new InvalidOperationException("AsyncThrowingStop");
             }
         }

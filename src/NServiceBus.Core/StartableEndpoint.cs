@@ -43,7 +43,8 @@ namespace NServiceBus
 
             var allStartables = builder.BuildAll<IWantToRunWhenBusStartsAndStops>().Concat(startables).ToList();
             var runner = new StartAndStoppablesRunner(allStartables);
-            await runner.StartAsync(busInterface).ConfigureAwait(false);
+            var busContext = busInterface.CreateBusContext();
+            await runner.StartAsync(busContext).ConfigureAwait(false);
 
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 
@@ -58,7 +59,7 @@ namespace NServiceBus
                 pipelineCollection = new PipelineCollection(pipelines);
                 await pipelineCollection.Start().ConfigureAwait(false);
             }
-            var runningInstance = new RunningEndpoint(builder, settings, pipelineCollection, runner, featureRunner);
+            var runningInstance = new RunningEndpoint(builder, settings, pipelineCollection, runner, featureRunner, busContext);
             return runningInstance;
         }
 
@@ -75,7 +76,7 @@ namespace NServiceBus
                 this.settings = settings;
             }
 
-            public IBusContext CreateSendContext()
+            public IBusContext CreateBusContext()
             {
                 return new BusContext(new RootContext(builder), new BusOperations(messageMapper, settings));
             }

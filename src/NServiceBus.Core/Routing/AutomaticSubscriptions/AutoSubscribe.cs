@@ -88,7 +88,7 @@
 
             protected override void OnStart(IBusInterface sendOnlyBus)
             {
-                var sendContext = sendOnlyBus.CreateSendContext();
+                var sendContext = sendOnlyBus.CreateBusContext();
                 foreach (var eventType in eventsToSubscribe)
                 {
                     sendContext.SubscribeAsync(eventType).GetAwaiter().GetResult();

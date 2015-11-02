@@ -96,17 +96,17 @@
 
             if (saga)
             {
-                configuration.RunWhenEndpointStartsAndStops(new StartActionRunner(b =>
+                configuration.RunWhenEndpointStartsAndStops(new StartActionRunner(context =>
                 {
-                    SeedSagaMessages(b, numberOfMessages, endpointName, concurrency);
+                    SeedSagaMessages(context, numberOfMessages, endpointName, concurrency);
                 }));
             }
             else
             {
-                configuration.RunWhenEndpointStartsAndStops(new StartActionRunner(b =>
+                configuration.RunWhenEndpointStartsAndStops(new StartActionRunner(context =>
                 {
-                    Statistics.SendTimeNoTx = SeedInputQueue(b, numberOfMessages / 2, endpointName, numberOfThreads, false, twoPhaseCommit, encryption);
-                    Statistics.SendTimeWithTx = SeedInputQueue(b, numberOfMessages / 2, endpointName, numberOfThreads, true, twoPhaseCommit, encryption);
+                    Statistics.SendTimeNoTx = SeedInputQueue(context, numberOfMessages / 2, endpointName, numberOfThreads, false, twoPhaseCommit, encryption);
+                    Statistics.SendTimeWithTx = SeedInputQueue(context, numberOfMessages / 2, endpointName, numberOfThreads, true, twoPhaseCommit, encryption);
                 }));
             }
 
@@ -134,15 +134,15 @@
                                   args[5]);
         }
         
-        static void SeedSagaMessages(IBusInterface bus, int numberOfMessages, string inputQueue, int concurrency)
+        static void SeedSagaMessages(IBusContext context, int numberOfMessages, string inputQueue, int concurrency)
         {
-            var sendContext = bus.CreateSendContext();
+            var busContext = context;
             for (var i = 0; i < numberOfMessages / concurrency; i++)
             {
 
                 for (var j = 0; j < concurrency; j++)
                 {
-                    sendContext.SendAsync(inputQueue, new StartSagaMessage
+                    busContext.SendAsync(inputQueue, new StartSagaMessage
                     {
                         Id = i
                     }).GetAwaiter().GetResult();
@@ -150,10 +150,10 @@
             }
         }
 
-        static TimeSpan SeedInputQueue(IBusInterface bus, int numberOfMessages, string inputQueue, int numberOfThreads, bool createTransaction, bool twoPhaseCommit, bool encryption)
+        static TimeSpan SeedInputQueue(IBusContext context, int numberOfMessages, string inputQueue, int numberOfThreads, bool createTransaction, bool twoPhaseCommit, bool encryption)
         {
             var sw = new Stopwatch();
-            var sendContext = bus.CreateSendContext();
+            var busContext = context;
 
             sw.Start();
             Parallel.For(
@@ -170,13 +170,13 @@
                     {
                         using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                         {
-                            sendContext.SendAsync(inputQueue, message).GetAwaiter().GetResult();
+                            busContext.SendAsync(inputQueue, message).GetAwaiter().GetResult();
                             tx.Complete();
                         }
                     }
                     else
                     {
-                        sendContext.SendAsync(inputQueue, message).GetAwaiter().GetResult();
+                        busContext.SendAsync(inputQueue, message).GetAwaiter().GetResult();
                     }
                 });
             sw.Stop();

@@ -92,13 +92,13 @@
                 public Context Context { get; set; }
                 public ReadOnlySettings Settings { get; set; }
 
-                public Task StartAsync(IBusInterface bus)
+                public Task StartAsync(IBusContext context)
                 {
                     Context.GeneratorWasCalled = Settings.Get<bool>("GeneratorWasCalled");
                     return Task.FromResult(0);
                 }
 
-                public Task StopAsync()
+                public Task StopAsync(IBusContext context)
                 {
                     return Task.FromResult(0);
                 }

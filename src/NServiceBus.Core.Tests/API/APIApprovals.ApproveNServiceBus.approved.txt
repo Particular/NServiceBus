@@ -473,7 +473,7 @@ namespace NServiceBus
     }
     public interface IBusInterface
     {
-        NServiceBus.IBusContext CreateSendContext();
+        NServiceBus.IBusContext CreateBusContext();
     }
     [System.ObsoleteAttribute("Replaced by NServiceBus.Callbacks package. Will be removed in version 7.0.0.", true)]
     public interface ICallback { }
@@ -620,8 +620,8 @@ namespace NServiceBus
     }
     public interface IWantToRunWhenBusStartsAndStops
     {
-        System.Threading.Tasks.Task StartAsync(NServiceBus.IBusInterface bus);
-        System.Threading.Tasks.Task StopAsync();
+        System.Threading.Tasks.Task StartAsync(NServiceBus.IBusContext context);
+        System.Threading.Tasks.Task StopAsync(NServiceBus.IBusContext context);
     }
     public class static IWantToRunWhenBusStartsAndStopsExtensions_obsoletes
     {
@@ -866,8 +866,8 @@ namespace NServiceBus
     }
     public class static ScheduleBusExtensions
     {
-        public static void ScheduleEvery(this NServiceBus.IBusInterface bus, System.TimeSpan timeSpan, System.Action task) { }
-        public static void ScheduleEvery(this NServiceBus.IBusInterface bus, System.TimeSpan timeSpan, string name, System.Action task) { }
+        public static void ScheduleEvery(this NServiceBus.IBusContext bus, System.TimeSpan timeSpan, System.Action task) { }
+        public static void ScheduleEvery(this NServiceBus.IBusContext bus, System.TimeSpan timeSpan, string name, System.Action task) { }
     }
     public class static SecondLevelRetriesConfigExtensions
     {
@@ -1463,7 +1463,8 @@ namespace NServiceBus.Features
     public abstract class FeatureStartupTask
     {
         protected FeatureStartupTask() { }
-        [System.ObsoleteAttribute("Please use `OnStart` instead. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Please use `OnStart(IBusInterface bus)` instead. Will be removed in version 7.0.0" +
+            ".", true)]
         protected virtual void OnStart() { }
         protected abstract void OnStart(NServiceBus.IBusInterface bus);
         protected virtual void OnStop() { }

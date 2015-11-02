@@ -105,7 +105,7 @@
                     await Task.Run(async () =>
                     {
                         var executedWhens = new List<Guid>();
-                        var sendContext = endpoint.CreateSendContext();
+                        var sendContext = endpoint.CreateBusContext();
 
                         while (!token.IsCancellationRequested)
                         {

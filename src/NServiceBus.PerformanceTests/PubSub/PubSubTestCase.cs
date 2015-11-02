@@ -66,9 +66,9 @@ public class PubSubTestCase : TestCase
                 break;
         }
 
-        configuration.RunWhenEndpointStartsAndStops(new StartActionRunner(b =>
+        configuration.RunWhenEndpointStartsAndStops(new StartActionRunner(context =>
         {
-            var sendContext = b.CreateSendContext();
+            var busContext = context;
             Parallel.For(
                 0,
                 NumberMessages,
@@ -76,7 +76,7 @@ public class PubSubTestCase : TestCase
                 {
                     MaxDegreeOfParallelism = NumberOfThreads
                 },
-                x => sendContext.SendLocalAsync(new PerformPublish()).GetAwaiter().GetResult());
+                x => busContext.SendLocalAsync(new PerformPublish()).GetAwaiter().GetResult());
         }));
         Statistics.StartTime = DateTime.Now;
         var endpoint = Endpoint.StartAsync(configuration).GetAwaiter().GetResult();

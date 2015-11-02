@@ -13,11 +13,11 @@
         /// <summary>
         /// Method called at startup.
         /// </summary>
-        Task StartAsync(IBusInterface bus);
+        Task StartAsync(IBusContext context);
 
         /// <summary>
         /// Method called on shutdown.
         /// </summary>
-        Task StopAsync();
+        Task StopAsync(IBusContext context);
     }
 }
