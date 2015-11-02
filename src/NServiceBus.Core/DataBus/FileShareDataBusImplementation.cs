@@ -58,7 +58,7 @@ namespace NServiceBus.DataBus
 			using (var output = new FileStream(filePath, FileMode.CreateNew, FileAccess.Write, FileShare.Read, 4096, FileOptions.Asynchronous))
 			{
 			    const int bufferSize = 32 * 1024;
-                await stream.CopyToAsync(output, bufferSize);
+                await stream.CopyToAsync(output, bufferSize).ConfigureAwait(false);
 			}
 
             logger.DebugFormat("Saved stream to '{0}'.", filePath);
