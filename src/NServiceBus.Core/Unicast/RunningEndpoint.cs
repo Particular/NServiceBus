@@ -27,10 +27,10 @@ namespace NServiceBus.Unicast
 
             Log.Info("Initiating shutdown.");
 
+            await pipelineCollection.Stop().ConfigureAwait(false);
             var busContext = CreateBusContext();
             featureRunner.Stop(busContext);
-            await pipelineCollection.Stop();
-            await startAndStoppablesRunner.StopAsync(busContext);
+            await startAndStoppablesRunner.StopAsync(busContext).ConfigureAwait(false);
             builder.Dispose();
 
             stopped = true;
