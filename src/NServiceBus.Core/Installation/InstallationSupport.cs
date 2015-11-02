@@ -51,7 +51,7 @@ namespace NServiceBus.Features
                 this.readOnlySettings = readOnlySettings;
             }
 
-            protected override void OnStart(IBusInterface sendOnlyBus)
+            protected override void OnStart(IBusContext context)
             {
                 var username = GetInstallationUserName(readOnlySettings);
                 foreach (var installer in builder.BuildAll<IInstall>())

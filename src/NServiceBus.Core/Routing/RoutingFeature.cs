@@ -136,7 +136,7 @@
                 this.builder = builder;
             }
 
-            protected override void OnStart(IBusInterface sendOnlyBus)
+            protected override void OnStart(IBusContext context)
             {
                 var transportDefinition = settings.Get<TransportDefinition>();
                 if (transportDefinition.GetOutboundRoutingPolicy(settings).Publishes == OutboundRoutingType.DirectSend) //Publish via send

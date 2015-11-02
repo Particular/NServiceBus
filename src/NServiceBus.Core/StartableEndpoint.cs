@@ -39,11 +39,11 @@ namespace NServiceBus
         {
             var busInterface = new StartUpBusInterface(builder, builder.Build<IMessageMapper>(), settings);
             var featureRunner = new FeatureRunner(builder, featureActivator);
-            featureRunner.Start(busInterface);
+            var busContext = busInterface.CreateBusContext();
+            featureRunner.Start(busContext);
 
             var allStartables = builder.BuildAll<IWantToRunWhenBusStartsAndStops>().Concat(startables).ToList();
             var runner = new StartAndStoppablesRunner(allStartables);
-            var busContext = busInterface.CreateBusContext();
             await runner.StartAsync(busContext).ConfigureAwait(false);
 
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
@@ -59,7 +59,7 @@ namespace NServiceBus
                 pipelineCollection = new PipelineCollection(pipelines);
                 await pipelineCollection.Start().ConfigureAwait(false);
             }
-            var runningInstance = new RunningEndpoint(builder, settings, pipelineCollection, runner, featureRunner, busContext);
+            var runningInstance = new RunningEndpoint(builder, pipelineCollection, runner, featureRunner, busInterface);
             return runningInstance;
         }
 

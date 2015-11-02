@@ -16,14 +16,14 @@ namespace NServiceBus.Features
             this.featureActivator = featureActivator;
         }
 
-        public void Start(IBusInterface sendOnlyBus)
+        public void Start(IBusContext busContext)
         {
-            featureActivator.StartFeatures(builder, sendOnlyBus);
+            featureActivator.StartFeatures(builder, busContext);
         }
 
-        public void Stop()
+        public void Stop(IBusContext busContext)
         {
-            featureActivator.StopFeatures(builder);
+            featureActivator.StopFeatures(builder, busContext);
         }
     }
 }

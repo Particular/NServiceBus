@@ -58,12 +58,12 @@ namespace NServiceBus.Features
                 this.statusStorage = statusStorage;
             }
 
-            protected override void OnStart(IBusInterface sendOnlyBus)
+            protected override void OnStart(IBusContext context)
             {
                 timer = new Timer(ClearFlrStatusStorage, null, ClearingInterval, ClearingInterval);
             }
 
-            protected override void OnStop()
+            protected override void OnStop(IBusContext context)
             {
                 timer?.Dispose();
             }

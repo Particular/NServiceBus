@@ -34,7 +34,7 @@
             public XmlMessageSerializer Serializer { get; set; }
             public ReadOnlySettings Settings { get; set; }
 
-            protected override void OnStart(IBusInterface sendOnlyBus)
+            protected override void OnStart(IBusContext context)
             {
                 if (Mapper == null)
                 {

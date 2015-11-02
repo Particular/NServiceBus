@@ -32,7 +32,7 @@
                 this.settings = settings;
             }
 
-            protected override void OnStart(IBusInterface sendOnlyBus)
+            protected override void OnStart(IBusContext context)
             {
                 var queueBindings = settings.Get<QueueBindings>();
                 var boundQueueAddresses = queueBindings.ReceivingAddresses.Concat(queueBindings.SendingAddresses);

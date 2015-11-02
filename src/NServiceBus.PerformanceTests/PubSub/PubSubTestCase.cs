@@ -106,7 +106,7 @@ public class PrimeSubscriptionStorage : Feature
 
         public IInitializableSubscriptionStorage SubscriptionStorage { get; set; }
 
-        protected override void OnStart(IBusInterface sendOnlyBus)
+        protected override void OnStart(IBusContext context)
         {
             PrimeSubscriptionStorage(SubscriptionStorage);
         }

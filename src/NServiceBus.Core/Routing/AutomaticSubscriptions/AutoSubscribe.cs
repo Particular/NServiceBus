@@ -86,12 +86,11 @@
                 this.eventsToSubscribe = eventsToSubscribe;
             }
 
-            protected override void OnStart(IBusInterface sendOnlyBus)
+            protected override void OnStart(IBusContext context)
             {
-                var sendContext = sendOnlyBus.CreateBusContext();
                 foreach (var eventType in eventsToSubscribe)
                 {
-                    sendContext.SubscribeAsync(eventType).GetAwaiter().GetResult();
+                    context.SubscribeAsync(eventType).GetAwaiter().GetResult();
                     Logger.DebugFormat("Auto subscribed to event {0}", eventType);
                 }
             }

@@ -43,7 +43,7 @@ namespace NServiceBus.Serializers.Json.Tests
                     this.builder = builder;
                 }
 
-                protected override void OnStart(IBusInterface bus)
+                protected override void OnStart(IBusContext context)
                 {
                     var serializer = builder.Build<JsonMessageSerializer>();
                     Assert.AreSame(Encoding.UTF7, serializer.Encoding);

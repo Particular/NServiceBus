@@ -33,12 +33,12 @@
 
             public TimeSpan TimeToKeepDeduplicationData { get; set; }
 
-            protected override void OnStart(IBusInterface sendOnlyBus)
+            protected override void OnStart(IBusContext context)
             {
                 cleanupTimer = new Timer(PerformCleanup, null, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
             }
 
-            protected override void OnStop()
+            protected override void OnStop(IBusContext context)
             {
                 using (var waitHandle = new ManualResetEvent(false))
                 {

@@ -24,7 +24,7 @@
             featureSettings.SetupFeatures(new FeatureConfigurationContext(null, null, null));
 
             featureSettings.StartFeatures(builder, null);
-            featureSettings.StopFeatures(builder);
+            featureSettings.StopFeatures(builder, null);
 
             Assert.True(FeatureWithStartupTask.Runner.Started);
             Assert.True(FeatureWithStartupTask.Runner.Stopped);
@@ -44,7 +44,7 @@
             featureSettings.SetupFeatures(new FeatureConfigurationContext(null, null, null));
 
             featureSettings.StartFeatures(builder, null);
-            featureSettings.StopFeatures(builder);
+            featureSettings.StopFeatures(builder, null);
 
             Assert.True(FeatureWithStartupTaskWhichIsDisposable.Runner.Disposed);
         }
@@ -57,14 +57,14 @@
                 RegisterStartupTask<Runner>();
             }
 
-            public class Runner:FeatureStartupTask
+            public class Runner : FeatureStartupTask
             {
-                protected override void OnStart(IBusInterface sendOnlyBus)
+                protected override void OnStart(IBusContext context)
                 {
                     Started = true;
                 }
 
-                protected override void OnStop()
+                protected override void OnStop(IBusContext context)
                 {
                     Stopped = true;
                 }
@@ -84,7 +84,7 @@
 
             public class Runner : FeatureStartupTask, IDisposable
             {
-                protected override void OnStart(IBusInterface sendOnlyBus)
+                protected override void OnStart(IBusContext context)
                 {
                 }
 

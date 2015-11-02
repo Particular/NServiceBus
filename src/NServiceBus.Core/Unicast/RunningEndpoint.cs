@@ -4,22 +4,18 @@ namespace NServiceBus.Unicast
     using System.Threading.Tasks;
     using NServiceBus.Features;
     using NServiceBus.Logging;
-    using NServiceBus.MessageInterfaces;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.Settings;
 
     partial class RunningEndpoint : IEndpoint
     {
-        public RunningEndpoint(IBuilder builder, ReadOnlySettings settings, PipelineCollection pipelineCollection, StartAndStoppablesRunner startAndStoppablesRunner, FeatureRunner featureRunner, IBusContext busContext)
+        public RunningEndpoint(IBuilder builder, PipelineCollection pipelineCollection, StartAndStoppablesRunner startAndStoppablesRunner, FeatureRunner featureRunner, IBusInterface busInterface)
         {
-            this.busContext = busContext;
+            this.busInterface = busInterface;
             this.pipelineCollection = pipelineCollection;
             this.startAndStoppablesRunner = startAndStoppablesRunner;
             this.featureRunner = featureRunner;
             this.builder = builder;
-            busOperations = new BusOperations(builder.Build<IMessageMapper>(), settings);
         }
 
         public async Task StopAsync()
@@ -31,7 +27,8 @@ namespace NServiceBus.Unicast
 
             Log.Info("Initiating shutdown.");
 
-            featureRunner.Stop();
+            var busContext = CreateBusContext();
+            featureRunner.Stop(busContext);
             await pipelineCollection.Stop();
             await startAndStoppablesRunner.StopAsync(busContext);
             builder.Dispose();
@@ -41,7 +38,7 @@ namespace NServiceBus.Unicast
         }
         public IBusContext CreateBusContext()
         {
-            return new BusContext(new RootContext(builder), busOperations);
+            return busInterface.CreateBusContext();
         }
 
         volatile bool stopped;
@@ -49,9 +46,8 @@ namespace NServiceBus.Unicast
         StartAndStoppablesRunner startAndStoppablesRunner;
         FeatureRunner featureRunner;
         IBuilder builder;
-        BusOperations busOperations;
 
         static ILog Log = LogManager.GetLogger<UnicastBus>();
-        readonly IBusContext busContext;
+        readonly IBusInterface busInterface;
     }
 }

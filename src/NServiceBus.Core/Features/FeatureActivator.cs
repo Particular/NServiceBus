@@ -138,7 +138,7 @@ namespace NServiceBus.Features
             }
         }
 
-        public void StartFeatures(IBuilder builder, IBusInterface sendOnlyBus)
+        public void StartFeatures(IBuilder builder, IBusContext context)
         {
             foreach (var feature in features.Where(f => f.Feature.IsActive))
             {
@@ -146,12 +146,12 @@ namespace NServiceBus.Features
                 {
                     var task = (FeatureStartupTask) builder.Build(taskType);
 
-                    task.PerformStartup(sendOnlyBus);
+                    task.PerformStartup(context);
                 }
             }
         }
 
-        public void StopFeatures(IBuilder builder)
+        public void StopFeatures(IBuilder builder, IBusContext context)
         {
             foreach (var feature in features.Where(f => f.Feature.IsActive))
             {
@@ -159,7 +159,7 @@ namespace NServiceBus.Features
                 {
                     var task = (FeatureStartupTask) builder.Build(taskType);
 
-                    task.PerformStop();
+                    task.PerformStop(context);
 
                     DisposeIfNecessary(task);
                 }
