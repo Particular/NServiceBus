@@ -136,13 +136,12 @@
         
         static void SeedSagaMessages(IBusContext context, int numberOfMessages, string inputQueue, int concurrency)
         {
-            var busContext = context;
             for (var i = 0; i < numberOfMessages / concurrency; i++)
             {
 
                 for (var j = 0; j < concurrency; j++)
                 {
-                    busContext.SendAsync(inputQueue, new StartSagaMessage
+                    context.SendAsync(inputQueue, new StartSagaMessage
                     {
                         Id = i
                     }).GetAwaiter().GetResult();
@@ -153,7 +152,6 @@
         static TimeSpan SeedInputQueue(IBusContext context, int numberOfMessages, string inputQueue, int numberOfThreads, bool createTransaction, bool twoPhaseCommit, bool encryption)
         {
             var sw = new Stopwatch();
-            var busContext = context;
 
             sw.Start();
             Parallel.For(
@@ -170,13 +168,13 @@
                     {
                         using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                         {
-                            busContext.SendAsync(inputQueue, message).GetAwaiter().GetResult();
+                            context.SendAsync(inputQueue, message).GetAwaiter().GetResult();
                             tx.Complete();
                         }
                     }
                     else
                     {
-                        busContext.SendAsync(inputQueue, message).GetAwaiter().GetResult();
+                        context.SendAsync(inputQueue, message).GetAwaiter().GetResult();
                     }
                 });
             sw.Stop();
