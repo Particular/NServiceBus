@@ -43,10 +43,11 @@ namespace NServiceBus.Core.Tests.Config
                     this.settings = settings;
                 }
 
-                protected override void OnStart(IBusContext context)
+                protected override Task OnStart(IBusContext context)
                 {
                     var section = settings.GetConfigSection<TestConfigurationSection>();
                     Assert.AreEqual(section.TestSetting, "TestValue");
+                    return Task.FromResult(0);
                 }
             }
         }

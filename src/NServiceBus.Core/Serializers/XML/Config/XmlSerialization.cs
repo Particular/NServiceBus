@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Threading.Tasks;
     using NServiceBus.MessageInterfaces;
     using NServiceBus.Serialization;
     using NServiceBus.Serializers.XML;
@@ -34,17 +35,19 @@
             public XmlMessageSerializer Serializer { get; set; }
             public ReadOnlySettings Settings { get; set; }
 
-            protected override void OnStart(IBusContext context)
+            protected override Task OnStart(IBusContext context)
             {
                 if (Mapper == null)
                 {
-                    return;
+                    return TaskEx.Completed;
                 }
 
                 var messageTypes = Settings.GetAvailableTypes().Where(Settings.Get<Conventions>().IsMessageType).ToList();
 
                 Mapper.Initialize(messageTypes);
                 Serializer.Initialize(messageTypes);
+
+                return TaskEx.Completed;
             }
         }
     }

@@ -40,7 +40,7 @@ namespace NServiceBus
             var busInterface = new StartUpBusInterface(builder, builder.Build<IMessageMapper>(), settings);
             var featureRunner = new FeatureRunner(builder, featureActivator);
             var busContext = busInterface.CreateBusContext();
-            featureRunner.Start(busContext);
+            await featureRunner.StartAsync(busContext).ConfigureAwait(false);
 
             var allStartables = builder.BuildAll<IWantToRunWhenBusStartsAndStops>().Concat(startables).ToList();
             var runner = new StartAndStoppablesRunner(allStartables);

@@ -29,7 +29,7 @@ namespace NServiceBus.Unicast
 
             await pipelineCollection.Stop().ConfigureAwait(false);
             var busContext = CreateBusContext();
-            featureRunner.Stop(busContext);
+            await featureRunner.StopAsync(busContext).ConfigureAwait(false);
             await startAndStoppablesRunner.StopAsync(busContext).ConfigureAwait(false);
             builder.Dispose();
 

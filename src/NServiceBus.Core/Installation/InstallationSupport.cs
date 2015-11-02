@@ -5,6 +5,7 @@ namespace NServiceBus.Features
     using System.Diagnostics;
     using System.Linq;
     using System.Security.Principal;
+    using System.Threading.Tasks;
     using NServiceBus.Installation;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Settings;
@@ -51,12 +52,12 @@ namespace NServiceBus.Features
                 this.readOnlySettings = readOnlySettings;
             }
 
-            protected override void OnStart(IBusContext context)
+            protected override async Task OnStart(IBusContext context)
             {
                 var username = GetInstallationUserName(readOnlySettings);
                 foreach (var installer in builder.BuildAll<IInstall>())
                 {
-                    installer.InstallAsync(username).GetAwaiter().GetResult();
+                    await installer.InstallAsync(username).ConfigureAwait(false);
                 }
             }
 

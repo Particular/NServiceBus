@@ -105,12 +105,12 @@ public class PrimeSubscriptionStorage : Feature
 
         public IInitializableSubscriptionStorage SubscriptionStorage { get; set; }
 
-        protected override void OnStart(IBusContext context)
+        protected override Task OnStart(IBusContext context)
         {
-            PrimeSubscriptionStorage(SubscriptionStorage);
+            return PrimeSubscriptionStorage(SubscriptionStorage);
         }
 
-        void PrimeSubscriptionStorage(IInitializableSubscriptionStorage subscriptionStorage)
+        async Task PrimeSubscriptionStorage(IInitializableSubscriptionStorage subscriptionStorage)
         {
             var testEventMessage = new MessageType(typeof(TestEvent));
 
@@ -129,10 +129,11 @@ public class PrimeSubscriptionStorage : Feature
 
                 using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                 {
-                    subscriptionStorage.Subscribe(subscriberAddress, new List<MessageType>
+                    await subscriptionStorage.Subscribe(subscriberAddress, new List<MessageType>
                     {
                         testEventMessage
-                    }, new ContextBag()).GetAwaiter().GetResult();
+                    }, new ContextBag())
+                    .ConfigureAwait(false);
 
                     tx.Complete();
                 }

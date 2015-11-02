@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using NServiceBus.Config;
     using NServiceBus.Extensibility;
     using NServiceBus.ObjectBuilder;
@@ -136,7 +137,7 @@
                 this.builder = builder;
             }
 
-            protected override void OnStart(IBusContext context)
+            protected override Task OnStart(IBusContext context)
             {
                 var transportDefinition = settings.Get<TransportDefinition>();
                 if (transportDefinition.GetOutboundRoutingPolicy(settings).Publishes == OutboundRoutingType.DirectSend) //Publish via send
@@ -147,6 +148,7 @@
                         settings.Get<UnicastRoutingTable>().AddDynamic((t, c) => QuerySubscriptionStore(subscriptions, t, c));
                     }
                 }
+                return TaskEx.Completed;
             }
 
             private static IEnumerable<UnicastRoutingDestination> QuerySubscriptionStore(ISubscriptionStorage subscriptions, Type messageType, ContextBag contextBag)

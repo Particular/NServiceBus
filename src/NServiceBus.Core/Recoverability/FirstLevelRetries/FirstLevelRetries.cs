@@ -2,6 +2,7 @@ namespace NServiceBus.Features
 {
     using System;
     using System.Threading;
+    using System.Threading.Tasks;
     using Config;
     using NServiceBus.Recoverability.FirstLevelRetries;
     using NServiceBus.Settings;
@@ -58,14 +59,16 @@ namespace NServiceBus.Features
                 this.statusStorage = statusStorage;
             }
 
-            protected override void OnStart(IBusContext context)
+            protected override Task OnStart(IBusContext context)
             {
                 timer = new Timer(ClearFlrStatusStorage, null, ClearingInterval, ClearingInterval);
+                return TaskEx.Completed;
             }
 
-            protected override void OnStop(IBusContext context)
+            protected override Task OnStop(IBusContext context)
             {
                 timer?.Dispose();
+                return TaskEx.Completed;
             }
 
             void ClearFlrStatusStorage(object state)

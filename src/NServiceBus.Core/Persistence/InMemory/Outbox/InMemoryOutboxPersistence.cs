@@ -2,6 +2,7 @@
 {
     using System;
     using System.Threading;
+    using System.Threading.Tasks;
     using NServiceBus.InMemory.Outbox;
 
     /// <summary>
@@ -33,19 +34,22 @@
 
             public TimeSpan TimeToKeepDeduplicationData { get; set; }
 
-            protected override void OnStart(IBusContext context)
+            protected override Task OnStart(IBusContext context)
             {
                 cleanupTimer = new Timer(PerformCleanup, null, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
+                return TaskEx.Completed;
             }
 
-            protected override void OnStop(IBusContext context)
+            protected override Task OnStop(IBusContext context)
             {
                 using (var waitHandle = new ManualResetEvent(false))
                 {
                     cleanupTimer.Dispose(waitHandle);
 
+                    // TODO: Use async synchronisation primitve
                     waitHandle.WaitOne();
                 }
+                return TaskEx.Completed;
             }
 
             void PerformCleanup(object state)

@@ -70,9 +70,10 @@
                 {
                     public Context Context { get; set; }
 
-                    protected override void OnStart(IBusContext context)
+                    protected override Task OnStart(IBusContext context)
                     {
                         Context.SendOnlyEndpointWasStarted = true;
+                        return Task.FromResult(0);
                     }
                 }
             }

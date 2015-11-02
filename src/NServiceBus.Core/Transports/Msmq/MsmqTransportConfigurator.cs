@@ -4,6 +4,7 @@
     using System.Linq;
     using System.Messaging;
     using System.Security;
+    using System.Threading.Tasks;
     using NServiceBus.Logging;
     using NServiceBus.Settings;
     using NServiceBus.Transports;
@@ -32,7 +33,7 @@
                 this.settings = settings;
             }
 
-            protected override void OnStart(IBusContext context)
+            protected override Task OnStart(IBusContext context)
             {
                 var queueBindings = settings.Get<QueueBindings>();
                 var boundQueueAddresses = queueBindings.ReceivingAddresses.Concat(queueBindings.SendingAddresses);
@@ -41,6 +42,8 @@
                 {
                     CheckQueue(address);
                 }
+
+                return TaskEx.Completed;
             }
 
             static void CheckQueue(string address)

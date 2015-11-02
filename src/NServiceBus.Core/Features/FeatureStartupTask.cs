@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Features
 {
     using System;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Base for feature startup tasks.
@@ -29,24 +30,25 @@
         /// Will be called after an endpoint has been started but before processing any messages, if the feature has been activated.
         /// </summary>
         /// <param name="context">Bus context.</param>
-        protected abstract void OnStart(IBusContext context);
+        protected abstract Task OnStart(IBusContext context);
 
         /// <summary>
         /// Will be called after an endpoint has been started but before processing any messages, if the feature has been activated.
         /// </summary>
         /// <param name="context">Bus context.</param>
-        protected virtual void OnStop(IBusContext context)
+        protected virtual Task OnStop(IBusContext context)
         {
+            return TaskEx.Completed;
         }
         
-        internal void PerformStartup(IBusContext context)
+        internal Task PerformStartup(IBusContext context)
         {
-            OnStart(context);
+            return OnStart(context);
         }
 
-        internal void PerformStop(IBusContext context)
+        internal Task PerformStop(IBusContext context)
         {
-            OnStop(context);
+            return OnStop(context);
         }
     }
 }
