@@ -69,7 +69,7 @@ namespace NServiceBus.Transports.Msmq
             cancellationTokenSource = new CancellationTokenSource();
 
             cancellationToken = cancellationTokenSource.Token;
-            messagePumpTask = Task.Factory.StartNew(() => ProcessMessages(), CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default).Unwrap();
+            messagePumpTask = Task.Factory.StartNew(ProcessMessages, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default).Unwrap();
         }
 
         /// <summary>

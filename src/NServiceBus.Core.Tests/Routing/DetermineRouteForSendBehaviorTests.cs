@@ -58,7 +58,7 @@
         [Test]
         public async Task Should_route_using_the_mappings_if_no_destination_is_set()
         {
-            var strategy = new FakeRoutingStrategy()
+            var strategy = new FakeRoutingStrategy
             {
                 FixedDestination = new[] { new UnicastRoutingStrategy("MappedDestination")}
             };
@@ -80,7 +80,7 @@
         [Test]
         public void Should_throw_if_no_route_can_be_found()
         {
-            var strategy = new FakeRoutingStrategy()
+            var strategy = new FakeRoutingStrategy
             {
                 FixedDestination = new UnicastRoutingStrategy[] {}
             };
