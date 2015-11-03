@@ -964,8 +964,8 @@ namespace NServiceBus
         [System.ObsoleteAttribute("Not used anymore, you most likely should use a `IncomingMessage` instead. Will be" +
             " removed in version 7.0.0.", true)]
         public TransportMessage(string existingId, System.Collections.Generic.Dictionary<string, string> existingHeaders) { }
-        [System.ObsoleteAttribute("Use the value of the \'IncomingMessage.Body\' instead. Will be removed in version 7" +
-            ".0.0.", true)]
+        [System.ObsoleteAttribute("Use the value of the \'IncomingMessage.Body\' or \'OutgoingMessage.Body\' instead. Wi" +
+            "ll be removed in version 7.0.0.", true)]
         public byte[] Body { get; set; }
         [System.ObsoleteAttribute("Use the value of the \'NServiceBus.CorrelationId\' header instead. Will be removed " +
             "in version 7.0.0.", true)]
