@@ -974,11 +974,11 @@ namespace NServiceBus
     }
     public class TransportMessage
     {
-        [System.ObsoleteAttribute("Not used anymore, you most likely should use a `OutgoingMessage` instead. Will be" +
-            " removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Not used anymore, use `OutgoingMessage` or `IncomingMessage` instead. Will be rem" +
+            "oved in version 7.0.0.", true)]
         public TransportMessage() { }
-        [System.ObsoleteAttribute("Not used anymore, you most likely should use a `IncomingMessage` instead. Will be" +
-            " removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Not used anymore, use `OutgoingMessage` or `IncomingMessage` instead. Will be rem" +
+            "oved in version 7.0.0.", true)]
         public TransportMessage(string existingId, System.Collections.Generic.Dictionary<string, string> existingHeaders) { }
         [System.ObsoleteAttribute("Use the value of the \'IncomingMessage.Body\' or \'OutgoingMessage.Body\' instead. Wi" +
             "ll be removed in version 7.0.0.", true)]
@@ -995,16 +995,12 @@ namespace NServiceBus
         [System.ObsoleteAttribute("Please use `GetMessageIntent(this IncomingMessage message)` instead. Will be remo" +
             "ved in version 7.0.0.", true)]
         public NServiceBus.MessageIntentEnum MessageIntent { get; }
-        [System.ObsoleteAttribute("For sending purposes use DeliveryMessageOptions.NonDurable (note the negation). W" +
-            "hen receiving look at the new \'NServiceBus.NonDurableMessage\' header. Will be re" +
-            "moved in version 7.0.0.", true)]
+        [System.ObsoleteAttribute(@"For sending purposes use `DeliveryConstraintContextExtensions.AddDeliveryConstraint(new NonDurableDelivery())` to set NonDurable delivery or `NonDurableDelivery constraint;DeliveryConstraintContextExtensions.TryGetDeliveryConstraint(out constraint)` to read wether NonDurable delivery is set. When receiving look at the new 'NServiceBus.NonDurableMessage' header. Will be removed in version 7.0.0.", true)]
         public bool Recoverable { get; set; }
         [System.ObsoleteAttribute("Please use `GetReplyToAddress(this IncomingMessage message)` instead. Will be rem" +
             "oved in version 7.0.0.", true)]
         public string ReplyToAddress { get; }
-        [System.ObsoleteAttribute("For sending purposes use DeliveryMessageOptions.TimeToBeReceived. When receiving " +
-            "look at the new \'NServiceBus.TimeToBeReceived\' header. Will be removed in versio" +
-            "n 7.0.0.", true)]
+        [System.ObsoleteAttribute(@"For sending purposes use `DeliveryConstraintContextExtensions.AddDeliveryConstraint(new DiscardIfNotReceivedBefore(timeToBeReceived))` to set the `TimeToBeReceived` or `DiscardIfNotReceivedBefore constraint;DeliveryConstraintContextExtensions.TryGetDeliveryConstraint(out constraint)` to read the `TimeToBeReceived`. When receiving look at the new 'NServiceBus.TimeToBeReceived' header. Will be removed in version 7.0.0.", true)]
         public System.TimeSpan TimeToBeReceived { get; set; }
     }
     public sealed class UnicastRoutingTarget

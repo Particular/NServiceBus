@@ -223,7 +223,7 @@ namespace NServiceBus
     public class TransportMessage
     {
         [ObsoleteEx(
-            Message = "Not used anymore, you most likely should use a `OutgoingMessage` instead",
+            Message = "Not used anymore, use `OutgoingMessage` or `IncomingMessage` instead",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public TransportMessage()
@@ -232,7 +232,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Message = "Not used anymore, you most likely should use a `IncomingMessage` instead",
+            Message = "Not used anymore, use `OutgoingMessage` or `IncomingMessage` instead",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public TransportMessage(string existingId, Dictionary<string, string> existingHeaders)
@@ -241,7 +241,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Message = "For sending purposes use DeliveryMessageOptions.NonDurable (note the negation). When receiving look at the new 'NServiceBus.NonDurableMessage' header",
+            Message = "For sending purposes use `DeliveryConstraintContextExtensions.AddDeliveryConstraint(new NonDurableDelivery())` to set NonDurable delivery or `NonDurableDelivery constraint;DeliveryConstraintContextExtensions.TryGetDeliveryConstraint(out constraint)` to read wether NonDurable delivery is set. When receiving look at the new 'NServiceBus.NonDurableMessage' header",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public bool Recoverable
@@ -251,7 +251,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Message = "For sending purposes use `DeliveryConstraintContextExtensions.AddDeliveryConstraint(new DiscardIfNotReceivedBefore(timeToBeReceived))` to set the `TimeToBeReceived` or DiscardIfNotReceivedBefore constraint;DeliveryConstraintContextExtensions.TryGetDeliveryConstraint(out constraint)` to read the `TimeToBeReceived`. When receiving look at the new 'NServiceBus.TimeToBeReceived' header",
+            Message = "For sending purposes use `DeliveryConstraintContextExtensions.AddDeliveryConstraint(new DiscardIfNotReceivedBefore(timeToBeReceived))` to set the `TimeToBeReceived` or `DiscardIfNotReceivedBefore constraint;DeliveryConstraintContextExtensions.TryGetDeliveryConstraint(out constraint)` to read the `TimeToBeReceived`. When receiving look at the new 'NServiceBus.TimeToBeReceived' header",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public TimeSpan TimeToBeReceived
@@ -432,7 +432,7 @@ namespace NServiceBus.Unicast
     }
 
     [ObsoleteEx(
-        RemoveInVersion = "7.0", 
+        RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0")]
     public class MessageContext : IMessageContext
     {
@@ -527,8 +527,8 @@ namespace NServiceBus.Unicast
     public partial class MessageHandlerRegistry
     {
         [ObsoleteEx(
-            ReplacementTypeOrMember = "MessageHandlerRegistry.GetHandlersFor(Type messageType)", 
-            RemoveInVersion = "7", 
+            ReplacementTypeOrMember = "MessageHandlerRegistry.GetHandlersFor(Type messageType)",
+            RemoveInVersion = "7",
             TreatAsErrorFromVersion = "6")]
         public IEnumerable<Type> GetHandlerTypes(Type messageType)
         {
@@ -546,7 +546,7 @@ namespace NServiceBus.Unicast
 
         [ObsoleteEx(
             ReplacementTypeOrMember = "MessageHandler.Invoke(object message, object context)",
-            RemoveInVersion = "7", 
+            RemoveInVersion = "7",
             TreatAsErrorFromVersion = "6")]
         public void InvokeTimeout(object handler, object state)
         {
@@ -554,8 +554,8 @@ namespace NServiceBus.Unicast
         }
 
         [ObsoleteEx(
-            ReplacementTypeOrMember = "MessageHandlerRegistry.RegisterHandler(Type handlerType)", 
-            RemoveInVersion = "7", 
+            ReplacementTypeOrMember = "MessageHandlerRegistry.RegisterHandler(Type handlerType)",
+            RemoveInVersion = "7",
             TreatAsErrorFromVersion = "6")]
         public void CacheMethodForHandler(Type handler, Type messageType)
         {
@@ -571,8 +571,8 @@ namespace NServiceBus.Unicast.Behaviors
     public partial class MessageHandler
     {
         [ObsoleteEx(
-            TreatAsErrorFromVersion = "6", 
-            RemoveInVersion = "7", 
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
             ReplacementTypeOrMember = "MessageHandler(Action<object, object, object> invocation, Type handlerType)")]
         public MessageHandler()
         {
@@ -1107,7 +1107,7 @@ namespace NServiceBus.Unicast.Transport
     /// Defines the event data for the failed message processing event.
     /// </summary>
     [ObsoleteEx(
-        RemoveInVersion = "7.0", 
+        RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0",
         Message = "Use the pipeline to catch failures")]
     public class FailedMessageProcessingEventArgs : EventArgs
@@ -1122,8 +1122,8 @@ namespace NServiceBus.Settings
     public partial class ScaleOutSettings
     {
         [ObsoleteEx(
-            TreatAsErrorFromVersion = "6", 
-            RemoveInVersion = "7", 
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
             Message = "This is the default starting with V6.")]
         public void UseSingleBrokerQueue()
         {
@@ -1131,8 +1131,8 @@ namespace NServiceBus.Settings
         }
 
         [ObsoleteEx(
-            TreatAsErrorFromVersion = "6", 
-            RemoveInVersion = "7", 
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
             ReplacementTypeOrMember = "UniqueQueuePerEndpointInstance")]
         public void UseUniqueBrokerQueuePerMachine()
         {
@@ -1147,8 +1147,8 @@ namespace NServiceBus.Routing.StorageDrivenPublishing
     using System.Collections.Generic;
 
     [ObsoleteEx(
-        TreatAsErrorFromVersion = "6", 
-        RemoveInVersion = "7", 
+        TreatAsErrorFromVersion = "6",
+        RemoveInVersion = "7",
         Message = "No longer an extension point, if you want to list events without subscribers you can take a dependency on ISubscriptionStorage and query it for the event types you want to check")]
     public class SubscribersForEvent
     {
@@ -1169,8 +1169,8 @@ namespace NServiceBus
     using NServiceBus.Unicast;
 
     [ObsoleteEx(
-        TreatAsErrorFromVersion = "6", 
-        RemoveInVersion = "7", 
+        TreatAsErrorFromVersion = "6",
+        RemoveInVersion = "7",
         Message = "No longer used, please use the new callbacks api described in the v6 upgrade guide")]
     public class BusAsyncResultEventArgs : EventArgs
     {
@@ -1187,7 +1187,7 @@ namespace NServiceBus.Unicast
 
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
-        RemoveInVersion = "7", 
+        RemoveInVersion = "7",
         Message = "No longer used, please use the new callbacks api described in the v6 upgrade guide")]
     public class BusAsyncResult : IAsyncResult
     {
@@ -1229,7 +1229,7 @@ namespace NServiceBus
 
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
-        RemoveInVersion = "7", 
+        RemoveInVersion = "7",
         Message = "No longer used, can safely be removed")]
     public interface IManageMessageHeaders
     {
@@ -1245,8 +1245,8 @@ namespace NServiceBus.Pipeline.Contexts
     using NServiceBus.Unicast.Messages;
 
     [ObsoleteEx(
-        TreatAsErrorFromVersion = "6", 
-        RemoveInVersion = "7", 
+        TreatAsErrorFromVersion = "6",
+        RemoveInVersion = "7",
         ReplacementTypeOrMember = "OutgoingLogicalMessage")]
     public class OutgoingContext : BehaviorContext
     {
@@ -1293,7 +1293,7 @@ namespace NServiceBus.Pipeline
 
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
-        RemoveInVersion = "7", 
+        RemoveInVersion = "7",
         ReplacementTypeOrMember = "Behavior<T>")]
     public interface IBehavior<in TContext> where TContext : BehaviorContext
     {
@@ -1369,7 +1369,7 @@ namespace NServiceBus.Unicast.Transport
     using System;
 
     [ObsoleteEx(
-        TreatAsErrorFromVersion = "6", 
+        TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
         Message = "No longer used, can safely be removed")]
     public static class ControlMessage
@@ -1386,8 +1386,8 @@ namespace NServiceBus.Unicast.Transport
     using System;
 
     [ObsoleteEx(
-        TreatAsErrorFromVersion = "6", 
-        RemoveInVersion = "7", 
+        TreatAsErrorFromVersion = "6",
+        RemoveInVersion = "7",
         ReplacementTypeOrMember = "IPushMessages")]
     public interface ITransport
     {
@@ -1420,8 +1420,8 @@ namespace NServiceBus.Unicast.Transport
     using System;
 
     [ObsoleteEx(
-        TreatAsErrorFromVersion = "6", 
-        RemoveInVersion = "7", 
+        TreatAsErrorFromVersion = "6",
+        RemoveInVersion = "7",
         Message = "No longer used, can safely be removed")]
     public class TransportMessageReceivedEventArgs : EventArgs
     {
@@ -1442,7 +1442,7 @@ namespace NServiceBus.Unicast.Transport
     using System;
 
     [ObsoleteEx(
-        TreatAsErrorFromVersion = "6", 
+        TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
         Message = "No longer used, can safely be removed")]
     public class StartedMessageProcessingEventArgs : EventArgs
@@ -1459,7 +1459,7 @@ namespace NServiceBus.Unicast.Transport
     }
 
     [ObsoleteEx(
-        TreatAsErrorFromVersion = "6", 
+        TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
         Message = "No longer used, can safely be removed")]
     public class FinishedMessageProcessingEventArgs : EventArgs
@@ -1482,7 +1482,7 @@ namespace NServiceBus.Unicast.Transport
 
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
-        RemoveInVersion = "7", 
+        RemoveInVersion = "7",
         Message = "No longer used, can safely be removed")]
     public class TransportMessageAvailableEventArgs : EventArgs
     {
@@ -1509,7 +1509,7 @@ namespace NServiceBus.Transports
     {
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
-            RemoveInVersion = "7", 
+            RemoveInVersion = "7",
             Message = "GetTransactionSupport")]
         public bool? HasSupportForDistributedTransactions
         {
@@ -1518,8 +1518,8 @@ namespace NServiceBus.Transports
         }
 
         [ObsoleteEx(
-            TreatAsErrorFromVersion = "6", 
-            RemoveInVersion = "7", 
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
             ReplacementTypeOrMember = "GetTransactionSupport")]
         public bool HasSupportForMultiQueueNativeTransactions
         {
@@ -1539,7 +1539,7 @@ namespace NServiceBus.Unicast.Transport
     using NServiceBus.Transports;
 
     [ObsoleteEx(
-        TreatAsErrorFromVersion = "6", 
+        TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
         Message = "No longer used, can safely be removed")]
     public class TransportReceiver : ITransport, IDisposable
@@ -1604,8 +1604,8 @@ namespace NServiceBus
     public static partial class Headers
     {
         [ObsoleteEx(
-            TreatAsErrorFromVersion = "6", 
-            RemoveInVersion = "7", 
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
             Message = "The WinIdName header is no longer attached to outgoing message to avoid passing security related information on the wire. Should you rely on the header being present you can add a message mutator that sets it.")]
         public const string WindowsIdentityName = "WinIdName";
     }
@@ -1617,8 +1617,8 @@ namespace NServiceBus
     using NServiceBus.ObjectBuilder;
 
     [ObsoleteEx(
-        TreatAsErrorFromVersion = "6", 
-        RemoveInVersion = "7", 
+        TreatAsErrorFromVersion = "6",
+        RemoveInVersion = "7",
         ReplacementTypeOrMember = "IFinalizeConfiguration")]
     public interface IWantToRunBeforeConfigurationIsFinalized
     {
@@ -1629,7 +1629,7 @@ namespace NServiceBus
     }
 
     [ObsoleteEx(
-        TreatAsErrorFromVersion = "6", 
+        TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
         Message = "When in context of handler use IMessageHandlingContext. Otherwise use IBusInterface to create sending context.")]
     public interface IBus
@@ -1637,14 +1637,14 @@ namespace NServiceBus
     }
 
     [ObsoleteEx(
-        TreatAsErrorFromVersion = "6", 
-        RemoveInVersion = "7", 
+        TreatAsErrorFromVersion = "6",
+        RemoveInVersion = "7",
         ReplacementTypeOrMember = "IStartableEndpoint")]
     public interface IStartableBus : IBus
     {
         [ObsoleteEx(
-            TreatAsErrorFromVersion = "6", 
-            RemoveInVersion = "7", 
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
             ReplacementTypeOrMember = "IStartableEndpoint")]
         IBus Start();
     }
@@ -1653,7 +1653,7 @@ namespace NServiceBus
     {
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
-            RemoveInVersion = "7", 
+            RemoveInVersion = "7",
             ReplacementTypeOrMember = "Endpoint.Create")]
         public static IStartableBus Create(BusConfiguration configuration)
         {
@@ -1661,8 +1661,8 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            TreatAsErrorFromVersion = "6", 
-            RemoveInVersion = "7", 
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
             ReplacementTypeOrMember = "BusConfiguration.SendOnly")]
         public static IBus CreateSendOnly(BusConfiguration configuration)
         {
@@ -1696,7 +1696,7 @@ namespace NServiceBus
 namespace NServiceBus.Installation
 {
     [ObsoleteEx(
-        TreatAsErrorFromVersion = "6", 
+        TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
         ReplacementTypeOrMember = "IInstall")]
     public interface INeedToInstallSomething
@@ -1712,7 +1712,7 @@ namespace NServiceBus.Hosting.Helpers
 
     public partial class AssemblyScanner
     {
-        
+
         [ObsoleteEx(
             Message = "This method is no longer required since deep scanning of assemblies is done to detect an NServiceBus reference.",
             RemoveInVersion = "7.0",
@@ -1727,7 +1727,7 @@ namespace NServiceBus.Outbox
 {
     using System;
 
-    public partial class OutboxSettings 
+    public partial class OutboxSettings
     {
         [ObsoleteEx(
             ReplacementTypeOrMember = "InMemoryOutboxSettingsExtensions.TimeToKeepDeduplicationData(TimeSpan time)",
