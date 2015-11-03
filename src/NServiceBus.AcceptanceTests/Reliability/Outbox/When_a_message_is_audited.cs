@@ -15,17 +15,19 @@
         public async Task Should_be_dispatched_immediately()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<EndpointWithAuditOn>(b => b.When(bus => bus.SendLocalAsync(new MessageToBeAudited())))
-                    .WithEndpoint<AuditSpyEndpoint>()
-                    .Done(c => c.Done)
-                    .Run();
+                .WithEndpoint<EndpointWithAuditOn>(b => b
+                    .When(bus => bus.SendLocalAsync(new MessageToBeAudited()))
+                    .DoNotFailOnErrorMessages())
+                .WithEndpoint<AuditSpyEndpoint>()
+                .Done(c => c.MessageAudited)
+                .Run();
 
-            Assert.True(context.Done);
+            Assert.True(context.MessageAudited);
         }
 
         public class Context : ScenarioContext
         {
-            public bool Done { get; set; }
+            public bool MessageAudited { get; set; }
         }
 
         public class EndpointWithAuditOn : EndpointConfigurationBuilder
@@ -52,20 +54,10 @@
                         return;
                     }
 
-                    if (called)
-                    {
-                        Console.Out.WriteLine("Called once, skipping next");
-                        return;
-
-                    }
                     await next().ConfigureAwait(false);
-
-                    called = true;
 
                     throw new SimulatedException();
                 }
-
-                static bool called;
             }
 
             public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
@@ -90,7 +82,7 @@
 
                 public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
-                    Context.Done = true;
+                    Context.MessageAudited = true;
                     return Task.FromResult(0);
                 }
             }

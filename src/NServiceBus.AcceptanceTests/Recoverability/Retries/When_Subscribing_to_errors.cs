@@ -52,6 +52,7 @@
                 {
                     config.EnableFeature<SecondLevelRetries>();
                     config.EnableFeature<TimeoutManager>();
+                    config.EnableFeature<FirstLevelRetries>();
                 })
                     .WithConfig<TransportConfig>(c => { c.MaxRetries = 3; })
                     .WithConfig<SecondLevelRetriesConfig>(c =>

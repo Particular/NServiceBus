@@ -17,7 +17,9 @@
         public async Task Should_be_dispatched_immediately()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<EndpointWithAuditOn>(b => b.When(bus => bus.SendLocalAsync(new MessageToBeForwarded())))
+                    .WithEndpoint<EndpointWithAuditOn>(b => b
+                        .When(bus => bus.SendLocalAsync(new MessageToBeForwarded()))
+                        .DoNotFailOnErrorMessages())
                     .WithEndpoint<ForwardingSpyEndpoint>()
                     .Done(c => c.Done)
                     .Run();
@@ -54,20 +56,10 @@
                         return;
                     }
 
-                    if (called)
-                    {
-                        Console.Out.WriteLine("Called once, skipping next");
-                        return;
-                    }
-
                     await next().ConfigureAwait(false);
-
-                    called = true;
 
                     throw new SimulatedException();
                 }
-
-                static bool called;
             }
 
 

@@ -7,6 +7,7 @@
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NServiceBus.Config;
+    using NServiceBus.Features;
     using NUnit.Framework;
 
     public class When_doing_flr_with_dtc_on : NServiceBusAcceptanceTest
@@ -49,7 +50,8 @@
         {
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServer>()
+                EndpointSetup<DefaultServer>(b => b
+                    .EnableFeature<FirstLevelRetries>())
                     .WithConfig<TransportConfig>(c => c.MaxRetries = maxretries);
             }
 

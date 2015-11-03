@@ -14,7 +14,9 @@
         public async Task Should_dispatch_immediately()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<SuppressEndpoint>(b => b.When(bus => bus.SendLocalAsync(new InitiatingMessage())))
+                    .WithEndpoint<SuppressEndpoint>(b => b
+                        .When(bus => bus.SendLocalAsync(new InitiatingMessage()))
+                        .DoNotFailOnErrorMessages())
                     .Done(c => c.MessageDispatched)
                     .Run();
 

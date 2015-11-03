@@ -11,9 +11,11 @@
         public async Task Should_dispatch_immediately()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<ExactlyOnceEndpoint>(b => b.When(bus => bus.SendLocalAsync(new InitiatingMessage())))
-                    .Done(c => c.MessageDispatched)
-                    .Run();
+                .WithEndpoint<ExactlyOnceEndpoint>(b => b
+                    .When(bus => bus.SendLocalAsync(new InitiatingMessage()))
+                    .DoNotFailOnErrorMessages())
+                .Done(c => c.MessageDispatched)
+                .Run();
 
             Assert.True(context.MessageDispatched, "Should dispatch the message immediately");
         }

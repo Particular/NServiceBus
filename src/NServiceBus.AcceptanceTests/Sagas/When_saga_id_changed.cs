@@ -6,7 +6,6 @@
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTesting.Support;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.Features;
     using NUnit.Framework;
 
     [TestFixture]
@@ -15,18 +14,17 @@
         [Test]
         public void Should_throw()
         {
-            var e2 = Assert.Throws<AggregateException>(async () => await Scenario.Define<Context>()
-                .WithEndpoint<Endpoint>(
-                    b => b.When(bus => bus.SendLocalAsync(new StartSaga
-                    {
-                        DataId = Guid.NewGuid()
-                    })))
-                .Done(c => c.FailedMessages.Any())
-                .Run());
+            var exception = Assert.Throws<AggregateException>(async () =>
+                await Scenario.Define<Context>()
+                    .WithEndpoint<Endpoint>(
+                        b => b.When(bus => bus.SendLocalAsync(new StartSaga
+                        {
+                            DataId = Guid.NewGuid()
+                        })))
+                    .Done(c => c.FailedMessages.Any())
+                    .Run())
+                .ExpectFailedMessages();
 
-            var exception = e2.InnerException as MessagesFailedException;
-
-            Assert.IsNotNull(exception);
             Assert.AreEqual(1, exception.FailedMessages.Count);
             Assert.AreEqual(((Context)exception.ScenarioContext).MessageId, exception.FailedMessages.Single().MessageId, "Message should be moved to errorqueue");
 
@@ -43,7 +41,7 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(e => e.DisableFeature<SecondLevelRetries>());
+                EndpointSetup<DefaultServer>();
             }
 
             public class SagaIdChangedSaga : Saga<SagaIdChangedSaga.SagaIdChangedSagaData>,
