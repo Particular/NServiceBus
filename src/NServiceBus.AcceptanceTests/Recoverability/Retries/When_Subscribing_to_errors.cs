@@ -17,8 +17,8 @@
         public async Task Should_retain_exception_details_over_FLR_and_SLR()
         {
             await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                .WithEndpoint<SLREndpoint>()
-                .AllowSimulatedExceptions()
+                .WithEndpoint<SLREndpoint>(b => b
+                    .DoNotFailOnErrorMessages())
                 .Done(c => c.MessageSentToError)
                 .Repeat(r => r.For<AllTransports>())
                 .Should(c =>
@@ -52,6 +52,7 @@
                 {
                     config.EnableFeature<SecondLevelRetries>();
                     config.EnableFeature<TimeoutManager>();
+                    config.EnableFeature<FirstLevelRetries>();
                 })
                     .WithConfig<TransportConfig>(c => { c.MaxRetries = 3; })
                     .WithConfig<SecondLevelRetriesConfig>(c =>

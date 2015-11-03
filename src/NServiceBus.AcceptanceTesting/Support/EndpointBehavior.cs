@@ -16,5 +16,7 @@
         public List<IWhenDefinition> Whens { get; set; }
 
         public List<Action<BusConfiguration>> CustomConfig { get; set; }
+
+        public bool DoNotFailOnErrorMessages { get; set; }
     }
 }

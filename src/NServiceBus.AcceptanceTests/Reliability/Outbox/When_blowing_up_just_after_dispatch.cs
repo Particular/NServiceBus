@@ -17,7 +17,6 @@
         {
             await Scenario.Define<Context>()
                 .WithEndpoint<NonDtcReceivingEndpoint>(b => b.When(bus => bus.SendLocalAsync(new PlaceOrder())))
-                .AllowSimulatedExceptions()
                 .Done(c => c.OrderAckReceived == 1)
                 .Repeat(r=>r.For<AllOutboxCapableStorages>())
                 .Should(context => Assert.AreEqual(1, context.OrderAckReceived, "Order ack should have been received since outbox dispatch isn't part of the receive tx"))

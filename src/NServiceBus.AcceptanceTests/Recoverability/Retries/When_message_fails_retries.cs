@@ -4,6 +4,7 @@
     using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
+    using NServiceBus.AcceptanceTesting.Support;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Features;
     using NUnit.Framework;
@@ -11,16 +12,26 @@
     public class When_message_fails_retries : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_forward_message_to_error_queue()
+        public void Should_forward_message_to_error_queue()
         {
-            var context = await Scenario.Define<Context>()
-                    .WithEndpoint<RetryEndpoint>(b => b.When((bus, c) => bus.SendLocalAsync(new MessageWhichFailsRetries())))
-                    .AllowSimulatedExceptions()
+            var exception = Assert.Throws<AggregateException>(async () => await
+                Scenario.Define<Context>()
+                    .WithEndpoint<RetryEndpoint>(b => b
+                        .When((bus, c) => bus.SendLocalAsync(new MessageWhichFailsRetries())))
                     .Done(c => c.ForwardedToErrorQueue)
-                    .Run();
+                    .Run())
+                .ExpectFailedMessages();
 
-            Assert.AreEqual(1, context.Logs.Count(l => l.Message
-                .StartsWith($"Moving message '{context.PhysicalMessageId}' to the error queue because processing failed due to an exception:")));
+            Assert.AreEqual(1, exception.FailedMessages.Count);
+            var failedMessage = exception.FailedMessages.Single();
+
+            var testContext = (Context)exception.ScenarioContext;
+            Assert.AreEqual(typeof(MessageWhichFailsRetries).AssemblyQualifiedName, failedMessage.Headers[Headers.EnclosedMessageTypes]);
+            Assert.AreEqual(testContext.PhysicalMessageId, failedMessage.MessageId);
+            Assert.IsAssignableFrom(typeof(SimulatedException), failedMessage.Exception);
+
+            Assert.AreEqual(1, testContext.Logs.Count(l => l.Message
+                .StartsWith($"Moving message '{testContext.PhysicalMessageId}' to the error queue because processing failed due to an exception:")));
         }
 
         public class RetryEndpoint : EndpointConfigurationBuilder

@@ -13,8 +13,8 @@
         public async Task Should_not_retry_the_message_using_flr()
         {
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                    .WithEndpoint<RetryEndpoint>()
-                    .AllowSimulatedExceptions()
+                    .WithEndpoint<RetryEndpoint>(b => b
+                        .DoNotFailOnErrorMessages())
                     .Done(c => c.GaveUp)
                     .Run();
 

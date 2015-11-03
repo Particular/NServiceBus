@@ -13,17 +13,17 @@
         public async Task Should_not_do_any_retries_if_transactions_are_off()
         {
             await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                    .WithEndpoint<RetryEndpoint>(b => b.When(async (bus, context) =>
+                .WithEndpoint<RetryEndpoint>(b => b
+                    .When(async (bus, context) =>
                     {
                         await bus.SendLocalAsync(new MessageToBeRetried { Id = context.Id });
                         await bus.SendLocalAsync(new MessageToBeRetried { Id = context.Id, SecondMessage = true });
-                    }))
-                    .AllowSimulatedExceptions()
-                    .Done(c => c.SecondMessageReceived || c.NumberOfTimesInvoked > 1)
-                    .Repeat(r => r.For(Transports.Default))
-                    .Should(c => Assert.AreEqual(1, c.NumberOfTimesInvoked, "No retries should be in use if transactions are off"))
-                    .Run();
-
+                    })
+                    .DoNotFailOnErrorMessages())
+                .Done(c => c.SecondMessageReceived || c.NumberOfTimesInvoked > 1)
+                .Repeat(r => r.For(Transports.Default))
+                .Should(c => Assert.AreEqual(1, c.NumberOfTimesInvoked, "No retries should be in use if transactions are off"))
+                .Run();
         }
 
         public class Context : ScenarioContext
@@ -49,7 +49,9 @@
                 public Task Handle(MessageToBeRetried message, IMessageHandlerContext context)
                 {
                     if (message.Id != Context.Id)
+                    {
                         return Task.FromResult(0); // messages from previous test runs must be ignored
+                    }
 
                     if (message.SecondMessage)
                     {
@@ -72,6 +74,4 @@
             public bool SecondMessage { get; set; }
         }
     }
-
-
 }

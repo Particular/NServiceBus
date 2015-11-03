@@ -31,6 +31,11 @@
         public PipelineSettings Pipeline => config.pipelineSettings;
 
         /// <summary>
+        ///     Access to the builder to resolve services.
+        /// </summary>
+        public IBuilder Builder => config.Builder;
+
+        /// <summary>
         ///     Creates a new satellite processing pipeline.
         /// </summary>
         public PipelineSettings AddSatellitePipeline(string name, string qualifier, TransactionSupport requiredTransactionSupport, PushRuntimeSettings runtimeSettings, out string transportAddress)

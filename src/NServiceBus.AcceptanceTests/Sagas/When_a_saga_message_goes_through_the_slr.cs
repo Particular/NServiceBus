@@ -4,6 +4,8 @@
     using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
+    using NServiceBus.Config;
+    using NServiceBus.Features;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
@@ -14,17 +16,19 @@
         public async Task Should_invoke_the_correct_handle_methods_on_the_saga()
         {
             await Scenario.Define<Context>()
-                    .WithEndpoint<SagaMsgThruSlrEndpt>(b => b.When(bus => bus.SendLocalAsync(new StartSagaMessage { SomeId = Guid.NewGuid() })))
-                    .AllowSimulatedExceptions()
-                    .Done(c => c.SecondMessageProcessed)
-                    .Repeat(r => r.For(Transports.Default))
-                    .Run();
+                .WithEndpoint<SagaMsgThruSlrEndpt>(b => b
+                    .When(bus => bus.SendLocalAsync(new StartSagaMessage
+                    {
+                        SomeId = Guid.NewGuid()
+                    })))
+                .Done(c => c.SecondMessageProcessed)
+                .Repeat(r => r.For(Transports.Default))
+                .Run();
         }
 
         public class Context : ScenarioContext
         {
             public bool SecondMessageProcessed { get; set; }
-
 
             public int NumberOfTimesInvoked { get; set; }
         }
@@ -33,7 +37,15 @@
         {
             public SagaMsgThruSlrEndpt()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>(b =>
+                {
+                    b.EnableFeature<TimeoutManager>();
+                    b.EnableFeature<SecondLevelRetries>();
+                }).WithConfig<SecondLevelRetriesConfig>(slr =>
+                {
+                    slr.NumberOfRetries = 1;
+                    slr.TimeIncrease = TimeSpan.FromSeconds(1);
+                });
             }
 
             public class TestSaga09 : Saga<TestSagaData09>, 
@@ -63,9 +75,8 @@
                 public Task Handle(SecondSagaMessage message, IMessageHandlerContext context)
                 {
                     TestContext.NumberOfTimesInvoked++;
-                    var shouldFail = TestContext.NumberOfTimesInvoked < 2; //1 FLR and 1 SLR
 
-                    if(shouldFail)
+                    if(TestContext.NumberOfTimesInvoked < 2)
                         throw new SimulatedException();
 
                     TestContext.SecondMessageProcessed = true;

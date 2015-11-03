@@ -11,8 +11,9 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
         public async Task Should_preserve_the_original_body_for_regular_exceptions()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<RetryEndpoint>(b => b.When(bus => bus.SendLocalAsync(new MessageToBeRetried())))
-                .AllowSimulatedExceptions()
+                .WithEndpoint<RetryEndpoint>(b => b
+                    .When(bus => bus.SendLocalAsync(new MessageToBeRetried()))
+                    .DoNotFailOnErrorMessages())
                 .Done(c => c.SlrChecksum != default(byte))
                 .Run();
 
@@ -23,8 +24,9 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
         public async Task Should_reschedule_message_three_times_by_default()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<RetryEndpoint>(b => b.When(bus => bus.SendLocalAsync(new MessageToBeRetried())))
-                .AllowSimulatedExceptions()
+                .WithEndpoint<RetryEndpoint>(b => b
+                    .When(bus => bus.SendLocalAsync(new MessageToBeRetried()))
+                    .DoNotFailOnErrorMessages())
                 .Done(c => c.ForwardedToErrorQueue)
                 .Run();
 

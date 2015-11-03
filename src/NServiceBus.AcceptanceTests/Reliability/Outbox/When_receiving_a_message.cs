@@ -16,7 +16,6 @@
         {
             await Scenario.Define<Context>()
                 .WithEndpoint<NonDtcReceivingEndpoint>(b => b.When(bus => bus.SendLocalAsync(new PlaceOrder())))
-                .AllowExceptions()
                 .Done(c => c.OrderAckReceived == 1)
                 .Repeat(r => r.For<AllOutboxCapableStorages>())
                 .Run(new RunSettings { TestExecutionTimeout = TimeSpan.FromSeconds(20) });

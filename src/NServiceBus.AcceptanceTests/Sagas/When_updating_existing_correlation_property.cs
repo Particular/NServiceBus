@@ -4,24 +4,30 @@
     using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
+    using NServiceBus.AcceptanceTesting.Support;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
     public class When_updating_existing_correlation_property : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_blow_up()
+        public void Should_blow_up()
         {
-            var context = await Scenario.Define<Context>()
-                .WithEndpoint<ChangePropertyEndpoint>(b => b.When(bus => bus.SendLocalAsync(new StartSagaMessage
-                {
-                    SomeId = Guid.NewGuid()
-                })))
-                .AllowExceptions()
-                .Done(c => c.Exceptions.Any())
-                .Run();
+            var exception = Assert.Throws<AggregateException>(async () =>
+                await Scenario.Define<Context>()
+                    .WithEndpoint<ChangePropertyEndpoint>(b => b.When(bus => bus.SendLocalAsync(new StartSagaMessage
+                    {
+                        SomeId = Guid.NewGuid()
+                    })))
+                    .Done(c => c.Exceptions.Any())
+                    .Run())
+                .ExpectFailedMessages();
 
-            Assert.True(context.Exceptions.Any(ex => ex.Message.Contains("Changing the value of correlated properties at runtime is currently not supported")));
+            Assert.AreEqual(1, exception.FailedMessages.Count);
+
+            StringAssert.Contains(
+                "Changing the value of correlated properties at runtime is currently not supported",
+                exception.FailedMessages.Single().Exception.Message);
         }
 
         public class Context : ScenarioContext

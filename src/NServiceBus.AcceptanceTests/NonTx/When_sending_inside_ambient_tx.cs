@@ -14,8 +14,9 @@
         public async Task Should_not_roll_the_message_back_to_the_queue_in_case_of_failure()
         {
             await Scenario.Define<Context>()
-                    .WithEndpoint<NonTransactionalEndpoint>(b => b.When(bus => bus.SendLocalAsync(new MyMessage())))
-                    .AllowSimulatedExceptions()
+                    .WithEndpoint<NonTransactionalEndpoint>(b => b
+                        .When(bus => bus.SendLocalAsync(new MyMessage()))
+                        .DoNotFailOnErrorMessages())
                     .Done(c => c.TestComplete)
                     .Repeat(r => r.For<AllDtcTransports>())
                     .Should(c => Assert.False(c.MessageEnlistedInTheAmbientTxReceived, "The enlisted bus.SendAsync should not commit"))

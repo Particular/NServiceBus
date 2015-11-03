@@ -11,8 +11,9 @@
         public async Task Should_dispatch_immediately()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<NonTransactionalEndpoint>(b => b.When(bus => bus.SendLocalAsync(new InitiatingMessage())))
-                    .AllowSimulatedExceptions()
+                    .WithEndpoint<NonTransactionalEndpoint>(b => b
+                        .When(bus => bus.SendLocalAsync(new InitiatingMessage()))
+                        .DoNotFailOnErrorMessages())
                     .Done(c => c.MessageDispatched)
                     .Run();
 

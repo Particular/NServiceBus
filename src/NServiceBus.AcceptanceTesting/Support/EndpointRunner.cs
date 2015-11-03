@@ -18,6 +18,8 @@
         ScenarioContext scenarioContext;
         BusConfiguration busConfiguration;
 
+        public bool FailOnErrorMessage => !behavior.DoNotFailOnErrorMessages;
+
         public async Task<Result> Initialize(RunDescriptor run, EndpointBehavior endpointBehavior,
             IDictionary<Type, string> routingTable, string endpointName)
         {

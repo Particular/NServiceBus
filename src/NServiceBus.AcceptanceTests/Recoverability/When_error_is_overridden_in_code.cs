@@ -13,9 +13,10 @@
         public async Task Should_error_to_target_queue()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<UserEndpoint>(b => b.When(bus => bus.SendLocalAsync(new Message())))
+                .WithEndpoint<UserEndpoint>(b => b
+                    .When(bus => bus.SendLocalAsync(new Message()))
+                    .DoNotFailOnErrorMessages())
                 .WithEndpoint<ErrorSpy>()
-                .AllowSimulatedExceptions()
                 .Done(c => c.MessageReceived)
                 .Run();
 

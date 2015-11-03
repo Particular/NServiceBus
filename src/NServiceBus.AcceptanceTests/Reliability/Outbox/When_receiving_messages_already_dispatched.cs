@@ -27,7 +27,6 @@
                         await bus.SendAsync(new PlaceOrder(), options);
                         await bus.SendLocalAsync(new PlaceOrder());
                     }))
-                    .AllowExceptions()
                     .Done(c => c.OrderAckReceived >= 2)
                     .Repeat(r => r.For<AllOutboxCapableStorages>())
                     .Should(context => Assert.AreEqual(2, context.OrderAckReceived))

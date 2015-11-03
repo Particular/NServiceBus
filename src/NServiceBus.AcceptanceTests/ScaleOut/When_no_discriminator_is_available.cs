@@ -20,7 +20,6 @@
             {
                 await Scenario.Define<Context>()
                     .WithEndpoint<IndividualizedEndpoint>().Done(c => c.EndpointsStarted)
-                    .AllowExceptions()
                     .Run();
             }
             catch (AggregateException e)

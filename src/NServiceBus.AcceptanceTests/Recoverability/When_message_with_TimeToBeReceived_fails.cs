@@ -13,9 +13,10 @@
         public async Task Should_not_honor_TimeToBeReceived_for_error_message()
         {
             var context = await Scenario.Define<Context>()
-            .WithEndpoint<EndpointThatThrows>(b => b.When(bus => bus.SendLocalAsync(new MessageThatFails())))
+            .WithEndpoint<EndpointThatThrows>(b => b
+                .When(bus => bus.SendLocalAsync(new MessageThatFails()))
+                .DoNotFailOnErrorMessages())
             .WithEndpoint<EndpointThatHandlesErrorMessages>()
-            .AllowSimulatedExceptions()
             .Done(c => c.MessageFailed && c.TTBRHasExpiredAndMessageIsStillInErrorQueue)
             .Run();
 

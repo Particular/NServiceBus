@@ -2,6 +2,8 @@
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Collections.Generic;
+    using NServiceBus.Faults;
 
     public abstract class ScenarioContext
     {
@@ -17,6 +19,8 @@
         }
 
         public ConcurrentQueue<Exception> Exceptions = new ConcurrentQueue<Exception>();
+
+        public ConcurrentDictionary<string, IReadOnlyCollection<FailedMessage>> FailedMessages = new ConcurrentDictionary<string, IReadOnlyCollection<FailedMessage>>();
 
         public ConcurrentQueue<LogItem> Logs = new ConcurrentQueue<LogItem>();
 

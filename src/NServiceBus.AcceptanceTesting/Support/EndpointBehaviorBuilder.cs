@@ -46,6 +46,13 @@
             return this;
         }
 
+        public EndpointBehaviorBuilder<TContext> DoNotFailOnErrorMessages()
+        {
+            behavior.DoNotFailOnErrorMessages = true;
+
+            return this;
+        }
+
         public EndpointBehavior Build()
         {
             return behavior;

@@ -35,7 +35,6 @@
                         c.Publisher2HasDetectedASubscriberForEvent2 = true;
                     }
                 }))
-                .AllowExceptions(e => e.Message.Contains("Oracle.DataAccess.Client.OracleException: ORA-00001") || e.Message.Contains("System.Data.SqlClient.SqlException: Violation of PRIMARY KEY constraint"))
                 .Done(c => c.SubscriberGotIMyEvent && c.SubscriberGotMyEvent2)
                 .Run();
 

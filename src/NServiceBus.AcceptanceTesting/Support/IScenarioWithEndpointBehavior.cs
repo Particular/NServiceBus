@@ -16,10 +16,6 @@
         Task<TContext> Run(RunSettings settings);
 
         IAdvancedScenarioWithEndpointBehavior<TContext> Repeat(Action<RunDescriptorsBuilder> runtimeDescriptor);
-
-        IScenarioWithEndpointBehavior<TContext> AllowExceptions(Func<Exception,bool> filter = null);
-
-        IScenarioWithEndpointBehavior<TContext> AllowSimulatedExceptions();
     }
 
     public interface IAdvancedScenarioWithEndpointBehavior<TContext> where TContext : ScenarioContext
@@ -27,7 +23,6 @@
         IAdvancedScenarioWithEndpointBehavior<TContext> Should(Action<TContext> should);
 
         IAdvancedScenarioWithEndpointBehavior<TContext> Report(Action<RunSummary> summaries);
-
 
         IAdvancedScenarioWithEndpointBehavior<TContext> MaxTestParallelism(int maxParallelism);
 

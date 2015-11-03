@@ -25,7 +25,6 @@
                         }
                     }))
                     .Done(c => c.GotTheException)
-                    .AllowExceptions()
                     .Run();
 
             Assert.IsInstanceOf<Exception>(context.Exception);
