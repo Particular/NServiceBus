@@ -251,7 +251,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Message = "For sending purposes use DeliveryMessageOptions.TimeToBeReceived. When receiving look at the new 'NServiceBus.TimeToBeReceived' header",
+            Message = "For sending purposes use `DeliveryConstraintContextExtensions.AddDeliveryConstraint(new DiscardIfNotReceivedBefore(timeToBeReceived))` to set the `TimeToBeReceived` or DiscardIfNotReceivedBefore constraint;DeliveryConstraintContextExtensions.TryGetDeliveryConstraint(out constraint)` to read the `TimeToBeReceived`. When receiving look at the new 'NServiceBus.TimeToBeReceived' header",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public TimeSpan TimeToBeReceived
