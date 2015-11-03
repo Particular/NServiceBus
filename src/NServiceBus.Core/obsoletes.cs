@@ -279,7 +279,7 @@ namespace NServiceBus
         ///     Gets/sets a byte array to the body content of the message.
         /// </summary>
         [ObsoleteEx(
-            Message = "Use the value of the 'IncomingMessage.Body' instead",
+            Message = "Use the value of the 'IncomingMessage.Body' or 'OutgoingMessage.Body' instead",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public byte[] Body { get { throw new NotImplementedException(); } set { throw new NotImplementedException(); } }
