@@ -2262,12 +2262,6 @@ namespace NServiceBus.Sagas
         public System.Type SagaType { get; }
         public void AttachNewEntity(NServiceBus.IContainSagaData sagaEntity) { }
     }
-    public class CorrelationProperty
-    {
-        public CorrelationProperty(string name, System.Type type) { }
-        public string Name { get; }
-        public System.Type Type { get; }
-    }
     public interface IFinder { }
     public abstract class IFindSagas<T>
         where T : NServiceBus.IContainSagaData
@@ -2290,8 +2284,15 @@ namespace NServiceBus.Sagas
             where TSagaData : NServiceBus.IContainSagaData;
         System.Threading.Tasks.Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, NServiceBus.Extensibility.ContextBag context)
             where TSagaData : NServiceBus.IContainSagaData;
-        System.Threading.Tasks.Task Save(NServiceBus.IContainSagaData sagaInstance, System.Collections.Generic.IDictionary<string, object> correlationProperties, NServiceBus.Extensibility.ContextBag context);
+        System.Threading.Tasks.Task Save(NServiceBus.IContainSagaData sagaInstance, NServiceBus.Sagas.SagaCorrelationProperty correlationProperty, NServiceBus.Extensibility.ContextBag context);
         System.Threading.Tasks.Task Update(NServiceBus.IContainSagaData saga, NServiceBus.Extensibility.ContextBag context);
+    }
+    public class SagaCorrelationProperty
+    {
+        public SagaCorrelationProperty(string name, object value) { }
+        public string Name { get; }
+        public static NServiceBus.Sagas.SagaCorrelationProperty None { get; }
+        public object Value { get; }
     }
     public class SagaFinderDefinition
     {
@@ -2308,9 +2309,8 @@ namespace NServiceBus.Sagas
     }
     public class SagaMetadata
     {
-        public SagaMetadata(string name, System.Type sagaType, string entityName, System.Type sagaEntityType, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Sagas.CorrelationProperty> correlationProperties, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Sagas.SagaMessage> messages, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Sagas.SagaFinderDefinition> finders) { }
+        public SagaMetadata(string name, System.Type sagaType, string entityName, System.Type sagaEntityType, NServiceBus.Sagas.SagaMetadata.CorrelationPropertyMetadata correlationProperty, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Sagas.SagaMessage> messages, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Sagas.SagaFinderDefinition> finders) { }
         public System.Collections.Generic.IReadOnlyCollection<NServiceBus.Sagas.SagaMessage> AssociatedMessages { get; }
-        public System.Collections.Generic.IReadOnlyCollection<NServiceBus.Sagas.CorrelationProperty> CorrelationProperties { get; }
         public string EntityName { get; }
         public System.Collections.Generic.IReadOnlyCollection<NServiceBus.Sagas.SagaFinderDefinition> Finders { get; }
         public string Name { get; }
@@ -2319,7 +2319,14 @@ namespace NServiceBus.Sagas
         public static NServiceBus.Sagas.SagaMetadata Create(System.Type sagaType) { }
         public static NServiceBus.Sagas.SagaMetadata Create(System.Type sagaType, System.Collections.Generic.IEnumerable<System.Type> availableTypes, NServiceBus.Conventions conventions) { }
         public bool IsMessageAllowedToStartTheSaga(string messageType) { }
+        public bool TryGetCorrelationProperty(out NServiceBus.Sagas.SagaMetadata.CorrelationPropertyMetadata property) { }
         public bool TryGetFinder(string messageType, out NServiceBus.Sagas.SagaFinderDefinition finderDefinition) { }
+        public class CorrelationPropertyMetadata
+        {
+            public CorrelationPropertyMetadata(string name, System.Type type) { }
+            public string Name { get; }
+            public System.Type Type { get; }
+        }
     }
     public class SagaMetadataCollection : System.Collections.Generic.IEnumerable<NServiceBus.Sagas.SagaMetadata>, System.Collections.IEnumerable
     {

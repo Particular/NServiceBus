@@ -128,6 +128,7 @@
     <Compile Include="Routing\MulticastRoutingStrategy.cs" />
     <Compile Include="Routing\RoutingStrategy.cs" />
     <Compile Include="Routing\UnicastRoutingStrategy.cs" />
+    <Compile Include="Sagas\SagaCorrelationProperty.cs" />
     <Compile Include="Sagas\SagaLoader.cs" />
     <Compile Include="Sagas\Saga_obsoletes.cs" />
     <Compile Include="Routing\AllInstancesDistributionStrategy.cs" />
@@ -399,7 +400,6 @@
     <Compile Include="Persistence\StorageType.cs" />
     <Compile Include="Pipeline\PipelineModifications.cs" />
     <Compile Include="Routing\FileBasedDynamicRouting\FileBasedRoutingConfigurationExtensions.cs" />
-    <Compile Include="Sagas\CorrelationProperty.cs" />
     <Compile Include="Sagas\CustomFinderAdapter.cs" />
     <Compile Include="Sagas\LoadSagaByIdWrapper.cs" />
     <Compile Include="Sagas\SagaFinder.cs" />

@@ -1,7 +1,6 @@
 namespace NServiceBus.Sagas
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
 
@@ -57,6 +56,14 @@ namespace NServiceBus.Sagas
         /// </summary>
         public bool NotFound { get; private set; }
 
+        internal bool TryGetCorrelationProperty(out CorrelationPropertyInfo sagaCorrelationProperty)
+        {
+            sagaCorrelationProperty = correlationProperty;
+
+
+            return sagaCorrelationProperty != null;
+        }
+
         /// <summary>
         /// Provides a way to update the actual saga entity.
         /// </summary>
@@ -80,24 +87,24 @@ namespace NServiceBus.Sagas
             SagaId = sagaEntity.Id.ToString();
 
             var properties = sagaEntity.GetType().GetProperties();
+            SagaMetadata.CorrelationPropertyMetadata correlatedPropertyMetadata;
 
-            foreach (var correlatedProperty in Metadata.CorrelationProperties)
+            if (Metadata.TryGetCorrelationProperty(out correlatedPropertyMetadata))
             {
-                var propertyInfo = properties.Single(p => p.Name == correlatedProperty.Name);
+                var propertyInfo = properties.Single(p => p.Name == correlatedPropertyMetadata.Name);
                 var propertyValue = propertyInfo.GetValue(sagaEntity);
 
                 var defaultValue = GetDefault(propertyInfo.PropertyType);
 
                 var hasValue = propertyValue != null && !propertyValue.Equals(defaultValue);
 
-                correlationProperties.Add(new CorrelationProperty
+                correlationProperty = new CorrelationPropertyInfo
                 {
                     PropertyInfo = propertyInfo,
                     Value = propertyValue,
                     HasExistingValue = hasValue
-                });
+                };
             }
-
         }
 
         internal void MarkAsNotFound()
@@ -105,47 +112,60 @@ namespace NServiceBus.Sagas
             NotFound = true;
         }
 
-   
+
         internal void ValidateChanges()
         {
             ValidateSagaIdIsNotModified();
 
             if (IsNew)
             {
-                ValidateAllCorrelationPropertiesHaveValues();
+                ValidateCorrelationPropertyHaveValue();
             }
 
-            ValidateCorrelationPropertiesNotModified();
+            ValidateCorrelationPropertyNotModified();
         }
 
-        void ValidateAllCorrelationPropertiesHaveValues()
+        void ValidateCorrelationPropertyHaveValue()
         {
-              foreach (var correlationProperty in correlationProperties)
+            if (correlationProperty == null)
             {
-                var defaultValue = GetDefault(correlationProperty.PropertyInfo.PropertyType);
+                return;
+            }
 
-                if (correlationProperty.Value.Equals(defaultValue))
-                {
-                    throw new Exception(
-                        $@"We detected that the correlated property '{correlationProperty.PropertyInfo.Name}' on saga '{Metadata.SagaType.Name}' does not have a value'. 
+            var defaultValue = GetDefault(correlationProperty.PropertyInfo.PropertyType);
+
+            if (!correlationProperty.Value.Equals(defaultValue))
+            {
+                return;
+            }
+
+            throw new Exception(
+                $@"We detected that the correlated property '{correlationProperty.PropertyInfo.Name}' on saga '{Metadata.SagaType.Name}' does not have a value'. 
 All correlated properties must have a non null or empty value assigned to them when a new saga instance is created.");
-                }
-            }
         }
 
-        void ValidateCorrelationPropertiesNotModified()
+        void ValidateCorrelationPropertyNotModified()
         {
-            foreach (var correlationProperty in correlationProperties.Where(cp=>cp.HasExistingValue))
+            if (correlationProperty == null)
             {
-                var currentValue = correlationProperty.PropertyInfo.GetValue(Instance.Entity);
-
-                if (correlationProperty.Value.ToString() != currentValue.ToString())
-                {
-                    throw new Exception(
-                        $@"We detected that the value of the correlated property '{correlationProperty.PropertyInfo.Name}' on saga '{Metadata.SagaType.Name}' has changed from '{correlationProperty.Value}' to '{currentValue}'. 
-Changing the value of correlated properties at runtime is currently not supported.");
-                }
+                return;
             }
+
+            if (!correlationProperty.HasExistingValue)
+            {
+                return;
+            }
+
+            var currentValue = correlationProperty.PropertyInfo.GetValue(Instance.Entity);
+
+            if (correlationProperty.Value.ToString() == currentValue.ToString())
+            {
+                return;
+            }
+
+            throw new Exception(
+                $@"We detected that the value of the correlated property '{correlationProperty.PropertyInfo.Name}' on saga '{Metadata.SagaType.Name}' has changed from '{correlationProperty.Value}' to '{currentValue}'. 
+Changing the value of correlated properties at runtime is currently not supported.");
         }
 
         void ValidateSagaIdIsNotModified()
@@ -165,18 +185,14 @@ Changing the value of correlated properties at runtime is currently not supporte
             return null;
         }
 
-        internal IDictionary<string, object> CorrelationProperties
-        {
-            get { return correlationProperties.ToDictionary(cp => cp.PropertyInfo.Name, cp => cp.Value); }
-        }
-        List<CorrelationProperty> correlationProperties = new List<CorrelationProperty>();
+        CorrelationPropertyInfo correlationProperty;
         Guid sagaId;
 
-        class CorrelationProperty
+        internal class CorrelationPropertyInfo
         {
+            public bool HasExistingValue;
             public PropertyInfo PropertyInfo;
             public object Value;
-            public bool HasExistingValue;
         }
     }
 }

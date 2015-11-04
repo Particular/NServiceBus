@@ -79,7 +79,7 @@
             {
                 return;
             }
-            
+
             if (saga.Completed)
             {
                 if (!sagaInstanceState.IsNew)
@@ -100,7 +100,15 @@
 
                 if (sagaInstanceState.IsNew)
                 {
-                    await sagaPersister.Save(saga.Entity, sagaInstanceState.CorrelationProperties, context).ConfigureAwait(false);
+                    ActiveSagaInstance.CorrelationPropertyInfo correlationProperty;
+                    var sagaCorrelationProperty = SagaCorrelationProperty.None;
+
+                    if (sagaInstanceState.TryGetCorrelationProperty(out correlationProperty))
+                    {
+                        sagaCorrelationProperty = new SagaCorrelationProperty(correlationProperty.PropertyInfo.Name,correlationProperty.Value);
+                    }
+
+                    await sagaPersister.Save(saga.Entity, sagaCorrelationProperty, context).ConfigureAwait(false);
                 }
                 else
                 {
@@ -253,7 +261,7 @@
 
 
             SagaLookupValues.LookupValue value;
-            if (lookupValues.TryGet(sagaEntityType,out value))
+            if (lookupValues.TryGet(sagaEntityType, out value))
             {
                 var propertyInfo = sagaEntityType.GetProperty(value.PropertyName);
 

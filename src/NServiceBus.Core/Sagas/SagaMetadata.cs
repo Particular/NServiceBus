@@ -20,16 +20,16 @@ namespace NServiceBus.Sagas
         /// <param name="sagaType">The type for this saga.</param>
         /// <param name="entityName">The name of the saga data entity.</param>
         /// <param name="sagaEntityType">The type of the related saga entity.</param>
-        /// <param name="correlationProperties">Properties this saga is correlated on.</param>
+        /// <param name="correlationProperty">The property this saga is correlated on if any.</param>
         /// <param name="messages">The messages collection that a saga handles.</param>
         /// <param name="finders">The finder definition collection that can find this saga.</param>
-        public SagaMetadata(string name, Type sagaType, string entityName, Type sagaEntityType, IReadOnlyCollection<CorrelationProperty> correlationProperties, IReadOnlyCollection<SagaMessage> messages, IReadOnlyCollection<SagaFinderDefinition> finders)
+        public SagaMetadata(string name, Type sagaType, string entityName, Type sagaEntityType, CorrelationPropertyMetadata correlationProperty, IReadOnlyCollection<SagaMessage> messages, IReadOnlyCollection<SagaFinderDefinition> finders)
         {
+            this.correlationProperty = correlationProperty;
             Name = name;
             EntityName = entityName;
             SagaEntityType = sagaEntityType;
             SagaType = sagaType;
-            CorrelationProperties = correlationProperties;
 
 
             if (!messages.Any(m => m.IsAllowedToStartSaga))
@@ -38,7 +38,7 @@ namespace NServiceBus.Sagas
 Sagas must have at least one message that is allowed to start the saga. Please add at least one `IAmStartedByMessages` to your {name} saga.");
             }
 
-            foreach (var correlationProperty in correlationProperties)
+            if (correlationProperty != null)
             {
                 if (!AllowedCorrelationPropertyTypes.Contains(correlationProperty.Type))
                 {
@@ -95,9 +95,14 @@ Sagas must have at least one message that is allowed to start the saga. Please a
         public Type SagaType { get; private set; }
 
         /// <summary>
-        /// Properties this saga is correlated on.
+        /// Property this saga is correlated on.
         /// </summary>
-        public IReadOnlyCollection<CorrelationProperty> CorrelationProperties { get; private set; }
+        public bool TryGetCorrelationProperty(out CorrelationPropertyMetadata property)
+        {
+            property = correlationProperty;
+
+            return property != null;
+        }
 
         internal static bool IsSagaType(Type t)
         {
@@ -156,7 +161,7 @@ Sagas must have at least one message that is allowed to start the saga. Please a
             var genericArguments = GetBaseSagaType(sagaType).GetGenericArguments();
             if (genericArguments.Length != 1)
             {
-                throw new Exception($"'{sagaType}' saga type does not implement Saga<T>");
+                throw new Exception($"'{sagaType.Name}' saga type does not implement Saga<T>");
             }
 
             var saga = (Saga) FormatterServices.GetUninitializedObject(sagaType);
@@ -167,23 +172,37 @@ Sagas must have at least one message that is allowed to start the saga. Please a
 
             ApplyScannedFinders(mapper, sagaEntityType, availableTypes, conventions);
 
-            var correlationProperties = new List<CorrelationProperty>();
             var finders = new List<SagaFinderDefinition>();
+
+
+            var propertyMappings = mapper.Mappings.Where(m => !m.HasCustomFinderMap)
+                .GroupBy(m=>m.SagaPropName)
+                .ToList();
+
+            if (propertyMappings.Count > 1)
+            {
+                var messageTypes = string.Join(",", propertyMappings.SelectMany(g => g.Select(m=>m.MessageType.FullName)));
+                throw new Exception($@"
+Sagas can only have mappings that correlate on a single saga property. Please use custom finders to correlate {messageTypes} to saga {sagaType.Name}");
+            }
+
+            CorrelationPropertyMetadata correlationProperty = null;
+
+            if (propertyMappings.Any())
+            {
+                var mapping = propertyMappings.Single().First();
+                correlationProperty = new CorrelationPropertyMetadata(mapping.SagaPropName, mapping.SagaPropType);
+            }
 
             foreach (var mapping in mapper.Mappings)
             {
-                if (!mapping.HasCustomFinderMap && correlationProperties.All(cp => cp.Name != mapping.SagaPropName))
-                {
-                    correlationProperties.Add(new CorrelationProperty(mapping.SagaPropName, mapping.SagaPropType));
-                }
-
                 SetFinderForMessage(mapping, sagaEntityType, finders);
             }
 
             var associatedMessages = GetAssociatedMessages(sagaType)
                 .ToList();
 
-            return new SagaMetadata(sagaType.FullName, sagaType, sagaEntityType.FullName, sagaEntityType, correlationProperties, associatedMessages, finders);
+            return new SagaMetadata(sagaType.FullName, sagaType, sagaEntityType.FullName, sagaEntityType, correlationProperty, associatedMessages, finders);
         }
 
         static void ApplyScannedFinders(SagaMapper mapper, Type sagaEntityType, IEnumerable<Type> availableTypes, Conventions conventions)
@@ -308,6 +327,7 @@ Sagas must have at least one message that is allowed to start the saga. Please a
         }
 
         Dictionary<string, SagaMessage> associatedMessages;
+        CorrelationPropertyMetadata correlationProperty;
         Dictionary<string, SagaFinderDefinition> sagaFinders;
 
         static Type[] AllowedCorrelationPropertyTypes =
@@ -408,6 +428,33 @@ Sagas must have at least one message that is allowed to start the saga. Please a
             }
 
             public List<SagaToMessageMap> Mappings = new List<SagaToMessageMap>();
+        }
+
+        /// <summary>
+        /// Details about a saga data property used to correlate messages hitting the saga.
+        /// </summary>
+        public class CorrelationPropertyMetadata
+        {
+            /// <summary>
+            /// Creates a new instance of <see cref="CorrelationPropertyMetadata" />.
+            /// </summary>
+            /// <param name="name">The name of the correlation property.</param>
+            /// <param name="type">The type of the correlation property.</param>
+            public CorrelationPropertyMetadata(string name, Type type)
+            {
+                Name = name;
+                Type = type;
+            }
+
+            /// <summary>
+            /// The name of the correlation property.
+            /// </summary>
+            public string Name { get; private set; }
+
+            /// <summary>
+            /// The type of the correlation property.
+            /// </summary>
+            public Type Type { get; private set; }
         }
     }
 }
