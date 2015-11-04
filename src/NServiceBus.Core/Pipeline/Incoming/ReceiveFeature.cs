@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using NServiceBus.Extensibility;
     using NServiceBus.Outbox;
@@ -15,7 +16,7 @@
             EnableByDefault();
         }
 
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
             context.Pipeline.RegisterConnector<TransportReceiveToPhysicalMessageProcessingConnector>("Allows to abort processing the message");
             context.Pipeline.RegisterConnector<DeserializeLogicalMessagesConnector>("Deserializes the physical message body into logical messages");

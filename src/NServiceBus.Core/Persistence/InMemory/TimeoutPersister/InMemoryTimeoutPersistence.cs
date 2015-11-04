@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
+    using System.Collections.Generic;
     using NServiceBus.InMemory.TimeoutPersister;
 
     /// <summary>
@@ -15,9 +16,11 @@
         /// <summary>
         /// See <see cref="Feature.Setup"/>.
         /// </summary>
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
             context.Container.ConfigureComponent<InMemoryTimeoutPersister>(DependencyLifecycle.SingleInstance);
+
+            return FeatureStartupTask.None;
         }
     }
 }

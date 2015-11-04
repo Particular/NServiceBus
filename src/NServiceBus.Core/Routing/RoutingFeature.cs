@@ -31,7 +31,7 @@
             RegisterStartupTask<SubscriptionStoreRouteInformationProvider>();
         }
 
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
             var canReceive = !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly");
             var transportDefinition = context.Settings.Get<TransportDefinition>();
@@ -110,6 +110,7 @@
                     context.Pipeline.Register("NativeUnsubscribeTerminator", typeof(NativeUnsubscribeTerminator), "Requests the transport to unsubscribe to a given message type");
                 }
             }
+
         }
 
         static string ReplyToAddress(IBuilder builder)

@@ -2,6 +2,7 @@ namespace NServiceBus.Features
 {
     using System;
     using System.Threading.Tasks;
+    using System.Collections.Generic;
     using NServiceBus.DataBus;
     using NServiceBus.Settings;
 
@@ -17,7 +18,8 @@ namespace NServiceBus.Features
             RegisterStartupTask<IDataBusInitializer>();
         }
 
-        static Type GetSelectedFeatureForDataBus(SettingsHolder settings)
+        /// This feature envies the FileShareDataBus feature. In this case probably the DataBus feature should be abstract the the FileShareDatabus feature should implement it
+        static Type GetSelectedFeatureForDataBus(ReadOnlySettings settings)
         {
             DataBusDefinition dataBusDefinition;
 
@@ -42,7 +44,7 @@ namespace NServiceBus.Features
         /// <summary>
         ///     Called when the features is activated.
         /// </summary>
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
             if (!context.Container.HasComponent<IDataBusSerializer>())
             {
@@ -51,6 +53,8 @@ namespace NServiceBus.Features
 
             context.Pipeline.Register<DataBusReceiveBehavior.Registration>();
             context.Pipeline.Register<DataBusSendBehavior.Registration>();
+
+            return FeatureStartupTask.None;
         }
     }
 }

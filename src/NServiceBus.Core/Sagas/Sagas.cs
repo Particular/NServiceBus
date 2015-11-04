@@ -35,7 +35,7 @@
         /// <summary>
         ///     See <see cref="Feature.Setup" />.
         /// </summary>
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
             // Register the Saga related behaviors for incoming messages
             context.Pipeline.Register(WellKnownStep.InvokeSaga, typeof(SagaPersistenceBehavior), "Invokes the saga logic");
@@ -56,6 +56,8 @@
                     context.Container.ConfigureComponent(t, DependencyLifecycle.InstancePerCall);
                 }
             }
+
+            return FeatureStartupTask.None;
         }
 
         static void RegisterCustomFindersInContainer(IConfigureComponents container, IEnumerable<SagaMetadata> sagaMetaModel)

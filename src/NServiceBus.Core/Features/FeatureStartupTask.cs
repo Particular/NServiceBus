@@ -2,12 +2,30 @@
 {
     using System;
     using System.Threading.Tasks;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Linq;
 
     /// <summary>
     /// Base for feature startup tasks.
     /// </summary>
     public abstract class FeatureStartupTask
     {
+        /// <summary>
+        /// No feature startup tasks
+        /// </summary>
+        public static IReadOnlyCollection<FeatureStartupTask> None { get; } = new ReadOnlyCollection<FeatureStartupTask>(new List<FeatureStartupTask>());
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tasks"></param>
+        /// <returns></returns>
+        public static IReadOnlyCollection<FeatureStartupTask> Some(params FeatureStartupTask[] tasks)
+        {
+            return new ReadOnlyCollection<FeatureStartupTask>(tasks.ToList());
+        } 
+
         /// <summary>
         /// Will be called when the endpoint starts up if the feature has been activated.
         /// </summary>

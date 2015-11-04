@@ -12,17 +12,17 @@ namespace NServiceBus.StaticHeaders
 
         }
 
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
             var headers = context.Settings.Get<CurrentStaticHeaders>();
 
             context.Container.ConfigureComponent(b => new ApplyStaticHeadersBehavior(headers), DependencyLifecycle.SingleInstance);
             context.Pipeline.Register("ApplyStaticHeaders", typeof(ApplyStaticHeadersBehavior), "Applies static headers to outgoing messages");
+            return FeatureStartupTask.None;
         }
     }
 
     class CurrentStaticHeaders:Dictionary<string,string>
     {
-       
     }
 }

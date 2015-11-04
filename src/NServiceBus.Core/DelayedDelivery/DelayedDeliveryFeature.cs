@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
+    using System.Collections.Generic;
     using NServiceBus.Config;
     using NServiceBus.DelayedDelivery;
     using NServiceBus.DeliveryConstraints;
@@ -20,7 +21,7 @@
             });
         }
 
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
             var transportHasNativeDelayedDelivery = context.DoesTransportSupportConstraint<DelayedDeliveryConstraint>();
             var timeoutMgrDisabled = IsTimeoutManagerDisabled(context);
@@ -57,6 +58,8 @@
             }
 
             context.Pipeline.Register("ApplyDelayedDeliveryConstraint", typeof(ApplyDelayedDeliveryConstraintBehavior), "Applied relevant delayed delivery constraints requested by the user");
+
+            return FeatureStartupTask.None;
         }
 
         static bool IsTimeoutManagerDisabled(FeatureConfigurationContext context)

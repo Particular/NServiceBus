@@ -2,6 +2,7 @@ namespace NServiceBus.Features
 {
     using System;
     using System.Threading.Tasks;
+    using System.Collections.Generic;
     using NServiceBus.Routing;
     using NServiceBus.Settings;
 
@@ -10,12 +11,15 @@ namespace NServiceBus.Features
         public FileRoutingTableFeature()
         {
             DependsOn<RoutingFeature>();
-            RegisterStartupTask<StartupTask>();
         }
 
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
-            context.Container.RegisterSingleton(new FileRoutingTable(context.Settings.Get<string>("FileBasedRouting.BasePath"), TimeSpan.FromSeconds(5)));
+            var fileRoutingTable = new FileRoutingTable(context.Settings.Get<string>("FileBasedRouting.BasePath"), TimeSpan.FromSeconds(5));
+
+            context.Container.RegisterSingleton(fileRoutingTable);
+
+            return FeatureStartupTask.Some(new StartupTask(context.Settings, fileRoutingTable));
         }
 
         class StartupTask : FeatureStartupTask

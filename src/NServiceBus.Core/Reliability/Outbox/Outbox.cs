@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Features
 {
     using System;
+    using System.Collections.Generic;
     using System.Configuration;
     using System.ServiceProcess;
     using System.Threading.Tasks;
@@ -28,8 +29,6 @@
 
                 return RequireOutboxConsent(c);
             }, "This transport requires outbox consent");
-
-            RegisterStartupTask<DtcRunningWarning>();
         }
 
         static bool RequireOutboxConsent(FeatureConfigurationContext context)
@@ -66,7 +65,7 @@ The reason you need to do this is because we need to ensure that you have read a
         /// <summary>
         /// See <see cref="Feature.Setup"/>.
         /// </summary>
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
             if (!PersistenceStartup.HasSupportFor<StorageType.Outbox>(context.Settings))
             {
@@ -75,7 +74,9 @@ The reason you need to do this is because we need to ensure that you have read a
 
             //note: in the future we should change the persister api to give us a "outbox factory" so that we can register it in DI here instead of relying on the persister to do it
 
-            context.Pipeline.Register("ForceBatchDispatchToBeIsolated", typeof(ForceBatchDispatchToBeIsolatedBehavior), "Makes sure that we dispatch straight to the transport so that we can safely set the outbox record to dispatched one the dispatch pipeline returns.");
+            context.Pipeline.Register("ForceBatchDispatchToBeIsolated", typeof(ForceBatchDispatchToBeIsolatedBehavior), "Makes sure that we dispatch straight to the transport so that we can safely set the outbox record to dispatched one the dispatch pipeline returns.");            
+
+            return FeatureStartupTask.Some(new DtcRunningWarning());
         }
 
     }

@@ -1,6 +1,7 @@
 namespace NServiceBus.Features
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using Logging;
     using NServiceBus.Licensing;
@@ -14,7 +15,7 @@ namespace NServiceBus.Features
             Defaults(s => s.SetDefault(LicenseTextSettingsKey, null));
         }
 
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
             try
             {
@@ -26,7 +27,7 @@ namespace NServiceBus.Features
                 var licenseExpired = licenseManager.HasLicenseExpired();
                 if (!licenseExpired)
                 {
-                    return;
+                    return FeatureStartupTask.None;
                 }
 
                 context.Pipeline.Register("LicenseReminder", typeof(AuditInvalidLicenseBehavior), "Audits that the message was processed by an endpoint with an expired license");
@@ -41,6 +42,7 @@ namespace NServiceBus.Features
                 //we only log here to prevent licensing issue to abort startup and cause production outages
                 Logger.Fatal("Failed to initialize the license", ex);
             }
+            return FeatureStartupTask.None;
         }
 
         static ILog Logger = LogManager.GetLogger<LicenseReminder>();

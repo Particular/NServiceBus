@@ -752,6 +752,7 @@ namespace NServiceBus.Unicast
 namespace NServiceBus.Features
 {
     using System;
+    using System.Collections.Generic;
 
     [ObsoleteEx(
         RemoveInVersion = "7.0",
@@ -763,7 +764,7 @@ namespace NServiceBus.Features
         {
         }
 
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
             throw new NotImplementedException();
         }
@@ -826,6 +827,7 @@ namespace NServiceBus.Transports
 namespace NServiceBus.Features
 {
     using System;
+    using System.Collections.Generic;
 
     [ObsoleteEx(
         RemoveInVersion = "7.0",
@@ -837,7 +839,7 @@ namespace NServiceBus.Features
         {
         }
 
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
             throw new NotImplementedException();
         }

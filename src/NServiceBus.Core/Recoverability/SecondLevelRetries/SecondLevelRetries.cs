@@ -1,6 +1,7 @@
 namespace NServiceBus.Features
 {
     using System;
+    using System.Collections.Generic;
     using NServiceBus.Config;
     using NServiceBus.Pipeline;
     using NServiceBus.Recoverability.SecondLevelRetries;
@@ -27,7 +28,7 @@ namespace NServiceBus.Features
         /// <summary>
         /// See <see cref="Feature.Setup"/>.
         /// </summary>
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
             var  retryPolicy = GetRetryPolicy(context.Settings);
 
@@ -42,9 +43,11 @@ namespace NServiceBus.Features
                 var dispatchPipeline = new PipelineBase<RoutingContext>(b, context.Settings, pipelinesCollection.MainPipeline);
                 return new SecondLevelRetriesBehavior(dispatchPipeline,retryPolicy,b.Build<BusNotifications>(), context.Settings.LocalAddress());
             }, DependencyLifecycle.InstancePerCall);
+
+            return FeatureStartupTask.None;
         }
 
-        bool IsEnabledInConfig(FeatureConfigurationContext context)
+        static bool IsEnabledInConfig(FeatureConfigurationContext context)
         {
             var retriesConfig = context.Settings.GetConfigSection<SecondLevelRetriesConfig>();
 

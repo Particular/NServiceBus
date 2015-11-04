@@ -1,5 +1,7 @@
 namespace NServiceBus.Features
 {
+    using System.Collections.Generic;
+
     /// <summary>
     /// A root feature that is always enabled.
     /// </summary>
@@ -10,8 +12,9 @@ namespace NServiceBus.Features
             EnableByDefault();
         }
 
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
+            return FeatureStartupTask.None;
         }
     }
 }

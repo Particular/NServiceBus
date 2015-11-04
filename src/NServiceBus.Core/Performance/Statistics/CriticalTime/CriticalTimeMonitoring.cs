@@ -1,5 +1,6 @@
 namespace NServiceBus.Features
 {
+    using System.Collections.Generic;
     using NServiceBus.Performance.Counters;
 
     /// <summary>
@@ -14,12 +15,13 @@ namespace NServiceBus.Features
         /// <summary>
         /// <see cref="Feature.Setup"/>.
         /// </summary>
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
             var criticalTimeCounter = PerformanceCounterHelper.InstantiatePerformanceCounter("Critical Time", context.Settings.EndpointName().ToString());
             var criticalTimeCalculator = new CriticalTimeCalculator(criticalTimeCounter);
             context.Container.RegisterSingleton(criticalTimeCalculator);
             context.Pipeline.Register<CriticalTimeBehavior.Registration>();
+            return FeatureStartupTask.None;
         }
     }
 }

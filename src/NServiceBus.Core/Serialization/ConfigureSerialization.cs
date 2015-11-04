@@ -22,14 +22,14 @@
         /// <summary>
         /// Called when the features is activated.
         /// </summary>
-        protected internal sealed override void Setup(FeatureConfigurationContext context)
+        protected internal sealed override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
             context.Container.ConfigureComponent<MessageMapper>(DependencyLifecycle.SingleInstance);
 
             var serializerType = GetSerializerType(context);
             if (serializerType == null)
             {
-                return;
+                return FeatureStartupTask.None;
             }
 
             RegisterSerializer(context, serializerType);
@@ -38,6 +38,8 @@
             {
                 context.Container.ConfigureComponent(b => new MessageDeserializerResolver(b.BuildAll<IMessageSerializer>(), serializerType), DependencyLifecycle.SingleInstance);
             }
+
+            return FeatureStartupTask.None;
         }
 
         /// <summary>

@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
     using System.Messaging;
@@ -9,6 +10,11 @@
     using NServiceBus.Settings;
     using NServiceBus.Transports;
     using NServiceBus.Transports.Msmq;
+    using Logging;
+    using Settings;
+    using Transports;
+    using Transports.Msmq;
+    using Utils;
 
     /// <summary>
     /// Used to configure the MSMQ transport.
@@ -20,14 +26,19 @@
             EnableByDefault();
             DependsOn<UnicastBus>();
             DependsOn<Receiving>();
-            RegisterStartupTask<CheckQueuePermissions>();
-            RegisterStartupTask<TimeToBeReceivedOverrideCheck>();
+        }
+
+        /// <summary>
+        ///     Called when the features is activated.
+        /// </summary>
+        protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
+        {
+            return FeatureStartupTask.Some(new CheckQueuePermissions(context.Settings), new TimeToBeReceivedOverrideCheck(context.Settings));
         }
 
         class CheckQueuePermissions : FeatureStartupTask
         {
             ReadOnlySettings settings;
-
             public CheckQueuePermissions(ReadOnlySettings settings)
             {
                 this.settings = settings;
@@ -89,13 +100,7 @@
             }
 
             static ILog Logger = LogManager.GetLogger<CheckQueuePermissions>();
-        }
-        
-        /// <summary>
-        ///     Called when the features is activated.
-        /// </summary>
-        protected internal override void Setup(FeatureConfigurationContext context)
-        {
+            ReadOnlySettings settings;
         }
     }
 }

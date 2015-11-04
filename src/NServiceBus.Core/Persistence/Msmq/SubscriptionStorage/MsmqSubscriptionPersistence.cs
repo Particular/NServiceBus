@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
+    using System.Collections.Generic;
     using Config;
     using Logging;
     using NServiceBus.Transports;
@@ -16,7 +17,7 @@
         /// Invoked if the feature is activated.
         /// </summary>
         /// <param name="context">The feature context.</param>
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
             var queueName = context.Settings.GetOrDefault<string>("MsmqSubscriptionPersistence.QueueName");
 

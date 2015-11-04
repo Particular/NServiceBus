@@ -1,5 +1,6 @@
 namespace NServiceBus.Features
 {
+    using System.Collections.Generic;
     using Scheduling;
     using ScheduledTask = Scheduling.Messages.ScheduledTask;
 
@@ -19,7 +20,7 @@ namespace NServiceBus.Features
         /// Invoked if the feature is activated.
         /// </summary>
         /// <param name="context">The feature context.</param>
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
             context.Settings.Get<Conventions>().AddSystemMessagesConventions(t => typeof(ScheduledTask).IsAssignableFrom(t));
             context.Container.ConfigureComponent<DefaultScheduler>(DependencyLifecycle.SingleInstance);

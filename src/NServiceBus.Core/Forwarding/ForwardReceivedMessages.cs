@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
+    using System.Collections.Generic;
     using NServiceBus.Config;
     using NServiceBus.Forwarding;
     using NServiceBus.Pipeline;
@@ -21,7 +22,7 @@
         /// Invoked if the feature is activated.
         /// </summary>
         /// <param name="context">The feature context.</param>
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
             var forwardReceivedMessagesQueue = GetConfiguredForwardMessageQueue(context);
 
@@ -37,6 +38,8 @@
 
                 return new InvokeForwardingPipelineBehavior(pipeline, forwardReceivedMessagesQueue);
             }, DependencyLifecycle.InstancePerCall);
+
+            return FeatureStartupTask.None;
         }
 
         static string GetConfiguredForwardMessageQueue(FeatureConfigurationContext context)

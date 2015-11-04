@@ -17,8 +17,9 @@
                 Defaults(s => s.EnableFeatureByDefault<FeatureThatIsEnabledByAnother>());
             }
 
-            protected internal override void Setup(FeatureConfigurationContext context)
+            protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
             {
+                return FeatureStartupTask.None;
             }
         }
 
@@ -31,8 +32,9 @@
 
             public bool DefaultCalled;
             
-            protected internal override void Setup(FeatureConfigurationContext context)
+            protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
             {
+                return FeatureStartupTask.None;
             }
         }
 

@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Features
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using NServiceBus.DeliveryConstraints;
     using NServiceBus.Performance.TimeToBeReceived;
@@ -11,7 +12,7 @@
         {
             EnableByDefault();
         }
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
             var mappings = GetMappings(context);
 
@@ -23,9 +24,11 @@
             context.Pipeline.Register("ApplyTimeToBeReceived", typeof(ApplyTimeToBeReceivedBehavior), "Adds the `DiscardIfNotReceivedBefore` constraint to relevant messages");
 
             context.Container.ConfigureComponent(b=>new ApplyTimeToBeReceivedBehavior(mappings), DependencyLifecycle.SingleInstance);
+
+            return FeatureStartupTask.None;
         }
 
-        TimeToBeReceivedMappings GetMappings(FeatureConfigurationContext context)
+        static TimeToBeReceivedMappings GetMappings(FeatureConfigurationContext context)
         {   
             var knownMessages = context.Settings.GetAvailableTypes()
                 .Where(context.Settings.Get<Conventions>().IsMessageType)

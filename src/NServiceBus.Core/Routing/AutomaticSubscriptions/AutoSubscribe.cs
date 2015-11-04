@@ -24,7 +24,7 @@
         /// <summary>
         /// See <see cref="Feature.Setup"/>.
         /// </summary>
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
             var transportDefinition = context.Settings.Get<TransportDefinition>();
             SubscribeSettings settings;
@@ -66,6 +66,8 @@
 
                 }, DependencyLifecycle.SingleInstance);
             }
+
+            return FeatureStartupTask.None;
         }
 
         static List<Type> GetMessageTypesHandledByThisEndpoint(MessageHandlerRegistry handlerRegistry, Conventions conventions,SubscribeSettings settings)
