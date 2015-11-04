@@ -1445,7 +1445,6 @@ namespace NServiceBus.Features
     }
     public class FeatureConfigurationContext
     {
-        public NServiceBus.ObjectBuilder.IBuilder Builder { get; }
         public NServiceBus.ObjectBuilder.IConfigureComponents Container { get; }
         public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
         public NServiceBus.Settings.ReadOnlySettings Settings { get; }
