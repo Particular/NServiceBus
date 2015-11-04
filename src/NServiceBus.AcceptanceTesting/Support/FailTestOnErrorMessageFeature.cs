@@ -4,6 +4,7 @@
     using System.Linq;
     using NServiceBus.Faults;
     using NServiceBus.Features;
+    using NServiceBus.Settings;
 
     public class FailTestOnErrorMessageFeature : Feature
     {
@@ -12,22 +13,35 @@
             EnableByDefault();
 
             DependsOn<UnicastBus>();
+
+            RegisterStartupTask<FailTestOnErrorMessageFeatureStartupTask>();
         }
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var endpointInstanceName = context.Settings.EndpointName();
-            var notifications = context.Builder.Build<BusNotifications>();
-            var testContext = context.Builder.Build<ScenarioContext>();
+        }
 
-            notifications.Errors.MessageSentToErrorQueue.Subscribe(new FaultedMessageObserver(testContext, endpointInstanceName));
+        class FailTestOnErrorMessageFeatureStartupTask : FeatureStartupTask
+        {
+            public FailTestOnErrorMessageFeatureStartupTask(ScenarioContext context, ReadOnlySettings settings, BusNotifications notifications)
+            {
+                this.settings = settings;
+                scenarioContext = context;
+                this.notifications = notifications;
+            }
+
+            protected override void OnStart()
+            {
+                notifications.Errors.MessageSentToErrorQueue.Subscribe(new FaultedMessageObserver(scenarioContext, settings.EndpointName()));
+            }
+
+            readonly BusNotifications notifications;
+            readonly ScenarioContext scenarioContext;
+            readonly ReadOnlySettings settings;
         }
 
         class FaultedMessageObserver : IObserver<FailedMessage>
         {
-            ScenarioContext testContext;
-            EndpointName endpointName;
-
             public FaultedMessageObserver(ScenarioContext testContext, EndpointName endpointName)
             {
                 this.testContext = testContext;
@@ -38,7 +52,10 @@
             {
                 testContext.FailedMessages.AddOrUpdate(
                     endpointName.ToString(),
-                    new[] { value },
+                    new[]
+                    {
+                        value
+                    },
                     (i, failed) =>
                     {
                         var result = failed.ToList();
@@ -54,6 +71,9 @@
             public void OnCompleted()
             {
             }
+
+            EndpointName endpointName;
+            ScenarioContext testContext;
         }
     }
 }
