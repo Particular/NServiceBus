@@ -47,7 +47,7 @@
     {
         public AllNativeMultiQueueTransactionTransports()
         {
-            AllTransportsFilter.Run(t => t.GetTransactionSupport() > TransactionSupport.MultiQueue, Remove);
+            AllTransportsFilter.Run(t => t.GetTransactionSupport() < TransactionSupport.MultiQueue, Remove);
         }
     }
 
