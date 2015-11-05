@@ -38,7 +38,7 @@ namespace NServiceBus
 
                 if (ShouldPerformSlr(context.Message, exception, out delay, out currentRetry))
                 {
-                    await QueueForDelayedDelivery(context, currentRetry, delay, exception);
+                    await QueueForDelayedDelivery(context, currentRetry, delay, exception).ConfigureAwait(false);
 
                     return;
                 }

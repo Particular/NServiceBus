@@ -32,7 +32,7 @@ namespace NServiceBus
             {
                 try
                 {
-                    await MoveToErrorQueue(context, context.Message, exception);
+                    await MoveToErrorQueue(context, context.Message, exception).ConfigureAwait(false);
 
                     faultsStatusStorage.ClearExceptions(uniqueMessageId);
 
