@@ -70,7 +70,8 @@ namespace NServiceBus.Transports.Msmq
 
             cancellationToken = cancellationTokenSource.Token;
             // ReSharper disable once ConvertClosureToMethodGroup
-            messagePumpTask = Task.Factory.StartNew(() => ProcessMessages(), CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default).Unwrap();
+            // LongRunning is useless combined with async/await
+            messagePumpTask = Task.Run(() => ProcessMessages(), CancellationToken.None);
         }
 
         /// <summary>
