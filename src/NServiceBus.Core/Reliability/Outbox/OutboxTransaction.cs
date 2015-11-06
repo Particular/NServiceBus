@@ -6,7 +6,7 @@ namespace NServiceBus.Outbox
     /// <summary>
     /// Transaction in which storage operations must enlist to be consistent with the outbox operarations.
     /// </summary>
-    public interface OutboxTransaction:IDisposable
+    public interface OutboxTransaction : IDisposable
     {
         /// <summary>
         /// Commits the outbox transaction.

@@ -28,10 +28,14 @@
 
         public Task Store(OutboxMessage message, OutboxTransaction transaction, ContextBag context)
         {
-            if (!storage.TryAdd(message.MessageId, new StoredMessage(message.MessageId, message.TransportOperations.ToList())))
+            var tx = (InMemoryOutboxTransaction)transaction;
+            tx.Enlist(() =>
             {
-                throw new Exception($"Outbox message with id '{message.MessageId}' is already present in storage.");
-            }
+                if (!storage.TryAdd(message.MessageId, new StoredMessage(message.MessageId, message.TransportOperations.ToList())))
+                {
+                    throw new Exception($"Outbox message with id '{message.MessageId}' is already present in storage.");
+                }
+            });
             return TaskEx.Completed;
         }
 
@@ -104,14 +108,14 @@
                 {
                     return false;
                 }
-                return Equals((StoredMessage) obj);
+                return Equals((StoredMessage)obj);
             }
 
             public override int GetHashCode()
             {
                 unchecked
                 {
-                    return ((Id?.GetHashCode() ?? 0)*397) ^ Dispatched.GetHashCode();
+                    return ((Id?.GetHashCode() ?? 0) * 397) ^ Dispatched.GetHashCode();
                 }
             }
         }

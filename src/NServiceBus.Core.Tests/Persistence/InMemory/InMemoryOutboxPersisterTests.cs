@@ -19,7 +19,13 @@
             var messageId = "myId";
 
             var messageToStore = new OutboxMessage(messageId, new[] { new TransportOperation("x", null, null, null) });
-            await storage.Store(messageToStore, null, new ContextBag());
+            using (var transaction = await storage.BeginTransaction(new ContextBag()))
+            {
+                await storage.Store(messageToStore, transaction, new ContextBag());
+
+                await transaction.Commit();
+            }
+
             await storage.SetAsDispatched(messageId, new ContextBag());
 
             var message = await storage.Get(messageId, new ContextBag());
@@ -36,7 +42,12 @@
 
             var messageToStore = new OutboxMessage(messageId, new[] { new TransportOperation("x", null, null, null) });
 
-            await storage.Store(messageToStore, null, new ContextBag());
+            using (var transaction = await storage.BeginTransaction(new ContextBag()))
+            {
+                await storage.Store(messageToStore, transaction, new ContextBag());
+
+                await transaction.Commit();
+            }
 
             storage.RemoveEntriesOlderThan(DateTime.UtcNow);
 
@@ -54,8 +65,12 @@
             var beforeStore = DateTime.UtcNow;
 
             var messageToStore = new OutboxMessage(messageId, new[] { new TransportOperation("x", null, null, null) });
+            using (var transaction = await storage.BeginTransaction(new ContextBag()))
+            {
+                await storage.Store(messageToStore, transaction, new ContextBag());
 
-            await storage.Store(messageToStore, null, new ContextBag());
+                await transaction.Commit();
+            }
 
             await storage.SetAsDispatched(messageId, new ContextBag());
 
@@ -68,6 +83,46 @@
 
             message = await storage.Get(messageId, new ContextBag());
             Assert.Null(message);
+        }
+
+        [Test]
+        public async Task Should_not_store_when_transaction_not_commited()
+        {
+            var storage = new InMemoryOutboxStorage();
+
+            var messageId = "myId";
+
+            var contextBag = new ContextBag();
+            using (var transaction = await storage.BeginTransaction(contextBag))
+            {
+                var messageToStore = new OutboxMessage(messageId, new[] { new TransportOperation("x", null, null, null) });
+                await storage.Store(messageToStore, transaction, contextBag);
+
+                // do not commit
+            }
+
+            var message = await storage.Get(messageId, new ContextBag());
+            Assert.Null(message);
+        }
+
+        [Test]
+        public async Task Should_store_when_transaction_commited()
+        {
+            var storage = new InMemoryOutboxStorage();
+
+            var messageId = "myId";
+
+            var contextBag = new ContextBag();
+            using (var transaction = await storage.BeginTransaction(contextBag))
+            {
+                var messageToStore = new OutboxMessage(messageId, new[] { new TransportOperation("x", null, null, null) });
+                await storage.Store(messageToStore, transaction, contextBag);
+
+                await transaction.Commit();
+            }
+
+            var message = await storage.Get(messageId, new ContextBag());
+            Assert.NotNull(message);
         }
     }
 }
