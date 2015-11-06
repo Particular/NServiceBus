@@ -31,10 +31,7 @@
         {
             public ErrorSpy()
             {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.PurgeOnStartup(true);
-                })
+                EndpointSetup<DefaultServer>()
                 .WithConfig<TransportConfig>(c => c.MaximumConcurrencyLevel = 1);
             }
 
@@ -44,31 +41,40 @@
 
                 public Task Handle(SideEffectMessage message, IMessageHandlerContext context)
                 {
-                    Context.SideEffectMessageReceived = true;
+                    if (message.Id == Context.Id)
+                    {
+                        Context.SideEffectMessageReceived = true;
+                    }
 
                     return Task.FromResult(0);
                 }
 
                 public Task Handle(FailingMessage message, IMessageHandlerContext context)
                 {
+                    if (message.Id != Context.Id)
+                        return Task.FromResult(0);
+
                     Context.FailingMessageMovedToErrorQueueAndProcessedByErrorSpy = true;
 
                     return Task.FromResult(0);
                 }
             }
         }
-        protected class Context : ScenarioContext
+        public class Context : ScenarioContext
         {
+            public Guid Id { get; set; }
             public bool FailingMessageMovedToErrorQueueAndProcessedByErrorSpy { get; set; }
             public bool SideEffectMessageReceived { get; set; }
         }
 
         protected class FailingMessage : IMessage
         {
+            public Guid Id { get; set; }
         }
 
         protected class SideEffectMessage : IMessage
         {
+            public Guid Id { get; set; }
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Recoverability.Retries
 {
     using System;
+    using System.Reflection;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
@@ -10,15 +11,15 @@
     using NServiceBus.TransportDispatch;
     using NUnit.Framework;
 
-    public class When_exception_thrown_during_move_to_error_queue_behavior : NServiceBusAcceptanceTest
+    public class When_exception_thrown_during_slr_moving_msg_to_timeouts : NServiceBusAcceptanceTest
     {
         [Test]
         public async void Message_should_be_moved_to_error_queue_immediately()
         {
-            var context = await Scenario.Define<Context>()
+            var context = await Scenario.Define<Context>(c => c.Id = Guid.NewGuid())
                 .WithEndpoint<FailingEndpoint>(b =>
                 {
-                    b.When(bus => bus.SendLocalAsync(new FailingMessage()));
+                    b.When((bus, c) => bus.SendLocalAsync(new FailingMessage {Id = c.Id}));
                     b.CustomConfig(c =>
                     {
                         c.DisableFeature<FirstLevelRetries>();
@@ -46,7 +47,6 @@
                         b.EnableFeature<TimeoutManager>();
                         b.SendFailedMessagesTo(endpointName);
                         b.Pipeline.Register(new RegisterBlowUpBehaviour());
-                        b.PurgeOnStartup(true);
                     })
                     .WithConfig<SecondLevelRetriesConfig>(c =>
                     {
@@ -62,19 +62,23 @@
 
                 public Task Handle(FailingMessage message, IMessageHandlerContext context)
                 {
+                    if (message.Id != Context.Id)
+                        return Task.FromResult(0);
+
                     Context.NumberOfHandlerInvocations++;
 
                     throw new SimulatedException("BLAH");
                 }
             }
         }
-        
-        protected class RegisterBlowUpBehaviour : RegisterStep
+
+        class RegisterBlowUpBehaviour : RegisterStep
         {
             public RegisterBlowUpBehaviour() : base("BlowUpWhenQueuingMessageDuringSecondSlrBehaviour", typeof(BlowUpWhenQueuingMessageDuringSecondSlr), "Blows up on second retry")
             {
             }
         }
+
         class BlowUpWhenQueuingMessageDuringSecondSlr : Behavior<RoutingContext>
         {
             public override Task Invoke(RoutingContext context, Func<Task> next)
@@ -85,23 +89,25 @@
                 return next();
             }
         }
-        protected class Context : ScenarioContext
+
+        class Context : ScenarioContext
         {
+            public Guid Id { get; set; }
             public bool FailingMessageMovedToErrorQueueAndProcessedByErrorSpy { get; set; }
             public int NumberOfHandlerInvocations { get; set; }
             public int NumberOfSlrInvocations { get; set; }
         }
+
         protected class FailingMessage : IMessage
         {
+            public Guid Id { get; set; }
         }
+
         public class ErrorSpy : EndpointConfigurationBuilder
         {
             public ErrorSpy()
             {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.PurgeOnStartup(true);
-                })
+                EndpointSetup<DefaultServer>()
                 .WithConfig<TransportConfig>(c => c.MaximumConcurrencyLevel = 1);
             }
 
@@ -111,7 +117,9 @@
 
                 public Task Handle(FailingMessage message, IMessageHandlerContext context)
                 {
-                    Context.FailingMessageMovedToErrorQueueAndProcessedByErrorSpy = true;
+                    if (message.Id == Context.Id) { 
+                        Context.FailingMessageMovedToErrorQueueAndProcessedByErrorSpy = true;
+                    }
 
                     return Task.FromResult(0);
                 }

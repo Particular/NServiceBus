@@ -14,10 +14,10 @@
         [Test]
         public async void Outgoing_messages_should_not_be_delivered()
         {
-            var context = await Scenario.Define<Context>()
+            var context = await Scenario.Define<Context>(c => c.Id = Guid.NewGuid())
                 .WithEndpoint<FailingEndpoint>(b =>
                 {
-                    b.When(bus => bus.SendLocalAsync(new FailingMessage()));
+                    b.When((bus, c) => bus.SendLocalAsync(new FailingMessage {Id = c.Id}));
                     b.CustomConfig(c =>
                     {
                         c.DisableFeature<FirstLevelRetries>();
@@ -44,7 +44,6 @@
                         b.EnableFeature<TimeoutManager>();
                         b.Pipeline.Register(new RegisterBlowupBehavior("MoveFaultsToErrorQueue"));
                         b.SendFailedMessagesTo(endpointName);
-                        b.PurgeOnStartup(true);
                     })
                     .WithConfig<TransportConfig>(c => c.MaximumConcurrencyLevel = 1)
                     .AddMapping<SideEffectMessage>(typeof(ErrorSpy));
@@ -52,9 +51,14 @@
 
             class FailingMessageHandler : IHandleMessages<FailingMessage>
             {
+                public Context Context { get; set; }
+
                 public Task Handle(FailingMessage message, IMessageHandlerContext context)
                 {
-                    return context.SendAsync(new SideEffectMessage());
+                    if (message.Id != Context.Id)
+                        return Task.FromResult(0);
+
+                    return context.SendAsync(new SideEffectMessage {Id = message.Id});
                 }
             }
         }
