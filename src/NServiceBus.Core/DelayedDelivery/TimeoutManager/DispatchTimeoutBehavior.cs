@@ -34,7 +34,12 @@ namespace NServiceBus
 
             await dispatcher.Dispatch(new[] { new TransportOperation(new OutgoingMessage(message.MessageId, timeoutData.Headers, timeoutData.State), sendOptions) }, context).ConfigureAwait(false);
 
-            await persister.TryRemove(timeoutId, context).ConfigureAwait(false);
+            var timeoutRemoved = await persister.TryRemove(timeoutId, context).ConfigureAwait(false);
+            if (!timeoutRemoved)
+            {
+                // timeout was concurrently removed between Peek and TryRemove. Throw an exception to rollback the dispatched message if possible.
+                throw new Exception($"timeout '{timeoutId}' was concurrently processed.");
+            }
         }
 
         static DispatchConsistency GetDispatchConsistency(TransactionSupport transactionSupport)
