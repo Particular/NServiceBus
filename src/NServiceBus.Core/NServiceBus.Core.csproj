@@ -442,7 +442,6 @@
     <Compile Include="Unicast\ContextualBus.cs" />
     <Compile Include="MessageDeserializationException.cs" />
     <Compile Include="Hosting\AuditHostInformationBehavior.cs" />
-    <Compile Include="Unicast\IContextualBus.cs" />
     <Compile Include="Unicast\IRealBus.cs" />
     <Compile Include="Unicast\Transport\PipelineInfo.cs" />
     <Compile Include="Unicast\UnicastBusInternal_RemoveInV7.cs" />
