@@ -15,9 +15,12 @@
         public async void Outgoing_messages_should_not_be_delivered()
         {
             var context = await Scenario.Define<Context>(c => c.Id = Guid.NewGuid())
-                .WithEndpoint<FailingEndpoint>(b => b.When((bus, c) => bus.SendLocalAsync(new FailingMessage {Id = c.Id})))
+                .WithEndpoint<FailingEndpoint>(b =>
+                {
+                    b.When((bus, c) => bus.SendLocalAsync(new FailingMessage {Id = c.Id}))
+                     .DoNotFailOnErrorMessages();
+                })
                 .WithEndpoint<ErrorSpy>()
-                .AllowSimulatedExceptions()
                 .Done(c => c.FailingMessageMovedToErrorQueueAndProcessedByErrorSpy)
                 .Run(TimeSpan.FromSeconds(20));
 

@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Recoverability.Retries
 {
     using System;
-    using System.Reflection;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
@@ -19,7 +18,8 @@
             var context = await Scenario.Define<Context>(c => c.Id = Guid.NewGuid())
                 .WithEndpoint<FailingEndpoint>(b =>
                 {
-                    b.When((bus, c) => bus.SendLocalAsync(new FailingMessage {Id = c.Id}));
+                    b.When((bus, c) => bus.SendLocalAsync(new FailingMessage {Id = c.Id}))
+                     .DoNotFailOnErrorMessages();
                     b.CustomConfig(c =>
                     {
                         c.DisableFeature<FirstLevelRetries>();
@@ -27,7 +27,6 @@
                     });
                 })
                 .WithEndpoint<ErrorSpy>()
-                .AllowSimulatedExceptions()
                 .Done(c => c.FailingMessageMovedToErrorQueueAndProcessedByErrorSpy)
                 .Run(TimeSpan.FromSeconds(20));
 
