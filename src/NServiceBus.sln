@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.ContainerTests", "NServiceBus.ContainerTests\NServiceBus.ContainerTests.csproj", "{0A282BF4-0957-4074-8D5E-C2FB8634A3AA}"
 EndProject
@@ -15,8 +15,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.AcceptanceTests", "NServiceBus.AcceptanceTests\NServiceBus.AcceptanceTests.csproj", "{6A9E04E7-6229-4A3E-B94A-DA168E962B5A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Core.x86.Tests", "NServiceBus.Core.Tests.x86\NServiceBus.Core.x86.Tests.csproj", "{389628F6-2FB4-4AFF-BACC-16726C44FFA4}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.PerformanceTests", "NServiceBus.PerformanceTests\NServiceBus.PerformanceTests.csproj", "{2F2FBB64-FE67-4204-8E27-E1DB39ED843D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{ACCDE2E1-3F56-47BA-8CFF-199931BAC6B0}"
 	ProjectSection(SolutionItems) = preProject
@@ -95,16 +93,6 @@ Global
 		{389628F6-2FB4-4AFF-BACC-16726C44FFA4}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{389628F6-2FB4-4AFF-BACC-16726C44FFA4}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{389628F6-2FB4-4AFF-BACC-16726C44FFA4}.Release|x86.ActiveCfg = Release|Any CPU
-		{2F2FBB64-FE67-4204-8E27-E1DB39ED843D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2F2FBB64-FE67-4204-8E27-E1DB39ED843D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2F2FBB64-FE67-4204-8E27-E1DB39ED843D}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{2F2FBB64-FE67-4204-8E27-E1DB39ED843D}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{2F2FBB64-FE67-4204-8E27-E1DB39ED843D}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{2F2FBB64-FE67-4204-8E27-E1DB39ED843D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2F2FBB64-FE67-4204-8E27-E1DB39ED843D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2F2FBB64-FE67-4204-8E27-E1DB39ED843D}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{2F2FBB64-FE67-4204-8E27-E1DB39ED843D}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{2F2FBB64-FE67-4204-8E27-E1DB39ED843D}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -112,6 +100,5 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{0A282BF4-0957-4074-8D5E-C2FB8634A3AA} = {2904B75F-8F07-4C07-BABC-BC42533B3E75}
 		{758357F6-CD31-4337-80C4-BA377FC257AF} = {2904B75F-8F07-4C07-BABC-BC42533B3E75}
-		{2F2FBB64-FE67-4204-8E27-E1DB39ED843D} = {2904B75F-8F07-4C07-BABC-BC42533B3E75}
 	EndGlobalSection
 EndGlobal
