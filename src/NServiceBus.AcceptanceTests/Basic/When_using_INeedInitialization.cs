@@ -55,7 +55,7 @@
 
                 public Task StartAsync()
                 {
-                    return Bus.SendAsync(new SendMessage());
+                    return Bus.CreateSendContext().SendAsync(new SendMessage());
                 }
 
                 public Task StopAsync()

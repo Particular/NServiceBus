@@ -69,6 +69,7 @@ public class PubSubTestCase : TestCase
 
         using (var bus = Bus.Create(configuration))
         {
+            var sendContext = bus.CreateSendContext();
             Parallel.For(
                 0,
                 NumberMessages,
@@ -76,7 +77,7 @@ public class PubSubTestCase : TestCase
                 {
                     MaxDegreeOfParallelism = NumberOfThreads
                 },
-                x => bus.SendLocalAsync(new PerformPublish()).GetAwaiter().GetResult());
+                x => sendContext.SendLocalAsync(new PerformPublish()).GetAwaiter().GetResult());
 
 
             Statistics.StartTime = DateTime.Now;

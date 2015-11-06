@@ -2,7 +2,10 @@
 {
     using System;
 
-    public static partial class ISendOnlyBusExtensions
+    /// <summary>
+    /// Syntactic sugar for <see cref="ISendOnlyBus"/>.
+    /// </summary>
+    public static class ISendOnlyBusExtensions
     {
         /// <summary>
         /// Publish the message to subscribers.

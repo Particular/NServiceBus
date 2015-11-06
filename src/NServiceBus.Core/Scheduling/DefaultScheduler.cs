@@ -67,7 +67,7 @@ namespace NServiceBus.Scheduling
             options.DelayDeliveryWith(taskDefinition.Every);
             options.RouteToLocalEndpointInstance();
 
-            bus.SendAsync(new Messages.ScheduledTask
+            bus.CreateSendContext().SendAsync(new Messages.ScheduledTask
             {
                 TaskId = taskDefinition.Id,
                 Name = taskDefinition.Name,

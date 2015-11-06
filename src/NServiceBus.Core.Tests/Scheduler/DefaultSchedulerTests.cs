@@ -31,7 +31,7 @@
         public void When_scheduling_a_task_defer_should_be_called()
         {
             scheduler.Schedule(new TaskDefinition{Every = TimeSpan.FromSeconds(5)});
-            Assert.That(bus.DeferWasCalled > 0);
+            Assert.That(bus.Context.DeferWasCalled > 0);
         }
 
         [Test]
@@ -45,10 +45,10 @@
 
             scheduler.Schedule(task);
 
-            var deferCount = bus.DeferWasCalled;
+            var deferCount = bus.Context.DeferWasCalled;
             scheduler.Start(taskId);
             
-            Assert.That(bus.DeferWasCalled > deferCount);
+            Assert.That(bus.Context.DeferWasCalled > deferCount);
         }
 
         [Test]

@@ -10,7 +10,6 @@ namespace NServiceBus.Unicast
     using Faults;
     using Features;
     using Logging;
-    using MessageInterfaces;
     using ObjectBuilder;
     using Pipeline;
     using Pipeline.Contexts;
@@ -20,11 +19,12 @@ namespace NServiceBus.Unicast
 
     partial class UnicastBusInternal : IStartableBus
     {
-        public UnicastBusInternal(IMessageMapper messageMapper, IBuilder builder, ReadOnlySettings settings)
+        public UnicastBusInternal(IBuilder builder, ReadOnlySettings settings, StaticBus bus)
         {
             this.settings = settings;
             this.builder = builder;
-            busImpl = new ContextualBus(new BehaviorContextStacker(builder), messageMapper, builder, settings);
+            this.bus = bus;
+            rootContext = new RootContext(builder);
         }
 
         public async Task<IBus> StartAsync()
@@ -132,7 +132,6 @@ namespace NServiceBus.Unicast
         void DisposeManaged()
         {
             InnerShutdown();
-            busImpl.Dispose();
             builder.Dispose();
         }
 
@@ -169,8 +168,9 @@ namespace NServiceBus.Unicast
 
         StartAndStoppablesRunner runner;
         PipelineCollection pipelineCollection;
-        ContextualBus busImpl;
         ReadOnlySettings settings;
         IBuilder builder;
+        RootContext rootContext;
+        StaticBus bus;
     }
 }

@@ -60,13 +60,13 @@
         {
             Parallel.For(0, 20, i => schedule.Every(TimeSpan.FromSeconds(1), () => { }));
 
-            bus.DeferWasCalled = 0;
+            bus.Context.DeferWasCalled = 0;
 
             Parallel.ForEach(defaultScheduler.scheduledTasks,
                               t => new ScheduledTaskMessageHandler(defaultScheduler).Handle(
                                   new Messages.ScheduledTask { TaskId = t.Key }, null));
 
-            Assert.That(bus.DeferWasCalled, Is.EqualTo(20));
+            Assert.That(bus.Context.DeferWasCalled, Is.EqualTo(20));
         }
 
         bool EnsureThatNameExists(string name)
