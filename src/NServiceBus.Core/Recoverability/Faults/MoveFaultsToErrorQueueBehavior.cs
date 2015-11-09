@@ -6,23 +6,45 @@ namespace NServiceBus
     using NServiceBus.Logging;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Recoverability.Faults;
     using NServiceBus.Routing;
     using NServiceBus.TransportDispatch;
     using NServiceBus.Transports;
 
     class MoveFaultsToErrorQueueBehavior : Behavior<TransportReceiveContext>
     {
-        public MoveFaultsToErrorQueueBehavior(CriticalError criticalError, IPipelineBase<RoutingContext> dispatchPipeline, HostInformation hostInformation, BusNotifications notifications, string errorQueueAddress)
+        public MoveFaultsToErrorQueueBehavior(CriticalError criticalError, IPipelineBase<RoutingContext> dispatchPipeline, HostInformation hostInformation, BusNotifications notifications, string errorQueueAddress, FaultsStatusStorage faultsStatusStorage)
         {
             this.criticalError = criticalError;
             this.dispatchPipeline = dispatchPipeline;
             this.hostInformation = hostInformation;
             this.notifications = notifications;
             this.errorQueueAddress = errorQueueAddress;
+            this.faultsStatusStorage = faultsStatusStorage;
         }
 
         public override async Task Invoke(TransportReceiveContext context, Func<Task> next)
         {
+            Exception exception;
+            var uniqueMessageId = PipelineInfo.Name + context.Message.MessageId;
+
+            if (faultsStatusStorage.TryGetException(uniqueMessageId, out exception))
+            {
+                try
+                {
+                    await MoveToErrorQueue(context, context.Message, exception).ConfigureAwait(false);
+
+                    faultsStatusStorage.ClearExceptions(uniqueMessageId);
+
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    criticalError.Raise("Failed to forward message to error queue", ex);
+                    throw;
+                }
+            }
+        
             try
             {
                 await next().ConfigureAwait(false);
@@ -31,39 +53,36 @@ namespace NServiceBus
             {
                 throw;
             }
-            catch (Exception exception)
+            catch (Exception e)
             {
-                try
-                {
-                    var message = context.Message;
+                faultsStatusStorage.AddException(uniqueMessageId, e);
 
-                    Logger.Error($"Moving message '{message.MessageId}' to the error queue because processing failed due to an exception:", exception);
-
-                    message.RevertToOriginalBodyIfNeeded();
-
-                    message.SetExceptionHeaders(exception, PipelineInfo.TransportAddress);
-
-                    message.Headers.Remove(Headers.Retries);
-
-                    //todo: move this to a error pipeline
-                    message.Headers[Headers.HostId] = hostInformation.HostId.ToString("N");
-                    message.Headers[Headers.HostDisplayName] = hostInformation.DisplayName;
-
-
-                    var dispatchContext = new RoutingContext(new OutgoingMessage(message.MessageId, message.Headers, message.Body), 
-                        new UnicastRoutingStrategy(errorQueueAddress), 
-                        context);
-                    
-                    await dispatchPipeline.Invoke(dispatchContext).ConfigureAwait(false);
-
-                    notifications.Errors.InvokeMessageHasBeenSentToErrorQueue(message,exception);
-                }
-                catch (Exception ex)
-                {
-                    criticalError.Raise("Failed to forward message to error queue", ex);
-                    throw;
-                }
+                throw new MessageProcessingAbortedException();
             }
+        }
+
+        async Task MoveToErrorQueue(TransportReceiveContext context, IncomingMessage message, Exception exception)
+        {
+            Logger.Error($"Moving message '{message.MessageId}' to the error queue because processing failed due to an exception:", exception);
+
+            message.RevertToOriginalBodyIfNeeded();
+
+            message.SetExceptionHeaders(exception, PipelineInfo.TransportAddress);
+
+            message.Headers.Remove(Headers.Retries);
+
+            //todo: move this to a error pipeline
+            message.Headers[Headers.HostId] = hostInformation.HostId.ToString("N");
+            message.Headers[Headers.HostDisplayName] = hostInformation.DisplayName;
+
+            var dispatchContext = new RoutingContext(
+                new OutgoingMessage(message.MessageId, message.Headers, message.Body),
+                new UnicastRoutingStrategy(errorQueueAddress),
+                context);
+
+            await dispatchPipeline.Invoke(dispatchContext).ConfigureAwait(false);
+
+            notifications.Errors.InvokeMessageHasBeenSentToErrorQueue(message, exception);
         }
 
         CriticalError criticalError;
@@ -71,6 +90,7 @@ namespace NServiceBus
         HostInformation hostInformation;
         BusNotifications notifications;
         string errorQueueAddress;
+        FaultsStatusStorage faultsStatusStorage;
         static ILog Logger = LogManager.GetLogger<MoveFaultsToErrorQueueBehavior>();
 
         public class Registration : RegisterStep
