@@ -7,6 +7,7 @@
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Sagas;
+    using NServiceBus.Settings;
     using NServiceBus.Unicast;
     using NServiceBus.Unicast.Behaviors;
     using NServiceBus.Unicast.Messages;
@@ -20,7 +21,7 @@
         public async Task When_saga_found_and_handler_is_saga_should_invoke_handler()
         {
             var handlerInvoked = false;
-            var testee = new InvokeHandlerTerminator();
+            var testee = new InvokeHandlerTerminator(new BusOperations(null, new SettingsHolder()));
             var saga = new FakeSaga();
 
             var messageHandler = CreateMessageHandler((i, m, ctx) => handlerInvoked = true, saga);
@@ -36,7 +37,7 @@
         public async Task When_saga_not_found_and_handler_is_saga_should_not_invoke_handler()
         {
             var handlerInvoked = false;
-            var testee = new InvokeHandlerTerminator();
+            var testee = new InvokeHandlerTerminator(new BusOperations(null, new SettingsHolder()));
             var saga = new FakeSaga();
 
             var messageHandler = CreateMessageHandler((i, m, ctx) => handlerInvoked = true, saga);
@@ -53,7 +54,7 @@
         public async Task When_saga_not_found_and_handler_is_not_saga_should_invoke_handler()
         {
             var handlerInvoked = false;
-            var testee = new InvokeHandlerTerminator();
+            var testee = new InvokeHandlerTerminator(new BusOperations(null, new SettingsHolder()));
 
             var messageHandler = CreateMessageHandler((i, m, ctx) => handlerInvoked = true, new FakeMessageHandler());
             var behaviorContext = CreateBehaviorContext(messageHandler);
@@ -69,7 +70,7 @@
         public async Task When_no_saga_should_invoke_handler()
         {
             var handlerInvoked = false;
-            var testee = new InvokeHandlerTerminator();
+            var testee = new InvokeHandlerTerminator(new BusOperations(null, new SettingsHolder()));
 
             var messageHandler = CreateMessageHandler((i, m, ctx) => handlerInvoked = true, new FakeMessageHandler());
             var behaviorContext = CreateBehaviorContext(messageHandler);
@@ -83,7 +84,7 @@
         public async Task Should_invoke_handler_with_current_message()
         {
             object receivedMessage = null;
-            var testee = new InvokeHandlerTerminator();
+            var testee = new InvokeHandlerTerminator(new BusOperations(null, new SettingsHolder()));
             var messageHandler = CreateMessageHandler((i, m, ctx) => receivedMessage = m, new FakeMessageHandler());
             var behaviorContext = CreateBehaviorContext(messageHandler);
 
@@ -95,7 +96,7 @@
         [Test]
         public async Task Should_indicate_when_no_transaction_scope_is_present()
         {
-            var testee = new InvokeHandlerTerminator();
+            var testee = new InvokeHandlerTerminator(new BusOperations(null, new SettingsHolder()));
 
             var messageHandler = CreateMessageHandler((i, m, ctx) => { }, new FakeMessageHandler());
             var behaviorContext = CreateBehaviorContext(messageHandler);
@@ -108,7 +109,7 @@
         [Test]
         public async Task Should_indicate_when_transaction_scope_is_present()
         {
-            var testee = new InvokeHandlerTerminator();
+            var testee = new InvokeHandlerTerminator(new BusOperations(null, new SettingsHolder()));
 
             var messageHandler = CreateMessageHandler((i, m, ctx) => { }, new FakeMessageHandler());
             var behaviorContext = CreateBehaviorContext(messageHandler);
@@ -152,7 +153,7 @@
             // register a builder returning a contextual bus to avoid NullReferenceExceptions
             var funcBuilder = new FuncBuilder();
             behaviorContext.Set(typeof(IBuilder).FullName, funcBuilder);
-            funcBuilder.Register(typeof(ContextualBus), () => null);
+            funcBuilder.Register(typeof(BusOperations), () => null);
 
             return behaviorContext;
         }

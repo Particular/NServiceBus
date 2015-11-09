@@ -2,7 +2,10 @@
 {
     using System;
 
-    public static partial class IBusExtensions
+    /// <summary>
+    /// Syntactic sugar for <see cref="IBus"/>.
+    /// </summary>
+    public static class IBusExtensions
     {
         /// <summary>
         /// Sends the message to the endpoint which sent the message currently being handled on this thread.

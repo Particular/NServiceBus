@@ -1,17 +1,18 @@
 namespace NServiceBus
 {
     using JetBrains.Annotations;
+    using NServiceBus.Settings;
 
     /// <summary>
     /// Indicates that this class contains logic that needs to run just before
     /// configuration is finalized.
     /// </summary>
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-    public interface IWantToRunBeforeConfigurationIsFinalized
+    public interface IFinalizeConfiguration
     {
         /// <summary>
         /// Invoked before configuration is finalized and locked.
         /// </summary>
-        void Run(Configure config);
+        void Run(SettingsHolder settings);
     }
 }

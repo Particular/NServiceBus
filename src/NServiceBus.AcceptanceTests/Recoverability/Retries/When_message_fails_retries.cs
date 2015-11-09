@@ -57,7 +57,7 @@
 
                 public BusNotifications BusNotifications { get; set; }
 
-                public Task StartAsync()
+                public Task StartAsync(IBusContext context)
                 {
                     BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e =>
                     {
@@ -66,7 +66,7 @@
                     return Task.FromResult(0);
                 }
 
-                public Task StopAsync()
+                public Task StopAsync(IBusContext context)
                 {
                     return Task.FromResult(0);
                 }

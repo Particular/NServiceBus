@@ -5,6 +5,7 @@ namespace NServiceBus.Features
     using System.Diagnostics;
     using System.Linq;
     using System.Security.Principal;
+    using System.Threading.Tasks;
     using NServiceBus.Installation;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Settings;
@@ -37,28 +38,26 @@ namespace NServiceBus.Features
         static IEnumerable<Type> GetInstallerTypes(FeatureConfigurationContext context)
         {
             return context.Settings.GetAvailableTypes()
-                .Where(t => typeof(INeedToInstallSomething).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface));
+                .Where(t => typeof(IInstall).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface));
         }
 
         class InstallerRunner : FeatureStartupTask
         {
             IBuilder builder;
             ReadOnlySettings readOnlySettings;
-            Configure configure;
 
-            public InstallerRunner(IBuilder builder, ReadOnlySettings readOnlySettings, Configure configure)
+            public InstallerRunner(IBuilder builder, ReadOnlySettings readOnlySettings)
             {
                 this.builder = builder;
                 this.readOnlySettings = readOnlySettings;
-                this.configure = configure;
             }
 
-            protected override void OnStart()
+            protected override async Task OnStart(IBusContext context)
             {
                 var username = GetInstallationUserName(readOnlySettings);
-                foreach (var installer in builder.BuildAll<INeedToInstallSomething>())
+                foreach (var installer in builder.BuildAll<IInstall>())
                 {
-                    installer.InstallAsync(username, configure).GetAwaiter().GetResult();
+                    await installer.InstallAsync(username).ConfigureAwait(false);
                 }
             }
 

@@ -7,6 +7,7 @@
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
+    using NServiceBus.Settings;
     using NUnit.Framework;
 
     public class When_setting_msmq_label_generator : NServiceBusAcceptanceTest
@@ -20,7 +21,7 @@
             try
             {
                 await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                    .WithEndpoint<EndPoint>(b => b.When((bus, c) => bus.SendLocalAsync(new MyMessage
+                    .WithEndpoint<Endpoint>(b => b.When((bus, c) => bus.SendLocalAsync(new MyMessage
                     {
                         Id = c.Id
                     })))
@@ -67,10 +68,12 @@
         }
 
 
-        public class EndPoint : EndpointConfigurationBuilder, IWantToRunBeforeConfigurationIsFinalized
+        public class Endpoint : EndpointConfigurationBuilder, IFinalizeConfiguration
         {
             static bool initialized;
-            public EndPoint()
+            bool generatorWasCalled;
+
+            public Endpoint()
             {
                 if (initialized)
                 {
@@ -84,18 +87,34 @@
                 });
             }
 
-            static Context Context { get; set; }
+            public class StartHandler : IWantToRunWhenBusStartsAndStops
+            {
+                public Context Context { get; set; }
+                public ReadOnlySettings Settings { get; set; }
 
+                public Task StartAsync(IBusContext context)
+                {
+                    Context.GeneratorWasCalled = Settings.Get<bool>("GeneratorWasCalled");
+                    return Task.FromResult(0);
+                }
+
+                public Task StopAsync(IBusContext context)
+                {
+                    return Task.FromResult(0);
+                }
+            }
+
+            static Context Context { get; set; }
 
             string GetMessageLabel(IReadOnlyDictionary<string, string> headers)
             {
-                Context.GeneratorWasCalled = true;
+                generatorWasCalled = true;
                 return "MyLabel";
             }
 
-            public void Run(Configure config)
+            public void Run(SettingsHolder config)
             {
-                Context = config.Builder.Build<Context>();
+                config.Set("GeneratorWasCalled", generatorWasCalled);
             }
         }
 

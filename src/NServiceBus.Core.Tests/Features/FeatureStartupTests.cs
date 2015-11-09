@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using NServiceBus.Features;
     using NUnit.Framework;
     using ObjectBuilder;
@@ -11,7 +12,7 @@
     public class FeatureStartupTests
     {
         [Test]
-        public void Should_start_and_stop_features()
+        public async Task Should_start_and_stop_features()
         {
             var feature = new FeatureWithStartupTask();
        
@@ -21,17 +22,17 @@
 
             var builder = new FakeBuilder(typeof(FeatureWithStartupTask.Runner));
 
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(null));
+            featureSettings.SetupFeatures(new FeatureConfigurationContext(null, null, null));
 
-            featureSettings.StartFeatures(builder);
-            featureSettings.StopFeatures(builder);
+            await featureSettings.StartFeatures(builder, null);
+            await featureSettings.StopFeatures(builder, null);
 
             Assert.True(FeatureWithStartupTask.Runner.Started);
             Assert.True(FeatureWithStartupTask.Runner.Stopped);
         }
 
         [Test]
-        public void Should_dispose_feature_when_they_implement_IDisposable()
+        public async Task Should_dispose_feature_when_they_implement_IDisposable()
         {
             var feature = new FeatureWithStartupTaskWhichIsDisposable();
 
@@ -41,10 +42,10 @@
 
             var builder = new FakeBuilder(typeof(FeatureWithStartupTaskWhichIsDisposable.Runner));
 
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(null));
+            featureSettings.SetupFeatures(new FeatureConfigurationContext(null, null, null));
 
-            featureSettings.StartFeatures(builder);
-            featureSettings.StopFeatures(builder);
+            await featureSettings.StartFeatures(builder, null);
+            await featureSettings.StopFeatures(builder, null);
 
             Assert.True(FeatureWithStartupTaskWhichIsDisposable.Runner.Disposed);
         }
@@ -57,16 +58,18 @@
                 RegisterStartupTask<Runner>();
             }
 
-            public class Runner:FeatureStartupTask
+            public class Runner : FeatureStartupTask
             {
-                protected override void OnStart()
+                protected override Task OnStart(IBusContext context)
                 {
                     Started = true;
+                    return Task.FromResult(0);
                 }
 
-                protected override void OnStop()
+                protected override Task OnStop(IBusContext context)
                 {
                     Stopped = true;
+                    return Task.FromResult(0);
                 }
 
                 public static bool Started { get; private set; }
@@ -84,8 +87,9 @@
 
             public class Runner : FeatureStartupTask, IDisposable
             {
-                protected override void OnStart()
+                protected override Task OnStart(IBusContext context)
                 {
+                    return Task.FromResult(0);
                 }
 
                 public void Dispose()

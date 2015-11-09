@@ -2,9 +2,11 @@
 {
     using System;
     using System.Linq;
+    using System.Threading.Tasks;
     using NServiceBus.MessageInterfaces;
     using NServiceBus.Serialization;
     using NServiceBus.Serializers.XML;
+    using NServiceBus.Settings;
 
     /// <summary>
     /// Used to configure xml as a message serializer.
@@ -31,19 +33,21 @@
         {
             public IMessageMapper Mapper { get; set; }
             public XmlMessageSerializer Serializer { get; set; }
-            public Configure Config { get; set; }
+            public ReadOnlySettings Settings { get; set; }
 
-            protected override void OnStart()
+            protected override Task OnStart(IBusContext context)
             {
                 if (Mapper == null)
                 {
-                    return;
+                    return TaskEx.Completed;
                 }
 
-                var messageTypes = Config.TypesToScan.Where(Config.Settings.Get<Conventions>().IsMessageType).ToList();
+                var messageTypes = Settings.GetAvailableTypes().Where(Settings.Get<Conventions>().IsMessageType).ToList();
 
                 Mapper.Initialize(messageTypes);
                 Serializer.Initialize(messageTypes);
+
+                return TaskEx.Completed;
             }
         }
     }

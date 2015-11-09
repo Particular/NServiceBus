@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Threading.Tasks;
     using NServiceBus.Faults;
     using NServiceBus.Features;
     using NServiceBus.Settings;
@@ -30,9 +31,10 @@
                 this.notifications = notifications;
             }
 
-            protected override void OnStart()
+            protected override Task OnStart(IBusContext context)
             {
                 notifications.Errors.MessageSentToErrorQueue.Subscribe(new FaultedMessageObserver(scenarioContext, settings.EndpointName()));
+                return Task.FromResult(0);
             }
 
             readonly BusNotifications notifications;

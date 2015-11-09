@@ -1,6 +1,7 @@
 namespace NServiceBus.Features
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus.Routing;
     using NServiceBus.Settings;
 
@@ -28,9 +29,10 @@ namespace NServiceBus.Features
                 this.routingTable = routingTable;
             }
 
-            protected override void OnStart()
+            protected override Task OnStart(IBusContext contexts)
             {
                 settings.Get<EndpointInstances>().AddDynamic(e => routingTable.GetInstances(e));
+                return TaskEx.Completed;
             }
         }
     }

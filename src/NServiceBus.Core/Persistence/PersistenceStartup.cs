@@ -6,15 +6,14 @@
     using NServiceBus.Settings;
     using Utils.Reflection;
 
-    class PersistenceStartup : IWantToRunBeforeConfigurationIsFinalized
+    class PersistenceStartup : IFinalizeConfiguration
     {
         const string errorMessage = "No persistence has been selected, please select your persistence by calling configuration.UsePersistence<T>() in your class that implements either IConfigureThisEndpoint or INeedInitialization, where T can be any of the supported persistence option. If you were previously using RavenDB, note that it has been moved to its own stand alone nuget 'NServiceBus.RavenDB' and you'll need to install this package and then call configuration.UsePersistence<RavenDBPersistence>()";
 
         static ILog Logger = LogManager.GetLogger(typeof(PersistenceStartup));
 
-        public void Run(Configure config)
+        public void Run(SettingsHolder settings)
         {
-            var settings = config.Settings;
             List<EnabledPersistence> definitions;
 
             if (!settings.TryGet("PersistenceDefinitions", out definitions))

@@ -66,7 +66,6 @@
     <Compile Include="Support\EndpointConfiguration.cs" />
     <Compile Include="Support\EndpointRunner.cs" />
     <Compile Include="Support\FailTestOnErrorMessageFeature.cs" />
-    <Compile Include="Support\IBusAdapter.cs" />
     <Compile Include="Support\IEndpointSetupTemplate.cs" />
     <Compile Include="Support\IScenarioWithEndpointBehavior.cs" />
     <Compile Include="Support\IWhenDefinition.cs" />

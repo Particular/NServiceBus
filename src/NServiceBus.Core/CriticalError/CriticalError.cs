@@ -32,13 +32,13 @@ namespace NServiceBus
         void DefaultCriticalErrorHandling()
         {
             var components = builder.Build<IConfigureComponents>();
-            if (!components.HasComponent<IBus>())
+            if (!components.HasComponent<IEndpoint>())
             {
                 return;
             }
 
-            builder.Build<IStartableBus>()
-                .Dispose();
+            builder.Build<IEndpoint>()
+                .StopAsync().GetAwaiter().GetResult();
         }
 
         /// <summary>

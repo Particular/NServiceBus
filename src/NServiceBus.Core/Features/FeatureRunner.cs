@@ -1,5 +1,6 @@
 namespace NServiceBus.Features
 {
+    using System.Threading.Tasks;
     using NServiceBus.ObjectBuilder;
 
     /// <summary>
@@ -16,14 +17,14 @@ namespace NServiceBus.Features
             this.featureActivator = featureActivator;
         }
 
-        public void Start()
+        public Task StartAsync(IBusContext busContext)
         {
-            featureActivator.StartFeatures(builder);
+            return featureActivator.StartFeatures(builder, busContext);
         }
 
-        public void Stop()
+        public Task StopAsync(IBusContext busContext)
         {
-            featureActivator.StopFeatures(builder);
+            return featureActivator.StopFeatures(builder, busContext);
         }
     }
 }

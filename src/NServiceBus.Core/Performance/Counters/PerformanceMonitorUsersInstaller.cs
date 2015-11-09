@@ -11,7 +11,7 @@ namespace NServiceBus.Performance.Counters
     /// <summary>
     /// Add the identity to the 'Performance Monitor Users' local group 
     /// </summary>
-    class PerformanceMonitorUsersInstaller : INeedToInstallSomething
+    class PerformanceMonitorUsersInstaller : IInstall
     {
         static ILog logger = LogManager.GetLogger<PerformanceMonitorUsersInstaller>();
         static string builtinPerformanceMonitoringUsersName;
@@ -26,7 +26,7 @@ namespace NServiceBus.Performance.Counters
                 builtinPerformanceMonitoringUsersName = parts[1];
             }
         }
-        public Task InstallAsync(string identity, Configure config)
+        public Task InstallAsync(string identity)
         {
             //did not use DirectoryEntry to avoid a ref to the DirectoryServices.dll
             try

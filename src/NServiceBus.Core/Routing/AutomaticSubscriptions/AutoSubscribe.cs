@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using NServiceBus.Logging;
     using NServiceBus.Routing.MessageDrivenSubscriptions;
     using NServiceBus.Transports;
@@ -43,7 +44,7 @@
 
                     var messageTypesHandled = GetMessageTypesHandledByThisEndpoint(handlerRegistry, conventions, settings);
 
-                    return new ApplySubscriptions(messageTypesHandled, b.Build<IBus>());
+                    return new ApplySubscriptions(messageTypesHandled);
                 }, DependencyLifecycle.SingleInstance);
             }
             else
@@ -61,7 +62,7 @@
                         messageTypesToSubscribe = messageTypesToSubscribe.Where(t => subscriptionRouter.GetAddressesForEventType(t).Any())
                             .ToList();
                     }
-                    return new ApplySubscriptions(messageTypesToSubscribe, b.Build<IBus>());
+                    return new ApplySubscriptions(messageTypesToSubscribe);
 
                 }, DependencyLifecycle.SingleInstance);
             }
@@ -81,23 +82,21 @@
 
         class ApplySubscriptions : FeatureStartupTask
         {
-            public ApplySubscriptions(IEnumerable<Type> eventsToSubscribe, IBus bus)
+            public ApplySubscriptions(IEnumerable<Type> eventsToSubscribe)
             {
                 this.eventsToSubscribe = eventsToSubscribe;
-                this.bus = bus;
             }
 
-            protected override void OnStart()
+            protected override async Task OnStart(IBusContext context)
             {
                 foreach (var eventType in eventsToSubscribe)
                 {
-                    bus.SubscribeAsync(eventType).GetAwaiter().GetResult();
+                    await context.SubscribeAsync(eventType).ConfigureAwait(false);
                     Logger.DebugFormat("Auto subscribed to event {0}", eventType);
                 }
             }
 
             IEnumerable<Type> eventsToSubscribe;
-            IBus bus;
 
             static ILog Logger = LogManager.GetLogger<ApplySubscriptions>();
         }
