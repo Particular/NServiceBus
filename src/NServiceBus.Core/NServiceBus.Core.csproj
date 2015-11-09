@@ -394,7 +394,6 @@
     <Compile Include="Unicast\BusOperations.cs" />
     <Compile Include="Unicast\Transport\Config\InboundTransport.cs" />
     <Compile Include="Unicast\Transport\Config\OutboundTransport.cs" />
-    <Compile Include="WindowsIdentityEnrichment\ConfigureWindowsIdentityEnricher.cs" />
     <Compile Include="Persistence\EnabledPersistence.cs" />
     <Compile Include="Persistence\Msmq\Msmq.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionPersistence.cs" />
@@ -608,7 +607,6 @@
     <Compile Include="Hosting\Helpers\AssemblyScanner.cs" />
     <Compile Include="Hosting\Helpers\AssemblyScannerResults.cs" />
     <Compile Include="InternalsVisibleTo.cs" />
-    <Compile Include="WindowsIdentityEnrichment\WindowsIdentityEnricher.cs" />
     <Compile Include="Installation\IInstall.cs" />
     <Compile Include="IFinalizeConfiguration.cs" />
     <Compile Include="Licensing\LicenseManager.cs" />

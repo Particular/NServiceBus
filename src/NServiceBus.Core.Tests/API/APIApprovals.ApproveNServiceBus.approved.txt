@@ -388,6 +388,10 @@ namespace NServiceBus
         public const string SubscriptionMessageType = "SubscriptionMessageType";
         public const string TimeSent = "NServiceBus.TimeSent";
         public const string TimeToBeReceived = "NServiceBus.TimeToBeReceived";
+        [System.ObsoleteAttribute("The WinIdName header is no longer attached to outgoing message to avoid passing s" +
+            "ecurity related information on the wire. Should you rely on the header being pre" +
+            "sent you can add a message mutator that sets it. Will be removed in version 7.0." +
+            "0.", true)]
         public const string WindowsIdentityName = "WinIdName";
     }
     public class static HostInfoConfigurationExtensions
