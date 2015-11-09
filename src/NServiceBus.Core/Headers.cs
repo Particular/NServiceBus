@@ -3,7 +3,7 @@
     /// <summary>
     /// Static class containing headers used by NServiceBus.
     /// </summary>
-    public static class Headers
+    public static partial class Headers
     {
         /// <summary>
         /// Header for retrieving from which Http endpoint the message arrived.
@@ -59,11 +59,6 @@
         /// Prefix included on the wire when sending applicative headers.
         /// </summary>
         public const string HeaderName = "Header";
-
-        /// <summary>
-        /// Header containing the windows identity name.
-        /// </summary>
-        public const string WindowsIdentityName = "WinIdName";
 
         /// <summary>
         /// Header telling the NServiceBus Version (beginning NServiceBus V3.0.1).
