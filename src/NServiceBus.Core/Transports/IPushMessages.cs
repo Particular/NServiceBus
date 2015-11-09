@@ -21,6 +21,6 @@
         /// <summary>
         /// Stops pushing messages.
         /// </summary>
-        Task Stop();
+        Task StopAsync();
     }
 }

@@ -2639,7 +2639,7 @@ namespace NServiceBus.Transports
     {
         void Init(System.Func<NServiceBus.Transports.PushContext, System.Threading.Tasks.Task> pipe, NServiceBus.Transports.PushSettings settings);
         void Start(NServiceBus.Transports.PushRuntimeSettings limitations);
-        System.Threading.Tasks.Task Stop();
+        System.Threading.Tasks.Task StopAsync();
     }
     [System.ObsoleteAttribute("Please use `IDispatchMessages` instead. Will be removed in version 7.0.0.", true)]
     public interface ISendMessages
