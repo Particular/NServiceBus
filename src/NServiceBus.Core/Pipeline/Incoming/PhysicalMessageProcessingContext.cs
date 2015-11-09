@@ -13,7 +13,7 @@
         /// Initializes a new instance of <see cref="PhysicalMessageProcessingContext" />.
         /// </summary>
         public PhysicalMessageProcessingContext(IncomingMessage message, BehaviorContext parentContext)
-            : base(parentContext)
+            : base(message.MessageId, message.GetReplyToAddress(), message.Headers, parentContext)
         {
             Message = message;
         }
