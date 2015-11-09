@@ -46,7 +46,7 @@
                 Assert.AreEqual(10, limitations.MaxConcurrency);
             }
 
-            public Task Stop()
+            public Task StopAsync()
             {
                 return Task.FromResult(0);
             }

@@ -22,7 +22,7 @@ namespace NServiceBus.AcceptanceTests.FakeTransport
             }
         }
 
-        public Task Stop()
+        public Task StopAsync()
         {
             return Task.FromResult(0);
         }
