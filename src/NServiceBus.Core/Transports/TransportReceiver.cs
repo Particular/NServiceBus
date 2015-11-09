@@ -3,9 +3,6 @@ namespace NServiceBus.Transport
     using System;
     using System.Threading.Tasks;
     using Logging;
-    using NServiceBus.MessageInterfaces;
-    using NServiceBus.Settings;
-    using Unicast;
     using Unicast.Transport;
     using ObjectBuilder;
     using Pipeline;
@@ -20,15 +17,11 @@ namespace NServiceBus.Transport
             IPushMessages receiver, 
             PushSettings pushSettings, 
             PipelineBase<TransportReceiveContext> pipeline, 
-            PushRuntimeSettings pushRuntimeSettings,
-            IMessageMapper messageMapper,
-            ReadOnlySettings settings)
+            PushRuntimeSettings pushRuntimeSettings)
         {
             Id = id;
             this.pipeline = pipeline;
             this.pushRuntimeSettings = pushRuntimeSettings;
-            this.messageMapper = messageMapper;
-            this.settings = settings;
             this.pushSettings = pushSettings;
             this.receiver = receiver;
             this.builder = builder;
@@ -73,10 +66,7 @@ namespace NServiceBus.Transport
             {
                 var context = new TransportReceiveContext(new IncomingMessage(pushContext.MessageId, pushContext.Headers, pushContext.BodyStream), new RootContext(childBuilder));
                 context.Merge(pushContext.Context);
-                var contextStacker = new BehaviorContextStacker(context);
-                var contextualBus = new ContextualBusInterface(contextStacker, new BusOperations(messageMapper, settings));
-                context.Set(contextualBus);
-                await pipeline.Invoke(contextStacker).ConfigureAwait(false);
+                await pipeline.Invoke(context).ConfigureAwait(false);
             }
         }
 
@@ -85,8 +75,6 @@ namespace NServiceBus.Transport
         IBuilder builder;
         PipelineBase<TransportReceiveContext> pipeline;
         PushRuntimeSettings pushRuntimeSettings;
-        readonly IMessageMapper messageMapper;
-        readonly ReadOnlySettings settings;
         IPushMessages receiver;
 
         bool isStarted;

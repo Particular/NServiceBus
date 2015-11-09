@@ -4,7 +4,7 @@
     using System.Threading.Tasks;
     using NServiceBus.Hosting;
     using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Pipeline.OutgoingPipeline;
     using NServiceBus.Support;
     using NServiceBus.TransportDispatch;
 

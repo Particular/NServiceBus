@@ -5,7 +5,7 @@ namespace NServiceBus.DeliveryConstraints
     using System.Linq;
     using NServiceBus.Features;
     using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Pipeline.OutgoingPipeline;
     using NServiceBus.TransportDispatch;
     using NServiceBus.Transports;
 

@@ -7,7 +7,6 @@
     using NServiceBus.Pipeline;
     using NServiceBus.TransportDispatch;
 
-
     class DelayedDeliveryFeature : Feature
     {
         public DelayedDeliveryFeature()

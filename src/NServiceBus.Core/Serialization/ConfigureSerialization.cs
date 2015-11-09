@@ -61,7 +61,7 @@
 
         bool IsDefaultSerializer(FeatureConfigurationContext context)
         {
-            Guard.AgainstNull("context", context);
+            Guard.AgainstNull(nameof(context), context);
 
             var serializationDefinition = context.Settings.GetSelectedSerializer();
             return serializationDefinition.ProvidedByFeature() == GetType();
@@ -69,7 +69,7 @@
 
         bool IsAdditionalDeserializer(FeatureConfigurationContext context)
         {
-            Guard.AgainstNull("context", context);
+            Guard.AgainstNull(nameof(context), context);
 
             Dictionary<RuntimeTypeHandle, SerializationDefinition> deserializers;
             if (!context.Settings.TryGet("AdditionalDeserializers", out deserializers))

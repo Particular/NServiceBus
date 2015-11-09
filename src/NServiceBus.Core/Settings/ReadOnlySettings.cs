@@ -45,20 +45,27 @@ namespace NServiceBus.Settings
         object Get(string key);
 
         /// <summary>
+        /// Gets the setting or default based on the typename.
+        /// </summary>
+        /// <typeparam name="T">The setting to get.</typeparam>
+        /// <returns>The actual value.</returns>
+        T GetOrDefault<T>();
+
+        /// <summary>
         /// Gets the setting value or the <code>default(T).</code>.
         /// </summary>
         /// <typeparam name="T">The value of the setting.</typeparam>
         /// <param name="key">The key of the setting to get.</param>
         /// <returns>The setting value.</returns>
         T GetOrDefault<T>(string key);
-        
+
         /// <summary>
         /// Determines whether the <see cref="ReadOnlySettings"/> contains the specified key.
         /// </summary>
         /// <param name="key">The key to locate in the <see cref="ReadOnlySettings"/>.</param>
         /// <returns>true if the <see cref="ReadOnlySettings"/> contains an element with the specified key; otherwise, false.</returns>
         bool HasSetting(string key);
-        
+
         /// <summary>
         /// Determines whether the <see cref="ReadOnlySettings"/> contains the specified <typeparamref name="T"/>.
         /// </summary>
@@ -79,12 +86,12 @@ namespace NServiceBus.Settings
         /// <typeparam name="T">The <typeparamref name="T"/> to locate in the <see cref="ReadOnlySettings"/>.</typeparam>
         /// <returns>true if the <see cref="ReadOnlySettings"/> contains an element with the specified key; otherwise, false.</returns>
         bool HasExplicitValue<T>();
-        
+
         /// <summary>
         /// Setup property injection for the given type based on convention.
         /// </summary>
         void ApplyTo<T>(IComponentConfig config);
-        
+
         /// <summary>
         /// Setup property injection for the given type based on convention.
         /// </summary>

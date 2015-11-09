@@ -8,45 +8,42 @@ namespace NServiceBus
 
     class BusContext : IBusContext
     {
-        public BusContext(BehaviorContext context, BusOperations busOperations)
+        public BusContext(BehaviorContext context)
         {
             this.context = context;
             Extensions = context;
-            BusOperations = busOperations;
         }
-
-        protected BusOperations BusOperations { get; }
 
         public ContextBag Extensions { get; }
 
         public Task SendAsync(object message, SendOptions options)
         {
-            return BusOperations.SendAsync(message, options, context);
+            return BusOperationsBehaviorContext.SendAsync(context, message, options);
         }
 
         public Task SendAsync<T>(Action<T> messageConstructor, SendOptions options)
         {
-            return BusOperations.SendAsync(messageConstructor, options, context);
+            return BusOperationsBehaviorContext.SendAsync(context, messageConstructor, options);
         }
 
         public Task PublishAsync(object message, PublishOptions options)
         {
-            return BusOperations.PublishAsync(message, options, context);
+            return BusOperationsBehaviorContext.PublishAsync(context, message, options);
         }
 
         public Task PublishAsync<T>(Action<T> messageConstructor, PublishOptions publishOptions)
         {
-            return BusOperations.PublishAsync(messageConstructor, publishOptions, context);
+            return BusOperationsBehaviorContext.PublishAsync(context, messageConstructor, publishOptions);
         }
 
         public Task SubscribeAsync(Type eventType, SubscribeOptions options)
         {
-            return BusOperations.SubscribeAsync(eventType, options, context);
+            return BusOperationsBehaviorContext.SubscribeAsync(context, eventType, options);
         }
 
         public Task UnsubscribeAsync(Type eventType, UnsubscribeOptions options)
         {
-            return BusOperations.UnsubscribeAsync(eventType, options, context);
+            return BusOperationsBehaviorContext.UnsubscribeAsync(context, eventType, options);
         }
 
         BehaviorContext context;

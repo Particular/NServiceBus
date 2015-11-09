@@ -53,13 +53,8 @@
         /// <param name="settings">The settings holder.</param>
         protected void Defaults(Action<SettingsHolder> settings)
         {
-            RegisteredDefaults.Add(settings);
+            registeredDefaults.Add(settings);
         }
-
-        /// <summary>
-        /// Access to the registered defaults.
-        /// </summary>
-        internal List<Action<SettingsHolder>> RegisteredDefaults { get; } = new List<Action<SettingsHolder>>();
 
         /// <summary>
         ///     Called when the features is activated.
@@ -74,7 +69,7 @@
         /// <param name="description">Explanation of what this prerequisite checks.</param>
         protected void Prerequisite(Func<FeatureConfigurationContext, bool> condition, string description)
         {
-            Guard.AgainstNullAndEmpty("description", description);
+            Guard.AgainstNullAndEmpty(nameof(description), description);
 
             setupPrerequisites.Add(new SetupPrerequisite
             {
@@ -124,13 +119,13 @@
         /// <param name="features">Features list that this feature require at least one of to be activated.</param>
         protected void DependsOnAtLeastOne(params Type[] features)
         {
-            Guard.AgainstNull("features", features);
+            Guard.AgainstNull(nameof(features), features);
 
             foreach (var feature in features)
             {
                 if (!feature.IsSubclassOf(baseFeatureType))
                 {
-                    throw new ArgumentException($"A Feature can only depend on another Feature. '{feature.FullName}' is not a Feature", "features");
+                    throw new ArgumentException($"A Feature can only depend on another Feature. '{feature.FullName}' is not a Feature", nameof(features));
                 }
             }
 
@@ -154,7 +149,7 @@
         /// <param name="featureType">The type of the feature that this feature depends on.</param>
         protected void DependsOnOptionally(Type featureType)
         {
-            Guard.AgainstNull("featureType", featureType);
+            Guard.AgainstNull(nameof(featureType), featureType);
 
             DependsOnOptionally(GetFeatureName(featureType));
         }
@@ -177,7 +172,7 @@
         /// <param name="featureNames">The name of the features that this feature depends on.</param>
         protected void DependsOnAtLeastOne(params string[] featureNames)
         {
-            Guard.AgainstNull("featureNames", featureNames);
+            Guard.AgainstNull(nameof(featureNames), featureNames);
 
             Dependencies.Add(new List<string>(featureNames));
         }
@@ -221,6 +216,14 @@
             IsActive = true;
         }
 
+        internal void ConfigureDefaults(SettingsHolder settings)
+        {
+            foreach (var registeredDefault in registeredDefaults)
+            {
+                registeredDefault(settings);
+            }
+        }
+
         static string GetFeatureName(Type featureType)
         {
             var name = featureType.Name;
@@ -238,7 +241,8 @@
 
         static Type baseFeatureType = typeof(Feature);
         static int featureStringLength = "Feature".Length;
-        List<SetupPrerequisite> setupPrerequisites = new List<SetupPrerequisite>();
+        readonly List<SetupPrerequisite> setupPrerequisites = new List<SetupPrerequisite>();
+        readonly List<Action<SettingsHolder>> registeredDefaults = new List<Action<SettingsHolder>>();
 
         class SetupPrerequisite
         {

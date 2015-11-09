@@ -1,6 +1,6 @@
 namespace NServiceBus
 {
-    using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Pipeline.OutgoingPipeline;
 
     /// <summary>
     /// Allows users to control serialization.

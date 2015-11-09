@@ -5,7 +5,7 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Pipeline.OutgoingPipeline;
     using NServiceBus.Routing;
     using NServiceBus.TransportDispatch;
     using NServiceBus.Unicast.Queuing;
@@ -14,7 +14,6 @@ namespace NServiceBus
     {
         UnicastRouter unicastRouter;
         DistributionPolicy distributionPolicy;
-
         public UnicastPublishRouterConnector(UnicastRouter unicastRouter, DistributionPolicy distributionPolicy)
         {
             this.unicastRouter = unicastRouter;

@@ -31,6 +31,5 @@
 
         string timeoutManagerAddress;
         IPipelineBase<RoutingContext> dispatchPipeline;
-
     }
 }

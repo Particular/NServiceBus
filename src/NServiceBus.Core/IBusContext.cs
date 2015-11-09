@@ -55,11 +55,10 @@ namespace NServiceBus
         Task SubscribeAsync(Type eventType, SubscribeOptions options);
 
         /// <summary>
-        /// Subscribes to receive published messages of the specified type.
-        /// This method is only necessary if you turned off auto-subscribe.
+        /// Unsubscribes to receive published messages of the specified type.
         /// </summary>
-        /// <param name="eventType">The type of event to unsubscribe from.</param>
-        /// <param name="options">Options for the unsubscribe operation.</param>
+        /// <param name="eventType">The type of event to unsubscribe to.</param>
+        /// <param name="options">Options for the subscribe.</param>
         Task UnsubscribeAsync(Type eventType, UnsubscribeOptions options);
     }
 }

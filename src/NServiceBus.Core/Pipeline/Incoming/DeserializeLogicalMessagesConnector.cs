@@ -6,23 +6,24 @@
     using System.Linq;
     using System.Reflection;
     using System.Threading.Tasks;
-    using Logging;
+    using NServiceBus.Logging;
+    using NServiceBus.Pipeline;
+    using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Scheduling.Messages;
+    using NServiceBus.Serializers;
     using NServiceBus.Transports;
-    using Pipeline;
-    using Pipeline.Contexts;
-    using Scheduling.Messages;
-    using Serializers;
-    using Unicast.Messages;
+    using NServiceBus.Unicast.Messages;
 
     class DeserializeLogicalMessagesConnector : StageConnector<PhysicalMessageProcessingContext, LogicalMessageProcessingContext>
     {
-        public MessageDeserializerResolver DeserializerResolver { get; set; }
-        
-        public LogicalMessageFactory LogicalMessageFactory { get; set; }
+        public DeserializeLogicalMessagesConnector(MessageDeserializerResolver deserializerResolver, LogicalMessageFactory logicalMessageFactory, MessageMetadataRegistry messageMetadataRegistry)
+        {
+            this.deserializerResolver = deserializerResolver;
+            this.logicalMessageFactory = logicalMessageFactory;
+            this.messageMetadataRegistry = messageMetadataRegistry;
+        }
 
-        public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
-
-        public async override Task Invoke(PhysicalMessageProcessingContext context, Func<LogicalMessageProcessingContext, Task> next)
+        public override async Task Invoke(PhysicalMessageProcessingContext context, Func<LogicalMessageProcessingContext, Task> next)
         {
             var incomingMessage = context.Message;
 
@@ -30,9 +31,8 @@
 
             foreach (var message in messages)
             {
-                await next(new LogicalMessageProcessingContext(message,context.Message.Headers, context)).ConfigureAwait(false);
+                await next(new LogicalMessageProcessingContext(message, context)).ConfigureAwait(false);
             }
-
         }
 
         List<LogicalMessage> ExtractWithExceptionHandling(IncomingMessage message)
@@ -72,11 +72,11 @@
 
                     if (IsV4OrBelowScheduledTask(typeString))
                     {
-                        metadata = MessageMetadataRegistry.GetMessageMetadata(typeof(ScheduledTask));
+                        metadata = messageMetadataRegistry.GetMessageMetadata(typeof(ScheduledTask));
                     }
                     else
                     {
-                        metadata = MessageMetadataRegistry.GetMessageMetadata(typeString);
+                        metadata = messageMetadataRegistry.GetMessageMetadata(typeString);
                     }
 
                     if (metadata == null)
@@ -96,11 +96,10 @@
             using (var stream = new MemoryStream(physicalMessage.Body))
             {
                 var messageTypes = messageMetadata.Select(metadata => metadata.MessageType).ToList();
-                var messageSerializer = DeserializerResolver.Resolve(physicalMessage.Headers[Headers.ContentType]);
+                var messageSerializer = deserializerResolver.Resolve(physicalMessage.Headers[Headers.ContentType]);
                 return messageSerializer.Deserialize(stream, messageTypes)
-                    .Select(x => LogicalMessageFactory.Create(x.GetType(), x))
+                    .Select(x => logicalMessageFactory.Create(x.GetType(), x))
                     .ToList();
-
             }
         }
 
@@ -113,6 +112,10 @@
         {
             return existingTypeString.StartsWith("NServiceBus.Scheduling.Messages.ScheduledTask, NServiceBus.Core");
         }
+
+        MessageDeserializerResolver deserializerResolver;
+        LogicalMessageFactory logicalMessageFactory;
+        MessageMetadataRegistry messageMetadataRegistry;
 
         static ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
     }

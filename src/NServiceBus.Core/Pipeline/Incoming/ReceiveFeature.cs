@@ -31,7 +31,7 @@
 
                 var pipeline = new PipelineBase<BatchDispatchContext>(b, context.Settings, pipelinesCollection.MainPipeline);
 
-                IOutboxStorage storage;
+                IOutboxStorage storage; // TODO: This should probably be done in the outbox feature
 
                 if (context.Container.HasComponent<IOutboxStorage>())
                 {

@@ -1,6 +1,7 @@
 namespace NServiceBus.TransportDispatch
 {
     using System.Collections.Generic;
+    using NServiceBus.OutgoingPipeline;
     using Routing;
     using Pipeline;
     using Transports;
@@ -8,7 +9,7 @@ namespace NServiceBus.TransportDispatch
     /// <summary>
     /// Context for the dispatch part of the pipeline.
     /// </summary>
-    public class RoutingContext : BehaviorContext
+    public class RoutingContext : OutgoingContext
     {
         /// <summary>
         /// Initializes the context with the message to be dispatched.

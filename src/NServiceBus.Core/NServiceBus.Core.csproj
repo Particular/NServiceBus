@@ -100,7 +100,6 @@
     <Compile Include="IBusContextExtensions.cs" />
     <Compile Include="IMessageProcessingContext.cs" />
     <Compile Include="IMessageProcessingContextExtensions.cs" />
-    <Compile Include="MessageHandlerContext.cs" />
     <Compile Include="Causation\MessageCausation.cs" />
     <Compile Include="ConfigureHandlerSettings.cs" />
     <Compile Include="ConsistencyGuarantees\ConsistencyGuaranteeSettingsExtensions.cs" />
@@ -111,14 +110,14 @@
     <Compile Include="IHandleMessages.cs" />
     <Compile Include="IInitializableEndpoint.cs" />
     <Compile Include="IEndpoint.cs" />
-    <Compile Include="Pipeline\BehaviorContextStacker.cs" />
+    <Compile Include="Pipeline\Outgoing\OutgoingContext.cs" />
+    <Compile Include="Pipeline\Outgoing\TransportMessageContextExtensions.cs" />
     <Compile Include="Scheduling\ScheduleBehavior.cs" />
     <Compile Include="StartableEndpoint.cs" />
     <Compile Include="ISendOnlyBusExtensions_obsoletes.cs" />
     <Compile Include="IStartableBusExtensions_obsoletes.cs" />
     <Compile Include="IWantToRunWhenBusStartsAndStopsExtensions_obsoletes.cs" />
     <Compile Include="Licensing\LogErrorOnInvalidLicenseBehavior.cs" />
-    <Compile Include="MessageProcessingContext.cs" />
     <Compile Include="Persistence\InMemory\Outbox\InMemoryOutboxTransaction.cs" />
     <Compile Include="Pipeline\Incoming\InvokeHandlerContext.cs" />
     <Compile Include="Pipeline\Incoming\LogicalMessageProcessingContext.cs" />
@@ -241,7 +240,6 @@
     <Compile Include="Performance\MessageDurability\MessageDurabilityFeature.cs" />
     <Compile Include="Extensibility\ContextBag.cs" />
     <Compile Include="Pipeline\Outgoing\OutgoingPublishContext.cs" />
-    <Compile Include="Pipeline\Incoming\TransportMessageContextExtensions.cs" />
     <Compile Include="Pipeline\IPipelineTerminator.cs" />
     <Compile Include="Pipeline\IStageConnector.cs" />
     <Compile Include="Pipeline\PipelineDiagnostics.cs" />
@@ -390,8 +388,10 @@
     <Compile Include="IEvent.cs" />
     <Compile Include="IMessage.cs" />
     <Compile Include="IMessageCreator.cs" />
+    <Compile Include="Unicast\BusOperationsIncomingContext.cs" />
+    <Compile Include="Unicast\BusOperationsInvokeHandlerContext.cs" />
     <Compile Include="Unicast\StartAndStoppablesRunner.cs" />
-    <Compile Include="Unicast\BusOperations.cs" />
+    <Compile Include="Unicast\BusOperationsBehaviorContext.cs" />
     <Compile Include="Unicast\Transport\Config\InboundTransport.cs" />
     <Compile Include="Unicast\Transport\Config\OutboundTransport.cs" />
     <Compile Include="Persistence\EnabledPersistence.cs" />
@@ -432,7 +432,6 @@
     <Compile Include="Performance\MessageDurability\DurableMessagesConfig.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\ConfigurationBuilderExtensions.cs" />
     <Compile Include="Sagas\InvokeSagaNotFoundBehavior.cs" />
-    <Compile Include="Transports\MessageAvailable.cs" />
     <Compile Include="Transports\Msmq\ReceiveWithTransactionScope.cs" />
     <Compile Include="Forwarding\ForwardReceivedMessages.cs" />
     <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetriesBehavior.cs" />
@@ -442,7 +441,6 @@
     <Compile Include="Performance\Statistics\CriticalTime\CriticalTimeBehavior.cs" />
     <Compile Include="Performance\Statistics\SLA\SLAMonitoring.cs" />
     <Compile Include="Performance\Statistics\ProcessingStatisticsBehavior.cs" />
-    <Compile Include="Unicast\ContextualBusInterface.cs" />
     <Compile Include="MessageDeserializationException.cs" />
     <Compile Include="Hosting\AuditHostInformationBehavior.cs" />
     <Compile Include="Unicast\Transport\PipelineInfo.cs" />

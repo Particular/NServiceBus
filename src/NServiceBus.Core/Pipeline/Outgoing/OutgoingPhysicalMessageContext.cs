@@ -1,14 +1,13 @@
 ﻿namespace NServiceBus.OutgoingPipeline
 {
     using System.Collections.Generic;
+    using NServiceBus.Pipeline.OutgoingPipeline;
     using NServiceBus.Routing;
-    using Pipeline;
-    using Pipeline.Contexts;
 
     /// <summary>
     /// Represent the part of the outgoing pipeline where the message has been serialized to a byte[].
     /// </summary>
-    public class OutgoingPhysicalMessageContext : BehaviorContext
+    public class OutgoingPhysicalMessageContext : OutgoingContext
     {
 
         /// <summary>

@@ -3,9 +3,9 @@
     using System;
     using System.Linq;
     using System.Threading.Tasks;
-    using Pipeline;
-    using Pipeline.Contexts;
-    using Unicast;
+    using NServiceBus.Pipeline;
+    using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Unicast;
 
     class LoadHandlersConnector : StageConnector<LogicalMessageProcessingContext, InvokeHandlerContext>
     {

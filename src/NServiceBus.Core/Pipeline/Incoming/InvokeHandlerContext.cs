@@ -1,31 +1,38 @@
 namespace NServiceBus.Pipeline.Contexts
 {
     using System.Collections.Generic;
-    using Unicast.Behaviors;
-    using Unicast.Messages;
+    using System.Threading.Tasks;
+    using NServiceBus.Unicast;
+    using NServiceBus.Unicast.Behaviors;
+    using NServiceBus.Unicast.Messages;
 
     /// <summary>
     /// A context of handling a logical message by a handler.
     /// </summary>
-    public class InvokeHandlerContext : IncomingContext
+    public class InvokeHandlerContext : IncomingContext, IMessageHandlerContext
     {
         /// <summary>
-        /// Initializes the handling stage context.
+        /// Initializes the handling stage context. This is the constructor to use for internal usage.
         /// </summary>
-        public InvokeHandlerContext(MessageHandler handler, LogicalMessageProcessingContext parentContext)
-            : base(parentContext)
+        internal InvokeHandlerContext(MessageHandler handler, LogicalMessageProcessingContext parentContext)
+            : this(handler, parentContext.Headers, parentContext.Message.Metadata, parentContext.Message.Instance, parentContext)
         {
-            Guard.AgainstNull("handler", handler);
-            Guard.AgainstNull("parentContext", parentContext);
-            MessageHandler = handler;
-            Headers = parentContext.Headers;
-            MessageBeingHandled = parentContext.Message.Instance;
-            MessageMetadata = parentContext.Message.Metadata;
-            MessageId = Headers[NServiceBus.Headers.MessageId];
         }
 
         /// <summary>
-        /// The current <see cref="IHandleMessages{T}"/> being executed.
+        /// Initializes the handling stage context.
+        /// </summary>
+        public InvokeHandlerContext(MessageHandler handler, Dictionary<string, string> headers, MessageMetadata messageMetadata, object messageBeingHandled, BehaviorContext parentContext)
+            : base(parentContext)
+        {
+            MessageHandler = handler;
+            Headers = headers;
+            MessageBeingHandled = messageBeingHandled;
+            MessageMetadata = messageMetadata;
+        }
+
+        /// <summary>
+        /// The current <see cref="IHandleMessages{T}" /> being executed.
         /// </summary>
         public MessageHandler MessageHandler { get; }
 
@@ -40,15 +47,7 @@ namespace NServiceBus.Pipeline.Contexts
         public object MessageBeingHandled { get; }
 
         /// <summary>
-        /// Call this to stop the invocation of handlers.
-        /// </summary>
-        public void DoNotInvokeAnyMoreHandlers()
-        {
-            HandlerInvocationAborted = true;
-        }
-
-        /// <summary>
-        /// <code>true</code> if <see cref="DoNotInvokeAnyMoreHandlers"/>  has been called.
+        /// <code>true</code> if <see cref="DoNotContinueDispatchingCurrentMessageToHandlers" />  has been called.
         /// </summary>
         public bool HandlerInvocationAborted { get; private set; }
 
@@ -57,9 +56,16 @@ namespace NServiceBus.Pipeline.Contexts
         /// </summary>
         public MessageMetadata MessageMetadata { get; }
 
-        /// <summary>
-        /// Id of the incoming message.
-        /// </summary>
-        public string MessageId { get; }
+        /// <inheritdoc />
+        public Task HandleCurrentMessageLaterAsync()
+        {
+            return BusOperationsInvokeHandlerContext.HandleCurrentMessageLaterAsync(this);
+        }
+
+        /// <inheritdoc />
+        public void DoNotContinueDispatchingCurrentMessageToHandlers()
+        {
+            HandlerInvocationAborted = true;
+        }
     }
 }

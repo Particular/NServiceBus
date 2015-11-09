@@ -2,7 +2,6 @@
 {
     using System.Threading.Tasks;
     using System.Transactions;
-    using NServiceBus.Unicast;
     using Pipeline;
     using Pipeline.Contexts;
     using Sagas;
@@ -22,15 +21,9 @@
 
             var messageHandler = context.MessageHandler;
             await messageHandler
-                .Invoke(context.MessageBeingHandled, new MessageHandlerContext(context, busOperations))
+                .Invoke(context.MessageBeingHandled, context)
                 .ConfigureAwait(false);
         }
-        public InvokeHandlerTerminator(BusOperations busOperations)
-        {
-            this.busOperations = busOperations;
-        }
-
-        BusOperations busOperations;
 
         public class State
         {

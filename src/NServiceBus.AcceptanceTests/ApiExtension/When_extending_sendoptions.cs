@@ -5,8 +5,8 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using Extensibility;
+    using NServiceBus.Pipeline.OutgoingPipeline;
     using Pipeline;
-    using Pipeline.Contexts;
     using NUnit.Framework;
 
     public class When_extending_sendoptions : NServiceBusAcceptanceTest
