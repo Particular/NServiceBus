@@ -134,6 +134,7 @@
     <Compile Include="Routing\AutomaticSubscriptions\When_starting_an_endpoint_with_autoSubscribe.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Routing\When_publishing_an_interface.cs" />
     <Compile Include="Routing\When_publishing_from_sendonly.cs" />
     <Compile Include="MessageId\When_message_has_empty_id_header.cs" />
     <Compile Include="Routing\When_publishing_an_event_implementing_two_unrelated_interfaces.cs" />
