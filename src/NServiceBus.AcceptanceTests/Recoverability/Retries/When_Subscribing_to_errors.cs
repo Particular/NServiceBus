@@ -6,7 +6,6 @@
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NServiceBus.Config;
     using NServiceBus.Features;
     using NUnit.Framework;
@@ -16,22 +15,19 @@
         [Test]
         public async Task Should_retain_exception_details_over_FLR_and_SLR()
         {
-            await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
+            var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<SLREndpoint>(b => b
                     .DoNotFailOnErrorMessages())
                 .Done(c => c.MessageSentToError)
-                .Repeat(r => r.For<AllTransports>())
-                .Should(c =>
-                {
-                    Assert.IsInstanceOf<SimulatedException>(c.MessageSentToErrorException);
-                    Assert.True(c.Logs.Any(l => l.Level == "error" && l.Message.Contains("Simulated exception message")), "The last exception should be logged as `error` before sending it to the error queue");
-
-                    //FLR max retries = 3 means we will be processing 4 times. SLR max retries = 2 means we will do 3*FLR
-                    Assert.AreEqual(4 * 3, c.TotalNumberOfFLRTimesInvokedInHandler);
-                    Assert.AreEqual(4 * 3, c.TotalNumberOfFLRTimesInvoked);
-                    Assert.AreEqual(2, c.NumberOfSLRRetriesPerformed);
-                })
                 .Run();
+
+            Assert.IsInstanceOf<SimulatedException>(context.MessageSentToErrorException);
+            Assert.True(context.Logs.Any(l => l.Level == "error" && l.Message.Contains("Simulated exception message")), "The last exception should be logged as `error` before sending it to the error queue");
+
+            //FLR max retries = 3 means we will be processing 4 times. SLR max retries = 2 means we will do 3*FLR
+            Assert.AreEqual(4*3, context.TotalNumberOfFLRTimesInvokedInHandler);
+            Assert.AreEqual(4*3, context.TotalNumberOfFLRTimesInvoked);
+            Assert.AreEqual(2, context.NumberOfSLRRetriesPerformed);
         }
 
         public class Context : ScenarioContext

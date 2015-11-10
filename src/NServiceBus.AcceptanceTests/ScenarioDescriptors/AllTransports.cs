@@ -10,7 +10,7 @@
 
     public class AllTransports : ScenarioDescriptor
     {
-        public AllTransports()
+        protected AllTransports()
         {
             AddRange(ActiveTransports);
         }
