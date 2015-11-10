@@ -60,7 +60,7 @@
 
                 public void End(Exception ex = null)
                 {
-                    Context.UoWCommited = (ex == null);
+                    Context.UoWCommited = ex == null;
                 }
             }
 

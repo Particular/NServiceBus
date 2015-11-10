@@ -80,7 +80,7 @@
                     }
 
                     var ttbr = TimeSpan.Parse(context.MessageHeaders[Headers.TimeToBeReceived]);
-                    var ttbrExpired = auditProcessingStarted > (textContext.FirstTimeProcessedByAudit.Value + ttbr);
+                    var ttbrExpired = auditProcessingStarted > textContext.FirstTimeProcessedByAudit.Value + ttbr;
                     if (ttbrExpired)
                     {
                         textContext.TTBRHasExpiredAndMessageIsStillInAuditQueue = true;

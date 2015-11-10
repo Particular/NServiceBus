@@ -189,7 +189,7 @@ namespace NServiceBus.Utils
             if (arrayIndex < 0 || arrayIndex > array.Length)
                 throw new ArgumentOutOfRangeException("arrayIndex");
 
-            if ((array.Length - arrayIndex) < source.Count)
+            if (array.Length - arrayIndex < source.Count)
                 throw new ArgumentException("Destination array is not large enough. Check array.Length and arrayIndex.");
 
             foreach (var item in source)

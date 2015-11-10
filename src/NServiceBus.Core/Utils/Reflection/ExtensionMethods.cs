@@ -25,14 +25,14 @@ namespace NServiceBus.Utils.Reflection
         /// </summary>
         public static bool IsSimpleType(this Type type)
         {
-            return (type == typeof(string) ||
-                    type.IsPrimitive ||
-                    type == typeof(decimal) ||
-                    type == typeof(Guid) ||
-                    type == typeof(DateTime) ||
-                    type == typeof(TimeSpan) ||
-                    type == typeof(DateTimeOffset) ||
-                    type.IsEnum);
+            return type == typeof(string) ||
+                   type.IsPrimitive ||
+                   type == typeof(decimal) ||
+                   type == typeof(Guid) ||
+                   type == typeof(DateTime) ||
+                   type == typeof(TimeSpan) ||
+                   type == typeof(DateTimeOffset) ||
+                   type.IsEnum;
         }
 
         public static bool IsNullableType(this Type type)

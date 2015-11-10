@@ -19,7 +19,7 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
         /// <param name="eventType">Event type.</param>
         public void AddStatic(EndpointName publisher, Type eventType)
         {
-            rules.Add(new Rule(type => StaticTypeRule(type, eventType, new PublisherAddress(publisher)), string.Format("{0} -> {1}", eventType.FullName, publisher)));
+            rules.Add(new Rule(type => StaticTypeRule(type, eventType, new PublisherAddress(publisher)), $"{eventType.FullName} -> {publisher}"));
         }
         
         /// <summary>
@@ -29,7 +29,7 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
         /// <param name="eventType">Event type.</param>
         public void AddStatic(string publisherAddress, Type eventType)
         {
-            rules.Add(new Rule(type => StaticTypeRule(type, eventType, new PublisherAddress(publisherAddress)), string.Format("{0} -> {1}",eventType.FullName, publisherAddress)));
+            rules.Add(new Rule(type => StaticTypeRule(type, eventType, new PublisherAddress(publisherAddress)), $"{eventType.FullName} -> {publisherAddress}"));
         }
 
         internal IEnumerable<PublisherAddress> GetPublisherFor(Type eventType)
@@ -53,7 +53,7 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
         /// <param name="eventNamespace">Optional namespace containing events.</param>
         public void AddStatic(EndpointName publisher, Assembly eventAssembly, string eventNamespace = null)
         {
-            rules.Add(new Rule(type => StaticAssemblyRule(type, eventAssembly, eventNamespace, new PublisherAddress(publisher)), string.Format("{0}/{1} -> {2}", eventAssembly.GetName().Name, eventNamespace ?? "*" ,publisher)));
+            rules.Add(new Rule(type => StaticAssemblyRule(type, eventAssembly, eventNamespace, new PublisherAddress(publisher)), $"{eventAssembly.GetName().Name}/{eventNamespace ?? "*"} -> {publisher}"));
         }
 
         private static PublisherAddress StaticAssemblyRule(Type typeBeingQueried, Assembly configuredAssembly, string configuredNamespace, PublisherAddress configuredAddress)

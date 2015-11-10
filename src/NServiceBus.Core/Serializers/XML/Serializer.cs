@@ -256,7 +256,7 @@
                         }
                     }
 
-                    foreach (var obj in ((IEnumerable)value))
+                    foreach (var obj in (IEnumerable)value)
                     {
                         if (obj != null && obj.GetType().IsSimpleType())
                         {

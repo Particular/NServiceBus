@@ -90,7 +90,7 @@
                     }
 
                     var ttbr = TimeSpan.Parse(context.MessageHeaders[Headers.TimeToBeReceived]);
-                    var ttbrExpired = errorProcessingStarted > (testContext.FirstTimeProcessedByErrorHandler.Value + ttbr);
+                    var ttbrExpired = errorProcessingStarted > testContext.FirstTimeProcessedByErrorHandler.Value + ttbr;
                     if (ttbrExpired)
                     {
                         testContext.TTBRHasExpiredAndMessageIsStillInErrorQueue = true;

@@ -297,7 +297,7 @@ namespace NServiceBus.Serializers.Json.Tests
             Assert.DoesNotThrow(() => output.Position = 0, "Stream should still be open");
 
             Assert.That(result[0], Is.TypeOf(typeof(A)));
-            var a = ((A)result[0]);
+            var a = (A)result[0];
 
             Assert.AreEqual(obj.Data, a.Data);
             Assert.AreEqual(23, a.I);
@@ -354,7 +354,7 @@ namespace NServiceBus.Serializers.Json.Tests
             Assert.That(result, Has.Length.EqualTo(1));
 
             Assert.That(result[0], Is.AssignableTo(typeof(IA)));
-            var a = ((IA)result[0]);
+            var a = (IA)result[0];
 
             Assert.AreEqual(a.Data, obj.Data);
             Assert.AreEqual(42, a.I);
@@ -408,7 +408,7 @@ namespace NServiceBus.Serializers.Json.Tests
                 Assert.That(result, Has.Length.EqualTo(2));
 
                 Assert.That(result[0], Is.AssignableTo(typeof(IA)));
-                var a = ((IA) result[0]);
+                var a = (IA) result[0];
 
                 Assert.AreEqual(23, a.Data.Length);
                 Assert.AreEqual(42, a.I);

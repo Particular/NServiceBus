@@ -360,7 +360,7 @@
 
         object GetPropertyValue(Type type, XmlNode n)
         {
-            if ((n.ChildNodes.Count == 1) && (n.ChildNodes[0] is XmlCharacterData))
+            if ((n.ChildNodes.Count == 1) && n.ChildNodes[0] is XmlCharacterData)
             {
                 var text = n.ChildNodes[0].InnerText;
 

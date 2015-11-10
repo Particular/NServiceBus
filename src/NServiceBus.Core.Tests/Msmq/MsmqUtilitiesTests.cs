@@ -39,9 +39,9 @@
             {
                 {"NServiceBus.ExceptionInfo.Message", expected}
             }, new byte[0]), options);
-            var bufferWithNulls = new byte[message.Extension.Length + (10 * sizeof(char))];
+            var bufferWithNulls = new byte[message.Extension.Length + 10 * sizeof(char)];
 
-            Buffer.BlockCopy(message.Extension, 0, bufferWithNulls, 0, bufferWithNulls.Length - (10 * sizeof(char)));
+            Buffer.BlockCopy(message.Extension, 0, bufferWithNulls, 0, bufferWithNulls.Length - 10 * sizeof(char));
 
             message.Extension = bufferWithNulls;
 

@@ -182,7 +182,7 @@ namespace NServiceBus
 
         bool ConfigurationIsWrong()
         {
-            return (Transaction.Current == null && !DontUseExternalTransaction);
+            return Transaction.Current == null && !DontUseExternalTransaction;
         }
 
         MessageQueueTransactionType GetTransactionType()

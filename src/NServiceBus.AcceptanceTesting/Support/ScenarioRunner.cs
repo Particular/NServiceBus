@@ -224,7 +224,7 @@
             {
                 while (!done() && !cts.Token.IsCancellationRequested)
                 {
-                    if ((DateTime.UtcNow - startTime) > maxTime)
+                    if (DateTime.UtcNow - startTime > maxTime)
                     {
                         throw new ScenarioException(GenerateTestTimedOutMessage(maxTime));
                     }

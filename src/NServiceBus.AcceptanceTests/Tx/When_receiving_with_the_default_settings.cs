@@ -40,7 +40,7 @@
 
                 public Task Handle(MyMessage messageThatIsEnlisted, IMessageHandlerContext context)
                 {
-                    Context.AmbientTransactionExists = (Transaction.Current != null);
+                    Context.AmbientTransactionExists = Transaction.Current != null;
                     Context.HandlerInvoked = true;
                 return Task.FromResult(0);
                 }

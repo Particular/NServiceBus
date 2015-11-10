@@ -26,7 +26,7 @@
             var eventType = context.EventType;
 
             var publisherAddresses = subscriptionRouter.GetAddressesForEventType(eventType)
-                .EnsureNonEmpty(() => string.Format("No publisher address could be found for message type {0}. Please ensure the configured publisher endpoint has at least one known instance.", eventType));
+                .EnsureNonEmpty(() => $"No publisher address could be found for message type {eventType}. Please ensure the configured publisher endpoint has at least one known instance.");
 
             var unsubscribeTasks = new List<Task>();
             foreach (var publisherAddress in publisherAddresses)
@@ -38,9 +38,7 @@
                 unsubscribeMessage.Headers[Headers.SubscriptionMessageType] = eventType.AssemblyQualifiedName;
                 unsubscribeMessage.Headers[Headers.ReplyToAddress] = replyToAddress;
 
-                var address = publisherAddress;
-
-                unsubscribeTasks.Add(SendUnsubscribeMessageWithRetries(address, unsubscribeMessage, eventType.AssemblyQualifiedName, context));
+                unsubscribeTasks.Add(SendUnsubscribeMessageWithRetries(publisherAddress, unsubscribeMessage, eventType.AssemblyQualifiedName, context));
             }
 
             return Task.WhenAll(unsubscribeTasks.ToArray());

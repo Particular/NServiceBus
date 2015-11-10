@@ -181,7 +181,7 @@ namespace NServiceBus.Utils
         {
             foreach (var kvp in dictionary)
             {
-                var weakKey = (WeakReference<TKey>)(kvp.Key);
+                var weakKey = (WeakReference<TKey>)kvp.Key;
                 var key = weakKey.Target;
                 var value = kvp.Value;
                 if (weakKey.IsAlive)
@@ -198,7 +198,7 @@ namespace NServiceBus.Utils
             List<object> toRemove = null;
             foreach (var pair in dictionary)
             {
-                var weakKey = (WeakReference<TKey>)(pair.Key);
+                var weakKey = (WeakReference<TKey>)pair.Key;
 
                 if (!weakKey.IsAlive)
                 {

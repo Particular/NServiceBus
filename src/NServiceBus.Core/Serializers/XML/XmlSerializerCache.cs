@@ -91,7 +91,7 @@ namespace NServiceBus.Serializers.XML
             var args = t.GetGenericArguments();
             if (args.Length == 2)
             {
-                isKeyValuePair = (typeof(KeyValuePair<,>).MakeGenericType(args[0], args[1]) == t);
+                isKeyValuePair = typeof(KeyValuePair<,>).MakeGenericType(args[0], args[1]) == t;
             }
 
             if (args.Length == 1 && args[0].IsValueType)

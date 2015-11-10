@@ -14,11 +14,11 @@
                 .ToList();
 
             return from builder in builders
-                   select (new RunDescriptor
-                       {
-                           Key = builder.Name,
-                           Settings = new Dictionary<string, string> { { "Builder", builder.AssemblyQualifiedName } }
-                       });
+                   select new RunDescriptor
+                   {
+                       Key = builder.Name,
+                       Settings = new Dictionary<string, string> { { "Builder", builder.AssemblyQualifiedName } }
+                   };
         }
 
         public static RunDescriptor Default => GetAllAvailable().FirstOrDefault();
