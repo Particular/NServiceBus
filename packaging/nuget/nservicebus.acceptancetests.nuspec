@@ -32,6 +32,6 @@
     <file 
       src="..\..\src\NServiceBus.AcceptanceTests\**\*.cs" 
       target="content\App_Packages\NSB.AcceptanceTests.$version$" 
-      exclude="**\bin\**\*.*;**\obj\**\*.*;..\..\src\NServiceBus.AcceptanceTests\Exceptions\**\*.cs" />
+      exclude="**\bin\**\*.*;**\obj\**\*.*;..\..\src\NServiceBus.AcceptanceTests\Exceptions\**\*.cs;..\..\src\NServiceBus.AcceptanceTests\Msmq\**\*.cs" />
   </files>
 </package>
