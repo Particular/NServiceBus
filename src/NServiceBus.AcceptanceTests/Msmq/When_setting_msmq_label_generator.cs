@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Basic
+﻿namespace NServiceBus.AcceptanceTests.Msmq
 {
     using System;
     using System.Collections.Generic;
@@ -6,7 +6,6 @@
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NServiceBus.Settings;
     using NUnit.Framework;
 
@@ -26,10 +25,7 @@
                         Id = c.Id
                     })))
                     .Done(c => c.WasCalled)
-                    .Repeat(r => r.For<MsmqOnly>())
-                    .Should(c => Assert.True(c.WasCalled, "The message handler should be called"))
                     .Run();
-
                 Assert.AreEqual("MyLabel", ReadMessageLabel());
             }
             finally

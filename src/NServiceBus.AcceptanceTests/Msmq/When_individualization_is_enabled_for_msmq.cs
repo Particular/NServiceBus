@@ -1,9 +1,8 @@
-﻿namespace NServiceBus.AcceptanceTests.ScaleOut
+﻿namespace NServiceBus.AcceptanceTests.Msmq
 {
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NServiceBus.Settings;
     using NServiceBus.Support;
     using NServiceBus.Transports;
@@ -14,11 +13,11 @@
         [Test]
         public async Task Should_be_a_no_op_discriminator()
         {
-            await Scenario.Define<Context>()
-                    .WithEndpoint<IndividualizedEndpoint>().Done(c => c.EndpointsStarted)
-                    .Repeat(r => r.For<MsmqOnly>())
-                    .Should(c => Assert.AreEqual(c.EndpointName + "@" + RuntimeEnvironment.MachineName, c.Address))
-                    .Run();
+            var context = await Scenario.Define<Context>()
+                .WithEndpoint<IndividualizedEndpoint>().Done(c => c.EndpointsStarted)
+                .Run();
+
+            Assert.AreEqual(context.EndpointName + "@" + RuntimeEnvironment.MachineName, context.Address);
         }
 
         public class Context : ScenarioContext
@@ -29,7 +28,6 @@
 
         public class IndividualizedEndpoint : EndpointConfigurationBuilder
         {
-
             public IndividualizedEndpoint()
             {
                 EndpointSetup<DefaultServer>(c => c.ScaleOut().UniqueQueuePerEndpointInstance());
