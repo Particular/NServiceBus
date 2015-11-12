@@ -436,7 +436,6 @@
     <Compile Include="Transports\Msmq\ReceiveWithTransactionScope.cs" />
     <Compile Include="Forwarding\ForwardReceivedMessages.cs" />
     <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetriesBehavior.cs" />
-    <Compile Include="Pipeline\Incoming\MessageProcessingAbortedException.cs" />
     <Compile Include="Unicast\Config\RegisterHandlersInOrder.cs" />
     <Compile Include="Performance\Statistics\SLA\SLABehavior.cs" />
     <Compile Include="Performance\Statistics\CriticalTime\CriticalTimeBehavior.cs" />
