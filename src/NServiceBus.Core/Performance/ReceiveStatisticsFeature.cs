@@ -14,9 +14,18 @@
         }
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.Pipeline.Register("ReceivePerformanceDiagnosticsBehavior", typeof(ReceivePerformanceDiagnosticsBehavior), "Provides various performance counters for receive statistics");
+            var endpointName = context.Settings.LocalAddress();
+            context.Container.RegisterSingleton(new ReceivePerformanceDiagnosticsBehavior(endpointName));
+            context.Pipeline.Register(
+                "ReceivePerformanceDiagnosticsBehavior", 
+                typeof(ReceivePerformanceDiagnosticsBehavior), 
+                "Provides various performance counters for receive statistics");
+
             context.Pipeline.Register<ProcessingStatisticsBehavior.Registration>();
-            context.Pipeline.Register("AuditProcessingStatistics", typeof(AuditProcessingStatisticsBehavior), "Add ProcessingStarted and ProcessingEnded headers");
+            context.Pipeline.Register(
+                "AuditProcessingStatistics", 
+                typeof(AuditProcessingStatisticsBehavior), 
+                "Add ProcessingStarted and ProcessingEnded headers");
         }
     }
 

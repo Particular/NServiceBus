@@ -5,7 +5,6 @@
     using System.Threading.Tasks;
     using Janitor;
     using NServiceBus.Settings;
-    using NServiceBus.Unicast.Transport;
     using ObjectBuilder;
 
     [SkipWeaving]
@@ -26,14 +25,6 @@
             steps = coordinator.BuildPipelineModelFor<T>();
 
             behaviors = steps.Select(r => r.CreateBehavior(builder)).ToArray();
-        }
-
-        public void Initialize(PipelineInfo pipelineInfo)
-        {
-            foreach (var behaviorInstance in behaviors)
-            {
-                behaviorInstance.Initialize(pipelineInfo);
-            }
         }
 
         public async Task Warmup()

@@ -6,6 +6,7 @@
     using System.Threading.Tasks;
     using Core.Tests;
     using NServiceBus.Transports;
+    using NServiceBus.Unicast.Transport;
     using NUnit.Framework;
     using ObjectBuilder;
     using Pipeline.Contexts;
@@ -145,9 +146,9 @@
         {
             var runner = new UnitOfWorkBehavior();
 
-            var receiveContext = new TransportReceiveContext(new IncomingMessage("fakeId", new Dictionary<string, string>(), new MemoryStream()), new RootContext(builder));
+            var receiveContext = new TransportReceiveContext(new IncomingMessage("fakeId", new Dictionary<string, string>(), new MemoryStream()), new PipelineInfo("pipelineName", "pipelineTransportAddress"), new RootContext(builder));
 
-            var context = new PhysicalMessageProcessingContext(receiveContext.Message, receiveContext);
+            var context = new PhysicalMessageProcessingContext(receiveContext);
 
             return runner.Invoke(context, () =>
             {

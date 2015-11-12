@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Pipeline.Contexts
 {
+    using NServiceBus.Unicast.Transport;
     using Transports;
 
     /// <summary>
@@ -7,16 +8,25 @@
     /// </summary>
     public class TransportReceiveContext : BehaviorContext
     {
-        internal TransportReceiveContext(IncomingMessage receivedMessage, BehaviorContext parentContext)
+        /// <summary>
+        /// Initializes the transport receive stage context.
+        /// </summary>
+        public TransportReceiveContext(IncomingMessage receivedMessage, PipelineInfo pipelineInfo, BehaviorContext parentContext)
             : base(parentContext)
         {
             Message = receivedMessage;
+            PipelineInfo = pipelineInfo;
             Set(Message);
         }
 
         /// <summary>
         /// The physical message beeing processed.
         /// </summary>
-        public IncomingMessage Message { get; private set; }
+        public IncomingMessage Message { get; }
+
+        /// <summary>
+        /// Information about the current pipeline.
+        /// </summary>
+        public PipelineInfo PipelineInfo { get;}
     }
 }

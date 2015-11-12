@@ -9,12 +9,24 @@ namespace NServiceBus
     [SkipWeaving]
     class ReceivePerformanceDiagnosticsBehavior : Behavior<PhysicalMessageProcessingContext>
     {
-   
+        public ReceivePerformanceDiagnosticsBehavior(string transportAddress)
+        {
+            this.transportAddress = transportAddress;
+        }
+
         public override Task Warmup()
         {
-            messagesPulledFromQueueCounter = PerformanceCounterHelper.TryToInstantiatePerformanceCounter("# of msgs pulled from the input queue /sec", PipelineInfo.TransportAddress);
-            successRateCounter = PerformanceCounterHelper.TryToInstantiatePerformanceCounter("# of msgs successfully processed / sec", PipelineInfo.TransportAddress);
-            failureRateCounter = PerformanceCounterHelper.TryToInstantiatePerformanceCounter("# of msgs failures / sec", PipelineInfo.TransportAddress);
+            messagesPulledFromQueueCounter = PerformanceCounterHelper.TryToInstantiatePerformanceCounter(
+                "# of msgs pulled from the input queue /sec", 
+                transportAddress);
+
+            successRateCounter = PerformanceCounterHelper.TryToInstantiatePerformanceCounter(
+                "# of msgs successfully processed / sec", 
+                transportAddress);
+
+            failureRateCounter = PerformanceCounterHelper.TryToInstantiatePerformanceCounter(
+                "# of msgs failures / sec", 
+                transportAddress);
          
             return base.Warmup();
         }
@@ -46,10 +58,11 @@ namespace NServiceBus
         }
 
         IPerformanceCounterInstance messagesPulledFromQueueCounter;
+
         IPerformanceCounterInstance successRateCounter;
+
         IPerformanceCounterInstance failureRateCounter;
 
-
-       
+        string transportAddress;
     }
 }

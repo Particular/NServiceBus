@@ -7,6 +7,7 @@
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Sagas;
     using NServiceBus.Unicast.Behaviors;
+    using NServiceBus.Unicast.Transport;
     using NUnit.Framework;
     using Conventions = NServiceBus.Conventions;
 
@@ -148,6 +149,7 @@
                 new Dictionary<string, string>(),
                 null,
                 null,
+                new PipelineInfo("pipelineName", "pipelineTransportAddress"), 
                 new RootContext(null));
 
             return behaviorContext;

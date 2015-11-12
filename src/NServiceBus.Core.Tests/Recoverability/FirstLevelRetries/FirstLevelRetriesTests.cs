@@ -33,7 +33,7 @@
             {
                 throw new Exception("test");
             }));
- }
+        }
 
         [Test]
         public void ShouldBubbleTheExceptionUpIfThereAreNoMoreRetriesLeft()
@@ -56,11 +56,11 @@
             const string messageId = "someid";
             var storage = new FlrStatusStorage();
             var pipeline = new PipelineInfo("somePipeline", "someAddress");
-            var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1), storage, pipelineInfo: pipeline);
+            var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1), storage);
 
             storage.IncrementFailuresForMessage(pipeline.Name + messageId);
 
-            Assert.Throws<Exception>(async () => await behavior.Invoke(CreateContext(messageId), () =>
+            Assert.Throws<Exception>(async () => await behavior.Invoke(CreateContext(messageId, pipeline), () =>
             {
                 throw new Exception("test");
             }));
@@ -74,9 +74,9 @@
             const string messageId = "someid";
             var storage = new FlrStatusStorage();
             var pipeline = new PipelineInfo("anotherPipeline", "anotherAddress");
-            var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1), storage, pipelineInfo: pipeline);
+            var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1), storage);
 
-            Assert.Throws<MessageProcessingAbortedException>(async ()=> await behavior.Invoke(CreateContext(messageId), () =>
+            Assert.Throws<MessageProcessingAbortedException>(async ()=> await behavior.Invoke(CreateContext(messageId, pipeline), () =>
             {
                 throw new Exception("test");
             }));
@@ -136,45 +136,47 @@
             const string messageId = "someId";
             var storage = new FlrStatusStorage();
             var pipeline1 = new PipelineInfo("pipeline1", "address");
-            var behavior1 = CreateFlrBehavior(new FirstLevelRetryPolicy(1), storage, pipelineInfo: pipeline1);
+            var behavior1 = CreateFlrBehavior(new FirstLevelRetryPolicy(1), storage);
             var pipeline2 = new PipelineInfo("pipeline2", "address");
-            var behavior2 = CreateFlrBehavior(new FirstLevelRetryPolicy(2), storage, pipelineInfo: pipeline2);
+            var behavior2 = CreateFlrBehavior(new FirstLevelRetryPolicy(2), storage);
 
-            Assert.Throws<MessageProcessingAbortedException>(async () => await behavior1.Invoke(CreateContext(messageId), () =>
+            Assert.Throws<MessageProcessingAbortedException>(async () => await behavior1.Invoke(CreateContext(messageId, pipeline1), () =>
             {
                 throw new Exception("test");
             }));
 
-            Assert.Throws<MessageProcessingAbortedException>(async () => await behavior2.Invoke(CreateContext(messageId), () =>
+            Assert.Throws<MessageProcessingAbortedException>(async () => await behavior2.Invoke(CreateContext(messageId, pipeline2), () =>
             {
                 throw new Exception("test");
             }));
 
-            Assert.Throws<Exception>(async () => await behavior1.Invoke(CreateContext(messageId), () =>
+            Assert.Throws<Exception>(async () => await behavior1.Invoke(CreateContext(messageId, pipeline1), () =>
             {
                 throw new Exception("test");
             }));
 
-            Assert.Throws<MessageProcessingAbortedException>(async () => await behavior2.Invoke(CreateContext(messageId), () =>
+            Assert.Throws<MessageProcessingAbortedException>(async () => await behavior2.Invoke(CreateContext(messageId, pipeline2), () =>
             {
                 throw new Exception("test");
             }));
         }
 
-        static FirstLevelRetriesBehavior CreateFlrBehavior(FirstLevelRetryPolicy retryPolicy, FlrStatusStorage storage = null, BusNotifications busNotifications = null, PipelineInfo pipelineInfo = null)
+        static FirstLevelRetriesBehavior CreateFlrBehavior(FirstLevelRetryPolicy retryPolicy, FlrStatusStorage storage = null, BusNotifications busNotifications = null)
         {
             var flrBehavior = new FirstLevelRetriesBehavior(
                 storage ?? new FlrStatusStorage(), 
                 retryPolicy, 
                 busNotifications ?? new BusNotifications());
 
-            flrBehavior.Initialize(pipelineInfo ?? new PipelineInfo("samplePipeline", "address"));
             return flrBehavior;
         }
 
-        TransportReceiveContext CreateContext(string messageId)
+        TransportReceiveContext CreateContext(string messageId, PipelineInfo pipelineInfo = null)
         {
-            return new TransportReceiveContext(new IncomingMessage(messageId, new Dictionary<string, string>(), new MemoryStream()), new RootContext(null));
+            return new TransportReceiveContext(
+                new IncomingMessage(messageId, new Dictionary<string, string>(), new MemoryStream()),
+                pipelineInfo ?? new PipelineInfo("pipelineName", "pipelineTransportAddress"),
+                new RootContext(null));
         }
     }
 }

@@ -4,7 +4,6 @@
     using System.Diagnostics;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.Unicast.Transport;
 
     [DebuggerDisplay("{Type.Name}")]
     class BehaviorInstance
@@ -31,11 +30,6 @@
         public Task Invoke(BehaviorContext context, Func<BehaviorContext, Task> next)
         {
             return invoker.Invoke(instance, context, next);
-        }
-
-        public void Initialize(PipelineInfo pipelineInfo)
-        {
-            instance.Initialize(pipelineInfo);
         }
 
         public Task Cooldown()

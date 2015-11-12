@@ -758,7 +758,7 @@ namespace NServiceBus
     }
     public class PhysicalMessageProcessingContext : NServiceBus.Pipeline.Contexts.IncomingContext
     {
-        public PhysicalMessageProcessingContext(NServiceBus.Transports.IncomingMessage message, NServiceBus.Pipeline.BehaviorContext parentContext) { }
+        public PhysicalMessageProcessingContext(NServiceBus.Transports.IncomingMessage message, NServiceBus.Unicast.Transport.PipelineInfo pipelineInfo, NServiceBus.Pipeline.BehaviorContext parentContext) { }
         public NServiceBus.Transports.IncomingMessage Message { get; }
     }
     public class PipelineDiagnostics
@@ -1964,9 +1964,7 @@ namespace NServiceBus.Pipeline
         where TContext : NServiceBus.Pipeline.BehaviorContext
     {
         protected Behavior() { }
-        protected NServiceBus.Unicast.Transport.PipelineInfo PipelineInfo { get; }
         public virtual System.Threading.Tasks.Task Cooldown() { }
-        public void Initialize(NServiceBus.Unicast.Transport.PipelineInfo pipelineInfo) { }
         public abstract System.Threading.Tasks.Task Invoke(TContext context, System.Func<System.Threading.Tasks.Task> next);
         public System.Threading.Tasks.Task Invoke(TContext context, System.Func<TContext, System.Threading.Tasks.Task> next) { }
         public virtual System.Threading.Tasks.Task Warmup() { }
@@ -1979,7 +1977,6 @@ namespace NServiceBus.Pipeline
     public interface IBehavior
     {
         System.Threading.Tasks.Task Cooldown();
-        void Initialize(NServiceBus.Unicast.Transport.PipelineInfo pipelineInfo);
         System.Threading.Tasks.Task Warmup();
     }
     [System.ObsoleteAttribute("Please use `Behavior<T>` instead. Will be removed in version 7.0.0.", true)]
@@ -2110,10 +2107,11 @@ namespace NServiceBus.Pipeline.Contexts
 {
     public abstract class IncomingContext : NServiceBus.Pipeline.BehaviorContext, NServiceBus.IBusContext, NServiceBus.IMessageProcessingContext
     {
-        protected IncomingContext(string messageId, string replyToAddress, System.Collections.Generic.IReadOnlyDictionary<string, string> headers, NServiceBus.Pipeline.BehaviorContext parentContext) { }
+        protected IncomingContext(string messageId, string replyToAddress, System.Collections.Generic.IReadOnlyDictionary<string, string> headers, NServiceBus.Unicast.Transport.PipelineInfo pipelineInfo, NServiceBus.Pipeline.BehaviorContext parentContext) { }
         public NServiceBus.Extensibility.ContextBag Extensions { get; }
         public System.Collections.Generic.IReadOnlyDictionary<string, string> MessageHeaders { get; }
         public string MessageId { get; }
+        public NServiceBus.Unicast.Transport.PipelineInfo PipelineInfo { get; }
         public string ReplyToAddress { get; }
         public System.Threading.Tasks.Task ForwardCurrentMessageToAsync(string destination) { }
         public System.Threading.Tasks.Task PublishAsync(object message, NServiceBus.PublishOptions options) { }
@@ -2127,7 +2125,7 @@ namespace NServiceBus.Pipeline.Contexts
     }
     public class InvokeHandlerContext : NServiceBus.Pipeline.Contexts.IncomingContext, NServiceBus.IBusContext, NServiceBus.IMessageHandlerContext, NServiceBus.IMessageProcessingContext
     {
-        public InvokeHandlerContext(NServiceBus.Unicast.Behaviors.MessageHandler handler, string messageId, string replyToAddress, System.Collections.Generic.Dictionary<string, string> headers, NServiceBus.Unicast.Messages.MessageMetadata messageMetadata, object messageBeingHandled, NServiceBus.Pipeline.BehaviorContext parentContext) { }
+        public InvokeHandlerContext(NServiceBus.Unicast.Behaviors.MessageHandler handler, string messageId, string replyToAddress, System.Collections.Generic.Dictionary<string, string> headers, NServiceBus.Unicast.Messages.MessageMetadata messageMetadata, object messageBeingHandled, NServiceBus.Unicast.Transport.PipelineInfo pipelineInfo, NServiceBus.Pipeline.BehaviorContext parentContext) { }
         public bool HandlerInvocationAborted { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public object MessageBeingHandled { get; }
@@ -2138,7 +2136,7 @@ namespace NServiceBus.Pipeline.Contexts
     }
     public class LogicalMessageProcessingContext : NServiceBus.Pipeline.Contexts.IncomingContext
     {
-        public LogicalMessageProcessingContext(NServiceBus.Unicast.Messages.LogicalMessage logicalMessage, string messageId, string replyToAddress, System.Collections.Generic.Dictionary<string, string> headers, NServiceBus.Pipeline.BehaviorContext parentContext) { }
+        public LogicalMessageProcessingContext(NServiceBus.Unicast.Messages.LogicalMessage logicalMessage, string messageId, string replyToAddress, System.Collections.Generic.Dictionary<string, string> headers, NServiceBus.Unicast.Transport.PipelineInfo pipelineInfo, NServiceBus.Pipeline.BehaviorContext parentContext) { }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public NServiceBus.Unicast.Messages.LogicalMessage Message { get; }
         public bool MessageHandled { get; set; }
@@ -2175,6 +2173,12 @@ namespace NServiceBus.Pipeline.OutgoingPipeline
         public System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.RoutingStrategy> RoutingStrategies { get; }
         public void UpdateMessageInstance(object newInstance) { }
     }
+    public class RootContext : NServiceBus.Pipeline.BehaviorContext
+    {
+        public RootContext(NServiceBus.ObjectBuilder.IBuilder builder, NServiceBus.Settings.ReadOnlySettings settings) { }
+    }
+        public TransportReceiveContext(NServiceBus.Transports.IncomingMessage receivedMessage, NServiceBus.Unicast.Transport.PipelineInfo pipelineInfo, NServiceBus.Pipeline.BehaviorContext parentContext) { }
+        public NServiceBus.Unicast.Transport.PipelineInfo PipelineInfo { get; }
 }
 namespace NServiceBus.Routing
 {

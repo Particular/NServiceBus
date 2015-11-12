@@ -5,6 +5,7 @@ namespace NServiceBus.Pipeline.Contexts
     using NServiceBus.Unicast;
     using NServiceBus.Unicast.Behaviors;
     using NServiceBus.Unicast.Messages;
+    using NServiceBus.Unicast.Transport;
 
     /// <summary>
     /// A context of handling a logical message by a handler.
@@ -15,15 +16,15 @@ namespace NServiceBus.Pipeline.Contexts
         /// Initializes the handling stage context. This is the constructor to use for internal usage.
         /// </summary>
         internal InvokeHandlerContext(MessageHandler handler, LogicalMessageProcessingContext parentContext)
-            : this(handler, parentContext.MessageId, parentContext.ReplyToAddress, parentContext.Headers, parentContext.Message.Metadata, parentContext.Message.Instance, parentContext)
+            : this(handler, parentContext.MessageId, parentContext.ReplyToAddress, parentContext.Headers, parentContext.Message.Metadata, parentContext.Message.Instance, parentContext.PipelineInfo, parentContext)
         {
         }
 
         /// <summary>
         /// Initializes the handling stage context.
         /// </summary>
-        public InvokeHandlerContext(MessageHandler handler, string messageId, string replyToAddress, Dictionary<string, string> headers, MessageMetadata messageMetadata, object messageBeingHandled, BehaviorContext parentContext)
-            : base(messageId, replyToAddress, headers, parentContext)
+        public InvokeHandlerContext(MessageHandler handler, string messageId, string replyToAddress, Dictionary<string, string> headers, MessageMetadata messageMetadata, object messageBeingHandled, PipelineInfo pipelineInfo, BehaviorContext parentContext)
+            : base(messageId, replyToAddress, headers, pipelineInfo, parentContext)
         {
             MessageHandler = handler;
             Headers = headers;

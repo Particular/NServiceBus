@@ -32,7 +32,6 @@ namespace NServiceBus.Core.Tests
                 errorQueueAddress);
 
             var context = CreateContext("someid");
-            behavior.Initialize(new PipelineInfo("Test", "public-receive-address"));
 
             await behavior.Invoke(context, () =>
             {
@@ -43,12 +42,12 @@ namespace NServiceBus.Core.Tests
 
             Assert.AreEqual("someid", fakeDispatchPipeline.MessageSent.MessageId);
         }
+
         [Test]
         public void ShouldInvokeCriticalErrorIfForwardingFails()
         {
             var criticalError = new FakeCriticalError();
             var fakeDispatchPipeline = new FakeDispatchPipeline{ThrowOnDispatch = true};
-
 
             var behavior = new MoveFaultsToErrorQueueBehavior(
                 criticalError, 
@@ -56,7 +55,6 @@ namespace NServiceBus.Core.Tests
                 new HostInformation(Guid.NewGuid(), "my host"), 
                 new BusNotifications(), 
                 "error");
-            behavior.Initialize(new PipelineInfo("Test", "public-receive-address"));
 
             //the ex should bubble to force the transport to rollback. If not the message will be lost
             Assert.Throws<Exception>(async () => await behavior.Invoke(CreateContext("someid"), () =>
@@ -75,14 +73,12 @@ namespace NServiceBus.Core.Tests
             var hostInfo = new HostInformation(Guid.NewGuid(), "my host");
             var context = CreateContext("someid");
 
-
             var behavior = new MoveFaultsToErrorQueueBehavior(
                 new FakeCriticalError(), 
                 fakeDispatchPipeline, 
                 hostInfo, 
                 new BusNotifications(), 
                 "error");
-            behavior.Initialize(new PipelineInfo("Test", "public-receive-address"));
 
             await behavior.Invoke(context, () =>
             {
@@ -93,16 +89,14 @@ namespace NServiceBus.Core.Tests
             Assert.AreEqual(hostInfo.HostId.ToString("N"), fakeDispatchPipeline.MessageSent.Headers[Headers.HostId]);
             Assert.AreEqual(hostInfo.DisplayName, fakeDispatchPipeline.MessageSent.Headers[Headers.HostDisplayName]);
 
-            Assert.AreEqual("public-receive-address", fakeDispatchPipeline.MessageSent.Headers[FaultsHeaderKeys.FailedQ]);
+            Assert.AreEqual(context.PipelineInfo.TransportAddress, fakeDispatchPipeline.MessageSent.Headers[FaultsHeaderKeys.FailedQ]);
             //exception details
             Assert.AreEqual("testex", fakeDispatchPipeline.MessageSent.Headers["NServiceBus.ExceptionInfo.Message"]);
-
         }
 
         [Test]
         public async Task ShouldRaiseNotificationWhenMessageIsForwarded()
         {
-
             var notifications = new BusNotifications();
             var fakeDispatchPipeline = new FakeDispatchPipeline();
          
@@ -116,7 +110,6 @@ namespace NServiceBus.Core.Tests
 
             notifications.Errors.MessageSentToErrorQueue.Subscribe(f => { failedMessageNotification = f; });
 
-            behavior.Initialize(new PipelineInfo("Test", "public-receive-address"));
             await behavior.Invoke(CreateContext("someid"), () =>
             {
                 throw new Exception("testex");
@@ -127,12 +120,14 @@ namespace NServiceBus.Core.Tests
             Assert.AreEqual("testex", failedMessageNotification.Exception.Message);
         }
 
-
-
         TransportReceiveContext CreateContext(string messageId)
         {
-            return new TransportReceiveContext(new IncomingMessage(messageId, new Dictionary<string, string>(), new MemoryStream()), new RootContext(null));
+            return new TransportReceiveContext(
+                new IncomingMessage(messageId, new Dictionary<string, string>(), new MemoryStream()),
+                new PipelineInfo("pipelineName", "pipelineTransportAddress"),
+                new RootContext(null));
         }
+
         class FakeDispatchPipeline : IPipelineBase<RoutingContext>
         {
             public string Destination { get; private set; }
@@ -151,6 +146,7 @@ namespace NServiceBus.Core.Tests
                 return Task.FromResult(0);
             }
         }
+
         class FakeCriticalError : CriticalError
         {
             public FakeCriticalError()

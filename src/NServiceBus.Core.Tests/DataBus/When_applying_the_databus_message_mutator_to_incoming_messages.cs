@@ -7,6 +7,7 @@ namespace NServiceBus.Core.Tests.DataBus
     using System.Threading.Tasks;
     using NServiceBus.DataBus;
     using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Unicast.Transport;
     using Unicast.Messages;
     using NUnit.Framework;
     using Conventions = NServiceBus.Conventions;
@@ -52,6 +53,7 @@ namespace NServiceBus.Core.Tests.DataBus
                         {
                             {"NServiceBus.DataBus." + propertyKey, databusKey}
                         },
+                        new PipelineInfo("pipelineName", "pipelineTransportAddress"),
                         null),
                     () => Task.FromResult(0));
             }

@@ -12,6 +12,7 @@
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Routing;
+    using NServiceBus.Unicast.Transport;
     using Transports;
     using NUnit.Framework;
     using TransportOperation = NServiceBus.Outbox.TransportOperation;
@@ -110,7 +111,10 @@
 
         static TransportReceiveContext CreateContext()
         {
-            var context = new TransportReceiveContext(new IncomingMessage("id", new Dictionary<string, string>(), new MemoryStream()), new RootContext(null));
+            var context = new TransportReceiveContext(
+                new IncomingMessage("id", new Dictionary<string, string>(), new MemoryStream()),
+                new PipelineInfo("pipelineName", "pipelineTransportAddress"),
+                new RootContext(null));
             return context;
         }
 

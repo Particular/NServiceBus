@@ -5,6 +5,7 @@
     using System.Threading.Tasks;
     using NServiceBus.Extensibility;
     using NServiceBus.Unicast;
+    using NServiceBus.Unicast.Transport;
     using PublishOptions = NServiceBus.PublishOptions;
     using ReplyOptions = NServiceBus.ReplyOptions;
     using SendOptions = NServiceBus.SendOptions;
@@ -17,14 +18,20 @@
         /// <summary>
         /// Initializes a new instance of <see cref="IncomingContext" />.
         /// </summary>
-        protected IncomingContext(string messageId, string replyToAddress, IReadOnlyDictionary<string, string> headers, BehaviorContext parentContext)
+        protected IncomingContext(string messageId, string replyToAddress, IReadOnlyDictionary<string, string> headers, PipelineInfo pipelineInfo, BehaviorContext parentContext)
             : base(parentContext)
         {
 
-            this.MessageId = messageId;
-            this.ReplyToAddress = replyToAddress;
-            this.MessageHeaders = headers;
+            MessageId = messageId;
+            ReplyToAddress = replyToAddress;
+            MessageHeaders = headers;
+            PipelineInfo = pipelineInfo;
         }
+
+        /// <summary>
+        /// Contains information about the current pipeline.
+        /// </summary>
+        public PipelineInfo PipelineInfo { get; }
 
         /// <inheritdoc />
         public ContextBag Extensions => this;
