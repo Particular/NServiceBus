@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.TransportDispatch
 {
+    using NServiceBus.Pipeline.OutgoingPipeline;
     using OutgoingPipeline;
-    using Pipeline.Contexts;
 
     /// <summary>
     /// Extensions to the the pipeline contexts to provide ways to set message headers.
@@ -16,9 +16,9 @@
         /// <param name="value">The header value.</param>
         public static void SetHeader(this OutgoingLogicalMessageContext context, string key, string value)
         {
-            Guard.AgainstNull("context", context);
-            Guard.AgainstNullAndEmpty("key", key);
-            Guard.AgainstNullAndEmpty("value", value);
+            Guard.AgainstNull(nameof(context), context);
+            Guard.AgainstNullAndEmpty(nameof(key), key);
+            Guard.AgainstNullAndEmpty(nameof(value), value);
 
             context.GetOrCreate<OutgoingPhysicalToRoutingConnector.State>()
                 .Headers[key] = value;
@@ -32,9 +32,9 @@
         /// <param name="value">The header value.</param>
         public static void SetHeader(this OutgoingPublishContext context, string key, string value)
         {
-            Guard.AgainstNull("context", context);
-            Guard.AgainstNullAndEmpty("key", key);
-            Guard.AgainstNullAndEmpty("value", value);
+            Guard.AgainstNull(nameof(context), context);
+            Guard.AgainstNullAndEmpty(nameof(key), key);
+            Guard.AgainstNullAndEmpty(nameof(value), value);
 
             context.GetOrCreate<OutgoingPhysicalToRoutingConnector.State>()
                 .Headers[key] = value;
@@ -48,9 +48,9 @@
         /// <param name="value">The header value.</param>
         public static void SetHeader(this OutgoingSendContext context, string key, string value)
         {
-            Guard.AgainstNull("context", context);
-            Guard.AgainstNullAndEmpty("key", key);
-            Guard.AgainstNullAndEmpty("value", value);
+            Guard.AgainstNull(nameof(context), context);
+            Guard.AgainstNullAndEmpty(nameof(key), key);
+            Guard.AgainstNullAndEmpty(nameof(value), value);
 
             context.GetOrCreate<OutgoingPhysicalToRoutingConnector.State>()
                 .Headers[key] = value;
@@ -64,9 +64,9 @@
         /// <param name="value">The header value.</param>
         public static void SetHeader(this OutgoingReplyContext context, string key, string value)
         {
-            Guard.AgainstNull("context", context);
-            Guard.AgainstNullAndEmpty("key", key);
-            Guard.AgainstNullAndEmpty("value", value);
+            Guard.AgainstNull(nameof(context), context);
+            Guard.AgainstNullAndEmpty(nameof(key), key);
+            Guard.AgainstNullAndEmpty(nameof(value), value);
 
             context.GetOrCreate<OutgoingPhysicalToRoutingConnector.State>()
                 .Headers[key] = value;
@@ -80,9 +80,9 @@
         /// <param name="value">The header value.</param>
         public static void SetHeader(this OutgoingPhysicalMessageContext context, string key, string value)
         {
-            Guard.AgainstNull("context", context);
-            Guard.AgainstNullAndEmpty("key", key);
-            Guard.AgainstNullAndEmpty("value", value);
+            Guard.AgainstNull(nameof(context), context);
+            Guard.AgainstNullAndEmpty(nameof(key), key);
+            Guard.AgainstNullAndEmpty(nameof(value), value);
 
             context.GetOrCreate<OutgoingPhysicalToRoutingConnector.State>()
                 .Headers[key] = value;

@@ -3,8 +3,8 @@
     using System;
     using System.Threading.Tasks;
     using Encryption;
+    using NServiceBus.Pipeline.OutgoingPipeline;
     using Pipeline;
-    using Pipeline.Contexts;
 
     class EncryptBehavior : Behavior<OutgoingLogicalMessageContext>
     {

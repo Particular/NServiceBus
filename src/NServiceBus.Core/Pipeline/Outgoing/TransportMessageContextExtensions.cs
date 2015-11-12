@@ -1,8 +1,8 @@
-namespace NServiceBus.Pipeline
+namespace NServiceBus.Pipeline.Outgoing
 {
-    using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.OutgoingPipeline;
+    using NServiceBus.Pipeline.OutgoingPipeline;
     using NServiceBus.Transports;
-    using OutgoingPipeline;
 
     /// <summary>
     /// Context extension to provide access to the incoming physical message.

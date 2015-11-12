@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
+    using NServiceBus.Pipeline.Outgoing;
     using NServiceBus.Transports;
     using OutgoingPipeline;
     using Pipeline;

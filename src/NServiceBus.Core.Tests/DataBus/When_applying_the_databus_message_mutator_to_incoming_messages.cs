@@ -43,8 +43,16 @@ namespace NServiceBus.Core.Tests.DataBus
 
                 fakeDatabus.StreamsToReturn[databusKey] = stream;
 
-              
-                await receiveBehavior.Invoke(new LogicalMessageProcessingContext(message,new Dictionary<string, string> { { "NServiceBus.DataBus." + propertyKey, databusKey } },null), () => Task.FromResult(0));
+
+                await receiveBehavior.Invoke(
+                    new LogicalMessageProcessingContext(
+                        message,
+                        new Dictionary<string, string>
+                        {
+                            {"NServiceBus.DataBus." + propertyKey, databusKey}
+                        },
+                        null),
+                    () => Task.FromResult(0));
             }
 
             var instance = (MessageWithDataBusProperty)message.Instance;

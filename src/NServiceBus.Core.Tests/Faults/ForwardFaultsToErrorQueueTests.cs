@@ -24,10 +24,12 @@ namespace NServiceBus.Core.Tests
         {
             var fakeDispatchPipeline = new FakeDispatchPipeline();
             var errorQueueAddress = "error";
-            var behavior = new MoveFaultsToErrorQueueBehavior(new FakeCriticalError(),
+            var behavior = new MoveFaultsToErrorQueueBehavior(
+                new FakeCriticalError(),
                 fakeDispatchPipeline, 
                 new HostInformation(Guid.NewGuid(), "my host"),
-                new BusNotifications(), errorQueueAddress);
+                new BusNotifications(), 
+                errorQueueAddress);
 
             var context = CreateContext("someid");
             behavior.Initialize(new PipelineInfo("Test", "public-receive-address"));
@@ -48,7 +50,12 @@ namespace NServiceBus.Core.Tests
             var fakeDispatchPipeline = new FakeDispatchPipeline{ThrowOnDispatch = true};
 
 
-            var behavior = new MoveFaultsToErrorQueueBehavior(criticalError, fakeDispatchPipeline, new HostInformation(Guid.NewGuid(), "my host"), new BusNotifications(), "error");
+            var behavior = new MoveFaultsToErrorQueueBehavior(
+                criticalError, 
+                fakeDispatchPipeline, 
+                new HostInformation(Guid.NewGuid(), "my host"), 
+                new BusNotifications(), 
+                "error");
             behavior.Initialize(new PipelineInfo("Test", "public-receive-address"));
 
             //the ex should bubble to force the transport to rollback. If not the message will be lost
@@ -69,7 +76,12 @@ namespace NServiceBus.Core.Tests
             var context = CreateContext("someid");
 
 
-            var behavior = new MoveFaultsToErrorQueueBehavior(new FakeCriticalError(), fakeDispatchPipeline, hostInfo, new BusNotifications(), "error");
+            var behavior = new MoveFaultsToErrorQueueBehavior(
+                new FakeCriticalError(), 
+                fakeDispatchPipeline, 
+                hostInfo, 
+                new BusNotifications(), 
+                "error");
             behavior.Initialize(new PipelineInfo("Test", "public-receive-address"));
 
             await behavior.Invoke(context, () =>
@@ -94,7 +106,8 @@ namespace NServiceBus.Core.Tests
             var notifications = new BusNotifications();
             var fakeDispatchPipeline = new FakeDispatchPipeline();
          
-            var behavior = new MoveFaultsToErrorQueueBehavior(new FakeCriticalError(),
+            var behavior = new MoveFaultsToErrorQueueBehavior(
+                new FakeCriticalError(),
                 fakeDispatchPipeline, 
                 new HostInformation(Guid.NewGuid(), "my host"),
                 notifications, 

@@ -113,10 +113,7 @@ namespace NServiceBus.Features
                 }
                 sourceFeatures.Remove(featureToActivate);
                 enabledFeatures.Add(featureToActivate);
-                foreach (var registeredDefault in featureToActivate.Feature.RegisteredDefaults)
-                {
-                    registeredDefault(settings);
-                }
+                featureToActivate.Feature.ConfigureDefaults(settings);
             }
 
             foreach (var feature in enabledFeatures)

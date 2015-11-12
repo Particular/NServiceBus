@@ -2,7 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Pipeline.OutgoingPipeline;
     using OutgoingPipeline;
     using Pipeline;
     using Routing;

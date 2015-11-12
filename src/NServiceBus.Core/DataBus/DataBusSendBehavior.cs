@@ -6,9 +6,9 @@
     using System.Transactions;
     using DataBus;
     using DeliveryConstraints;
+    using NServiceBus.Pipeline.OutgoingPipeline;
     using Performance.TimeToBeReceived;
     using Pipeline;
-    using Pipeline.Contexts;
     using TransportDispatch;
 
     class DataBusSendBehavior : Behavior<OutgoingLogicalMessageContext>

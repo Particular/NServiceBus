@@ -5,7 +5,7 @@
     using NServiceBus.DelayedDelivery;
     using NServiceBus.DeliveryConstraints;
     using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Pipeline.OutgoingPipeline;
 
     class ApplyDelayedDeliveryConstraintBehavior:Behavior<OutgoingLogicalMessageContext>
     {

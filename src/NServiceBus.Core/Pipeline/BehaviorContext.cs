@@ -12,9 +12,8 @@
         /// Create an instance of <see cref="BehaviorContext"/>.
         /// </summary>
         /// <param name="parentContext">The parent context.</param>
-        protected BehaviorContext(ContextBag parentContext) : base(parentContext)
+        protected BehaviorContext(BehaviorContext parentContext) : base(parentContext)
         {
-          
         }
 
         /// <summary>

@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus.OutgoingPipeline
 {
-    using Pipeline;
+    using NServiceBus.Pipeline;
 
     /// <summary>
     /// Pipeline context for send operations.
@@ -8,23 +8,23 @@
     public class OutgoingSendContext : BehaviorContext
     {
         /// <summary>
-        /// The message beeing sent.
-        /// </summary>
-        public OutgoingLogicalMessage Message { get; set; }
-
-        /// <summary>
         /// Initializes the context with a parent context.
         /// </summary>
         public OutgoingSendContext(OutgoingLogicalMessage message, SendOptions options, BehaviorContext parentContext)
             : base(parentContext)
         {
-            Guard.AgainstNull("parentContext", parentContext);
-            Guard.AgainstNull("message", message);
-            Guard.AgainstNull("options", options);
+            Guard.AgainstNull(nameof(parentContext), parentContext);
+            Guard.AgainstNull(nameof(message), message);
+            Guard.AgainstNull(nameof(options), options);
 
             Message = message;
 
             Merge(options.Context);
         }
+
+        /// <summary>
+        /// The message beeing sent.
+        /// </summary>
+        public OutgoingLogicalMessage Message { get; private set; }
     }
 }

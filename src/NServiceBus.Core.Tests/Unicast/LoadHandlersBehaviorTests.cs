@@ -16,11 +16,9 @@
             var behavior = new LoadHandlersConnector(new MessageHandlerRegistry(new Conventions()));
 
             var context = new LogicalMessageProcessingContext(
-                new LogicalMessage(new MessageMetadata(typeof(string)),null, null),new Dictionary<string, string>(),null);
+                new LogicalMessage(new MessageMetadata(typeof(string)), null, null), new Dictionary<string, string>(), null);
 
             Assert.Throws<InvalidOperationException>(async () => await behavior.Invoke(context, c => Task.FromResult(0)));
         }
-
-        class MyMessage { }
     }
 }

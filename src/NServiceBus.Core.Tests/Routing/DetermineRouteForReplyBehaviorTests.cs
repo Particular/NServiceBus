@@ -20,10 +20,18 @@
             var behavior = new UnicastReplyRouterConnector();
             var options = new ReplyOptions();
 
-            var context = new OutgoingReplyContext(new OutgoingLogicalMessage(new MyReply()), options, new TransportReceiveContext(new IncomingMessage("id", new Dictionary<string, string>
-            {
-                {Headers.ReplyToAddress, "ReplyAddressOfIncomingMessage"}
-            }, new MemoryStream()), new RootContext(null)));
+            var context = new OutgoingReplyContext(
+                new OutgoingLogicalMessage(new MyReply()),
+                options,
+                new TransportReceiveContext(
+                    new IncomingMessage(
+                        "id",
+                        new Dictionary<string, string>
+                        {
+                            {Headers.ReplyToAddress, "ReplyAddressOfIncomingMessage"}
+                        },
+                        new MemoryStream()),
+                    new RootContext(null)));
 
             UnicastAddressTag addressTag = null;
             await behavior.Invoke(context, c =>
@@ -41,7 +49,15 @@
             var behavior = new UnicastReplyRouterConnector();
             var options = new ReplyOptions();
 
-            var context = new OutgoingReplyContext(new OutgoingLogicalMessage(new MyReply()), options, new TransportReceiveContext(new IncomingMessage("id", new Dictionary<string, string>(), new MemoryStream()), new RootContext(null)));
+            var context = new OutgoingReplyContext(
+                new OutgoingLogicalMessage(new MyReply()),
+                options,
+                new TransportReceiveContext(
+                    new IncomingMessage(
+                        "id",
+                        new Dictionary<string, string>(),
+                        new MemoryStream()),
+                    new RootContext(null)));
 
             var ex = Assert.Throws<Exception>(async () => await behavior.Invoke(context, _ => Task.FromResult(0)));
 
@@ -56,7 +72,10 @@
 
             options.OverrideReplyToAddressOfIncomingMessage("CustomReplyToAddress");
 
-            var context = new OutgoingReplyContext(new OutgoingLogicalMessage(new MyReply()), options, new RootContext(null));
+            var context = new OutgoingReplyContext(
+                new OutgoingLogicalMessage(new MyReply()),
+                options,
+                new RootContext(null));
 
             UnicastAddressTag addressTag = null;
             await behavior.Invoke(context, c =>

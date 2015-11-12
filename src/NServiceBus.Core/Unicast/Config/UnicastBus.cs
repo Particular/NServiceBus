@@ -51,7 +51,6 @@ namespace NServiceBus.Features
         {
             context.Container.ConfigureComponent<BusNotifications>(DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent<RunningEndpoint>(DependencyLifecycle.SingleInstance);
-            context.Container.ConfigureComponent<BusOperations>(DependencyLifecycle.SingleInstance);
 
             var knownMessages = context.Settings.GetAvailableTypes()
                 .Where(context.Settings.Get<Conventions>().IsMessageType)

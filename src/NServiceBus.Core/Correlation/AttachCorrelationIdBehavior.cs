@@ -3,7 +3,8 @@
     using System;
     using System.Threading.Tasks;
     using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Pipeline.Outgoing;
+    using NServiceBus.Pipeline.OutgoingPipeline;
     using NServiceBus.TransportDispatch;
     using NServiceBus.Transports;
 

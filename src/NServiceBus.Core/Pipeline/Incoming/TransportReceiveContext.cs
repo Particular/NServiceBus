@@ -5,7 +5,7 @@
     /// <summary>
     /// Context containing a physical message.
     /// </summary>
-    public class TransportReceiveContext : IncomingContext
+    public class TransportReceiveContext : BehaviorContext
     {
         internal TransportReceiveContext(IncomingMessage receivedMessage, BehaviorContext parentContext)
             : base(parentContext)

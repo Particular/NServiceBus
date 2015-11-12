@@ -2,7 +2,7 @@
 {
     using System;
     using OutgoingPipeline;
-    using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Pipeline.OutgoingPipeline;
 
     static class HeaderAssertHelpers
     {

@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using MessageMutator;
+    using NServiceBus.Pipeline.OutgoingPipeline;
     using Pipeline;
     using Pipeline.Contexts;
 

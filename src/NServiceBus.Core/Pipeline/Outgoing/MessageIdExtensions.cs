@@ -1,8 +1,8 @@
 ﻿namespace NServiceBus
 {
     using Extensibility;
+    using NServiceBus.Pipeline.OutgoingPipeline;
     using OutgoingPipeline;
-    using Pipeline.Contexts;
 
     /// <summary>
     /// Extensions to the outgoing pipeline.

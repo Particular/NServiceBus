@@ -9,7 +9,6 @@ namespace NServiceBus
     using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.Faults;
     using NServiceBus.Features;
-    using NServiceBus.MessageInterfaces;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
@@ -37,7 +36,7 @@ namespace NServiceBus
 
         public async Task<IEndpoint> StartAsync()
         {
-            var busInterface = new StartUpBusInterface(builder, builder.Build<IMessageMapper>(), settings);
+            var busInterface = new StartUpBusInterface(builder);
             var featureRunner = new FeatureRunner(builder, featureActivator);
             var busContext = busInterface.CreateBusContext();
             await featureRunner.StartAsync(busContext).ConfigureAwait(false);
@@ -66,19 +65,16 @@ namespace NServiceBus
         class StartUpBusInterface : IBusInterface
         {
             IBuilder builder;
-            IMessageMapper messageMapper;
-            ReadOnlySettings settings;
 
-            public StartUpBusInterface(IBuilder builder, IMessageMapper messageMapper, ReadOnlySettings settings)
+            public StartUpBusInterface(IBuilder builder)
             {
                 this.builder = builder;
-                this.messageMapper = messageMapper;
-                this.settings = settings;
             }
 
             public IBusContext CreateBusContext()
             {
-                return new BusContext(new RootContext(builder), new BusOperations(messageMapper, settings));
+                var rootContext = new RootContext(builder);
+                return new BusContext(rootContext);
             }
         }
 
@@ -143,9 +139,7 @@ namespace NServiceBus
                 builder.Build<IPushMessages>(),
                 pushSettings,
                 pipelineInstance,
-                runtimeSettings,
-                builder.Build<IMessageMapper>(),
-                settings);
+                runtimeSettings);
 
             return receiver;
         }
