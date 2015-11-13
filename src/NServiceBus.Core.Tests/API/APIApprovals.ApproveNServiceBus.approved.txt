@@ -2110,7 +2110,7 @@ namespace NServiceBus.Pipeline.Contexts
 {
     public abstract class IncomingContext : NServiceBus.Pipeline.BehaviorContext, NServiceBus.IBusContext, NServiceBus.IMessageProcessingContext
     {
-        protected IncomingContext(NServiceBus.Pipeline.BehaviorContext parentContext) { }
+        protected IncomingContext(string messageId, string replyToAddress, System.Collections.Generic.IReadOnlyDictionary<string, string> headers, NServiceBus.Pipeline.BehaviorContext parentContext) { }
         public NServiceBus.Extensibility.ContextBag Extensions { get; }
         public System.Collections.Generic.IReadOnlyDictionary<string, string> MessageHeaders { get; }
         public string MessageId { get; }
@@ -2127,7 +2127,7 @@ namespace NServiceBus.Pipeline.Contexts
     }
     public class InvokeHandlerContext : NServiceBus.Pipeline.Contexts.IncomingContext, NServiceBus.IBusContext, NServiceBus.IMessageHandlerContext, NServiceBus.IMessageProcessingContext
     {
-        public InvokeHandlerContext(NServiceBus.Unicast.Behaviors.MessageHandler handler, System.Collections.Generic.Dictionary<string, string> headers, NServiceBus.Unicast.Messages.MessageMetadata messageMetadata, object messageBeingHandled, NServiceBus.Pipeline.BehaviorContext parentContext) { }
+        public InvokeHandlerContext(NServiceBus.Unicast.Behaviors.MessageHandler handler, string messageId, string replyToAddress, System.Collections.Generic.Dictionary<string, string> headers, NServiceBus.Unicast.Messages.MessageMetadata messageMetadata, object messageBeingHandled, NServiceBus.Pipeline.BehaviorContext parentContext) { }
         public bool HandlerInvocationAborted { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public object MessageBeingHandled { get; }
@@ -2138,7 +2138,7 @@ namespace NServiceBus.Pipeline.Contexts
     }
     public class LogicalMessageProcessingContext : NServiceBus.Pipeline.Contexts.IncomingContext
     {
-        public LogicalMessageProcessingContext(NServiceBus.Unicast.Messages.LogicalMessage logicalMessage, System.Collections.Generic.Dictionary<string, string> headers, NServiceBus.Pipeline.BehaviorContext parentContext) { }
+        public LogicalMessageProcessingContext(NServiceBus.Unicast.Messages.LogicalMessage logicalMessage, string messageId, string replyToAddress, System.Collections.Generic.Dictionary<string, string> headers, NServiceBus.Pipeline.BehaviorContext parentContext) { }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public NServiceBus.Unicast.Messages.LogicalMessage Message { get; }
         public bool MessageHandled { get; set; }
