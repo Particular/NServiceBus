@@ -203,52 +203,52 @@
         public string ReplyToAddress { get; }
         public IReadOnlyDictionary<string, string> MessageHeaders { get; }
         public ContextBag Extensions { get; }
-        public Task SendAsync(object message, SendOptions options)
+        public Task Send(object message, SendOptions options)
         {
             throw new NotImplementedException();
         }
 
-        public Task SendAsync<T>(Action<T> messageConstructor, SendOptions options)
+        public Task Send<T>(Action<T> messageConstructor, SendOptions options)
         {
             throw new NotImplementedException();
         }
 
-        public Task PublishAsync(object message, PublishOptions options)
+        public Task Publish(object message, PublishOptions options)
         {
             throw new NotImplementedException();
         }
 
-        public Task PublishAsync<T>(Action<T> messageConstructor, PublishOptions publishOptions)
+        public Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)
         {
             throw new NotImplementedException();
         }
 
-        public Task SubscribeAsync(Type eventType, SubscribeOptions options)
+        public Task Subscribe(Type eventType, SubscribeOptions options)
         {
             throw new NotImplementedException();
         }
 
-        public Task UnsubscribeAsync(Type eventType, UnsubscribeOptions options)
+        public Task Unsubscribe(Type eventType, UnsubscribeOptions options)
         {
             throw new NotImplementedException();
         }
 
-        public Task ReplyAsync(object message, ReplyOptions options)
+        public Task Reply(object message, ReplyOptions options)
         {
             throw new NotImplementedException();
         }
 
-        public Task ReplyAsync<T>(Action<T> messageConstructor, ReplyOptions options)
+        public Task Reply<T>(Action<T> messageConstructor, ReplyOptions options)
         {
             throw new NotImplementedException();
         }
 
-        public Task HandleCurrentMessageLaterAsync()
+        public Task HandleCurrentMessageLater()
         {
             throw new NotImplementedException();
         }
 
-        public Task ForwardCurrentMessageToAsync(string destination)
+        public Task ForwardCurrentMessageTo(string destination)
         {
             throw new NotImplementedException();
         }

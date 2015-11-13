@@ -14,7 +14,7 @@
         public async Task Should_match_different_saga()
         {
             await Scenario.Define<Context>()
-                .WithEndpoint<Endpoint>(b => b.When(bus => bus.SendLocalAsync(new StartSaga1
+                .WithEndpoint<Endpoint>(b => b.When(bus => bus.SendLocal(new StartSaga1
                 {
                     DataId = Guid.NewGuid()
                 })))
@@ -41,7 +41,7 @@
                 public Task Handle(StartSaga1 message, IMessageHandlerContext context)
                 {
                     Data.DataId = message.DataId;
-                    return context.SendLocalAsync(new MessageSaga1WillHandle
+                    return context.SendLocal(new MessageSaga1WillHandle
                     {
                         DataId = message.DataId
                     });
@@ -49,7 +49,7 @@
 
                 public async Task Handle(MessageSaga1WillHandle message, IMessageHandlerContext context)
                 {
-                    await context.SendLocalAsync(new StartSaga2
+                    await context.SendLocal(new StartSaga2
                     {
                         DataId = message.DataId
                     });

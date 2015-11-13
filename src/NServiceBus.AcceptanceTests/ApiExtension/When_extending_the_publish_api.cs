@@ -25,12 +25,12 @@
 
                             options.GetExtensions().Set(new Publisher.PublishExtensionBehavior.Context { SomeProperty = "ItWorks" });
 
-                            return bus.PublishAsync(new MyEvent(), options);
+                            return bus.Publish(new MyEvent(), options);
                         })
                      )
                     .WithEndpoint<Subscriber1>(b => b.When(async (bus, context) =>
                         {
-                            await bus.SubscribeAsync<MyEvent>();
+                            await bus.Subscribe<MyEvent>();
 
                             if (context.HasNativePubSubSupport)
                                 context.Subscriber1Subscribed = true;

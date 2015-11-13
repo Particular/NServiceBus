@@ -21,13 +21,13 @@
                     b.When(c => c.IsEventSubscriptionReceived,
                         bus =>
                         {
-                            return bus.PublishAsync<SomethingHappenedEvent>(m => { m.DataId = Guid.NewGuid(); });
+                            return bus.Publish<SomethingHappenedEvent>(m => { m.DataId = Guid.NewGuid(); });
                         })
                 )
                 .WithEndpoint<SagaThatIsStartedByABaseEvent>(
                     b => b.When(async (bus, context) =>
                     {
-                        await bus.SubscribeAsync<BaseEvent>();
+                        await bus.Subscribe<BaseEvent>();
 
                         if (context.HasNativePubSubSupport)
                             context.IsEventSubscriptionReceived = true;

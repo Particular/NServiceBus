@@ -62,7 +62,7 @@ namespace NServiceBus
             options.RouteToLocalEndpointInstance();
             options.Context.GetOrCreate<ScheduleBehavior.State>().TaskDefinition = taskDefinition;
 
-            context.SendAsync(new Scheduling.Messages.ScheduledTask
+            context.Send(new Scheduling.Messages.ScheduledTask
             {
                 TaskId = taskDefinition.Id,
                 Name = taskDefinition.Name,

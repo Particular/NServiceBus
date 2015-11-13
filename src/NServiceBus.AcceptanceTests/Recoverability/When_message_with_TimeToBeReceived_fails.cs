@@ -14,7 +14,7 @@
         {
             var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointThatThrows>(b => b
-                .When(bus => bus.SendLocalAsync(new MessageThatFails()))
+                .When(bus => bus.SendLocal(new MessageThatFails()))
                 .DoNotFailOnErrorMessages())
             .WithEndpoint<EndpointThatHandlesErrorMessages>()
             .Done(c => c.MessageFailed && c.TTBRHasExpiredAndMessageIsStillInErrorQueue)
@@ -99,7 +99,7 @@
                     }
                     else
                     {
-                        return context.HandleCurrentMessageLaterAsync();
+                        return context.HandleCurrentMessageLater();
                     }
 
                     return Task.FromResult(0); // ignore messages from previous test runs

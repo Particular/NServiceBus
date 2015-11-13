@@ -11,7 +11,7 @@ namespace NServiceBus
         /// Moves the message being handled to the back of the list of available 
         /// messages so it can be handled later.
         /// </summary>
-        Task HandleCurrentMessageLaterAsync();
+        Task HandleCurrentMessageLater();
 
         /// <summary>
         /// Tells the bus to stop dispatching the current message to additional

@@ -15,7 +15,7 @@
         {
             var context = await Scenario.Define<Context>()
                     .WithEndpoint<SuppressEndpoint>(b => b
-                        .When(bus => bus.SendLocalAsync(new InitiatingMessage()))
+                        .When(bus => bus.SendLocal(new InitiatingMessage()))
                         .DoNotFailOnErrorMessages())
                     .Done(c => c.MessageDispatched)
                     .Run();
@@ -42,7 +42,7 @@
                 {
                     using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
                     {
-                        await context.SendLocalAsync(new MessageToBeDispatchedImmediately());
+                        await context.SendLocal(new MessageToBeDispatchedImmediately());
                     }
 
                     throw new SimulatedException();

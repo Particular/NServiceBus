@@ -15,7 +15,7 @@
         public async Task Should_hydrate_and_invoke_the_existing_instance()
         {
             await Scenario.Define<Context>()
-                    .WithEndpoint<NonEmptySagaCtorEndpt>(b => b.When(bus => bus.SendLocalAsync(new StartSagaMessage { SomeId = IdThatSagaIsCorrelatedOn })))
+                    .WithEndpoint<NonEmptySagaCtorEndpt>(b => b.When(bus => bus.SendLocal(new StartSagaMessage { SomeId = IdThatSagaIsCorrelatedOn })))
                     .Done(c => c.SecondMessageReceived)
                     .Repeat(r => r.For(Persistence.Default))
                     .Run();
@@ -48,7 +48,7 @@
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
                     Data.SomeId = message.SomeId;
-                    return context.SendLocalAsync(new OtherMessage { SomeId = message.SomeId });
+                    return context.SendLocal(new OtherMessage { SomeId = message.SomeId });
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData11> mapper)

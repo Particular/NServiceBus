@@ -36,55 +36,55 @@
         public IReadOnlyDictionary<string, string> MessageHeaders => Get<IncomingMessage>().Headers;
 
         /// <inheritdoc />
-        public Task SendAsync(object message, SendOptions options)
+        public Task Send(object message, SendOptions options)
         {
             return BusOperationsBehaviorContext.SendAsync(this, message, options);
         }
 
         /// <inheritdoc />
-        public Task SendAsync<T>(Action<T> messageConstructor, SendOptions options)
+        public Task Send<T>(Action<T> messageConstructor, SendOptions options)
         {
             return BusOperationsBehaviorContext.SendAsync(this, messageConstructor, options);
         }
 
         /// <inheritdoc />
-        public Task PublishAsync(object message, PublishOptions options)
+        public Task Publish(object message, PublishOptions options)
         {
             return BusOperationsBehaviorContext.PublishAsync(this, message, options);
         }
 
         /// <inheritdoc />
-        public Task PublishAsync<T>(Action<T> messageConstructor, PublishOptions publishOptions)
+        public Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)
         {
             return BusOperationsBehaviorContext.PublishAsync(this, messageConstructor, publishOptions);
         }
 
         /// <inheritdoc />
-        public Task SubscribeAsync(Type eventType, SubscribeOptions options)
+        public Task Subscribe(Type eventType, SubscribeOptions options)
         {
             return BusOperationsBehaviorContext.SubscribeAsync(this, eventType, options);
         }
 
         /// <inheritdoc />
-        public Task UnsubscribeAsync(Type eventType, UnsubscribeOptions options)
+        public Task Unsubscribe(Type eventType, UnsubscribeOptions options)
         {
             return BusOperationsBehaviorContext.UnsubscribeAsync(this, eventType, options);
         }
 
         /// <inheritdoc />
-        public Task ReplyAsync(object message, ReplyOptions options)
+        public Task Reply(object message, ReplyOptions options)
         {
             return BusOperationsBehaviorContext.ReplyAsync(this, message, options);
         }
 
         /// <inheritdoc />
-        public Task ReplyAsync<T>(Action<T> messageConstructor, ReplyOptions options)
+        public Task Reply<T>(Action<T> messageConstructor, ReplyOptions options)
         {
             return BusOperationsBehaviorContext.ReplyAsync(this, messageConstructor, options);
         }
 
         /// <inheritdoc />
-        public Task ForwardCurrentMessageToAsync(string destination)
+        public Task ForwardCurrentMessageTo(string destination)
         {
             return BusOperationsIncomingContext.ForwardCurrentMessageToAsync(this, destination);
         }

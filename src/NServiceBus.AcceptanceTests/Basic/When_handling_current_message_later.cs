@@ -15,7 +15,7 @@
         public async Task Should_commit_unit_of_work_and_execute_subsequent_handlers()
         {
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                .WithEndpoint<MyEndpoint>(b => b.When((bus, c) => bus.SendLocalAsync(new SomeMessage { Id = c.Id })))
+                .WithEndpoint<MyEndpoint>(b => b.When((bus, c) => bus.SendLocal(new SomeMessage { Id = c.Id })))
                 .Done(c => c.Done)
                 .Run();
 
@@ -78,7 +78,7 @@
 
                     if (TestContext.FirstHandlerInvocationCount == 1)
                     {
-                        return context.HandleCurrentMessageLaterAsync();
+                        return context.HandleCurrentMessageLater();
                     }
 
                     return Task.FromResult(0);

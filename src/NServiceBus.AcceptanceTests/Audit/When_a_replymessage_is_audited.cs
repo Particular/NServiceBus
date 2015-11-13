@@ -16,7 +16,7 @@
         {
             var context = await Scenario.Define<Context>()
                     .WithEndpoint<Server>()
-                    .WithEndpoint<EndpointWithAuditOn>(b => b.When(bus => bus.SendAsync(new Request())))
+                    .WithEndpoint<EndpointWithAuditOn>(b => b.When(bus => bus.Send(new Request())))
                     .WithEndpoint<AuditSpyEndpoint>()
                     .Done(c => c.MessageAudited)
                     .Run();
@@ -47,7 +47,7 @@
 
                     replyOptions.SetHeader("MyHeader", "SomeValue");
 
-                    return context.ReplyAsync(new ResponseToBeAudited(), replyOptions);
+                    return context.Reply(new ResponseToBeAudited(), replyOptions);
                 }
             }
         }

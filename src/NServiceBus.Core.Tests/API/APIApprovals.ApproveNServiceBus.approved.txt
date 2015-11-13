@@ -421,61 +421,61 @@ namespace NServiceBus
     public interface IBusContext
     {
         NServiceBus.Extensibility.ContextBag Extensions { get; }
-        System.Threading.Tasks.Task PublishAsync(object message, NServiceBus.PublishOptions options);
-        System.Threading.Tasks.Task PublishAsync<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions);
-        System.Threading.Tasks.Task SendAsync(object message, NServiceBus.SendOptions options);
-        System.Threading.Tasks.Task SendAsync<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options);
-        System.Threading.Tasks.Task SubscribeAsync(System.Type eventType, NServiceBus.SubscribeOptions options);
-        System.Threading.Tasks.Task UnsubscribeAsync(System.Type eventType, NServiceBus.UnsubscribeOptions options);
+        System.Threading.Tasks.Task Publish(object message, NServiceBus.PublishOptions options);
+        System.Threading.Tasks.Task Publish<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions);
+        System.Threading.Tasks.Task Send(object message, NServiceBus.SendOptions options);
+        System.Threading.Tasks.Task Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options);
+        System.Threading.Tasks.Task Subscribe(System.Type eventType, NServiceBus.SubscribeOptions options);
+        System.Threading.Tasks.Task Unsubscribe(System.Type eventType, NServiceBus.UnsubscribeOptions options);
     }
     public class static IBusContextExtensions
     {
-        public static System.Threading.Tasks.Task PublishAsync(this NServiceBus.IBusContext context, object message) { }
-        public static System.Threading.Tasks.Task PublishAsync<T>(this NServiceBus.IBusContext context) { }
-        public static System.Threading.Tasks.Task PublishAsync<T>(this NServiceBus.IBusContext context, System.Action<T> messageConstructor) { }
-        public static System.Threading.Tasks.Task SendAsync(this NServiceBus.IBusContext context, object message) { }
-        public static System.Threading.Tasks.Task SendAsync<T>(this NServiceBus.IBusContext context, System.Action<T> messageConstructor) { }
-        public static System.Threading.Tasks.Task SendAsync(this NServiceBus.IBusContext context, string destination, object message) { }
-        public static System.Threading.Tasks.Task SendAsync<T>(this NServiceBus.IBusContext context, string destination, System.Action<T> messageConstructor) { }
-        public static System.Threading.Tasks.Task SendLocalAsync(this NServiceBus.IBusContext context, object message) { }
-        public static System.Threading.Tasks.Task SendLocalAsync<T>(this NServiceBus.IBusContext context, System.Action<T> messageConstructor) { }
-        public static System.Threading.Tasks.Task SubscribeAsync(this NServiceBus.IBusContext context, System.Type messageType) { }
-        public static System.Threading.Tasks.Task SubscribeAsync<T>(this NServiceBus.IBusContext context) { }
-        public static System.Threading.Tasks.Task UnsubscribeAsync(this NServiceBus.IBusContext context, System.Type messageType) { }
-        public static System.Threading.Tasks.Task UnsubscribeAsync<T>(this NServiceBus.IBusContext context) { }
+        public static System.Threading.Tasks.Task Publish(this NServiceBus.IBusContext context, object message) { }
+        public static System.Threading.Tasks.Task Publish<T>(this NServiceBus.IBusContext context) { }
+        public static System.Threading.Tasks.Task Publish<T>(this NServiceBus.IBusContext context, System.Action<T> messageConstructor) { }
+        public static System.Threading.Tasks.Task Send(this NServiceBus.IBusContext context, object message) { }
+        public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IBusContext context, System.Action<T> messageConstructor) { }
+        public static System.Threading.Tasks.Task Send(this NServiceBus.IBusContext context, string destination, object message) { }
+        public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IBusContext context, string destination, System.Action<T> messageConstructor) { }
+        public static System.Threading.Tasks.Task SendLocal(this NServiceBus.IBusContext context, object message) { }
+        public static System.Threading.Tasks.Task SendLocal<T>(this NServiceBus.IBusContext context, System.Action<T> messageConstructor) { }
+        public static System.Threading.Tasks.Task Subscribe(this NServiceBus.IBusContext context, System.Type messageType) { }
+        public static System.Threading.Tasks.Task Subscribe<T>(this NServiceBus.IBusContext context) { }
+        public static System.Threading.Tasks.Task Unsubscribe(this NServiceBus.IBusContext context, System.Type messageType) { }
+        public static System.Threading.Tasks.Task Unsubscribe<T>(this NServiceBus.IBusContext context) { }
     }
     public class static IBusExtensions
     {
         [System.ObsoleteAttribute("Please use `IMessageHandlerContext.DoNotContinueDispatchingCurrentMessageToHandle" +
             "rs()` provided to message handlers instead. Will be removed in version 7.0.0.", true)]
         public static void DoNotContinueDispatchingCurrentMessageToHandlers(this NServiceBus.IBus bus) { }
-        [System.ObsoleteAttribute("Please use `IMessageHandlerContext.ForwardCurrentMessageToAsync(string destinatio" +
-            "n)` provided to message handlers instead. Will be removed in version 7.0.0.", true)]
-        public static void ForwardCurrentMessageTo(this NServiceBus.IBus bus, string destination) { }
-        [System.ObsoleteAttribute("Please use `IMessageHandlerContext.HandleCurrentMessageLaterAsync()` provided to " +
-            "message handlers instead. Will be removed in version 7.0.0.", true)]
-        public static void HandleCurrentMessageLater(this NServiceBus.IBus bus) { }
-        [System.ObsoleteAttribute("Please use `IMessageHandlerContext.ReplyAsync(object message)` provided to messag" +
-            "e handlers instead. Will be removed in version 7.0.0.", true)]
-        public static void Reply(this NServiceBus.IBus bus, object message) { }
-        [System.ObsoleteAttribute("Please use `IMessageHandlerContext.ReplyAsync<T>(Action<T> messageConstructor)` p" +
+        [System.ObsoleteAttribute("Please use `IMessageHandlerContext.ForwardCurrentMessageTo(string destination)` p" +
             "rovided to message handlers instead. Will be removed in version 7.0.0.", true)]
+        public static void ForwardCurrentMessageTo(this NServiceBus.IBus bus, string destination) { }
+        [System.ObsoleteAttribute("Please use `IMessageHandlerContext.HandleCurrentMessageLater()` provided to messa" +
+            "ge handlers instead. Will be removed in version 7.0.0.", true)]
+        public static void HandleCurrentMessageLater(this NServiceBus.IBus bus) { }
+        [System.ObsoleteAttribute("Please use `IMessageHandlerContext.Reply(object message)` provided to message han" +
+            "dlers instead. Will be removed in version 7.0.0.", true)]
+        public static void Reply(this NServiceBus.IBus bus, object message) { }
+        [System.ObsoleteAttribute("Please use `IMessageHandlerContext.Reply<T>(Action<T> messageConstructor)` provid" +
+            "ed to message handlers instead. Will be removed in version 7.0.0.", true)]
         public static void Reply<T>(this NServiceBus.IBus bus, System.Action<T> messageConstructor) { }
-        [System.ObsoleteAttribute("Please use `IMessageHandlerContext.SendLocalAsync(object message)` provided to me" +
-            "ssage handlers instead. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Please use `IMessageHandlerContext.SendLocal(object message)` provided to message" +
+            " handlers instead. Will be removed in version 7.0.0.", true)]
         public static void SendLocal(this NServiceBus.IBus bus, object message) { }
-        [System.ObsoleteAttribute("Please use `IMessageHandlerContext.SendLocalAsync<T>(Action<T> messageConstructor" +
-            ")` provided to message handlers instead. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Please use `IMessageHandlerContext.SendLocal<T>(Action<T> messageConstructor)` pr" +
+            "ovided to message handlers instead. Will be removed in version 7.0.0.", true)]
         public static void SendLocal<T>(this NServiceBus.IBus bus, System.Action<T> messageConstructor) { }
-        [System.ObsoleteAttribute("Please use `SubscribeAsync(Type messageType)` instead. Will be removed in version" +
-            " 7.0.0.", true)]
+        [System.ObsoleteAttribute("Please use `Subscribe(Type messageType)` instead. Will be removed in version 7.0." +
+            "0.", true)]
         public static void Subscribe(this NServiceBus.IBus bus, System.Type messageType) { }
-        [System.ObsoleteAttribute("Please use `SubscribeAsync<T>()` instead. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Please use `Subscribe<T>()` instead. Will be removed in version 7.0.0.", true)]
         public static void Subscribe<T>(this NServiceBus.IBus bus) { }
-        [System.ObsoleteAttribute("Please use `UnsubscribeAsync(Type messageType)` instead. Will be removed in versi" +
-            "on 7.0.0.", true)]
+        [System.ObsoleteAttribute("Please use `Unsubscribe(Type messageType)` instead. Will be removed in version 7." +
+            "0.0.", true)]
         public static void Unsubscribe(this NServiceBus.IBus bus, System.Type messageType) { }
-        [System.ObsoleteAttribute("Please use `UnsubscribeAsync<T>()` instead. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Please use `Unsubscribe<T>()` instead. Will be removed in version 7.0.0.", true)]
         public static void Unsubscribe<T>(this NServiceBus.IBus bus) { }
     }
     public interface IBusInterface
@@ -548,21 +548,21 @@ namespace NServiceBus
     public interface IMessageHandlerContext : NServiceBus.IBusContext, NServiceBus.IMessageProcessingContext
     {
         void DoNotContinueDispatchingCurrentMessageToHandlers();
-        System.Threading.Tasks.Task HandleCurrentMessageLaterAsync();
+        System.Threading.Tasks.Task HandleCurrentMessageLater();
     }
     public interface IMessageProcessingContext : NServiceBus.IBusContext
     {
         System.Collections.Generic.IReadOnlyDictionary<string, string> MessageHeaders { get; }
         string MessageId { get; }
         string ReplyToAddress { get; }
-        System.Threading.Tasks.Task ForwardCurrentMessageToAsync(string destination);
-        System.Threading.Tasks.Task ReplyAsync(object message, NServiceBus.ReplyOptions options);
-        System.Threading.Tasks.Task ReplyAsync<T>(System.Action<T> messageConstructor, NServiceBus.ReplyOptions options);
+        System.Threading.Tasks.Task ForwardCurrentMessageTo(string destination);
+        System.Threading.Tasks.Task Reply(object message, NServiceBus.ReplyOptions options);
+        System.Threading.Tasks.Task Reply<T>(System.Action<T> messageConstructor, NServiceBus.ReplyOptions options);
     }
     public class static IMessageProcessingContextExtensions
     {
-        public static System.Threading.Tasks.Task ReplyAsync(this NServiceBus.IMessageProcessingContext context, object message) { }
-        public static System.Threading.Tasks.Task ReplyAsync<T>(this NServiceBus.IMessageProcessingContext context, System.Action<T> messageConstructor) { }
+        public static System.Threading.Tasks.Task Reply(this NServiceBus.IMessageProcessingContext context, object message) { }
+        public static System.Threading.Tasks.Task Reply<T>(this NServiceBus.IMessageProcessingContext context, System.Action<T> messageConstructor) { }
     }
     public class static ImmediateDispatchOptionExtensions
     {
@@ -579,25 +579,23 @@ namespace NServiceBus
     }
     public class static ISendOnlyBusExtensions
     {
-        [System.ObsoleteAttribute("Please use `PublishAsync(object message)` instead. Will be removed in version 7.0" +
-            ".0.", true)]
+        [System.ObsoleteAttribute("Please use `Publish(object message)` instead. Will be removed in version 7.0.0.", true)]
         public static void Publish(this NServiceBus.IBusInterface bus, object message) { }
-        [System.ObsoleteAttribute("Please use `PublishAsync()` instead. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Please use `Publish()` instead. Will be removed in version 7.0.0.", true)]
         public static void Publish<T>(this NServiceBus.IBusInterface bus) { }
         [System.ObsoleteAttribute("Please use `PublishAsyn<T>(Action<T> messageConstructor)` instead. Will be remove" +
             "d in version 7.0.0.", true)]
         public static void Publish<T>(this NServiceBus.IBusInterface bus, System.Action<T> messageConstructor) { }
-        [System.ObsoleteAttribute("Please use `SendAsync(object message)` instead. Will be removed in version 7.0.0." +
-            "", true)]
+        [System.ObsoleteAttribute("Please use `Send(object message)` instead. Will be removed in version 7.0.0.", true)]
         public static void Send(this NServiceBus.IBusInterface bus, object message) { }
-        [System.ObsoleteAttribute("Please use `SendAsync<T>(Action<T> messageConstructor)` instead. Will be removed " +
-            "in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Please use `Send<T>(Action<T> messageConstructor)` instead. Will be removed in ve" +
+            "rsion 7.0.0.", true)]
         public static void Send<T>(this NServiceBus.IBusInterface bus, System.Action<T> messageConstructor) { }
-        [System.ObsoleteAttribute("Please use `SendAsync(string destination, object message)` instead. Will be remov" +
-            "ed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Please use `Send(string destination, object message)` instead. Will be removed in" +
+            " version 7.0.0.", true)]
         public static void Send(this NServiceBus.IBusInterface bus, string destination, object message) { }
-        [System.ObsoleteAttribute("Please use `SendAsync<T>(string destination, Action<T> messageConstructor)` inste" +
-            "ad. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Please use `Send<T>(string destination, Action<T> messageConstructor)` instead. W" +
+            "ill be removed in version 7.0.0.", true)]
         public static void Send<T>(this NServiceBus.IBusInterface bus, string destination, System.Action<T> messageConstructor) { }
     }
     [System.ObsoleteAttribute("Please use `BusConfiguration.ExecuteTheseHandlersFirst` instead. Will be removed " +
@@ -1877,12 +1875,12 @@ namespace NServiceBus.OutgoingPipeline
     {
         protected OutgoingContext(NServiceBus.Pipeline.BehaviorContext parentContext) { }
         public NServiceBus.Extensibility.ContextBag Extensions { get; }
-        public System.Threading.Tasks.Task PublishAsync(object message, NServiceBus.PublishOptions options) { }
-        public System.Threading.Tasks.Task PublishAsync<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions) { }
-        public System.Threading.Tasks.Task SendAsync(object message, NServiceBus.SendOptions options) { }
-        public System.Threading.Tasks.Task SendAsync<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options) { }
-        public System.Threading.Tasks.Task SubscribeAsync(System.Type eventType, NServiceBus.SubscribeOptions options) { }
-        public System.Threading.Tasks.Task UnsubscribeAsync(System.Type eventType, NServiceBus.UnsubscribeOptions options) { }
+        public System.Threading.Tasks.Task Publish(object message, NServiceBus.PublishOptions options) { }
+        public System.Threading.Tasks.Task Publish<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions) { }
+        public System.Threading.Tasks.Task Send(object message, NServiceBus.SendOptions options) { }
+        public System.Threading.Tasks.Task Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options) { }
+        public System.Threading.Tasks.Task Subscribe(System.Type eventType, NServiceBus.SubscribeOptions options) { }
+        public System.Threading.Tasks.Task Unsubscribe(System.Type eventType, NServiceBus.UnsubscribeOptions options) { }
     }
     public class OutgoingLogicalMessage
     {
@@ -2114,15 +2112,15 @@ namespace NServiceBus.Pipeline.Contexts
         public System.Collections.Generic.IReadOnlyDictionary<string, string> MessageHeaders { get; }
         public string MessageId { get; }
         public string ReplyToAddress { get; }
-        public System.Threading.Tasks.Task ForwardCurrentMessageToAsync(string destination) { }
-        public System.Threading.Tasks.Task PublishAsync(object message, NServiceBus.PublishOptions options) { }
-        public System.Threading.Tasks.Task PublishAsync<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions) { }
-        public System.Threading.Tasks.Task ReplyAsync(object message, NServiceBus.ReplyOptions options) { }
-        public System.Threading.Tasks.Task ReplyAsync<T>(System.Action<T> messageConstructor, NServiceBus.ReplyOptions options) { }
-        public System.Threading.Tasks.Task SendAsync(object message, NServiceBus.SendOptions options) { }
-        public System.Threading.Tasks.Task SendAsync<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options) { }
-        public System.Threading.Tasks.Task SubscribeAsync(System.Type eventType, NServiceBus.SubscribeOptions options) { }
-        public System.Threading.Tasks.Task UnsubscribeAsync(System.Type eventType, NServiceBus.UnsubscribeOptions options) { }
+        public System.Threading.Tasks.Task ForwardCurrentMessageTo(string destination) { }
+        public System.Threading.Tasks.Task Publish(object message, NServiceBus.PublishOptions options) { }
+        public System.Threading.Tasks.Task Publish<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions) { }
+        public System.Threading.Tasks.Task Reply(object message, NServiceBus.ReplyOptions options) { }
+        public System.Threading.Tasks.Task Reply<T>(System.Action<T> messageConstructor, NServiceBus.ReplyOptions options) { }
+        public System.Threading.Tasks.Task Send(object message, NServiceBus.SendOptions options) { }
+        public System.Threading.Tasks.Task Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options) { }
+        public System.Threading.Tasks.Task Subscribe(System.Type eventType, NServiceBus.SubscribeOptions options) { }
+        public System.Threading.Tasks.Task Unsubscribe(System.Type eventType, NServiceBus.UnsubscribeOptions options) { }
     }
     public class InvokeHandlerContext : NServiceBus.Pipeline.Contexts.IncomingContext, NServiceBus.IBusContext, NServiceBus.IMessageHandlerContext, NServiceBus.IMessageProcessingContext
     {
@@ -2133,7 +2131,7 @@ namespace NServiceBus.Pipeline.Contexts
         public NServiceBus.Unicast.Behaviors.MessageHandler MessageHandler { get; }
         public NServiceBus.Unicast.Messages.MessageMetadata MessageMetadata { get; }
         public void DoNotContinueDispatchingCurrentMessageToHandlers() { }
-        public System.Threading.Tasks.Task HandleCurrentMessageLaterAsync() { }
+        public System.Threading.Tasks.Task HandleCurrentMessageLater() { }
     }
     public class LogicalMessageProcessingContext : NServiceBus.Pipeline.Contexts.IncomingContext
     {
@@ -2659,11 +2657,11 @@ namespace NServiceBus.Transports
     }
     public class static IManageSubscriptionsExtensions_obsolete
     {
-        [System.ObsoleteAttribute("Please use `SubscribeAsync(Type eventType, ContextBag context)` instead. Will be " +
-            "removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Please use `Subscribe(Type eventType, ContextBag context)` instead. Will be remov" +
+            "ed in version 7.0.0.", true)]
         public static void Subscribe(this NServiceBus.Transports.IManageSubscriptions manage, System.Type eventType, NServiceBus.Extensibility.ContextBag context) { }
-        [System.ObsoleteAttribute("Please use `UnsubscribeAsync(Type eventType, ContextBag context)` instead. Will b" +
-            "e removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Please use `Unsubscribe(Type eventType, ContextBag context)` instead. Will be rem" +
+            "oved in version 7.0.0.", true)]
         public static void Unsubscribe(NServiceBus.Transports.IManageSubscriptions manage, System.Type eventType, NServiceBus.Extensibility.ContextBag context) { }
     }
     public class IncomingMessage

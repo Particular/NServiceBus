@@ -17,7 +17,7 @@
         {
             await Scenario.Define<Context>()
                 .WithEndpoint<SagaMsgThruSlrEndpt>(b => b
-                    .When(bus => bus.SendLocalAsync(new StartSagaMessage
+                    .When(bus => bus.SendLocal(new StartSagaMessage
                     {
                         SomeId = Guid.NewGuid()
                     })))
@@ -58,7 +58,7 @@
                 {
                     Data.SomeId = message.SomeId;
 
-                    return context.SendLocalAsync(new SecondSagaMessage
+                    return context.SendLocal(new SecondSagaMessage
                     {
                         SomeId = Data.SomeId
                     });

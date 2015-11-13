@@ -12,7 +12,7 @@
         public async Task Should_be_available_as_a_header_on_receiver()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(b => b.When((bus, c) => bus.SendLocalAsync(new MyMessage())))
+                    .WithEndpoint<Endpoint>(b => b.When((bus, c) => bus.SendLocal(new MyMessage())))
                     .Done(c => c.WasCalled)
                     .Run(TimeSpan.FromSeconds(10));
 

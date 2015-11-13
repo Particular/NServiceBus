@@ -19,7 +19,7 @@
 
                         options.RouteToLocalEndpointInstance();
 
-                        return bus.SendAsync(new MyMessage(), options);
+                        return bus.Send(new MyMessage(), options);
                     }))
                     .Done(c => c.ExceptionThrown || c.SecondMessageReceived)
                     .Run();
@@ -53,7 +53,7 @@
                         opts.DelayDeliveryWith(TimeSpan.FromSeconds(5));
                         opts.RouteToLocalEndpointInstance();
 
-                        await context.SendAsync(new MyOtherMessage(), opts);
+                        await context.Send(new MyOtherMessage(), opts);
                     }
                     catch (Exception x)
                     {

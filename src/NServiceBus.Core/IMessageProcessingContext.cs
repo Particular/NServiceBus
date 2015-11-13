@@ -25,24 +25,24 @@ namespace NServiceBus
         IReadOnlyDictionary<string, string> MessageHeaders { get; }
         
         /// <summary>
-        /// Sends the message to the endpoint which sent the message currently being handled on this thread.
+        /// Sends the message to the endpoint which sent the message currently being handled.
         /// </summary>
         /// <param name="message">The message to send.</param>
         /// <param name="options">Options for this reply.</param>
-        Task ReplyAsync(object message, ReplyOptions options);
+        Task Reply(object message, ReplyOptions options);
 
         ///  <summary>
-        /// Instantiates a message of type T and performs a regular <see cref="ReplyAsync"/>.
+        /// Instantiates a message of type T and performs a regular <see cref="Reply"/>.
         /// </summary>
         /// <typeparam name="T">The type of message, usually an interface.</typeparam>
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
         /// <param name="options">Options for this reply.</param>
-        Task ReplyAsync<T>(Action<T> messageConstructor, ReplyOptions options);
+        Task Reply<T>(Action<T> messageConstructor, ReplyOptions options);
 
         /// <summary>
         /// Forwards the current message being handled to the destination maintaining
         /// all of its transport-level properties and headers.
         /// </summary>
-        Task ForwardCurrentMessageToAsync(string destination);
+        Task ForwardCurrentMessageTo(string destination);
     }
 }

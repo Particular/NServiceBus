@@ -12,7 +12,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
         public async Task Should_autocorrelate_the_response_back_to_the_requesting_saga_from_timeouts()
         {
             var context = await Scenario.Define<Context>(c => { c.ReplyFromTimeout = true; })
-                .WithEndpoint<Endpoint>(b => b.When(bus => bus.SendLocalAsync(new InitiateRequestingSaga())))
+                .WithEndpoint<Endpoint>(b => b.When(bus => bus.SendLocal(new InitiateRequestingSaga())))
                 .Done(c => c.DidRequestingSagaGetTheResponse)
                 .Run(new RunSettings { TestExecutionTimeout = TimeSpan.FromSeconds(15) });
 

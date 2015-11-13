@@ -14,7 +14,7 @@
         public async Task Should_not_fire_notfound_for_tm()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Endpoint>(b => b.When(bus => bus.SendLocalAsync(new StartSaga { DataId = Guid.NewGuid() })))
+                .WithEndpoint<Endpoint>(b => b.When(bus => bus.SendLocal(new StartSaga { DataId = Guid.NewGuid() })))
                 .Done(c => c.NotFoundHandlerCalledForRegularMessage)
                 .Run();
 
@@ -49,7 +49,7 @@
 
                     //this will cause the message to be delivered right away
                     await RequestTimeoutAsync<MyTimeout>(context, TimeSpan.Zero);
-                    await context.SendLocalAsync(new SomeOtherMessage { DataId = Guid.NewGuid() });
+                    await context.SendLocal(new SomeOtherMessage { DataId = Guid.NewGuid() });
 
                     MarkAsComplete();
                 }

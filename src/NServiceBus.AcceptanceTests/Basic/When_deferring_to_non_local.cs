@@ -18,7 +18,7 @@
                         var options = new SendOptions();
 
                         options.DelayDeliveryWith(TimeSpan.FromSeconds(3));
-                        return bus.SendAsync(new MyMessage(), options);
+                        return bus.Send(new MyMessage(), options);
                     }))
                     .WithEndpoint<Receiver>()
                     .Done(c => c.WasCalled)

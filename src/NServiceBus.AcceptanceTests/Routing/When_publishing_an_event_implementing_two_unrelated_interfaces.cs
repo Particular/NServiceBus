@@ -21,12 +21,12 @@
                             {
                                 ContextId = ctx.Id
                             };
-                            return bus.PublishAsync(message);
+                            return bus.Publish(message);
                         }))
                     .WithEndpoint<Subscriber>(b => b.When(async (bus, context) =>
                     {
-                        await bus.SubscribeAsync<IEventA>();
-                        await bus.SubscribeAsync<IEventB>();
+                        await bus.Subscribe<IEventA>();
+                        await bus.Subscribe<IEventB>();
 
                         if (context.HasNativePubSubSupport)
                         {

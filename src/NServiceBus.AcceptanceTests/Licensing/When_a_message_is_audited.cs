@@ -13,7 +13,7 @@
         public async Task Should_add_the_license_diagnostic_headers()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<EndpointWithAuditOn>(b => b.When(bus => bus.SendLocalAsync(new MessageToBeAudited())))
+                    .WithEndpoint<EndpointWithAuditOn>(b => b.When(bus => bus.SendLocal(new MessageToBeAudited())))
                     .WithEndpoint<AuditSpyEndpoint>()
                     .Done(c => c.Done)
                     .Run();

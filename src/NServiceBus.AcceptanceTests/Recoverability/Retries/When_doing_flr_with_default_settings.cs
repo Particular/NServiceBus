@@ -16,8 +16,8 @@
                 .WithEndpoint<RetryEndpoint>(b => b
                     .When(async (bus, context) =>
                     {
-                        await bus.SendLocalAsync(new MessageToBeRetried { Id = context.Id });
-                        await bus.SendLocalAsync(new MessageToBeRetried { Id = context.Id, SecondMessage = true });
+                        await bus.SendLocal(new MessageToBeRetried { Id = context.Id });
+                        await bus.SendLocal(new MessageToBeRetried { Id = context.Id, SecondMessage = true });
                     })
                     .DoNotFailOnErrorMessages())
                 .Done(c => c.SecondMessageReceived || c.NumberOfTimesInvoked > 1)

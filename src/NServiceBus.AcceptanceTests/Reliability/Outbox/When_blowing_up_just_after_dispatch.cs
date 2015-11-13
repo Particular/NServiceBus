@@ -16,7 +16,7 @@
         public async Task Should_still_release_the_outgoing_messages_to_the_transport()
         {
             await Scenario.Define<Context>()
-                .WithEndpoint<NonDtcReceivingEndpoint>(b => b.When(bus => bus.SendLocalAsync(new PlaceOrder())))
+                .WithEndpoint<NonDtcReceivingEndpoint>(b => b.When(bus => bus.SendLocal(new PlaceOrder())))
                 .Done(c => c.OrderAckReceived == 1)
                 .Repeat(r=>r.For<AllOutboxCapableStorages>())
                 .Should(context => Assert.AreEqual(1, context.OrderAckReceived, "Order ack should have been received since outbox dispatch isn't part of the receive tx"))
@@ -73,7 +73,7 @@
             {
                 public Task Handle(PlaceOrder message, IMessageHandlerContext context)
                 {
-                    return context.SendLocalAsync(new SendOrderAcknowledgment());
+                    return context.SendLocal(new SendOrderAcknowledgment());
                 }
             }
 

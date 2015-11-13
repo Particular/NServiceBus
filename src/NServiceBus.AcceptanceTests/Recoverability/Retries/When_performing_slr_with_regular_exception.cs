@@ -12,7 +12,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<RetryEndpoint>(b => b
-                    .When(bus => bus.SendLocalAsync(new MessageToBeRetried()))
+                    .When(bus => bus.SendLocal(new MessageToBeRetried()))
                     .DoNotFailOnErrorMessages())
                 .Done(c => c.SlrChecksum != default(byte))
                 .Run();
@@ -25,7 +25,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<RetryEndpoint>(b => b
-                    .When(bus => bus.SendLocalAsync(new MessageToBeRetried()))
+                    .When(bus => bus.SendLocal(new MessageToBeRetried()))
                     .DoNotFailOnErrorMessages())
                 .Done(c => c.ForwardedToErrorQueue)
                 .Run();

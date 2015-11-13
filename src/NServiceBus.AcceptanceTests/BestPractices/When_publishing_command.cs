@@ -16,7 +16,7 @@
                     {
                         try
                         {
-                            await bus.PublishAsync(new MyCommand());
+                            await bus.Publish(new MyCommand());
                         }
                         catch (Exception ex)
                         {

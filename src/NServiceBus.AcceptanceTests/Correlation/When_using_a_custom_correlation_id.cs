@@ -21,7 +21,7 @@
                         options.SetCorrelationId(CorrelationId);
                         options.RouteToLocalEndpointInstance();
 
-                        return bus.SendAsync(new MessageWithCustomCorrelationId(), options);
+                        return bus.Send(new MessageWithCustomCorrelationId(), options);
                     }))
                     .Done(c => c.GotRequest)
                     .Run();

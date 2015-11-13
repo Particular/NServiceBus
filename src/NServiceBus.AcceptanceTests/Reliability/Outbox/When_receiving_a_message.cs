@@ -15,7 +15,7 @@
         public async Task Should_handle_it()
         {
             await Scenario.Define<Context>()
-                .WithEndpoint<NonDtcReceivingEndpoint>(b => b.When(bus => bus.SendLocalAsync(new PlaceOrder())))
+                .WithEndpoint<NonDtcReceivingEndpoint>(b => b.When(bus => bus.SendLocal(new PlaceOrder())))
                 .Done(c => c.OrderAckReceived == 1)
                 .Repeat(r => r.For<AllOutboxCapableStorages>())
                 .Run(new RunSettings { TestExecutionTimeout = TimeSpan.FromSeconds(20) });
@@ -41,7 +41,7 @@
             {
                 public Task Handle(PlaceOrder message, IMessageHandlerContext context)
                 {
-                    return context.SendLocalAsync(new SendOrderAcknowledgement());
+                    return context.SendLocal(new SendOrderAcknowledgement());
                 }
             }
 

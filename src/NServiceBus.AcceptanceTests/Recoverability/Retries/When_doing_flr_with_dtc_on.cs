@@ -19,7 +19,7 @@
         {
             await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                    .WithEndpoint<RetryEndpoint>(b => b
-                        .When((bus, context) => bus.SendLocalAsync(new MessageToBeRetried { Id = context.Id }))
+                        .When((bus, context) => bus.SendLocal(new MessageToBeRetried { Id = context.Id }))
                         .DoNotFailOnErrorMessages())
                    .Done(c => c.GaveUpOnRetries)
                    .Repeat(r => r.For<AllDtcTransports>())

@@ -16,18 +16,18 @@
                 .WithEndpoint<Publisher1>(b => b.When(c => c.Publisher1HasASubscriberForIMyEvent, (bus, c) =>
                 {
                     c.AddTrace("Publishing MyEvent1");
-                    return bus.PublishAsync(new MyEvent1());
+                    return bus.Publish(new MyEvent1());
                 }))
                 .WithEndpoint<Publisher2>(b => b.When(c => c.Publisher2HasDetectedASubscriberForEvent2, (bus, c) =>
                 {
                     c.AddTrace("Publishing MyEvent2");
-                    return bus.PublishAsync(new MyEvent2());
+                    return bus.Publish(new MyEvent2());
                 }))
                 .WithEndpoint<Subscriber1>(b => b.When(async (bus, c) =>
                 {
                     c.AddTrace("Subscriber1 subscribing to both events");
-                    await bus.SubscribeAsync<IMyEvent>();
-                    await bus.SubscribeAsync<MyEvent2>();
+                    await bus.Subscribe<IMyEvent>();
+                    await bus.Subscribe<MyEvent2>();
 
                     if (c.HasNativePubSubSupport)
                     {

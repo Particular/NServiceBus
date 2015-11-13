@@ -24,7 +24,7 @@
 
                         c.SentAt = DateTime.UtcNow;
 
-                        return bus.SendAsync(new MyMessage(), options);
+                        return bus.Send(new MyMessage(), options);
                     }))
                     .Done(c => c.WasCalled)
                     .Run();

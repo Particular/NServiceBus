@@ -16,7 +16,7 @@
                     {
                         try
                         {
-                            await bus.SendLocalAsync(new MyEvent());
+                            await bus.SendLocal(new MyEvent());
                         }
                         catch (Exception ex)
                         {

@@ -12,7 +12,7 @@
         public async Task Should_allow_publishing_commands()
         {
             await Scenario.Define<Context>()
-                .WithEndpoint<Endpoint>(b => b.When((bus, c) => bus.PublishAsync(new MyCommand())))
+                .WithEndpoint<Endpoint>(b => b.When((bus, c) => bus.Publish(new MyCommand())))
                 .Done(c => c.EndpointsStarted)
                 .Run();
         }
@@ -21,7 +21,7 @@
         public async Task Should_allow_sending_events()
         {
             await Scenario.Define<Context>()
-                .WithEndpoint<Endpoint>(b => b.When((bus, c) => bus.SendAsync(new MyEvent())))
+                .WithEndpoint<Endpoint>(b => b.When((bus, c) => bus.Send(new MyEvent())))
                 .Done(c => c.EndpointsStarted)
                 .Run();
         }
