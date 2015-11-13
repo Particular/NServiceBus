@@ -2631,7 +2631,7 @@ namespace NServiceBus.Transports
     }
     public interface ICreateQueues
     {
-        void CreateQueueIfNecessary(string address, string account);
+        System.Threading.Tasks.Task CreateQueueIfNecessary(string address, string account);
     }
     [System.ObsoleteAttribute("Please use `IDispatchMessages` instead. Will be removed in version 7.0.0.", true)]
     public interface IDeferMessages

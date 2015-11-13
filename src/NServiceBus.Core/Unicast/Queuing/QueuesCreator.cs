@@ -1,5 +1,6 @@
 namespace NServiceBus.Unicast.Queuing
 {
+    using System.Linq;
     using System.Threading.Tasks;
     using Installation;
     using Logging;
@@ -18,35 +19,29 @@ namespace NServiceBus.Unicast.Queuing
             this.settings = settings;
         }
 
-        public Task InstallAsync(string identity)
+        public async Task InstallAsync(string identity)
         {
             if (settings.Get<bool>("Endpoint.SendOnly"))
             {
-                return TaskEx.Completed;
+                return;
             }
             if (!settings.CreateQueues())
             {
-                return TaskEx.Completed;
+                return;
             }
             var queueCreator = builder.Build<ICreateQueues>();
             var queueBindings = settings.Get<QueueBindings>();
 
-            foreach (var receiveLogicalAddress in queueBindings.ReceivingAddresses)
-            {
-                CreateQueue(queueCreator, identity, receiveLogicalAddress);
-            }
+            var receiveCreationTasks = queueBindings.ReceivingAddresses.Select(receiveLogicalAddress => CreateQueue(queueCreator, identity, receiveLogicalAddress)).ToList();
+            await Task.WhenAll(receiveCreationTasks).ConfigureAwait(false);
 
-            foreach (var sendingAddress in queueBindings.SendingAddresses)
-            {
-                CreateQueue(queueCreator, identity, sendingAddress);
-            }
-
-            return TaskEx.Completed;
+            var sendingCreationTasks = queueBindings.SendingAddresses.Select(sendingAddress => CreateQueue(queueCreator, identity, sendingAddress)).ToList();
+            await Task.WhenAll(sendingCreationTasks).ConfigureAwait(false);
         }
 
-        void CreateQueue(ICreateQueues queueCreator, string identity, string transportAddress)
+        static async Task CreateQueue(ICreateQueues queueCreator, string identity, string transportAddress)
         {
-            queueCreator.CreateQueueIfNecessary(transportAddress, identity);
+            await queueCreator.CreateQueueIfNecessary(transportAddress, identity).ConfigureAwait(false);
             Logger.DebugFormat("Verified that the queue: [{0}] existed", transportAddress);
         }
 

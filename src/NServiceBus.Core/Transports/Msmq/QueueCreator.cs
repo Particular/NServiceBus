@@ -3,6 +3,7 @@ namespace NServiceBus.Transports.Msmq
     using System;
     using System.Messaging;
     using System.Security.Principal;
+    using System.Threading.Tasks;
     using Config;
     using Logging;
 
@@ -25,11 +26,11 @@ namespace NServiceBus.Transports.Msmq
         ///</summary>
         ///<param name="address">Queue path to create</param>
         ///<param name="account">The account to be given permissions to the queue</param>
-        public void CreateQueueIfNecessary(string address, string account)
+        public Task CreateQueueIfNecessary(string address, string account)
         {
             if (address == null)
             {
-                return;
+                return TaskEx.Completed;
             }
             var msmqAddress = MsmqAddress.Parse(address);
             var queuePath = msmqAddress.PathWithoutPrefix;
@@ -48,7 +49,7 @@ namespace NServiceBus.Transports.Msmq
                 {
                     Logger.Debug("Queue exists, going to set permissions.");
                     SetPermissionsForQueue(queuePath, account);
-                    return;
+                    return TaskEx.Completed;
                 }
 
                 Logger.Warn("Queue " + queuePath + " does not exist.");
@@ -60,12 +61,12 @@ namespace NServiceBus.Transports.Msmq
             {
                 if (msmqAddress.IsRemote && (ex.MessageQueueErrorCode == MessageQueueErrorCode.IllegalQueuePathName))
                 {
-                    return;
+                    return TaskEx.Completed;
                 }
                 if (ex.MessageQueueErrorCode == MessageQueueErrorCode.QueueExists)
                 {
                     //Solve the race condition problem when multiple endpoints try to create same queue (e.g. error queue).
-                    return;
+                    return TaskEx.Completed;
                 }
                 Logger.Error($"Could not create queue {address} or check its existence. Processing will still continue.", ex);
             }
@@ -73,6 +74,8 @@ namespace NServiceBus.Transports.Msmq
             {
                 Logger.Error($"Could not create queue {address} or check its existence. Processing will still continue.", ex);
             }
+
+            return TaskEx.Completed;
         }
         
         static void CreateQueue(string queuePath, string account, bool transactional)
