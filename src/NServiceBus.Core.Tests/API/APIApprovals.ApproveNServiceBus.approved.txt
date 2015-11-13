@@ -2150,9 +2150,15 @@ namespace NServiceBus.Pipeline.Contexts
         public NServiceBus.Unicast.Messages.LogicalMessage OutgoingLogicalMessage { get; }
         public NServiceBus.TransportMessage OutgoingMessage { get; }
     }
+    public class RootContext : NServiceBus.Pipeline.BehaviorContext
+    {
+        public RootContext(NServiceBus.ObjectBuilder.IBuilder builder) { }
+    }
     public class TransportReceiveContext : NServiceBus.Pipeline.BehaviorContext
     {
+        public TransportReceiveContext(NServiceBus.Transports.IncomingMessage receivedMessage, NServiceBus.Unicast.Transport.PipelineInfo pipelineInfo, NServiceBus.Pipeline.BehaviorContext parentContext) { }
         public NServiceBus.Transports.IncomingMessage Message { get; }
+        public NServiceBus.Unicast.Transport.PipelineInfo PipelineInfo { get; }
     }
 }
 namespace NServiceBus.Pipeline.Outgoing
@@ -2173,12 +2179,6 @@ namespace NServiceBus.Pipeline.OutgoingPipeline
         public System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.RoutingStrategy> RoutingStrategies { get; }
         public void UpdateMessageInstance(object newInstance) { }
     }
-    public class RootContext : NServiceBus.Pipeline.BehaviorContext
-    {
-        public RootContext(NServiceBus.ObjectBuilder.IBuilder builder, NServiceBus.Settings.ReadOnlySettings settings) { }
-    }
-        public TransportReceiveContext(NServiceBus.Transports.IncomingMessage receivedMessage, NServiceBus.Unicast.Transport.PipelineInfo pipelineInfo, NServiceBus.Pipeline.BehaviorContext parentContext) { }
-        public NServiceBus.Unicast.Transport.PipelineInfo PipelineInfo { get; }
 }
 namespace NServiceBus.Routing
 {
