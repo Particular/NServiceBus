@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using NServiceBus.Features;
+    using NServiceBus.MessageInterfaces;
     using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
     using NServiceBus.Serializers;
 
@@ -14,6 +15,7 @@
         /// <inheritdoc />
         protected ConfigureSerialization()
         {
+            Defaults(s => s.Set<IMessageMapper>(new MessageMapper()));
             EnableByDefault();
             Prerequisite(context => IsDefaultSerializer(context) || IsAdditionalDeserializer(context),
                 $@"{GetType()} not enabled since serialization definition not detected.");

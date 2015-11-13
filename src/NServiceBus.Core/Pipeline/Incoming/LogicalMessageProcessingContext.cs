@@ -14,7 +14,7 @@
         /// <param name="logicalMessage">The logical message.</param>
         /// <param name="parentContext">The wrapped context.</param>
         internal LogicalMessageProcessingContext(LogicalMessage logicalMessage, PhysicalMessageProcessingContext parentContext)
-            : this(logicalMessage, parentContext.Message.Headers, parentContext)
+            : this(logicalMessage, parentContext.MessageId, parentContext.ReplyToAddress, parentContext.Message.Headers, parentContext)
         {
         }
 
@@ -22,10 +22,12 @@
         /// Initializes a new instance of <see cref="LogicalMessageProcessingContext" />.
         /// </summary>
         /// <param name="logicalMessage">The logical message.</param>
+        /// <param name="messageId">The id of the incoming message.</param>
+        /// <param name="replyToAddress">The address to reply to the incoming message.</param>
         /// <param name="headers">The messages headers.</param>
         /// <param name="parentContext">The wrapped context.</param>
-        public LogicalMessageProcessingContext(LogicalMessage logicalMessage, Dictionary<string, string> headers, BehaviorContext parentContext)
-            : base(parentContext)
+        public LogicalMessageProcessingContext(LogicalMessage logicalMessage, string messageId, string replyToAddress, Dictionary<string, string> headers, BehaviorContext parentContext)
+            : base(messageId, replyToAddress, headers, parentContext)
         {
             Message = logicalMessage;
             Headers = headers;
