@@ -4,6 +4,7 @@
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using NServiceBus.Features;
     using NUnit.Framework;
 
     public class When_base_event_from_2_publishers : NServiceBusAcceptanceTest
@@ -18,7 +19,7 @@
                 .WithEndpoint<Publisher2>(b =>
                         b.When(c => c.SubscribedToPublisher2, bus => bus.PublishAsync(new DerivedEvent2()))
                      )
-               .WithEndpoint<Subscriber1>(b => b.When(async (bus, c) =>
+               .WithEndpoint<Subscriber1>(b => b.When(c => c.EndpointsStarted, async (bus, c) =>
                {
                    await bus.SubscribeAsync<DerivedEvent1>();
                    await bus.SubscribeAsync<DerivedEvent2>();
@@ -79,7 +80,7 @@
         {
             public Subscriber1()
             {
-                EndpointSetup<DefaultServer>()
+                EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>())
                     .AddMapping<DerivedEvent1>(typeof(Publisher1))
                     .AddMapping<DerivedEvent2>(typeof(Publisher2));
             }
