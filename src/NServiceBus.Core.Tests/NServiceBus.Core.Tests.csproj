@@ -141,7 +141,6 @@
     <Compile Include="Sagas\When_saga_has_no_start_message.cs" />
     <Compile Include="Serializers\MessageDeserializerResolverTests.cs" />
     <Compile Include="Serializers\SerializationExtensionsTests.cs" />
-    <Compile Include="TransportDispatch\HeaderAssertHelpers.cs" />
     <Compile Include="Performance\TimeToBeReceived\TimeToBeReceivedAttributeTests.cs" />
     <Compile Include="Config\TestConfigurationSection.cs" />
     <Compile Include="Config\When_no_custom_configuration_source_is_specified.cs" />
@@ -339,5 +338,6 @@
     <Content Include="TestDlls\NServiceBus.NewCompilerBits.dll" />
     <Content Include="TestDlls\NServiceBus.OldCompilerBits.dll" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

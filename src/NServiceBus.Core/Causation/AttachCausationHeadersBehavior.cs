@@ -6,7 +6,6 @@ namespace NServiceBus
     using NServiceBus.Transports;
     using OutgoingPipeline;
     using Pipeline;
-    using TransportDispatch;
 
     class AttachCausationHeadersBehavior : Behavior<OutgoingPhysicalMessageContext>
     {
@@ -25,7 +24,7 @@ namespace NServiceBus
 
             if (context.TryGetIncomingPhysicalMessage(out incomingMessage))
             {
-                context.SetHeader(Headers.RelatedTo, incomingMessage.MessageId);
+                context.Headers[Headers.RelatedTo] = incomingMessage.MessageId;
 
                 string conversationIdFromCurrentMessageContext;
                 if (incomingMessage.Headers.TryGetValue(Headers.ConversationId, out conversationIdFromCurrentMessageContext))
@@ -34,7 +33,7 @@ namespace NServiceBus
                 }
             }
 
-            context.SetHeader(Headers.ConversationId, conversationId);
+            context.Headers[Headers.ConversationId] = conversationId;
         }
     }
 }

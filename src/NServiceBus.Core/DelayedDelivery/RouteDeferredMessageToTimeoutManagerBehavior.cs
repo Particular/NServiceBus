@@ -44,7 +44,7 @@ namespace NServiceBus
 
                 //Hack 133
                 var ultimateDestination = ((UnicastAddressTag)context.RoutingStrategies.First().Apply(new Dictionary<string, string>())).Destination;
-                context.Message.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo] = ultimateDestination;
+                context.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo] = ultimateDestination;
                 context.RoutingStrategies = new[]
                 {
                     new UnicastRoutingStrategy(timeoutManagerAddress)
@@ -62,7 +62,7 @@ namespace NServiceBus
                     deliverAt = ((DoNotDeliverBefore)constraint).At;
                 }
 
-                context.Message.Headers[TimeoutManagerHeaders.Expire] = DateTimeExtensions.ToWireFormattedString(deliverAt);
+                context.Headers[TimeoutManagerHeaders.Expire] = DateTimeExtensions.ToWireFormattedString(deliverAt);
                 context.RemoveDeliveryConstaint(constraint);
             }
 

@@ -23,7 +23,7 @@
             
             await behavior.Invoke(context, c => Task.FromResult(0));
 
-            Assert.AreEqual("myContentType", context.GetOrCreate<OutgoingPhysicalToRoutingConnector.State>().Headers[Headers.ContentType]);
+            Assert.AreEqual("myContentType", context.Headers[Headers.ContentType]);
         }
 
         public class FakeSerializer : IMessageSerializer

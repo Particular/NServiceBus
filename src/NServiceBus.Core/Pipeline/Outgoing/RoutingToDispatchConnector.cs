@@ -19,9 +19,9 @@
             var operations = context.RoutingStrategies
                 .Select(rs =>
                 {
-                    var headers = new Dictionary<string, string>(context.Message.Headers);
+                    var headers = new Dictionary<string, string>(context.Headers);
                     var addressLabel = rs.Apply(headers);
-                    var message = new OutgoingMessage(context.Message.MessageId, context.Message.Headers, context.Message.Body);
+                    var message = new OutgoingMessage(context.MessageId, context.Headers, context.Body);
                     return new TransportOperation(message, new DispatchOptions(addressLabel, dispatchConsistency, context.GetDeliveryConstraints()));
                 });            
 

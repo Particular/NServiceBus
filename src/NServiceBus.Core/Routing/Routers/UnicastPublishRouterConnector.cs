@@ -7,7 +7,6 @@ namespace NServiceBus
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.OutgoingPipeline;
     using NServiceBus.Routing;
-    using NServiceBus.TransportDispatch;
     using NServiceBus.Unicast.Queuing;
 
     class UnicastPublishRouterConnector : StageConnector<OutgoingPublishContext, OutgoingLogicalMessageContext>
@@ -29,10 +28,16 @@ namespace NServiceBus
                 .EnsureNonEmpty(() => "No destination specified for message: " + eventType)
                 .ToArray();
 
-            context.SetHeader(Headers.MessageIntent, MessageIntentEnum.Send.ToString());
+            context.Headers[Headers.MessageIntent] = MessageIntentEnum.Send.ToString();
             try
             {
-                await next(new OutgoingLogicalMessageContext(context.Message, addressLabels, context)).ConfigureAwait(false);
+                await next(new OutgoingLogicalMessageContext(
+                    context.MessageId,
+                    context.Headers,
+                    context.Message,
+                    addressLabels,
+                    context))
+                    .ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {

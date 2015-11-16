@@ -19,7 +19,8 @@
 
             await behavior.Invoke(context, ()=> Task.FromResult(0));
 
-            context.AssertHeaderWasSet(Headers.ConversationId,value=> value != Guid.Empty.ToString());
+            Assert.IsNotEmpty(context.Headers[Headers.ConversationId]);
+            Assert.AreNotEqual(Guid.Empty.ToString(), context.Headers[Headers.ConversationId]);
         }
 
         
@@ -36,7 +37,7 @@
 
             await behavior.Invoke(context, () => Task.FromResult(0));
 
-            context.AssertHeaderWasSet(Headers.ConversationId, value => value == incomingConversationId);
+            Assert.AreEqual(incomingConversationId, context.Headers[Headers.ConversationId]);
         }
 
         [Test,Ignore("Will be refactored to use a explicit override via options instead and not rely on the header being set")]
@@ -46,11 +47,10 @@
 
             var behavior = new AttachCausationHeadersBehavior();
             var context = InitializeContext();
-
             
             await behavior.Invoke(context, () => Task.FromResult(0));
 
-            context.AssertHeaderWasSet(Headers.ConversationId, value => value == userConversationId);   
+            Assert.AreEqual(userConversationId, context.Headers[Headers.ConversationId]);
         }
 
         [Test]
@@ -64,13 +64,17 @@
 
             await behavior.Invoke(context, () => Task.FromResult(0));
 
-            context.AssertHeaderWasSet(Headers.RelatedTo, value => value == "the message id");   
+            Assert.AreEqual("the message id", context.Headers[Headers.RelatedTo]);
         }
 
         static OutgoingPhysicalMessageContext InitializeContext()
         {
-            var context = new OutgoingPhysicalMessageContext(null, null, ContextHelpers.GetOutgoingContext(new SendOptions()));
-            return context;
+            return new OutgoingPhysicalMessageContext(
+                Guid.NewGuid().ToString(),
+                new Dictionary<string, string>(),
+                null,
+                null,
+                ContextHelpers.GetOutgoingContext(new SendOptions()));
         }
     }
 }

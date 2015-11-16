@@ -12,8 +12,6 @@
     {
         public override async Task Invoke(OutgoingPhysicalMessageContext context, Func<Task> next)
         {
-            //TODO: should not need to do a lookup
-            var state = context.Get<OutgoingPhysicalToRoutingConnector.State>();
             var outgoingMessage = context.Get<OutgoingLogicalMessage>();
 
             InvokeHandlerContext incomingState;
@@ -27,8 +25,12 @@
                 incomingHeaders = incomingState.Headers;
             }
 
-            var mutatorContext = new MutateOutgoingTransportMessageContext(context.Body, outgoingMessage.Instance, state
-                .Headers, messageBeingHandled, incomingHeaders);
+            var mutatorContext = new MutateOutgoingTransportMessageContext(
+                context.Body, 
+                outgoingMessage.Instance, 
+                context.Headers, 
+                messageBeingHandled, 
+                incomingHeaders);
             foreach (var mutator in context.Builder.BuildAll<IMutateOutgoingTransportMessages>())
             {
                 await mutator.MutateOutgoing(mutatorContext).ConfigureAwait(false);

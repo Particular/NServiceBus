@@ -6,7 +6,6 @@
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.OutgoingPipeline;
     using NServiceBus.Support;
-    using NServiceBus.TransportDispatch;
 
     class AddHostInfoHeadersBehavior : Behavior<OutgoingLogicalMessageContext>
     {
@@ -21,9 +20,9 @@
 
         public override Task Invoke(OutgoingLogicalMessageContext context, Func<Task> next)
         {
-            context.SetHeader(Headers.OriginatingMachine, RuntimeEnvironment.MachineName);
-            context.SetHeader(Headers.OriginatingEndpoint, endpointName.ToString());
-            context.SetHeader(Headers.OriginatingHostId, hostInformation.HostId.ToString("N"));
+            context.Headers[Headers.OriginatingMachine] = RuntimeEnvironment.MachineName;
+            context.Headers[Headers.OriginatingEndpoint] = endpointName.ToString();
+            context.Headers[Headers.OriginatingHostId] = hostInformation.HostId.ToString("N");
 
             return next();
         }

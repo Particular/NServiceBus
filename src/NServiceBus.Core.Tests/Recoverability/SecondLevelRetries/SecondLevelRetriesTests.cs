@@ -36,7 +36,7 @@
 
             await behavior.Invoke(CreateContext("someid", 1), () => { throw new Exception("testex"); });
 
-            Assert.AreEqual("someid", fakeDispatchPipeline.RoutingContext.Message.MessageId);
+            Assert.AreEqual("someid", fakeDispatchPipeline.RoutingContext.MessageId);
             Assert.AreEqual(delay, ((DelayDeliveryWith)fakeDispatchPipeline.RoutingContext.GetDeliveryConstraints().Single(c => c is DelayDeliveryWith)).Delay);
             Assert.AreEqual("test-address-for-this-pipeline", ((UnicastAddressTag)fakeDispatchPipeline.RoutingContext.RoutingStrategies.First().Apply(new Dictionary<string, string>())).Destination);
             Assert.AreEqual("testex", slrNotification.Exception.Message);
@@ -51,7 +51,7 @@
 
             await behavior.Invoke(CreateContext("someid", 0), () => { throw new Exception("testex"); });
 
-            Assert.True(fakeDispatchPipeline.RoutingContext.Message.Headers.ContainsKey(SecondLevelRetriesBehavior.RetriesTimestamp));
+            Assert.True(fakeDispatchPipeline.RoutingContext.Headers.ContainsKey(SecondLevelRetriesBehavior.RetriesTimestamp));
         }
 
         [Test]
@@ -106,7 +106,7 @@
             await behavior.Invoke(context, () => { throw new Exception("testex"); });
 
             Assert.AreEqual(1, retryPolicy.InvokedWithCurrentRetry);
-            Assert.AreEqual("1", fakeDispatchPipeline.RoutingContext.Message.Headers[Headers.Retries]);
+            Assert.AreEqual("1", fakeDispatchPipeline.RoutingContext.Headers[Headers.Retries]);
         }
 
         [Test]
@@ -123,8 +123,7 @@
 
             await behavior.Invoke(context, () => { throw new Exception("test"); });
 
-            var dispatchedMessage = fakeDispatchPipeline.RoutingContext.Message;
-            Assert.AreEqual(originalContent, Encoding.UTF8.GetString(dispatchedMessage.Body));
+            Assert.AreEqual(originalContent, Encoding.UTF8.GetString(fakeDispatchPipeline.RoutingContext.Body));
             Assert.AreEqual(originalContent, Encoding.UTF8.GetString(message.Body));
         }
 
