@@ -54,7 +54,7 @@
 
         class FakeQueueCreator : ICreateQueues
         {
-            public Task CreateQueueIfNecessary(string address, string account)
+            public Task CreateQueueIfNecessary(QueueBindings queueBindings, string identity)
             {
                 return Task.FromResult(0);
             }

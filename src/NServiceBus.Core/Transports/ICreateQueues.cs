@@ -8,9 +8,8 @@ namespace NServiceBus.Transports
     public interface ICreateQueues
     {
         /// <summary>
-        /// Create a messages queue where its name is the address parameter, for the given account.
+        /// Creates message queues for the defined queue bindings and identity.
         /// </summary>
-        /// <remarks>This method will be executed in parallel if multiple addresses need to be created.</remarks>
-        Task CreateQueueIfNecessary(string address, string account);
+        Task CreateQueueIfNecessary(QueueBindings queueBindings, string identity);
     }
 }

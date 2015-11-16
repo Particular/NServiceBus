@@ -1,9 +1,7 @@
 namespace NServiceBus.Unicast.Queuing
 {
-    using System.Linq;
     using System.Threading.Tasks;
     using Installation;
-    using Logging;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Settings;
     using Transports;
@@ -19,33 +17,20 @@ namespace NServiceBus.Unicast.Queuing
             this.settings = settings;
         }
 
-        public async Task InstallAsync(string identity)
+        public Task InstallAsync(string identity)
         {
             if (settings.Get<bool>("Endpoint.SendOnly"))
             {
-                return;
+                return TaskEx.Completed;
             }
             if (!settings.CreateQueues())
             {
-                return;
+                return TaskEx.Completed;
             }
             var queueCreator = builder.Build<ICreateQueues>();
             var queueBindings = settings.Get<QueueBindings>();
 
-            var receiveCreationTasks = queueBindings.ReceivingAddresses.Select(receiveLogicalAddress => CreateQueue(queueCreator, identity, receiveLogicalAddress)).ToList();
-            await Task.WhenAll(receiveCreationTasks).ConfigureAwait(false);
-
-            var sendingCreationTasks = queueBindings.SendingAddresses.Select(sendingAddress => CreateQueue(queueCreator, identity, sendingAddress)).ToList();
-            await Task.WhenAll(sendingCreationTasks).ConfigureAwait(false);
+            return queueCreator.CreateQueueIfNecessary(queueBindings, identity);
         }
-
-        static async Task CreateQueue(ICreateQueues queueCreator, string identity, string transportAddress)
-        {
-            await queueCreator.CreateQueueIfNecessary(transportAddress, identity).ConfigureAwait(false);
-            Logger.DebugFormat("Verified that the queue: [{0}] existed", transportAddress);
-        }
-
-        static ILog Logger = LogManager.GetLogger<QueuesCreator>();
-
     }
 }
