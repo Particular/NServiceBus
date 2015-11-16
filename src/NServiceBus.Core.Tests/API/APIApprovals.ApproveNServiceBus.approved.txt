@@ -1334,6 +1334,8 @@ namespace NServiceBus.Extensibility
         public void Set<T>(string key, T t) { }
         public bool TryGet<T>(out T result) { }
         public bool TryGet<T>(string key, out T result) { }
+        public bool TryGetRootContext<T>(out T result)
+            where T : NServiceBus.Extensibility.ContextBag { }
     }
     public abstract class ExtendableOptions
     {
@@ -2837,6 +2839,7 @@ namespace NServiceBus.Unicast.Behaviors
 {
     public class MessageHandler
     {
+        public MessageHandler(System.Func<object, object, NServiceBus.IMessageHandlerContext, System.Threading.Tasks.Task> invocation, System.Type handlerType) { }
         [System.ObsoleteAttribute("Please use `MessageHandler(Action<object, object, object> invocation, Type handle" +
             "rType)` instead. Will be removed in version 7.0.0.", true)]
         public MessageHandler() { }
@@ -2975,6 +2978,7 @@ namespace NServiceBus.Unicast.Messages
     }
     public class MessageMetadata
     {
+        public MessageMetadata(System.Type messageType, System.Collections.Generic.IEnumerable<System.Type> messageHierarchy = null) { }
         public System.Collections.Generic.IEnumerable<System.Type> MessageHierarchy { get; }
         public System.Type MessageType { get; }
         [System.ObsoleteAttribute("You can access Recoverable via the DeliveryConstraints collection on the outgoing" +

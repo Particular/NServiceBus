@@ -9,7 +9,7 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class FlrBehaviorTest
+    public class FirstLevelRetriesBehaviorTest
     {
         [Test]
         public void ShouldNotPerformFLROnMessagesThatCantBeDeserialized()

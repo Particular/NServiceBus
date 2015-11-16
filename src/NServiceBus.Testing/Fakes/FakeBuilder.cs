@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using NServiceBus.ObjectBuilder;
 
     public class FakeBuilder : IBuilder
@@ -39,7 +40,15 @@
 
         public IEnumerable<T> BuildAll<T>()
         {
-            throw new NotSupportedException();
+            if (!registeredTypes.ContainsKey(typeof(T)))
+            {
+                return Enumerable.Empty<T>();
+            }
+
+            return new[]
+            {
+                Build<T>()
+            };
         }
 
         public IEnumerable<object> BuildAll(Type typeToBuild)
