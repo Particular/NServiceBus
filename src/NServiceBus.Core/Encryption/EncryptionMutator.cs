@@ -182,7 +182,7 @@ namespace NServiceBus.Encryption
 
             if (stringToDecrypt == null)
             {
-                throw new Exception("Only string properties is supported for convention based encryption, please check your convention");
+                throw new Exception("Only string properties are supported for convention based encryption, please check your convention");
             }
 
             var parts = stringToDecrypt.Split(new[] { '@' }, StringSplitOptions.None);
@@ -210,7 +210,7 @@ namespace NServiceBus.Encryption
 
             if (stringToEncrypt == null)
             {
-                throw new Exception("Only string properties is supported for convention based encryption, please check your convention");
+                throw new Exception("Only string properties are supported for convention based encryption, please check your convention");
             }
 
             var encryptedValue = encryptionService.Encrypt(stringToEncrypt);
