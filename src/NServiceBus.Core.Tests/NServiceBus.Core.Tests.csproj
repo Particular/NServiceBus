@@ -64,12 +64,6 @@
     <Reference Include="Mono.Cecil.Rocks">
       <HintPath>..\packages\Mono.Cecil.0.9.5.4\lib\net40\Mono.Cecil.Rocks.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.NewCompilerBits">
-      <HintPath>TestDlls\NServiceBus.NewCompilerBits.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.OldCompilerBits">
-      <HintPath>TestDlls\NServiceBus.OldCompilerBits.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="NuDoq">
       <HintPath>..\packages\NuDoq.1.2.5\lib\net35\NuDoq.dll</HintPath>

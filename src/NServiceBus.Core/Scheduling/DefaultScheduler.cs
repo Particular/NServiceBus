@@ -13,7 +13,7 @@ namespace NServiceBus.Scheduling
             scheduledTasks[taskDefinition.Id] = taskDefinition;
         }
 
-        public void Start(Guid taskId, IMessageHandlerContext busContext)
+        public async Task Start(Guid taskId, IBusContext busContext)
         {
             TaskDefinition taskDefinition;
 
@@ -23,53 +23,47 @@ namespace NServiceBus.Scheduling
                 return;
             }
 
-            DeferTask(taskDefinition, busContext);
-            ExecuteTask(taskDefinition);
+            await DeferTask(taskDefinition, busContext).ConfigureAwait(false);
+            await ExecuteTask(taskDefinition, busContext).ConfigureAwait(false);
         }
 
-        static void ExecuteTask(TaskDefinition taskDefinition)
+        static async Task ExecuteTask(TaskDefinition taskDefinition, IBusContext busContext)
         {
             logger.InfoFormat("Start executing scheduled task named '{0}'.", taskDefinition.Name);
             var sw = new Stopwatch();
             sw.Start();
 
-            Task.Run(taskDefinition.Task)
-                .ContinueWith(task =>
-                {
-                    sw.Stop();
-
-                    if (task.IsFaulted)
-                    {
-                        task.Exception.Handle(ex =>
-                        {
-                            logger.Error($"Failed to execute scheduled task '{taskDefinition.Name}'.", ex);
-                            return true;
-                        });
-                    }
-                    else
-                    {
-                        logger.InfoFormat("Scheduled task '{0}' run for {1}", taskDefinition.Name, sw.Elapsed.ToString());
-                    }
-                }, TaskContinuationOptions.ExecuteSynchronously);
+            try
+            {
+                await taskDefinition.Task(busContext).ConfigureAwait(false);
+                logger.InfoFormat("Scheduled task '{0}' run for {1}", taskDefinition.Name, sw.Elapsed);
+            }
+            catch (Exception ex)
+            {
+                logger.Error($"Failed to execute scheduled task '{taskDefinition.Name}'.", ex);
+            }
+            finally
+            {
+                sw.Stop();
+            }
         }
 
-        static void DeferTask(TaskDefinition taskDefinition, IBusContext bus)
+        static Task DeferTask(TaskDefinition taskDefinition, IBusContext bus)
         {
             var options = new SendOptions();
 
             options.DelayDeliveryWith(taskDefinition.Every);
             options.RouteToLocalEndpointInstance();
 
-            bus.Send(new Messages.ScheduledTask
+            return bus.Send(new Messages.ScheduledTask
             {
                 TaskId = taskDefinition.Id,
                 Name = taskDefinition.Name,
                 Every = taskDefinition.Every
-            }, options).GetAwaiter().GetResult();
+            }, options);
         }
 
         static ILog logger = LogManager.GetLogger<DefaultScheduler>();
         internal ConcurrentDictionary<Guid, TaskDefinition> scheduledTasks = new ConcurrentDictionary<Guid, TaskDefinition>();
-
     }
 }

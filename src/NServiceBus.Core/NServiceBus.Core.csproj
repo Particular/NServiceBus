@@ -635,7 +635,6 @@
     <Compile Include="Sagas\PropertySagaFinder.cs" />
     <Compile Include="Scheduling\Schedule.cs" />
     <Compile Include="Scheduling\DefaultScheduler.cs" />
-    <Compile Include="Scheduling\InMemoryScheduledTaskStorage.cs" />
     <Compile Include="Scheduling\Messages\ScheduledTask.cs" />
     <Compile Include="Scheduling\ScheduledTaskMessageHandler.cs" />
     <Compile Include="Serializers\Json\Internal\MessageContractResolver.cs" />

@@ -45,11 +45,11 @@
                 {
                     Context.RequestedAt = DateTime.UtcNow;
 
-                    context.ScheduleEvery(TimeSpan.FromSeconds(5), "MyTask", () =>
+                    return context.ScheduleEvery(TimeSpan.FromSeconds(5), "MyTask", c =>
                     {
                         Context.InvokedAt = DateTime.UtcNow;
+                        return Task.FromResult(0);
                     });
-                    return Task.FromResult(0);
                 }
 
                 public Task StopAsync(IBusContext context)

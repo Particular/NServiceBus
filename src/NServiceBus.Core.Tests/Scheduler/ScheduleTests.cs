@@ -22,31 +22,19 @@
         }
 
         [Test]
-        public void When_scheduling_an_action_with_a_name_the_task_should_get_that_name()
+        public async Task When_scheduling_an_action_with_a_name_the_task_should_get_that_name()
         {
-            context.ScheduleEvery(TimeSpan.FromMinutes(5), ACTION_NAME, () => { });
+            await context.ScheduleEvery(TimeSpan.FromMinutes(5), ACTION_NAME, c => TaskEx.Completed);
+
             Assert.That(EnsureThatNameExists(ACTION_NAME));
         }
 
         [Test]
-        public void When_scheduling_an_action_without_a_name_the_task_should_get_the_DeclaringType_as_name()
+        public async Task When_scheduling_an_action_without_a_name_the_task_should_get_the_DeclaringType_as_name()
         {
-            context.ScheduleEvery(TimeSpan.FromMinutes(5), () => { });
+            await context.ScheduleEvery(TimeSpan.FromMinutes(5), c => TaskEx.Completed);
+
             Assert.That(EnsureThatNameExists("ScheduleTests"));
-        }
-
-        [Test]
-        public void Ensure_retrieving_name_from_type_works_for_old_compiler()
-        {
-            context.ScheduleEvery(TimeSpan.FromMinutes(5), OldCompilerBits.ActionProvider.SimpleAction());
-            Assert.That(EnsureThatNameExists("ActionProvider"));
-        }
-
-        [Test]
-        public void Ensure_retrieving_name_from_type_works_for_new_compiler()
-        {
-            context.ScheduleEvery(TimeSpan.FromMinutes(5), NewCompilerBits.ActionProvider.SimpleAction());
-            Assert.That(EnsureThatNameExists("ActionProvider"));
         }
 
         bool EnsureThatNameExists(string name)
@@ -112,7 +100,6 @@
                     throw new NotImplementedException();
                 }
             }
-
         }
     }
 }
