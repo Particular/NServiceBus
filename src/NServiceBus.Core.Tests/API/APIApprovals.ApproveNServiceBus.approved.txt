@@ -2115,15 +2115,15 @@ namespace NServiceBus.Pipeline.Contexts
         public string MessageId { get; }
         public NServiceBus.Unicast.Transport.PipelineInfo PipelineInfo { get; }
         public string ReplyToAddress { get; }
-        public System.Threading.Tasks.Task ForwardCurrentMessageToAsync(string destination) { }
-        public System.Threading.Tasks.Task PublishAsync(object message, NServiceBus.PublishOptions options) { }
-        public System.Threading.Tasks.Task PublishAsync<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions) { }
-        public System.Threading.Tasks.Task ReplyAsync(object message, NServiceBus.ReplyOptions options) { }
-        public System.Threading.Tasks.Task ReplyAsync<T>(System.Action<T> messageConstructor, NServiceBus.ReplyOptions options) { }
-        public System.Threading.Tasks.Task SendAsync(object message, NServiceBus.SendOptions options) { }
-        public System.Threading.Tasks.Task SendAsync<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options) { }
-        public System.Threading.Tasks.Task SubscribeAsync(System.Type eventType, NServiceBus.SubscribeOptions options) { }
-        public System.Threading.Tasks.Task UnsubscribeAsync(System.Type eventType, NServiceBus.UnsubscribeOptions options) { }
+        public virtual System.Threading.Tasks.Task ForwardCurrentMessageToAsync(string destination) { }
+        public virtual System.Threading.Tasks.Task PublishAsync(object message, NServiceBus.PublishOptions options) { }
+        public virtual System.Threading.Tasks.Task PublishAsync<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions) { }
+        public virtual System.Threading.Tasks.Task ReplyAsync(object message, NServiceBus.ReplyOptions options) { }
+        public virtual System.Threading.Tasks.Task ReplyAsync<T>(System.Action<T> messageConstructor, NServiceBus.ReplyOptions options) { }
+        public virtual System.Threading.Tasks.Task SendAsync(object message, NServiceBus.SendOptions options) { }
+        public virtual System.Threading.Tasks.Task SendAsync<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options) { }
+        public virtual System.Threading.Tasks.Task SubscribeAsync(System.Type eventType, NServiceBus.SubscribeOptions options) { }
+        public virtual System.Threading.Tasks.Task UnsubscribeAsync(System.Type eventType, NServiceBus.UnsubscribeOptions options) { }
     }
     public class InvokeHandlerContext : NServiceBus.Pipeline.Contexts.IncomingContext, NServiceBus.IBusContext, NServiceBus.IMessageHandlerContext, NServiceBus.IMessageProcessingContext
     {
@@ -2133,8 +2133,8 @@ namespace NServiceBus.Pipeline.Contexts
         public object MessageBeingHandled { get; }
         public NServiceBus.Unicast.Behaviors.MessageHandler MessageHandler { get; }
         public NServiceBus.Unicast.Messages.MessageMetadata MessageMetadata { get; }
-        public void DoNotContinueDispatchingCurrentMessageToHandlers() { }
-        public System.Threading.Tasks.Task HandleCurrentMessageLaterAsync() { }
+        public virtual void DoNotContinueDispatchingCurrentMessageToHandlers() { }
+        public virtual System.Threading.Tasks.Task HandleCurrentMessageLaterAsync() { }
     }
     public class LogicalMessageProcessingContext : NServiceBus.Pipeline.Contexts.IncomingContext
     {

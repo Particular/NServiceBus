@@ -58,13 +58,13 @@ namespace NServiceBus.Pipeline.Contexts
         public MessageMetadata MessageMetadata { get; }
 
         /// <inheritdoc />
-        public Task HandleCurrentMessageLaterAsync()
+        public virtual Task HandleCurrentMessageLaterAsync()
         {
             return BusOperationsInvokeHandlerContext.HandleCurrentMessageLaterAsync(this);
         }
 
         /// <inheritdoc />
-        public void DoNotContinueDispatchingCurrentMessageToHandlers()
+        public virtual void DoNotContinueDispatchingCurrentMessageToHandlers()
         {
             HandlerInvocationAborted = true;
         }

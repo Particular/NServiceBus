@@ -44,12 +44,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Fakes\BusOperations.cs" />
     <Compile Include="Fakes\Fake.cs" />
     <Compile Include="Fakes\FakeBuilder.cs" />
     <Compile Include="Fakes\TestableInvokeHandlerContext.cs" />
     <Compile Include="Fakes\TestableOutgoingLogicalMessageContext.cs" />
     <Compile Include="Fakes\TestableTransportReceiveContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Samples\CustomBehaviorTest.cs" />
     <Compile Include="Samples\FirstLevelRetriesBehaviorTest.cs" />
     <Compile Include="Samples\MutateOutgoingMessageBehaviorTest.cs" />
   </ItemGroup>
