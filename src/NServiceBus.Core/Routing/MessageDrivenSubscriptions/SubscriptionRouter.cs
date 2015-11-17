@@ -18,7 +18,7 @@
         {
             var publisherAddresses = publishers
                 .GetPublisherFor(messageType).SelectMany(p => p
-                    .Resolve(e => endpointInstances.FindInstances(e), i => physicalAddresses.GetPhysicalAddress(i)));
+                    .Resolve(e => endpointInstances.FindInstances(e), i => physicalAddresses.GetTransportAddress(i)));
 
             return publisherAddresses;
         }

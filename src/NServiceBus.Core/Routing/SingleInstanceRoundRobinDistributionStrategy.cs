@@ -8,14 +8,14 @@ namespace NServiceBus.Routing
     /// </summary>
     public class SingleInstanceRoundRobinDistributionStrategy : DistributionStrategy
     {
-        volatile IList<EndpointInstanceName> allInstances;
+        volatile IList<UnicastRoutingTarget> allInstances;
         long index;
         object lockObject = new object();
 
         /// <summary>
         /// Selects destination instances from all known instances of a given endpoint.
         /// </summary>
-        public override IEnumerable<EndpointInstanceName> SelectDestination(IEnumerable<EndpointInstanceName> currentAllInstances)
+        public override IEnumerable<UnicastRoutingTarget> SelectDestination(IEnumerable<UnicastRoutingTarget> currentAllInstances)
         {
             var localAllInstances = allInstances;
             var currentList = currentAllInstances.ToList();

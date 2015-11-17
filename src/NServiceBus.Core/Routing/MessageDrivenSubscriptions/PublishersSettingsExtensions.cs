@@ -17,7 +17,7 @@ namespace NServiceBus
             if (!config.Settings.TryGet(out publishers))
             {
                 publishers = new Publishers();
-                config.Settings.Set<Publishers>(new Publishers());
+                config.Settings.Set<Publishers>(publishers);
             }
             return publishers;
         }

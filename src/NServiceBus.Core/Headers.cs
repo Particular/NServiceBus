@@ -136,6 +136,16 @@
         public const string SubscriptionMessageType = "SubscriptionMessageType";
 
         /// <summary>
+        /// Header entry key for the transport address of the subscribing endpoint.
+        /// </summary>
+        public const string SubscriberTransportAddress = "NServiceBus.SubscriberAddress";
+        
+        /// <summary>
+        /// Header entry key for the logical name of the subscribing endpoint.
+        /// </summary>
+        public const string SubscriberEndpoint = "NServiceBus.SubscriberEndpoint";
+
+        /// <summary>
         /// True if this message is a saga timeout.
         /// </summary>
         public const string IsSagaTimeoutMessage = "NServiceBus.IsSagaTimeoutMessage";

@@ -93,26 +93,26 @@
             {
                 addressTask = Task.FromResult(new[]
                 {
-                    "publishingfromsendonly.subscriber"
+                    new Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber("publishingfromsendonly.subscriber", null)
                 }.AsEnumerable());
             }
 
-            public Task Subscribe(string client, IEnumerable<MessageType> messageTypes, ContextBag context)
+            public Task Subscribe(Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber subscriber, IEnumerable<MessageType> messageTypes, ContextBag context)
             {
                 return Task.FromResult(0);
             }
 
-            public Task Unsubscribe(string client, IEnumerable<MessageType> messageTypes, ContextBag context)
+            public Task Unsubscribe(Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber subscriber, IEnumerable<MessageType> messageTypes, ContextBag context)
             {
                 return Task.FromResult(0);
             }
 
-            public Task<IEnumerable<string>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes, ContextBag context)
+            public Task<IEnumerable<Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes, ContextBag context)
             {
                 return addressTask;
             }
 
-            Task<IEnumerable<string>> addressTask;
+            Task<IEnumerable<Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber>> addressTask;
         }
     }
 }

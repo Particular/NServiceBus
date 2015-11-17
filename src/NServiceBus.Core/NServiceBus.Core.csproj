@@ -104,6 +104,13 @@
     <Compile Include="ConfigureHandlerSettings.cs" />
     <Compile Include="ConsistencyGuarantees\ConsistencyGuaranteeSettingsExtensions.cs" />
     <Compile Include="ConsistencyGuarantees\TransactionScopes\WrapHandlersInTransactionScope.cs" />
+    <Compile Include="Routing\Legacy\ConfigureMSMQDistributor.cs" />
+    <Compile Include="Routing\Legacy\DistributorHeaders.cs" />
+    <Compile Include="Routing\Legacy\ProcessedMessageCounterBehavior.cs" />
+    <Compile Include="Routing\Legacy\ReadyMessageSender.cs" />
+    <Compile Include="Routing\Legacy\WorkerFeature.cs" />
+    <Compile Include="Routing\MessageDrivenSubscriptions\MessageDrivenSubscriptionsConfigExtensions.cs" />
+    <Compile Include="UnicastRoutingTarget.cs" />
     <Compile Include="EnumerableEx.cs" />
     <Compile Include="IBusExtensions_obsolete.cs" />
     <Compile Include="IMessageHandlerContext.cs" />
@@ -131,6 +138,8 @@
     <Compile Include="Pipeline\Outgoing\OutgoingPhysicalMessageContext.cs" />
     <Compile Include="Reliability\Outbox\ForceBatchDispatchToBeIsolatedBehavior.cs" />
     <Compile Include="Reliability\Outbox\OutboxTransaction.cs" />
+    <Compile Include="Routing\IUnicastRoute.cs" />
+    <Compile Include="Routing\MessageDrivenSubscriptions\Subscriber.cs" />
     <Compile Include="Routing\MulticastRoutingStrategy.cs" />
     <Compile Include="Routing\RoutingStrategy.cs" />
     <Compile Include="Routing\UnicastRoutingStrategy.cs" />
@@ -138,7 +147,7 @@
     <Compile Include="Sagas\SagaLoader.cs" />
     <Compile Include="Sagas\Saga_obsoletes.cs" />
     <Compile Include="Routing\AllInstancesDistributionStrategy.cs" />
-    <Compile Include="Routing\UnicastRoutingDestination.cs" />
+    <Compile Include="Routing\UnicastRoute.cs" />
     <Compile Include="Routing\DistributionPolicy.cs" />
     <Compile Include="Routing\IUnicastRouter.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\PublisherAddress.cs" />
@@ -395,8 +404,6 @@
     <Compile Include="Unicast\Transport\Config\InboundTransport.cs" />
     <Compile Include="Unicast\Transport\Config\OutboundTransport.cs" />
     <Compile Include="Persistence\EnabledPersistence.cs" />
-    <Compile Include="Persistence\Msmq\Msmq.cs" />
-    <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionPersistence.cs" />
     <Compile Include="Persistence\PersistenceExtentions.cs" />
     <Compile Include="Persistence\PersistenceStartup.cs" />
     <Compile Include="Persistence\PersistenceStorageMerger.cs" />
@@ -586,7 +593,6 @@
     <Compile Include="Transports\Msmq\MsmqMessageSender.cs" />
     <Compile Include="Transports\Msmq\QueueCreator.cs" />
     <Compile Include="Transports\Msmq\MsmqUtilities.cs" />
-    <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionStorageConfig.cs" />
     <Compile Include="Encryption\RijndaelEncryptionServiceConfig.cs" />
     <Compile Include="Recoverability\SecondLevelRetries\Config\SecondLevelRetriesConfig.cs" />
     <Compile Include="Recoverability\SecondLevelRetries\SecondLevelRetries.cs" />
@@ -671,8 +677,6 @@
     <Compile Include="Persistence\InMemory\SubscriptionStorage\InMemorySubscriptionStorage.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\ISubscriptionStorage.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\MessageType.cs" />
-    <Compile Include="Persistence\Msmq\SubscriptionStorage\Entry.cs" />
-    <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionStorage.cs" />
     <Compile Include="Unicast\Transport\ControlMessageFactory.cs" />
     <Compile Include="Unicast\Transport\Config\UseTransportExtensions.cs" />
     <Compile Include="Recoverability\FirstLevelRetries\FlrStatusStorage.cs" />
