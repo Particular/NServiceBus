@@ -250,7 +250,6 @@
     <Compile Include="Pipeline\Outgoing\OutgoingPublishContext.cs" />
     <Compile Include="Pipeline\IPipelineTerminator.cs" />
     <Compile Include="Pipeline\IStageConnector.cs" />
-    <Compile Include="Pipeline\PipelineDiagnostics.cs" />
     <Compile Include="Performance\ReceiveStatisticsFeature.cs" />
     <Compile Include="Performance\TimeToBeReceived\ApplyTimeToBeReceivedBehavior.cs" />
     <Compile Include="Performance\TimeToBeReceived\TimeToBeReceived.cs" />
@@ -417,9 +416,6 @@
     <Compile Include="Sagas\SagaMetadata.cs" />
     <Compile Include="Sagas\SagaMetadataCollection.cs" />
     <Compile Include="Sagas\SagaToMessageMap.cs" />
-    <Compile Include="Pipeline\PipelineNotifications.cs" />
-    <Compile Include="Pipeline\StepStarted.cs" />
-    <Compile Include="Pipeline\StepEnded.cs" />
     <Compile Include="Scheduling\Scheduler.cs" />
     <Compile Include="Scheduling\TaskDefinition.cs" />
     <Compile Include="Recoverability\Faults\MoveFaultsToErrorQueueBehavior.cs" />

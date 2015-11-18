@@ -329,6 +329,21 @@ namespace NServiceBus
             TreatAsErrorFromVersion = "6.0")]
         public Dictionary<string, string> Headers { get; } = new Dictionary<string, string>();
     }
+
+    public partial class BusNotifications
+    {
+        /// <summary>
+        ///     Pipeline push-based notifications.
+        /// </summary>
+        [ObsoleteEx(Message = "For performance reasons it is no longer possible to instrument the pipeline execution", RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0")]
+        public PipelineNotifications Pipeline
+        {
+            get { throw new NotImplementedException(); }
+        }
+    }
+
+    [ObsoleteEx(Message = "For performance reasons it is no longer possible to instrument the pipeline execution", RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0")]
+    public class PipelineNotifications { }
 }
 
 namespace NServiceBus.Unicast
