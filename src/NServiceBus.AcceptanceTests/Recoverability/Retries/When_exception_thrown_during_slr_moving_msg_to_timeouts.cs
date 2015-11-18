@@ -23,7 +23,7 @@
                 })
                 .WithEndpoint<ErrorSpy>()
                 .Done(c => c.FailingMessageMovedToErrorQueueAndProcessedByErrorSpy)
-                .Run(TimeSpan.FromSeconds(2000));
+                .Run(TimeSpan.FromSeconds(20));
 
             Assert.AreEqual(2, context.NumberOfHandlerInvocations);
             Assert.AreEqual(1, context.NumberOfSlrInvocations);

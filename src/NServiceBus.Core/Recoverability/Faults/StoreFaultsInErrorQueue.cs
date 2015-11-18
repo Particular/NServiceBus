@@ -5,6 +5,7 @@ namespace NServiceBus.Features
     using NServiceBus.Faults;
     using NServiceBus.Hosting;
     using NServiceBus.Pipeline;
+    using NServiceBus.Recoverability.Faults;
     using NServiceBus.Recoverability.FirstLevelRetries;
     using NServiceBus.Recoverability.SecondLevelRetries;
     using NServiceBus.Settings;
@@ -70,16 +71,15 @@ namespace NServiceBus.Features
 
                 var dispatchPipeline = new PipelineBase<RoutingContext>(b, context.Settings, pipelinesCollection.MainPipeline);
 
-                var flrHandler = new FirstLevelRetriesHandler(flrStatusStorage, flrRetryPolicy, b.Build<BusNotifications>());
+                var flrHandler = new FirstLevelRetriesHandler(flrRetryPolicy, b.Build<BusNotifications>());
 
                 var slrHandler = new SecondLevelRetriesHandler(dispatchPipeline, retryPolicy, b.Build<BusNotifications>(), context.Settings.LocalAddress(), IsEnabledInConfig(context));
 
+                var faultsHandler = new MoveFaultsToErrorQueueHandler(b.Build<CriticalError>(), dispatchPipeline, b.Build<HostInformation>(), b.Build<BusNotifications>(), errorQueue);
+                
                 return new RecoverabilityBehavior(
-                    b.Build<CriticalError>(),
-                    dispatchPipeline,
-                    b.Build<HostInformation>(),
-                    b.Build<BusNotifications>(),
-                    errorQueue,
+                    flrStatusStorage,
+                    faultsHandler,
                     flrHandler,
                     slrHandler);
             }, DependencyLifecycle.InstancePerCall);

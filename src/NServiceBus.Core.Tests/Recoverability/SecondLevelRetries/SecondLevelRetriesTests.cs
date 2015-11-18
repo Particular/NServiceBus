@@ -13,6 +13,7 @@
     using NServiceBus.Hosting;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Recoverability.Faults;
     using NServiceBus.Recoverability.FirstLevelRetries;
     using NServiceBus.Recoverability.SecondLevelRetries;
     using NServiceBus.Routing;
@@ -37,14 +38,12 @@
             var notifications = new BusNotifications();
 
             var slrHandler = new SecondLevelRetriesHandler(pipeline, retryPolicy, notifications, address);
-            var flrHandler = new FirstLevelRetriesHandler(new FlrStatusStorage(), new FirstLevelRetryPolicy(0), notifications);
+            var flrHandler = new FirstLevelRetriesHandler(new FirstLevelRetryPolicy(0), notifications);
+            var faultsHandler = new MoveFaultsToErrorQueueHandler(new FakeCriticalError(), pipeline, new HostInformation(Guid.NewGuid(), "my host"), notifications, "errors");
 
             var bahavior = new RecoverabilityBehavior(
-                new FakeCriticalError(), 
-                pipeline,
-                new HostInformation(Guid.NewGuid(), "my host"), 
-                notifications,
-                "errors",
+                new FlrStatusStorage(), 
+                faultsHandler,
                 flrHandler,
                 slrHandler);
 

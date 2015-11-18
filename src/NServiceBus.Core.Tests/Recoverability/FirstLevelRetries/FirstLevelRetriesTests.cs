@@ -3,7 +3,12 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using NServiceBus.Core.Tests.Recoverability.SecondLevelRetries;
+    using NServiceBus.Hosting;
+    using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Recoverability.Faults;
     using NServiceBus.Recoverability.FirstLevelRetries;
+    using NServiceBus.Unicast.Transport;
     using Transports;
     using NUnit.Framework;
 
@@ -13,94 +18,84 @@
         [Test]
         public void ShouldNotPerformFLROnMessagesThatCantBeDeserialized()
         {
-            //TODO: this test should be
-            /*
-            var handler = CreateFlrHandler(new FirstLevelRetryPolicy(0));
+            var behavior = CreateBehavior(new FirstLevelRetryPolicy(0));
 
-           
-            var result = handler.TryHandle("pipeline", null, new MessageDeserializationException("test"));
-
-            Assert.Throws<MessageDeserializationException>(async () => await handler.Invoke(null, () =>
+            Assert.Throws<MessageDeserializationException>(async () => await behavior.Invoke(CreateContext("messageId"), () =>
             {
                 throw new MessageDeserializationException("test");
             }));
-            */
         }
 
         [Test]
         public void ShouldPerformFLRIfThereAreRetriesLeftToDo()
         {
-            var handler = CreateFlrHandler(new FirstLevelRetryPolicy(1));
-            var message = CreateMessage("someid");
-            var uniqueMessageId = "pipeline" + message.MessageId;
+            var behavior = CreateBehavior(new FirstLevelRetryPolicy(1));
+            var context = CreateContext("someid");
 
-            handler.MarkFailure(uniqueMessageId, new Exception());
-
-            ProcessingFailureInfo failureInfo;
-            var result = handler.TryHandle(uniqueMessageId, message, out failureInfo);
-
-            Assert.IsTrue(result);
+            Assert.Throws<MessageProcessingAbortedException>(async () => await behavior.Invoke(context, () =>
+            {
+                throw new Exception("test");
+            }));
         }
 
         [Test]
-        public void ShouldBubbleTheExceptionUpIfThereAreNoMoreRetriesLeft()
+        public async void ShouldBubbleTheExceptionUpIfThereAreNoMoreRetriesLeft()
         {
-            var handler = CreateFlrHandler(new FirstLevelRetryPolicy(0));
-            var message = CreateMessage("someid");
-            var uniqueMessageId = "pipeline" + message.MessageId;
+            var behavior = CreateBehavior(new FirstLevelRetryPolicy(0));
+            var context = CreateContext("someid");
 
-            handler.MarkFailure(uniqueMessageId, new Exception());
+            Assert.Throws<MessageProcessingAbortedException>(async () => await behavior.Invoke(context, () =>
+            {
+                throw new Exception("test");
+            }));
 
-            ProcessingFailureInfo failureInfo;
-            var result = handler.TryHandle(uniqueMessageId, message, out failureInfo);
-
-            Assert.IsFalse(result);
+            await behavior.Invoke(context, () => TaskEx.Completed);
 
             //should set the retries header to capture how many flr attempts where made
-            Assert.AreEqual("0", message.Headers[Headers.FLRetries]);
+            Assert.AreEqual("0", context.Message.Headers[Headers.FLRetries]);
         }
 
-        [Test, Ignore]
-        public void ShouldClearStorageAfterGivingUp()
+        [Test]
+        public async void ShouldClearStorageAfterGivingUp()
         {
-            //TODO: move this to behavior test after refactorings
-            /*
             const string messageId = "someid";
             var storage = new FlrStatusStorage();
             var pipeline = new PipelineInfo("somePipeline", "someAddress");
-            var handler = CreateFlrHandler(new FirstLevelRetryPolicy(1), storage);
+            var behavior = CreateBehavior(new FirstLevelRetryPolicy(1), storage, pipelineInfo: pipeline);
 
-            storage(pipeline.Name + messageId);
+            storage.AddFailuresForMessage(pipeline.Name + messageId, new Exception());
 
-            var result = handler.TryHandle(pipeline.Name, CreateMessage(messageId), new Exception());
+            Assert.Throws<MessageProcessingAbortedException>(async () => await behavior.Invoke(CreateContext(messageId), () =>
+            {
+                throw new Exception();
+            }));
 
-            Assert.IsFalse(result);
-            Assert.AreEqual(0, storage.GetFailuresForMessage(pipeline.Name + messageId));
-            */
-        }
+            await behavior.Invoke(CreateContext(messageId), () => TaskEx.Completed);
 
-        [Test, Ignore]
-        public void ShouldRememberRetryCountBetweenRetries()
-        {
-            //TODO: move this to behavior test after refactorings
-            /*
-            const string messageId = "someid";
-            var storage = new FlrStatusStorage();
-            var pipeline = new PipelineInfo("anotherPipeline", "anotherAddress");
-            var handler = CreateFlrHandler(new FirstLevelRetryPolicy(1), storage);
-
-            var result = handler.TryHandle(pipeline.Name, CreateMessage(messageId), new Exception());
-
-            Assert.IsTrue(result);
-            Assert.AreEqual(1, storage.GetFailuresForMessage(pipeline.Name + messageId));
-            */
+            Assert.IsNull(storage.GetFailuresForMessage(pipeline.Name + messageId));
         }
 
         [Test]
-        public void ShouldRaiseBusNotificationsForFLR()
+        public void ShouldRememberRetryCountBetweenRetries()
+        {
+            const string messageId = "someid";
+            var storage = new FlrStatusStorage();
+            var pipeline = new PipelineInfo("anotherPipeline", "anotherAddress");
+            var behavior = CreateBehavior(new FirstLevelRetryPolicy(1), storage, pipelineInfo: pipeline);
+
+            Assert.Throws<MessageProcessingAbortedException>(async () => await behavior.Invoke(CreateContext(messageId), () =>
+            {
+                throw new Exception("test");
+            }));
+
+            Assert.AreEqual(1, storage.GetFailuresForMessage(pipeline.Name + messageId).NumberOfFailures);
+        }
+
+        [Test]
+        public async void ShouldRaiseBusNotificationsForFLR()
         {
             var notifications = new BusNotifications();
-            var handler = CreateFlrHandler(new FirstLevelRetryPolicy(1), busNotifications: notifications);
+            var behavior = CreateBehavior(new FirstLevelRetryPolicy(1), notifications: notifications);
 
             var notificationFired = false;
 
@@ -108,20 +103,19 @@
             {
                 Assert.AreEqual(0, flr.RetryAttempt);
                 Assert.AreEqual("test", flr.Exception.Message);
-                Assert.AreEqual("someId", flr.MessageId);
+                Assert.AreEqual("someid", flr.MessageId);
 
                 notificationFired = true;
             });
 
-            var message = CreateMessage("someId");
-            var uniqueMessageId = "pipeline" + message.MessageId;
 
-            handler.MarkFailure(uniqueMessageId, new Exception("test"));
+            Assert.Throws<MessageProcessingAbortedException>(async () => await behavior.Invoke(CreateContext("someid"), () =>
+            {
+                throw new Exception("test");
+            }));
 
-            ProcessingFailureInfo failureInfo;
-            var result = handler.TryHandle(uniqueMessageId,message, out failureInfo);
+            await behavior.Invoke(CreateContext("someid"), () => TaskEx.Completed);
 
-            Assert.IsTrue(result);
             Assert.True(notificationFired);
         }
 
@@ -130,59 +124,87 @@
         {
             const string messageId = "someId";
             var storage = new FlrStatusStorage();
-            var handler = CreateFlrHandler(new FirstLevelRetryPolicy(1), storage);
+            var pipeline = new PipelineInfo("anotherPipeline", "anotherAddress");
+            var behavior = CreateBehavior(new FirstLevelRetryPolicy(1), storage, pipelineInfo: pipeline);
 
-            ProcessingFailureInfo failureInfo;
+            Assert.Throws<MessageProcessingAbortedException>(async () => await behavior.Invoke(CreateContext(messageId), () =>
+            {
+                throw new Exception("test");
+            }));
 
-            handler.MarkFailure("msg1", new Exception());
-            var firstTry = handler.TryHandle("pipeline", CreateMessage(messageId), out failureInfo);
+            storage.ClearFailuresForMessage(pipeline.Name + messageId);
 
-            storage.ClearFailuresForMessage("msg1");
-
-            handler.MarkFailure("msg1", new Exception());
-            var secondTry = handler.TryHandle("pipeline", CreateMessage(messageId), out failureInfo);
-
-            Assert.IsTrue(firstTry);
-            Assert.IsTrue(secondTry);
+            Assert.Throws<MessageProcessingAbortedException>(async () => await behavior.Invoke(CreateContext(messageId), () =>
+            {
+                throw new Exception("test");
+            }));
         }
 
         [Test]
-        public void ShouldTrackRetriesForEachPipelineIndependently()
+        public async void ShouldTrackRetriesForEachPipelineIndependently()
         {
-            //TODO: move to beharior tests after refactorings
-            /*
             const string messageId = "someId";
             var storage = new FlrStatusStorage();
-            var handler1 = CreateFlrHandler(new FirstLevelRetryPolicy(1), storage);
-            var handler2 = CreateFlrHandler(new FirstLevelRetryPolicy(2), storage);
+            var pipeline1 = new PipelineInfo("pipeline1", "address");
+            var behavior1 = CreateBehavior(new FirstLevelRetryPolicy(0), storage, pipelineInfo: pipeline1);
+            var pipeline2 = new PipelineInfo("pipeline2", "address");
+            var behavior2 = CreateBehavior(new FirstLevelRetryPolicy(1), storage, pipelineInfo: pipeline2);
+            var handler1Invocations = 0;
+            var handler2Invocations = 0;
 
-            var handler1FirstResult =  handler1.TryHandle("pipeline-1", CreateMessage(messageId), new Exception());
-            var handler1SecondResult = handler1.TryHandle("pipeline-1", CreateMessage(messageId), new Exception());
+            Assert.Throws<MessageProcessingAbortedException>(async () => await behavior1.Invoke(CreateContext(messageId), () =>
+            {
+                handler1Invocations++;
+                throw new Exception("test");
+            }));
 
-            var handler2FirstResult =  handler2.TryHandle("pipeline-2", CreateMessage(messageId), new Exception());
-            var handler2SecondResult = handler2.TryHandle("pipeline-2", CreateMessage(messageId), new Exception());
+            Assert.Throws<MessageProcessingAbortedException>(async () => await behavior2.Invoke(CreateContext(messageId), () =>
+            {
+                handler2Invocations++;
+                throw new Exception("test");
+            }));
 
-            Assert.IsTrue(handler1FirstResult);
-            Assert.IsFalse(handler1SecondResult);
+            await behavior1.Invoke(CreateContext(messageId), () =>
+            {
+                handler1Invocations++;
+                throw new Exception("test");
+            });
 
-            Assert.IsTrue(handler2FirstResult);
-            Assert.IsTrue(handler2SecondResult);
-            */
+            Assert.Throws<MessageProcessingAbortedException>(async () => await behavior2.Invoke(CreateContext(messageId), () =>
+            {
+                handler2Invocations++;
+                throw new Exception("test");
+            }));
+
+            Assert.AreEqual(1, handler1Invocations, "There should be not retries done by behavior1");
+            Assert.AreEqual(2, handler2Invocations, "Second behavior should do one rety.");
         }
 
-        static FirstLevelRetriesHandler CreateFlrHandler(FirstLevelRetryPolicy retryPolicy, FlrStatusStorage storage = null, BusNotifications busNotifications = null)
+        private RecoverabilityBehavior CreateBehavior(FirstLevelRetryPolicy retryPolicy, FlrStatusStorage storage = null, BusNotifications notifications = null, PipelineInfo pipelineInfo = null)
         {
-            var flrHandler = new FirstLevelRetriesHandler(
-                storage ?? new FlrStatusStorage(), 
-                retryPolicy, 
-                busNotifications ?? new BusNotifications());
+            var pipeline = new FakeDispatchPipeline();
 
-            return flrHandler;
+            notifications = notifications ?? new BusNotifications();
+            storage = storage ?? new FlrStatusStorage();
+
+            var slrHandler = new SecondLevelRetriesHandler(pipeline, new FakePolicy(TimeSpan.MinValue), notifications, "my address");
+            var flrHandler = new FirstLevelRetriesHandler(retryPolicy, notifications);
+            var faultsHandler = new MoveFaultsToErrorQueueHandler(new FakeCriticalError(), pipeline, new HostInformation(Guid.NewGuid(), "my host"), notifications, "errors");
+
+            var bahavior = new RecoverabilityBehavior(
+                storage,
+                faultsHandler,
+                flrHandler,
+                slrHandler);
+
+            bahavior.Initialize(pipelineInfo ?? new PipelineInfo("samplePipeline", "address"));
+
+            return bahavior;
         }
 
-        IncomingMessage CreateMessage(string messageId)
+        TransportReceiveContext CreateContext(string messageId)
         {
-            return new IncomingMessage(messageId, new Dictionary<string, string>(), new MemoryStream());
+            return new TransportReceiveContext(new IncomingMessage(messageId, new Dictionary<string, string>(), new MemoryStream()), new RootContext(null));
         }
     }
 }
