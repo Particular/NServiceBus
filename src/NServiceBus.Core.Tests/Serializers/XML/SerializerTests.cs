@@ -1075,7 +1075,7 @@ namespace NServiceBus.Serializers.XML.Test.AlternateNamespace
 
 	public class AlternateItemListMultipleIListImplementations : List<MessageWithListItemAlternate>, IList<string>
 	{
-		private IList<string> stringList  = new List<string>();
+	    IList<string> stringList  = new List<string>();
 
 		IEnumerator<string> IEnumerable<string>.GetEnumerator()
 		{

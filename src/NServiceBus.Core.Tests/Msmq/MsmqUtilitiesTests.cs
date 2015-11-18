@@ -51,7 +51,7 @@
         }
 
         [Test]
-        public void Should_fetch_the_replytoaddress_from_responsequeue_for_backwards_compatibility()
+        public void Should_fetch_the_replyToAddress_from_responsequeue_for_backwards_compatibility()
         {
             var message = MsmqUtilities.Convert(new OutgoingMessage("message id", new Dictionary<string, string>(), new byte[0]), new DispatchOptions(new UnicastAddressTag("destination"), DispatchConsistency.Default));
 

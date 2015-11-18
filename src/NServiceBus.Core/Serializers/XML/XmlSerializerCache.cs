@@ -9,7 +9,6 @@ namespace NServiceBus.Serializers.XML
     using System.Xml.Linq;
     using System.Xml.Serialization;
     using NServiceBus.Logging;
-    using NServiceBus.Utils.Reflection;
 
     class XmlSerializerCache
     {

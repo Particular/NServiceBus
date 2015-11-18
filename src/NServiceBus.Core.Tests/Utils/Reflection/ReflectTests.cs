@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Core.Utils.Reflection
 {
     using System;
-    using NServiceBus.Utils.Reflection;
     using NUnit.Framework;
 
     [TestFixture]

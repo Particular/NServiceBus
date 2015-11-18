@@ -46,7 +46,7 @@ namespace NServiceBus.Routing
             rules.Add(e => StaticRule(e, endpoint, instances));   
         }
 
-        private static IEnumerable<EndpointInstanceName> StaticRule(EndpointName endpointBeingQueried, EndpointName configuredEndpoint, EndpointInstanceName[] configuredInstances)
+        static IEnumerable<EndpointInstanceName> StaticRule(EndpointName endpointBeingQueried, EndpointName configuredEndpoint, EndpointInstanceName[] configuredInstances)
         {
             if (endpointBeingQueried == configuredEndpoint)
             {

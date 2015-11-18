@@ -18,11 +18,11 @@
         {
             var messageDispatcher = new FakeMessageDispatcher();
             var timeoutPersister = new InMemoryTimeoutPersister();
-            var testee = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransactionSupport.Distributed);
+            var behavior = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransactionSupport.Distributed);
             var timeoutData = CreateTimeout();
             await timeoutPersister.Add(timeoutData, null);
 
-            await testee.Invoke(CreateContext(timeoutData.Id), context => TaskEx.Completed);
+            await behavior.Invoke(CreateContext(timeoutData.Id), context => TaskEx.Completed);
 
             var result = await timeoutPersister.Peek(timeoutData.Id, null);
             Assert.Null(result);
@@ -33,9 +33,9 @@
         {
             var messageDispatcher = new FakeMessageDispatcher();
             var timeoutPersister = new InMemoryTimeoutPersister();
-            var testee = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransactionSupport.Distributed);
+            var behavior = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransactionSupport.Distributed);
 
-            await testee.Invoke(CreateContext(Guid.NewGuid().ToString()), context => TaskEx.Completed);
+            await behavior.Invoke(CreateContext(Guid.NewGuid().ToString()), context => TaskEx.Completed);
 
             Assert.AreEqual(0, messageDispatcher.OutgoingMessages.Count());
         }
@@ -45,11 +45,11 @@
         {
             var messageDispatcher = new FailingMessageDispatcher();
             var timeoutPersister = new InMemoryTimeoutPersister();
-            var testee = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransactionSupport.Distributed);
+            var behavior = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransactionSupport.Distributed);
             var timeoutData = CreateTimeout();
             await timeoutPersister.Add(timeoutData, null);
 
-            Assert.Throws<Exception>(async () => await testee.Invoke(CreateContext(timeoutData.Id), context => TaskEx.Completed));
+            Assert.Throws<Exception>(async () => await behavior.Invoke(CreateContext(timeoutData.Id), context => TaskEx.Completed));
 
             var result = await timeoutPersister.Peek(timeoutData.Id, null);
             Assert.NotNull(result);
@@ -65,9 +65,9 @@
                 OnTryRemove = (id, bag) => false // simulates a concurrent delete
             };
 
-            var testee = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransactionSupport.Distributed);
+            var behavior = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransactionSupport.Distributed);
 
-            Assert.Throws<Exception>(async () => await testee.Invoke(CreateContext(Guid.NewGuid().ToString()), context => TaskEx.Completed));
+            Assert.Throws<Exception>(async () => await behavior.Invoke(CreateContext(Guid.NewGuid().ToString()), context => TaskEx.Completed));
         }
 
         [Test]
@@ -75,11 +75,11 @@
         {
             var messageDispatcher = new FakeMessageDispatcher();
             var timeoutPersister = new InMemoryTimeoutPersister();
-            var testee = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransactionSupport.Distributed);
+            var behavior = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransactionSupport.Distributed);
             var timeoutData = CreateTimeout();
             await timeoutPersister.Add(timeoutData, null);
 
-            await testee.Invoke(CreateContext(timeoutData.Id), context => TaskEx.Completed);
+            await behavior.Invoke(CreateContext(timeoutData.Id), context => TaskEx.Completed);
 
             var transportOperation = messageDispatcher.OutgoingMessages.Single();
             Assert.AreEqual(DispatchConsistency.Default, transportOperation.DispatchOptions.RequiredDispatchConsistency);
@@ -92,11 +92,11 @@
         {
             var messageDispatcher = new FakeMessageDispatcher();
             var timeoutPersister = new InMemoryTimeoutPersister();
-            var testee = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, nonDtcTxSettings);
+            var behavior = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, nonDtcTxSettings);
             var timeoutData = CreateTimeout();
             await timeoutPersister.Add(timeoutData, null);
 
-            await testee.Invoke(CreateContext(timeoutData.Id), context => TaskEx.Completed);
+            await behavior.Invoke(CreateContext(timeoutData.Id), context => TaskEx.Completed);
 
             var transportOperation = messageDispatcher.OutgoingMessages.Single();
             Assert.AreEqual(DispatchConsistency.Isolated, transportOperation.DispatchOptions.RequiredDispatchConsistency);

@@ -3,7 +3,6 @@ namespace NServiceBus
     using System;
     using NServiceBus.Features;
     using NServiceBus.Hosting;
-    using NServiceBus.Utils;
 
     /// <summary>
     ///     Configuration class for <see cref="HostInformation"/> settings.

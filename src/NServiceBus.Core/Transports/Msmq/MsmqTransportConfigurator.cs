@@ -9,7 +9,6 @@
     using NServiceBus.Settings;
     using NServiceBus.Transports;
     using NServiceBus.Transports.Msmq;
-    using NServiceBus.Utils;
 
     /// <summary>
     /// Used to configure the MSMQ transport.

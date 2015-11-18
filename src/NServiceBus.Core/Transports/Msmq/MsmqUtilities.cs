@@ -153,7 +153,7 @@ namespace NServiceBus
 
             using (var stream = new MemoryStream())
             {
-                var headerInfos = message.Headers.Select(pair => new HeaderInfo
+                var headers = message.Headers.Select(pair => new HeaderInfo
                 {
                     Key = pair.Key,
                     Value = pair.Value
@@ -161,10 +161,10 @@ namespace NServiceBus
 
                 if (addCorrIdHeader)
                 {
-                    headerInfos.Add(new HeaderInfo { Key = "CorrId", Value = result.CorrelationId });
+                    headers.Add(new HeaderInfo { Key = "CorrId", Value = result.CorrelationId });
                 }
 
-                headerSerializer.Serialize(stream, headerInfos);
+                headerSerializer.Serialize(stream, headers);
                 result.Extension = stream.ToArray();
             }
 

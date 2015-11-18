@@ -32,7 +32,7 @@
         }
 
         /// <summary>
-        /// Message beeing handled.
+        /// Message being handled.
         /// </summary>
         public LogicalMessage Message { get; private set; }
 

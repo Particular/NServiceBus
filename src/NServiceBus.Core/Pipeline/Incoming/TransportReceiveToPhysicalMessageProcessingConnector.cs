@@ -85,14 +85,14 @@ namespace NServiceBus
                     SerializeDeliveryConstraint(constraint, options);
                 }
 
-                SerializeRoutingStategy(operation.DispatchOptions.AddressTag, options);
+                SerializeRoutingStrategy(operation.DispatchOptions.AddressTag, options);
 
                 yield return new Outbox.TransportOperation(operation.Message.MessageId,
                     options, operation.Message.Body, operation.Message.Headers);
             }
         }
 
-        static void SerializeRoutingStategy(AddressTag addressTag, Dictionary<string, string> options)
+        static void SerializeRoutingStrategy(AddressTag addressTag, Dictionary<string, string> options)
         {
             var indirect = addressTag as MulticastAddressTag;
             if (indirect != null)

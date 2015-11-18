@@ -7,7 +7,6 @@ namespace NServiceBus.Transports.Msmq
     using System.Messaging;
     using System.Threading;
     using System.Threading.Tasks;
-    using CircuitBreakers;
     using Logging;
 
     class MessagePump : IPushMessages, IDisposable

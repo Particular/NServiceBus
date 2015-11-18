@@ -38,7 +38,7 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
             return distinctPublishers;
         }
 
-        private static PublisherAddress StaticTypeRule(Type typeBeingQueried, Type configuredType, PublisherAddress configuredAddress)
+        static PublisherAddress StaticTypeRule(Type typeBeingQueried, Type configuredType, PublisherAddress configuredAddress)
         {
             return typeBeingQueried == configuredType
                 ? configuredAddress
@@ -56,7 +56,7 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
             rules.Add(new Rule(type => StaticAssemblyRule(type, eventAssembly, eventNamespace, new PublisherAddress(publisher)), $"{eventAssembly.GetName().Name}/{eventNamespace ?? "*"} -> {publisher}"));
         }
 
-        private static PublisherAddress StaticAssemblyRule(Type typeBeingQueried, Assembly configuredAssembly, string configuredNamespace, PublisherAddress configuredAddress)
+        static PublisherAddress StaticAssemblyRule(Type typeBeingQueried, Assembly configuredAssembly, string configuredNamespace, PublisherAddress configuredAddress)
         {
             return typeBeingQueried.Assembly == configuredAssembly && (configuredNamespace == null || configuredNamespace.Equals(typeBeingQueried.Namespace, StringComparison.InvariantCultureIgnoreCase))
                 ? configuredAddress

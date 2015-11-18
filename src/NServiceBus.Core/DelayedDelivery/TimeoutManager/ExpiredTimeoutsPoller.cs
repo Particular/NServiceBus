@@ -3,7 +3,6 @@ namespace NServiceBus.DelayedDelivery.TimeoutManager
     using System;
     using System.Threading;
     using System.Threading.Tasks;
-    using NServiceBus.CircuitBreakers;
     using NServiceBus.Extensibility;
     using NServiceBus.Logging;
     using NServiceBus.Routing;

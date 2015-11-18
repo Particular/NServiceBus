@@ -6,7 +6,6 @@
     using NServiceBus.Configuration.AdvanceExtensibility;
     using NServiceBus.Persistence;
     using NServiceBus.Settings;
-    using Utils.Reflection;
 
     /// <summary> 
     /// This class provides implementers of persisters with an extension mechanism for custom settings for specific storage type via extention methods.

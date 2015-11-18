@@ -1,6 +1,5 @@
 namespace NServiceBus.Hosting.Tests
 {
-    using NServiceBus.Utils;
     using NUnit.Framework;
 
     [TestFixture]
@@ -9,24 +8,24 @@ namespace NServiceBus.Hosting.Tests
         [Test]
         public void Parse_from_path_without_spaces_but_with_quotes()
         {
-            var path = PathUtilities.SanitizedPath("\"pathto\\mysuperduper.exe\" somevar");
+            var path = PathUtilities.SanitizedPath("\"pathto\\my.exe\" somevar");
 
-            Assert.AreEqual("pathto\\mysuperduper.exe", path);
+            Assert.AreEqual("pathto\\my.exe", path);
         }
 
         [Test]
         public void Parse_from_path_without_spaces_but_without_quotes()
         {
-            var path = PathUtilities.SanitizedPath("pathto\\mysuperduper.exe somevar");
+            var path = PathUtilities.SanitizedPath("pathto\\my.exe somevar");
 
-            Assert.AreEqual("pathto\\mysuperduper.exe", path);
+            Assert.AreEqual("pathto\\my.exe", path);
         }
 
         [Test]
         public void Paths_without_spaces_are_equal()
         {
-            var path1 = PathUtilities.SanitizedPath("\"pathto\\mysuperduper.exe\" somevar");
-            var path2 = PathUtilities.SanitizedPath("pathto\\mysuperduper.exe somevar");
+            var path1 = PathUtilities.SanitizedPath("\"pathto\\my.exe\" somevar");
+            var path2 = PathUtilities.SanitizedPath("pathto\\my.exe somevar");
 
             Assert.AreEqual(path1, path2);
         }

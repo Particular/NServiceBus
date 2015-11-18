@@ -11,7 +11,6 @@
     using System.Xml.Linq;
     using NServiceBus.Logging;
     using NServiceBus.MessageInterfaces;
-    using NServiceBus.Utils.Reflection;
 
     class Deserializer
     {

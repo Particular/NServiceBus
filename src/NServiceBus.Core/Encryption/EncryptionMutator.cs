@@ -7,7 +7,6 @@ namespace NServiceBus.Encryption
     using System.Linq;
     using System.Reflection;
     using Logging;
-    using Utils.Reflection;
 
     class EncryptionMutator
     {

@@ -1,6 +1,6 @@
 //http://netfx.googlecode.com/svn/trunk/Source/Reflection/Reflect.cs
 
-namespace NServiceBus.Utils.Reflection
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;

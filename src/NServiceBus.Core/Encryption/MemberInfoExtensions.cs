@@ -2,7 +2,6 @@ namespace NServiceBus.Encryption
 {
     using System;
     using System.Reflection;
-    using Utils.Reflection;
 
     static class MemberInfoExtensions
     {

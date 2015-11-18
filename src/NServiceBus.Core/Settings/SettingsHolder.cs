@@ -6,7 +6,6 @@ namespace NServiceBus.Settings
     using System.Configuration;
     using System.Linq.Expressions;
     using NServiceBus.ObjectBuilder;
-    using NServiceBus.Utils.Reflection;
 
     /// <summary>
     /// Setting container.

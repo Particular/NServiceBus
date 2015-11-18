@@ -1,4 +1,4 @@
-namespace NServiceBus.Utils.Reflection
+namespace NServiceBus
 {
     using System;
     using System.Collections;
@@ -7,7 +7,7 @@ namespace NServiceBus.Utils.Reflection
     using System.Linq;
     using System.Reflection;
 
-    static class ExtensionMethods
+    static class TypeExtensionMethods
     {
         public static T Construct<T>(this Type type)
         {
@@ -106,7 +106,7 @@ namespace NServiceBus.Utils.Reflection
 
         static ConcurrentDictionary<RuntimeTypeHandle, string> TypeToNameLookup = new ConcurrentDictionary<RuntimeTypeHandle, string>();
 
-        static byte[] nsbPublicKeyToken = typeof(ExtensionMethods).Assembly.GetName().GetPublicKeyToken();
+        static byte[] nsbPublicKeyToken = typeof(TypeExtensionMethods).Assembly.GetName().GetPublicKeyToken();
 
         public static bool IsFromParticularAssembly(this Type type)
         {

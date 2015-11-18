@@ -3,7 +3,6 @@
     using System;
     using System.Messaging;
     using System.Security.Principal;
-    using NServiceBus.Utils;
     using NUnit.Framework;
 
     [TestFixture]

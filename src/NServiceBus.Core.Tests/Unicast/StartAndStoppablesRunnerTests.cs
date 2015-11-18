@@ -68,7 +68,7 @@
         }
 
         [Test]
-        public async Task Should_stop_only_succesfully_started()
+        public async Task Should_stop_only_successfully_started()
         {
             var startable1 = new Startable1();
             var startable2 = new Startable2();

@@ -46,7 +46,7 @@
                 {
                     cleanupTimer.Dispose(waitHandle);
 
-                    // TODO: Use async synchronisation primitve
+                    // TODO: Use async synchronization primitive
                     waitHandle.WaitOne();
                 }
                 return TaskEx.Completed;

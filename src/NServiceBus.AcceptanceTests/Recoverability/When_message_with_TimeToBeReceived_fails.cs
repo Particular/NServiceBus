@@ -38,7 +38,7 @@
                 EndpointSetup<DefaultServer>(b =>
                 {
                     b.DisableFeature<Features.SecondLevelRetries>();
-                    b.SendFailedMessagesTo("errorqueueforacceptancetest");
+                    b.SendFailedMessagesTo("errorQueueForAcceptanceTest");
                 })
                     .WithConfig<TransportConfig>(c =>
                     {
@@ -69,7 +69,7 @@
             public EndpointThatHandlesErrorMessages()
             {
                 EndpointSetup<DefaultServer>()
-                    .CustomEndpointName("errorqueueforacceptancetest");
+                    .CustomEndpointName("errorQueueForAcceptanceTest");
             }
 
             class ErrorMessageHandler : IHandleMessages<MessageThatFails>

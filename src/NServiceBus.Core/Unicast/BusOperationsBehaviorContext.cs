@@ -11,7 +11,7 @@ namespace NServiceBus.Unicast
     /// <summary>
     /// Provides access to the bus.
     /// </summary>
-    internal static class BusOperationsBehaviorContext
+    static class BusOperationsBehaviorContext
     {
         /// <summary>
         /// Instantiates a message of type T and publishes it.

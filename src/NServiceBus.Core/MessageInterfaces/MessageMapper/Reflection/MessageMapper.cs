@@ -7,7 +7,6 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
     using System.Linq;
     using System.Reflection;
     using System.Runtime.Serialization;
-    using Utils.Reflection;
 
     /// <summary>
     /// Uses reflection to map between interfaces and their generated concrete implementations.

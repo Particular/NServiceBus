@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using NServiceBus.Settings;
-    using NServiceBus.Utils.Reflection;
 
     class PersistenceStorageMerger
     {

@@ -2,7 +2,7 @@ namespace NServiceBus.Transports
 {
     using System;
 
-    internal class LogicalToTransportAddressTranslation
+    class LogicalToTransportAddressTranslation
     {
         readonly TransportDefinition transportDefinition;
         readonly Func<LogicalAddress, string, string> userSpecifiedTranslation;

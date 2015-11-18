@@ -5,7 +5,6 @@
     using Config;
     using Logging;
     using NServiceBus.Settings;
-    using Utils;
 
     class AuditConfigReader 
     {   

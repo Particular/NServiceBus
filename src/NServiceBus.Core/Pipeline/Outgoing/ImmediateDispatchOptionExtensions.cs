@@ -9,7 +9,7 @@ namespace NServiceBus
     {
         /// <summary>
         /// Requests the messsage to be dispatched to the transport immediately. 
-        /// This means that the message is acked by the transport as soon as the call to send returns. 
+        /// This means that the message is ACKed by the transport as soon as the call to send returns. 
         /// The message will not be enlisted in any current receive transaction even if the transport support it.
         /// </summary>
         /// <param name="options">The options being extended.</param>

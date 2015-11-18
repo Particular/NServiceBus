@@ -87,15 +87,15 @@
             Assert.True(level2.IsActive, "Activate2 wasn't activated");
             Assert.True(level3.IsActive, "Activate3 wasn't activated");
 
-            Assert.IsInstanceOf<Activate1>(defaultsOrder[0], "Upstream deps should be activated first");
-            Assert.IsInstanceOf<Activate2>(defaultsOrder[1], "Upstream deps should be activated first");
-            Assert.IsInstanceOf<Activate3>(defaultsOrder[2], "Upstream deps should be activated first");
+            Assert.IsInstanceOf<Activate1>(defaultsOrder[0], "Upstream dependencies should be activated first");
+            Assert.IsInstanceOf<Activate2>(defaultsOrder[1], "Upstream dependencies should be activated first");
+            Assert.IsInstanceOf<Activate3>(defaultsOrder[2], "Upstream dependencies should be activated first");
 
             CollectionAssert.AreEqual(defaultsOrder, activatedOrder);
         }
 
         [Test]
-        public void Should_activate_upstream_deps_first()
+        public void Should_activate_upstream_dependencies_first()
         {
             var defaultsOrder = new List<Feature>();
 
@@ -120,11 +120,11 @@
 
             Assert.True(dependingFeature.IsActive);
 
-            Assert.IsInstanceOf<MyFeature1>(defaultsOrder.First(), "Upstream deps should be activated first");
+            Assert.IsInstanceOf<MyFeature1>(defaultsOrder.First(), "Upstream dependencies should be activated first");
         }
 
         [Test]
-        public void Should_activate_all_upstream_deps_first()
+        public void Should_activate_all_upstream_dependencies_first()
         {
             var defaultsOrder = new List<Feature>();
 
@@ -161,13 +161,13 @@
 
             Assert.True(dependingFeature.IsActive);
 
-            Assert.IsInstanceOf<MyFeature1>(defaultsOrder[0], "Upstream deps should be activated first");
-            Assert.IsInstanceOf<MyFeature2>(defaultsOrder[1], "Upstream deps should be activated first");
-            Assert.IsInstanceOf<MyFeature3>(defaultsOrder[2], "Upstream deps should be activated first");
+            Assert.IsInstanceOf<MyFeature1>(defaultsOrder[0], "Upstream dependencies should be activated first");
+            Assert.IsInstanceOf<MyFeature2>(defaultsOrder[1], "Upstream dependencies should be activated first");
+            Assert.IsInstanceOf<MyFeature3>(defaultsOrder[2], "Upstream dependencies should be activated first");
         }
 
         [Test]
-        public void Should_activate_all_upstream_deps_when_chain_deep()
+        public void Should_activate_all_upstream_dependencies_when_chain_deep()
         {
             var defaultsOrder = new List<Feature>();
            
@@ -198,9 +198,9 @@
             Assert.True(level2.IsActive, "Level2 wasn't activated");
             Assert.True(level3.IsActive, "Level3 wasn't activated");
 
-            Assert.IsInstanceOf<Level1>(defaultsOrder[0], "Upstream deps should be activated first");
-            Assert.IsInstanceOf<Level2>(defaultsOrder[1], "Upstream deps should be activated first");
-            Assert.IsInstanceOf<Level3>(defaultsOrder[2], "Upstream deps should be activated first");
+            Assert.IsInstanceOf<Level1>(defaultsOrder[0], "Upstream dependencies should be activated first");
+            Assert.IsInstanceOf<Level2>(defaultsOrder[1], "Upstream dependencies should be activated first");
+            Assert.IsInstanceOf<Level3>(defaultsOrder[2], "Upstream dependencies should be activated first");
         }
 
         public class Level1 : TestFeature

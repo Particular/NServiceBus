@@ -29,7 +29,7 @@
         {
             public ExactlyOnceEndpoint()
             {
-                //note: We don't have a explicit way to request "ExactlyOnce" yet so we have to rely on it beeing the default
+                //note: We don't have a explicit way to request "ExactlyOnce" yet so we have to rely on it being the default
                 EndpointSetup<DefaultServer>();
             }
 

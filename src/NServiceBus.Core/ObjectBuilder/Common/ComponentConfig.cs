@@ -2,7 +2,6 @@ namespace NServiceBus.ObjectBuilder.Common
 {
     using System;
     using System.Linq.Expressions;
-    using Utils.Reflection;
 
     class ComponentConfig : IComponentConfig
     {

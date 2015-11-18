@@ -19,7 +19,7 @@
         }
 
         /// <summary>
-        /// The physical message beeing processed.
+        /// The physical message being processed.
         /// </summary>
         public IncomingMessage Message { get; private set; }
     }

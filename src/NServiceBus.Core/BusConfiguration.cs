@@ -17,7 +17,6 @@ namespace NServiceBus
     using NServiceBus.Pipeline;
     using NServiceBus.Settings;
     using NServiceBus.Transports;
-    using NServiceBus.Utils.Reflection;
 
     /// <summary>
     ///     Configuration used to create a bus instance.

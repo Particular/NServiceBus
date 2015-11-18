@@ -4,7 +4,7 @@
     using NServiceBus.Extensibility;
 
     /// <summary>
-    /// Syntactic suger <see cref="IManageSubscriptions"/>.
+    /// Syntactic sugar <see cref="IManageSubscriptions"/>.
     /// </summary>
     public static class IManageSubscriptionsExtensions_obsolete
     {

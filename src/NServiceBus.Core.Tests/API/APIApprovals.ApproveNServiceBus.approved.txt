@@ -583,8 +583,8 @@ namespace NServiceBus
         public static void Publish(this NServiceBus.IBusInterface bus, object message) { }
         [System.ObsoleteAttribute("Please use `Publish()` instead. Will be removed in version 7.0.0.", true)]
         public static void Publish<T>(this NServiceBus.IBusInterface bus) { }
-        [System.ObsoleteAttribute("Please use `PublishAsyn<T>(Action<T> messageConstructor)` instead. Will be remove" +
-            "d in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Please use `PublishAsync<T>(Action<T> messageConstructor)` instead. Will be remov" +
+            "ed in version 7.0.0.", true)]
         public static void Publish<T>(this NServiceBus.IBusInterface bus, System.Action<T> messageConstructor) { }
         [System.ObsoleteAttribute("Please use `Send(object message)` instead. Will be removed in version 7.0.0.", true)]
         public static void Send(this NServiceBus.IBusInterface bus, object message) { }

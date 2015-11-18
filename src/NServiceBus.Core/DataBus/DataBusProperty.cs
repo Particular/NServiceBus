@@ -16,7 +16,7 @@
         /// <summary>
         /// initializes a <see cref="DataBusProperty{T}"/> with the <paramref name="value"/>.
         /// </summary>
-        /// <param name="value">The value to initialise with.</param>
+        /// <param name="value">The value to initialize with.</param>
         public DataBusProperty(T value)
         {
             SetValue(value);

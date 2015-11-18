@@ -14,7 +14,7 @@
         public async Task Should_hydrate_and_complete_the_existing_instance()
         {
             await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                    .WithEndpoint<RecvCompletesSagaEndpt>(b =>
+                    .WithEndpoint<ReceiveCompletesSagaEndpoint>(b =>
                         {
                             b.When((bus, context) => bus.SendLocal(new StartSagaMessage { SomeId = context.Id }));
                             b.When(context => context.StartSagaMessageReceived, (bus, context) =>
@@ -37,7 +37,7 @@
         public async Task Should_ignore_messages_afterwards()
         {
             await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                .WithEndpoint<RecvCompletesSagaEndpt>(b =>
+                .WithEndpoint<ReceiveCompletesSagaEndpoint>(b =>
                 {
                     b.When((bus, c) => bus.SendLocal(new StartSagaMessage
                     {
@@ -75,9 +75,9 @@
             public bool SagaReceivedAnotherMessage { get; set; }
         }
 
-        public class RecvCompletesSagaEndpt : EndpointConfigurationBuilder
+        public class ReceiveCompletesSagaEndpoint : EndpointConfigurationBuilder
         {
-            public RecvCompletesSagaEndpt()
+            public ReceiveCompletesSagaEndpoint()
             {
                 EndpointSetup<DefaultServer>(b =>
                 {

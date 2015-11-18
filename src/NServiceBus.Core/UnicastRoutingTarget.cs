@@ -18,7 +18,7 @@
         }
 
         /// <summary>
-        /// Creates a new destination to an anounymous instance of a known endpoint.
+        /// Creates a new destination to an anonymous instance of a known endpoint.
         /// </summary>
         /// <param name="endpoint">Endpoint name.</param>
         /// <param name="transportAddress">Instance transport address.</param>

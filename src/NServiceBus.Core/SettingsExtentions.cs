@@ -81,7 +81,7 @@ namespace NServiceBus
         }
         
         /// <summary>
-        /// Returns the root logical address of this nedpoint.
+        /// Returns the root logical address of this endpoint.
         /// </summary>
         public static LogicalAddress RootLogicalAddress(this ReadOnlySettings settings)
         {

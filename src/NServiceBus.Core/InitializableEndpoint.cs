@@ -10,7 +10,6 @@ namespace NServiceBus
     using NServiceBus.ObjectBuilder.Common;
     using NServiceBus.Pipeline;
     using NServiceBus.Settings;
-    using NServiceBus.Utils.Reflection;
 
     class InitializableEndpoint : IInitializableEndpoint
     {

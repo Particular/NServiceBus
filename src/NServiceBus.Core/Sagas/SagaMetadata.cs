@@ -6,7 +6,6 @@ namespace NServiceBus.Sagas
     using System.Linq.Expressions;
     using System.Reflection;
     using System.Runtime.Serialization;
-    using NServiceBus.Utils.Reflection;
 
     /// <summary>
     /// Contains metadata for known sagas.

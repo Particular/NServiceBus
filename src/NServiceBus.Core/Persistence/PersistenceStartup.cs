@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using NServiceBus.Logging;
     using NServiceBus.Settings;
-    using Utils.Reflection;
 
     class PersistenceStartup : IFinalizeConfiguration
     {

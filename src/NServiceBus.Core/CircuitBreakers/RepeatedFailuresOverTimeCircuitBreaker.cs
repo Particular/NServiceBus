@@ -1,4 +1,4 @@
-namespace NServiceBus.CircuitBreakers
+namespace NServiceBus
 {
     using System;
     using System.Threading;
@@ -25,7 +25,7 @@ namespace NServiceBus.CircuitBreakers
                 return;
             }
 
-            timer.Change(Timeout.Infinite, Timeout.Infinite);
+            timer.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
             Logger.InfoFormat("The circuit breaker for {0} is now disarmed", name);
         }
 

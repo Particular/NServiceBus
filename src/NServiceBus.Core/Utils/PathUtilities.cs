@@ -1,9 +1,9 @@
-﻿namespace NServiceBus.Utils
+﻿namespace NServiceBus
 {
     using System.Linq;
     using System.Text.RegularExpressions;
 
-    internal static class PathUtilities
+    static class PathUtilities
     {
         public static string SanitizedPath(string commandLine)
         {

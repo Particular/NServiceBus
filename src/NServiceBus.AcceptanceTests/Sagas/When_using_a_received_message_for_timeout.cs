@@ -13,7 +13,7 @@
         public async Task Timeout_should_be_received_after_expiration()
         {
             await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                    .WithEndpoint<RecvMsgForTimeoutEndpt>(g => g.When(bus => bus.SendLocal(new StartSagaMessage { SomeId = Guid.NewGuid() })))
+                    .WithEndpoint<ReceiveMessageForTimeoutEndpoint>(g => g.When(bus => bus.SendLocal(new StartSagaMessage { SomeId = Guid.NewGuid() })))
                     .Done(c => c.TimeoutReceived)
                     .Run();
         }
@@ -27,9 +27,9 @@
             public bool TimeoutReceived { get; set; }
         }
 
-        public class RecvMsgForTimeoutEndpt : EndpointConfigurationBuilder
+        public class ReceiveMessageForTimeoutEndpoint : EndpointConfigurationBuilder
         {
-            public RecvMsgForTimeoutEndpt()
+            public ReceiveMessageForTimeoutEndpoint()
             {
                 EndpointSetup<DefaultServer>(config => config.EnableFeature<TimeoutManager>());
             }

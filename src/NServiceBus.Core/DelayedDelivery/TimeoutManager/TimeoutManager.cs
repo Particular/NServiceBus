@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
     using System;
-    using CircuitBreakers;
     using NServiceBus.DelayedDelivery;
     using NServiceBus.DelayedDelivery.TimeoutManager;
     using DeliveryConstraints;

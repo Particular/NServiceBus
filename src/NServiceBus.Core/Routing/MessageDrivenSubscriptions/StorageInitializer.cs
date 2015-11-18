@@ -3,7 +3,7 @@
     using System.Threading.Tasks;
     using NServiceBus.Features;
 
-    internal class StorageInitializer : Feature
+    class StorageInitializer : Feature
     {
         public StorageInitializer()
         {

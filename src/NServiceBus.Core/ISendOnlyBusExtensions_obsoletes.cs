@@ -45,7 +45,7 @@
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            ReplacementTypeOrMember = "PublishAsyn<T>(Action<T> messageConstructor)")]
+            ReplacementTypeOrMember = "PublishAsync<T>(Action<T> messageConstructor)")]
         public static void Publish<T>(this IBusInterface bus, Action<T> messageConstructor)
         {
             throw new NotImplementedException();

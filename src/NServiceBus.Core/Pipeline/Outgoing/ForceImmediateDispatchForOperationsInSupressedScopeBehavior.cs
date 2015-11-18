@@ -8,7 +8,7 @@ namespace NServiceBus
     using TransportDispatch;
 
     [ObsoleteEx(RemoveInVersion = "7")]
-    class ForceImmediateDispatchForOperationsInSupressedScopeBehavior : Behavior<RoutingContext>
+    class ForceImmediateDispatchForOperationsInSuppressedScopeBehavior : Behavior<RoutingContext>
     {
         public override Task Invoke(RoutingContext context, Func<Task> next)
         {
@@ -41,6 +41,6 @@ options.RequireImmediateDispatch();
 bus.Send|Publish|Reply(new MyMessage(), options)
 ";
 
-        static ILog Logger = LogManager.GetLogger(typeof(ForceImmediateDispatchForOperationsInSupressedScopeBehavior));
+        static ILog Logger = LogManager.GetLogger<ForceImmediateDispatchForOperationsInSuppressedScopeBehavior>();
     }
 }

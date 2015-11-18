@@ -41,7 +41,7 @@ namespace NServiceBus.Transports.Msmq
         ///</summary>
         ///<param name="address">Queue path to create</param>
         ///<param name="identity">The identity to be given permissions to the queue</param>
-        private void CreateQueueIfNecessary(string address, string identity)
+        void CreateQueueIfNecessary(string address, string identity)
         {
             if (address == null)
             {

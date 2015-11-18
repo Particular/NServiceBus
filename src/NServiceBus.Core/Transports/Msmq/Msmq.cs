@@ -94,7 +94,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Gets the supported transactionallity for this transport.
+        /// Gets the supported transactionality for this transport.
         /// </summary>
         public override TransactionSupport GetTransactionSupport()
         {

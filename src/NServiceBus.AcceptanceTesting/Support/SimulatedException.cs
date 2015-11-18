@@ -4,7 +4,7 @@
     using System.Runtime.Serialization;
 
     /// <summary>
-    /// A dummy exception to be used in acceptance tests for easier differentation from real exceptions.
+    /// A dummy exception to be used in acceptance tests for easier differentiation from real exceptions.
     /// </summary>
     public class SimulatedException : Exception
     {

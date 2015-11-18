@@ -58,7 +58,7 @@ namespace NServiceBus.Routing
             rules.Add(dynamicRule);
         }
 
-        private static IEnumerable<UnicastRoute> StaticRule(Type messageBeingRouted, Type configuredMessage, UnicastRoute configuredDestination)
+        static IEnumerable<UnicastRoute> StaticRule(Type messageBeingRouted, Type configuredMessage, UnicastRoute configuredDestination)
         {
             if (messageBeingRouted == configuredMessage)
             {

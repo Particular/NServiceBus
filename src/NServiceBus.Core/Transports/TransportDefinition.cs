@@ -40,7 +40,7 @@ namespace NServiceBus.Transports
         public abstract IEnumerable<Type> GetSupportedDeliveryConstraints();
 
         /// <summary>
-        /// Gets the supported transactionallity for this transport.
+        /// Gets the supported transactionality for this transport.
         /// </summary>
         public abstract TransactionSupport GetTransactionSupport();
 

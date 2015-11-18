@@ -54,7 +54,7 @@
             return scheduler.scheduledTasks.Any(task => task.Value.Name.Equals(name));
         }
 
-        private class FakeBus : IBusInterface
+        class FakeBus : IBusInterface
         {
             readonly DefaultScheduler defaultScheduler;
             public readonly List<Tuple<object, SendOptions>> SentMessages = new List<Tuple<object, SendOptions>>();
@@ -68,7 +68,7 @@
                 return new FakeBusContext(defaultScheduler, SentMessages);
             }
 
-            private class FakeBusContext : IBusContext
+            class FakeBusContext : IBusContext
             {
                 readonly DefaultScheduler defaultScheduler;
                 readonly List<Tuple<object, SendOptions>> sentMessages;

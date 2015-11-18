@@ -23,7 +23,7 @@
         }
 
         /// <summary>
-        /// The message beeing sent.
+        /// The message being sent.
         /// </summary>
         public OutgoingLogicalMessage Message { get; private set; }
     }

@@ -1,10 +1,10 @@
 ﻿using System;
 
-namespace NServiceBus.Utils
+namespace NServiceBus
 {
     using System.Collections.Generic;
 
-    internal class WeakReference<T> : WeakReference where T : class
+    class WeakReference<T> : WeakReference where T : class
     {
         public static WeakReference<T> Create(T target)
         {
@@ -20,7 +20,7 @@ namespace NServiceBus.Utils
         public new T Target => (T)base.Target;
     }
 
-    internal class WeakNullReference<T> : WeakReference<T> where T : class
+    class WeakNullReference<T> : WeakReference<T> where T : class
     {
         public static readonly WeakNullReference<T> Singleton = new WeakNullReference<T>();
 
@@ -32,7 +32,7 @@ namespace NServiceBus.Utils
         public override bool IsAlive => true;
     }
 
-    internal sealed class WeakKeyReference<T> : WeakReference<T> where T : class
+    sealed class WeakKeyReference<T> : WeakReference<T> where T : class
     {
         public readonly int HashCode;
 
@@ -46,7 +46,7 @@ namespace NServiceBus.Utils
         }
     }
 
-    internal sealed class WeakKeyComparer<T> : IEqualityComparer<object>
+    sealed class WeakKeyComparer<T> : IEqualityComparer<object>
     where T : class
     {
         IEqualityComparer<T> comparer;
@@ -117,7 +117,7 @@ namespace NServiceBus.Utils
         }
     }
 
-    internal sealed class WeakKeyDictionary<TKey, TValue> : BaseDictionary<TKey, TValue>
+    sealed class WeakKeyDictionary<TKey, TValue> : BaseDictionary<TKey, TValue>
         where TKey : class
     {
         Dictionary<object, TValue> dictionary;

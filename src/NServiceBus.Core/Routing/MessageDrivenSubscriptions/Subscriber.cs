@@ -8,7 +8,7 @@ namespace NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions
         /// <summary>
         /// Creates a new subscriber.
         /// </summary>
-        /// <param name="transportAddress">Transport addrress.</param>
+        /// <param name="transportAddress">Transport address.</param>
         /// <param name="endpoint">Endpoint name (optional).</param>
         public Subscriber(string transportAddress, EndpointName endpoint)
         {

@@ -3,7 +3,7 @@ namespace NServiceBus
     using System.Threading.Tasks;
 
     /// <summary>
-    /// Provides facory methods for creating endpoint instances.
+    /// Provides factory methods for creating endpoint instances.
     /// </summary>
     public static class Endpoint
     {

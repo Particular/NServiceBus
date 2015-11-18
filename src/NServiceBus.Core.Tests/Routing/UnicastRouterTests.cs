@@ -94,11 +94,11 @@
                 transportAddresses);
         }
 
-        private class Command : ICommand
+        class Command : ICommand
         {
         }
 
-        private class Event : IEvent
+        class Event : IEvent
         {
         }
     }

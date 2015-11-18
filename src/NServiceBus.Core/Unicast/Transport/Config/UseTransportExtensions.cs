@@ -1,7 +1,6 @@
 namespace NServiceBus
 {
     using System;
-    using NServiceBus.Utils.Reflection;
     using Transports;
 
     /// <summary>

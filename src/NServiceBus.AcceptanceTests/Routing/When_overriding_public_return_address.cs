@@ -28,7 +28,7 @@
         {
             public Sender()
             {
-                EndpointSetup<DefaultPublisher>(b => b.OverridePublicReturnAddress("overridingpublicreturnaddress.detector"));
+                EndpointSetup<DefaultPublisher>(b => b.OverridePublicReturnAddress("overridingPublicReturnAddress.detector"));
             }
 
             public class MessageHandler : IHandleMessages<MyMessage>

@@ -154,7 +154,7 @@
                 return TaskEx.Completed;
             }
 
-            private static IEnumerable<IUnicastRoute> QuerySubscriptionStore(ISubscriptionStorage subscriptions, Type messageType, ContextBag contextBag)
+            static IEnumerable<IUnicastRoute> QuerySubscriptionStore(ISubscriptionStorage subscriptions, Type messageType, ContextBag contextBag)
             {
                 if (!(contextBag is OutgoingPublishContext))
                 {
@@ -168,7 +168,7 @@
                 return subscribers.Select(s => new SubscriberDestination(s));
             }
 
-            private class SubscriberDestination : IUnicastRoute
+            class SubscriberDestination : IUnicastRoute
             {
                 UnicastRoutingTarget target;
 

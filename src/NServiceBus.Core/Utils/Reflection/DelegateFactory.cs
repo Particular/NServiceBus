@@ -1,4 +1,4 @@
-namespace NServiceBus.Utils.Reflection
+namespace NServiceBus
 {
     using System;
     using System.Collections.Concurrent;

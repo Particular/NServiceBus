@@ -45,7 +45,7 @@
             {
                 public void Customize(BusConfiguration config)
                 {
-                    config.EndpointName("ineedinitialization_receiver");
+                    config.EndpointName("INeedInitialization_receiver");
                 }
             }
 
@@ -78,7 +78,7 @@
         {
             public Task Handle(SendMessage message, IMessageHandlerContext context)
             {
-                return context.Send("ineedinitialization_receiver", new MyMessage());
+                return context.Send("INeedInitialization_receiver", new MyMessage());
             }
         }
 

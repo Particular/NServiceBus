@@ -5,7 +5,6 @@
     using System.Diagnostics;
     using NServiceBus.Hosting;
     using NServiceBus.Support;
-    using NServiceBus.Utils;
 
     class HostInformationFeature : Feature
     {

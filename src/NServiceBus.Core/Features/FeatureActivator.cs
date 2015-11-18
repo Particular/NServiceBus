@@ -227,9 +227,7 @@ namespace NServiceBus.Features
                 {
                     dependantFeaturesToActivate.Add(dependency);
                 }
-                var hasAllUpstreamDepsBeenActivated = dependantFeaturesToActivate.Aggregate(false, (current, f) => current | ActivateFeature(f, featuresToActivate, context));
-
-                return hasAllUpstreamDepsBeenActivated;
+                return dependantFeaturesToActivate.Aggregate(false, (current, f) => current | ActivateFeature(f, featuresToActivate, context));
             };
             var featureType = featureInfo.Feature.GetType();
             if (featureInfo.Feature.Dependencies.All(dependencyActivator))
