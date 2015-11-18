@@ -6,6 +6,7 @@
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTesting.Support;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using NServiceBus.Config;
     using NUnit.Framework;
 
     public class When_updating_existing_correlation_property : NServiceBusAcceptanceTest
@@ -38,7 +39,9 @@
         {
             public ChangePropertyEndpoint()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>()
+                    .WithConfig<TransportConfig>(c => c.MaxRetries = 0)
+                    .WithConfig<SecondLevelRetriesConfig>(c => c.NumberOfRetries = 0);
             }
 
             public class ChangeCorrPropertySaga : Saga<ChangeCorrPropertySagaData>, IAmStartedByMessages<StartSagaMessage>

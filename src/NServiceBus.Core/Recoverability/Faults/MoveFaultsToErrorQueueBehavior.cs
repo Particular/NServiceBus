@@ -7,13 +7,22 @@ namespace NServiceBus
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Recoverability.Faults;
+    using NServiceBus.Recoverability.FirstLevelRetries;
     using NServiceBus.Routing;
     using NServiceBus.TransportDispatch;
     using NServiceBus.Transports;
 
     class MoveFaultsToErrorQueueBehavior : Behavior<TransportReceiveContext>
     {
-        public MoveFaultsToErrorQueueBehavior(CriticalError criticalError, IPipelineBase<RoutingContext> dispatchPipeline, HostInformation hostInformation, BusNotifications notifications, string errorQueueAddress, FaultsStatusStorage faultsStatusStorage)
+        public MoveFaultsToErrorQueueBehavior(
+            CriticalError criticalError,
+            IPipelineBase<RoutingContext> dispatchPipeline,
+            HostInformation hostInformation,
+            BusNotifications notifications,
+            string errorQueueAddress,
+            FaultsStatusStorage faultsStatusStorage,
+            FirstLevelRetriesHandler flrHandler,
+            SecondLevelRetriesHandler slrHandler)
         {
             this.criticalError = criticalError;
             this.dispatchPipeline = dispatchPipeline;
@@ -21,10 +30,14 @@ namespace NServiceBus
             this.notifications = notifications;
             this.errorQueueAddress = errorQueueAddress;
             this.faultsStatusStorage = faultsStatusStorage;
+            this.flrHandler = flrHandler;
+            this.slrHandler = slrHandler;
         }
 
         public override async Task Invoke(TransportReceiveContext context, Func<Task> next)
         {
+            var suppressSlr = PipelineInfo.Name == "Timeout Message Processor" || PipelineInfo.Name == "Timeout Dispatcher Processor";
+
             Exception exception;
             var uniqueMessageId = PipelineInfo.Name + context.Message.MessageId;
 
@@ -44,10 +57,62 @@ namespace NServiceBus
                     throw;
                 }
             }
-        
+
             try
             {
-                await next().ConfigureAwait(false);
+                if (suppressSlr == false && slrHandler.TryGetException(uniqueMessageId, out exception))
+                {
+                    slrHandler.ClearException(uniqueMessageId);
+
+                    TimeSpan delay;
+                    int currentRetry;
+
+                    if (slrHandler.ShouldPerformSlr(context.Message, exception, out delay, out currentRetry))
+                    {
+                        await slrHandler.QueueForDelayedDelivery(context, currentRetry, delay, exception).ConfigureAwait(false);
+
+                        return;
+                    }
+
+                    context.Message.Headers.Remove(Headers.Retries);
+
+                    Logger.WarnFormat("Giving up Second Level Retries for message '{0}'.", context.Message.MessageId);
+
+                    throw exception;
+                }
+
+                try
+                {
+                    await next().ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    try
+                    {
+                        if (flrHandler.TryHandle(PipelineInfo.Name, context, ex))
+                        {
+                            throw new MessageProcessingAbortedException();
+                        }
+
+                        throw;
+                    }
+                    catch (MessageProcessingAbortedException)
+                    {
+                        throw;
+                    }
+                    catch (Exception e)
+                    {
+                        if (!suppressSlr && slrHandler.IsEnabled)
+                        {
+                            //Mark for processing on next receive
+                            slrHandler.AddException(uniqueMessageId, e);
+
+                            throw new MessageProcessingAbortedException();
+                        }
+
+                        throw;
+                    }
+                }
             }
             catch (MessageProcessingAbortedException)
             {
@@ -91,6 +156,8 @@ namespace NServiceBus
         BusNotifications notifications;
         string errorQueueAddress;
         FaultsStatusStorage faultsStatusStorage;
+        readonly FirstLevelRetriesHandler flrHandler;
+        readonly SecondLevelRetriesHandler slrHandler;
         static ILog Logger = LogManager.GetLogger<MoveFaultsToErrorQueueBehavior>();
 
         public class Registration : RegisterStep
@@ -98,8 +165,7 @@ namespace NServiceBus
             public Registration()
                 : base("MoveFaultsToErrorQueue", typeof(MoveFaultsToErrorQueueBehavior), "Moved failing messages to the configured error queue")
             {
-                InsertBeforeIfExists("FirstLevelRetries");
-                InsertBeforeIfExists("SecondLevelRetries");
+                //TODO: this should probably be first behavior in the pipeline
             }
         }
     }

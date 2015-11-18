@@ -6,6 +6,7 @@
     using NServiceBus.DelayedDelivery.TimeoutManager;
     using DeliveryConstraints;
     using DelayedDelivery;
+    using NServiceBus.Config;
     using NServiceBus.ConsistencyGuarantees;
     using Settings;
     using Timeout.Core;
@@ -46,7 +47,7 @@
 
             var messageProcessorPipeline = context.AddSatellitePipeline("Timeout Message Processor", "Timeouts", requiredTransactionSupport, PushRuntimeSettings.Default, out processorAddress);
             messageProcessorPipeline.Register<MoveFaultsToErrorQueueBehavior.Registration>();
-            messageProcessorPipeline.Register<FirstLevelRetriesBehavior.Registration>();
+            //messageProcessorPipeline.Register<SecondLevelRetriesBehavior.Registration>();
             messageProcessorPipeline.Register<StoreTimeoutBehavior.Registration>();
             context.Container.ConfigureComponent(b => new StoreTimeoutBehavior(b.Build<ExpiredTimeoutsPoller>(),
                 b.Build<IDispatchMessages>(),
@@ -58,7 +59,8 @@
             string dispatcherAddress;
             var dispatcherProcessorPipeline = context.AddSatellitePipeline("Timeout Dispatcher Processor", "TimeoutsDispatcher", requiredTransactionSupport, PushRuntimeSettings.Default, out dispatcherAddress);
             dispatcherProcessorPipeline.Register<MoveFaultsToErrorQueueBehavior.Registration>();
-            dispatcherProcessorPipeline.Register<FirstLevelRetriesBehavior.Registration>();
+           // dispatcherProcessorPipeline.Register<SecondLevelRetriesBehavior.Registration>();
+
             dispatcherProcessorPipeline.Register("TimeoutDispatcherProcessor", typeof(DispatchTimeoutBehavior), "Dispatches timeout messages");
             context.Container.ConfigureComponent(b => new DispatchTimeoutBehavior(
                 b.Build<IDispatchMessages>(),

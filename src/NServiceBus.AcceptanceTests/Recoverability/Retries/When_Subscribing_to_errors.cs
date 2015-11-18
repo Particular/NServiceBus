@@ -27,9 +27,9 @@
                     Assert.True(c.Logs.Any(l => l.Level == "error" && l.Message.Contains("Simulated exception message")), "The last exception should be logged as `error` before sending it to the error queue");
 
                     //FLR max retries = 3 means we will be processing 4 times. SLR max retries = 2 means we will do 3*FLR
-                    Assert.AreEqual(4 * 3, c.TotalNumberOfFLRTimesInvokedInHandler);
-                    Assert.AreEqual(4 * 3, c.TotalNumberOfFLRTimesInvoked);
-                    Assert.AreEqual(2, c.NumberOfSLRRetriesPerformed);
+                    Assert.AreEqual(4 * 3, c.NumberOfFLRTimesInvokedInHandler);
+                    Assert.AreEqual(4 * 3, c.NumberOfFLRTimesNotified);
+                    Assert.AreEqual(2, c.NumberOfSLRRetriesNotified);
                 })
                 .Run();
         }
@@ -37,9 +37,9 @@
         public class Context : ScenarioContext
         {
             public Guid Id { get; set; }
-            public int TotalNumberOfFLRTimesInvoked { get; set; }
-            public int TotalNumberOfFLRTimesInvokedInHandler { get; set; }
-            public int NumberOfSLRRetriesPerformed { get; set; }
+            public int NumberOfFLRTimesNotified { get; set; }
+            public int NumberOfFLRTimesInvokedInHandler { get; set; }
+            public int NumberOfSLRRetriesNotified { get; set; }
             public bool MessageSentToError { get; set; }
             public Exception MessageSentToErrorException { get; set; }
         }
@@ -50,9 +50,7 @@
             {
                 EndpointSetup<DefaultServer>(config =>
                 {
-                    config.EnableFeature<SecondLevelRetries>();
                     config.EnableFeature<TimeoutManager>();
-                    config.EnableFeature<FirstLevelRetries>();
                 })
                     .WithConfig<TransportConfig>(c => { c.MaxRetries = 3; })
                     .WithConfig<SecondLevelRetriesConfig>(c =>
@@ -74,7 +72,7 @@
                         return Task.FromResult(0); // messages from previous test runs must be ignored
                     }
 
-                    Context.TotalNumberOfFLRTimesInvokedInHandler++;
+                    Context.NumberOfFLRTimesInvokedInHandler++;
 
                     throw new SimulatedException("Simulated exception message");
                 }
@@ -102,8 +100,8 @@
                     Context.MessageSentToErrorException = message.Exception;
                     Context.MessageSentToError = true;
                 }));
-                unsubscribeStreams.Add(Notifications.Errors.MessageHasFailedAFirstLevelRetryAttempt.Subscribe(message => Context.TotalNumberOfFLRTimesInvoked++));
-                unsubscribeStreams.Add(Notifications.Errors.MessageHasBeenSentToSecondLevelRetries.Subscribe(message => Context.NumberOfSLRRetriesPerformed++));
+                unsubscribeStreams.Add(Notifications.Errors.MessageHasFailedAFirstLevelRetryAttempt.Subscribe(message => Context.NumberOfFLRTimesNotified++));
+                unsubscribeStreams.Add(Notifications.Errors.MessageHasBeenSentToSecondLevelRetries.Subscribe(message => Context.NumberOfSLRRetriesNotified++));
 
                 return Bus.SendLocalAsync(new MessageToBeRetried
                 {

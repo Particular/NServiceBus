@@ -49,7 +49,6 @@
                 EndpointSetup<DefaultServer>(config =>
                 {
                     config.EnableFeature<TimeoutManager>();
-                    config.EnableFeature<SecondLevelRetries>();
                 })
                     .WithConfig<TransportConfig>(c =>
                     {

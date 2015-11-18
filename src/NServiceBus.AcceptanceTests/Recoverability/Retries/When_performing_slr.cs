@@ -30,12 +30,11 @@
             {
                 EndpointSetup<DefaultServer>(configure =>
                 {
-                    configure.DisableFeature<FirstLevelRetries>();
-                    configure.EnableFeature<SecondLevelRetries>();
                     configure.EnableFeature<TimeoutManager>();
                     configure.RegisterComponents(c => c.ConfigureComponent<BodyMutator>(DependencyLifecycle.InstancePerCall));
                 })
-                .WithConfig<SecondLevelRetriesConfig>(c => c.TimeIncrease = TimeSpan.FromSeconds(1));
+                .WithConfig<SecondLevelRetriesConfig>(c => c.TimeIncrease = TimeSpan.FromSeconds(1))
+                .WithConfig<TransportConfig>(c => c.MaxRetries = 0);
             }
 
             public static byte Checksum(byte[] data)

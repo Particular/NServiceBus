@@ -33,11 +33,9 @@
         {
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServer>(b => b.DisableFeature<Features.SecondLevelRetries>())
-                    .WithConfig<TransportConfig>(c =>
-                    {
-                        c.MaxRetries = 0;
-                    });
+                EndpointSetup<DefaultServer>()
+                    .WithConfig<TransportConfig>(c => { c.MaxRetries = 0; })
+                    .WithConfig<SecondLevelRetriesConfig>(c => c.NumberOfRetries = 0);
             }
 
             class ErrorNotificationSpy : IWantToRunWhenBusStartsAndStops

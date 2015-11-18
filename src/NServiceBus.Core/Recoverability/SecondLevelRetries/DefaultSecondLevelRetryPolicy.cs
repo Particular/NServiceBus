@@ -37,7 +37,7 @@ namespace NServiceBus.Recoverability.SecondLevelRetries
         {
             string timestampHeader;
 
-            if (!message.Headers.TryGetValue(SecondLevelRetriesBehavior.RetriesTimestamp, out timestampHeader))
+            if (!message.Headers.TryGetValue(SecondLevelRetriesHandler.RetriesTimestamp, out timestampHeader))
             {
                 return false;
             }

@@ -6,6 +6,7 @@
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTesting.Support;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using NServiceBus.Config;
     using NUnit.Framework;
 
     [TestFixture]
@@ -39,7 +40,9 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>()
+                    .WithConfig<TransportConfig>(c => c.MaxRetries = 0)
+                    .WithConfig<SecondLevelRetriesConfig>(c => c.NumberOfRetries = 0);
             }
 
             public class CorrIdChangedSaga : Saga<CorrIdChangedSaga.CorrIdChangedSagaData>,

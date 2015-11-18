@@ -6,7 +6,7 @@
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTesting.Support;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.Features;
+    using NServiceBus.Config;
     using NUnit.Framework;
 
     public class When_message_fails_retries : NServiceBusAcceptanceTest
@@ -38,11 +38,7 @@
         {
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServer>(configure =>
-                {
-                    configure.DisableFeature<FirstLevelRetries>();
-                    configure.DisableFeature<SecondLevelRetries>();
-                });
+                EndpointSetup<DefaultServer>().WithConfig<SecondLevelRetriesConfig>(c => c.NumberOfRetries = 0);
             }
 
             public static byte Checksum(byte[] data)

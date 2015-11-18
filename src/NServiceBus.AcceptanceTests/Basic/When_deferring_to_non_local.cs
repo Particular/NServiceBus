@@ -9,7 +9,8 @@
 
     public class When_deferring_to_non_local : NServiceBusAcceptanceTest
     {
-        [Test]
+        //TODO: reenable that when timeout manager is ready
+        [Test, Ignore("This depends on Timeout")]
         public async Task Message_should_be_received()
         {
             var context = await Scenario.Define<Context>()

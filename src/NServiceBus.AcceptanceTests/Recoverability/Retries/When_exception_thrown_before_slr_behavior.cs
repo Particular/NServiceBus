@@ -36,13 +36,12 @@
                     {
                         var endpointName = AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(ErrorSpy));
 
-                        b.DisableFeature<FirstLevelRetries>();
-                        b.EnableFeature<SecondLevelRetries>();
                         b.EnableFeature<TimeoutManager>();
                         b.Pipeline.Register(new RegisterBlowupBehavior("SecondLevelRetries"));
                         b.SendFailedMessagesTo(endpointName);
                     })
                     .WithConfig<TransportConfig>(c => c.MaximumConcurrencyLevel = 1)
+                    .WithConfig<TransportConfig>(c => c.MaxRetries = 0)
                     .WithConfig<SecondLevelRetriesConfig>(c =>
                      {
                          c.NumberOfRetries = 1;

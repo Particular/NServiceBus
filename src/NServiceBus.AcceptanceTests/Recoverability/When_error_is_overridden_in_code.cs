@@ -29,13 +29,10 @@
             {
                 EndpointSetup<DefaultServer>(b =>
                 {
-                    b.DisableFeature<Features.SecondLevelRetries>();
                     b.SendFailedMessagesTo("error_with_code_source");
                 })
-                    .WithConfig<TransportConfig>(c =>
-                    {
-                        c.MaxRetries = 0;
-                    });
+                  .WithConfig<TransportConfig>(c => { c.MaxRetries = 0; })
+                  .WithConfig<SecondLevelRetriesConfig>(c => c.NumberOfRetries = 0);
             }
 
             class Handler : IHandleMessages<Message>

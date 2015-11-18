@@ -20,11 +20,6 @@
                 {
                     b.When((bus, c) => bus.SendLocalAsync(new FailingMessage {Id = c.Id}))
                      .DoNotFailOnErrorMessages();
-                    b.CustomConfig(c =>
-                    {
-                        c.DisableFeature<FirstLevelRetries>();
-                        c.EnableFeature<SecondLevelRetries>();
-                    });
                 })
                 .WithEndpoint<ErrorSpy>()
                 .Done(c => c.FailingMessageMovedToErrorQueueAndProcessedByErrorSpy)
@@ -52,7 +47,8 @@
                         c.NumberOfRetries = 3;
                         c.TimeIncrease = TimeSpan.FromSeconds(1);
                     })
-                    .WithConfig<TransportConfig>(c => c.MaximumConcurrencyLevel = 1);
+                    .WithConfig<TransportConfig>(c => c.MaximumConcurrencyLevel = 1)
+                    .WithConfig<TransportConfig>(c => c.MaxRetries = 0);
             }
 
             class FailingMessageHandler : IHandleMessages<FailingMessage>

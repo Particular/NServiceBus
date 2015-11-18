@@ -15,7 +15,10 @@
         public async Task Should_commit_unit_of_work_and_execute_subsequent_handlers()
         {
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                .WithEndpoint<MyEndpoint>(b => b.When((bus, c) => bus.SendLocalAsync(new SomeMessage { Id = c.Id })))
+                .WithEndpoint<MyEndpoint>(b => b.When((bus, c) => bus.SendLocalAsync(new SomeMessage
+                {
+                    Id = c.Id
+                })))
                 .Done(c => c.Done)
                 .Run();
 
@@ -41,13 +44,9 @@
                 {
                     b.RegisterComponents(r => r.ConfigureComponent<CheckUnitOfWorkOutcome>(DependencyLifecycle.InstancePerCall));
                     b.DisableFeature<TimeoutManager>();
-                    b.DisableFeature<SecondLevelRetries>();
                     b.ExecuteTheseHandlersFirst(typeof(FirstHandler), typeof(SecondHandler));
-                })
-                    .WithConfig<TransportConfig>(c =>
-                    {
-                        c.MaxRetries = 0;
-                    });
+                }).WithConfig<TransportConfig>(c => { c.MaxRetries = 0; })
+                  .WithConfig<SecondLevelRetriesConfig>(c => c.NumberOfRetries = 0);
             }
 
             class CheckUnitOfWorkOutcome : IManageUnitsOfWork
@@ -88,6 +87,7 @@
             class SecondHandler : IHandleMessages<SomeMessage>
             {
                 public Context Context { get; set; }
+
                 public Task Handle(SomeMessage message, IMessageHandlerContext context)
                 {
                     if (message.Id != Context.Id)
@@ -102,12 +102,11 @@
                 }
             }
         }
+
         [Serializable]
         public class SomeMessage : IMessage
         {
             public Guid Id { get; set; }
         }
-
     }
-
 }

@@ -8,9 +8,12 @@ namespace NServiceBus.Core.Tests
     using Features;
     using Faults;
     using Hosting;
+    using NServiceBus.Core.Tests.Recoverability.SecondLevelRetries;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Recoverability.Faults;
+    using NServiceBus.Recoverability.FirstLevelRetries;
+    using NServiceBus.Recoverability.SecondLevelRetries;
     using NServiceBus.Routing;
     using TransportDispatch;
     using Transports;
@@ -20,62 +23,87 @@ namespace NServiceBus.Core.Tests
     [TestFixture]
     public class ForwardFaultsToErrorQueueTests
     {
+        FakeDispatchPipeline pipeline;
+        FakeCriticalError errors;
+        HostInformation hostInfo;
+        BusNotifications notifications;
+
+        [SetUp]
+        public void Setup()
+        {
+            pipeline = new FakeDispatchPipeline();
+            errors = new FakeCriticalError();
+            hostInfo = new HostInformation(Guid.NewGuid(), "my host");
+            notifications = new BusNotifications();
+        }
+
+        MoveFaultsToErrorQueueBehavior CreateBehavior(string errorQueueAddress)
+        {
+            var flrHandler = new FirstLevelRetriesHandler(new FlrStatusStorage(), new FirstLevelRetryPolicy(0), notifications);
+            var slrHandler = new SecondLevelRetriesHandler(pipeline, new FakePolicy(TimeSpan.MinValue), notifications, string.Empty, new SlrStatusStorage(), false);
+
+            var bahavior = new MoveFaultsToErrorQueueBehavior(
+                errors,
+                pipeline,
+                hostInfo,
+                notifications, 
+                errorQueueAddress, 
+                new FaultsStatusStorage(),
+                flrHandler,
+                slrHandler);
+
+            return bahavior;
+        }
+
         [Test]
         public async Task ShouldForwardToErrorQueueForAllExceptions()
         {
-            var fakeDispatchPipeline = new FakeDispatchPipeline();
             var errorQueueAddress = "error";
-            var behavior = new MoveFaultsToErrorQueueBehavior(new FakeCriticalError(),
-                fakeDispatchPipeline, 
-                new HostInformation(Guid.NewGuid(), "my host"),
-                new BusNotifications(), errorQueueAddress, new FaultsStatusStorage());
+            var behavior = CreateBehavior(errorQueueAddress); 
 
             var context = CreateContext("someid");
             behavior.Initialize(new PipelineInfo("Test", "public-receive-address"));
 
             await SimulateFailingExecution(behavior, context);
 
-            Assert.AreEqual(errorQueueAddress, fakeDispatchPipeline.Destination);
+            Assert.AreEqual(errorQueueAddress, pipeline.Destination);
 
-            Assert.AreEqual("someid", fakeDispatchPipeline.MessageSent.MessageId);
+            Assert.AreEqual("someid", pipeline.MessageSent.MessageId);
         }
+
         [Test]
         public void ShouldInvokeCriticalErrorIfForwardingFails()
         {
-            var criticalError = new FakeCriticalError();
-            var fakeDispatchPipeline = new FakeDispatchPipeline{ThrowOnDispatch = true};
+            pipeline.ThrowOnDispatch = true;
 
-
-            var behavior = new MoveFaultsToErrorQueueBehavior(criticalError, fakeDispatchPipeline, new HostInformation(Guid.NewGuid(), "my host"), new BusNotifications(), "error", new FaultsStatusStorage());
+            var behavior = CreateBehavior("error");
             behavior.Initialize(new PipelineInfo("Test", "public-receive-address"));
 
             //the ex should bubble to force the transport to rollback. If not the message will be lost
             Assert.Throws<Exception>(async () => await SimulateFailingExecution(behavior, CreateContext("someid")));
 
-            Assert.True(criticalError.ErrorRaised);
+            Assert.True(errors.ErrorRaised);
         }
 
 
         [Test]
         public async Task ShouldEnrichHeadersWithHostAndExceptionDetails()
         {
-            var fakeDispatchPipeline = new FakeDispatchPipeline();
-            var hostInfo = new HostInformation(Guid.NewGuid(), "my host");
             var context = CreateContext("someid");
 
 
-            var behavior = new MoveFaultsToErrorQueueBehavior(new FakeCriticalError(), fakeDispatchPipeline, hostInfo, new BusNotifications(), "error", new FaultsStatusStorage());
+            var behavior = CreateBehavior("error");
             behavior.Initialize(new PipelineInfo("Test", "public-receive-address"));
 
             await SimulateFailingExecution(behavior, context);
 
             //host info
-            Assert.AreEqual(hostInfo.HostId.ToString("N"), fakeDispatchPipeline.MessageSent.Headers[Headers.HostId]);
-            Assert.AreEqual(hostInfo.DisplayName, fakeDispatchPipeline.MessageSent.Headers[Headers.HostDisplayName]);
+            Assert.AreEqual(hostInfo.HostId.ToString("N"), pipeline.MessageSent.Headers[Headers.HostId]);
+            Assert.AreEqual(hostInfo.DisplayName, pipeline.MessageSent.Headers[Headers.HostDisplayName]);
 
-            Assert.AreEqual("public-receive-address", fakeDispatchPipeline.MessageSent.Headers[FaultsHeaderKeys.FailedQ]);
+            Assert.AreEqual("public-receive-address", pipeline.MessageSent.Headers[FaultsHeaderKeys.FailedQ]);
             //exception details
-            Assert.AreEqual("testex", fakeDispatchPipeline.MessageSent.Headers["NServiceBus.ExceptionInfo.Message"]);
+            Assert.AreEqual("testex", pipeline.MessageSent.Headers["NServiceBus.ExceptionInfo.Message"]);
 
         }
 
@@ -83,15 +111,8 @@ namespace NServiceBus.Core.Tests
         public async Task ShouldRaiseNotificationWhenMessageIsForwarded()
         {
 
-            var notifications = new BusNotifications();
-            var fakeDispatchPipeline = new FakeDispatchPipeline();
-         
-            var behavior = new MoveFaultsToErrorQueueBehavior(new FakeCriticalError(),
-                fakeDispatchPipeline, 
-                new HostInformation(Guid.NewGuid(), "my host"),
-                notifications, 
-                "error",
-                new FaultsStatusStorage());
+
+            var behavior = CreateBehavior("error");
             var failedMessageNotification = new FailedMessage();
 
             notifications.Errors.MessageSentToErrorQueue.Subscribe(f => { failedMessageNotification = f; });

@@ -6,7 +6,7 @@
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
-    using NServiceBus.Features;
+    using NServiceBus.Config;
     using NUnit.Framework;
 
     public class When_doing_flr_with_native_transactions : NServiceBusAcceptanceTest
@@ -48,9 +48,8 @@
             {
                 EndpointSetup<DefaultServer>(b =>
                 {
-                    b.EnableFeature<FirstLevelRetries>();
                     b.Transactions().DisableDistributedTransactions();
-                });
+                }).WithConfig<SecondLevelRetriesConfig>(c => c.NumberOfRetries = 0);
             }
 
             class ErrorNotificationSpy : IWantToRunWhenBusStartsAndStops
