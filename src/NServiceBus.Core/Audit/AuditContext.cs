@@ -24,9 +24,11 @@
         /// <param name="message">The message to be audited.</param>
         /// <param name="auditAddress">The address of the audit queue to use.</param>
         /// <param name="parent">The parent incoming context.</param>
-        public AuditContext(OutgoingMessage message,string auditAddress, BehaviorContext parent)
+        public AuditContext(OutgoingMessage message, string auditAddress, BehaviorContext parent)
             : base(parent)
         {
+            Guard.AgainstNull("message", message);
+            Guard.AgainstNullAndEmpty("auditAddress", auditAddress);
             Message = message;
             AuditAddress = auditAddress;
         }

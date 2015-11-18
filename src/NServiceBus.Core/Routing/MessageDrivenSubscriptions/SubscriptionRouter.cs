@@ -16,11 +16,9 @@
 
         public IEnumerable<string> GetAddressesForEventType(Type messageType)
         {
-            var publisherAddresses = publishers
+            return publishers
                 .GetPublisherFor(messageType).SelectMany(p => p
                     .Resolve(e => endpointInstances.FindInstances(e), i => physicalAddresses.GetTransportAddress(i)));
-
-            return publisherAddresses;
         }
 
         Publishers publishers;

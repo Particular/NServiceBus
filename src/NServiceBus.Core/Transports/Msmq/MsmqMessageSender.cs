@@ -47,12 +47,12 @@ namespace NServiceBus.Transports.Msmq
             var dispatchOptions = transportOperation.DispatchOptions;
             var message = transportOperation.Message;
 
-                var routingStrategy = dispatchOptions.AddressTag as UnicastAddressTag;
+            var routingStrategy = dispatchOptions.AddressTag as UnicastAddressTag;
 
-                if (routingStrategy == null)
-                {
-                    throw new Exception("The MSMQ transport only supports the `DirectRoutingStrategy`, strategy required " + dispatchOptions.AddressTag.GetType().Name);
-                }
+            if (routingStrategy == null)
+            {
+                throw new Exception($"The MSMQ transport only supports the `DirectRoutingStrategy`, strategy required {dispatchOptions.AddressTag.GetType().Name}");
+            }
 
             var destination = routingStrategy.Destination;
 
@@ -60,37 +60,35 @@ namespace NServiceBus.Transports.Msmq
             try
             {
                 using (var q = new MessageQueue(destinationAddress.FullPath, false, settings.UseConnectionCache, QueueAccessMode.Send))
+                using (var toSend = MsmqUtilities.Convert(message, dispatchOptions))
                 {
-                    using (var toSend = MsmqUtilities.Convert(message, dispatchOptions))
+                    toSend.UseDeadLetterQueue = settings.UseDeadLetterQueue;
+                    toSend.UseJournalQueue = settings.UseJournalQueue;
+                    toSend.TimeToReachQueue = settings.TimeToReachQueue;
+
+                    string replyToAddress;
+
+                    if (message.Headers.TryGetValue(Headers.ReplyToAddress, out replyToAddress))
                     {
-                        toSend.UseDeadLetterQueue = settings.UseDeadLetterQueue;
-                        toSend.UseJournalQueue = settings.UseJournalQueue;
-                        toSend.TimeToReachQueue = settings.TimeToReachQueue;
-
-                        string replyToAddress;
-
-                        if (message.Headers.TryGetValue(Headers.ReplyToAddress, out replyToAddress))
-                        {
-                            toSend.ResponseQueue = new MessageQueue(MsmqAddress.Parse(replyToAddress).FullPath);
-                        }
-
-                        var label = GetLabel(message);
-
-                        if (dispatchOptions.RequiredDispatchConsistency == DispatchConsistency.Isolated)
-                        {
-                            q.Send(toSend, label, GetIsolatedTransactionType());
-                            return;
-                        }
-
-                        MessageQueueTransaction activeTransaction;
-                        if (context.TryGet(out activeTransaction))
-                        {
-                            q.Send(toSend, label, activeTransaction);
-                            return;
-                        }
-
-                        q.Send(toSend, label, GetTransactionTypeForSend());
+                        toSend.ResponseQueue = new MessageQueue(MsmqAddress.Parse(replyToAddress).FullPath);
                     }
+
+                    var label = GetLabel(message);
+
+                    if (dispatchOptions.RequiredDispatchConsistency == DispatchConsistency.Isolated)
+                    {
+                        q.Send(toSend, label, GetIsolatedTransactionType());
+                        return;
+                    }
+
+                    MessageQueueTransaction activeTransaction;
+                    if (context.TryGet(out activeTransaction))
+                    {
+                        q.Send(toSend, label, activeTransaction);
+                        return;
+                    }
+
+                    q.Send(toSend, label, GetTransactionTypeForSend());
                 }
             }
             catch (MessageQueueException ex)

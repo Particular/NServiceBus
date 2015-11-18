@@ -67,12 +67,9 @@ namespace NServiceBus
                     source.Reset();
                 }
 
-                public T Current { get { return source.Current; }}
+                public T Current => source.Current;
 
-                object IEnumerator.Current
-                {
-                    get { return Current; }
-                }
+                object IEnumerator.Current => Current;
             }
         }
     }

@@ -101,9 +101,9 @@
         {
             unchecked
             {
-                var hashCode = (EndpointName != null ? EndpointName.GetHashCode() : 0);
-                hashCode = (hashCode*397) ^ (InstanceName != null ? InstanceName.GetHashCode() : 0);
-                hashCode = (hashCode*397) ^ (TransportAddress != null ? TransportAddress.GetHashCode() : 0);
+                var hashCode = EndpointName?.GetHashCode() ?? 0;
+                hashCode = (hashCode*397) ^ (InstanceName?.GetHashCode() ?? 0);
+                hashCode = (hashCode*397) ^ (TransportAddress?.GetHashCode() ?? 0);
                 return hashCode;
             }
         }

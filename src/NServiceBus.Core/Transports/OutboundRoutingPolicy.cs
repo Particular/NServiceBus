@@ -5,10 +5,6 @@ namespace NServiceBus.Transports
     /// </summary>
     public class OutboundRoutingPolicy
     {
-        readonly OutboundRoutingType sends;
-        readonly OutboundRoutingType publishes;
-        readonly OutboundRoutingType replies;
-
         /// <summary>
         /// Creates new policy object.
         /// </summary>
@@ -17,33 +13,24 @@ namespace NServiceBus.Transports
         /// <param name="replies">Policy for replies.</param>
         public OutboundRoutingPolicy(OutboundRoutingType sends, OutboundRoutingType publishes, OutboundRoutingType replies)
         {
-            this.sends = sends;
-            this.publishes = publishes;
-            this.replies = replies;
+            this.Sends = sends;
+            this.Publishes = publishes;
+            this.Replies = replies;
         }
 
         /// <summary>
         /// Gets the policy for sends.
         /// </summary>
-        public OutboundRoutingType Sends
-        {
-            get { return sends; }
-        }
+        public OutboundRoutingType Sends { get; }
 
         /// <summary>
         /// Gets the policy for publishes.
         /// </summary>
-        public OutboundRoutingType Publishes
-        {
-            get { return publishes; }
-        }
+        public OutboundRoutingType Publishes { get; }
 
         /// <summary>
         /// Gets the policy for replies.
         /// </summary>
-        public OutboundRoutingType Replies
-        {
-            get { return replies; }
-        }
+        public OutboundRoutingType Replies { get; }
     }
 }

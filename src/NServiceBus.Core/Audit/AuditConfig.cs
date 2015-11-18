@@ -18,7 +18,9 @@
             {
                 var result = this["QueueName"] as string;
                 if (string.IsNullOrWhiteSpace(result))
-                    result = null;
+                {
+                    return null;
+                }
 
                 return result;
             }

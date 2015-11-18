@@ -27,7 +27,6 @@ namespace NServiceBus
                 Address = auditQueue,
                 TimeToBeReceived = timeToBeReceived
             });
-
         }
     }
 }

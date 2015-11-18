@@ -12,7 +12,7 @@
         internal Audit()
         {
             EnableByDefault();
-            Prerequisite(config =>AuditConfigReader.GetConfiguredAuditQueue(config.Settings, out auditConfig),"No configured audit queue was found");
+            Prerequisite(config => AuditConfigReader.GetConfiguredAuditQueue(config.Settings, out auditConfig), "No configured audit queue was found");
         }
 
 
@@ -24,7 +24,6 @@
             context.Pipeline.Register(WellKnownStep.AuditProcessedMessage, typeof(InvokeAuditPipelineBehavior), "Execute the audit pipeline");
             context.Pipeline.RegisterConnector<AuditToDispatchConnector>("Dispatches the audit message to the transport");
          
-
             context.Container.ConfigureComponent(b =>
             {
                 var pipelinesCollection = context.Settings.Get<PipelineConfiguration>();

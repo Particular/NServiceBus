@@ -33,7 +33,7 @@
             var subscribeTasks = new List<Task>();
             foreach (var publisherAddress in publisherAddresses)
             {
-                Logger.Debug("Subscribing to " + eventType.AssemblyQualifiedName + " at publisher queue " + publisherAddress);
+                Logger.Debug($"Subscribing to {eventType.AssemblyQualifiedName} at publisher queue {publisherAddress}");
 
                 var subscriptionMessage = ControlMessageFactory.Create(MessageIntentEnum.Subscribe);
 
@@ -94,9 +94,9 @@
 
         SubscriptionRouter subscriptionRouter;
         string subscriberAddress;
-        readonly EndpointName subscriberEndpointName;
+        EndpointName subscriberEndpointName;
         IDispatchMessages dispatcher;
-        readonly bool legacyMode;
+        bool legacyMode;
 
         static ILog Logger = LogManager.GetLogger<MessageDrivenUnsubscribeTerminator>();
     }
