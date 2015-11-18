@@ -29,7 +29,7 @@
             var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1));
             var context = CreateContext("someid");
 
-            Assert.Throws<MessageProcessingAbortedException>(async () => await behavior.Invoke(context, () =>
+            Assert.Throws<OperationCanceledException>(async () => await behavior.Invoke(context, () =>
             {
                 throw new Exception("test");
             }));
@@ -76,7 +76,7 @@
             var pipeline = new PipelineInfo("anotherPipeline", "anotherAddress");
             var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1), storage, pipelineInfo: pipeline);
 
-            Assert.Throws<MessageProcessingAbortedException>(async ()=> await behavior.Invoke(CreateContext(messageId), () =>
+            Assert.Throws<OperationCanceledException>(async ()=> await behavior.Invoke(CreateContext(messageId), () =>
             {
                 throw new Exception("test");
             }));
@@ -102,7 +102,7 @@
             });
 
 
-            Assert.Throws<MessageProcessingAbortedException>(async () => await behavior.Invoke(CreateContext("someid"), () =>
+            Assert.Throws<OperationCanceledException>(async () => await behavior.Invoke(CreateContext("someid"), () =>
             {
                 throw new Exception("test");
             }));
@@ -117,14 +117,14 @@
             var storage = new FlrStatusStorage();
             var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1), storage);
 
-            Assert.Throws<MessageProcessingAbortedException>(async () => await behavior.Invoke(CreateContext(messageId), () =>
+            Assert.Throws<OperationCanceledException>(async () => await behavior.Invoke(CreateContext(messageId), () =>
             {
                 throw new Exception("test");
             }));
 
             storage.ClearAllFailures();
 
-            Assert.Throws<MessageProcessingAbortedException>(async () => await behavior.Invoke(CreateContext(messageId), () =>
+            Assert.Throws<OperationCanceledException>(async () => await behavior.Invoke(CreateContext(messageId), () =>
             {
                 throw new Exception("test");
             }));
@@ -140,12 +140,12 @@
             var pipeline2 = new PipelineInfo("pipeline2", "address");
             var behavior2 = CreateFlrBehavior(new FirstLevelRetryPolicy(2), storage, pipelineInfo: pipeline2);
 
-            Assert.Throws<MessageProcessingAbortedException>(async () => await behavior1.Invoke(CreateContext(messageId), () =>
+            Assert.Throws<OperationCanceledException>(async () => await behavior1.Invoke(CreateContext(messageId), () =>
             {
                 throw new Exception("test");
             }));
 
-            Assert.Throws<MessageProcessingAbortedException>(async () => await behavior2.Invoke(CreateContext(messageId), () =>
+            Assert.Throws<OperationCanceledException>(async () => await behavior2.Invoke(CreateContext(messageId), () =>
             {
                 throw new Exception("test");
             }));
@@ -155,7 +155,7 @@
                 throw new Exception("test");
             }));
 
-            Assert.Throws<MessageProcessingAbortedException>(async () => await behavior2.Invoke(CreateContext(messageId), () =>
+            Assert.Throws<OperationCanceledException>(async () => await behavior2.Invoke(CreateContext(messageId), () =>
             {
                 throw new Exception("test");
             }));

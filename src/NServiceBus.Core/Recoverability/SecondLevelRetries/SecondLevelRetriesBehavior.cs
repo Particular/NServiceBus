@@ -29,7 +29,7 @@ namespace NServiceBus
             {
                 await next().ConfigureAwait(false);
             }
-            catch (MessageProcessingAbortedException)
+            catch (OperationCanceledException)
             {
                 throw; // flr asked to abort
             }

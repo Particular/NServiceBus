@@ -161,7 +161,7 @@ namespace NServiceBus.Transports.Msmq
 
                             receiveCircuitBreaker.Success();
                         }
-                        catch (MessageProcessingAbortedException)
+                        catch (OperationCanceledException)
                         {
                             //expected to happen
                         }
