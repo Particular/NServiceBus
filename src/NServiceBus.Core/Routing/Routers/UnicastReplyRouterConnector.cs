@@ -10,7 +10,6 @@ namespace NServiceBus
     using OutgoingPipeline;
     using Pipeline;
     using Routing;
-    using TransportDispatch;
     using Transports;
 
     class UnicastReplyRouterConnector : StageConnector<OutgoingReplyContext, OutgoingLogicalMessageContext>
@@ -26,13 +25,19 @@ namespace NServiceBus
                 replyToAddress = GetReplyToAddressFromIncomingMessage(context);
             }
 
-            context.SetHeader(Headers.MessageIntent, MessageIntentEnum.Reply.ToString());
+            context.Headers[Headers.MessageIntent] = MessageIntentEnum.Reply.ToString();
 
             var addressLabels = RouteToDestination(replyToAddress).EnsureNonEmpty(() => "No destination specified.").ToArray();
 
             try
             {
-                await next(new OutgoingLogicalMessageContext(context.Message, addressLabels, context)).ConfigureAwait(false);
+                await next(new OutgoingLogicalMessageContext(
+                    context.MessageId,
+                    context.Headers,
+                    context.Message,
+                    addressLabels,
+                    context))
+                    .ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {

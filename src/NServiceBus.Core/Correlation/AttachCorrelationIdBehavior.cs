@@ -5,7 +5,6 @@
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Outgoing;
     using NServiceBus.Pipeline.OutgoingPipeline;
-    using NServiceBus.TransportDispatch;
     using NServiceBus.Transports;
 
     class AttachCorrelationIdBehavior : Behavior<OutgoingLogicalMessageContext>
@@ -34,10 +33,10 @@
             //if we still doesn't have one we'll use the message id
             if (string.IsNullOrEmpty(correlationId))
             {
-                correlationId = context.GetMessageId();
+                correlationId = context.MessageId;
             }
 
-            context.SetHeader(Headers.CorrelationId, correlationId);
+            context.Headers[Headers.CorrelationId] = correlationId;
             return next();
         }
 

@@ -5,7 +5,6 @@ namespace NServiceBus
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.OutgoingPipeline;
     using NServiceBus.StaticHeaders;
-    using NServiceBus.TransportDispatch;
 
     class ApplyStaticHeadersBehavior:Behavior<OutgoingLogicalMessageContext>
     {
@@ -20,7 +19,7 @@ namespace NServiceBus
         {
             foreach (var staticHeader in currentStaticHeaders)
             {
-                context.SetHeader(staticHeader.Key,staticHeader.Value);
+                context.Headers[staticHeader.Key] = staticHeader.Value;
             }
 
             return next();

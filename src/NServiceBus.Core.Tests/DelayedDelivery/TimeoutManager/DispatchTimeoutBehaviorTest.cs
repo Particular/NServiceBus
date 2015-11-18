@@ -9,6 +9,7 @@
     using NServiceBus.InMemory.TimeoutPersister;
     using NServiceBus.Timeout.Core;
     using NServiceBus.Transports;
+    using NServiceBus.Unicast.Transport;
     using NUnit.Framework;
 
     public class DispatchTimeoutBehaviorTest
@@ -120,7 +121,7 @@
             };
 
             return new PhysicalMessageProcessingContext(
-                new IncomingMessage(messageId, headers, new MemoryStream()), null);
+                new IncomingMessage(messageId, headers, new MemoryStream()), new PipelineInfo("pipelineName", "pipelineTransportAddress"), null);
         }
 
         class FakeMessageDispatcher : IDispatchMessages

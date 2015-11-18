@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
     using OutgoingPipeline;
     using Pipeline;
@@ -12,23 +11,11 @@
     {
         public override Task Invoke(OutgoingPhysicalMessageContext context, Func<RoutingContext, Task> next)
         {
-            var state = context.GetOrCreate<State>();
-            state.Headers[Headers.MessageId] = state.MessageId;
+            context.Headers[Headers.MessageId] = context.MessageId;
 
-            var message = new OutgoingMessage(state.MessageId, state.Headers, context.Body);
+            var message = new OutgoingMessage(context.MessageId, context.Headers, context.Body);
 
             return next(new RoutingContext(message, context.RoutingStrategies, context));
-        }
-
-        public class State
-        {
-            public State()
-            {
-                Headers = new Dictionary<string, string>();
-                MessageId = CombGuid.Generate().ToString();
-            }
-            public Dictionary<string, string> Headers { get; }
-            public string MessageId { get; set; }
         }
     }
 }

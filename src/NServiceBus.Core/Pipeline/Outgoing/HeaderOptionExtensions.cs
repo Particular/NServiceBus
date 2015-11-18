@@ -18,11 +18,8 @@
         {
             Guard.AgainstNull("context", context);
             Guard.AgainstNullAndEmpty("key", key);
-            
-            context.Context.GetOrCreate<OutgoingPhysicalToRoutingConnector.State>()
-                .Headers[key] = value;
-        }
 
-      
+            context.OutgoingHeaders[key] = value;
+        }
     }
 }

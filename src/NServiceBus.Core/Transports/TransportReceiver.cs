@@ -25,6 +25,8 @@ namespace NServiceBus.Transport
             this.pushSettings = pushSettings;
             this.receiver = receiver;
             this.builder = builder;
+
+            pipelineInfo = new PipelineInfo(Id, pushSettings.InputQueue);
         }
 
         public string Id { get; }
@@ -39,7 +41,7 @@ namespace NServiceBus.Transport
             Logger.DebugFormat("Pipeline {0} is starting receiver for queue {1}.", Id, pushSettings.InputQueue);
 
             receiver.Init(InvokePipeline, pushSettings);
-            pipeline.Initialize(new PipelineInfo(Id, pushSettings.InputQueue));
+            
             await pipeline.Warmup().ConfigureAwait(false);
 
             receiver.Start(pushRuntimeSettings);
@@ -64,7 +66,7 @@ namespace NServiceBus.Transport
         {
             using (var childBuilder = builder.CreateChildBuilder())
             {
-                var context = new TransportReceiveContext(new IncomingMessage(pushContext.MessageId, pushContext.Headers, pushContext.BodyStream), new RootContext(childBuilder));
+                var context = new TransportReceiveContext(new IncomingMessage(pushContext.MessageId, pushContext.Headers, pushContext.BodyStream), pipelineInfo, new RootContext(childBuilder));
                 context.Merge(pushContext.Context);
                 await pipeline.Invoke(context).ConfigureAwait(false);
             }
@@ -79,5 +81,6 @@ namespace NServiceBus.Transport
 
         bool isStarted;
         PushSettings pushSettings;
+        PipelineInfo pipelineInfo;
     }
 }

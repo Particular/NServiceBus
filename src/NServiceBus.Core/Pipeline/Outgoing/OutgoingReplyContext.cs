@@ -12,7 +12,7 @@
         /// Initializes a new instance of <see cref="OutgoingReplyContext" />.
         /// </summary>
         public OutgoingReplyContext(OutgoingLogicalMessage message, ReplyOptions options, BehaviorContext parentContext)
-            : base(parentContext)
+            : base(options.MessageId, options.OutgoingHeaders, parentContext)
         {
             Message = message;
             Guard.AgainstNull(nameof(parentContext), parentContext);

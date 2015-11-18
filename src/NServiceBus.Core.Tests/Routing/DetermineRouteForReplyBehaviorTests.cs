@@ -8,6 +8,7 @@
     using OutgoingPipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Routing;
+    using NServiceBus.Unicast.Transport;
     using Transports;
     using NUnit.Framework;
 
@@ -31,6 +32,7 @@
                             {Headers.ReplyToAddress, "ReplyAddressOfIncomingMessage"}
                         },
                         new MemoryStream()),
+                    new PipelineInfo("pipelineName", "pipelineTransportAddress"),
                     new RootContext(null)));
 
             UnicastAddressTag addressTag = null;
@@ -57,6 +59,7 @@
                         "id",
                         new Dictionary<string, string>(),
                         new MemoryStream()),
+                    new PipelineInfo("pipelineName", "pipelineTransportAddress"),
                     new RootContext(null)));
 
             var ex = Assert.Throws<Exception>(async () => await behavior.Invoke(context, _ => Task.FromResult(0)));

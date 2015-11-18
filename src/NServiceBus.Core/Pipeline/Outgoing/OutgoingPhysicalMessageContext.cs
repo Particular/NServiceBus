@@ -10,11 +10,16 @@
     public class OutgoingPhysicalMessageContext : OutgoingContext
     {
 
+        internal OutgoingPhysicalMessageContext(byte[] body, OutgoingLogicalMessageContext parentContext) 
+            : this(parentContext.MessageId, parentContext.Headers, body, parentContext.RoutingStrategies, parentContext)
+        {
+        }
+
         /// <summary>
         /// Initializes an instance of the context.
         /// </summary>
-        public OutgoingPhysicalMessageContext(byte[] body, IReadOnlyCollection<RoutingStrategy> routingStrategies, OutgoingLogicalMessageContext parentContext)
-            : base(parentContext)
+        public OutgoingPhysicalMessageContext(string messageId, Dictionary<string, string> headers, byte[] body, IReadOnlyCollection<RoutingStrategy> routingStrategies, OutgoingLogicalMessageContext parentContext)
+            : base(messageId, headers, parentContext)
         {
             Body = body;
             RoutingStrategies = routingStrategies;

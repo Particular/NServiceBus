@@ -1,5 +1,7 @@
 namespace NServiceBus.Core.Tests
 {
+    using System;
+    using System.Collections.Generic;
     using NServiceBus.Extensibility;
     using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline.OutgoingPipeline;
@@ -19,7 +21,12 @@ namespace NServiceBus.Core.Tests
 
         public static OutgoingLogicalMessageContext GetOutgoingContext(object message)
         {
-            return new OutgoingLogicalMessageContext(new OutgoingLogicalMessage(message), null, null);
+            return new OutgoingLogicalMessageContext(
+                Guid.NewGuid().ToString(),
+                new Dictionary<string, string>(),
+                new OutgoingLogicalMessage(message),
+                null,
+                null);
         }
     }
 }

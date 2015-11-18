@@ -226,11 +226,9 @@ namespace NServiceBus.Core.Tests.Pipeline
 
         class ChildContext : IncomingContext
         {
-            public ChildContext() : base(null)
+            public ChildContext() : base("messageId", "replyToAddress", new Dictionary<string, string>(), null, null)
             {
             }
         }
-
-     
     }
 }

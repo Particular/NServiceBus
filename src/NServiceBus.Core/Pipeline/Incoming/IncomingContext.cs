@@ -4,8 +4,8 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using NServiceBus.Extensibility;
-    using NServiceBus.Transports;
     using NServiceBus.Unicast;
+    using NServiceBus.Unicast.Transport;
     using PublishOptions = NServiceBus.PublishOptions;
     using ReplyOptions = NServiceBus.ReplyOptions;
     using SendOptions = NServiceBus.SendOptions;
@@ -18,73 +18,83 @@
         /// <summary>
         /// Initializes a new instance of <see cref="IncomingContext" />.
         /// </summary>
-        protected IncomingContext(BehaviorContext parentContext)
+        protected IncomingContext(string messageId, string replyToAddress, IReadOnlyDictionary<string, string> headers, PipelineInfo pipelineInfo, BehaviorContext parentContext)
             : base(parentContext)
         {
+
+            MessageId = messageId;
+            ReplyToAddress = replyToAddress;
+            MessageHeaders = headers;
+            PipelineInfo = pipelineInfo;
         }
+
+        /// <summary>
+        /// Contains information about the current pipeline.
+        /// </summary>
+        public PipelineInfo PipelineInfo { get; }
 
         /// <inheritdoc />
         public ContextBag Extensions => this;
 
         /// <inheritdoc />
-        public string MessageId => Get<IncomingMessage>().MessageId;
+        public string MessageId { get; }
 
         /// <inheritdoc />
-        public string ReplyToAddress => Get<IncomingMessage>().GetReplyToAddress();
+        public string ReplyToAddress { get; }
 
         /// <inheritdoc />
-        public IReadOnlyDictionary<string, string> MessageHeaders => Get<IncomingMessage>().Headers;
+        public IReadOnlyDictionary<string, string> MessageHeaders { get; }
 
         /// <inheritdoc />
-        public Task SendAsync(object message, SendOptions options)
+        public virtual Task SendAsync(object message, SendOptions options)
         {
             return BusOperationsBehaviorContext.SendAsync(this, message, options);
         }
 
         /// <inheritdoc />
-        public Task SendAsync<T>(Action<T> messageConstructor, SendOptions options)
+        public virtual Task SendAsync<T>(Action<T> messageConstructor, SendOptions options)
         {
             return BusOperationsBehaviorContext.SendAsync(this, messageConstructor, options);
         }
 
         /// <inheritdoc />
-        public Task PublishAsync(object message, PublishOptions options)
+        public virtual Task PublishAsync(object message, PublishOptions options)
         {
             return BusOperationsBehaviorContext.PublishAsync(this, message, options);
         }
 
         /// <inheritdoc />
-        public Task PublishAsync<T>(Action<T> messageConstructor, PublishOptions publishOptions)
+        public virtual Task PublishAsync<T>(Action<T> messageConstructor, PublishOptions publishOptions)
         {
             return BusOperationsBehaviorContext.PublishAsync(this, messageConstructor, publishOptions);
         }
 
         /// <inheritdoc />
-        public Task SubscribeAsync(Type eventType, SubscribeOptions options)
+        public virtual Task SubscribeAsync(Type eventType, SubscribeOptions options)
         {
             return BusOperationsBehaviorContext.SubscribeAsync(this, eventType, options);
         }
 
         /// <inheritdoc />
-        public Task UnsubscribeAsync(Type eventType, UnsubscribeOptions options)
+        public virtual Task UnsubscribeAsync(Type eventType, UnsubscribeOptions options)
         {
             return BusOperationsBehaviorContext.UnsubscribeAsync(this, eventType, options);
         }
 
         /// <inheritdoc />
-        public Task ReplyAsync(object message, ReplyOptions options)
+        public virtual Task ReplyAsync(object message, ReplyOptions options)
         {
             return BusOperationsBehaviorContext.ReplyAsync(this, message, options);
         }
 
         /// <inheritdoc />
-        public Task ReplyAsync<T>(Action<T> messageConstructor, ReplyOptions options)
+        public virtual Task ReplyAsync<T>(Action<T> messageConstructor, ReplyOptions options)
         {
             return BusOperationsBehaviorContext.ReplyAsync(this, messageConstructor, options);
         }
 
         /// <inheritdoc />
-        public Task ForwardCurrentMessageToAsync(string destination)
+        public virtual Task ForwardCurrentMessageToAsync(string destination)
         {
             return BusOperationsIncomingContext.ForwardCurrentMessageToAsync(this, destination);
         }
