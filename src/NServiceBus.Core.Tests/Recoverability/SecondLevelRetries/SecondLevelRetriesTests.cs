@@ -33,14 +33,14 @@
             pipeline = new FakeDispatchPipeline();
         }
 
-        private MoveFaultsToErrorQueueBehavior Create(SecondLevelRetryPolicy retryPolicy, string address)
+        private RecoverabilityBehavior Create(SecondLevelRetryPolicy retryPolicy, string address)
         {
             var notifications = new BusNotifications();
 
             var slrHandler = new SecondLevelRetriesHandler(pipeline, retryPolicy, notifications, address, new SlrStatusStorage());
             var flrHandler = new FirstLevelRetriesHandler(new FlrStatusStorage(), new FirstLevelRetryPolicy(0), notifications);
 
-            var bahavior = new MoveFaultsToErrorQueueBehavior(
+            var bahavior = new RecoverabilityBehavior(
                 new FakeCriticalError(), 
                 pipeline,
                 new HostInformation(Guid.NewGuid(), "my host"), 
@@ -162,7 +162,7 @@
             Assert.AreEqual(originalContent, Encoding.UTF8.GetString(message.Body));
         }
 
-        static async Task SimulateFailingExecution(MoveFaultsToErrorQueueBehavior behavior, TransportReceiveContext context)
+        static async Task SimulateFailingExecution(RecoverabilityBehavior behavior, TransportReceiveContext context)
         {
             try
             {

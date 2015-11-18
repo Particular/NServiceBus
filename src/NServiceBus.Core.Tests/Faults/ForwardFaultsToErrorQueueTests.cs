@@ -37,12 +37,12 @@ namespace NServiceBus.Core.Tests
             notifications = new BusNotifications();
         }
 
-        MoveFaultsToErrorQueueBehavior CreateBehavior(string errorQueueAddress)
+        RecoverabilityBehavior CreateBehavior(string errorQueueAddress)
         {
             var flrHandler = new FirstLevelRetriesHandler(new FlrStatusStorage(), new FirstLevelRetryPolicy(0), notifications);
             var slrHandler = new SecondLevelRetriesHandler(pipeline, new FakePolicy(TimeSpan.MinValue), notifications, string.Empty, new SlrStatusStorage(), false);
 
-            var bahavior = new MoveFaultsToErrorQueueBehavior(
+            var bahavior = new RecoverabilityBehavior(
                 errors,
                 pipeline,
                 hostInfo,
@@ -125,7 +125,7 @@ namespace NServiceBus.Core.Tests
             Assert.AreEqual("testex", failedMessageNotification.Exception.Message);
         }
 
-        static async Task SimulateFailingExecution(MoveFaultsToErrorQueueBehavior behavior, TransportReceiveContext context)
+        static async Task SimulateFailingExecution(RecoverabilityBehavior behavior, TransportReceiveContext context)
         {
             try
             {

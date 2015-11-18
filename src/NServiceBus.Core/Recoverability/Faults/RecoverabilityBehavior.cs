@@ -12,9 +12,9 @@ namespace NServiceBus
     using NServiceBus.TransportDispatch;
     using NServiceBus.Transports;
 
-    class MoveFaultsToErrorQueueBehavior : Behavior<TransportReceiveContext>
+    class RecoverabilityBehavior : Behavior<TransportReceiveContext>
     {
-        public MoveFaultsToErrorQueueBehavior(
+        public RecoverabilityBehavior(
             CriticalError criticalError,
             IPipelineBase<RoutingContext> dispatchPipeline,
             HostInformation hostInformation,
@@ -36,6 +36,7 @@ namespace NServiceBus
 
         public override async Task Invoke(TransportReceiveContext context, Func<Task> next)
         {
+            //TODO: this is bad :/ - we probably need to have a spearate class for timeout manager and separate suit of tests
             var suppressSlr = PipelineInfo.Name == "Timeout Message Processor" || PipelineInfo.Name == "Timeout Dispatcher Processor";
 
             Exception exception;
@@ -158,12 +159,12 @@ namespace NServiceBus
         FaultsStatusStorage faultsStatusStorage;
         readonly FirstLevelRetriesHandler flrHandler;
         readonly SecondLevelRetriesHandler slrHandler;
-        static ILog Logger = LogManager.GetLogger<MoveFaultsToErrorQueueBehavior>();
+        static ILog Logger = LogManager.GetLogger<RecoverabilityBehavior>();
 
         public class Registration : RegisterStep
         {
             public Registration()
-                : base("MoveFaultsToErrorQueue", typeof(MoveFaultsToErrorQueueBehavior), "Moved failing messages to the configured error queue")
+                : base("Recoverability", typeof(RecoverabilityBehavior), "Moved failing messages to the configured error queue")
             {
                 //TODO: this should probably be first behavior in the pipeline
             }

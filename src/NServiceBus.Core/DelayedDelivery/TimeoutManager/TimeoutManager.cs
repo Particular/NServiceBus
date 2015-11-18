@@ -46,7 +46,7 @@
             var requiredTransactionSupport = context.Settings.GetRequiredTransactionSupportForReceives();
 
             var messageProcessorPipeline = context.AddSatellitePipeline("Timeout Message Processor", "Timeouts", requiredTransactionSupport, PushRuntimeSettings.Default, out processorAddress);
-            messageProcessorPipeline.Register<MoveFaultsToErrorQueueBehavior.Registration>();
+            messageProcessorPipeline.Register<RecoverabilityBehavior.Registration>();
             //messageProcessorPipeline.Register<SecondLevelRetriesBehavior.Registration>();
             messageProcessorPipeline.Register<StoreTimeoutBehavior.Registration>();
             context.Container.ConfigureComponent(b => new StoreTimeoutBehavior(b.Build<ExpiredTimeoutsPoller>(),
@@ -58,7 +58,7 @@
 
             string dispatcherAddress;
             var dispatcherProcessorPipeline = context.AddSatellitePipeline("Timeout Dispatcher Processor", "TimeoutsDispatcher", requiredTransactionSupport, PushRuntimeSettings.Default, out dispatcherAddress);
-            dispatcherProcessorPipeline.Register<MoveFaultsToErrorQueueBehavior.Registration>();
+            dispatcherProcessorPipeline.Register<RecoverabilityBehavior.Registration>();
            // dispatcherProcessorPipeline.Register<SecondLevelRetriesBehavior.Registration>();
 
             dispatcherProcessorPipeline.Register("TimeoutDispatcherProcessor", typeof(DispatchTimeoutBehavior), "Dispatches timeout messages");

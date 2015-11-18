@@ -37,7 +37,7 @@
                         var endpointName = AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(ErrorSpy));
 
                         b.EnableFeature<TimeoutManager>();
-                        b.Pipeline.Register(new RegisterBlowupBehavior("MoveFaultsToErrorQueue"));
+                        b.Pipeline.Register(new RegisterBlowupBehavior("Recoverability"));
                         b.SendFailedMessagesTo(endpointName);
                     })
                     .WithConfig<TransportConfig>(c => c.MaximumConcurrencyLevel = 1)

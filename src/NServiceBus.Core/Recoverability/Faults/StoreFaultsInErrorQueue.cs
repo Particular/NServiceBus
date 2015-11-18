@@ -57,7 +57,7 @@ namespace NServiceBus.Features
 
             context.Settings.Get<QueueBindings>().BindSending(errorQueue);
 
-            context.Pipeline.Register<MoveFaultsToErrorQueueBehavior.Registration>();
+            context.Pipeline.Register<RecoverabilityBehavior.Registration>();
 
             //SLR
             var retryPolicy = GetRetryPolicy(context.Settings);
@@ -85,7 +85,7 @@ namespace NServiceBus.Features
 
                 var slrHandler = new SecondLevelRetriesHandler(dispatchPipeline, retryPolicy, b.Build<BusNotifications>(), context.Settings.LocalAddress(), slrStorage, IsEnabledInConfig(context));
 
-                return new MoveFaultsToErrorQueueBehavior(
+                return new RecoverabilityBehavior(
                     b.Build<CriticalError>(),
                     dispatchPipeline,
                     b.Build<HostInformation>(),

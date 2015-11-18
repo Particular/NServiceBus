@@ -415,7 +415,7 @@
     <Compile Include="Pipeline\StepEnded.cs" />
     <Compile Include="Scheduling\Scheduler.cs" />
     <Compile Include="Scheduling\TaskDefinition.cs" />
-    <Compile Include="Recoverability\Faults\MoveFaultsToErrorQueueBehavior.cs" />
+    <Compile Include="Recoverability\Faults\RecoverabilityBehavior.cs" />
     <Compile Include="Recoverability\SecondLevelRetries\DefaultSecondLevelRetryPolicy.cs" />
     <Compile Include="Serialization\CustomSerialization.cs" />
     <Compile Include="Serialization\CustomSerializer.cs" />
