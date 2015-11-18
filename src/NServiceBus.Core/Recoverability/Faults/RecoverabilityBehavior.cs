@@ -39,91 +39,70 @@ namespace NServiceBus
             //TODO: this is bad :/ - we probably need to have a spearate class for timeout manager and separate suit of tests
             var suppressSlr = PipelineInfo.Name == "Timeout Message Processor" || PipelineInfo.Name == "Timeout Dispatcher Processor";
 
-            Exception exception;
             var uniqueMessageId = PipelineInfo.Name + context.Message.MessageId;
 
-            if (faultsStatusStorage.TryGetException(uniqueMessageId, out exception))
+            //TODO: Failure storage should be managed here
+            ProcessingFailureInfo failureInfo;
+
+            if (flrHandler.TryHandle(uniqueMessageId, context.Message, out failureInfo) == false)
             {
-                try
-                {
-                    await MoveToErrorQueue(context, context.Message, exception).ConfigureAwait(false);
+                TimeSpan delay;
+                int currentRetry;
 
-                    faultsStatusStorage.ClearExceptions(uniqueMessageId);
-
-                    return;
-                }
-                catch (Exception ex)
+                //TODO: what should happen when SLR fails ???
+                if (suppressSlr == false && slrHandler.ShouldPerformSlr(context.Message, failureInfo.Exception, out delay, out currentRetry))
                 {
-                    criticalError.Raise("Failed to forward message to error queue", ex);
-                    throw;
+                    try
+                    {
+                        await slrHandler.QueueForDelayedDelivery(context, currentRetry, delay, failureInfo.Exception).ConfigureAwait(false);
+
+                        return;
+                    }
+                    catch(Exception ex)
+                    {
+                        Logger.Warn($"Failed to perform SLR for message '{context.Message.MessageId}'.", ex);
+
+                        await TryMovingToFaultsQueue(context, failureInfo, uniqueMessageId);
+
+                        return;
+                    }
                 }
+
+                context.Message.Headers.Remove(Headers.Retries);
+
+                Logger.WarnFormat("Giving up Second Level Retries for message '{0}'.", context.Message.MessageId);
+
+                await TryMovingToFaultsQueue(context, failureInfo, uniqueMessageId);
+
+                return;
             }
 
             try
             {
-                if (suppressSlr == false && slrHandler.TryGetException(uniqueMessageId, out exception))
-                {
-                    slrHandler.ClearException(uniqueMessageId);
-
-                    TimeSpan delay;
-                    int currentRetry;
-
-                    if (slrHandler.ShouldPerformSlr(context.Message, exception, out delay, out currentRetry))
-                    {
-                        await slrHandler.QueueForDelayedDelivery(context, currentRetry, delay, exception).ConfigureAwait(false);
-
-                        return;
-                    }
-
-                    context.Message.Headers.Remove(Headers.Retries);
-
-                    Logger.WarnFormat("Giving up Second Level Retries for message '{0}'.", context.Message.MessageId);
-
-                    throw exception;
-                }
-
-                try
-                {
-                    await next().ConfigureAwait(false);
-                }
-                catch (Exception ex)
-                {
-                    try
-                    {
-                        if (flrHandler.TryHandle(PipelineInfo.Name, context, ex))
-                        {
-                            throw new MessageProcessingAbortedException();
-                        }
-
-                        throw;
-                    }
-                    catch (MessageProcessingAbortedException)
-                    {
-                        throw;
-                    }
-                    catch (Exception e)
-                    {
-                        if (!suppressSlr && slrHandler.IsEnabled)
-                        {
-                            //Mark for processing on next receive
-                            slrHandler.AddException(uniqueMessageId, e);
-
-                            throw new MessageProcessingAbortedException();
-                        }
-
-                        throw;
-                    }
-                }
+                await next().ConfigureAwait(false);
             }
-            catch (MessageProcessingAbortedException)
+            catch (Exception ex)
             {
-                throw;
-            }
-            catch (Exception e)
-            {
-                faultsStatusStorage.AddException(uniqueMessageId, e);
+                flrHandler.MarkFailure(uniqueMessageId, ex);
 
                 throw new MessageProcessingAbortedException();
+            }
+        }
+
+        async Task TryMovingToFaultsQueue(TransportReceiveContext context, ProcessingFailureInfo failureInfo, string uniqueMessageId)
+        {
+            try
+            {
+                await MoveToErrorQueue(context, context.Message, failureInfo.Exception).ConfigureAwait(false);
+
+                faultsStatusStorage.ClearExceptions(uniqueMessageId);
+
+                return;
+            }
+            catch (Exception ex)
+            {
+                criticalError.Raise("Failed to forward message to error queue", ex);
+                throw;
             }
         }
 

@@ -125,6 +125,8 @@
     <Compile Include="Pipeline\Outgoing\OutgoingPhysicalMessageContext.cs" />
     <Compile Include="Recoverability\Faults\FaultsStatusStorage.cs" />
     <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetriesHandler.cs" />
+    <Compile Include="Recoverability\FirstLevelRetries\FlrStatusStorage.cs" />
+    <Compile Include="Recoverability\FirstLevelRetries\ProcessingFailureInfo.cs" />
     <Compile Include="Recoverability\SecondLevelRetries\SlrStatusStorage.cs" />
     <Compile Include="Reliability\Outbox\ForceBatchDispatchToBeIsolatedBehavior.cs" />
     <Compile Include="Reliability\Outbox\OutboxTransaction.cs" />
@@ -679,7 +681,6 @@
     <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionStorage.cs" />
     <Compile Include="Unicast\Transport\ControlMessageFactory.cs" />
     <Compile Include="Unicast\Transport\Config\UseTransportExtensions.cs" />
-    <Compile Include="Recoverability\FirstLevelRetries\FlrStatusStorage.cs" />
     <Compile Include="Transports\TransportReceiver.cs" />
     <Compile Include="Unicast\Transport\TransactionSettings.cs" />
     <Compile Include="Unicast\Transport\TransportConnectionString.cs" />

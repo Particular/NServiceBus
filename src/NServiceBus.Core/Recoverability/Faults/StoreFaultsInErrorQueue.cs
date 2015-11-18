@@ -44,7 +44,6 @@ namespace NServiceBus.Features
 
             Prerequisite(context => GetMaxRetries(context.Settings) > 0, "FLR was disabled in config since it's set to 0");
             */
-            RegisterStartupTask<FlrStatusStorageCleaner>();
         }
 
         protected internal override void Setup(FeatureConfigurationContext context)
@@ -163,33 +162,6 @@ namespace NServiceBus.Features
 
             static readonly TimeSpan ClearingInterval = TimeSpan.FromMinutes(5);
             SlrStatusStorage statusStorage;
-            Timer timer;
-        }
-
-        class FlrStatusStorageCleaner : FeatureStartupTask
-        {
-            public FlrStatusStorageCleaner(FlrStatusStorage statusStorage)
-            {
-                this.statusStorage = statusStorage;
-            }
-
-            protected override void OnStart()
-            {
-                timer = new Timer(ClearFlrStatusStorage, null, ClearingInterval, ClearingInterval);
-            }
-
-            protected override void OnStop()
-            {
-                timer?.Dispose();
-            }
-
-            void ClearFlrStatusStorage(object state)
-            {
-                statusStorage.ClearAllFailures();
-            }
-
-            static readonly TimeSpan ClearingInterval = TimeSpan.FromMinutes(5);
-            FlrStatusStorage statusStorage;
             Timer timer;
         }
 

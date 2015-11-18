@@ -1,31 +1,31 @@
 ﻿namespace NServiceBus.Recoverability.FirstLevelRetries
 {
+    using System;
     using System.Collections.Concurrent;
 
+    //TODO: this needs to be and LRU cache with configurable size
     class FlrStatusStorage
     {
-        public void ClearFailuresForMessage(string messageId)
+        public void ClearFailuresForMessage(string uniqueMessageId)
         {
-            int e;
-            failuresPerMessage.TryRemove(messageId, out e);
+            ProcessingFailureInfo processingFailureInfo;
+            failuresPerMessage.TryRemove(uniqueMessageId, out processingFailureInfo);
         }
 
-        public void IncrementFailuresForMessage(string messageId)
+        public void AddFailuresForMessage(string uniqueMessageId, Exception exception)
         {
-            failuresPerMessage.AddOrUpdate(messageId, 1, (s, i) => i + 1);
+            failuresPerMessage.AddOrUpdate(
+                uniqueMessageId, 
+                new ProcessingFailureInfo(1, exception), 
+                (s, fi)  => new ProcessingFailureInfo(fi.NumberOfFailures + 1, exception));
         }
 
-        public int GetFailuresForMessage(string messageId)
+        public ProcessingFailureInfo GetFailuresForMessage(string uniqueMessageId)
         {
-            int e;
-            return !failuresPerMessage.TryGetValue(messageId, out e) ? 0 : e;
+            ProcessingFailureInfo processingFailureInfo;
+            return !failuresPerMessage.TryGetValue(uniqueMessageId, out processingFailureInfo) ? null : processingFailureInfo;
         }
 
-        public void ClearAllFailures()
-        {
-            failuresPerMessage.Clear();
-        }
-
-        ConcurrentDictionary<string, int> failuresPerMessage = new ConcurrentDictionary<string, int>();
+        ConcurrentDictionary<string, ProcessingFailureInfo> failuresPerMessage = new ConcurrentDictionary<string, ProcessingFailureInfo>();
     }
 }
