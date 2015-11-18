@@ -18,7 +18,7 @@
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointViaType>(b => b.When(
-                    (bus, c) => bus.SendLocalAsync(new MyRequest())))
+                    (bus, c) => bus.SendLocal(new MyRequest())))
                 .Done(c => c.HandlerGotTheRequest)
                 .Run();
 
@@ -31,7 +31,7 @@
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointViaDefinition>(b => b.When(
-                    (bus, c) => bus.SendLocalAsync(new MyRequest())))
+                    (bus, c) => bus.SendLocal(new MyRequest())))
                 .Done(c => c.HandlerGotTheRequest)
                 .Run();
 

@@ -52,7 +52,7 @@
                     {
                         Context.GaveUp = true;
                     });
-                    return context.SendLocalAsync(new MessageToBeRetried
+                    return context.SendLocal(new MessageToBeRetried
                     {
                         ContextId = Context.Id
                     });

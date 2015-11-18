@@ -13,7 +13,7 @@
         public async Task Should_be_applied_to_outgoing_messages()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(b => b.When(bus => bus.SendLocalAsync(new Message())))
+                    .WithEndpoint<Endpoint>(b => b.When(bus => bus.SendLocal(new Message())))
                     .Done(c => c.MessageProcessed)
                     .Run();
 

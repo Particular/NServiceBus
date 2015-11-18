@@ -14,7 +14,7 @@
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Publisher>(b => b.When(c => c.SubscriberA_1Subscribed && c.SubscriberA_2Subscribed && c.SubscriberB_1Subscribed && c.SubscriberB_2Subscribed, async (bus, c) =>
                 {
-                    await bus.PublishAsync(new MyEvent());
+                    await bus.Publish(new MyEvent());
                 }))
                 .WithEndpoint<SubscriberA_1>(b => b.When((bus, c) =>
                 {

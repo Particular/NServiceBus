@@ -20,7 +20,7 @@
         public async Task Should_be_delivered_to_all_subscribers()
         {
             await Scenario.Define<Context>()
-                .WithEndpoint<SendOnlyPublisher>(b => b.When((bus, c) => bus.PublishAsync(new MyEvent())))
+                .WithEndpoint<SendOnlyPublisher>(b => b.When((bus, c) => bus.Publish(new MyEvent())))
                 .WithEndpoint<Subscriber>()
                 .Done(c => c.SubscriberGotTheEvent)
                 .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())

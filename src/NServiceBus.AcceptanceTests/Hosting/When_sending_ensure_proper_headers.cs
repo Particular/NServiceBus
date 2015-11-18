@@ -13,7 +13,7 @@
         public async Task Should_have_proper_headers_for_the_originating_endpoint()
         {
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                                .WithEndpoint<Sender>(b => b.When((bus, c) => bus.SendAsync<MyMessage>(m =>
+                                .WithEndpoint<Sender>(b => b.When((bus, c) => bus.Send<MyMessage>(m =>
                                 {
                                     m.Id = c.Id;
                                 })))

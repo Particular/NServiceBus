@@ -15,11 +15,11 @@
         {
             await Scenario.Define<Context>()
                 .WithEndpoint<Publisher3>(b =>
-                    b.When(c => c.Subscriber3Subscribed, bus => bus.PublishAsync<IFoo>())
+                    b.When(c => c.Subscriber3Subscribed, bus => bus.Publish<IFoo>())
                     )
                 .WithEndpoint<Subscriber3>(b => b.When(async (bus, context) =>
                 {
-                    await bus.SubscribeAsync<IFoo>();
+                    await bus.Subscribe<IFoo>();
 
                     if (context.HasNativePubSubSupport)
                     {
@@ -45,12 +45,12 @@
                             var options = new PublishOptions();
 
                             options.SetHeader("MyHeader", "SomeValue");
-                            return bus.PublishAsync(new MyEvent(), options);
+                            return bus.Publish(new MyEvent(), options);
                         })
                      )
                     .WithEndpoint<Subscriber1>(b => b.When(async (bus, context) =>
                         {
-                            await bus.SubscribeAsync<MyEvent>();
+                            await bus.Subscribe<MyEvent>();
                             if (context.HasNativePubSubSupport)
                             {
                                 context.Subscriber1Subscribed = true;
@@ -63,7 +63,7 @@
                         }))
                       .WithEndpoint<Subscriber2>(b => b.When(async (bus, context) =>
                       {
-                          await bus.SubscribeAsync<MyEvent>();
+                          await bus.Subscribe<MyEvent>();
 
                           if (context.HasNativePubSubSupport)
                           {

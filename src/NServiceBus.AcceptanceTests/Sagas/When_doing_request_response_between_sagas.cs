@@ -31,7 +31,7 @@
 
                 public Task Handle(InitiateRequestingSaga message, IMessageHandlerContext context)
                 {
-                    return context.SendLocalAsync(new RequestToRespondingSaga
+                    return context.SendLocal(new RequestToRespondingSaga
                     {
                         SomeIdThatTheResponseSagaCanCorrelateBackToUs = Data.CorrIdForResponse //wont be needed in the future
                     });
@@ -69,7 +69,7 @@
                 {
                     if (TestContext.ReplyFromNonInitiatingHandler)
                     {
-                        await context.SendLocalAsync(new SendReplyFromNonInitiatingHandler { SagaIdSoWeCanCorrelate = Data.Id });
+                        await context.SendLocal(new SendReplyFromNonInitiatingHandler { SagaIdSoWeCanCorrelate = Data.Id });
                     }
 
                     if (TestContext.ReplyFromTimeout)
@@ -80,7 +80,7 @@
                     // Both reply and reply to originator work here since the sender of the incoming message is the requesting saga
                     // also note we don't set the correlation ID since auto correlation happens to work for this special case 
                     // where we reply from the first handler
-                    await context.ReplyAsync(new ResponseFromOtherSaga());
+                    await context.Reply(new ResponseFromOtherSaga());
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestResponseRespondingSagaData> mapper)
@@ -110,7 +110,7 @@
                 Task SendReply(IMessageHandlerContext context)
                 {
                     //reply to originator must be used here since the sender of the incoming message the timeoutmanager and not the requesting saga
-                    return ReplyToOriginatorAsync(context, new ResponseFromOtherSaga //change this line to Bus.ReplyAsync(new ResponseFromOtherSaga  and see it fail
+                    return ReplyToOriginatorAsync(context, new ResponseFromOtherSaga //change this line to Bus.Reply(new ResponseFromOtherSaga  and see it fail
                     {
                         SomeCorrelationId = Data.CorrIdForRequest //wont be needed in the future
                     });

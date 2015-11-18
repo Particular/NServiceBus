@@ -18,7 +18,7 @@
         public async Task Should_record_the_request_to_clear_in_outbox()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<NonDtcReceivingEndpoint>(b => b.When(bus => bus.SendLocalAsync(new PlaceOrder
+                .WithEndpoint<NonDtcReceivingEndpoint>(b => b.When(bus => bus.SendLocal(new PlaceOrder
                 {
                     DataId = Guid.NewGuid()
                 })))
@@ -64,7 +64,7 @@
                 public Task Handle(PlaceOrder message, IMessageHandlerContext context)
                 {
                     MarkAsComplete();
-                    return context.SendLocalAsync(new SignalDone());
+                    return context.SendLocal(new SignalDone());
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<PlaceOrderSagaData> mapper)

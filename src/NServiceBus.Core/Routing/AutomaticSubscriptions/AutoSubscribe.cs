@@ -91,7 +91,7 @@
             {
                 foreach (var eventType in eventsToSubscribe)
                 {
-                    await context.SubscribeAsync(eventType).ConfigureAwait(false);
+                    await context.Subscribe(eventType).ConfigureAwait(false);
                     Logger.DebugFormat("Auto subscribed to event {0}", eventType);
                 }
             }

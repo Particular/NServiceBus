@@ -80,34 +80,34 @@
                 }
 
                 public ContextBag Extensions => null;
-                public Task SendAsync(object message, SendOptions options)
+                public Task Send(object message, SendOptions options)
                 {
                     sentMessages.Add(Tuple.Create(message, options));
                     defaultScheduler.Schedule(options.Context.Get<ScheduleBehavior.State>().TaskDefinition);
                     return Task.FromResult(0);
                 }
 
-                public Task SendAsync<T>(Action<T> messageConstructor, SendOptions options)
+                public Task Send<T>(Action<T> messageConstructor, SendOptions options)
                 {
                     throw new NotImplementedException();
                 }
 
-                public Task PublishAsync(object message, PublishOptions options)
+                public Task Publish(object message, PublishOptions options)
                 {
                     throw new NotImplementedException();
                 }
 
-                public Task PublishAsync<T>(Action<T> messageConstructor, PublishOptions publishOptions)
+                public Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)
                 {
                     throw new NotImplementedException();
                 }
 
-                public Task SubscribeAsync(Type eventType, SubscribeOptions options)
+                public Task Subscribe(Type eventType, SubscribeOptions options)
                 {
                     throw new NotImplementedException();
                 }
 
-                public Task UnsubscribeAsync(Type eventType, UnsubscribeOptions options)
+                public Task Unsubscribe(Type eventType, UnsubscribeOptions options)
                 {
                     throw new NotImplementedException();
                 }

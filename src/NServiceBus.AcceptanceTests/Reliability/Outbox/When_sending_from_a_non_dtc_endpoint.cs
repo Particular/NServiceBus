@@ -14,7 +14,7 @@
         public async Task Should_store_them_and_dispatch_them_from_the_outbox()
         {
             await Scenario.Define<Context>()
-                .WithEndpoint<NonDtcSalesEndpoint>(b => b.When(bus => bus.SendLocalAsync(new PlaceOrder())))
+                .WithEndpoint<NonDtcSalesEndpoint>(b => b.When(bus => bus.SendLocal(new PlaceOrder())))
                 .Done(c => c.OrderAckReceived)
                 .Repeat(r => r.For<AllOutboxCapableStorages>())
                 .Should(context => Assert.IsTrue(context.OrderAckReceived))
@@ -42,7 +42,7 @@
             {
                 public Task Handle(PlaceOrder message, IMessageHandlerContext context)
                 {
-                    return context.SendLocalAsync(new SendOrderAcknowledgement());
+                    return context.SendLocal(new SendOrderAcknowledgement());
                 }
             }
 

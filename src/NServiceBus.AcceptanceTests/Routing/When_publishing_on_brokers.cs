@@ -14,7 +14,7 @@
         {
             await Scenario.Define<Context>()
                 .WithEndpoint<CentralizedPublisher>
-                (b => b.When(c => c.IsSubscriptionProcessedForSub1 && c.IsSubscriptionProcessedForSub2, bus => bus.PublishAsync(new MyEvent())))
+                (b => b.When(c => c.IsSubscriptionProcessedForSub1 && c.IsSubscriptionProcessedForSub2, bus => bus.Publish(new MyEvent())))
                 .WithEndpoint<CentralizedSubscriber1>(b => b.When((bus, context) =>
                 {
                     context.IsSubscriptionProcessedForSub1 = true;

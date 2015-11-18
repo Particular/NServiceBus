@@ -15,7 +15,7 @@
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            ReplacementTypeOrMember = "PublishAsync(object message)")]
+            ReplacementTypeOrMember = "Publish(object message)")]
         public static void Publish(this IBusInterface bus, object message)
         {
             throw new NotImplementedException();
@@ -30,7 +30,7 @@
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            ReplacementTypeOrMember = "PublishAsync()")]
+            ReplacementTypeOrMember = "Publish()")]
         public static void Publish<T>(this IBusInterface bus)
         {
             throw new NotImplementedException();
@@ -59,7 +59,7 @@
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            ReplacementTypeOrMember = "SendAsync(object message)")]
+            ReplacementTypeOrMember = "Send(object message)")]
         public static void Send(this IBusInterface bus, object message)
         {
             throw new NotImplementedException();
@@ -77,7 +77,7 @@
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            ReplacementTypeOrMember = "SendAsync<T>(Action<T> messageConstructor)")]
+            ReplacementTypeOrMember = "Send<T>(Action<T> messageConstructor)")]
         public static void Send<T>(this IBusInterface bus, Action<T> messageConstructor)
         {
             throw new NotImplementedException();
@@ -92,7 +92,7 @@
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            ReplacementTypeOrMember = "SendAsync(string destination, object message)")]
+            ReplacementTypeOrMember = "Send(string destination, object message)")]
         public static void Send(this IBusInterface bus, string destination, object message)
         {
             throw new NotImplementedException();
@@ -108,7 +108,7 @@
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            ReplacementTypeOrMember = "SendAsync<T>(string destination, Action<T> messageConstructor)")]
+            ReplacementTypeOrMember = "Send<T>(string destination, Action<T> messageConstructor)")]
         public static void Send<T>(this IBusInterface bus, string destination, Action<T> messageConstructor)
         {
             throw new NotImplementedException();

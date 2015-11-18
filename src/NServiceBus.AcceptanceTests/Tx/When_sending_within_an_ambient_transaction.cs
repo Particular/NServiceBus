@@ -18,13 +18,13 @@
                         {
                             using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                             {
-                                await bus.SendAsync(new MessageThatIsEnlisted { SequenceNumber = 1 });
-                                await bus.SendAsync(new MessageThatIsEnlisted { SequenceNumber = 2 });
+                                await bus.Send(new MessageThatIsEnlisted { SequenceNumber = 1 });
+                                await bus.Send(new MessageThatIsEnlisted { SequenceNumber = 2 });
 
                                 //send another message as well so that we can check the order in the receiver
                                 using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
                                 {
-                                    await bus.SendAsync(new MessageThatIsNotEnlisted());
+                                    await bus.Send(new MessageThatIsNotEnlisted());
                                 }
 
                                 tx.Complete();
@@ -44,11 +44,11 @@
                         {
                             using (new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                             {
-                                await bus.SendAsync(new MessageThatIsEnlisted());
+                                await bus.Send(new MessageThatIsEnlisted());
                                 //rollback
                             }
 
-                            await bus.SendAsync(new MessageThatIsNotEnlisted());
+                            await bus.Send(new MessageThatIsNotEnlisted());
                         }))
                     .Done(c => c.MessageThatIsNotEnlistedHandlerWasCalled)
                     .Repeat(r => r.For<AllDtcTransports>())

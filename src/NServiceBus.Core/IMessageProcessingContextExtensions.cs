@@ -13,26 +13,26 @@ namespace NServiceBus
         /// </summary>
         /// <param name="context">Object being extended.</param>
         /// <param name="message">The message to send.</param>
-        public static Task ReplyAsync(this IMessageProcessingContext context, object message)
+        public static Task Reply(this IMessageProcessingContext context, object message)
         {
             Guard.AgainstNull(nameof(context), context);
             Guard.AgainstNull(nameof(message), message);
 
-            return context.ReplyAsync(message, new ReplyOptions());
+            return context.Reply(message, new ReplyOptions());
         }
 
         /// <summary>
-        /// Instantiates a message of type T and performs a regular ReplyAsync.
+        /// Instantiates a message of type T and performs a regular Reply.
         /// </summary>
         /// <typeparam name="T">The type of message, usually an interface.</typeparam>
         /// <param name="context">Object being extended.</param>
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
-        public static Task ReplyAsync<T>(this IMessageProcessingContext context, Action<T> messageConstructor)
+        public static Task Reply<T>(this IMessageProcessingContext context, Action<T> messageConstructor)
         {
             Guard.AgainstNull(nameof(context), context);
             Guard.AgainstNull(nameof(messageConstructor), messageConstructor);
 
-            return context.ReplyAsync(messageConstructor, new ReplyOptions());
+            return context.Reply(messageConstructor, new ReplyOptions());
         }
     }
 }

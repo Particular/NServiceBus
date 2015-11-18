@@ -12,7 +12,7 @@
         public async Task Message_should_not_be_received()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(b => b.When((bus, c) => bus.SendLocalAsync(new MyMessage())))
+                    .WithEndpoint<Endpoint>(b => b.When((bus, c) => bus.SendLocal(new MyMessage())))
                     .Run(TimeSpan.FromSeconds(10));
 
             Assert.IsFalse(context.WasCalled);

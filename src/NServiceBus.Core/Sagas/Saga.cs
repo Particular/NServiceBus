@@ -61,7 +61,7 @@ namespace NServiceBus
 
             SetTimeoutHeaders(options);
 
-            return context.SendAsync(timeoutMessage, options);
+            return context.Send(timeoutMessage, options);
         }
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace NServiceBus
 
             SetTimeoutHeaders(sendOptions);
 
-            return context.SendAsync(timeoutMessage, sendOptions);
+            return context.Send(timeoutMessage, sendOptions);
         }
 
         /// <summary>
@@ -118,7 +118,7 @@ namespace NServiceBus
                 SagaIdToUse = null
             });
 
-            return context.ReplyAsync(message, options);
+            return context.Reply(message, options);
         }
 
         /// <summary>

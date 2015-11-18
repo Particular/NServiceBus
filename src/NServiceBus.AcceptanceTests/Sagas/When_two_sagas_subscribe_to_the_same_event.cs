@@ -26,7 +26,7 @@
                         return Task.FromResult(0);
                     }))
                     .WithEndpoint<SagaEndpoint>(b =>
-                        b.When(c => c.Subscribed, bus => bus.SendLocalAsync(new StartSaga2
+                        b.When(c => c.Subscribed, bus => bus.SendLocal(new StartSaga2
                         {
                             DataId = Guid.NewGuid()
                         }))
@@ -60,7 +60,7 @@
                 public Task Handle(OpenGroupCommand message, IMessageHandlerContext context)
                 {
                     Console.WriteLine("Received OpenGroupCommand for RunId:{0} ... and publishing GroupPendingEvent", message.DataId);
-                    return context.PublishAsync(new GroupPendingEvent { DataId = message.DataId });
+                    return context.Publish(new GroupPendingEvent { DataId = message.DataId });
                 }
             }
         }
@@ -83,7 +83,7 @@
                 public Task Handle(GroupPendingEvent message, IMessageHandlerContext context)
                 {
                     Console.Out.WriteLine("Saga1 received GroupPendingEvent for RunId: {0}", message.DataId);
-                    return context.SendLocalAsync(new CompleteSaga1Now { DataId = message.DataId });
+                    return context.SendLocal(new CompleteSaga1Now { DataId = message.DataId });
                 }
 
                 public Task Handle(CompleteSaga1Now message, IMessageHandlerContext context)
@@ -117,7 +117,7 @@
                 public Task Handle(StartSaga2 message, IMessageHandlerContext context)
                 {
                     Console.Out.WriteLine("Saga2 sending OpenGroupCommand for RunId: {0}", Data.DataId);
-                    return context.SendAsync(new OpenGroupCommand { DataId = Data.DataId });
+                    return context.Send(new OpenGroupCommand { DataId = Data.DataId });
                 }
 
                 public Task Handle(GroupPendingEvent message, IMessageHandlerContext context)

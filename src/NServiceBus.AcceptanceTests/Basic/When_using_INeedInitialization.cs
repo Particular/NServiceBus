@@ -53,7 +53,7 @@
             {
                 public Task StartAsync(IBusContext context)
                 {
-                    return context.SendAsync(new SendMessage());
+                    return context.Send(new SendMessage());
                 }
 
                 public Task StopAsync(IBusContext context)
@@ -78,7 +78,7 @@
         {
             public Task Handle(SendMessage message, IMessageHandlerContext context)
             {
-                return context.SendAsync("ineedinitialization_receiver", new MyMessage());
+                return context.Send("ineedinitialization_receiver", new MyMessage());
             }
         }
 

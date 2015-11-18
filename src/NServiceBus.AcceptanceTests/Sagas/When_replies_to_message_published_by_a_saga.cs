@@ -17,14 +17,14 @@
         {
             await Scenario.Define<Context>()
                 .WithEndpoint<SagaEndpoint>
-                (b => b.When(c => c.Subscribed, bus => bus.SendLocalAsync(new StartSaga
+                (b => b.When(c => c.Subscribed, bus => bus.SendLocal(new StartSaga
                 {
                     DataId = Guid.NewGuid()
                 }))
                 )
                 .WithEndpoint<ReplyEndpoint>(b => b.When(async (bus, context) =>
                 {
-                    await bus.SubscribeAsync<DidSomething>();
+                    await bus.Subscribe<DidSomething>();
                     if (context.HasNativePubSubSupport)
                     {
                         context.Subscribed = true;
@@ -62,7 +62,7 @@
             {
                 public Task Handle(DidSomething message, IMessageHandlerContext context)
                 {
-                    return context.ReplyAsync(new DidSomethingResponse { ReceivedDataId = message.DataId });
+                    return context.Reply(new DidSomethingResponse { ReceivedDataId = message.DataId });
                 }
             }
         }
@@ -85,7 +85,7 @@
                 public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
                     Data.DataId = message.DataId;
-                    return context.PublishAsync(new DidSomething { DataId = message.DataId });
+                    return context.Publish(new DidSomething { DataId = message.DataId });
                 }
 
                 public Task Handle(DidSomethingResponse message, IMessageHandlerContext context)

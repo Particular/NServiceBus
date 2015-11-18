@@ -16,7 +16,7 @@
                     .WithEndpoint<V2Publisher>(b =>
                         b.When(c => c.V1Subscribed && c.V2Subscribed, (bus, c) =>
                         {
-                            return bus.PublishAsync<V2Event>(e =>
+                            return bus.Publish<V2Event>(e =>
                             {
                                 e.SomeData = 1;
                                 e.MoreInfo = "dasd";
@@ -24,13 +24,13 @@
                         }))
                     .WithEndpoint<V1Subscriber>(b => b.When(async (bus,c) =>
                         {
-                            await bus.SubscribeAsync<V1Event>();
+                            await bus.Subscribe<V1Event>();
                             if (c.HasNativePubSubSupport)
                                 c.V1Subscribed = true;
                         }))
                     .WithEndpoint<V2Subscriber>(b => b.When(async (bus,c) =>
                         {
-                            await bus.SubscribeAsync<V2Event>();
+                            await bus.Subscribe<V2Event>();
                             if (c.HasNativePubSubSupport)
                                 c.V2Subscribed = true;
                         }))

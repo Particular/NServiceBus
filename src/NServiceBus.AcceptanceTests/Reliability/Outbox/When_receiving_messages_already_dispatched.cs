@@ -23,9 +23,9 @@
                         options.SetMessageId(duplicateMessageId);
                         options.RouteToLocalEndpointInstance();
 
-                        await bus.SendAsync(new PlaceOrder(), options);
-                        await bus.SendAsync(new PlaceOrder(), options);
-                        await bus.SendLocalAsync(new PlaceOrder());
+                        await bus.Send(new PlaceOrder(), options);
+                        await bus.Send(new PlaceOrder(), options);
+                        await bus.SendLocal(new PlaceOrder());
                     }))
                     .Done(c => c.OrderAckReceived >= 2)
                     .Repeat(r => r.For<AllOutboxCapableStorages>())
@@ -54,7 +54,7 @@
             {
                 public Task Handle(PlaceOrder message, IMessageHandlerContext context)
                 {
-                    return context.SendLocalAsync(new SendOrderAcknowledgement());
+                    return context.SendLocal(new SendOrderAcknowledgement());
                 }
             }
 

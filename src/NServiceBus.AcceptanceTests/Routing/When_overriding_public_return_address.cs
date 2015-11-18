@@ -11,7 +11,7 @@
         public async Task A_reply_should_be_delivered_to_the_overridden_address()
         {
             var ctx = await Scenario.Define<Context>()
-                .WithEndpoint<Sender>(c => c.When(b => b.SendLocalAsync(new MyMessage())))
+                .WithEndpoint<Sender>(c => c.When(b => b.SendLocal(new MyMessage())))
                 .WithEndpoint<Detector>()
                 .Done(c => c.GotReply)
                 .Run();
@@ -35,7 +35,7 @@
             {
                 public Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
-                    return context.ReplyAsync(new MyReply());
+                    return context.Reply(new MyReply());
                 }
             }
         }

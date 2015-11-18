@@ -13,7 +13,7 @@
         /// <param name="bus">Object being extended.</param>
         /// <param name="message">The message to send.</param>
         [ObsoleteEx(
-            Message = "Please use `IMessageHandlerContext.ReplyAsync(object message)` provided to message handlers instead.",
+            Message = "Please use `IMessageHandlerContext.Reply(object message)` provided to message handlers instead.",
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7")]
         public static void Reply(this IBus bus, object message)
@@ -22,13 +22,13 @@
         }
 
         /// <summary>
-        /// Instantiates a message of type T and performs a regular ReplyAsync.
+        /// Instantiates a message of type T and performs a regular Reply.
         /// </summary>
         /// <typeparam name="T">The type of message, usually an interface.</typeparam>
         /// <param name="bus">Object being extended.</param>
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
         [ObsoleteEx(
-            Message = "Please use `IMessageHandlerContext.ReplyAsync<T>(Action<T> messageConstructor)` provided to message handlers instead.",
+            Message = "Please use `IMessageHandlerContext.Reply<T>(Action<T> messageConstructor)` provided to message handlers instead.",
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7")]
         public static void Reply<T>(this IBus bus, Action<T> messageConstructor)
@@ -42,7 +42,7 @@
         /// <param name="bus">Object being extended.</param>
         /// <param name="message">The message to send.</param>
         [ObsoleteEx(
-            Message = "Please use `IMessageHandlerContext.SendLocalAsync(object message)` provided to message handlers instead.",
+            Message = "Please use `IMessageHandlerContext.SendLocal(object message)` provided to message handlers instead.",
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7")]
         public static void SendLocal(this IBus bus, object message)
@@ -57,7 +57,7 @@
         /// <param name="bus">Object being extended.</param>
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
         [ObsoleteEx(
-            Message = "Please use `IMessageHandlerContext.SendLocalAsync<T>(Action<T> messageConstructor)` provided to message handlers instead.",
+            Message = "Please use `IMessageHandlerContext.SendLocal<T>(Action<T> messageConstructor)` provided to message handlers instead.",
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7")]
         public static void SendLocal<T>(this IBus bus, Action<T> messageConstructor)
@@ -70,7 +70,7 @@
         /// messages so it can be handled later.
         /// </summary>
         [ObsoleteEx(
-            Message = "Please use `IMessageHandlerContext.HandleCurrentMessageLaterAsync()` provided to message handlers instead.",
+            Message = "Please use `IMessageHandlerContext.HandleCurrentMessageLater()` provided to message handlers instead.",
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7")]
         public static void HandleCurrentMessageLater(this IBus bus)
@@ -83,7 +83,7 @@
         /// all of its transport-level properties and headers.
         /// </summary>
         [ObsoleteEx(
-            Message = "Please use `IMessageHandlerContext.ForwardCurrentMessageToAsync(string destination)` provided to message handlers instead.",
+            Message = "Please use `IMessageHandlerContext.ForwardCurrentMessageTo(string destination)` provided to message handlers instead.",
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7")]
         public static void ForwardCurrentMessageTo(this IBus bus, string destination)
@@ -113,7 +113,7 @@
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            ReplacementTypeOrMember = "SubscribeAsync(Type messageType)")]
+            ReplacementTypeOrMember = "Subscribe(Type messageType)")]
         public static void Subscribe(this IBus bus, Type messageType)
         {
             throw new NotImplementedException();
@@ -128,7 +128,7 @@
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            ReplacementTypeOrMember = "SubscribeAsync<T>()")]
+            ReplacementTypeOrMember = "Subscribe<T>()")]
         public static void Subscribe<T>(this IBus bus)
         {
             throw new NotImplementedException();
@@ -142,7 +142,7 @@
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            ReplacementTypeOrMember = "UnsubscribeAsync(Type messageType)")]
+            ReplacementTypeOrMember = "Unsubscribe(Type messageType)")]
         public static void Unsubscribe(this IBus bus, Type messageType)
         {
             throw new NotImplementedException();
@@ -156,7 +156,7 @@
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            ReplacementTypeOrMember = "UnsubscribeAsync<T>()")]
+            ReplacementTypeOrMember = "Unsubscribe<T>()")]
         public static void Unsubscribe<T>(this IBus bus)
         {
             throw new NotImplementedException();

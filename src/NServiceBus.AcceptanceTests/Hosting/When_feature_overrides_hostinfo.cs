@@ -17,7 +17,7 @@ namespace NServiceBus.AcceptanceTests.Hosting
         public async Task HostInfo_is_changed()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<MyEndpoint>(e => e.When(b => b.SendLocalAsync(new MyMessage())))
+                .WithEndpoint<MyEndpoint>(e => e.When(b => b.SendLocal(new MyMessage())))
                 .Done(c => c.OriginatingHostId != Guid.Empty)
                 .Run();
 

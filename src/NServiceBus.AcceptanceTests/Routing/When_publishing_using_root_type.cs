@@ -19,11 +19,11 @@
                         {
                             IMyEvent message = new EventMessage();
 
-                            return bus.PublishAsync(message);
+                            return bus.Publish(message);
                         }))
                     .WithEndpoint<Subscriber1>(b => b.When(async (bus, context) =>
                     {
-                        await bus.SubscribeAsync<EventMessage>();
+                        await bus.Subscribe<EventMessage>();
 
                         if (context.HasNativePubSubSupport)
                         {

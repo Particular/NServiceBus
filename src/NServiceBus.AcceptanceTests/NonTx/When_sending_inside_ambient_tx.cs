@@ -15,11 +15,11 @@
         {
             await Scenario.Define<Context>()
                     .WithEndpoint<NonTransactionalEndpoint>(b => b
-                        .When(bus => bus.SendLocalAsync(new MyMessage()))
+                        .When(bus => bus.SendLocal(new MyMessage()))
                         .DoNotFailOnErrorMessages())
                     .Done(c => c.TestComplete)
                     .Repeat(r => r.For<AllDtcTransports>())
-                    .Should(c => Assert.False(c.MessageEnlistedInTheAmbientTxReceived, "The enlisted bus.SendAsync should not commit"))
+                    .Should(c => Assert.False(c.MessageEnlistedInTheAmbientTxReceived, "The enlisted bus.Send should not commit"))
                     .Run();
         }
 
@@ -43,14 +43,14 @@
 
                 public async Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
-                    await context.SendLocalAsync(new CompleteTest
+                    await context.SendLocal(new CompleteTest
                     {
                         EnlistedInTheAmbientTx = true
                     });
 
                     using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
                     {
-                        await context.SendLocalAsync(new CompleteTest());
+                        await context.SendLocal(new CompleteTest());
                     }
 
                     throw new SimulatedException();

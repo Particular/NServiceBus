@@ -18,7 +18,7 @@
         {
             await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithLocalCallback>(b => b.When(
-                    (bus, context) => bus.SendLocalAsync(new MyRequest())))
+                    (bus, context) => bus.SendLocal(new MyRequest())))
                 .Done(c => c.ExceptionReceived)
                 .Repeat(r => r.For(Transports.Default))
                 .Should(c =>

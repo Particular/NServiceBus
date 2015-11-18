@@ -19,7 +19,7 @@
 
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<ContextExtendingEndpoint>(e => e
-                    .When((bus, c) => bus.SendLocalAsync(new SomeMessage())))
+                    .When((bus, c) => bus.SendLocal(new SomeMessage())))
                 .Done(c => c.HandlerAExtensionValue != null && c.HandlerBExtensionValue != null)
                 .Run();
 

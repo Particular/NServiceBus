@@ -17,7 +17,7 @@
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            ReplacementTypeOrMember = "SubscribeAsync(Type eventType, ContextBag context)")]
+            ReplacementTypeOrMember = "Subscribe(Type eventType, ContextBag context)")]
         public static void Subscribe(this IManageSubscriptions manage, Type eventType, ContextBag context)
         {
             throw new NotImplementedException();
@@ -32,7 +32,7 @@
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            ReplacementTypeOrMember = "UnsubscribeAsync(Type eventType, ContextBag context)")]
+            ReplacementTypeOrMember = "Unsubscribe(Type eventType, ContextBag context)")]
         public static void Unsubscribe(IManageSubscriptions manage, Type eventType, ContextBag context)
         {
             throw new NotImplementedException();

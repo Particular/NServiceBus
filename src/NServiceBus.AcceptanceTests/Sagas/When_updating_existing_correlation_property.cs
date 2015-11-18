@@ -15,7 +15,7 @@
         {
             var exception = Assert.Throws<AggregateException>(async () =>
                 await Scenario.Define<Context>()
-                    .WithEndpoint<ChangePropertyEndpoint>(b => b.When(bus => bus.SendLocalAsync(new StartSagaMessage
+                    .WithEndpoint<ChangePropertyEndpoint>(b => b.When(bus => bus.SendLocal(new StartSagaMessage
                     {
                         SomeId = Guid.NewGuid()
                     })))
@@ -51,7 +51,7 @@
                         return Task.FromResult(0);
                     }
 
-                    return context.SendLocalAsync(new StartSagaMessage
+                    return context.SendLocal(new StartSagaMessage
                     {
                         SecondMessage = true,
                         SomeId = Data.SomeId

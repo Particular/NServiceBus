@@ -13,17 +13,17 @@
         public async Task Event_should_be_delivered()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<Publisher>(b => b.When(c => c.Subscriber1Subscribed && c.Subscriber2Subscribed, bus => bus.PublishAsync(new MyEvent())))
+                    .WithEndpoint<Publisher>(b => b.When(c => c.Subscriber1Subscribed && c.Subscriber2Subscribed, bus => bus.Publish(new MyEvent())))
                     .WithEndpoint<Subscriber1>(b => b.When(async (bus, c) =>
                         {
-                            await bus.SubscribeAsync<IMyEvent>();
+                            await bus.Subscribe<IMyEvent>();
 
                             if (c.HasNativePubSubSupport)
                                 c.Subscriber1Subscribed = true;
                         }))
                     .WithEndpoint<Subscriber2>(b => b.When(async (bus, c) =>
                         {
-                            await bus.SubscribeAsync<MyEvent>();
+                            await bus.Subscribe<MyEvent>();
 
                             if (c.HasNativePubSubSupport)
                                 c.Subscriber2Subscribed = true;

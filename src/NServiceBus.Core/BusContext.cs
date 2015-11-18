@@ -16,32 +16,32 @@ namespace NServiceBus
 
         public ContextBag Extensions { get; }
 
-        public Task SendAsync(object message, SendOptions options)
+        public Task Send(object message, SendOptions options)
         {
             return BusOperationsBehaviorContext.SendAsync(context, message, options);
         }
 
-        public Task SendAsync<T>(Action<T> messageConstructor, SendOptions options)
+        public Task Send<T>(Action<T> messageConstructor, SendOptions options)
         {
             return BusOperationsBehaviorContext.SendAsync(context, messageConstructor, options);
         }
 
-        public Task PublishAsync(object message, PublishOptions options)
+        public Task Publish(object message, PublishOptions options)
         {
             return BusOperationsBehaviorContext.PublishAsync(context, message, options);
         }
 
-        public Task PublishAsync<T>(Action<T> messageConstructor, PublishOptions publishOptions)
+        public Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)
         {
             return BusOperationsBehaviorContext.PublishAsync(context, messageConstructor, publishOptions);
         }
 
-        public Task SubscribeAsync(Type eventType, SubscribeOptions options)
+        public Task Subscribe(Type eventType, SubscribeOptions options)
         {
             return BusOperationsBehaviorContext.SubscribeAsync(context, eventType, options);
         }
 
-        public Task UnsubscribeAsync(Type eventType, UnsubscribeOptions options)
+        public Task Unsubscribe(Type eventType, UnsubscribeOptions options)
         {
             return BusOperationsBehaviorContext.UnsubscribeAsync(context, eventType, options);
         }

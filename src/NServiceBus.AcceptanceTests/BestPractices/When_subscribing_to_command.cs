@@ -16,7 +16,7 @@
                     {
                         try
                         {
-                            await bus.SubscribeAsync<MyCommand>();
+                            await bus.Subscribe<MyCommand>();
                         }
                         catch (Exception ex)
                         {

@@ -99,7 +99,7 @@
                 unsubscribeStreams.Add(Notifications.Errors.MessageHasFailedAFirstLevelRetryAttempt.Subscribe(message => Context.TotalNumberOfFLRTimesInvoked++));
                 unsubscribeStreams.Add(Notifications.Errors.MessageHasBeenSentToSecondLevelRetries.Subscribe(message => Context.NumberOfSLRRetriesPerformed++));
 
-                return context.SendLocalAsync(new MessageToBeRetried
+                return context.SendLocal(new MessageToBeRetried
                 {
                     Id = Context.Id
                 });

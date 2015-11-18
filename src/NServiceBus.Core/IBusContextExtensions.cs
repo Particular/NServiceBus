@@ -13,12 +13,12 @@ namespace NServiceBus
         /// </summary>
         /// <param name="context">The instance of <see cref="IBusContext"/> to use for the action.</param>
         /// <param name="message">The message to send.</param>
-        public static Task SendAsync(this IBusContext context, object message)
+        public static Task Send(this IBusContext context, object message)
         {
             Guard.AgainstNull(nameof(context), context);
             Guard.AgainstNull(nameof(message), message);
 
-            return context.SendAsync(message, new SendOptions());
+            return context.Send(message, new SendOptions());
         }
 
         /// <summary>
@@ -30,12 +30,12 @@ namespace NServiceBus
         /// <remarks>
         /// The message will be sent to the destination configured for <typeparamref name="T"/>.
         /// </remarks>
-        public static Task SendAsync<T>(this IBusContext context, Action<T> messageConstructor)
+        public static Task Send<T>(this IBusContext context, Action<T> messageConstructor)
         {
             Guard.AgainstNull(nameof(context), context);
             Guard.AgainstNull(nameof(messageConstructor), messageConstructor);
 
-            return context.SendAsync(messageConstructor, new SendOptions());
+            return context.Send(messageConstructor, new SendOptions());
         }
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace NServiceBus
         /// <param name="context">The instance of <see cref="IBusContext"/> to use for the action.</param>
         /// <param name="destination">The address of the destination to which the message will be sent.</param>
         /// <param name="message">The message to send.</param>
-        public static Task SendAsync(this IBusContext context, string destination, object message)
+        public static Task Send(this IBusContext context, string destination, object message)
         {
             Guard.AgainstNull(nameof(context), context);
             Guard.AgainstNullAndEmpty(nameof(destination), destination);
@@ -54,7 +54,7 @@ namespace NServiceBus
 
             options.SetDestination(destination);
 
-            return context.SendAsync(message, options);
+            return context.Send(message, options);
         }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace NServiceBus
         /// <param name="context">The instance of <see cref="IBusContext"/> to use for the action.</param>
         /// <param name="destination">The destination to which the message will be sent.</param>
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
-        public static Task SendAsync<T>(this IBusContext context, string destination, Action<T> messageConstructor)
+        public static Task Send<T>(this IBusContext context, string destination, Action<T> messageConstructor)
         {
             Guard.AgainstNull(nameof(context), context);
             Guard.AgainstNullAndEmpty(nameof(destination), destination);
@@ -74,7 +74,7 @@ namespace NServiceBus
 
             options.SetDestination(destination);
 
-            return context.SendAsync(messageConstructor, options);
+            return context.Send(messageConstructor, options);
         }
 
         /// <summary>
@@ -82,7 +82,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="context">Object being extended.</param>
         /// <param name="message">The message to send.</param>
-        public static Task SendLocalAsync(this IBusContext context, object message)
+        public static Task SendLocal(this IBusContext context, object message)
         {
             Guard.AgainstNull(nameof(context), context);
             Guard.AgainstNull(nameof(message), message);
@@ -91,7 +91,7 @@ namespace NServiceBus
 
             options.RouteToLocalEndpointInstance();
 
-            return context.SendAsync(message, options);
+            return context.Send(message, options);
         }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace NServiceBus
         /// <typeparam name="T">The type of message, usually an interface.</typeparam>
         /// <param name="context">Object being extended.</param>
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
-        public static Task SendLocalAsync<T>(this IBusContext context, Action<T> messageConstructor)
+        public static Task SendLocal<T>(this IBusContext context, Action<T> messageConstructor)
         {
             Guard.AgainstNull(nameof(context), context);
             Guard.AgainstNull(nameof(messageConstructor), messageConstructor);
@@ -109,7 +109,7 @@ namespace NServiceBus
 
             options.RouteToLocalEndpointInstance();
 
-            return context.SendAsync(messageConstructor, options);
+            return context.Send(messageConstructor, options);
         }
 
         /// <summary>
@@ -117,9 +117,9 @@ namespace NServiceBus
         /// </summary>
         /// <param name="context">The instance of <see cref="IBusContext"/> to use for the action.</param>
         /// <param name="message">The message to publish.</param>
-        public static Task PublishAsync(this IBusContext context, object message)
+        public static Task Publish(this IBusContext context, object message)
         {
-            return context.PublishAsync(message, new PublishOptions());
+            return context.Publish(message, new PublishOptions());
         }
 
         /// <summary>
@@ -127,9 +127,9 @@ namespace NServiceBus
         /// </summary>
         /// <param name="context">The instance of <see cref="IBusContext"/> to use for the action.</param>
         /// <typeparam name="T">The message type.</typeparam>
-        public static Task PublishAsync<T>(this IBusContext context)
+        public static Task Publish<T>(this IBusContext context)
         {
-            return context.PublishAsync<T>(_ => { }, new PublishOptions());
+            return context.Publish<T>(_ => { }, new PublishOptions());
         }
 
         /// <summary>
@@ -138,9 +138,9 @@ namespace NServiceBus
         /// <typeparam name="T">The type of message, usually an interface.</typeparam>
         /// <param name="context">The instance of <see cref="IBusContext"/> to use for the action.</param>
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
-        public static Task PublishAsync<T>(this IBusContext context, Action<T> messageConstructor)
+        public static Task Publish<T>(this IBusContext context, Action<T> messageConstructor)
         {
-            return context.PublishAsync(messageConstructor, new PublishOptions());
+            return context.Publish(messageConstructor, new PublishOptions());
         }
 
         /// <summary>
@@ -149,12 +149,12 @@ namespace NServiceBus
         /// </summary>
         /// <param name="context">Object being extended.</param>
         /// <param name="messageType">The type of message to subscribe to.</param>
-        public static Task SubscribeAsync(this IBusContext context, Type messageType)
+        public static Task Subscribe(this IBusContext context, Type messageType)
         {
             Guard.AgainstNull(nameof(context), context);
             Guard.AgainstNull(nameof(messageType), messageType);
 
-            return context.SubscribeAsync(messageType, new SubscribeOptions());
+            return context.Subscribe(messageType, new SubscribeOptions());
         }
 
         /// <summary>
@@ -163,11 +163,11 @@ namespace NServiceBus
         /// </summary>
         /// <param name="context">Object being extended.</param>
         /// <typeparam name="T">The type of message to subscribe to.</typeparam>
-        public static Task SubscribeAsync<T>(this IBusContext context)
+        public static Task Subscribe<T>(this IBusContext context)
         {
             Guard.AgainstNull(nameof(context), context);
 
-            return context.SubscribeAsync(typeof(T), new SubscribeOptions());
+            return context.Subscribe(typeof(T), new SubscribeOptions());
         }
 
         /// <summary>
@@ -175,12 +175,12 @@ namespace NServiceBus
         /// </summary>
         /// <param name="context">Object being extended.</param>
         /// <param name="messageType">The type of message to subscribe to.</param>
-        public static Task UnsubscribeAsync(this IBusContext context, Type messageType)
+        public static Task Unsubscribe(this IBusContext context, Type messageType)
         {
             Guard.AgainstNull(nameof(context), context);
             Guard.AgainstNull(nameof(messageType), messageType);
 
-            return context.UnsubscribeAsync(messageType, new UnsubscribeOptions());
+            return context.Unsubscribe(messageType, new UnsubscribeOptions());
         }
 
         /// <summary>
@@ -188,11 +188,11 @@ namespace NServiceBus
         /// </summary>
         /// <param name="context">Object being extended.</param>
         /// <typeparam name="T">The type of message to unsubscribe from.</typeparam>
-        public static Task UnsubscribeAsync<T>(this IBusContext context)
+        public static Task Unsubscribe<T>(this IBusContext context)
         {
             Guard.AgainstNull(nameof(context), context);
 
-            return context.UnsubscribeAsync(typeof(T), new UnsubscribeOptions());
+            return context.Unsubscribe(typeof(T), new UnsubscribeOptions());
         }
     }
 }

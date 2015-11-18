@@ -17,7 +17,7 @@
             var exception = Assert.Throws<AggregateException>(async () => await
                 Scenario.Define<Context>()
                     .WithEndpoint<RetryEndpoint>(b => b
-                        .When((bus, c) => bus.SendLocalAsync(new MessageWhichFailsRetries())))
+                        .When((bus, c) => bus.SendLocal(new MessageWhichFailsRetries())))
                     .Done(c => c.ForwardedToErrorQueue)
                     .Run())
                 .ExpectFailedMessages();

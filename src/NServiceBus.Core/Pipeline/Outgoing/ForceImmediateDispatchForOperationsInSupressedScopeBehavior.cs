@@ -38,7 +38,7 @@ var options = new Send|Publish|ReplyOptions();
 
 options.RequireImmediateDispatch();
 
-bus.Send|Publish|ReplyAsync(new MyMessage(), options)
+bus.Send|Publish|Reply(new MyMessage(), options)
 ";
 
         static ILog Logger = LogManager.GetLogger(typeof(ForceImmediateDispatchForOperationsInSupressedScopeBehavior));

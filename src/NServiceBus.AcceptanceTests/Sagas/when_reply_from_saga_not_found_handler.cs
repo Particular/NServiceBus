@@ -15,7 +15,7 @@
         public async Task It_should_invoke_message_handler()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<Sender>(b => b.When((bus, c) => bus.SendAsync(new MessageToSaga())))
+                    .WithEndpoint<Sender>(b => b.When((bus, c) => bus.Send(new MessageToSaga())))
                     .WithEndpoint<ReceiverWithSaga>()
                     .Done(c => c.ReplyReceived)
                     .Run();
@@ -89,7 +89,7 @@
             {
                 public Task Handle(object message, IMessageProcessingContext context)
                 {
-                    return context.ReplyAsync(new Reply());
+                    return context.Reply(new Reply());
                 }
             }
         }
