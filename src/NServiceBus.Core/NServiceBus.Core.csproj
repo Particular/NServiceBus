@@ -123,11 +123,9 @@
     <Compile Include="Pipeline\Outgoing\ForceImmediateDispatchForOperationsInSupressedScopeBehavior.cs" />
     <Compile Include="Pipeline\Outgoing\ImmediateDispatchOptionExtensions.cs" />
     <Compile Include="Pipeline\Outgoing\OutgoingPhysicalMessageContext.cs" />
-    <Compile Include="Recoverability\Faults\FaultsStatusStorage.cs" />
     <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetriesHandler.cs" />
     <Compile Include="Recoverability\FirstLevelRetries\FlrStatusStorage.cs" />
     <Compile Include="Recoverability\FirstLevelRetries\ProcessingFailureInfo.cs" />
-    <Compile Include="Recoverability\SecondLevelRetries\SlrStatusStorage.cs" />
     <Compile Include="Reliability\Outbox\ForceBatchDispatchToBeIsolatedBehavior.cs" />
     <Compile Include="Reliability\Outbox\OutboxTransaction.cs" />
     <Compile Include="Routing\MulticastRoutingStrategy.cs" />

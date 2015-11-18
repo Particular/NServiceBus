@@ -11,9 +11,7 @@ namespace NServiceBus.Core.Tests
     using NServiceBus.Core.Tests.Recoverability.SecondLevelRetries;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.Recoverability.Faults;
     using NServiceBus.Recoverability.FirstLevelRetries;
-    using NServiceBus.Recoverability.SecondLevelRetries;
     using NServiceBus.Routing;
     using TransportDispatch;
     using Transports;
@@ -40,7 +38,7 @@ namespace NServiceBus.Core.Tests
         RecoverabilityBehavior CreateBehavior(string errorQueueAddress)
         {
             var flrHandler = new FirstLevelRetriesHandler(new FlrStatusStorage(), new FirstLevelRetryPolicy(0), notifications);
-            var slrHandler = new SecondLevelRetriesHandler(pipeline, new FakePolicy(TimeSpan.MinValue), notifications, string.Empty, new SlrStatusStorage(), false);
+            var slrHandler = new SecondLevelRetriesHandler(pipeline, new FakePolicy(TimeSpan.MinValue), notifications, string.Empty, false);
 
             var bahavior = new RecoverabilityBehavior(
                 errors,
@@ -48,7 +46,6 @@ namespace NServiceBus.Core.Tests
                 hostInfo,
                 notifications, 
                 errorQueueAddress, 
-                new FaultsStatusStorage(),
                 flrHandler,
                 slrHandler);
 

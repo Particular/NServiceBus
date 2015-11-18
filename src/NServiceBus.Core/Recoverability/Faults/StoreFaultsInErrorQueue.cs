@@ -1,12 +1,10 @@
 namespace NServiceBus.Features
 {
     using System;
-    using System.Threading;
     using NServiceBus.Config;
     using NServiceBus.Faults;
     using NServiceBus.Hosting;
     using NServiceBus.Pipeline;
-    using NServiceBus.Recoverability.Faults;
     using NServiceBus.Recoverability.FirstLevelRetries;
     using NServiceBus.Recoverability.SecondLevelRetries;
     using NServiceBus.Settings;
@@ -21,8 +19,6 @@ namespace NServiceBus.Features
 
             Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Send only endpoints can't be used to forward received messages to the error queue as the endpoint requires receive capabilities");
 
-            RegisterStartupTask<FaultsStatusStorageCleaner>();
-
             //SLR
             //This should check if we can perform SLR and enable/disable this sub-moduel
             /*
@@ -32,8 +28,6 @@ namespace NServiceBus.Features
 
             Prerequisite(IsEnabledInConfig, "SLR was disabled in config");
             */
-            RegisterStartupTask<SlrStatusStorageCleaner>();
-
 
             //FLR
             //This should check if we can perform FLR and enable/disable this sub-moduel
@@ -51,8 +45,6 @@ namespace NServiceBus.Features
             //Faults support
             var errorQueue = ErrorQueueSettings.GetConfiguredErrorQueue(context.Settings);
 
-            var faultsStorage = new FaultsStatusStorage();
-            context.Container.RegisterSingleton(typeof(FaultsStatusStorage), faultsStorage);
 
             context.Settings.Get<QueueBindings>().BindSending(errorQueue);
 
@@ -60,10 +52,8 @@ namespace NServiceBus.Features
 
             //SLR
             var retryPolicy = GetRetryPolicy(context.Settings);
-            var slrStorage = new SlrStatusStorage();
 
             context.Container.RegisterSingleton(typeof(SecondLevelRetryPolicy), retryPolicy);
-            context.Container.RegisterSingleton(typeof(SlrStatusStorage), slrStorage);
 
             //FLR
             var transportConfig = context.Settings.GetConfigSection<TransportConfig>();
@@ -82,7 +72,7 @@ namespace NServiceBus.Features
 
                 var flrHandler = new FirstLevelRetriesHandler(flrStatusStorage, flrRetryPolicy, b.Build<BusNotifications>());
 
-                var slrHandler = new SecondLevelRetriesHandler(dispatchPipeline, retryPolicy, b.Build<BusNotifications>(), context.Settings.LocalAddress(), slrStorage, IsEnabledInConfig(context));
+                var slrHandler = new SecondLevelRetriesHandler(dispatchPipeline, retryPolicy, b.Build<BusNotifications>(), context.Settings.LocalAddress(), IsEnabledInConfig(context));
 
                 return new RecoverabilityBehavior(
                     b.Build<CriticalError>(),
@@ -90,7 +80,6 @@ namespace NServiceBus.Features
                     b.Build<HostInformation>(),
                     b.Build<BusNotifications>(),
                     errorQueue,
-                    faultsStorage,
                     flrHandler,
                     slrHandler);
             }, DependencyLifecycle.InstancePerCall);
@@ -136,60 +125,6 @@ namespace NServiceBus.Features
             }
 
             return new DefaultSecondLevelRetryPolicy(DefaultSecondLevelRetryPolicy.DefaultNumberOfRetries, DefaultSecondLevelRetryPolicy.DefaultTimeIncrease);
-        }
-
-        class SlrStatusStorageCleaner : FeatureStartupTask
-        {
-            public SlrStatusStorageCleaner(SlrStatusStorage statusStorage)
-            {
-                this.statusStorage = statusStorage;
-            }
-
-            protected override void OnStart()
-            {
-                timer = new Timer(ClearSlrStatusStorage, null, ClearingInterval, ClearingInterval);
-            }
-
-            protected override void OnStop()
-            {
-                timer?.Dispose();
-            }
-
-            void ClearSlrStatusStorage(object state)
-            {
-                statusStorage.ClearAllExceptions();
-            }
-
-            static readonly TimeSpan ClearingInterval = TimeSpan.FromMinutes(5);
-            SlrStatusStorage statusStorage;
-            Timer timer;
-        }
-
-        class FaultsStatusStorageCleaner : FeatureStartupTask
-        {
-            public FaultsStatusStorageCleaner(FaultsStatusStorage statusStorage)
-            {
-                this.statusStorage = statusStorage;
-            }
-
-            protected override void OnStart()
-            {
-                timer = new Timer(ClearFaultsStatusStorage, null, ClearingInterval, ClearingInterval);
-            }
-
-            protected override void OnStop()
-            {
-                timer?.Dispose();
-            }
-
-            void ClearFaultsStatusStorage(object state)
-            {
-                statusStorage.ClearAllExceptions();
-            }
-
-            static readonly TimeSpan ClearingInterval = TimeSpan.FromMinutes(5);
-            FaultsStatusStorage statusStorage;
-            Timer timer;
         }
     }
 }

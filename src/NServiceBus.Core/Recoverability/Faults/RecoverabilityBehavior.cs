@@ -6,7 +6,6 @@ namespace NServiceBus
     using NServiceBus.Logging;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.Recoverability.Faults;
     using NServiceBus.Recoverability.FirstLevelRetries;
     using NServiceBus.Routing;
     using NServiceBus.TransportDispatch;
@@ -20,7 +19,6 @@ namespace NServiceBus
             HostInformation hostInformation,
             BusNotifications notifications,
             string errorQueueAddress,
-            FaultsStatusStorage faultsStatusStorage,
             FirstLevelRetriesHandler flrHandler,
             SecondLevelRetriesHandler slrHandler)
         {
@@ -29,7 +27,6 @@ namespace NServiceBus
             this.hostInformation = hostInformation;
             this.notifications = notifications;
             this.errorQueueAddress = errorQueueAddress;
-            this.faultsStatusStorage = faultsStatusStorage;
             this.flrHandler = flrHandler;
             this.slrHandler = slrHandler;
         }
@@ -95,9 +92,6 @@ namespace NServiceBus
             {
                 await MoveToErrorQueue(context, context.Message, failureInfo.Exception).ConfigureAwait(false);
 
-                faultsStatusStorage.ClearExceptions(uniqueMessageId);
-
-                return;
             }
             catch (Exception ex)
             {
@@ -135,7 +129,6 @@ namespace NServiceBus
         HostInformation hostInformation;
         BusNotifications notifications;
         string errorQueueAddress;
-        FaultsStatusStorage faultsStatusStorage;
         readonly FirstLevelRetriesHandler flrHandler;
         readonly SecondLevelRetriesHandler slrHandler;
         static ILog Logger = LogManager.GetLogger<RecoverabilityBehavior>();

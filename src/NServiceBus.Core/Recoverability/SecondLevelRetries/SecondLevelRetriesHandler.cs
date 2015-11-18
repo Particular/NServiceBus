@@ -20,30 +20,13 @@ namespace NServiceBus
             SecondLevelRetryPolicy retryPolicy, 
             BusNotifications notifications, 
             string localAddress, 
-            SlrStatusStorage slrStatusStorage,
             bool isEnabled = true)
         {
             this.dispatchPipeline = dispatchPipeline;
             this.retryPolicy = retryPolicy;
             this.notifications = notifications;
             this.localAddress = localAddress;
-            this.slrStatusStorage = slrStatusStorage;
             this.isEnabled = isEnabled;
-        }
-
-        public bool TryGetException(string uniqueMessageId, out Exception exception)
-        {
-            return slrStatusStorage.TryGetException(uniqueMessageId, out exception);
-        }
-
-        public void AddException(string uniqueMessageId, Exception exception)
-        {
-            slrStatusStorage.AddException(uniqueMessageId, exception);
-        }
-
-        public void ClearException(string uniqueMessageId)
-        {
-            slrStatusStorage.ClearException(uniqueMessageId);
         }
 
         public bool ShouldPerformSlr(IncomingMessage message, Exception exception,  out TimeSpan delay, out int currentRetry)
@@ -98,7 +81,6 @@ namespace NServiceBus
         SecondLevelRetryPolicy retryPolicy;
         BusNotifications notifications;
         string localAddress;
-        SlrStatusStorage slrStatusStorage;
 
         static ILog Logger = LogManager.GetLogger<SecondLevelRetriesHandler>();
         bool isEnabled;
