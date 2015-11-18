@@ -29,6 +29,18 @@
         }
 
         [Test]
+        public async Task Invoke_when_timeout_not_in_storage_should_process_successfully()
+        {
+            var messageDispatcher = new FakeMessageDispatcher();
+            var timeoutPersister = new InMemoryTimeoutPersister();
+            var testee = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransactionSupport.Distributed);
+
+            await testee.Invoke(CreateContext(Guid.NewGuid().ToString()), context => TaskEx.Completed);
+
+            Assert.AreEqual(0, messageDispatcher.OutgoingMessages.Count());
+        }
+
+        [Test]
         public async Task Invoke_when_dispatching_message_fails_should_keep_timeout_in_storage()
         {
             var messageDispatcher = new FailingMessageDispatcher();
@@ -41,6 +53,21 @@
 
             var result = await timeoutPersister.Peek(timeoutData.Id, null);
             Assert.NotNull(result);
+        }
+
+        [Test]
+        public void Invoke_when_removing_timeout_fails_should_throw_exception()
+        {
+            var messageDispatcher = new FakeMessageDispatcher();
+            var timeoutPersister = new FakeTimeoutStorage
+            {
+                OnPeek = (id, bag) => CreateTimeout(),
+                OnTryRemove = (id, bag) => false // simulates a concurrent delete
+            };
+
+            var testee = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransactionSupport.Distributed);
+
+            Assert.Throws<Exception>(async () => await testee.Invoke(CreateContext(Guid.NewGuid().ToString()), context => TaskEx.Completed));
         }
 
         [Test]
@@ -98,7 +125,7 @@
 
         class FakeMessageDispatcher : IDispatchMessages
         {
-            public IEnumerable<TransportOperation> OutgoingMessages { get; private set; }
+            public IEnumerable<TransportOperation> OutgoingMessages { get; private set; } = Enumerable.Empty<TransportOperation>();
 
             public Task Dispatch(IEnumerable<TransportOperation> outgoingMessages, ContextBag context)
             {
@@ -113,6 +140,32 @@
             {
                 throw new Exception("simulated exception");
             }
+        }
+
+        class FakeTimeoutStorage : IPersistTimeouts
+        {
+            public Task Add(TimeoutData timeout, ContextBag context)
+            {
+                return TaskEx.Completed;
+            }
+
+            public Task<bool> TryRemove(string timeoutId, ContextBag context)
+            {
+                return Task.FromResult(OnTryRemove(timeoutId, context));
+            }
+
+            public Task<TimeoutData> Peek(string timeoutId, ContextBag context)
+            {
+                return Task.FromResult(OnPeek(timeoutId, context));
+            }
+
+            public Task RemoveTimeoutBy(Guid sagaId, ContextBag context)
+            {
+                return TaskEx.Completed;
+            }
+
+            public Func<string, ContextBag, bool> OnTryRemove { get; set; } = (id, bag) => true;
+            public Func<string, ContextBag, TimeoutData> OnPeek { get; set; } = (id, bag) => null;
         }
     }
 }

@@ -11,7 +11,6 @@ namespace NServiceBus.InMemory.TimeoutPersister
     class InMemoryTimeoutPersister : IPersistTimeouts, IQueryTimeouts, IDisposable
     {
         public void Dispose()
-
         {
         }
 
