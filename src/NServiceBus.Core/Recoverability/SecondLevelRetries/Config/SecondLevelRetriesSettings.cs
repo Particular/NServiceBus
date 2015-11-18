@@ -18,7 +18,10 @@ namespace NServiceBus.SecondLevelRetries.Config
         /// <summary>
         /// Register a custom retry policy.
         /// </summary>
-        [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", ReplacementTypeOrMember = "CustomRetryPolicy(Func<IncomingMessage, TimeSpan> customPolicy)")]
+        [ObsoleteEx(
+            RemoveInVersion = "7.0", 
+            TreatAsErrorFromVersion = "6.0", 
+            ReplacementTypeOrMember = "CustomRetryPolicy(Func<IncomingMessage, TimeSpan> customPolicy)")]
         public void CustomRetryPolicy(Func<TransportMessage, TimeSpan> customPolicy)
         {
             throw new NotImplementedException();

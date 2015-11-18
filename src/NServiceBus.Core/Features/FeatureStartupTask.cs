@@ -11,7 +11,10 @@
         /// <summary>
         /// Will be called when the endpoint starts up if the feature has been activated.
         /// </summary>
-        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "OnStart(IBusContext context)")]
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6", 
+            RemoveInVersion = "7",
+            ReplacementTypeOrMember = "OnStart(IBusContext context)")]
         protected virtual void OnStart()
         {
             throw new NotImplementedException();
@@ -20,7 +23,10 @@
         /// <summary>
         ///  Will be called after an endpoint has stopped processing messages, if the feature has been activated.
         /// </summary>
-        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "OnStop(IBusContext context)")]
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6", 
+            RemoveInVersion = "7", 
+            ReplacementTypeOrMember = "OnStop(IBusContext context)")]
         protected virtual void OnStop()
         {
             throw new NotImplementedException();

@@ -27,12 +27,12 @@
             Assert.AreEqual(TimeSpan.FromSeconds(1), timeToBeReceived);
         }
 
-        [TimeToBeReceivedAttribute("00:00:01")]
+        [TimeToBeReceived("00:00:01")]
         class BaseClass
         {
         }
 
-        [TimeToBeReceivedAttribute("00:00:02")]
+        [TimeToBeReceived("00:00:02")]
         class InheritedClassWithAttribute : BaseClass
         {
 

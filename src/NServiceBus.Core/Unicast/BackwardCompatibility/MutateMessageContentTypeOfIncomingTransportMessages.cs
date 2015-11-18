@@ -5,7 +5,10 @@
     using NServiceBus.Unicast.Transport;
     using Serialization;
     
-    [ObsoleteEx(RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "Exist only for compatibility between V4 and V3. No longer needed in V6")]
+    [ObsoleteEx(
+        RemoveInVersion = "7.0", 
+        TreatAsErrorFromVersion = "6.0", 
+        Message = "Exist only for compatibility between V4 and V3. No longer needed in V6")]
     class MutateMessageContentTypeOfIncomingTransportMessages : IMutateIncomingTransportMessages, INeedInitialization
     {
         public IMessageSerializer Serializer { get; set; }

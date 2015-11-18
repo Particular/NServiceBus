@@ -21,7 +21,10 @@ namespace NServiceBus
         /// <summary>
         /// Gets whether or not queues should be created.
         /// </summary>
-        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "CreateQueues")]
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6", 
+            RemoveInVersion = "7", 
+            ReplacementTypeOrMember = "CreateQueues")]
         public static bool CreateQueues(this Configure config)
         {
             throw new NotImplementedException();

@@ -46,7 +46,10 @@ namespace NServiceBus
         /// <summary>
         /// Returns whether durable messages are on or off.
         /// </summary>
-        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "DurableMessagesEnabled")]
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6", 
+            RemoveInVersion = "7", 
+            ReplacementTypeOrMember = "DurableMessagesEnabled")]
         public static bool DurableMessagesEnabled(this Configure config)
         {
             throw new NotImplementedException();

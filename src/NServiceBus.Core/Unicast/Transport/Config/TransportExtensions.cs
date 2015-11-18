@@ -123,7 +123,10 @@ namespace NServiceBus
         /// <summary>
         /// Gets the transport connectionstring.
         /// </summary>
-        [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", Message = "Not available any more.")]
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6", 
+            RemoveInVersion = "7", 
+            Message = "Not available any more.")]
         public static string TransportConnectionString(this Configure config)
         {
            throw new NotImplementedException();

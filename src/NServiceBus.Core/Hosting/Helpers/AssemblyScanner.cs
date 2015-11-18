@@ -12,7 +12,7 @@ namespace NServiceBus.Hosting.Helpers
     /// <summary>
     ///     Helpers for assembly scanning operations.
     /// </summary>
-    public class AssemblyScanner
+    public partial class AssemblyScanner
     {
         //TODO: delete when we make message scanning lazy #1617
         static string[] DefaultAssemblyExclusions =
@@ -67,18 +67,6 @@ namespace NServiceBus.Hosting.Helpers
         {
             this.assemblyToScan = assemblyToScan;
             ThrowExceptions = true;
-        }
-
-        /// <summary>
-        ///     Tells the scanner to only include assemblies that reference one of the given assemblies.
-        /// </summary>
-        [ObsoleteEx(
-            Message = "This method is no longer required since deep scanning of assemblies is done to detect an NServiceBus reference.", 
-            RemoveInVersion = "7.0", 
-            TreatAsErrorFromVersion = "6.0")]
-        public List<Assembly> MustReferenceAtLeastOneAssembly
-        {
-            get { throw new NotImplementedException(); }
         }
 
         /// <summary>
