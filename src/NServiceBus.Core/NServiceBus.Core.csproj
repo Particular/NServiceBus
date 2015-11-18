@@ -180,6 +180,8 @@
     <Compile Include="Timeout\Core\TimeoutPersistenceVersionCheck.cs" />
     <Compile Include="Timeout\Core\TimeoutPersistenceVersionCheckExtension.cs" />
     <Compile Include="Transports\ConfigureTransport.cs" />
+    <Compile Include="Transports\Msmq\TimeToBeRceivedOverrideChecker.cs" />
+    <Compile Include="Transports\Msmq\TimeToBeReceivedOverrideCheck.cs" />
     <Compile Include="TypesToBeRemovedInVersion5.cs" />
     <Compile Include="Unicast\Behaviors\CallbackInvocationBehavior.cs" />
     <Compile Include="Unicast\Behaviors\ForwardBehavior.cs" />

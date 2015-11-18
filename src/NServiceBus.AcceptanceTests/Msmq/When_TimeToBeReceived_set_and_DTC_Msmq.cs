@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.BasicMessaging
+﻿namespace NServiceBus.AcceptanceTests.Msmq
 {
     using System;
     using System.Transactions;
