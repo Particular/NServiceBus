@@ -2,7 +2,6 @@ namespace NServiceBus.Unicast.Queuing
 {
     using System.Threading.Tasks;
     using Installation;
-    using Logging;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Settings;
     using Transports;
@@ -31,26 +30,7 @@ namespace NServiceBus.Unicast.Queuing
             var queueCreator = builder.Build<ICreateQueues>();
             var queueBindings = settings.Get<QueueBindings>();
 
-            foreach (var receiveLogicalAddress in queueBindings.ReceivingAddresses)
-            {
-                CreateQueue(queueCreator, identity, receiveLogicalAddress);
-            }
-
-            foreach (var sendingAddress in queueBindings.SendingAddresses)
-            {
-                CreateQueue(queueCreator, identity, sendingAddress);
-            }
-
-            return TaskEx.Completed;
+            return queueCreator.CreateQueueIfNecessary(queueBindings, identity);
         }
-
-        void CreateQueue(ICreateQueues queueCreator, string identity, string transportAddress)
-        {
-            queueCreator.CreateQueueIfNecessary(transportAddress, identity);
-            Logger.DebugFormat("Verified that the queue: [{0}] existed", transportAddress);
-        }
-
-        static ILog Logger = LogManager.GetLogger<QueuesCreator>();
-
     }
 }

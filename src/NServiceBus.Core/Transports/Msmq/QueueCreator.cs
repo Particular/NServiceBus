@@ -3,6 +3,7 @@ namespace NServiceBus.Transports.Msmq
     using System;
     using System.Messaging;
     using System.Security.Principal;
+    using System.Threading.Tasks;
     using Config;
     using Logging;
 
@@ -20,12 +21,27 @@ namespace NServiceBus.Transports.Msmq
             this.settings = settings;
         }
 
+        public Task CreateQueueIfNecessary(QueueBindings queueBindings, string identity)
+        {
+            foreach (var receivingAddress in queueBindings.ReceivingAddresses)
+            {
+                CreateQueueIfNecessary(receivingAddress, identity);
+            }
+
+            foreach (var sendingAddress in queueBindings.SendingAddresses)
+            {
+                CreateQueueIfNecessary(sendingAddress, identity);
+            }
+
+            return TaskEx.Completed;
+        }
+
         ///<summary>
         /// Utility method for creating a queue if it does not exist.
         ///</summary>
         ///<param name="address">Queue path to create</param>
-        ///<param name="account">The account to be given permissions to the queue</param>
-        public void CreateQueueIfNecessary(string address, string account)
+        ///<param name="identity">The identity to be given permissions to the queue</param>
+        private void CreateQueueIfNecessary(string address, string identity)
         {
             if (address == null)
             {
@@ -47,14 +63,14 @@ namespace NServiceBus.Transports.Msmq
                 if (MessageQueue.Exists(queuePath))
                 {
                     Logger.Debug("Queue exists, going to set permissions.");
-                    SetPermissionsForQueue(queuePath, account);
+                    SetPermissionsForQueue(queuePath, identity);
                     return;
                 }
 
                 Logger.Warn("Queue " + queuePath + " does not exist.");
                 Logger.Debug("Going to create queue: " + queuePath);
 
-                CreateQueue(queuePath, account, settings.UseTransactionalQueues);
+                CreateQueue(queuePath, identity, settings.UseTransactionalQueues);
             }
             catch (MessageQueueException ex)
             {
@@ -73,8 +89,10 @@ namespace NServiceBus.Transports.Msmq
             {
                 Logger.Error($"Could not create queue {address} or check its existence. Processing will still continue.", ex);
             }
+
+            Logger.DebugFormat("Verified that the queue: [{0}] existed", address);
         }
-        
+
         static void CreateQueue(string queuePath, string account, bool transactional)
         {
             using (var queue = MessageQueue.Create(queuePath, transactional))
@@ -82,7 +100,7 @@ namespace NServiceBus.Transports.Msmq
                 SetPermissionsForQueue(queue, account);
             }
 
-            Logger.DebugFormat("Created queue, path: [{0}], account: [{1}], transactional: [{2}]", queuePath, account, transactional);
+            Logger.DebugFormat("Created queue, path: [{0}], identity: [{1}], transactional: [{2}]", queuePath, account, transactional);
         }
 
         static void SetPermissionsForQueue(string queuePath, string account)
@@ -108,8 +126,9 @@ namespace NServiceBus.Transports.Msmq
         }
 
         internal static string LocalAdministratorsGroupName = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null).Translate(typeof(NTAccount)).ToString();
-        internal static string LocalEveryoneGroupName = new SecurityIdentifier(WellKnownSidType.WorldSid, null).Translate(typeof(NTAccount)).ToString();
-        internal static string LocalAnonymousLogonName = new SecurityIdentifier(WellKnownSidType.AnonymousSid, null).Translate(typeof(NTAccount)).ToString();
 
+        internal static string LocalEveryoneGroupName = new SecurityIdentifier(WellKnownSidType.WorldSid, null).Translate(typeof(NTAccount)).ToString();
+
+        internal static string LocalAnonymousLogonName = new SecurityIdentifier(WellKnownSidType.AnonymousSid, null).Translate(typeof(NTAccount)).ToString();
     }
 }
