@@ -30,7 +30,7 @@
             Guard.AgainstNull(nameof(message), message);
             Guard.AgainstNull(nameof(options), options);
 
-            parentContext.Merge(options.Context);
+            parentContext.Extensions.Merge(options.Context);
         }
 
         /// <summary>

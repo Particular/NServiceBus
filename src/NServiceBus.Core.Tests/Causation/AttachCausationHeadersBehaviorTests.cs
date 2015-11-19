@@ -33,7 +33,7 @@
             var context = InitializeContext();
 
             var transportMessage = new IncomingMessage("xyz", new Dictionary<string, string> { { Headers.ConversationId, incomingConversationId } }, Stream.Null);
-            context.Set(transportMessage);
+            context.Extensions.Set(transportMessage);
 
             await behavior.Invoke(context, () => Task.FromResult(0));
 
@@ -60,7 +60,7 @@
             var behavior = new AttachCausationHeadersBehavior();
             var context = InitializeContext();
 
-            context.Set(new IncomingMessage("the message id", new Dictionary<string, string>(), Stream.Null));
+            context.Extensions.Set(new IncomingMessage("the message id", new Dictionary<string, string>(), Stream.Null));
 
             await behavior.Invoke(context, () => Task.FromResult(0));
 

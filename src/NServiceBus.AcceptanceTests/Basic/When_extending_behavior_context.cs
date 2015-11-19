@@ -73,7 +73,7 @@
             {
                 public override Task Invoke(LogicalMessageProcessingContext context, Func<Task> next)
                 {
-                    context.Set("CustomExtension", ExtensionValue);
+                    context.Extensions.Set("CustomExtension", ExtensionValue);
                     return next();
                 }
             }

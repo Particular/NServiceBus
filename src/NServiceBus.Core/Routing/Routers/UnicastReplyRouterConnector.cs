@@ -16,7 +16,7 @@ namespace NServiceBus
     {
         public override async Task Invoke(OutgoingReplyContext context, Func<OutgoingLogicalMessageContext, Task> next)
         {
-            var state = context.GetOrCreate<State>();
+            var state = context.Extensions.GetOrCreate<State>();
 
             var replyToAddress = state.ExplicitDestination;
 

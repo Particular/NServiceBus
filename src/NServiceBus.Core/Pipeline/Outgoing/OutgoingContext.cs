@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
     using NServiceBus.Pipeline;
     using NServiceBus.Unicast;
     using PublishOptions = NServiceBus.PublishOptions;
@@ -52,10 +51,6 @@
         /// The headers of the outgoing message.
         /// </summary>
         public Dictionary<string, string> Headers { get; }
-
-        /// <summary>
-        /// </summary>
-        ContextBag IBusContext.Extensions => this;
 
         /// <inheritdoc/>
         public Task SendAsync(object message, SendOptions options)

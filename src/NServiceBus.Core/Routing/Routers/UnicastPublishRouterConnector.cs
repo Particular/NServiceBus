@@ -24,7 +24,7 @@ namespace NServiceBus
             var eventType = context.Message.MessageType;
             var distributionStrategy = distributionPolicy.GetDistributionStrategy(eventType);
 
-            var addressLabels = unicastRouter.Route(eventType, distributionStrategy, context)
+            var addressLabels = unicastRouter.Route(eventType, distributionStrategy, context.Extensions)
                 .EnsureNonEmpty(() => "No destination specified for message: " + eventType)
                 .ToArray();
 

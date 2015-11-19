@@ -4,9 +4,9 @@
     using ObjectBuilder;
 
     /// <summary>
-    /// 
+    /// Represents a context shared between pipeline behaviors.
     /// </summary>
-    public interface BehaviorContext : ContextBag
+    public interface BehaviorContext : IExtendable
     {
         /// <summary>
         /// The current <see cref="IBuilder"/>.
@@ -23,13 +23,11 @@
         /// Create an instance of <see cref="BehaviorContextImpl"/>.
         /// </summary>
         /// <param name="parentContext">The parent context.</param>
-        protected BehaviorContextImpl(BehaviorContext parentContext) : base(parentContext)
+        protected BehaviorContextImpl(BehaviorContext parentContext) : base(parentContext?.Extensions)
         {
         }
 
-        /// <summary>
-        /// The current <see cref="IBuilder"/>.
-        /// </summary>
+        /// <inheritdoc/>
         public IBuilder Builder
         {
             get
@@ -38,5 +36,8 @@
                 return rawBuilder;
             }
         }
+
+        /// <inheritdoc/>
+        ContextBag IExtendable.Extensions => this;
     }
 }

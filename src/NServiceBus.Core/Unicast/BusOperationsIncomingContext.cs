@@ -16,7 +16,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public static async Task ForwardCurrentMessageToAsync(IncomingContext context, string destination)
         {
-            var messageBeingProcessed = context.Get<IncomingMessage>();
+            var messageBeingProcessed = context.Extensions.Get<IncomingMessage>();
             var settings = context.Builder.Build<ReadOnlySettings>();
 
             var pipeline = new PipelineBase<RoutingContext>(

@@ -56,7 +56,7 @@ namespace NServiceBus
 
                     var dispatchContext = new RoutingContextImpl(messageToRetry, new UnicastRoutingStrategy(localAddress), context);
 
-                    context.Set(new List<DeliveryConstraint>
+                    context.Extensions.Set(new List<DeliveryConstraint>
                     {
                         new DelayDeliveryWith(delay)
                     });

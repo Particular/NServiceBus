@@ -23,11 +23,11 @@
             var outerPipe = false;
             try
             {
-                if (!context.TryGet(out diagnostics))
+                if (!context.Extensions.TryGet(out diagnostics))
                 {
                     outerPipe = true;
                     diagnostics = new PipelineDiagnostics();
-                    context.Set(diagnostics);
+                    context.Extensions.Set(diagnostics);
                     notifications.Pipeline.InvokeReceiveStarted(diagnostics.StepsDiagnostics);
                 }
 
@@ -51,7 +51,7 @@
             {
                 if (outerPipe)
                 {
-                    context.Remove<PipelineDiagnostics>();
+                    context.Extensions.Remove<PipelineDiagnostics>();
                 }
             }
         }

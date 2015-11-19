@@ -20,7 +20,7 @@ namespace NServiceBus
             var message = context.Message;
             var timeoutId = message.Headers["Timeout.Id"];
 
-            var timeoutData = await persister.Peek(timeoutId, context).ConfigureAwait(false);
+            var timeoutData = await persister.Peek(timeoutId, context.Extensions).ConfigureAwait(false);
 
             if (timeoutData == null)
             {
@@ -32,9 +32,9 @@ namespace NServiceBus
             timeoutData.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
             timeoutData.Headers["NServiceBus.RelatedToTimeoutId"] = timeoutData.Id;
 
-            await dispatcher.Dispatch(new[] { new TransportOperation(new OutgoingMessage(message.MessageId, timeoutData.Headers, timeoutData.State), sendOptions) }, context).ConfigureAwait(false);
+            await dispatcher.Dispatch(new[] { new TransportOperation(new OutgoingMessage(message.MessageId, timeoutData.Headers, timeoutData.State), sendOptions) }, context.Extensions).ConfigureAwait(false);
 
-            await persister.TryRemove(timeoutId, context).ConfigureAwait(false);
+            await persister.TryRemove(timeoutId, context.Extensions).ConfigureAwait(false);
         }
 
         static DispatchConsistency GetDispatchConsistency(TransactionSupport transactionSupport)

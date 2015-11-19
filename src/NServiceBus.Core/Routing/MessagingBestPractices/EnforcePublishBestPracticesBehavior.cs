@@ -20,7 +20,7 @@
         {
             EnforceBestPracticesOptions options;
 
-            if (!context.TryGet(out options) || options.Enabled)
+            if (!context.Extensions.TryGet(out options) || options.Enabled)
             {
                 validations.AssertIsValidForPubSub(context.Message.MessageType);
             }

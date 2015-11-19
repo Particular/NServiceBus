@@ -4,6 +4,7 @@ namespace NServiceBus.Core.Tests
     using System.Collections.Generic;
     using NServiceBus.Extensibility;
     using NServiceBus.OutgoingPipeline;
+    using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Pipeline.OutgoingPipeline;
 
     class ContextHelpers
@@ -12,7 +13,7 @@ namespace NServiceBus.Core.Tests
         {
             var context = GetOutgoingContext(new MyMessage());
 
-            context.Merge(options.Context);
+            context.Extensions.Merge(options.Context);
 
             return context;
         }
@@ -26,7 +27,7 @@ namespace NServiceBus.Core.Tests
                 new Dictionary<string, string>(),
                 new OutgoingLogicalMessage(message),
                 null,
-                null);
+                new RootContext(null));
         }
     }
 }

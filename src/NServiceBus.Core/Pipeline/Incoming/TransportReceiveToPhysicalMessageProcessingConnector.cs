@@ -27,20 +27,20 @@ namespace NServiceBus
             var messageId = context.Message.MessageId;
             var physicalMessageContext = new PhysicalMessageProcessingContextImpl(context);
 
-            var deduplicationEntry = await outboxStorage.Get(messageId, context).ConfigureAwait(false);
+            var deduplicationEntry = await outboxStorage.Get(messageId, context.Extensions).ConfigureAwait(false);
             var pendingTransportOperations = new PendingTransportOperations();
 
             if (deduplicationEntry == null)
             {
                 physicalMessageContext.Set(pendingTransportOperations);
 
-                using (var outboxTransaction = await outboxStorage.BeginTransaction(context).ConfigureAwait(false))
+                using (var outboxTransaction = await outboxStorage.BeginTransaction(context.Extensions).ConfigureAwait(false))
                 {
                     await next(physicalMessageContext).ConfigureAwait(false);
 
                     var outboxMessage = new OutboxMessage(messageId, ConvertToOutboxOperations(pendingTransportOperations.Operations).ToList());
 
-                    await outboxStorage.Store(outboxMessage, outboxTransaction, context).ConfigureAwait(false);
+                    await outboxStorage.Store(outboxMessage, outboxTransaction, context.Extensions).ConfigureAwait(false);
 
                     await outboxTransaction.Commit().ConfigureAwait(false);
                 }
@@ -57,7 +57,7 @@ namespace NServiceBus
                 await batchDispatchPipeline.Invoke(batchDispatchContext).ConfigureAwait(false);
             }
 
-            await outboxStorage.SetAsDispatched(messageId, context).ConfigureAwait(false);
+            await outboxStorage.SetAsDispatched(messageId, context.Extensions).ConfigureAwait(false);
         }
 
         void ConvertToPendingOperations(OutboxMessage deduplicationEntry, PendingTransportOperations pendingTransportOperations)

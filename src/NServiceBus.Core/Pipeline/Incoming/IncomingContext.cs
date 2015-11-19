@@ -54,9 +54,6 @@
         public IReadOnlyDictionary<string, string> MessageHeaders { get; }
 
         /// <inheritdoc />
-        ContextBag IBusContext.Extensions => this;
-
-        /// <inheritdoc />
         public Task SendAsync(object message, SendOptions options)
         {
             return BusOperationsBehaviorContext.SendAsync(this, message, options);

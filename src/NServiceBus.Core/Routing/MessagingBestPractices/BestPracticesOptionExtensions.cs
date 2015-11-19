@@ -23,7 +23,7 @@
         /// </summary>
         public static void DoNotEnforceBestPractices(this OutgoingReplyContext context)
         {
-            context.SetDoNotEnforceBestPractices();
+            context.Extensions.SetDoNotEnforceBestPractices();
         }
 
         /// <summary>
@@ -47,7 +47,7 @@
         /// </summary>
         public static void DoNotEnforceBestPractices(this OutgoingPublishContext context)
         {
-            context.SetDoNotEnforceBestPractices();
+            context.Extensions.SetDoNotEnforceBestPractices();
         }
 
         /// <summary>

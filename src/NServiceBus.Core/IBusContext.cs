@@ -6,15 +6,23 @@ namespace NServiceBus
     using NServiceBus.Extensibility;
 
     /// <summary>
-    /// The current context of the bus.
+    /// Provides access to a <see cref="ContextBag"/> which enables extending the object.
     /// </summary>
-    public interface IBusContext
+    public interface IExtendable
     {
         /// <summary>
         /// A <see cref="ContextBag"/> which can be used for extensibility.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         ContextBag Extensions { get; }
+    }
+
+    /// <summary>
+    /// The current context of the bus.
+    /// </summary>
+    public interface IBusContext : IExtendable
+    {
+
 
         /// <summary>
         /// Sends the provided message.

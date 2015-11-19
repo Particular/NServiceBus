@@ -13,7 +13,7 @@
     {
         public async override Task Invoke(RoutingContext context, Func<DispatchContext, Task> next)
         {
-            var state = context.GetOrCreate<State>();
+            var state = context.Extensions.GetOrCreate<State>();
             var dispatchConsistency = state.ImmediateDispatch ? DispatchConsistency.Isolated : DispatchConsistency.Default;
 
             var operations = context.RoutingStrategies
@@ -27,7 +27,7 @@
 
             PendingTransportOperations pendingOperations;
 
-            if (!state.ImmediateDispatch && context.TryGet(out pendingOperations))
+            if (!state.ImmediateDispatch && context.Extensions.TryGet(out pendingOperations))
             {
                 pendingOperations.AddRange(operations);
                 return;
