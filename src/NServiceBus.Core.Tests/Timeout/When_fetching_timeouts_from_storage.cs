@@ -30,7 +30,7 @@ namespace NServiceBus.Core.Tests.Timeout
                 {
                     OwningTimeoutManager = string.Empty,
                     Time = DateTime.UtcNow.AddHours(-1)
-                }, new ContextBagImpl());
+                }, new ContextBag());
             }
 
             for (var i = 0; i < numberOfTimeoutsToAdd; i++)
@@ -39,7 +39,7 @@ namespace NServiceBus.Core.Tests.Timeout
                 {
                     OwningTimeoutManager = string.Empty,
                     Time = DateTime.UtcNow.AddHours(1)
-                }, new ContextBagImpl());
+                }, new ContextBag());
             }
 
             var nextChunk = await GetNextChunk();
@@ -60,7 +60,7 @@ namespace NServiceBus.Core.Tests.Timeout
                     OwningTimeoutManager = "MyEndpoint"
                 };
 
-                await persister.Add(d, new ContextBagImpl());
+                await persister.Add(d, new ContextBag());
             }
 
             var expected = DateTime.UtcNow.AddHours(1);
@@ -68,7 +68,7 @@ namespace NServiceBus.Core.Tests.Timeout
             {
                 Time = expected,
                 OwningTimeoutManager = string.Empty,
-            }, new ContextBagImpl());
+            }, new ContextBag());
 
             var nextChunk = await GetNextChunk();
 

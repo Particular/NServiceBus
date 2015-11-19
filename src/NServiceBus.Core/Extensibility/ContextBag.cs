@@ -5,58 +5,12 @@ namespace NServiceBus.Extensibility
     /// <summary>
     /// A string object bag of context objects.
     /// </summary>
-    public interface ContextBag : ReadOnlyContextBag
-    {
-        /// <summary>
-        /// Gets the requested extension, a new one will be created if needed.
-        /// </summary>
-        T GetOrCreate<T>() where T : class, new();
-
-        /// <summary>
-        /// Stores the type instance in the context.
-        /// </summary>
-        /// <typeparam name="T">The type to store.</typeparam>
-        /// <param name="t">The instance type to store.</param>
-        void Set<T>(T t);
-
-        /// <summary>
-        /// Removes the instance type from the context.
-        /// </summary>
-        /// <typeparam name="T">The type to remove.</typeparam>
-        void Remove<T>();
-
-        /// <summary>
-        /// Stores the passed instance in the context.
-        /// </summary>
-        void Set<T>(string key, T t);
-
-        /// <summary>
-        /// Walk the tree of context until one is found of the type <typeparamref name="T"/>.
-        /// </summary>
-        bool TryGetRootContext<T>(out T result) where T : class;
-
-        /// <summary>
-        /// Merges the passed context into this one.
-        /// </summary>
-        /// <param name="context">The source context.</param>
-        void Merge(ContextBag context);
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        IDictionary<string, object> GetAll();
-    }
-
-    /// <summary>
-    /// A string object bag of context objects.
-    /// </summary>
-    public class ContextBagImpl : ContextBag
+    public class ContextBag : ReadOnlyContextBag
     {
         /// <summary>
         /// Initialized a new instance of <see cref="ContextBag"/>.
         /// </summary>
-        public ContextBagImpl(ContextBag parentBag = null)
+        public ContextBag(ContextBag parentBag = null)
         {
             this.parentBag = parentBag;
         }
@@ -128,19 +82,10 @@ namespace NServiceBus.Extensibility
         /// <param name="context">The source context.</param>
         public void Merge(ContextBag context)
         {
-            foreach (var kvp in context.GetAll())
+            foreach (var kvp in context.stash)
             {
                 stash[kvp.Key] = kvp.Value;
             }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public IDictionary<string, object> GetAll()
-        {
-            return stash;
         }
 
         /// <summary>

@@ -30,12 +30,12 @@ namespace NServiceBus.Core.Tests.Timeout
             await persister.Add(new TimeoutData
                           {
                               Time = DateTime.Now.AddDays(2)
-                          }, new ContextBagImpl());
+                          }, new ContextBag());
             var expectedDate = DateTime.Now.AddDays(1);
             await persister.Add(new TimeoutData
                           {
                               Time = expectedDate
-                          }, new ContextBagImpl());
+                          }, new ContextBag());
 
             var result = await persister.GetNextChunk(now);
 
@@ -49,15 +49,15 @@ namespace NServiceBus.Core.Tests.Timeout
             await persister.Add(new TimeoutData
                           {
                               Time = DateTime.Now.AddDays(-2)
-                          }, new ContextBagImpl());
+                          }, new ContextBag());
             await persister.Add(new TimeoutData
                           {
                               Time = DateTime.Now.AddDays(-4)
-                          }, new ContextBagImpl());
+                          }, new ContextBag());
             await persister.Add(new TimeoutData
                           {
                               Time = DateTime.Now.AddDays(-1)
-                          }, new ContextBagImpl());
+                          }, new ContextBag());
 
             var result = await persister.GetNextChunk(DateTime.Now.AddDays(-3));
 
@@ -69,9 +69,9 @@ namespace NServiceBus.Core.Tests.Timeout
         {
             var persister = new InMemoryTimeoutPersister();
             var inputTimeout = new TimeoutData();
-            await persister.Add(inputTimeout, new ContextBagImpl());
+            await persister.Add(inputTimeout, new ContextBag());
 
-            var result = await persister.TryRemove(inputTimeout.Id, new ContextBagImpl());
+            var result = await persister.TryRemove(inputTimeout.Id, new ContextBag());
 
             Assert.IsTrue(result);
         }
@@ -81,9 +81,9 @@ namespace NServiceBus.Core.Tests.Timeout
         {
             var persister = new InMemoryTimeoutPersister();
             var inputTimeout = new TimeoutData();
-            await persister.Add(inputTimeout, new ContextBagImpl());
+            await persister.Add(inputTimeout, new ContextBag());
 
-            var result = await persister.TryRemove(Guid.NewGuid().ToString(), new ContextBagImpl());
+            var result = await persister.TryRemove(Guid.NewGuid().ToString(), new ContextBag());
 
             Assert.False(result);
         }
@@ -93,9 +93,9 @@ namespace NServiceBus.Core.Tests.Timeout
         {
             var persister = new InMemoryTimeoutPersister();
             var inputTimeout = new TimeoutData();
-            await persister.Add(inputTimeout, new ContextBagImpl());
+            await persister.Add(inputTimeout, new ContextBag());
 
-            var result = await persister.Peek(inputTimeout.Id, new ContextBagImpl());
+            var result = await persister.Peek(inputTimeout.Id, new ContextBag());
 
             Assert.AreSame(inputTimeout, result);
         }
@@ -105,9 +105,9 @@ namespace NServiceBus.Core.Tests.Timeout
         {
             var persister = new InMemoryTimeoutPersister();
             var inputTimeout = new TimeoutData();
-            await persister.Add(inputTimeout, new ContextBagImpl());
+            await persister.Add(inputTimeout, new ContextBag());
 
-            var result = await persister.Peek(Guid.NewGuid().ToString(), new ContextBagImpl());
+            var result = await persister.Peek(Guid.NewGuid().ToString(), new ContextBag());
 
             Assert.IsNull(result);
         }
@@ -122,9 +122,9 @@ namespace NServiceBus.Core.Tests.Timeout
                                    SagaId = newGuid
                                };
             
-            await persister.Add(inputTimeout, new ContextBagImpl());
-            await persister.RemoveTimeoutBy(newGuid, new ContextBagImpl());
-            var result = await persister.TryRemove(inputTimeout.Id, new ContextBagImpl());
+            await persister.Add(inputTimeout, new ContextBag());
+            await persister.RemoveTimeoutBy(newGuid, new ContextBag());
+            var result = await persister.TryRemove(inputTimeout.Id, new ContextBag());
 
             Assert.IsFalse(result);
         }
@@ -137,15 +137,15 @@ namespace NServiceBus.Core.Tests.Timeout
             await persister.Add(new TimeoutData
                           {
                               Time = DateTime.Now.AddDays(-1)
-                          }, new ContextBagImpl());
+                          }, new ContextBag());
             await persister.Add(new TimeoutData
                           {
                               Time = DateTime.Now.AddDays(-3)
-                          }, new ContextBagImpl());
+                          }, new ContextBag());
             await persister.Add(new TimeoutData
                           {
                               Time = DateTime.Now.AddDays(-2)
-                          }, new ContextBagImpl());
+                          }, new ContextBag());
 
             var result = await persister.GetNextChunk(now);
 

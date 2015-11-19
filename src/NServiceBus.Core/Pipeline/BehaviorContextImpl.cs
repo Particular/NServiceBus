@@ -17,7 +17,7 @@
     /// <summary>
     /// Base class for a pipeline behavior.
     /// </summary>
-    public abstract class BehaviorContextImpl : ContextBagImpl, BehaviorContext
+    public abstract class BehaviorContextImpl : ContextBag, BehaviorContext
     {
         /// <summary>
         /// Create an instance of <see cref="BehaviorContextImpl"/>.

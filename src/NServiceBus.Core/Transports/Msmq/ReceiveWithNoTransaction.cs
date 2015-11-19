@@ -32,7 +32,7 @@ namespace NServiceBus
 
             using (var bodyStream = message.BodyStream)
             {
-                var pushContext = new PushContext(message.Id, headers, bodyStream, new ContextBagImpl());
+                var pushContext = new PushContext(message.Id, headers, bodyStream, new ContextBag());
 
                 await onMessage(pushContext).ConfigureAwait(false);
             }

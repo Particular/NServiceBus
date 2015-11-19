@@ -103,7 +103,7 @@ namespace NServiceBus.DelayedDelivery.TimeoutManager
 
                     var dispatchOptions = new DispatchOptions(new UnicastAddressTag(dispatcherAddress), DispatchConsistency.Default);
                     var transportOperation = new TransportOperation(dispatchRequest, dispatchOptions);
-                    await dispatcher.Dispatch(new[] { transportOperation }, new ContextBagImpl()).ConfigureAwait(false);
+                    await dispatcher.Dispatch(new[] { transportOperation }, new ContextBag()).ConfigureAwait(false);
                 }
 
                 lock (lockObject)

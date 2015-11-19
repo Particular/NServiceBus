@@ -1338,23 +1338,10 @@ namespace NServiceBus.Encryption
 }
 namespace NServiceBus.Extensibility
 {
-    public interface ContextBag : NServiceBus.Extensibility.ReadOnlyContextBag
+    public class ContextBag : NServiceBus.Extensibility.ReadOnlyContextBag
     {
-        System.Collections.Generic.IDictionary<string, object> GetAll();
-        T GetOrCreate<T>()
-            where T :  class, new ();
-        void Merge(NServiceBus.Extensibility.ContextBag context);
-        void Remove<T>();
-        void Set<T>(T t);
-        void Set<T>(string key, T t);
-        bool TryGetRootContext<T>(out T result)
-            where T :  class;
-    }
-    public class ContextBagImpl : NServiceBus.Extensibility.ContextBag, NServiceBus.Extensibility.ReadOnlyContextBag
-    {
-        public ContextBagImpl(NServiceBus.Extensibility.ContextBag parentBag = null) { }
+        public ContextBag(NServiceBus.Extensibility.ContextBag parentBag = null) { }
         public T Get<T>() { }
-        public System.Collections.Generic.IDictionary<string, object> GetAll() { }
         public T GetOrCreate<T>()
             where T :  class, new () { }
         public void Merge(NServiceBus.Extensibility.ContextBag context) { }
@@ -2029,7 +2016,7 @@ namespace NServiceBus.Pipeline
     {
         NServiceBus.ObjectBuilder.IBuilder Builder { get; }
     }
-    public abstract class BehaviorContextImpl : NServiceBus.Extensibility.ContextBagImpl, NServiceBus.IExtendable, NServiceBus.Pipeline.BehaviorContext
+    public abstract class BehaviorContextImpl : NServiceBus.Extensibility.ContextBag, NServiceBus.IExtendable, NServiceBus.Pipeline.BehaviorContext
     {
         protected BehaviorContextImpl(NServiceBus.Pipeline.BehaviorContext parentContext) { }
         public NServiceBus.ObjectBuilder.IBuilder Builder { get; }
