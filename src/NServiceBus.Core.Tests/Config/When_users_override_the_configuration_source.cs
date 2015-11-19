@@ -19,8 +19,8 @@ namespace NServiceBus.Core.Tests.Config
             builder.EnableFeature<ConfigSectionValidatorFeature>();
             builder.CustomConfigurationSource(new UserConfigurationSource());
 
-            var endpoint = await Endpoint.StartAsync(builder);
-            await endpoint.StopAsync();
+            var endpoint = await Endpoint.Start(builder);
+            await endpoint.Stop();
         }
 
         class ConfigSectionValidatorFeature : Feature

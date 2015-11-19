@@ -38,7 +38,7 @@ namespace NServiceBus
             }
 
             builder.Build<IEndpoint>()
-                .StopAsync().GetAwaiter().GetResult();
+                .Stop().GetAwaiter().GetResult();
         }
 
         /// <summary>

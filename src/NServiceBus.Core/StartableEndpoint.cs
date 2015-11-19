@@ -34,16 +34,16 @@ namespace NServiceBus
             this.startables = startables;
         }
 
-        public async Task<IEndpoint> StartAsync()
+        public async Task<IEndpoint> Start()
         {
             var busInterface = new StartUpBusInterface(builder);
             var featureRunner = new FeatureRunner(builder, featureActivator);
             var busContext = busInterface.CreateBusContext();
-            await featureRunner.StartAsync(busContext).ConfigureAwait(false);
+            await featureRunner.Start(busContext).ConfigureAwait(false);
 
             var allStartables = builder.BuildAll<IWantToRunWhenBusStartsAndStops>().Concat(startables).ToList();
             var runner = new StartAndStoppablesRunner(allStartables);
-            await runner.StartAsync(busContext).ConfigureAwait(false);
+            await runner.Start(busContext).ConfigureAwait(false);
 
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 

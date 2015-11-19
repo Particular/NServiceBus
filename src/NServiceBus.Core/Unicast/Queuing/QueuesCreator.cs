@@ -17,7 +17,7 @@ namespace NServiceBus.Unicast.Queuing
             this.settings = settings;
         }
 
-        public Task InstallAsync(string identity)
+        public Task Install(string identity)
         {
             if (settings.Get<bool>("Endpoint.SendOnly"))
             {

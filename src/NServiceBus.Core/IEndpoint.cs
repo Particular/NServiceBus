@@ -10,6 +10,6 @@ namespace NServiceBus
         /// <summary>
         /// Stops the endpoint.
         /// </summary>
-        Task StopAsync();
+        Task Stop();
     }
 }

@@ -11,6 +11,6 @@ namespace NServiceBus.Installation
         /// Performs the installation providing permission for the given user.
         /// </summary>
         /// <param name="identity">The user for whom permissions will be given.</param>
-        Task InstallAsync(string identity);
+        Task Install(string identity);
     }
 }

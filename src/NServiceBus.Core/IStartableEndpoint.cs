@@ -11,6 +11,6 @@ namespace NServiceBus
         /// Starts the bus and returns a reference to it.
         /// </summary>
         /// <returns>A reference to the bus.</returns>
-        Task<IEndpoint> StartAsync();
+        Task<IEndpoint> Start();
     }
 }

@@ -18,7 +18,7 @@ namespace NServiceBus.Unicast
             this.builder = builder;
         }
 
-        public async Task StopAsync()
+        public async Task Stop()
         {
             if (stopped)
             {
@@ -29,8 +29,8 @@ namespace NServiceBus.Unicast
 
             await pipelineCollection.Stop().ConfigureAwait(false);
             var busContext = CreateBusContext();
-            await featureRunner.StopAsync(busContext).ConfigureAwait(false);
-            await startAndStoppablesRunner.StopAsync(busContext).ConfigureAwait(false);
+            await featureRunner.Stop(busContext).ConfigureAwait(false);
+            await startAndStoppablesRunner.Stop(busContext).ConfigureAwait(false);
             builder.Dispose();
 
             stopped = true;

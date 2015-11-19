@@ -11,7 +11,7 @@
         [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
-            ReplacementTypeOrMember = "RequestTimeoutAsync<TTimeoutMessageType>(DateTime at)")]
+            ReplacementTypeOrMember = "RequestTimeout<TTimeoutMessageType>(DateTime at)")]
         protected void RequestTimeout<TTimeoutMessageType>(DateTime at) where TTimeoutMessageType : new()
         {
             throw new NotImplementedException();
@@ -26,7 +26,7 @@
             Message = "Construct your message and pass it to the non Action overload.",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
-            ReplacementTypeOrMember = "RequestTimeoutAsync<TTimeoutMessageType>(DateTime, TTimeoutMessageType)")]
+            ReplacementTypeOrMember = "RequestTimeout<TTimeoutMessageType>(DateTime, TTimeoutMessageType)")]
         protected void RequestTimeout<TTimeoutMessageType>(DateTime at, Action<TTimeoutMessageType> action) where TTimeoutMessageType : new()
         {
             throw new NotImplementedException();
@@ -40,7 +40,7 @@
         [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
-            ReplacementTypeOrMember = "RequestTimeoutAsync<TTimeoutMessageType>(DateTime at, TTimeoutMessageType timeoutMessage)")]
+            ReplacementTypeOrMember = "RequestTimeout<TTimeoutMessageType>(DateTime at, TTimeoutMessageType timeoutMessage)")]
         protected void RequestTimeout<TTimeoutMessageType>(DateTime at, TTimeoutMessageType timeoutMessage)
         {
             throw new NotImplementedException();
@@ -53,7 +53,7 @@
         [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
-            ReplacementTypeOrMember = "RequestTimeoutAsync<TTimeoutMessageType>(TimeSpan within)")]
+            ReplacementTypeOrMember = "RequestTimeout<TTimeoutMessageType>(TimeSpan within)")]
         protected void RequestTimeout<TTimeoutMessageType>(TimeSpan within) where TTimeoutMessageType : new()
         {
             throw new NotImplementedException();
@@ -69,7 +69,7 @@
             Message = "Construct your message and pass it to the non Action overload.",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
-            ReplacementTypeOrMember = "Saga.RequestTimeoutAsync<TTimeoutMessageType>(TimeSpan, TTimeoutMessageType)")]
+            ReplacementTypeOrMember = "Saga.RequestTimeout<TTimeoutMessageType>(TimeSpan, TTimeoutMessageType)")]
         protected void RequestTimeout<TTimeoutMessageType>(TimeSpan within, Action<TTimeoutMessageType> messageConstructor) where TTimeoutMessageType : new()
         {
             throw new NotImplementedException();
@@ -83,7 +83,7 @@
         [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
-            ReplacementTypeOrMember = "RequestTimeoutAsync<TTimeoutMessageType>(TimeSpan within, TTimeoutMessageType timeoutMessage)")]
+            ReplacementTypeOrMember = "RequestTimeout<TTimeoutMessageType>(TimeSpan within, TTimeoutMessageType timeoutMessage)")]
         protected void RequestTimeout<TTimeoutMessageType>(TimeSpan within, TTimeoutMessageType timeoutMessage)
         {
             throw new NotImplementedException();
@@ -111,7 +111,7 @@
             Message = "Construct your message and pass it to the non Action overload.",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
-            ReplacementTypeOrMember = "ReplyToOriginatorAsync(object message)")]
+            ReplacementTypeOrMember = "ReplyToOriginator(object message)")]
         protected virtual void ReplyToOriginator<TMessage>(Action<TMessage> messageConstructor) where TMessage : new()
         {
             throw new NotImplementedException();

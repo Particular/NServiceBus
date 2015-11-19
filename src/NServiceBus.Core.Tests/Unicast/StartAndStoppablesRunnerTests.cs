@@ -15,7 +15,7 @@
 
             var runner = new StartAndStoppablesRunner(thingsToBeStarted);
 
-            await runner.StartAsync(null);
+            await runner.Start(null);
 
             Assert.True(startable1.Started);
             Assert.True(startable2.Started);
@@ -31,7 +31,7 @@
 
             var runner = new StartAndStoppablesRunner(thingsToBeStarted);
 
-            Assert.Throws<InvalidOperationException>(async () => await runner.StartAsync(null));
+            Assert.Throws<InvalidOperationException>(async () => await runner.Start(null));
 
             Assert.True(startable1.Started);
             Assert.False(startable2.Started);
@@ -46,7 +46,7 @@
 
             var runner = new StartAndStoppablesRunner(thingsToBeStarted);
 
-            Assert.Throws<InvalidOperationException>(async () => await runner.StartAsync(null));
+            Assert.Throws<InvalidOperationException>(async () => await runner.Start(null));
 
             Assert.True(startable1.Started);
         }
@@ -59,9 +59,9 @@
             var thingsToBeStarted = new IWantToRunWhenBusStartsAndStops[] { startable1, startable2 };
 
             var runner = new StartAndStoppablesRunner(thingsToBeStarted);
-            await runner.StartAsync(null);
+            await runner.Start(null);
 
-            await runner.StopAsync(null);
+            await runner.Stop(null);
 
             Assert.True(startable1.Stopped);
             Assert.True(startable2.Stopped);
@@ -78,7 +78,7 @@
             var runner = new StartAndStoppablesRunner(thingsToBeStarted);
             try
             {
-                await runner.StartAsync(null);
+                await runner.Start(null);
             }
 // ReSharper disable once EmptyGeneralCatchClause
             catch
@@ -86,7 +86,7 @@
                 // ignored
             }
 
-            await runner.StopAsync(null);
+            await runner.Stop(null);
 
             Assert.True(startable1.Stopped);
             Assert.True(startable2.Stopped);
@@ -104,7 +104,7 @@
             var runner = new StartAndStoppablesRunner(thingsToBeStarted);
             try
             {
-                await runner.StartAsync(null);
+                await runner.Start(null);
             }
 // ReSharper disable once EmptyGeneralCatchClause
             catch
@@ -112,7 +112,7 @@
                 // ignored
             }
 
-            Assert.DoesNotThrow(async() => await runner.StopAsync(null));
+            Assert.DoesNotThrow(async() => await runner.Stop(null));
             Assert.True(startable1.Stopped);
             Assert.True(startable2.Stopped);
         }
@@ -128,7 +128,7 @@
             var runner = new StartAndStoppablesRunner(thingsToBeStarted);
             try
             {
-                await runner.StartAsync(null);
+                await runner.Start(null);
             }
 // ReSharper disable once EmptyGeneralCatchClause
             catch
@@ -136,7 +136,7 @@
                 // ignored
             }
 
-            Assert.DoesNotThrow(async () => await runner.StopAsync(null));
+            Assert.DoesNotThrow(async () => await runner.Stop(null));
             Assert.True(startable1.Stopped);
             Assert.True(startable2.Stopped);
         }
@@ -146,13 +146,13 @@
             public bool Started { get; set; }
             public bool Stopped { get; set; }
 
-            public Task StartAsync(IBusContext context)
+            public Task Start(IBusContext context)
             {
                 Started = true;
                 return Task.FromResult(0);
             }
 
-            public Task StopAsync(IBusContext context)
+            public Task Stop(IBusContext context)
             {
                 Stopped = true;
                 return Task.FromResult(0);
@@ -164,13 +164,13 @@
             public bool Started { get; set; }
             public bool Stopped { get; set; }
 
-            public Task StartAsync(IBusContext context)
+            public Task Start(IBusContext context)
             {
                 Started = true;
                 return Task.FromResult(0);
             }
 
-            public Task StopAsync(IBusContext context)
+            public Task Stop(IBusContext context)
             {
                 Stopped = true;
                 return Task.FromResult(0);
@@ -181,12 +181,12 @@
         {
             public bool Stopped { get; set; }
 
-            public Task StartAsync(IBusContext context)
+            public Task Start(IBusContext context)
             {
                 throw new InvalidOperationException("SyncThrowingStart");
             }
 
-            public Task StopAsync(IBusContext context)
+            public Task Stop(IBusContext context)
             {
                 Stopped = true;
                 return Task.FromResult(0);
@@ -197,13 +197,13 @@
         {
             public bool Stopped { get; set; }
 
-            public async Task StartAsync(IBusContext context)
+            public async Task Start(IBusContext context)
             {
                 await Task.Yield();
                 throw new InvalidOperationException("AsyncThrowingStart");
             }
 
-            public Task StopAsync(IBusContext context)
+            public Task Stop(IBusContext context)
             {
                 Stopped = true;
                 return Task.FromResult(0);
@@ -214,13 +214,13 @@
         {
             public bool Started { get; set; }
 
-            public Task StartAsync(IBusContext context)
+            public Task Start(IBusContext context)
             {
                 Started = true;
                 return Task.FromResult(0);
             }
 
-            public Task StopAsync(IBusContext context)
+            public Task Stop(IBusContext context)
             {
                 throw new InvalidOperationException("SyncThrowingStop");
             }
@@ -230,13 +230,13 @@
         {
             public bool Started { get; set; }
 
-            public Task StartAsync(IBusContext context)
+            public Task Start(IBusContext context)
             {
                 Started = true;
                 return Task.FromResult(0);
             }
 
-            public async Task StopAsync(IBusContext context)
+            public async Task Stop(IBusContext context)
             {
                 await Task.Yield();
                 throw new InvalidOperationException("AsyncThrowingStop");

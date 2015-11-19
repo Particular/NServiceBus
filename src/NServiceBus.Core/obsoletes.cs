@@ -1680,15 +1680,12 @@ namespace NServiceBus
 
 namespace NServiceBus.Installation
 {
-    using System.Threading.Tasks;
-
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6", 
         RemoveInVersion = "7",
         ReplacementTypeOrMember = "IInstall")]
     public interface INeedToInstallSomething
     {
-        Task InstallAsync(string identity, Configure config);
     }
 }
 

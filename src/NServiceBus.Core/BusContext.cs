@@ -18,32 +18,32 @@ namespace NServiceBus
 
         public Task Send(object message, SendOptions options)
         {
-            return BusOperationsBehaviorContext.SendAsync(context, message, options);
+            return BusOperationsBehaviorContext.Send(context, message, options);
         }
 
         public Task Send<T>(Action<T> messageConstructor, SendOptions options)
         {
-            return BusOperationsBehaviorContext.SendAsync(context, messageConstructor, options);
+            return BusOperationsBehaviorContext.Send(context, messageConstructor, options);
         }
 
         public Task Publish(object message, PublishOptions options)
         {
-            return BusOperationsBehaviorContext.PublishAsync(context, message, options);
+            return BusOperationsBehaviorContext.Publish(context, message, options);
         }
 
         public Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)
         {
-            return BusOperationsBehaviorContext.PublishAsync(context, messageConstructor, publishOptions);
+            return BusOperationsBehaviorContext.Publish(context, messageConstructor, publishOptions);
         }
 
         public Task Subscribe(Type eventType, SubscribeOptions options)
         {
-            return BusOperationsBehaviorContext.SubscribeAsync(context, eventType, options);
+            return BusOperationsBehaviorContext.Subscribe(context, eventType, options);
         }
 
         public Task Unsubscribe(Type eventType, UnsubscribeOptions options)
         {
-            return BusOperationsBehaviorContext.UnsubscribeAsync(context, eventType, options);
+            return BusOperationsBehaviorContext.Unsubscribe(context, eventType, options);
         }
 
         BehaviorContext context;

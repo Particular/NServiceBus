@@ -41,7 +41,7 @@
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
                     Data.SomeId = message.SomeId;
-                    return RequestTimeoutAsync(context, TimeSpan.FromMilliseconds(100), message);
+                    return RequestTimeout(context, TimeSpan.FromMilliseconds(100), message);
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData01> mapper)
