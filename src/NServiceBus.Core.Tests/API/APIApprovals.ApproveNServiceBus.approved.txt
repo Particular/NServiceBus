@@ -2655,6 +2655,8 @@ namespace NServiceBus.Transports
         System.Threading.Tasks.Task SubscribeAsync(System.Type eventType, NServiceBus.Extensibility.ContextBag context);
         System.Threading.Tasks.Task UnsubscribeAsync(System.Type eventType, NServiceBus.Extensibility.ContextBag context);
     }
+    [System.ObsoleteAttribute("Please use `Subscribe(Type eventType, ContextBag context)` instead. Will be remov" +
+        "ed in version 7.0.0.", true)]
     public class static IManageSubscriptionsExtensions_obsolete
     {
         [System.ObsoleteAttribute("Please use `Subscribe(Type eventType, ContextBag context)` instead. Will be remov" +
