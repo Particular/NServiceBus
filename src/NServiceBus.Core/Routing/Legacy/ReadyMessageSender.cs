@@ -20,18 +20,17 @@
             this.receiveAddress = receiveAddress;
         }
 
-        protected override Task OnStart(IBusContext busContext)
+        protected override async Task OnStart(IBusContext busContext)
         {
-            SendReadyMessage(initialCapacity, true);
+            await SendReadyMessage(initialCapacity, true).ConfigureAwait(false);
             Logger.DebugFormat("Ready startup message with WorkerSessionId {0} sent. ", workerSessionId);
-            return Task.FromResult(0);
         }
 
         protected override void OnStop()
         {
         }
 
-        void SendReadyMessage(int capacity, bool isStarting)
+        Task SendReadyMessage(int capacity, bool isStarting)
         {
             //we use the actual address to make sure that the worker inside the master node will check in correctly
             var readyMessage = ControlMessageFactory.Create(MessageIntentEnum.Send);
@@ -46,7 +45,7 @@
             }
 
             var dispatchOptions = new DispatchOptions(new UnicastAddressTag(distributorControlAddress), DispatchConsistency.Default);
-            dispatcher.Dispatch(new[] { new TransportOperation(readyMessage, dispatchOptions) }, new ContextBag()).GetAwaiter().GetResult();
+            return dispatcher.Dispatch(new[] { new TransportOperation(readyMessage, dispatchOptions) }, new ContextBag());
         }
         
         public void MessageProcessed(Dictionary<string, string> headers)
