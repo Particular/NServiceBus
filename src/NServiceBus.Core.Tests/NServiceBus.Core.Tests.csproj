@@ -135,6 +135,7 @@
     <Compile Include="Conventions\MessageConventionSpecs.cs" />
     <Compile Include="AttributeTests.cs" />
     <Compile Include="Encryption\RijndaelEncryptionServiceConfigValidationsTests.cs" />
+    <Compile Include="Msmq\TimeToBeRceivedOverrideCheckerTest.cs" />
     <Compile Include="Utils\ExceptionHeaderHelperTests.cs" />
     <Compile Include="Hosting\When_creating_host_information_from_environment.cs" />
     <Compile Include="SetLoggingLibraryTests.cs" />

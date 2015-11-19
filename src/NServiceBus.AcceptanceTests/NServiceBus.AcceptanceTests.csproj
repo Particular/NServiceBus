@@ -108,6 +108,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BasicMessaging\When_starting_a_send_only.cs" />
+    <Compile Include="Msmq\When_TimeToBeReceivedOnForwardedMessages_set_and_transactional_Msmq.cs" />
+    <Compile Include="Msmq\When_Audit_OverrideTimeToBeReceived_set_and_transactional_Msmq.cs" />
+    <Compile Include="Msmq\When_TimeToBeReceived_set_and_DTC_Msmq.cs" />
+    <Compile Include="Msmq\When_TimeToBeReceived_set_and_receivetransaction_Msmq.cs" />
     <Compile Include="BasicMessaging\When_using_a_greedy_convention.cs" />
     <Compile Include="BasicMessaging\When_using_a_message_with_TimeToBeReceived_has_not_expired.cs" />
     <Compile Include="BasicMessaging\When_using_a_message_with_TimeToBeReceived_has_expired.cs" />
