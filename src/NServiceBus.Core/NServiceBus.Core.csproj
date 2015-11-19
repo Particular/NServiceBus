@@ -208,6 +208,8 @@
     <Compile Include="Timeout\Core\TimeoutPersistenceVersionCheck.cs" />
     <Compile Include="Timeout\Core\TimeoutPersistenceVersionCheckExtension.cs" />
     <Compile Include="Transports\ConfigurePurging_Obsolete.cs" />
+    <Compile Include="Transports\Msmq\TimeToBeRceivedOverrideChecker.cs" />
+    <Compile Include="Transports\Msmq\TimeToBeReceivedOverrideCheck.cs" />    
     <Compile Include="Unicast\Behaviors\ForwardReceivedMessages.cs" />
     <Compile Include="Unicast\Config\LoadMessageHandlersExtentions_Obsolete.cs" />
     <Compile Include="Unicast\Config\RegisterHandlersInOrder.cs" />

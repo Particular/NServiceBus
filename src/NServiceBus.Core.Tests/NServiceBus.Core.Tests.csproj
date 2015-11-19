@@ -97,6 +97,7 @@
     <Compile Include="Conventions\MessageConventionSpecs.cs" />
     <Compile Include="DataBus\InMemoryDataBus.cs" />
     <Compile Include="Encryption\ValidationFixture.cs" />
+    <Compile Include="Msmq\TimeToBeRceivedOverrideCheckerTest.cs" />    
     <Compile Include="Serializers\XML\Issue_2796.cs" />
     <Compile Include="StandardsTests.cs" />
     <Compile Include="Encryption\ConfigureRijndaelEncryptionServiceTests.cs" />

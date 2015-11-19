@@ -25,7 +25,7 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>(c => c.Transactions().Disable()); //transactional msmq with ttbr not supported
             }
             public class MyMessageHandler : IHandleMessages<MyMessage>
             {
