@@ -22,7 +22,7 @@ namespace NServiceBus
                 return;
             }
             var current = context.IncomingLogicalMessage.Instance;
-            current = messageMutator.MutateIncoming(current);
+            current = messageMutator.MutateIncoming(current, context);
             context.IncomingLogicalMessage.UpdateMessageInstance(current);
             next();
         }

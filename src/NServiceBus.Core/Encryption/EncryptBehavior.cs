@@ -24,7 +24,7 @@
             }
 
             var currentMessageToSend = context.OutgoingLogicalMessage.Instance;
-            currentMessageToSend = messageMutator.MutateOutgoing(currentMessageToSend);
+            currentMessageToSend = messageMutator.MutateOutgoing(currentMessageToSend, context);
             context.OutgoingLogicalMessage.UpdateMessageInstance(currentMessageToSend);
             next();
         }

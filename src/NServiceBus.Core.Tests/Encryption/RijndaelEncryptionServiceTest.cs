@@ -5,6 +5,7 @@
     using System.Security.Cryptography;
     using System.Text;
     using NServiceBus.Encryption.Rijndael;
+    using NServiceBus.Pipeline.Contexts;
     using NUnit.Framework;
 
     [TestFixture]
@@ -14,10 +15,10 @@
         public void Should_encrypt_and_decrypt()
         {
             var encryptionKey = Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6");
-            var service = new RijndaelEncryptionServiceWithFakeBus("encryptionKey", encryptionKey, new[] { encryptionKey });
-            var encryptedValue = service.Encrypt("string to encrypt");
+            var service = new RijndaelEncryptionServiceMock("encryptionKey", encryptionKey, new[] { encryptionKey });
+            var encryptedValue = service.Encrypt("string to encrypt", null);
             Assert.AreNotEqual("string to encrypt", encryptedValue.EncryptedBase64Value);
-            var decryptedValue = service.Decrypt(encryptedValue);
+            var decryptedValue = service.Decrypt(encryptedValue, null);
             Assert.AreEqual("string to encrypt", decryptedValue);
         }
 
@@ -25,8 +26,8 @@
         public void Should_encrypt_and_decrypt_for_expired_key()
         {
             var encryptionKey1 = Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6");
-            var service1 = new RijndaelEncryptionServiceWithFakeBus("encryptionKey1", encryptionKey1, new[] { encryptionKey1 });
-            var encryptedValue = service1.Encrypt("string to encrypt");
+            var service1 = new RijndaelEncryptionServiceMock("encryptionKey1", encryptionKey1, new[] { encryptionKey1 });
+            var encryptedValue = service1.Encrypt("string to encrypt", null);
             Assert.AreNotEqual("string to encrypt", encryptedValue.EncryptedBase64Value);
 
 
@@ -36,9 +37,9 @@
                 encryptionKey2,
                 encryptionKey1
             };
-            var service2 = new RijndaelEncryptionServiceWithFakeBus("encryptionKey1", encryptionKey2, expiredKeys);
+            var service2 = new RijndaelEncryptionServiceMock("encryptionKey1", encryptionKey2, expiredKeys);
 
-            var decryptedValue = service2.Decrypt(encryptedValue);
+            var decryptedValue = service2.Decrypt(encryptedValue, null);
             Assert.AreEqual("string to encrypt", decryptedValue);
         }
 
@@ -46,8 +47,8 @@
         public void Should_throw_when_decrypt_with_wrong_key()
         {
             var usedKey = Encoding.ASCII.GetBytes("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-            var service1 = new RijndaelEncryptionServiceWithFakeBus("should-be-ignored-in-next-arrange", usedKey, new List<byte[]>());
-            var encryptedValue = service1.Encrypt("string to encrypt");
+            var service1 = new RijndaelEncryptionServiceMock("should-be-ignored-in-next-arrange", usedKey, new List<byte[]>());
+            var encryptedValue = service1.Encrypt("string to encrypt", null);
             Assert.AreNotEqual("string to encrypt", encryptedValue.EncryptedBase64Value);
 
             var unusedExpiredKeys = new List<byte[]>
@@ -56,9 +57,9 @@
                 Encoding.ASCII.GetBytes("cccccccccccccccccccccccccccccccc")
             };
 
-            var service2 = new RijndaelEncryptionServiceWithFakeBus("should-be-ignored", usedKey, unusedExpiredKeys);
+            var service2 = new RijndaelEncryptionServiceMock("should-be-ignored", usedKey, unusedExpiredKeys);
 
-            var exception = Assert.Throws<AggregateException>(() => service2.Decrypt(encryptedValue));
+            var exception = Assert.Throws<AggregateException>(() => service2.Decrypt(encryptedValue, null));
             Assert.AreEqual("Could not decrypt message. Tried 2 keys.", exception.Message);
             Assert.AreEqual(2, exception.InnerExceptions.Count);
             foreach (var inner in exception.InnerExceptions)
@@ -71,7 +72,7 @@
         public void Should_throw_for_invalid_key()
         {
             var invalidKey = Encoding.ASCII.GetBytes("invalidKey");
-            var exception = Assert.Throws<Exception>(() => new RijndaelEncryptionServiceWithFakeBus("keyid", invalidKey, new List<byte[]>()));
+            var exception = Assert.Throws<Exception>(() => new RijndaelEncryptionServiceMock("keyid", invalidKey, new List<byte[]>()));
             Assert.AreEqual("The encryption key has an invalid length of 10 bytes.", exception.Message);
         }
 
@@ -80,7 +81,7 @@
         {
             var validKey = Encoding.ASCII.GetBytes("adDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6");
             var expiredKeys = new List<byte[]> { Encoding.ASCII.GetBytes("invalidKey") };
-            var exception = Assert.Throws<Exception>(() => new RijndaelEncryptionServiceWithFakeBus("keyid", validKey, expiredKeys));
+            var exception = Assert.Throws<Exception>(() => new RijndaelEncryptionServiceMock("keyid", validKey, expiredKeys));
             Assert.AreEqual("The expired key at index 0 has an invalid length of 10 bytes.", exception.Message);
         }
 
@@ -88,10 +89,10 @@
         public void Encrypt_must_set_header()
         {
             var encryptionKey1 = Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6");
-            var service1 = new RijndaelEncryptionServiceWithFakeBus("encryptionKey1", encryptionKey1, new List<byte[]>());
+            var service1 = new RijndaelEncryptionServiceMock("encryptionKey1", encryptionKey1, new List<byte[]>());
 
             Assert.AreEqual(false, service1.OutgoingKeyIdentifierSet);
-            service1.Encrypt("string to encrypt");
+            service1.Encrypt("string to encrypt", null);
             Assert.AreEqual(true, service1.OutgoingKeyIdentifierSet);
         }
 
@@ -99,16 +100,16 @@
         public void Decrypt_using_key_identifier()
         {
             var encryptionKey1 = Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6");
-            var service1 = new RijndaelEncryptionServiceWithFakeBus("encryptionKey1", encryptionKey1, new List<byte[]>());
-            var encryptedValue = service1.Encrypt("string to encrypt");
+            var service1 = new RijndaelEncryptionServiceMock("encryptionKey1", encryptionKey1, new List<byte[]>());
+            var encryptedValue = service1.Encrypt("string to encrypt", null);
 
             var expiredKeys = new List<byte[]> { Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6") };
-            var service2 = new RijndaelEncryptionServiceWithFakeBus("encryptionKey1", encryptionKey1, expiredKeys)
+            var service2 = new RijndaelEncryptionServiceMock("encryptionKey1", encryptionKey1, expiredKeys)
             {
                 IncomingKeyIdentifier = "encryptionKey1"
             };
 
-            var decryptedValue = service2.Decrypt(encryptedValue);
+            var decryptedValue = service2.Decrypt(encryptedValue, null);
             Assert.AreEqual("string to encrypt", decryptedValue);
         }
 
@@ -117,19 +118,19 @@
         public void Decrypt_using_missing_key_identifier_must_throw()
         {
             var encryptionKey1 = Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6");
-            var service1 = new RijndaelEncryptionServiceWithFakeBus("encryptionKey1", encryptionKey1, new List<byte[]>());
-            var encryptedValue = service1.Encrypt("string to encrypt");
+            var service1 = new RijndaelEncryptionServiceMock("encryptionKey1", encryptionKey1, new List<byte[]>());
+            var encryptedValue = service1.Encrypt("string to encrypt", null);
 
             var encryptionKey2 = Encoding.ASCII.GetBytes("vznkynwuvateefgduvsqjsufqfrrfcya");
             var expiredKeys = new List<byte[]> { Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6") };
-            var service2 = new RijndaelEncryptionServiceWithFakeBus("encryptionKey1", encryptionKey2, expiredKeys)
+            var service2 = new RijndaelEncryptionServiceMock("encryptionKey1", encryptionKey2, expiredKeys)
             {
                 IncomingKeyIdentifier = "missingKey"
             };
 
             Assert.Catch<InvalidOperationException>(() =>
             {
-                service2.Decrypt(encryptedValue);
+                service2.Decrypt(encryptedValue, null);
             }, "Decryption key not available for key identifier 'missingKey'. Please add this key to the rijndael encryption service configuration. Key identifiers are case sensitive.");
         }
 
@@ -137,9 +138,9 @@
         public void Encrypt_using_missing_key_identifier_must_throw()
         {
             var encryptionKey1 = Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6");
-            var service1 = new RijndaelEncryptionServiceWithFakeBus(null, encryptionKey1, new List<byte[]>());
+            var service1 = new RijndaelEncryptionServiceMock(null, encryptionKey1, new List<byte[]>());
 
-            Assert.Catch<InvalidOperationException>(() => service1.Encrypt("string to encrypt"), "It is required to set the rijndael key identifier.");
+            Assert.Catch<InvalidOperationException>(() => service1.Encrypt("string to encrypt", null), "It is required to set the rijndael key identifier.");
         }
 
         [Test]
@@ -149,7 +150,7 @@
 
             Assert.Catch<ArgumentException>(() =>
             {
-                new RijndaelEncryptionServiceWithFakeBus("not-in-keys", encryptionKey1, null, new Dictionary<string, byte[]>());
+                new RijndaelEncryptionServiceMock("not-in-keys", encryptionKey1, null, new Dictionary<string, byte[]>());
             });
         }
 
@@ -159,47 +160,46 @@
             var keyIdentier = "encryptionKey1";
 
             var key1 = Encoding.ASCII.GetBytes("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-            var service1 = new RijndaelEncryptionServiceWithFakeBus(keyIdentier, key1, new List<byte[]>());
-            var encryptedValue = service1.Encrypt("string to encrypt");
+            var service1 = new RijndaelEncryptionServiceMock(keyIdentier, key1, new List<byte[]>());
+            var encryptedValue = service1.Encrypt("string to encrypt", null);
 
             var key2 = Encoding.ASCII.GetBytes("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
-            var service2 = new RijndaelEncryptionServiceWithFakeBus(keyIdentier, key2, new List<byte[]>())
+            var service2 = new RijndaelEncryptionServiceMock(keyIdentier, key2, new List<byte[]>())
             {
                 IncomingKeyIdentifier = "encryptionKey1"
             };
 
             Assert.Catch<InvalidOperationException>(() =>
             {
-                service2.Decrypt(encryptedValue);
+                service2.Decrypt(encryptedValue, null);
             }, "Unable to decrypt property using configured decryption key specified in key identifier header.");
         }
 
-        class RijndaelEncryptionServiceWithFakeBus : RijndaelEncryptionService
+        class RijndaelEncryptionServiceMock : RijndaelEncryptionService
         {
             public bool OutgoingKeyIdentifierSet { get; private set; }
             public string IncomingKeyIdentifier { private get; set; }
 
-            public RijndaelEncryptionServiceWithFakeBus(
+            public RijndaelEncryptionServiceMock(
                 string encryptionKeyIdentifier,
                 byte[] encryptionKey,
                 IList<byte[]> expiredKeys,
                 IDictionary<string, byte[]> keys = null
                 )
-                : base(new Fakes.FakeBus(), encryptionKeyIdentifier, encryptionKeyIdentifier != null ? keys ?? new Dictionary<string, byte[]> { { encryptionKeyIdentifier, encryptionKey } } : null, expiredKeys)
+                : base(encryptionKeyIdentifier, encryptionKeyIdentifier != null ? keys ?? new Dictionary<string, byte[]> { { encryptionKeyIdentifier, encryptionKey } } : null, expiredKeys)
             {
             }
 
-            protected override void AddKeyIdentifierHeader()
+            protected override void AddKeyIdentifierHeader(OutgoingContext outgoingContext)
             {
                 OutgoingKeyIdentifierSet = true;
             }
 
-            protected override bool TryGetKeyIdentifierHeader(out string keyIdentifier)
+            protected override bool TryGetKeyIdentifierHeader(out string keyIdentifier, IncomingContext incomingContext)
             {
                 keyIdentifier = IncomingKeyIdentifier;
                 return IncomingKeyIdentifier != null;
             }
         }
     }
-
 }

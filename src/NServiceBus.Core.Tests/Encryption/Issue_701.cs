@@ -13,7 +13,7 @@
                 Name = "John"
             };
 
-            var result = (TestMessageWithSets)mutator.MutateOutgoing(message);
+            var result = (TestMessageWithSets)mutator.MutateOutgoing(message, null);
 
             Assert.AreEqual("John", result.Name);
         }
@@ -26,7 +26,7 @@
                 Name = "John"
             };
 
-            var result = (TestMessageWithGets)mutator.MutateOutgoing(message);
+            var result = (TestMessageWithGets)mutator.MutateOutgoing(message, null);
 
             Assert.AreEqual("John", result.Name);
         }
@@ -37,7 +37,7 @@
 
             public string Options1
             {
-// ReSharper disable once ValueParameterNotUsed
+                // ReSharper disable once ValueParameterNotUsed
                 set
                 {
                     //do nothing
@@ -46,7 +46,7 @@
 
             public int Options2
             {
-// ReSharper disable once ValueParameterNotUsed
+                // ReSharper disable once ValueParameterNotUsed
                 set
                 {
                     //do nothing
