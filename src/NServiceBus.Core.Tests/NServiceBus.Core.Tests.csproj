@@ -138,6 +138,7 @@
     <Compile Include="Encryption\When_message_contains_props_and_fields_that_cannot_be_set.cs" />
     <Compile Include="Features\FeatureDefaultsTests.cs" />
     <Compile Include="Logging\DefaultFactoryTests.cs" />
+    <Compile Include="Msmq\TimeToBeRceivedOverrideCheckerTest.cs" />
     <Compile Include="Msmq\ConnectionStringParserTests.cs" />
     <Compile Include="ObservableTests.cs" />
     <Compile Include="Persistence\InMemory\InMemorySagaPersistenceFixture.cs" />
