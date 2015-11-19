@@ -28,7 +28,7 @@
     /// <summary>
     /// Outgoing pipeline context.
     /// </summary>
-    public class OutgoingLogicalMessageContextImpl : OutgoingContextImpl, OutgoingLogicalMessageContext
+    class OutgoingLogicalMessageContextImpl : OutgoingContextImpl, OutgoingLogicalMessageContext
     {
         /// <summary>
         /// Creates a new instance of <see cref="OutgoingLogicalMessageContextImpl" />.

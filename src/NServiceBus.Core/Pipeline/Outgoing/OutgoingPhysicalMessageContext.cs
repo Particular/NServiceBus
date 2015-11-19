@@ -26,7 +26,7 @@
     /// <summary>
     /// Represent the part of the outgoing pipeline where the message has been serialized to a byte[].
     /// </summary>
-    public class OutgoingPhysicalMessageContextImpl : OutgoingContextImpl, OutgoingPhysicalMessageContext
+    class OutgoingPhysicalMessageContextImpl : OutgoingContextImpl, OutgoingPhysicalMessageContext
     {
 
         internal OutgoingPhysicalMessageContextImpl(byte[] body, OutgoingLogicalMessageContext parentContext) 

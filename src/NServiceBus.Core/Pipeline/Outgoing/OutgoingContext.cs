@@ -27,7 +27,7 @@
     /// <summary>
     /// The abstract base context for everything inside the outgoing pipeline.
     /// </summary>
-    public abstract class OutgoingContextImpl : BehaviorContextImpl, OutgoingContext
+    abstract class OutgoingContextImpl : BehaviorContextImpl, OutgoingContext
     {
         /// <summary>
         /// Initializes a new <see cref="OutgoingContextImpl"/>.

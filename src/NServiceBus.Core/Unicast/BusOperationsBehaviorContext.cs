@@ -60,7 +60,7 @@ namespace NServiceBus.Unicast
             var settings = context.Builder.Build<ReadOnlySettings>();
             var pipeline = new PipelineBase<SubscribeContext>(context.Builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
 
-            var subscribeContext = new SubscribeContext(
+            var subscribeContext = new SubscribeContextImpl(
                 context,
                 eventType,
                 options);
@@ -79,7 +79,7 @@ namespace NServiceBus.Unicast
             var settings = context.Builder.Build<ReadOnlySettings>();
             var pipeline = new PipelineBase<UnsubscribeContext>(context.Builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
 
-            var subscribeContext = new UnsubscribeContext(
+            var subscribeContext = new UnsubscribeContextImpl(
                 context,
                 eventType,
                 options);
@@ -118,7 +118,7 @@ namespace NServiceBus.Unicast
             var settings = context.Builder.Build<ReadOnlySettings>();
             var pipeline = new PipelineBase<OutgoingSendContext>(context.Builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
 
-            var outgoingContext = new OutgoingSendContext(
+            var outgoingContext = new OutgoingSendContextImpl(
                 new OutgoingLogicalMessage(messageType, message),
                 options,
                 context);

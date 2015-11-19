@@ -22,7 +22,7 @@
     /// <summary>
     /// Provide context to behaviors on the audit pipeline.
     /// </summary>
-    public class AuditContextImpl : BehaviorContextImpl, AuditContext
+    class AuditContextImpl : BehaviorContextImpl, AuditContext
     {
         /// <summary>
         /// The message to be audited.

@@ -17,7 +17,7 @@
     /// <summary>
     /// Pipeline context for publish operations.
     /// </summary>
-    public class OutgoingPublishContextImpl : OutgoingContextImpl, OutgoingPublishContext
+    class OutgoingPublishContextImpl : OutgoingContextImpl, OutgoingPublishContext
     {
         /// <summary>
         /// Initializes the context with a parent context.

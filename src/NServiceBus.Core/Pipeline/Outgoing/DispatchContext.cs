@@ -18,7 +18,7 @@ namespace NServiceBus
     /// <summary>
     /// Context for the immediate dispatch part of the pipeline.
     /// </summary>
-    public class DispatchContextImpl : BehaviorContextImpl, DispatchContext
+    class DispatchContextImpl : BehaviorContextImpl, DispatchContext
     {
         /// <summary>
         /// The operations to be dispatched to the transport.

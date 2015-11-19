@@ -23,7 +23,7 @@
     /// <summary>
     /// The abstract base context for everything after the transport receive phase.
     /// </summary>
-    public abstract class IncomingContextBase : BehaviorContextImpl, IncomingContext
+    abstract class IncomingContextBase : BehaviorContextImpl, IncomingContext
     {
         /// <summary>
         /// Initializes a new instance of <see cref="IncomingContextBase" />.

@@ -27,7 +27,7 @@
         [Test]
         public async Task Should_Dispatch_for_all_publishers()
         {
-            await terminator.Invoke(new SubscribeContext(new FakeContext(), typeof(object), new SubscribeOptions()), c => Task.FromResult(0));
+            await terminator.Invoke(new SubscribeContextImpl(new FakeContext(), typeof(object), new SubscribeOptions()), c => Task.FromResult(0));
 
             Assert.AreEqual(1, dispatcher.DispatchedOperations.Count);
         }
@@ -41,7 +41,7 @@
             state.RetryDelay = TimeSpan.Zero;
             dispatcher.FailDispatch(10);
 
-            await terminator.Invoke(new SubscribeContext(new FakeContext(), typeof(object), options), c => Task.FromResult(0));
+            await terminator.Invoke(new SubscribeContextImpl(new FakeContext(), typeof(object), options), c => Task.FromResult(0));
 
             Assert.AreEqual(1, dispatcher.DispatchedOperations.Count);
             Assert.AreEqual(10, dispatcher.FailedNumberOfTimes);
@@ -56,7 +56,7 @@
             state.RetryDelay = TimeSpan.Zero;
             dispatcher.FailDispatch(11);
 
-            Assert.Throws<QueueNotFoundException>(async () => await terminator.Invoke(new SubscribeContext(new FakeContext(), typeof(object), options), c => Task.FromResult(0)));
+            Assert.Throws<QueueNotFoundException>(async () => await terminator.Invoke(new SubscribeContextImpl(new FakeContext(), typeof(object), options), c => Task.FromResult(0)));
 
             Assert.AreEqual(0, dispatcher.DispatchedOperations.Count);
             Assert.AreEqual(11, dispatcher.FailedNumberOfTimes);

@@ -38,7 +38,7 @@
                 unsubscribeMessage.Headers[Headers.SubscriptionMessageType] = eventType.AssemblyQualifiedName;
                 unsubscribeMessage.Headers[Headers.ReplyToAddress] = replyToAddress;
 
-                unsubscribeTasks.Add(SendUnsubscribeMessageWithRetries(publisherAddress, unsubscribeMessage, eventType.AssemblyQualifiedName, context));
+                unsubscribeTasks.Add(SendUnsubscribeMessageWithRetries(publisherAddress, unsubscribeMessage, eventType.AssemblyQualifiedName, context.Extensions));
             }
 
             return Task.WhenAll(unsubscribeTasks.ToArray());

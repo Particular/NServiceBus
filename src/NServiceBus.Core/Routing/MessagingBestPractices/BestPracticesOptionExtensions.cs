@@ -31,7 +31,7 @@
         /// </summary>
         public static void DoNotEnforceBestPractices(this OutgoingSendContext context)
         {
-            context.SetDoNotEnforceBestPractices();
+            context.Extensions.SetDoNotEnforceBestPractices();
         }
 
         /// <summary>
@@ -39,7 +39,7 @@
         /// </summary>
         public static void DoNotEnforceBestPractices(this SubscribeContext context)
         {
-            context.SetDoNotEnforceBestPractices();
+            context.Extensions.SetDoNotEnforceBestPractices();
         }
 
         /// <summary>
@@ -55,7 +55,7 @@
         /// </summary>
         public static void DoNotEnforceBestPractices(this UnsubscribeContext context)
         {
-            context.SetDoNotEnforceBestPractices();
+            context.Extensions.SetDoNotEnforceBestPractices();
         }
 
         static void SetDoNotEnforceBestPractices(this ContextBag context)

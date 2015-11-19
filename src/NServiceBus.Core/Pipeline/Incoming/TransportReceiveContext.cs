@@ -22,7 +22,7 @@
     /// <summary>
     /// Context containing a physical message.
     /// </summary>
-    public class TransportReceiveContextImpl : BehaviorContextImpl, TransportReceiveContext
+    class TransportReceiveContextImpl : BehaviorContextImpl, TransportReceiveContext
     {
         /// <summary>
         /// Initializes the transport receive stage context.

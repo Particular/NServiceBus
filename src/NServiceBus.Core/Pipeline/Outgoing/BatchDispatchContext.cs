@@ -18,7 +18,7 @@ namespace NServiceBus
     /// <summary>
     /// Pipeline context for dispatching pending transport operations captured during message processing.
     /// </summary>
-    public class BatchDispatchContextImpl : BehaviorContextImpl, BatchDispatchContext
+    class BatchDispatchContextImpl : BehaviorContextImpl, BatchDispatchContext
     {
         /// <summary>
         /// The captured transport operations to dispatch.

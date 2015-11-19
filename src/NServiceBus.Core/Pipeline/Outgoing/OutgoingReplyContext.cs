@@ -17,7 +17,7 @@
     /// <summary>
     /// Pipeline context for reply operations.
     /// </summary>
-    public class OutgoingReplyContextImpl : OutgoingContextImpl, OutgoingReplyContext
+    class OutgoingReplyContextImpl : OutgoingContextImpl, OutgoingReplyContext
     {
         /// <summary>
         /// Initializes a new instance of <see cref="OutgoingReplyContextImpl" />.

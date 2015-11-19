@@ -5,12 +5,23 @@
     /// <summary>
     /// Pipeline context for send operations.
     /// </summary>
-    public class OutgoingSendContext : OutgoingContextImpl
+    public interface OutgoingSendContext : OutgoingContext
+    {
+        /// <summary>
+        /// The message beeing sent.
+        /// </summary>
+        OutgoingLogicalMessage Message { get; }
+    }
+
+    /// <summary>
+    /// Pipeline context for send operations.
+    /// </summary>
+    class OutgoingSendContextImpl : OutgoingContextImpl, OutgoingSendContext
     {
         /// <summary>
         /// Initializes the context with a parent context.
         /// </summary>
-        public OutgoingSendContext(OutgoingLogicalMessage message, SendOptions options, BehaviorContextImpl parentContext)
+        public OutgoingSendContextImpl(OutgoingLogicalMessage message, SendOptions options, BehaviorContextImpl parentContext)
             : base(options.MessageId, options.OutgoingHeaders, parentContext)
         {
             Guard.AgainstNull(nameof(parentContext), parentContext);
