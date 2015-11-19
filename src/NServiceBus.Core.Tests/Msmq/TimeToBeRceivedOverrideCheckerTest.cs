@@ -33,7 +33,6 @@
                 TimeToBeRceivedOverrideChecker.Check(usingMsmq: true, isTransactional: true, outBoxRunning: true, auditTTBROverridden: false, forwardTTBROverridden: false);
             });
         }
-
         
         [Test]
         public void Should_throw_on_overridden_audit_TimeToBeReceived()
