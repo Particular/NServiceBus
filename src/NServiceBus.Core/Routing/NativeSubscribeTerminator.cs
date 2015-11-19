@@ -14,7 +14,7 @@ namespace NServiceBus
 
         protected override Task Terminate(SubscribeContext context)
         {
-            return subscriptionManager.SubscribeAsync(context.EventType, context);
+            return subscriptionManager.SubscribeAsync(context.EventType, context.Extensions);
         }
 
         IManageSubscriptions subscriptionManager;

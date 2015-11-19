@@ -28,7 +28,7 @@
             {
                 messageHandler.Instance = context.Builder.Build(messageHandler.HandlerType);
 
-                var handlingContext = new InvokeHandlerContext(messageHandler, context);
+                var handlingContext = new InvokeHandlerContextImpl(messageHandler, context);
                 await next(handlingContext).ConfigureAwait(false);
 
                 if (handlingContext.HandlerInvocationAborted)

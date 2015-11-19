@@ -18,10 +18,10 @@
            
             AuditToDispatchConnector.State state;
 
-            if (!context.TryGet(out state))
+            if (!context.Extensions.TryGet(out state))
             {
                 state = new AuditToDispatchConnector.State();
-                context.Set(state);
+                context.Extensions.Set(state);
             }
             state.AuditValues[key] = value;
         }

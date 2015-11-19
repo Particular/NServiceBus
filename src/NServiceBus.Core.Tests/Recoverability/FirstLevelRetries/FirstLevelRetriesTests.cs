@@ -173,7 +173,7 @@
 
         TransportReceiveContext CreateContext(string messageId, PipelineInfo pipelineInfo = null)
         {
-            return new TransportReceiveContext(
+            return new TransportReceiveContextImpl(
                 new IncomingMessage(messageId, new Dictionary<string, string>(), new MemoryStream()),
                 pipelineInfo ?? new PipelineInfo("pipelineName", "pipelineTransportAddress"),
                 new RootContext(null));

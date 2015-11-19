@@ -29,17 +29,17 @@ namespace NServiceBus
             var messageType = context.Message.MessageType;
             var distributionStrategy = distributionPolicy.GetDistributionStrategy(messageType);
 
-            var state = context.GetOrCreate<State>();
+            var state = context.Extensions.GetOrCreate<State>();
             var destination = state.ExplicitDestination ?? (state.RouteToLocalInstance ? localAddress : null);
 
             var addressLabels = string.IsNullOrEmpty(destination) 
-                ? unicastRouter.Route(messageType, distributionStrategy, context) 
+                ? unicastRouter.Route(messageType, distributionStrategy, context.Extensions) 
                 : RouteToDestination(destination);
 
             context.Headers[Headers.MessageIntent] = MessageIntentEnum.Send.ToString();
             try
             {
-                await next(new OutgoingLogicalMessageContext(
+                await next(new OutgoingLogicalMessageContextImpl(
                     context.MessageId,
                     context.Headers,
                     context.Message,

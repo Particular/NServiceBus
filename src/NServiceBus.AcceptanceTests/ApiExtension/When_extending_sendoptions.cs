@@ -60,7 +60,7 @@
                 public override Task Invoke(OutgoingLogicalMessageContext context, Func<Task> next)
                 {
                     Context data;
-                    if (context.TryGet(out data))
+                    if (context.Extensions.TryGet(out data))
                     {
                         context.UpdateMessageInstance(new SendMessage { Secret = data.SomeValue });
                     }

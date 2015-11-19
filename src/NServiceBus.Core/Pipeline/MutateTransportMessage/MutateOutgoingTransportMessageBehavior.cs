@@ -1,36 +1,31 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
     using MessageMutator;
+    using NServiceBus.Transports;
+    using NServiceBus.Unicast.Messages;
     using OutgoingPipeline;
     using Pipeline;
-    using Pipeline.Contexts;
 
     class MutateOutgoingTransportMessageBehavior : Behavior<OutgoingPhysicalMessageContext>
     {
         public override async Task Invoke(OutgoingPhysicalMessageContext context, Func<Task> next)
         {
-            var outgoingMessage = context.Get<OutgoingLogicalMessage>();
+            var outgoingMessage = context.Extensions.Get<OutgoingLogicalMessage>();
 
-            InvokeHandlerContext incomingState;
-            context.TryGetRootContext(out incomingState);
-
-            object messageBeingHandled = null;
-            Dictionary<string, string> incomingHeaders = null;
-            if (incomingState != null)
-            {
-                messageBeingHandled = incomingState.MessageBeingHandled;
-                incomingHeaders = incomingState.Headers;
-            }
+            IncomingMessage incomingMessage;
+            context.Extensions.TryGet(out incomingMessage);
+            LogicalMessage logicalMessage;
+            context.Extensions.TryGet(out logicalMessage);
 
             var mutatorContext = new MutateOutgoingTransportMessageContext(
                 context.Body, 
                 outgoingMessage.Instance, 
-                context.Headers, 
-                messageBeingHandled, 
-                incomingHeaders);
+                context.Headers,
+                logicalMessage?.Instance,
+                incomingMessage?.Headers);
+
             foreach (var mutator in context.Builder.BuildAll<IMutateOutgoingTransportMessages>())
             {
                 await mutator.MutateOutgoing(mutatorContext).ConfigureAwait(false);

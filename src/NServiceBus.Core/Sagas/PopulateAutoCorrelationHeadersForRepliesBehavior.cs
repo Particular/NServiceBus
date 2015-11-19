@@ -32,7 +32,7 @@
 
                 State state;
 
-                if (context.TryGet(out state))
+                if (context.Extensions.TryGet(out state))
                 {
                     sagaId = state.SagaIdToUse;
                     sagaType = state.SagaTypeToUse;

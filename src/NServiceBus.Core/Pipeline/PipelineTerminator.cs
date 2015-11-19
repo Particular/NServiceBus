@@ -7,7 +7,7 @@
     /// Marks the inner most behavior of the pipeline.
     /// </summary>
     /// <typeparam name="T">The pipeline context type to terminate.</typeparam>
-    public abstract class PipelineTerminator<T> : StageConnector<T, PipelineTerminator<T>.TerminatingContext>, IPipelineTerminator where T : BehaviorContext
+    public abstract class PipelineTerminator<T> : StageConnector<T, PipelineTerminator<T>.ITerminatingContext>, IPipelineTerminator where T : BehaviorContext
     {
         /// <summary>
         /// This method will be the final one to be called before the pipeline starts to travers back up the "stack".
@@ -20,7 +20,7 @@
         /// </summary>
         /// <param name="context">Context object.</param>
         /// <param name="next">Ignored since there by definition is no next behavior to call.</param>
-        public sealed override Task Invoke(T context, Func<TerminatingContext, Task> next)
+        public sealed override Task Invoke(T context, Func<ITerminatingContext, Task> next)
         {
             Guard.AgainstNull("next", next);
 
@@ -30,17 +30,23 @@
         /// <summary>
         /// A wellknow context that terminates the pipeline.
         /// </summary>
-        public class TerminatingContext : BehaviorContext
+        class TerminatingContext : BehaviorContextImpl, ITerminatingContext
         {
             /// <summary>
             /// Initializes a new instance of <see cref="TerminatingContext"/>.
             /// </summary>
             /// <param name="parentContext">The parent context.</param>
-            public TerminatingContext(BehaviorContext parentContext)
+            public TerminatingContext(BehaviorContextImpl parentContext)
                 : base(parentContext)
             {
             }
         }
 
+        /// <summary>
+        /// A wellknow context that terminates the pipeline.
+        /// </summary>
+        public interface ITerminatingContext : BehaviorContext
+        {
+        }
     }
 }

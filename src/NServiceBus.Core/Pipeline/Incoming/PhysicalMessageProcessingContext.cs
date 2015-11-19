@@ -8,9 +8,20 @@
     /// <summary>
     /// A context of behavior execution in physical message processing stage.
     /// </summary>
-    public class PhysicalMessageProcessingContext : IncomingContext
+    public interface PhysicalMessageProcessingContext : IncomingContext
     {
-        internal PhysicalMessageProcessingContext(TransportReceiveContext parentContext)
+        /// <summary>
+        /// The physical message beeing processed.
+        /// </summary>
+        IncomingMessage Message { get; }
+    }
+
+    /// <summary>
+    /// A context of behavior execution in physical message processing stage.
+    /// </summary>
+    class PhysicalMessageProcessingContextImpl : IncomingContextBase, PhysicalMessageProcessingContext
+    {
+        internal PhysicalMessageProcessingContextImpl(TransportReceiveContext parentContext)
             : this(parentContext.Message, parentContext.PipelineInfo, parentContext)
         {
         }
@@ -18,7 +29,7 @@
         /// <summary>
         /// Initializes a new instance of <see cref="PhysicalMessageProcessingContext" />.
         /// </summary>
-        public PhysicalMessageProcessingContext(IncomingMessage message, PipelineInfo pipelineInfo, BehaviorContext parentContext)
+        public PhysicalMessageProcessingContextImpl(IncomingMessage message, PipelineInfo pipelineInfo, BehaviorContext parentContext)
             : base(message.MessageId, message.GetReplyToAddress(), message.Headers, pipelineInfo, parentContext)
         {
             Message = message;

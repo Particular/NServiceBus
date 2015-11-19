@@ -1189,9 +1189,9 @@ namespace NServiceBus.Pipeline.Contexts
     using NServiceBus.Unicast.Messages;
 
     [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "OutgoingLogicalMessage")]
-    public class OutgoingContext : BehaviorContext
+    class OutgoingContext : BehaviorContextImpl
     {
-        public OutgoingContext(BehaviorContext parentContext, DeliveryOptions deliveryOptions, LogicalMessage message)
+        public OutgoingContext(BehaviorContextImpl parentContext, DeliveryOptions deliveryOptions, LogicalMessage message)
             : base(parentContext)
         {
             throw new NotImplementedException();

@@ -111,7 +111,7 @@ namespace NServiceBus.Core.Tests
 
         TransportReceiveContext CreateContext(string messageId)
         {
-            return new TransportReceiveContext(
+            return new TransportReceiveContextImpl(
                 new IncomingMessage(messageId, new Dictionary<string, string>(), new MemoryStream()),
                 new PipelineInfo("pipelineName", "pipelineTransportAddress"),
                 new RootContext(null));

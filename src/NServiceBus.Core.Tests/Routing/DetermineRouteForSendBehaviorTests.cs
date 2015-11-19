@@ -102,7 +102,7 @@
                 message = new MyMessage();
             }
 
-            var context = new OutgoingSendContext(new OutgoingLogicalMessage(message), options, new RootContext(null));
+            var context = new OutgoingSendContextImpl(new OutgoingLogicalMessage(message), options, new RootContext(null));
             return context;
         }
 

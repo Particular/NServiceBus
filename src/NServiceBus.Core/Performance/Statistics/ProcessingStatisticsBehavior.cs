@@ -20,7 +20,7 @@
 
             state.ProcessingStarted = DateTime.UtcNow;
 
-            context.Set(state);
+            context.Extensions.Set(state);
             try
             {
                 await next().ConfigureAwait(false);

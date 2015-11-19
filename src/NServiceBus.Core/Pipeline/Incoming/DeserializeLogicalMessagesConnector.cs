@@ -31,7 +31,7 @@
 
             foreach (var message in messages)
             {
-                await next(new LogicalMessageProcessingContext(message, context)).ConfigureAwait(false);
+                await next(new LogicalMessageProcessingContextImpl(message, context)).ConfigureAwait(false);
             }
         }
 

@@ -1,16 +1,15 @@
 ﻿namespace NServiceBus.Testing.Fakes
 {
-    using NServiceBus.Pipeline;
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Transports;
     using NServiceBus.Unicast.Transport;
 
-    public class TestableTransportReceiveContext : TransportReceiveContext
+    public class TestableTransportReceiveContext : TestableBehaviorContext, TransportReceiveContext
     {
-        public TestableTransportReceiveContext(IncomingMessage receivedMessage, PipelineInfo pipelineInfo, BehaviorContext parentContext) 
-            : base(receivedMessage, pipelineInfo, parentContext)
-        {
-            // no overrides
-        }
+        public IncomingMessage Message { get; set; } = new IncomingMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), new MemoryStream());
+        public PipelineInfo PipelineInfo { get; set; } = new PipelineInfo("PipelineName", "PipelineTransportAddress");
     }
 }

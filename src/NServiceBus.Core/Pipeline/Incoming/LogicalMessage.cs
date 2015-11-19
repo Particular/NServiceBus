@@ -9,7 +9,13 @@
     {
         LogicalMessageFactory factory;
 
-        internal LogicalMessage(MessageMetadata metadata, object message,LogicalMessageFactory factory)
+        /// <summary>
+        /// Creates a new instance of <see cref="LogicalMessage"/>.
+        /// </summary>
+        /// <param name="metadata"></param>
+        /// <param name="message"></param>
+        /// <param name="factory"></param>
+        public LogicalMessage(MessageMetadata metadata, object message,LogicalMessageFactory factory)
         {
             this.factory = factory;
             Instance = message;

@@ -6,12 +6,23 @@
     /// <summary>
     /// Pipeline context for publish operations.
     /// </summary>
-    public class OutgoingPublishContext : OutgoingContext
+    public interface OutgoingPublishContext : OutgoingContext
+    {
+        /// <summary>
+        /// The message to be published.
+        /// </summary>
+        OutgoingLogicalMessage Message { get; }
+    }
+
+    /// <summary>
+    /// Pipeline context for publish operations.
+    /// </summary>
+    class OutgoingPublishContextImpl : OutgoingContextImpl, OutgoingPublishContext
     {
         /// <summary>
         /// Initializes the context with a parent context.
         /// </summary>
-        public OutgoingPublishContext(OutgoingLogicalMessage message, PublishOptions options, BehaviorContext parentContext)
+        public OutgoingPublishContextImpl(OutgoingLogicalMessage message, PublishOptions options, BehaviorContext parentContext)
             : base(options.MessageId, options.OutgoingHeaders, parentContext)
         {
             Message = message;
@@ -19,7 +30,7 @@
             Guard.AgainstNull(nameof(message), message);
             Guard.AgainstNull(nameof(options), options);
 
-            parentContext.Merge(options.Context);
+            parentContext.Extensions.Merge(options.Context);
         }
 
         /// <summary>

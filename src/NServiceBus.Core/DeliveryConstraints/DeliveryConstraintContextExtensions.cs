@@ -10,7 +10,7 @@ namespace NServiceBus.DeliveryConstraints
     using NServiceBus.Transports;
 
     /// <summary>
-    /// Gives access to <see cref="DeliveryConstraint"/>s that exist in the various <see cref="BehaviorContext"/>s.
+    /// Gives access to <see cref="DeliveryConstraint"/>s that exist in the various <see cref="BehaviorContextImpl"/>s.
     /// </summary>
     public static class DeliveryConstraintContextExtensions
     {
@@ -38,7 +38,7 @@ namespace NServiceBus.DeliveryConstraints
         {
             List<DeliveryConstraint> constraints;
 
-            if (context.TryGet(out constraints))
+            if (context.Extensions.TryGet(out constraints))
             {
                 return constraints.TryGet(out constraint);
             }
@@ -53,7 +53,7 @@ namespace NServiceBus.DeliveryConstraints
         {
             List<DeliveryConstraint> constraints;
 
-            if (context.TryGet(out constraints))
+            if (context.Extensions.TryGet(out constraints))
             {
                 return constraints.TryGet(out constraint);
             }
@@ -68,7 +68,7 @@ namespace NServiceBus.DeliveryConstraints
         {
             List<DeliveryConstraint> constraints;
 
-            if (!context.TryGet(out constraints))
+            if (!context.Extensions.TryGet(out constraints))
             {
                 return;
             }
@@ -83,7 +83,7 @@ namespace NServiceBus.DeliveryConstraints
         {
             List<DeliveryConstraint> constraints;
 
-            if (context.TryGet(out constraints))
+            if (context.Extensions.TryGet(out constraints))
             {
                 return constraints;
             }
@@ -108,11 +108,11 @@ namespace NServiceBus.DeliveryConstraints
         {
             List<DeliveryConstraint> constraints;
 
-            if (!context.TryGet(out constraints))
+            if (!context.Extensions.TryGet(out constraints))
             {
                 constraints = new List<DeliveryConstraint>();
 
-                context.Set(constraints);
+                context.Extensions.Set(constraints);
             }
 
             if (constraints.Any(c => c.GetType() == constraint.GetType()))

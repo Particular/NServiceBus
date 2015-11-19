@@ -129,7 +129,7 @@
 
         TransportReceiveContext CreateContext(string messageId, int currentRetryCount, byte[] messageBody = null)
         {
-            return new TransportReceiveContext(
+            return new TransportReceiveContextImpl(
                 new IncomingMessage(
                     messageId,
                     new Dictionary<string, string>

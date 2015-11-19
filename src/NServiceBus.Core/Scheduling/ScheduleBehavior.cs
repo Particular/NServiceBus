@@ -23,7 +23,7 @@ namespace NServiceBus
         public override Task Invoke(OutgoingLogicalMessageContext context, Func<Task> next)
         {
             State state;
-            if (context.TryGet(out state))
+            if (context.Extensions.TryGet(out state))
             {
                 scheduler.Schedule(state.TaskDefinition);
             }

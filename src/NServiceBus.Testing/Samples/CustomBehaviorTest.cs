@@ -22,7 +22,7 @@
         [Test]
         public async Task ShouldHandleCurrentMessageLaterWhenHandlerInvocationWasAborted()
         {
-            var context = Fake.CreateInvokeHandlerContext();
+            var context = new TestableInvokeHandlerContext();
 
             await testee.Invoke(context, ctx =>
             {
@@ -36,13 +36,12 @@
         [Test]
         public async Task ShouldSendMessage()
         {
-            var context = Fake.CreateInvokeHandlerContext();
+            var context = new TestableInvokeHandlerContext();
 
             await testee.Invoke(context, () => Task.CompletedTask);
 
-            // need to access operations via context.BusOperations
-            Assert.AreEqual(1, context.BusOperations.Sent.Count);
-            var sentMessage = context.BusOperations.Sent.Single();
+            Assert.AreEqual(1, context.Sent.Count);
+            var sentMessage = context.Sent.Single();
             Assert.IsAssignableFrom<SendMessage>(sentMessage.Message);
 
             //TODO Testing: State not accessible. Need to provide testing accessors like options.GetRequestedDelay()

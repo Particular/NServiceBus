@@ -146,9 +146,9 @@
         {
             var runner = new UnitOfWorkBehavior();
 
-            var receiveContext = new TransportReceiveContext(new IncomingMessage("fakeId", new Dictionary<string, string>(), new MemoryStream()), new PipelineInfo("pipelineName", "pipelineTransportAddress"), new RootContext(builder));
+            var receiveContext = new TransportReceiveContextImpl(new IncomingMessage("fakeId", new Dictionary<string, string>(), new MemoryStream()), new PipelineInfo("pipelineName", "pipelineTransportAddress"), new RootContext(builder));
 
-            var context = new PhysicalMessageProcessingContext(receiveContext);
+            var context = new PhysicalMessageProcessingContextImpl(receiveContext);
 
             return runner.Invoke(context, () =>
             {

@@ -2,11 +2,14 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Pipeline.OutgoingPipeline;
     using NServiceBus.Testing.Fakes;
+    using NServiceBus.Transports;
+    using NServiceBus.Unicast.Messages;
     using NUnit.Framework;
 
     [TestFixture]
@@ -17,7 +20,7 @@
         {
             var nextCalled = false;
             var testee = new MutateOutgoingMessageBehavior();
-            var context = Fake.CreateOutgoingLogicalMessageContext();
+            var context = new TestableOutgoingLogicalMessageContext();
 
             await testee.Invoke(context, () =>
             {
@@ -35,12 +38,15 @@
 
             var builder = new FakeBuilder();
             builder.Register<IMutateOutgoingMessages>(new DemoMutator());
-            var context = Fake.CreateOutgoingLogicalMessageContext(builder: builder);
+            var context = new TestableOutgoingLogicalMessageContext
+            {
+                Builder = builder
+            };
 
             await testee.Invoke(context, () => Task.CompletedTask);
 
             Assert.AreEqual("SomeValue", context.Headers["SomeHeader"]);
-            Assert.AreEqual("new body", context.Message.Instance);
+            Assert.AreEqual("new message", context.UpdatedMessageInstances.Single());
         }
 
         [Test]
@@ -50,15 +56,14 @@
             var expectedIncomingHeaders = new Dictionary<string, string> { {"someKey", "someValue"} };
             var testee = new MutateOutgoingMessageBehavior();
 
+            var context = new TestableOutgoingLogicalMessageContext();
+            context.Extensions.Set(new IncomingMessage(Guid.NewGuid().ToString(), expectedIncomingHeaders, new MemoryStream()));
+            context.Extensions.Set(new LogicalMessage(new MessageMetadata(typeof(object)), expectedIncomingMessage, null));
+
             var builder = new FakeBuilder();
             var mutator = new StubMutator();
             builder.Register<IMutateOutgoingMessages>(mutator);
-
-            var invokeHandlerContext = Fake.CreateInvokeHandlerContext(
-                builder: builder, 
-                headers: expectedIncomingHeaders, 
-                incomingMessage: expectedIncomingMessage);
-            var context = Fake.CreateOutgoingLogicalMessageContext(parent: invokeHandlerContext);
+            context.Builder = builder;
 
             await testee.Invoke(context, () => Task.CompletedTask);
 
@@ -75,7 +80,7 @@
             public Task MutateOutgoing(MutateOutgoingMessageContext context)
             {
                 context.OutgoingHeaders.Add("SomeHeader", "SomeValue");
-                context.OutgoingMessage = "new body";
+                context.OutgoingMessage = "new message";
                 return Task.CompletedTask;
             }
         }
@@ -98,22 +103,16 @@
     {
         public override async Task Invoke(OutgoingLogicalMessageContext context, Func<Task> next)
         {
-            //TODO Testing: Set an incoming message DTO via context.Set instead of expecting a certain context?
-            InvokeHandlerContext incomingState;
-            context.TryGetRootContext(out incomingState);
+            IncomingMessage incomingMessage;
+            context.Extensions.TryGet(out incomingMessage);
+            LogicalMessage logicalMessage;
+            context.Extensions.TryGet(out logicalMessage);
 
-            object messageBeingHandled = null;
-            Dictionary<string, string> incomingHeaders = null;
-            if (incomingState != null)
-            {
-                messageBeingHandled = incomingState.MessageBeingHandled;
-                incomingHeaders = incomingState.Headers;
-            }
             var mutatorContext = new MutateOutgoingMessageContext(
                 context.Message.Instance,
                 context.Headers,
-                messageBeingHandled,
-                incomingHeaders);
+                logicalMessage?.Instance,
+                incomingMessage?.Headers);
 
             foreach (var mutator in context.Builder.BuildAll<IMutateOutgoingMessages>())
             {

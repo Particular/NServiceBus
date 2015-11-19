@@ -5,7 +5,7 @@ namespace NServiceBus.Pipeline.Contexts
     /// <summary>
     /// Acts as a root context for context chains.
     /// </summary>
-    public class RootContext : BehaviorContext
+    class RootContext : BehaviorContextImpl
     {
         /// <summary>
         /// Create a new instance which uses the provided builder and settings.

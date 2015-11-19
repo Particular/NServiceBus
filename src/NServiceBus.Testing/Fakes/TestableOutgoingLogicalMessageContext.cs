@@ -2,14 +2,19 @@ namespace NServiceBus.Testing.Fakes
 {
     using System.Collections.Generic;
     using NServiceBus.OutgoingPipeline;
-    using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.OutgoingPipeline;
     using NServiceBus.Routing;
 
-    public class TestableOutgoingLogicalMessageContext : OutgoingLogicalMessageContext
+    public class TestableOutgoingLogicalMessageContext : TestableOutgoingContext, OutgoingLogicalMessageContext
     {
-        public TestableOutgoingLogicalMessageContext(string messageId, Dictionary<string, string> headers, OutgoingLogicalMessage message, IReadOnlyCollection<RoutingStrategy> routingStrategies, BehaviorContext parentContext) : base(messageId, headers, message, routingStrategies, parentContext)
+        public OutgoingLogicalMessage Message { get; set; } = new OutgoingLogicalMessage(new object());
+        public IReadOnlyCollection<RoutingStrategy> RoutingStrategies { get; set; } = new List<RoutingStrategy>();
+
+        public void UpdateMessageInstance(object newInstance)
         {
+            UpdatedMessageInstances.Add(newInstance);
         }
+
+        public List<object> UpdatedMessageInstances = new List<object>();
     }
 }

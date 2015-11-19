@@ -69,7 +69,7 @@
                 await subscriptionStorage.Subscribe(incomingMessage.GetReplyToAddress(), new[]
                 {
                     mt
-                }, context).ConfigureAwait(false);
+                }, context.Extensions).ConfigureAwait(false);
 
                 return;
             }
@@ -78,7 +78,7 @@
             await subscriptionStorage.Unsubscribe(subscriberAddress, new[]
             {
                 new MessageType(messageTypeString)
-            }, context).ConfigureAwait(false);
+            }, context.Extensions).ConfigureAwait(false);
         }
 
 

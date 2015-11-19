@@ -3,24 +3,39 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
     using NServiceBus.Pipeline;
     using NServiceBus.Unicast;
     using PublishOptions = NServiceBus.PublishOptions;
     using SendOptions = NServiceBus.SendOptions;
 
     /// <summary>
-    /// The abstract base context for everything inside the outgoing pipeline.
+    /// 
     /// </summary>
-    public abstract class OutgoingContext : BehaviorContext, IBusContext
+    public interface OutgoingContext : BehaviorContext, IBusContext
     {
         /// <summary>
-        /// Initializes a new <see cref="OutgoingContext"/>.
+        /// The id of the outgoing message.
+        /// </summary>
+        string MessageId { get; }
+
+        /// <summary>
+        /// The headers of the outgoing message.
+        /// </summary>
+        Dictionary<string, string> Headers { get; }
+    }
+
+    /// <summary>
+    /// The abstract base context for everything inside the outgoing pipeline.
+    /// </summary>
+    abstract class OutgoingContextImpl : BehaviorContextImpl, OutgoingContext
+    {
+        /// <summary>
+        /// Initializes a new <see cref="OutgoingContextImpl"/>.
         /// </summary>
         /// <param name="messageId">The id of the outgoing message.</param>
         /// <param name="headers">The headers of the outgoing message.</param>
         /// <param name="parentContext">The parent context.</param>
-        protected OutgoingContext(string messageId, Dictionary<string, string> headers, BehaviorContext parentContext)
+        protected OutgoingContextImpl(string messageId, Dictionary<string, string> headers, BehaviorContext parentContext)
             : base(parentContext)
         {
             MessageId = messageId;
@@ -36,9 +51,6 @@
         /// The headers of the outgoing message.
         /// </summary>
         public Dictionary<string, string> Headers { get; }
-
-        /// <inheritdoc/>
-        public ContextBag Extensions => this;
 
         /// <inheritdoc/>
         public Task SendAsync(object message, SendOptions options)
