@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
     using NServiceBus.Unicast;
     using NServiceBus.Unicast.Transport;
     using PublishOptions = NServiceBus.PublishOptions;

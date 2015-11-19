@@ -5,7 +5,7 @@
     /// <summary>
     /// Pipeline context for send operations.
     /// </summary>
-    public class OutgoingSendContext : OutgoingContext
+    public class OutgoingSendContext : OutgoingContextImpl
     {
         /// <summary>
         /// Initializes the context with a parent context.

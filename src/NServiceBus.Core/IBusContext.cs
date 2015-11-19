@@ -22,8 +22,6 @@ namespace NServiceBus
     /// </summary>
     public interface IBusContext : IExtendable
     {
-
-
         /// <summary>
         /// Sends the provided message.
         /// </summary>

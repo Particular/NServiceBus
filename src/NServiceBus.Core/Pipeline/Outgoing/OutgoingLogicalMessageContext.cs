@@ -7,7 +7,7 @@
     /// <summary>
     /// Outgoing pipeline context.
     /// </summary>
-    public interface OutgoingLogicalMessageContext : IOutgoingContext
+    public interface OutgoingLogicalMessageContext : OutgoingContext
     {
         /// <summary>
         /// The outgoing message.
@@ -28,7 +28,7 @@
     /// <summary>
     /// Outgoing pipeline context.
     /// </summary>
-    public class OutgoingLogicalMessageContextImpl : OutgoingContext, OutgoingLogicalMessageContext
+    public class OutgoingLogicalMessageContextImpl : OutgoingContextImpl, OutgoingLogicalMessageContext
     {
         /// <summary>
         /// Creates a new instance of <see cref="OutgoingLogicalMessageContextImpl" />.

@@ -32,6 +32,7 @@
         {
             Message = receivedMessage;
             PipelineInfo = pipelineInfo;
+
             Set(Message);
         }
 

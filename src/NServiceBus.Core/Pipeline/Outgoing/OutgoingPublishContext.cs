@@ -6,7 +6,7 @@
     /// <summary>
     /// Pipeline context for publish operations.
     /// </summary>
-    public interface OutgoingPublishContext : IOutgoingContext
+    public interface OutgoingPublishContext : OutgoingContext
     {
         /// <summary>
         /// The message to be published.
@@ -17,7 +17,7 @@
     /// <summary>
     /// Pipeline context for publish operations.
     /// </summary>
-    public class OutgoingPublishContextImpl : OutgoingContext, OutgoingPublishContext
+    public class OutgoingPublishContextImpl : OutgoingContextImpl, OutgoingPublishContext
     {
         /// <summary>
         /// Initializes the context with a parent context.

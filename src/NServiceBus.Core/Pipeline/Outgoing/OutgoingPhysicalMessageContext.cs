@@ -7,7 +7,7 @@
     /// <summary>
     /// Represent the part of the outgoing pipeline where the message has been serialized to a byte[].
     /// </summary>
-    public interface OutgoingPhysicalMessageContext : IOutgoingContext
+    public interface OutgoingPhysicalMessageContext : OutgoingContext
     {
         /// <summary>
         /// The serialized body of the outgoing message.
@@ -26,7 +26,7 @@
     /// <summary>
     /// Represent the part of the outgoing pipeline where the message has been serialized to a byte[].
     /// </summary>
-    public class OutgoingPhysicalMessageContextImpl : OutgoingContext, OutgoingPhysicalMessageContext
+    public class OutgoingPhysicalMessageContextImpl : OutgoingContextImpl, OutgoingPhysicalMessageContext
     {
 
         internal OutgoingPhysicalMessageContextImpl(byte[] body, OutgoingLogicalMessageContext parentContext) 

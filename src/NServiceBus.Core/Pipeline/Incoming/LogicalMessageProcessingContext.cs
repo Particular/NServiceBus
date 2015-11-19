@@ -53,6 +53,8 @@
         {
             Message = logicalMessage;
             Headers = headers;
+
+            Set(logicalMessage);
         }
 
         /// <summary>

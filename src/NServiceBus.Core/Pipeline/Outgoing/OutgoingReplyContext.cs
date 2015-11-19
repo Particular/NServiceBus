@@ -6,7 +6,7 @@
     /// <summary>
     /// 
     /// </summary>
-    public interface OutgoingReplyContext : IOutgoingContext
+    public interface OutgoingReplyContext : OutgoingContext
     {
         /// <summary>
         /// The reply message.
@@ -17,7 +17,7 @@
     /// <summary>
     /// Pipeline context for reply operations.
     /// </summary>
-    public class OutgoingReplyContextImpl : OutgoingContext, OutgoingReplyContext
+    public class OutgoingReplyContextImpl : OutgoingContextImpl, OutgoingReplyContext
     {
         /// <summary>
         /// Initializes a new instance of <see cref="OutgoingReplyContextImpl" />.

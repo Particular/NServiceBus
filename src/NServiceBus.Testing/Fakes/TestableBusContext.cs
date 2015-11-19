@@ -3,17 +3,9 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
 
-    public class BusOperations : IBusContext
+    public class TestableBusContext : TestableBehaviorContext, IBusContext
     {
-        public List<SentMessage> Sent { get; } = new List<SentMessage>();
-        public List<PublishedMessage> Published { get; } = new List<PublishedMessage>();
-        public List<Subscription> Subscribed { get; } = new List<Subscription>();
-        public List<Unsubscription> Unsubscribed { get; } = new List<Unsubscription>();
-
-        public ContextBag Extensions { get; }
-
         public Task SendAsync(object message, SendOptions options)
         {
             Sent.Add(new SentMessage
@@ -27,7 +19,7 @@
 
         public Task SendAsync<T>(Action<T> messageConstructor, SendOptions options)
         {
-            throw new NotSupportedException();
+            throw new NotImplementedException();
         }
 
         public Task PublishAsync(object message, PublishOptions options)
@@ -43,7 +35,7 @@
 
         public Task PublishAsync<T>(Action<T> messageConstructor, PublishOptions publishOptions)
         {
-            throw new NotSupportedException();
+            throw new NotImplementedException();
         }
 
         public Task SubscribeAsync(Type eventType, SubscribeOptions options)
@@ -67,6 +59,11 @@
 
             return Task.CompletedTask;
         }
+
+        public List<SentMessage> Sent { get; } = new List<SentMessage>();
+        public List<PublishedMessage> Published { get; } = new List<PublishedMessage>();
+        public List<Subscription> Subscribed { get; } = new List<Subscription>();
+        public List<Unsubscription> Unsubscribed { get; } = new List<Unsubscription>();
 
         public class SentMessage
         {

@@ -11,7 +11,7 @@
     /// <summary>
     /// 
     /// </summary>
-    public interface IOutgoingContext : BehaviorContext, IBusContext
+    public interface OutgoingContext : BehaviorContext, IBusContext
     {
         /// <summary>
         /// The id of the outgoing message.
@@ -27,15 +27,15 @@
     /// <summary>
     /// The abstract base context for everything inside the outgoing pipeline.
     /// </summary>
-    public abstract class OutgoingContext : BehaviorContextImpl, IOutgoingContext
+    public abstract class OutgoingContextImpl : BehaviorContextImpl, OutgoingContext
     {
         /// <summary>
-        /// Initializes a new <see cref="OutgoingContext"/>.
+        /// Initializes a new <see cref="OutgoingContextImpl"/>.
         /// </summary>
         /// <param name="messageId">The id of the outgoing message.</param>
         /// <param name="headers">The headers of the outgoing message.</param>
         /// <param name="parentContext">The parent context.</param>
-        protected OutgoingContext(string messageId, Dictionary<string, string> headers, BehaviorContext parentContext)
+        protected OutgoingContextImpl(string messageId, Dictionary<string, string> headers, BehaviorContext parentContext)
             : base(parentContext)
         {
             MessageId = messageId;

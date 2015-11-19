@@ -9,7 +9,7 @@ namespace NServiceBus.TransportDispatch
     /// <summary>
     /// Context for the dispatch part of the pipeline.
     /// </summary>
-    public interface RoutingContext : IOutgoingContext
+    public interface RoutingContext : OutgoingContext
     {
         /// <summary>
         /// The routing strategies for the operation to be dispatched.
@@ -25,7 +25,7 @@ namespace NServiceBus.TransportDispatch
     /// <summary>
     /// Context for the dispatch part of the pipeline.
     /// </summary>
-    public class RoutingContextImpl : OutgoingContext, RoutingContext
+    public class RoutingContextImpl : OutgoingContextImpl, RoutingContext
     {
         internal RoutingContextImpl(OutgoingMessage message, IReadOnlyCollection<RoutingStrategy> routingStrategies, BehaviorContext context)
             : this(message.MessageId, message.Headers, message.Body, routingStrategies, context)
