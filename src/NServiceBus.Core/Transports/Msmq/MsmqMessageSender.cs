@@ -34,6 +34,13 @@ namespace NServiceBus.Transports.Msmq
         {
             var address = sendOptions.Destination;
             var queuePath = NServiceBus.MsmqUtilities.GetFullPath(address);
+
+            var transactionType = GetTransactionTypeForSend();
+            if (message.TimeToBeReceived < MessageQueue.InfiniteTimeout && WillUseTransactionThatSupportsMultipleOperations(sendOptions.EnlistInReceiveTransaction, transactionType))
+            {
+                throw new Exception($"Failed to send message to address: {address.Queue}@{address.Machine}. Sending messages with a custom TimeToBeReceived is not supported on transactional MSMQ.");
+            }
+
             try
             {
                 using (var q = new MessageQueue(queuePath, false, Settings.UseConnectionCache, QueueAccessMode.Send))
@@ -57,7 +64,7 @@ namespace NServiceBus.Transports.Msmq
                         }
                         else
                         {
-                            q.Send(toSend, GetTransactionTypeForSend());
+                            q.Send(toSend, transactionType);
                         }
                     }
                 }
@@ -79,6 +86,13 @@ namespace NServiceBus.Transports.Msmq
             {
                 ThrowFailedToSendException(address, ex);
             }
+        }
+
+        bool WillUseTransactionThatSupportsMultipleOperations(bool enlistInReceiveTransaction, MessageQueueTransactionType transactionType)
+        {
+            var willUseReceiveTransaction = enlistInReceiveTransaction && UnitOfWork.HasActiveTransaction();
+            var willUseAutomaticTransaction = transactionType == MessageQueueTransactionType.Automatic;
+            return willUseReceiveTransaction || willUseAutomaticTransaction;
         }
 
         static void ThrowFailedToSendException(Address address, Exception ex)
