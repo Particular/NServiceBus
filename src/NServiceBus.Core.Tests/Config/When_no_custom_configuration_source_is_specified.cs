@@ -17,8 +17,8 @@ namespace NServiceBus.Core.Tests.Config
             config.TypesToScanInternal(new[] { typeof(ConfigSectionValidatorFeature) });
             config.EnableFeature<ConfigSectionValidatorFeature>();
 
-            var endpoint = await Endpoint.StartAsync(config);
-            await endpoint.StopAsync();
+            var endpoint = await Endpoint.Start(config);
+            await endpoint.Stop();
         }
 
         class ConfigSectionValidatorFeature : Feature

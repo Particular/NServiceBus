@@ -82,7 +82,7 @@
                 public Context Context { get; set; }
                 public BusNotifications BusNotifications { get; set; }
 
-                public Task StartAsync(IBusContext context)
+                public Task Start(IBusContext context)
                 {
                     BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e =>
                     {
@@ -92,7 +92,7 @@
                     return Task.FromResult(0);
                 }
 
-                public Task StopAsync(IBusContext context)
+                public Task Stop(IBusContext context)
                 {
                     return Task.FromResult(0);
                 }

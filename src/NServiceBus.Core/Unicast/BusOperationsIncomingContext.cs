@@ -14,7 +14,7 @@ namespace NServiceBus.Unicast
         /// Forwards the current message being handled to the destination maintaining
         /// all of its transport-level properties and headers.
         /// </summary>
-        public static async Task ForwardCurrentMessageToAsync(IncomingContext context, string destination)
+        public static async Task ForwardCurrentMessageTo(IncomingContext context, string destination)
         {
             var messageBeingProcessed = context.Get<IncomingMessage>();
             var settings = context.Builder.Build<ReadOnlySettings>();

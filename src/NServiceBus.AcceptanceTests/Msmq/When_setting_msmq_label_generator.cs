@@ -88,13 +88,13 @@
                 public Context Context { get; set; }
                 public ReadOnlySettings Settings { get; set; }
 
-                public Task StartAsync(IBusContext context)
+                public Task Start(IBusContext context)
                 {
                     Context.GeneratorWasCalled = Settings.Get<bool>("GeneratorWasCalled");
                     return Task.FromResult(0);
                 }
 
-                public Task StopAsync(IBusContext context)
+                public Task Stop(IBusContext context)
                 {
                     return Task.FromResult(0);
                 }

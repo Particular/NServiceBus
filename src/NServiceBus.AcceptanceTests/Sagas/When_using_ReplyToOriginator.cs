@@ -49,7 +49,7 @@
 
                 public async Task Handle(AnotherRequest message, IMessageHandlerContext context)
                 {
-                    await ReplyToOriginatorAsync(context, new MyReplyToOriginator());
+                    await ReplyToOriginator(context, new MyReplyToOriginator());
                     MarkAsComplete();
                 }
 

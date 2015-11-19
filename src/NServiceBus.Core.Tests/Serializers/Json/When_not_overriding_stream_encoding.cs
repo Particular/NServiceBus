@@ -20,8 +20,8 @@ namespace NServiceBus.Serializers.Json.Tests
             builder.UseSerialization<JsonSerializer>();
             builder.EnableFeature<EncodingValidatorFeature>();
 
-            var endpoint = await Endpoint.StartAsync(builder);
-            await endpoint.StopAsync();
+            var endpoint = await Endpoint.Start(builder);
+            await endpoint.Stop();
         }
 
         class EncodingValidatorFeature : Feature

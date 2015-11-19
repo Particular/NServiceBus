@@ -17,12 +17,12 @@ namespace NServiceBus.Features
             this.featureActivator = featureActivator;
         }
 
-        public Task StartAsync(IBusContext busContext)
+        public Task Start(IBusContext busContext)
         {
             return featureActivator.StartFeatures(builder, busContext);
         }
 
-        public Task StopAsync(IBusContext busContext)
+        public Task Stop(IBusContext busContext)
         {
             return featureActivator.StopFeatures(builder, busContext);
         }

@@ -89,7 +89,7 @@
 
             public BusNotifications Notifications { get; set; }
 
-            public Task StartAsync(IBusContext context)
+            public Task Start(IBusContext context)
             {
                 unsubscribeStreams.Add(Notifications.Errors.MessageSentToErrorQueue.Subscribe(message =>
                 {
@@ -105,7 +105,7 @@
                 });
             }
 
-            public Task StopAsync(IBusContext context)
+            public Task Stop(IBusContext context)
             {
                 foreach (var unsubscribeStream in unsubscribeStreams)
                 {

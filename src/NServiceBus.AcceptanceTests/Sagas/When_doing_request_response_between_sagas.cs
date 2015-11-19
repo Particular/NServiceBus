@@ -74,7 +74,7 @@
 
                     if (TestContext.ReplyFromTimeout)
                     {
-                        await RequestTimeoutAsync<DelayReply>(context, TimeSpan.FromSeconds(1));
+                        await RequestTimeout<DelayReply>(context, TimeSpan.FromSeconds(1));
                     }
 
                     // Both reply and reply to originator work here since the sender of the incoming message is the requesting saga
@@ -110,7 +110,7 @@
                 Task SendReply(IMessageHandlerContext context)
                 {
                     //reply to originator must be used here since the sender of the incoming message the timeoutmanager and not the requesting saga
-                    return ReplyToOriginatorAsync(context, new ResponseFromOtherSaga //change this line to Bus.Reply(new ResponseFromOtherSaga  and see it fail
+                    return ReplyToOriginator(context, new ResponseFromOtherSaga //change this line to Bus.Reply(new ResponseFromOtherSaga  and see it fail
                     {
                         SomeCorrelationId = Data.CorrIdForRequest //wont be needed in the future
                     });

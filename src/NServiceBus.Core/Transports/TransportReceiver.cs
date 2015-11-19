@@ -54,7 +54,7 @@ namespace NServiceBus.Transport
                 return;
             }
 
-            await receiver.StopAsync().ConfigureAwait(false);
+            await receiver.Stop().ConfigureAwait(false);
             await pipeline.Cooldown().ConfigureAwait(false);
 
             isStarted = false;

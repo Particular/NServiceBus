@@ -59,7 +59,7 @@ namespace NServiceBus.Pipeline.Contexts
         /// <inheritdoc />
         public Task HandleCurrentMessageLater()
         {
-            return BusOperationsInvokeHandlerContext.HandleCurrentMessageLaterAsync(this);
+            return BusOperationsInvokeHandlerContext.HandleCurrentMessageLater(this);
         }
 
         /// <inheritdoc />

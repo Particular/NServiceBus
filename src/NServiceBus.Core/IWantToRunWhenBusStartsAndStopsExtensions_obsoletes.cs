@@ -5,6 +5,10 @@
     /// <summary>
     /// Syntactic sugar for <see cref="IWantToRunWhenBusStartsAndStops"/>.
     /// </summary>
+    [ObsoleteEx(
+        TreatAsErrorFromVersion = "6",
+        RemoveInVersion = "7",
+        Message = "Extensions to give better obsoletes")]
     public static class IWantToRunWhenBusStartsAndStopsExtensions_obsoletes
     {
         /// <summary>
@@ -13,7 +17,7 @@
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            ReplacementTypeOrMember = "StartAsync()")]
+            ReplacementTypeOrMember = "Start()")]
         public static void Start(this IWantToRunWhenBusStartsAndStops runnable)
         {
             throw new NotImplementedException();
@@ -25,7 +29,7 @@
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            ReplacementTypeOrMember = "StopAsync()")]
+            ReplacementTypeOrMember = "Stop()")]
         public static void Stop(this IWantToRunWhenBusStartsAndStops runnable)
         {
             throw new NotImplementedException();

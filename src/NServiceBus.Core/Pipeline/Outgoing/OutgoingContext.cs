@@ -28,37 +28,37 @@
         /// <inheritdoc/>
         public Task Send(object message, SendOptions options)
         {
-            return BusOperationsBehaviorContext.SendAsync(this, message, options);
+            return BusOperationsBehaviorContext.Send(this, message, options);
         }
 
         /// <inheritdoc/>
         public Task Send<T>(Action<T> messageConstructor, SendOptions options)
         {
-            return BusOperationsBehaviorContext.SendAsync(this, messageConstructor, options);
+            return BusOperationsBehaviorContext.Send(this, messageConstructor, options);
         }
 
         /// <inheritdoc/>
         public Task Publish(object message, PublishOptions options)
         {
-            return BusOperationsBehaviorContext.PublishAsync(this, message, options);
+            return BusOperationsBehaviorContext.Publish(this, message, options);
         }
 
         /// <inheritdoc/>
         public Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)
         {
-            return BusOperationsBehaviorContext.PublishAsync(this, messageConstructor, publishOptions);
+            return BusOperationsBehaviorContext.Publish(this, messageConstructor, publishOptions);
         }
 
         /// <inheritdoc/>
         public Task Subscribe(Type eventType, SubscribeOptions options)
         {
-            return BusOperationsBehaviorContext.SubscribeAsync(this, eventType, options);
+            return BusOperationsBehaviorContext.Subscribe(this, eventType, options);
         }
 
         /// <inheritdoc/>
         public Task Unsubscribe(Type eventType, UnsubscribeOptions options)
         {
-            return BusOperationsBehaviorContext.UnsubscribeAsync(this, eventType, options);
+            return BusOperationsBehaviorContext.Unsubscribe(this, eventType, options);
         }
     }
 }

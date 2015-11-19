@@ -22,11 +22,11 @@ namespace NServiceBus
         /// Creates and starts a new endpoint based on the provided configuration.
         /// </summary>
         /// <param name="configuration">Configuration.</param>
-        public static async Task<IEndpoint> StartAsync(BusConfiguration configuration)
+        public static async Task<IEndpoint> Start(BusConfiguration configuration)
         {
             var initializable = Create(configuration);
             var startable = await initializable.Initialize().ConfigureAwait(false);
-            return await startable.StartAsync().ConfigureAwait(false);
+            return await startable.Start().ConfigureAwait(false);
         }
     }
 

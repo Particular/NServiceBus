@@ -26,7 +26,7 @@ namespace NServiceBus.Performance.Counters
                 builtinPerformanceMonitoringUsersName = parts[1];
             }
         }
-        public Task InstallAsync(string identity)
+        public Task Install(string identity)
         {
             //did not use DirectoryEntry to avoid a ref to the DirectoryServices.dll
             try

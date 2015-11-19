@@ -41,7 +41,7 @@
             class SetupScheduledAction : IWantToRunWhenBusStartsAndStops
             {
                 public Context Context { get; set; }
-                public Task StartAsync(IBusContext context)
+                public Task Start(IBusContext context)
                 {
                     Context.RequestedAt = DateTime.UtcNow;
 
@@ -52,7 +52,7 @@
                     return Task.FromResult(0);
                 }
 
-                public Task StopAsync(IBusContext context)
+                public Task Stop(IBusContext context)
                 {
                     return Task.FromResult(0);
                 }

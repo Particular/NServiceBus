@@ -81,7 +81,7 @@
         {
             try
             {
-                endpoint = await startable.StartAsync().ConfigureAwait(false);
+                endpoint = await startable.Start().ConfigureAwait(false);
 
                 if (token.IsCancellationRequested)
                 {
@@ -155,7 +155,7 @@
         {
             try
             {
-                await endpoint.StopAsync().ConfigureAwait(false);
+                await endpoint.Stop().ConfigureAwait(false);
 
                 await Cleanup().ConfigureAwait(false);
 
