@@ -21,7 +21,7 @@ namespace NServiceBus.Core.Tests
 
         public static OutgoingLogicalMessageContext GetOutgoingContext(object message)
         {
-            return new OutgoingLogicalMessageContext(
+            return new OutgoingLogicalMessageContextImpl(
                 Guid.NewGuid().ToString(),
                 new Dictionary<string, string>(),
                 new OutgoingLogicalMessage(message),

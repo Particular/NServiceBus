@@ -25,7 +25,7 @@ namespace NServiceBus
         public async override Task Invoke(TransportReceiveContext context, Func<PhysicalMessageProcessingContext, Task> next)
         {
             var messageId = context.Message.MessageId;
-            var physicalMessageContext = new PhysicalMessageProcessingContext(context);
+            var physicalMessageContext = new PhysicalMessageProcessingContextImpl(context);
 
             var deduplicationEntry = await outboxStorage.Get(messageId, context).ConfigureAwait(false);
             var pendingTransportOperations = new PendingTransportOperations();
@@ -52,7 +52,7 @@ namespace NServiceBus
 
             if (pendingTransportOperations.Operations.Any())
             {
-                var batchDispatchContext = new BatchDispatchContext(pendingTransportOperations.Operations, physicalMessageContext);
+                var batchDispatchContext = new BatchDispatchContextImpl(pendingTransportOperations.Operations, physicalMessageContext);
 
                 await batchDispatchPipeline.Invoke(batchDispatchContext).ConfigureAwait(false);
             }

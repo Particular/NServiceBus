@@ -4,15 +4,26 @@
     using ObjectBuilder;
 
     /// <summary>
-    /// Base class for a pipeline behavior.
+    /// 
     /// </summary>
-    public abstract class BehaviorContext : ContextBag
+    public interface BehaviorContext : ContextBag
     {
         /// <summary>
-        /// Create an instance of <see cref="BehaviorContext"/>.
+        /// The current <see cref="IBuilder"/>.
+        /// </summary>
+        IBuilder Builder { get; }
+    }
+
+    /// <summary>
+    /// Base class for a pipeline behavior.
+    /// </summary>
+    public abstract class BehaviorContextImpl : ContextBagImpl, BehaviorContext
+    {
+        /// <summary>
+        /// Create an instance of <see cref="BehaviorContextImpl"/>.
         /// </summary>
         /// <param name="parentContext">The parent context.</param>
-        protected BehaviorContext(BehaviorContext parentContext) : base(parentContext)
+        protected BehaviorContextImpl(BehaviorContext parentContext) : base(parentContext)
         {
         }
 
@@ -27,7 +38,5 @@
                 return rawBuilder;
             }
         }
-
-        internal bool handleCurrentMessageLaterWasCalled;
     }
 }

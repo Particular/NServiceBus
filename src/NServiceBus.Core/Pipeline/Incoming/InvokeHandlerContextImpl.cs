@@ -8,14 +8,44 @@ namespace NServiceBus.Pipeline.Contexts
     using NServiceBus.Unicast.Transport;
 
     /// <summary>
+    /// 
+    /// </summary>
+    public interface InvokeHandlerContext :  IMessageHandlerContext, IncomingContext
+    {
+        /// <summary>
+        /// The current <see cref="IHandleMessages{T}" /> being executed.
+        /// </summary>
+        MessageHandler MessageHandler { get; }
+
+        /// <summary>
+        /// Message headers.
+        /// </summary>
+        Dictionary<string, string> Headers { get; }
+
+        /// <summary>
+        /// The message instance being handled.
+        /// </summary>
+        object MessageBeingHandled { get; }
+
+        /// <summary>
+        /// </summary>
+        bool HandlerInvocationAborted { get; }
+
+        /// <summary>
+        /// Metadata for the incoming message.
+        /// </summary>
+        MessageMetadata MessageMetadata { get; }
+    }
+
+    /// <summary>
     /// A context of handling a logical message by a handler.
     /// </summary>
-    public class InvokeHandlerContext : IncomingContext, IMessageHandlerContext
+    class InvokeHandlerContextImpl : IncomingContextBase, InvokeHandlerContext
     {
         /// <summary>
         /// Initializes the handling stage context. This is the constructor to use for internal usage.
         /// </summary>
-        internal InvokeHandlerContext(MessageHandler handler, LogicalMessageProcessingContext parentContext)
+        internal InvokeHandlerContextImpl(MessageHandler handler, LogicalMessageProcessingContext parentContext)
             : this(handler, parentContext.MessageId, parentContext.ReplyToAddress, parentContext.Headers, parentContext.Message.Metadata, parentContext.Message.Instance, parentContext.PipelineInfo, parentContext)
         {
         }
@@ -23,7 +53,7 @@ namespace NServiceBus.Pipeline.Contexts
         /// <summary>
         /// Initializes the handling stage context.
         /// </summary>
-        public InvokeHandlerContext(MessageHandler handler, string messageId, string replyToAddress, Dictionary<string, string> headers, MessageMetadata messageMetadata, object messageBeingHandled, PipelineInfo pipelineInfo, BehaviorContext parentContext)
+        public InvokeHandlerContextImpl(MessageHandler handler, string messageId, string replyToAddress, Dictionary<string, string> headers, MessageMetadata messageMetadata, object messageBeingHandled, PipelineInfo pipelineInfo, BehaviorContext parentContext)
             : base(messageId, replyToAddress, headers, pipelineInfo, parentContext)
         {
             MessageHandler = handler;
@@ -68,5 +98,7 @@ namespace NServiceBus.Pipeline.Contexts
         {
             HandlerInvocationAborted = true;
         }
+
+        internal bool handleCurrentMessageLaterWasCalled;
     }
 }

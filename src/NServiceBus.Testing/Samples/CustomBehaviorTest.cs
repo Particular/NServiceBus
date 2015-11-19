@@ -22,7 +22,7 @@
         [Test]
         public async Task ShouldHandleCurrentMessageLaterWhenHandlerInvocationWasAborted()
         {
-            var context = Fake.CreateInvokeHandlerContext();
+            var context = new TestableInvokeHandlerContext();
 
             await testee.Invoke(context, ctx =>
             {
@@ -36,7 +36,7 @@
         [Test]
         public async Task ShouldSendMessage()
         {
-            var context = Fake.CreateInvokeHandlerContext();
+            var context = new TestableInvokeHandlerContext();
 
             await testee.Invoke(context, () => Task.CompletedTask);
 

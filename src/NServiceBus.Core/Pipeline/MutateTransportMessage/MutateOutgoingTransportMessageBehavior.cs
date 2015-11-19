@@ -14,7 +14,7 @@
         {
             var outgoingMessage = context.Get<OutgoingLogicalMessage>();
 
-            InvokeHandlerContext incomingState;
+            InvokeHandlerContextImpl incomingState;
             context.TryGetRootContext(out incomingState);
 
             object messageBeingHandled = null;

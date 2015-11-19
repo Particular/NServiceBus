@@ -12,7 +12,7 @@ namespace NServiceBus
         public override Task Invoke(OutgoingPublishContext context, Func<OutgoingLogicalMessageContext, Task> next)
         {
             context.Headers[Headers.MessageIntent] = MessageIntentEnum.Publish.ToString();
-            return next(new OutgoingLogicalMessageContext(
+            return next(new OutgoingLogicalMessageContextImpl(
                 context.MessageId,
                 context.Headers,
                 context.Message, 

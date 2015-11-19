@@ -13,7 +13,7 @@ namespace NServiceBus
         /// <summary>
         /// A <see cref="ContextBag"/> which can be used for extensibility.
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Advanced)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         ContextBag Extensions { get; }
 
         /// <summary>

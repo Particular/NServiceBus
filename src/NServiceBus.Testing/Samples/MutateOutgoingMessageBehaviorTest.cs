@@ -17,7 +17,7 @@
         {
             var nextCalled = false;
             var testee = new MutateOutgoingMessageBehavior();
-            var context = Fake.CreateOutgoingLogicalMessageContext();
+            var context = new TestableOutgoingLogicalMessageContext();
 
             await testee.Invoke(context, () =>
             {
@@ -35,7 +35,7 @@
 
             var builder = new FakeBuilder();
             builder.Register<IMutateOutgoingMessages>(new DemoMutator());
-            var context = Fake.CreateOutgoingLogicalMessageContext(builder: builder);
+            var context = new TestableOutgoingLogicalMessageContext();
 
             await testee.Invoke(context, () => Task.CompletedTask);
 
@@ -54,11 +54,14 @@
             var mutator = new StubMutator();
             builder.Register<IMutateOutgoingMessages>(mutator);
 
-            var invokeHandlerContext = Fake.CreateInvokeHandlerContext(
-                builder: builder, 
-                headers: expectedIncomingHeaders, 
-                incomingMessage: expectedIncomingMessage);
-            var context = Fake.CreateOutgoingLogicalMessageContext(parent: invokeHandlerContext);
+            var invokeHandlerContext = new TestableInvokeHandlerContext
+            {
+                Builder = builder,
+                Headers = expectedIncomingHeaders,
+                MessageBeingHandled = expectedIncomingMessage
+            };
+            var context = new TestableOutgoingLogicalMessageContext();
+            context.SetRootContext(invokeHandlerContext);
 
             await testee.Invoke(context, () => Task.CompletedTask);
 
@@ -100,7 +103,7 @@
         {
             //TODO Testing: Set an incoming message DTO via context.Set instead of expecting a certain context?
             InvokeHandlerContext incomingState;
-            context.TryGetRootContext(out incomingState);
+            context.Extensions.TryGetRootContext(out incomingState);
 
             object messageBeingHandled = null;
             Dictionary<string, string> incomingHeaders = null;

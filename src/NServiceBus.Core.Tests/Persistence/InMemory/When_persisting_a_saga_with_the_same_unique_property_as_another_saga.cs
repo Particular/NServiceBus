@@ -23,8 +23,8 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
             };
 
             var persister = new InMemorySagaPersister();
-            await persister.Save(saga1, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(saga1), new ContextBag());
-            Assert.Throws<InvalidOperationException>(() => persister.Save(saga2, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(saga2), new ContextBag()));
+            await persister.Save(saga1, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(saga1), new ContextBagImpl());
+            Assert.Throws<InvalidOperationException>(() => persister.Save(saga2, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(saga2), new ContextBagImpl()));
         }
     }
 }

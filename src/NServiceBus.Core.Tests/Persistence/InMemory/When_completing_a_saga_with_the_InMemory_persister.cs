@@ -17,10 +17,10 @@
             };
             var persister = new InMemorySagaPersister();
 
-            await persister.Save(saga, SagaMetadataHelper.GetMetadata<TestSaga>(saga), new ContextBag());
-            var sagaData = await persister.Get<TestSagaData>(saga.Id, new ContextBag());
-            await persister.Complete(saga, new ContextBag());
-            var completedSaga = await persister.Get<TestSagaData>(saga.Id, new ContextBag());
+            await persister.Save(saga, SagaMetadataHelper.GetMetadata<TestSaga>(saga), new ContextBagImpl());
+            var sagaData = await persister.Get<TestSagaData>(saga.Id, new ContextBagImpl());
+            await persister.Complete(saga, new ContextBagImpl());
+            var completedSaga = await persister.Get<TestSagaData>(saga.Id, new ContextBagImpl());
 
             Assert.NotNull(sagaData);
             Assert.Null(completedSaga);

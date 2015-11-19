@@ -7,17 +7,38 @@
     /// <summary>
     /// Outgoing pipeline context.
     /// </summary>
-    public class OutgoingLogicalMessageContext : OutgoingContext
+    public interface OutgoingLogicalMessageContext : IOutgoingContext
     {
         /// <summary>
-        /// Creates a new instance of <see cref="OutgoingLogicalMessageContext" />.
+        /// The outgoing message.
+        /// </summary>
+        OutgoingLogicalMessage Message { get; }
+
+        /// <summary>
+        /// The routing strategies for this message.
+        /// </summary>
+        IReadOnlyCollection<RoutingStrategy> RoutingStrategies { get; }
+
+        /// <summary>
+        /// Updates the message instance.
+        /// </summary>
+        void UpdateMessageInstance(object newInstance);
+    }
+
+    /// <summary>
+    /// Outgoing pipeline context.
+    /// </summary>
+    public class OutgoingLogicalMessageContextImpl : OutgoingContext, OutgoingLogicalMessageContext
+    {
+        /// <summary>
+        /// Creates a new instance of <see cref="OutgoingLogicalMessageContextImpl" />.
         /// </summary>
         /// <param name="messageId">The ID of the outgoing message.</param>
         /// <param name="headers">The headers of the outgoing message.</param>
         /// <param name="message">The outgoing message.</param>
         /// <param name="routingStrategies">The address labels.</param>
         /// <param name="parentContext">The parent context.</param>
-        public OutgoingLogicalMessageContext(string messageId, Dictionary<string, string> headers, OutgoingLogicalMessage message,  IReadOnlyCollection<RoutingStrategy> routingStrategies, BehaviorContext parentContext)
+        public OutgoingLogicalMessageContextImpl(string messageId, Dictionary<string, string> headers, OutgoingLogicalMessage message,  IReadOnlyCollection<RoutingStrategy> routingStrategies, BehaviorContext parentContext)
             : base(messageId, headers, parentContext)
         {
             Message = message;

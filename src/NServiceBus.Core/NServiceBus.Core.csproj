@@ -119,7 +119,7 @@
     <Compile Include="IWantToRunWhenBusStartsAndStopsExtensions_obsoletes.cs" />
     <Compile Include="Licensing\LogErrorOnInvalidLicenseBehavior.cs" />
     <Compile Include="Persistence\InMemory\Outbox\InMemoryOutboxTransaction.cs" />
-    <Compile Include="Pipeline\Incoming\InvokeHandlerContext.cs" />
+    <Compile Include="Pipeline\Incoming\InvokeHandlerContextImpl.cs" />
     <Compile Include="Pipeline\Incoming\LogicalMessageProcessingContext.cs" />
     <Compile Include="Pipeline\Incoming\PendingTransportOperations.cs" />
     <Compile Include="Pipeline\Incoming\PhysicalMessageProcessingContext.cs" />
@@ -492,7 +492,7 @@
     <Compile Include="Persistence\InMemory\Gateway\InMemoryGatewayDeduplication.cs" />
     <Compile Include="Persistence\PersistenceDefinition.cs" />
     <Compile Include="Persistence\PersistenceConfig.cs" />
-    <Compile Include="Pipeline\BehaviorContext.cs" />
+    <Compile Include="Pipeline\BehaviorContextImpl.cs" />
     <Compile Include="Pipeline\MutateInstanceMessage\MutateIncomingMessageBehavior.cs" />
     <Compile Include="Pipeline\MutateTransportMessage\MutateIncomingTransportMessageBehavior.cs" />
     <Compile Include="Pipeline\StepRegistrationsCoordinator.cs" />

@@ -20,7 +20,7 @@ namespace NServiceBus.Unicast
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
         /// <param name="options">Specific options for this event.</param>
         /// <param name="context">The current context.</param>
-        public static Task PublishAsync<T>(BehaviorContext context, Action<T> messageConstructor, NServiceBus.PublishOptions options)
+        public static Task PublishAsync<T>(BehaviorContextImpl context, Action<T> messageConstructor, NServiceBus.PublishOptions options)
         {
             var mapper = context.Builder.Build<IMessageMapper>();
             return PublishAsync(context, mapper.CreateInstance(messageConstructor), options);
@@ -32,7 +32,7 @@ namespace NServiceBus.Unicast
         /// <param name="message">The message to publish.</param>
         /// <param name="options">The options for the publish.</param>
         /// <param name="context">The current context.</param>
-        public static Task PublishAsync(BehaviorContext context, object message, NServiceBus.PublishOptions options)
+        public static Task PublishAsync(BehaviorContextImpl context, object message, NServiceBus.PublishOptions options)
         {
             var settings = context.Builder.Build<ReadOnlySettings>();
             var pipeline = new PipelineBase<OutgoingPublishContext>(
@@ -40,7 +40,7 @@ namespace NServiceBus.Unicast
                 settings, 
                 settings.Get<PipelineConfiguration>().MainPipeline);
 
-            var publishContext = new OutgoingPublishContext(
+            var publishContext = new OutgoingPublishContextImpl(
                 new OutgoingLogicalMessage(message),
                 options,
                 context);
@@ -55,7 +55,7 @@ namespace NServiceBus.Unicast
         /// <param name="eventType">The type of event to subscribe to.</param>
         /// <param name="options">Options for the subscribe.</param>
         /// <param name="context">The current context.</param>
-        public static Task SubscribeAsync(BehaviorContext context, Type eventType, SubscribeOptions options)
+        public static Task SubscribeAsync(BehaviorContextImpl context, Type eventType, SubscribeOptions options)
         {
             var settings = context.Builder.Build<ReadOnlySettings>();
             var pipeline = new PipelineBase<SubscribeContext>(context.Builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
@@ -74,7 +74,7 @@ namespace NServiceBus.Unicast
         /// <param name="eventType">The type of event to unsubscribe to.</param>
         /// <param name="options">Options for the subscribe.</param>
         /// <param name="context">The current context.</param>
-        public static Task UnsubscribeAsync(BehaviorContext context, Type eventType, UnsubscribeOptions options)
+        public static Task UnsubscribeAsync(BehaviorContextImpl context, Type eventType, UnsubscribeOptions options)
         {
             var settings = context.Builder.Build<ReadOnlySettings>();
             var pipeline = new PipelineBase<UnsubscribeContext>(context.Builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
@@ -94,7 +94,7 @@ namespace NServiceBus.Unicast
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
         /// <param name="options">The options for the send.</param>
         /// <param name="context">The current context.</param>
-        public static Task SendAsync<T>(BehaviorContext context, Action<T> messageConstructor, NServiceBus.SendOptions options)
+        public static Task SendAsync<T>(BehaviorContextImpl context, Action<T> messageConstructor, NServiceBus.SendOptions options)
         {
             var mapper = context.Builder.Build<IMessageMapper>();
             return SendAsync(context, mapper.CreateInstance(messageConstructor), options);
@@ -106,14 +106,14 @@ namespace NServiceBus.Unicast
         /// <param name="message">The message to send.</param>
         /// <param name="options">The options for the send.</param>
         /// <param name="context">The current context.</param>
-        public static Task SendAsync(BehaviorContext context, object message, NServiceBus.SendOptions options)
+        public static Task SendAsync(BehaviorContextImpl context, object message, NServiceBus.SendOptions options)
         {
             var messageType = message.GetType();
 
             return context.SendMessage(messageType, message, options);
         }
 
-        static Task SendMessage(this BehaviorContext context, Type messageType, object message, NServiceBus.SendOptions options)
+        static Task SendMessage(this BehaviorContextImpl context, Type messageType, object message, NServiceBus.SendOptions options)
         {
             var settings = context.Builder.Build<ReadOnlySettings>();
             var pipeline = new PipelineBase<OutgoingSendContext>(context.Builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
@@ -132,7 +132,7 @@ namespace NServiceBus.Unicast
         /// <param name="message">The message to send.</param>
         /// <param name="options">Options for this reply.</param>
         /// <param name="context">The current context.</param>
-        public static Task ReplyAsync(BehaviorContext context, object message, NServiceBus.ReplyOptions options)
+        public static Task ReplyAsync(BehaviorContextImpl context, object message, NServiceBus.ReplyOptions options)
         {
             var settings = context.Builder.Build<ReadOnlySettings>();
             var pipeline = new PipelineBase<OutgoingReplyContext>(
@@ -140,7 +140,7 @@ namespace NServiceBus.Unicast
                 settings, 
                 settings.Get<PipelineConfiguration>().MainPipeline);
 
-            var outgoingContext = new OutgoingReplyContext(
+            var outgoingContext = new OutgoingReplyContextImpl(
                 new OutgoingLogicalMessage(message),
                 options,
                 context);
@@ -155,7 +155,7 @@ namespace NServiceBus.Unicast
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
         /// <param name="options">Options for this reply.</param>
         /// <param name="context">The current context.</param>
-        public static Task ReplyAsync<T>(BehaviorContext context, Action<T> messageConstructor, NServiceBus.ReplyOptions options)
+        public static Task ReplyAsync<T>(BehaviorContextImpl context, Action<T> messageConstructor, NServiceBus.ReplyOptions options)
         {
             var mapper = context.Builder.Build<IMessageMapper>();
             return ReplyAsync(context, mapper.CreateInstance(messageConstructor), options);

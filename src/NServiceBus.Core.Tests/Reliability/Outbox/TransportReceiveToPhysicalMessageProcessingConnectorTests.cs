@@ -111,7 +111,7 @@
 
         static TransportReceiveContext CreateContext()
         {
-            var context = new TransportReceiveContext(
+            var context = new TransportReceiveContextImpl(
                 new IncomingMessage("id", new Dictionary<string, string>(), new MemoryStream()),
                 new PipelineInfo("pipelineName", "pipelineTransportAddress"),
                 new RootContext(null));

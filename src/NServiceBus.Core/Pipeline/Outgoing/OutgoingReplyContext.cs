@@ -4,14 +4,25 @@
     using ReplyOptions = NServiceBus.ReplyOptions;
 
     /// <summary>
-    /// Pipeline context for reply operations.
+    /// 
     /// </summary>
-    public class OutgoingReplyContext : OutgoingContext
+    public interface OutgoingReplyContext : IOutgoingContext
     {
         /// <summary>
-        /// Initializes a new instance of <see cref="OutgoingReplyContext" />.
+        /// The reply message.
         /// </summary>
-        public OutgoingReplyContext(OutgoingLogicalMessage message, ReplyOptions options, BehaviorContext parentContext)
+        OutgoingLogicalMessage Message { get; }
+    }
+
+    /// <summary>
+    /// Pipeline context for reply operations.
+    /// </summary>
+    public class OutgoingReplyContextImpl : OutgoingContext, OutgoingReplyContext
+    {
+        /// <summary>
+        /// Initializes a new instance of <see cref="OutgoingReplyContextImpl" />.
+        /// </summary>
+        public OutgoingReplyContextImpl(OutgoingLogicalMessage message, ReplyOptions options, BehaviorContextImpl parentContext)
             : base(options.MessageId, options.OutgoingHeaders, parentContext)
         {
             Message = message;

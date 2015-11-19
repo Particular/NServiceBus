@@ -33,7 +33,7 @@
                 return;
             }
 
-            await next(new DispatchContext(operations.ToArray(), context)).ConfigureAwait(false);
+            await next(new DispatchContextImpl(operations.ToArray(), context)).ConfigureAwait(false);
         }
 
         public class State

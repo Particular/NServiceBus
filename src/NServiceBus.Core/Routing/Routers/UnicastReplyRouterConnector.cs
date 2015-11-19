@@ -31,7 +31,7 @@ namespace NServiceBus
 
             try
             {
-                await next(new OutgoingLogicalMessageContext(
+                await next(new OutgoingLogicalMessageContextImpl(
                     context.MessageId,
                     context.Headers,
                     context.Message,

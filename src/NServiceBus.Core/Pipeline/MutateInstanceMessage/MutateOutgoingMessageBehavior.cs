@@ -12,7 +12,7 @@
     {
         public override async Task Invoke(OutgoingLogicalMessageContext context, Func<Task> next)
         {
-            InvokeHandlerContext incomingState;
+            InvokeHandlerContextImpl incomingState;
             context.TryGetRootContext(out incomingState);
 
             object messageBeingHandled = null;

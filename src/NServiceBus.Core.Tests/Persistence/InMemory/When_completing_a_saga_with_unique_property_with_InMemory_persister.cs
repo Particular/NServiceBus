@@ -14,10 +14,10 @@
             var saga = new SagaWithUniquePropertyData { Id = Guid.NewGuid(), UniqueString = "whatever" };
 
             var persister = new InMemorySagaPersister();
-            await persister.Save(saga,SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(saga), new ContextBag());
-            var sagaData = await persister.Get<SagaWithUniquePropertyData>(saga.Id, new ContextBag());
-            await persister.Complete(saga, new ContextBag());
-            var completedSagaData = await persister.Get<SagaWithUniquePropertyData>(saga.Id, new ContextBag());
+            await persister.Save(saga,SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(saga), new ContextBagImpl());
+            var sagaData = await persister.Get<SagaWithUniquePropertyData>(saga.Id, new ContextBagImpl());
+            await persister.Complete(saga, new ContextBagImpl());
+            var completedSagaData = await persister.Get<SagaWithUniquePropertyData>(saga.Id, new ContextBagImpl());
 
             Assert.NotNull(sagaData);
             Assert.Null(completedSagaData);

@@ -39,7 +39,7 @@ namespace NServiceBus
 
                     using (var bodyStream = message.BodyStream)
                     {
-                        var context = new ContextBag();
+                        var context = new ContextBagImpl();
 
                         context.Set(msmqTransaction);
 

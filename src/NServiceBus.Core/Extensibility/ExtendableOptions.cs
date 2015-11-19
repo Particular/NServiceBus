@@ -7,7 +7,7 @@ namespace NServiceBus.Extensibility
     /// </summary>
     public abstract class ExtendableOptions
     {
-        internal ContextBag Context = new ContextBag();
+        internal ContextBag Context = new ContextBagImpl();
 
         internal Dictionary<string, string> OutgoingHeaders = new Dictionary<string, string>();
 

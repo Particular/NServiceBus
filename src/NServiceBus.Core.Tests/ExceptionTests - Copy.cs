@@ -9,7 +9,7 @@
         [Test]
         public void ShouldAllowMonkeyPatching()
         {
-            var contextBag = new ContextBag();
+            var contextBag = new ContextBagImpl();
 
             contextBag.Set("MonkeyPatch", "some string");
 

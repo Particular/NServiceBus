@@ -97,7 +97,7 @@
             }
         }
 
-        class FakeContext : BehaviorContext
+        class FakeContext : BehaviorContextImpl
         {
             public FakeContext() : base(null)
             {

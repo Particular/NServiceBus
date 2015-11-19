@@ -1189,9 +1189,9 @@ namespace NServiceBus.Pipeline.Contexts
     using NServiceBus.Unicast.Messages;
 
     [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "OutgoingLogicalMessage")]
-    public class OutgoingContext : BehaviorContext
+    public class OutgoingContext : BehaviorContextImpl
     {
-        public OutgoingContext(BehaviorContext parentContext, DeliveryOptions deliveryOptions, LogicalMessage message)
+        public OutgoingContext(BehaviorContextImpl parentContext, DeliveryOptions deliveryOptions, LogicalMessage message)
             : base(parentContext)
         {
             throw new NotImplementedException();
@@ -1233,7 +1233,7 @@ namespace NServiceBus.Pipeline
     using System;
 
     [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7", ReplacementTypeOrMember = "Behavior<T>")]
-    public interface IBehavior<in TContext> where TContext : BehaviorContext
+    public interface IBehavior<in TContext> where TContext : BehaviorContextImpl
     {
         /// <summary>
         /// Called when the behavior is executed.
@@ -1263,7 +1263,7 @@ namespace NServiceBus.Pipeline
 
         public IList<RegisterStep> Outgoing { get; private set; }
 
-        public BehaviorContext CurrentContext
+        public BehaviorContextImpl CurrentContext
         {
             get { throw new NotImplementedException(); }
         }
@@ -1273,7 +1273,7 @@ namespace NServiceBus.Pipeline
             //Injected
         }
 
-        public void InvokePipeline<TContext>(IEnumerable<Type> behaviors, TContext context) where TContext : BehaviorContext
+        public void InvokePipeline<TContext>(IEnumerable<Type> behaviors, TContext context) where TContext : BehaviorContextImpl
         {
             throw new NotImplementedException();
         }

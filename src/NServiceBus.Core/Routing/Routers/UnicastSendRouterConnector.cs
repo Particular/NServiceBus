@@ -39,7 +39,7 @@ namespace NServiceBus
             context.Headers[Headers.MessageIntent] = MessageIntentEnum.Send.ToString();
             try
             {
-                await next(new OutgoingLogicalMessageContext(
+                await next(new OutgoingLogicalMessageContextImpl(
                     context.MessageId,
                     context.Headers,
                     context.Message,

@@ -7,7 +7,18 @@ namespace NServiceBus
     /// <summary>
     /// Context for the immediate dispatch part of the pipeline.
     /// </summary>
-    public class DispatchContext : BehaviorContext
+    public interface DispatchContext : BehaviorContext
+    {
+        /// <summary>
+        /// The operations to be dispatched to the transport.
+        /// </summary>
+        IEnumerable<TransportOperation> Operations { get; }
+    }
+
+    /// <summary>
+    /// Context for the immediate dispatch part of the pipeline.
+    /// </summary>
+    public class DispatchContextImpl : BehaviorContextImpl, DispatchContext
     {
         /// <summary>
         /// The operations to be dispatched to the transport.
@@ -19,7 +30,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="operations">The operations.</param>
         /// <param name="parentContext">The parent context.</param>
-        public DispatchContext(IReadOnlyCollection<TransportOperation> operations, BehaviorContext parentContext)
+        public DispatchContextImpl(IReadOnlyCollection<TransportOperation> operations, BehaviorContext parentContext)
             : base(parentContext)
         {
             Operations = operations;

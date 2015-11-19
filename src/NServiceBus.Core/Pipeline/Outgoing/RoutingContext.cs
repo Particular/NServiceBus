@@ -9,14 +9,30 @@ namespace NServiceBus.TransportDispatch
     /// <summary>
     /// Context for the dispatch part of the pipeline.
     /// </summary>
-    public class RoutingContext : OutgoingContext
+    public interface RoutingContext : IOutgoingContext
     {
-        internal RoutingContext(OutgoingMessage message, IReadOnlyCollection<RoutingStrategy> routingStrategies, BehaviorContext context)
+        /// <summary>
+        /// The routing strategies for the operation to be dispatched.
+        /// </summary>
+        IReadOnlyCollection<RoutingStrategy> RoutingStrategies { get; set; }
+
+        /// <summary>
+        /// The serialized body of the outgoing message.
+        /// </summary>
+        byte[] Body { get; }
+    }
+
+    /// <summary>
+    /// Context for the dispatch part of the pipeline.
+    /// </summary>
+    public class RoutingContextImpl : OutgoingContext, RoutingContext
+    {
+        internal RoutingContextImpl(OutgoingMessage message, IReadOnlyCollection<RoutingStrategy> routingStrategies, BehaviorContext context)
             : this(message.MessageId, message.Headers, message.Body, routingStrategies, context)
         {
         }
 
-        internal RoutingContext(OutgoingMessage message, RoutingStrategy addressLabel, BehaviorContext context)
+        internal RoutingContextImpl(OutgoingMessage message, RoutingStrategy addressLabel, BehaviorContext context)
             : this(message.MessageId, message.Headers, message.Body, new[] { addressLabel }, context)
         {
         }
@@ -24,7 +40,7 @@ namespace NServiceBus.TransportDispatch
         /// <summary>
         /// Initializes the context with the message to be dispatched.
         /// </summary>
-        public RoutingContext(string messageId, Dictionary<string, string> headers, byte[] body, RoutingStrategy addressLabel, BehaviorContext context)
+        public RoutingContextImpl(string messageId, Dictionary<string, string> headers, byte[] body, RoutingStrategy addressLabel, BehaviorContext context)
             : this(messageId, headers, body, new[] { addressLabel }, context)
         {
         }
@@ -32,7 +48,7 @@ namespace NServiceBus.TransportDispatch
         /// <summary>
         /// Initializes the context with the message to be dispatched.
         /// </summary>
-        public RoutingContext(string messageId, Dictionary<string, string> headers, byte[] body, IReadOnlyCollection<RoutingStrategy> routingStrategies, BehaviorContext context) 
+        public RoutingContextImpl(string messageId, Dictionary<string, string> headers, byte[] body, IReadOnlyCollection<RoutingStrategy> routingStrategies, BehaviorContext context) 
             : base(messageId, headers, context)
         {
             RoutingStrategies = routingStrategies;

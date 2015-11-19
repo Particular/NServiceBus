@@ -10,9 +10,25 @@
     using SendOptions = NServiceBus.SendOptions;
 
     /// <summary>
+    /// 
+    /// </summary>
+    public interface IOutgoingContext : BehaviorContext, IBusContext
+    {
+        /// <summary>
+        /// The id of the outgoing message.
+        /// </summary>
+        string MessageId { get; }
+
+        /// <summary>
+        /// The headers of the outgoing message.
+        /// </summary>
+        Dictionary<string, string> Headers { get; }
+    }
+
+    /// <summary>
     /// The abstract base context for everything inside the outgoing pipeline.
     /// </summary>
-    public abstract class OutgoingContext : BehaviorContext, IBusContext
+    public abstract class OutgoingContext : BehaviorContextImpl, IOutgoingContext
     {
         /// <summary>
         /// Initializes a new <see cref="OutgoingContext"/>.
@@ -37,8 +53,9 @@
         /// </summary>
         public Dictionary<string, string> Headers { get; }
 
-        /// <inheritdoc/>
-        public ContextBag Extensions => this;
+        /// <summary>
+        /// </summary>
+        ContextBag IBusContext.Extensions => this;
 
         /// <inheritdoc/>
         public Task SendAsync(object message, SendOptions options)

@@ -31,7 +31,7 @@
                 var headers = new Dictionary<string, string>();
                 var outgoingMessage = new OutgoingMessage("1", headers, bytes);
                 var dispatchOptions = new DispatchOptions(new UnicastAddressTag(queueName), DispatchConsistency.Default);
-                messageSender.Dispatch(new[] { new TransportOperation(outgoingMessage, dispatchOptions) }, new ContextBag());
+                messageSender.Dispatch(new[] { new TransportOperation(outgoingMessage, dispatchOptions) }, new ContextBagImpl());
                 var messageLabel = ReadMessageLabel(path);
                 Assert.AreEqual("mylabel", messageLabel);
 
@@ -59,7 +59,7 @@
                 var headers = new Dictionary<string, string>();
                 var outgoingMessage = new OutgoingMessage("1", headers, bytes);
                 var dispatchOptions = new DispatchOptions(new UnicastAddressTag(queueName), DispatchConsistency.Default);
-                messageSender.Dispatch(new[] { new TransportOperation(outgoingMessage, dispatchOptions) }, new ContextBag());
+                messageSender.Dispatch(new[] { new TransportOperation(outgoingMessage, dispatchOptions) }, new ContextBagImpl());
                 var messageLabel = ReadMessageLabel(path);
                 Assert.IsEmpty(messageLabel);
 

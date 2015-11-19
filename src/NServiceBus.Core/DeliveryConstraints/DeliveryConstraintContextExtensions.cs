@@ -10,7 +10,7 @@ namespace NServiceBus.DeliveryConstraints
     using NServiceBus.Transports;
 
     /// <summary>
-    /// Gives access to <see cref="DeliveryConstraint"/>s that exist in the various <see cref="BehaviorContext"/>s.
+    /// Gives access to <see cref="DeliveryConstraint"/>s that exist in the various <see cref="BehaviorContextImpl"/>s.
     /// </summary>
     public static class DeliveryConstraintContextExtensions
     {

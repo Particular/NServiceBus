@@ -5,16 +5,36 @@
     using NServiceBus.Unicast.Transport;
 
     /// <summary>
+    /// </summary>
+    public interface LogicalMessageProcessingContext : IncomingContext
+    {
+        /// <summary>
+        /// Message beeing handled.
+        /// </summary>
+        LogicalMessage Message { get; }
+
+        /// <summary>
+        /// Headers for the incoming message.
+        /// </summary>
+        Dictionary<string, string> Headers { get; }
+
+        /// <summary>
+        /// Tells if the message has been handled.
+        /// </summary>
+        bool MessageHandled { get; set; }
+    }
+
+    /// <summary>
     /// A context of behavior execution in logical message processing stage.
     /// </summary>
-    public class LogicalMessageProcessingContext : IncomingContext
+    class LogicalMessageProcessingContextImpl : IncomingContextBase, LogicalMessageProcessingContext
     {
         /// <summary>
         /// Initializes a new instance of <see cref="LogicalMessageProcessingContext" />. This is the constructor to use for internal usage.
         /// </summary>
         /// <param name="logicalMessage">The logical message.</param>
         /// <param name="parentContext">The wrapped context.</param>
-        internal LogicalMessageProcessingContext(LogicalMessage logicalMessage, PhysicalMessageProcessingContext parentContext)
+        internal LogicalMessageProcessingContextImpl(LogicalMessage logicalMessage, PhysicalMessageProcessingContext parentContext)
             : this(logicalMessage, parentContext.MessageId, parentContext.ReplyToAddress, parentContext.Message.Headers, parentContext.PipelineInfo, parentContext)
         {
         }
@@ -28,7 +48,7 @@
         /// <param name="headers">The messages headers.</param>
         /// <param name="pipelineInfo">Information about the current pipeline.</param>
         /// <param name="parentContext">The wrapped context.</param>
-        public LogicalMessageProcessingContext(LogicalMessage logicalMessage, string messageId, string replyToAddress, Dictionary<string, string> headers, PipelineInfo pipelineInfo, BehaviorContext parentContext)
+        public LogicalMessageProcessingContextImpl(LogicalMessage logicalMessage, string messageId, string replyToAddress, Dictionary<string, string> headers, PipelineInfo pipelineInfo, BehaviorContext parentContext)
             : base(messageId, replyToAddress, headers, pipelineInfo, parentContext)
         {
             Message = logicalMessage;

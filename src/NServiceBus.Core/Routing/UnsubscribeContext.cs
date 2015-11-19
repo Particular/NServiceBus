@@ -6,12 +6,12 @@
     /// <summary>
     /// Provides context for unsubscribe requests.
     /// </summary>
-    public class UnsubscribeContext : BehaviorContext
+    public class UnsubscribeContext : BehaviorContextImpl
     {
         /// <summary>
         /// Initializes the context with the given event type and parent context.
         /// </summary>
-        public UnsubscribeContext(BehaviorContext parentContext, Type eventType, UnsubscribeOptions options)
+        public UnsubscribeContext(BehaviorContextImpl parentContext, Type eventType, UnsubscribeOptions options)
             : base(parentContext)
         {
             Guard.AgainstNull("parentContext", parentContext);

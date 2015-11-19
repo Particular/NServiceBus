@@ -29,7 +29,7 @@ namespace NServiceBus.Unicast
                 messageBeingProcessed.Headers,
                 messageBeingProcessed.Body);
 
-            var routingContext = new RoutingContext(outgoingMessage, new UnicastRoutingStrategy(destination), context);
+            var routingContext = new RoutingContextImpl(outgoingMessage, new UnicastRoutingStrategy(destination), context);
 
             await pipeline.Invoke(routingContext).ConfigureAwait(false);
         }

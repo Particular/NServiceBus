@@ -69,7 +69,7 @@
 
         static OutgoingPhysicalMessageContext InitializeContext()
         {
-            return new OutgoingPhysicalMessageContext(
+            return new OutgoingPhysicalMessageContextImpl(
                 Guid.NewGuid().ToString(),
                 new Dictionary<string, string>(),
                 null,

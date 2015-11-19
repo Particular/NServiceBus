@@ -23,7 +23,7 @@ namespace NServiceBus.Core.Tests.Timeout
 
             for (var i = 0; i < 10; i++)
             {
-                var thread = new Thread(() => Runner(inMemoryTimeoutPersister, new ContextBag()).Wait());
+                var thread = new Thread(() => Runner(inMemoryTimeoutPersister, new ContextBagImpl()).Wait());
                 thread.Start();
                 thread.Join();
             }

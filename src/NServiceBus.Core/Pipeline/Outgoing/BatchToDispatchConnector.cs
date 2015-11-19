@@ -8,7 +8,7 @@
     {
         public override Task Invoke(BatchDispatchContext context, Func<DispatchContext, Task> next)
         {
-            return next(new DispatchContext(context.Operations, context));
+            return next(new DispatchContextImpl(context.Operations, context));
         }
     }
 }

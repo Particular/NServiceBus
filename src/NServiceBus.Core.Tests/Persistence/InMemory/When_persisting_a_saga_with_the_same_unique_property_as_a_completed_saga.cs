@@ -24,12 +24,12 @@
 
             var persister = new InMemorySagaPersister();
 
-            await persister.Save(saga1, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(saga1), new ContextBag());
-            await persister.Complete(saga1, new ContextBag());
-            await persister.Save(saga2, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(saga2), new ContextBag());
-            await persister.Complete(saga2, new ContextBag());
-            await persister.Save(saga1, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(saga1), new ContextBag());
-            await persister.Complete(saga1, new ContextBag());
+            await persister.Save(saga1, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(saga1), new ContextBagImpl());
+            await persister.Complete(saga1, new ContextBagImpl());
+            await persister.Save(saga2, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(saga2), new ContextBagImpl());
+            await persister.Complete(saga2, new ContextBagImpl());
+            await persister.Save(saga1, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(saga1), new ContextBagImpl());
+            await persister.Complete(saga1, new ContextBagImpl());
         }
     }
 }

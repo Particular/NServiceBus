@@ -16,7 +16,7 @@
         {
             var behavior = new LoadHandlersConnector(new MessageHandlerRegistry(new Conventions()));
 
-            var context = new LogicalMessageProcessingContext(
+            var context = new LogicalMessageProcessingContextImpl(
                 new LogicalMessage(new MessageMetadata(typeof(string)), null, null), 
                 "messageId",
                 "replyToAddress",

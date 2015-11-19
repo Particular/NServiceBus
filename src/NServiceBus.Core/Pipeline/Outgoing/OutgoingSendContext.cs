@@ -10,7 +10,7 @@
         /// <summary>
         /// Initializes the context with a parent context.
         /// </summary>
-        public OutgoingSendContext(OutgoingLogicalMessage message, SendOptions options, BehaviorContext parentContext)
+        public OutgoingSendContext(OutgoingLogicalMessage message, SendOptions options, BehaviorContextImpl parentContext)
             : base(options.MessageId, options.OutgoingHeaders, parentContext)
         {
             Guard.AgainstNull(nameof(parentContext), parentContext);

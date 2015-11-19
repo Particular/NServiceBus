@@ -16,7 +16,7 @@
         {
             var flrStatusStorage = new FlrStatusStorage(0);
             var behavior = new FirstLevelRetriesBehavior(flrStatusStorage, new FirstLevelRetryPolicy(0));
-            var context = Fake.CreateTransportReceiveContext();
+            var context = new TestableTransportReceiveContext();
 
             Func<Task> action = () => behavior.Invoke(context, () =>
             {
@@ -32,7 +32,7 @@
         {
             var flrStatusStorage = new FlrStatusStorage(0);
             var behavior = new FirstLevelRetriesBehavior(flrStatusStorage, new FirstLevelRetryPolicy(1));
-            var context = Fake.CreateTransportReceiveContext();
+            var context = new TestableTransportReceiveContext();
 
             Func<Task> action = () => behavior.Invoke(context, () =>
             {
@@ -49,7 +49,7 @@
             const int NumberOfRetries = 2;
             var flrStatusStorage = new FlrStatusStorage(NumberOfRetries);
             var behavior = new FirstLevelRetriesBehavior(flrStatusStorage, new FirstLevelRetryPolicy(NumberOfRetries));
-            var context = Fake.CreateTransportReceiveContext();
+            var context = new TestableTransportReceiveContext();
 
             Func<Task> action = () => behavior.Invoke(context, () =>
             {
