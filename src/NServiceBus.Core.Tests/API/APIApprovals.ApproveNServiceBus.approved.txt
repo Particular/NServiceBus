@@ -99,7 +99,9 @@ namespace NServiceBus
     {
         public BusNotifications() { }
         public NServiceBus.Faults.ErrorsNotifications Errors { get; }
-        public NServiceBus.Pipeline.PipelineNotifications Pipeline { get; }
+        [System.ObsoleteAttribute("For performance reasons it is no longer possible to instrument the pipeline execu" +
+            "tion. Will be removed in version 7.0.0.", true)]
+        public NServiceBus.PipelineNotifications Pipeline { get; }
     }
     [System.ObsoleteAttribute("Replaced by NServiceBus.Callbacks package. Will be removed in version 7.0.0.", true)]
     public class CompletionResult
@@ -762,10 +764,11 @@ namespace NServiceBus
         public PhysicalMessageProcessingContext(NServiceBus.Transports.IncomingMessage message, NServiceBus.Pipeline.BehaviorContext parentContext) { }
         public NServiceBus.Transports.IncomingMessage Message { get; }
     }
-    public class PipelineDiagnostics
+    [System.ObsoleteAttribute("For performance reasons it is no longer possible to instrument the pipeline execu" +
+        "tion. Will be removed in version 7.0.0.", true)]
+    public class PipelineNotifications
     {
-        public PipelineDiagnostics() { }
-        public System.IObservable<NServiceBus.Pipeline.StepStarted> Steps { get; }
+        public PipelineNotifications() { }
     }
     public class static PublishersSettingsExtensions
     {
@@ -2008,11 +2011,6 @@ namespace NServiceBus.Pipeline
         public void InvokePipeline<TContext>(System.Collections.Generic.IEnumerable<System.Type> behaviors, TContext context)
             where TContext : NServiceBus.Pipeline.BehaviorContext { }
     }
-    public class PipelineNotifications : System.IDisposable
-    {
-        public PipelineNotifications() { }
-        public System.IObservable<System.IObservable<NServiceBus.Pipeline.StepStarted>> ReceiveStarted { get; }
-    }
     public class PipelineSettings
     {
         public NServiceBus.Pipeline.StepRegistrationSequence Register(string stepId, System.Type behavior, string description) { }
@@ -2065,22 +2063,10 @@ namespace NServiceBus.Pipeline
         public abstract System.Threading.Tasks.Task Invoke(TFrom context, System.Func<TTo, System.Threading.Tasks.Task> next);
         public virtual System.Threading.Tasks.Task Warmup() { }
     }
-    public struct StepEnded
-    {
-        public StepEnded(System.TimeSpan duration) { }
-        public System.TimeSpan Duration { get; }
-    }
     public class StepRegistrationSequence
     {
         public NServiceBus.Pipeline.StepRegistrationSequence Register(string stepId, System.Type behavior, string description) { }
         public NServiceBus.Pipeline.StepRegistrationSequence Register(NServiceBus.Pipeline.WellKnownStep wellKnownStep, System.Type behavior, string description) { }
-    }
-    public struct StepStarted
-    {
-        public StepStarted(string stepId, System.Type behavior, System.IObservable<NServiceBus.Pipeline.StepEnded> stepEnded) { }
-        public System.Type Behavior { get; }
-        public System.IObservable<NServiceBus.Pipeline.StepEnded> Ended { get; }
-        public string StepId { get; }
     }
     public class WellKnownStep
     {
