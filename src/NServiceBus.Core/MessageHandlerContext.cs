@@ -35,24 +35,24 @@ namespace NServiceBus
         public string ReplyToAddress => context.ReplyToAddress;
         public IReadOnlyDictionary<string, string> MessageHeaders => context.MessageHeaders;
 
-        public Task ReplyAsync(object message, ReplyOptions options)
+        public Task Reply(object message, ReplyOptions options)
         {
-            return BusOperationsBehaviorContext.ReplyAsync(replyPipe, context, message, options);
+            return BusOperationsBehaviorContext.Reply(replyPipe, context, message, options);
         }
 
-        public Task ReplyAsync<T>(Action<T> messageConstructor, ReplyOptions options)
+        public Task Reply<T>(Action<T> messageConstructor, ReplyOptions options)
         {
-            return BusOperationsBehaviorContext.ReplyAsync(replyPipe, context, messageConstructor, options);
+            return BusOperationsBehaviorContext.Reply(replyPipe, context, messageConstructor, options);
         }
 
-        public Task ForwardCurrentMessageToAsync(string destination)
+        public Task ForwardCurrentMessageTo(string destination)
         {
-            return BusOperationsIncomingContext.ForwardCurrentMessageToAsync(routingPipe, context, destination);
+            return BusOperationsIncomingContext.ForwardCurrentMessageTo(routingPipe, context, destination);
         }
 
-        public Task HandleCurrentMessageLaterAsync()
+        public Task HandleCurrentMessageLater()
         {
-            return BusOperationsInvokeHandlerContext.HandleCurrentMessageLaterAsync(routingPipe, context);
+            return BusOperationsInvokeHandlerContext.HandleCurrentMessageLater(routingPipe, context);
         }
 
         public void DoNotContinueDispatchingCurrentMessageToHandlers()

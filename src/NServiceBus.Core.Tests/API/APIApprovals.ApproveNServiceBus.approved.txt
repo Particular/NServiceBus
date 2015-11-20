@@ -1878,16 +1878,10 @@ namespace NServiceBus.Outbox
 }
 namespace NServiceBus.OutgoingPipeline
 {
-    public abstract class OutgoingContext : NServiceBus.Pipeline.BehaviorContext, NServiceBus.IBusContext
+    public abstract class OutgoingContext : NServiceBus.Pipeline.BehaviorContext
     {
         protected OutgoingContext(NServiceBus.Pipeline.BehaviorContext parentContext) { }
         public NServiceBus.Extensibility.ContextBag Extensions { get; }
-        public System.Threading.Tasks.Task Publish(object message, NServiceBus.PublishOptions options) { }
-        public System.Threading.Tasks.Task Publish<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions) { }
-        public System.Threading.Tasks.Task Send(object message, NServiceBus.SendOptions options) { }
-        public System.Threading.Tasks.Task Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options) { }
-        public System.Threading.Tasks.Task Subscribe(System.Type eventType, NServiceBus.SubscribeOptions options) { }
-        public System.Threading.Tasks.Task Unsubscribe(System.Type eventType, NServiceBus.UnsubscribeOptions options) { }
     }
     public class OutgoingLogicalMessage
     {
@@ -1998,6 +1992,10 @@ namespace NServiceBus.Pipeline
     {
         System.Threading.Tasks.Task Invoke(TIn context, System.Func<TOut, System.Threading.Tasks.Task> next);
     }
+    public interface IPipeInlet<in T>
+    {
+        System.Threading.Tasks.Task Put(T context);
+    }
     public interface IPipelineTerminator { }
     [System.ObsoleteAttribute("You can no longer get access to the pipeline context via DI. Please use a behavio" +
         "r to get access instead. Will be removed in version 7.0.0.", true)]
@@ -2095,24 +2093,15 @@ namespace NServiceBus.Pipeline
 }
 namespace NServiceBus.Pipeline.Contexts
 {
-    public abstract class IncomingContext : NServiceBus.Pipeline.BehaviorContext, NServiceBus.IBusContext, NServiceBus.IMessageProcessingContext
+    public abstract class IncomingContext : NServiceBus.Pipeline.BehaviorContext
     {
         protected IncomingContext(string messageId, string replyToAddress, System.Collections.Generic.IReadOnlyDictionary<string, string> headers, NServiceBus.Pipeline.BehaviorContext parentContext) { }
         public NServiceBus.Extensibility.ContextBag Extensions { get; }
         public System.Collections.Generic.IReadOnlyDictionary<string, string> MessageHeaders { get; }
         public string MessageId { get; }
         public string ReplyToAddress { get; }
-        public System.Threading.Tasks.Task ForwardCurrentMessageTo(string destination) { }
-        public System.Threading.Tasks.Task Publish(object message, NServiceBus.PublishOptions options) { }
-        public System.Threading.Tasks.Task Publish<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions) { }
-        public System.Threading.Tasks.Task Reply(object message, NServiceBus.ReplyOptions options) { }
-        public System.Threading.Tasks.Task Reply<T>(System.Action<T> messageConstructor, NServiceBus.ReplyOptions options) { }
-        public System.Threading.Tasks.Task Send(object message, NServiceBus.SendOptions options) { }
-        public System.Threading.Tasks.Task Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options) { }
-        public System.Threading.Tasks.Task Subscribe(System.Type eventType, NServiceBus.SubscribeOptions options) { }
-        public System.Threading.Tasks.Task Unsubscribe(System.Type eventType, NServiceBus.UnsubscribeOptions options) { }
     }
-    public class InvokeHandlerContext : NServiceBus.Pipeline.Contexts.IncomingContext, NServiceBus.IBusContext, NServiceBus.IMessageHandlerContext, NServiceBus.IMessageProcessingContext
+    public class InvokeHandlerContext : NServiceBus.Pipeline.Contexts.IncomingContext
     {
         public InvokeHandlerContext(NServiceBus.Unicast.Behaviors.MessageHandler handler, string messageId, string replyToAddress, System.Collections.Generic.Dictionary<string, string> headers, NServiceBus.Unicast.Messages.MessageMetadata messageMetadata, object messageBeingHandled, NServiceBus.Pipeline.BehaviorContext parentContext) { }
         public bool HandlerInvocationAborted { get; }
@@ -2120,8 +2109,6 @@ namespace NServiceBus.Pipeline.Contexts
         public object MessageBeingHandled { get; }
         public NServiceBus.Unicast.Behaviors.MessageHandler MessageHandler { get; }
         public NServiceBus.Unicast.Messages.MessageMetadata MessageMetadata { get; }
-        public void DoNotContinueDispatchingCurrentMessageToHandlers() { }
-        public System.Threading.Tasks.Task HandleCurrentMessageLater() { }
     }
     public class LogicalMessageProcessingContext : NServiceBus.Pipeline.Contexts.IncomingContext
     {
@@ -2615,7 +2602,7 @@ namespace NServiceBus.Transports
     public interface IAuditMessages { }
     public interface ICancelDeferredMessages
     {
-        System.Threading.Tasks.Task CancelDeferredMessages(string messageKey, NServiceBus.Pipeline.BehaviorContext context);
+        System.Threading.Tasks.Task CancelDeferredMessages(string messageKey, NServiceBus.Pipeline.BehaviorContext context, NServiceBus.Pipeline.IPipeInlet<NServiceBus.TransportDispatch.RoutingContext> downpipe);
     }
     public interface ICreateQueues
     {

@@ -6,7 +6,7 @@
     /// <summary>
     /// The abstract base context for everything inside the outgoing pipeline.
     /// </summary>
-    public abstract class OutgoingContext : BehaviorContext //, IBusContext
+    public abstract class OutgoingContext : BehaviorContext
     {
         /// <summary>
         /// Initializes a new <see cref="OutgoingContext"/>.

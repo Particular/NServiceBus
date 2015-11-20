@@ -30,6 +30,6 @@
         public string ReplyToAddress { get; }
 
         /// <inheritdoc />
-        public IReadOnlyDictionary<string, string> MessageHeaders => Get<IncomingMessage>().Headers;
+        public IReadOnlyDictionary<string, string> MessageHeaders { get; }
     }
 }
