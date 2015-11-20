@@ -1,6 +1,7 @@
 namespace NServiceBus.Features
 {
     using System;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Controls what happens when a critical error occurs.
@@ -8,23 +9,21 @@ namespace NServiceBus.Features
     class CriticalErrorHandling : Feature
     {
         /// <summary>
-        /// Initializes a enw instance of <see cref="CriticalErrorHandling"/>.
+        /// Initializes a new instance of <see cref="CriticalErrorHandling" />.
         /// </summary>
         internal CriticalErrorHandling()
         {
             EnableByDefault();
         }
 
-
         /// <summary>
-        /// <see cref="Feature.Setup"/>.
+        /// <see cref="Feature.Setup" />.
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            Action<string, Exception> errorAction;
+            Func<string, Exception, Task> errorAction;
             context.Settings.TryGet("onCriticalErrorAction", out errorAction);
             context.Container.ConfigureComponent(builder => new CriticalError(errorAction, builder), DependencyLifecycle.SingleInstance);
         }
-
     }
 }

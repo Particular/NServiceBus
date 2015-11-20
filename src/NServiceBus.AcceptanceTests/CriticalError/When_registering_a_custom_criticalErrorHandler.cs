@@ -52,6 +52,7 @@
                         context.Exception = aggregateException.InnerExceptions.First();
                         context.Message = s;
                         context.ExceptionReceived = true;
+                        return Task.FromResult(0);
                     });
                 });
             }
