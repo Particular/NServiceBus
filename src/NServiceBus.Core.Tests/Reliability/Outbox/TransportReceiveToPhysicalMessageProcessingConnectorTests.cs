@@ -133,11 +133,11 @@
         TransportReceiveToPhysicalMessageProcessingConnector behavior;
 
         class MyEvent { }
-        class FakeBatchPipeline : IPipelineBase<BatchDispatchContext>
+        class FakeBatchPipeline : IPipeInlet<BatchDispatchContext>
         {
             public IEnumerable<Transports.TransportOperation> TransportOperations { get; set; }
 
-            public Task Invoke(BatchDispatchContext context)
+            public Task Put(BatchDispatchContext context)
             {
                 TransportOperations = context.Operations;
 

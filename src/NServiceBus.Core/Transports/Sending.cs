@@ -1,6 +1,9 @@
 namespace NServiceBus.Transports
 {
     using NServiceBus.Features;
+    using NServiceBus.OutgoingPipeline;
+    using NServiceBus.Pipeline;
+    using NServiceBus.TransportDispatch;
 
     class Sending : Feature
     {
@@ -19,6 +22,10 @@ namespace NServiceBus.Transports
                 var dispatcher = sendConfigContext.DispatcherFactory();
                 return dispatcher;
             }, DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent(b => new SendPipeline(b, context.Settings, context.Settings.Get<PipelineConfiguration>().MainPipeline),  DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent(b => new PublishPipeline(b, context.Settings, context.Settings.Get<PipelineConfiguration>().MainPipeline),  DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent(b => new RoutingPipeline(b, context.Settings, context.Settings.Get<PipelineConfiguration>().MainPipeline),  DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent(b => new ReplyPipeline(b, context.Settings, context.Settings.Get<PipelineConfiguration>().MainPipeline),  DependencyLifecycle.SingleInstance);
         }
     }
 }

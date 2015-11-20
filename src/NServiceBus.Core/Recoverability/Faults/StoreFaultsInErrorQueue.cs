@@ -25,13 +25,11 @@ namespace NServiceBus.Features
 
             context.Container.ConfigureComponent(b =>
             {
-                var pipelinesCollection = context.Settings.Get<PipelineConfiguration>();
-
-                var dispatchPipeline = new PipelineBase<RoutingContext>(b, context.Settings, pipelinesCollection.MainPipeline);
+                var routingPipeline = b.Build<IPipeInlet<RoutingContext>>();
 
                 return new MoveFaultsToErrorQueueBehavior(
                     b.Build<CriticalError>(),
-                    dispatchPipeline,
+                    routingPipeline,
                     b.Build<HostInformation>(),
                     b.Build<BusNotifications>(),
                     errorQueue);

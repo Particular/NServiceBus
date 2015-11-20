@@ -22,30 +22,34 @@ namespace NServiceBus.Pipeline
             additions.Add(rego);
         }
 
-        public IList<RegisterStep> BuildPipelineModelFor<TRootContext>() where TRootContext:BehaviorContext
+        public IList<RegisterStep> BuildPipelineModelFor(Type contextType)
         {
-            var reachableContexts = ContextsReachableFrom<TRootContext>(additions)
+            var reachableContexts = ContextsReachableFrom(contextType, additions)
                 .ToList();
 
             var relevantAdditions = additions.Where(addition => reachableContexts.Contains(addition.BehaviorType.GetInputContext())).ToList();
-            var relevantRemovals = removals.Where(removal => relevantAdditions.Any(a=>a.StepId == removal.RemoveId)).ToList();
+            var relevantRemovals = removals.Where(removal => relevantAdditions.Any(a => a.StepId == removal.RemoveId)).ToList();
             var relevantReplacements = replacements.Where(removal => relevantAdditions.Any(a => a.StepId == removal.ReplaceId)).ToList();
 
 
-            var piplineModelBuilder = new PipelineModelBuilder(typeof(TRootContext),relevantAdditions, relevantRemovals, relevantReplacements);
+            var piplineModelBuilder = new PipelineModelBuilder(contextType, relevantAdditions, relevantRemovals, relevantReplacements);
 
 
             return piplineModelBuilder.Build();
         }
 
-        static IEnumerable<Type> ContextsReachableFrom<TRootContext>(List<RegisterStep> registerSteps)
+        public IList<RegisterStep> BuildPipelineModelFor<TRootContext>() where TRootContext:BehaviorContext
+        {
+            return BuildPipelineModelFor(typeof(TRootContext));
+        }
+
+        static IEnumerable<Type> ContextsReachableFrom(Type contextType, List<RegisterStep> registerSteps)
         {
             var stageConnectors = registerSteps.Where(s => s.IsStageConnector())
                 .ToList();
 
-            var currentContext = typeof(TRootContext);
+            var currentContext = contextType;
 
-         
             while (currentContext != null)
             {
                 yield return currentContext;

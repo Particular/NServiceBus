@@ -124,6 +124,7 @@
     <Compile Include="Msmq\MsmqHelpers.cs" />
     <Compile Include="Msmq\MsmqAddressTests.cs" />
     <Compile Include="Pipeline\Incoming\InvokeHandlerTerminatorTest.cs" />
+    <Compile Include="Pipeline\PipelineMapTest.cs" />
     <Compile Include="Routing\ApplyReplyToAddressBehaviorTests.cs" />
     <Compile Include="Routing\DetermineRouteForPublishBehaviorTests.cs" />
     <Compile Include="Routing\DetermineRouteForSendBehaviorTests.cs" />

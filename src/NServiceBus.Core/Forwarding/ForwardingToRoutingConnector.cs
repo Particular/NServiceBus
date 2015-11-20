@@ -7,7 +7,7 @@ namespace NServiceBus
     using Pipeline;
     using TransportDispatch;
 
-    class ForwardingToDispatchConnector : StageConnector<ForwardingContext,RoutingContext>
+    class ForwardingToRoutingConnector : StageConnector<ForwardingContext,RoutingContext>
     {
         public override Task Invoke(ForwardingContext context, Func<RoutingContext, Task> next)
         {

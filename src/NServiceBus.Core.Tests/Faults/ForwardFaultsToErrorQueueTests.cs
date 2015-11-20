@@ -133,13 +133,13 @@ namespace NServiceBus.Core.Tests
         {
             return new TransportReceiveContext(new IncomingMessage(messageId, new Dictionary<string, string>(), new MemoryStream()), new RootContext(null));
         }
-        class FakeDispatchPipeline : IPipelineBase<RoutingContext>
+        class FakeDispatchPipeline : IPipeInlet<RoutingContext>
         {
             public string Destination { get; private set; }
             public OutgoingMessage MessageSent { get; private set; }
             public bool ThrowOnDispatch { get; set; }
 
-            public Task Invoke(RoutingContext context)
+            public Task Put(RoutingContext context)
             {
                 if (ThrowOnDispatch)
                 {

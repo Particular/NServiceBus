@@ -12,10 +12,10 @@ namespace NServiceBus
 
     class MoveFaultsToErrorQueueBehavior : Behavior<TransportReceiveContext>
     {
-        public MoveFaultsToErrorQueueBehavior(CriticalError criticalError, IPipelineBase<RoutingContext> dispatchPipeline, HostInformation hostInformation, BusNotifications notifications, string errorQueueAddress)
+        public MoveFaultsToErrorQueueBehavior(CriticalError criticalError, IPipeInlet<RoutingContext> downpipe, HostInformation hostInformation, BusNotifications notifications, string errorQueueAddress)
         {
             this.criticalError = criticalError;
-            this.dispatchPipeline = dispatchPipeline;
+            this.downpipe = downpipe;
             this.hostInformation = hostInformation;
             this.notifications = notifications;
             this.errorQueueAddress = errorQueueAddress;
@@ -54,7 +54,7 @@ namespace NServiceBus
                         new UnicastRoutingStrategy(errorQueueAddress), 
                         context);
                     
-                    await dispatchPipeline.Invoke(dispatchContext).ConfigureAwait(false);
+                    await downpipe.Put(dispatchContext).ConfigureAwait(false);
 
                     notifications.Errors.InvokeMessageHasBeenSentToErrorQueue(message,exception);
                 }
@@ -67,7 +67,7 @@ namespace NServiceBus
         }
 
         CriticalError criticalError;
-        IPipelineBase<RoutingContext> dispatchPipeline;
+        IPipeInlet<RoutingContext> downpipe;
         HostInformation hostInformation;
         BusNotifications notifications;
         string errorQueueAddress;

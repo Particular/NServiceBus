@@ -15,9 +15,9 @@ namespace NServiceBus
 
     class SecondLevelRetriesBehavior : Behavior<TransportReceiveContext>
     {
-        public SecondLevelRetriesBehavior(IPipelineBase<RoutingContext> dispatchPipeline, SecondLevelRetryPolicy retryPolicy, BusNotifications notifications, string localAddress)
+        public SecondLevelRetriesBehavior(IPipeInlet<RoutingContext> routingPipe, SecondLevelRetryPolicy retryPolicy, BusNotifications notifications, string localAddress)
         {
-            this.dispatchPipeline = dispatchPipeline;
+            this.routingPipe = routingPipe;
             this.retryPolicy = retryPolicy;
             this.notifications = notifications;
             this.localAddress = localAddress;
@@ -63,7 +63,7 @@ namespace NServiceBus
 
                     Logger.Warn($"Second Level Retry will reschedule message '{message.MessageId}' after a delay of {delay} because of an exception:", ex);
 
-                    await dispatchPipeline.Invoke(dispatchContext).ConfigureAwait(false);
+                    await routingPipe.Put(dispatchContext).ConfigureAwait(false);
 
                     notifications.Errors.InvokeMessageHasBeenSentToSecondLevelRetries(currentRetry, message, ex);
 
@@ -92,7 +92,7 @@ namespace NServiceBus
         }
 
 
-        IPipelineBase<RoutingContext> dispatchPipeline;
+        IPipeInlet<RoutingContext> routingPipe;
         SecondLevelRetryPolicy retryPolicy;
         BusNotifications notifications;
         string localAddress;

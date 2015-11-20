@@ -4,8 +4,12 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using System.Transactions;
+    using NServiceBus.OutgoingPipeline;
+    using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Routing;
     using NServiceBus.Sagas;
+    using NServiceBus.TransportDispatch;
     using NServiceBus.Unicast.Behaviors;
     using NUnit.Framework;
     using Conventions = NServiceBus.Conventions;
@@ -27,6 +31,11 @@
             await terminator.Invoke(behaviorContext, _ => TaskEx.Completed);
 
             Assert.IsTrue(handlerInvoked);
+        }
+
+        static InvokeHandlerTerminator CreateTestee()
+        {
+            return new InvokeHandlerTerminator(new FakePipe<OutgoingSendContext>(), new FakePipe<OutgoingPublishContext>(), new FakePipe<OutgoingReplyContext>(), new FakePipe<RoutingContext>(), new FakePipe<SubscribeContext>(), new FakePipe<UnsubscribeContext>());
         }
 
         [Test]
@@ -151,6 +160,14 @@
                 new RootContext(null));
 
             return behaviorContext;
+        }
+
+        class FakePipe<T> : IPipeInlet<T>
+        {
+            public Task Put(T context)
+            {
+                return Task.FromResult(0);
+            }
         }
 
         class FakeSaga : Saga<FakeSaga.FakeSagaData>, IAmStartedByMessages<StartMessage>
