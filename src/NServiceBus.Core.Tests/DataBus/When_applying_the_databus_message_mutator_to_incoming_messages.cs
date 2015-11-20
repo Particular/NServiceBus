@@ -43,10 +43,11 @@ namespace NServiceBus.Core.Tests.DataBus
 
                 fakeDatabus.StreamsToReturn[databusKey] = stream;
 
-
                 await receiveBehavior.Invoke(
                     new LogicalMessageProcessingContext(
                         message,
+                        "messageId",
+                        "replyToAddress",
                         new Dictionary<string, string>
                         {
                             {"NServiceBus.DataBus." + propertyKey, databusKey}

@@ -143,6 +143,8 @@
         {
             var behaviorContext = new InvokeHandlerContext(
                 messageHandler,
+                "messageId",
+                "replyToAddress",
                 new Dictionary<string, string>(),
                 null,
                 null,

@@ -13,7 +13,7 @@
     /// </summary>
     public class XmlSerialization : ConfigureSerialization
     {
-        internal XmlSerialization() 
+        internal XmlSerialization()
         {
             RegisterStartupTask<MessageTypesInitializer>();
         }

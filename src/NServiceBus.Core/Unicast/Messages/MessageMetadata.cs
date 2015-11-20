@@ -8,8 +8,7 @@
     /// </summary>
     public partial class MessageMetadata
     {
-        
-        internal MessageMetadata(Type messageType = null, IEnumerable<Type> messageHierarchy = null)
+        internal MessageMetadata(Type messageType, IEnumerable<Type> messageHierarchy = null)
         {
             MessageType = messageType;
             MessageHierarchy = (messageHierarchy == null ? new List<Type>() : new List<Type>(messageHierarchy)).AsReadOnly();

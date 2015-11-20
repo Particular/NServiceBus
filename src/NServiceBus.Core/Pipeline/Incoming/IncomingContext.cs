@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using NServiceBus.Extensibility;
-    using NServiceBus.Transports;
     using NServiceBus.Unicast;
     using PublishOptions = NServiceBus.PublishOptions;
     using ReplyOptions = NServiceBus.ReplyOptions;
@@ -18,22 +17,26 @@
         /// <summary>
         /// Initializes a new instance of <see cref="IncomingContext" />.
         /// </summary>
-        protected IncomingContext(BehaviorContext parentContext)
+        protected IncomingContext(string messageId, string replyToAddress, IReadOnlyDictionary<string, string> headers, BehaviorContext parentContext)
             : base(parentContext)
         {
+
+            this.MessageId = messageId;
+            this.ReplyToAddress = replyToAddress;
+            this.MessageHeaders = headers;
         }
 
         /// <inheritdoc />
         public ContextBag Extensions => this;
 
         /// <inheritdoc />
-        public string MessageId => Get<IncomingMessage>().MessageId;
+        public string MessageId { get; }
 
         /// <inheritdoc />
-        public string ReplyToAddress => Get<IncomingMessage>().GetReplyToAddress();
+        public string ReplyToAddress { get; }
 
         /// <inheritdoc />
-        public IReadOnlyDictionary<string, string> MessageHeaders => Get<IncomingMessage>().Headers;
+        public IReadOnlyDictionary<string, string> MessageHeaders { get; }
 
         /// <inheritdoc />
         public Task Send(object message, SendOptions options)

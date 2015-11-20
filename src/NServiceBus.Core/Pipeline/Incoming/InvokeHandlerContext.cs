@@ -15,15 +15,15 @@ namespace NServiceBus.Pipeline.Contexts
         /// Initializes the handling stage context. This is the constructor to use for internal usage.
         /// </summary>
         internal InvokeHandlerContext(MessageHandler handler, LogicalMessageProcessingContext parentContext)
-            : this(handler, parentContext.Headers, parentContext.Message.Metadata, parentContext.Message.Instance, parentContext)
+            : this(handler, parentContext.MessageId, parentContext.ReplyToAddress, parentContext.Headers, parentContext.Message.Metadata, parentContext.Message.Instance, parentContext)
         {
         }
 
         /// <summary>
         /// Initializes the handling stage context.
         /// </summary>
-        public InvokeHandlerContext(MessageHandler handler, Dictionary<string, string> headers, MessageMetadata messageMetadata, object messageBeingHandled, BehaviorContext parentContext)
-            : base(parentContext)
+        public InvokeHandlerContext(MessageHandler handler, string messageId, string replyToAddress, Dictionary<string, string> headers, MessageMetadata messageMetadata, object messageBeingHandled, BehaviorContext parentContext)
+            : base(messageId, replyToAddress, headers, parentContext)
         {
             MessageHandler = handler;
             Headers = headers;
