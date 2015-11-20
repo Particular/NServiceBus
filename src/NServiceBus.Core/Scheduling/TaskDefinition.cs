@@ -1,6 +1,7 @@
 namespace NServiceBus.Scheduling
 {
     using System;
+    using System.Threading.Tasks;
 
     class TaskDefinition
     {
@@ -11,7 +12,7 @@ namespace NServiceBus.Scheduling
 
         public Guid Id { get; private set; }
         public string Name { get; set; }
-        public Action Task { get; set; }
+        public Func<IBusContext, Task> Task { get; set; }
         public TimeSpan Every { get; set; }
     }
 }

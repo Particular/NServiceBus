@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.Scheduling.Tests
 {
     using System;
-    using System.Threading;
+    using System.Threading.Tasks;
     using Core.Tests.Fakes;
     using NUnit.Framework;
 
@@ -28,38 +28,41 @@
         }
 
         [Test]
-        public void When_starting_a_task_defer_should_be_called()
+        public async Task When_starting_a_task_defer_should_be_called()
         {
             var task = new TaskDefinition
-            {Every = TimeSpan.FromSeconds(5),
-                Task = () => { }
+            {
+                Every = TimeSpan.FromSeconds(5),
+                Task = c => TaskEx.Completed
             };
             var taskId = task.Id;
 
             scheduler.Schedule(task);
 
             var deferCount = handlingContext.DeferWasCalled;
-            scheduler.Start(taskId, handlingContext);
+            await scheduler.Start(taskId, handlingContext);
             
             Assert.That(handlingContext.DeferWasCalled > deferCount);
         }
 
         [Test]
-        public void When_starting_a_task_the_lambda_should_be_executed()
+        public async Task When_starting_a_task_the_lambda_should_be_executed()
         {
             var i = 1;
 
             var task = new TaskDefinition
             {
                 Every = TimeSpan.FromSeconds(5),
-                Task = () => { i++; }
+                Task = c =>
+                {
+                    i++;
+                    return TaskEx.Completed;
+                }
             };
             var taskId = task.Id;
 
             scheduler.Schedule(task);            
-            scheduler.Start(taskId, handlingContext);
-
-            Thread.Sleep(100); // Wait for the task...
+            await scheduler.Start(taskId, handlingContext);
 
             Assert.That(i == 2);
         }
