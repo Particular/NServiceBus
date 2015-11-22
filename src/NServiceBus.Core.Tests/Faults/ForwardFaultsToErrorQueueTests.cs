@@ -154,13 +154,14 @@ namespace NServiceBus.Core.Tests
         class FakeCriticalError : CriticalError
         {
             public FakeCriticalError()
-                : base((s, e) => { }, new FakeBuilder())
+                : base((s, e) => TaskEx.Completed, new FakeBuilder())
             {
             }
 
-            public override void Raise(string errorMessage, Exception exception)
+            public override Task Raise(string errorMessage, Exception exception)
             {
                 ErrorRaised = true;
+                return TaskEx.Completed;
             }
 
             public bool ErrorRaised { get; private set; }

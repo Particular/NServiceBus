@@ -132,7 +132,7 @@ namespace NServiceBus
     }
     public class static ConfigureCriticalErrorAction
     {
-        public static void DefineCriticalErrorAction(this NServiceBus.BusConfiguration busConfiguration, System.Action<string, System.Exception> onCriticalError) { }
+        public static void DefineCriticalErrorAction(this NServiceBus.BusConfiguration busConfiguration, System.Func<string, System.Exception, System.Threading.Tasks.Task> onCriticalError) { }
     }
     public class static ConfigureError
     {
@@ -225,8 +225,8 @@ namespace NServiceBus
     }
     public class CriticalError
     {
-        public CriticalError(System.Action<string, System.Exception> onCriticalErrorAction, NServiceBus.ObjectBuilder.IBuilder builder) { }
-        public virtual void Raise(string errorMessage, System.Exception exception) { }
+        public CriticalError(System.Func<string, System.Exception, System.Threading.Tasks.Task> onCriticalErrorAction, NServiceBus.ObjectBuilder.IBuilder builder) { }
+        public virtual System.Threading.Tasks.Task Raise(string errorMessage, System.Exception exception) { }
     }
     public class static CriticalTimeMonitoringConfig
     {

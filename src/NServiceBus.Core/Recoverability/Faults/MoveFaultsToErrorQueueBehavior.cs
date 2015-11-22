@@ -60,7 +60,7 @@ namespace NServiceBus
                 }
                 catch (Exception ex)
                 {
-                    criticalError.Raise("Failed to forward message to error queue", ex);
+                    await criticalError.Raise("Failed to forward message to error queue", ex).ConfigureAwait(false);
                     throw;
                 }
             }
