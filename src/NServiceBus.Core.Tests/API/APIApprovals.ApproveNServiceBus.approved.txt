@@ -2134,7 +2134,7 @@ namespace NServiceBus.Pipeline.Contexts
     }
     public class InvokeHandlerContext : NServiceBus.Pipeline.Contexts.IncomingContext, NServiceBus.IBusContext, NServiceBus.IMessageHandlerContext, NServiceBus.IMessageProcessingContext
     {
-        public InvokeHandlerContext(NServiceBus.Unicast.Behaviors.MessageHandler handler, string messageId, string replyToAddress, System.Collections.Generic.Dictionary<string, string> headers, NServiceBus.Unicast.Messages.MessageMetadata messageMetadata, object messageBeingHandled, NServiceBus.Persistence.CompletableSynchronizedStorageSession storageSession, NServiceBus.Pipeline.BehaviorContext parentContext) { }
+        public InvokeHandlerContext(NServiceBus.Unicast.Behaviors.MessageHandler handler, string messageId, string replyToAddress, System.Collections.Generic.Dictionary<string, string> headers, NServiceBus.Unicast.Messages.MessageMetadata messageMetadata, object messageBeingHandled, NServiceBus.Persistence.SynchronizedStorageSession storageSession, NServiceBus.Pipeline.BehaviorContext parentContext) { }
         public bool HandlerInvocationAborted { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public object MessageBeingHandled { get; }
