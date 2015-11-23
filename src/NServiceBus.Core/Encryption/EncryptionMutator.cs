@@ -67,7 +67,12 @@ namespace NServiceBus.Encryption
             return false;
         }
 
-        void ForEachMember(object root, Action<object, MemberInfo> action, Func<MemberInfo, bool> appliesTo)
+        static void ForEachMember(object root, Action<object, MemberInfo> action, Func<MemberInfo, bool> appliesTo)
+        {
+            ForEachMember(root, new HashSet<object>(), action, appliesTo);
+        }
+
+        static void ForEachMember(object root, ISet<object> visitedMembers, Action<object, MemberInfo> action, Func<MemberInfo, bool> appliesTo)
         {
             if (root == null || visitedMembers.Contains(root))
             {
@@ -120,12 +125,12 @@ namespace NServiceBus.Encryption
                             break;
                         }
 
-                        ForEachMember(item, action, appliesTo);
+                        ForEachMember(item, visitedMembers, action, appliesTo);
                     }
                 }
                 else
                 {
-                    ForEachMember(child, action, appliesTo);
+                    ForEachMember(child, visitedMembers, action, appliesTo);
                 }
             }
         }
@@ -257,8 +262,6 @@ namespace NServiceBus.Encryption
 
             return members;
         }
-
-        HashSet<object> visitedMembers = new HashSet<object>();
 
         static ConcurrentDictionary<RuntimeTypeHandle, IEnumerable<MemberInfo>> cache = new ConcurrentDictionary<RuntimeTypeHandle, IEnumerable<MemberInfo>>();
 
