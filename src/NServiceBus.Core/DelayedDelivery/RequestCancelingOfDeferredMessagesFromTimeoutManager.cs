@@ -11,13 +11,12 @@
     class RequestCancelingOfDeferredMessagesFromTimeoutManager : ICancelDeferredMessages
     {
 
-        public RequestCancelingOfDeferredMessagesFromTimeoutManager(string timeoutManagerAddress, IPipelineBase<RoutingContext> dispatchPipeline)
+        public RequestCancelingOfDeferredMessagesFromTimeoutManager(string timeoutManagerAddress)
         {
             this.timeoutManagerAddress = timeoutManagerAddress;
-            this.dispatchPipeline = dispatchPipeline;
         }
 
-        public Task CancelDeferredMessages(string messageKey, BehaviorContext context)
+        public Task CancelDeferredMessages(string messageKey, BehaviorContext context, IPipeInlet<RoutingContext> routingPipe)
         {
             var controlMessage = ControlMessageFactory.Create(MessageIntentEnum.Send);
 
@@ -26,10 +25,9 @@
 
             var dispatchContext = new RoutingContext(controlMessage, new UnicastRoutingStrategy(timeoutManagerAddress), context);
             
-            return dispatchPipeline.Invoke(dispatchContext);
+            return routingPipe.Put(dispatchContext);
         }
 
         string timeoutManagerAddress;
-        IPipelineBase<RoutingContext> dispatchPipeline;
     }
 }

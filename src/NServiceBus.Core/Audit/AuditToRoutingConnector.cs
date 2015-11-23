@@ -10,11 +10,11 @@ namespace NServiceBus
     using Pipeline;
     using TransportDispatch;
 
-    class AuditToDispatchConnector : StageConnector<AuditContext, RoutingContext>
+    class AuditToRoutingConnector : StageConnector<AuditContext, RoutingContext>
     {
         TimeSpan? timeToBeReceived;
 
-        public AuditToDispatchConnector(TimeSpan? timeToBeReceived)
+        public AuditToRoutingConnector(TimeSpan? timeToBeReceived)
         {
             this.timeToBeReceived = timeToBeReceived;
         }

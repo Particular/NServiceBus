@@ -1,15 +1,13 @@
 namespace NServiceBus.Pipeline.Contexts
 {
     using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using NServiceBus.Unicast;
     using NServiceBus.Unicast.Behaviors;
     using NServiceBus.Unicast.Messages;
 
     /// <summary>
     /// A context of handling a logical message by a handler.
     /// </summary>
-    public class InvokeHandlerContext : IncomingContext, IMessageHandlerContext
+    public class InvokeHandlerContext : IncomingContext
     {
         /// <summary>
         /// Initializes the handling stage context. This is the constructor to use for internal usage.
@@ -47,7 +45,7 @@ namespace NServiceBus.Pipeline.Contexts
         public object MessageBeingHandled { get; }
 
         /// <summary>
-        /// <code>true</code> if <see cref="DoNotContinueDispatchingCurrentMessageToHandlers" />  has been called.
+        /// Returns if further handler invocation has been aborted.
         /// </summary>
         public bool HandlerInvocationAborted { get; private set; }
 
@@ -56,14 +54,7 @@ namespace NServiceBus.Pipeline.Contexts
         /// </summary>
         public MessageMetadata MessageMetadata { get; }
 
-        /// <inheritdoc />
-        public Task HandleCurrentMessageLater()
-        {
-            return BusOperationsInvokeHandlerContext.HandleCurrentMessageLater(this);
-        }
-
-        /// <inheritdoc />
-        public void DoNotContinueDispatchingCurrentMessageToHandlers()
+        internal void DoNotContinueDispatchingCurrentMessageToHandlers()
         {
             HandlerInvocationAborted = true;
         }

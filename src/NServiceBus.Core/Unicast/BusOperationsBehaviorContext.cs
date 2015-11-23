@@ -6,7 +6,6 @@ namespace NServiceBus.Unicast
     using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
-    using NServiceBus.Settings;
 
     /// <summary>
     /// Provides access to the bus.
@@ -19,11 +18,12 @@ namespace NServiceBus.Unicast
         /// <typeparam name="T">The type of message, usually an interface.</typeparam>
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
         /// <param name="options">Specific options for this event.</param>
+        /// <param name="pipeline">The pipeline.</param>
         /// <param name="context">The current context.</param>
-        public static Task Publish<T>(BehaviorContext context, Action<T> messageConstructor, NServiceBus.PublishOptions options)
+        public static Task Publish<T>(IPipeInlet<OutgoingPublishContext> pipeline, BehaviorContext context, Action<T> messageConstructor, NServiceBus.PublishOptions options)
         {
             var mapper = context.Builder.Build<IMessageMapper>();
-            return Publish(context, mapper.CreateInstance(messageConstructor), options);
+            return Publish(pipeline, context, mapper.CreateInstance(messageConstructor), options);
         }
 
         /// <summary>
@@ -31,21 +31,16 @@ namespace NServiceBus.Unicast
         /// </summary>
         /// <param name="message">The message to publish.</param>
         /// <param name="options">The options for the publish.</param>
+        /// <param name="pipeline">The pipeline.</param>
         /// <param name="context">The current context.</param>
-        public static Task Publish(BehaviorContext context, object message, NServiceBus.PublishOptions options)
+        public static Task Publish(IPipeInlet<OutgoingPublishContext> pipeline, BehaviorContext context, object message, NServiceBus.PublishOptions options)
         {
-            var settings = context.Builder.Build<ReadOnlySettings>();
-            var pipeline = new PipelineBase<OutgoingPublishContext>(
-                context.Builder, 
-                settings, 
-                settings.Get<PipelineConfiguration>().MainPipeline);
-
             var publishContext = new OutgoingPublishContext(
                 new OutgoingLogicalMessage(message),
                 options,
                 context);
 
-            return pipeline.Invoke(publishContext);
+            return pipeline.Put(publishContext);
         }
 
         /// <summary>
@@ -54,18 +49,16 @@ namespace NServiceBus.Unicast
         /// </summary>
         /// <param name="eventType">The type of event to subscribe to.</param>
         /// <param name="options">Options for the subscribe.</param>
+        /// <param name="pipeline">The pipeline.</param>
         /// <param name="context">The current context.</param>
-        public static Task Subscribe(BehaviorContext context, Type eventType, SubscribeOptions options)
+        public static Task Subscribe(IPipeInlet<SubscribeContext> pipeline, BehaviorContext context, Type eventType, SubscribeOptions options)
         {
-            var settings = context.Builder.Build<ReadOnlySettings>();
-            var pipeline = new PipelineBase<SubscribeContext>(context.Builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
-
             var subscribeContext = new SubscribeContext(
                 context,
                 eventType,
                 options);
 
-            return pipeline.Invoke(subscribeContext);
+            return pipeline.Put(subscribeContext);
         }
 
         /// <summary>
@@ -73,18 +66,16 @@ namespace NServiceBus.Unicast
         /// </summary>
         /// <param name="eventType">The type of event to unsubscribe to.</param>
         /// <param name="options">Options for the subscribe.</param>
+        /// <param name="pipeline">The pipeline.</param>
         /// <param name="context">The current context.</param>
-        public static Task Unsubscribe(BehaviorContext context, Type eventType, UnsubscribeOptions options)
+        public static Task Unsubscribe(IPipeInlet<UnsubscribeContext> pipeline, BehaviorContext context, Type eventType, UnsubscribeOptions options)
         {
-            var settings = context.Builder.Build<ReadOnlySettings>();
-            var pipeline = new PipelineBase<UnsubscribeContext>(context.Builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
-
             var subscribeContext = new UnsubscribeContext(
                 context,
                 eventType,
                 options);
 
-            return pipeline.Invoke(subscribeContext);
+            return pipeline.Put(subscribeContext);
         }
 
         /// <summary>
@@ -93,11 +84,12 @@ namespace NServiceBus.Unicast
         /// <typeparam name="T">The type of message, usually an interface.</typeparam>
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
         /// <param name="options">The options for the send.</param>
+        /// <param name="pipeline">The pipeline.</param>
         /// <param name="context">The current context.</param>
-        public static Task Send<T>(BehaviorContext context, Action<T> messageConstructor, NServiceBus.SendOptions options)
+        public static Task Send<T>(IPipeInlet<OutgoingSendContext> pipeline, BehaviorContext context, Action<T> messageConstructor, NServiceBus.SendOptions options)
         {
             var mapper = context.Builder.Build<IMessageMapper>();
-            return Send(context, mapper.CreateInstance(messageConstructor), options);
+            return Send(pipeline, context, mapper.CreateInstance(messageConstructor), options);
         }
 
         /// <summary>
@@ -105,25 +97,23 @@ namespace NServiceBus.Unicast
         /// </summary>
         /// <param name="message">The message to send.</param>
         /// <param name="options">The options for the send.</param>
+        /// <param name="pipeline">The pipelien.</param>
         /// <param name="context">The current context.</param>
-        public static Task Send(BehaviorContext context, object message, NServiceBus.SendOptions options)
+        public static Task Send(IPipeInlet<OutgoingSendContext> pipeline, BehaviorContext context, object message, NServiceBus.SendOptions options)
         {
             var messageType = message.GetType();
 
-            return context.SendMessage(messageType, message, options);
+            return context.SendMessage(pipeline, messageType, message, options);
         }
 
-        static Task SendMessage(this BehaviorContext context, Type messageType, object message, NServiceBus.SendOptions options)
+        static Task SendMessage(this BehaviorContext context, IPipeInlet<OutgoingSendContext> pipeline, Type messageType, object message, NServiceBus.SendOptions options)
         {
-            var settings = context.Builder.Build<ReadOnlySettings>();
-            var pipeline = new PipelineBase<OutgoingSendContext>(context.Builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
-
             var outgoingContext = new OutgoingSendContext(
                 new OutgoingLogicalMessage(messageType, message),
                 options,
                 context);
 
-            return pipeline.Invoke(outgoingContext);
+            return pipeline.Put(outgoingContext);
         }
 
         /// <summary>
@@ -131,21 +121,16 @@ namespace NServiceBus.Unicast
         /// </summary>
         /// <param name="message">The message to send.</param>
         /// <param name="options">Options for this reply.</param>
+        /// <param name="pipeline">The pipeline.</param>
         /// <param name="context">The current context.</param>
-        public static Task Reply(BehaviorContext context, object message, NServiceBus.ReplyOptions options)
+        public static Task Reply(IPipeInlet<OutgoingReplyContext> pipeline, BehaviorContext context, object message, NServiceBus.ReplyOptions options)
         {
-            var settings = context.Builder.Build<ReadOnlySettings>();
-            var pipeline = new PipelineBase<OutgoingReplyContext>(
-                context.Builder, 
-                settings, 
-                settings.Get<PipelineConfiguration>().MainPipeline);
-
             var outgoingContext = new OutgoingReplyContext(
                 new OutgoingLogicalMessage(message),
                 options,
                 context);
 
-            return pipeline.Invoke(outgoingContext);
+            return pipeline.Put(outgoingContext);
         }
 
         ///  <summary>
@@ -154,11 +139,12 @@ namespace NServiceBus.Unicast
         /// <typeparam name="T">The type of message, usually an interface.</typeparam>
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
         /// <param name="options">Options for this reply.</param>
+        /// <param name="pipeline">The pipeline.</param>
         /// <param name="context">The current context.</param>
-        public static Task Reply<T>(BehaviorContext context, Action<T> messageConstructor, NServiceBus.ReplyOptions options)
+        public static Task Reply<T>(IPipeInlet<OutgoingReplyContext> pipeline, BehaviorContext context, Action<T> messageConstructor, NServiceBus.ReplyOptions options)
         {
             var mapper = context.Builder.Build<IMessageMapper>();
-            return Reply(context, mapper.CreateInstance(messageConstructor), options);
+            return Reply(pipeline, context, mapper.CreateInstance(messageConstructor), options);
         }
     }
 }

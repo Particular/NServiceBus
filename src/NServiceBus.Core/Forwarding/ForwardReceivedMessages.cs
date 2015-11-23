@@ -28,12 +28,12 @@
             context.Settings.Get<QueueBindings>().BindSending(forwardReceivedMessagesQueue);
 
             context.Pipeline.Register("InvokeForwardingPipeline", typeof(InvokeForwardingPipelineBehavior), "Execute the forwarding pipeline");
-            context.Pipeline.RegisterConnector<ForwardingToDispatchConnector>("Makes sure that forwarded messages gets dispatched to the transport");
+            context.Pipeline.RegisterConnector<ForwardingToRoutingConnector>("Makes sure that forwarded messages gets dispatched to the transport");            
+            context.Container.ConfigureComponent(b => new ForwardingPipeline(b, context.Settings, context.Settings.Get<PipelineConfiguration>().MainPipeline), DependencyLifecycle.SingleInstance);
 
             context.Container.ConfigureComponent(b =>
             {
-                var pipelinesCollection = context.Settings.Get<PipelineConfiguration>();
-                var pipeline = new PipelineBase<ForwardingContext>(b, context.Settings, pipelinesCollection.MainPipeline);
+                var pipeline = b.Build<IPipeInlet<ForwardingContext>>();
 
                 return new InvokeForwardingPipelineBehavior(pipeline, forwardReceivedMessagesQueue);
             }, DependencyLifecycle.InstancePerCall);

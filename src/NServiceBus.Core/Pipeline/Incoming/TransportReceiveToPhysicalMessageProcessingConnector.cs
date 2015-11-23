@@ -16,7 +16,7 @@ namespace NServiceBus
 
     class TransportReceiveToPhysicalMessageProcessingConnector : StageConnector<TransportReceiveContext, PhysicalMessageProcessingContext>
     {
-        public TransportReceiveToPhysicalMessageProcessingConnector(IPipelineBase<BatchDispatchContext> batchDispatchPipeline, IOutboxStorage outboxStorage)
+        public TransportReceiveToPhysicalMessageProcessingConnector(IPipeInlet<BatchDispatchContext> batchDispatchPipeline, IOutboxStorage outboxStorage)
         {
             this.batchDispatchPipeline = batchDispatchPipeline;
             this.outboxStorage = outboxStorage;
@@ -54,7 +54,7 @@ namespace NServiceBus
             {
                 var batchDispatchContext = new BatchDispatchContext(pendingTransportOperations.Operations, physicalMessageContext);
 
-                await batchDispatchPipeline.Invoke(batchDispatchContext).ConfigureAwait(false);
+                await batchDispatchPipeline.Put(batchDispatchContext).ConfigureAwait(false);
             }
 
             await outboxStorage.SetAsDispatched(messageId, context).ConfigureAwait(false);
@@ -190,7 +190,7 @@ namespace NServiceBus
             throw new Exception("Could not find routing strategy to deserialize");
         }
 
-        IPipelineBase<BatchDispatchContext> batchDispatchPipeline;
+        IPipeInlet<BatchDispatchContext> batchDispatchPipeline;
         IOutboxStorage outboxStorage;
     }
 }

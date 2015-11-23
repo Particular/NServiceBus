@@ -16,11 +16,11 @@
             Guard.AgainstNull("context", context);
             Guard.AgainstNullAndEmpty("key", key);
            
-            AuditToDispatchConnector.State state;
+            AuditToRoutingConnector.State state;
 
             if (!context.TryGet(out state))
             {
-                state = new AuditToDispatchConnector.State();
+                state = new AuditToRoutingConnector.State();
                 context.Set(state);
             }
             state.AuditValues[key] = value;

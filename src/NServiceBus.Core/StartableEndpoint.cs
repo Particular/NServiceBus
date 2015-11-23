@@ -10,8 +10,10 @@ namespace NServiceBus
     using NServiceBus.Faults;
     using NServiceBus.Features;
     using NServiceBus.ObjectBuilder;
+    using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Routing;
     using NServiceBus.Settings;
     using NServiceBus.Transport;
     using NServiceBus.Transports;
@@ -74,7 +76,11 @@ namespace NServiceBus
             public IBusContext CreateBusContext()
             {
                 var rootContext = new RootContext(builder);
-                return new BusContext(rootContext);
+                return new BusContext(rootContext, 
+                    builder.Build<IPipeInlet<OutgoingSendContext>>(),
+                    builder.Build<IPipeInlet<OutgoingPublishContext>>(),
+                    builder.BuildAll<IPipeInlet<SubscribeContext>>().FirstOrDefault(),
+                    builder.BuildAll<IPipeInlet<UnsubscribeContext>>().FirstOrDefault());
             }
         }
 
@@ -132,7 +138,7 @@ namespace NServiceBus
 
         TransportReceiver BuildPipelineInstance(PipelineModifications modifications, string name, PushSettings pushSettings, PushRuntimeSettings runtimeSettings)
         {
-            var pipelineInstance = new PipelineBase<TransportReceiveContext>(builder, settings, modifications);
+            var pipelineInstance = new ReceivePipeline(builder, settings, modifications);
             var receiver = new TransportReceiver(
                 name,
                 builder,

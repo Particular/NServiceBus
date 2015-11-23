@@ -144,11 +144,11 @@
         }
     }
 
-    class FakeDispatchPipeline : IPipelineBase<RoutingContext>
+    class FakeDispatchPipeline : IPipeInlet<RoutingContext>
     {
         public RoutingContext RoutingContext { get; set; }
 
-        public Task Invoke(RoutingContext context)
+        public Task Put(RoutingContext context)
         {
             RoutingContext = context;
             return Task.FromResult(0);

@@ -8,7 +8,7 @@
 
     class InvokeForwardingPipelineBehavior : Behavior<PhysicalMessageProcessingContext>
     {
-        public InvokeForwardingPipelineBehavior(IPipelineBase<ForwardingContext> forwardingPipeline, string forwardingAddress)
+        public InvokeForwardingPipelineBehavior(IPipeInlet<ForwardingContext> forwardingPipeline, string forwardingAddress)
         {
             this.forwardingPipeline = forwardingPipeline;
             this.forwardingAddress = forwardingAddress;
@@ -24,10 +24,10 @@
 
             var forwardingContext = new ForwardingContext(processedMessage, forwardingAddress, context);
 
-            await forwardingPipeline.Invoke(forwardingContext).ConfigureAwait(false);
+            await forwardingPipeline.Put(forwardingContext).ConfigureAwait(false);
         }
 
-        IPipelineBase<ForwardingContext> forwardingPipeline;
+        IPipeInlet<ForwardingContext> forwardingPipeline;
         string forwardingAddress;
     }
 }

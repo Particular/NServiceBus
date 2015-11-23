@@ -22,14 +22,14 @@
             context.Pipeline
                 .Register(WellKnownStep.ExecuteUnitOfWork, typeof(UnitOfWorkBehavior), "Executes the UoW")
                 .Register(WellKnownStep.MutateIncomingTransportMessage, typeof(MutateIncomingTransportMessageBehavior), "Executes IMutateIncomingTransportMessages")
-                .Register(WellKnownStep.MutateIncomingMessages, typeof(MutateIncomingMessageBehavior), "Executes IMutateIncomingMessages")
+                .Register(WellKnownStep.MutateIncomingMessages, typeof(MutateIncomingMessagesBehavior), "Executes IMutateIncomingMessages")
                 .Register(WellKnownStep.InvokeHandlers, typeof(InvokeHandlerTerminator), "Calls the IHandleMessages<T>.Handle(T)");
+
+            context.Container.ConfigureComponent(b => new BatchDispatchPipeline(b, context.Settings, context.Settings.Get<PipelineConfiguration>().MainPipeline), DependencyLifecycle.SingleInstance);            
 
             context.Container.ConfigureComponent(b =>
             {
-                var pipelinesCollection = context.Settings.Get<PipelineConfiguration>();
-
-                var pipeline = new PipelineBase<BatchDispatchContext>(b, context.Settings, pipelinesCollection.MainPipeline);
+                var pipeline = b.Build<IPipeInlet<BatchDispatchContext>>();
 
                 IOutboxStorage storage; // TODO: This should probably be done in the outbox feature
 

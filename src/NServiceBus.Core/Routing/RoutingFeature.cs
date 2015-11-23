@@ -8,6 +8,7 @@
     using NServiceBus.Extensibility;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.OutgoingPipeline;
+    using NServiceBus.Pipeline;
     using NServiceBus.Routing;
     using NServiceBus.Routing.MessageDrivenSubscriptions;
     using NServiceBus.Settings;
@@ -102,6 +103,9 @@
 
                     context.Container.ConfigureComponent(b => new MessageDrivenSubscribeTerminator(b.Build<SubscriptionRouter>(), ReplyToAddress(b), context.Settings.EndpointName(), b.Build<IDispatchMessages>(), legacyMode), DependencyLifecycle.SingleInstance);
                     context.Container.ConfigureComponent(b => new MessageDrivenUnsubscribeTerminator(b.Build<SubscriptionRouter>(), ReplyToAddress(b), context.Settings.EndpointName(), b.Build<IDispatchMessages>(), legacyMode), DependencyLifecycle.SingleInstance);
+
+                    context.Container.ConfigureComponent(b => new SubscribePipeline(b, context.Settings, context.Settings.Get<PipelineConfiguration>().MainPipeline), DependencyLifecycle.SingleInstance);
+                    context.Container.ConfigureComponent(b => new UnsubscribePipeline(b, context.Settings, context.Settings.Get<PipelineConfiguration>().MainPipeline), DependencyLifecycle.SingleInstance);
                 }
                 else
                 {

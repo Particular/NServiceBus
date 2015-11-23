@@ -10,15 +10,21 @@
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Sagas;
+    using NServiceBus.TransportDispatch;
     using NServiceBus.Transports;
 
     class SagaPersistenceBehavior : Behavior<InvokeHandlerContext>
     {
-        public SagaPersistenceBehavior(ISagaPersister persister, ICancelDeferredMessages timeoutCancellation, SagaMetadataCollection sagaMetadataCollection)
+        public SagaPersistenceBehavior(
+            ISagaPersister persister, 
+            ICancelDeferredMessages timeoutCancellation, 
+            SagaMetadataCollection sagaMetadataCollection,
+            IPipeInlet<RoutingContext> routingPipe)
         {
             sagaPersister = persister;
             this.timeoutCancellation = timeoutCancellation;
             this.sagaMetadataCollection = sagaMetadataCollection;
+            this.routingPipe = routingPipe;
         }
 
         public override async Task Invoke(InvokeHandlerContext context, Func<Task> next)
@@ -89,7 +95,7 @@
 
                 if (saga.Entity.Id != Guid.Empty)
                 {
-                    await timeoutCancellation.CancelDeferredMessages(saga.Entity.Id.ToString(), context).ConfigureAwait(false);
+                    await timeoutCancellation.CancelDeferredMessages(saga.Entity.Id.ToString(), context, routingPipe).ConfigureAwait(false);
                 }
 
                 logger.DebugFormat("Saga: '{0}' with Id: '{1}' has completed.", sagaInstanceState.Metadata.Name, saga.Entity.Id);
@@ -276,6 +282,7 @@
 
         InvokeHandlerContext currentContext;
         SagaMetadataCollection sagaMetadataCollection;
+        readonly IPipeInlet<RoutingContext> routingPipe;
 
         ISagaPersister sagaPersister;
         ICancelDeferredMessages timeoutCancellation;

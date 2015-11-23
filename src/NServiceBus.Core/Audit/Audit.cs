@@ -22,17 +22,16 @@
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             context.Pipeline.Register(WellKnownStep.AuditProcessedMessage, typeof(InvokeAuditPipelineBehavior), "Execute the audit pipeline");
-            context.Pipeline.RegisterConnector<AuditToDispatchConnector>("Dispatches the audit message to the transport");
-         
+            context.Pipeline.RegisterConnector<AuditToRoutingConnector>("Dispatches the audit message to the transport");
+            context.Container.ConfigureComponent(b => new AuditPipeline(b, context.Settings, context.Settings.Get<PipelineConfiguration>().MainPipeline), DependencyLifecycle.SingleInstance);            
+
             context.Container.ConfigureComponent(b =>
             {
-                var pipelinesCollection = context.Settings.Get<PipelineConfiguration>();
-                var auditPipeline = new PipelineBase<AuditContext>(b, context.Settings, pipelinesCollection.MainPipeline);
-
-                return new InvokeAuditPipelineBehavior(auditPipeline,auditConfig.Address);
+                var auditPipeline = b.Build<IPipeInlet<AuditContext>>();
+                return new InvokeAuditPipelineBehavior(auditPipeline, auditConfig.Address);
             }, DependencyLifecycle.InstancePerCall);
 
-            context.Container.ConfigureComponent(b => new AuditToDispatchConnector(auditConfig.TimeToBeReceived), DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent(b => new AuditToRoutingConnector(auditConfig.TimeToBeReceived), DependencyLifecycle.SingleInstance);
             context.Settings.Get<QueueBindings>().BindSending(auditConfig.Address);
         }
 

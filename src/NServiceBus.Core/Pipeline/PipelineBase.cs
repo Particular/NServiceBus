@@ -8,7 +8,7 @@
     using ObjectBuilder;
 
     [SkipWeaving]
-    class PipelineBase<T> : IPipelineBase<T>
+    abstract class PipelineBase<T> : IPipeInlet<T>
         where T : BehaviorContext
     {
         public PipelineBase(IBuilder builder, ReadOnlySettings settings, PipelineModifications pipelineModifications)
@@ -48,17 +48,12 @@
             }
         }
 
-        public Task Invoke(T context)
+        public Task Put(T context)
         {
             var pipeline = new BehaviorChain(behaviors);
             return pipeline.Invoke(context);
         }
 
         BehaviorInstance[] behaviors;
-    }
-
-    interface IPipelineBase<T>
-    {
-        Task Invoke(T context);
     }
 }
