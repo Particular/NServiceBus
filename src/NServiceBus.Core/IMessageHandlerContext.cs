@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System.Threading.Tasks;
+    using NServiceBus.Persistence;
 
     /// <summary>
     /// The context of the currently processed message for a message handler.
@@ -18,5 +19,11 @@ namespace NServiceBus
         /// handlers.
         /// </summary>
         void DoNotContinueDispatchingCurrentMessageToHandlers();
+
+        /// <summary>
+        /// Gets the synchronized storage session for processing the current message. NServiceBus makes sure the changes made 
+        /// via this session will be persisted before the message receive is acknowleged.
+        /// </summary>
+        SynchronizedStorageSession SynchronizedStorageSession { get; }
     }
 }

@@ -16,11 +16,16 @@
                 Id = Guid.NewGuid()
             };
             var persister = new InMemorySagaPersister();
+            var insertSession = new InMemorySynchronizedStorageSession();
+            await persister.Save(saga, SagaMetadataHelper.GetMetadata<TestSaga>(saga), insertSession, new ContextBag());
+            await insertSession.CompleteAsync();
 
-            await persister.Save(saga, SagaMetadataHelper.GetMetadata<TestSaga>(saga), new ContextBag());
-            var sagaData = await persister.Get<TestSagaData>(saga.Id, new ContextBag());
-            await persister.Complete(saga, new ContextBag());
-            var completedSaga = await persister.Get<TestSagaData>(saga.Id, new ContextBag());
+            var sagaData = await persister.Get<TestSagaData>(saga.Id, new InMemorySynchronizedStorageSession(), new ContextBag());
+
+            var deleteSession = new InMemorySynchronizedStorageSession();
+            await persister.Complete(saga, deleteSession, new ContextBag());
+            await deleteSession.CompleteAsync();
+            var completedSaga = await persister.Get<TestSagaData>(saga.Id, new InMemorySynchronizedStorageSession(), new ContextBag());
 
             Assert.NotNull(sagaData);
             Assert.Null(completedSaga);

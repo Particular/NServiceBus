@@ -104,6 +104,9 @@
     <Compile Include="ConfigureHandlerSettings.cs" />
     <Compile Include="ConsistencyGuarantees\ConsistencyGuaranteeSettingsExtensions.cs" />
     <Compile Include="ConsistencyGuarantees\TransactionScopes\WrapHandlersInTransactionScope.cs" />
+    <Compile Include="Persistence\CompletableSynchronizedStorageSession.cs" />
+    <Compile Include="Persistence\InMemory\InMemorySynchronizedStorage.cs" />
+    <Compile Include="Persistence\InMemory\InMemoryTransactionalSynchronizedStorageAdapter.cs" />
     <Compile Include="Routing\Legacy\ConfigureMSMQDistributor.cs" />
     <Compile Include="Routing\Legacy\DistributorHeaders.cs" />
     <Compile Include="Routing\Legacy\ProcessedMessageCounterBehavior.cs" />
@@ -117,6 +120,10 @@
     <Compile Include="IHandleMessages.cs" />
     <Compile Include="IInitializableEndpoint.cs" />
     <Compile Include="IEndpoint.cs" />
+    <Compile Include="Persistence\InMemory\InMemoryTransaction.cs" />
+    <Compile Include="Persistence\InMemory\InMemoryTransactionalStorageSession.cs" />
+    <Compile Include="Persistence\ISynchronizedStorageAdapter.cs" />
+    <Compile Include="Persistence\SynchronizedStorageSession.cs" />
     <Compile Include="Pipeline\Outgoing\OutgoingContext.cs" />
     <Compile Include="Pipeline\Outgoing\TransportMessageContextExtensions.cs" />
     <Compile Include="Scheduling\ScheduleBehavior.cs" />
@@ -125,7 +132,9 @@
     <Compile Include="IStartableBusExtensions_obsoletes.cs" />
     <Compile Include="IWantToRunWhenBusStartsAndStopsExtensions_obsoletes.cs" />
     <Compile Include="Licensing\LogErrorOnInvalidLicenseBehavior.cs" />
+    <Compile Include="Persistence\InMemory\InMemoryTransactionalStorageFeature.cs" />
     <Compile Include="Persistence\InMemory\Outbox\InMemoryOutboxTransaction.cs" />
+    <Compile Include="Persistence\ISynchronizedStorage.cs" />
     <Compile Include="Pipeline\Incoming\InvokeHandlerContext.cs" />
     <Compile Include="Pipeline\Incoming\LogicalMessageProcessingContext.cs" />
     <Compile Include="Pipeline\Incoming\PendingTransportOperations.cs" />
@@ -160,6 +169,9 @@
     <Compile Include="Routing\FileBasedDynamicRouting\FileRoutingTableSettings.cs" />
     <Compile Include="Routing\EndpointInstances.cs" />
     <Compile Include="Serialization\SerializationContextExtensions.cs" />
+    <Compile Include="Transports\AmbientTransaction.cs" />
+    <Compile Include="Transports\Msmq\NativeMsmqTransaction.cs" />
+    <Compile Include="Transports\TransportTransaction.cs" />
     <Compile Include="Transports\TransactionSupport.cs" />
     <Compile Include="Transports\Sending.cs" />
     <Compile Include="Transports\TransportAddresses.cs" />

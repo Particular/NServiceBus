@@ -15,18 +15,21 @@
         /// <param name="messageId">Native message id.</param>
         /// <param name="headers">The message headers.</param>
         /// <param name="bodyStream">The message body stream.</param>
+        /// <param name="transportTransaction">Transaction (along with connection if aplicable) used to receive the message.</param>
         /// <param name="context">Any context that the transport wants to be available on the pipeline.</param>
-        public PushContext(string messageId, Dictionary<string, string> headers, Stream bodyStream, ContextBag context)
+        public PushContext(string messageId, Dictionary<string, string> headers, Stream bodyStream, TransportTransaction transportTransaction, ContextBag context)
         {
-            Guard.AgainstNullAndEmpty("messageId", messageId);
-            Guard.AgainstNull("bodyStream", bodyStream);
-            Guard.AgainstNull("headers", headers);
-            Guard.AgainstNull("context", context);
+            Guard.AgainstNullAndEmpty(nameof(messageId), messageId);
+            Guard.AgainstNull(nameof(bodyStream), bodyStream);
+            Guard.AgainstNull(nameof(headers), headers);
+            Guard.AgainstNull(nameof(transportTransaction), transportTransaction);
+            Guard.AgainstNull(nameof(context), context);
 
             Headers = headers;
             BodyStream = bodyStream;
             MessageId = messageId;
             Context = context;
+            TransportTransaction = transportTransaction;
         }
 
         /// <summary>
@@ -48,5 +51,10 @@
         /// Context provided by the transport.
         /// </summary>
         public ContextBag Context { get; private set; }
+
+        /// <summary>
+        /// Transaction (along with connection if applicable) used to receive the message.
+        /// </summary>
+        public TransportTransaction TransportTransaction { get; private set; }
     }
 }

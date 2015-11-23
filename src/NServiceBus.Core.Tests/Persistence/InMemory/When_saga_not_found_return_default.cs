@@ -12,7 +12,7 @@
         public async Task Should_return_default_when_using_finding_saga_with_property()
         {
             var persister = new InMemorySagaPersister();
-            var simpleSageEntity = await persister.Get<SimpleSagaEntity>("propertyNotFound", "someValue", new ContextBag());
+            var simpleSageEntity = await persister.Get<SimpleSagaEntity>("propertyNotFound", "someValue", new InMemorySynchronizedStorageSession(), new ContextBag());
             Assert.IsNull(simpleSageEntity);
         }
 
@@ -20,7 +20,7 @@
         public async Task Should_return_default_when_using_finding_saga_with_id()
         {
             var persister = new InMemorySagaPersister();
-            var simpleSageEntity = await persister.Get<SimpleSagaEntity>(Guid.Empty, new ContextBag());
+            var simpleSageEntity = await persister.Get<SimpleSagaEntity>(Guid.Empty, new InMemorySynchronizedStorageSession(), new ContextBag());
             Assert.IsNull(simpleSageEntity);
         }
 
@@ -34,9 +34,10 @@
                 OrderSource = "CA"
             };
             var persister = new InMemorySagaPersister();
-            await persister.Save(simpleSagaEntity, SagaMetadataHelper.GetMetadata<SimpleSagaEntitySaga>(simpleSagaEntity), new ContextBag());
-
-            var anotherSagaEntity = await persister.Get<AnotherSimpleSagaEntity>(id, new ContextBag());
+            var session = new InMemorySynchronizedStorageSession();
+            await persister.Save(simpleSagaEntity, SagaMetadataHelper.GetMetadata<SimpleSagaEntitySaga>(simpleSagaEntity), session, new ContextBag());
+            await session.CompleteAsync();
+            var anotherSagaEntity = await persister.Get<AnotherSimpleSagaEntity>(id, new InMemorySynchronizedStorageSession(),  new ContextBag());
             Assert.IsNull(anotherSagaEntity);
         }
 

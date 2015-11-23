@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.InMemory.Outbox
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
     using Janitor;
     using NServiceBus.Outbox;
@@ -9,24 +8,26 @@
     [SkipWeaving]
     class InMemoryOutboxTransaction : OutboxTransaction
     {
-        List<Action> actions = new List<Action>();
+        public InMemoryTransaction Transaction { get; private set; }
+
+        public InMemoryOutboxTransaction()
+        {
+            Transaction = new InMemoryTransaction();
+        }
          
         public void Enlist(Action action)
         {
-            actions.Add(action);
+            Transaction.Enlist(action);
         }
 
         public void Dispose()
         {
-            actions.Clear();        
+            Transaction = null;
         }
 
         public Task Commit()
         {
-            foreach (var action in actions)
-            {
-                action();
-            }
+            Transaction.Commit();
             return TaskEx.Completed;
         }
     }

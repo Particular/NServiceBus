@@ -3,7 +3,10 @@
     using System.Threading.Tasks;
     using NServiceBus.Extensibility;
     using NServiceBus.Outbox;
+    using NServiceBus.Persistence;
     using NServiceBus.Pipeline;
+    using NServiceBus.Transports;
+    using NServiceBus.Unicast;
 
     class ReceiveFeature : Feature
     {
@@ -31,19 +34,31 @@
 
                 var pipeline = new PipelineBase<BatchDispatchContext>(b, context.Settings, pipelinesCollection.MainPipeline);
 
-                IOutboxStorage storage; // TODO: This should probably be done in the outbox feature
-
-                if (context.Container.HasComponent<IOutboxStorage>())
-                {
-                    storage = b.Build<IOutboxStorage>();
-                }
-                else
-                {
-                    storage = new NoOpOutbox();
-                }
-
+                var storage = context.Container.HasComponent<IOutboxStorage>() ? b.Build<IOutboxStorage>() : new NoOpOutbox();
+                
                 return new TransportReceiveToPhysicalMessageProcessingConnector(pipeline, storage);
             }, DependencyLifecycle.InstancePerCall);
+
+            context.Container.ConfigureComponent(b =>
+            {
+                var adapter = context.Container.HasComponent<ISynchronizedStorageAdapter>() ? b.Build<ISynchronizedStorageAdapter>() : new NoOpAdaper();
+                return new LoadHandlersConnector(b.Build<MessageHandlerRegistry>(), b.Build<ISynchronizedStorage>(), adapter);
+            }, DependencyLifecycle.InstancePerCall);
+        }
+
+        class NoOpAdaper : ISynchronizedStorageAdapter
+        {
+            public bool TryAdapt(OutboxTransaction transaction, out CompletableSynchronizedStorageSession session)
+            {
+                session = null;
+                return false;
+            }
+
+            public bool TryAdapt(TransportTransaction transportTransaction, out CompletableSynchronizedStorageSession session)
+            {
+                session = null;
+                return false;
+            }
         }
 
         class NoOpOutbox : IOutboxStorage
@@ -68,17 +83,16 @@
                 return Task.FromResult<OutboxTransaction>(new NoOpOutboxTransaction());
             }
         }
-    }
-
-    class NoOpOutboxTransaction : OutboxTransaction
-    {
-        public void Dispose()
+        class NoOpOutboxTransaction : OutboxTransaction
         {
-        }
+            public void Dispose()
+            {
+            }
 
-        public Task Commit()
-        {
-            return TaskEx.Completed;
+            public Task Commit()
+            {
+                return TaskEx.Completed;
+            }
         }
     }
 }

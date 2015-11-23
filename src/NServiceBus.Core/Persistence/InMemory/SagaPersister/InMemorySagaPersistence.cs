@@ -9,6 +9,7 @@
         internal InMemorySagaPersistence()
         {
             DependsOn<Sagas>();
+            Defaults(s => s.EnableFeature(typeof(InMemoryTransactionalStorageFeature)));
         }
 
         /// <summary>

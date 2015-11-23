@@ -140,7 +140,7 @@
             return new TransportReceiveContext(new IncomingMessage(messageId, new Dictionary<string, string>
             {
                 {Headers.Retries, currentRetryCount.ToString()}
-            }, new MemoryStream(messageBody ?? new byte[0])), new RootContext(null));
+            }, new MemoryStream(messageBody ?? new byte[0])), null, new RootContext(null));
         }
     }
 

@@ -23,12 +23,20 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
             };
 
             var persister = new InMemorySagaPersister();
-            await persister.Save(saga1, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(saga1), new ContextBag());
-            saga1 = await persister.Get<SagaWithUniquePropertyData>(saga1.Id, new ContextBag());
-            saga1.UniqueString = "whatever2";
-            await persister.Update(saga1, new ContextBag());
 
-            await persister.Save(saga2, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(saga2), new ContextBag());
+            var firstInsertSession = new InMemorySynchronizedStorageSession();
+            await persister.Save(saga1, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(saga1), firstInsertSession, new ContextBag());
+            await firstInsertSession.CompleteAsync();
+
+            var updateSession = new InMemorySynchronizedStorageSession();
+            saga1 = await persister.Get<SagaWithUniquePropertyData>(saga1.Id, updateSession, new ContextBag());
+            saga1.UniqueString = "whatever2";
+            await persister.Update(saga1, updateSession, new ContextBag());
+            await updateSession.CompleteAsync();
+
+            var secondInsertSession = new InMemorySynchronizedStorageSession();
+            await persister.Save(saga2, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(saga2), secondInsertSession, new ContextBag());
+            await secondInsertSession.CompleteAsync();
         }
     }
 }

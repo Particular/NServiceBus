@@ -148,6 +148,7 @@
                 new Dictionary<string, string>(),
                 null,
                 null,
+                null,
                 new RootContext(null));
 
             return behaviorContext;
