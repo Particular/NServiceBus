@@ -12,7 +12,7 @@
     /// <summary>
     /// Used to configure encryption.
     /// </summary>
-    public class Encryptor:Feature
+    public class Encryptor : Feature
     {
         Func<IBuilder, IEncryptionService> serviceConstructor;
 
@@ -67,11 +67,12 @@ Perhaps you forgot to define your encryption message conventions or to define me
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             context.Container.ConfigureComponent(serviceConstructor, DependencyLifecycle.SingleInstance);
-            context.Container.ConfigureComponent<EncryptionMutator>(DependencyLifecycle.InstancePerCall);
+            context.Container.ConfigureComponent<EncryptionMutator>(DependencyLifecycle.SingleInstance);
 
             context.Pipeline.Register<EncryptBehavior.EncryptRegistration>();
             context.Pipeline.Register<DecryptBehavior.DecryptRegistration>();
         }
+
         static ILog log = LogManager.GetLogger<Encryptor>();
     }
 }
