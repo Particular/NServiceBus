@@ -114,6 +114,8 @@
     <Compile Include="Routing\Legacy\WorkerFeature.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\MessageDrivenSubscriptionsConfigExtensions.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\SubscriptionAuthorizer.cs" />
+    <Compile Include="Transports\Msmq\TimeToBeReceivedOverrideCheck.cs" />
+    <Compile Include="Transports\Msmq\TimeToBeReceivedOverrideChecker.cs" />
     <Compile Include="UnicastRoutingTarget.cs" />
     <Compile Include="EnumerableEx.cs" />
     <Compile Include="IBusExtensions_obsolete.cs" />

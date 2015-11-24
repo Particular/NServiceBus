@@ -21,6 +21,7 @@
             DependsOn<UnicastBus>();
             DependsOn<Receiving>();
             RegisterStartupTask<CheckQueuePermissions>();
+            RegisterStartupTask<TimeToBeReceivedOverrideCheck>();
         }
 
         class CheckQueuePermissions : FeatureStartupTask
