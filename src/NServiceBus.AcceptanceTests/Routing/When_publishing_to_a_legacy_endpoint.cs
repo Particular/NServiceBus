@@ -6,7 +6,6 @@
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NServiceBus.Features;
-    using NServiceBus.Routing;
     using NUnit.Framework;
 
     public class When_publishing_to_a_legacy_endpoint : NServiceBusAcceptanceTest

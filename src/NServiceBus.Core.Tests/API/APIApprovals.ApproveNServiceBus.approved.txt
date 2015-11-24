@@ -415,13 +415,9 @@ namespace NServiceBus
         public NServiceBus.HostInfoSettings UsingNames(string instanceName, string hostName) { }
     }
     public interface IAmStartedByMessages<T> : NServiceBus.IHandleMessages<T> { }
-    [System.ObsoleteAttribute("This feature has been removed. To support authorization on a per subscription mes" +
-        "sage type use a pipeline step instead. Will be removed in version 7.0.0.", true)]
-    public interface IAuthorizeSubscriptions
-    {
-        bool AuthorizeSubscribe(string messageType, string clientEndpoint, System.Collections.Generic.IDictionary<string, string> headers);
-        bool AuthorizeUnsubscribe(string messageType, string clientEndpoint, System.Collections.Generic.IDictionary<string, string> headers);
-    }
+    [System.ObsoleteAttribute("Please use `config.UseTransport<MsmqTransport>().SubscriptionAuthorizer(Authorize" +
+        "r);` instead. Will be removed in version 7.0.0.", true)]
+    public interface IAuthorizeSubscriptions { }
     [System.ObsoleteAttribute("When in context of handler use IMessageHandlingContext. Otherwise use IBusInterfa" +
         "ce to create sending context. Will be removed in version 7.0.0.", true)]
     public interface IBus { }
@@ -681,6 +677,11 @@ namespace NServiceBus
         public MessageDeserializationException(string transportMessageId, System.Exception innerException) { }
         protected MessageDeserializationException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
     }
+    public class static MessageDrivenSubscriptionsConfigExtensions
+    {
+        public static void SubscriptionAuthorizer(this NServiceBus.TransportExtensions transportExtensions, NServiceBus.SubscriptionAuthorizer authorizer) { }
+        public static void UseLegacyMessageDrivenSubscriptionMode(this NServiceBus.BusConfiguration busConfiguration) { }
+    }
     public class static MessageIdExtensions
     {
         public static string GetMessageId(this NServiceBus.OutgoingPipeline.OutgoingPhysicalMessageContext context) { }
@@ -935,6 +936,7 @@ namespace NServiceBus
     {
         public SubscribeOptions() { }
     }
+    public delegate bool SubscriptionAuthorizer(NServiceBus.PhysicalMessageProcessingContext context);
     [System.AttributeUsageAttribute(System.AttributeTargets.Class | System.AttributeTargets.Interface | System.AttributeTargets.All)]
     public sealed class TimeToBeReceivedAttribute : System.Attribute
     {
@@ -2214,10 +2216,6 @@ namespace NServiceBus.Routing
     public interface IUnicastRoute
     {
         System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> Resolve(System.Func<NServiceBus.EndpointName, System.Collections.Generic.IEnumerable<NServiceBus.EndpointInstanceName>> instanceResolver);
-    }
-    public class static MessageDrivenSubscriptionsConfigExtensions
-    {
-        public static void UseLegacyMessageDrivenSubscriptionMode(this NServiceBus.BusConfiguration busConfiguration) { }
     }
     public class MulticastAddressTag : NServiceBus.Routing.AddressTag
     {

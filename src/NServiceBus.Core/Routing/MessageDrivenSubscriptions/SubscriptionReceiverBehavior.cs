@@ -2,7 +2,6 @@
 {
     using System;
     using System.Diagnostics;
-    using System.Linq;
     using System.Threading.Tasks;
     using Logging;
     using NServiceBus.Pipeline;
@@ -12,9 +11,10 @@
 
     class SubscriptionReceiverBehavior : Behavior<PhysicalMessageProcessingContext>
     {
-        public SubscriptionReceiverBehavior(ISubscriptionStorage subscriptionStorage)
+        public SubscriptionReceiverBehavior(ISubscriptionStorage subscriptionStorage, SubscriptionAuthorizer authorizer)
         {
             this.subscriptionStorage = subscriptionStorage;
+            this.authorizer = authorizer;
         }
 
         public override async Task Invoke(PhysicalMessageProcessingContext context, Func<Task> next)
@@ -70,34 +70,39 @@
                 return;
             }
 
+            if (!authorizer(context))
+            {
+                Logger.Debug($"{intent} from {subscriberAddress} on message type {messageTypeString} was refused.");
+                return;
+            }
+            Logger.Info($"{intent} from {subscriberAddress} on message type {messageTypeString}");
             if (incomingMessage.GetMesssageIntent() == MessageIntentEnum.Subscribe)
             {
-                Logger.Info("Subscribing " + subscriberAddress + " to message type " + messageTypeString);
-
-                var mt = new MessageType(messageTypeString);
+                var messageType = new MessageType(messageTypeString);
 
                 await subscriptionStorage.Subscribe(new Subscriber(subscriberAddress, subscriberEndpoint), new[]
                 {
-                    mt
+                    messageType
                 }, context).ConfigureAwait(false);
 
                 return;
             }
-
-            Logger.Info("Unsubscribing " + subscriberAddress + " from message type " + messageTypeString);
+            
             await subscriptionStorage.Unsubscribe(new Subscriber(subscriberAddress, subscriberEndpoint), new[]
             {
                 new MessageType(messageTypeString)
             }, context).ConfigureAwait(false);
         }
 
-
         static string GetSubscriptionMessageTypeFrom(IncomingMessage msg)
         {
-            return (from header in msg.Headers where header.Key == Headers.SubscriptionMessageType select header.Value).FirstOrDefault();
+            string value;
+            msg.Headers.TryGetValue(Headers.SubscriptionMessageType, out value);
+            return value;
         }
 
         ISubscriptionStorage subscriptionStorage;
+        SubscriptionAuthorizer authorizer;
 
         static ILog Logger = LogManager.GetLogger<SubscriptionReceiverBehavior>();
 
