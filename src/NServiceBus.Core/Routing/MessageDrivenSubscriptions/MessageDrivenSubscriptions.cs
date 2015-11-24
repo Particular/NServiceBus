@@ -20,6 +20,12 @@ namespace NServiceBus.Features
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             context.Pipeline.Register<SubscriptionReceiverBehavior.Registration>();
+            var authorizer = context.Settings.GetSubscriptionAuthorizer();
+            if (authorizer == null)
+            {
+                authorizer = _ => true;
+            }
+            context.Container.RegisterSingleton(authorizer);
         }
     }
 }

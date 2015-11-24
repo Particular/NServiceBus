@@ -113,6 +113,7 @@
     <Compile Include="Routing\Legacy\ReadyMessageSender.cs" />
     <Compile Include="Routing\Legacy\WorkerFeature.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\MessageDrivenSubscriptionsConfigExtensions.cs" />
+    <Compile Include="Routing\MessageDrivenSubscriptions\SubscriptionAuthorizer.cs" />
     <Compile Include="UnicastRoutingTarget.cs" />
     <Compile Include="EnumerableEx.cs" />
     <Compile Include="IBusExtensions_obsolete.cs" />
