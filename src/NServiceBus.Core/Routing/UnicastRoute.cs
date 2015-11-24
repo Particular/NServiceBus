@@ -6,7 +6,7 @@ namespace NServiceBus.Routing
     /// <summary>
     /// A destination of address routing.
     /// </summary>
-    class UnicastRoute : IUnicastRoute
+    public class UnicastRoute : IUnicastRoute
     {
         EndpointName endpointName;
         EndpointInstanceName instanceName;
