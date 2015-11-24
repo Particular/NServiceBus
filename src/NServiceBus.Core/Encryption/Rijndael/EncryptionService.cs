@@ -168,11 +168,7 @@ namespace NServiceBus.Encryption.Rijndael
 
         protected virtual void AddKeyIdentifierHeader()
         {
-            var headers = Bus.OutgoingHeaders;
-            if (!headers.ContainsKey(Headers.RijndaelKeyIdentifier))
-            {
-                headers.Add(Headers.RijndaelKeyIdentifier, EncryptionKeyIdentifier);
-            }
+            Bus.OutgoingHeaders[Headers.RijndaelKeyIdentifier] = EncryptionKeyIdentifier;
         }
 
         protected virtual bool TryGetKeyIdentifierHeader(out string keyIdentifier)
