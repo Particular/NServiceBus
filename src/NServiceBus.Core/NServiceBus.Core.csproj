@@ -371,7 +371,7 @@
     <Compile Include="INeedInitialization.cs" />
     <Compile Include="Installation\InstallationSupport.cs" />
     <Compile Include="Installation\InstallConfigExtensions.cs" />
-    <Compile Include="IBusInterface.cs" />
+    <Compile Include="IBusContextFactory.cs" />
     <Compile Include="Logging\DefaultFactory.cs" />
     <Compile Include="Logging\LoggingDefinition.cs" />
     <Compile Include="MessageInterfaces\MessageMapper\Reflection\ConcreteProxyCreator.cs" />

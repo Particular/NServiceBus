@@ -31,7 +31,7 @@
         [Test]
         public void LoggersShouldBeStaticField()
         {
-            foreach (var type in typeof(IBusInterface).Assembly.GetTypes())
+            foreach (var type in typeof(IBusContextFactory).Assembly.GetTypes())
             {
                 foreach (var field in type.GetFields(BindingFlags.Instance|BindingFlags.NonPublic|BindingFlags.Public))
                 {
@@ -65,18 +65,18 @@
 
         static IEnumerable<Type> GetBehaviors()
         {
-            return typeof(IBusInterface).Assembly.GetTypes()
+            return typeof(IBusContextFactory).Assembly.GetTypes()
                 .Where(type => type.GetInterfaces().Any(face=>face.Name.StartsWith("IBehavior")) && !type.IsAbstract &&!type.IsGenericType);
         }
         static IEnumerable<Type> GetFeatures()
         {
-            return typeof(IBusInterface).Assembly.GetTypes()
+            return typeof(IBusContextFactory).Assembly.GetTypes()
                 .Where(type => typeof(Feature).IsAssignableFrom(type) && type.IsPublic && !type.IsAbstract);
         }
 
         static IEnumerable<Type> GetAttributeTypes()
         {
-            return typeof(IBusInterface).Assembly.GetTypes()
+            return typeof(IBusContextFactory).Assembly.GetTypes()
                 .Where(type => type.Namespace != null &&
                                typeof(Attribute).IsAssignableFrom(type) &&
                                //Ignore log4net attributes

@@ -36,7 +36,7 @@ namespace NServiceBus
 
         public async Task<IEndpoint> Start()
         {
-            var busInterface = new StartUpBusInterface(builder);
+            var busInterface = new StartUpBusContextFactory(builder);
             var featureRunner = new FeatureRunner(builder, featureActivator);
             var busContext = busInterface.CreateBusContext();
             await featureRunner.Start(busContext).ConfigureAwait(false);
@@ -62,11 +62,11 @@ namespace NServiceBus
             return runningInstance;
         }
 
-        class StartUpBusInterface : IBusInterface
+        class StartUpBusContextFactory : IBusContextFactory
         {
             IBuilder builder;
 
-            public StartUpBusInterface(IBuilder builder)
+            public StartUpBusContextFactory(IBuilder builder)
             {
                 this.builder = builder;
             }
