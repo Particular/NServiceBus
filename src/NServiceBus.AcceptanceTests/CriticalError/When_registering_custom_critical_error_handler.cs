@@ -9,9 +9,8 @@
     using NServiceBus.Configuration.AdvanceExtensibility;
     using NUnit.Framework;
     using ScenarioDescriptors;
-    using IMessage = NServiceBus.IMessage;
 
-    public class When_registering_a_custom_criticalErrorHandler : NServiceBusAcceptanceTest
+    public class When_registering_custom_critical_error_handler : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Critical_error_should_be_raised_inside_delegate()
@@ -45,7 +44,7 @@
                     builder.UseTransport<FakeTransport>()
                         .RaiseCriticalErrorDuringStartup(new AggregateException("Startup task failed to complete.", new InvalidOperationException("ExceptionInBusStarts")));
 
-                    builder.DefineCriticalErrorAction((s, exception) =>
+                    builder.DefineCriticalErrorAction((endpoint, s, exception) =>
                     {
                         var aggregateException = (AggregateException) exception;
                         var context = builder.GetSettings().Get<Context>();

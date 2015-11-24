@@ -47,18 +47,18 @@ namespace NServiceBus
 
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 
-            PipelineCollection pipelineCollection;
-            if (settings.GetOrDefault<bool>("Endpoint.SendOnly"))
-            {
-                pipelineCollection = new PipelineCollection(Enumerable.Empty<TransportReceiver>());
-            }
-            else
-            {
-                var pipelines = BuildPipelines().ToArray();
-                pipelineCollection = new PipelineCollection(pipelines);
-                await pipelineCollection.Start().ConfigureAwait(false);
-            }
+            var pipelineCollection = new PipelineCollection(
+                settings.GetOrDefault<bool>("Endpoint.SendOnly")
+                    ? Enumerable.Empty<TransportReceiver>()
+                    : BuildPipelines().ToArray());
+
             var runningInstance = new RunningEndpointInstance(builder, pipelineCollection, runner, featureRunner, busInterface);
+
+            // set the started endpoint on CriticalError to pass the endpoint to the critical error action
+            builder.Build<CriticalError>().Endpoint = runningInstance;
+
+            await pipelineCollection.Start().ConfigureAwait(false);
+
             return runningInstance;
         }
 
