@@ -13,9 +13,9 @@ namespace NServiceBus.Transports
         /// <param name="replies">Policy for replies.</param>
         public OutboundRoutingPolicy(OutboundRoutingType sends, OutboundRoutingType publishes, OutboundRoutingType replies)
         {
-            this.Sends = sends;
-            this.Publishes = publishes;
-            this.Replies = replies;
+            Sends = sends;
+            Publishes = publishes;
+            Replies = replies;
         }
 
         /// <summary>

@@ -21,9 +21,9 @@
             : base(parentContext)
         {
 
-            this.MessageId = messageId;
-            this.ReplyToAddress = replyToAddress;
-            this.MessageHeaders = headers;
+            MessageId = messageId;
+            ReplyToAddress = replyToAddress;
+            MessageHeaders = headers;
         }
 
         /// <inheritdoc />

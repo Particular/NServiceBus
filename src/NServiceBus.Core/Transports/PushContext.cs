@@ -15,7 +15,7 @@
         /// <param name="messageId">Native message id.</param>
         /// <param name="headers">The message headers.</param>
         /// <param name="bodyStream">The message body stream.</param>
-        /// <param name="transportTransaction">Transaction (along with connection if aplicable) used to receive the message.</param>
+        /// <param name="transportTransaction">Transaction (along with connection if applicable) used to receive the message.</param>
         /// <param name="context">Any context that the transport wants to be available on the pipeline.</param>
         public PushContext(string messageId, Dictionary<string, string> headers, Stream bodyStream, TransportTransaction transportTransaction, ContextBag context)
         {

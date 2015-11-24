@@ -12,7 +12,7 @@ namespace NServiceBus
         {
             this.dispatcher = dispatcher;
             this.persister = persister;
-            this.dispatchConsistency = GetDispatchConsistency(transactionSupport);
+            dispatchConsistency = GetDispatchConsistency(transactionSupport);
         }
 
         protected override async Task Terminate(PhysicalMessageProcessingContext context)

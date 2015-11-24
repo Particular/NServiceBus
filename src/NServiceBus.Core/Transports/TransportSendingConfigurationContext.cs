@@ -22,7 +22,7 @@ namespace NServiceBus.Transports
 
         internal TransportSendingConfigurationContext(ReadOnlySettings globalSettings, string connectionString)
         {
-            this.GlobalSettings = globalSettings;
+            GlobalSettings = globalSettings;
             ConnectionString = connectionString;
         }
 

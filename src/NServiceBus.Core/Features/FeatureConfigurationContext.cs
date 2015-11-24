@@ -12,9 +12,9 @@
     {
         internal FeatureConfigurationContext(ReadOnlySettings settings, IConfigureComponents container, PipelineSettings pipelineSettings)
         {
-            this.Settings = settings;
-            this.Container = container;
-            this.Pipeline = pipelineSettings;
+            Settings = settings;
+            Container = container;
+            Pipeline = pipelineSettings;
         }
 
         /// <summary>

@@ -17,25 +17,22 @@
     {
         static bool administerGranted;
 
-        const string Mqrt = "mqrt.dll";
-        const string Advapi32 = "advapi32.dll";
-
-        [DllImport(Mqrt, CharSet = CharSet.Unicode, SetLastError = true)]
+        [DllImport("mqrt.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         static extern int MQGetQueueSecurity(string formatName, int SecurityInformation, IntPtr SecurityDescriptor, int length, out int lengthNeeded);
 
-        [DllImport(Advapi32, SetLastError = true)]
+        [DllImport("advapi32.dll", SetLastError = true)]
         static extern bool GetSecurityDescriptorDacl(IntPtr pSD, out bool daclPresent, out IntPtr pDacl, out bool daclDefaulted);
 
-        [DllImport(Advapi32, CharSet = CharSet.Unicode, SetLastError = true)]
+        [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         static extern bool GetAclInformation(IntPtr pAcl, ref ACL_SIZE_INFORMATION pAclInformation, uint nAclInformationLength, ACL_INFORMATION_CLASS dwAclInformationClass);
 
-        [DllImport(Advapi32, CharSet = CharSet.Unicode, SetLastError = true)]
+        [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         static extern int GetAce(IntPtr aclPtr, int aceIndex, out IntPtr acePtr);
 
-        [DllImport(Advapi32, CharSet = CharSet.Unicode, SetLastError = true)]
+        [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         static extern int GetLengthSid(IntPtr pSID);
 
-        [DllImport(Advapi32, CharSet = CharSet.Unicode, SetLastError = true)]
+        [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         static extern bool ConvertSidToStringSid([MarshalAs(UnmanagedType.LPArray)] byte[] pSID, out IntPtr ptrSid);
 
         // the following constants taken from MessageQueue.cs (see http://referencesource.microsoft.com/#System.Messaging/System/Messaging/MessageQueue.cs)
