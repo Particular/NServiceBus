@@ -67,6 +67,9 @@ namespace NServiceBus.Encryption.Rijndael
             }
 
             VerifyExpiredKeys(decryptionKeys);
+
+            if (encryptionKeyIdentifier != null)
+                AddKeyIdentifierHeader();
         }
 
         public string Decrypt(EncryptedValue encryptedValue)
@@ -147,8 +150,6 @@ namespace NServiceBus.Encryption.Rijndael
                 throw new InvalidOperationException("It is required to set the rijndael key identifer.");
             }
 
-            AddKeyIdentifierHeader();
-
             using (var rijndael = new RijndaelManaged())
             {
                 rijndael.Key = encryptionKey;
@@ -208,12 +209,7 @@ namespace NServiceBus.Encryption.Rijndael
 
         protected virtual void AddKeyIdentifierHeader()
         {
-            var outgoingHeaders = bus.OutgoingHeaders;
-
-            if (!outgoingHeaders.ContainsKey(Headers.RijndaelKeyIdentifier))
-            {
-                outgoingHeaders.Add(Headers.RijndaelKeyIdentifier, encryptionKeyIdentifier);
-            }
+            bus.OutgoingHeaders[Headers.RijndaelKeyIdentifier] = encryptionKeyIdentifier;
         }
 
         protected virtual bool TryGetKeyIdentifierHeader(out string keyIdentifier)
