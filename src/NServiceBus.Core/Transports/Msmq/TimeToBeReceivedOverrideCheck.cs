@@ -18,7 +18,7 @@
         {
             var usingMsmq = settings.Get<TransportDefinition>() is MsmqTransport;
             var isTransactional = settings.Get<bool>("Transactions.Enabled");
-            var outBoxRunning = settings.GetOrDefault<bool>("NServiceBus.Features.Outbox");
+            var outBoxRunning = settings.IsFeatureActive(typeof(Outbox));
 
             var messageAuditingConfig = settings.GetConfigSection<AuditConfig>();
             var auditTTBROverridden = messageAuditingConfig != null && messageAuditingConfig.OverrideTimeToBeReceived > TimeSpan.Zero;
