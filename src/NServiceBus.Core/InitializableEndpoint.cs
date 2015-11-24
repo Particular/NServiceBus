@@ -6,6 +6,7 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using NServiceBus.Config.ConfigurationSource;
     using NServiceBus.Features;
+    using NServiceBus.Installation;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.ObjectBuilder.Common;
     using NServiceBus.Pipeline;
@@ -51,6 +52,7 @@ namespace NServiceBus
             featureActivator.RegisterStartupTasks(container);
 
             ReportFeatures(featureStats);
+            WireUpInstallers();
 
             var startableEndpoint = new StartableEndpoint(settings, builder, featureActivator, pipelineConfiguration, startables);
             return Task.FromResult<IStartableEndpoint>(startableEndpoint);
@@ -92,6 +94,14 @@ namespace NServiceBus
             foreach (var t in TypesToScan.Where(t => t.GetInterfaces().Any(IsGenericConfigSource)))
             {
                 container.ConfigureComponent(t, DependencyLifecycle.InstancePerCall);
+            }
+        }
+
+        void WireUpInstallers()
+        {
+            foreach (var installerType in TypesToScan.Where(t => typeof(IInstall).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface)))
+            {
+                container.ConfigureComponent(installerType, DependencyLifecycle.InstancePerCall);
             }
         }
 

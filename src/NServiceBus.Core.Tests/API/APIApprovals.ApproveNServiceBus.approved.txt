@@ -1153,6 +1153,12 @@ namespace NServiceBus.Config
         [System.Configuration.ConfigurationPropertyAttribute("ErrorQueue", IsRequired=true)]
         public string ErrorQueue { get; set; }
     }
+    public class MsmqSubscriptionStorageConfig : System.Configuration.ConfigurationSection
+    {
+        public MsmqSubscriptionStorageConfig() { }
+        [System.Configuration.ConfigurationPropertyAttribute("Queue", IsRequired=true)]
+        public string Queue { get; set; }
+    }
     public class RijndaelEncryptionServiceConfig : System.Configuration.ConfigurationSection
     {
         public RijndaelEncryptionServiceConfig() { }
@@ -1532,15 +1538,15 @@ namespace NServiceBus.Features
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
-    public class InstallationSupport : NServiceBus.Features.Feature
-    {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
-    }
     public class JsonSerialization : NServiceBus.Serialization.ConfigureSerialization
     {
         protected override System.Type GetSerializerType(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class MessageDrivenSubscriptions : NServiceBus.Features.Feature
+    {
+        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+    }
+    public class MsmqSubscriptionPersistence : NServiceBus.Features.Feature
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
@@ -1979,6 +1985,10 @@ namespace NServiceBus.Persistence
         public sealed class Timeouts : NServiceBus.Persistence.StorageType { }
     }
     public interface SynchronizedStorageSession { }
+}
+namespace NServiceBus.Persistence.Legacy
+{
+    public class MsmqPersistence : NServiceBus.Persistence.PersistenceDefinition { }
 }
 namespace NServiceBus.Pipeline
 {
@@ -3053,9 +3063,9 @@ namespace NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions
     }
     public interface ISubscriptionStorage
     {
-        System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber>> GetSubscriberAddressesForMessage(System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Subscriptions.MessageType> messageTypes, NServiceBus.Extensibility.ContextBag context);
-        System.Threading.Tasks.Task Subscribe(NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber subscriber, System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Subscriptions.MessageType> messageTypes, NServiceBus.Extensibility.ContextBag context);
-        System.Threading.Tasks.Task Unsubscribe(NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber subscriber, System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Subscriptions.MessageType> messageTypes, NServiceBus.Extensibility.ContextBag context);
+        System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber>> GetSubscriberAddressesForMessage(System.Collections.Generic.IReadOnlyCollection<NServiceBus.Unicast.Subscriptions.MessageType> messageTypes, NServiceBus.Extensibility.ContextBag context);
+        System.Threading.Tasks.Task Subscribe(NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber subscriber, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Unicast.Subscriptions.MessageType> messageTypes, NServiceBus.Extensibility.ContextBag context);
+        System.Threading.Tasks.Task Unsubscribe(NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber subscriber, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Unicast.Subscriptions.MessageType> messageTypes, NServiceBus.Extensibility.ContextBag context);
     }
     public class Subscriber
     {
