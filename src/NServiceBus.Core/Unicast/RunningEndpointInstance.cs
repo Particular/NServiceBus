@@ -7,9 +7,9 @@ namespace NServiceBus.Unicast
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Pipeline;
 
-    partial class RunningEndpoint : IEndpoint
+    partial class RunningEndpointInstance : IEndpointInstance
     {
-        public RunningEndpoint(IBuilder builder, PipelineCollection pipelineCollection, StartAndStoppablesRunner startAndStoppablesRunner, FeatureRunner featureRunner, IBusContextFactory busContextFactory)
+        public RunningEndpointInstance(IBuilder builder, PipelineCollection pipelineCollection, StartAndStoppablesRunner startAndStoppablesRunner, FeatureRunner featureRunner, IBusContextFactory busContextFactory)
         {
             this.busContextFactory = busContextFactory;
             this.pipelineCollection = pipelineCollection;

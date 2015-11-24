@@ -14,7 +14,7 @@
         static ILog Logger = LogManager.GetLogger<EndpointRunner>();
         EndpointBehavior behavior;
         IStartableEndpoint startable;
-        IEndpoint endpoint;
+        IEndpointInstance endpointInstance;
         EndpointConfiguration configuration;
         ScenarioContext scenarioContext;
         BusConfiguration busConfiguration;
@@ -81,7 +81,7 @@
         {
             try
             {
-                endpoint = await startable.Start().ConfigureAwait(false);
+                endpointInstance = await startable.Start().ConfigureAwait(false);
 
                 if (token.IsCancellationRequested)
                 {
@@ -107,7 +107,7 @@
                     await Task.Run(async () =>
                     {
                         var executedWhens = new List<Guid>();
-                        var sendContext = endpoint.CreateBusContext();
+                        var sendContext = endpointInstance.CreateBusContext();
 
                         while (!token.IsCancellationRequested)
                         {
@@ -155,7 +155,7 @@
         {
             try
             {
-                await endpoint.Stop().ConfigureAwait(false);
+                await endpointInstance.Stop().ConfigureAwait(false);
 
                 await Cleanup().ConfigureAwait(false);
 

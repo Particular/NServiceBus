@@ -34,7 +34,7 @@ namespace NServiceBus
             this.startables = startables;
         }
 
-        public async Task<IEndpoint> Start()
+        public async Task<IEndpointInstance> Start()
         {
             var busInterface = new StartUpBusContextFactory(builder);
             var featureRunner = new FeatureRunner(builder, featureActivator);
@@ -58,7 +58,7 @@ namespace NServiceBus
                 pipelineCollection = new PipelineCollection(pipelines);
                 await pipelineCollection.Start().ConfigureAwait(false);
             }
-            var runningInstance = new RunningEndpoint(builder, pipelineCollection, runner, featureRunner, busInterface);
+            var runningInstance = new RunningEndpointInstance(builder, pipelineCollection, runner, featureRunner, busInterface);
             return runningInstance;
         }
 

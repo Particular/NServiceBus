@@ -2,7 +2,7 @@ namespace NServiceBus.Unicast
 {
     using System;
 
-    partial class RunningEndpoint
+    partial class RunningEndpointInstance
     {
         public ICallback Defer(TimeSpan delay, object message)
         {
