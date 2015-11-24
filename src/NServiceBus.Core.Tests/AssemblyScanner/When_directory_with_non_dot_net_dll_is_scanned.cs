@@ -6,7 +6,7 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class When_directory__with_non_dot_net_dll_is_scanned
+    public class When_directory_with_non_dot_net_dll_is_scanned
     {
         AssemblyScannerResults results;
         List<SkippedFile> skippedFiles;
