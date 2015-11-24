@@ -135,8 +135,8 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Routing\When_distributing_an_event.cs" />
-    <Compile Include="Routing\When_publishing_with_authorizer.cs" />
-    <Compile Include="Routing\When_unsubscribing_with_authorizer.cs" />
+    <Compile Include="Msmq\When_publishing_with_authorizer.cs" />
+    <Compile Include="Msmq\When_unsubscribing_with_authorizer.cs" />
     <Compile Include="Routing\When_publishing_to_a_legacy_endpoint.cs" />
     <Compile Include="Routing\When_publishing_from_sendonly.cs" />
     <Compile Include="MessageId\When_message_has_empty_id_header.cs" />
