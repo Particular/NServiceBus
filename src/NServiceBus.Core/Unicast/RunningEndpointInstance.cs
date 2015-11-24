@@ -7,11 +7,11 @@ namespace NServiceBus.Unicast
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Pipeline;
 
-    partial class RunningEndpoint : IEndpoint
+    partial class RunningEndpointInstance : IEndpointInstance
     {
-        public RunningEndpoint(IBuilder builder, PipelineCollection pipelineCollection, StartAndStoppablesRunner startAndStoppablesRunner, FeatureRunner featureRunner, IBusInterface busInterface)
+        public RunningEndpointInstance(IBuilder builder, PipelineCollection pipelineCollection, StartAndStoppablesRunner startAndStoppablesRunner, FeatureRunner featureRunner, IBusContextFactory busContextFactory)
         {
-            this.busInterface = busInterface;
+            this.busContextFactory = busContextFactory;
             this.pipelineCollection = pipelineCollection;
             this.startAndStoppablesRunner = startAndStoppablesRunner;
             this.featureRunner = featureRunner;
@@ -38,7 +38,7 @@ namespace NServiceBus.Unicast
         }
         public IBusContext CreateBusContext()
         {
-            return busInterface.CreateBusContext();
+            return busContextFactory.CreateBusContext();
         }
 
         volatile bool stopped;
@@ -48,6 +48,6 @@ namespace NServiceBus.Unicast
         IBuilder builder;
 
         static ILog Log = LogManager.GetLogger<UnicastBus>();
-        readonly IBusInterface busInterface;
+        readonly IBusContextFactory busContextFactory;
     }
 }

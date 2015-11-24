@@ -32,12 +32,12 @@ namespace NServiceBus
         Task DefaultCriticalErrorHandling(string errorMessage, Exception exception)
         {
             var components = builder.Build<IConfigureComponents>();
-            if (!components.HasComponent<IEndpoint>())
+            if (!components.HasComponent<IEndpointInstance>())
             {
                 return TaskEx.Completed;
             }
 
-            return builder.Build<IEndpoint>().Stop();
+            return builder.Build<IEndpointInstance>().Stop();
         }
 
         /// <summary>

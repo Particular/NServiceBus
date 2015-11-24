@@ -120,7 +120,7 @@
     <Compile Include="IMessageHandlerContext.cs" />
     <Compile Include="IHandleMessages.cs" />
     <Compile Include="IInitializableEndpoint.cs" />
-    <Compile Include="IEndpoint.cs" />
+    <Compile Include="IEndpointInstance.cs" />
     <Compile Include="Persistence\InMemory\InMemoryTransaction.cs" />
     <Compile Include="Persistence\InMemory\InMemoryTransactionalStorageSession.cs" />
     <Compile Include="Persistence\ISynchronizedStorageAdapter.cs" />
@@ -371,7 +371,7 @@
     <Compile Include="INeedInitialization.cs" />
     <Compile Include="Installation\InstallationSupport.cs" />
     <Compile Include="Installation\InstallConfigExtensions.cs" />
-    <Compile Include="IBusInterface.cs" />
+    <Compile Include="IBusContextFactory.cs" />
     <Compile Include="Logging\DefaultFactory.cs" />
     <Compile Include="Logging\LoggingDefinition.cs" />
     <Compile Include="MessageInterfaces\MessageMapper\Reflection\ConcreteProxyCreator.cs" />
@@ -690,7 +690,7 @@
     <Compile Include="Transports\TransportReceiver.cs" />
     <Compile Include="Unicast\Transport\TransactionSettings.cs" />
     <Compile Include="Unicast\Transport\TransportConnectionString.cs" />
-    <Compile Include="Unicast\RunningEndpoint.cs" />
+    <Compile Include="Unicast\RunningEndpointInstance.cs" />
     <Compile Include="UnitOfWork\IManageUnitsOfWork.cs" />
     <Compile Include="CircuitBreakers\CircuitBreaker.cs" />
     <Compile Include="CircuitBreakers\RepeatedFailuresOverTimeCircuitBreaker.cs" />

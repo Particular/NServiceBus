@@ -291,7 +291,7 @@ namespace NServiceBus
     public class static Endpoint
     {
         public static NServiceBus.IInitializableEndpoint Create(NServiceBus.BusConfiguration configuration) { }
-        public static async System.Threading.Tasks.Task<NServiceBus.IEndpoint> Start(NServiceBus.BusConfiguration configuration) { }
+        public static async System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(NServiceBus.BusConfiguration configuration) { }
     }
     public sealed class EndpointInstanceName
     {
@@ -327,7 +327,7 @@ namespace NServiceBus
         public static string GetMessageHeader(this NServiceBus.IBus bus, object msg, string key) { }
         [System.ObsoleteAttribute("Headers can be set using the ``.SetHeader` method on the context object passed in" +
             "to your behavior or mutator. Will be removed in version 7.0.0.", true)]
-        public static void SetMessageHeader(this NServiceBus.IBusInterface bus, object msg, string key, string value) { }
+        public static void SetMessageHeader(this NServiceBus.IBusContextFactory bus, object msg, string key, string value) { }
     }
     public class static FileBasedRoutingConfigurationExtensions
     {
@@ -418,8 +418,8 @@ namespace NServiceBus
     [System.ObsoleteAttribute("Please use `config.UseTransport<MsmqTransport>().SubscriptionAuthorizer(Authorize" +
         "r);` instead. Will be removed in version 7.0.0.", true)]
     public interface IAuthorizeSubscriptions { }
-    [System.ObsoleteAttribute("When in context of handler use IMessageHandlingContext. Otherwise use IBusInterfa" +
-        "ce to create sending context. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("When in context of handler use IMessageHandlingContext. Otherwise use IBusContext" +
+        "Factory to create sending context. Will be removed in version 7.0.0.", true)]
     public interface IBus { }
     public interface IBusContext
     {
@@ -446,6 +446,10 @@ namespace NServiceBus
         public static System.Threading.Tasks.Task Subscribe<T>(this NServiceBus.IBusContext context) { }
         public static System.Threading.Tasks.Task Unsubscribe(this NServiceBus.IBusContext context, System.Type messageType) { }
         public static System.Threading.Tasks.Task Unsubscribe<T>(this NServiceBus.IBusContext context) { }
+    }
+    public interface IBusContextFactory
+    {
+        NServiceBus.IBusContext CreateBusContext();
     }
     public class static IBusExtensions
     {
@@ -481,10 +485,6 @@ namespace NServiceBus
         [System.ObsoleteAttribute("Please use `Unsubscribe<T>()` instead. Will be removed in version 7.0.0.", true)]
         public static void Unsubscribe<T>(this NServiceBus.IBus bus) { }
     }
-    public interface IBusInterface
-    {
-        NServiceBus.IBusContext CreateBusContext();
-    }
     [System.ObsoleteAttribute("Replaced by NServiceBus.Callbacks package. Will be removed in version 7.0.0.", true)]
     public interface ICallback { }
     public interface ICommand : NServiceBus.IMessage { }
@@ -507,7 +507,7 @@ namespace NServiceBus
         object GetValue();
         void SetValue(object value);
     }
-    public interface IEndpoint : NServiceBus.IBusInterface
+    public interface IEndpointInstance : NServiceBus.IBusContextFactory
     {
         System.Threading.Tasks.Task Stop();
     }
@@ -584,23 +584,23 @@ namespace NServiceBus
     public class static ISendOnlyBusExtensions
     {
         [System.ObsoleteAttribute("Please use `Publish(object message)` instead. Will be removed in version 7.0.0.", true)]
-        public static void Publish(this NServiceBus.IBusInterface bus, object message) { }
+        public static void Publish(this NServiceBus.IBusContextFactory bus, object message) { }
         [System.ObsoleteAttribute("Please use `Publish()` instead. Will be removed in version 7.0.0.", true)]
-        public static void Publish<T>(this NServiceBus.IBusInterface bus) { }
+        public static void Publish<T>(this NServiceBus.IBusContextFactory bus) { }
         [System.ObsoleteAttribute("Please use `PublishAsync<T>(Action<T> messageConstructor)` instead. Will be remov" +
             "ed in version 7.0.0.", true)]
-        public static void Publish<T>(this NServiceBus.IBusInterface bus, System.Action<T> messageConstructor) { }
+        public static void Publish<T>(this NServiceBus.IBusContextFactory bus, System.Action<T> messageConstructor) { }
         [System.ObsoleteAttribute("Please use `Send(object message)` instead. Will be removed in version 7.0.0.", true)]
-        public static void Send(this NServiceBus.IBusInterface bus, object message) { }
+        public static void Send(this NServiceBus.IBusContextFactory bus, object message) { }
         [System.ObsoleteAttribute("Please use `Send<T>(Action<T> messageConstructor)` instead. Will be removed in ve" +
             "rsion 7.0.0.", true)]
-        public static void Send<T>(this NServiceBus.IBusInterface bus, System.Action<T> messageConstructor) { }
+        public static void Send<T>(this NServiceBus.IBusContextFactory bus, System.Action<T> messageConstructor) { }
         [System.ObsoleteAttribute("Please use `Send(string destination, object message)` instead. Will be removed in" +
             " version 7.0.0.", true)]
-        public static void Send(this NServiceBus.IBusInterface bus, string destination, object message) { }
+        public static void Send(this NServiceBus.IBusContextFactory bus, string destination, object message) { }
         [System.ObsoleteAttribute("Please use `Send<T>(string destination, Action<T> messageConstructor)` instead. W" +
             "ill be removed in version 7.0.0.", true)]
-        public static void Send<T>(this NServiceBus.IBusInterface bus, string destination, System.Action<T> messageConstructor) { }
+        public static void Send<T>(this NServiceBus.IBusContextFactory bus, string destination, System.Action<T> messageConstructor) { }
     }
     [System.ObsoleteAttribute("Please use `BusConfiguration.ExecuteTheseHandlersFirst` instead. Will be removed " +
         "in version 7.0.0.", true)]
@@ -621,7 +621,7 @@ namespace NServiceBus
     }
     public interface IStartableEndpoint
     {
-        System.Threading.Tasks.Task<NServiceBus.IEndpoint> Start();
+        System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start();
     }
     [System.ObsoleteAttribute("Please use `IFinalizeConfiguration` instead. Will be removed in version 7.0.0.", true)]
     public interface IWantToRunBeforeConfigurationIsFinalized
@@ -2244,6 +2244,12 @@ namespace NServiceBus.Routing
         public UnicastAddressTag(string destination) { }
         public string Destination { get; }
     }
+    public class UnicastRoute : NServiceBus.Routing.IUnicastRoute
+    {
+        public UnicastRoute(NServiceBus.EndpointName endpointName) { }
+        public UnicastRoute(NServiceBus.EndpointInstanceName instanceName) { }
+        public UnicastRoute(string physicalAddress) { }
+    }
     public class UnicastRoutingStrategy : NServiceBus.Routing.RoutingStrategy
     {
         public UnicastRoutingStrategy(string destination) { }
@@ -2969,8 +2975,8 @@ namespace NServiceBus.Unicast
         [System.ObsoleteAttribute("Please use `DelayDeliveryFor` instead. Will be removed in version 7.0.0.", true)]
         public System.Nullable<System.TimeSpan> DelayDeliveryWith { get; set; }
     }
-    [System.ObsoleteAttribute("UnicastBus has been made internal. Use IBusInterface to interact with the bus fro" +
-        "m outside of the handler. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("UnicastBus has been made internal. Use IBusContextFactory to interact with the bu" +
+        "s from outside of the handler. Will be removed in version 7.0.0.", true)]
     public class UnicastBus
     {
         public UnicastBus() { }
