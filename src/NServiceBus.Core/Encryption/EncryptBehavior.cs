@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using NServiceBus.Encryption;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
@@ -24,7 +25,7 @@
             }
 
             var currentMessageToSend = context.OutgoingLogicalMessage.Instance;
-            currentMessageToSend = messageMutator.MutateOutgoing(currentMessageToSend);
+            currentMessageToSend = messageMutator.MutateOutgoing(currentMessageToSend, context);
             context.OutgoingLogicalMessage.UpdateMessageInstance(currentMessageToSend);
             next();
         }
