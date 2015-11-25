@@ -73,6 +73,7 @@
     <Compile Include="Msmq\When_TimeToBeReceivedOnForwardedMessages_set_and_transactional_Msmq.cs" />
     <Compile Include="Msmq\When_TimeToBeReceived_set_and_receivetransaction_Msmq.cs" />
     <Compile Include="Msmq\When_TimeToBeReceived_set_and_DTC_Msmq.cs" />
+    <Compile Include="CriticalError\When_using_default_critical_error_handler.cs" />
     <Compile Include="Msmq\When_setting_msmq_label_generator.cs" />
     <Compile Include="Basic\When_deferring_to_non_local.cs" />
     <Compile Include="DelayedDelivery\When_TimeoutManager_is_disabled.cs" />
@@ -165,7 +166,7 @@
     <Compile Include="ScaleOut\When_no_discriminator_is_available.cs" />
     <Compile Include="ScaleOut\When_individualization_is_enabled.cs" />
     <Compile Include="Config\When_startup_is_complete.cs" />
-    <Compile Include="CriticalError\When_registering_a_custom_criticalErrorHandler.cs" />
+    <Compile Include="CriticalError\When_registering_custom_critical_error_handler.cs" />
     <Compile Include="DataBus\When_using_custom_IDataBus.cs" />
     <Compile Include="DeterministicGuid.cs" />
     <Compile Include="MessageId\When_message_has_no_id_header.cs" />

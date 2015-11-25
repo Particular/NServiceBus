@@ -32,8 +32,9 @@ namespace NServiceBus
             WireUpConfigSectionOverrides();
 
             var featureActivator = new FeatureActivator(settings);
-
             container.RegisterSingleton(featureActivator);
+
+            RegisterCriticalErrorHandler();
 
             ForAllTypes<Feature>(TypesToScan, t => featureActivator.Add(t.Construct<Feature>()));
 
@@ -56,6 +57,13 @@ namespace NServiceBus
         }
 
         IList<Type> TypesToScan => settings.GetAvailableTypes();
+
+        void RegisterCriticalErrorHandler()
+        {
+            Func<IEndpointInstance, string, Exception, Task> errorAction;
+            settings.TryGet("onCriticalErrorAction", out errorAction);
+            container.ConfigureComponent(() => new CriticalError(errorAction), DependencyLifecycle.SingleInstance);
+        }
 
         void RunUserRegistrations(List<Action<IConfigureComponents>> registrations)
         {

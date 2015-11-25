@@ -193,7 +193,6 @@
     <Compile Include="Correlation\AttachCorrelationIdBehavior.cs" />
     <Compile Include="Correlation\CorrelationContextExtensions.cs" />
     <Compile Include="Correlation\MessageCorrelation.cs" />
-    <Compile Include="CriticalError\CriticalErrorHandling.cs" />
     <Compile Include="CriticalError\CriticalError.cs" />
     <Compile Include="DataBus\DataBusPropertyInfo.cs" />
     <Compile Include="DataBus\CustomDataBus.cs" />

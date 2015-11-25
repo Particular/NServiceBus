@@ -5,7 +5,6 @@ namespace NServiceBus.Core.Tests
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
-    using Features;
     using Faults;
     using Hosting;
     using NServiceBus.Pipeline;
@@ -43,6 +42,7 @@ namespace NServiceBus.Core.Tests
 
             Assert.AreEqual("someid", fakeDispatchPipeline.MessageSent.MessageId);
         }
+
         [Test]
         public void ShouldInvokeCriticalErrorIfForwardingFails()
         {
@@ -66,7 +66,6 @@ namespace NServiceBus.Core.Tests
 
             Assert.True(criticalError.ErrorRaised);
         }
-
 
         [Test]
         public async Task ShouldEnrichHeadersWithHostAndExceptionDetails()
@@ -96,7 +95,6 @@ namespace NServiceBus.Core.Tests
             Assert.AreEqual("public-receive-address", fakeDispatchPipeline.MessageSent.Headers[FaultsHeaderKeys.FailedQ]);
             //exception details
             Assert.AreEqual("testex", fakeDispatchPipeline.MessageSent.Headers["NServiceBus.ExceptionInfo.Message"]);
-
         }
 
         [Test]
@@ -126,9 +124,7 @@ namespace NServiceBus.Core.Tests
 
             Assert.AreEqual("testex", failedMessageNotification.Exception.Message);
         }
-
-
-
+        
         TransportReceiveContext CreateContext(string messageId)
         {
             return new TransportReceiveContext(new IncomingMessage(messageId, new Dictionary<string, string>(), new MemoryStream()), null, new RootContext(null));
@@ -151,17 +147,16 @@ namespace NServiceBus.Core.Tests
                 return Task.FromResult(0);
             }
         }
+
         class FakeCriticalError : CriticalError
         {
-            public FakeCriticalError()
-                : base((s, e) => TaskEx.Completed, new FakeBuilder())
+            public FakeCriticalError() : base((d, s, e) => TaskEx.Completed)
             {
             }
 
-            public override Task Raise(string errorMessage, Exception exception)
+            public override void Raise(string errorMessage, Exception exception)
             {
                 ErrorRaised = true;
-                return TaskEx.Completed;
             }
 
             public bool ErrorRaised { get; private set; }

@@ -3,53 +3,52 @@ namespace NServiceBus
     using System;
     using System.Threading.Tasks;
     using NServiceBus.Logging;
-    using NServiceBus.ObjectBuilder;
 
     /// <summary>
-    /// A holder for that exposes access to the action defined by <see cref="ConfigureCriticalErrorAction.DefineCriticalErrorAction(BusConfiguration,Func{string, Exception, Task})"/>.
+    /// A holder for that exposes access to the action defined by <see cref="ConfigureCriticalErrorAction.DefineCriticalErrorAction(BusConfiguration,Func{IEndpointInstance, string, Exception,Task})"/>.
     /// </summary>
     /// <returns>
     /// Call <see cref="Raise"/> to trigger the action.
     /// </returns>
     public class CriticalError
     {
-        Func<string, Exception, Task> onCriticalErrorAction;
-        IBuilder builder;
-      
+        Func<IEndpointInstance, string, Exception, Task> onCriticalErrorAction;
+
+        /// <summary>
+        /// The started endpoint which will be passed to the configured critical error action.
+        /// </summary>
+        internal IEndpointInstance Endpoint { private get; set; }
+
         /// <summary>
         /// Initializes a new instance of <see cref="CriticalError"/>.
         /// </summary>
         /// <param name="onCriticalErrorAction">The action to execute when a critical error is triggered.</param>
-        /// <param name="builder">The <see cref="IBuilder"/> instance.</param>
-        public CriticalError(Func<string, Exception, Task> onCriticalErrorAction, IBuilder builder)
+        public CriticalError(Func<IEndpointInstance, string, Exception, Task> onCriticalErrorAction)
         {
-            Guard.AgainstNull(nameof(builder), builder);
-
             this.onCriticalErrorAction = onCriticalErrorAction ?? DefaultCriticalErrorHandling;
-            this.builder = builder;
         }
 
-        Task DefaultCriticalErrorHandling(string errorMessage, Exception exception)
+        static Task DefaultCriticalErrorHandling(IEndpointInstance endpoint, string errorMessage, Exception exception)
         {
-            var components = builder.Build<IConfigureComponents>();
-            if (!components.HasComponent<IEndpointInstance>())
-            {
-                return TaskEx.Completed;
-            }
-
-            return builder.Build<IEndpointInstance>().Stop();
+            return endpoint.Stop();
         }
 
         /// <summary>
-        /// Trigger the action defined by <see cref="ConfigureCriticalErrorAction.DefineCriticalErrorAction(BusConfiguration,Func{string, Exception, Task})"/>.
+        /// Trigger the action defined by <see cref="ConfigureCriticalErrorAction.DefineCriticalErrorAction(BusConfiguration,Func{IEndpointInstance, string, Exception,Task})"/>.
         /// </summary>
-        public virtual Task Raise(string errorMessage, Exception exception)
+        public virtual void Raise(string errorMessage, Exception exception)
         {
             Guard.AgainstNullAndEmpty(nameof(errorMessage), errorMessage);
             Guard.AgainstNull(nameof(exception), exception);
             LogManager.GetLogger("NServiceBus").Fatal(errorMessage, exception);
 
-            return onCriticalErrorAction(errorMessage, exception);
+            if (Endpoint == null)
+            {
+                throw new InvalidOperationException("You can only raise critical errors on a started endpoint but the endpoint wasn't started yet.");
+            }
+
+            // don't await the criticalErrorAction in order to avoid deadlocks
+            Task.Run(() => onCriticalErrorAction(Endpoint, errorMessage, exception));
         }
     }
 }

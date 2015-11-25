@@ -36,6 +36,7 @@ namespace NServiceBus.Unicast
             stopped = true;
             Log.Info("Shutdown complete.");
         }
+
         public IBusContext CreateBusContext()
         {
             return busContextFactory.CreateBusContext();
