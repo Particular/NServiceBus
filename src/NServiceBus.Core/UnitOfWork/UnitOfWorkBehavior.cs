@@ -11,6 +11,8 @@
     {
         public override async Task Invoke(PhysicalMessageProcessingContext context, Func<Task> next)
         {
+            var unitsOfWork = new Stack<IManageUnitsOfWork>();
+
             try
             {
                 foreach (var uow in context.Builder.BuildAll<IManageUnitsOfWork>())
@@ -32,7 +34,7 @@
             }
             catch (Exception exception)
             {
-                var trailingExceptions = AppendEndExceptionsAndRethrow(exception);
+                var trailingExceptions = AppendEndExceptions(unitsOfWork, exception);
                 if (trailingExceptions.Any())
                 {
                     trailingExceptions.Insert(0, exception);
@@ -42,7 +44,7 @@
             }
         }
 
-        List<Exception> AppendEndExceptionsAndRethrow(Exception initialException)
+        List<Exception> AppendEndExceptions(Stack<IManageUnitsOfWork> unitsOfWork, Exception initialException)
         {
             var exceptionsToThrow = new List<Exception>();
             while (unitsOfWork.Count > 0)
@@ -59,8 +61,5 @@
             }
             return exceptionsToThrow;
         }
-
-        Stack<IManageUnitsOfWork> unitsOfWork = new Stack<IManageUnitsOfWork>();
-
     }
 }
