@@ -104,6 +104,7 @@
     <Compile Include="CriticalError\CriticalErrorAction.cs" />
     <Compile Include="BusConfiguration.cs" />
     <Compile Include="BusContext.cs" />
+    <Compile Include="DelayedDelivery\TimeoutManager\TimeoutPollerRunner.cs" />
     <Compile Include="Extensibility\IExtendable.cs" />
     <Compile Include="Features\FeatureDiagnosticData.cs" />
     <Compile Include="Features\FeaturesReport.cs" />
@@ -122,6 +123,7 @@
     <Compile Include="Performance\Counters\NonFunctionalPerformanceCounterInstance.cs" />
     <Compile Include="Transports\TransactionModeSettingsExtensions.cs" />
     <Compile Include="UnitOfWork\TransactionScopes\WrapHandlersInTransactionScope.cs" />
+    <Compile Include="Performance\AuditProcessingStatisticsBehavior.cs" />
     <Compile Include="Persistence\CompletableSynchronizedStorageSession.cs" />
     <Compile Include="Persistence\InMemory\InMemorySynchronizedStorage.cs" />
     <Compile Include="Persistence\InMemory\InMemoryTransactionalSynchronizedStorageAdapter.cs" />
@@ -502,7 +504,6 @@
     <Compile Include="Performance\Statistics\ProcessingStatisticsBehavior.cs" />
     <Compile Include="MessageDeserializationException.cs" />
     <Compile Include="Hosting\AuditHostInformationBehavior.cs" />
-    <Compile Include="Unicast\Transport\PipelineInfo.cs" />
     <Compile Include="Utils\BaseDictionary.cs" />
     <Compile Include="Utils\MessageQueueExtensions.cs" />
     <Compile Include="Utils\PathUtilities.cs" />

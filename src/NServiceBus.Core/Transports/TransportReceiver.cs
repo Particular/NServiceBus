@@ -3,7 +3,6 @@ namespace NServiceBus
     using System;
     using System.Threading.Tasks;
     using Logging;
-    using Unicast.Transport;
     using ObjectBuilder;
     using Pipeline.Contexts;
     using Transports;
@@ -38,8 +37,6 @@ namespace NServiceBus
             Logger.DebugFormat("Pipeline {0} is starting receiver for queue {1}.", Id, pushSettings.InputQueue);
 
             await receiver.Init(InvokePipeline, builder.Build<CriticalError>(), pushSettings).ConfigureAwait(false);
-            pipeline.Initialize(new PipelineInfo(Id, pushSettings.InputQueue));
-            await pipeline.Warmup().ConfigureAwait(false);
 
             receiver.Start(pushRuntimeSettings);
 
@@ -54,7 +51,6 @@ namespace NServiceBus
             }
 
             await receiver.Stop().ConfigureAwait(false);
-            await pipeline.Cooldown().ConfigureAwait(false);
 
             isStarted = false;
         }

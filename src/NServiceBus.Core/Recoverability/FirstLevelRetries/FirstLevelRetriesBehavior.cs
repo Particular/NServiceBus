@@ -10,11 +10,16 @@ namespace NServiceBus
 
     class FirstLevelRetriesBehavior : Behavior<ITransportReceiveContext>
     {
-        public FirstLevelRetriesBehavior(FlrStatusStorage storage, FirstLevelRetryPolicy retryPolicy, BusNotifications notifications)
+        public FirstLevelRetriesBehavior(
+            FlrStatusStorage storage, 
+            FirstLevelRetryPolicy retryPolicy, 
+            BusNotifications notifications,
+            string uniqueKey)
         {
             this.storage = storage;
             this.retryPolicy = retryPolicy;
             this.notifications = notifications;
+            this.uniqueKey = uniqueKey;
         }
 
         public override async Task Invoke(ITransportReceiveContext context, Func<Task> next)
@@ -30,7 +35,7 @@ namespace NServiceBus
             catch (Exception ex)
             {
                 var messageId = context.Message.MessageId;
-                var pipelineUniqueMessageId = PipelineInfo.Name + messageId;
+                var pipelineUniqueMessageId = uniqueKey + messageId;
 
                 var numberOfFailures = storage.GetFailuresForMessage(pipelineUniqueMessageId);
 
@@ -56,12 +61,15 @@ namespace NServiceBus
         FlrStatusStorage storage;
         FirstLevelRetryPolicy retryPolicy;
         BusNotifications notifications;
+        string uniqueKey;
 
         static ILog Logger = LogManager.GetLogger<FirstLevelRetriesBehavior>();
 
         public class Registration : RegisterStep
         {
-            public Registration() : base("FirstLevelRetries", typeof(FirstLevelRetriesBehavior), "Performs first level retries")
+            public Registration(string uniqueKey) 
+                : base("FirstLevelRetries", typeof(FirstLevelRetriesBehavior), "Performs first level retries", 
+                      b => new FirstLevelRetriesBehavior(b.Build<FlrStatusStorage>(), b.Build<FirstLevelRetryPolicy>(), b.Build<BusNotifications>(), uniqueKey))
             {
             }
 

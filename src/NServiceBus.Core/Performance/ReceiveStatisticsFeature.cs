@@ -1,10 +1,7 @@
 ﻿namespace NServiceBus
 {
-    using System;
     using System.Threading.Tasks;
-    using NServiceBus.Audit;
     using NServiceBus.Features;
-    using NServiceBus.Pipeline;
 
     class ReceiveStatisticsFeature : Feature
     {
@@ -14,27 +11,35 @@
         }
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.Pipeline.Register("ReceivePerformanceDiagnosticsBehavior", typeof(ReceivePerformanceDiagnosticsBehavior), "Provides various performance counters for receive statistics");
+            var performanceDiagnosticsBehavior = new ReceivePerformanceDiagnosticsBehavior(context.Settings.LocalAddress());
+
+            context.Pipeline.Register("ReceivePerformanceDiagnosticsBehavior", performanceDiagnosticsBehavior, "Provides various performance counters for receive statistics");
             context.Pipeline.Register<ProcessingStatisticsBehavior.Registration>();
-            context.Pipeline.Register("AuditProcessingStatistics", typeof(AuditProcessingStatisticsBehavior), "Add ProcessingStarted and ProcessingEnded headers");
+            context.Pipeline.Register("AuditProcessingStatistics", new AuditProcessingStatisticsBehavior(), "Add ProcessingStarted and ProcessingEnded headers");
+
+            context.RegisterStartupTask(new WarmupCooldownTask(performanceDiagnosticsBehavior));
         }
-    }
 
-
-    class AuditProcessingStatisticsBehavior : Behavior<IAuditContext>
-    {
-        public override Task Invoke(IAuditContext context, Func<Task> next)
+        class WarmupCooldownTask : FeatureStartupTask
         {
+            readonly ReceivePerformanceDiagnosticsBehavior behavior;
 
-            ProcessingStatisticsBehavior.State state;
-
-            if (context.Extensions.TryGet(out state))
+            public WarmupCooldownTask(ReceivePerformanceDiagnosticsBehavior behavior)
             {
-                context.AddAuditData(Headers.ProcessingStarted,DateTimeExtensions.ToWireFormattedString(state.ProcessingStarted));
-                context.AddAuditData(Headers.ProcessingEnded, DateTimeExtensions.ToWireFormattedString(state.ProcessingEnded));
+                this.behavior = behavior;
             }
 
-            return next();
+            protected override Task OnStart(IBusSession session)
+            {
+                behavior.Warmup();
+                return TaskEx.Completed;
+            }
+
+            protected override Task OnStop(IBusSession session)
+            {
+                behavior.Cooldown();
+                return TaskEx.Completed;
+            }
         }
     }
 }
