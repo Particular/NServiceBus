@@ -5,7 +5,7 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class TimeToBeRceivedOverrideCheckerTest
+    public class TimeToBeReceivedOverrideCheckerTest
     {
         [Test]
         public void Should_not_throw_on_non_Msmq()

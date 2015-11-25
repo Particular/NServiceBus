@@ -304,7 +304,7 @@ namespace NServiceBus
         EndpointName endpointName;
         Func<LogicalAddress, string, string> addressTranslation;
         List<IWantToRunWhenBusStartsAndStops> startables = new List<IWantToRunWhenBusStartsAndStops>();
-        IList<Type> scannedTypes;
+        List<Type> scannedTypes;
         List<Type> excludedTypes = new List<Type>();
         List<string> excludedAssemblies = new List<string>();
         bool scanAssembliesInNestedDirectories;
