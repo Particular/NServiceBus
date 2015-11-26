@@ -56,13 +56,12 @@ namespace NServiceBus
 
             await StartPipelines(pipelineCollection);
 
-
             return runningInstance;
         }
 
-        static async Task StartPipelines(PipelineCollection pipelineCollection)
+        static Task StartPipelines(PipelineCollection pipelineCollection)
         {
-            await pipelineCollection.Start().ConfigureAwait(false);
+            return pipelineCollection.Start();
         }
 
         PipelineCollection CreateIncomingPipelines()
