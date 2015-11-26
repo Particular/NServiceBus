@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.OutgoingPipeline
 {
+    using System.Collections.Generic;
     using NServiceBus.Pipeline;
     using ReplyOptions = NServiceBus.ReplyOptions;
 
@@ -12,7 +13,7 @@
         /// Initializes a new instance of <see cref="OutgoingReplyContext" />.
         /// </summary>
         public OutgoingReplyContext(OutgoingLogicalMessage message, ReplyOptions options, BehaviorContext parentContext)
-            : base(parentContext)
+            : base(options.MessageId, new Dictionary<string, string>(options.OutgoingHeaders), parentContext)
         {
             Message = message;
             Guard.AgainstNull(nameof(parentContext), parentContext);

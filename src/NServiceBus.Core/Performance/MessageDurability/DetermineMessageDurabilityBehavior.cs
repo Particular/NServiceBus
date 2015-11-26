@@ -6,7 +6,6 @@ namespace NServiceBus
     using DeliveryConstraints;
     using NServiceBus.Pipeline.OutgoingPipeline;
     using Pipeline;
-    using TransportDispatch;
 
     class DetermineMessageDurabilityBehavior : Behavior<OutgoingLogicalMessageContext>
     {
@@ -22,7 +21,7 @@ namespace NServiceBus
             {
                 context.AddDeliveryConstraint(new NonDurableDelivery());
 
-                context.SetHeader(Headers.NonDurableMessage,true.ToString());
+                context.Headers[Headers.NonDurableMessage] = true.ToString();
             }
 
             return next();

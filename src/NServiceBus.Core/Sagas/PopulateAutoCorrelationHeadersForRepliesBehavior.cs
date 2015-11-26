@@ -5,7 +5,6 @@
     using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Outgoing;
-    using NServiceBus.TransportDispatch;
     using NServiceBus.Transports;
 
     class PopulateAutoCorrelationHeadersForRepliesBehavior : Behavior<OutgoingReplyContext>
@@ -41,12 +40,12 @@
 
                 if (!string.IsNullOrEmpty(sagaId))
                 {
-                    context.SetHeader(Headers.SagaId, sagaId);
+                    context.Headers[Headers.SagaId] = sagaId;
                 }
 
                 if (!string.IsNullOrEmpty(sagaType))
                 {
-                    context.SetHeader(Headers.SagaType, sagaType);
+                    context.Headers[Headers.SagaType] = sagaType;
                 }
             }
         }

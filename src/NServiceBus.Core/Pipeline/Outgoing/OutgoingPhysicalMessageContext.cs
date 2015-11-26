@@ -14,7 +14,7 @@
         /// Initializes an instance of the context.
         /// </summary>
         public OutgoingPhysicalMessageContext(byte[] body, IReadOnlyCollection<RoutingStrategy> routingStrategies, OutgoingLogicalMessageContext parentContext)
-            : base(parentContext)
+            : base(parentContext.MessageId, parentContext.Headers, parentContext)
         {
             Body = body;
             RoutingStrategies = routingStrategies;

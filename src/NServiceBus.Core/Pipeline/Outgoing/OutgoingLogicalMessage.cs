@@ -7,7 +7,6 @@ namespace NServiceBus.OutgoingPipeline
     /// </summary>
     public class OutgoingLogicalMessage
     {
-
         /// <summary>
         /// Initializes the message with the given instance. Message type will be set to the instance type.
         /// </summary>
@@ -20,7 +19,8 @@ namespace NServiceBus.OutgoingPipeline
         }
 
         /// <summary>
-        /// Initializes the message with a explicit message type and instance. Use this constructor if the message type is different from the instance type.
+        /// Initializes the message with a explicit message type and instance. Use this constructor if the message type is
+        /// different from the instance type.
         /// </summary>
         public OutgoingLogicalMessage(Type messageType, object message)
         {
@@ -31,9 +31,8 @@ namespace NServiceBus.OutgoingPipeline
             Instance = message;
         }
 
-
         /// <summary>
-        /// The <see cref="Type"/> of the message instance.
+        /// The <see cref="Type" /> of the message instance.
         /// </summary>
         public Type MessageType { get; private set; }
 
