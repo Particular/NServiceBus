@@ -3,6 +3,7 @@ namespace NServiceBus.Routing
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using NServiceBus.Extensibility;
     using NServiceBus.Transports;
     using NServiceBus.Unicast.Messages;
@@ -22,16 +23,20 @@ namespace NServiceBus.Routing
             this.physicalAddresses = physicalAddresses;
         }
 
-        public IEnumerable<UnicastRoutingStrategy> Route(Type messageType, DistributionStrategy distributionStrategy, ContextBag contextBag)
+        public async Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, DistributionStrategy distributionStrategy, ContextBag contextBag)
         {
             var typesToRoute = messageMetadataRegistry.GetMessageMetadata(messageType)
                 .MessageHierarchy
                 .Distinct()
                 .ToList();
 
-            var routes = typesToRoute.SelectMany(t => unicastRoutingTable.GetDestinationsFor(t, contextBag)).Distinct().ToList();
+            var routes = new List<IUnicastRoute>();
+            foreach (var routeType in typesToRoute)
+            {
+                routes.AddRange(await unicastRoutingTable.GetDestinationsFor(routeType, contextBag).ConfigureAwait(false));
+            }
 
-            var destinations = routes.SelectMany(d => d.Resolve(e => endpointInstances.FindInstances(e))).Distinct();
+            var destinations = routes.Distinct().SelectMany(d => d.Resolve(e => endpointInstances.FindInstances(e))).Distinct();
 
             var destinationsByEndpoint = destinations.GroupBy(d => d.EndpointName, d => d);
 

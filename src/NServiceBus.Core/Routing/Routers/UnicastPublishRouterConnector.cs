@@ -24,7 +24,7 @@ namespace NServiceBus
             var eventType = context.Message.MessageType;
             var distributionStrategy = distributionPolicy.GetDistributionStrategy(eventType);
 
-            var addressLabels = unicastRouter.Route(eventType, distributionStrategy, context).ToArray();
+            var addressLabels = (await unicastRouter.Route(eventType, distributionStrategy, context).ConfigureAwait(false)).ToArray();
             if (addressLabels.Length == 0)
             {
                 //No subscribers for this message.
