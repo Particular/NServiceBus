@@ -1,7 +1,6 @@
 namespace NServiceBus
 {
     using System;
-    using NServiceBus.Features;
     using Transports;
 
     /// <summary>
@@ -49,7 +48,6 @@ namespace NServiceBus
             if (!busConfiguration.Settings.HasExplicitValue<TransportDefinition>())
             {
                 busConfiguration.UseTransport<MsmqTransport>();
-                busConfiguration.Settings.EnableFeature(typeof(MsmqTransportConfigurator));
             }
         }
     }

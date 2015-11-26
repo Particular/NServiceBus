@@ -17,6 +17,7 @@
     {
         internal MsmqTransportConfigurator()
         {
+            EnableByDefault();
             DependsOn<UnicastBus>();
             DependsOn<Receiving>();
             RegisterStartupTask<CheckQueuePermissions>();
@@ -34,6 +35,9 @@
 
             protected override Task OnStart(IBusContext context)
             {
+                var usingMsmq = settings.Get<TransportDefinition>() is MsmqTransport;
+                if (!usingMsmq) { return TaskEx.Completed; }
+
                 var queueBindings = settings.Get<QueueBindings>();
                 var boundQueueAddresses = queueBindings.ReceivingAddresses.Concat(queueBindings.SendingAddresses);
 
@@ -41,7 +45,6 @@
                 {
                     CheckQueue(address);
                 }
-
                 return TaskEx.Completed;
             }
 
