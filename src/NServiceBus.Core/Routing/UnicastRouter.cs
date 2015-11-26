@@ -30,11 +30,7 @@ namespace NServiceBus.Routing
                 .Distinct()
                 .ToList();
 
-            var routes = new List<IUnicastRoute>();
-            foreach (var routeType in typesToRoute)
-            {
-                routes.AddRange(await unicastRoutingTable.GetDestinationsFor(routeType, contextBag).ConfigureAwait(false));
-            }
+            var routes = await unicastRoutingTable.GetDestinationsFor(typesToRoute, contextBag).ConfigureAwait(false);
 
             var destinations = routes.Distinct().SelectMany(d => d.Resolve(e => endpointInstances.FindInstances(e))).Distinct();
 

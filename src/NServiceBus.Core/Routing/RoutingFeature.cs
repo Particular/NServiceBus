@@ -154,16 +154,15 @@
                 return TaskEx.Completed;
             }
 
-            static async Task<List<IUnicastRoute>> QuerySubscriptionStore(ISubscriptionStorage subscriptions, Type messageType, ContextBag contextBag)
+            static async Task<List<IUnicastRoute>> QuerySubscriptionStore(ISubscriptionStorage subscriptions, List<Type> types, ContextBag contextBag)
             {
                 if (!(contextBag is OutgoingPublishContext))
                 {
                     return new List<IUnicastRoute>();
                 }
-                var messageTypes = new[]
-                {
-                    new MessageType(messageType)
-                };
+
+                var messageTypes = types.Select(t => new MessageType(t));
+                
                 var subscribers = await subscriptions.GetSubscriberAddressesForMessage(messageTypes, contextBag).ConfigureAwait(false);
                 return new List<IUnicastRoute>(subscribers.Select(s => new SubscriberDestination(s)));
             }

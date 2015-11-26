@@ -12,18 +12,19 @@ namespace NServiceBus.Routing
     public class UnicastRoutingTable
     {
         List<Func<Type, ContextBag, IUnicastRoute>> staticRules = new List<Func<Type, ContextBag, IUnicastRoute>>();
-        List<Func<Type, ContextBag, Task<List<IUnicastRoute>>>> dynamicRules = new List<Func<Type, ContextBag, Task<List<IUnicastRoute>>>>();
+        List<Func<List<Type>, ContextBag, Task<List<IUnicastRoute>>>> dynamicRules = new List<Func<List<Type>, ContextBag, Task<List<IUnicastRoute>>>>();
 
-        internal async Task<IEnumerable<IUnicastRoute>> GetDestinationsFor(Type messageType, ContextBag contextBag)
+        internal async Task<IEnumerable<IUnicastRoute>> GetDestinationsFor(List<Type> messageTypes, ContextBag contextBag)
         {
             var dynamicRoutes = new List<IUnicastRoute>();
             foreach (var rule in dynamicRules)
             {
-                dynamicRoutes.AddRange(await rule.Invoke(messageType, contextBag).ConfigureAwait(false));
+                dynamicRoutes.AddRange(await rule.Invoke(messageTypes, contextBag).ConfigureAwait(false));
             }
 
-            var staticRoutes = staticRules.Select(rule => rule.Invoke(messageType, contextBag))
-                                          .Where(routeFromStaticRule => routeFromStaticRule != null);
+            var staticRoutes = messageTypes
+                .SelectMany(type => staticRules, (type, rule) => rule.Invoke(type, contextBag))
+                .Where(route => route != null);
 
             return dynamicRoutes.Concat(staticRoutes).Distinct();
         }
@@ -64,7 +65,7 @@ namespace NServiceBus.Routing
         /// Adds a rule for generating unicast routes.
         /// </summary>
        // /// <param name="dynamicRule">The rule.</param>
-        public void AddDynamic(Func<Type, ContextBag, Task<List<IUnicastRoute>>> dynamicRule)
+        public void AddDynamic(Func<List<Type>, ContextBag, Task<List<IUnicastRoute>>> dynamicRule)
         {
             dynamicRules.Add(dynamicRule);
         }
