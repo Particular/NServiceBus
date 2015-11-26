@@ -7,37 +7,37 @@ namespace NServiceBus.Sagas
 
     /// <summary>
     /// Defines the basic functionality of a persister for storing 
-	/// and retrieving a saga.
+	/// and retrieving a sagaData.
     /// </summary>
     public interface ISagaPersister
     {
         /// <summary>
-        /// Saves the saga entity to the persistence store.
+        /// Saves the sagaData entity to the persistence store.
         /// </summary>
-        /// <param name="sagaInstance">The saga instance to save.</param>
+        /// <param name="sagaData">The sagaData data to save.</param>
         /// <param name="correlationProperty">The property to correlate. Can be null.</param>
         /// <param name="session">Storage session.</param>
         /// <param name="context">The current pipeline context.</param>
-        Task Save(IContainSagaData sagaInstance, SagaCorrelationProperty correlationProperty, SynchronizedStorageSession session, ContextBag context);
+        Task Save(IContainSagaData sagaData, SagaCorrelationProperty correlationProperty, SynchronizedStorageSession session, ContextBag context);
 
         /// <summary>
-        /// Updates an existing saga entity in the persistence store.
+        /// Updates an existing sagaData entity in the persistence store.
         /// </summary>
-        /// <param name="saga">The saga entity to updated.</param>
+        /// <param name="sagaData">The sagaData data to updated.</param>
         /// <param name="session">The session.</param>
         /// <param name="context">The current pipeline context.</param>
-        Task Update(IContainSagaData saga, SynchronizedStorageSession session, ContextBag context);
+        Task Update(IContainSagaData sagaData, SynchronizedStorageSession session, ContextBag context);
 
         /// <summary>
-        /// Gets a saga entity from the persistence store by its Id.
+        /// Gets a sagaData entity from the persistence store by its Id.
         /// </summary>
-        /// <param name="sagaId">The Id of the saga entity to get.</param>
+        /// <param name="sagaId">The Id of the sagaData data to get.</param>
         /// <param name="session">The session.</param>
         /// <param name="context">The current pipeline context.</param>
         Task<TSagaData> Get<TSagaData>(Guid sagaId, SynchronizedStorageSession session, ContextBag context) where TSagaData : IContainSagaData;
 
         /// <summary>
-        /// Looks up a saga entity by a given property.
+        /// Looks up a sagaData entity by a given property.
         /// </summary>
         /// <param name="propertyName">From the data store, analyze this property.</param>
         /// <param name="propertyValue">From the data store, look for this value in the identified property.</param>
@@ -46,12 +46,12 @@ namespace NServiceBus.Sagas
         Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, SynchronizedStorageSession session, ContextBag context) where TSagaData : IContainSagaData;
 
         /// <summary>
-        /// Sets a saga as completed and removes it from the active saga list
+        /// Sets a sagaData as completed and removes it from the active sagaData list
         /// in the persistence store.
         /// </summary>
-        /// <param name="saga">The saga to complete.</param>
+        /// <param name="sagaData">The sagaData to complete.</param>
         /// <param name="session">The session.</param>
         /// <param name="context">The current pipeline context.</param>
-        Task Complete(IContainSagaData saga, SynchronizedStorageSession session, ContextBag context);
+        Task Complete(IContainSagaData sagaData, SynchronizedStorageSession session, ContextBag context);
     }
 }

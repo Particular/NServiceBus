@@ -12,13 +12,13 @@ namespace NServiceBus
 
     class InMemorySagaPersister : ISagaPersister
     {
-        public Task Complete(IContainSagaData saga, SynchronizedStorageSession session, ContextBag context)
+        public Task Complete(IContainSagaData sagaData, SynchronizedStorageSession session, ContextBag context)
         {
             var inMemSession = (InMemorySynchronizedStorageSession)session;
             inMemSession.Enlist(() =>
             {
                 VersionedSagaEntity value;
-                data.TryRemove(saga.Id, out value);
+                data.TryRemove(sagaData.Id, out value);
             });
             return TaskEx.Completed;
         }
@@ -27,7 +27,7 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(propertyValue), propertyValue);
 
-            var values = data.Values.Where(x => x.SagaEntity is TSagaData);
+            var values = data.Values.Where(x => x.SagaData is TSagaData);
             foreach (var entity in values)
             {
                 var prop = typeof(TSagaData).GetProperty(propertyName);
@@ -35,13 +35,13 @@ namespace NServiceBus
                 {
                     continue;
                 }
-                var existingValue = prop.GetValue(entity.SagaEntity);
+                var existingValue = prop.GetValue(entity.SagaData);
 
                 if (existingValue.ToString() != propertyValue.ToString())
                 {
                     continue;
                 }
-                var clone = (TSagaData) DeepClone(entity.SagaEntity);
+                var clone = (TSagaData) DeepClone(entity.SagaData);
                 entity.RecordRead(clone, version);
                 return Task.FromResult(clone);
             }
@@ -51,37 +51,37 @@ namespace NServiceBus
         public Task<TSagaData> Get<TSagaData>(Guid sagaId, SynchronizedStorageSession session, ContextBag context) where TSagaData : IContainSagaData
         {
             VersionedSagaEntity result;
-            if (data.TryGetValue(sagaId, out result) && result?.SagaEntity is TSagaData)
+            if (data.TryGetValue(sagaId, out result) && result?.SagaData is TSagaData)
             {
-                var clone = (TSagaData) DeepClone(result.SagaEntity);
+                var clone = (TSagaData) DeepClone(result.SagaData);
                 result.RecordRead(clone, version);
                 return Task.FromResult(clone);
             }
             return Task.FromResult(default(TSagaData));
         }
 
-        public Task Save(IContainSagaData saga, SagaCorrelationProperty correlationProperty, SynchronizedStorageSession session, ContextBag context)
+        public Task Save(IContainSagaData sagaData, SagaCorrelationProperty correlationProperty, SynchronizedStorageSession session, ContextBag context)
         {
             var inMemSession = (InMemorySynchronizedStorageSession) session;
             inMemSession.Enlist(() =>
             {
                 if (correlationProperty != SagaCorrelationProperty.None)
                 {
-                    ValidateUniqueProperties(correlationProperty, saga);
+                    ValidateUniqueProperties(correlationProperty, sagaData);
                 }
 
                 VersionedSagaEntity sagaEntity;
-                if (data.TryGetValue(saga.Id, out sagaEntity))
+                if (data.TryGetValue(sagaData.Id, out sagaEntity))
                 {
-                    sagaEntity.ConcurrencyCheck(saga, version);
+                    sagaEntity.ConcurrencyCheck(sagaData, version);
                 }
 
-                data.AddOrUpdate(saga.Id, id => new VersionedSagaEntity
+                data.AddOrUpdate(sagaData.Id, id => new VersionedSagaEntity
                 {
-                    SagaEntity = DeepClone(saga)
+                    SagaData = DeepClone(sagaData)
                 }, (id, original) => new VersionedSagaEntity
                 {
-                    SagaEntity = DeepClone(saga),
+                    SagaData = DeepClone(sagaData),
                     VersionCache = original.VersionCache
                 });
 
@@ -90,23 +90,23 @@ namespace NServiceBus
             return TaskEx.Completed;
         }
 
-        public Task Update(IContainSagaData saga, SynchronizedStorageSession session, ContextBag context)
+        public Task Update(IContainSagaData sagaData, SynchronizedStorageSession session, ContextBag context)
         {
             var inMemSession = (InMemorySynchronizedStorageSession)session;
             inMemSession.Enlist(() =>
             {
                 VersionedSagaEntity sagaEntity;
-                if (data.TryGetValue(saga.Id, out sagaEntity))
+                if (data.TryGetValue(sagaData.Id, out sagaEntity))
                 {
-                    sagaEntity.ConcurrencyCheck(saga, version);
+                    sagaEntity.ConcurrencyCheck(sagaData, version);
                 }
 
-                data.AddOrUpdate(saga.Id, id => new VersionedSagaEntity
+                data.AddOrUpdate(sagaData.Id, id => new VersionedSagaEntity
                 {
-                    SagaEntity = DeepClone(saga)
+                    SagaData = DeepClone(sagaData)
                 }, (id, original) => new VersionedSagaEntity
                 {
-                    SagaEntity = DeepClone(saga),
+                    SagaData = DeepClone(sagaData),
                     VersionCache = original.VersionCache
                 });
 
@@ -119,7 +119,7 @@ namespace NServiceBus
         {
             var sagaType = saga.GetType();
             var existingSagas = (from s in data
-                where s.Value.SagaEntity.GetType() == sagaType && (s.Key != saga.Id)
+                where s.Value.SagaData.GetType() == sagaType && (s.Key != saga.Id)
                 select s.Value)
                 .ToList();
             var uniqueProperty = sagaType.GetProperty(correlationProperty.Name);
@@ -132,10 +132,10 @@ namespace NServiceBus
 
             foreach (var storedSaga in existingSagas)
             {
-                var storedSagaPropertyValue = uniqueProperty.GetValue(storedSaga.SagaEntity, null);
+                var storedSagaPropertyValue = uniqueProperty.GetValue(storedSaga.SagaData, null);
                 if (Equals(correlationProperty.Value, storedSagaPropertyValue))
                 {
-                    var message = $"Cannot store a saga. The saga with id '{storedSaga.SagaEntity.Id}' already has property '{uniqueProperty.Name}'.";
+                    var message = $"Cannot store a saga. The saga with id '{storedSaga.SagaData.Id}' already has property '{uniqueProperty.Name}'.";
                     throw new InvalidOperationException(message);
                 }
             }
@@ -173,7 +173,7 @@ namespace NServiceBus
                 }
             }
 
-            public IContainSagaData SagaEntity;
+            public IContainSagaData SagaData;
 
             public WeakKeyDictionary<IContainSagaData, int> VersionCache = new WeakKeyDictionary<IContainSagaData, int>();
         }
