@@ -10,11 +10,6 @@
     using NServiceBus.Settings;
     using NServiceBus.Transports;
     using NServiceBus.Transports.Msmq;
-    using Logging;
-    using Settings;
-    using Transports;
-    using Transports.Msmq;
-    using Utils;
 
     /// <summary>
     /// Used to configure the MSMQ transport.
@@ -33,7 +28,9 @@
         /// </summary>
         protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
-            return FeatureStartupTask.Some(new CheckQueuePermissions(context.Settings), new TimeToBeReceivedOverrideCheck(context.Settings));
+            return FeatureStartupTask.Some(
+                new CheckQueuePermissions(context.Settings), 
+                new TimeToBeReceivedOverrideCheck(context.Settings));
         }
 
         class CheckQueuePermissions : FeatureStartupTask
@@ -100,7 +97,6 @@
             }
 
             static ILog Logger = LogManager.GetLogger<CheckQueuePermissions>();
-            ReadOnlySettings settings;
         }
     }
 }

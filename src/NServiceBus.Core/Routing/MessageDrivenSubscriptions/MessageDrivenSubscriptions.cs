@@ -27,6 +27,8 @@ namespace NServiceBus.Features
                 authorizer = _ => true;
             }
             context.Container.RegisterSingleton(authorizer);
+
+            return FeatureStartupTask.None;
         }
     }
 }

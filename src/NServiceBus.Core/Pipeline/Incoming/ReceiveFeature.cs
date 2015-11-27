@@ -45,6 +45,8 @@
                 var adapter = context.Container.HasComponent<ISynchronizedStorageAdapter>() ? b.Build<ISynchronizedStorageAdapter>() : new NoOpAdaper();
                 return new LoadHandlersConnector(b.Build<MessageHandlerRegistry>(), b.Build<ISynchronizedStorage>(), adapter);
             }, DependencyLifecycle.InstancePerCall);
+
+            return FeatureStartupTask.None;
         }
 
         class NoOpAdaper : ISynchronizedStorageAdapter

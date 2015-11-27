@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using CircuitBreakers;
     using NServiceBus.DelayedDelivery;
     using NServiceBus.DelayedDelivery.TimeoutManager;
     using DeliveryConstraints;

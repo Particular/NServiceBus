@@ -18,7 +18,7 @@ namespace NServiceBus.Features
             RegisterStartupTask<IDataBusInitializer>();
         }
 
-        /// This feature envies the FileShareDataBus feature. In this case probably the DataBus feature should be abstract the the FileShareDatabus feature should implement it
+        // This feature envies the FileShareDataBus feature. In this case probably the DataBus feature should be abstract the the FileShareDatabus feature should implement it
         static Type GetSelectedFeatureForDataBus(ReadOnlySettings settings)
         {
             DataBusDefinition dataBusDefinition;

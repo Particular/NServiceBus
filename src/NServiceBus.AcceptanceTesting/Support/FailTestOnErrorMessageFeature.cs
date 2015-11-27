@@ -21,6 +21,7 @@
 
         protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
+            return FeatureStartupTask.None;
         }
 
         class FailTestOnErrorMessageFeatureStartupTask : FeatureStartupTask

@@ -110,7 +110,7 @@
                     context.Pipeline.Register("NativeUnsubscribeTerminator", typeof(NativeUnsubscribeTerminator), "Requests the transport to unsubscribe to a given message type");
                 }
             }
-
+            return FeatureStartupTask.None;
         }
 
         static string ReplyToAddress(IBuilder builder)

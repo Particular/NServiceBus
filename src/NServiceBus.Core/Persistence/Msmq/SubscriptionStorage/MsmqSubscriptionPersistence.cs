@@ -46,6 +46,8 @@
                 var queue = new MsmqSubscriptionStorageQueue(MsmqAddress.Parse(queueName), context.Settings.Get<bool>("Transactions.Enabled"), false);
                 return new MsmqSubscriptionStorage(queue);
             }, DependencyLifecycle.SingleInstance);
+
+            return FeatureStartupTask.None;
         }
 
         static ILog Logger = LogManager.GetLogger(typeof(MsmqSubscriptionPersistence));

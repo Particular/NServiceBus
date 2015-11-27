@@ -1,5 +1,6 @@
 namespace NServiceBus.Core.Tests.Config
 {
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using NServiceBus.Config.ConfigurationSource;
     using NServiceBus.Features;
@@ -30,8 +31,9 @@ namespace NServiceBus.Core.Tests.Config
                 RegisterStartupTask<ValidatorTask>();
             }
 
-            protected internal override void Setup(FeatureConfigurationContext context)
+            protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
             {
+                return FeatureStartupTask.None;
             }
 
             class ValidatorTask : FeatureStartupTask

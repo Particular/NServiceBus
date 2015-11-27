@@ -26,6 +26,8 @@ namespace NServiceBus.Features
             context.Container.ConfigureComponent<DefaultScheduler>(DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent<ScheduleBehavior>(DependencyLifecycle.SingleInstance);
             context.Pipeline.Register("ScheduleBehavior", typeof(ScheduleBehavior), "Registers a task definition for scheduling.");
+
+            return FeatureStartupTask.None;
         }
     }
 }
