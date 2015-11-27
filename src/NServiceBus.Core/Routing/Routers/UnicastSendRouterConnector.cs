@@ -33,7 +33,7 @@ namespace NServiceBus
             var destination = state.ExplicitDestination ?? (state.RouteToLocalInstance ? localAddress : null);
 
             var addressLabels = string.IsNullOrEmpty(destination) 
-                ? await unicastRouter.Route(messageType, distributionStrategy, context) 
+                ? await unicastRouter.Route(messageType, distributionStrategy, context).ConfigureAwait(false) 
                 : RouteToDestination(destination);
 
             context.Headers[Headers.MessageIntent] = MessageIntentEnum.Send.ToString();
