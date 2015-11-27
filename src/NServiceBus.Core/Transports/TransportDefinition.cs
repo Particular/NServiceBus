@@ -53,7 +53,7 @@ namespace NServiceBus.Transports
         /// <summary>
         /// Returns the discriminator for this endpoint instance.
         /// </summary>
-        public abstract string GetDiscriminatorForThisEndpointInstance();
+        public abstract string GetDiscriminatorForThisEndpointInstance(ReadOnlySettings settings);
 
         /// <summary>
         /// Converts a given logical address to the transport address.

@@ -711,7 +711,7 @@ namespace NServiceBus
         public override bool RequiresConnectionString { get; }
         protected internal override void ConfigureForReceiving(NServiceBus.Transports.TransportReceivingConfigurationContext context) { }
         protected internal override void ConfigureForSending(NServiceBus.Transports.TransportSendingConfigurationContext context) { }
-        public override string GetDiscriminatorForThisEndpointInstance() { }
+        public override string GetDiscriminatorForThisEndpointInstance(NServiceBus.Settings.ReadOnlySettings settings) { }
         public override NServiceBus.Transports.OutboundRoutingPolicy GetOutboundRoutingPolicy(NServiceBus.Settings.ReadOnlySettings settings) { }
         public override NServiceBus.Transports.IManageSubscriptions GetSubscriptionManager() { }
         public override System.Collections.Generic.IEnumerable<System.Type> GetSupportedDeliveryConstraints() { }
@@ -2790,7 +2790,7 @@ namespace NServiceBus.Transports
         public virtual bool RequiresConnectionString { get; }
         protected internal abstract void ConfigureForReceiving(NServiceBus.Transports.TransportReceivingConfigurationContext context);
         protected internal abstract void ConfigureForSending(NServiceBus.Transports.TransportSendingConfigurationContext context);
-        public abstract string GetDiscriminatorForThisEndpointInstance();
+        public abstract string GetDiscriminatorForThisEndpointInstance(NServiceBus.Settings.ReadOnlySettings settings);
         public abstract NServiceBus.Transports.OutboundRoutingPolicy GetOutboundRoutingPolicy(NServiceBus.Settings.ReadOnlySettings settings);
         public abstract NServiceBus.Transports.IManageSubscriptions GetSubscriptionManager();
         public abstract System.Collections.Generic.IEnumerable<System.Type> GetSupportedDeliveryConstraints();

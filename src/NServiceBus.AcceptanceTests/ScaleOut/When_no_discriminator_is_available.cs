@@ -74,7 +74,7 @@
                 throw new NotImplementedException();
             }
 
-            public override string GetDiscriminatorForThisEndpointInstance()
+            public override string GetDiscriminatorForThisEndpointInstance(ReadOnlySettings settings)
             {
                 return null;
             }

@@ -112,7 +112,7 @@ namespace NServiceBus
         /// <summary>
         /// Returns the discriminator for this endpoint instance.
         /// </summary>
-        public override string GetDiscriminatorForThisEndpointInstance()
+        public override string GetDiscriminatorForThisEndpointInstance(ReadOnlySettings settings)
         {
             return RuntimeEnvironment.MachineName;
         }
