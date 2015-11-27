@@ -64,7 +64,7 @@
         }
 
 
-        public class Endpoint : EndpointConfigurationBuilder, IFinalizeConfiguration
+        public class Endpoint : EndpointConfigurationBuilder, IWantToRunBeforeConfigurationIsFinalized
         {
             static bool initialized;
             bool generatorWasCalled;

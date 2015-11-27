@@ -8,7 +8,7 @@ namespace NServiceBus
     /// configuration is finalized.
     /// </summary>
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-    public interface IFinalizeConfiguration
+    public interface IWantToRunBeforeConfigurationIsFinalized
     {
         /// <summary>
         /// Invoked before configuration is finalized and locked.

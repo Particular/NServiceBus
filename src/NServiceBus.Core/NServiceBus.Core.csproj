@@ -626,8 +626,8 @@
     <Compile Include="Hosting\Helpers\AssemblyScanner.cs" />
     <Compile Include="Hosting\Helpers\AssemblyScannerResults.cs" />
     <Compile Include="InternalsVisibleTo.cs" />
-    <Compile Include="Installation\IInstall.cs" />
-    <Compile Include="IFinalizeConfiguration.cs" />
+    <Compile Include="Installation\INeedToInstallSomething.cs" />
+    <Compile Include="IWantToRunBeforeConfigurationIsFinalized.cs" />
     <Compile Include="Licensing\LicenseManager.cs" />
     <Compile Include="Logging\ILog.cs" />
     <Compile Include="Logging\ILoggerFactory.cs" />

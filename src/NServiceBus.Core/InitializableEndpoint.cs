@@ -41,7 +41,7 @@ namespace NServiceBus
 
             ForAllTypes<IWantToRunWhenBusStartsAndStops>(TypesToScan, t => container.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
-            ActivateAndInvoke<IFinalizeConfiguration>(TypesToScan, t => t.Run(settings));
+            ActivateAndInvoke<IWantToRunBeforeConfigurationIsFinalized>(TypesToScan, t => t.Run(settings));
 
             var featureStats = featureActivator.SetupFeatures(new FeatureConfigurationContext(settings, container, pipelineSettings));
 
@@ -99,7 +99,7 @@ namespace NServiceBus
 
         void WireUpInstallers()
         {
-            foreach (var installerType in TypesToScan.Where(t => typeof(IInstall).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface)))
+            foreach (var installerType in TypesToScan.Where(t => typeof(INeedToInstallSomething).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface)))
             {
                 container.ConfigureComponent(installerType, DependencyLifecycle.InstancePerCall);
             }

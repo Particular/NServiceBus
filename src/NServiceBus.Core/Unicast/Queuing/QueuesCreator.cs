@@ -6,7 +6,7 @@ namespace NServiceBus.Unicast.Queuing
     using NServiceBus.Settings;
     using Transports;
 
-    class QueuesCreator : IInstall
+    class QueuesCreator : INeedToInstallSomething
     {
         readonly IBuilder builder;
         readonly ReadOnlySettings settings;
