@@ -1,6 +1,5 @@
 namespace NServiceBus.Transports
 {
-    using System;
     using NServiceBus.Settings;
 
     /// <summary>
@@ -8,9 +7,6 @@ namespace NServiceBus.Transports
     /// </summary>
     public class TransportReceivingConfigurationContext
     {
-        Func<CriticalError, IPushMessages> messagePumpFactory;
-        Func<ICreateQueues> queueCreatorFactory;
-        
         /// <summary>
         /// Global Settings.
         /// </summary>
@@ -26,27 +22,5 @@ namespace NServiceBus.Transports
             Settings = settings;
             ConnectionString = connectionString;
         }
-
-        internal Func<CriticalError, IPushMessages> MessagePumpFactory => messagePumpFactory;
-        internal Func<ICreateQueues> QueueCreatorFactory => queueCreatorFactory;
-
-        /// <summary>
-        /// Configures the message pump factory.
-        /// </summary>
-        /// <param name="messagePumpFactory">Message pump factory.</param>
-        public void SetMessagePumpFactory(Func<CriticalError, IPushMessages> messagePumpFactory)
-        {
-            this.messagePumpFactory = messagePumpFactory;
-        }
-        
-        /// <summary>
-        /// Configures the queue creator.
-        /// </summary>
-        /// <param name="queueCreatorFactory">Queue creator.</param>
-        public void SetQueueCreatorFactory(Func<ICreateQueues> queueCreatorFactory)
-        {
-            this.queueCreatorFactory = queueCreatorFactory;
-        }
-
     }
 }

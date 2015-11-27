@@ -3,6 +3,7 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Transactions;
     using NServiceBus.Features;
     using NServiceBus.Performance.TimeToBeReceived;
@@ -29,7 +30,7 @@ namespace NServiceBus
         /// <summary>
         /// Configures transport for receiving.
         /// </summary>
-        protected internal override void ConfigureForReceiving(TransportReceivingConfigurationContext context)
+        protected internal override TransportReceivingConfigurationResult ConfigureForReceiving(TransportReceivingConfigurationContext context)
         {
             new CheckMachineNameForComplianceWithDtcLimitation().Check();
 
@@ -37,15 +38,22 @@ namespace NServiceBus
                 ? new MsmqConnectionStringBuilder(context.ConnectionString).RetrieveSettings()
                 : new MsmqSettings();
 
-            context.SetQueueCreatorFactory(() => new QueueCreator(settings));
-
             var transactionSettings = new TransactionSettings(context.Settings);
             var transactionOptions = new TransactionOptions
             {
                 IsolationLevel = transactionSettings.IsolationLevel,
                 Timeout = transactionSettings.TransactionTimeout
             };
-            context.SetMessagePumpFactory(c => new MessagePump(c, guarantee => SelectReceiveStrategy(guarantee, transactionOptions)));
+
+            return new TransportReceivingConfigurationResult(
+                c => new MessagePump(c, guarantee => SelectReceiveStrategy(guarantee, transactionOptions)),
+                () => new QueueCreator(settings), 
+                () =>
+                {
+                    var bindings = context.Settings.Get<QueueBindings>();
+                    new QueuePermissionChecker().CheckQueuePermissions(bindings.ReceivingAddresses);
+                    return Task.FromResult(StartupCheckResult.Success);
+                });
         }
 
         ReceiveStrategy SelectReceiveStrategy(TransactionSupport minimumConsistencyGuarantee, TransactionOptions transactionOptions)
@@ -62,24 +70,32 @@ namespace NServiceBus
 
             return new ReceiveWithNativeTransaction();
         }
-
+        
         /// <summary>
         /// Configures transport for sending.
         /// </summary>
-        protected internal override void ConfigureForSending(TransportSendingConfigurationContext context)
+        protected internal override TransportSendingConfigurationResult ConfigureForSending(TransportSendingConfigurationContext context)
         {
             new CheckMachineNameForComplianceWithDtcLimitation().Check();
 
             Func<IReadOnlyDictionary<string, string>, string> getMessageLabel;
-            context.GlobalSettings.TryGet("Msmq.GetMessageLabel", out getMessageLabel);
+            context.Settings.TryGet("Msmq.GetMessageLabel", out getMessageLabel);
             var settings = new MsmqConnectionStringBuilder(context.ConnectionString).RetrieveSettings();
 
             MsmqLabelGenerator messageLabelGenerator;
-            if (!context.GlobalSettings.TryGet(out messageLabelGenerator))
+            if (!context.Settings.TryGet(out messageLabelGenerator))
             {
                 messageLabelGenerator = headers => string.Empty;
             }
-            context.SetDispatcherFactory(() => new MsmqMessageSender(settings, messageLabelGenerator));
+            return new TransportSendingConfigurationResult(
+                () => new MsmqMessageSender(settings, messageLabelGenerator),
+                () =>
+                {
+                    var bindings = context.Settings.Get<QueueBindings>();
+                    new QueuePermissionChecker().CheckQueuePermissions(bindings.SendingAddresses);
+                    var result = new TimeToBeReceivedOverrideCheck(context.Settings).CheckTimeToBeReceivedOverrides();
+                    return Task.FromResult(result);
+                });
         }
 
         /// <summary>
@@ -143,7 +159,7 @@ namespace NServiceBus
         /// </summary>
         public override OutboundRoutingPolicy GetOutboundRoutingPolicy(ReadOnlySettings settings)
         {
-            return new OutboundRoutingPolicy(OutboundRoutingType.DirectSend, OutboundRoutingType.DirectSend, OutboundRoutingType.DirectSend);
+            return new OutboundRoutingPolicy(OutboundRoutingType.Unicast, OutboundRoutingType.Unicast, OutboundRoutingType.Unicast);
         }
 
         /// <summary>

@@ -76,7 +76,7 @@
             var outboundRoutingPolicy = transportDefinition.GetOutboundRoutingPolicy(context.Settings);
             context.Pipeline.Register("UnicastSendRouterConnector", typeof(UnicastSendRouterConnector), "Determines how the message being sent should be routed");
             context.Pipeline.Register("UnicastReplyRouterConnector", typeof(UnicastReplyRouterConnector), "Determines how replies should be routed");
-            if (outboundRoutingPolicy.Publishes == OutboundRoutingType.DirectSend)
+            if (outboundRoutingPolicy.Publishes == OutboundRoutingType.Unicast)
             {
                 context.Pipeline.Register("UnicastPublishRouterConnector", typeof(UnicastPublishRouterConnector), "Determines how the published messages should be routed");
             }
@@ -91,7 +91,7 @@
 
                 context.Container.ConfigureComponent(b => new ApplyReplyToAddressBehavior(ReplyToAddress(b)), DependencyLifecycle.SingleInstance);
 
-                if (outboundRoutingPolicy.Publishes == OutboundRoutingType.DirectSend)
+                if (outboundRoutingPolicy.Publishes == OutboundRoutingType.Unicast)
                 {
                     context.Container.ConfigureComponent<SubscriptionRouter>(DependencyLifecycle.SingleInstance);
 
@@ -143,7 +143,7 @@
             protected override Task OnStart(IBusContext context)
             {
                 var transportDefinition = settings.Get<TransportDefinition>();
-                if (transportDefinition.GetOutboundRoutingPolicy(settings).Publishes == OutboundRoutingType.DirectSend) //Publish via send
+                if (transportDefinition.GetOutboundRoutingPolicy(settings).Publishes == OutboundRoutingType.Unicast) //Publish via send
                 {
                     var subscriptions = builder.BuildAll<ISubscriptionStorage>().FirstOrDefault();
                     if (subscriptions != null)

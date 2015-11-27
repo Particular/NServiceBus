@@ -1,35 +1,35 @@
 ﻿namespace NServiceBus.Transports.Msmq
 {
-    using System;
 
     class TimeToBeReceivedOverrideChecker
     {
-        public static void Check(bool usingMsmq, bool isTransactional, bool outBoxRunning, bool auditTTBROverridden, bool forwardTTBROverridden)
+        public static StartupCheckResult Check(bool usingMsmq, bool isTransactional, bool outBoxRunning, bool auditTTBROverridden, bool forwardTTBROverridden)
         {
             if (!usingMsmq)
             {
-                return;
+                return StartupCheckResult.Success;
             }
 
             if (!isTransactional)
             {
-                return;
+                return StartupCheckResult.Success;
             }
 
             if (outBoxRunning)
             {
-                return;
+                return StartupCheckResult.Success;
             }
 
             if (auditTTBROverridden)
             {
-                throw new Exception("Setting a custom OverrideTimeToBeReceived for audits is not supported on transactional MSMQ.");
+                return StartupCheckResult.Failed("Setting a custom OverrideTimeToBeReceived for audits is not supported on transactional MSMQ.");
             }
 
             if (forwardTTBROverridden)
             {
-                throw new Exception("Setting a custom TimeToBeReceivedOnForwardedMessages is not supported on transactional MSMQ.");
+                return StartupCheckResult.Failed("Setting a custom TimeToBeReceivedOnForwardedMessages is not supported on transactional MSMQ.");
             }
+            return StartupCheckResult.Success;
         }
     }
 }

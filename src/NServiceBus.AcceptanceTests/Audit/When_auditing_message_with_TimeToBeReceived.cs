@@ -85,7 +85,7 @@
                     {
                         textContext.TTBRHasExpiredAndMessageIsStillInAuditQueue = true;
                         var timeElapsedSinceFirstHandlingOfAuditMessage = auditProcessingStarted - textContext.FirstTimeProcessedByAudit.Value;
-                        Console.WriteLine("Audit message not removed because of TTBR({0}) after {1}. Success.", ttbr, timeElapsedSinceFirstHandlingOfAuditMessage);
+                        Console.WriteLine("Audit message not removed because of TTBR({0}) after {1}. Succeeded.", ttbr, timeElapsedSinceFirstHandlingOfAuditMessage);
                     }
                     else
                     {

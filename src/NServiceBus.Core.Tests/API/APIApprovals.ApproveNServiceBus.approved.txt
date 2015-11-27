@@ -679,8 +679,8 @@ namespace NServiceBus
         public MsmqTransport() { }
         public override string ExampleConnectionStringForErrorMessage { get; }
         public override bool RequiresConnectionString { get; }
-        protected internal override void ConfigureForReceiving(NServiceBus.Transports.TransportReceivingConfigurationContext context) { }
-        protected internal override void ConfigureForSending(NServiceBus.Transports.TransportSendingConfigurationContext context) { }
+        protected internal override NServiceBus.Transports.TransportReceivingConfigurationResult ConfigureForReceiving(NServiceBus.Transports.TransportReceivingConfigurationContext context) { }
+        protected internal override NServiceBus.Transports.TransportSendingConfigurationResult ConfigureForSending(NServiceBus.Transports.TransportSendingConfigurationContext context) { }
         public override string GetDiscriminatorForThisEndpointInstance(NServiceBus.Settings.ReadOnlySettings settings) { }
         public override NServiceBus.Transports.OutboundRoutingPolicy GetOutboundRoutingPolicy(NServiceBus.Settings.ReadOnlySettings settings) { }
         public override NServiceBus.Transports.IManageSubscriptions GetSubscriptionManager() { }
@@ -1520,10 +1520,6 @@ namespace NServiceBus.Features
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class MsmqSubscriptionPersistence : NServiceBus.Features.Feature
-    {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
-    }
-    public class MsmqTransportConfigurator : NServiceBus.Features.Feature
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
@@ -2675,8 +2671,8 @@ namespace NServiceBus.Transports
     }
     public enum OutboundRoutingType
     {
-        DirectSend = 0,
-        IndirectPublish = 1,
+        Unicast = 0,
+        Multicast = 1,
     }
     public class OutgoingMessage
     {
@@ -2711,10 +2707,17 @@ namespace NServiceBus.Transports
     public class QueueBindings
     {
         public QueueBindings() { }
-        public System.Collections.Generic.IEnumerable<string> ReceivingAddresses { get; }
-        public System.Collections.Generic.IEnumerable<string> SendingAddresses { get; }
+        public System.Collections.Generic.IReadOnlyCollection<string> ReceivingAddresses { get; }
+        public System.Collections.Generic.IReadOnlyCollection<string> SendingAddresses { get; }
         public void BindReceiving(string address) { }
         public void BindSending(string transportAddress) { }
+    }
+    public class StartupCheckResult
+    {
+        public static readonly NServiceBus.Transports.StartupCheckResult Success;
+        public string ErrorMessage { get; }
+        public bool Succeeded { get; }
+        public static NServiceBus.Transports.StartupCheckResult Failed(string errorMessage) { }
     }
     public enum TransactionSupport
     {
@@ -2733,7 +2736,9 @@ namespace NServiceBus.Transports
     {
         protected TransportDefinition() { }
         public abstract string ExampleConnectionStringForErrorMessage { get; }
+        [System.ObsoleteAttribute("Please use `GetOutboundRoutingPolicy` instead. Will be removed in version 7.0.0.", true)]
         public bool HasNativePubSubSupport { get; set; }
+        [System.ObsoleteAttribute("Please use `GetOutboundRoutingPolicy` instead. Will be removed in version 7.0.0.", true)]
         public bool HasSupportForCentralizedPubSub { get; set; }
         [System.ObsoleteAttribute("GetTransactionSupport. Will be removed in version 7.0.0.", true)]
         public System.Nullable<bool> HasSupportForDistributedTransactions { get; set; }
@@ -2741,8 +2746,8 @@ namespace NServiceBus.Transports
         public bool HasSupportForMultiQueueNativeTransactions { get; set; }
         public bool RequireOutboxConsent { get; set; }
         public virtual bool RequiresConnectionString { get; }
-        protected internal abstract void ConfigureForReceiving(NServiceBus.Transports.TransportReceivingConfigurationContext context);
-        protected internal abstract void ConfigureForSending(NServiceBus.Transports.TransportSendingConfigurationContext context);
+        protected internal abstract NServiceBus.Transports.TransportReceivingConfigurationResult ConfigureForReceiving(NServiceBus.Transports.TransportReceivingConfigurationContext context);
+        protected internal abstract NServiceBus.Transports.TransportSendingConfigurationResult ConfigureForSending(NServiceBus.Transports.TransportSendingConfigurationContext context);
         public abstract string GetDiscriminatorForThisEndpointInstance(NServiceBus.Settings.ReadOnlySettings settings);
         public abstract NServiceBus.Transports.OutboundRoutingPolicy GetOutboundRoutingPolicy(NServiceBus.Settings.ReadOnlySettings settings);
         public abstract NServiceBus.Transports.IManageSubscriptions GetSubscriptionManager();
@@ -2760,14 +2765,19 @@ namespace NServiceBus.Transports
     {
         public string ConnectionString { get; }
         public NServiceBus.Settings.ReadOnlySettings Settings { get; }
-        public void SetMessagePumpFactory(System.Func<NServiceBus.CriticalError, NServiceBus.Transports.IPushMessages> messagePumpFactory) { }
-        public void SetQueueCreatorFactory(System.Func<NServiceBus.Transports.ICreateQueues> queueCreatorFactory) { }
+    }
+    public class TransportReceivingConfigurationResult
+    {
+        public TransportReceivingConfigurationResult(System.Func<NServiceBus.CriticalError, NServiceBus.Transports.IPushMessages> messagePumpFactory, System.Func<NServiceBus.Transports.ICreateQueues> queueCreatorFactory, System.Func<System.Threading.Tasks.Task<NServiceBus.Transports.StartupCheckResult>> preStartupCheck) { }
     }
     public class TransportSendingConfigurationContext
     {
         public string ConnectionString { get; }
-        public NServiceBus.Settings.ReadOnlySettings GlobalSettings { get; }
-        public void SetDispatcherFactory(System.Func<NServiceBus.Transports.IDispatchMessages> dispatcherFactory) { }
+        public NServiceBus.Settings.ReadOnlySettings Settings { get; }
+    }
+    public class TransportSendingConfigurationResult
+    {
+        public TransportSendingConfigurationResult(System.Func<NServiceBus.Transports.IDispatchMessages> dispatcherFactory, System.Func<System.Threading.Tasks.Task<NServiceBus.Transports.StartupCheckResult>> preStartupCheck) { }
     }
     public interface TransportTransaction { }
 }

@@ -35,7 +35,7 @@
 
             var conventions = context.Settings.Get<Conventions>();
 
-            if (transportDefinition.HasSupportForCentralizedPubSub)
+            if (transportDefinition.GetOutboundRoutingPolicy(context.Settings).Publishes == OutboundRoutingType.Multicast)
             {
                 context.RegisterStartupTask(b =>
                 {

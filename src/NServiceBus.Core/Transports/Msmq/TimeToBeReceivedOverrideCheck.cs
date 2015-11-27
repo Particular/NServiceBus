@@ -2,11 +2,10 @@
 {
     using NServiceBus.Config;
     using System;
-    using System.Threading.Tasks;
     using NServiceBus.Features;
     using NServiceBus.Settings;
 
-    class TimeToBeReceivedOverrideCheck : FeatureStartupTask
+    class TimeToBeReceivedOverrideCheck
     {
         ReadOnlySettings settings;
 
@@ -14,8 +13,7 @@
         {
             this.settings = settings;
         }
-
-        protected override Task OnStart(IBusContext context)
+        public StartupCheckResult CheckTimeToBeReceivedOverrides()
         {
             var usingMsmq = settings.Get<TransportDefinition>() is MsmqTransport;
             var isTransactional = settings.Get<bool>("Transactions.Enabled");
@@ -27,9 +25,7 @@
             var unicastBusConfig = settings.GetConfigSection<UnicastBusConfig>();
             var forwardTTBROverridden = unicastBusConfig != null && unicastBusConfig.TimeToBeReceivedOnForwardedMessages > TimeSpan.Zero;
 
-            TimeToBeReceivedOverrideChecker.Check(usingMsmq, isTransactional, outBoxRunning, auditTTBROverridden, forwardTTBROverridden);
-
-            return TaskEx.Completed;
+            return TimeToBeReceivedOverrideChecker.Check(usingMsmq, isTransactional, outBoxRunning, auditTTBROverridden, forwardTTBROverridden);
         }
     }
 }

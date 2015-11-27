@@ -95,7 +95,7 @@
                     {
                         testContext.TTBRHasExpiredAndMessageIsStillInErrorQueue = true;
                         var timeElapsedSinceFirstHandlingOfErrorMessage = errorProcessingStarted - testContext.FirstTimeProcessedByErrorHandler.Value;
-                        Console.WriteLine("Error message not removed because of TTBR({0}) after {1}. Success.", ttbr, timeElapsedSinceFirstHandlingOfErrorMessage);
+                        Console.WriteLine("Error message not removed because of TTBR({0}) after {1}. Succeeded.", ttbr, timeElapsedSinceFirstHandlingOfErrorMessage);
                     }
                     else
                     {

@@ -1,6 +1,7 @@
 namespace NServiceBus.Transports
 {
     using System;
+    using System.Threading.Tasks;
     using Features;
 
     class Receiving : Feature
@@ -38,9 +39,30 @@ namespace NServiceBus.Transports
             
             context.Container.RegisterSingleton(inboundTransport.Definition);
 
-            var receiveConfigContext = inboundTransport.Configure(context.Settings);
-            context.Container.ConfigureComponent(b => receiveConfigContext.MessagePumpFactory(b.Build<CriticalError>()), DependencyLifecycle.InstancePerCall);
-            context.Container.ConfigureComponent(b => receiveConfigContext.QueueCreatorFactory(), DependencyLifecycle.SingleInstance);
+            var receiveConfigResult = inboundTransport.Configure(context.Settings);
+            context.Container.ConfigureComponent(b => receiveConfigResult.MessagePumpFactory(b.Build<CriticalError>()), DependencyLifecycle.InstancePerCall);
+            context.Container.ConfigureComponent(b => receiveConfigResult.QueueCreatorFactory(), DependencyLifecycle.SingleInstance);
+
+            context.RegisterStartupTask(new PrepareForReceiving(receiveConfigResult.PreStartupCheck));
+        }
+        
+        class PrepareForReceiving : FeatureStartupTask
+        {
+            readonly Func<Task<StartupCheckResult>> preStartupCheck;
+
+            public PrepareForReceiving(Func<Task<StartupCheckResult>> preStartupCheck)
+            {
+                this.preStartupCheck = preStartupCheck;
+            }
+
+            protected override async Task OnStart(IBusContext context)
+            {
+                var result = await preStartupCheck();
+                if (!result.Succeeded)
+                {
+                    throw new Exception($"Pre start-up check failed: {result.ErrorMessage}");
+                }
+            }
         }
     }
 }

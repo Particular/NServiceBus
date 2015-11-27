@@ -2,20 +2,20 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using Settings;
     using Transports;
 
     public class FakeTransport : TransportDefinition
     {
-        protected override void ConfigureForReceiving(TransportReceivingConfigurationContext context)
+        protected override TransportReceivingConfigurationResult ConfigureForReceiving(TransportReceivingConfigurationContext context)
         {
-            context.SetMessagePumpFactory(c => new FakeReceiver(c, context.Settings.Get<Exception>()));
-            context.SetQueueCreatorFactory(() => new FakeQueueCreator());
+            return new TransportReceivingConfigurationResult(c => new FakeReceiver(c, context.Settings.Get<Exception>()), () => new FakeQueueCreator(), () => Task.FromResult(StartupCheckResult.Success));
         }
 
-        protected override void ConfigureForSending(TransportSendingConfigurationContext context)
+        protected override TransportSendingConfigurationResult ConfigureForSending(TransportSendingConfigurationContext context)
         {
-            context.SetDispatcherFactory(() => new FakeDispatcher());
+            return new TransportSendingConfigurationResult(() => new FakeDispatcher(), () => Task.FromResult(StartupCheckResult.Success));
         }
 
         public override IEnumerable<Type> GetSupportedDeliveryConstraints()
@@ -45,7 +45,7 @@
 
         public override OutboundRoutingPolicy GetOutboundRoutingPolicy(ReadOnlySettings settings)
         {
-            return new OutboundRoutingPolicy(OutboundRoutingType.DirectSend, OutboundRoutingType.DirectSend, OutboundRoutingType.DirectSend);
+            return new OutboundRoutingPolicy(OutboundRoutingType.Unicast, OutboundRoutingType.Unicast, OutboundRoutingType.Unicast);
         }
 
         public override bool RequiresConnectionString => false;
