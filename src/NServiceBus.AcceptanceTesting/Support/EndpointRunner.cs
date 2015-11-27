@@ -49,7 +49,7 @@
                     busConfiguration.SendOnly();
                 }
 
-                var initializable = Endpoint.Create(busConfiguration);
+                var initializable = Endpoint.Prepare(busConfiguration);
                 startable = await initializable.Initialize().ConfigureAwait(false);
 
                 if (!configuration.SendOnly)

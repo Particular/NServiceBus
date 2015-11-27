@@ -290,7 +290,8 @@ namespace NServiceBus
     }
     public class static Endpoint
     {
-        public static NServiceBus.IInitializableEndpoint Create(NServiceBus.BusConfiguration configuration) { }
+        public static System.Threading.Tasks.Task<NServiceBus.IStartableEndpoint> Create(NServiceBus.BusConfiguration configuration) { }
+        public static NServiceBus.IInitializableEndpoint Prepare(NServiceBus.BusConfiguration configuration) { }
         public static async System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(NServiceBus.BusConfiguration configuration) { }
     }
     public sealed class EndpointInstanceName
