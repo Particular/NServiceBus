@@ -148,20 +148,21 @@
                     var subscriptions = builder.BuildAll<ISubscriptionStorage>().FirstOrDefault();
                     if (subscriptions != null)
                     {
+
                         settings.Get<UnicastRoutingTable>().AddDynamic((t, c) => QuerySubscriptionStore(subscriptions, t, c));
                     }
                 }
                 return TaskEx.Completed;
             }
 
-            static async Task<List<IUnicastRoute>> QuerySubscriptionStore(ISubscriptionStorage subscriptions, List<Type> types, ContextBag contextBag)
+            static async Task<IReadOnlyCollection<IUnicastRoute>> QuerySubscriptionStore(ISubscriptionStorage subscriptions, List<Type> types, ContextBag contextBag)
             {
                 if (!(contextBag is OutgoingPublishContext))
                 {
                     return new List<IUnicastRoute>();
                 }
 
-                var messageTypes = types.Select(t => new MessageType(t));
+                var messageTypes = types.Select(t => new MessageType(t)).ToArray();
                 
                 var subscribers = await subscriptions.GetSubscriberAddressesForMessage(messageTypes, contextBag).ConfigureAwait(false);
                 return new List<IUnicastRoute>(subscribers.Select(s => new SubscriberDestination(s)));

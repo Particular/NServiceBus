@@ -1,7 +1,6 @@
 namespace NServiceBus
 {
     using System;
-    using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline;
@@ -24,8 +23,8 @@ namespace NServiceBus
             var eventType = context.Message.MessageType;
             var distributionStrategy = distributionPolicy.GetDistributionStrategy(eventType);
 
-            var addressLabels = (await unicastRouter.Route(eventType, distributionStrategy, context).ConfigureAwait(false)).ToArray();
-            if (addressLabels.Length == 0)
+            var addressLabels = (await unicastRouter.Route(eventType, distributionStrategy, context).ConfigureAwait(false));
+            if (addressLabels.Count == 0)
             {
                 //No subscribers for this message.
                 return;

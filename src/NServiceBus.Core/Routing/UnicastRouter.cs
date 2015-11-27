@@ -23,13 +23,13 @@ namespace NServiceBus.Routing
             this.physicalAddresses = physicalAddresses;
         }
 
-        public async Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, DistributionStrategy distributionStrategy, ContextBag contextBag)
+        public async Task<IReadOnlyCollection<UnicastRoutingStrategy>> Route(Type messageType, DistributionStrategy distributionStrategy, ContextBag contextBag)
         {
             var typesToRoute = messageMetadataRegistry.GetMessageMetadata(messageType)
                 .MessageHierarchy
                 .Distinct()
                 .ToList();
-
+            
             var routes = await unicastRoutingTable.GetDestinationsFor(typesToRoute, contextBag).ConfigureAwait(false);
 
             var destinations = routes.Distinct().SelectMany(d => d.Resolve(e => endpointInstances.FindInstances(e))).Distinct();
@@ -38,7 +38,9 @@ namespace NServiceBus.Routing
 
             var selectedDestinations = SelectDestinationsForEachEndpoint(distributionStrategy, destinationsByEndpoint);
 
-            return selectedDestinations.Select(destination => new UnicastRoutingStrategy(destination.Resolve(physicalAddresses.GetTransportAddress)));
+            return selectedDestinations
+                .Select(destination => new UnicastRoutingStrategy(destination.Resolve(physicalAddresses.GetTransportAddress)))
+                .ToList();
         }
 
         static IEnumerable<UnicastRoutingTarget> SelectDestinationsForEachEndpoint(DistributionStrategy distributionStrategy, IEnumerable<IGrouping<EndpointName, UnicastRoutingTarget>> destinationsByEndpoint)
