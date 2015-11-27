@@ -107,6 +107,13 @@
     <Compile Include="Persistence\CompletableSynchronizedStorageSession.cs" />
     <Compile Include="Persistence\InMemory\InMemorySynchronizedStorage.cs" />
     <Compile Include="Persistence\InMemory\InMemoryTransactionalSynchronizedStorageAdapter.cs" />
+    <Compile Include="Persistence\Msmq\Msmq.cs" />
+    <Compile Include="Persistence\Msmq\SubscriptionStorage\Entry.cs" />
+    <Compile Include="Persistence\Msmq\SubscriptionStorage\IMsmqSubscriptionStorageQueue.cs" />
+    <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionPersistence.cs" />
+    <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionStorage.cs" />
+    <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionStorageConfig.cs" />
+    <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionStorageQueue.cs" />
     <Compile Include="Routing\Legacy\ConfigureMSMQDistributor.cs" />
     <Compile Include="Routing\Legacy\DistributorHeaders.cs" />
     <Compile Include="Routing\Legacy\ProcessedMessageCounterBehavior.cs" />
@@ -370,7 +377,6 @@
     <Compile Include="Hosting\HostInfoConfigurationExtensions.cs" />
     <Compile Include="Hosting\HostInfoSettings.cs" />
     <Compile Include="INeedInitialization.cs" />
-    <Compile Include="Installation\InstallationSupport.cs" />
     <Compile Include="Installation\InstallConfigExtensions.cs" />
     <Compile Include="IBusContextFactory.cs" />
     <Compile Include="Logging\DefaultFactory.cs" />

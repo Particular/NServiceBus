@@ -10,7 +10,7 @@ namespace NServiceBus.InMemory.SubscriptionStorage
 
     class InMemorySubscriptionStorage : ISubscriptionStorage
     {
-        public Task Subscribe(Subscriber subscriber, IEnumerable<MessageType> messageTypes, ContextBag context)
+        public Task Subscribe(Subscriber subscriber, IReadOnlyCollection<MessageType> messageTypes, ContextBag context)
         {
             foreach (var m in messageTypes)
             {
@@ -21,7 +21,7 @@ namespace NServiceBus.InMemory.SubscriptionStorage
             return TaskEx.Completed;
         }
 
-        public Task Unsubscribe(Subscriber subscriber, IEnumerable<MessageType> messageTypes, ContextBag context)
+        public Task Unsubscribe(Subscriber subscriber, IReadOnlyCollection<MessageType> messageTypes, ContextBag context)
         {
             foreach (var m in messageTypes)
             {
@@ -35,7 +35,7 @@ namespace NServiceBus.InMemory.SubscriptionStorage
             return TaskEx.Completed;
         }
 
-        public Task<IEnumerable<Subscriber>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes, ContextBag context)
+        public Task<IEnumerable<Subscriber>> GetSubscriberAddressesForMessage(IReadOnlyCollection<MessageType> messageTypes, ContextBag context)
         {
             var result = new HashSet<Subscriber>();
             foreach (var m in messageTypes)

@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Security.Principal;
     using System.Threading.Tasks;
@@ -9,6 +10,7 @@ namespace NServiceBus
     using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.Faults;
     using NServiceBus.Features;
+    using NServiceBus.Installation;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
@@ -36,37 +38,87 @@ namespace NServiceBus
 
         public async Task<IEndpointInstance> Start()
         {
-            var busInterface = new StartUpBusContextFactory(builder);
-            var featureRunner = new FeatureRunner(builder, featureActivator);
+            var busInterface = new StartUpBusInterface(builder);
             var busContext = busInterface.CreateBusContext();
-            await featureRunner.Start(busContext).ConfigureAwait(false);
 
-            var allStartables = builder.BuildAll<IWantToRunWhenBusStartsAndStops>().Concat(startables).ToList();
-            var runner = new StartAndStoppablesRunner(allStartables);
-            await runner.Start(busContext).ConfigureAwait(false);
+            await RunInstallers();
+            var featureRunner = await StartFeatures(busContext);
+            var runner = await StartStartables(busContext);
 
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 
-            var pipelineCollection = new PipelineCollection(
-                settings.GetOrDefault<bool>("Endpoint.SendOnly")
-                    ? Enumerable.Empty<TransportReceiver>()
-                    : BuildPipelines().ToArray());
+            var pipelineCollection = CreateIncomingPipelines();
 
             var runningInstance = new RunningEndpointInstance(builder, pipelineCollection, runner, featureRunner, busInterface);
 
             // set the started endpoint on CriticalError to pass the endpoint to the critical error action
             builder.Build<CriticalError>().Endpoint = runningInstance;
 
-            await pipelineCollection.Start().ConfigureAwait(false);
+            await StartPipelines(pipelineCollection);
 
             return runningInstance;
         }
 
-        class StartUpBusContextFactory : IBusContextFactory
+        static Task StartPipelines(PipelineCollection pipelineCollection)
+        {
+            return pipelineCollection.Start();
+        }
+
+        PipelineCollection CreateIncomingPipelines()
+        {
+            PipelineCollection pipelineCollection;
+            if (settings.GetOrDefault<bool>("Endpoint.SendOnly"))
+            {
+                pipelineCollection = new PipelineCollection(Enumerable.Empty<TransportReceiver>());
+            }
+            else
+            {
+                var pipelines = BuildPipelines().ToArray();
+                pipelineCollection = new PipelineCollection(pipelines);
+            }
+            return pipelineCollection;
+        }
+
+        async Task<StartAndStoppablesRunner> StartStartables(IBusContext busContext)
+        {
+            var allStartables = builder.BuildAll<IWantToRunWhenBusStartsAndStops>().Concat(startables).ToList();
+            var runner = new StartAndStoppablesRunner(allStartables);
+            await runner.Start(busContext).ConfigureAwait(false);
+            return runner;
+        }
+
+        async Task<FeatureRunner> StartFeatures(IBusContext busContext)
+        {
+            var featureRunner = new FeatureRunner(builder, featureActivator);
+            await featureRunner.Start(busContext).ConfigureAwait(false);
+            return featureRunner;
+        }
+
+        async Task RunInstallers()
+        {
+            if (Debugger.IsAttached || settings.GetOrDefault<bool>("Installers.Enable"))
+            {
+                var username = GetInstallationUserName();
+                foreach (var installer in builder.BuildAll<IInstall>())
+                {
+                    await installer.Install(username).ConfigureAwait(false);
+                }
+            }
+        }
+
+        string GetInstallationUserName()
+        {
+            string username;
+            return settings.TryGet("Installers.UserName", out username) 
+                ? username 
+                : WindowsIdentity.GetCurrent().Name;
+        }
+
+        class StartUpBusInterface : IBusContextFactory
         {
             IBuilder builder;
 
-            public StartUpBusContextFactory(IBuilder builder)
+            public StartUpBusInterface(IBuilder builder)
             {
                 this.builder = builder;
             }
