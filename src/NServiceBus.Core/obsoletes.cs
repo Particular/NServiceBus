@@ -1629,6 +1629,14 @@ namespace NServiceBus
     }
 
     [ObsoleteEx(
+    TreatAsErrorFromVersion = "6",
+    RemoveInVersion = "7",
+    Message = "Use IBusContextFactory to create sending context.")]
+    public interface ISendOnlyBus : IDisposable
+    {
+    }
+
+    [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
         Message = "When in context of handler use IMessageHandlingContext. Otherwise use IBusContextFactory to create sending context.")]

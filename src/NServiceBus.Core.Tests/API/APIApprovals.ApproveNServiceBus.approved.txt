@@ -581,6 +581,9 @@ namespace NServiceBus
     {
         public static void EnableInstallers(this NServiceBus.BusConfiguration config, string username = null) { }
     }
+    [System.ObsoleteAttribute("Use IBusContextFactory to create sending context. Will be removed in version 7.0." +
+        "0.", true)]
+    public interface ISendOnlyBus : System.IDisposable { }
     public class static ISendOnlyBusExtensions
     {
         [System.ObsoleteAttribute("Please use `Publish(object message)` instead. Will be removed in version 7.0.0.", true)]
