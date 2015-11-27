@@ -1,5 +1,6 @@
 namespace NServiceBus.Features
 {
+    using System.Collections.Generic;
     using NServiceBus.Transports;
 
     /// <summary>
@@ -17,7 +18,7 @@ namespace NServiceBus.Features
         /// <summary>
         /// See <see cref="Feature.Setup"/>.
         /// </summary>
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
             context.Pipeline.Register<SubscriptionReceiverBehavior.Registration>();
             var authorizer = context.Settings.GetSubscriptionAuthorizer();
@@ -26,6 +27,8 @@ namespace NServiceBus.Features
                 authorizer = _ => true;
             }
             context.Container.RegisterSingleton(authorizer);
+
+            return FeatureStartupTask.None;
         }
     }
 }

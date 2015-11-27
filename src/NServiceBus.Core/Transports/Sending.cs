@@ -1,5 +1,6 @@
 namespace NServiceBus.Transports
 {
+    using System.Collections.Generic;
     using NServiceBus.Features;
 
     class Sending : Feature
@@ -10,7 +11,7 @@ namespace NServiceBus.Transports
             DependsOn<UnicastBus>();
         }
 
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
             var transport = context.Settings.Get<OutboundTransport>();
             context.Container.ConfigureComponent(c =>
@@ -19,6 +20,8 @@ namespace NServiceBus.Transports
                 var dispatcher = sendConfigContext.DispatcherFactory();
                 return dispatcher;
             }, DependencyLifecycle.SingleInstance);
+
+            return FeatureStartupTask.None;
         }
     }
 }

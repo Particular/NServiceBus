@@ -11,7 +11,7 @@
             EnableByDefault();
         }
 
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
             var conventions = context.Settings.Get<Conventions>();
 
@@ -44,8 +44,9 @@
 
             context.Pipeline.Register("DetermineMessageDurability", typeof(DetermineMessageDurabilityBehavior), "Adds the NonDurableDelivery constraint for messages that have requested to be delivered in non durable mode");
 
-
             context.Container.ConfigureComponent(b => new DetermineMessageDurabilityBehavior(messageDurability), DependencyLifecycle.SingleInstance);
+
+            return FeatureStartupTask.None;
         }
     }
 }

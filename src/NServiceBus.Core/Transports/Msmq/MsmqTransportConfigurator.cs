@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
     using System.Messaging;
@@ -20,14 +21,21 @@
             EnableByDefault();
             DependsOn<UnicastBus>();
             DependsOn<Receiving>();
-            RegisterStartupTask<CheckQueuePermissions>();
-            RegisterStartupTask<TimeToBeReceivedOverrideCheck>();
+        }
+
+        /// <summary>
+        ///     Called when the features is activated.
+        /// </summary>
+        protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
+        {
+            return FeatureStartupTask.Some(
+                new CheckQueuePermissions(context.Settings), 
+                new TimeToBeReceivedOverrideCheck(context.Settings));
         }
 
         class CheckQueuePermissions : FeatureStartupTask
         {
             ReadOnlySettings settings;
-
             public CheckQueuePermissions(ReadOnlySettings settings)
             {
                 this.settings = settings;
@@ -89,13 +97,6 @@
             }
 
             static ILog Logger = LogManager.GetLogger<CheckQueuePermissions>();
-        }
-        
-        /// <summary>
-        ///     Called when the features is activated.
-        /// </summary>
-        protected internal override void Setup(FeatureConfigurationContext context)
-        {
         }
     }
 }

@@ -13,11 +13,11 @@ namespace NServiceBus.Features
             EnableByDefault();
         }
 
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
             if (context.Container.HasComponent<MessageHandlerRegistry>())
             {
-                return;
+                return FeatureStartupTask.None;
             }
 
             List<Type> order;
@@ -28,6 +28,8 @@ namespace NServiceBus.Features
             }
 
             LoadMessageHandlers(context, order);
+
+            return FeatureStartupTask.None;
         }
 
         static void LoadMessageHandlers(FeatureConfigurationContext context, List<Type> orderedTypes)

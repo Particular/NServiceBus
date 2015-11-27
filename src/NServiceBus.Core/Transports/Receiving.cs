@@ -1,6 +1,7 @@
 namespace NServiceBus.Transports
 {
     using System;
+    using System.Collections.Generic;
     using Features;
 
     class Receiving : Feature
@@ -30,7 +31,7 @@ namespace NServiceBus.Transports
         /// <summary>
         /// <see cref="Feature.Setup"/>.
         /// </summary>
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
             var inboundTransport = context.Settings.Get<InboundTransport>();
 
@@ -41,6 +42,8 @@ namespace NServiceBus.Transports
             var receiveConfigContext = inboundTransport.Configure(context.Settings);
             context.Container.ConfigureComponent(b => receiveConfigContext.MessagePumpFactory(b.Build<CriticalError>()), DependencyLifecycle.InstancePerCall);
             context.Container.ConfigureComponent(b => receiveConfigContext.QueueCreatorFactory(), DependencyLifecycle.SingleInstance);
+
+            return FeatureStartupTask.None;
         }
     }
 }

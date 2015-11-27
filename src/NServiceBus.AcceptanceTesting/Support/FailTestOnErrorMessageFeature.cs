@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTesting.Support
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.Faults;
@@ -18,8 +19,9 @@
             RegisterStartupTask<FailTestOnErrorMessageFeatureStartupTask>();
         }
 
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
+            return FeatureStartupTask.None;
         }
 
         class FailTestOnErrorMessageFeatureStartupTask : FeatureStartupTask

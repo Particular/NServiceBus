@@ -64,13 +64,15 @@ Perhaps you forgot to define your encryption message conventions or to define me
         /// <summary>
         /// <see cref="Feature.Setup"/>.
         /// </summary>
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
             context.Container.ConfigureComponent(serviceConstructor, DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent<EncryptionMutator>(DependencyLifecycle.SingleInstance);
 
             context.Pipeline.Register<EncryptBehavior.EncryptRegistration>();
             context.Pipeline.Register<DecryptBehavior.DecryptRegistration>();
+
+            return FeatureStartupTask.None;
         }
 
         static ILog log = LogManager.GetLogger<Encryptor>();

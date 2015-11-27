@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Features
 {
     using System;
+    using System.Collections.Generic;
     using System.Transactions;
 
     class WrapHandlersInTransactionScope : Feature
@@ -10,7 +11,7 @@
             EnableByDefault();
         }
 
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
             if (context.Settings.GetOrDefault<bool>("Transactions.DoNotWrapHandlersExecutionInATransactionScope"))
             {
@@ -28,6 +29,8 @@
 
                 context.Pipeline.Register("HandlerTransactionScopeWrapper", typeof(HandlerTransactionScopeWrapperBehavior), "Makes sure that the handlers gets wrapped in a transaction scope");
             }
+
+            return FeatureStartupTask.None;
         }
     }
 }

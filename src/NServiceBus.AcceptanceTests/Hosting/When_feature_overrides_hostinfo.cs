@@ -50,8 +50,9 @@ namespace NServiceBus.AcceptanceTests.Hosting
                 });
             }
 
-            protected override void Setup(FeatureConfigurationContext context)
+            protected override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
             {
+                return FeatureStartupTask.None;
             }
         }
 

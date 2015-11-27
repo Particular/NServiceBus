@@ -1,6 +1,7 @@
 namespace NServiceBus.Features
 {
     using System;
+    using System.Collections.Generic;
     using NServiceBus.DataBus;
 
     class DataBusFileBased : Feature
@@ -13,7 +14,7 @@ namespace NServiceBus.Features
         /// <summary>
         /// See <see cref="Feature.Setup"/>
         /// </summary>
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
             string basePath;
             if (!context.Settings.TryGet("FileShareDataBusPath", out basePath))
@@ -23,6 +24,8 @@ namespace NServiceBus.Features
             var dataBus = new FileShareDataBusImplementation(basePath);
 
             context.Container.RegisterSingleton<IDataBus>(dataBus);
+
+            return FeatureStartupTask.None;
         }
     }
 }

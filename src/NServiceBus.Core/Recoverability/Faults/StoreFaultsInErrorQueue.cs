@@ -1,5 +1,6 @@
 namespace NServiceBus.Features
 {
+    using System.Collections.Generic;
     using NServiceBus.Faults;
     using NServiceBus.Hosting;
     using NServiceBus.Pipeline;
@@ -18,7 +19,7 @@ namespace NServiceBus.Features
             }, "Send only endpoints can't be used to forward received messages to the error queue as the endpoint requires receive capabilities");
         }
 
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
 
             var errorQueue = ErrorQueueSettings.GetConfiguredErrorQueue(context.Settings);
@@ -40,6 +41,8 @@ namespace NServiceBus.Features
             context.Settings.Get<QueueBindings>().BindSending(errorQueue);
 
             context.Pipeline.Register<MoveFaultsToErrorQueueBehavior.Registration>();
+
+            return FeatureStartupTask.None;
         }
 
 

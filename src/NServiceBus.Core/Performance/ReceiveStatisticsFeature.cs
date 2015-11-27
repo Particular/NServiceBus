@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using NServiceBus.Audit;
     using NServiceBus.Features;
@@ -12,11 +13,13 @@
         {
             EnableByDefault();
         }
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
             context.Pipeline.Register("ReceivePerformanceDiagnosticsBehavior", typeof(ReceivePerformanceDiagnosticsBehavior), "Provides various performance counters for receive statistics");
             context.Pipeline.Register<ProcessingStatisticsBehavior.Registration>();
             context.Pipeline.Register("AuditProcessingStatistics", typeof(AuditProcessingStatisticsBehavior), "Add ProcessingStarted and ProcessingEnded headers");
+
+            return FeatureStartupTask.None;
         }
     }
 

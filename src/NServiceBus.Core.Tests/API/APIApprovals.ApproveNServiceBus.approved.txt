@@ -1421,27 +1421,27 @@ namespace NServiceBus.Features
 {
     public class Audit : NServiceBus.Features.Feature
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected internal override System.Collections.Generic.IReadOnlyCollection<NServiceBus.Features.FeatureStartupTask> Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class AutoSubscribe : NServiceBus.Features.Feature
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected internal override System.Collections.Generic.IReadOnlyCollection<NServiceBus.Features.FeatureStartupTask> Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class BestPracticeEnforcement : NServiceBus.Features.Feature
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected internal override System.Collections.Generic.IReadOnlyCollection<NServiceBus.Features.FeatureStartupTask> Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class CriticalTimeMonitoring : NServiceBus.Features.Feature
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected internal override System.Collections.Generic.IReadOnlyCollection<NServiceBus.Features.FeatureStartupTask> Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class DataBus : NServiceBus.Features.Feature
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected internal override System.Collections.Generic.IReadOnlyCollection<NServiceBus.Features.FeatureStartupTask> Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class Encryptor : NServiceBus.Features.Feature
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected internal override System.Collections.Generic.IReadOnlyCollection<NServiceBus.Features.FeatureStartupTask> Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public abstract class Feature
     {
@@ -1464,7 +1464,7 @@ namespace NServiceBus.Features
         protected void Prerequisite(System.Func<NServiceBus.Features.FeatureConfigurationContext, bool> condition, string description) { }
         protected void RegisterStartupTask<T>()
             where T : NServiceBus.Features.FeatureStartupTask { }
-        protected internal abstract void Setup(NServiceBus.Features.FeatureConfigurationContext context);
+        protected internal abstract System.Collections.Generic.IReadOnlyCollection<NServiceBus.Features.FeatureStartupTask> Setup(NServiceBus.Features.FeatureConfigurationContext context);
         public override string ToString() { }
     }
     public class FeatureConfigurationContext
@@ -1493,6 +1493,7 @@ namespace NServiceBus.Features
     public abstract class FeatureStartupTask
     {
         protected FeatureStartupTask() { }
+        public static System.Collections.Generic.IReadOnlyCollection<NServiceBus.Features.FeatureStartupTask> None { get; }
         [System.ObsoleteAttribute("Please use `OnStart(IBusContext context)` instead. Will be removed in version 7.0" +
             ".0.", true)]
         protected virtual void OnStart() { }
@@ -1501,6 +1502,7 @@ namespace NServiceBus.Features
             "0.", true)]
         protected virtual void OnStop() { }
         protected virtual System.Threading.Tasks.Task OnStop(NServiceBus.IBusContext context) { }
+        public static System.Collections.Generic.IReadOnlyCollection<NServiceBus.Features.FeatureStartupTask> Some(params NServiceBus.Features.FeatureStartupTask[] tasks) { }
     }
     public enum FeatureState
     {
@@ -1511,31 +1513,31 @@ namespace NServiceBus.Features
     }
     public class FirstLevelRetries : NServiceBus.Features.Feature
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected internal override System.Collections.Generic.IReadOnlyCollection<NServiceBus.Features.FeatureStartupTask> Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class ForwardReceivedMessages : NServiceBus.Features.Feature
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected internal override System.Collections.Generic.IReadOnlyCollection<NServiceBus.Features.FeatureStartupTask> Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class InMemoryGatewayPersistence : NServiceBus.Features.Feature
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected internal override System.Collections.Generic.IReadOnlyCollection<NServiceBus.Features.FeatureStartupTask> Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class InMemoryOutboxPersistence : NServiceBus.Features.Feature
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected internal override System.Collections.Generic.IReadOnlyCollection<NServiceBus.Features.FeatureStartupTask> Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class InMemorySagaPersistence : NServiceBus.Features.Feature
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected internal override System.Collections.Generic.IReadOnlyCollection<NServiceBus.Features.FeatureStartupTask> Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class InMemorySubscriptionPersistence : NServiceBus.Features.Feature
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected internal override System.Collections.Generic.IReadOnlyCollection<NServiceBus.Features.FeatureStartupTask> Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class InMemoryTimeoutPersistence : NServiceBus.Features.Feature
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected internal override System.Collections.Generic.IReadOnlyCollection<NServiceBus.Features.FeatureStartupTask> Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class JsonSerialization : NServiceBus.Serialization.ConfigureSerialization
     {
@@ -1543,19 +1545,19 @@ namespace NServiceBus.Features
     }
     public class MessageDrivenSubscriptions : NServiceBus.Features.Feature
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected internal override System.Collections.Generic.IReadOnlyCollection<NServiceBus.Features.FeatureStartupTask> Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class MsmqSubscriptionPersistence : NServiceBus.Features.Feature
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected internal override System.Collections.Generic.IReadOnlyCollection<NServiceBus.Features.FeatureStartupTask> Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class MsmqTransportConfigurator : NServiceBus.Features.Feature
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected internal override System.Collections.Generic.IReadOnlyCollection<NServiceBus.Features.FeatureStartupTask> Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class Outbox : NServiceBus.Features.Feature
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected internal override System.Collections.Generic.IReadOnlyCollection<NServiceBus.Features.FeatureStartupTask> Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class PrerequisiteStatus
     {
@@ -1564,15 +1566,15 @@ namespace NServiceBus.Features
     }
     public class Sagas : NServiceBus.Features.Feature
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected internal override System.Collections.Generic.IReadOnlyCollection<NServiceBus.Features.FeatureStartupTask> Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class Scheduler : NServiceBus.Features.Feature
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected internal override System.Collections.Generic.IReadOnlyCollection<NServiceBus.Features.FeatureStartupTask> Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class SecondLevelRetries : NServiceBus.Features.Feature
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected internal override System.Collections.Generic.IReadOnlyCollection<NServiceBus.Features.FeatureStartupTask> Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class static SerializationFeatureHelper { }
     public class static SettingsExtentions
@@ -1585,21 +1587,21 @@ namespace NServiceBus.Features
     }
     public class SLAMonitoring : NServiceBus.Features.Feature
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected internal override System.Collections.Generic.IReadOnlyCollection<NServiceBus.Features.FeatureStartupTask> Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     [System.ObsoleteAttribute("No longer used, safe to remove. Will be removed in version 7.0.0.", true)]
     public class StorageDrivenPublishing : NServiceBus.Features.Feature
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected internal override System.Collections.Generic.IReadOnlyCollection<NServiceBus.Features.FeatureStartupTask> Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class TimeoutManager : NServiceBus.Features.Feature
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected internal override System.Collections.Generic.IReadOnlyCollection<NServiceBus.Features.FeatureStartupTask> Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     [System.ObsoleteAttribute("No longer used, safe to remove. Will be removed in version 7.0.0.", true)]
     public class TimeoutManagerBasedDeferral : NServiceBus.Features.Feature
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected internal override System.Collections.Generic.IReadOnlyCollection<NServiceBus.Features.FeatureStartupTask> Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class XmlSerialization : NServiceBus.Serialization.ConfigureSerialization
     {
@@ -2440,7 +2442,7 @@ namespace NServiceBus.Serialization
         protected ConfigureSerialization() { }
         protected abstract System.Type GetSerializerType(NServiceBus.Features.FeatureConfigurationContext context);
         protected virtual void RegisterSerializer(NServiceBus.Features.FeatureConfigurationContext context, System.Type serializerType) { }
-        protected internal void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected internal System.Collections.Generic.IReadOnlyCollection<NServiceBus.Features.FeatureStartupTask> Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public interface IMessageSerializer
     {

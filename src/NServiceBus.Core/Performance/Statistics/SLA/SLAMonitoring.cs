@@ -1,6 +1,7 @@
 namespace NServiceBus.Features
 {
     using System;
+    using System.Collections.Generic;
     using NServiceBus.Performance.Counters;
 
     /// <summary>
@@ -17,23 +18,25 @@ namespace NServiceBus.Features
         /// <summary>
         /// <see cref="Feature.Setup"/>.
         /// </summary>
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
             if (context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"))
             {
-                return;
+                return FeatureStartupTask.None;
             }
 
             TimeSpan endpointSla;
             if (!TryGetSLA(context, out endpointSla))
             {
-                return;
+                return FeatureStartupTask.None;
             }
 
             var slaBreachCounter = PerformanceCounterHelper.InstantiatePerformanceCounter("SLA violation countdown", context.Settings.EndpointName().ToString());
             var timeToSLABreachCalculator = new EstimatedTimeToSLABreachCalculator(endpointSla, slaBreachCounter);
             context.Container.RegisterSingleton(timeToSLABreachCalculator);
             context.Pipeline.Register<SLABehavior.Registration>();
+
+            return FeatureStartupTask.None;
         }
 
         static bool TryGetSLA(FeatureConfigurationContext context, out TimeSpan endpointSla)

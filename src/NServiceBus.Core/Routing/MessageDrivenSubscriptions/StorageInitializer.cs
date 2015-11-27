@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions
 {
     using System.Threading.Tasks;
+    using System.Collections.Generic;
     using NServiceBus.Features;
 
     class StorageInitializer : Feature
@@ -22,8 +23,9 @@
             }
         }
 
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
+            return FeatureStartupTask.None;
         }
     }
 }

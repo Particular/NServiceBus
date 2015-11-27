@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Features
 {
     using System;
+    using System.Collections.Generic;
     using NServiceBus.DelayedDelivery;
     using NServiceBus.DelayedDelivery.TimeoutManager;
     using DeliveryConstraints;
@@ -37,7 +38,7 @@
         /// <summary>
         ///     See <see cref="Feature.Setup" />.
         /// </summary>
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
             string processorAddress;
 
@@ -77,9 +78,11 @@
 
                 return new ExpiredTimeoutsPoller(b.Build<IQueryTimeouts>(), b.Build<IDispatchMessages>(), dispatcherAddress, circuitBreaker);
             }, DependencyLifecycle.SingleInstance);
+
+            return FeatureStartupTask.None;
         }
 
-        bool HasAlternateTimeoutManagerBeenConfigured(ReadOnlySettings settings)
+        static bool HasAlternateTimeoutManagerBeenConfigured(ReadOnlySettings settings)
         {
             return settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress != null;
         }

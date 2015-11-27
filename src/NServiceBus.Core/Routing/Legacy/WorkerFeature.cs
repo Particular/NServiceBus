@@ -3,6 +3,7 @@
 namespace NServiceBus.Routing.Legacy
 {
     using System;
+    using System.Collections.Generic;
     using Features;
     using Transports;
 
@@ -21,7 +22,7 @@ namespace NServiceBus.Routing.Legacy
             });
         }
 
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
             var masterNodeControlAddress = context.Settings.Get<string>("LegacyDistributor.ControlAddress");
             var capacity = context.Settings.Get<int>("LegacyDistributor.Capacity");
@@ -30,6 +31,8 @@ namespace NServiceBus.Routing.Legacy
             context.Container.ConfigureComponent(b => new ProcessedMessageCounterBehavior(b.Build<ReadyMessageSender>()), DependencyLifecycle.SingleInstance);
 
             context.Pipeline.Register("ProcessedMessageCounterBehavior", typeof(ProcessedMessageCounterBehavior), "Counts messages processed by the worker.");
+
+            return FeatureStartupTask.None;
         }
     }
 }

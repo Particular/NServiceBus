@@ -1,5 +1,6 @@
 namespace NServiceBus.Features
 {
+    using System.Collections.Generic;
     using NServiceBus.MessagingBestPractices;
     using NServiceBus.Pipeline;
 
@@ -20,7 +21,7 @@ namespace NServiceBus.Features
         /// Initializes the feature.
         /// </summary>
         /// <param name="context">The feature context.</param>
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
             context.Container.ConfigureComponent<Validations>(DependencyLifecycle.SingleInstance);
 
@@ -48,6 +49,8 @@ namespace NServiceBus.Features
                 WellKnownStep.EnforceUnsubscribeBestPractices,
                 typeof(EnforceUnsubscribeBestPracticesBehavior),
                 "Enforces unsubscribe messaging best practices");
+
+            return FeatureStartupTask.None;
         }
 
     }

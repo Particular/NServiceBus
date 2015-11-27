@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Basic
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
@@ -62,8 +63,9 @@
                     RegisterStartupTask<MyTask>();
                 }
 
-                protected override void Setup(FeatureConfigurationContext context)
+                protected override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
                 {
+                    return FeatureStartupTask.None;
                 }
 
                 public class MyTask : FeatureStartupTask

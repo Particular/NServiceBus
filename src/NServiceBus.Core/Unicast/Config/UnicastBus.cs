@@ -47,7 +47,7 @@ namespace NServiceBus.Features
             return new EndpointInstanceName(settings.EndpointName(), userDiscriminator, transportDiscriminator);
         }
 
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
             context.Container.ConfigureComponent<BusNotifications>(DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent<RunningEndpointInstance>(DependencyLifecycle.SingleInstance);
@@ -57,6 +57,8 @@ namespace NServiceBus.Features
                 .ToList();
 
             ConfigureMessageRegistry(context, knownMessages);
+
+            return FeatureStartupTask.None;
         }
 
         static void ConfigureMessageRegistry(FeatureConfigurationContext context, IEnumerable<Type> knownMessages)

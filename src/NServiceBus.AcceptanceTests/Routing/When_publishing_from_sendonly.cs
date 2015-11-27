@@ -81,9 +81,10 @@
 
         public class HardCodedPersistenceFeature : Feature
         {
-            protected override void Setup(FeatureConfigurationContext context)
+            protected override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
             {
                 context.Container.ConfigureComponent<HardcodedSubscriptionManager>(DependencyLifecycle.SingleInstance);
+                return FeatureStartupTask.None;
             }
         }
 

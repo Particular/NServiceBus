@@ -31,7 +31,7 @@
                 });
             });
         }
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
             var hostInformation = new HostInformation(context.Settings.Get<Guid>(HostIdSettingsKey),
                         context.Settings.Get<string>("NServiceBus.HostInformation.DisplayName"),
@@ -44,6 +44,8 @@
 
             context.Container.ConfigureComponent(b => new AddHostInfoHeadersBehavior(hostInformation, context.Settings.EndpointName()), DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent(b => new AuditHostInformationBehavior(hostInformation, context.Settings.EndpointName()), DependencyLifecycle.SingleInstance);
+
+            return FeatureStartupTask.None;
         }
     }
 }

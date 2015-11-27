@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.Features
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using NServiceBus.Features;
     using NUnit.Framework;
@@ -128,9 +129,10 @@
         public Action<Feature> OnActivation;
         public Action<Feature> OnDefaults;
 
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected internal override IReadOnlyCollection<FeatureStartupTask> Setup(FeatureConfigurationContext context)
         {
             OnActivation?.Invoke(this);
+            return FeatureStartupTask.None;
         }
     }
 }
