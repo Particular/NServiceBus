@@ -515,10 +515,6 @@ namespace NServiceBus
     public interface IEvent : NServiceBus.IMessage { }
     [System.ObsoleteAttribute("Will be removed in version 7.0.0.", true)]
     public interface IExcludesBuilder { }
-    public interface IFinalizeConfiguration
-    {
-        void Run(NServiceBus.Settings.SettingsHolder settings);
-    }
     public interface IHandleMessages<T>
     {
         System.Threading.Tasks.Task Handle(T message, NServiceBus.IMessageHandlerContext context);
@@ -627,10 +623,9 @@ namespace NServiceBus
     {
         System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start();
     }
-    [System.ObsoleteAttribute("Please use `IFinalizeConfiguration` instead. Will be removed in version 7.0.0.", true)]
     public interface IWantToRunBeforeConfigurationIsFinalized
     {
-        void Run(NServiceBus.Configure config);
+        void Run(NServiceBus.Settings.SettingsHolder settings);
     }
     public interface IWantToRunWhenBusStartsAndStops
     {
@@ -1664,12 +1659,10 @@ namespace NServiceBus.InMemory.Outbox
 }
 namespace NServiceBus.Installation
 {
-    public interface IInstall
+    public interface INeedToInstallSomething
     {
         System.Threading.Tasks.Task Install(string identity);
     }
-    [System.ObsoleteAttribute("Please use `IInstall` instead. Will be removed in version 7.0.0.", true)]
-    public interface INeedToInstallSomething { }
 }
 namespace NServiceBus.Logging
 {

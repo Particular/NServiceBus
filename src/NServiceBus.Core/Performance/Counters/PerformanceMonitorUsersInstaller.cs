@@ -11,7 +11,7 @@ namespace NServiceBus.Performance.Counters
     /// <summary>
     /// Add the identity to the 'Performance Monitor Users' local group 
     /// </summary>
-    class PerformanceMonitorUsersInstaller : IInstall
+    class PerformanceMonitorUsersInstaller : INeedToInstallSomething
     {
         static ILog logger = LogManager.GetLogger<PerformanceMonitorUsersInstaller>();
         static string builtinPerformanceMonitoringUsersName;

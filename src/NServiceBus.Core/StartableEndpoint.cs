@@ -99,7 +99,7 @@ namespace NServiceBus
             if (Debugger.IsAttached || settings.GetOrDefault<bool>("Installers.Enable"))
             {
                 var username = GetInstallationUserName();
-                foreach (var installer in builder.BuildAll<IInstall>())
+                foreach (var installer in builder.BuildAll<INeedToInstallSomething>())
                 {
                     await installer.Install(username).ConfigureAwait(false);
                 }

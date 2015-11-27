@@ -5,7 +5,7 @@ namespace NServiceBus.Installation
     /// <summary>
     /// Interface invoked by the infrastructure when going to install an endpoint.
     /// </summary>
-    public interface IInstall
+    public interface INeedToInstallSomething
     {
         /// <summary>
         /// Performs the installation providing permission for the given user.

@@ -1617,18 +1617,6 @@ namespace NServiceBus
     using NServiceBus.ObjectBuilder;
 
     [ObsoleteEx(
-        TreatAsErrorFromVersion = "6",
-        RemoveInVersion = "7",
-        ReplacementTypeOrMember = "IFinalizeConfiguration")]
-    public interface IWantToRunBeforeConfigurationIsFinalized
-    {
-        /// <summary>
-        /// Invoked before configuration is finalized and locked.
-        /// </summary>
-        void Run(Configure config);
-    }
-
-    [ObsoleteEx(
     TreatAsErrorFromVersion = "6",
     RemoveInVersion = "7",
     Message = "Use IBusContextFactory to create sending context.")]
@@ -1698,17 +1686,6 @@ namespace NServiceBus
         {
             throw new NotImplementedException();
         }
-    }
-}
-
-namespace NServiceBus.Installation
-{
-    [ObsoleteEx(
-        TreatAsErrorFromVersion = "6",
-        RemoveInVersion = "7",
-        ReplacementTypeOrMember = "IInstall")]
-    public interface INeedToInstallSomething
-    {
     }
 }
 
