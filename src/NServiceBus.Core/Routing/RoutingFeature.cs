@@ -28,7 +28,6 @@
                 s.SetDefault<DistributionPolicy>(new DistributionPolicy());
                 s.SetDefault<TransportAddresses>(new TransportAddresses());
             });
-            RegisterStartupTask<SubscriptionStoreRouteInformationProvider>();
         }
 
         protected internal override void Setup(FeatureConfigurationContext context)
@@ -73,6 +72,7 @@
                 }
             }
 
+            context.RegisterStartupTask(b => new SubscriptionStoreRouteInformationProvider(context.Settings, b));
             var outboundRoutingPolicy = transportDefinition.GetOutboundRoutingPolicy(context.Settings);
             context.Pipeline.Register("UnicastSendRouterConnector", typeof(UnicastSendRouterConnector), "Determines how the message being sent should be routed");
             context.Pipeline.Register("UnicastReplyRouterConnector", typeof(UnicastReplyRouterConnector), "Determines how replies should be routed");

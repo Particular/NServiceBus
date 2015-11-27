@@ -6,7 +6,7 @@ namespace NServiceBus.Features
 
     class DisplayDiagnosticsForFeatures
     {
-        public void Run(FeaturesReport report)
+        public static void Run(FeaturesReport report)
         {
             var statusText = new StringBuilder();
 
@@ -43,7 +43,7 @@ namespace NServiceBus.Features
                 else
                 {
                     statusText.AppendLine($"Dependencies: {(diagnosticData.Dependencies.Count == 0 ? "Default" : string.Join(",", diagnosticData.Dependencies.Select(t => "[" + string.Join(",", t.Select(t1 => t1)) + "]")))}");
-                    statusText.AppendLine($"Startup Tasks: {(diagnosticData.StartupTasks.Count == 0 ? "Default" : string.Join(",", diagnosticData.StartupTasks.Select(t => t.Name)))}");
+                    statusText.AppendLine($"Startup Tasks: {(diagnosticData.StartupTasks.Count == 0 ? "Default" : string.Join(",", diagnosticData.StartupTasks.Select(t => t)))}");
                 }
 
                 statusText.AppendLine();

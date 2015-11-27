@@ -22,10 +22,10 @@
 
             var builder = new FakeBuilder(typeof(FeatureWithStartupTask.Runner));
 
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(null, null, null));
+            featureSettings.SetupFeatures(null, null);
 
             await featureSettings.StartFeatures(builder, null);
-            await featureSettings.StopFeatures(builder, null);
+            await featureSettings.StopFeatures(null);
 
             Assert.True(FeatureWithStartupTask.Runner.Started);
             Assert.True(FeatureWithStartupTask.Runner.Stopped);
@@ -42,10 +42,10 @@
 
             var builder = new FakeBuilder(typeof(FeatureWithStartupTaskWhichIsDisposable.Runner));
 
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(null, null, null));
+            featureSettings.SetupFeatures(null, null);
 
             await featureSettings.StartFeatures(builder, null);
-            await featureSettings.StopFeatures(builder, null);
+            await featureSettings.StopFeatures(null);
 
             Assert.True(FeatureWithStartupTaskWhichIsDisposable.Runner.Disposed);
         }
@@ -55,7 +55,11 @@
             public FeatureWithStartupTask()
             {
                 EnableByDefault();
-                RegisterStartupTask<Runner>();
+            }
+
+            protected internal override void Setup(FeatureConfigurationContext context)
+            {
+                context.RegisterStartupTask(new Runner());
             }
 
             public class Runner : FeatureStartupTask
@@ -82,7 +86,11 @@
             public FeatureWithStartupTaskWhichIsDisposable()
             {
                 EnableByDefault();
-                RegisterStartupTask<Runner>();
+            }
+
+            protected internal override void Setup(FeatureConfigurationContext context)
+            {
+                context.RegisterStartupTask(new Runner());
             }
 
             public class Runner : FeatureStartupTask, IDisposable

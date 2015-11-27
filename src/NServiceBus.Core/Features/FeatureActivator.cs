@@ -5,69 +5,8 @@ namespace NServiceBus.Features
     using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.ObjectBuilder;
+    using Pipeline;
     using NServiceBus.Settings;
-
-    /// <summary>
-    ///     Provides diagnostics data about <see cref="Feature" />s.
-    /// </summary>
-    public class FeaturesReport
-    {
-        internal FeaturesReport(IEnumerable<FeatureDiagnosticData> data)
-        {
-            Features = data.ToList().AsReadOnly();
-        }
-
-        /// <summary>
-        ///     List of <see cref="Feature" />s diagnostic data.
-        /// </summary>
-        public IList<FeatureDiagnosticData> Features { get; private set; }
-    }
-
-    /// <summary>
-    ///     <see cref="Feature" /> diagnostics data.
-    /// </summary>
-    public class FeatureDiagnosticData
-    {
-        /// <summary>
-        ///     Gets the <see cref="Feature" /> name.
-        /// </summary>
-        public string Name { get; internal set; }
-
-        /// <summary>
-        ///     Gets whether <see cref="Feature" /> is set to be enabled by default.
-        /// </summary>
-        public bool EnabledByDefault { get; internal set; }
-
-        /// <summary>
-        ///     Gets the status of the <see cref="Feature" />.
-        /// </summary>
-        public bool Active { get; internal set; }
-
-        /// <summary>
-        ///     Gets the status of the prerequisites for this <see cref="Feature" />.
-        /// </summary>
-        public PrerequisiteStatus PrerequisiteStatus { get; internal set; }
-
-        /// <summary>
-        ///     Gets the list of <see cref="Feature" />s that this <see cref="Feature" /> depends on.
-        /// </summary>
-        public IList<List<string>> Dependencies { get; internal set; }
-
-        /// <summary>
-        ///     Gets the <see cref="Feature" /> version.
-        /// </summary>
-        public string Version { get; internal set; }
-
-        /// <summary>
-        ///     Gets the <see cref="Feature" /> startup tasks.
-        /// </summary>
-        public IList<Type> StartupTasks { get; internal set; }
-
-        /// <summary>
-        ///     Gets whether all dependant <see cref="Feature" />s are activated.
-        /// </summary>
-        public bool DependenciesAreMeet { get; set; }
-    }
 
     class FeatureActivator
     {
@@ -93,12 +32,11 @@ namespace NServiceBus.Features
                 EnabledByDefault = feature.IsEnabledByDefault,
                 Name = feature.Name,
                 Version = feature.Version,
-                StartupTasks = feature.StartupTasks.AsReadOnly(),
                 Dependencies = feature.Dependencies.AsReadOnly(),
             }));
         }
 
-        public FeaturesReport SetupFeatures(FeatureConfigurationContext context)
+        public FeaturesReport SetupFeatures(IConfigureComponents container, PipelineSettings pipelineSettings)
         {
             // featuresToActivate is enumerated twice because after setting defaults some new features might got activated.
             var sourceFeatures = Sort(features);
@@ -118,45 +56,33 @@ namespace NServiceBus.Features
 
             foreach (var feature in enabledFeatures)
             {
-                ActivateFeature(feature, enabledFeatures, context);
+                ActivateFeature(feature, enabledFeatures, container, pipelineSettings);
             }
             settings.PreventChanges();
 
-            return new FeaturesReport(features.Select(t => t.Diagnostics));
-        }
-
-        public void RegisterStartupTasks(IConfigureComponents container)
-        {
-            foreach (var feature in features.Where(f => f.Feature.IsActive))
-            {
-                foreach (var taskType in feature.Feature.StartupTasks)
-                {
-                    container.ConfigureComponent(taskType, DependencyLifecycle.SingleInstance);
-                }
-            }
+            return new FeaturesReport(features.Select(t => t.Diagnostics).ToList());
         }
 
         public async Task StartFeatures(IBuilder builder, IBusContext context)
         {
             foreach (var feature in features.Where(f => f.Feature.IsActive))
             {
-                foreach (var taskType in feature.Feature.StartupTasks)
+                foreach (var taskFactory in feature.TaskFactories)
                 {
-                    var task = (FeatureStartupTask) builder.Build(taskType);
+                    var task = taskFactory(builder);
+                    feature.Tasks.Add(task);
 
                     await task.PerformStartup(context).ConfigureAwait(false);
                 }
             }
         }
 
-        public async Task StopFeatures(IBuilder builder, IBusContext context)
+        public async Task StopFeatures(IBusContext context)
         {
             foreach (var feature in features.Where(f => f.Feature.IsActive))
             {
-                foreach (var taskType in feature.Feature.StartupTasks)
+                foreach (var task in feature.Tasks)
                 {
-                    var task = (FeatureStartupTask) builder.Build(taskType);
-
                     await task.PerformStop(context).ConfigureAwait(false);
 
                     DisposeIfNecessary(task);
@@ -210,7 +136,7 @@ namespace NServiceBus.Features
             return output;
         }
 
-        bool ActivateFeature(FeatureInfo featureInfo, List<FeatureInfo> featuresToActivate, FeatureConfigurationContext context)
+        bool ActivateFeature(FeatureInfo featureInfo, List<FeatureInfo> featuresToActivate, IConfigureComponents container, PipelineSettings pipelineSettings)
         {
             if (featureInfo.Feature.IsActive)
             {
@@ -227,13 +153,14 @@ namespace NServiceBus.Features
                 {
                     dependantFeaturesToActivate.Add(dependency);
                 }
-                return dependantFeaturesToActivate.Aggregate(false, (current, f) => current | ActivateFeature(f, featuresToActivate, context));
+                return dependantFeaturesToActivate.Aggregate(false, (current, f) => current | ActivateFeature(f, featuresToActivate, container, pipelineSettings));
             };
             var featureType = featureInfo.Feature.GetType();
             if (featureInfo.Feature.Dependencies.All(dependencyActivator))
             {
                 featureInfo.Diagnostics.DependenciesAreMeet = true;
 
+                var context = new FeatureConfigurationContext(settings, container, pipelineSettings);
                 if (!HasAllPrerequisitesSatisfied(featureInfo.Feature, featureInfo.Diagnostics, context))
                 {
                     settings.MarkFeatureAsDeactivated(featureType);
@@ -241,6 +168,8 @@ namespace NServiceBus.Features
                 }
                 settings.MarkFeatureAsActive(featureType);
                 featureInfo.Feature.SetupFeature(context);
+                featureInfo.TaskFactories = context.TaskFactories;
+                featureInfo.Diagnostics.StartupTasks = context.TaskNames;
                 featureInfo.Diagnostics.Active = true;
                 return true;
             }
@@ -265,10 +194,13 @@ namespace NServiceBus.Features
             {
                 Diagnostics = diagnostics;
                 Feature = feature;
+                Tasks = new List<FeatureStartupTask>();
             }
 
             public FeatureDiagnosticData Diagnostics { get; }
             public Feature Feature { get; }
+            public IReadOnlyList<Func<IBuilder, FeatureStartupTask>> TaskFactories { get; set; }
+            public List<FeatureStartupTask> Tasks { get; } 
 
             public override string ToString()
             {

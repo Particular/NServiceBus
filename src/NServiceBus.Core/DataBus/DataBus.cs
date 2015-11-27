@@ -13,8 +13,6 @@ namespace NServiceBus.Features
         internal DataBus()
         {
             Defaults(s => s.EnableFeatureByDefault(GetSelectedFeatureForDataBus(s)));
-
-            RegisterStartupTask<IDataBusInitializer>();
         }
 
         static Type GetSelectedFeatureForDataBus(SettingsHolder settings)
@@ -29,16 +27,6 @@ namespace NServiceBus.Features
             return dataBusDefinition.ProvidedByFeature();
         }
 
-        class IDataBusInitializer : FeatureStartupTask
-        {
-            public IDataBus DataBus { get; set; }
-
-            protected override Task OnStart(IBusContext context)
-            {
-                return DataBus.Start();
-            }
-        }
-
         /// <summary>
         ///     Called when the features is activated.
         /// </summary>
@@ -49,8 +37,19 @@ namespace NServiceBus.Features
                 context.Container.ConfigureComponent<DefaultDataBusSerializer>(DependencyLifecycle.SingleInstance);
             }
 
+            context.RegisterStartupTask(b => b.Build<IDataBusInitializer>());
             context.Pipeline.Register<DataBusReceiveBehavior.Registration>();
             context.Pipeline.Register<DataBusSendBehavior.Registration>();
+        }
+
+        class IDataBusInitializer : FeatureStartupTask
+        {
+            public IDataBus DataBus { get; set; }
+
+            protected override Task OnStart(IBusContext context)
+            {
+                return DataBus.Start();
+            }
         }
     }
 }

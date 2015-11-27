@@ -1,5 +1,7 @@
 ﻿namespace NServiceBus.Features
 {
+    using System;
+    using System.Collections.Generic;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Pipeline;
     using NServiceBus.Settings;
@@ -15,6 +17,9 @@
             Settings = settings;
             Container = container;
             Pipeline = pipelineSettings;
+
+            TaskFactories = new List<Func<IBuilder, FeatureStartupTask>>();
+            TaskNames = new List<string>();
         }
 
         /// <summary>
@@ -31,6 +36,10 @@
         ///     Access to the pipeline in order to customize it.
         /// </summary>
         public PipelineSettings Pipeline { get; }
+
+        internal List<Func<IBuilder, FeatureStartupTask>> TaskFactories { get; } 
+
+        internal List<string> TaskNames { get; } 
 
         /// <summary>
         ///     Creates a new satellite processing pipeline.
@@ -50,6 +59,36 @@
             Settings.Get<QueueBindings>().BindReceiving(transportAddress);
 
             return newPipeline;
+        }
+
+        /// <summary>
+        /// Registers an instance of a feature startup task.
+        /// </summary>
+        /// <param name="startupTask">A startup task.</param>
+        public void RegisterStartupTask<TTask>(TTask startupTask) where TTask : FeatureStartupTask
+        {
+            RegisterStartupTask(() => startupTask);
+        }
+
+        /// <summary>
+        /// Registers a startup task factory.
+        /// </summary>
+        /// <param name="startupTaskFactory">A startup task factory.</param>
+        public void RegisterStartupTask<TTask>(Func<TTask> startupTaskFactory) where TTask : FeatureStartupTask
+        {
+            TaskFactories.Add(_ => startupTaskFactory());
+            TaskNames.Add(typeof(TTask).Name);
+        }
+
+        /// <summary>
+        /// Registers a startup task factory which gets access to the builder.
+        /// </summary>
+        /// <param name="startupTaskFactory">A startup task factory.</param>
+        /// <remarks>Should only be used when really necessary. Usually a design smell.</remarks>
+        public void RegisterStartupTask<TTask>(Func<IBuilder, TTask> startupTaskFactory) where TTask : FeatureStartupTask
+        {
+            TaskFactories.Add(startupTaskFactory);
+            TaskNames.Add(typeof(TTask).Name);
         }
     }
 }

@@ -8,14 +8,13 @@
     /// <summary>
     ///     Used to control the various features supported by the framework.
     /// </summary>
-    public abstract class Feature
+    public abstract partial class Feature
     {
         /// <summary>
         ///     Creates an instance of <see cref="Feature" />.
         /// </summary>
         protected Feature()
         {
-            StartupTasks = new List<Type>();
             Dependencies = new List<List<string>>();
             Name = GetFeatureName(GetType());
         }
@@ -44,8 +43,6 @@
         ///     Indicates that the feature is active.
         /// </summary>
         public bool IsActive { get; private set; }
-
-        internal List<Type> StartupTasks { get; }
 
         /// <summary>
         /// Registers default settings.
@@ -175,15 +172,6 @@
             Guard.AgainstNull(nameof(featureNames), featureNames);
 
             Dependencies.Add(new List<string>(featureNames));
-        }
-
-        /// <summary>
-        ///     <see cref="FeatureStartupTask" /> that is executed when the <see cref="Feature" /> is started.
-        /// </summary>
-        /// <typeparam name="T">A <see cref="FeatureStartupTask" />.</typeparam>
-        protected void RegisterStartupTask<T>() where T : FeatureStartupTask
-        {
-            StartupTasks.Add(typeof(T));
         }
 
         /// <summary>

@@ -25,13 +25,9 @@ namespace NServiceBus.Core.Tests.Config
 
         class ConfigSectionValidatorFeature : Feature
         {
-            public ConfigSectionValidatorFeature()
-            {
-                RegisterStartupTask<ValidatorTask>();
-            }
-
             protected internal override void Setup(FeatureConfigurationContext context)
             {
+                context.RegisterStartupTask(new ValidatorTask(context.Settings));
             }
 
             class ValidatorTask : FeatureStartupTask

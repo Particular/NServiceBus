@@ -8,7 +8,13 @@
         public StorageInitializer()
         {
             EnableByDefault();
-            RegisterStartupTask<CallInit>();
+        }
+
+        protected internal override void Setup(FeatureConfigurationContext context)
+        {
+            context.Container.ConfigureComponent<CallInit>(DependencyLifecycle.SingleInstance);
+
+            context.RegisterStartupTask(b => b.Build<CallInit>());
         }
 
         class CallInit : FeatureStartupTask
@@ -20,10 +26,6 @@
                 SubscriptionStorage?.Init();
                 return TaskEx.Completed;
             }
-        }
-
-        protected internal override void Setup(FeatureConfigurationContext context)
-        {
         }
     }
 }
