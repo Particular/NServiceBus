@@ -333,7 +333,6 @@
     <Compile Include="StaticHeaders\CurrentStaticHeaders.cs" />
     <Compile Include="Pipeline\Outgoing\RoutingContext.cs" />
     <Compile Include="Pipeline\Outgoing\RoutingToDispatchConnector.cs" />
-    <Compile Include="Pipeline\Outgoing\HeaderContextExtensions.cs" />
     <Compile Include="Transports\OutboundRoutingPolicy.cs" />
     <Compile Include="Transports\OutboundRoutingType.cs" />
     <Compile Include="Transports\PushRuntimeSettings.cs" />

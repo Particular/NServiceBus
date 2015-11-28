@@ -7,7 +7,6 @@
     /// </summary>
     public static class HeaderOptionExtensions
     {
-      
         /// <summary>
         /// Allows headers to be set for the outgoing message.
         /// </summary>
@@ -16,13 +15,10 @@
         /// <param name="value">The header value.</param>
         public static void SetHeader(this ExtendableOptions context, string key, string value)
         {
-            Guard.AgainstNull("context", context);
-            Guard.AgainstNullAndEmpty("key", key);
-            
-            context.Context.GetOrCreate<OutgoingPhysicalToRoutingConnector.State>()
-                .Headers[key] = value;
-        }
+            Guard.AgainstNull(nameof(context), context);
+            Guard.AgainstNullAndEmpty(nameof(key), key);
 
-      
+            context.OutgoingHeaders[key] = value;
+        }
     }
 }

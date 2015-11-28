@@ -12,11 +12,13 @@
         /// <summary>
         /// Creates a new instance of <see cref="OutgoingLogicalMessageContext" />.
         /// </summary>
+        /// <param name="messageId">The id of the outgoing message.</param>
+        /// <param name="headers">The headers of the outgoing message.</param>
         /// <param name="message">The outgoing message.</param>
         /// <param name="routingStrategies">The address labels.</param>
         /// <param name="parentContext">The parent context.</param>
-        public OutgoingLogicalMessageContext(OutgoingLogicalMessage message, IReadOnlyCollection<RoutingStrategy> routingStrategies, BehaviorContext parentContext)
-            : base(parentContext)
+        public OutgoingLogicalMessageContext(string messageId, Dictionary<string, string> headers, OutgoingLogicalMessage message, IReadOnlyCollection<RoutingStrategy> routingStrategies, BehaviorContext parentContext)
+            : base(messageId, headers, parentContext)
         {
             Message = message;
             RoutingStrategies = routingStrategies;

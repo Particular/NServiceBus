@@ -6,7 +6,6 @@
     using NServiceBus.Pipeline.OutgoingPipeline;
     using Performance.TimeToBeReceived;
     using Pipeline;
-    using TransportDispatch;
 
     class ApplyTimeToBeReceivedBehavior : Behavior<OutgoingLogicalMessageContext>
     {
@@ -22,7 +21,7 @@
             if (timeToBeReceivedMappings.TryGetTimeToBeReceived(context.Message.MessageType, out timeToBeReceived))
             {
                 context.AddDeliveryConstraint(new DiscardIfNotReceivedBefore(timeToBeReceived));
-                context.SetHeader(Headers.TimeToBeReceived, timeToBeReceived.ToString());
+                context.Headers[Headers.TimeToBeReceived] = timeToBeReceived.ToString();
             }
 
             return next();

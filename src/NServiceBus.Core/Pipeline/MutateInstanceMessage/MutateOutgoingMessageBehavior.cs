@@ -12,8 +12,6 @@
     {
         public override async Task Invoke(OutgoingLogicalMessageContext context, Func<Task> next)
         {
-            //TODO: should not need to do a lookup
-            var state = context.Get<OutgoingPhysicalToRoutingConnector.State>();
             InvokeHandlerContext incomingState;
             context.TryGetRootContext(out incomingState);
 
@@ -26,7 +24,7 @@
             }
             var mutatorContext = new MutateOutgoingMessageContext(
                 context.Message.Instance, 
-                state.Headers,
+                context.Headers,
                 messageBeingHandled, 
                 incomingHeaders);
 

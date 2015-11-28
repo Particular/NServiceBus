@@ -14,19 +14,19 @@ namespace NServiceBus.TransportDispatch
         /// <summary>
         /// Initializes the context with the message to be dispatched.
         /// </summary>
-        public RoutingContext(OutgoingMessage messageToDispatch, IReadOnlyCollection<RoutingStrategy> routingStrategies, BehaviorContext context) : base(context)
+        public RoutingContext(OutgoingMessage messageToDispatch, RoutingStrategy addressLabel, BehaviorContext context)
+            : this(messageToDispatch, new[] { addressLabel }, context)
         {
-            Message = messageToDispatch;
-            RoutingStrategies = routingStrategies;
         }
 
         /// <summary>
         /// Initializes the context with the message to be dispatched.
         /// </summary>
-        public RoutingContext(OutgoingMessage messageToDispatch, RoutingStrategy addressLabel, BehaviorContext context) : base(context)
+        public RoutingContext(OutgoingMessage messageToDispatch, IReadOnlyCollection<RoutingStrategy> routingStrategies, BehaviorContext context)
+            : base(messageToDispatch.MessageId, messageToDispatch.Headers, context)
         {
             Message = messageToDispatch;
-            RoutingStrategies = new [] {addressLabel};
+            RoutingStrategies = routingStrategies;
         }
 
         /// <summary>

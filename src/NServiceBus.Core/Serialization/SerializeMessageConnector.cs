@@ -8,7 +8,6 @@
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.OutgoingPipeline;
     using NServiceBus.Serialization;
-    using NServiceBus.TransportDispatch;
     using NServiceBus.Unicast.Messages;
 
     //todo: rename to LogicalOutgoingContext
@@ -31,8 +30,8 @@
                 return;
             }
 
-            context.SetHeader(Headers.ContentType, messageSerializer.ContentType);
-            context.SetHeader(Headers.EnclosedMessageTypes, SerializeEnclosedMessageTypes(context.Message.MessageType));
+            context.Headers[Headers.ContentType] = messageSerializer.ContentType;
+            context.Headers[Headers.EnclosedMessageTypes] = SerializeEnclosedMessageTypes(context.Message.MessageType);
 
             var array = Serialize(context);
             await next(new OutgoingPhysicalMessageContext(array, context.RoutingStrategies, context)).ConfigureAwait(false);
