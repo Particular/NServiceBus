@@ -13,7 +13,7 @@
 
     public class ScenarioRunner
     {
-        public static async Task Run(IList<RunDescriptor> runDescriptors, IList<EndpointBehavior> behaviorDescriptors, IList<IScenarioVerification> shoulds, Func<ScenarioContext, bool> done, int limitTestParallelismTo, Action<RunSummary> reports, Func<Exception, bool> allowedExceptions)
+        public static async Task Run(List<RunDescriptor> runDescriptors, List<EndpointBehavior> behaviorDescriptors, List<IScenarioVerification> shoulds, Func<ScenarioContext, bool> done, int limitTestParallelismTo, Action<RunSummary> reports, Func<Exception, bool> allowedExceptions)
         {
             var totalRuns = runDescriptors.Count();
             var cts = new CancellationTokenSource();
@@ -147,7 +147,7 @@
             Console.WriteLine("------------------------------------------------------");
         }
 
-        static async Task<RunResult> PerformTestRun(IList<EndpointBehavior> behaviorDescriptors, IList<IScenarioVerification> shoulds, RunDescriptor runDescriptor, Func<ScenarioContext, bool> done, Func<Exception, bool> allowedExceptions)
+        static async Task<RunResult> PerformTestRun(List<EndpointBehavior> behaviorDescriptors, List<IScenarioVerification> shoulds, RunDescriptor runDescriptor, Func<ScenarioContext, bool> done, Func<Exception, bool> allowedExceptions)
         {
             var runResult = new RunResult
             {
@@ -330,7 +330,7 @@
             }
         }
 
-        static async Task<List<ActiveRunner>> InitializeRunners(RunDescriptor runDescriptor, IList<EndpointBehavior> behaviorDescriptors)
+        static async Task<List<ActiveRunner>> InitializeRunners(RunDescriptor runDescriptor, List<EndpointBehavior> behaviorDescriptors)
         {
             var runners = new List<ActiveRunner>();
             var routingTable = CreateRoutingTable(behaviorDescriptors);

@@ -54,7 +54,7 @@
             return this;
         }
 
-        public IList<RunDescriptor> Build()
+        public List<RunDescriptor> Build()
         {
             //if we have found a empty permutation this means that we shouldn't run any permutations. This happens when a test is specified to run for a given key
             // but that key is not available. Eg running tests for sql server but the sql transport isn't available
