@@ -39,12 +39,13 @@
         }
 
         [Test]
-        public void Should_throw_when_trying_to_enumerate_collection_of_instances_of_unknown_endpoint()
+        public void Should_default_to_single_instance_when_not_configured()
         {
             var instances = new EndpointInstances();
-            var salesInstances = instances.FindInstances(new EndpointName("Sales"));
-            TestDelegate action = () => salesInstances.ToArray();
-            Assert.Throws<Exception>(action);
+            var salesInstances = instances.FindInstances(new EndpointName("Sales")).ToArray();
+            Assert.AreEqual(1, salesInstances.Length);
+            Assert.IsNull(salesInstances[0].UserDiscriminator);
+            Assert.IsNull(salesInstances[0].TransportDiscriminator);
         }
     }
 }
