@@ -27,7 +27,7 @@
             endpointInstances.AddStatic(sales, new EndpointInstanceName(sales, null, null));
             transportAddresses.AddRule(i => i.ToString());
 
-            var routes = router.Route(typeof(Command), new SingleInstanceRoundRobinDistributionStrategy(), new ContextBag()).ToArray();
+            var routes = router.Route(typeof(Command), new SingleInstanceRoundRobinDistributionStrategy(), new ContextBag()).Result.ToArray();
             
             Assert.AreEqual(1, routes.Length);
             var headers = new Dictionary<string, string>();
@@ -44,7 +44,7 @@
             endpointInstances.AddStatic(sales, new EndpointInstanceName(sales, null, null));
             transportAddresses.AddRule(i => i.ToString());
 
-            var routes = router.Route(typeof(Event), new SingleInstanceRoundRobinDistributionStrategy(), new ContextBag()).ToArray();
+            var routes = router.Route(typeof(Event), new SingleInstanceRoundRobinDistributionStrategy(), new ContextBag()).Result.ToArray();
 
             Assert.AreEqual(1, routes.Length);
             Assert.AreEqual("Sales", ExtractDestination(routes[0]));
@@ -65,7 +65,7 @@
 
             transportAddresses.AddRule(i => i.ToString());
 
-            var routes = router.Route(typeof(Event), new SingleInstanceRoundRobinDistributionStrategy(), new ContextBag()).ToArray();
+            var routes = router.Route(typeof(Event), new SingleInstanceRoundRobinDistributionStrategy(), new ContextBag()).Result.ToArray();
 
             Assert.AreEqual(2, routes.Length);
             Assert.AreEqual("Sales-1", ExtractDestination(routes[0]));

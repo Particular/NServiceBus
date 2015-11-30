@@ -118,11 +118,11 @@
 
         class FakeRoutingStrategy : IUnicastRouter
         {
-            public IEnumerable<UnicastRoutingStrategy> FixedDestination { get; set; } 
+            public IReadOnlyCollection<UnicastRoutingStrategy> FixedDestination { get; set; } 
 
-            public IEnumerable<UnicastRoutingStrategy> Route(Type messageType, DistributionStrategy distributionStrategy, ContextBag contextBag)
+            public Task<IReadOnlyCollection<UnicastRoutingStrategy>> Route(Type messageType, DistributionStrategy distributionStrategy, ContextBag contextBag)
             {
-                return FixedDestination;
+                return Task.FromResult(FixedDestination);
             }
         }
 

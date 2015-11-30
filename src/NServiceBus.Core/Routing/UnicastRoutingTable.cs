@@ -3,6 +3,7 @@ namespace NServiceBus.Routing
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using NServiceBus.Extensibility;
 
     /// <summary>
@@ -10,11 +11,22 @@ namespace NServiceBus.Routing
     /// </summary>
     public class UnicastRoutingTable
     {
-        List<Func<Type, ContextBag, IEnumerable<IUnicastRoute>>> rules = new List<Func<Type, ContextBag, IEnumerable<IUnicastRoute>>>();
+        List<Func<Type, ContextBag, IUnicastRoute>> staticRules = new List<Func<Type, ContextBag, IUnicastRoute>>();
+        List<Func<List<Type>, ContextBag, Task<IReadOnlyCollection<IUnicastRoute>>>> dynamicRules = new List<Func<List<Type>, ContextBag, Task<IReadOnlyCollection<IUnicastRoute>>>>();
 
-        internal IEnumerable<IUnicastRoute> GetDestinationsFor(Type messageType, ContextBag contextBag)
+        internal async Task<IReadOnlyCollection<IUnicastRoute>> GetDestinationsFor(List<Type> messageTypes, ContextBag contextBag)
         {
-            return rules.SelectMany(r => r(messageType, contextBag)).Distinct();
+            var dynamicRoutes = new List<IUnicastRoute>();
+            foreach (var rule in dynamicRules)
+            {
+                dynamicRoutes.AddRange(await rule.Invoke(messageTypes, contextBag).ConfigureAwait(false));
+            }
+
+            var staticRoutes = messageTypes
+                .SelectMany(type => staticRules, (type, rule) => rule.Invoke(type, contextBag))
+                .Where(route => route != null);
+            
+            return dynamicRoutes.Concat(staticRoutes).Distinct().ToList();
         }
 
         /// <summary>
@@ -24,7 +36,7 @@ namespace NServiceBus.Routing
         /// <param name="destination">Destination endpoint.</param>
         public void AddStatic(Type messageType, EndpointName destination)
         {
-            rules.Add((t, c) => StaticRule(t, messageType, new UnicastRoute(destination)));
+            staticRules.Add((t, c) => StaticRule(t, messageType, new UnicastRoute(destination)));
         }
 
 
@@ -35,7 +47,7 @@ namespace NServiceBus.Routing
         /// <param name="destination">Destination endpoint instance.</param>
         public void AddStatic(Type messageType, EndpointInstanceName destination)
         {
-            rules.Add((t, c) => StaticRule(t, messageType, new UnicastRoute(destination)));
+            staticRules.Add((t, c) => StaticRule(t, messageType, new UnicastRoute(destination)));
         }
 
 
@@ -46,24 +58,21 @@ namespace NServiceBus.Routing
         /// <param name="destinationAddress">Destination endpoint instance address.</param>
         public void AddStatic(Type messageType, string destinationAddress)
         {
-            rules.Add((t, c) => StaticRule(t, messageType, new UnicastRoute(destinationAddress)));
+            staticRules.Add((t, c) => StaticRule(t, messageType, new UnicastRoute(destinationAddress)));
         }
 
         /// <summary>
         /// Adds a rule for generating unicast routes.
         /// </summary>
-        /// <param name="dynamicRule">The rule.</param>
-        public void AddDynamic(Func<Type, ContextBag, IEnumerable<IUnicastRoute>> dynamicRule)
+       // /// <param name="dynamicRule">The rule.</param>
+        public void AddDynamic(Func<List<Type>, ContextBag, Task<IReadOnlyCollection<IUnicastRoute>>> dynamicRule)
         {
-            rules.Add(dynamicRule);
+            dynamicRules.Add(dynamicRule);
         }
 
-        static IEnumerable<UnicastRoute> StaticRule(Type messageBeingRouted, Type configuredMessage, UnicastRoute configuredDestination)
+        static IUnicastRoute StaticRule(Type messageBeingRouted, Type configuredMessage, UnicastRoute configuredDestination)
         {
-            if (messageBeingRouted == configuredMessage)
-            {
-                yield return configuredDestination;
-            }
+            return messageBeingRouted == configuredMessage ? configuredDestination : null;
         }
     }
 }
