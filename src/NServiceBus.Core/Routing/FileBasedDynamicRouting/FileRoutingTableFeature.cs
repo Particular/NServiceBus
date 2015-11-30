@@ -10,12 +10,14 @@ namespace NServiceBus.Features
         public FileRoutingTableFeature()
         {
             DependsOn<RoutingFeature>();
-            RegisterStartupTask<StartupTask>();
         }
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.Container.RegisterSingleton(new FileRoutingTable(context.Settings.Get<string>("FileBasedRouting.BasePath"), TimeSpan.FromSeconds(5)));
+            var fileRoutingTable = new FileRoutingTable(context.Settings.Get<string>("FileBasedRouting.BasePath"), TimeSpan.FromSeconds(5));
+            context.Container.RegisterSingleton(fileRoutingTable);
+
+            context.RegisterStartupTask(new StartupTask(context.Settings, fileRoutingTable));
         }
 
         class StartupTask : FeatureStartupTask

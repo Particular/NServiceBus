@@ -15,7 +15,6 @@
     {
         internal XmlSerialization()
         {
-            RegisterStartupTask<MessageTypesInitializer>();
         }
 
         /// <summary>
@@ -23,6 +22,9 @@
         /// </summary>
         protected override Type GetSerializerType(FeatureConfigurationContext context)
         {
+            context.Container.ConfigureComponent<MessageTypesInitializer>(DependencyLifecycle.SingleInstance);
+
+            context.RegisterStartupTask(b => b.Build<MessageTypesInitializer>());
             return typeof(XmlMessageSerializer);
         }
 

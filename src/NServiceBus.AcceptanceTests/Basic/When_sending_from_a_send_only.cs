@@ -58,27 +58,32 @@
                 public Bootstrapper()
                 {
                     EnableByDefault();
-
-                    RegisterStartupTask<MyTask>();
                 }
 
                 protected override void Setup(FeatureConfigurationContext context)
                 {
+                    context.Container.ConfigureComponent<MyTask>(DependencyLifecycle.SingleInstance);
+
+                    context.RegisterStartupTask(b => b.Build<MyTask>());
                 }
 
                 public class MyTask : FeatureStartupTask
                 {
-                    public Context Context { get; set; }
+                    readonly Context scenarioContext;
+
+                    public MyTask(Context scenarioContext)
+                    {
+                        this.scenarioContext = scenarioContext;
+                    }
 
                     protected override Task OnStart(IBusContext context)
                     {
-                        Context.SendOnlyEndpointWasStarted = true;
+                        scenarioContext.SendOnlyEndpointWasStarted = true;
                         return Task.FromResult(0);
                     }
                 }
             }
         }
-
 
         public class Sender : EndpointConfigurationBuilder
         {

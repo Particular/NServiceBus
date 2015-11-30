@@ -14,12 +14,13 @@
             EnableByDefault();
 
             DependsOn<UnicastBus>();
-
-            RegisterStartupTask<FailTestOnErrorMessageFeatureStartupTask>();
         }
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
+            context.Container.ConfigureComponent<FailTestOnErrorMessageFeatureStartupTask>(DependencyLifecycle.SingleInstance);
+
+            context.RegisterStartupTask(b => b.Build<FailTestOnErrorMessageFeatureStartupTask>());
         }
 
         class FailTestOnErrorMessageFeatureStartupTask : FeatureStartupTask

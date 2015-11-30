@@ -26,13 +26,9 @@ namespace NServiceBus.Serializers.Json.Tests
 
         class EncodingValidatorFeature : Feature
         {
-            public EncodingValidatorFeature()
-            {
-                RegisterStartupTask<ValidatorTask>();
-            }
-
             protected internal override void Setup(FeatureConfigurationContext context)
             {
+                context.RegisterStartupTask(b => new ValidatorTask(b));
             }
 
             class ValidatorTask : FeatureStartupTask

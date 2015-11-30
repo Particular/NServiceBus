@@ -4,6 +4,7 @@
     using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.InMemory.Outbox;
+    using NServiceBus.Outbox;
 
     /// <summary>
     /// Used to configure in memory outbox persistence.
@@ -15,7 +16,6 @@
         internal InMemoryOutboxPersistence()
         {
             DependsOn<Outbox>();
-            RegisterStartupTask<OutboxCleaner>();
             Defaults(s => s.EnableFeature(typeof(InMemoryTransactionalStorageFeature)));
         }
 
@@ -24,16 +24,21 @@
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.Container.ConfigureComponent<InMemoryOutboxStorage>(DependencyLifecycle.SingleInstance);
-            context.Container.ConfigureComponent<OutboxCleaner>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(t => t.TimeToKeepDeduplicationData, context.Settings.Get<TimeSpan>(TimeToKeepDeduplicationEntries));
+            var outboxStorage = new InMemoryOutboxStorage();
+            context.Container.RegisterSingleton<IOutboxStorage>(outboxStorage);
+
+            var timeSpan = context.Settings.Get<TimeSpan>(TimeToKeepDeduplicationEntries);
+
+            context.RegisterStartupTask(new OutboxCleaner(outboxStorage, timeSpan));
         }
 
         class OutboxCleaner : FeatureStartupTask
         {
-            public InMemoryOutboxStorage InMemoryOutboxStorage { get; set; }
-
-            public TimeSpan TimeToKeepDeduplicationData { get; set; }
+            public OutboxCleaner(InMemoryOutboxStorage storage, TimeSpan timeToKeepDeduplicationData)
+            {
+                this.timeToKeepDeduplicationData = timeToKeepDeduplicationData;
+                inMemoryOutboxStorage = storage;
+            }
 
             protected override Task OnStart(IBusContext context)
             {
@@ -55,11 +60,13 @@
 
             void PerformCleanup(object state)
             {
-                InMemoryOutboxStorage.RemoveEntriesOlderThan(DateTime.UtcNow - TimeToKeepDeduplicationData);
+                inMemoryOutboxStorage.RemoveEntriesOlderThan(DateTime.UtcNow - timeToKeepDeduplicationData);
             }
 
 // ReSharper disable once NotAccessedField.Local
             Timer cleanupTimer;
+            readonly InMemoryOutboxStorage inMemoryOutboxStorage;
+            readonly TimeSpan timeToKeepDeduplicationData;
         }
     }
 }

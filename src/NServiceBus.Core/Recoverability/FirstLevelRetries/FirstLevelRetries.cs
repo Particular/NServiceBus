@@ -20,8 +20,6 @@ namespace NServiceBus.Features
             Prerequisite(context => context.Settings.Get<bool>("Transactions.Enabled"), "Send only endpoints can't use FLR since it requires the transport to be able to rollback");
 
             Prerequisite(context => GetMaxRetries(context.Settings) > 0, "FLR was disabled in config since it's set to 0");
-
-            RegisterStartupTask<FlrStatusStorageCleaner>();
         }
 
         /// <summary>
@@ -36,6 +34,8 @@ namespace NServiceBus.Features
 
             var flrStatusStorage = new FlrStatusStorage();
             context.Container.RegisterSingleton(flrStatusStorage);
+
+            context.RegisterStartupTask(new FlrStatusStorageCleaner(flrStatusStorage));
 
             context.Pipeline.Register<FirstLevelRetriesBehavior.Registration>();
         }

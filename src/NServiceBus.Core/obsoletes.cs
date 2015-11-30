@@ -772,6 +772,15 @@ namespace NServiceBus.Features
     public static class SerializationFeatureHelper
     {
     }
+
+    public partial class Feature
+    {
+        [ObsoleteEx(ReplacementTypeOrMember = "FeatureConfigurationContext.RegisterStartupTask", RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0")]
+        protected void RegisterStartupTask<T>() where T : FeatureStartupTask
+        {
+            throw new NotImplementedException();
+        }
+    }
 }
 
 namespace NServiceBus.Transports

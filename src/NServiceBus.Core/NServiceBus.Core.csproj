@@ -96,6 +96,9 @@
     <Compile Include="Endpoint.cs" />
     <Compile Include="BusConfiguration.cs" />
     <Compile Include="BusContext.cs" />
+    <Compile Include="Features\FeatureDiagnosticData.cs" />
+    <Compile Include="Features\FeaturesReport.cs" />
+    <Compile Include="Features\FeatureStartupTaskController.cs" />
     <Compile Include="IBusContext.cs" />
     <Compile Include="IBusContextExtensions.cs" />
     <Compile Include="IMessageProcessingContext.cs" />

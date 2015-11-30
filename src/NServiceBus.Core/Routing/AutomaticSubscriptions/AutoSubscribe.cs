@@ -18,7 +18,6 @@
         {
             EnableByDefault();
             Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Send only endpoints can't autosubscribe.");
-            RegisterStartupTask<ApplySubscriptions>();
         }
 
         /// <summary>
@@ -33,23 +32,23 @@
             {
                 settings = new SubscribeSettings();
             }
-            
+
             var conventions = context.Settings.Get<Conventions>();
-        
+
             if (transportDefinition.HasSupportForCentralizedPubSub)
             {
-                context.Container.ConfigureComponent(b =>
+                context.RegisterStartupTask(b =>
                 {
                     var handlerRegistry = b.Build<MessageHandlerRegistry>();
 
                     var messageTypesHandled = GetMessageTypesHandledByThisEndpoint(handlerRegistry, conventions, settings);
 
                     return new ApplySubscriptions(messageTypesHandled);
-                }, DependencyLifecycle.SingleInstance);
+                });
             }
             else
             {
-                context.Container.ConfigureComponent(b =>
+                context.RegisterStartupTask(b =>
                 {
                     var handlerRegistry = b.Build<MessageHandlerRegistry>();
 
@@ -63,12 +62,11 @@
                             .ToList();
                     }
                     return new ApplySubscriptions(messageTypesToSubscribe);
-
-                }, DependencyLifecycle.SingleInstance);
+                });
             }
         }
 
-        static List<Type> GetMessageTypesHandledByThisEndpoint(MessageHandlerRegistry handlerRegistry, Conventions conventions,SubscribeSettings settings)
+        static List<Type> GetMessageTypesHandledByThisEndpoint(MessageHandlerRegistry handlerRegistry, Conventions conventions, SubscribeSettings settings)
         {
             var messageTypesHandled = handlerRegistry.GetMessageTypes()//get all potential messages
                 .Where(t => !conventions.IsInSystemConventionList(t)) //never auto-subscribe system messages

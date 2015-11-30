@@ -14,6 +14,7 @@
         {
             this.settings = settings;
         }
+
         protected override Task OnStart(IBusContext context)
         {
             var usingMsmq = settings.Get<TransportDefinition>() is MsmqTransport;

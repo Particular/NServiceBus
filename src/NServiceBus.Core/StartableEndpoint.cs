@@ -89,8 +89,8 @@ namespace NServiceBus
 
         async Task<FeatureRunner> StartFeatures(IBusContext busContext)
         {
-            var featureRunner = new FeatureRunner(builder, featureActivator);
-            await featureRunner.Start(busContext).ConfigureAwait(false);
+            var featureRunner = new FeatureRunner(featureActivator);
+            await featureRunner.Start(builder, busContext).ConfigureAwait(false);
             return featureRunner;
         }
 

@@ -1460,6 +1460,8 @@ namespace NServiceBus.Features
             where T : NServiceBus.Features.Feature { }
         protected void EnableByDefault() { }
         protected void Prerequisite(System.Func<NServiceBus.Features.FeatureConfigurationContext, bool> condition, string description) { }
+        [System.ObsoleteAttribute("Please use `FeatureConfigurationContext.RegisterStartupTask` instead. Will be rem" +
+            "oved in version 7.0.0.", true)]
         protected void RegisterStartupTask<T>()
             where T : NServiceBus.Features.FeatureStartupTask { }
         protected internal abstract void Setup(NServiceBus.Features.FeatureConfigurationContext context);
@@ -1471,22 +1473,28 @@ namespace NServiceBus.Features
         public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
         public NServiceBus.Settings.ReadOnlySettings Settings { get; }
         public NServiceBus.Pipeline.PipelineSettings AddSatellitePipeline(string name, string qualifier, NServiceBus.Transports.TransactionSupport requiredTransactionSupport, NServiceBus.Transports.PushRuntimeSettings runtimeSettings, out string transportAddress) { }
+        public void RegisterStartupTask<TTask>(TTask startupTask)
+            where TTask : NServiceBus.Features.FeatureStartupTask { }
+        public void RegisterStartupTask<TTask>(System.Func<TTask> startupTaskFactory)
+            where TTask : NServiceBus.Features.FeatureStartupTask { }
+        public void RegisterStartupTask<TTask>(System.Func<NServiceBus.ObjectBuilder.IBuilder, TTask> startupTaskFactory)
+            where TTask : NServiceBus.Features.FeatureStartupTask { }
     }
     public class FeatureDiagnosticData
     {
         public FeatureDiagnosticData() { }
         public bool Active { get; }
-        public System.Collections.Generic.IList<System.Collections.Generic.List<string>> Dependencies { get; }
+        public System.Collections.Generic.IReadOnlyList<System.Collections.Generic.IReadOnlyList<string>> Dependencies { get; }
         public bool DependenciesAreMeet { get; set; }
         public bool EnabledByDefault { get; }
         public string Name { get; }
         public NServiceBus.Features.PrerequisiteStatus PrerequisiteStatus { get; }
-        public System.Collections.Generic.IList<System.Type> StartupTasks { get; }
+        public System.Collections.Generic.IReadOnlyList<string> StartupTasks { get; }
         public string Version { get; }
     }
     public class FeaturesReport
     {
-        public System.Collections.Generic.IList<NServiceBus.Features.FeatureDiagnosticData> Features { get; }
+        public System.Collections.Generic.IReadOnlyList<NServiceBus.Features.FeatureDiagnosticData> Features { get; }
     }
     public abstract class FeatureStartupTask
     {

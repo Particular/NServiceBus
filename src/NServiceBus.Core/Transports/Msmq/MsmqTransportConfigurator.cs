@@ -20,8 +20,6 @@
             EnableByDefault();
             DependsOn<UnicastBus>();
             DependsOn<Receiving>();
-            RegisterStartupTask<CheckQueuePermissions>();
-            RegisterStartupTask<TimeToBeReceivedOverrideCheck>();
         }
 
         class CheckQueuePermissions : FeatureStartupTask
@@ -96,6 +94,8 @@
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
+            context.RegisterStartupTask(new CheckQueuePermissions(context.Settings));
+            context.RegisterStartupTask(new TimeToBeReceivedOverrideCheck(context.Settings));
         }
     }
 }

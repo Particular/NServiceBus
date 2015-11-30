@@ -33,7 +33,6 @@ namespace NServiceBus
             WireUpConfigSectionOverrides();
 
             var featureActivator = new FeatureActivator(settings);
-            container.RegisterSingleton(featureActivator);
 
             RegisterCriticalErrorHandler();
 
@@ -43,15 +42,13 @@ namespace NServiceBus
 
             ActivateAndInvoke<IWantToRunBeforeConfigurationIsFinalized>(TypesToScan, t => t.Run(settings));
 
-            var featureStats = featureActivator.SetupFeatures(new FeatureConfigurationContext(settings, container, pipelineSettings));
+            var featureStats = featureActivator.SetupFeatures(container, pipelineSettings);
 
             pipelineConfiguration.RegisterBehaviorsInContainer(settings, container);
 
             container.RegisterSingleton(featureStats);
 
-            featureActivator.RegisterStartupTasks(container);
-
-            ReportFeatures(featureStats);
+            DisplayDiagnosticsForFeatures.Run(featureStats);
             WireUpInstallers();
 
             var startableEndpoint = new StartableEndpoint(settings, builder, featureActivator, pipelineConfiguration, startables);
@@ -103,12 +100,6 @@ namespace NServiceBus
             {
                 container.ConfigureComponent(installerType, DependencyLifecycle.InstancePerCall);
             }
-        }
-
-        static void ReportFeatures(FeaturesReport featureStats)
-        {
-            var reporter = new DisplayDiagnosticsForFeatures();
-            reporter.Run(featureStats);
         }
 
         static void ForAllTypes<T>(IEnumerable<Type> types, Action<Type> action) where T : class
