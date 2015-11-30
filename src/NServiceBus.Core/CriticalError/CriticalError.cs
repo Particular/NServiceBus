@@ -5,14 +5,14 @@ namespace NServiceBus
     using NServiceBus.Logging;
 
     /// <summary>
-    /// A holder for that exposes access to the action defined by <see cref="ConfigureCriticalErrorAction.DefineCriticalErrorAction(BusConfiguration,Func{IEndpointInstance, string, Exception,Task})"/>.
+    /// A holder for that exposes access to the action defined by <see cref="ConfigureCriticalErrorAction.DefineCriticalErrorAction"/>.
     /// </summary>
     /// <returns>
     /// Call <see cref="Raise"/> to trigger the action.
     /// </returns>
     public class CriticalError
     {
-        Func<IEndpointInstance, string, Exception, Task> onCriticalErrorAction;
+        CriticalErrorAction onCriticalErrorAction;
 
         /// <summary>
         /// The started endpoint which will be passed to the configured critical error action.
@@ -23,9 +23,16 @@ namespace NServiceBus
         /// Initializes a new instance of <see cref="CriticalError"/>.
         /// </summary>
         /// <param name="onCriticalErrorAction">The action to execute when a critical error is triggered.</param>
-        public CriticalError(Func<IEndpointInstance, string, Exception, Task> onCriticalErrorAction)
+        public CriticalError(CriticalErrorAction onCriticalErrorAction)
         {
-            this.onCriticalErrorAction = onCriticalErrorAction ?? DefaultCriticalErrorHandling;
+            if (onCriticalErrorAction == null)
+            {
+                this.onCriticalErrorAction = DefaultCriticalErrorHandling;
+            }
+            else
+            {
+                this.onCriticalErrorAction = onCriticalErrorAction;
+            }
         }
 
         static Task DefaultCriticalErrorHandling(IEndpointInstance endpoint, string errorMessage, Exception exception)
@@ -34,7 +41,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Trigger the action defined by <see cref="ConfigureCriticalErrorAction.DefineCriticalErrorAction(BusConfiguration,Func{IEndpointInstance, string, Exception,Task})"/>.
+        /// Trigger the action defined by <see cref="ConfigureCriticalErrorAction.DefineCriticalErrorAction"/>.
         /// </summary>
         public virtual void Raise(string errorMessage, Exception exception)
         {
