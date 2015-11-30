@@ -4,10 +4,7 @@ namespace NServiceBus.Routing
     using System.Collections.Generic;
     using System.Linq;
 
-    /// <summary>
-    /// Allows to configure message distribution strategies.
-    /// </summary>
-    public class DistributionPolicy
+    class DistributionPolicy
     {
         List<Tuple<Func<Type, bool>,DistributionStrategy>> strategies = new List<Tuple<Func<Type, bool>, DistributionStrategy>>();
 
@@ -24,7 +21,7 @@ namespace NServiceBus.Routing
         /// </summary>
         /// <param name="distributionStrategy">The instance of a distribution strategy.</param>
         /// <param name="typeMatchingRule">A predicate for determining the set of types.</param>
-        public void SetDistributionStrategy(DistributionStrategy distributionStrategy, Func<Type, bool> typeMatchingRule)
+        internal void SetDistributionStrategy(DistributionStrategy distributionStrategy, Func<Type, bool> typeMatchingRule)
         {
             strategies.Insert(0, Tuple.Create(typeMatchingRule, distributionStrategy));
         }
