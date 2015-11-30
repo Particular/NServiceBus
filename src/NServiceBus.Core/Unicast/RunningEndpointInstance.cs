@@ -1,6 +1,6 @@
 namespace NServiceBus.Unicast
 {
-    using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.Features;
     using NServiceBus.Logging;
@@ -22,19 +22,33 @@ namespace NServiceBus.Unicast
         {
             if (stopped)
             {
-                throw new InvalidOperationException("Endpoint already stopped.");
+                return;
             }
 
-            Log.Info("Initiating shutdown.");
+            await stopSemaphore.WaitAsync().ConfigureAwait(false);
 
-            await pipelineCollection.Stop().ConfigureAwait(false);
-            var busContext = CreateBusContext();
-            await featureRunner.Stop(busContext).ConfigureAwait(false);
-            await startAndStoppablesRunner.Stop(busContext).ConfigureAwait(false);
-            builder.Dispose();
+            try
+            {
+                if (stopped)
+                {
+                    return;
+                }
 
-            stopped = true;
-            Log.Info("Shutdown complete.");
+                Log.Info("Initiating shutdown.");
+
+                await pipelineCollection.Stop().ConfigureAwait(false);
+                var busContext = CreateBusContext();
+                await featureRunner.Stop(busContext).ConfigureAwait(false);
+                await startAndStoppablesRunner.Stop(busContext).ConfigureAwait(false);
+                builder.Dispose();
+
+                stopped = true;
+                Log.Info("Shutdown complete.");
+            }
+            finally
+            {
+                stopSemaphore.Release();
+            }
         }
 
         public IBusContext CreateBusContext()
@@ -43,12 +57,14 @@ namespace NServiceBus.Unicast
         }
 
         volatile bool stopped;
+        SemaphoreSlim stopSemaphore = new SemaphoreSlim(1);
+
         PipelineCollection pipelineCollection;
         StartAndStoppablesRunner startAndStoppablesRunner;
         FeatureRunner featureRunner;
         IBuilder builder;
+        IBusContextFactory busContextFactory;
 
         static ILog Log = LogManager.GetLogger<UnicastBus>();
-        readonly IBusContextFactory busContextFactory;
     }
 }
