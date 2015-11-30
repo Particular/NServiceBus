@@ -39,7 +39,7 @@ namespace NServiceBus.Features
         {
             var userDiscriminator = settings.GetOrDefault<string>("EndpointInstanceDiscriminator");
             var scaleOut = settings.GetOrDefault<bool>("IndividualizeEndpointAddress");
-            var transportDiscriminator = settings.Get<TransportDefinition>().GetDiscriminatorForThisEndpointInstance();
+            var transportDiscriminator = settings.Get<TransportDefinition>().GetDiscriminatorForThisEndpointInstance(settings);
             if (scaleOut && userDiscriminator == null && transportDiscriminator == null)
             {
                 throw new Exception("No endpoint instance discriminator found. This value is usually provided by your transport so please make sure you're on the lastest version of your specific transport or set the discriminator using 'configuration.ScaleOut().UniqueQueuePerEndpointInstance(myDiscriminator)'");
