@@ -24,7 +24,7 @@ namespace NServiceBus.Routing
         /// </summary>
         /// <param name="distributionStrategy">The instance of a distribution strategy.</param>
         /// <param name="typeMatchingRule">A predicate for determining the set of types.</param>
-        public void SetDistributionStrategy(DistributionStrategy distributionStrategy, Func<Type, bool> typeMatchingRule)
+        public void Set(DistributionStrategy distributionStrategy, Func<Type, bool> typeMatchingRule)
         {
             strategies.Insert(0, Tuple.Create(typeMatchingRule, distributionStrategy));
         }

@@ -2211,7 +2211,7 @@ namespace NServiceBus.Routing
     public class DistributionPolicy
     {
         public DistributionPolicy() { }
-        public void SetDistributionStrategy(NServiceBus.Routing.DistributionStrategy distributionStrategy, System.Func<System.Type, bool> typeMatchingRule) { }
+        public void Set(NServiceBus.Routing.DistributionStrategy distributionStrategy, System.Func<System.Type, bool> typeMatchingRule) { }
     }
     public abstract class DistributionStrategy
     {
