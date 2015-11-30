@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using System;
     using NServiceBus.Configuration.AdvanceExtensibility;
     using NServiceBus.Routing;
     using NServiceBus.Settings;
@@ -26,9 +27,14 @@
         public EndpointInstances EndpointInstances => GetOrCreate<EndpointInstances>();
 
         /// <summary>
-        /// Gets the distribution policy.
+        /// Sets a distribution strategy for a given subset of message types.
         /// </summary>
-        public DistributionPolicy DistributionPolicy => GetOrCreate<DistributionPolicy>();
+        /// <param name="distributionStrategy">The instance of a distribution strategy.</param>
+        /// <param name="typeMatchingRule">A predicate for determining the set of types.</param>
+        public void SetMessageDistributionStrategy(DistributionStrategy distributionStrategy, Func<Type, bool> typeMatchingRule)
+        {
+            GetOrCreate<DistributionPolicy>().SetDistributionStrategy(distributionStrategy, typeMatchingRule);
+        }
 
         /// <summary>
         /// Gets the transport addresses.

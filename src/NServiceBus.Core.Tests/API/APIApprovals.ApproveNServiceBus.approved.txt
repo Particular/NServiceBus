@@ -794,10 +794,10 @@ namespace NServiceBus
     }
     public class RoutingSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
-        public NServiceBus.Routing.DistributionPolicy DistributionPolicy { get; }
         public NServiceBus.Routing.EndpointInstances EndpointInstances { get; }
         public NServiceBus.Transports.TransportAddresses TransportAddresses { get; }
         public NServiceBus.Routing.UnicastRoutingTable UnicastRoutingTable { get; }
+        public void SetMessageDistributionStrategy(NServiceBus.Routing.DistributionStrategy distributionStrategy, System.Func<System.Type, bool> typeMatchingRule) { }
     }
     public class static RoutingSettingsExtensions
     {
@@ -2207,11 +2207,6 @@ namespace NServiceBus.Routing
     {
         public AllInstancesDistributionStrategy() { }
         public override System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> SelectDestination(System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> allInstances) { }
-    }
-    public class DistributionPolicy
-    {
-        public DistributionPolicy() { }
-        public void Set(NServiceBus.Routing.DistributionStrategy distributionStrategy, System.Func<System.Type, bool> typeMatchingRule) { }
     }
     public abstract class DistributionStrategy
     {
