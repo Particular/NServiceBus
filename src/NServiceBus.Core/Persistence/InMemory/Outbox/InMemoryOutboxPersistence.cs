@@ -4,6 +4,7 @@
     using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.InMemory.Outbox;
+    using NServiceBus.Outbox;
 
     /// <summary>
     /// Used to configure in memory outbox persistence.
@@ -24,7 +25,7 @@
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             var outboxStorage = new InMemoryOutboxStorage();
-            context.Container.RegisterSingleton(outboxStorage);
+            context.Container.RegisterSingleton<IOutboxStorage>(outboxStorage);
 
             var timeSpan = context.Settings.Get<TimeSpan>(TimeToKeepDeduplicationEntries);
 

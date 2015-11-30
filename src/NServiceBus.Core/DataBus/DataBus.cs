@@ -38,6 +38,7 @@ namespace NServiceBus.Features
             }
 
             context.RegisterStartupTask(b => b.Build<IDataBusInitializer>());
+            context.Container.ConfigureComponent<IDataBusInitializer>(DependencyLifecycle.SingleInstance);
             context.Pipeline.Register<DataBusReceiveBehavior.Registration>();
             context.Pipeline.Register<DataBusSendBehavior.Registration>();
         }

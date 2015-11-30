@@ -67,12 +67,9 @@ namespace NServiceBus.Features
         {
             foreach (var feature in features.Where(f => f.Feature.IsActive))
             {
-                foreach (var taskFactory in feature.TaskFactories)
+                foreach (var taskController in feature.TaskControllers)
                 {
-                    var task = taskFactory(builder);
-                    feature.Tasks.Add(task);
-
-                    await task.PerformStartup(context).ConfigureAwait(false);
+                    await taskController.Start(builder, context).ConfigureAwait(false);
                 }
             }
         }
@@ -81,19 +78,11 @@ namespace NServiceBus.Features
         {
             foreach (var feature in features.Where(f => f.Feature.IsActive))
             {
-                foreach (var task in feature.Tasks)
+                foreach (var task in feature.TaskControllers)
                 {
-                    await task.PerformStop(context).ConfigureAwait(false);
-
-                    DisposeIfNecessary(task);
+                    await task.Stop(context).ConfigureAwait(false);
                 }
             }
-        }
-
-        static void DisposeIfNecessary(FeatureStartupTask task)
-        {
-            var disposableTask = task as IDisposable;
-            disposableTask?.Dispose();
         }
 
         static List<FeatureInfo> Sort(IEnumerable<FeatureInfo> features)
@@ -168,8 +157,8 @@ namespace NServiceBus.Features
                 }
                 settings.MarkFeatureAsActive(featureType);
                 featureInfo.Feature.SetupFeature(context);
-                featureInfo.TaskFactories = context.TaskFactories;
-                featureInfo.Diagnostics.StartupTasks = context.TaskNames;
+                featureInfo.TaskControllers = context.TaskControllers;
+                featureInfo.Diagnostics.StartupTasks = context.TaskControllers.Select(d => d.Name).ToList();
                 featureInfo.Diagnostics.Active = true;
                 return true;
             }
@@ -194,13 +183,11 @@ namespace NServiceBus.Features
             {
                 Diagnostics = diagnostics;
                 Feature = feature;
-                Tasks = new List<FeatureStartupTask>();
             }
 
             public FeatureDiagnosticData Diagnostics { get; }
             public Feature Feature { get; }
-            public IReadOnlyList<Func<IBuilder, FeatureStartupTask>> TaskFactories { get; set; }
-            public List<FeatureStartupTask> Tasks { get; } 
+            public IReadOnlyList<FeatureStartupTaskController> TaskControllers { get; set; }
 
             public override string ToString()
             {
