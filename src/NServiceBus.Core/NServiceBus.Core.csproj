@@ -142,7 +142,6 @@
     <Compile Include="Pipeline\Outgoing\TransportMessageContextExtensions.cs" />
     <Compile Include="Scheduling\ScheduleBehavior.cs" />
     <Compile Include="StartableEndpoint.cs" />
-    <Compile Include="ISendOnlyBusExtensions_obsoletes.cs" />
     <Compile Include="IStartableBusExtensions_obsoletes.cs" />
     <Compile Include="Licensing\LogErrorOnInvalidLicenseBehavior.cs" />
     <Compile Include="Persistence\InMemory\InMemoryTransactionalStorageFeature.cs" />
