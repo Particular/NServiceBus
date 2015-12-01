@@ -2269,6 +2269,7 @@ namespace NServiceBus.Routing
     {
         public UnicastRoutingTable() { }
         public void AddDynamic(System.Func<System.Collections.Generic.List<System.Type>, NServiceBus.Extensibility.ContextBag, System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<NServiceBus.Routing.IUnicastRoute>>> dynamicRule) { }
+        public void AddDynamic(System.Func<System.Collections.Generic.List<System.Type>, NServiceBus.Extensibility.ContextBag, System.Collections.Generic.IEnumerable<NServiceBus.Routing.IUnicastRoute>> dynamicRule) { }
         public void AddStatic(System.Type messageType, NServiceBus.EndpointName destination) { }
         public void AddStatic(System.Type messageType, NServiceBus.EndpointInstanceName destination) { }
         public void AddStatic(System.Type messageType, string destinationAddress) { }

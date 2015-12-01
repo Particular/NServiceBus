@@ -23,7 +23,7 @@ namespace NServiceBus.Routing
             this.physicalAddresses = physicalAddresses;
         }
 
-        public async Task<IReadOnlyCollection<UnicastRoutingStrategy>> Route(Type messageType, DistributionStrategy distributionStrategy, ContextBag contextBag)
+        public async Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, DistributionStrategy distributionStrategy, ContextBag contextBag)
         {
             var typesToRoute = messageMetadataRegistry.GetMessageMetadata(messageType)
                 .MessageHierarchy
@@ -39,8 +39,7 @@ namespace NServiceBus.Routing
             var selectedDestinations = SelectDestinationsForEachEndpoint(distributionStrategy, destinationsByEndpoint);
 
             return selectedDestinations
-                .Select(destination => new UnicastRoutingStrategy(destination.Resolve(physicalAddresses.GetTransportAddress)))
-                .ToList();
+                .Select(destination => new UnicastRoutingStrategy(destination.Resolve(physicalAddresses.GetTransportAddress)));
         }
 
         static IEnumerable<UnicastRoutingTarget> SelectDestinationsForEachEndpoint(DistributionStrategy distributionStrategy, IEnumerable<IGrouping<EndpointName, UnicastRoutingTarget>> destinationsByEndpoint)

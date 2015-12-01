@@ -1,6 +1,8 @@
 namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline;
@@ -21,9 +23,7 @@ namespace NServiceBus
         public override async Task Invoke(OutgoingPublishContext context, Func<OutgoingLogicalMessageContext, Task> next)
         {
             var eventType = context.Message.MessageType;
-            var distributionStrategy = distributionPolicy.GetDistributionStrategy(eventType);
-
-            var addressLabels = (await unicastRouter.Route(eventType, distributionStrategy, context).ConfigureAwait(false));
+            var addressLabels = await GetRoutingStrategies(context, eventType);
             if (addressLabels.Count == 0)
             {
                 //No subscribers for this message.
@@ -47,6 +47,13 @@ namespace NServiceBus
             {
                 throw new Exception($"The destination queue '{ex.Queue}' could not be found. You may have misconfigured the destination for this kind of message ({eventType}) in the MessageEndpointMappings of the UnicastBusConfig section in your configuration file. " + "It may also be the case that the given queue just hasn't been created yet, or has been deleted.", ex);
             }
+        }
+
+        async Task<List<UnicastRoutingStrategy>> GetRoutingStrategies(OutgoingPublishContext context, Type eventType)
+        {
+            var distributionStrategy = distributionPolicy.GetDistributionStrategy(eventType);
+            var addressLabels = await unicastRouter.Route(eventType, distributionStrategy, context).ConfigureAwait(false);
+            return addressLabels.ToList();
         }
     }
 }

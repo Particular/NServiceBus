@@ -118,9 +118,9 @@
 
         class FakeRoutingStrategy : IUnicastRouter
         {
-            public IReadOnlyCollection<UnicastRoutingStrategy> FixedDestination { get; set; } 
+            public IEnumerable<UnicastRoutingStrategy> FixedDestination { get; set; } 
 
-            public Task<IReadOnlyCollection<UnicastRoutingStrategy>> Route(Type messageType, DistributionStrategy distributionStrategy, ContextBag contextBag)
+            public Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, DistributionStrategy distributionStrategy, ContextBag contextBag)
             {
                 return Task.FromResult(FixedDestination);
             }
