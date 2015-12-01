@@ -782,44 +782,40 @@ namespace NServiceBus
         public NServiceBus.IContainSagaData Entity { get; set; }
         protected internal abstract void ConfigureHowToFindSaga(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration);
         protected void MarkAsComplete() { }
-        [System.ObsoleteAttribute("Please use `ReplyToOriginator(object message)` instead. Will be removed in versio" +
-            "n 7.0.0.", true)]
+        protected System.Threading.Tasks.Task ReplyToOriginator(NServiceBus.IMessageHandlerContext context, object message) { }
+        [System.ObsoleteAttribute("Please use `ReplyToOriginator(IMessageHandlerContext, object)` instead. Will be r" +
+            "emoved in version 7.0.0.", true)]
         protected void ReplyToOriginator(object message) { }
         [System.ObsoleteAttribute("Construct your message and pass it to the non Action overload. Please use `ReplyT" +
-            "oOriginator(object message)` instead. Will be removed in version 7.0.0.", true)]
-        protected virtual void ReplyToOriginator<TMessage>(System.Action<TMessage> messageConstructor)
-            where TMessage : new() { }
-        protected System.Threading.Tasks.Task ReplyToOriginator(NServiceBus.IMessageHandlerContext context, object message) { }
-        [System.ObsoleteAttribute("Please use `RequestTimeout<TTimeoutMessageType>(DateTime at)` instead. Will be re" +
-            "moved in version 7.0.0.", true)]
-        protected void RequestTimeout<TTimeoutMessageType>(System.DateTime at)
-            where TTimeoutMessageType : new() { }
-        [System.ObsoleteAttribute("Construct your message and pass it to the non Action overload. Please use `Reques" +
-            "tTimeout<TTimeoutMessageType>(DateTime, TTimeoutMessageType)` instead. Will be r" +
-            "emoved in version 7.0.0.", true)]
-        protected void RequestTimeout<TTimeoutMessageType>(System.DateTime at, System.Action<TTimeoutMessageType> action)
-            where TTimeoutMessageType : new() { }
-        [System.ObsoleteAttribute("Please use `RequestTimeout<TTimeoutMessageType>(DateTime at, TTimeoutMessageType " +
-            "timeoutMessage)` instead. Will be removed in version 7.0.0.", true)]
-        protected void RequestTimeout<TTimeoutMessageType>(System.DateTime at, TTimeoutMessageType timeoutMessage) { }
-        [System.ObsoleteAttribute("Please use `RequestTimeout<TTimeoutMessageType>(TimeSpan within)` instead. Will b" +
-            "e removed in version 7.0.0.", true)]
-        protected void RequestTimeout<TTimeoutMessageType>(System.TimeSpan within)
-            where TTimeoutMessageType : new() { }
-        [System.ObsoleteAttribute("Construct your message and pass it to the non Action overload. Please use `Saga.R" +
-            "equestTimeout<TTimeoutMessageType>(TimeSpan, TTimeoutMessageType)` instead. Will" +
-            " be removed in version 7.0.0.", true)]
-        protected void RequestTimeout<TTimeoutMessageType>(System.TimeSpan within, System.Action<TTimeoutMessageType> messageConstructor)
-            where TTimeoutMessageType : new() { }
-        [System.ObsoleteAttribute("Please use `RequestTimeout<TTimeoutMessageType>(TimeSpan within, TTimeoutMessageT" +
-            "ype timeoutMessage)` instead. Will be removed in version 7.0.0.", true)]
-        protected void RequestTimeout<TTimeoutMessageType>(System.TimeSpan within, TTimeoutMessageType timeoutMessage) { }
+            "oOriginator(IMessageHandlerContext, object)` instead. Will be removed in version" +
+            " 7.0.0.", true)]
+        protected virtual void ReplyToOriginator<TMessage>(System.Action<TMessage> messageConstructor) { }
         protected System.Threading.Tasks.Task RequestTimeout<TTimeoutMessageType>(NServiceBus.IMessageHandlerContext context, System.DateTime at)
             where TTimeoutMessageType : new() { }
         protected System.Threading.Tasks.Task RequestTimeout<TTimeoutMessageType>(NServiceBus.IMessageHandlerContext context, System.DateTime at, TTimeoutMessageType timeoutMessage) { }
         protected System.Threading.Tasks.Task RequestTimeout<TTimeoutMessageType>(NServiceBus.IMessageHandlerContext context, System.TimeSpan within)
             where TTimeoutMessageType : new() { }
         protected System.Threading.Tasks.Task RequestTimeout<TTimeoutMessageType>(NServiceBus.IMessageHandlerContext context, System.TimeSpan within, TTimeoutMessageType timeoutMessage) { }
+        [System.ObsoleteAttribute("Please use `RequestTimeout<TTimeoutMessageType>(IMessageHandlerContext, DateTime)" +
+            "` instead. Will be removed in version 7.0.0.", true)]
+        protected void RequestTimeout<TTimeoutMessageType>(System.DateTime at) { }
+        [System.ObsoleteAttribute("Construct your message and pass it to the non Action overload. Please use `Reques" +
+            "tTimeout<TTimeoutMessageType>(IMessageHandlerContext DateTime, TTimeoutMessageTy" +
+            "pe)` instead. Will be removed in version 7.0.0.", true)]
+        protected void RequestTimeout<TTimeoutMessageType>(System.DateTime at, System.Action<TTimeoutMessageType> action) { }
+        [System.ObsoleteAttribute("Please use `RequestTimeout<TTimeoutMessageType>(IMessageHandlerContext, DateTime," +
+            " TTimeoutMessageType)` instead. Will be removed in version 7.0.0.", true)]
+        protected void RequestTimeout<TTimeoutMessageType>(System.DateTime at, TTimeoutMessageType timeoutMessage) { }
+        [System.ObsoleteAttribute("Please use `RequestTimeout<TTimeoutMessageType>(IMessageHandlerContext, TimeSpan)" +
+            "` instead. Will be removed in version 7.0.0.", true)]
+        protected void RequestTimeout<TTimeoutMessageType>(System.TimeSpan within) { }
+        [System.ObsoleteAttribute("Construct your message and pass it to the non Action overload. Please use `Saga.R" +
+            "equestTimeout<TTimeoutMessageType>(IMessageHandlerContext, TimeSpan, TTimeoutMes" +
+            "sageType)` instead. Will be removed in version 7.0.0.", true)]
+        protected void RequestTimeout<TTimeoutMessageType>(System.TimeSpan within, System.Action<TTimeoutMessageType> messageConstructor) { }
+        [System.ObsoleteAttribute("Please use `RequestTimeout<TTimeoutMessageType>(IMessageHandlerContext, TimeSpan," +
+            " TTimeoutMessageType)` instead. Will be removed in version 7.0.0.", true)]
+        protected void RequestTimeout<TTimeoutMessageType>(System.TimeSpan within, TTimeoutMessageType timeoutMessage) { }
     }
     public abstract class Saga<TSagaData> : NServiceBus.Saga
         where TSagaData : NServiceBus.IContainSagaData, new ()

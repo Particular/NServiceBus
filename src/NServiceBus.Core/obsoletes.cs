@@ -1,4 +1,5 @@
 ﻿
+// ReSharper disable UnusedTypeParameter
 #pragma warning disable 1591
 // ReSharper disable UnusedParameter.Global
 
@@ -1689,6 +1690,91 @@ namespace NServiceBus.Outbox
             TreatAsErrorFromVersion = "6.0",
             RemoveInVersion = "7.0")]
         public void TimeToKeepDeduplicationData(TimeSpan time)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+
+
+namespace NServiceBus
+{
+    using System;
+
+    public partial class Saga
+    {
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            ReplacementTypeOrMember = "RequestTimeout<TTimeoutMessageType>(IMessageHandlerContext, DateTime)")]
+        protected void RequestTimeout<TTimeoutMessageType>(DateTime at) 
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            Message = "Construct your message and pass it to the non Action overload.",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            ReplacementTypeOrMember = "RequestTimeout<TTimeoutMessageType>(IMessageHandlerContext DateTime, TTimeoutMessageType)")]
+        protected void RequestTimeout<TTimeoutMessageType>(DateTime at, Action<TTimeoutMessageType> action) 
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            ReplacementTypeOrMember = "RequestTimeout<TTimeoutMessageType>(IMessageHandlerContext, DateTime, TTimeoutMessageType)")]
+        protected void RequestTimeout<TTimeoutMessageType>(DateTime at, TTimeoutMessageType timeoutMessage)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            ReplacementTypeOrMember = "RequestTimeout<TTimeoutMessageType>(IMessageHandlerContext, TimeSpan)")]
+        protected void RequestTimeout<TTimeoutMessageType>(TimeSpan within) 
+        {
+            throw new NotImplementedException();
+        }
+
+
+        [ObsoleteEx(
+            Message = "Construct your message and pass it to the non Action overload.",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            ReplacementTypeOrMember = "Saga.RequestTimeout<TTimeoutMessageType>(IMessageHandlerContext, TimeSpan, TTimeoutMessageType)")]
+        protected void RequestTimeout<TTimeoutMessageType>(TimeSpan within, Action<TTimeoutMessageType> messageConstructor) 
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            ReplacementTypeOrMember = "RequestTimeout<TTimeoutMessageType>(IMessageHandlerContext, TimeSpan, TTimeoutMessageType)")]
+        protected void RequestTimeout<TTimeoutMessageType>(TimeSpan within, TTimeoutMessageType timeoutMessage)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            ReplacementTypeOrMember = "ReplyToOriginator(IMessageHandlerContext, object)")]
+        protected void ReplyToOriginator(object message)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            Message = "Construct your message and pass it to the non Action overload.",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            ReplacementTypeOrMember = "ReplyToOriginator(IMessageHandlerContext, object)")]
+        protected virtual void ReplyToOriginator<TMessage>(Action<TMessage> messageConstructor) 
         {
             throw new NotImplementedException();
         }

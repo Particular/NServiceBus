@@ -166,7 +166,6 @@
     <Compile Include="Routing\UnicastRoutingStrategy.cs" />
     <Compile Include="Sagas\SagaCorrelationProperty.cs" />
     <Compile Include="Sagas\SagaLoader.cs" />
-    <Compile Include="Sagas\Saga_obsoletes.cs" />
     <Compile Include="Routing\AllInstancesDistributionStrategy.cs" />
     <Compile Include="Routing\UnicastRoute.cs" />
     <Compile Include="Routing\DistributionPolicy.cs" />
