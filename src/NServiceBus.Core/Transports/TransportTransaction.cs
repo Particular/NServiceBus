@@ -1,23 +1,17 @@
 namespace NServiceBus.Transports
 {
-    using System.Collections.Generic;
+    using NServiceBus.Extensibility;
 
     /// <summary>
     /// Represents a transaction used to receive the message from the queueing infrastructure.
     /// </summary>
-    public class TransportTransaction
+    public class TransportTransaction : ContextBag
     {
         /// <summary>
-        /// Used for passing information about transport-level transaction to enable sharing it between transport and persistance.
+        /// Create an instance of <see cref="TransportTransaction"/>.
         /// </summary>
-        public IDictionary<string, object> Data { get; set; }
-        
-        /// <summary>
-        /// Creates new transport transaction.
-        /// </summary>
-        public TransportTransaction()
+        public TransportTransaction() : base(null)
         {
-            Data = new Dictionary<string, object>();
         }
     }
 }

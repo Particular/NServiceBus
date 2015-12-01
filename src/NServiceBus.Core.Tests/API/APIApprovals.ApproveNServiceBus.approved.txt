@@ -2764,10 +2764,9 @@ namespace NServiceBus.Transports
         public NServiceBus.Settings.ReadOnlySettings GlobalSettings { get; }
         public void SetDispatcherFactory(System.Func<NServiceBus.Transports.IDispatchMessages> dispatcherFactory) { }
     }
-    public class TransportTransaction
+    public class TransportTransaction : NServiceBus.Extensibility.ContextBag
     {
         public TransportTransaction() { }
-        public System.Collections.Generic.IDictionary<string, object> Data { get; set; }
     }
 }
 namespace NServiceBus.Transports.Msmq.Config

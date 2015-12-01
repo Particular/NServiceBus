@@ -44,8 +44,8 @@ namespace NServiceBus
                         context.Set(msmqTransaction);
 
                         var nativeMsmqTransaction = new TransportTransaction();
-                        nativeMsmqTransaction.Data.Add(NativeMsmqTransactionKey, msmqTransaction);
-
+                        nativeMsmqTransaction.Set(msmqTransaction);
+                        
                         var pushContext = new PushContext(message.Id, headers, bodyStream, nativeMsmqTransaction, context);
 
                         await onMessage(pushContext).ConfigureAwait(false);
@@ -63,6 +63,5 @@ namespace NServiceBus
         }
 
         static ILog Logger = LogManager.GetLogger<ReceiveWithNativeTransaction>();
-        static string NativeMsmqTransactionKey = "NativeMsmqTransaction";
     }
 }
