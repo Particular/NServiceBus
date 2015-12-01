@@ -271,9 +271,6 @@ namespace NServiceBus
             set { throw new NotImplementedException(); }
         }
 
-        /// <summary>
-        /// Gets/sets a byte array to the body content of the message.
-        /// </summary>
         [ObsoleteEx(
             Message = "Use the value of the 'IncomingMessage.Body' or 'OutgoingMessage.Body' instead",
             RemoveInVersion = "7.0",
@@ -284,9 +281,6 @@ namespace NServiceBus
             set { throw new NotImplementedException(); }
         }
 
-        /// <summary>
-        /// Gets/sets the identifier of this message bundle.
-        /// </summary>
         [ObsoleteEx(
             Message = "Use the value of the 'IncomingMessage.MessageId' or 'OutgoingMesssage.MessageId' instead",
             RemoveInVersion = "7.0",
@@ -296,9 +290,6 @@ namespace NServiceBus
             get { throw new NotImplementedException(); }
         }
 
-        /// <summary>
-        /// Gets/sets the reply-to address of the message bundle - replaces 'ReturnAddress'.
-        /// </summary>
         [ObsoleteEx(
             ReplacementTypeOrMember = "GetReplyToAddress(this IncomingMessage message)",
             RemoveInVersion = "7.0",
@@ -308,9 +299,6 @@ namespace NServiceBus
             get { throw new NotImplementedException(); }
         }
 
-        /// <summary>
-        /// Indicates to the infrastructure the message intent (publish, or regular send).
-        /// </summary>
         [ObsoleteEx(
             ReplacementTypeOrMember = "GetMessageIntent(this IncomingMessage message)",
             RemoveInVersion = "7.0",
@@ -320,9 +308,6 @@ namespace NServiceBus
             get { throw new NotImplementedException(); }
         }
 
-        /// <summary>
-        /// Gets/sets other applicative out-of-band information.
-        /// </summary>
         [ObsoleteEx(
             Message = "Use the value of the 'IncomingMessage.Headers' or 'OutgoingMesssage.Headers' instead",
             RemoveInVersion = "7.0",
@@ -332,9 +317,6 @@ namespace NServiceBus
 
     public partial class BusNotifications
     {
-        /// <summary>
-        ///     Pipeline push-based notifications.
-        /// </summary>
         [ObsoleteEx(Message = "For performance reasons it is no longer possible to instrument the pipeline execution", RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0")]
         public PipelineNotifications Pipeline
         {
@@ -1112,9 +1094,6 @@ namespace NServiceBus.Unicast.Transport
         public bool DoNotWrapHandlersExecutionInATransactionScope { get; set; }
     }
 
-    /// <summary>
-    /// Defines the event data for the failed message processing event.
-    /// </summary>
     [ObsoleteEx(
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0",
@@ -1270,25 +1249,16 @@ namespace NServiceBus.Pipeline.Contexts
             get { throw new NotImplementedException(); }
         }
 
-        /// <summary>
-        /// Outgoing logical message.
-        /// </summary>
         public LogicalMessage OutgoingLogicalMessage
         {
             get { throw new NotImplementedException(); }
         }
 
-        /// <summary>
-        /// The received message, if any.
-        /// </summary>
         public TransportMessage IncomingMessage
         {
             get { throw new NotImplementedException(); }
         }
 
-        /// <summary>
-        /// The message about to be sent out.
-        /// </summary>
         public TransportMessage OutgoingMessage
         {
             get { throw new NotImplementedException(); }
@@ -1306,11 +1276,6 @@ namespace NServiceBus.Pipeline
         ReplacementTypeOrMember = "Behavior<T>")]
     public interface IBehavior<in TContext> where TContext : BehaviorContext
     {
-        /// <summary>
-        /// Called when the behavior is executed.
-        /// </summary>
-        /// <param name="context">The current context.</param>
-        /// <param name="next">The next <see cref="IBehavior{TContext}" /> in the chain to execute.</param>
         void Invoke(TContext context, Action next);
     }
 }
@@ -1500,9 +1465,6 @@ namespace NServiceBus.Unicast.Transport
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// The received <see cref="TransportMessage" />.
-        /// </summary>
         public TransportMessage Message
         {
             get { throw new NotImplementedException(); }
