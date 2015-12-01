@@ -11,7 +11,7 @@
     {
         public override Task Invoke(OutgoingLogicalMessageContext context, Func<Task> next)
         {
-            var correlationId = context.GetOrCreate<State>().CustomCorrelationId;
+            var correlationId = context.Extensions.GetOrCreate<State>().CustomCorrelationId;
 
             //if we don't have a explicit correlation id set
             if (string.IsNullOrEmpty(correlationId))

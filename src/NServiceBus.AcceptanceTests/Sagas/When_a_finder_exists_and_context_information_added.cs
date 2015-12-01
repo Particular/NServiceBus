@@ -76,7 +76,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
             {
                 public override Task Invoke(PhysicalMessageProcessingContext context, Func<Task> next)
                 {
-                    context.Set(new State
+                    context.Extensions.Set(new State
                     {
                         SomeData = "SomeData"
                     });

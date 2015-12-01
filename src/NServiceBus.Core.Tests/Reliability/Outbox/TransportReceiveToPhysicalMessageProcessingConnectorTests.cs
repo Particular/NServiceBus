@@ -110,7 +110,7 @@
 
         static TransportReceiveContext CreateContext()
         {
-            var context = new TransportReceiveContext(new IncomingMessage("id", new Dictionary<string, string>(), new MemoryStream()), null, new RootContext(null));
+            var context = new TransportReceiveContextImpl(new IncomingMessage("id", new Dictionary<string, string>(), new MemoryStream()), null, new RootContext(null));
             return context;
         }
 

@@ -16,7 +16,7 @@ namespace NServiceBus
     {
         public override async Task Invoke(OutgoingReplyContext context, Func<OutgoingLogicalMessageContext, Task> next)
         {
-            var state = context.GetOrCreate<State>();
+            var state = context.Extensions.GetOrCreate<State>();
 
             var replyToAddress = state.ExplicitDestination;
 
@@ -28,7 +28,7 @@ namespace NServiceBus
             context.Headers[Headers.MessageIntent] = MessageIntentEnum.Reply.ToString();
 
             var addressLabels = RouteToDestination(replyToAddress).EnsureNonEmpty(() => "No destination specified.").ToArray();
-            var logicalMessageContext = new OutgoingLogicalMessageContext(
+            var logicalMessageContext = new OutgoingLogicalMessageContextImpl(
                     context.MessageId,
                     context.Headers,
                     context.Message,

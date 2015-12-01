@@ -22,7 +22,7 @@
 
             var processedMessage = new OutgoingMessage(context.Message.MessageId, context.Message.Headers, context.Message.Body);
 
-            var auditContext = new AuditContext(processedMessage, auditAddress, context);
+            var auditContext = new AuditContextImpl(processedMessage, auditAddress, context);
             
             await auditPipeline.Invoke(auditContext).ConfigureAwait(false);
         }

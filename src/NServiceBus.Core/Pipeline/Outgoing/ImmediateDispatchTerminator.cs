@@ -13,7 +13,7 @@
 
         protected override Task Terminate(DispatchContext context)
         {
-            return dispatcher.Dispatch(context.Operations, context);
+            return dispatcher.Dispatch(context.Operations, context.Extensions);
         }
 
         IDispatchMessages dispatcher;

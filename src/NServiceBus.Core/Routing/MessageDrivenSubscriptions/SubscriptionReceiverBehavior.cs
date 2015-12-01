@@ -83,7 +83,7 @@
                 await subscriptionStorage.Subscribe(new Subscriber(subscriberAddress, subscriberEndpoint), new[]
                 {
                     messageType
-                }, context).ConfigureAwait(false);
+                }, context.Extensions).ConfigureAwait(false);
 
                 return;
             }
@@ -91,7 +91,7 @@
             await subscriptionStorage.Unsubscribe(new Subscriber(subscriberAddress, subscriberEndpoint), new[]
             {
                 new MessageType(messageTypeString)
-            }, context).ConfigureAwait(false);
+            }, context.Extensions).ConfigureAwait(false);
         }
 
         static string GetSubscriptionMessageTypeFrom(IncomingMessage msg)

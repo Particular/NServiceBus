@@ -12,12 +12,12 @@ namespace NServiceBus
     {
         public override Task Invoke(RoutingContext context, Func<Task> next)
         {
-            var state = context.GetOrCreate<InvokeHandlerTerminator.State>();
+            var state = context.Extensions.GetOrCreate<InvokeHandlerTerminator.State>();
 
             //if there is no scope here the user must have suppressed it
             if (state.ScopeWasPresent && Transaction.Current == null)
             {
-                var dispatchState = context.GetOrCreate<RoutingToDispatchConnector.State>();
+                var dispatchState = context.Extensions.GetOrCreate<RoutingToDispatchConnector.State>();
 
                 if (!dispatchState.ImmediateDispatch)
                 {

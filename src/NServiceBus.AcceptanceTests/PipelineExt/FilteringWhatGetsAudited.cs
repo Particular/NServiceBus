@@ -56,7 +56,7 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
             {
                 public override Task Invoke(PhysicalMessageProcessingContext context, Func<Task> next)
                 {
-                    context.Set(new AuditFilterResult());
+                    context.Extensions.Set(new AuditFilterResult());
 
                     return next();
                 }
@@ -77,7 +77,7 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
                 {
                     if (context.Message.MessageType == typeof(MessageToBeAudited))
                     {
-                        context.Get<AuditFilterResult>().DoNotAuditMessage = true;
+                        context.Extensions.Get<AuditFilterResult>().DoNotAuditMessage = true;
                     }
 
                     return next();
@@ -95,7 +95,7 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
                 {
                     AuditFilterResult result;
 
-                    if (context.TryGet(out result) && result.DoNotAuditMessage)
+                    if (context.Extensions.TryGet(out result) && result.DoNotAuditMessage)
                     {
                         return Task.FromResult(0);
                     }

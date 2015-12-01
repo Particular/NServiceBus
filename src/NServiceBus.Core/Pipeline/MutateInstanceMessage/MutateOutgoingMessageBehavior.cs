@@ -13,10 +13,10 @@
         public override async Task Invoke(OutgoingLogicalMessageContext context, Func<Task> next)
         {
             LogicalMessage incomingLogicalMessage;
-            context.TryGet(out incomingLogicalMessage);
+            context.Extensions.TryGet(out incomingLogicalMessage);
 
             IncomingMessage incomingPhysicalMessage;
-            context.TryGet(out incomingPhysicalMessage);
+            context.Extensions.TryGet(out incomingPhysicalMessage);
 
             var mutatorContext = new MutateOutgoingMessageContext(
                 context.Message.Instance, 

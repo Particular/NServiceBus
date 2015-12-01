@@ -22,7 +22,7 @@
 
             var processedMessage = new OutgoingMessage(context.Message.MessageId, context.Message.Headers, context.Message.Body);
 
-            var forwardingContext = new ForwardingContext(processedMessage, forwardingAddress, context);
+            var forwardingContext = new ForwardingContextImpl(processedMessage, forwardingAddress, context);
 
             await forwardingPipeline.Invoke(forwardingContext).ConfigureAwait(false);
         }

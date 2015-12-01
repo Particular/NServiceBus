@@ -39,7 +39,7 @@
             var sagaInstanceState = new ActiveSagaInstance(saga, sagaMetadata);
 
             //so that other behaviors can access the saga
-            context.Set(sagaInstanceState);
+            context.Extensions.Set(sagaInstanceState);
 
             var loadedEntity = await TryLoadSagaEntity(sagaMetadata, context).ConfigureAwait(false);
 
@@ -48,7 +48,7 @@
                 //if this message are not allowed to start the saga
                 if (IsMessageAllowedToStartTheSaga(context, sagaMetadata))
                 {
-                    context.Get<SagaInvocationResult>().SagaFound();
+                    context.Extensions.Get<SagaInvocationResult>().SagaFound();
                     sagaInstanceState.AttachNewEntity(CreateNewSagaEntity(sagaMetadata, context));
                 }
                 else
@@ -58,18 +58,18 @@
                     //we don't invoke not found handlers for timeouts
                     if (IsTimeoutMessage(context.Headers))
                     {
-                        context.Get<SagaInvocationResult>().SagaFound();
+                        context.Extensions.Get<SagaInvocationResult>().SagaFound();
                         logger.InfoFormat("No saga found for timeout message {0}, ignoring since the saga has been marked as complete before the timeout fired", context.MessageId);
                     }
                     else
                     {
-                        context.Get<SagaInvocationResult>().SagaNotFound();
+                        context.Extensions.Get<SagaInvocationResult>().SagaNotFound();
                     }
                 }
             }
             else
             {
-                context.Get<SagaInvocationResult>().SagaFound();
+                context.Extensions.Get<SagaInvocationResult>().SagaFound();
                 sagaInstanceState.AttachExistingEntity(loadedEntity);
             }
 
@@ -84,7 +84,7 @@
             {
                 if (!sagaInstanceState.IsNew)
                 {
-                    await sagaPersister.Complete(saga.Entity, context.SynchronizedStorageSession, context).ConfigureAwait(false);
+                    await sagaPersister.Complete(saga.Entity, context.SynchronizedStorageSession, context.Extensions).ConfigureAwait(false);
                 }
 
                 if (saga.Entity.Id != Guid.Empty)
@@ -108,11 +108,11 @@
                         sagaCorrelationProperty = new SagaCorrelationProperty(correlationProperty.PropertyInfo.Name,correlationProperty.Value);
                     }
 
-                    await sagaPersister.Save(saga.Entity, sagaCorrelationProperty, context.SynchronizedStorageSession, context).ConfigureAwait(false);
+                    await sagaPersister.Save(saga.Entity, sagaCorrelationProperty, context.SynchronizedStorageSession, context.Extensions).ConfigureAwait(false);
                 }
                 else
                 {
-                    await sagaPersister.Update(saga.Entity, context.SynchronizedStorageSession, context).ConfigureAwait(false);
+                    await sagaPersister.Update(saga.Entity, context.SynchronizedStorageSession, context.Extensions).ConfigureAwait(false);
                 }
             }
         }
@@ -216,7 +216,7 @@
 
                 var loader = (SagaLoader) Activator.CreateInstance(loaderType);
 
-                return loader.Load(sagaPersister, sagaId, context.SynchronizedStorageSession, context);
+                return loader.Load(sagaPersister, sagaId, context.SynchronizedStorageSession, context.Extensions);
             }
 
             SagaFinderDefinition finderDefinition = null;
@@ -238,7 +238,7 @@
             var finderType = finderDefinition.Type;
             var finder = (SagaFinder) currentContext.Builder.Build(finderType);
 
-            return finder.Find(currentContext.Builder, finderDefinition, context.SynchronizedStorageSession, context, context.MessageBeingHandled);
+            return finder.Find(currentContext.Builder, finderDefinition, context.SynchronizedStorageSession, context.Extensions, context.MessageBeingHandled);
         }
 
         IContainSagaData CreateNewSagaEntity(SagaMetadata metadata, InvokeHandlerContext context)
@@ -257,7 +257,7 @@
                 sagaEntity.Originator = replyToAddress;
             }
 
-            var lookupValues = context.GetOrCreate<SagaLookupValues>();
+            var lookupValues = context.Extensions.GetOrCreate<SagaLookupValues>();
 
 
             SagaLookupValues.LookupValue value;

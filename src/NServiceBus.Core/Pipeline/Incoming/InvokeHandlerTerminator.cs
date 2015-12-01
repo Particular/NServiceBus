@@ -10,11 +10,11 @@
     {
         protected override async Task Terminate(InvokeHandlerContext context)
         {
-            context.Set(new State { ScopeWasPresent = Transaction.Current != null });
+            context.Extensions.Set(new State { ScopeWasPresent = Transaction.Current != null });
 
             ActiveSagaInstance saga;
 
-            if (context.TryGet(out saga) && saga.NotFound && saga.Metadata.SagaType == context.MessageHandler.Instance.GetType())
+            if (context.Extensions.TryGet(out saga) && saga.NotFound && saga.Metadata.SagaType == context.MessageHandler.Instance.GetType())
             {
                 return;
             }

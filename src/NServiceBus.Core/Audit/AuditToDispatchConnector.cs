@@ -25,7 +25,7 @@ namespace NServiceBus
 
             State state;
 
-            if (context.TryGet(out state))
+            if (context.Extensions.TryGet(out state))
             {
                 //transfer audit values to the headers of the messag to audit
                 foreach (var kvp in state.AuditValues)
@@ -41,7 +41,7 @@ namespace NServiceBus
                 deliveryConstraints.Add(new DiscardIfNotReceivedBefore(timeToBeReceived.Value));
             }
 
-            var dispatchContext = new RoutingContext(message, new UnicastRoutingStrategy(context.AuditAddress), context);
+            var dispatchContext = new RoutingContextImpl(message, new UnicastRoutingStrategy(context.AuditAddress), context);
 
             dispatchContext.Set(deliveryConstraints);
 

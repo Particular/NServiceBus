@@ -50,7 +50,7 @@
                 }
                 var address = publisherAddress;
 
-                subscribeTasks.Add(SendSubscribeMessageWithRetries(address, subscriptionMessage, eventType.AssemblyQualifiedName, context));
+                subscribeTasks.Add(SendSubscribeMessageWithRetries(address, subscriptionMessage, eventType.AssemblyQualifiedName, context.Extensions));
             }
 
             return Task.WhenAll(subscribeTasks.ToArray());
