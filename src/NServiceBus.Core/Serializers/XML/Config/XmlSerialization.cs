@@ -3,7 +3,6 @@
     using System;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.MessageInterfaces;
     using NServiceBus.Serialization;
     using NServiceBus.Serializers.XML;
     using NServiceBus.Settings;
@@ -33,22 +32,15 @@
         /// </summary>
         class MessageTypesInitializer : FeatureStartupTask
         {
-            public IMessageMapper Mapper { get; set; }
             public XmlMessageSerializer Serializer { get; set; }
             public ReadOnlySettings Settings { get; set; }
 
             protected override Task OnStart(IBusContext context)
             {
-                if (Mapper == null)
-                {
-                    return TaskEx.Completed;
-                }
-
-                var messageTypes = Settings.GetAvailableTypes().Where(Settings.Get<Conventions>().IsMessageType).ToList();
-
-                Mapper.Initialize(messageTypes);
+                var conventions = Settings.Get<Conventions>();
+                var messageTypes = Settings.GetAvailableTypes()
+                    .Where(conventions.IsMessageType).ToList();
                 Serializer.Initialize(messageTypes);
-
                 return TaskEx.Completed;
             }
         }

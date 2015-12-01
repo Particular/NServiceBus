@@ -144,6 +144,7 @@
     <Compile Include="Msmq\When_publishing_with_authorizer.cs" />
     <Compile Include="Msmq\When_unsubscribing_with_authorizer.cs" />
     <Compile Include="Routing\When_broadcasting_a_command.cs" />
+    <Compile Include="Routing\When_publishing_an_interface.cs" />
     <Compile Include="Routing\When_publishing_to_a_legacy_endpoint.cs" />
     <Compile Include="Routing\When_publishing_from_sendonly.cs" />
     <Compile Include="MessageId\When_message_has_empty_id_header.cs" />
