@@ -27,7 +27,7 @@ namespace NServiceBus.InMemory.TimeoutPersister
                 readerWriterLock.ExitWriteLock();
             }
 
-            return Task.FromResult(0);
+            return TaskEx.Completed;
         }
 
         public Task<TimeoutData> Peek(string timeoutId, ContextBag context)
@@ -88,7 +88,7 @@ namespace NServiceBus.InMemory.TimeoutPersister
                 readerWriterLock.ExitWriteLock();
             }
 
-            return Task.FromResult(0);
+            return TaskEx.Completed;
         }
 
         public Task<TimeoutsChunk> GetNextChunk(DateTime startSlice)

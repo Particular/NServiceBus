@@ -1555,7 +1555,6 @@ namespace NServiceBus.Unicast.Transport
     {
         public TransportReceiver(TransactionSettings transactionSettings, int maximumConcurrencyLevel, int maximumThroughput, IDequeueMessages receiver, IManageMessageFailures manageMessageFailures, ReadOnlySettings settings, Configure config, TransactionSettings transactionSettings1)
         {
-            TransactionSettings = transactionSettings1;
             throw new NotImplementedException();
         }
 

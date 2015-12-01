@@ -633,14 +633,6 @@ namespace NServiceBus
         System.Threading.Tasks.Task Start(NServiceBus.IBusContext context);
         System.Threading.Tasks.Task Stop(NServiceBus.IBusContext context);
     }
-    [System.ObsoleteAttribute("Extensions to give better obsoletes. Will be removed in version 7.0.0.", true)]
-    public class static IWantToRunWhenBusStartsAndStopsExtensions_obsoletes
-    {
-        [System.ObsoleteAttribute("Please use `Start()` instead. Will be removed in version 7.0.0.", true)]
-        public static void Start(this NServiceBus.IWantToRunWhenBusStartsAndStops runnable) { }
-        [System.ObsoleteAttribute("Please use `Stop()` instead. Will be removed in version 7.0.0.", true)]
-        public static void Stop(this NServiceBus.IWantToRunWhenBusStartsAndStops runnable) { }
-    }
     public class JsonSerializer : NServiceBus.Serialization.SerializationDefinition
     {
         public JsonSerializer() { }
