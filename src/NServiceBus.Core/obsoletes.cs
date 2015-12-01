@@ -86,7 +86,6 @@ namespace NServiceBus
         ReplacementTypeOrMember = "BusConfiguration.ExecuteTheseHandlersFirst")]
     public interface ISpecifyMessageHandlerOrdering
     {
-        void SpecifyOrder(Order order);
     }
 
     [ObsoleteEx(
@@ -103,26 +102,6 @@ namespace NServiceBus
         ReplacementTypeOrMember = "BusConfiguration.ExecuteTheseHandlersFirst")]
     public class Order
     {
-        public IEnumerable<Type> Types
-        {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
-        }
-
-        public void SpecifyFirst<T>()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Specify<T>(First<T> ordering)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Specify(params Type[] priorityHandlers)
-        {
-            throw new NotImplementedException();
-        }
     }
 
 
@@ -204,7 +183,7 @@ namespace NServiceBus
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
         ReplacementTypeOrMember = "BusConfiguration.ExcludeAssemblies")]
-    public class AllAssemblies : IExcludesBuilder, IIncludesBuilder
+    public class AllAssemblies 
     {
     }
 
@@ -222,26 +201,12 @@ namespace NServiceBus
     {
     }
 
+    [ObsoleteEx(
+        Message = "Not used anymore, use `OutgoingMessage` or `IncomingMessage` instead",
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0")]
     public class TransportMessage
     {
-        [ObsoleteEx(
-            Message = "Not used anymore, use `OutgoingMessage` or `IncomingMessage` instead",
-            RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0")]
-        public TransportMessage()
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(
-            Message = "Not used anymore, use `OutgoingMessage` or `IncomingMessage` instead",
-            RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0")]
-        public TransportMessage(string existingId, Dictionary<string, string> existingHeaders)
-        {
-            throw new NotImplementedException();
-        }
-
         [ObsoleteEx(
             Message = "For sending purposes use `DeliveryConstraintContextExtensions.AddDeliveryConstraint(new NonDurableDelivery())` to set NonDurable delivery or `NonDurableDelivery constraint;DeliveryConstraintContextExtensions.TryGetDeliveryConstraint(out constraint)` to read wether NonDurable delivery is set. When receiving look at the new 'NServiceBus.NonDurableMessage' header",
             RemoveInVersion = "7.0",
@@ -418,7 +383,7 @@ namespace NServiceBus.Unicast
     [ObsoleteEx(
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0")]
-    public class MessageContext : IMessageContext
+    public class MessageContext 
     {
     }
 }
@@ -471,7 +436,7 @@ namespace NServiceBus.Unicast
         Message = "Not used anymore, use the 'NServiceBus.MessageIntent' header to detect if the message is a reply",
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0")]
-    public class ReplyOptions : DeliveryOptions
+    public class ReplyOptions 
     {
     }
 }
@@ -482,7 +447,7 @@ namespace NServiceBus.MessageMutator
         Message = "Just have your mutator implement both IMutateOutgoingMessages and IMutateIncomingMessages ",
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0")]
-    public interface IMessageMutator : IMutateOutgoingMessages, IMutateIncomingMessages
+    public interface IMessageMutator 
     {
     }
 
@@ -669,29 +634,12 @@ namespace NServiceBus
 
 namespace NServiceBus.Transports.Msmq
 {
-    using System;
-    using System.Messaging;
-
     [ObsoleteEx(
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0",
         Message = "The msmq transaction is now available via the pipeline context")]
-    public class MsmqUnitOfWork : IDisposable
+    public class MsmqUnitOfWork 
     {
-        public MessageQueueTransaction Transaction
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public void Dispose()
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool HasActiveTransaction()
-        {
-            throw new NotImplementedException();
-        }
     }
 }
 
@@ -741,18 +689,15 @@ namespace NServiceBus.Features
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0",
         Message = "No longer used, safe to remove")]
-    public class StorageDrivenPublishing : Feature
+    public class StorageDrivenPublishing 
     {
-        internal StorageDrivenPublishing()
-        {
-        }
-
-        protected internal override void Setup(FeatureConfigurationContext context)
-        {
-            throw new NotImplementedException();
-        }
     }
 
+    [ObsoleteEx(
+        Message = "Use the ConfigureSerialization Feature class instead", 
+        TreatAsErrorFromVersion = "6.0", 
+        RemoveInVersion = "7.0", 
+        ReplacementTypeOrMember = "ConfigureSerialization")]
     public static class SerializationFeatureHelper
     {
     }
@@ -769,17 +714,12 @@ namespace NServiceBus.Features
 
 namespace NServiceBus.Transports
 {
-    using NServiceBus.Unicast;
-
     [ObsoleteEx(
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0",
         ReplacementTypeOrMember = "IDispatchMessages")]
     public interface IDeferMessages
     {
-        void Defer(TransportMessage message, SendOptions sendOptions);
-
-
         [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
@@ -790,15 +730,12 @@ namespace NServiceBus.Transports
 
 namespace NServiceBus.Transports
 {
-    using NServiceBus.Unicast;
-
     [ObsoleteEx(
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0",
         ReplacementTypeOrMember = "IDispatchMessages")]
     public interface IPublishMessages
     {
-        void Publish(TransportMessage message, PublishOptions publishOptions);
     }
 }
 
@@ -818,22 +755,12 @@ namespace NServiceBus.Transports
 
 namespace NServiceBus.Features
 {
-    using System;
-
     [ObsoleteEx(
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0",
         Message = "No longer used, safe to remove")]
-    public class TimeoutManagerBasedDeferral : Feature
+    public class TimeoutManagerBasedDeferral 
     {
-        internal TimeoutManagerBasedDeferral()
-        {
-        }
-
-        protected internal override void Setup(FeatureConfigurationContext context)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
 
@@ -850,56 +777,28 @@ namespace NServiceBus.Transports
 
 namespace NServiceBus.Unicast.Subscriptions
 {
-    using System;
-
     [ObsoleteEx(
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0",
         Message = "No longer used, safe to remove")]
-    public class SubscriptionEventArgs : EventArgs
+    public class SubscriptionEventArgs
     {
-        public string SubscriberReturnAddress { get; set; }
-
-        public string MessageType { get; set; }
     }
 }
 
 namespace NServiceBus.Unicast.Routing
 {
-    using System;
-    using System.Collections.Generic;
-
     [ObsoleteEx(
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0",
         Message = "No longer used, safe to remove")]
     public class StaticMessageRouter
     {
-        public StaticMessageRouter(IEnumerable<Type> knownMessages)
-        {
-            throw new NotImplementedException();
-        }
-
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
             ReplacementTypeOrMember = "config.AutoSubscribe().AutoSubscribePlainMessages()")]
         public bool SubscribeToPlainMessages { get; set; }
-
-        public List<string> GetDestinationFor(Type messageType)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void RegisterEventRoute(Type eventType, string endpointAddress)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void RegisterMessageRoute(Type messageType, string endpointAddress)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
 
@@ -928,7 +827,6 @@ namespace NServiceBus.Config
         TreatAsErrorFromVersion = "6")]
     public interface IWantToRunWhenConfigurationIsComplete
     {
-        void Run(Configure config);
     }
 }
 
@@ -1039,38 +937,12 @@ namespace NServiceBus.Transports
 
 namespace NServiceBus.Transports.Msmq
 {
-    using System;
-    using NServiceBus.Unicast.Transport;
-
     [ObsoleteEx(
         Message = "No longer available, resolve an instance of IPushMessages from the container instead",
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0")]
-    public class MsmqDequeueStrategy : IDequeueMessages, IDisposable
+    public class MsmqDequeueStrategy 
     {
-        public MsmqDequeueStrategy(Configure configure, CriticalError criticalError, MsmqUnitOfWork unitOfWork)
-        {
-        }
-
-
-        public Address ErrorQueue { get; set; }
-
-
-        public void Init(Address address, TransactionSettings settings, Func<TransportMessage, bool> tryProcessMessage, Action<TransportMessage, Exception> endProcessMessage)
-        {
-        }
-
-        public void Start(int maximumConcurrencyLevel)
-        {
-        }
-
-        public void Stop()
-        {
-        }
-
-        public void Dispose()
-        {
-        }
     }
 }
 
@@ -1155,169 +1027,67 @@ namespace NServiceBus.Routing.StorageDrivenPublishing
 
 namespace NServiceBus
 {
-    using System;
-    using NServiceBus.Unicast;
-
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
         Message = "No longer used, please use the new callbacks api described in the v6 upgrade guide")]
-    public class BusAsyncResultEventArgs : EventArgs
+    public class BusAsyncResultEventArgs 
     {
-        public BusAsyncResult Result { get; set; }
-
-        public string MessageId { get; set; }
     }
 }
 
 namespace NServiceBus.Unicast
 {
-    using System;
-    using System.Threading;
-
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
         Message = "No longer used, please use the new callbacks api described in the v6 upgrade guide")]
-    public class BusAsyncResult : IAsyncResult
+    public class BusAsyncResult 
     {
-        public BusAsyncResult(AsyncCallback callback, object state)
-        {
-            throw new NotImplementedException();
-        }
-
-        public object AsyncState
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public WaitHandle AsyncWaitHandle
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public bool CompletedSynchronously
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public bool IsCompleted
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public void Complete(int errorCode, params object[] messages)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
 
 namespace NServiceBus
 {
-    using System;
-
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
         Message = "No longer used, can safely be removed")]
     public interface IManageMessageHeaders
     {
-        Action<object, string, string> SetHeaderAction { get; }
-        Func<object, string, string> GetHeaderAction { get; }
     }
 }
 
 namespace NServiceBus.Pipeline.Contexts
 {
-    using System;
-    using NServiceBus.Unicast;
-    using NServiceBus.Unicast.Messages;
-
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
         ReplacementTypeOrMember = "OutgoingLogicalMessage")]
-    public class OutgoingContext : BehaviorContext
+    public class OutgoingContext 
     {
-        public OutgoingContext(BehaviorContext parentContext, DeliveryOptions deliveryOptions, LogicalMessage message)
-            : base(parentContext)
-        {
-            throw new NotImplementedException();
-        }
-
-        public DeliveryOptions DeliveryOptions
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public LogicalMessage OutgoingLogicalMessage
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public TransportMessage IncomingMessage
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public TransportMessage OutgoingMessage
-        {
-            get { throw new NotImplementedException(); }
-        }
     }
 }
 
 namespace NServiceBus.Pipeline
 {
-    using System;
-
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
         ReplacementTypeOrMember = "Behavior<T>")]
-    public interface IBehavior<in TContext> where TContext : BehaviorContext
+    public interface IBehavior<in TContext> 
     {
-        void Invoke(TContext context, Action next);
     }
 }
 
 namespace NServiceBus.Pipeline
 {
-    using System;
-    using System.Collections.Generic;
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.Settings;
-
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
         Message = "You can no longer get access to the pipeline context via DI. Please use a behavior to get access instead")]
-    public class PipelineExecutor : IDisposable
+    public class PipelineExecutor 
     {
-        public PipelineExecutor(ReadOnlySettings settings, IBuilder builder, BusNotifications busNotifications)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IList<RegisterStep> Incoming { get; private set; }
-
-        public IList<RegisterStep> Outgoing { get; private set; }
-
-        public BehaviorContext CurrentContext
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public void Dispose()
-        {
-            //Injected
-        }
-
-        public void InvokePipeline<TContext>(IEnumerable<Type> behaviors, TContext context) where TContext : BehaviorContext
-        {
-            throw new NotImplementedException();
-        }
     }
 }
 
@@ -1342,52 +1112,34 @@ namespace NServiceBus.Satellites
 
 namespace NServiceBus.Unicast.Transport
 {
-    using System;
-
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
         Message = "No longer used, can safely be removed")]
     public static class ControlMessage
     {
-        public static TransportMessage Create()
-        {
-            throw new NotImplementedException();
-        }
     }
 }
 
 namespace NServiceBus.Unicast.Transport
 {
-    using System;
-
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
         ReplacementTypeOrMember = "IPushMessages")]
     public interface ITransport
     {
-        int MaximumConcurrencyLevel { get; }
+    }
+}
 
-        int MaximumMessageThroughputPerSecond { get; }
-
-        void Start(Address localAddress);
-
-        void ChangeMaximumConcurrencyLevel(int maximumConcurrencyLevel);
-
-        void ChangeMaximumMessageThroughputPerSecond(int maximumMessageThroughputPerSecond);
-
-        event EventHandler<TransportMessageReceivedEventArgs> TransportMessageReceived;
-
-        event EventHandler<StartedMessageProcessingEventArgs> StartedMessageProcessing;
-
-        event EventHandler<FinishedMessageProcessingEventArgs> FinishedMessageProcessing;
-
-        event EventHandler<FailedMessageProcessingEventArgs> FailedMessageProcessing;
-
-        void AbortHandlingCurrentMessage();
-
-        void Stop();
+namespace NServiceBus.Unicast.Transport
+{
+    [ObsoleteEx(
+        TreatAsErrorFromVersion = "6",
+        RemoveInVersion = "7",
+        Message = "No longer used, can safely be removed")]
+    public class TransportMessageReceivedEventArgs 
+    {
     }
 }
 
@@ -1399,39 +1151,8 @@ namespace NServiceBus.Unicast.Transport
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
         Message = "No longer used, can safely be removed")]
-    public class TransportMessageReceivedEventArgs : EventArgs
+    public class StartedMessageProcessingEventArgs 
     {
-        public TransportMessageReceivedEventArgs(TransportMessage m)
-        {
-            throw new NotImplementedException();
-        }
-
-        public TransportMessage Message
-        {
-            get { throw new NotImplementedException(); }
-        }
-    }
-}
-
-namespace NServiceBus.Unicast.Transport
-{
-    using System;
-
-    [ObsoleteEx(
-        TreatAsErrorFromVersion = "6",
-        RemoveInVersion = "7",
-        Message = "No longer used, can safely be removed")]
-    public class StartedMessageProcessingEventArgs : EventArgs
-    {
-        public StartedMessageProcessingEventArgs(TransportMessage m)
-        {
-            throw new NotImplementedException();
-        }
-
-        public TransportMessage Message
-        {
-            get { throw new NotImplementedException(); }
-        }
     }
 
     [ObsoleteEx(
@@ -1440,37 +1161,17 @@ namespace NServiceBus.Unicast.Transport
         Message = "No longer used, can safely be removed")]
     public class FinishedMessageProcessingEventArgs : EventArgs
     {
-        public FinishedMessageProcessingEventArgs(TransportMessage m)
-        {
-            throw new NotImplementedException();
-        }
-
-        public TransportMessage Message
-        {
-            get { throw new NotImplementedException(); }
-        }
     }
 }
 
 namespace NServiceBus.Unicast.Transport
 {
-    using System;
-
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
         Message = "No longer used, can safely be removed")]
-    public class TransportMessageAvailableEventArgs : EventArgs
+    public class TransportMessageAvailableEventArgs 
     {
-        public TransportMessageAvailableEventArgs(TransportMessage m)
-        {
-            throw new NotImplementedException();
-        }
-
-        public TransportMessage Message
-        {
-            get { throw new NotImplementedException(); }
-        }
     }
 }
 
@@ -1506,66 +1207,12 @@ namespace NServiceBus.Transports
 
 namespace NServiceBus.Unicast.Transport
 {
-    using System;
-    using NServiceBus.Faults;
-    using NServiceBus.Settings;
-    using NServiceBus.Transports;
-
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
         Message = "No longer used, can safely be removed")]
-    public class TransportReceiver : ITransport, IDisposable
+    public class TransportReceiver 
     {
-        public TransportReceiver(TransactionSettings transactionSettings, int maximumConcurrencyLevel, int maximumThroughput, IDequeueMessages receiver, IManageMessageFailures manageMessageFailures, ReadOnlySettings settings, Configure config, TransactionSettings transactionSettings1)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IDequeueMessages Receiver { get; set; }
-
-
-        public IManageMessageFailures FailureManager { get; set; }
-        public TransactionSettings TransactionSettings { get; private set; }
-
-
-        public void Dispose()
-        {
-        }
-
-
-        public event EventHandler<StartedMessageProcessingEventArgs> StartedMessageProcessing;
-
-        public event EventHandler<FinishedMessageProcessingEventArgs> FinishedMessageProcessing;
-
-        public event EventHandler<FailedMessageProcessingEventArgs> FailedMessageProcessing;
-
-        public virtual int MaximumConcurrencyLevel { get; private set; }
-
-        public void ChangeMaximumConcurrencyLevel(int maximumConcurrencyLevel)
-        {
-        }
-
-        public int MaximumMessageThroughputPerSecond { get; private set; }
-
-        public void ChangeMaximumMessageThroughputPerSecond(int maximumMessageThroughputPerSecond)
-        {
-        }
-
-        public event EventHandler<TransportMessageReceivedEventArgs> TransportMessageReceived;
-
-
-        public void Start(Address address)
-        {
-        }
-
-        public void AbortHandlingCurrentMessage()
-        {
-        }
-
-        public void Stop()
-        {
-        }
     }
 }
 
@@ -1586,7 +1233,6 @@ namespace NServiceBus
 namespace NServiceBus
 {
     using System;
-    using NServiceBus.ObjectBuilder;
 
     [ObsoleteEx(
     TreatAsErrorFromVersion = "6",
@@ -1644,20 +1290,6 @@ namespace NServiceBus
         Message = "Use extension methods provided on ISendOnlyBus")]
     public class Schedule
     {
-        public Schedule(IBuilder builder)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Every(TimeSpan timeSpan, Action task)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Every(TimeSpan timeSpan, string name, Action task)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
 
