@@ -129,7 +129,6 @@
     <Compile Include="Transports\Msmq\TimeToBeReceivedOverrideChecker.cs" />
     <Compile Include="UnicastRoutingTarget.cs" />
     <Compile Include="EnumerableEx.cs" />
-    <Compile Include="IBusExtensions_obsolete.cs" />
     <Compile Include="IMessageHandlerContext.cs" />
     <Compile Include="IHandleMessages.cs" />
     <Compile Include="IInitializableEndpoint.cs" />
@@ -409,7 +408,6 @@
     <Compile Include="Hosting\Helpers\Image.cs" />
     <Compile Include="Hosting\Helpers\SkippedFile.cs" />
     <Compile Include="Hosting\HostInformation.cs" />
-    <Compile Include="IAuthorizeSubscriptions.cs" />
     <Compile Include="ICommand.cs" />
     <Compile Include="IdGeneration\CombGuid.cs" />
     <Compile Include="IEvent.cs" />

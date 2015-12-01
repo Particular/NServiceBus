@@ -1,5 +1,6 @@
 ﻿
 // ReSharper disable UnusedTypeParameter
+// ReSharper disable UnusedParameter.Local
 #pragma warning disable 1591
 // ReSharper disable UnusedParameter.Global
 
@@ -1778,5 +1779,123 @@ namespace NServiceBus
         {
             throw new NotImplementedException();
         }
+    }
+}
+
+namespace NServiceBus
+{
+    using System;
+
+    public static class IBusExtensions
+    {
+        [ObsoleteEx(
+            Message = "Please use `IMessageHandlerContext.Reply(object message)` provided to message handlers instead.",
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7")]
+        public static void Reply(this IBus bus, object message)
+        {
+            throw new NotImplementedException();
+        }
+        
+        [ObsoleteEx(
+            Message = "Please use `IMessageHandlerContext.Reply<T>(Action<T> messageConstructor)` provided to message handlers instead.",
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7")]
+        public static void Reply<T>(this IBus bus, Action<T> messageConstructor)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            Message = "Please use `IMessageHandlerContext.SendLocal(object message)` provided to message handlers instead.",
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7")]
+        public static void SendLocal(this IBus bus, object message)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            Message = "Please use `IMessageHandlerContext.SendLocal<T>(Action<T> messageConstructor)` provided to message handlers instead.",
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7")]
+        public static void SendLocal<T>(this IBus bus, Action<T> messageConstructor)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            Message = "Please use `IMessageHandlerContext.HandleCurrentMessageLater()` provided to message handlers instead.",
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7")]
+        public static void HandleCurrentMessageLater(this IBus bus)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            Message = "Please use `IMessageHandlerContext.ForwardCurrentMessageTo(string destination)` provided to message handlers instead.",
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7")]
+        public static void ForwardCurrentMessageTo(this IBus bus, string destination)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            Message = "Please use `IMessageHandlerContext.DoNotContinueDispatchingCurrentMessageToHandlers()` provided to message handlers instead.",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public static void DoNotContinueDispatchingCurrentMessageToHandlers(this IBus bus)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
+            ReplacementTypeOrMember = "Subscribe(Type messageType)")]
+        public static void Subscribe(this IBus bus, Type messageType)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
+            ReplacementTypeOrMember = "Subscribe<T>()")]
+        public static void Subscribe<T>(this IBus bus)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
+            ReplacementTypeOrMember = "Unsubscribe(Type messageType)")]
+        public static void Unsubscribe(this IBus bus, Type messageType)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
+            ReplacementTypeOrMember = "Unsubscribe<T>()")]
+        public static void Unsubscribe<T>(this IBus bus)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+
+namespace NServiceBus
+{
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        ReplacementTypeOrMember = "config.UseTransport<MsmqTransport>().SubscriptionAuthorizer(Authorizer);")]
+    public interface IAuthorizeSubscriptions
+    {
     }
 }
