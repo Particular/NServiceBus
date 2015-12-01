@@ -179,8 +179,6 @@
     <Compile Include="Routing\FileBasedDynamicRouting\FileRoutingTableSettings.cs" />
     <Compile Include="Routing\EndpointInstances.cs" />
     <Compile Include="Serialization\SerializationContextExtensions.cs" />
-    <Compile Include="Transports\AmbientTransaction.cs" />
-    <Compile Include="Transports\Msmq\NativeMsmqTransaction.cs" />
     <Compile Include="Transports\TransportTransaction.cs" />
     <Compile Include="Transports\TransactionSupport.cs" />
     <Compile Include="Transports\Sending.cs" />

@@ -22,13 +22,16 @@ namespace NServiceBus
 
         public bool TryAdapt(TransportTransaction transportTransaction, out CompletableSynchronizedStorageSession session)
         {
-            var ambientTransaction = transportTransaction as AmbientTransaction;
-            if (ambientTransaction != null)
+            if (transportTransaction.Data.ContainsKey("AmbientTransaction"))
             {
-                var transaction = new InMemoryTransaction();
-                session = new InMemorySynchronizedStorageSession(transaction);
-                ambientTransaction.Transaction.EnlistVolatile(new EnlistmentNotification(transaction), EnlistmentOptions.None);
-                return true;
+                var ambientTransaction = transportTransaction.Data["AmbientTransaction"] as Transaction;
+                if (ambientTransaction != null)
+                {
+                    var transaction = new InMemoryTransaction();
+                    session = new InMemorySynchronizedStorageSession(transaction);
+                    ambientTransaction.EnlistVolatile(new EnlistmentNotification(transaction), EnlistmentOptions.None);
+                    return true;
+                }
             }
             session = null;
             return false;
