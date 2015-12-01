@@ -2662,17 +2662,6 @@ namespace NServiceBus.Transports
         System.Threading.Tasks.Task Subscribe(System.Type eventType, NServiceBus.Extensibility.ContextBag context);
         System.Threading.Tasks.Task Unsubscribe(System.Type eventType, NServiceBus.Extensibility.ContextBag context);
     }
-    [System.ObsoleteAttribute("Please use `Subscribe(Type eventType, ContextBag context)` instead. Will be remov" +
-        "ed in version 7.0.0.", true)]
-    public class static IManageSubscriptionsExtensions_obsolete
-    {
-        [System.ObsoleteAttribute("Please use `Subscribe(Type eventType, ContextBag context)` instead. Will be remov" +
-            "ed in version 7.0.0.", true)]
-        public static void Subscribe(this NServiceBus.Transports.IManageSubscriptions manage, System.Type eventType, NServiceBus.Extensibility.ContextBag context) { }
-        [System.ObsoleteAttribute("Please use `Unsubscribe(Type eventType, ContextBag context)` instead. Will be rem" +
-            "oved in version 7.0.0.", true)]
-        public static void Unsubscribe(NServiceBus.Transports.IManageSubscriptions manage, System.Type eventType, NServiceBus.Extensibility.ContextBag context) { }
-    }
     public class IncomingMessage
     {
         public IncomingMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, System.IO.Stream bodyStream) { }

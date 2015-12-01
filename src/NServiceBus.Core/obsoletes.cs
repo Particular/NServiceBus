@@ -1732,33 +1732,3 @@ namespace NServiceBus.Outbox
         }
     }
 }
-namespace NServiceBus.Transports
-{
-    using System;
-    using NServiceBus.Extensibility;
-
-    [ObsoleteEx(
-        TreatAsErrorFromVersion = "6",
-        RemoveInVersion = "7",
-        ReplacementTypeOrMember = "Subscribe(Type eventType, ContextBag context)")]
-    public static class IManageSubscriptionsExtensions_obsolete
-    {
-        [ObsoleteEx(
-            TreatAsErrorFromVersion = "6",
-            RemoveInVersion = "7",
-            ReplacementTypeOrMember = "Subscribe(Type eventType, ContextBag context)")]
-        public static void Subscribe(this IManageSubscriptions manage, Type eventType, ContextBag context)
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(
-            TreatAsErrorFromVersion = "6",
-            RemoveInVersion = "7",
-            ReplacementTypeOrMember = "Unsubscribe(Type eventType, ContextBag context)")]
-        public static void Unsubscribe(IManageSubscriptions manage, Type eventType, ContextBag context)
-        {
-            throw new NotImplementedException();
-        }
-    }
-}
