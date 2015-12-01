@@ -12,21 +12,23 @@ namespace NServiceBus.Routing
     public class UnicastRoutingTable
     {
         List<Func<Type, ContextBag, IUnicastRoute>> staticRules = new List<Func<Type, ContextBag, IUnicastRoute>>();
-        List<Func<List<Type>, ContextBag, Task<IReadOnlyCollection<IUnicastRoute>>>> dynamicRules = new List<Func<List<Type>, ContextBag, Task<IReadOnlyCollection<IUnicastRoute>>>>();
+        List<Func<List<Type>, ContextBag, Task<IEnumerable<IUnicastRoute>>>> dynamicRules = new List<Func<List<Type>, ContextBag, Task<IEnumerable<IUnicastRoute>>>>();
 
-        internal async Task<IReadOnlyCollection<IUnicastRoute>> GetDestinationsFor(List<Type> messageTypes, ContextBag contextBag)
+        internal async Task<IEnumerable<IUnicastRoute>> GetDestinationsFor(List<Type> messageTypes, ContextBag contextBag)
         {
-            var dynamicRoutes = new List<IUnicastRoute>();
+            var routes = new List<IUnicastRoute>();
             foreach (var rule in dynamicRules)
             {
-                dynamicRoutes.AddRange(await rule.Invoke(messageTypes, contextBag).ConfigureAwait(false));
+                routes.AddRange(await rule.Invoke(messageTypes, contextBag).ConfigureAwait(false));
             }
 
             var staticRoutes = messageTypes
                 .SelectMany(type => staticRules, (type, rule) => rule.Invoke(type, contextBag))
                 .Where(route => route != null);
-            
-            return dynamicRoutes.Concat(staticRoutes).Distinct().ToList();
+
+            routes.AddRange(staticRoutes);
+
+            return routes.Distinct().ToList();
         }
 
         /// <summary>
@@ -64,8 +66,8 @@ namespace NServiceBus.Routing
         /// <summary>
         /// Adds a rule for generating unicast routes.
         /// </summary>
-       // /// <param name="dynamicRule">The rule.</param>
-        public void AddDynamic(Func<List<Type>, ContextBag, Task<IReadOnlyCollection<IUnicastRoute>>> dynamicRule)
+        /// <param name="dynamicRule">The rule.</param>
+        public void AddDynamic(Func<List<Type>, ContextBag, Task<IEnumerable<IUnicastRoute>>> dynamicRule)
         {
             dynamicRules.Add(dynamicRule);
         }

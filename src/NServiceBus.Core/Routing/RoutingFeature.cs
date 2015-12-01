@@ -155,7 +155,7 @@
                 return TaskEx.Completed;
             }
 
-            static async Task<IReadOnlyCollection<IUnicastRoute>> QuerySubscriptionStore(ISubscriptionStorage subscriptions, List<Type> types, ContextBag contextBag)
+            static async Task<IEnumerable<IUnicastRoute>> QuerySubscriptionStore(ISubscriptionStorage subscriptions, List<Type> types, ContextBag contextBag)
             {
                 if (!(contextBag is OutgoingPublishContext))
                 {
@@ -165,7 +165,7 @@
                 var messageTypes = types.Select(t => new MessageType(t)).ToArray();
                 
                 var subscribers = await subscriptions.GetSubscriberAddressesForMessage(messageTypes, contextBag).ConfigureAwait(false);
-                return new List<IUnicastRoute>(subscribers.Select(s => new SubscriberDestination(s)));
+                return subscribers.Select(s => new SubscriberDestination(s));
             }
 
             class SubscriberDestination : IUnicastRoute
