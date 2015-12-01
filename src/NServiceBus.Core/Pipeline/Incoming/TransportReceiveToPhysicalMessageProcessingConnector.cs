@@ -22,7 +22,7 @@ namespace NServiceBus
             this.outboxStorage = outboxStorage;
         }
 
-        public async override Task Invoke(TransportReceiveContext context, Func<PhysicalMessageProcessingContext, Task> next)
+        public override async Task Invoke(TransportReceiveContext context, Func<PhysicalMessageProcessingContext, Task> next)
         {
             var messageId = context.Message.MessageId;
             var physicalMessageContext = new PhysicalMessageProcessingContext(context.Message, context);
