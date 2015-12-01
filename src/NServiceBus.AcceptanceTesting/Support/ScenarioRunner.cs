@@ -304,27 +304,24 @@
 
         static async Task StopEndpoints(IEnumerable<EndpointRunner> endpoints)
         {
-            // We can get rid of Task.Run when stop is async
-            var tasks = endpoints.Select(endpoint => Task.Run(async () =>
+            var tasks = endpoints.Select(async endpoint => 
             {
                 Console.WriteLine("Stopping endpoint: {0}", endpoint.Name());
-                var sw = new Stopwatch();
-                sw.Start();
+                var stopwatch = Stopwatch.StartNew();
                 var result = await endpoint.Stop().ConfigureAwait(false);
-                sw.Stop();
+                stopwatch.Stop();
                 if (result.Failed)
                 {
                     throw new ScenarioException("Endpoint failed to stop", result.Exception);
                 }
-
-                Console.WriteLine("Endpoint: {0} stopped ({1}s)", endpoint.Name(), sw.Elapsed);
-            })).ToArray();
+                Console.WriteLine("Endpoint: {0} stopped ({1}s)", endpoint.Name(), stopwatch.Elapsed);
+            });
 
             var whenAll = Task.WhenAll(tasks);
             var timeoutTask = Task.Delay(TimeSpan.FromMinutes(2));
             var completedTask = await Task.WhenAny(whenAll, timeoutTask).ConfigureAwait(false);
 
-            if (completedTask.Equals(timeoutTask))
+            if (completedTask == timeoutTask)
             {
                 throw new Exception("Stopping endpoints took longer than 2 minutes");
             }
