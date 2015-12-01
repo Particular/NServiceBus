@@ -582,27 +582,6 @@ namespace NServiceBus
     [System.ObsoleteAttribute("Use IBusContextFactory to create sending context. Will be removed in version 7.0." +
         "0.", true)]
     public interface ISendOnlyBus : System.IDisposable { }
-    public class static ISendOnlyBusExtensions
-    {
-        [System.ObsoleteAttribute("Please use `Publish(object message)` instead. Will be removed in version 7.0.0.", true)]
-        public static void Publish(this NServiceBus.IBusContextFactory bus, object message) { }
-        [System.ObsoleteAttribute("Please use `Publish()` instead. Will be removed in version 7.0.0.", true)]
-        public static void Publish<T>(this NServiceBus.IBusContextFactory bus) { }
-        [System.ObsoleteAttribute("Please use `PublishAsync<T>(Action<T> messageConstructor)` instead. Will be remov" +
-            "ed in version 7.0.0.", true)]
-        public static void Publish<T>(this NServiceBus.IBusContextFactory bus, System.Action<T> messageConstructor) { }
-        [System.ObsoleteAttribute("Please use `Send(object message)` instead. Will be removed in version 7.0.0.", true)]
-        public static void Send(this NServiceBus.IBusContextFactory bus, object message) { }
-        [System.ObsoleteAttribute("Please use `Send<T>(Action<T> messageConstructor)` instead. Will be removed in ve" +
-            "rsion 7.0.0.", true)]
-        public static void Send<T>(this NServiceBus.IBusContextFactory bus, System.Action<T> messageConstructor) { }
-        [System.ObsoleteAttribute("Please use `Send(string destination, object message)` instead. Will be removed in" +
-            " version 7.0.0.", true)]
-        public static void Send(this NServiceBus.IBusContextFactory bus, string destination, object message) { }
-        [System.ObsoleteAttribute("Please use `Send<T>(string destination, Action<T> messageConstructor)` instead. W" +
-            "ill be removed in version 7.0.0.", true)]
-        public static void Send<T>(this NServiceBus.IBusContextFactory bus, string destination, System.Action<T> messageConstructor) { }
-    }
     [System.ObsoleteAttribute("Please use `BusConfiguration.ExecuteTheseHandlersFirst` instead. Will be removed " +
         "in version 7.0.0.", true)]
     public interface ISpecifyMessageHandlerOrdering
