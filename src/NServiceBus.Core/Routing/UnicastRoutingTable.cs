@@ -34,7 +34,7 @@ namespace NServiceBus.Routing
 
             routes.AddRange(staticRoutes);
 
-            return routes.Distinct().ToList();
+            return routes.ToList();
         }
 
         /// <summary>
