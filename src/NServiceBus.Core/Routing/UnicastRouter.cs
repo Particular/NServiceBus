@@ -32,7 +32,7 @@ namespace NServiceBus.Routing
             
             var routes = await unicastRoutingTable.GetDestinationsFor(typesToRoute, contextBag).ConfigureAwait(false);
 
-            var destinations = routes.Distinct().SelectMany(d => d.Resolve(e => endpointInstances.FindInstances(e))).Distinct();
+            var destinations = routes.SelectMany(d => d.Resolve(e => endpointInstances.FindInstances(e))).Distinct();
 
             var destinationsByEndpoint = destinations.GroupBy(d => d.EndpointName, d => d);
 
@@ -46,18 +46,21 @@ namespace NServiceBus.Routing
         {
             foreach (var group in destinationsByEndpoint)
             {
-                Func<IEnumerable<UnicastRoutingTarget>, IEnumerable<UnicastRoutingTarget>> selector;
-                if (@group.Key == null)
+                if (@group.Key == null) //Routing targets that do not specify endpoint name
                 {
-                    selector = x => x;
+                    //Send a message to each target as we have no idea which endpoint they represent
+                    foreach (var destination in @group)
+                    {
+                        yield return destination;
+                    }
                 }
                 else
                 {
-                    selector = distributionStrategy.SelectDestination;
-                }
-                foreach (var destination in selector(@group))
-                {
-                    yield return destination;
+                    //Use the distribution strategy to select subset of instances of a given endpoint
+                    foreach (var destination in distributionStrategy.SelectDestination(@group))
+                    {
+                        yield return destination;
+                    }
                 }
             }
         }
