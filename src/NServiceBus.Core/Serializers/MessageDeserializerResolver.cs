@@ -12,14 +12,17 @@
 
         public MessageDeserializerResolver(IEnumerable<IMessageSerializer> messageSerializers, Type defaultSerializerType)
         {
-            Guard.AgainstNull("defaultSerializerType", defaultSerializerType);
-
             serializersMap = messageSerializers.ToDictionary(key => key.ContentType, value => value);
             defaultSerializer = serializersMap.Values.Single(serializer => serializer.GetType() == defaultSerializerType);
         }
 
         public IMessageSerializer Resolve(string contentType)
         {
+            if (contentType == null)
+            {
+                //if no content type header then attempt default serializer
+                return defaultSerializer;
+            }
             IMessageSerializer serializer;
             if (serializersMap.TryGetValue(contentType, out serializer))
             {

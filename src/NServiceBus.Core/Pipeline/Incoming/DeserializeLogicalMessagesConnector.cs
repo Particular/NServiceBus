@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Reflection;
     using System.Threading.Tasks;
     using NServiceBus.Logging;
     using NServiceBus.Pipeline;
@@ -96,7 +95,9 @@
             using (var stream = new MemoryStream(physicalMessage.Body))
             {
                 var messageTypes = messageMetadata.Select(metadata => metadata.MessageType).ToList();
-                var messageSerializer = deserializerResolver.Resolve(physicalMessage.Headers[Headers.ContentType]);
+                string contentType;
+                physicalMessage.Headers.TryGetValue(Headers.ContentType, out contentType);
+                var messageSerializer = deserializerResolver.Resolve(contentType);
                 return messageSerializer.Deserialize(stream, messageTypes)
                     .Select(x => logicalMessageFactory.Create(x.GetType(), x))
                     .ToList();
@@ -117,6 +118,6 @@
         LogicalMessageFactory logicalMessageFactory;
         MessageMetadataRegistry messageMetadataRegistry;
 
-        static ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        static ILog log = LogManager.GetLogger<DeserializeLogicalMessagesConnector>();
     }
 }
