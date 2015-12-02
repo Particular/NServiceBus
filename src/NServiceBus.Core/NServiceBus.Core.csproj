@@ -464,7 +464,6 @@
     <Compile Include="MessageDeserializationException.cs" />
     <Compile Include="Hosting\AuditHostInformationBehavior.cs" />
     <Compile Include="Unicast\Transport\PipelineInfo.cs" />
-    <Compile Include="Unicast\UnicastBusInternal_RemoveInV7.cs" />
     <Compile Include="Utils\BaseDictionary.cs" />
     <Compile Include="Utils\MessageQueueExtensions.cs" />
     <Compile Include="Utils\PathUtilities.cs" />

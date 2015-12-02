@@ -7,7 +7,6 @@ namespace NServiceBus.Features
     using NServiceBus.Logging;
     using NServiceBus.Settings;
     using NServiceBus.Transports;
-    using NServiceBus.Unicast;
     using NServiceBus.Unicast.Messages;
 
     class UnicastBus : Feature
