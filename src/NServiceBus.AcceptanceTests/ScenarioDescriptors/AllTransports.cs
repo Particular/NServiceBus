@@ -5,7 +5,6 @@
     using System.Linq;
     using System.Reflection;
     using AcceptanceTesting.Support;
-    using NServiceBus.Extensibility;
     using NServiceBus.Hosting.Helpers;
     using NServiceBus.Settings;
     using NServiceBus.Transports;

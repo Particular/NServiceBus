@@ -2,7 +2,6 @@ namespace NServiceBus.Transports
 {
     using System;
     using System.Collections.Generic;
-    using System.Threading.Tasks;
     using Settings;
 
     /// <summary>
