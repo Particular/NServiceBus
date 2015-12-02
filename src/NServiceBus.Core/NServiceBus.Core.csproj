@@ -670,7 +670,6 @@
     <Compile Include="Licensing\LicenseExpiredForm.Designer.cs">
       <DependentUpon>LicenseExpiredForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Unicast\BackwardCompatibility\MutateMessageContentTypeOfIncomingTransportMessages.cs" />
     <Compile Include="Unicast\BuilderExtensions.cs" />
     <Compile Include="Unicast\Config\LoadMessageHandlersExtentions.cs" />
     <Compile Include="Unicast\MessagesEventArgs.cs" />
