@@ -50,7 +50,6 @@ namespace NServiceBus.Features
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             context.Container.ConfigureComponent<BusNotifications>(DependencyLifecycle.SingleInstance);
-            context.Container.ConfigureComponent<RunningEndpointInstance>(DependencyLifecycle.SingleInstance);
 
             var knownMessages = context.Settings.GetAvailableTypes()
                 .Where(context.Settings.Get<Conventions>().IsMessageType)
