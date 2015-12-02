@@ -17,7 +17,7 @@
                 .Done(c => c.EndpointsStarted)
                 .Run();
 
-            Assert.True(context.Exceptions.First().Message.Equals("Setting a custom OverrideTimeToBeReceived for audits is not supported on transactional MSMQ."));
+            Assert.True(context.Exceptions.First().Message.Contains("Setting a custom OverrideTimeToBeReceived for audits is not supported on transactional MSMQ."));
         }
         
         public class Context : ScenarioContext { }

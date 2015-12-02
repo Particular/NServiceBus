@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Core.Tests.Msmq
 {
-    using System;
     using NServiceBus.Transports.Msmq;
     using NUnit.Framework;
 
@@ -8,53 +7,41 @@
     public class TimeToBeReceivedOverrideCheckerTest
     {
         [Test]
-        public void Should_not_throw_on_non_Msmq()
+        public void Should_succeed_on_non_Msmq()
         {
-            Assert.DoesNotThrow(() =>
-            {
-                TimeToBeReceivedOverrideChecker.Check(usingMsmq: false, isTransactional: false, outBoxRunning: false, auditTTBROverridden: false, forwardTTBROverridden: false);
-            });
+            var result = TimeToBeReceivedOverrideChecker.Check(usingMsmq: false, isTransactional: false, outBoxRunning: false, auditTTBROverridden: false, forwardTTBROverridden: false);
+            Assert.IsTrue(result.Succeeded);
         }
 
         [Test]
-        public void Should_not_throw_on_non_transactional()
+        public void Should_succeed_on_non_transactional()
         {
-            Assert.DoesNotThrow(() =>
-            {
-                TimeToBeReceivedOverrideChecker.Check(usingMsmq: true, isTransactional: false, outBoxRunning: false, auditTTBROverridden: false, forwardTTBROverridden: false);
-            });
+            var result = TimeToBeReceivedOverrideChecker.Check(usingMsmq: true, isTransactional: false, outBoxRunning: false, auditTTBROverridden: false, forwardTTBROverridden: false);
+            Assert.IsTrue(result.Succeeded);
         }
 
         [Test]
-        public void Should_not_throw_on_enabled_outbox()
+        public void Should_succeed_on_enabled_outbox()
         {
-            Assert.DoesNotThrow(() =>
-            {
-                TimeToBeReceivedOverrideChecker.Check(usingMsmq: true, isTransactional: true, outBoxRunning: true, auditTTBROverridden: false, forwardTTBROverridden: false);
-            });
+            var result = TimeToBeReceivedOverrideChecker.Check(usingMsmq: true, isTransactional: true, outBoxRunning: true, auditTTBROverridden: false, forwardTTBROverridden: false);
+            Assert.IsTrue(result.Succeeded);
         }
 
 
         [Test]
-        public void Should_throw_on_overridden_audit_TimeToBeReceived()
+        public void Should_fail_on_overridden_audit_TimeToBeReceived()
         {
-            var exception = Assert.Throws<Exception>(() =>
-            {
-                TimeToBeReceivedOverrideChecker.Check(usingMsmq: true, isTransactional: true, outBoxRunning: false, auditTTBROverridden: true, forwardTTBROverridden: false);
-            });
-
-            Assert.AreEqual("Setting a custom OverrideTimeToBeReceived for audits is not supported on transactional MSMQ.", exception.Message);
+            var result = TimeToBeReceivedOverrideChecker.Check(usingMsmq: true, isTransactional: true, outBoxRunning: false, auditTTBROverridden: true, forwardTTBROverridden: false);
+            Assert.IsFalse(result.Succeeded);
+            Assert.AreEqual("Setting a custom OverrideTimeToBeReceived for audits is not supported on transactional MSMQ.", result.ErrorMessage);
         }
 
         [Test]
-        public void Should_throw_on_overridden_TimeToBeReceivedOnForwardedMessages()
+        public void Should_fail_on_overridden_TimeToBeReceivedOnForwardedMessages()
         {
-            var exception = Assert.Throws<Exception>(() =>
-            {
-                TimeToBeReceivedOverrideChecker.Check(usingMsmq: true, isTransactional: true, outBoxRunning: false, auditTTBROverridden: false, forwardTTBROverridden: true);
-            });
-
-            Assert.AreEqual("Setting a custom TimeToBeReceivedOnForwardedMessages is not supported on transactional MSMQ.", exception.Message);
+            var result = TimeToBeReceivedOverrideChecker.Check(usingMsmq: true, isTransactional: true, outBoxRunning: false, auditTTBROverridden: false, forwardTTBROverridden: true);
+            Assert.IsFalse(result.Succeeded);
+            Assert.AreEqual("Setting a custom TimeToBeReceivedOnForwardedMessages is not supported on transactional MSMQ.", result.ErrorMessage);
         }
     }
 }

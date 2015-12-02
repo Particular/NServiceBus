@@ -125,8 +125,12 @@
     <Compile Include="Routing\Legacy\WorkerFeature.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\MessageDrivenSubscriptionsConfigExtensions.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\SubscriptionAuthorizer.cs" />
+    <Compile Include="Transports\Msmq\QueuePermissionChecker.cs" />
     <Compile Include="Transports\Msmq\TimeToBeReceivedOverrideCheck.cs" />
     <Compile Include="Transports\Msmq\TimeToBeReceivedOverrideChecker.cs" />
+    <Compile Include="Transports\StartupCheckResult.cs" />
+    <Compile Include="Transports\TransportReceivingConfigurationResult.cs" />
+    <Compile Include="Transports\TransportSendingConfigurationResult.cs" />
     <Compile Include="UnicastRoutingTarget.cs" />
     <Compile Include="EnumerableEx.cs" />
     <Compile Include="IMessageHandlerContext.cs" />
@@ -574,7 +578,6 @@
     <Compile Include="Serializers\Json\Config\JsonSerializerConfigurationExtensions.cs" />
     <Compile Include="Serializers\XML\Config\XmlSerialization.cs" />
     <Compile Include="Settings\ScaleOutSettings.cs" />
-    <Compile Include="Transports\Msmq\MsmqTransportConfigurator.cs" />
     <Compile Include="Pipeline\Incoming\DeserializeLogicalMessagesConnector.cs" />
     <Compile Include="Licensing\ConfigureLicenseExtensions.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\TimeoutManager.cs" />

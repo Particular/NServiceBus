@@ -55,7 +55,7 @@
                 if (!configuration.SendOnly)
                 {
                     var transportDefinition = busConfiguration.GetSettings().Get<TransportDefinition>();
-                    scenarioContext.HasNativePubSubSupport = transportDefinition.HasNativePubSubSupport;
+                    scenarioContext.HasNativePubSubSupport = transportDefinition.GetOutboundRoutingPolicy(busConfiguration.GetSettings()).Publishes == OutboundRoutingType.Multicast;
                 }
 
                 return Result.Success();

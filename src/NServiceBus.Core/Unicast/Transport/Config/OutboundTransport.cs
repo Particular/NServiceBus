@@ -15,12 +15,11 @@ namespace NServiceBus
             IsDefault = isDefault;
         }
 
-        public TransportSendingConfigurationContext Configure(ReadOnlySettings settings)
+        public TransportSendingConfigurationResult Configure(ReadOnlySettings settings)
         {
             var connectionString = settings.Get<TransportConnectionString>().GetConnectionStringOrRaiseError(Definition);
             var context = new TransportSendingConfigurationContext(settings, connectionString);
-            Definition.ConfigureForSending(context);
-            return context;
+            return Definition.ConfigureForSending(context);
         }
     }
 }

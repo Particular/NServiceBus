@@ -6,6 +6,7 @@
     using System.Reflection;
     using AcceptanceTesting.Support;
     using NServiceBus.Hosting.Helpers;
+    using NServiceBus.Settings;
     using NServiceBus.Transports;
 
     public class AllTransports : ScenarioDescriptor
@@ -51,19 +52,11 @@
         }
     }
 
-    public class AllBrokerTransports : AllTransports
-    {
-        public AllBrokerTransports()
-        {
-            AllTransportsFilter.Run(t => !t.HasNativePubSubSupport, Remove);
-        }
-    }
-
     public class AllTransportsWithCentralizedPubSubSupport : AllTransports
     {
         public AllTransportsWithCentralizedPubSubSupport()
         {
-            AllTransportsFilter.Run(t => !t.HasSupportForCentralizedPubSub, Remove);
+            AllTransportsFilter.Run(t => t.GetOutboundRoutingPolicy(new SettingsHolder()).Publishes == OutboundRoutingType.Unicast, Remove);
         }
     }
 
@@ -71,7 +64,7 @@
     {
         public AllTransportsWithMessageDrivenPubSub()
         {
-            AllTransportsFilter.Run(t => t.HasNativePubSubSupport, Remove);
+            AllTransportsFilter.Run(t => t.GetOutboundRoutingPolicy(new SettingsHolder()).Publishes == OutboundRoutingType.Multicast, Remove);
         }
     }
 

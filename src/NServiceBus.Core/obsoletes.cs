@@ -1499,6 +1499,26 @@ namespace NServiceBus.Transports
             get { throw new NotImplementedException(); }
             protected set { throw new NotImplementedException(); }
         }
+
+        [ObsoleteEx(
+           TreatAsErrorFromVersion = "6",
+           RemoveInVersion = "7",
+           ReplacementTypeOrMember = "GetOutboundRoutingPolicy")]
+        public bool HasNativePubSubSupport
+        {
+            get { throw new NotImplementedException(); }
+            protected set { throw new NotImplementedException(); }
+        }
+
+        [ObsoleteEx(
+           TreatAsErrorFromVersion = "6",
+           RemoveInVersion = "7",
+           ReplacementTypeOrMember = "GetOutboundRoutingPolicy")]
+        public bool HasSupportForCentralizedPubSub
+        {
+            get { throw new NotImplementedException(); }
+            protected set { throw new NotImplementedException(); }
+        }
     }
 }
 

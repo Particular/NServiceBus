@@ -6,12 +6,12 @@ namespace NServiceBus.Transports
     public enum OutboundRoutingType
     {
         /// <summary>
-        /// Direct (use <see cref="ISendMessages"/>).
+        /// Unicast. Routing is performed by the core and one send operation might require multiple calls to <see cref="IDispatchMessages"/>.
         /// </summary>
-        DirectSend,
+        Unicast,
         /// <summary>
-        /// Indirect (use <see cref="IPublishMessages"/>).
+        /// Multicast. Routing is performed by the transport.
         /// </summary>
-        IndirectPublish
+        Multicast
     }
 }

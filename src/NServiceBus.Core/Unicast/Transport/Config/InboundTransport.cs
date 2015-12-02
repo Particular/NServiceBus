@@ -13,12 +13,11 @@ namespace NServiceBus
             Definition = transportDefinition;
         }
 
-        public TransportReceivingConfigurationContext Configure(ReadOnlySettings settings)
+        public TransportReceivingConfigurationResult Configure(ReadOnlySettings settings)
         {
             var connectionString = settings.Get<TransportConnectionString>().GetConnectionStringOrRaiseError(Definition);
             var context = new TransportReceivingConfigurationContext(settings, connectionString);
-            Definition.ConfigureForReceiving(context);
-            return context;
+            return Definition.ConfigureForReceiving(context);
         }        
     }
 }

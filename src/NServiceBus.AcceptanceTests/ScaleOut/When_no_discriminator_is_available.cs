@@ -51,14 +51,16 @@
 
         public class TransportThatDoesNotSetADefaultDiscriminator : TransportDefinition
         {
-            protected override void ConfigureForReceiving(TransportReceivingConfigurationContext context)
+            protected override TransportReceivingConfigurationResult ConfigureForReceiving(TransportReceivingConfigurationContext context)
             {
+                return new TransportReceivingConfigurationResult(c => null, () => null, () => Task.FromResult(StartupCheckResult.Success));
             }
 
-            protected override void ConfigureForSending(TransportSendingConfigurationContext context)
+            protected override TransportSendingConfigurationResult ConfigureForSending(TransportSendingConfigurationContext context)
             {
+                return new TransportSendingConfigurationResult(() => null, () => Task.FromResult(StartupCheckResult.Success));
             }
-
+            
             public override IEnumerable<Type> GetSupportedDeliveryConstraints()
             {
                 return new List<Type>();
@@ -86,7 +88,7 @@
 
             public override OutboundRoutingPolicy GetOutboundRoutingPolicy(ReadOnlySettings settings)
             {
-                return new OutboundRoutingPolicy(OutboundRoutingType.DirectSend, OutboundRoutingType.DirectSend, OutboundRoutingType.DirectSend);
+                return new OutboundRoutingPolicy(OutboundRoutingType.Unicast, OutboundRoutingType.Unicast, OutboundRoutingType.Unicast);
             }
 
             public override string ExampleConnectionStringForErrorMessage { get; }
