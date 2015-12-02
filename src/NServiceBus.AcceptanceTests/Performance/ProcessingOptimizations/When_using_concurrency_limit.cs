@@ -37,8 +37,9 @@
 
         class FakeReceiver : IPushMessages
         {
-            public void Init(Func<PushContext, Task> pipe, PushSettings settings)
+            public Task Init(Func<PushContext, Task> pipe, PushSettings settings)
             {
+                return Task.FromResult(0);
             }
 
             public void Start(PushRuntimeSettings limitations)
