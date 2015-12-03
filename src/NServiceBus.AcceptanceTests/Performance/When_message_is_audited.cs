@@ -41,13 +41,6 @@
 
             class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
             {
-                Context context;
-
-                public MessageToBeAuditedHandler(Context context)
-                {
-                    this.context = context;
-                }
-
                 public Task Handle(MessageToBeAudited message, IMessageHandlerContext context1)
                 {
                     return Task.FromResult(0);
