@@ -13,8 +13,8 @@ namespace NServiceBus.Routing
 
         internal IEnumerable<EndpointInstanceName> FindInstances(EndpointName endpoint)
         {
-            var distinctInstances = rules.SelectMany(r => r(endpoint)).Distinct();
-            return distinctInstances.EnsureNonEmpty(() => $"The list of instances of endpoint {endpoint} has not been provided to the routing module. Plase use 'BusConfiguration.Routing().EndpointInstances' to supply this information.");
+            var distinctInstances = rules.SelectMany(r => r(endpoint)).Distinct().ToArray();
+            return distinctInstances.EnsureNonEmpty(() => new EndpointInstanceName(endpoint, null, null));
         }
 
 
