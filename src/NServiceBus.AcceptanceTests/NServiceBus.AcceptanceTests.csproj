@@ -69,6 +69,7 @@
   <ItemGroup>
     <Compile Include="Basic\When_extending_behavior_context.cs" />
     <Compile Include="Basic\When_registering_additional_deserializers.cs" />
+    <Compile Include="Basic\When_no_content_type.cs" />
     <Compile Include="Msmq\When_Audit_OverrideTimeToBeReceived_set_and_transactional_Msmq.cs" />
     <Compile Include="Msmq\When_TimeToBeReceivedOnForwardedMessages_set_and_transactional_Msmq.cs" />
     <Compile Include="Msmq\When_TimeToBeReceived_set_and_receivetransaction_Msmq.cs" />
