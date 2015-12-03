@@ -54,13 +54,15 @@
             {
                 public Context Context { get; set; }
 
-                public void Begin()
+                public Task Begin()
                 {
+                    return Task.FromResult(0);
                 }
 
-                public void End(Exception ex = null)
+                public Task End(Exception ex = null)
                 {
                     Context.UoWCommited = ex == null;
+                    return Task.FromResult(0);
                 }
             }
 

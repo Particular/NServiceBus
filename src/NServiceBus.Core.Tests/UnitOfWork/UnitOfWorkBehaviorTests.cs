@@ -165,12 +165,13 @@
             public bool EndCalled;
             public Exception ExceptionThrownFromEnd = new InvalidOperationException();
 
-            public void Begin()
+            public Task Begin()
             {
                 BeginCalled = true;
+                return Task.FromResult(0);
             }
 
-            public void End(Exception ex = null)
+            public Task End(Exception ex = null)
             {
                 EndCalled = true;
                 throw ExceptionThrownFromEnd;
@@ -183,14 +184,15 @@
             public bool EndCalled;
             public Exception ExceptionThrownFromEnd = new InvalidOperationException();
 
-            public void Begin()
+            public Task Begin()
             {
                 throw ExceptionThrownFromEnd;
             }
 
-            public void End(Exception ex = null)
+            public Task End(Exception ex = null)
             {
                 EndCalled = true;
+                return Task.FromResult(0);
             }
         }
 
@@ -199,15 +201,17 @@
             public bool BeginCalled;
             public bool EndCalled;
             public Exception ExceptionPassedToEnd;
-            public void Begin()
+            public Task Begin()
             {
                 BeginCalled = true;
+                return Task.FromResult(0);
             }
 
-            public void End(Exception ex = null)
+            public Task End(Exception ex = null)
             {
                 ExceptionPassedToEnd = ex;
                 EndCalled = true;
+                return Task.FromResult(0);
             }
         }
 
@@ -241,15 +245,17 @@
             public int EndCallIndex;
             public int BeginCallIndex;
 
-            public void Begin()
+            public Task Begin()
             {
                 BeginCallCount++;
                 BeginCallIndex = BeginCallCount;
+                return Task.FromResult(0);
             }
-            public void End(Exception ex = null)
+            public Task End(Exception ex = null)
             {
                 EndCallCount++;
                 EndCallIndex = EndCallCount;
+                return Task.FromResult(0);
             }
         }
 
@@ -273,12 +279,14 @@
 
         class CaptureExceptionPassedToEndUnitOfWork : IManageUnitsOfWork
         {
-            public void Begin()
+            public Task Begin()
             {
+                return Task.FromResult(0);
             }
-            public void End(Exception ex = null)
+            public Task End(Exception ex = null)
             {
                 Exception = ex;
+                return Task.FromResult(0);
             }
             public Exception Exception;
         }
@@ -294,14 +302,16 @@
                 this.order = order;
             }
 
-            public void Begin()
+            public Task Begin()
             {
                 order.Add(name);
+                return Task.FromResult(0);
             }
 
-            public void End(Exception ex = null)
+            public Task End(Exception ex = null)
             {
                 order.Add(name);
+                return Task.FromResult(0);
             }
         }
     }

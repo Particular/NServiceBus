@@ -18,14 +18,16 @@
                 foreach (var uow in context.Builder.BuildAll<IManageUnitsOfWork>())
                 {
                     unitsOfWork.Push(uow);
-                    uow.Begin();
+                    await uow.Begin()
+                        .ConfigureAwait(false);
                 }
 
                 await next().ConfigureAwait(false);
 
                 while (unitsOfWork.Count > 0)
                 {
-                    unitsOfWork.Pop().End();
+                    await unitsOfWork.Pop()
+                        .End().ConfigureAwait(false);
                 }
             }
             catch (MessageDeserializationException)
