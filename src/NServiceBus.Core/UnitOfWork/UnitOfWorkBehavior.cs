@@ -36,7 +36,7 @@
             }
             catch (Exception exception)
             {
-                var trailingExceptions = AppendEndExceptions(unitsOfWork, exception);
+                var trailingExceptions = await AppendEndExceptions(unitsOfWork, exception);
                 if (trailingExceptions.Any())
                 {
                     trailingExceptions.Insert(0, exception);
@@ -46,7 +46,7 @@
             }
         }
 
-        List<Exception> AppendEndExceptions(Stack<IManageUnitsOfWork> unitsOfWork, Exception initialException)
+        async Task<List<Exception>> AppendEndExceptions(Stack<IManageUnitsOfWork> unitsOfWork, Exception initialException)
         {
             var exceptionsToThrow = new List<Exception>();
             while (unitsOfWork.Count > 0)
@@ -54,7 +54,8 @@
                 var uow = unitsOfWork.Pop();
                 try
                 {
-                    uow.End(initialException);
+                    await uow.End(initialException)
+                        .ConfigureAwait(false);
                 }
                 catch (Exception endException)
                 {
