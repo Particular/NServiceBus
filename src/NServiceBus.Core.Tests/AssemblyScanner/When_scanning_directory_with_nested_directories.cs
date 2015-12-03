@@ -3,6 +3,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using NServiceBus.Core.Tests.Config;
     using NUnit.Framework;
 
     [TestFixture]
@@ -12,6 +13,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
         public void Should_not_scan_nested_directories_by_default()
         {
             var busConfiguration = new BusConfiguration();
+            busConfiguration.ExcludeTypes(typeof(When_using_initialization_with_non_default_ctor.FeatureWithInitialization));
             busConfiguration.Build();
 
             var scanedTypes = busConfiguration.Settings.Get<IList<Type>>("TypesToScan");
@@ -25,6 +27,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
         {
             var busConfiguration = new BusConfiguration();
             busConfiguration.ScanAssembliesInNestedDirectories();
+            busConfiguration.ExcludeTypes(typeof(When_using_initialization_with_non_default_ctor.FeatureWithInitialization));
             busConfiguration.Build();
 
             var scanedTypes = busConfiguration.Settings.Get<IList<Type>>("TypesToScan");

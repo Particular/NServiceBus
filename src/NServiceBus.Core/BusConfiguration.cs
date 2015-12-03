@@ -267,10 +267,17 @@ namespace NServiceBus
         {
             ForAllTypes<T>(types, t =>
             {
+                if (!HasDefaultConstructor(t))
+                {
+                    throw new Exception($"Unable to create the type '{t.Name}'. Types implementing '{typeof(T).Name}' must have a public parameterless (default) constructor.");
+                }
+
                 var instanceToInvoke = (T)Activator.CreateInstance(t);
                 action(instanceToInvoke);
             });
         }
+
+        static bool HasDefaultConstructor(Type type) => type.GetConstructor(Type.EmptyTypes) != null;
 
         List<Type> GetAllowedTypes(string path)
         {
