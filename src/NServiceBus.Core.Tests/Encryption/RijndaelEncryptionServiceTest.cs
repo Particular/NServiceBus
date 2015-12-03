@@ -85,17 +85,6 @@
         }
 
         [Test]
-        public void Encrypt_must_set_header()
-        {
-            var encryptionKey1 = Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6");
-            var service1 = new RijndaelEncryptionServiceWithFakeBus("encryptionKey1", encryptionKey1, new List<byte[]>());
-
-            Assert.AreEqual(false, service1.OutgoingKeyIdentifierSet);
-            service1.Encrypt("string to encrypt");
-            Assert.AreEqual(true, service1.OutgoingKeyIdentifierSet);
-        }
-
-        [Test]
         public void Decrypt_using_key_identifier()
         {
             var encryptionKey1 = Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6");
@@ -172,6 +161,24 @@
             {
                 service2.Decrypt(encryptedValue);
             }, "Unable to decrypt property using configured decryption key specified in key identifier header.");
+        }
+
+        [Test]
+        public void Should_set_header_when_created_and_has_value()
+        {
+            var encryptionKey1 = Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6");
+            var service1 = new RijndaelEncryptionServiceWithFakeBus("encryptionKey1", encryptionKey1, new List<byte[]>());
+
+            Assert.AreEqual(true, service1.OutgoingKeyIdentifierSet);
+        }
+
+        [Test]
+        public void Should_not_set_header_when_created_and_no_value()
+        {
+            var encryptionKey1 = Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6");
+            var service1 = new RijndaelEncryptionServiceWithFakeBus(null, encryptionKey1, new List<byte[]>());
+
+            Assert.AreEqual(false, service1.OutgoingKeyIdentifierSet);
         }
 
         class RijndaelEncryptionServiceWithFakeBus : RijndaelEncryptionService
