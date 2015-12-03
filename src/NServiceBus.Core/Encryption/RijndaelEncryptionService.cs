@@ -31,24 +31,22 @@ namespace NServiceBus.Encryption.Rijndael
     using System.IO;
     using System.Security.Cryptography;
     using NServiceBus.Logging;
+    using NServiceBus.Pipeline.Contexts;
 
-    class RijndaelEncryptionService : IEncryptionService
+    class RijndaelEncryptionService : IEncryptionServiceWithContext
     {
         static readonly ILog Log = LogManager.GetLogger<RijndaelEncryptionService>();
-        readonly IBus bus;
         readonly string encryptionKeyIdentifier;
         byte[] encryptionKey;
         IDictionary<string, byte[]> keys;
         IList<byte[]> decryptionKeys; // Required, as we decrypt in the configured order.
 
         public RijndaelEncryptionService(
-            IBus bus,
             string encryptionKeyIdentifier,
             IDictionary<string, byte[]> keys,
             IList<byte[]> decryptionKeys
             )
         {
-            this.bus = bus;
             this.encryptionKeyIdentifier = encryptionKeyIdentifier;
             this.decryptionKeys = decryptionKeys;
             this.keys = keys;
@@ -69,11 +67,11 @@ namespace NServiceBus.Encryption.Rijndael
             VerifyExpiredKeys(decryptionKeys);
         }
 
-        public string Decrypt(EncryptedValue encryptedValue)
+        public string Decrypt(EncryptedValue encryptedValue, IncomingContext incomingContext)
         {
             string keyIdentifier;
 
-            if (TryGetKeyIdentifierHeader(out keyIdentifier))
+            if (TryGetKeyIdentifierHeader(out keyIdentifier, incomingContext))
             {
                 return DecryptUsingKeyIdentifier(encryptedValue, keyIdentifier);
             }
@@ -140,14 +138,14 @@ namespace NServiceBus.Encryption.Rijndael
             }
         }
 
-        public EncryptedValue Encrypt(string value)
+        public EncryptedValue Encrypt(string value, OutgoingContext outgoingContext)
         {
             if (string.IsNullOrEmpty(encryptionKeyIdentifier))
             {
                 throw new InvalidOperationException("It is required to set the rijndael key identifer.");
             }
 
-            AddKeyIdentifierHeader();
+            AddKeyIdentifierHeader(outgoingContext);
 
             using (var rijndael = new RijndaelManaged())
             {
@@ -206,9 +204,11 @@ namespace NServiceBus.Encryption.Rijndael
             }
         }
 
-        protected virtual void AddKeyIdentifierHeader()
+        protected virtual void AddKeyIdentifierHeader(OutgoingContext outgoingContext)
         {
-            var outgoingHeaders = bus.OutgoingHeaders;
+            var outgoingHeaders = outgoingContext.OutgoingLogicalMessage.Headers;
+
+            outgoingHeaders[Headers.RijndaelKeyIdentifier] = encryptionKeyIdentifier;
 
             if (!outgoingHeaders.ContainsKey(Headers.RijndaelKeyIdentifier))
             {
@@ -216,9 +216,20 @@ namespace NServiceBus.Encryption.Rijndael
             }
         }
 
-        protected virtual bool TryGetKeyIdentifierHeader(out string keyIdentifier)
+        protected virtual bool TryGetKeyIdentifierHeader(out string keyIdentifier, IncomingContext incomingContext)
         {
-            return bus.CurrentMessageContext.Headers.TryGetValue(Headers.RijndaelKeyIdentifier, out keyIdentifier);
+            var headers = incomingContext.IncomingLogicalMessage.Headers;
+            return headers.TryGetValue(Headers.RijndaelKeyIdentifier, out keyIdentifier);
+        }
+
+        public EncryptedValue Encrypt(string value)
+        {
+            throw new NotSupportedException("Please use overload Encrypt(string, OutgoingContext)");
+        }
+
+        public string Decrypt(EncryptedValue encryptedValue)
+        {
+            throw new NotSupportedException("Please use overload Decrypt(string, IncomingContext)");
         }
     }
 }

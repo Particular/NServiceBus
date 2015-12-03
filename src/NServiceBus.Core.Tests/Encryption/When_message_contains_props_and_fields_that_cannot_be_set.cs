@@ -11,8 +11,8 @@
         {
             var message = new BogusEntityMessage{ Entity = new BogusEntity()};
 
-            Assert.DoesNotThrow(() => mutator.MutateIncoming(message));
-            Assert.DoesNotThrow(() => mutator.MutateOutgoing(message));
+            Assert.DoesNotThrow(() => mutator.MutateIncoming(message, null));
+            Assert.DoesNotThrow(() => mutator.MutateOutgoing(message, null));
         }
 
         public class BogusEntityMessage : IMessage

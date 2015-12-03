@@ -7,29 +7,40 @@ namespace NServiceBus.Encryption
     using System.Linq;
     using System.Reflection;
     using Logging;
+    using NServiceBus.Pipeline.Contexts;
     using Utils.Reflection;
 
     class EncryptionMutator
     {
-        IEncryptionService encryptionService;
-        Conventions conventions;
-
         public EncryptionMutator(IEncryptionService encryptionService, Conventions conventions)
         {
             this.encryptionService = encryptionService;
+            encryptionServiceWithContext = encryptionService as IEncryptionServiceWithContext;
             this.conventions = conventions;
         }
 
-        public object MutateOutgoing(object message)
+
+        public object MutateOutgoing(object message, OutgoingContext outgoingContext)
         {
-            ForEachMember(message, EncryptMember, IsEncryptedMember);
+            this.outgoingContext = outgoingContext;
+            ForEachMember(
+                message,
+                EncryptMember,
+                IsEncryptedMember
+                );
 
             return message;
         }
 
-        public object MutateIncoming(object message)
+        public object MutateIncoming(object message, IncomingContext incomingContext)
         {
-            ForEachMember(message, DecryptMember, IsEncryptedMember);
+            this.incomingContext = incomingContext;
+
+            ForEachMember(
+                message,
+                DecryptMember,
+                IsEncryptedMember
+                );
 
             return message;
         }
@@ -190,7 +201,7 @@ namespace NServiceBus.Encryption
 
             var parts = stringToDecrypt.Split(new[] { '@' }, StringSplitOptions.None);
 
-            return encryptionService.Decrypt(new EncryptedValue
+            return Decrypt(new EncryptedValue
             {
                 EncryptedBase64Value = parts[0],
                 Base64Iv = parts[1]
@@ -204,7 +215,7 @@ namespace NServiceBus.Encryption
                 throw new Exception("Encrypted property is missing encryption data");
             }
 
-            encryptedValue.Value = encryptionService.Decrypt(encryptedValue.EncryptedValue);
+            encryptedValue.Value = Decrypt(encryptedValue.EncryptedValue);
         }
 
         string EncryptUserSpecifiedProperty(object valueToEncrypt)
@@ -216,14 +227,14 @@ namespace NServiceBus.Encryption
                 throw new Exception("Only string properties is supported for convention based encryption, please check your convention");
             }
 
-            var encryptedValue = encryptionService.Encrypt(stringToEncrypt);
+            var encryptedValue = Encrypt(stringToEncrypt);
 
             return string.Format("{0}@{1}", encryptedValue.EncryptedBase64Value, encryptedValue.Base64Iv);
         }
 
         void EncryptWireEncryptedString(WireEncryptedString wireEncryptedString)
         {
-            wireEncryptedString.EncryptedValue = encryptionService.Encrypt(wireEncryptedString.Value);
+            wireEncryptedString.EncryptedValue = Encrypt(wireEncryptedString.Value);
             wireEncryptedString.Value = null;
         }
 
@@ -262,10 +273,29 @@ namespace NServiceBus.Encryption
             return members;
         }
 
-        HashSet<object> visitedMembers = new HashSet<object>();
+        string Decrypt(EncryptedValue value)
+        {
+            if (encryptionServiceWithContext != null)
+                return encryptionServiceWithContext.Decrypt(value, incomingContext);
+            else
+                return encryptionService.Decrypt(value);
+        }
+
+        EncryptedValue Encrypt(string value)
+        {
+            if (encryptionServiceWithContext != null)
+                return encryptionServiceWithContext.Encrypt(value, outgoingContext);
+            else
+                return encryptionService.Encrypt(value);
+        }
 
         static ConcurrentDictionary<Type, IEnumerable<MemberInfo>> cache = new ConcurrentDictionary<Type, IEnumerable<MemberInfo>>();
-
         static ILog Log = LogManager.GetLogger<IEncryptionService>();
+        readonly HashSet<object> visitedMembers = new HashSet<object>();
+        readonly IEncryptionService encryptionService;
+        readonly IEncryptionServiceWithContext encryptionServiceWithContext;
+        readonly Conventions conventions;
+        OutgoingContext outgoingContext;
+        IncomingContext incomingContext;
     }
 }
