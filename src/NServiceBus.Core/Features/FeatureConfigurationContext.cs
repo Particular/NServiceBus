@@ -45,8 +45,7 @@
         {
             var instanceName = Settings.EndpointInstanceName();
             var satelliteLogicalAddress = new LogicalAddress(instanceName, qualifier);
-            var addressTranslation = Settings.Get<LogicalToTransportAddressTranslation>();
-            transportAddress = addressTranslation.Translate(satelliteLogicalAddress);
+            transportAddress = Settings.Get<TransportAddresses>().GetTransportAddress(satelliteLogicalAddress);
 
             var pipelineModifications = new SatellitePipelineModifications(name, transportAddress, requiredTransportTransactionMode, runtimeSettings);
             Settings.Get<PipelineConfiguration>().SatellitePipelines.Add(pipelineModifications);

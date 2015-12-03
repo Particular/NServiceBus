@@ -11,33 +11,33 @@
         [Test]
         public void Special_cases_should_override_rules()
         {
-            var addresses = new TransportAddresses();
+            var addresses = new TransportAddresses(address => null);
             addresses.AddRule(i => "Rule");
             addresses.AddSpecialCase(new EndpointInstance(new EndpointName("Sales"), null, null), "SpecialCase");
 
-            Assert.AreEqual("SpecialCase", addresses.GetTransportAddress(new EndpointInstance(new EndpointName("Sales"), null, null)));
-            Assert.AreEqual("Rule", addresses.GetTransportAddress(new EndpointInstance(new EndpointName("Billing"), null, null)));
+            Assert.AreEqual("SpecialCase", addresses.GetTransportAddress(new LogicalAddress(new EndpointInstance("Sales"))));
+            Assert.AreEqual("Rule", addresses.GetTransportAddress(new LogicalAddress(new EndpointInstance("Billing"))));
         }
 
         [Test]
         public void Rules_should_override_transport_defaults()
         {
-            var addresses = new TransportAddresses();
-            addresses.AddRule(i => i.Endpoint.ToString().StartsWith("S") ? "Rule" : null);
-            addresses.RegisterTransportDefault(i => "TransportDefault");
+            var addresses = new TransportAddresses(address => "TransportDefault");
+            addresses.AddRule(i => i.EndpointInstance.Endpoint.ToString().StartsWith("S") ? "Rule" : null);
+            
 
-            Assert.AreEqual("Rule", addresses.GetTransportAddress(new EndpointInstance(new EndpointName("Sales"), null, null)));
-            Assert.AreEqual("TransportDefault", addresses.GetTransportAddress(new EndpointInstance(new EndpointName("Billing"), null, null)));
+            Assert.AreEqual("Rule", addresses.GetTransportAddress(new LogicalAddress(new EndpointInstance("Sales"))));
+            Assert.AreEqual("TransportDefault", addresses.GetTransportAddress(new LogicalAddress(new EndpointInstance("Billing"))));
         }
 
         [Test]
         public void It_should_throw_when_rules_are_ambiguous()
         {
-            var addresses = new TransportAddresses();
-            addresses.AddRule(i => i.Endpoint.ToString().StartsWith("S") ? "Rule1" : null);
-            addresses.AddRule(i => i.Endpoint.ToString().EndsWith("s") ? "Rule2" : null);
+            var addresses = new TransportAddresses(address => null);
+            addresses.AddRule(i => i.EndpointInstance.Endpoint.ToString().StartsWith("S") ? "Rule1" : null);
+            addresses.AddRule(i => i.EndpointInstance.Endpoint.ToString().EndsWith("s") ? "Rule2" : null);
 
-            TestDelegate action = () => addresses.GetTransportAddress(new EndpointInstance(new EndpointName("Sales"), null, null));
+            TestDelegate action = () => addresses.GetTransportAddress(new LogicalAddress(new EndpointInstance("Sales")));
             Assert.Throws<Exception>(action);
         }
     }

@@ -11,16 +11,21 @@ namespace NServiceBus.Transports
     /// </summary>
     public class TransportAddresses
     {
-        List<Func<EndpointInstance, string>> rules = new List<Func<EndpointInstance, string>>();
-        Dictionary<EndpointInstance, string> exceptions = new Dictionary<EndpointInstance, string>();
-        Func<EndpointInstance, string> transportDefault;
+        List<Func<LogicalAddress, string>> rules = new List<Func<LogicalAddress, string>>();
+        Dictionary<LogicalAddress, string> exceptions = new Dictionary<LogicalAddress, string>();
+        Func<LogicalAddress, string> transportDefault;
+
+        internal TransportAddresses(Func<LogicalAddress, string> transportDefault)
+        {
+            this.transportDefault = transportDefault;
+        }
 
         /// <summary>
         /// Adds an exception to the translation rules for a given endpoint instance.
         /// </summary>
-        /// <param name="endpointInstance">Name of the instance for which the exception is created.</param>
+        /// <param name="endpointInstance">Logical address for which the exception is created.</param>
         /// <param name="physicalAddress">Physical address of that instance.</param>
-        public void AddSpecialCase([NotNull] EndpointInstance endpointInstance, string physicalAddress)
+        public void AddSpecialCase([NotNull] LogicalAddress endpointInstance, string physicalAddress)
         {
             Guard.AgainstNull(nameof(endpointInstance),endpointInstance);
             Guard.AgainstNullAndEmpty(nameof(physicalAddress), physicalAddress);
@@ -29,21 +34,26 @@ namespace NServiceBus.Transports
         }
 
         /// <summary>
+        /// Adds an exception to the translation rules for a given endpoint instance.
+        /// </summary>
+        /// <param name="endpointInstance">Name of the instance for which the exception is created.</param>
+        /// <param name="physicalAddress">Physical address of that instance.</param>
+        public void AddSpecialCase([NotNull] EndpointInstance endpointInstance, string physicalAddress)
+        {
+            AddSpecialCase(new LogicalAddress(endpointInstance), physicalAddress);
+        }
+
+        /// <summary>
         /// Adds a rule for translating endpoint instance names to physical addresses in direct routing.
         /// </summary>
         /// <param name="dynamicRule">The rule.</param>
-        public void AddRule(Func<EndpointInstance, string> dynamicRule)
+        public void AddRule(Func<LogicalAddress, string> dynamicRule)
         {
             Guard.AgainstNull(nameof(dynamicRule), dynamicRule);
             rules.Add(dynamicRule);
         }
-
-        internal void RegisterTransportDefault(Func<EndpointInstance, string> transportDefault)
-        {
-            this.transportDefault = transportDefault;
-        }
-
-        internal string GetTransportAddress(EndpointInstance endpointInstance)
+        
+        internal string GetTransportAddress(LogicalAddress endpointInstance)
         {
             string exception;
             if (exceptions.TryGetValue(endpointInstance, out exception))

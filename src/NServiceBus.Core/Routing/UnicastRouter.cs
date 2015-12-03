@@ -43,7 +43,7 @@ namespace NServiceBus
             var selectedDestinations = SelectDestinationsForEachEndpoint(distributionStrategy, destinationsByEndpoint);
 
             return selectedDestinations
-                .Select(destination => new UnicastRoutingStrategy(destination.Resolve(physicalAddresses.GetTransportAddress)));
+                .Select(destination => new UnicastRoutingStrategy(destination.Resolve(i => physicalAddresses.GetTransportAddress(new LogicalAddress(i)))));
         }
 
         Task<IEnumerable<EndpointInstance>> InstanceResolver(EndpointName endpoint)

@@ -87,7 +87,7 @@
             metadataRegistry = new MessageMetadataRegistry(new Conventions());
             routingTable = new UnicastRoutingTable();
             endpointInstances = new EndpointInstances();
-            transportAddresses = new TransportAddresses();
+            transportAddresses = new TransportAddresses(address => null);
             router = new UnicastRouter(
                 metadataRegistry,
                 routingTable,

@@ -68,7 +68,7 @@ namespace NServiceBus
         public TransportExtensions(SettingsHolder settings)
             : base(settings)
         {
-            settings.Set<TransportAddresses>(new TransportAddresses());
+            
             settings.SetDefault<TransportConnectionString>(TransportConnectionString.Default);
         }
 
@@ -116,21 +116,44 @@ namespace NServiceBus
         /// Adds a rule for translating endpoint instance names to physical addresses in direct routing.
         /// </summary>
         /// <param name="rule">The rule.</param>
-        public TransportExtensions AddAddressTranslationRule(Func<EndpointInstance, string> rule)
+        public TransportExtensions AddAddressTranslationRule(Func<LogicalAddress, string> rule)
         {
-            Settings.Get<TransportAddresses>().AddRule(rule);
+            GetOrCreateTransportAddresses().AddRule(rule);
             return this;
         }
 
         /// <summary>
         /// Adds an exception to the translation rules for a given endpoint instance.
         /// </summary>
-        /// <param name="endpointInstance">Name of the instance for which the exception is created.</param>
+        /// <param name="logicalAddress">Logical address for which the exception is created.</param>
+        /// <param name="transportAddress">Transport address of that instance.</param>
+        public TransportExtensions AddAddressTranslationException(LogicalAddress logicalAddress, string transportAddress)
+        {
+            GetOrCreateTransportAddresses().AddSpecialCase(logicalAddress, transportAddress);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds an exception to the translation rules for a given endpoint instance.
+        /// </summary>
+        /// <param name="endpointInstance">Endpoint instance for which the exception is created.</param>
         /// <param name="transportAddress">Transport address of that instance.</param>
         public TransportExtensions AddAddressTranslationException(EndpointInstance endpointInstance, string transportAddress)
         {
-            Settings.Get<TransportAddresses>().AddSpecialCase(endpointInstance, transportAddress);
+            GetOrCreateTransportAddresses().AddSpecialCase(endpointInstance, transportAddress);
             return this;
+        }
+
+        TransportAddresses GetOrCreateTransportAddresses()
+        {
+            TransportAddresses value;
+            if (!Settings.TryGet(out value))
+            {
+                var transportDef = Settings.Get<TransportDefinition>();
+                value = new TransportAddresses(transportDef.ToTransportAddress);
+                Settings.Set<TransportAddresses>(value);
+            }
+            return value;
         }
     }
 
