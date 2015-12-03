@@ -3059,7 +3059,7 @@ namespace NServiceBus.UnitOfWork
 {
     public interface IManageUnitsOfWork
     {
-        void Begin();
-        void End(System.Exception ex = null);
+        System.Threading.Tasks.Task Begin();
+        System.Threading.Tasks.Task End(System.Exception ex = null);
     }
 }
