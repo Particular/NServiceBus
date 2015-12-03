@@ -92,12 +92,15 @@
                 }
             }
 
+            var messageTypes = messageMetadata.Select(metadata => metadata.MessageType).ToList();
+            var messageSerializer = deserializerResolver.Resolve(physicalMessage.Headers);
+
+            // For nested behaviors who have an expectation ContentType existing 
+            // add the default content type 
+            physicalMessage.Headers[Headers.ContentType] = messageSerializer.ContentType;
+
             using (var stream = new MemoryStream(physicalMessage.Body))
             {
-                var messageTypes = messageMetadata.Select(metadata => metadata.MessageType).ToList();
-                string contentType;
-                physicalMessage.Headers.TryGetValue(Headers.ContentType, out contentType);
-                var messageSerializer = deserializerResolver.Resolve(contentType);
                 return messageSerializer.Deserialize(stream, messageTypes)
                     .Select(x => logicalMessageFactory.Create(x.GetType(), x))
                     .ToList();

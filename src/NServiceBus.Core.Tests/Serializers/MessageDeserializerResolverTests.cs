@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.Serializers
 {
     using System;
+    using System.Collections.Generic;
     using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
     using NServiceBus.Serialization;
     using NServiceBus.Serializers;
@@ -31,21 +32,30 @@
         [TestCase(ContentTypes.Json, typeof(JsonMessageSerializer))]
         public void RetrievesSerializerByContentType(string contentType, Type expected)
         {
-            var serializer = resolver.Resolve(contentType);
+            var headers = new Dictionary<string, string>
+            {
+                {Headers.ContentType, contentType}
+            };
+            var serializer = resolver.Resolve(headers);
             Assert.IsInstanceOf(expected, serializer);
         }
 
         [Test]
         public void UnknownContentTypeFallsBackToDefaultSerialization()
         {
-            var serializer = resolver.Resolve("unknown/unsupported");
+            var headers = new Dictionary<string, string>
+            {
+                {Headers.ContentType, "unknown/unsupported"}
+            };
+            var serializer = resolver.Resolve(headers);
             Assert.IsInstanceOf<XmlMessageSerializer>(serializer);
         }
 
         [Test]
-        public void NullContentTypeFallsBackToDefaultSerialization()
+        public void NoContentTypeFallsBackToDefaultSerialization()
         {
-            var serializer = resolver.Resolve(null);
+            var headers = new Dictionary<string, string>();
+            var serializer = resolver.Resolve(headers);
             Assert.IsInstanceOf<XmlMessageSerializer>(serializer);
         }
     }

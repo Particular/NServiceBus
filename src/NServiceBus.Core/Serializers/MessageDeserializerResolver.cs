@@ -7,7 +7,7 @@
 
     class MessageDeserializerResolver
     {
-        IDictionary<string, IMessageSerializer> serializersMap;
+        Dictionary<string, IMessageSerializer> serializersMap;
         IMessageSerializer defaultSerializer;
 
         public MessageDeserializerResolver(IEnumerable<IMessageSerializer> messageSerializers, Type defaultSerializerType)
@@ -16,19 +16,17 @@
             defaultSerializer = serializersMap.Values.Single(serializer => serializer.GetType() == defaultSerializerType);
         }
 
-        public IMessageSerializer Resolve(string contentType)
+        public IMessageSerializer Resolve(Dictionary<string, string> headers)
         {
-            if (contentType == null)
+            string contentType;
+            if (headers.TryGetValue(Headers.ContentType, out contentType))
             {
-                //if no content type header then attempt default serializer
-                return defaultSerializer;
+                IMessageSerializer serializer;
+                if (serializersMap.TryGetValue(contentType, out serializer))
+                {
+                    return serializer;
+                }
             }
-            IMessageSerializer serializer;
-            if (serializersMap.TryGetValue(contentType, out serializer))
-            {
-                return serializer;
-            }
-
             return defaultSerializer;
         }
     }
