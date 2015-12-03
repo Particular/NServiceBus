@@ -3,7 +3,6 @@
     using NServiceBus.Extensibility;
     using NServiceBus.OutgoingPipeline;
     using NServiceBus.Routing;
-    using NServiceBus.Routing.MessagingBestPractices;
 
     /// <summary>
     /// Provides options for disabling the best practice enforcement.

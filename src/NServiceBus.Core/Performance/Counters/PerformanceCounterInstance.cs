@@ -1,13 +1,7 @@
-namespace NServiceBus.Performance.Counters
+namespace NServiceBus
 {
-    using System;
     using System.Diagnostics;
-
-    interface IPerformanceCounterInstance : IDisposable
-    {
-        void Increment();
-    }
-
+    
     class PerformanceCounterInstance : IPerformanceCounterInstance
     {
         PerformanceCounter counter;
@@ -25,19 +19,6 @@ namespace NServiceBus.Performance.Counters
         public void Dispose()
         {
             //Injected via Fody
-        }
-    }
-
-    class NonFunctionalPerformanceCounterInstance : IPerformanceCounterInstance
-    {
-        public void Increment()
-        {
-            //NOOP
-        }
-
-        public void Dispose()
-        {
-            //NOOP
         }
     }
 }

@@ -1,4 +1,4 @@
-namespace NServiceBus.Transports.Msmq
+namespace NServiceBus
 {
     using System;
     using System.Collections.Concurrent;
@@ -8,6 +8,7 @@ namespace NServiceBus.Transports.Msmq
     using System.Threading;
     using System.Threading.Tasks;
     using Logging;
+    using NServiceBus.Transports;
 
     class MessagePump : IPushMessages, IDisposable
     {

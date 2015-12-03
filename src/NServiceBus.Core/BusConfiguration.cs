@@ -12,7 +12,6 @@ namespace NServiceBus
     using NServiceBus.Container;
     using NServiceBus.Hosting.Helpers;
     using NServiceBus.ObjectBuilder;
-    using NServiceBus.ObjectBuilder.Autofac;
     using NServiceBus.ObjectBuilder.Common;
     using NServiceBus.Pipeline;
     using NServiceBus.Settings;

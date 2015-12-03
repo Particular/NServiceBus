@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Serializers.XML
+﻿namespace NServiceBus
 {
     using System;
     using System.Collections;
@@ -9,7 +9,7 @@
     using System.Xml;
     using System.Xml.Linq;
 
-    class Serializer : IDisposable
+    class XmlSerialization : IDisposable
     {
         const string BaseType = "baseType";
 
@@ -23,7 +23,7 @@
         bool skipWrappingRawXml;
         string @namespace;
 
-        public Serializer(Type messageType, Stream stream, object message, Conventions conventions, XmlSerializerCache cache, bool skipWrappingRawXml, string @namespace = DefaultNamespace)
+        public XmlSerialization(Type messageType, Stream stream, object message, Conventions conventions, XmlSerializerCache cache, bool skipWrappingRawXml, string @namespace = DefaultNamespace)
         {
             this.messageType = messageType;
             this.message = message;

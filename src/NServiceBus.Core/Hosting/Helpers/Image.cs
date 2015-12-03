@@ -1,4 +1,4 @@
-namespace NServiceBus.Hosting.Helpers
+namespace NServiceBus
 {
     using System;
     using System.IO;

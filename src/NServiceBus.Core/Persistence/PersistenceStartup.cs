@@ -1,8 +1,9 @@
-﻿namespace NServiceBus.Persistence
+﻿namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
     using NServiceBus.Logging;
+    using NServiceBus.Persistence;
     using NServiceBus.Settings;
 
     class PersistenceStartup : IWantToRunBeforeConfigurationIsFinalized

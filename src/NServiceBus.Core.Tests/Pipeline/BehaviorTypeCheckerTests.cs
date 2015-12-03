@@ -3,7 +3,6 @@
     using System;
     using System.Threading.Tasks;
     using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
     using NUnit.Framework;
 
     [TestFixture]

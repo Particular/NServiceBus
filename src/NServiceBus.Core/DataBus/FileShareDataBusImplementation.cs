@@ -1,9 +1,10 @@
-namespace NServiceBus.DataBus
+namespace NServiceBus
 {
     using System;
     using System.IO;
     using System.Threading.Tasks;
     using Logging;
+    using NServiceBus.DataBus;
 
     /// <summary>
     /// File share implementation of <see cref="IDataBus"/>.

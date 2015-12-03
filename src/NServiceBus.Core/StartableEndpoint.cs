@@ -8,24 +8,20 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using NServiceBus.Config;
     using NServiceBus.ConsistencyGuarantees;
-    using NServiceBus.Faults;
     using NServiceBus.Features;
     using NServiceBus.Installation;
     using NServiceBus.ObjectBuilder;
-    using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Settings;
-    using NServiceBus.Transport;
     using NServiceBus.Transports;
-    using NServiceBus.Unicast;
-
+    
     class StartableEndpoint : IStartableEndpoint
     {
         SettingsHolder settings;
-        readonly IBuilder builder;
-        readonly FeatureActivator featureActivator;
+        IBuilder builder;
+        FeatureActivator featureActivator;
         PipelineConfiguration pipelineConfiguration;
-        readonly IReadOnlyCollection<IWantToRunWhenBusStartsAndStops> startables;
+        IReadOnlyCollection<IWantToRunWhenBusStartsAndStops> startables;
 
         public StartableEndpoint(SettingsHolder settings, IBuilder builder, FeatureActivator featureActivator, PipelineConfiguration pipelineConfiguration, IReadOnlyCollection<IWantToRunWhenBusStartsAndStops> startables)
         {

@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
     using NServiceBus.Serialization;
-    using NServiceBus.Serializers;
     using NServiceBus.Serializers.Json;
     using NServiceBus.Serializers.XML;
     using NUnit.Framework;

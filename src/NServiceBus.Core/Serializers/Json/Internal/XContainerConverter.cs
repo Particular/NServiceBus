@@ -1,4 +1,4 @@
-namespace NServiceBus.Serializers.Json.Internal
+namespace NServiceBus
 {
     using System;
     using System.Globalization;
@@ -8,7 +8,7 @@ namespace NServiceBus.Serializers.Json.Internal
 
     class XContainerConverter : JsonConverter
     {
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, object value, Newtonsoft.Json.JsonSerializer serializer)
         {
             if(value == null)
             {
@@ -21,7 +21,7 @@ namespace NServiceBus.Serializers.Json.Internal
         }
 
         public override object ReadJson(
-            JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+            JsonReader reader, Type objectType, object existingValue, Newtonsoft.Json.JsonSerializer serializer)
         {
             if (reader.TokenType == JsonToken.Null)
             {

@@ -1,12 +1,13 @@
-namespace NServiceBus.Routing
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using NServiceBus.Routing;
 
     class DistributionPolicy
     {
-        List<Tuple<Func<Type, bool>,DistributionStrategy>> strategies = new List<Tuple<Func<Type, bool>, DistributionStrategy>>();
+        List<Tuple<Func<Type, bool>, DistributionStrategy>> strategies = new List<Tuple<Func<Type, bool>, DistributionStrategy>>();
 
         /// <summary>
         /// Creates a new distribution policy.

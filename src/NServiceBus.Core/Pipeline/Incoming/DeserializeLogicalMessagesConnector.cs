@@ -8,8 +8,6 @@
     using NServiceBus.Logging;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.Scheduling.Messages;
-    using NServiceBus.Serializers;
     using NServiceBus.Transports;
     using NServiceBus.Unicast.Messages;
 

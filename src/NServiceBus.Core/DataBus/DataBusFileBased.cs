@@ -1,13 +1,14 @@
-namespace NServiceBus.Features
+namespace NServiceBus
 {
     using System;
     using NServiceBus.DataBus;
+    using NServiceBus.Features;
 
     class DataBusFileBased : Feature
     {
         public DataBusFileBased()
         {
-            DependsOn<DataBus>();
+            DependsOn<Features.DataBus>();
         }
 
         /// <summary>

@@ -1,7 +1,5 @@
 ﻿namespace NServiceBus.Features
 {
-    using NServiceBus.InMemory.TimeoutPersister;
-
     /// <summary>
     /// Used to configure in memory timeout persistence.
     /// </summary>

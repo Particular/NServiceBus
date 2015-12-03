@@ -1,7 +1,8 @@
-﻿namespace NServiceBus.Pipeline
+﻿namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
+    using NServiceBus.Pipeline;
 
     class BehaviorInvoker<TIn, TOut> : IBehaviorInvoker 
         where TOut : BehaviorContext

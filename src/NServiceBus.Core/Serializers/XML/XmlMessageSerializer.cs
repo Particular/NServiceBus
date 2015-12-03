@@ -61,7 +61,7 @@ namespace NServiceBus.Serializers.XML
                 return null;
             }
 
-            var deserializer = new Deserializer(mapper, cache, SkipWrappingRawXml, SanitizeInput);
+            var deserializer = new XmlDeserialization(mapper, cache, SkipWrappingRawXml, SanitizeInput);
             return deserializer.Deserialize(stream, messageTypesToDeserialize);
         }
 
@@ -77,7 +77,7 @@ namespace NServiceBus.Serializers.XML
         {
 
             var messageType = mapper.GetMappedTypeFor(message.GetType());
-            using (var serializer = new Serializer(messageType, stream, message, conventions, cache, SkipWrappingRawXml, Namespace))
+            using (var serializer = new XmlSerialization(messageType, stream, message, conventions, cache, SkipWrappingRawXml, Namespace))
             {
                 serializer.Serialize();
             }

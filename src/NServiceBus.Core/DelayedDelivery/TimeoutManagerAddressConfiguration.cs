@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Features.DelayedDelivery
+﻿namespace NServiceBus
 {
     using System;
 

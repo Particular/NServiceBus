@@ -5,7 +5,6 @@ namespace NServiceBus
     using System.Linq;
     using System.Threading.Tasks;
     using DelayedDelivery;
-    using DelayedDelivery.TimeoutManager;
     using DeliveryConstraints;
     using Performance.TimeToBeReceived;
     using Pipeline;

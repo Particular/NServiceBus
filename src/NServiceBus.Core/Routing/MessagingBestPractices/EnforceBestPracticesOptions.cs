@@ -1,4 +1,4 @@
-namespace NServiceBus.Routing.MessagingBestPractices
+namespace NServiceBus
 {
     class EnforceBestPracticesOptions
     {

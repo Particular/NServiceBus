@@ -1,8 +1,9 @@
-namespace NServiceBus.Transports
+namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
     using NServiceBus.Features;
+    using NServiceBus.Transports;
 
     class Sending : Feature
     {

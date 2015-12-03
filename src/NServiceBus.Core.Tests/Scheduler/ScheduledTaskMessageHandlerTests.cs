@@ -30,13 +30,13 @@
         [Test]
         public void When_a_scheduledTask_message_is_handled_the_task_should_be_defer()
         {
-            handler.Handle(new Messages.ScheduledTask
+            handler.Handle(new ScheduledTask
             {
                 Every = TimeSpan.FromSeconds(5),
                 TaskId = taskId
             }, handlingContext);
 
-            Assert.That(((Messages.ScheduledTask)handlingContext.DeferedMessage).TaskId, Is.EqualTo(taskId));
+            Assert.That(((ScheduledTask)handlingContext.DeferedMessage).TaskId, Is.EqualTo(taskId));
         }
     }
 }

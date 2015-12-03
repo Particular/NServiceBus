@@ -1,7 +1,8 @@
-﻿namespace NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions
+﻿namespace NServiceBus
 {
     using System.Threading.Tasks;
     using NServiceBus.Features;
+    using NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions;
 
     class StorageInitializer : Feature
     {

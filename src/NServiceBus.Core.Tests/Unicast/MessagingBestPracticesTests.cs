@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Unicast.Tests
 {
     using System;
-    using NServiceBus.MessagingBestPractices;
     using NUnit.Framework;
 
     [TestFixture]

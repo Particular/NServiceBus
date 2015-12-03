@@ -1,7 +1,6 @@
 namespace NServiceBus.Features
 {
     using System;
-    using NServiceBus.Performance.Counters;
 
     /// <summary>
     /// Used to configure SLAMonitoring.

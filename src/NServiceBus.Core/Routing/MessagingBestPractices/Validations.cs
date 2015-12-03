@@ -1,4 +1,4 @@
-namespace NServiceBus.MessagingBestPractices
+namespace NServiceBus
 {
     using System;
     using NServiceBus.Logging;

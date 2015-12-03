@@ -1,11 +1,12 @@
-namespace NServiceBus.Transports.Msmq
+namespace NServiceBus
 {
     using System;
     using System.Messaging;
     using System.Security.Principal;
     using System.Threading.Tasks;
-    using Config;
     using Logging;
+    using NServiceBus.Transports;
+    using NServiceBus.Transports.Msmq.Config;
 
     class QueueCreator : ICreateQueues
     {

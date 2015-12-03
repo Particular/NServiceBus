@@ -1,10 +1,11 @@
-namespace NServiceBus.Routing
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.Extensibility;
+    using NServiceBus.Routing;
     using NServiceBus.Transports;
     using NServiceBus.Unicast.Messages;
 

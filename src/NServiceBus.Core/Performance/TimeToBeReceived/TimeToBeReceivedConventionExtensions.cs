@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using NServiceBus.Performance.TimeToBeReceived;
 
     /// <summary>
     /// Provides the ability to specify TTBR using a convention.

@@ -1,7 +1,8 @@
-namespace NServiceBus.Pipeline
+namespace NServiceBus
 {
     using System;
     using System.Linq;
+    using NServiceBus.Pipeline;
 
     static class BehaviorTypeChecker
     {

@@ -1,7 +1,6 @@
 namespace NServiceBus
 {
     using System.Transactions;
-    using NServiceBus.InMemory.Outbox;
     using NServiceBus.Outbox;
     using NServiceBus.Persistence;
     using NServiceBus.Transports;

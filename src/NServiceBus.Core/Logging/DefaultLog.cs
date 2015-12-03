@@ -1,6 +1,7 @@
-namespace NServiceBus.Logging
+namespace NServiceBus
 {
     using System;
+    using NServiceBus.Logging;
 
     class NamedLogger : ILog
     {

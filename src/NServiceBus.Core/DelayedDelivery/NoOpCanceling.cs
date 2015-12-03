@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.DelayedDelivery
+﻿namespace NServiceBus
 {
     using System.Threading.Tasks;
     using NServiceBus.Pipeline;
