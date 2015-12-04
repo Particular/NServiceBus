@@ -3,6 +3,7 @@
     using System;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
+    using NServiceBus.AcceptanceTesting.Support;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
@@ -12,12 +13,29 @@
         public async Task Should_be_able_to_set_endpoint_name()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<Sender>()
+                    .WithEndpoint<Sender>(c => c.When(b => b.Send("INeedInitialization_receiver", new MyMessage())))
                     .WithEndpoint<Receiver>()
                     .Done(c => c.WasCalled)
                     .Run();
 
             Assert.True(context.WasCalled, "The message handler should be called");
+        }
+
+        [Test]
+        public void Should_provide_default_constructor()
+        {
+            var exception = Assert.Throws<AggregateException>(async () =>
+                await Scenario.Define<Context>()
+                    .WithEndpoint<EndpointWithInvalidInitialization>()
+                    .Done(c => c.EndpointsStarted)
+                    .Run()).InnerException;
+
+            Assert.IsAssignableFrom<ScenarioException>(exception);
+            StringAssert.Contains("failed to initialize", exception.Message);
+
+            StringAssert.Contains(
+                $"Unable to create the type '{nameof(EndpointWithInvalidInitialization.InvalidInitialization)}'. Types implementing '{nameof(INeedInitialization)}' must have a public parameterless (default) constructor.",
+                exception.InnerException.Message);
         }
 
         public class Context : ScenarioContext
@@ -37,8 +55,7 @@
         {
             public Receiver()
             {
-                EndpointSetup<DefaultServer>()
-                    .AddMapping<SendMessage>(typeof(Sender));
+                EndpointSetup<DefaultServer>();
             }
 
             public class SetEndpointName : INeedInitialization
@@ -49,48 +66,40 @@
                 }
             }
 
-            public class SendMessageToSender : IWantToRunWhenBusStartsAndStops
+            public class MyMessageHandler : IHandleMessages<MyMessage>
             {
-                public Task Start(IBusContext context)
-                {
-                    return context.Send(new SendMessage());
-                }
+                public Context Context { get; set; }
 
-                public Task Stop(IBusContext context)
+                public Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
+                    Context.WasCalled = true;
                     return Task.FromResult(0);
                 }
             }
         }
 
-        [Serializable]
-        public class SendMessage : ICommand
+        public class EndpointWithInvalidInitialization : EndpointConfigurationBuilder
         {
+            public EndpointWithInvalidInitialization()
+            {
+                EndpointSetup<DefaultServer>();
+            }
+
+            public class InvalidInitialization : INeedInitialization
+            {
+                public InvalidInitialization(string someString, object someService)
+                {
+                }
+
+                public void Customize(BusConfiguration config)
+                {
+                }
+            }
         }
 
         [Serializable]
         public class MyMessage : ICommand
         {
-            public Guid Id { get; set; }
-        }
-
-        public class SendMessageHandler : IHandleMessages<SendMessage>
-        {
-            public Task Handle(SendMessage message, IMessageHandlerContext context)
-            {
-                return context.Send("INeedInitialization_receiver", new MyMessage());
-            }
-        }
-
-        public class MyMessageHandler : IHandleMessages<MyMessage>
-        {
-            public Context Context { get; set; }
-
-            public Task Handle(MyMessage message, IMessageHandlerContext context)
-            {
-                Context.WasCalled = true;
-                return Task.FromResult(0);
-            }
         }
     }
 }
