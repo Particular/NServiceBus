@@ -36,13 +36,15 @@
             class MyUow:IManageUnitsOfWork
             {
                 public Context Context { get; set; }
-                public void Begin()
+                public Task Begin()
                 {
                     Context.UowWasCalled = true;
+                    return Task.FromResult(0);
                 }
 
-                public void End(Exception ex = null)
+                public Task End(Exception ex = null)
                 {
+                    return Task.FromResult(0);
                 }
             }
             public class DummyHandler : IHandleMessages<MyMessage>
