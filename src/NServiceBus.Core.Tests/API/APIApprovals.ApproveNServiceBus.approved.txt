@@ -1433,13 +1433,7 @@ namespace NServiceBus.Features
     public abstract class FeatureStartupTask
     {
         protected FeatureStartupTask() { }
-        [System.ObsoleteAttribute("Please use `OnStart(IBusContext context)` instead. Will be removed in version 7.0" +
-            ".0.", true)]
-        protected virtual void OnStart() { }
         protected abstract System.Threading.Tasks.Task OnStart(NServiceBus.IBusContext context);
-        [System.ObsoleteAttribute("Please use `OnStop(IBusContext context)` instead. Will be removed in version 7.0." +
-            "0.", true)]
-        protected virtual void OnStop() { }
         protected virtual System.Threading.Tasks.Task OnStop(NServiceBus.IBusContext context) { }
     }
     public enum FeatureState

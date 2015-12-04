@@ -26,10 +26,6 @@
             Logger.DebugFormat("Ready startup message with WorkerSessionId {0} sent. ", workerSessionId);
         }
 
-        protected override void OnStop()
-        {
-        }
-
         Task SendReadyMessage(int capacity, bool isStarting)
         {
             //we use the actual address to make sure that the worker inside the master node will check in correctly
