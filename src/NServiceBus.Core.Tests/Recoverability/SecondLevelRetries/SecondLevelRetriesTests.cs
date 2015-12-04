@@ -33,7 +33,7 @@
 
             var slrNotification = new SecondLevelRetry();
 
-            notifications.Errors.MessageHasBeenSentToSecondLevelRetries.Subscribe(slr => { slrNotification = slr; });
+            notifications.Errors.MessageHasBeenSentToSecondLevelRetries += (sender, retry) => slrNotification = retry;
 
             await behavior.Invoke(CreateContext("someid", 1), () => { throw new Exception("testex"); });
 

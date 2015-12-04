@@ -92,15 +92,14 @@
 
             var notificationFired = false;
 
-            notifications.Errors.MessageHasFailedAFirstLevelRetryAttempt.Subscribe(flr =>
+            notifications.Errors.MessageHasFailedAFirstLevelRetryAttempt += (sender, retry) =>
             {
-                Assert.AreEqual(0, flr.RetryAttempt);
-                Assert.AreEqual("test", flr.Exception.Message);
-                Assert.AreEqual("someid", flr.MessageId);
+                Assert.AreEqual(0, retry.RetryAttempt);
+                Assert.AreEqual("test", retry.Exception.Message);
+                Assert.AreEqual("someid", retry.MessageId);
 
                 notificationFired = true;
-            });
-
+            };
 
             Assert.Throws<MessageProcessingAbortedException>(async () => await behavior.Invoke(CreateContext("someid"), () =>
             {

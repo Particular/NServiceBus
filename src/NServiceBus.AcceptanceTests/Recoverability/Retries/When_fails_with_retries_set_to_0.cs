@@ -48,10 +48,7 @@
 
                 public Task Start(IBusContext context)
                 {
-                    BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e =>
-                    {
-                        Context.GaveUp = true;
-                    });
+                    BusNotifications.Errors.MessageSentToErrorQueue += (sender, message) => Context.GaveUp = true;
                     return context.SendLocal(new MessageToBeRetried
                     {
                         ContextId = Context.Id

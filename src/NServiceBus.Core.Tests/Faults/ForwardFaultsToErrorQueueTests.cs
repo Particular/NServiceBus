@@ -112,7 +112,7 @@ namespace NServiceBus.Core.Tests
                 "error");
             var failedMessageNotification = new FailedMessage();
 
-            notifications.Errors.MessageSentToErrorQueue.Subscribe(f => { failedMessageNotification = f; });
+            notifications.Errors.MessageSentToErrorQueue += (sender, message) => failedMessageNotification = message;
 
             behavior.Initialize(new PipelineInfo("Test", "public-receive-address"));
             await behavior.Invoke(CreateContext("someid"), () =>

@@ -385,7 +385,6 @@
     <Compile Include="Performance\Statistics\CriticalTime\CriticalTimeMonitoringConfig.cs" />
     <Compile Include="Performance\Statistics\CriticalTime\CriticalTimeMonitoring.cs" />
     <Compile Include="Performance\Statistics\SLA\SLAMonitoringConfig.cs" />
-    <Compile Include="Observable.cs" />
     <Compile Include="AddressMode.cs" />
     <Compile Include="Audit\Audit.cs" />
     <Compile Include="Routing\AutomaticSubscriptions\AutoSubscribe.cs" />

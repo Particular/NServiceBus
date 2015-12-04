@@ -1313,12 +1313,12 @@ namespace NServiceBus.Extensibility
 }
 namespace NServiceBus.Faults
 {
-    public class ErrorsNotifications : System.IDisposable
+    public class ErrorsNotifications
     {
+        public System.EventHandler<NServiceBus.Faults.SecondLevelRetry> MessageHasBeenSentToSecondLevelRetries;
         public ErrorsNotifications() { }
-        public System.IObservable<NServiceBus.Faults.SecondLevelRetry> MessageHasBeenSentToSecondLevelRetries { get; }
-        public System.IObservable<NServiceBus.Faults.FirstLevelRetry> MessageHasFailedAFirstLevelRetryAttempt { get; }
-        public System.IObservable<NServiceBus.Faults.FailedMessage> MessageSentToErrorQueue { get; }
+        public event System.EventHandler<NServiceBus.Faults.FirstLevelRetry> MessageHasFailedAFirstLevelRetryAttempt;
+        public event System.EventHandler<NServiceBus.Faults.FailedMessage> MessageSentToErrorQueue;
     }
     public struct FailedMessage
     {
