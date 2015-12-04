@@ -1,6 +1,8 @@
-﻿
-// ReSharper disable UnusedTypeParameter
+﻿// ReSharper disable UnusedTypeParameter
 // ReSharper disable UnusedParameter.Local
+
+
+
 #pragma warning disable 1591
 // ReSharper disable UnusedParameter.Global
 
@@ -292,7 +294,9 @@ namespace NServiceBus
     }
 
     [ObsoleteEx(Message = "For performance reasons it is no longer possible to instrument the pipeline execution", RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0")]
-    public class PipelineNotifications { }
+    public class PipelineNotifications
+    {
+    }
 }
 
 namespace NServiceBus.Unicast
@@ -425,8 +429,7 @@ namespace NServiceBus.Timeout.Core
         [ObsoleteEx(
             Message = "Not used anymore",
             RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0")]
-        public const string OriginalReplyToAddress = "NServiceBus.Timeout.ReplyToAddress";
+            TreatAsErrorFromVersion = "6.0")] public const string OriginalReplyToAddress = "NServiceBus.Timeout.ReplyToAddress";
     }
 }
 
@@ -1215,9 +1218,9 @@ namespace NServiceBus.Transports
         }
 
         [ObsoleteEx(
-           TreatAsErrorFromVersion = "6",
-           RemoveInVersion = "7",
-           ReplacementTypeOrMember = "GetOutboundRoutingPolicy")]
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
+            ReplacementTypeOrMember = "GetOutboundRoutingPolicy")]
         public bool HasNativePubSubSupport
         {
             get { throw new NotImplementedException(); }
@@ -1225,9 +1228,9 @@ namespace NServiceBus.Transports
         }
 
         [ObsoleteEx(
-           TreatAsErrorFromVersion = "6",
-           RemoveInVersion = "7",
-           ReplacementTypeOrMember = "GetOutboundRoutingPolicy")]
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
+            ReplacementTypeOrMember = "GetOutboundRoutingPolicy")]
         public bool HasSupportForCentralizedPubSub
         {
             get { throw new NotImplementedException(); }
@@ -1258,8 +1261,7 @@ namespace NServiceBus
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            Message = "The WinIdName header is no longer attached to outgoing message to avoid passing security related information on the wire. Should you rely on the header being present you can add a message mutator that sets it.")]
-        public const string WindowsIdentityName = "WinIdName";
+            Message = "The WinIdName header is no longer attached to outgoing message to avoid passing security related information on the wire. Should you rely on the header being present you can add a message mutator that sets it.")] public const string WindowsIdentityName = "WinIdName";
     }
 }
 
@@ -1268,9 +1270,9 @@ namespace NServiceBus
     using System;
 
     [ObsoleteEx(
-    TreatAsErrorFromVersion = "6",
-    RemoveInVersion = "7",
-    Message = "Use IBusContextFactory to create sending context.")]
+        TreatAsErrorFromVersion = "6",
+        RemoveInVersion = "7",
+        Message = "Use IBusContextFactory to create sending context.")]
     public interface ISendOnlyBus : IDisposable
     {
     }
@@ -1334,7 +1336,6 @@ namespace NServiceBus.Hosting.Helpers
 
     public partial class AssemblyScanner
     {
-
         [ObsoleteEx(
             Message = "This method is no longer required since deep scanning of assemblies is done to detect an NServiceBus reference.",
             RemoveInVersion = "7.0",
@@ -1345,6 +1346,7 @@ namespace NServiceBus.Hosting.Helpers
         }
     }
 }
+
 namespace NServiceBus.Outbox
 {
     using System;
@@ -1361,7 +1363,6 @@ namespace NServiceBus.Outbox
         }
     }
 }
-
 
 namespace NServiceBus
 {
@@ -1562,5 +1563,27 @@ namespace NServiceBus
         ReplacementTypeOrMember = "config.UseTransport<MsmqTransport>().SubscriptionAuthorizer(Authorizer);")]
     public interface IAuthorizeSubscriptions
     {
+    }
+}
+
+namespace NServiceBus.Settings
+{
+    using System;
+
+    public partial class TransactionSettings
+    {
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message =
+                @"No longer relevant since transaction scopes are no longer used by non DTC transports 
+to do delayed dispatch. If running in DTC mode with MSMQ or SQLServer you should opt out 
+from DTC Transactions using .DisableDistributedTransactions() since it would give you better 
+performance. Should you still want to suppress the ambient transaction you can create your own 
+behavior that wraps the pipeline in a suppressed transaction scope.")]
+        public TransactionSettings DoNotWrapHandlersExecutionInATransactionScope()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

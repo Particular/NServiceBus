@@ -39,7 +39,7 @@
         {
             public NonDTCEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.Transactions().DisableDistributedTransactions().WrapHandlersExecutionInATransactionScope());
+                EndpointSetup<DefaultServer>(c => c.Transactions().DisableDistributedTransactions());
             }
 
             public class MyMessageHandler : IHandleMessages<MyMessage>
@@ -48,9 +48,14 @@
 
                 public Task Handle(MyMessage messageThatIsEnlisted, IMessageHandlerContext context)
                 {
-                    Context.DistributedIdentifierBefore = Transaction.Current.TransactionInformation.DistributedIdentifier;
+                    using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                    {
+                        Context.DistributedIdentifierBefore = Transaction.Current.TransactionInformation.DistributedIdentifier;
 
-                    Context.CanEnlistPromotable = Transaction.Current.EnlistPromotableSinglePhase(new FakePromotableResourceManager());
+                        Context.CanEnlistPromotable = Transaction.Current.EnlistPromotableSinglePhase(new FakePromotableResourceManager());
+
+                        tx.Complete();
+                    }
 
                     Context.HandlerInvoked = true;
 

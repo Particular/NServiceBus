@@ -490,7 +490,6 @@
     <Compile Include="Routing\FileBasedDynamicRouting\FileRoutingTable.cs" />
     <Compile Include="Routing\FileBasedDynamicRouting\FileRoutingTableFeature.cs" />
     <Compile Include="Unicast\Transport\Config\TransportExtensions.cs" />
-    <Compile Include="ConsistencyGuarantees\TransactionScopes\SuppressAmbientTransactionBehavior.cs" />
     <Compile Include="Performance\Statistics\ReceivePerformanceDiagnosticsBehavior.cs" />
     <Compile Include="ConsistencyGuarantees\TransactionScopes\HandlerTransactionScopeWrapperBehavior.cs" />
     <Compile Include="Utils\Guard.cs" />

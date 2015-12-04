@@ -2430,6 +2430,7 @@ namespace NServiceBus.Settings
         public NServiceBus.Settings.TransactionSettings DefaultTimeout(System.TimeSpan defaultTimeout) { }
         public NServiceBus.Settings.TransactionSettings Disable() { }
         public NServiceBus.Settings.TransactionSettings DisableDistributedTransactions() { }
+        [System.ObsoleteAttribute(@"No longer relevant since transaction scopes are no longer used by non DTC transports \r\nto do delayed dispatch. If running in DTC mode with MSMQ or SQLServer you should opt out \r\nfrom DTC Transactions using .DisableDistributedTransactions() since it would give you better \r\nperformance. Should you still want to suppress the ambient transaction you can create your own \r\nbehavior that wraps the pipeline in a suppressed transaction scope. Will be removed in version 7.0.0.", true)]
         public NServiceBus.Settings.TransactionSettings DoNotWrapHandlersExecutionInATransactionScope() { }
         public NServiceBus.Settings.TransactionSettings Enable() { }
         public NServiceBus.Settings.TransactionSettings EnableDistributedTransactions() { }
