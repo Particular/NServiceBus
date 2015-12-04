@@ -98,27 +98,6 @@ namespace NServiceBus.Extensibility
         }
 
         /// <summary>
-        /// Walk the tree of context until one is found of the type <typeparamref name="T"/>.
-        /// </summary>
-        internal bool TryGetRootContext<T>(out T result) where T : ContextBag
-        {
-            var cast = this as T;
-            if (cast != null)
-            {
-                result = cast;
-                return true;
-            }
-
-            if (parentBag == null)
-            {
-                result = null;
-                return false;
-            }
-
-            return parentBag.TryGetRootContext(out result);
-        }
-
-        /// <summary>
         /// Tries to retrieves the specified type from the context.
         /// </summary>
         /// <typeparam name="T">The type to retrieve.</typeparam>
