@@ -15,7 +15,7 @@ namespace NServiceBus.Pipeline.Contexts
         /// <summary>
         /// Initializes the handling stage context. This is the constructor to use for internal usage.
         /// </summary>
-        internal InvokeHandlerContext(MessageHandler handler, SynchronizedStorageSession storageSession, LogicalMessageProcessingContext parentContext)
+        internal InvokeHandlerContext(MessageHandler handler, ISynchronizedStorageSession storageSession, LogicalMessageProcessingContext parentContext)
             : this(handler, parentContext.MessageId, parentContext.ReplyToAddress, parentContext.Headers, parentContext.Message.Metadata, parentContext.Message.Instance, storageSession, parentContext)
         {
         }
@@ -23,7 +23,7 @@ namespace NServiceBus.Pipeline.Contexts
         /// <summary>
         /// Initializes the handling stage context.
         /// </summary>
-        public InvokeHandlerContext(MessageHandler handler, string messageId, string replyToAddress, Dictionary<string, string> headers, MessageMetadata messageMetadata, object messageBeingHandled, SynchronizedStorageSession storageSession, BehaviorContext parentContext)
+        public InvokeHandlerContext(MessageHandler handler, string messageId, string replyToAddress, Dictionary<string, string> headers, MessageMetadata messageMetadata, object messageBeingHandled, ISynchronizedStorageSession storageSession, BehaviorContext parentContext)
             : base(messageId, replyToAddress, headers, parentContext)
         {
             MessageHandler = handler;
@@ -41,7 +41,7 @@ namespace NServiceBus.Pipeline.Contexts
         /// <summary>
         /// The transactional storage session that the handler can use to persist information in sync with receiving a message.
         /// </summary>
-        public SynchronizedStorageSession SynchronizedStorageSession => Get<SynchronizedStorageSession>();
+        public ISynchronizedStorageSession SynchronizedStorageSession => Get<ISynchronizedStorageSession>();
 
         /// <summary>
         /// Message headers.

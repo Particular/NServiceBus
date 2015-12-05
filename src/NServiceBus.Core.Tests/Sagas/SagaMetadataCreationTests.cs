@@ -234,7 +234,7 @@
 
             public class Finder : IFindSagas<SagaData>.Using<StartSagaMessage>
             {
-                public Task<SagaData> FindBy(StartSagaMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context)
+                public Task<SagaData> FindBy(StartSagaMessage message, ISynchronizedStorageSession storageSession, ReadOnlyContextBag context)
                 {
                     return Task.FromResult(default(SagaData));
                 }
@@ -267,7 +267,7 @@
 
             public class Finder : IFindSagas<SagaData>.Using<StartSagaMessage>
             {
-                public Task<SagaData> FindBy(StartSagaMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context)
+                public Task<SagaData> FindBy(StartSagaMessage message, ISynchronizedStorageSession storageSession, ReadOnlyContextBag context)
                 {
                     return Task.FromResult(default(SagaData));
                 }
@@ -472,7 +472,7 @@
 
             internal class CustomFinder : IFindSagas<SagaData>.Using<SomeMessage>
             {
-                public Task<SagaData> FindBy(SomeMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context)
+                public Task<SagaData> FindBy(SomeMessage message, ISynchronizedStorageSession storageSession, ReadOnlyContextBag context)
                 {
                     return Task.FromResult(default(SagaData));
                 }

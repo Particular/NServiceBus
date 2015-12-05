@@ -12,7 +12,7 @@ namespace NServiceBus
 
     class InMemorySagaPersister : ISagaPersister
     {
-        public Task Complete(IContainSagaData sagaData, SynchronizedStorageSession session, ContextBag context)
+        public Task Complete(IContainSagaData sagaData, ISynchronizedStorageSession session, ContextBag context)
         {
             var inMemSession = (InMemorySynchronizedStorageSession)session;
             inMemSession.Enlist(() =>
@@ -23,7 +23,7 @@ namespace NServiceBus
             return TaskEx.Completed;
         }
 
-        public Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, SynchronizedStorageSession session, ContextBag context) where TSagaData : IContainSagaData
+        public Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, ISynchronizedStorageSession session, ContextBag context) where TSagaData : IContainSagaData
         {
             Guard.AgainstNull(nameof(propertyValue), propertyValue);
 
@@ -48,7 +48,7 @@ namespace NServiceBus
             return Task.FromResult(default(TSagaData));
         }
 
-        public Task<TSagaData> Get<TSagaData>(Guid sagaId, SynchronizedStorageSession session, ContextBag context) where TSagaData : IContainSagaData
+        public Task<TSagaData> Get<TSagaData>(Guid sagaId, ISynchronizedStorageSession session, ContextBag context) where TSagaData : IContainSagaData
         {
             VersionedSagaEntity result;
             if (data.TryGetValue(sagaId, out result) && result?.SagaData is TSagaData)
@@ -60,10 +60,9 @@ namespace NServiceBus
             return Task.FromResult(default(TSagaData));
         }
 
-        public Task Save(IContainSagaData sagaData, SagaCorrelationProperty correlationProperty, SynchronizedStorageSession session, ContextBag context)
+        public Task Save(IContainSagaData sagaData, SagaCorrelationProperty correlationProperty, ISynchronizedStorageSession session, ContextBag context)
         {
-            var inMemSession = (InMemorySynchronizedStorageSession) session;
-            inMemSession.Enlist(() =>
+            session.Enlist(() =>
             {
                 if (correlationProperty != SagaCorrelationProperty.None)
                 {
@@ -90,7 +89,7 @@ namespace NServiceBus
             return TaskEx.Completed;
         }
 
-        public Task Update(IContainSagaData sagaData, SynchronizedStorageSession session, ContextBag context)
+        public Task Update(IContainSagaData sagaData, ISynchronizedStorageSession session, ContextBag context)
         {
             var inMemSession = (InMemorySynchronizedStorageSession)session;
             inMemSession.Enlist(() =>

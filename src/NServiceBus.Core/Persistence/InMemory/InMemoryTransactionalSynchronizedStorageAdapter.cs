@@ -8,7 +8,7 @@ namespace NServiceBus
 
     class InMemoryTransactionalSynchronizedStorageAdapter : ISynchronizedStorageAdapter
     {
-        public bool TryAdapt(OutboxTransaction transaction, out CompletableSynchronizedStorageSession session)
+        public bool TryAdapt(OutboxTransaction transaction, out ICompletableSynchronizedStorageSession session)
         {
             var inMemOutboxTransaction = transaction as InMemoryOutboxTransaction;
             if (inMemOutboxTransaction != null)
@@ -20,7 +20,7 @@ namespace NServiceBus
             return false;
         }
 
-        public bool TryAdapt(TransportTransaction transportTransaction, out CompletableSynchronizedStorageSession session)
+        public bool TryAdapt(TransportTransaction transportTransaction, out ICompletableSynchronizedStorageSession session)
         {
             Transaction ambientTransaction;
             

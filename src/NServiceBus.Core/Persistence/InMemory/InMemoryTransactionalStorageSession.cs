@@ -6,7 +6,7 @@ namespace NServiceBus
     using NServiceBus.Persistence;
 
     [SkipWeaving]
-    class InMemorySynchronizedStorageSession : CompletableSynchronizedStorageSession
+    class InMemorySynchronizedStorageSession : ICompletableSynchronizedStorageSession
     {
         bool ownsTransaction;
 
