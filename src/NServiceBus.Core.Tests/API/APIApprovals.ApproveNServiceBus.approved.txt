@@ -537,7 +537,7 @@ namespace NServiceBus
     }
     public interface IMessageHandlerContext : NServiceBus.IBusContext, NServiceBus.IMessageProcessingContext
     {
-        NServiceBus.Persistence.SynchronizedStorageSession SynchronizedStorageSession { get; }
+        NServiceBus.Persistence.ISynchronizedStorageSession SynchronizedStorageSession { get; }
         void DoNotContinueDispatchingCurrentMessageToHandlers();
         System.Threading.Tasks.Task HandleCurrentMessageLater();
     }
