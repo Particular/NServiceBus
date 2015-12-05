@@ -1,6 +1,7 @@
-namespace NServiceBus.Transports
+namespace NServiceBus
 {
     using System;
+    using NServiceBus.Transports;
 
     class LogicalToTransportAddressTranslation
     {

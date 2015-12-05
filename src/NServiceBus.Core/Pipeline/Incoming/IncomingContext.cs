@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using NServiceBus.Extensibility;
-    using NServiceBus.Unicast;
     using PublishOptions = NServiceBus.PublishOptions;
     using ReplyOptions = NServiceBus.ReplyOptions;
     using SendOptions = NServiceBus.SendOptions;

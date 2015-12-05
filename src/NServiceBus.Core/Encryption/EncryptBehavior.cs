@@ -2,7 +2,6 @@
 {
     using System;
     using System.Threading.Tasks;
-    using Encryption;
     using NServiceBus.Pipeline.OutgoingPipeline;
     using Pipeline;
 

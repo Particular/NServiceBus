@@ -2,8 +2,7 @@ namespace NServiceBus
 {
     using NServiceBus.Settings;
     using NServiceBus.Transports;
-    using NServiceBus.Unicast.Transport;
-
+    
     class OutboundTransport
     {
         public TransportDefinition Definition { get; }

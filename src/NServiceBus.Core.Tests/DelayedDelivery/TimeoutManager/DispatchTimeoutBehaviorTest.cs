@@ -6,7 +6,6 @@
     using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.Extensibility;
-    using NServiceBus.InMemory.TimeoutPersister;
     using NServiceBus.Timeout.Core;
     using NServiceBus.Transports;
     using NUnit.Framework;

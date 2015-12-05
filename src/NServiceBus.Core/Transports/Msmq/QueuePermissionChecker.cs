@@ -1,11 +1,10 @@
-﻿namespace NServiceBus.Features
+﻿namespace NServiceBus
 {
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Messaging;
     using System.Security;
     using NServiceBus.Logging;
-    using NServiceBus.Transports.Msmq;
 
     class QueuePermissionChecker
     {

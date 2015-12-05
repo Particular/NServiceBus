@@ -1,5 +1,6 @@
-namespace NServiceBus.Pipeline.Contexts
+namespace NServiceBus
 {
+    using NServiceBus.Pipeline;
     using ObjectBuilder;
 
     class RootContext : BehaviorContext

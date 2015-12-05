@@ -1,4 +1,4 @@
-namespace NServiceBus.ObjectBuilder.Autofac
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
@@ -7,11 +7,12 @@ namespace NServiceBus.ObjectBuilder.Autofac
     using global::Autofac;
     using global::Autofac.Builder;
     using global::Autofac.Core;
+    using IContainer = NServiceBus.ObjectBuilder.Common.IContainer;
 
     ///<summary>
-    /// Autofac implementation of <see cref="Common.IContainer"/>.
+    /// Autofac implementation of <see cref="NServiceBus.ObjectBuilder.Common.IContainer"/>.
     ///</summary>
-    class AutofacObjectBuilder : Common.IContainer
+    class AutofacObjectBuilder : IContainer
     {
         ILifetimeScope container;
 
@@ -40,7 +41,7 @@ namespace NServiceBus.ObjectBuilder.Autofac
         /// Returns a child instance of the container to facilitate deterministic disposal
         /// of all resources built by the child container.
         /// </summary>
-        public Common.IContainer BuildChildContainer()
+        public IContainer BuildChildContainer()
         {
             return new AutofacObjectBuilder(container.BeginLifetimeScope());
         }
@@ -61,7 +62,7 @@ namespace NServiceBus.ObjectBuilder.Autofac
             return ResolveAll(container, typeToBuild);
         }
 
-        void Common.IContainer.Configure(Type component, DependencyLifecycle dependencyLifecycle)
+        void IContainer.Configure(Type component, DependencyLifecycle dependencyLifecycle)
         {
             var registration = GetComponentRegistration(component);
 
@@ -79,7 +80,7 @@ namespace NServiceBus.ObjectBuilder.Autofac
             builder.Update(container.ComponentRegistry);
         }
 
-        void Common.IContainer.Configure<T>(Func<T> componentFactory, DependencyLifecycle dependencyLifecycle)
+        void IContainer.Configure<T>(Func<T> componentFactory, DependencyLifecycle dependencyLifecycle)
         {
             var registration = GetComponentRegistration(typeof(T));
 

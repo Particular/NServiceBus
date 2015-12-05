@@ -1,8 +1,9 @@
-namespace NServiceBus.Pipeline
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using NServiceBus.Pipeline;
 
     class StepRegistrationsCoordinator
     {

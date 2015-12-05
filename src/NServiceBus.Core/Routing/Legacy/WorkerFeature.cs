@@ -1,6 +1,4 @@
-﻿
-
-namespace NServiceBus.Routing.Legacy
+﻿namespace NServiceBus
 {
     using System;
     using Features;

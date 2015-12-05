@@ -9,9 +9,7 @@
     using DelayedDelivery;
     using DeliveryConstraints;
     using Faults;
-    using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.Recoverability.SecondLevelRetries;
     using NServiceBus.Routing;
     using TransportDispatch;
     using Transports;

@@ -11,7 +11,6 @@ namespace NServiceBus.Serializers.Json
     using Newtonsoft.Json;
     using Newtonsoft.Json.Converters;
     using NServiceBus.Serialization;
-    using NServiceBus.Serializers.Json.Internal;
 
     /// <summary>
     /// JSON message serializer.

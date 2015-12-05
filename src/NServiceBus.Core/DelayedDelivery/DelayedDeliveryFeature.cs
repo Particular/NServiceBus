@@ -3,8 +3,6 @@
     using NServiceBus.Config;
     using NServiceBus.DelayedDelivery;
     using NServiceBus.DeliveryConstraints;
-    using NServiceBus.Features.DelayedDelivery;
-    using NServiceBus.Pipeline;
     using NServiceBus.TransportDispatch;
 
     class DelayedDeliveryFeature : Feature

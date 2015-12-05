@@ -1,4 +1,4 @@
-namespace NServiceBus.Unicast.Queuing
+namespace NServiceBus
 {
     using System.Threading.Tasks;
     using Installation;
@@ -8,8 +8,8 @@ namespace NServiceBus.Unicast.Queuing
 
     class QueuesCreator : INeedToInstallSomething
     {
-        readonly IBuilder builder;
-        readonly ReadOnlySettings settings;
+        IBuilder builder;
+        ReadOnlySettings settings;
 
         public QueuesCreator(IBuilder builder, ReadOnlySettings settings)
         {

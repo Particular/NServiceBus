@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Routing.Legacy
+﻿namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
@@ -35,13 +35,13 @@
             //we use the actual address to make sure that the worker inside the master node will check in correctly
             var readyMessage = ControlMessageFactory.Create(MessageIntentEnum.Send);
 
-            readyMessage.Headers.Add(DistributorHeaders.WorkerCapacityAvailable, capacity.ToString());
-            readyMessage.Headers.Add(DistributorHeaders.WorkerSessionId, workerSessionId);
+            readyMessage.Headers.Add(LegacyDistributorHeaders.WorkerCapacityAvailable, capacity.ToString());
+            readyMessage.Headers.Add(LegacyDistributorHeaders.WorkerSessionId, workerSessionId);
             readyMessage.Headers.Add(Headers.ReplyToAddress, receiveAddress);
 
             if (isStarting)
             {
-                readyMessage.Headers.Add(DistributorHeaders.WorkerStarting, bool.TrueString);
+                readyMessage.Headers.Add(LegacyDistributorHeaders.WorkerStarting, bool.TrueString);
             }
 
             var dispatchOptions = new DispatchOptions(new UnicastAddressTag(distributorControlAddress), DispatchConsistency.Default);
@@ -52,7 +52,7 @@
         {
             //if there was a failure this "send" will be rolled back
             string messageSessionId;
-            headers.TryGetValue(DistributorHeaders.WorkerSessionId, out messageSessionId);
+            headers.TryGetValue(LegacyDistributorHeaders.WorkerSessionId, out messageSessionId);
             if (messageSessionId == null)
             {
                 return;

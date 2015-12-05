@@ -2,10 +2,8 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using Encryption;
     using Pipeline;
     using Pipeline.Contexts;
-    using Unicast.Transport;
 
     class DecryptBehavior : Behavior<LogicalMessageProcessingContext>
     {

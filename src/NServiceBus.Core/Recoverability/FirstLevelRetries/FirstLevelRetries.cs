@@ -4,7 +4,6 @@ namespace NServiceBus.Features
     using System.Threading;
     using System.Threading.Tasks;
     using Config;
-    using NServiceBus.Recoverability.FirstLevelRetries;
     using NServiceBus.Settings;
 
     /// <summary>

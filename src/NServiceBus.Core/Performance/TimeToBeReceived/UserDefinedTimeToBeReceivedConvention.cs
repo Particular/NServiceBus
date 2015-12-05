@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Performance.TimeToBeReceived
+﻿namespace NServiceBus
 {
     using System;
 

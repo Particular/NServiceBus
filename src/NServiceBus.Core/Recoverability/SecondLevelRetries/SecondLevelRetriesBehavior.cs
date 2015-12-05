@@ -8,7 +8,6 @@ namespace NServiceBus
     using Logging;
     using Pipeline;
     using Pipeline.Contexts;
-    using Recoverability.SecondLevelRetries;
     using Routing;
     using TransportDispatch;
     using Transports;

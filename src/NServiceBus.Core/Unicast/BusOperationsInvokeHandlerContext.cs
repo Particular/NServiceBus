@@ -1,7 +1,6 @@
-namespace NServiceBus.Unicast
+namespace NServiceBus
 {
     using System.Threading.Tasks;
-    using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Routing;
     using NServiceBus.Settings;

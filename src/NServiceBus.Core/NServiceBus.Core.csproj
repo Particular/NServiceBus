@@ -108,6 +108,9 @@
     <Compile Include="ConfigureHandlerSettings.cs" />
     <Compile Include="ConsistencyGuarantees\ConsistencyGuaranteeSettingsExtensions.cs" />
     <Compile Include="ConsistencyGuarantees\TransactionScopes\WrapHandlersInTransactionScope.cs" />
+    <Compile Include="ObjectBuilder\Common\GenericComponentConfig.cs" />
+    <Compile Include="Performance\Counters\IPerformanceCounterInstance.cs" />
+    <Compile Include="Performance\Counters\NonFunctionalPerformanceCounterInstance.cs" />
     <Compile Include="Persistence\CompletableSynchronizedStorageSession.cs" />
     <Compile Include="Persistence\InMemory\InMemorySynchronizedStorage.cs" />
     <Compile Include="Persistence\InMemory\InMemoryTransactionalSynchronizedStorageAdapter.cs" />
@@ -118,6 +121,9 @@
     <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionStorage.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionStorageConfig.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionStorageQueue.cs" />
+    <Compile Include="Pipeline\IPipelineBase.cs" />
+    <Compile Include="Pipeline\RegisterStepExtensions.cs" />
+    <Compile Include="Pipeline\SatellitePipelineModifications.cs" />
     <Compile Include="Routing\Legacy\ConfigureMSMQDistributor.cs" />
     <Compile Include="Routing\Legacy\DistributorHeaders.cs" />
     <Compile Include="Routing\Legacy\ProcessedMessageCounterBehavior.cs" />
@@ -125,6 +131,7 @@
     <Compile Include="Routing\Legacy\WorkerFeature.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\MessageDrivenSubscriptionsConfigExtensions.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\SubscriptionAuthorizer.cs" />
+    <Compile Include="StaticHeaders\StaticHeaders.cs" />
     <Compile Include="Transports\Msmq\QueuePermissionChecker.cs" />
     <Compile Include="Transports\Msmq\TimeToBeReceivedOverrideCheck.cs" />
     <Compile Include="Transports\Msmq\TimeToBeReceivedOverrideChecker.cs" />
@@ -447,8 +454,8 @@
     <Compile Include="Serializers\Json\JsonSerializer.cs" />
     <Compile Include="Serializers\XML\Config\XmlSerializer.cs" />
     <Compile Include="Serializers\XML\Config\XmlSerializationExtentions.cs" />
-    <Compile Include="Serializers\XML\Deserializer.cs" />
-    <Compile Include="Serializers\XML\Serializer.cs" />
+    <Compile Include="Serializers\XML\XmlDeserialization.cs" />
+    <Compile Include="Serializers\XML\XmlSerialization.cs" />
     <Compile Include="Serializers\XML\XmlSerializerCache.cs" />
     <Compile Include="Performance\MessageDurability\DurableMessagesConfig.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\ConfigurationBuilderExtensions.cs" />

@@ -1,4 +1,4 @@
-namespace NServiceBus.Faults
+namespace NServiceBus
 {
     using System;
     using NServiceBus.Config;

@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.IO;
     using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.Recoverability.FirstLevelRetries;
     using Transports;
     using Unicast.Transport;
     using NUnit.Framework;

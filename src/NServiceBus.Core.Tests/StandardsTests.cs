@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using System.Runtime.CompilerServices;
     using NServiceBus.Features;
     using NServiceBus.Logging;
     using NUnit.Framework;
@@ -33,7 +34,7 @@
         {
             foreach (var type in typeof(IBusContextFactory).Assembly.GetTypes())
             {
-                foreach (var field in type.GetFields(BindingFlags.Instance|BindingFlags.NonPublic|BindingFlags.Public))
+                foreach (var field in type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
                 {
                     if (field.FieldType == typeof(ILog))
                     {
@@ -41,6 +42,35 @@
                     }
                 }
             }
+        }
+
+        [Test]
+        public void NonPublicShouldHaveSimpleNamespace()
+        {
+
+            // we still need an NServiceBus prefix for people who do logging filtering
+            var types = typeof(IBusContextFactory).Assembly.GetTypes()
+                .Where(x =>
+                    !x.IsPublic &&
+                    !x.IsNested &&
+                    !IsCompilerGenerated(x) &&
+                    !x.FullName.Contains("JetBrains") &&
+                    !x.FullName.StartsWith("Newtonsoft.Json") &&
+                    !x.FullName.StartsWith("Autofac") &&
+                    x.Name != "GitVersionInformation" &&
+                    x.Namespace != "Particular.Licensing" &&
+                    x.Namespace != "NServiceBus.Features" &&
+                    x.Name != "ProcessedByFody" &&
+                    x.Namespace != "NServiceBus").ToList();
+            if (types.Count > 0)
+            {
+                Assert.IsEmpty(types, "Non public types should have 'NServiceBus' namespace\r\n" + string.Join(Environment.NewLine, types.Select(x => x.FullName)));
+            }
+        }
+
+        static bool IsCompilerGenerated(Type x)
+        {
+            return Attribute.IsDefined(x, typeof(CompilerGeneratedAttribute), false);
         }
 
         [Test]

@@ -5,7 +5,6 @@
     using System.Threading.Tasks;
     using NServiceBus.Extensibility;
     using NServiceBus.Pipeline;
-    using NServiceBus.Unicast;
     using PublishOptions = NServiceBus.PublishOptions;
     using SendOptions = NServiceBus.SendOptions;
 

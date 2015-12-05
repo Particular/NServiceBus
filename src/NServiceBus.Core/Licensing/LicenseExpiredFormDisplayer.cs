@@ -1,4 +1,4 @@
-namespace NServiceBus.Licensing
+namespace NServiceBus
 {
     using System.Threading;
     using Particular.Licensing;

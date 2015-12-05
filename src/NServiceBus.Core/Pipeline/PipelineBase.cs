@@ -1,8 +1,9 @@
-﻿namespace NServiceBus.Pipeline
+﻿namespace NServiceBus
 {
     using System.Linq;
     using System.Threading.Tasks;
     using Janitor;
+    using NServiceBus.Pipeline;
     using NServiceBus.Settings;
     using NServiceBus.Unicast.Transport;
     using ObjectBuilder;
@@ -55,10 +56,5 @@
         }
 
         BehaviorInstance[] behaviors;
-    }
-
-    interface IPipelineBase<T>
-    {
-        Task Invoke(T context);
     }
 }

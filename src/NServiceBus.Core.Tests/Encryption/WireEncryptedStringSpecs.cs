@@ -3,7 +3,6 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using NServiceBus.Encryption;
     using NUnit.Framework;
     using Conventions = NServiceBus.Conventions;
 

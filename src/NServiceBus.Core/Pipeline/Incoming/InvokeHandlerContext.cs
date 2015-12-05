@@ -3,7 +3,6 @@ namespace NServiceBus.Pipeline.Contexts
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using NServiceBus.Persistence;
-    using NServiceBus.Unicast;
     using NServiceBus.Unicast.Behaviors;
     using NServiceBus.Unicast.Messages;
 

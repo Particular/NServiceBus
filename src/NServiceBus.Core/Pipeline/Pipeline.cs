@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Pipeline
+﻿namespace NServiceBus
 {
     interface IPipeline
     {

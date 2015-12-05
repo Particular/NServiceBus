@@ -4,7 +4,6 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Linq;
     using Config;
-    using Encryption.Rijndael;
     using NServiceBus.Encryption;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Settings;

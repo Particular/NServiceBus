@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.AssemblyScanner
 {
     using System.IO;
-    using Hosting.Helpers;
     using NUnit.Framework;
 
     [TestFixture]

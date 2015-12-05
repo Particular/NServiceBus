@@ -1,4 +1,4 @@
-namespace NServiceBus.Scheduling.Messages
+namespace NServiceBus
 {
     using System;
 

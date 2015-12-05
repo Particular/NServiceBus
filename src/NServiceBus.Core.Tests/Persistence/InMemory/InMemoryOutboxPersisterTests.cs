@@ -4,7 +4,6 @@
     using System.Linq;
     using System.Threading.Tasks;
     using Extensibility;
-    using NServiceBus.InMemory.Outbox;
     using NUnit.Framework;
     using Outbox;
 

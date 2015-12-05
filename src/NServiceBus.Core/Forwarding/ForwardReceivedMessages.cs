@@ -1,8 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
     using NServiceBus.Config;
-    using NServiceBus.Forwarding;
-    using NServiceBus.Pipeline;
     using NServiceBus.Transports;
 
     /// <summary>
