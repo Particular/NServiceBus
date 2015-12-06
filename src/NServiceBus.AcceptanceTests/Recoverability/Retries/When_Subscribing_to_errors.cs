@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Recoverability.Retries
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
@@ -91,13 +90,14 @@
 
             public Task Start(IBusContext context)
             {
-                unsubscribeStreams.Add(Notifications.Errors.MessageSentToErrorQueue.Subscribe(message =>
+                Notifications.Errors.MessageSentToErrorQueue += (sender, message) =>
                 {
                     Context.MessageSentToErrorException = message.Exception;
                     Context.MessageSentToError = true;
-                }));
-                unsubscribeStreams.Add(Notifications.Errors.MessageHasFailedAFirstLevelRetryAttempt.Subscribe(message => Context.TotalNumberOfFLRTimesInvoked++));
-                unsubscribeStreams.Add(Notifications.Errors.MessageHasBeenSentToSecondLevelRetries.Subscribe(message => Context.NumberOfSLRRetriesPerformed++));
+                };
+
+                Notifications.Errors.MessageHasFailedAFirstLevelRetryAttempt += (sender, retry) => Context.TotalNumberOfFLRTimesInvoked++;
+                Notifications.Errors.MessageHasBeenSentToSecondLevelRetries += (sender, retry) => Context.NumberOfSLRRetriesPerformed++;
 
                 return context.SendLocal(new MessageToBeRetried
                 {
@@ -107,14 +107,8 @@
 
             public Task Stop(IBusContext context)
             {
-                foreach (var unsubscribeStream in unsubscribeStreams)
-                {
-                    unsubscribeStream.Dispose();
-                }
                 return Task.FromResult(0);
             }
-
-            List<IDisposable> unsubscribeStreams = new List<IDisposable>();
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.AcceptanceTesting.Support
 {
-    using System;
     using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.Faults;
@@ -27,56 +26,42 @@
         {
             public FailTestOnErrorMessageFeatureStartupTask(ScenarioContext context, ReadOnlySettings settings, BusNotifications notifications)
             {
-                this.settings = settings;
                 scenarioContext = context;
                 this.notifications = notifications;
+                endpointName = settings.EndpointName();
             }
 
             protected override Task OnStart(IBusContext context)
             {
-                notifications.Errors.MessageSentToErrorQueue.Subscribe(new FaultedMessageObserver(scenarioContext, settings.EndpointName()));
-                return Task.FromResult(0);
+                notifications.Errors.MessageSentToErrorQueue += OnMessageSentToErrorQueue;
+                return TaskEx.Completed;
             }
 
-            readonly BusNotifications notifications;
-            readonly ScenarioContext scenarioContext;
-            readonly ReadOnlySettings settings;
-        }
-
-        class FaultedMessageObserver : IObserver<FailedMessage>
-        {
-            public FaultedMessageObserver(ScenarioContext testContext, EndpointName endpointName)
+            protected override Task OnStop(IBusContext context)
             {
-                this.testContext = testContext;
-                this.endpointName = endpointName;
+                notifications.Errors.MessageSentToErrorQueue -= OnMessageSentToErrorQueue;
+                return TaskEx.Completed;
             }
 
-            public void OnNext(FailedMessage value)
+            void OnMessageSentToErrorQueue(object sender, FailedMessage failedMessage)
             {
-                testContext.FailedMessages.AddOrUpdate(
+                scenarioContext.FailedMessages.AddOrUpdate(
                     endpointName.ToString(),
                     new[]
                     {
-                        value
+                        failedMessage
                     },
                     (i, failed) =>
                     {
                         var result = failed.ToList();
-                        result.Add(value);
+                        result.Add(failedMessage);
                         return result;
                     });
             }
 
-            public void OnError(Exception error)
-            {
-            }
-
-            public void OnCompleted()
-            {
-            }
-
+            BusNotifications notifications;
+            ScenarioContext scenarioContext;
             EndpointName endpointName;
-            ScenarioContext testContext;
         }
     }
 }

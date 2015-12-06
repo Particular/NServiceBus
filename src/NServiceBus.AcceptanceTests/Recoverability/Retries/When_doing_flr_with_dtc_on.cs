@@ -63,10 +63,7 @@
 
                 public Task Start(IBusContext context)
                 {
-                    BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e =>
-                    {
-                        Context.GaveUpOnRetries = true;
-                    });
+                    BusNotifications.Errors.MessageSentToErrorQueue += (sender, message) => Context.GaveUpOnRetries = true;
                     return Task.FromResult(0);
                 }
 

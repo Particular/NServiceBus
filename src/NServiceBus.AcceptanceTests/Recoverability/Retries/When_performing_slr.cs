@@ -84,11 +84,11 @@
 
                 public Task Start(IBusContext context)
                 {
-                    BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e =>
+                    BusNotifications.Errors.MessageSentToErrorQueue += (sender, message) =>
                     {
                         Context.ForwardedToErrorQueue = true;
-                        Context.SlrChecksum = Checksum(e.Body);
-                    });
+                        Context.SlrChecksum = Checksum(message.Body);
+                    };
                     return Task.FromResult(0);
                 }
 

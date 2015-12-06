@@ -59,10 +59,7 @@
 
                 public Task Start(IBusContext context)
                 {
-                    BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e =>
-                    {
-                        Context.ForwardedToErrorQueue = true;
-                    });
+                    BusNotifications.Errors.MessageSentToErrorQueue += (sender, message) => Context.ForwardedToErrorQueue = true;
                     return Task.FromResult(0);
                 }
 
