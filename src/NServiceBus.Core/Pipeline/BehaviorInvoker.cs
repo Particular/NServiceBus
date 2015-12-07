@@ -9,7 +9,7 @@
     {
         public Task Invoke(object behavior, BehaviorContext context, Func<BehaviorContext, Task> next)
         {
-            return ((IBehavior<TIn, TOut>)behavior).Invoke((TIn)context, next);
+            return ((IBehavior<TIn, TOut>)behavior).Invoke((TIn)context, next as Func<TOut, Task>);
         }
     }
 }

@@ -119,7 +119,7 @@
                 {"Timeout.Id", timeoutId}
             };
 
-            return new PhysicalMessageProcessingContext(
+            return new PhysicalMessageProcessingContextImpl(
                 new IncomingMessage(messageId, headers, new MemoryStream()), null);
         }
 

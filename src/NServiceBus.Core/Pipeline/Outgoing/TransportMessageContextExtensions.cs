@@ -16,7 +16,7 @@ namespace NServiceBus.Pipeline.Outgoing
         {
             Guard.AgainstNull(nameof(context), context);
 
-            return context.TryGet(out message);
+            return context.Extensions.TryGet(out message);
         }
 
         /// <summary>
@@ -26,7 +26,7 @@ namespace NServiceBus.Pipeline.Outgoing
         {
             Guard.AgainstNull(nameof(context), context);
 
-            return context.TryGet(out message);
+            return context.Extensions.TryGet(out message);
         }
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace NServiceBus.Pipeline.Outgoing
         {
             Guard.AgainstNull(nameof(context), context);
 
-            return context.TryGet(out message);
+            return context.Extensions.TryGet(out message);
         }
     }
 }

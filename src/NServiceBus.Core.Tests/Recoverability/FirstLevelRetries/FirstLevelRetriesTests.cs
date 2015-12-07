@@ -173,7 +173,7 @@
 
         TransportReceiveContext CreateContext(string messageId)
         {
-            return new TransportReceiveContext(new IncomingMessage(messageId, new Dictionary<string, string>(), new MemoryStream()), null, new RootContext(null));
+            return new TransportReceiveContextImpl(new IncomingMessage(messageId, new Dictionary<string, string>(), new MemoryStream()), null, new RootContext(null));
         }
     }
 }

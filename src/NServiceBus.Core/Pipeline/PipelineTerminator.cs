@@ -30,17 +30,21 @@
         /// <summary>
         /// A wellknow context that terminates the pipeline.
         /// </summary>
-        public class TerminatingContext : BehaviorContext
+        class TerminatingContextImpl : BehaviorContextImpl, TerminatingContext
         {
-            /// <summary>
-            /// Initializes a new instance of <see cref="TerminatingContext"/>.
-            /// </summary>
-            /// <param name="parentContext">The parent context.</param>
-            public TerminatingContext(BehaviorContext parentContext)
+            public TerminatingContextImpl(BehaviorContext parentContext)
                 : base(parentContext)
             {
             }
         }
 
+        /// <summary>
+        /// A wellknow context that terminates the pipeline.
+        /// </summary>
+        public interface TerminatingContext : BehaviorContext
+        {
+        }
     }
+
+
 }

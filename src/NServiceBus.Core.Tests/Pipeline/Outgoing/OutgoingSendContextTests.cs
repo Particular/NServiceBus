@@ -14,7 +14,7 @@
             var options = new SendOptions();
             options.SetHeader("someHeader", "someValue");
 
-            var testee = new OutgoingSendContext(message, options, new RootContext(null));
+            var testee = new OutgoingSendContextImpl(message, options, new RootContext(null));
             testee.Headers["someHeader"] = "updatedValue";
             testee.Headers["anotherHeader"] = "anotherValue";
 
@@ -31,9 +31,9 @@
             var options = new SendOptions();
             options.Context.Set("someKey", "someValue");
 
-            var testee = new OutgoingSendContext(message, options, new RootContext(null));
-            testee.Set("someKey", "updatedValue");
-            testee.Set("anotherKey", "anotherValue");
+            var testee = new OutgoingSendContextImpl(message, options, new RootContext(null));
+            testee.Extensions.Set("someKey", "updatedValue");
+            testee.Extensions.Set("anotherKey", "anotherValue");
 
             string value;
             string anotherValue;
@@ -42,8 +42,8 @@
             Assert.IsFalse(options.Context.TryGet("anotherKey", out anotherValue));
             string updatedValue;
             string anotherValue2;
-            testee.TryGet("someKey", out updatedValue);
-            testee.TryGet("anotherKey", out anotherValue2);
+            testee.Extensions.TryGet("someKey", out updatedValue);
+            testee.Extensions.TryGet("anotherKey", out anotherValue2);
             Assert.AreEqual("updatedValue", updatedValue);
             Assert.AreEqual("anotherValue", anotherValue2);
         }

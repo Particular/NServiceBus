@@ -18,15 +18,15 @@
         {
             var behavior = new LoadHandlersConnector(new MessageHandlerRegistry(new Conventions()), new InMemorySynchronizedStorage(), new InMemoryTransactionalSynchronizedStorageAdapter());
 
-            var context = new LogicalMessageProcessingContext(
+            var context = new LogicalMessageProcessingContextImpl(
                 new LogicalMessage(new MessageMetadata(typeof(string)), null, null), 
                 "messageId",
                 "replyToAddress",
                 new Dictionary<string, string>(), 
                 null);
 
-            context.Set<OutboxTransaction>(new InMemoryOutboxTransaction());
-            context.Set<TransportTransaction>(new FakeTransportTransaction());
+            context.Extensions.Set<OutboxTransaction>(new InMemoryOutboxTransaction());
+            context.Extensions.Set<TransportTransaction>(new FakeTransportTransaction());
 
             Assert.Throws<InvalidOperationException>(async () => await behavior.Invoke(context, c => Task.FromResult(0)));
         }

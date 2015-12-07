@@ -14,7 +14,7 @@ namespace NServiceBus
         public override async Task Invoke(LogicalMessageProcessingContext context, Func<Task> next)
         {
             var invocationResult = new SagaInvocationResult();
-            context.Set(invocationResult);
+            context.Extensions.Set(invocationResult);
 
             await next().ConfigureAwait(false);
 

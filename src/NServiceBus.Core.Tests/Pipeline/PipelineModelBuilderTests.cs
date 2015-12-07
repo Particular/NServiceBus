@@ -8,11 +8,10 @@
 
     public class PipelineModelBuilderTests
     {
-
         [Test]
         public void ShouldDetectConflictingStageConnectors()
         {
-            var builder = new PipelineModelBuilder(typeof(RootContext), new List<RegisterStep>
+            var builder = new PipelineModelBuilder(typeof(ParentContext), new List<RegisterStep>
             {
                 RegisterStep.Create("Root1", typeof(RootBehavior), "desc"),
                 RegisterStep.Create("RootToChildConnector", typeof(RootToChildConnector), "desc"),
@@ -29,7 +28,7 @@
         [Test]
         public void ShouldDetectRegistrationsWithContextsReachableFromTheRootContext()
         {
-            var builder = new PipelineModelBuilder(typeof(RootContext), new List<RegisterStep>
+            var builder = new PipelineModelBuilder(typeof(ParentContext), new List<RegisterStep>
             {
                 RegisterStep.Create("Root", typeof(RootBehavior), "desc"),
                 RegisterStep.Create("RootToChildConnector", typeof(RootToChild2Connector), "desc"),
@@ -45,7 +44,7 @@
         [Test]
         public void ShouldHandleTheTerminator()
         {
-            var builder = new PipelineModelBuilder(typeof(RootContext), new List<RegisterStep>
+            var builder = new PipelineModelBuilder(typeof(ParentContext), new List<RegisterStep>
             {
                 RegisterStep.Create("Root1", typeof(RootBehavior), "desc"),
                 RegisterStep.Create("RootToChildConnector", typeof(RootToChildConnector), "desc"),
@@ -59,22 +58,23 @@
             Assert.AreEqual(3, model.Count);
         }
 
-        public class RootContext : BehaviorContext
+        class ParentContext : BehaviorContextImpl
         {
-            public RootContext(BehaviorContext parentContext)
+            public ParentContext(BehaviorContext parentContext)
                 : base(parentContext)
             {
             }
         }
 
-        public class ChildContext : RootContext
+        class ChildContext : ParentContext
         {
             public ChildContext(BehaviorContext parentContext)
                 : base(parentContext)
             {
             }
         }
-        public class ChildContextReachableButNotInheritingFromRootContext : BehaviorContext
+
+        class ChildContextReachableButNotInheritingFromRootContext : BehaviorContextImpl
         {
             public ChildContextReachableButNotInheritingFromRootContext(BehaviorContext parentContext)
                 : base(parentContext)
@@ -82,45 +82,47 @@
             }
         }
 
-        public class RootToChildConnector : StageConnector<RootContext, ChildContext>
+        class RootToChildConnector : StageConnector<ParentContext, ChildContext>
         {
-            public override Task Invoke(RootContext context, Func<ChildContext, Task> next)
+            public override Task Invoke(ParentContext context, Func<ChildContext, Task> next)
             {
                 throw new NotImplementedException();
             }
         }
 
-        public class Terminator : PipelineTerminator<ChildContext>
+        class Terminator : PipelineTerminator<ChildContext>
         {
             protected override Task Terminate(ChildContext context)
             {
                 throw new NotImplementedException();
             }
         }
-        public class RootToChild2Connector : StageConnector<RootContext, ChildContextReachableButNotInheritingFromRootContext>
+
+         class RootToChild2Connector : StageConnector<ParentContext, ChildContextReachableButNotInheritingFromRootContext>
         {
-            public override Task Invoke(RootContext context, Func<ChildContextReachableButNotInheritingFromRootContext, Task> next)
+            public override Task Invoke(ParentContext context, Func<ChildContextReachableButNotInheritingFromRootContext, Task> next)
             {
                 throw new NotImplementedException();
             }
         }
 
-        public class RootBehavior : Behavior<RootContext>
+        class RootBehavior : Behavior<ParentContext>
         {
-            public override Task Invoke(RootContext context, Func<Task> next)
+            public override Task Invoke(ParentContext context, Func<Task> next)
             {
                 throw new NotImplementedException();
             }
         }
 
-        public class ChildBehavior : Behavior<ChildContext>
+        class ChildBehavior : Behavior<ChildContext>
         {
             public override Task Invoke(ChildContext context, Func<Task> next)
             {
                 throw new NotImplementedException();
             }
         }
-        public class NonReachableChildBehavior : Behavior<ChildContextReachableButNotInheritingFromRootContext>
+
+        class NonReachableChildBehavior : Behavior<ChildContextReachableButNotInheritingFromRootContext>
         {
             public override Task Invoke(ChildContextReachableButNotInheritingFromRootContext context, Func<Task> next)
             {

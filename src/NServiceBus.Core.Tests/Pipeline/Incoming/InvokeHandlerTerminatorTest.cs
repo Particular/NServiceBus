@@ -99,7 +99,7 @@
 
             await terminator.Invoke(behaviorContext, _ => TaskEx.Completed);
 
-            Assert.IsFalse(behaviorContext.Get<InvokeHandlerTerminator.State>().ScopeWasPresent);
+            Assert.IsFalse(behaviorContext.Extensions.Get<InvokeHandlerTerminator.State>().ScopeWasPresent);
         }
 
         [Test]
@@ -116,13 +116,13 @@
                 scope.Complete();
             }
 
-            Assert.IsTrue(behaviorContext.Get<InvokeHandlerTerminator.State>().ScopeWasPresent);
+            Assert.IsTrue(behaviorContext.Extensions.Get<InvokeHandlerTerminator.State>().ScopeWasPresent);
         }
 
         static ActiveSagaInstance AssociateSagaWithMessage(FakeSaga saga, InvokeHandlerContext behaviorContext)
         {
             var sagaInstance = new ActiveSagaInstance(saga, SagaMetadata.Create(typeof(FakeSaga), new List<Type>(), new Conventions()));
-            behaviorContext.Set(sagaInstance);
+            behaviorContext.Extensions.Set(sagaInstance);
             return sagaInstance;
         }
 
@@ -141,7 +141,7 @@
 
         static InvokeHandlerContext CreateBehaviorContext(MessageHandler messageHandler)
         {
-            var behaviorContext = new InvokeHandlerContext(
+            var behaviorContext = new InvokeHandlerContextImpl(
                 messageHandler,
                 "messageId",
                 "replyToAddress",

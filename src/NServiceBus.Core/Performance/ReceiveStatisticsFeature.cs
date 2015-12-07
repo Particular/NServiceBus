@@ -28,7 +28,7 @@
 
             ProcessingStatisticsBehavior.State state;
 
-            if (context.TryGet(out state))
+            if (context.Extensions.TryGet(out state))
             {
                 context.AddAuditData(Headers.ProcessingStarted,DateTimeExtensions.ToWireFormattedString(state.ProcessingStarted));
                 context.AddAuditData(Headers.ProcessingEnded, DateTimeExtensions.ToWireFormattedString(state.ProcessingEnded));

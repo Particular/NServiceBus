@@ -16,7 +16,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public static async Task ForwardCurrentMessageTo(IncomingContext context, string destination)
         {
-            var messageBeingProcessed = context.Get<IncomingMessage>();
+            var messageBeingProcessed = context.Extensions.Get<IncomingMessage>();
             var settings = context.Builder.Build<ReadOnlySettings>();
 
             var pipeline = new PipelineBase<RoutingContext>(
@@ -29,7 +29,7 @@ namespace NServiceBus.Unicast
                 messageBeingProcessed.Headers,
                 messageBeingProcessed.Body);
 
-            var routingContext = new RoutingContext(outgoingMessage, new UnicastRoutingStrategy(destination), context);
+            var routingContext = new RoutingContextImpl(outgoingMessage, new UnicastRoutingStrategy(destination), context);
 
             await pipeline.Invoke(routingContext).ConfigureAwait(false);
         }

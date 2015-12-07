@@ -40,7 +40,7 @@ namespace NServiceBus.Unicast
                 settings, 
                 settings.Get<PipelineConfiguration>().MainPipeline);
 
-            var publishContext = new OutgoingPublishContext(
+            var publishContext = new OutgoingPublishContextImpl(
                 new OutgoingLogicalMessage(message),
                 options,
                 context);
@@ -60,7 +60,7 @@ namespace NServiceBus.Unicast
             var settings = context.Builder.Build<ReadOnlySettings>();
             var pipeline = new PipelineBase<SubscribeContext>(context.Builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
 
-            var subscribeContext = new SubscribeContext(
+            var subscribeContext = new SubscribeContextImpl(
                 context,
                 eventType,
                 options);
@@ -79,7 +79,7 @@ namespace NServiceBus.Unicast
             var settings = context.Builder.Build<ReadOnlySettings>();
             var pipeline = new PipelineBase<UnsubscribeContext>(context.Builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
 
-            var subscribeContext = new UnsubscribeContext(
+            var subscribeContext = new UnsubscribeContextImpl(
                 context,
                 eventType,
                 options);
@@ -118,7 +118,7 @@ namespace NServiceBus.Unicast
             var settings = context.Builder.Build<ReadOnlySettings>();
             var pipeline = new PipelineBase<OutgoingSendContext>(context.Builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
 
-            var outgoingContext = new OutgoingSendContext(
+            var outgoingContext = new OutgoingSendContextImpl(
                 new OutgoingLogicalMessage(messageType, message),
                 options,
                 context);
@@ -140,7 +140,7 @@ namespace NServiceBus.Unicast
                 settings, 
                 settings.Get<PipelineConfiguration>().MainPipeline);
 
-            var outgoingContext = new OutgoingReplyContext(
+            var outgoingContext = new OutgoingReplyContextImpl(
                 new OutgoingLogicalMessage(message),
                 options,
                 context);

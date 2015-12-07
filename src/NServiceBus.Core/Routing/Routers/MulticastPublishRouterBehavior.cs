@@ -13,7 +13,7 @@ namespace NServiceBus
         {
             context.Headers[Headers.MessageIntent] = MessageIntentEnum.Publish.ToString();
 
-            var logicalMessageContext = new OutgoingLogicalMessageContext(
+            var logicalMessageContext = new OutgoingLogicalMessageContextImpl(
                 context.MessageId,
                 context.Headers,
                 context.Message,

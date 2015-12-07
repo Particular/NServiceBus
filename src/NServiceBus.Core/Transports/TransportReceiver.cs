@@ -64,8 +64,8 @@ namespace NServiceBus.Transport
         {
             using (var childBuilder = builder.CreateChildBuilder())
             {
-                var context = new TransportReceiveContext(new IncomingMessage(pushContext.MessageId, pushContext.Headers, pushContext.BodyStream), pushContext.TransportTransaction, new RootContext(childBuilder));
-                context.Merge(pushContext.Context);
+                var context = new TransportReceiveContextImpl(new IncomingMessage(pushContext.MessageId, pushContext.Headers, pushContext.BodyStream), pushContext.TransportTransaction, new RootContext(childBuilder));
+                context.Extensions.Merge(pushContext.Context);
                 await pipeline.Invoke(context).ConfigureAwait(false);
             }
         }

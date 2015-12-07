@@ -11,10 +11,9 @@ namespace NServiceBus
         public BusContext(BehaviorContext context)
         {
             this.context = context;
-            Extensions = context;
         }
 
-        public ContextBag Extensions { get; }
+        public ContextBag Extensions => context.Extensions;
 
         public Task Send(object message, SendOptions options)
         {

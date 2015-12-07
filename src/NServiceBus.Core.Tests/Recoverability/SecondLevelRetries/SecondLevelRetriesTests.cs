@@ -137,7 +137,7 @@
 
         TransportReceiveContext CreateContext(string messageId, int currentRetryCount, byte[] messageBody = null)
         {
-            return new TransportReceiveContext(new IncomingMessage(messageId, new Dictionary<string, string>
+            return new TransportReceiveContextImpl(new IncomingMessage(messageId, new Dictionary<string, string>
             {
                 {Headers.Retries, currentRetryCount.ToString()}
             }, new MemoryStream(messageBody ?? new byte[0])), null, new RootContext(null));

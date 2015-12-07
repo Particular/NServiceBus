@@ -2,7 +2,7 @@ namespace NServiceBus.Pipeline.Contexts
 {
     using ObjectBuilder;
 
-    class RootContext : BehaviorContext
+    class RootContext : BehaviorContextImpl
     {
         public RootContext(IBuilder builder) : base(null)
         {

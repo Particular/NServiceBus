@@ -15,7 +15,7 @@
 
             var message = new OutgoingMessage(context.MessageId, context.Headers, context.Body);
 
-            return next(new RoutingContext(message, context.RoutingStrategies, context));
+            return next(new RoutingContextImpl(message, context.RoutingStrategies, context));
         }
     }
 }

@@ -22,9 +22,9 @@
 
         public override async Task Invoke(LogicalMessageProcessingContext context, Func<InvokeHandlerContext, Task> next)
         {
-            var outboxTransaction = context.Get<OutboxTransaction>();
-            var transportTransaction = context.Get<TransportTransaction>();
-            using (var storageSession = await AdaptOrOpenNewSynchronizedStorageSession(transportTransaction, outboxTransaction, context))
+            var outboxTransaction = context.Extensions.Get<OutboxTransaction>();
+            var transportTransaction = context.Extensions.Get<TransportTransaction>();
+            using (var storageSession = await AdaptOrOpenNewSynchronizedStorageSession(transportTransaction, outboxTransaction, context.Extensions))
             {
                 var handlersToInvoke = messageHandlerRegistry.GetHandlersFor(context.Message.MessageType).ToList();
 
@@ -38,7 +38,7 @@
                 {
                     messageHandler.Instance = context.Builder.Build(messageHandler.HandlerType);
 
-                    var handlingContext = new InvokeHandlerContext(messageHandler, storageSession, context);
+                    var handlingContext = new InvokeHandlerContextImpl(messageHandler, storageSession, context);
                     await next(handlingContext).ConfigureAwait(false);
 
                     if (handlingContext.HandlerInvocationAborted)

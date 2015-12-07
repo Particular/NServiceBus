@@ -1,21 +1,14 @@
 namespace NServiceBus
 {
     using System;
-    using System.ComponentModel;
     using System.Threading.Tasks;
     using NServiceBus.Extensibility;
 
     /// <summary>
     /// The current context of the bus.
     /// </summary>
-    public interface IBusContext
+    public interface IBusContext : IExtendable
     {
-        /// <summary>
-        /// A <see cref="ContextBag"/> which can be used for extensibility.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Advanced)]
-        ContextBag Extensions { get; }
-
         /// <summary>
         /// Sends the provided message.
         /// </summary>

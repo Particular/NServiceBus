@@ -35,7 +35,7 @@ namespace NServiceBus
             try
             {
                 await next(
-                    new OutgoingLogicalMessageContext(
+                    new OutgoingLogicalMessageContextImpl(
                         context.MessageId,
                         context.Headers,
                         context.Message,
@@ -52,7 +52,7 @@ namespace NServiceBus
         async Task<List<UnicastRoutingStrategy>> GetRoutingStrategies(OutgoingPublishContext context, Type eventType)
         {
             var distributionStrategy = distributionPolicy.GetDistributionStrategy(eventType);
-            var addressLabels = await unicastRouter.Route(eventType, distributionStrategy, context).ConfigureAwait(false);
+            var addressLabels = await unicastRouter.Route(eventType, distributionStrategy, context.Extensions).ConfigureAwait(false);
             return addressLabels.ToList();
         }
     }

@@ -14,14 +14,14 @@ namespace NServiceBus.Unicast
         /// Moves the message being handled to the back of the list of available 
         /// messages so it can be handled later.
         /// </summary>
-        public static async Task HandleCurrentMessageLater(InvokeHandlerContext context)
+        public static Task HandleCurrentMessageLater(InvokeHandlerContext context)
         {
-            if (context.handleCurrentMessageLaterWasCalled)
+            if (context.HandleCurrentMessageLaterWasCalled)
             {
-                return;
+                return TaskEx.Completed;
             }
 
-            var messageBeingProcessed = context.Get<IncomingMessage>();
+            var messageBeingProcessed = context.Extensions.Get<IncomingMessage>();
             var settings = context.Builder.Build<ReadOnlySettings>();
 
             var pipeline = new PipelineBase<RoutingContext>(
@@ -34,12 +34,9 @@ namespace NServiceBus.Unicast
                 messageBeingProcessed.Headers,
                 messageBeingProcessed.Body);
 
-            var routingContext = new RoutingContext(outgoingMessage, new UnicastRoutingStrategy(settings.LocalAddress()), context);
+            var routingContext = new RoutingContextImpl(outgoingMessage, new UnicastRoutingStrategy(settings.LocalAddress()), context);
 
-            await pipeline.Invoke(routingContext).ConfigureAwait(false);
-
-            context.handleCurrentMessageLaterWasCalled = true;
-            context.DoNotContinueDispatchingCurrentMessageToHandlers();
+            return pipeline.Invoke(routingContext);
         }
     }
 }
