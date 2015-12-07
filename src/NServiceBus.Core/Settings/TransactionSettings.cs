@@ -23,8 +23,7 @@ namespace NServiceBus.Settings
         {
             config.Settings.Set("Transactions.Enabled", false);
             config.Settings.SetDefault("Transactions.DoNotWrapHandlersExecutionInATransactionScope", true);
-            config.Settings.SetDefault("Transactions.SuppressDistributedTransactions", true);
-
+          
             config.Settings.Set<ConsistencyGuarantee>(ConsistencyGuarantee.AtMostOnce);
      
             return this;
@@ -37,8 +36,7 @@ namespace NServiceBus.Settings
         {
             config.Settings.Set("Transactions.Enabled", true);
             config.Settings.SetDefault("Transactions.DoNotWrapHandlersExecutionInATransactionScope", false);
-            config.Settings.SetDefault("Transactions.SuppressDistributedTransactions", false);
-
+          
             return this;
         }
               
@@ -61,7 +59,6 @@ namespace NServiceBus.Settings
         /// </summary>
         public TransactionSettings DisableDistributedTransactions()
         {
-            config.Settings.Set("Transactions.SuppressDistributedTransactions", true);
             config.Settings.SetDefault("Transactions.DoNotWrapHandlersExecutionInATransactionScope", true);
             config.Settings.Set<ConsistencyGuarantee>(ConsistencyGuarantee.AtLeastOnce);
             return this;
@@ -72,7 +69,6 @@ namespace NServiceBus.Settings
         /// </summary>
         public TransactionSettings EnableDistributedTransactions()
         {
-            config.Settings.Set("Transactions.SuppressDistributedTransactions", false);
             config.Settings.Set<ConsistencyGuarantee>(ConsistencyGuarantee.ExactlyOnce);
             return this;
         }

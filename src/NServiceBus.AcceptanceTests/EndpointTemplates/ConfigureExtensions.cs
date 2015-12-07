@@ -55,10 +55,6 @@
             {
                 config.Transactions().Disable();
             }
-            if (settings.ContainsKey("Transactions.SuppressDistributedTransactions"))
-            {
-                config.Transactions().DisableDistributedTransactions();
-            }
         }
 
         public static async Task DefinePersistence(this BusConfiguration config, IDictionary<string, string> settings)
