@@ -14,7 +14,7 @@
         /// <param name="transaction">Outbox transaction.</param>
         /// <param name="session">Session or null, if unable to adapt.</param>
         /// <returns></returns>
-        bool TryAdapt(OutboxTransaction transaction, out CompletableSynchronizedStorageSession session);
+        bool TryAdapt(OutboxTransaction transaction, out ICompletableSynchronizedStorageSession session);
 
         /// <summary>
         /// Returns a synchronized storage session based on the outbox transaction if possible. 
@@ -22,6 +22,6 @@
         /// <param name="transportTransaction">Transport transaction.</param>
         /// <param name="session">Session or null, if unable to adapt.</param>
         /// <returns></returns>
-        bool TryAdapt(TransportTransaction transportTransaction, out CompletableSynchronizedStorageSession session);
+        bool TryAdapt(TransportTransaction transportTransaction, out ICompletableSynchronizedStorageSession session);
     }
 }

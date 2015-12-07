@@ -108,7 +108,7 @@
     <Compile Include="ConfigureHandlerSettings.cs" />
     <Compile Include="ConsistencyGuarantees\ConsistencyGuaranteeSettingsExtensions.cs" />
     <Compile Include="ConsistencyGuarantees\TransactionScopes\WrapHandlersInTransactionScope.cs" />
-    <Compile Include="Persistence\CompletableSynchronizedStorageSession.cs" />
+    <Compile Include="Persistence\ICompletableSynchronizedStorageSession.cs" />
     <Compile Include="Persistence\InMemory\InMemorySynchronizedStorage.cs" />
     <Compile Include="Persistence\InMemory\InMemoryTransactionalSynchronizedStorageAdapter.cs" />
     <Compile Include="Persistence\Msmq\Msmq.cs" />
@@ -140,7 +140,7 @@
     <Compile Include="Persistence\InMemory\InMemoryTransaction.cs" />
     <Compile Include="Persistence\InMemory\InMemoryTransactionalStorageSession.cs" />
     <Compile Include="Persistence\ISynchronizedStorageAdapter.cs" />
-    <Compile Include="Persistence\SynchronizedStorageSession.cs" />
+    <Compile Include="Persistence\ISynchronizedStorageSession.cs" />
     <Compile Include="Pipeline\Outgoing\OutgoingContext.cs" />
     <Compile Include="Pipeline\Outgoing\TransportMessageContextExtensions.cs" />
     <Compile Include="Scheduling\ScheduleBehavior.cs" />

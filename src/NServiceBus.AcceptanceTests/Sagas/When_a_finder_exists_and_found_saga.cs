@@ -41,7 +41,7 @@
                 // ReSharper disable once MemberCanBePrivate.Global
                 public Context Context { get; set; }
 
-                public Task<TestSaga08.SagaData08> FindBy(SomeOtherMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context)
+                public Task<TestSaga08.SagaData08> FindBy(SomeOtherMessage message, ISynchronizedStorageSession storageSession, ReadOnlyContextBag context)
                 {
                     Context.FinderUsed = true;
                     return Task.FromResult(new TestSaga08.SagaData08

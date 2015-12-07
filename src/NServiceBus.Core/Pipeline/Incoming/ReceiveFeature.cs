@@ -48,13 +48,13 @@
 
         class NoOpAdaper : ISynchronizedStorageAdapter
         {
-            public bool TryAdapt(OutboxTransaction transaction, out CompletableSynchronizedStorageSession session)
+            public bool TryAdapt(OutboxTransaction transaction, out ICompletableSynchronizedStorageSession session)
             {
                 session = null;
                 return false;
             }
 
-            public bool TryAdapt(TransportTransaction transportTransaction, out CompletableSynchronizedStorageSession session)
+            public bool TryAdapt(TransportTransaction transportTransaction, out ICompletableSynchronizedStorageSession session)
             {
                 session = null;
                 return false;

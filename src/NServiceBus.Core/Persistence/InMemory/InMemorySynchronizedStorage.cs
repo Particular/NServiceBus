@@ -6,9 +6,9 @@ namespace NServiceBus
 
     class InMemorySynchronizedStorage : ISynchronizedStorage
     {
-        public Task<CompletableSynchronizedStorageSession> OpenSession(ContextBag contextBag)
+        public Task<ICompletableSynchronizedStorageSession> OpenSession(ContextBag contextBag)
         {
-            var session = (CompletableSynchronizedStorageSession)new InMemorySynchronizedStorageSession();
+            var session = (ICompletableSynchronizedStorageSession)new InMemorySynchronizedStorageSession();
             return Task.FromResult(session);
         }
     }

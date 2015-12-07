@@ -259,6 +259,6 @@
             throw new NotImplementedException();
         }
 
-        public SynchronizedStorageSession SynchronizedStorageSession => null;
+        public ISynchronizedStorageSession SynchronizedStorageSession => null;
     }
 }

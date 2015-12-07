@@ -52,9 +52,9 @@
             }
         }
 
-        Task<CompletableSynchronizedStorageSession> AdaptOrOpenNewSynchronizedStorageSession(TransportTransaction transportTransaction, OutboxTransaction outboxTransaction, ContextBag contextBag)
+        Task<ICompletableSynchronizedStorageSession> AdaptOrOpenNewSynchronizedStorageSession(TransportTransaction transportTransaction, OutboxTransaction outboxTransaction, ContextBag contextBag)
         {
-            CompletableSynchronizedStorageSession session;
+            ICompletableSynchronizedStorageSession session;
             return adapter.TryAdapt(transportTransaction, out session) || adapter.TryAdapt(outboxTransaction, out session)
                 ? Task.FromResult(session)
                 : synchronizedStorage.OpenSession(contextBag);

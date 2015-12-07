@@ -12,6 +12,6 @@
         /// Begins a new storage session which is an atomic unit of work.
         /// </summary>
         /// <param name="contextBag">The context information.</param>
-        Task<CompletableSynchronizedStorageSession> OpenSession(ContextBag contextBag);
+        Task<ICompletableSynchronizedStorageSession> OpenSession(ContextBag contextBag);
     }
 }
