@@ -280,25 +280,23 @@ namespace NServiceBus
         public string Base64Iv { get; set; }
         public string EncryptedBase64Value { get; set; }
     }
-    public class static Endpoint
+    public sealed class Endpoint
     {
+        public Endpoint(string name) { }
         public static System.Threading.Tasks.Task<NServiceBus.IStartableEndpoint> Create(NServiceBus.BusConfiguration configuration) { }
-        public static NServiceBus.IInitializableEndpoint Prepare(NServiceBus.BusConfiguration configuration) { }
-        public static async System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(NServiceBus.BusConfiguration configuration) { }
-    }
-    public sealed class EndpointInstanceName
-    {
-        public EndpointInstanceName(NServiceBus.EndpointName endpointName, string userDiscriminator, string transportDiscriminator) { }
-        public NServiceBus.EndpointName EndpointName { get; }
-        public string TransportDiscriminator { get; }
-        public string UserDiscriminator { get; }
         public override bool Equals(object obj) { }
         public override int GetHashCode() { }
+        public static NServiceBus.IInitializableEndpoint Prepare(NServiceBus.BusConfiguration configuration) { }
+        public static async System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(NServiceBus.BusConfiguration configuration) { }
         public override string ToString() { }
     }
-    public sealed class EndpointName
+    public sealed class EndpointInstance
     {
-        public EndpointName(string name) { }
+        public EndpointInstance(string endpoint, string userDiscriminator, string transportDiscriminator) { }
+        public EndpointInstance(NServiceBus.Endpoint endpoint, string userDiscriminator, string transportDiscriminator) { }
+        public NServiceBus.Endpoint Endpoint { get; }
+        public string TransportDiscriminator { get; }
+        public string UserDiscriminator { get; }
         public override bool Equals(object obj) { }
         public override int GetHashCode() { }
         public override string ToString() { }
@@ -612,9 +610,9 @@ namespace NServiceBus
     }
     public sealed class LogicalAddress
     {
-        public LogicalAddress(NServiceBus.EndpointInstanceName endpointInstanceName, string qualifier) { }
-        public LogicalAddress(NServiceBus.EndpointInstanceName endpointInstanceName) { }
-        public NServiceBus.EndpointInstanceName EndpointInstanceName { get; }
+        public LogicalAddress(NServiceBus.EndpointInstance endpointInstance, string qualifier) { }
+        public LogicalAddress(NServiceBus.EndpointInstance endpointInstance) { }
+        public NServiceBus.EndpointInstance EndpointInstance { get; }
         public string Qualifier { get; }
         public override bool Equals(object obj) { }
         public override int GetHashCode() { }
@@ -851,8 +849,8 @@ namespace NServiceBus
     }
     public class static SettingsExtentions
     {
-        public static NServiceBus.EndpointInstanceName EndpointInstanceName(this NServiceBus.Settings.ReadOnlySettings settings) { }
-        public static NServiceBus.EndpointName EndpointName(this NServiceBus.Settings.ReadOnlySettings settings) { }
+        public static NServiceBus.EndpointInstance EndpointInstanceName(this NServiceBus.Settings.ReadOnlySettings settings) { }
+        public static NServiceBus.Endpoint EndpointName(this NServiceBus.Settings.ReadOnlySettings settings) { }
         public static System.Collections.Generic.IList<System.Type> GetAvailableTypes(this NServiceBus.Settings.ReadOnlySettings settings) { }
         public static T GetConfigSection<T>(this NServiceBus.Settings.ReadOnlySettings settings)
             where T :  class, new () { }
@@ -896,8 +894,8 @@ namespace NServiceBus
     public class TransportExtensions : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
         public TransportExtensions(NServiceBus.Settings.SettingsHolder settings) { }
-        public NServiceBus.TransportExtensions AddAddressTranslationException(NServiceBus.EndpointInstanceName endpointInstance, string transportAddress) { }
-        public NServiceBus.TransportExtensions AddAddressTranslationRule(System.Func<NServiceBus.EndpointInstanceName, string> rule) { }
+        public NServiceBus.TransportExtensions AddAddressTranslationException(NServiceBus.EndpointInstance endpointInstance, string transportAddress) { }
+        public NServiceBus.TransportExtensions AddAddressTranslationRule(System.Func<NServiceBus.EndpointInstance, string> rule) { }
         public NServiceBus.TransportExtensions ConnectionString(string connectionString) { }
         public NServiceBus.TransportExtensions ConnectionString(System.Func<string> connectionString) { }
         public NServiceBus.TransportExtensions ConnectionStringName(string name) { }
@@ -940,13 +938,13 @@ namespace NServiceBus
     }
     public sealed class UnicastRoutingTarget
     {
-        public NServiceBus.EndpointName EndpointName { get; }
-        public NServiceBus.EndpointInstanceName InstanceName { get; }
+        public NServiceBus.Endpoint Endpoint { get; }
+        public NServiceBus.EndpointInstance Instance { get; }
         public string TransportAddress { get; }
         public override bool Equals(object obj) { }
         public override int GetHashCode() { }
-        public static NServiceBus.UnicastRoutingTarget ToAnonymousInstance(NServiceBus.EndpointName endpoint, string transportAddress) { }
-        public static NServiceBus.UnicastRoutingTarget ToEndpointInstance(NServiceBus.EndpointInstanceName instanceName) { }
+        public static NServiceBus.UnicastRoutingTarget ToAnonymousInstance(NServiceBus.Endpoint endpoint, string transportAddress) { }
+        public static NServiceBus.UnicastRoutingTarget ToEndpointInstance(NServiceBus.EndpointInstance instance) { }
         public static NServiceBus.UnicastRoutingTarget ToTransportAddress(string transportAddress) { }
     }
     public class UnsubscribeOptions : NServiceBus.Extensibility.ExtendableOptions
@@ -2099,12 +2097,12 @@ namespace NServiceBus.Routing
     public class EndpointInstances
     {
         public EndpointInstances() { }
-        public void AddDynamic(System.Func<NServiceBus.EndpointName, System.Collections.Generic.IEnumerable<NServiceBus.EndpointInstanceName>> dynamicRule) { }
-        public void AddStatic(NServiceBus.EndpointName endpoint, params NServiceBus.EndpointInstanceName[] instances) { }
+        public void AddDynamic(System.Func<NServiceBus.Endpoint, System.Collections.Generic.IEnumerable<NServiceBus.EndpointInstance>> dynamicRule) { }
+        public void AddStatic(NServiceBus.Endpoint endpoint, params NServiceBus.EndpointInstance[] instances) { }
     }
     public interface IUnicastRoute
     {
-        System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> Resolve(System.Func<NServiceBus.EndpointName, System.Collections.Generic.IEnumerable<NServiceBus.EndpointInstanceName>> instanceResolver);
+        System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> Resolve(System.Func<NServiceBus.Endpoint, System.Collections.Generic.IEnumerable<NServiceBus.EndpointInstance>> instanceResolver);
     }
     public class MulticastAddressTag : NServiceBus.Routing.AddressTag
     {
@@ -2138,8 +2136,8 @@ namespace NServiceBus.Routing
     }
     public class UnicastRoute : NServiceBus.Routing.IUnicastRoute
     {
-        public UnicastRoute(NServiceBus.EndpointName endpointName) { }
-        public UnicastRoute(NServiceBus.EndpointInstanceName instanceName) { }
+        public UnicastRoute(NServiceBus.Endpoint endpoint) { }
+        public UnicastRoute(NServiceBus.EndpointInstance instance) { }
         public UnicastRoute(string physicalAddress) { }
     }
     public class UnicastRoutingStrategy : NServiceBus.Routing.RoutingStrategy
@@ -2152,9 +2150,9 @@ namespace NServiceBus.Routing
         public UnicastRoutingTable() { }
         public void AddDynamic(System.Func<System.Collections.Generic.List<System.Type>, NServiceBus.Extensibility.ContextBag, System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<NServiceBus.Routing.IUnicastRoute>>> dynamicRule) { }
         public void AddDynamic(System.Func<System.Collections.Generic.List<System.Type>, NServiceBus.Extensibility.ContextBag, System.Collections.Generic.IEnumerable<NServiceBus.Routing.IUnicastRoute>> dynamicRule) { }
-        public void AddStatic(System.Type messageType, NServiceBus.EndpointName destination) { }
-        public void AddStatic(System.Type messageType, NServiceBus.EndpointInstanceName destination) { }
-        public void AddStatic(System.Type messageType, string destinationAddress) { }
+        public void RouteToAddress(System.Type messageType, string destinationAddress) { }
+        public void RouteToEndpoint(System.Type messageType, NServiceBus.Endpoint destination) { }
+        public void RouteToEndpoint(System.Type messageType, string destination) { }
     }
     public interface UnsubscribeContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.BehaviorContext
     {
@@ -2172,17 +2170,17 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
 {
     public class PublisherAddress
     {
-        public PublisherAddress(NServiceBus.EndpointName endpoint) { }
-        public PublisherAddress(params NServiceBus.EndpointInstanceName[] instances) { }
+        public PublisherAddress(NServiceBus.Endpoint endpoint) { }
+        public PublisherAddress(params NServiceBus.EndpointInstance[] instances) { }
         public PublisherAddress(params string[] addresses) { }
     }
     public class Publishers
     {
         public Publishers() { }
         public void AddDynamic(System.Func<System.Type, NServiceBus.Routing.MessageDrivenSubscriptions.PublisherAddress> dynamicRule, string description = null) { }
-        public void AddStatic(NServiceBus.EndpointName publisher, System.Type eventType) { }
+        public void AddStatic(NServiceBus.Endpoint publisher, System.Type eventType) { }
         public void AddStatic(string publisherAddress, System.Type eventType) { }
-        public void AddStatic(NServiceBus.EndpointName publisher, System.Reflection.Assembly eventAssembly, string eventNamespace = null) { }
+        public void AddStatic(NServiceBus.Endpoint publisher, System.Reflection.Assembly eventAssembly, string eventNamespace = null) { }
     }
 }
 namespace NServiceBus.Routing.StorageDrivenPublishing
@@ -2640,8 +2638,8 @@ namespace NServiceBus.Transports
     public class TransportAddresses
     {
         public TransportAddresses() { }
-        public void AddRule(System.Func<NServiceBus.EndpointInstanceName, string> dynamicRule) { }
-        public void AddSpecialCase(NServiceBus.EndpointInstanceName endpointInstance, string physicalAddress) { }
+        public void AddRule(System.Func<NServiceBus.EndpointInstance, string> dynamicRule) { }
+        public void AddSpecialCase(NServiceBus.EndpointInstance endpointInstance, string physicalAddress) { }
     }
     public abstract class TransportDefinition
     {
@@ -2927,8 +2925,8 @@ namespace NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions
     }
     public class Subscriber
     {
-        public Subscriber(string transportAddress, NServiceBus.EndpointName endpoint) { }
-        public NServiceBus.EndpointName Endpoint { get; }
+        public Subscriber(string transportAddress, NServiceBus.Endpoint endpoint) { }
+        public NServiceBus.Endpoint Endpoint { get; }
         public string TransportAddress { get; }
     }
 }

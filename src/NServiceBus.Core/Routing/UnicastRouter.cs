@@ -34,7 +34,7 @@ namespace NServiceBus.Routing
 
             var destinations = routes.SelectMany(d => d.Resolve(e => endpointInstances.FindInstances(e))).Distinct();
 
-            var destinationsByEndpoint = destinations.GroupBy(d => d.EndpointName, d => d);
+            var destinationsByEndpoint = destinations.GroupBy(d => d.Endpoint, d => d);
 
             var selectedDestinations = SelectDestinationsForEachEndpoint(distributionStrategy, destinationsByEndpoint);
 
@@ -42,7 +42,7 @@ namespace NServiceBus.Routing
                 .Select(destination => new UnicastRoutingStrategy(destination.Resolve(physicalAddresses.GetTransportAddress)));
         }
 
-        static IEnumerable<UnicastRoutingTarget> SelectDestinationsForEachEndpoint(DistributionStrategy distributionStrategy, IEnumerable<IGrouping<EndpointName, UnicastRoutingTarget>> destinationsByEndpoint)
+        static IEnumerable<UnicastRoutingTarget> SelectDestinationsForEachEndpoint(DistributionStrategy distributionStrategy, IEnumerable<IGrouping<Endpoint, UnicastRoutingTarget>> destinationsByEndpoint)
         {
             foreach (var group in destinationsByEndpoint)
             {

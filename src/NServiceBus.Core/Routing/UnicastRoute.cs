@@ -8,28 +8,28 @@ namespace NServiceBus.Routing
     /// </summary>
     public class UnicastRoute : IUnicastRoute
     {
-        EndpointName endpointName;
-        EndpointInstanceName instanceName;
+        Endpoint endpoint;
+        EndpointInstance instance;
         string physicalAddress;
 
         /// <summary>
         /// Creates a destination based on the name of the endpoint.
         /// </summary>
-        /// <param name="endpointName">Destination endpoint.</param>
-        public UnicastRoute(EndpointName endpointName)
+        /// <param name="endpoint">Destination endpoint.</param>
+        public UnicastRoute(Endpoint endpoint)
         {
-            Guard.AgainstNull(nameof(endpointName), endpointName);
-            this.endpointName = endpointName;
+            Guard.AgainstNull(nameof(endpoint), endpoint);
+            this.endpoint = endpoint;
         }
 
         /// <summary>
         /// Creates a destination based on the name of the endpoint instance.
         /// </summary>
-        /// <param name="instanceName">Destination instance name.</param>
-        public UnicastRoute(EndpointInstanceName instanceName)
+        /// <param name="instance">Destination instance name.</param>
+        public UnicastRoute(EndpointInstance instance)
         {
-            Guard.AgainstNull(nameof(instanceName),instanceName);
-            this.instanceName = instanceName;
+            Guard.AgainstNull(nameof(instance),instance);
+            this.instance = instance;
         }
 
         /// <summary>
@@ -42,19 +42,19 @@ namespace NServiceBus.Routing
             this.physicalAddress = physicalAddress;
         }
 
-        IEnumerable<UnicastRoutingTarget> IUnicastRoute.Resolve(Func<EndpointName, IEnumerable<EndpointInstanceName>> instanceResolver)
+        IEnumerable<UnicastRoutingTarget> IUnicastRoute.Resolve(Func<Endpoint, IEnumerable<EndpointInstance>> instanceResolver)
         {
             if (physicalAddress != null)
             {
                 yield return UnicastRoutingTarget.ToTransportAddress(physicalAddress);
             }
-            else if (instanceName != null)
+            else if (instance != null)
             {
-                yield return UnicastRoutingTarget.ToEndpointInstance(instanceName);
+                yield return UnicastRoutingTarget.ToEndpointInstance(instance);
             }
             else
             {
-                var instances = instanceResolver(endpointName);
+                var instances = instanceResolver(endpoint);
                 foreach (var instance in instances)
                 {
                     yield return UnicastRoutingTarget.ToEndpointInstance(instance);

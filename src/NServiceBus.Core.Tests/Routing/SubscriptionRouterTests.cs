@@ -23,17 +23,17 @@ namespace NServiceBus.Core.Tests.Routing
 
             var baseType = typeof(BaseMessage);
             var inheritedType = typeof(InheritedMessage);
-            var baseEndpoint = new EndpointName(baseAddress);
-            var inheritedEndpoint = new EndpointName(inheritedAddress);
+            var baseEndpoint = new Endpoint(baseAddress);
+            var inheritedEndpoint = new Endpoint(inheritedAddress);
 
             var publishers = new Publishers();
             publishers.AddStatic(baseEndpoint, baseType );
             publishers.AddStatic(inheritedEndpoint, baseType);
             publishers.AddStatic(inheritedEndpoint, inheritedType );
             var knownEndpoints = new EndpointInstances();
-            knownEndpoints.AddDynamic(e => new [] { new EndpointInstanceName(e, null, null) });
+            knownEndpoints.AddDynamic(e => new [] { new EndpointInstance(e, null, null) });
             var physicalAddresses = new TransportAddresses();
-            physicalAddresses.AddRule(i => i.EndpointName.ToString());
+            physicalAddresses.AddRule(i => i.Endpoint.ToString());
             var router = new SubscriptionRouter(publishers, knownEndpoints, physicalAddresses);
 
             Assert.Contains(baseAddress, router.GetAddressesForEventType(baseType).ToList());
@@ -47,17 +47,17 @@ namespace NServiceBus.Core.Tests.Routing
             var baseType = typeof(BaseMessage);
             var inheritedType = typeof(InheritedMessage);
 
-            var baseEndpoint = new EndpointName("addressA");
-            var inheritedEndpoint = new EndpointName("addressB");
+            var baseEndpoint = new Endpoint("addressA");
+            var inheritedEndpoint = new Endpoint("addressB");
 
             var publishers = new Publishers();
             publishers.AddStatic(baseEndpoint, baseType);
             publishers.AddStatic(inheritedEndpoint, baseType);
             publishers.AddStatic(inheritedEndpoint, inheritedType);
             var knownEndpoints = new EndpointInstances();
-            knownEndpoints.AddDynamic(e => new[] { new EndpointInstanceName(e, null, null) });
+            knownEndpoints.AddDynamic(e => new[] { new EndpointInstance(e, null, null) });
             var physicalAddresses = new TransportAddresses();
-            physicalAddresses.AddRule(i => i.EndpointName.ToString());
+            physicalAddresses.AddRule(i => i.Endpoint.ToString());
             var router = new SubscriptionRouter(publishers, knownEndpoints, physicalAddresses);
 
             Assert.AreEqual(2, router.GetAddressesForEventType(baseType).Count());

@@ -14,11 +14,11 @@
 
     class MessageDrivenUnsubscribeTerminator : PipelineTerminator<UnsubscribeContext>
     {
-        public MessageDrivenUnsubscribeTerminator(SubscriptionRouter subscriptionRouter, string replyToAddress, EndpointName endpointName, IDispatchMessages dispatcher, bool legacyMode)
+        public MessageDrivenUnsubscribeTerminator(SubscriptionRouter subscriptionRouter, string replyToAddress, Endpoint endpoint, IDispatchMessages dispatcher, bool legacyMode)
         {
             this.subscriptionRouter = subscriptionRouter;
             this.replyToAddress = replyToAddress;
-            this.endpointName = endpointName;
+            this.endpoint = endpoint;
             this.dispatcher = dispatcher;
             this.legacyMode = legacyMode;
         }
@@ -45,7 +45,7 @@
                 else
                 {
                     unsubscribeMessage.Headers[Headers.SubscriberTransportAddress] = replyToAddress;
-                    unsubscribeMessage.Headers[Headers.SubscriberEndpoint] = endpointName.ToString();
+                    unsubscribeMessage.Headers[Headers.SubscriberEndpoint] = endpoint.ToString();
                 }
 
                 unsubscribeTasks.Add(SendUnsubscribeMessageWithRetries(publisherAddress, unsubscribeMessage, eventType.AssemblyQualifiedName, context.Extensions));
@@ -93,7 +93,7 @@
 
         SubscriptionRouter subscriptionRouter;
         string replyToAddress;
-        readonly EndpointName endpointName;
+        readonly Endpoint endpoint;
         IDispatchMessages dispatcher;
         readonly bool legacyMode;
 

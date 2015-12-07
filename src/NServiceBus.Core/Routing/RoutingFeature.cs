@@ -60,7 +60,7 @@
 
                 foreach (MessageEndpointMapping m in legacyRoutingConfig)
                 {
-                    m.Configure(routeTable.AddStatic);
+                    m.Configure(routeTable.RouteToAddress);
                     m.Configure((type, s) =>
                     {
                         var typesEnclosed = knownMessageTypes.Where(t => t.IsAssignableFrom(type));
@@ -183,7 +183,7 @@
                     }
                 }
 
-                public IEnumerable<UnicastRoutingTarget> Resolve(Func<EndpointName, IEnumerable<EndpointInstanceName>> instanceResolver)
+                public IEnumerable<UnicastRoutingTarget> Resolve(Func<Endpoint, IEnumerable<EndpointInstance>> instanceResolver)
                 {
                     yield return target;
                 }

@@ -106,9 +106,9 @@
                     c.EndpointName("DistributingAnEvent.SubscriberA");
                     c.ScaleOut().UniqueQueuePerEndpointInstance("1");
 
-                    var publisher = new EndpointName("DistributingAnEvent.Publisher");
+                    var publisher = new Endpoint("DistributingAnEvent.Publisher");
                     c.Pubishers().AddStatic(publisher, typeof(MyEvent));
-                    c.Routing().EndpointInstances.AddStatic(publisher, new EndpointInstanceName(publisher, null, null));
+                    c.Routing().EndpointInstances.AddStatic(publisher, new EndpointInstance(publisher, null, null));
                 });
             }
 
@@ -133,9 +133,9 @@
                     c.EndpointName("DistributingAnEvent.SubscriberA");
                     c.ScaleOut().UniqueQueuePerEndpointInstance("2");
                     
-                    var publisher = new EndpointName("DistributingAnEvent.Publisher");
+                    var publisher = new Endpoint("DistributingAnEvent.Publisher");
                     c.Pubishers().AddStatic(publisher, typeof(MyEvent));
-                    c.Routing().EndpointInstances.AddStatic(publisher, new EndpointInstanceName(publisher, null, null));
+                    c.Routing().EndpointInstances.AddStatic(publisher, new EndpointInstance(publisher, null, null));
                 });
             }
 
@@ -160,9 +160,9 @@
                     c.EndpointName("DistributingAnEvent.SubscriberB");
                     c.ScaleOut().UniqueQueuePerEndpointInstance("1");
                     
-                    var publisher = new EndpointName("DistributingAnEvent.Publisher");
+                    var publisher = new Endpoint("DistributingAnEvent.Publisher");
                     c.Pubishers().AddStatic(publisher, typeof(MyEvent));
-                    c.Routing().EndpointInstances.AddStatic(publisher, new EndpointInstanceName(publisher, null, null));
+                    c.Routing().EndpointInstances.AddStatic(publisher, new EndpointInstance(publisher, null, null));
                 });
             }
 
@@ -186,9 +186,9 @@
                     c.EndpointName("DistributingAnEvent.SubscriberB");
                     c.ScaleOut().UniqueQueuePerEndpointInstance("2");
                     
-                    var publisher = new EndpointName("DistributingAnEvent.Publisher");
+                    var publisher = new Endpoint("DistributingAnEvent.Publisher");
                     c.Pubishers().AddStatic(publisher, typeof(MyEvent));
-                    c.Routing().EndpointInstances.AddStatic(publisher, new EndpointInstanceName(publisher, null, null));
+                    c.Routing().EndpointInstances.AddStatic(publisher, new EndpointInstance(publisher, null, null));
                 });
             }
 

@@ -140,12 +140,12 @@ namespace NServiceBus
         /// <returns>The transport address.</returns>
         public override string ToTransportAddress(LogicalAddress logicalAddress)
         {
-            var machine = logicalAddress.EndpointInstanceName.TransportDiscriminator ?? RuntimeEnvironment.MachineName;
+            var machine = logicalAddress.EndpointInstance.TransportDiscriminator ?? RuntimeEnvironment.MachineName;
 
-            var queue = new StringBuilder(logicalAddress.EndpointInstanceName.EndpointName.ToString());
-            if (logicalAddress.EndpointInstanceName.UserDiscriminator != null)
+            var queue = new StringBuilder(logicalAddress.EndpointInstance.Endpoint.ToString());
+            if (logicalAddress.EndpointInstance.UserDiscriminator != null)
             {
-                queue.Append("-" + logicalAddress.EndpointInstanceName.UserDiscriminator);
+                queue.Append("-" + logicalAddress.EndpointInstance.UserDiscriminator);
             }
             if (logicalAddress.Qualifier != null)
             {

@@ -97,7 +97,7 @@ namespace NServiceBus
         /// Adds a rule for translating endpoint instance names to physical addresses in direct routing.
         /// </summary>
         /// <param name="rule">The rule.</param>
-        public TransportExtensions AddAddressTranslationRule(Func<EndpointInstanceName, string> rule)
+        public TransportExtensions AddAddressTranslationRule(Func<EndpointInstance, string> rule)
         {
             Settings.Get<TransportAddresses>().AddRule(rule);
             return this;
@@ -108,7 +108,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="endpointInstance">Name of the instance for which the exception is created.</param>
         /// <param name="transportAddress">Transport address of that instance.</param>
-        public TransportExtensions AddAddressTranslationException(EndpointInstanceName endpointInstance, string transportAddress)
+        public TransportExtensions AddAddressTranslationException(EndpointInstance endpointInstance, string transportAddress)
         {
             Settings.Get<TransportAddresses>().AddSpecialCase(endpointInstance, transportAddress);
             return this;

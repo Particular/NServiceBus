@@ -29,12 +29,12 @@ namespace NServiceBus.Features
             {
                 var endpointInstanceName = GetEndpointInstanceName(s);
                 var rootLogicalAddress = new LogicalAddress(endpointInstanceName);
-                s.SetDefault<EndpointInstanceName>(endpointInstanceName);
+                s.SetDefault<EndpointInstance>(endpointInstanceName);
                 s.SetDefault<LogicalAddress>(rootLogicalAddress);
             });
         }
 
-        static EndpointInstanceName GetEndpointInstanceName(ReadOnlySettings settings)
+        static EndpointInstance GetEndpointInstanceName(ReadOnlySettings settings)
         {
             var userDiscriminator = settings.GetOrDefault<string>("EndpointInstanceDiscriminator");
             var scaleOut = settings.GetOrDefault<bool>("IndividualizeEndpointAddress");
@@ -43,7 +43,7 @@ namespace NServiceBus.Features
             {
                 throw new Exception("No endpoint instance discriminator found. This value is usually provided by your transport so please make sure you're on the lastest version of your specific transport or set the discriminator using 'configuration.ScaleOut().UniqueQueuePerEndpointInstance(myDiscriminator)'");
             }
-            return new EndpointInstanceName(settings.EndpointName(), userDiscriminator, transportDiscriminator);
+            return new EndpointInstance(settings.EndpointName(), userDiscriminator, transportDiscriminator);
         }
 
         protected internal override void Setup(FeatureConfigurationContext context)
