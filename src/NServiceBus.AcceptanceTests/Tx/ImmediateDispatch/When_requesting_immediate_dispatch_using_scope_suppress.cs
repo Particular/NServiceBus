@@ -5,6 +5,7 @@
     using System.Transactions;
     using AcceptanceTesting;
     using EndpointTemplates;
+    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NUnit.Framework;
 
     //note: this test will no longer be relevant in v7
@@ -13,15 +14,18 @@
         [Test]
         public async Task Should_dispatch_immediately()
         {
-            var context = await Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                     .WithEndpoint<SuppressEndpoint>(b => b
                         .When(bus => bus.SendLocal(new InitiatingMessage()))
                         .DoNotFailOnErrorMessages())
                     .Done(c => c.MessageDispatched)
+                    .Repeat(r => r.For<AllDtcTransports>())
+                    .Should(c =>
+                    {
+                        Assert.True(c.MessageDispatched, "Should dispatch the message immediately");
+                        Assert.True(c.Logs.Any(l => l.Level == "warn" && l.Message.Contains("We detected that you suppressed the ambient transaction")));
+                    })
                     .Run();
-
-            Assert.True(context.MessageDispatched, "Should dispatch the message immediately");
-            Assert.True(context.Logs.Any(l=>l.Level == "warn" && l.Message.Contains("We detected that you suppressed the ambient transaction")));
         }
 
         public class Context : ScenarioContext
