@@ -22,7 +22,7 @@ namespace NServiceBus.Faults
         /// <summary>
         /// Notification when a message is sent to second level retires queue.
         /// </summary>
-        public EventHandler<SecondLevelRetry> MessageHasBeenSentToSecondLevelRetries;
+        public event EventHandler<SecondLevelRetry> MessageHasBeenSentToSecondLevelRetries;
 
         internal void InvokeMessageHasBeenSentToErrorQueue(IncomingMessage message, Exception exception)
         {

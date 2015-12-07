@@ -1315,8 +1315,8 @@ namespace NServiceBus.Faults
 {
     public class ErrorsNotifications
     {
-        public System.EventHandler<NServiceBus.Faults.SecondLevelRetry> MessageHasBeenSentToSecondLevelRetries;
         public ErrorsNotifications() { }
+        public event System.EventHandler<NServiceBus.Faults.SecondLevelRetry> MessageHasBeenSentToSecondLevelRetries;
         public event System.EventHandler<NServiceBus.Faults.FirstLevelRetry> MessageHasFailedAFirstLevelRetryAttempt;
         public event System.EventHandler<NServiceBus.Faults.FailedMessage> MessageSentToErrorQueue;
     }
