@@ -38,7 +38,6 @@ namespace NServiceBus
             Settings.Set<QueueBindings>(new QueueBindings());
 
             Settings.SetDefault("Endpoint.SendOnly", false);
-            Settings.SetDefault("Transactions.Enabled", true);
             Settings.SetDefault("Transactions.IsolationLevel", IsolationLevel.ReadCommitted);
             Settings.SetDefault("Transactions.DefaultTimeout", TransactionManager.DefaultTimeout);
             Settings.SetDefault("Transactions.DoNotWrapHandlersExecutionInATransactionScope", false);

@@ -2,6 +2,7 @@
 {
     using Config;
     using Logging;
+    using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.Transports;
 
     /// <summary>
@@ -42,7 +43,9 @@
 
             context.Container.ConfigureComponent(b =>
             {
-                var queue = new MsmqSubscriptionStorageQueue(MsmqAddress.Parse(queueName), context.Settings.Get<bool>("Transactions.Enabled"), false);
+                var isTransactional = context.Settings.GetRequiredTransactionSupportForReceives() != TransactionSupport.None;
+
+                var queue = new MsmqSubscriptionStorageQueue(MsmqAddress.Parse(queueName), isTransactional, false);
                 return new MsmqSubscriptionStorage(queue);
             }, DependencyLifecycle.SingleInstance);
         }

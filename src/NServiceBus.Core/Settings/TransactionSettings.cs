@@ -21,7 +21,6 @@ namespace NServiceBus.Settings
         /// </summary>
         public TransactionSettings Disable()
         {
-            config.Settings.Set("Transactions.Enabled", false);
             config.Settings.SetDefault("Transactions.DoNotWrapHandlersExecutionInATransactionScope", true);
           
             config.Settings.Set<ConsistencyGuarantee>(ConsistencyGuarantee.AtMostOnce);
@@ -34,7 +33,6 @@ namespace NServiceBus.Settings
         /// </summary>
         public TransactionSettings Enable()
         {
-            config.Settings.Set("Transactions.Enabled", true);
             config.Settings.SetDefault("Transactions.DoNotWrapHandlersExecutionInATransactionScope", false);
           
             return this;

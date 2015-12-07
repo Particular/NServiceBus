@@ -183,7 +183,7 @@ namespace NServiceBus
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
         ReplacementTypeOrMember = "BusConfiguration.ExcludeAssemblies")]
-    public class AllAssemblies 
+    public class AllAssemblies
     {
     }
 
@@ -383,7 +383,7 @@ namespace NServiceBus.Unicast
     [ObsoleteEx(
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0")]
-    public class MessageContext 
+    public class MessageContext
     {
     }
 }
@@ -436,7 +436,7 @@ namespace NServiceBus.Unicast
         Message = "Not used anymore, use the 'NServiceBus.MessageIntent' header to detect if the message is a reply",
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0")]
-    public class ReplyOptions 
+    public class ReplyOptions
     {
     }
 }
@@ -447,7 +447,7 @@ namespace NServiceBus.MessageMutator
         Message = "Just have your mutator implement both IMutateOutgoingMessages and IMutateIncomingMessages ",
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0")]
-    public interface IMessageMutator 
+    public interface IMessageMutator
     {
     }
 
@@ -638,7 +638,7 @@ namespace NServiceBus.Transports.Msmq
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0",
         Message = "The msmq transaction is now available via the pipeline context")]
-    public class MsmqUnitOfWork 
+    public class MsmqUnitOfWork
     {
     }
 }
@@ -689,14 +689,14 @@ namespace NServiceBus.Features
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0",
         Message = "No longer used, safe to remove")]
-    public class StorageDrivenPublishing 
+    public class StorageDrivenPublishing
     {
     }
 
     [ObsoleteEx(
-        Message = "Use the ConfigureSerialization Feature class instead", 
-        TreatAsErrorFromVersion = "6.0", 
-        RemoveInVersion = "7.0", 
+        Message = "Use the ConfigureSerialization Feature class instead",
+        TreatAsErrorFromVersion = "6.0",
+        RemoveInVersion = "7.0",
         ReplacementTypeOrMember = "ConfigureSerialization")]
     public static class SerializationFeatureHelper
     {
@@ -759,7 +759,7 @@ namespace NServiceBus.Features
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0",
         Message = "No longer used, safe to remove")]
-    public class TimeoutManagerBasedDeferral 
+    public class TimeoutManagerBasedDeferral
     {
     }
 }
@@ -941,7 +941,7 @@ namespace NServiceBus.Transports.Msmq
         Message = "No longer available, resolve an instance of IPushMessages from the container instead",
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0")]
-    public class MsmqDequeueStrategy 
+    public class MsmqDequeueStrategy
     {
     }
 }
@@ -972,6 +972,13 @@ namespace NServiceBus.Unicast.Transport
          RemoveInVersion = "7.0",
          TreatAsErrorFromVersion = "6.0")]
         public bool SuppressDistributedTransactions { get; set; }
+
+        [ObsoleteEx(
+            Message = "IsTransactional is no longer used here. Please use `context.Settings.GetRequiredTransactionSupportForReceives() != TransactionSupport.None` instead.",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public bool IsTransactional { get; set; }
+
     }
 
     [ObsoleteEx(
@@ -1037,7 +1044,7 @@ namespace NServiceBus
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
         Message = "No longer used, please use the new callbacks api described in the v6 upgrade guide")]
-    public class BusAsyncResultEventArgs 
+    public class BusAsyncResultEventArgs
     {
     }
 }
@@ -1048,7 +1055,7 @@ namespace NServiceBus.Unicast
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
         Message = "No longer used, please use the new callbacks api described in the v6 upgrade guide")]
-    public class BusAsyncResult 
+    public class BusAsyncResult
     {
     }
 }
@@ -1070,7 +1077,7 @@ namespace NServiceBus.Pipeline.Contexts
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
         ReplacementTypeOrMember = "OutgoingLogicalMessage")]
-    public class OutgoingContext 
+    public class OutgoingContext
     {
     }
 }
@@ -1081,7 +1088,7 @@ namespace NServiceBus.Pipeline
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
         ReplacementTypeOrMember = "Behavior<T>")]
-    public interface IBehavior<in TContext> 
+    public interface IBehavior<in TContext>
     {
     }
 }
@@ -1092,7 +1099,7 @@ namespace NServiceBus.Pipeline
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
         Message = "You can no longer get access to the pipeline context via DI. Please use a behavior to get access instead")]
-    public class PipelineExecutor 
+    public class PipelineExecutor
     {
     }
 }
@@ -1144,7 +1151,7 @@ namespace NServiceBus.Unicast.Transport
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
         Message = "No longer used, can safely be removed")]
-    public class TransportMessageReceivedEventArgs 
+    public class TransportMessageReceivedEventArgs
     {
     }
 }
@@ -1157,7 +1164,7 @@ namespace NServiceBus.Unicast.Transport
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
         Message = "No longer used, can safely be removed")]
-    public class StartedMessageProcessingEventArgs 
+    public class StartedMessageProcessingEventArgs
     {
     }
 
@@ -1176,7 +1183,7 @@ namespace NServiceBus.Unicast.Transport
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
         Message = "No longer used, can safely be removed")]
-    public class TransportMessageAvailableEventArgs 
+    public class TransportMessageAvailableEventArgs
     {
     }
 }
@@ -1237,7 +1244,7 @@ namespace NServiceBus.Unicast.Transport
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
         Message = "No longer used, can safely be removed")]
-    public class TransportReceiver 
+    public class TransportReceiver
     {
     }
 }
@@ -1366,7 +1373,7 @@ namespace NServiceBus
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
             ReplacementTypeOrMember = "RequestTimeout<TTimeoutMessageType>(IMessageHandlerContext, DateTime)")]
-        protected void RequestTimeout<TTimeoutMessageType>(DateTime at) 
+        protected void RequestTimeout<TTimeoutMessageType>(DateTime at)
         {
             throw new NotImplementedException();
         }
@@ -1376,7 +1383,7 @@ namespace NServiceBus
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
             ReplacementTypeOrMember = "RequestTimeout<TTimeoutMessageType>(IMessageHandlerContext DateTime, TTimeoutMessageType)")]
-        protected void RequestTimeout<TTimeoutMessageType>(DateTime at, Action<TTimeoutMessageType> action) 
+        protected void RequestTimeout<TTimeoutMessageType>(DateTime at, Action<TTimeoutMessageType> action)
         {
             throw new NotImplementedException();
         }
@@ -1394,7 +1401,7 @@ namespace NServiceBus
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
             ReplacementTypeOrMember = "RequestTimeout<TTimeoutMessageType>(IMessageHandlerContext, TimeSpan)")]
-        protected void RequestTimeout<TTimeoutMessageType>(TimeSpan within) 
+        protected void RequestTimeout<TTimeoutMessageType>(TimeSpan within)
         {
             throw new NotImplementedException();
         }
@@ -1405,7 +1412,7 @@ namespace NServiceBus
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
             ReplacementTypeOrMember = "Saga.RequestTimeout<TTimeoutMessageType>(IMessageHandlerContext, TimeSpan, TTimeoutMessageType)")]
-        protected void RequestTimeout<TTimeoutMessageType>(TimeSpan within, Action<TTimeoutMessageType> messageConstructor) 
+        protected void RequestTimeout<TTimeoutMessageType>(TimeSpan within, Action<TTimeoutMessageType> messageConstructor)
         {
             throw new NotImplementedException();
         }
@@ -1433,7 +1440,7 @@ namespace NServiceBus
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
             ReplacementTypeOrMember = "ReplyToOriginator(IMessageHandlerContext, object)")]
-        protected virtual void ReplyToOriginator<TMessage>(Action<TMessage> messageConstructor) 
+        protected virtual void ReplyToOriginator<TMessage>(Action<TMessage> messageConstructor)
         {
             throw new NotImplementedException();
         }
@@ -1454,7 +1461,7 @@ namespace NServiceBus
         {
             throw new NotImplementedException();
         }
-        
+
         [ObsoleteEx(
             Message = "Please use `IMessageHandlerContext.Reply<T>(Action<T> messageConstructor)` provided to message handlers instead.",
             TreatAsErrorFromVersion = "6",

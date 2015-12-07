@@ -2993,6 +2993,9 @@ namespace NServiceBus.Unicast.Transport
             "onScope\') instead. Will be removed in version 7.0.0.", true)]
         public bool DoNotWrapHandlersExecutionInATransactionScope { get; set; }
         public System.Transactions.IsolationLevel IsolationLevel { get; set; }
+        [System.ObsoleteAttribute("IsTransactional is no longer used here. Please use `context.Settings.GetRequiredT" +
+            "ransactionSupportForReceives() != TransactionSupport.None` instead. Will be remo" +
+            "ved in version 7.0.0.", true)]
         public bool IsTransactional { get; set; }
         [System.ObsoleteAttribute("SuppressDistributedTransactions is no longer used here. Please use `context.Setti" +
             "ngs.GetRequiredTransactionSupportForReceives() != TransactionSupport.Distributed" +
