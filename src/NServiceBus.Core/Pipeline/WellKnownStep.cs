@@ -19,7 +19,6 @@ namespace NServiceBus.Pipeline
             this.stepId = stepId;
         }
 
-
         internal static WellKnownStep Create(string customStepId)
         {
             return new WellKnownStep(customStepId);
@@ -120,5 +119,10 @@ namespace NServiceBus.Pipeline
         /// Enforces unsubscribe messaging best practices.
         /// </summary>
         public static readonly WellKnownStep EnforceUnsubscribeBestPractices = new WellKnownStep("EnforceUnsubscribeBestPractices");
+
+        /// <summary>
+        /// Logs details of outgoing message.
+        /// </summary>
+        public static readonly WellKnownStep LogOutgoingMessages = new WellKnownStep("LogOutgoingMessages");
     }
 }
