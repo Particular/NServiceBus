@@ -87,19 +87,14 @@
         [Test]
         public void ShouldRaiseBusNotificationsForFLR()
         {
-            var notifications = new BusNotifications();
-            var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1), busNotifications: notifications);
-
             var notificationFired = false;
-
-            notifications.Errors.MessageHasFailedAFirstLevelRetryAttempt += (sender, retry) =>
+            var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1), firstLevelRetryAction: retry =>
             {
                 Assert.AreEqual(0, retry.RetryAttempt);
                 Assert.AreEqual("test", retry.Exception.Message);
                 Assert.AreEqual("someid", retry.MessageId);
-
                 notificationFired = true;
-            };
+            });
 
             Assert.Throws<MessageProcessingAbortedException>(async () => await behavior.Invoke(CreateContext("someid"), () =>
             {
@@ -160,12 +155,12 @@
             }));
         }
 
-        static FirstLevelRetriesBehavior CreateFlrBehavior(FirstLevelRetryPolicy retryPolicy, FlrStatusStorage storage = null, BusNotifications busNotifications = null, PipelineInfo pipelineInfo = null)
+        static FirstLevelRetriesBehavior CreateFlrBehavior(FirstLevelRetryPolicy retryPolicy, FlrStatusStorage storage = null, FirstLevelRetryAction firstLevelRetryAction = null, PipelineInfo pipelineInfo = null)
         {
             var flrBehavior = new FirstLevelRetriesBehavior(
                 storage ?? new FlrStatusStorage(), 
-                retryPolicy, 
-                busNotifications ?? new BusNotifications());
+                retryPolicy,
+                firstLevelRetryAction ?? (retry => {}) );
 
             flrBehavior.Initialize(pipelineInfo ?? new PipelineInfo("samplePipeline", "address"));
             return flrBehavior;

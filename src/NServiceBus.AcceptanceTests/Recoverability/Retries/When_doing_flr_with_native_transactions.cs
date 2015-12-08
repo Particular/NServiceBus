@@ -15,31 +15,31 @@
         public async Task Should_do_5_retries_by_default_with_native_transactions()
         {
             await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                    .WithEndpoint<RetryEndpoint>(b => b
-                        .When((bus, context) => bus.SendLocal(new MessageToBeRetried { Id = context.Id }))
-                        .DoNotFailOnErrorMessages())
-                    .Done(c => c.ForwardedToErrorQueue)
-                    .Repeat(r => r.For(Transports.Default))
-                    .Should(c =>
+                .WithEndpoint<RetryEndpoint>(b => b
+                    .When((bus, context) => bus.SendLocal(new MessageToBeRetried
                     {
-                        Assert.AreEqual(5 + 1, c.NumberOfTimesInvoked, "The FLR should by default retry 5 times");
-                        Assert.AreEqual(5, c.Logs.Count(l => l.Message
-                            .StartsWith($"First Level Retry is going to retry message '{c.PhysicalMessageId}' because of an exception:")));
-                        Assert.AreEqual(1, c.Logs.Count(l => l.Message
-                            .StartsWith($"Giving up First Level Retries for message '{c.PhysicalMessageId}'.")));
-                    })
-                    .Run();
+                        Id = context.Id
+                    }))
+                    .DoNotFailOnErrorMessages())
+                .Done(c => c.SentToErrorQueue)
+                .Repeat(r => r.For(Transports.Default))
+                .Should(c =>
+                {
+                    Assert.AreEqual(5 + 1, c.NumberOfTimesInvoked, "The FLR should by default retry 5 times");
+                    Assert.AreEqual(5, c.Logs.Count(l => l.Message
+                        .StartsWith($"First Level Retry is going to retry message '{c.PhysicalMessageId}' because of an exception:")));
+                    Assert.AreEqual(1, c.Logs.Count(l => l.Message
+                        .StartsWith($"Giving up First Level Retries for message '{c.PhysicalMessageId}'.")));
+                })
+                .Run();
         }
 
         public class Context : ScenarioContext
         {
             public Guid Id { get; set; }
-
             public int NumberOfTimesInvoked { get; set; }
-
-            public bool ForwardedToErrorQueue { get; set; }
-
             public string PhysicalMessageId { get; set; }
+            public bool SentToErrorQueue { get; set; }
         }
 
         public class RetryEndpoint : EndpointConfigurationBuilder
@@ -49,28 +49,14 @@
                 EndpointSetup<DefaultServer>(b =>
                 {
                     b.EnableFeature<FirstLevelRetries>();
+                    var context = (Context)ScenarioContext;
+                    b.NotifyOnFailedMessage(message =>
+                    {
+                        context.SentToErrorQueue = true;
+                    });
                     b.Transactions().DisableDistributedTransactions();
                 });
             }
-
-            class ErrorNotificationSpy : IWantToRunWhenBusStartsAndStops
-            {
-                public Context Context { get; set; }
-
-                public BusNotifications BusNotifications { get; set; }
-
-                public Task Start(IBusContext context)
-                {
-                    BusNotifications.Errors.MessageSentToErrorQueue += (sender, message) => Context.ForwardedToErrorQueue = true;
-                    return Task.FromResult(0);
-                }
-
-                public Task Stop(IBusContext context)
-                {
-                    return Task.FromResult(0);
-                }
-            }
-
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
             {

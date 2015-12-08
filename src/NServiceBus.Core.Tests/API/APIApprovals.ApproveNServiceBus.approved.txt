@@ -92,10 +92,12 @@ namespace NServiceBus
         public void UseContainer(NServiceBus.ObjectBuilder.Common.IContainer builder) { }
         public void UseCustomLogicalToTransportAddressTranslation(System.Func<NServiceBus.LogicalAddress, string, string> translation) { }
     }
-    public class BusNotifications : System.IDisposable
+    [System.ObsoleteAttribute("Please use `NotificationExtensions` instead. Will be removed in version 7.0.0.", true)]
+    public class BusNotifications
     {
         public BusNotifications() { }
-        public NServiceBus.Faults.ErrorsNotifications Errors { get; }
+        [System.ObsoleteAttribute("Please use `NotificationExtensions` instead. Will be removed in version 7.0.0.", true)]
+        public NServiceBus.ErrorsNotifications Errors { get; }
         [System.ObsoleteAttribute("For performance reasons it is no longer possible to instrument the pipeline execu" +
             "tion. Will be removed in version 7.0.0.", true)]
         public NServiceBus.PipelineNotifications Pipeline { get; }
@@ -303,6 +305,20 @@ namespace NServiceBus
         public override int GetHashCode() { }
         public override string ToString() { }
     }
+    [System.ObsoleteAttribute("Please use `NotificationExtensions` instead. Will be removed in version 7.0.0.", true)]
+    public class ErrorsNotifications
+    {
+        public ErrorsNotifications() { }
+        [System.ObsoleteAttribute("Please use `NotificationExtensions.NotifyOnSecondLevelRetry` instead. Will be rem" +
+            "oved in version 7.0.0.", true)]
+        public System.IObservable<NServiceBus.Faults.SecondLevelRetry> MessageHasBeenSentToSecondLevelRetries { get; }
+        [System.ObsoleteAttribute("Please use `NotificationExtensions.NotifyOnFirstLevelRetry` instead. Will be remo" +
+            "ved in version 7.0.0.", true)]
+        public System.IObservable<NServiceBus.Faults.FirstLevelRetry> MessageHasFailedAFirstLevelRetryAttempt { get; }
+        [System.ObsoleteAttribute("Please use `NotificationExtensions.NotifyOnFailedMessage` instead. Will be remove" +
+            "d in version 7.0.0.", true)]
+        public System.IObservable<NServiceBus.Faults.FailedMessage> MessageSentToErrorQueue { get; }
+    }
     [System.AttributeUsageAttribute(System.AttributeTargets.Class | System.AttributeTargets.Interface | System.AttributeTargets.All)]
     public sealed class ExpressAttribute : System.Attribute
     {
@@ -322,6 +338,7 @@ namespace NServiceBus
             "to your behavior or mutator. Will be removed in version 7.0.0.", true)]
         public static void SetMessageHeader(this NServiceBus.IBusContextFactory bus, object msg, string key, string value) { }
     }
+    public delegate void FailedMessageAction(NServiceBus.Faults.FailedMessage failedMessage);
     public class static FileBasedRoutingConfigurationExtensions
     {
         public static NServiceBus.FileRoutingTableSettings UseFileBasedEndpointInstanceLists(this NServiceBus.RoutingSettings config) { }
@@ -342,6 +359,7 @@ namespace NServiceBus
     {
         public First() { }
     }
+    public delegate void FirstLevelRetryAction(NServiceBus.Faults.FirstLevelRetry firstLevelRetry);
     public class static HeaderOptionExtensions
     {
         public static void SetHeader(this NServiceBus.Extensibility.ExtendableOptions context, string key, string value) { }
@@ -670,6 +688,12 @@ namespace NServiceBus
     {
         public NonDurableDelivery() { }
     }
+    public class static NotificationExtensions
+    {
+        public static void NotifyOnFailedMessage(this NServiceBus.BusConfiguration busConfiguration, NServiceBus.FailedMessageAction action) { }
+        public static void NotifyOnFirstLevelRetry(this NServiceBus.BusConfiguration busConfiguration, NServiceBus.FirstLevelRetryAction action) { }
+        public static void NotifyOnSecondLevelRetry(this NServiceBus.BusConfiguration busConfiguration, NServiceBus.SecondLevelRetryAction action) { }
+    }
     [System.ObsoleteAttribute("Please use `BusConfiguration.ExecuteTheseHandlersFirst` instead. Will be removed " +
         "in version 7.0.0.", true)]
     public class Order
@@ -832,6 +856,7 @@ namespace NServiceBus
     {
         public static NServiceBus.SecondLevelRetries.Config.SecondLevelRetriesSettings SecondLevelRetries(this NServiceBus.BusConfiguration config) { }
     }
+    public delegate void SecondLevelRetryAction(NServiceBus.Faults.SecondLevelRetry secondLevelRetry);
     public class SendOptions : NServiceBus.Extensibility.ExtendableOptions
     {
         public SendOptions() { }
@@ -1312,13 +1337,6 @@ namespace NServiceBus.Extensibility
 }
 namespace NServiceBus.Faults
 {
-    public class ErrorsNotifications
-    {
-        public ErrorsNotifications() { }
-        public event System.EventHandler<NServiceBus.Faults.SecondLevelRetry> MessageHasBeenSentToSecondLevelRetries;
-        public event System.EventHandler<NServiceBus.Faults.FirstLevelRetry> MessageHasFailedAFirstLevelRetryAttempt;
-        public event System.EventHandler<NServiceBus.Faults.FailedMessage> MessageSentToErrorQueue;
-    }
     public struct FailedMessage
     {
         public FailedMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, System.Exception exception) { }

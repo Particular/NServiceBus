@@ -33,7 +33,7 @@ namespace NServiceBus.Features
                     b.Build<CriticalError>(),
                     dispatchPipeline,
                     b.Build<HostInformation>(),
-                    b.Build<BusNotifications>(),
+                    context.Settings.GetFailedMessageAction(),
                     errorQueue);
             }, DependencyLifecycle.InstancePerCall);
 

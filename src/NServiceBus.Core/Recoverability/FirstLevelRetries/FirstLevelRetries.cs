@@ -27,17 +27,21 @@ namespace NServiceBus.Features
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var transportConfig = context.Settings.GetConfigSection<TransportConfig>();
+            var settings = context.Settings;
+            var transportConfig = settings.GetConfigSection<TransportConfig>();
             var maxRetries = transportConfig?.MaxRetries ?? 5;
             var retryPolicy = new FirstLevelRetryPolicy(maxRetries);
-            context.Container.RegisterSingleton(retryPolicy);
 
             var flrStatusStorage = new FlrStatusStorage();
-            context.Container.RegisterSingleton(flrStatusStorage);
-
             context.RegisterStartupTask(new FlrStatusStorageCleaner(flrStatusStorage));
 
             context.Pipeline.Register<FirstLevelRetriesBehavior.Registration>();
+
+            context.Container.ConfigureComponent(b =>
+            {
+                var firstLevelRetryAction = settings.GetFirstLevelRetryAction();
+                return new FirstLevelRetriesBehavior(flrStatusStorage, retryPolicy, firstLevelRetryAction);
+            }, DependencyLifecycle.InstancePerCall);
         }
        
 

@@ -28,9 +28,9 @@
             {
                 behavior = endpointBehavior;
                 scenarioContext = run.ScenarioContext;
-                configuration =
-                    ((IEndpointConfigurationFactory)Activator.CreateInstance(endpointBehavior.EndpointBuilderType))
-                        .Get();
+                var endpointConfigurationFactory = (IEndpointConfigurationFactory)Activator.CreateInstance(endpointBehavior.EndpointBuilderType);
+                endpointConfigurationFactory.ScenarioContext = run.ScenarioContext;
+                configuration = endpointConfigurationFactory.Get();
                 configuration.EndpointName = endpointName;
 
                 if (!string.IsNullOrEmpty(configuration.CustomMachineName))

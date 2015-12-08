@@ -1,11 +1,16 @@
 namespace NServiceBus.AcceptanceTests.Recoverability.Retries
 {
+    using System;
     using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
+    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using NServiceBus.Config;
+    using NServiceBus.Features;
+    using NServiceBus.MessageMutator;
     using NUnit.Framework;
 
-    public class When_performing_slr_with_regular_exception : When_performing_slr
+    public class When_performing_slr_with_regular_exception : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_preserve_the_original_body_for_regular_exceptions()
@@ -14,27 +19,79 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
                 .WithEndpoint<RetryEndpoint>(b => b
                     .When(bus => bus.SendLocal(new MessageToBeRetried()))
                     .DoNotFailOnErrorMessages())
-                .Done(c => c.SlrChecksum != default(byte))
+                .Done(c => RetryEndpoint.ChecksumOfErrorQueueMessage != default(byte))
                 .Run();
 
-            Assert.AreEqual(context.OriginalBodyChecksum, context.SlrChecksum, "The body of the message sent to slr should be the same as the original message coming off the queue");
+            Assert.AreEqual(context.OriginalBodyChecksum, RetryEndpoint.ChecksumOfErrorQueueMessage, "The body of the message sent to slr should be the same as the original message coming off the queue");
         }
 
-        [Test]
-        public async Task Should_reschedule_message_three_times_by_default()
+        public class Context : ScenarioContext
         {
-            var context = await Scenario.Define<Context>()
-                .WithEndpoint<RetryEndpoint>(b => b
-                    .When(bus => bus.SendLocal(new MessageToBeRetried()))
-                    .DoNotFailOnErrorMessages())
-                .Done(c => c.ForwardedToErrorQueue)
-                .Run();
+            public byte OriginalBodyChecksum { get; set; }
+        }
 
-            Assert.IsTrue(context.ForwardedToErrorQueue);
-            Assert.AreEqual(3, context.Logs.Count(l => l.Message
-                .StartsWith($"Second Level Retry will reschedule message '{context.PhysicalMessageId}'")));
-            Assert.AreEqual(1, context.Logs.Count(l => l.Message
-                .StartsWith($"Giving up Second Level Retries for message '{context.PhysicalMessageId}'.")));
+        public class RetryEndpoint : EndpointConfigurationBuilder
+        {
+            public RetryEndpoint()
+            {
+                EndpointSetup<DefaultServer>(configure =>
+                {
+                    configure.DisableFeature<FirstLevelRetries>();
+                    configure.EnableFeature<SecondLevelRetries>();
+                    configure.EnableFeature<TimeoutManager>();
+                    configure.RegisterComponents(c => c.ConfigureComponent<BodyMutator>(DependencyLifecycle.InstancePerCall));
+                    configure.NotifyOnFailedMessage(message => ChecksumOfErrorQueueMessage =Checksum(message.Body));
+                })
+                .WithConfig<SecondLevelRetriesConfig>(c => c.TimeIncrease = TimeSpan.FromSeconds(1));
+            }
+
+            public static byte ChecksumOfErrorQueueMessage;
+
+            public static byte Checksum(byte[] data)
+            {
+                var longSum = data.Sum(x => (long)x);
+                return unchecked((byte)longSum);
+            }
+
+            class BodyMutator : IMutateOutgoingTransportMessages, IMutateIncomingTransportMessages
+            {
+                public Context Context { get; set; }
+
+                public Task MutateIncoming(MutateIncomingTransportMessageContext transportMessage)
+                {
+                    var originalBody = transportMessage.Body;
+
+                    Context.OriginalBodyChecksum = Checksum(originalBody);
+
+                    var decryptedBody = new byte[originalBody.Length];
+
+                    Buffer.BlockCopy(originalBody, 0, decryptedBody, 0, originalBody.Length);
+
+                    //decrypt
+                    decryptedBody[0]++;
+                    transportMessage.Body = decryptedBody;
+                    return Task.FromResult(0);
+                }
+
+                public Task MutateOutgoing(MutateOutgoingTransportMessageContext context)
+                {
+                    context.OutgoingBody[0]--;
+                    return Task.FromResult(0);
+                }
+            }
+
+            class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
+            {
+                public Task Handle(MessageToBeRetried message, IMessageHandlerContext context)
+                {
+                    throw new SimulatedException();
+                }
+            }
+        }
+
+        [Serializable]
+        public class MessageToBeRetried : IMessage
+        {
         }
     }
 }

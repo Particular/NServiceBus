@@ -3,19 +3,21 @@ namespace NServiceBus
     using System;
     using System.Threading.Tasks;
     using Logging;
+    using NServiceBus.Faults;
     using NServiceBus.Features;
     using NServiceBus.Settings;
+    using NServiceBus.Transports;
     using Pipeline;
     using Pipeline.Contexts;
     using Recoverability.FirstLevelRetries;
 
     class FirstLevelRetriesBehavior : Behavior<TransportReceiveContext>
     {
-        public FirstLevelRetriesBehavior(FlrStatusStorage storage, FirstLevelRetryPolicy retryPolicy, BusNotifications notifications)
+        public FirstLevelRetriesBehavior(FlrStatusStorage storage, FirstLevelRetryPolicy retryPolicy, FirstLevelRetryAction firstLevelRetryAction)
         {
             this.storage = storage;
             this.retryPolicy = retryPolicy;
-            this.notifications = notifications;
+            this.firstLevelRetryAction = firstLevelRetryAction;
         }
 
         public override async Task Invoke(TransportReceiveContext context, Func<Task> next)
@@ -28,7 +30,7 @@ namespace NServiceBus
             {
                 throw; // no retries for poison messages
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
                 var messageId = context.Message.MessageId;
                 var pipelineUniqueMessageId = PipelineInfo.Name + messageId;
@@ -39,24 +41,30 @@ namespace NServiceBus
                 {
                     storage.ClearFailuresForMessage(pipelineUniqueMessageId);
                     context.Message.Headers[Headers.FLRetries] = numberOfFailures.ToString();
-                    notifications.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(numberOfFailures, context.Message, ex);
+                    InvokeNotification(numberOfFailures, exception, context.Message);
                     Logger.InfoFormat("Giving up First Level Retries for message '{0}'.", messageId);
                     throw;
                 }
 
                 storage.IncrementFailuresForMessage(pipelineUniqueMessageId);
 
-                Logger.Info($"First Level Retry is going to retry message '{messageId}' because of an exception:", ex);
+                Logger.Info($"First Level Retry is going to retry message '{messageId}' because of an exception:", exception);
                 //question: should we invoke this the first time around? feels like the naming is off?
-                notifications.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(numberOfFailures, context.Message, ex);
+                InvokeNotification(numberOfFailures, exception, context.Message);
 
                 throw new MessageProcessingAbortedException();
             }
         }
 
+        void InvokeNotification(int numberOfFailures, Exception exception, IncomingMessage message)
+        {
+            var secondLevelRetry = new FirstLevelRetry(message.MessageId, message.Headers, message.Body, exception, numberOfFailures);
+            firstLevelRetryAction(secondLevelRetry);
+        }
+
         FlrStatusStorage storage;
         FirstLevelRetryPolicy retryPolicy;
-        BusNotifications notifications;
+        FirstLevelRetryAction firstLevelRetryAction;
 
         static ILog Logger = LogManager.GetLogger<FirstLevelRetriesBehavior>();
 
