@@ -61,7 +61,7 @@
             public Registration()
                 : base("SubscriptionBehavior", typeof(SubscriptionBehavior<TContext>), "So we can get subscription events")
             {
-                InsertBefore("ProcessSubscriptionRequests");
+                InsertBeforeIfExists("ProcessSubscriptionRequests");
             }
         }
     }
