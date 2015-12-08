@@ -9,9 +9,9 @@
     using NServiceBus.Pipeline.OutgoingPipeline;
     using NServiceBus.Routing;
 
-    class LogOutgoingMessageBehavior : Behavior<DispatchContext>
+    class LogOutgoingMessageBehavior : Behavior<DispatchContextImpl>
     {
-        public override async Task Invoke(DispatchContext context, Func<Task> next)
+        public override async Task Invoke(DispatchContextImpl context, Func<Task> next)
         {
             var outgoingLogicalMessageContext = context.Get<OutgoingLogicalMessageContext>();
             var outgoingLogicalMessage = context.Get<OutgoingLogicalMessageContext>().Message;
@@ -20,7 +20,7 @@
             {
                 var sb = new StringBuilder();
 
-                sb.AppendFormat("Sending message '{0}' with id '{1}'. Routing Details:\n",
+                sb.AppendFormat("Dispatching message '{0}' with id '{1}'. Routing Details:\n",
                     outgoingLogicalMessage.MessageType != null ? outgoingLogicalMessage.MessageType.AssemblyQualifiedName : "unknown",
                     outgoingLogicalMessageContext.MessageId);
 
