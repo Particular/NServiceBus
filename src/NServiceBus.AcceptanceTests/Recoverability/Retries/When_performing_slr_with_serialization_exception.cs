@@ -86,13 +86,6 @@
                 }
             }
 
-            class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
-            {
-                public Task Handle(MessageToBeRetried message, IMessageHandlerContext context)
-                {
-                    throw new Exception();
-                }
-            }
         }
 
         [Serializable]
