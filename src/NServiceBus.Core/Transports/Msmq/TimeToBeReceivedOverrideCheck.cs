@@ -2,6 +2,7 @@
 {
     using NServiceBus.Config;
     using System;
+    using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.Features;
     using NServiceBus.Settings;
 
@@ -16,7 +17,7 @@
         public StartupCheckResult CheckTimeToBeReceivedOverrides()
         {
             var usingMsmq = settings.Get<TransportDefinition>() is MsmqTransport;
-            var isTransactional = settings.Get<bool>("Transactions.Enabled");
+            var isTransactional = settings.GetRequiredTransactionSupportForReceives() != TransactionSupport.None;
             var outBoxRunning = settings.IsFeatureActive(typeof(Outbox));
 
             var messageAuditingConfig = settings.GetConfigSection<AuditConfig>();

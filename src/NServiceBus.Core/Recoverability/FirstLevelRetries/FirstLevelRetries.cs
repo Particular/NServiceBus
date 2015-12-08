@@ -4,8 +4,10 @@ namespace NServiceBus.Features
     using System.Threading;
     using System.Threading.Tasks;
     using Config;
+    using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.Recoverability.FirstLevelRetries;
     using NServiceBus.Settings;
+    using NServiceBus.Transports;
 
     /// <summary>
     /// Used to configure Second Level Retries.
@@ -17,7 +19,7 @@ namespace NServiceBus.Features
             EnableByDefault();
             Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Send only endpoints can't use FLR since it only applies to messages being received");
 
-            Prerequisite(context => context.Settings.Get<bool>("Transactions.Enabled"), "Send only endpoints can't use FLR since it requires the transport to be able to rollback");
+            Prerequisite(context => context.Settings.GetRequiredTransactionSupportForReceives() != TransactionSupport.None, "Transactions must be enabled since FLR requires the transport to be able to rollback");
 
             Prerequisite(context => GetMaxRetries(context.Settings) > 0, "FLR was disabled in config since it's set to 0");
         }
