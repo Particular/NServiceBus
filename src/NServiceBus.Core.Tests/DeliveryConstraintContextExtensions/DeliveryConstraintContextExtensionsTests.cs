@@ -18,7 +18,8 @@
             var settings = new SettingsHolder();
             settings.Set<TransportDefinition>(new FakeTransportDefinition());
             var context = new FeatureConfigurationContext(settings, null, null);
-            var result = DeliveryConstraintContextExtensions.DoesTransportSupportConstraint<DeliveryConstraint>(context);
+
+            var result = context.DoesTransportSupportConstraint<DeliveryConstraint>();
             Assert.IsTrue(result);
         }
 
