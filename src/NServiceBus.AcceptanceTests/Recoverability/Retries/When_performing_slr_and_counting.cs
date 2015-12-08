@@ -19,7 +19,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
                 .WithEndpoint<RetryEndpoint>(b => b
                     .When(bus => bus.SendLocal(new MessageToBeRetried()))
                     .DoNotFailOnErrorMessages())
-                .Done(c => RetryEndpoint.SentToErrorQueue)
+                .Done(c => c.SentToErrorQueue)
                 .Run();
 
             Assert.AreEqual(3, context.Logs.Count(l => l.Message
@@ -29,6 +29,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
         }
         public class Context : ScenarioContext
         {
+            public bool SentToErrorQueue { get; set; }
             public string PhysicalMessageId { get; set; }
         }
 
@@ -38,14 +39,16 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
             {
                 EndpointSetup<DefaultServer>(configure =>
                 {
-                    configure.DisableFeature<FirstLevelRetries>();
+                    var context = (Context) ScenarioContext;
                     configure.EnableFeature<SecondLevelRetries>();
                     configure.EnableFeature<TimeoutManager>();
-                    configure.NotifyOnFailedMessage(message => RetryEndpoint.SentToErrorQueue = true);
+                    configure.NotifyOnFailedMessage(message => context.SentToErrorQueue = true);
                 })
-                .WithConfig<SecondLevelRetriesConfig>(c => c.TimeIncrease = TimeSpan.FromSeconds(1));
+                    .WithConfig<SecondLevelRetriesConfig>(c =>
+                    {
+                        c.TimeIncrease = TimeSpan.FromMilliseconds(1);
+                    });
             }
-            public static bool SentToErrorQueue;
 
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>

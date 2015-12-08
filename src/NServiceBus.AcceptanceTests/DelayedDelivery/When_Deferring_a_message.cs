@@ -12,7 +12,7 @@
         [Test]
         public async Task Delivery_should_be_delayed()
         {
-            var delay = TimeSpan.FromSeconds(5);
+            var delay = TimeSpan.FromMilliseconds(1);
 
             var context = await Scenario.Define<Context>()
                     .WithEndpoint<Endpoint>(b => b.When((bus, c) =>

@@ -16,8 +16,7 @@
                     .WithEndpoint<Endpoint>(b => b.When((bus, c) =>
                     {
                         var options = new SendOptions();
-
-                        options.DelayDeliveryWith(TimeSpan.FromSeconds(3));
+                        options.DelayDeliveryWith(TimeSpan.FromMilliseconds(3));
                         return bus.Send(new MyMessage(), options);
                     }))
                     .WithEndpoint<Receiver>()

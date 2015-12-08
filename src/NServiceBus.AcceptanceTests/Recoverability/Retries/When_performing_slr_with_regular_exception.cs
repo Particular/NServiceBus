@@ -36,13 +36,12 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
             {
                 EndpointSetup<DefaultServer>(configure =>
                 {
-                    configure.DisableFeature<FirstLevelRetries>();
                     configure.EnableFeature<SecondLevelRetries>();
                     configure.EnableFeature<TimeoutManager>();
                     configure.RegisterComponents(c => c.ConfigureComponent<BodyMutator>(DependencyLifecycle.InstancePerCall));
                     configure.NotifyOnFailedMessage(message => ChecksumOfErrorQueueMessage =Checksum(message.Body));
                 })
-                .WithConfig<SecondLevelRetriesConfig>(c => c.TimeIncrease = TimeSpan.FromSeconds(1));
+                .WithConfig<SecondLevelRetriesConfig>(c => c.TimeIncrease = TimeSpan.FromMilliseconds(1));
             }
 
             public static byte ChecksumOfErrorQueueMessage;
