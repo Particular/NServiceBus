@@ -2994,6 +2994,9 @@ namespace NServiceBus.Unicast.Transport
         public bool DoNotWrapHandlersExecutionInATransactionScope { get; set; }
         public System.Transactions.IsolationLevel IsolationLevel { get; set; }
         public bool IsTransactional { get; set; }
+        [System.ObsoleteAttribute("SuppressDistributedTransactions is no longer used here. Please use `context.Setti" +
+            "ngs.GetRequiredTransactionSupportForReceives() != TransactionSupport.Distributed" +
+            "` instead. Will be removed in version 7.0.0.", true)]
         public bool SuppressDistributedTransactions { get; set; }
         public System.TimeSpan TransactionTimeout { get; set; }
     }

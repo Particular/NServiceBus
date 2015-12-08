@@ -966,6 +966,12 @@ namespace NServiceBus.Unicast.Transport
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public bool DoNotWrapHandlersExecutionInATransactionScope { get; set; }
+
+        [ObsoleteEx(
+         Message = "SuppressDistributedTransactions is no longer used here. Please use `context.Settings.GetRequiredTransactionSupportForReceives() != TransactionSupport.Distributed` instead.",
+         RemoveInVersion = "7.0",
+         TreatAsErrorFromVersion = "6.0")]
+        public bool SuppressDistributedTransactions { get; set; }
     }
 
     [ObsoleteEx(
