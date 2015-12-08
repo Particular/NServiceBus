@@ -63,11 +63,13 @@
 
                 public Task Timeout(Saga1Timeout state, IMessageHandlerContext context)
                 {
-                    MarkAsComplete();
-
                     if (state.ContextId == TestContext.Id)
                     {
                         TestContext.Saga1TimeoutFired = true;
+                    }
+                    if (TestContext.Saga1TimeoutFired && TestContext.Saga2TimeoutFired)
+                    {
+                        MarkAsComplete();
                     }
 
                     return Task.FromResult(0);
@@ -80,6 +82,10 @@
                         TestContext.Saga2TimeoutFired = true;
                     }
 
+                    if (TestContext.Saga1TimeoutFired && TestContext.Saga2TimeoutFired)
+                    {
+                        MarkAsComplete();
+                    }
                     return Task.FromResult(0);
                 }
 
