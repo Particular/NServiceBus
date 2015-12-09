@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using DelayedDelivery;
     using DeliveryConstraints;
@@ -16,11 +17,11 @@ namespace NServiceBus
 
     class SecondLevelRetriesBehavior : Behavior<TransportReceiveContext>
     {
-        public SecondLevelRetriesBehavior(IPipelineBase<RoutingContext> dispatchPipeline, SecondLevelRetryPolicy retryPolicy, SecondLevelRetryAction secondLevelRetryAction, string localAddress)
+        public SecondLevelRetriesBehavior(IPipelineBase<RoutingContext> dispatchPipeline, SecondLevelRetryPolicy retryPolicy, IEnumerable<Action<SecondLevelRetry>> secondLevelRetryActions, string localAddress)
         {
             this.dispatchPipeline = dispatchPipeline;
             this.retryPolicy = retryPolicy;
-            this.secondLevelRetryAction = secondLevelRetryAction;
+            this.secondLevelRetryActions = secondLevelRetryActions.ToList();
             this.localAddress = localAddress;
         }
 
@@ -80,7 +81,10 @@ namespace NServiceBus
         void InvokeNotification(IncomingMessage message, Exception exception, int currentRetry)
         {
             var secondLevelRetry = new SecondLevelRetry(message.Headers, message.Body, exception, currentRetry);
-            secondLevelRetryAction(secondLevelRetry);
+            foreach (var secondLevelRetryAction in secondLevelRetryActions)
+            {
+                secondLevelRetryAction(secondLevelRetry);
+            }
         }
 
         static int GetNumberOfRetries(Dictionary<string, string> headers)
@@ -100,7 +104,7 @@ namespace NServiceBus
 
         IPipelineBase<RoutingContext> dispatchPipeline;
         SecondLevelRetryPolicy retryPolicy;
-        SecondLevelRetryAction secondLevelRetryAction;
+        List<Action<SecondLevelRetry>> secondLevelRetryActions;
         string localAddress;
 
         static ILog Logger = LogManager.GetLogger<SecondLevelRetriesBehavior>();

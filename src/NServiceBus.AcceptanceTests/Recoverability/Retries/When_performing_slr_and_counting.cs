@@ -42,7 +42,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
                     var context = (Context) ScenarioContext;
                     configure.EnableFeature<SecondLevelRetries>();
                     configure.EnableFeature<TimeoutManager>();
-                    configure.NotifyOnFailedMessage(message => context.SentToErrorQueue = true);
+                    configure.Faults().AddFaultNotification(message => context.SentToErrorQueue = true);
                 })
                     .WithConfig<SecondLevelRetriesConfig>(c =>
                     {

@@ -49,7 +49,7 @@
                 EndpointSetup<DefaultServer>(b =>
                 {
                     b.EnableFeature<FirstLevelRetries>();
-                    b.NotifyOnFailedMessage(message =>
+                    b.Faults().AddFaultNotification(message =>
                     {
                         var context = (Context) ScenarioContext;
                         context.SentToErrorQueue = true;

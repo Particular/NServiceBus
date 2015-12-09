@@ -24,11 +24,10 @@
         [Test]
         public async Task ShouldRetryIfPolicyReturnsADelay()
         {
-
             var slrNotification = new SecondLevelRetry();
             var delay = TimeSpan.FromSeconds(5);
             var fakeDispatchPipeline = new FakeDispatchPipeline();
-            var behavior = new SecondLevelRetriesBehavior(fakeDispatchPipeline, new FakePolicy(delay), retry => { slrNotification = retry; }, "test-address-for-this-pipeline");
+            var behavior = new SecondLevelRetriesBehavior(fakeDispatchPipeline, new FakePolicy(delay), new List<Action<SecondLevelRetry>> { retry => { slrNotification = retry; } }, "test-address-for-this-pipeline");
             behavior.Initialize(new PipelineInfo("Test", "IncomingQueueForThisPipeline"));
 
             await behavior.Invoke(CreateContext("someid", 1), () => { throw new Exception("testex"); });
@@ -44,7 +43,7 @@
         {
             var delay = TimeSpan.FromSeconds(5);
             var fakeDispatchPipeline = new FakeDispatchPipeline();
-            var behavior = new SecondLevelRetriesBehavior(fakeDispatchPipeline, new FakePolicy(delay), retry => {}, "MyAddress");
+            var behavior = new SecondLevelRetriesBehavior(fakeDispatchPipeline, new FakePolicy(delay), new List<Action<SecondLevelRetry>>(), "MyAddress");
             behavior.Initialize(new PipelineInfo("Test", "test-address-for-this-pipeline"));
 
             await behavior.Invoke(CreateContext("someid", 0), () => { throw new Exception("testex"); });
@@ -56,7 +55,7 @@
         public void ShouldSkipRetryIfNoDelayIsReturned()
         {
             var fakeDispatchPipeline = new FakeDispatchPipeline();
-            var behavior = new SecondLevelRetriesBehavior(fakeDispatchPipeline, new FakePolicy(), retry => { }, "MyAddress");
+            var behavior = new SecondLevelRetriesBehavior(fakeDispatchPipeline, new FakePolicy(), new List<Action<SecondLevelRetry>>(), "MyAddress");
             behavior.Initialize(new PipelineInfo("Test", "test-address-for-this-pipeline"));
             var context = CreateContext("someid", 1);
 
@@ -69,7 +68,7 @@
         public void ShouldSkipRetryForDeserializationErrors()
         {
             var fakeDispatchPipeline = new FakeDispatchPipeline();
-            var behavior = new SecondLevelRetriesBehavior(fakeDispatchPipeline, new FakePolicy(TimeSpan.FromSeconds(5)), retry => { }, "MyAddress");
+            var behavior = new SecondLevelRetriesBehavior(fakeDispatchPipeline, new FakePolicy(TimeSpan.FromSeconds(5)), new List<Action<SecondLevelRetry>>(), "MyAddress");
             behavior.Initialize(new PipelineInfo("Test", "test-address-for-this-pipeline"));
             var context = CreateContext("someid", 1);
 
@@ -83,7 +82,7 @@
             var retryPolicy = new FakePolicy(TimeSpan.FromSeconds(5));
 
             var fakeDispatchPipeline = new FakeDispatchPipeline();
-            var behavior = new SecondLevelRetriesBehavior(fakeDispatchPipeline, retryPolicy, retry => { }, "MyAddress");
+            var behavior = new SecondLevelRetriesBehavior(fakeDispatchPipeline, retryPolicy, new List<Action<SecondLevelRetry>>(), "MyAddress");
             behavior.Initialize(new PipelineInfo("Test", "test-address-for-this-pipeline"));
 
             var currentRetry = 3;
@@ -102,7 +101,7 @@
             context.Message.Headers.Clear();
 
             var fakeDispatchPipeline = new FakeDispatchPipeline();
-            var behavior = new SecondLevelRetriesBehavior(fakeDispatchPipeline, retryPolicy, retry => { }, "MyAddress");
+            var behavior = new SecondLevelRetriesBehavior(fakeDispatchPipeline, retryPolicy, new List<Action<SecondLevelRetry>>(), "MyAddress");
             behavior.Initialize(new PipelineInfo("Test", "test-address-for-this-pipeline"));
 
             await behavior.Invoke(context, () => { throw new Exception("testex"); });
@@ -118,7 +117,7 @@
             var context = CreateContext("someId", 1, Encoding.UTF8.GetBytes(originalContent));
             var fakeDispatchPipeline = new FakeDispatchPipeline();
             var retryPolicy = new FakePolicy(TimeSpan.FromSeconds(0));
-            var behavior = new SecondLevelRetriesBehavior(fakeDispatchPipeline, retryPolicy, retry => { }, "test-address-for-this-pipeline");
+            var behavior = new SecondLevelRetriesBehavior(fakeDispatchPipeline, retryPolicy, new List<Action<SecondLevelRetry>>(), "test-address-for-this-pipeline");
             behavior.Initialize(new PipelineInfo("Test", "test-address-for-this-pipeline"));
 
             var message = context.Message;

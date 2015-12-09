@@ -39,8 +39,8 @@ namespace NServiceBus.Features
 
             context.Container.ConfigureComponent(b =>
             {
-                var firstLevelRetryAction = settings.GetFirstLevelRetryAction();
-                return new FirstLevelRetriesBehavior(flrStatusStorage, retryPolicy, firstLevelRetryAction);
+                var firstLevelRetryActions = settings.GetFirstLevelRetryActions();
+                return new FirstLevelRetriesBehavior(flrStatusStorage, retryPolicy, firstLevelRetryActions);
             }, DependencyLifecycle.InstancePerCall);
         }
        

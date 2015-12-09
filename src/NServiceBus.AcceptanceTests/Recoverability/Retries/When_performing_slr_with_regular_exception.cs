@@ -39,7 +39,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
                     configure.EnableFeature<SecondLevelRetries>();
                     configure.EnableFeature<TimeoutManager>();
                     configure.RegisterComponents(c => c.ConfigureComponent<BodyMutator>(DependencyLifecycle.InstancePerCall));
-                    configure.NotifyOnFailedMessage(message => ChecksumOfErrorQueueMessage =Checksum(message.Body));
+                    configure.Faults().AddFaultNotification(message => ChecksumOfErrorQueueMessage =Checksum(message.Body));
                 })
                 .WithConfig<SecondLevelRetriesConfig>(c => c.TimeIncrease = TimeSpan.FromMilliseconds(1));
             }

@@ -20,7 +20,6 @@ namespace NServiceBus.Features
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-
             var errorQueue = ErrorQueueSettings.GetConfiguredErrorQueue(context.Settings);
 
             context.Container.ConfigureComponent(b =>
@@ -33,7 +32,7 @@ namespace NServiceBus.Features
                     b.Build<CriticalError>(),
                     dispatchPipeline,
                     b.Build<HostInformation>(),
-                    context.Settings.GetFailedMessageAction(),
+                    context.Settings.GetFailedMessageActions(),
                     errorQueue);
             }, DependencyLifecycle.InstancePerCall);
 

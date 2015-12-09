@@ -50,7 +50,7 @@
                 {
                     b.EnableFeature<FirstLevelRetries>();
                     var context = (Context)ScenarioContext;
-                    b.NotifyOnFailedMessage(message =>
+                    b.Faults().AddFaultNotification(message =>
                     {
                         context.SentToErrorQueue = true;
                     });

@@ -61,7 +61,7 @@
             await builder.DefinePersistence(settings);
 
             builder.GetSettings().SetDefault("ScaleOut.UseSingleBrokerQueue", true);
-            builder.NotifyOnFailedMessage(failedMessage =>
+            builder.Faults().AddFaultNotification(failedMessage =>
             {
                 var scenarioContext = runDescriptor.ScenarioContext;
                 scenarioContext.FailedMessages.AddOrUpdate(

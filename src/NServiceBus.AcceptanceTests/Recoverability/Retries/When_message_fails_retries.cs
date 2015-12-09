@@ -15,7 +15,8 @@
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<RetryEndpoint>(b => b
-                    .When((bus, c) => bus.SendLocal(new MessageWhichFailsRetries())))
+                    .When((bus, c) => bus.SendLocal(new MessageWhichFailsRetries()))
+                    .DoNotFailOnErrorMessages())
                 .Done(c => c.FailedMessage != null)
                 .Run();
 
@@ -37,7 +38,7 @@
                     configure.DisableFeature<FirstLevelRetries>();
                     configure.DisableFeature<SecondLevelRetries>();
                     var context = (Context)ScenarioContext;
-                    configure.NotifyOnFailedMessage(message => context.FailedMessage = message);
+                    configure.Faults().AddFaultNotification(message => context.FailedMessage = message);
                 });
             }
 

@@ -35,7 +35,7 @@
                 EndpointSetup<DefaultServer>(b =>
                 {
                     b.DisableFeature<Features.SecondLevelRetries>();
-                    b.NotifyOnFailedMessage(message => SentToErrorQueue = true);
+                    b.Faults().AddFaultNotification(message => SentToErrorQueue = true);
                 })
                     .WithConfig<TransportConfig>(c =>
                     {

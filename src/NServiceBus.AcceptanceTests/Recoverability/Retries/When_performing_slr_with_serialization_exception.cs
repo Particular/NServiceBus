@@ -43,7 +43,7 @@
                     configure.EnableFeature<TimeoutManager>();
                     configure.RegisterComponents(c => c.ConfigureComponent<BodyMutator>(DependencyLifecycle.InstancePerCall));
                     var context = (Context) ScenarioContext;
-                    configure.NotifyOnFailedMessage(message =>
+                    configure.Faults().AddFaultNotification(message =>
                     {
                         context.ChecksumOfErrorQueueMessage = Checksum(message.Body);
                     });

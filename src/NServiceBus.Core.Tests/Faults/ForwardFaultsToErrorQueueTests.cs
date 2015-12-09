@@ -27,7 +27,7 @@ namespace NServiceBus.Core.Tests
                 new FakeCriticalError(),
                 fakeDispatchPipeline, 
                 new HostInformation(Guid.NewGuid(), "my host"),
-                message => {}, 
+                new List<Action<FailedMessage>>(), 
                 errorQueueAddress);
 
             var context = CreateContext("someid");
@@ -54,7 +54,7 @@ namespace NServiceBus.Core.Tests
                 criticalError, 
                 fakeDispatchPipeline, 
                 new HostInformation(Guid.NewGuid(), "my host"),
-                message => { }, 
+                new List<Action<FailedMessage>>(), 
                 "error");
             behavior.Initialize(new PipelineInfo("Test", "public-receive-address"));
 
@@ -79,7 +79,7 @@ namespace NServiceBus.Core.Tests
                 new FakeCriticalError(), 
                 fakeDispatchPipeline, 
                 hostInfo,
-                message => { }, 
+                new List<Action<FailedMessage>>(), 
                 "error");
             behavior.Initialize(new PipelineInfo("Test", "public-receive-address"));
 
@@ -106,10 +106,11 @@ namespace NServiceBus.Core.Tests
             var behavior = new MoveFaultsToErrorQueueBehavior(
                 new FakeCriticalError(),
                 fakeDispatchPipeline, 
-                new HostInformation(Guid.NewGuid(), "my host"),
-                failedMessage => failedMessageNotification = failedMessage, 
+                new HostInformation(Guid.NewGuid(), "my host"),new List<Action<FailedMessage>>
+                {
+                    failedMessage => failedMessageNotification = failedMessage
+                }, 
                 "error");
-
 
             behavior.Initialize(new PipelineInfo("Test", "public-receive-address"));
             await behavior.Invoke(CreateContext("someid"), () =>

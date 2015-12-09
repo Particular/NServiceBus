@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using NServiceBus.Faults;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Recoverability.FirstLevelRetries;
     using Transports;
@@ -88,13 +89,17 @@
         public void ShouldRaiseBusNotificationsForFLR()
         {
             var notificationFired = false;
-            var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1), firstLevelRetryAction: retry =>
+            var firstLevelRetryActions = new List<Action<FirstLevelRetry>>()
             {
-                Assert.AreEqual(0, retry.RetryAttempt);
-                Assert.AreEqual("test", retry.Exception.Message);
-                Assert.AreEqual("someid", retry.MessageId);
-                notificationFired = true;
-            });
+                retry =>
+                {
+                    Assert.AreEqual(0, retry.RetryAttempt);
+                    Assert.AreEqual("test", retry.Exception.Message);
+                    Assert.AreEqual("someid", retry.MessageId);
+                    notificationFired = true;
+                }
+            };
+            var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1), firstLevelRetryActions: firstLevelRetryActions );
 
             Assert.Throws<MessageProcessingAbortedException>(async () => await behavior.Invoke(CreateContext("someid"), () =>
             {
@@ -155,12 +160,13 @@
             }));
         }
 
-        static FirstLevelRetriesBehavior CreateFlrBehavior(FirstLevelRetryPolicy retryPolicy, FlrStatusStorage storage = null, FirstLevelRetryAction firstLevelRetryAction = null, PipelineInfo pipelineInfo = null)
+        static FirstLevelRetriesBehavior CreateFlrBehavior(FirstLevelRetryPolicy retryPolicy, FlrStatusStorage storage = null, IEnumerable<Action<FirstLevelRetry>> firstLevelRetryActions = null, PipelineInfo pipelineInfo = null)
         {
             var flrBehavior = new FirstLevelRetriesBehavior(
                 storage ?? new FlrStatusStorage(), 
                 retryPolicy,
-                firstLevelRetryAction ?? (retry => {}) );
+                firstLevelRetryActions ?? new List<Action<FirstLevelRetry>>
+                { retry => { } } );
 
             flrBehavior.Initialize(pipelineInfo ?? new PipelineInfo("samplePipeline", "address"));
             return flrBehavior;

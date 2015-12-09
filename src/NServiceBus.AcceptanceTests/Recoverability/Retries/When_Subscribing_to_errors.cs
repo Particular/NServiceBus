@@ -56,16 +56,16 @@
                     config.EnableFeature<TimeoutManager>();
                     config.EnableFeature<FirstLevelRetries>();
                     var context = (Context)ScenarioContext;
-                    config.NotifyOnFailedMessage(message =>
+                    config.Faults().AddFaultNotification(message =>
                     {
                         context.MessageSentToErrorException = message.Exception;
                         context.MessageSentToError = true;
                     });
-                    config.NotifyOnFirstLevelRetry(retry =>
+                    config.FirstLevelRetries().AddRetryNotification(retry =>
                     {
                         context.TotalNumberOfFLRTimesInvoked++;
                     });
-                    config.NotifyOnSecondLevelRetry(retry =>
+                    config.SecondLevelRetries().AddRetryNotification(retry =>
                     {
                         context.NumberOfSLRRetriesPerformed++;
                     });

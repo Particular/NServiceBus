@@ -17,6 +17,10 @@ namespace NServiceBus.Faults
         /// <param name="retryAttempt">Number of retry attempt.</param>
         public SecondLevelRetry(Dictionary<string, string> headers, byte[] body, Exception exception, int retryAttempt)
         {
+            Guard.AgainstNull("headers", headers);
+            Guard.AgainstNull("body", body);
+            Guard.AgainstNull("exception", exception);
+            Guard.AgainstNegative("retryAttempt", retryAttempt);
             Headers = headers;
             Body = body;
             Exception = exception;

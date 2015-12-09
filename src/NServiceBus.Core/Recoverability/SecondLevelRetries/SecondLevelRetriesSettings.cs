@@ -1,6 +1,7 @@
 namespace NServiceBus.SecondLevelRetries.Config
 {
     using System;
+    using NServiceBus.Faults;
     using NServiceBus.Transports;
 
     /// <summary>
@@ -8,11 +9,11 @@ namespace NServiceBus.SecondLevelRetries.Config
     /// </summary>
     public class SecondLevelRetriesSettings
     {
-        BusConfiguration config;
+        BusConfiguration busConfiguration;
 
-        internal SecondLevelRetriesSettings(BusConfiguration config)
+        internal SecondLevelRetriesSettings(BusConfiguration busConfiguration)
         {
-            this.config = config;
+            this.busConfiguration = busConfiguration;
         }
 
         /// <summary>
@@ -33,7 +34,17 @@ namespace NServiceBus.SecondLevelRetries.Config
         public void CustomRetryPolicy(Func<IncomingMessage, TimeSpan> customPolicy)
         {
             Guard.AgainstNull("customPolicy", customPolicy);
-            config.Settings.Set("SecondLevelRetries.RetryPolicy", customPolicy);
+            busConfiguration.Settings.Set("SecondLevelRetries.RetryPolicy", customPolicy);
+        }
+
+        /// <summary>
+        /// Set a delegate that will be called when a message is sent to second level retires queue.
+        /// </summary>
+        public void AddRetryNotification(Action<SecondLevelRetry> action)
+        {
+            Guard.AgainstNull(nameof(action), action);
+            var settings = busConfiguration.Settings;
+            settings.AddNotifyOnSecondLevelRetry(action);
         }
     }
 }

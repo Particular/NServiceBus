@@ -299,8 +299,7 @@ namespace NServiceBus
         }
         [ObsoleteEx(
             RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0",
-            ReplacementTypeOrMember = "NotificationExtensions")]
+            TreatAsErrorFromVersion = "6.0")]
         public ErrorsNotifications Errors
         {
             get { throw new NotImplementedException(); }
@@ -309,14 +308,13 @@ namespace NServiceBus
 
     [ObsoleteEx(
         RemoveInVersion = "7.0",
-        TreatAsErrorFromVersion = "6.0",
-        ReplacementTypeOrMember = "NotificationExtensions")]
+        TreatAsErrorFromVersion = "6.0")]
     public class ErrorsNotifications
     {
         [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
-            ReplacementTypeOrMember = "NotificationExtensions.NotifyOnFailedMessage")]
+            ReplacementTypeOrMember = "busConfiguration.Faults().AddFaultNotification")]
         public IObservable<FailedMessage> MessageSentToErrorQueue
         {
             get { throw new NotImplementedException(); }
@@ -325,7 +323,7 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
-            ReplacementTypeOrMember = "NotificationExtensions.NotifyOnFirstLevelRetry")]
+            ReplacementTypeOrMember = "busConfiguration.FirstLevelRetries().AddRetryNotification")]
         public IObservable<FirstLevelRetry> MessageHasFailedAFirstLevelRetryAttempt
         {
             get { throw new NotImplementedException(); }
@@ -334,7 +332,7 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
-            ReplacementTypeOrMember = "NotificationExtensions.NotifyOnSecondLevelRetry")]
+            ReplacementTypeOrMember = "busConfiguration.SecondLevelRetries().AddRetryNotification")]
         public IObservable<SecondLevelRetry> MessageHasBeenSentToSecondLevelRetries
         {
             get { throw new NotImplementedException(); }

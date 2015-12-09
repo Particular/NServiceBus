@@ -1,6 +1,8 @@
 namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using Logging;
     using NServiceBus.Faults;
@@ -13,11 +15,11 @@ namespace NServiceBus
 
     class FirstLevelRetriesBehavior : Behavior<TransportReceiveContext>
     {
-        public FirstLevelRetriesBehavior(FlrStatusStorage storage, FirstLevelRetryPolicy retryPolicy, FirstLevelRetryAction firstLevelRetryAction)
+        public FirstLevelRetriesBehavior(FlrStatusStorage storage, FirstLevelRetryPolicy retryPolicy, IEnumerable<Action<FirstLevelRetry>> firstLevelRetryActions)
         {
             this.storage = storage;
             this.retryPolicy = retryPolicy;
-            this.firstLevelRetryAction = firstLevelRetryAction;
+            this.firstLevelRetryActions = firstLevelRetryActions.ToList();
         }
 
         public override async Task Invoke(TransportReceiveContext context, Func<Task> next)
@@ -59,12 +61,15 @@ namespace NServiceBus
         void InvokeNotification(int numberOfFailures, Exception exception, IncomingMessage message)
         {
             var secondLevelRetry = new FirstLevelRetry(message.MessageId, message.Headers, message.Body, exception, numberOfFailures);
-            firstLevelRetryAction(secondLevelRetry);
+            foreach (var firstLevelRetryAction in firstLevelRetryActions)
+            {
+                firstLevelRetryAction(secondLevelRetry);
+            }
         }
 
         FlrStatusStorage storage;
         FirstLevelRetryPolicy retryPolicy;
-        FirstLevelRetryAction firstLevelRetryAction;
+        List<Action<FirstLevelRetry>> firstLevelRetryActions;
 
         static ILog Logger = LogManager.GetLogger<FirstLevelRetriesBehavior>();
 

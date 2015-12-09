@@ -1,6 +1,8 @@
 namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.Faults;
     using NServiceBus.Hosting;
@@ -13,12 +15,12 @@ namespace NServiceBus
 
     class MoveFaultsToErrorQueueBehavior : Behavior<TransportReceiveContext>
     {
-        public MoveFaultsToErrorQueueBehavior(CriticalError criticalError, IPipelineBase<RoutingContext> dispatchPipeline, HostInformation hostInformation, FailedMessageAction failedMessageAction, string errorQueueAddress)
+        public MoveFaultsToErrorQueueBehavior(CriticalError criticalError, IPipelineBase<RoutingContext> dispatchPipeline, HostInformation hostInformation, IEnumerable<Action<FailedMessage>> failedMessageActions, string errorQueueAddress)
         {
             this.criticalError = criticalError;
             this.dispatchPipeline = dispatchPipeline;
             this.hostInformation = hostInformation;
-            this.failedMessageAction = failedMessageAction;
+            this.failedMessageActions = failedMessageActions.ToList();
             this.errorQueueAddress = errorQueueAddress;
         }
 
@@ -68,13 +70,16 @@ namespace NServiceBus
         void InvokeNotification(IncomingMessage message, Exception exception)
         {
             var failedMessage = new FailedMessage(message.MessageId, message.Headers, message.Body, exception);
-            failedMessageAction(failedMessage);
+            foreach (var failedMessageAction in failedMessageActions)
+            {
+                failedMessageAction(failedMessage);
+            }
         }
 
         CriticalError criticalError;
         IPipelineBase<RoutingContext> dispatchPipeline;
         HostInformation hostInformation;
-        FailedMessageAction failedMessageAction;
+        List<Action<FailedMessage>> failedMessageActions;
         string errorQueueAddress;
         static ILog Logger = LogManager.GetLogger<MoveFaultsToErrorQueueBehavior>();
 
