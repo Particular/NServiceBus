@@ -36,7 +36,7 @@
             }
             catch (Exception exception)
             {
-                var trailingExceptions = await AppendEndExceptions(unitsOfWork, exception);
+                var trailingExceptions = await AppendEndExceptions(unitsOfWork, exception).ConfigureAwait(false);
                 if (trailingExceptions.Any())
                 {
                     trailingExceptions.Insert(0, exception);

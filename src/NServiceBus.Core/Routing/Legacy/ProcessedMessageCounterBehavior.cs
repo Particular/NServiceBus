@@ -16,7 +16,7 @@
 
         public override async Task Invoke(IncomingPhysicalMessageContext context, Func<Task> next)
         {
-            await next();
+            await next().ConfigureAwait(false);
             readyMessageSender.MessageProcessed(context.Message.Headers);
         }
     }

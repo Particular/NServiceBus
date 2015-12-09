@@ -23,7 +23,7 @@ namespace NServiceBus
         public override async Task Invoke(OutgoingPublishContext context, Func<OutgoingLogicalMessageContext, Task> next)
         {
             var eventType = context.Message.MessageType;
-            var addressLabels = await GetRoutingStrategies(context, eventType);
+            var addressLabels = await GetRoutingStrategies(context, eventType).ConfigureAwait(false);
             if (addressLabels.Count == 0)
             {
                 //No subscribers for this message.

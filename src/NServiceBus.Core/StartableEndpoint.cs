@@ -41,9 +41,9 @@ namespace NServiceBus
             var busInterface = new StartUpBusInterface(builder);
             var busContext = busInterface.CreateBusContext();
 
-            await RunInstallers();
-            var featureRunner = await StartFeatures(busContext);
-            var runner = await StartStartables(busContext);
+            await RunInstallers().ConfigureAwait(false);
+            var featureRunner = await StartFeatures(busContext).ConfigureAwait(false);
+            var runner = await StartStartables(busContext).ConfigureAwait(false);
 
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 
@@ -54,7 +54,7 @@ namespace NServiceBus
             // set the started endpoint on CriticalError to pass the endpoint to the critical error action
             builder.Build<CriticalError>().Endpoint = runningInstance;
 
-            await StartPipelines(pipelineCollection);
+            await StartPipelines(pipelineCollection).ConfigureAwait(false);
 
             return runningInstance;
         }
