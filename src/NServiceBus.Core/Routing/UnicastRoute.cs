@@ -55,9 +55,9 @@ namespace NServiceBus.Routing
             else
             {
                 var instances = instanceResolver(endpoint);
-                foreach (var instance in instances)
+                foreach (var i in instances)
                 {
-                    yield return UnicastRoutingTarget.ToEndpointInstance(instance);
+                    yield return UnicastRoutingTarget.ToEndpointInstance(i);
                 }
             }
         }
