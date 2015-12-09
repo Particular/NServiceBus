@@ -10,6 +10,7 @@ namespace NServiceBus.Features
     using Logging;
     using NServiceBus.Hosting;
     using NServiceBus.Support;
+    using NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions;
     using NServiceBus.Utils;
     using Pipeline;
     using Pipeline.Contexts;
@@ -116,12 +117,28 @@ namespace NServiceBus.Features
 
         void ConfigureSubscriptionAuthorization(FeatureConfigurationContext context)
         {
-            var authType = context.Settings.GetAvailableTypes().FirstOrDefault(t => typeof(IAuthorizeSubscriptions).IsAssignableFrom(t) && !t.IsInterface);
+            var typeToUse = FindAuthorizationType(context.Settings.GetAvailableTypes());
+            context.Container.ConfigureComponent(typeToUse, DependencyLifecycle.SingleInstance);
+        }
 
-            if (authType != null)
+        internal static Type FindAuthorizationType(IEnumerable<Type> availableTypes)
+        {
+            var authType = typeof(IAuthorizeSubscriptions);
+            var noopType = typeof(NoopSubscriptionAuthorizer);
+            var foundAuthTypes = availableTypes
+                .Where(t => t != noopType && authType.IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract)
+                .ToList();
+            if (foundAuthTypes.Count > 1)
             {
-                context.Container.ConfigureComponent(authType, DependencyLifecycle.SingleInstance);
+                var fullNames = foundAuthTypes.Select(type => type.FullName);
+                var error = string.Format("Only one instance of IAuthorizeSubscriptions is allowed. Found the following: '{0}'.", string.Join("', '", fullNames));
+                throw new Exception(error);
             }
+            if (foundAuthTypes.Count == 0)
+            {
+                return noopType;
+            }
+            return foundAuthTypes.Single();
         }
 
         void RegisterMessageOwnersAndBusAddress(FeatureConfigurationContext context, IEnumerable<Type> knownMessages)

@@ -72,6 +72,8 @@
     <Compile Include="Basic\When_registering_custom_serializer.cs" />
     <Compile Include="Basic\When_callback_from_a_send_only.cs" />
     <Compile Include="Basic\When_injecting_handler_props.cs" />
+    <Compile Include="Msmq\When_publishing_with_authorizer.cs" />
+    <Compile Include="Msmq\When_unsubscribing_with_authorizer.cs" />
     <Compile Include="Msmq\When_TimeToBeReceivedOnForwardedMessages_set_and_transactional_Msmq.cs" />
     <Compile Include="Msmq\When_Audit_OverrideTimeToBeReceived_set_and_transactional_Msmq.cs" />
     <Compile Include="Msmq\When_TimeToBeReceived_set_and_DTC_Msmq.cs" />
