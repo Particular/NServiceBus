@@ -1,8 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Msmq
 {
-    using System;
     using System.Collections.Generic;
-    using System.Threading;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.PubSub;
@@ -12,12 +10,9 @@
 
     public class When_publishing_with_authorizer : NServiceBusAcceptanceTest
     {
-        static TestContext Context;
-
         [Test]
         public void Should_only_deliver_to_authorized()
         {
-            Context = new TestContext();
             Scenario.Define<TestContext>()
                 .WithEndpoint<Publisher>(b =>
                     b.When(c => c.Subscriber1Subscribed && c.Subscriber2Subscribed, (bus, c) => bus.Publish(new MyEvent()))
@@ -39,7 +34,7 @@
                     Assert.True(c.Subscriber1GotTheEvent);
                     Assert.False(c.Subscriber2GotTheEvent);
                 })
-                .Run(TimeSpan.FromSeconds(10));
+                .Run();
         }
 
         public class TestContext : ScenarioContext
@@ -76,13 +71,20 @@
 
             public class SubscriptionAuthorizer : IAuthorizeSubscriptions
             {
+                TestContext context;
+
+                public SubscriptionAuthorizer(TestContext context)
+                {
+                    this.context = context;
+                }
+
                 public bool AuthorizeSubscribe(string messageType, string clientEndpoint, IDictionary<string, string> headers)
                 {
                     var isFromSubscriber1 = headers["NServiceBus.ReplyToAddress"]
                         .Contains("Subscriber1");
                     if (!isFromSubscriber1)
                     {
-                        Context.DeclinedSubscriber2 = true;
+                        context.DeclinedSubscriber2 = true;
                     }
                     return isFromSubscriber1;
                 }
