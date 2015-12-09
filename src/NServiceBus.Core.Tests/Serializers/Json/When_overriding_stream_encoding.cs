@@ -4,6 +4,7 @@ namespace NServiceBus.Serializers.Json.Tests
     using System.Threading.Tasks;
     using Features;
     using NServiceBus.ObjectBuilder;
+    using NServiceBus.Routing;
     using NUnit.Framework;
 
     [TestFixture]

@@ -1,5 +1,7 @@
 namespace NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions
 {
+    using NServiceBus.Routing;
+
     /// <summary>
     /// Represents a subscriber in message-driven subscriptions.
     /// </summary>

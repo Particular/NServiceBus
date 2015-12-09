@@ -9,10 +9,10 @@
     public class EndpointInstancesTests
     {
         [Test]
-        public void Should_throw_when_trying_to_configure_instances_that_don_not_match_endpoint_name()
+        public void Should_throw_when_trying_to_configure_instances_that_do_not_match_endpoint_name()
         {
             var instances = new EndpointInstances();
-            TestDelegate action = () => instances.AddStatic(new Endpoint("Sales"), new EndpointInstance(new Endpoint("A"), null, null));
+            TestDelegate action = () => instances.AddStatic(new Endpoint("Sales"), new EndpointInstance(new Endpoint("A")));
             Assert.Throws<ArgumentException>(action);
         }
 
@@ -21,7 +21,7 @@
         {
             var instances = new EndpointInstances();
             var sales = new Endpoint("Sales");
-            instances.AddStatic(sales, new EndpointInstance(sales, "1", null), new EndpointInstance(sales, "2", null));
+            instances.AddStatic(sales, new EndpointInstance(sales, "1", null), new EndpointInstance(sales, "2"));
 
             var salesInstances = instances.FindInstances(sales).ToList();
             Assert.AreEqual(2, salesInstances.Count);
@@ -32,7 +32,7 @@
         {
             var instances = new EndpointInstances();
             var sales = new Endpoint("Sales");
-            instances.AddStatic(sales, new EndpointInstance(sales, "dup", null), new EndpointInstance(sales, "dup", null));
+            instances.AddStatic(sales, new EndpointInstance(sales, "dup", null), new EndpointInstance(sales, "dup"));
 
             var salesInstances = instances.FindInstances(sales).ToList();
             Assert.AreEqual(1, salesInstances.Count);
@@ -44,8 +44,8 @@
             var instances = new EndpointInstances();
             var salesInstances = instances.FindInstances(new Endpoint("Sales")).ToArray();
             Assert.AreEqual(1, salesInstances.Length);
-            Assert.IsNull(salesInstances[0].UserDiscriminator);
-            Assert.IsNull(salesInstances[0].TransportDiscriminator);
+            Assert.IsNull(salesInstances[0].Discriminator);
+            Assert.IsEmpty(salesInstances[0].Properties);
         }
     }
 }

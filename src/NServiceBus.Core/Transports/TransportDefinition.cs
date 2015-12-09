@@ -2,6 +2,7 @@ namespace NServiceBus.Transports
 {
     using System;
     using System.Collections.Generic;
+    using NServiceBus.Routing;
     using Settings;
 
     /// <summary>
@@ -43,7 +44,7 @@ namespace NServiceBus.Transports
         /// <summary>
         /// Returns the discriminator for this endpoint instance.
         /// </summary>
-        public abstract string GetDiscriminatorForThisEndpointInstance(ReadOnlySettings settings);
+        public abstract EndpointInstance BindToLocalEndpoint(EndpointInstance instance, ReadOnlySettings settings);
 
         /// <summary>
         /// Converts a given logical address to the transport address.

@@ -41,7 +41,7 @@
             var sales = new Endpoint("Sales");
             metadataRegistry.RegisterMessageType(typeof(Event));
             routingTable.RouteToEndpoint(typeof(Event), sales);
-            endpointInstances.AddStatic(sales, new EndpointInstance(sales, null, null));
+            endpointInstances.AddStatic(sales, new EndpointInstance(sales));
             transportAddresses.AddRule(i => i.ToString());
 
             var routes = router.Route(typeof(Event), new SingleInstanceRoundRobinDistributionStrategy(), new ContextBag()).Result.ToArray();
@@ -59,9 +59,9 @@
             routingTable.RouteToEndpoint(typeof(Event), sales);
             routingTable.RouteToEndpoint(typeof(Event), shipping);
 
-            endpointInstances.AddStatic(sales, new EndpointInstance(sales, "1", null));
-            endpointInstances.AddDynamic(e => new[] { new EndpointInstance(sales, "2", null)});
-            endpointInstances.AddStatic(shipping, new EndpointInstance(shipping, "1", null), new EndpointInstance(shipping, "2", null));
+            endpointInstances.AddStatic(sales, new EndpointInstance(sales, "1"));
+            endpointInstances.AddDynamic(e => new[] { new EndpointInstance(sales, "2")});
+            endpointInstances.AddStatic(shipping, new EndpointInstance(shipping, "1"), new EndpointInstance(shipping, "2"));
 
             transportAddresses.AddRule(i => i.ToString());
 

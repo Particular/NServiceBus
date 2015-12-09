@@ -4,6 +4,7 @@
     using System.Threading.Tasks;
     using NServiceBus.Faults;
     using NServiceBus.Features;
+    using NServiceBus.Routing;
     using NServiceBus.Settings;
 
     public class FailTestOnErrorMessageFeature : Feature

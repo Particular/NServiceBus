@@ -7,6 +7,7 @@
     using System.Threading.Tasks;
     using NServiceBus.Configuration.AdvanceExtensibility;
     using NServiceBus.Logging;
+    using NServiceBus.Routing;
     using NServiceBus.Support;
     using NServiceBus.Transports;
 

@@ -8,10 +8,10 @@
     using NServiceBus.Transports;
     using NUnit.Framework;
 
-    public class When_individualization_is_enabled_for_msmq : NServiceBusAcceptanceTest
+    public class When_not_providing_user_discriminator : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_be_a_no_op_discriminator()
+        public async Task Should_use_only_the_machine_name()
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<IndividualizedEndpoint>().Done(c => c.EndpointsStarted)
@@ -30,7 +30,7 @@
         {
             public IndividualizedEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.ScaleOut().UniqueQueuePerEndpointInstance());
+                EndpointSetup<DefaultServer>();
             }
 
             class AddressSpy : IWantToRunWhenBusStartsAndStops

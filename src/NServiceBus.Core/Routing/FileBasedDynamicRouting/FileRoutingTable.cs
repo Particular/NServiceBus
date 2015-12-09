@@ -1,189 +1,110 @@
 namespace NServiceBus
 {
     using System;
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
-    using System.Threading;
-    using Janitor;
+    using System.Threading.Tasks;
+    using System.Xml.Linq;
+    using NServiceBus.Features;
     using NServiceBus.Logging;
+    using NServiceBus.Routing;
+    using NServiceBus.Settings;
 
-    [SkipWeaving]
-    class FileRoutingTable : IDisposable
+    class FileRoutingTable : FeatureStartupTask
     {
-        public FileRoutingTable(string basePath, TimeSpan timeToWaitBeforeRaisingFileChangedEvent)
+        static readonly ILog log = LogManager.GetLogger(typeof(FileRoutingTable));
+
+        Dictionary<Endpoint, HashSet<EndpointInstance>> instanceMap = new Dictionary<Endpoint, HashSet<EndpointInstance>>();
+        ReadOnlySettings settings;
+        string filePath;
+        TimeSpan checkInterval;
+        IAsyncTimer timer;
+        IRoutingFileAccess fileAccess;
+        FileRoutingTableParser parser = new FileRoutingTableParser();
+        int maxLoadAttempts;
+        
+
+        public FileRoutingTable(string filePath, TimeSpan checkInterval, IAsyncTimer timer, IRoutingFileAccess fileAccess, int maxLoadAttempts, ReadOnlySettings settings)
         {
-            this.basePath = basePath;
-            this.timeToWaitBeforeRaisingFileChangedEvent = timeToWaitBeforeRaisingFileChangedEvent;
+            this.settings = settings;
+            this.filePath = filePath;
+            this.checkInterval = checkInterval;
+            this.timer = timer;
+            this.fileAccess = fileAccess;
+            this.maxLoadAttempts = maxLoadAttempts;
         }
 
-        public IEnumerable<EndpointInstance> GetInstances(Endpoint endpoint)
+        protected override async Task OnStart(IBusSession context)
         {
-            logger.DebugFormat("Request routes for {0}.", endpoint);
+            var endpointInstances = settings.Get<EndpointInstances>();
+            endpointInstances.AddDynamic(FindInstances);
 
-            CacheRoute routes;
-            if (!routeMapping.TryGetValue(endpoint.ToString(), out routes))
+            await ReloadData().ConfigureAwait(false);
+
+            timer.Start(ReloadData, checkInterval, ex => log.Error("Error while reading routing table", ex));
+        }
+
+        async Task ReloadData()
+        {
+            var doc = await ReadFileWithRetries().ConfigureAwait(false);
+            var instances = parser.Parse(doc);
+            var newInstanceMap = new Dictionary<Endpoint, HashSet<EndpointInstance>>();
+
+            foreach (var i in instances)
             {
-                UpdateMapping(endpoint.ToString(), true);
-
-                if (!routeMapping.TryGetValue(endpoint.ToString(), out routes))
+                HashSet<EndpointInstance> instancesOfThisEndpoint;
+                if (!newInstanceMap.TryGetValue(i.Endpoint, out instancesOfThisEndpoint))
                 {
-                    yield break;
+                    instancesOfThisEndpoint = new HashSet<EndpointInstance>();
+                    newInstanceMap[i.Endpoint] = instancesOfThisEndpoint;
                 }
+                instancesOfThisEndpoint.Add(i);
             }
-            foreach (var route in routes.Routes)
+            instanceMap = newInstanceMap;
+        }
+
+        async Task<XDocument> ReadFileWithRetries()
+        {
+            var attempt = 0;
+            while (true)
             {
-                var discriminators = route.Split(new []{':'},StringSplitOptions.None);
-                if (discriminators.Length == 2)
+                try
                 {
-                    var userDiscriminator = NullIfEmptyString(discriminators[0].Trim());
-                    var transportDiscriminator = NullIfEmptyString(discriminators[1].Trim());
-
-                    yield return new EndpointInstance(endpoint, userDiscriminator, transportDiscriminator);
+                    var result = fileAccess.Load(filePath);
+                    return result;
                 }
-                else
+                catch (Exception ex)
                 {
-                    logger.Info($"Invalid route {route}. Expecting <userDiscriminator>:<transportDiscriminator> format");
-                }
-            }
-        }
-
-        static string NullIfEmptyString(string value)
-        {
-            return value.Equals("", StringComparison.InvariantCultureIgnoreCase) 
-                ? null 
-                : value;
-        }
-
-        void StartMonitoring(string basePath, string queueName, string fileName)
-        {
-            monitoringFiles.Add(new MonitorFileChanges(basePath, queueName, fileName, timeToWaitBeforeRaisingFileChangedEvent, s => UpdateMapping(s, false)));
-        }
-
-        void UpdateMapping(string queueName, bool startMonitor)
-        {
-            try
-            {
-                if (Monitor.TryEnter(string.Intern(queueName)))
-                {
-                    var fileName = $"{queueName}.txt";
-                    var filePath = Path.Combine(basePath, fileName);
-
-                    logger.InfoFormat("Refreshing routes for '{0}' from '{1}'", queueName, filePath);
-
-                    if (startMonitor)
+                    attempt++;
+                    if (attempt < maxLoadAttempts)
                     {
-                        logger.InfoFormat("Monitoring '{0}' for changes.", queueName);
-
-                        StartMonitoring(basePath, queueName, fileName);
+                        if (log.IsDebugEnabled)
+                        {
+                            log.Debug("Error while reading routing file", ex);
+                        }
                     }
-
-                    if (!File.Exists(filePath))
+                    else
                     {
-                        logger.DebugFormat("No file found for '{0}'.", queueName);
-
-                        routeMapping[queueName] = new CacheRoute(new string[0]);
-                        return;
-                    }
-
-                    logger.DebugFormat("Reading '{0}' file.", fileName);
-
-                    routeMapping[queueName] = new CacheRoute(ReadAllLinesWithoutLocking(filePath).ToArray());
-
-                    logger.DebugFormat("Routing updated for {0}.", queueName);
-                }
-
-            }
-            finally
-            {
-                Monitor.Exit(string.Intern(queueName));
-            }
-        }
-
-        static IEnumerable<string> ReadAllLinesWithoutLocking(string path)
-        {
-            using (var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            {
-                using (var textReader = new StreamReader(fileStream))
-                {
-                    string line;
-                    while ((line = textReader.ReadLine()) != null)
-                    {
-                        yield return line;
+                        throw;
                     }
                 }
+                await Task.Delay(TimeSpan.FromSeconds(1)).ConfigureAwait(false);
             }
         }
 
-        public void Dispose()
+        IEnumerable<EndpointInstance> FindInstances(Endpoint endpoint)
         {
-            foreach (var monitoringFile in monitoringFiles)
+            HashSet<EndpointInstance> result;
+            if (instanceMap.TryGetValue(endpoint, out result))
             {
-                monitoringFile.Dispose();
+                return result;
             }
+            return Enumerable.Empty<EndpointInstance>();
         }
 
-        string basePath;
-        readonly TimeSpan timeToWaitBeforeRaisingFileChangedEvent;
-        static ILog logger = LogManager.GetLogger<FileRoutingTable>();
-        List<MonitorFileChanges> monitoringFiles = new List<MonitorFileChanges>();
-        ConcurrentDictionary<string, CacheRoute> routeMapping = new ConcurrentDictionary<string, CacheRoute>();
-
-        class CacheRoute
+        protected override Task OnStop(IBusSession context)
         {
-            public CacheRoute(string[] routes)
-            {
-                Routes = routes;
-            }
-
-            public string[] Routes { get; private set; }
-        }
-
-        class MonitorFileChanges : IDisposable
-        {
-            readonly TimeSpan toWaitBeforeRaisingFileChangedEvent;
-
-            public MonitorFileChanges(string basePath, string queueName, string fileName, TimeSpan toWaitBeforeRaisingFileChangedEvent, Action<string> update)
-            {
-                this.toWaitBeforeRaisingFileChangedEvent = toWaitBeforeRaisingFileChangedEvent;
-                delayUpdate = new Timer(_ => update(queueName));
-
-                watcher = new FileSystemWatcher(basePath, fileName)
-                {
-                    NotifyFilter = NotifyFilters.FileName | NotifyFilters.LastWrite
-                };
-                watcher.Changed += OnChanged;
-                watcher.Created += OnChanged;
-                watcher.Deleted += OnChanged;
-                watcher.Renamed += OnRenamed;
-
-                watcher.EnableRaisingEvents = true;
-            }
-
-            public void Dispose()
-            {
-                // Injected
-            }
-
-            void OnRenamed(object sender, RenamedEventArgs e)
-            {
-                SetupTimer();
-            }
-
-            void OnChanged(object sender, FileSystemEventArgs e)
-            {
-                SetupTimer();
-            }
-
-            void SetupTimer()
-            {
-                delayUpdate.Change(toWaitBeforeRaisingFileChangedEvent, System.Threading.Timeout.InfiniteTimeSpan);
-            }
-
-            Timer delayUpdate;
-// ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
-            FileSystemWatcher watcher;
+            return timer.Stop();
         }
     }
 }

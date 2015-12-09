@@ -5,6 +5,7 @@
     using System.Threading.Tasks;
     using Logging;
     using NServiceBus.Pipeline;
+    using NServiceBus.Routing;
     using NServiceBus.Transports;
     using NServiceBus.Unicast.Subscriptions;
     using NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions;

@@ -4,6 +4,7 @@ namespace NServiceBus.Transports
     using System.Collections.Generic;
     using System.Linq;
     using JetBrains.Annotations;
+    using NServiceBus.Routing;
 
     /// <summary>
     /// Manages the translation between endpoint instance names and physical addresses in direct routing.

@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
     using System;
+    using NServiceBus.Routing;
     using NServiceBus.Transports;
     using NUnit.Framework;
 

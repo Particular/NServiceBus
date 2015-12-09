@@ -11,26 +11,16 @@ namespace NServiceBus.Settings
         {
             this.config = config;
         }
-
+        
         /// <summary>
-        /// Makes sure that each instance of this endpoint gets a unique queue based on the transport specific discriminator.
-        /// The default discriminator set by the transport will be used.
-        /// </summary>
-        public void UniqueQueuePerEndpointInstance()
-        {
-            config.Settings.Set("IndividualizeEndpointAddress", true);
-        }
-
-        /// <summary>
-        /// Makes sure that each instance of this endpoint gets a unique queue based on the transport specific discriminator.
+        /// Makes sure that each instance of this endpoint gets a unique queue based on the user-provided discriminator.
         /// </summary>
         /// <param name="discriminator">The discriminator to use.</param>
-        public void UniqueQueuePerEndpointInstance(string discriminator)
+        public void InstanceDiscriminator(string discriminator)
         {
             Guard.AgainstNullAndEmpty(nameof(discriminator), discriminator);
 
             config.Settings.Set("EndpointInstanceDiscriminator", discriminator);
-            UniqueQueuePerEndpointInstance();
         }
     }
 }

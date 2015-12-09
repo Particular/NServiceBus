@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using NServiceBus.Configuration.AdvanceExtensibility;
+    using NServiceBus.Routing;
     using NServiceBus.Settings;
     using NServiceBus.Transports;
 

@@ -122,7 +122,10 @@
     <Compile Include="Routing\ApplyReplyToAddressBehaviorTests.cs" />
     <Compile Include="Routing\DetermineRouteForPublishBehaviorTests.cs" />
     <Compile Include="Routing\DetermineRouteForSendBehaviorTests.cs" />
+    <Compile Include="Routing\EndpointInstanceTests.cs" />
     <Compile Include="Routing\EndpointInstancesTests.cs" />
+    <Compile Include="Routing\FileRoutingTableParserTests.cs" />
+    <Compile Include="Routing\FileRoutingTableTests.cs" />
     <Compile Include="Routing\MessageDrivenSubscribeTerminatorTests.cs" />
     <Compile Include="Routing\MessageDrivenUnsubscribeTerminatorTests.cs" />
     <Compile Include="Routing\SubscriptionRouterTests.cs" />
