@@ -18,9 +18,6 @@
         {
             Context = new TestContext();
             Scenario.Define<TestContext>()
-                .WithEndpoint<Publisher>(b =>
-                    b.When(c => c.Subscriber1Subscribed && c.Subscriber2Subscribed, (bus, c) => bus.Publish(new MyEvent()))
-                )
                 .WithEndpoint<Subscriber1>(b => b.When(bus =>
                 {
                     bus.Subscribe<MyEvent>();
@@ -29,6 +26,9 @@
                 {
                     bus.Subscribe<MyEvent>();
                 }))
+                .WithEndpoint<Publisher>(b =>
+                    b.When(c => c.Subscriber1Subscribed && c.Subscriber2Subscribed, (bus, c) => bus.Publish(new MyEvent()))
+                )
                 .Done(c =>
                     c.Subscriber1GotTheEvent &&
                     c.DeclinedSubscriber2)
