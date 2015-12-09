@@ -37,7 +37,7 @@ namespace NServiceBus.Transports
 
             protected override async Task OnStart(IBusContext context)
             {
-                var result = await preStartupCheck();
+                var result = await preStartupCheck().ConfigureAwait(false);
                 if (!result.Succeeded)
                 {
                     throw new Exception("Pre start-up check failed: "+ result.ErrorMessage);
