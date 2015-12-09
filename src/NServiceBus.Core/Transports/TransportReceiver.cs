@@ -38,7 +38,7 @@ namespace NServiceBus.Transport
 
             Logger.DebugFormat("Pipeline {0} is starting receiver for queue {1}.", Id, pushSettings.InputQueue);
 
-            receiver.Init(InvokePipeline, pushSettings);
+            await receiver.Init(InvokePipeline, pushSettings).ConfigureAwait(false);
             pipeline.Initialize(new PipelineInfo(Id, pushSettings.InputQueue));
             await pipeline.Warmup().ConfigureAwait(false);
 

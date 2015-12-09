@@ -22,7 +22,7 @@ namespace NServiceBus.Transports.Msmq
             // Injected
         }
 
-        public void Init(Func<PushContext, Task> pipe, PushSettings settings)
+        public Task Init(Func<PushContext, Task> pipe, PushSettings settings)
         {
             pipeline = pipe;
 
@@ -54,6 +54,8 @@ namespace NServiceBus.Transports.Msmq
             {
                 inputQueue.Purge();
             }
+
+            return TaskEx.Completed;
         }
 
         /// <summary>
