@@ -6,7 +6,7 @@
     using Pipeline;
     using Transports;
 
-    class InvokeForwardingPipelineBehavior : Behavior<PhysicalMessageProcessingContext>
+    class InvokeForwardingPipelineBehavior : Behavior<IncomingPhysicalMessageContext>
     {
         public InvokeForwardingPipelineBehavior(IPipelineBase<ForwardingContext> forwardingPipeline, string forwardingAddress)
         {
@@ -14,7 +14,7 @@
             this.forwardingAddress = forwardingAddress;
         }
 
-        public override async Task Invoke(PhysicalMessageProcessingContext context, Func<Task> next)
+        public override async Task Invoke(IncomingPhysicalMessageContext context, Func<Task> next)
         {
             await next().ConfigureAwait(false);
 

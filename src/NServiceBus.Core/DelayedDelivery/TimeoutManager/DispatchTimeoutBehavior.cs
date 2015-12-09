@@ -15,7 +15,7 @@ namespace NServiceBus
             dispatchConsistency = GetDispatchConsistency(transactionSupport);
         }
 
-        protected override async Task Terminate(PhysicalMessageProcessingContext context)
+        protected override async Task Terminate(IncomingPhysicalMessageContext context)
         {
             var message = context.Message;
             var timeoutId = message.Headers["Timeout.Id"];

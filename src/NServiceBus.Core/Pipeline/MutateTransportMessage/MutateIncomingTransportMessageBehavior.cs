@@ -5,9 +5,9 @@
     using MessageMutator;
     using Pipeline;
 
-    class MutateIncomingTransportMessageBehavior : Behavior<PhysicalMessageProcessingContext>
+    class MutateIncomingTransportMessageBehavior : Behavior<IncomingPhysicalMessageContext>
     {
-        public override async Task Invoke(PhysicalMessageProcessingContext context, Func<Task> next)
+        public override async Task Invoke(IncomingPhysicalMessageContext context, Func<Task> next)
         {
             var mutators = context.Builder.BuildAll<IMutateIncomingTransportMessages>();
             var transportMessage = context.Message;

@@ -7,7 +7,7 @@ namespace NServiceBus
     using Pipeline.Contexts;
     using Unicast.Transport;
 
-    class DecryptBehavior : Behavior<LogicalMessageProcessingContext>
+    class DecryptBehavior : Behavior<IncomingLogicalMessageContext>
     {
         EncryptionMutator messageMutator;
 
@@ -15,7 +15,7 @@ namespace NServiceBus
         {
             this.messageMutator = messageMutator;
         }
-        public override async Task Invoke(LogicalMessageProcessingContext context, Func<Task> next)
+        public override async Task Invoke(IncomingLogicalMessageContext context, Func<Task> next)
         {
             if (TransportMessageExtensions.IsControlMessage(context.Headers))
             {

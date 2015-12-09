@@ -4,7 +4,7 @@
     using System.Threading.Tasks;
     using Pipeline;
 
-    class SLABehavior : Behavior<PhysicalMessageProcessingContext>
+    class SLABehavior : Behavior<IncomingPhysicalMessageContext>
     {
         EstimatedTimeToSLABreachCalculator breachCalculator;
 
@@ -13,7 +13,7 @@
             this.breachCalculator = breachCalculator;
         }
 
-        public override async Task Invoke(PhysicalMessageProcessingContext context, Func<Task> next)
+        public override async Task Invoke(IncomingPhysicalMessageContext context, Func<Task> next)
         {
             await next().ConfigureAwait(false);
 

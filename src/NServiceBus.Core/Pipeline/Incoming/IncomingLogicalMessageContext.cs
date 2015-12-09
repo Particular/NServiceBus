@@ -6,7 +6,7 @@
     /// <summary>
     /// A context of behavior execution in logical message processing stage.
     /// </summary>
-    public interface LogicalMessageProcessingContext : IncomingContext
+    public interface IncomingLogicalMessageContext : IncomingContext
     {
         /// <summary>
         /// Message being handled.

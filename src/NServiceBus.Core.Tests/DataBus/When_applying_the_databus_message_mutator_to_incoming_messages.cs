@@ -44,7 +44,7 @@ namespace NServiceBus.Core.Tests.DataBus
                 fakeDatabus.StreamsToReturn[databusKey] = stream;
 
                 await receiveBehavior.Invoke(
-                    new LogicalMessageProcessingContextImpl(
+                    new IncomingLogicalMessageContextImpl(
                         message,
                         "messageId",
                         "replyToAddress",

@@ -3,14 +3,14 @@
     using System.Collections.Generic;
     using NServiceBus.Unicast.Messages;
 
-    class LogicalMessageProcessingContextImpl : IncomingContextImpl, LogicalMessageProcessingContext
+    class IncomingLogicalMessageContextImpl : IncomingContextImpl, IncomingLogicalMessageContext
     {
-        internal LogicalMessageProcessingContextImpl(LogicalMessage logicalMessage, PhysicalMessageProcessingContext parentContext)
+        internal IncomingLogicalMessageContextImpl(LogicalMessage logicalMessage, IncomingPhysicalMessageContext parentContext)
             : this(logicalMessage, parentContext.MessageId, parentContext.ReplyToAddress, parentContext.Message.Headers, parentContext)
         {
         }
 
-        public LogicalMessageProcessingContextImpl(LogicalMessage logicalMessage, string messageId, string replyToAddress, Dictionary<string, string> headers, BehaviorContext parentContext)
+        public IncomingLogicalMessageContextImpl(LogicalMessage logicalMessage, string messageId, string replyToAddress, Dictionary<string, string> headers, BehaviorContext parentContext)
             : base(messageId, replyToAddress, headers, parentContext)
         {
             Message = logicalMessage;

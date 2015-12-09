@@ -5,14 +5,14 @@ namespace NServiceBus
     using System.Transactions;
     using Pipeline;
 
-    class HandlerTransactionScopeWrapperBehavior : Behavior<PhysicalMessageProcessingContext>
+    class HandlerTransactionScopeWrapperBehavior : Behavior<IncomingPhysicalMessageContext>
     {
         public HandlerTransactionScopeWrapperBehavior(TransactionOptions transactionOptions)
         {
             this.transactionOptions = transactionOptions;
         }
 
-        public override async Task Invoke(PhysicalMessageProcessingContext context, Func<Task> next)
+        public override async Task Invoke(IncomingPhysicalMessageContext context, Func<Task> next)
         {
             if (Transaction.Current != null)
             {

@@ -21,7 +21,7 @@
         }
     }
 
-    class SubscriptionBehavior<TContext> : Behavior<PhysicalMessageProcessingContext> where TContext : ScenarioContext
+    class SubscriptionBehavior<TContext> : Behavior<IncomingPhysicalMessageContext> where TContext : ScenarioContext
     {
         Action<SubscriptionEventArgs, TContext> action;
         TContext scenarioContext;
@@ -32,7 +32,7 @@
             this.scenarioContext = scenarioContext;
         }
 
-        public override async Task Invoke(PhysicalMessageProcessingContext context, Func<Task> next)
+        public override async Task Invoke(IncomingPhysicalMessageContext context, Func<Task> next)
         {
             await next().ConfigureAwait(false);
             var subscriptionMessageType = GetSubscriptionMessageTypeFrom(context.Message);

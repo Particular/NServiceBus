@@ -7,11 +7,11 @@ namespace NServiceBus
     using Pipeline.Contexts;
     using Sagas;
 
-    class InvokeSagaNotFoundBehavior : Behavior<LogicalMessageProcessingContext>
+    class InvokeSagaNotFoundBehavior : Behavior<IncomingLogicalMessageContext>
     {
         static ILog logger = LogManager.GetLogger<InvokeSagaNotFoundBehavior>();
 
-        public override async Task Invoke(LogicalMessageProcessingContext context, Func<Task> next)
+        public override async Task Invoke(IncomingLogicalMessageContext context, Func<Task> next)
         {
             var invocationResult = new SagaInvocationResult();
             context.Extensions.Set(invocationResult);
