@@ -7,9 +7,9 @@
     /// <summary>
     /// A context of behavior execution in physical message processing stage.
     /// </summary>
-    class PhysicalMessageProcessingContextImpl : IncomingContextImpl, PhysicalMessageProcessingContext
+    class IncomingPhysicalMessageContextImpl : IncomingContextImpl, IncomingPhysicalMessageContext
     {
-        public PhysicalMessageProcessingContextImpl(IncomingMessage message, BehaviorContext parentContext)
+        public IncomingPhysicalMessageContextImpl(IncomingMessage message, BehaviorContext parentContext)
             : base(message.MessageId, message.GetReplyToAddress(), message.Headers, parentContext)
         {
             Message = message;

@@ -14,7 +14,7 @@ namespace NServiceBus
     using Transports;
     using TransportOperation = Transports.TransportOperation;
 
-    class TransportReceiveToPhysicalMessageProcessingConnector : StageConnector<TransportReceiveContext, PhysicalMessageProcessingContext>
+    class TransportReceiveToPhysicalMessageProcessingConnector : StageConnector<TransportReceiveContext, IncomingPhysicalMessageContext>
     {
         public TransportReceiveToPhysicalMessageProcessingConnector(IPipelineBase<BatchDispatchContext> batchDispatchPipeline, IOutboxStorage outboxStorage)
         {
@@ -22,10 +22,10 @@ namespace NServiceBus
             this.outboxStorage = outboxStorage;
         }
 
-        public override async Task Invoke(TransportReceiveContext context, Func<PhysicalMessageProcessingContext, Task> next)
+        public override async Task Invoke(TransportReceiveContext context, Func<IncomingPhysicalMessageContext, Task> next)
         {
             var messageId = context.Message.MessageId;
-            var physicalMessageContext = new PhysicalMessageProcessingContextImpl(context.Message, context);
+            var physicalMessageContext = new IncomingPhysicalMessageContextImpl(context.Message, context);
 
             var deduplicationEntry = await outboxStorage.Get(messageId, context.Extensions).ConfigureAwait(false);
             var pendingTransportOperations = new PendingTransportOperations();

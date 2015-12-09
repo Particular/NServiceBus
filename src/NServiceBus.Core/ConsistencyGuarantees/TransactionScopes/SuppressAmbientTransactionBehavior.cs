@@ -5,9 +5,9 @@ namespace NServiceBus
     using System.Transactions;
     using Pipeline;
 
-    class SuppressAmbientTransactionBehavior : Behavior<PhysicalMessageProcessingContext>
+    class SuppressAmbientTransactionBehavior : Behavior<IncomingPhysicalMessageContext>
     {
-        public override async Task Invoke(PhysicalMessageProcessingContext context, Func<Task> next)
+        public override async Task Invoke(IncomingPhysicalMessageContext context, Func<Task> next)
         {
             if (Transaction.Current == null)
             {

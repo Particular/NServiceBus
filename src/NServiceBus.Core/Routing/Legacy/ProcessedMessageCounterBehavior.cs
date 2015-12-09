@@ -5,7 +5,7 @@
     using NServiceBus.Pipeline;
     using NServiceBus.Routing.Legacy;
 
-    class ProcessedMessageCounterBehavior : Behavior<PhysicalMessageProcessingContext>
+    class ProcessedMessageCounterBehavior : Behavior<IncomingPhysicalMessageContext>
     {
         ReadyMessageSender readyMessageSender;
 
@@ -14,7 +14,7 @@
             this.readyMessageSender = readyMessageSender;
         }
 
-        public override async Task Invoke(PhysicalMessageProcessingContext context, Func<Task> next)
+        public override async Task Invoke(IncomingPhysicalMessageContext context, Func<Task> next)
         {
             await next();
             readyMessageSender.MessageProcessed(context.Message.Headers);

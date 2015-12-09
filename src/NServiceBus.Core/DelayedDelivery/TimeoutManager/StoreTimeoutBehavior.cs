@@ -18,7 +18,7 @@ namespace NServiceBus
             this.owningTimeoutManager = owningTimeoutManager;
         }
 
-        protected override async Task Terminate(PhysicalMessageProcessingContext context)
+        protected override async Task Terminate(IncomingPhysicalMessageContext context)
         {
             var message = context.Message;
             var sagaId = Guid.Empty;

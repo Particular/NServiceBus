@@ -6,7 +6,7 @@
     /// <summary>
     /// A context of behavior execution in physical message processing stage.
     /// </summary>
-    public interface PhysicalMessageProcessingContext : IncomingContext
+    public interface IncomingPhysicalMessageContext : IncomingContext
     {
         /// <summary>
         /// The physical message being processed.

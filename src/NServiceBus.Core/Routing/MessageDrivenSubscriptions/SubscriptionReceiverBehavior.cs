@@ -9,7 +9,7 @@
     using NServiceBus.Unicast.Subscriptions;
     using NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions;
 
-    class SubscriptionReceiverBehavior : Behavior<PhysicalMessageProcessingContext>
+    class SubscriptionReceiverBehavior : Behavior<IncomingPhysicalMessageContext>
     {
         public SubscriptionReceiverBehavior(ISubscriptionStorage subscriptionStorage, SubscriptionAuthorizer authorizer)
         {
@@ -17,7 +17,7 @@
             this.authorizer = authorizer;
         }
 
-        public override async Task Invoke(PhysicalMessageProcessingContext context, Func<Task> next)
+        public override async Task Invoke(IncomingPhysicalMessageContext context, Func<Task> next)
         {
             var incomingMessage = context.Message;
             var messageTypeString = GetSubscriptionMessageTypeFrom(incomingMessage);

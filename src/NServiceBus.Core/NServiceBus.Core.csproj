@@ -124,8 +124,8 @@
     <Compile Include="Pipeline\BehaviorContextImpl.cs" />
     <Compile Include="Pipeline\Incoming\IncomingContextImpl.cs" />
     <Compile Include="Pipeline\Incoming\InvokeHandlerContextImpl.cs" />
-    <Compile Include="Pipeline\Incoming\LogicalMessageProcessingContextImpl.cs" />
-    <Compile Include="Pipeline\Incoming\PhysicalMessageProcessingContextImpl.cs" />
+    <Compile Include="Pipeline\Incoming\IncomingLogicalMessageContextImpl.cs" />
+    <Compile Include="Pipeline\Incoming\IncomingPhysicalMessageContextImpl.cs" />
     <Compile Include="Pipeline\Incoming\TransportReceiveContextImpl.cs" />
     <Compile Include="Pipeline\Outgoing\BatchDispatchContextImpl.cs" />
     <Compile Include="Pipeline\Outgoing\DispatchContextImpl.cs" />
@@ -169,9 +169,9 @@
     <Compile Include="Persistence\InMemory\Outbox\InMemoryOutboxTransaction.cs" />
     <Compile Include="Persistence\ISynchronizedStorage.cs" />
     <Compile Include="Pipeline\Incoming\InvokeHandlerContext.cs" />
-    <Compile Include="Pipeline\Incoming\LogicalMessageProcessingContext.cs" />
+    <Compile Include="Pipeline\Incoming\IncomingLogicalMessageContext.cs" />
     <Compile Include="Pipeline\Incoming\PendingTransportOperations.cs" />
-    <Compile Include="Pipeline\Incoming\PhysicalMessageProcessingContext.cs" />
+    <Compile Include="Pipeline\Incoming\IncomingPhysicalMessageContext.cs" />
     <Compile Include="Pipeline\Outgoing\BatchDispatchContext.cs" />
     <Compile Include="Pipeline\Outgoing\BatchToDispatchConnector.cs" />
     <Compile Include="Pipeline\Incoming\ReceiveFeature.cs" />

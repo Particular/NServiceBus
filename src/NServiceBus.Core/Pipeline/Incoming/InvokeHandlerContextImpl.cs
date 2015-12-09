@@ -9,7 +9,7 @@ namespace NServiceBus.Pipeline.Contexts
 
     class InvokeHandlerContextImpl : IncomingContextImpl, InvokeHandlerContext
     {
-        internal InvokeHandlerContextImpl(MessageHandler handler, SynchronizedStorageSession storageSession, LogicalMessageProcessingContext parentContext)
+        internal InvokeHandlerContextImpl(MessageHandler handler, SynchronizedStorageSession storageSession, IncomingLogicalMessageContext parentContext)
             : this(handler, parentContext.MessageId, parentContext.ReplyToAddress, parentContext.Headers, parentContext.Message.Metadata, parentContext.Message.Instance, storageSession, parentContext)
         {
         }

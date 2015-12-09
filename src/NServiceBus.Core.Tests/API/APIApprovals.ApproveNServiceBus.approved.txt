@@ -556,6 +556,10 @@ namespace NServiceBus
     {
         public static void RequireImmediateDispatch(this NServiceBus.Extensibility.ExtendableOptions options) { }
     }
+    public interface IncomingPhysicalMessageContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IBusContext, NServiceBus.IMessageProcessingContext, NServiceBus.Pipeline.BehaviorContext, NServiceBus.Pipeline.Contexts.IncomingContext
+    {
+        NServiceBus.Transports.IncomingMessage Message { get; }
+    }
     public interface INeedInitialization
     {
         void Customize(NServiceBus.BusConfiguration configuration);
@@ -709,10 +713,6 @@ namespace NServiceBus
     {
         public PersistenceExtentions(NServiceBus.Settings.SettingsHolder settings) { }
     }
-    public interface PhysicalMessageProcessingContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IBusContext, NServiceBus.IMessageProcessingContext, NServiceBus.Pipeline.BehaviorContext, NServiceBus.Pipeline.Contexts.IncomingContext
-    {
-        NServiceBus.Transports.IncomingMessage Message { get; }
-    }
     [System.ObsoleteAttribute("For performance reasons it is no longer possible to instrument the pipeline execu" +
         "tion. Will be removed in version 7.0.0.", true)]
     public class PipelineNotifications
@@ -803,7 +803,7 @@ namespace NServiceBus
     {
         public NServiceBus.ToSagaExpression<TSagaData, TMessage> ConfigureMapping<TMessage>(System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty) { }
     }
-    public abstract class SatelliteBehavior : NServiceBus.Pipeline.PipelineTerminator<NServiceBus.PhysicalMessageProcessingContext>
+    public abstract class SatelliteBehavior : NServiceBus.Pipeline.PipelineTerminator<NServiceBus.IncomingPhysicalMessageContext>
     {
         protected SatelliteBehavior() { }
     }
@@ -872,7 +872,7 @@ namespace NServiceBus
     {
         public SubscribeOptions() { }
     }
-    public delegate bool SubscriptionAuthorizer(NServiceBus.PhysicalMessageProcessingContext context);
+    public delegate bool SubscriptionAuthorizer(NServiceBus.IncomingPhysicalMessageContext context);
     [System.AttributeUsageAttribute(System.AttributeTargets.Class | System.AttributeTargets.Interface | System.AttributeTargets.All)]
     public sealed class TimeToBeReceivedAttribute : System.Attribute
     {
@@ -2037,6 +2037,12 @@ namespace NServiceBus.Pipeline
 namespace NServiceBus.Pipeline.Contexts
 {
     public interface IncomingContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IBusContext, NServiceBus.IMessageProcessingContext, NServiceBus.Pipeline.BehaviorContext { }
+    public interface IncomingLogicalMessageContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IBusContext, NServiceBus.IMessageProcessingContext, NServiceBus.Pipeline.BehaviorContext, NServiceBus.Pipeline.Contexts.IncomingContext
+    {
+        System.Collections.Generic.Dictionary<string, string> Headers { get; }
+        NServiceBus.Unicast.Messages.LogicalMessage Message { get; }
+        bool MessageHandled { get; set; }
+    }
     public interface InvokeHandlerContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IBusContext, NServiceBus.IMessageHandlerContext, NServiceBus.IMessageProcessingContext, NServiceBus.Pipeline.BehaviorContext, NServiceBus.Pipeline.Contexts.IncomingContext
     {
         bool HandleCurrentMessageLaterWasCalled { get; }
@@ -2045,12 +2051,6 @@ namespace NServiceBus.Pipeline.Contexts
         object MessageBeingHandled { get; }
         NServiceBus.Unicast.Behaviors.MessageHandler MessageHandler { get; }
         NServiceBus.Unicast.Messages.MessageMetadata MessageMetadata { get; }
-    }
-    public interface LogicalMessageProcessingContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IBusContext, NServiceBus.IMessageProcessingContext, NServiceBus.Pipeline.BehaviorContext, NServiceBus.Pipeline.Contexts.IncomingContext
-    {
-        System.Collections.Generic.Dictionary<string, string> Headers { get; }
-        NServiceBus.Unicast.Messages.LogicalMessage Message { get; }
-        bool MessageHandled { get; set; }
     }
     [System.ObsoleteAttribute("Please use `OutgoingLogicalMessage` instead. Will be removed in version 7.0.0.", true)]
     public class OutgoingContext

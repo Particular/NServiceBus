@@ -43,9 +43,9 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
                 }
             }
 
-            class MyExceptionFilteringBehavior : Behavior<PhysicalMessageProcessingContext>
+            class MyExceptionFilteringBehavior : Behavior<IncomingPhysicalMessageContext>
             {
-                public override async Task Invoke(PhysicalMessageProcessingContext context, Func<Task> next)
+                public override async Task Invoke(IncomingPhysicalMessageContext context, Func<Task> next)
                 {
                     try
                     {

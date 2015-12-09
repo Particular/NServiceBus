@@ -147,7 +147,7 @@
 
             var receiveContext = new TransportReceiveContextImpl(new IncomingMessage("fakeId", new Dictionary<string, string>(), new MemoryStream()), null, new RootContext(builder));
 
-            var context = new PhysicalMessageProcessingContextImpl(receiveContext.Message, receiveContext);
+            var context = new IncomingPhysicalMessageContextImpl(receiveContext.Message, receiveContext);
 
             return runner.Invoke(context, () =>
             {

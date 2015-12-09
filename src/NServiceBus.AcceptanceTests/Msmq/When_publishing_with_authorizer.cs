@@ -71,7 +71,7 @@
                 });
             }
 
-            bool Authorizer(PhysicalMessageProcessingContext context)
+            bool Authorizer(IncomingPhysicalMessageContext context)
             {
                 var isFromSubscriber1 = context
                     .MessageHeaders["NServiceBus.SubscriberEndpoint"]
