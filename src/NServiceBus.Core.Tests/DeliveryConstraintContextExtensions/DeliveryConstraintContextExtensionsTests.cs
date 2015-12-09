@@ -40,7 +40,7 @@
                 yield return typeof(DelayDeliveryWith);
             }
 
-            public override TransactionSupport GetTransactionSupport()
+            public override TransportTransactionMode GetSupportedTransactionMode()
             {
                 throw new NotImplementedException();
             }

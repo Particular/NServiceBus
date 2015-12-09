@@ -131,7 +131,7 @@ namespace NServiceBus
             var errorQueue = ErrorQueueSettings.GetConfiguredErrorQueue(settings);
 
             var dequeueLimitations = GeDequeueLimitationsForReceivePipeline();
-            var requiredTransactionSupport = settings.GetRequiredTransactionSupportForReceives();
+            var requiredTransactionSupport = settings.GetRequiredTransactionModeForReceives();
 
             var pushSettings = new PushSettings(settings.LocalAddress(), errorQueue, settings.GetOrDefault<bool>("Transport.PurgeOnStartup"), requiredTransactionSupport);
 
@@ -139,7 +139,7 @@ namespace NServiceBus
 
             foreach (var satellitePipeline in pipelineConfiguration.SatellitePipelines)
             {
-                var satellitePushSettings = new PushSettings(satellitePipeline.ReceiveAddress, errorQueue, settings.GetOrDefault<bool>("Transport.PurgeOnStartup"), satellitePipeline.RequiredTransactionSupport);
+                var satellitePushSettings = new PushSettings(satellitePipeline.ReceiveAddress, errorQueue, settings.GetOrDefault<bool>("Transport.PurgeOnStartup"), satellitePipeline.RequiredTransportTransactionMode);
 
                 yield return BuildPipelineInstance(satellitePipeline, satellitePipeline.Name, satellitePushSettings, satellitePipeline.RuntimeSettings);
             }

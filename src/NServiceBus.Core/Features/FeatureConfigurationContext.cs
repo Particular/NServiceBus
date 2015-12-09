@@ -41,14 +41,14 @@
         /// <summary>
         ///     Creates a new satellite processing pipeline.
         /// </summary>
-        public PipelineSettings AddSatellitePipeline(string name, string qualifier, TransactionSupport requiredTransactionSupport, PushRuntimeSettings runtimeSettings, out string transportAddress)
+        public PipelineSettings AddSatellitePipeline(string name, string qualifier, TransportTransactionMode requiredTransportTransactionMode, PushRuntimeSettings runtimeSettings, out string transportAddress)
         {
             var instanceName = Settings.EndpointInstanceName();
             var satelliteLogicalAddress = new LogicalAddress(instanceName, qualifier);
             var addressTranslation = Settings.Get<LogicalToTransportAddressTranslation>();
             transportAddress = addressTranslation.Translate(satelliteLogicalAddress);
 
-            var pipelineModifications = new SatellitePipelineModifications(name, transportAddress, requiredTransactionSupport, runtimeSettings);
+            var pipelineModifications = new SatellitePipelineModifications(name, transportAddress, requiredTransportTransactionMode, runtimeSettings);
             Settings.Get<PipelineConfiguration>().SatellitePipelines.Add(pipelineModifications);
             var newPipeline = new PipelineSettings(pipelineModifications);
 

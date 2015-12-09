@@ -12,7 +12,7 @@ namespace NServiceBus
 
     class MessagePump : IPushMessages, IDisposable
     {
-        public MessagePump(Func<TransactionSupport, ReceiveStrategy> receiveStrategyFactory)
+        public MessagePump(Func<TransportTransactionMode, ReceiveStrategy> receiveStrategyFactory)
         {
             this.receiveStrategyFactory = receiveStrategyFactory;
         }
@@ -26,7 +26,7 @@ namespace NServiceBus
         {
             pipeline = pipe;
 
-            receiveStrategy = receiveStrategyFactory(settings.RequiredTransactionSupport);
+            receiveStrategy = receiveStrategyFactory(settings.RequiredTransactionMode);
 
             peekCircuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("MsmqPeek", TimeSpan.FromSeconds(30), ex => criticalError.Raise("Failed to peek " + settings.InputQueue, ex));
             receiveCircuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("MsmqReceive", TimeSpan.FromSeconds(30), ex => criticalError.Raise("Failed to receive from " + settings.InputQueue, ex));
@@ -43,7 +43,7 @@ namespace NServiceBus
             inputQueue = new MessageQueue(inputAddress.FullPath, false, true, QueueAccessMode.Receive);
             errorQueue = new MessageQueue(errorAddress.FullPath, false, true, QueueAccessMode.Send);
 
-            if (settings.RequiredTransactionSupport != TransactionSupport.None && !QueueIsTransactional())
+            if (settings.RequiredTransactionMode != TransportTransactionMode.None && !QueueIsTransactional())
             {
                 throw new ArgumentException("Queue must be transactional if you configure your endpoint to be transactional (" + settings.InputQueue + ").");
             }
@@ -224,7 +224,7 @@ namespace NServiceBus
         Func<PushContext, Task> pipeline;
         RepeatedFailuresOverTimeCircuitBreaker receiveCircuitBreaker;
         ReceiveStrategy receiveStrategy;
-        Func<TransactionSupport, ReceiveStrategy> receiveStrategyFactory;
+        Func<TransportTransactionMode, ReceiveStrategy> receiveStrategyFactory;
         ConcurrentDictionary<Task, Task> runningReceiveTasks;
 
         static ILog Logger = LogManager.GetLogger<ReceiveWithNativeTransaction>();

@@ -29,7 +29,11 @@
         {
             public AtLeastOnceEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.Transactions().DisableDistributedTransactions());
+                EndpointSetup<DefaultServer>((config, context) =>
+                {
+                     config.UseTransport(context.GetTransportType())
+                            .Transactions(TransportTransactionMode.ReceiveOnly);
+                });
             }
 
             public class InitiatingMessageHandler : IHandleMessages<InitiatingMessage>

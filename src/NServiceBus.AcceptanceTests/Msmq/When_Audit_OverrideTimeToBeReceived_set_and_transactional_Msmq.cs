@@ -19,18 +19,19 @@
 
             Assert.True(context.Exceptions.First().Message.Contains("Setting a custom OverrideTimeToBeReceived for audits is not supported on transactional MSMQ."));
         }
-        
+
         public class Context : ScenarioContext { }
 
         public class Endpoint : EndpointConfigurationBuilder
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(config =>
+                EndpointSetup<DefaultServer>((config, context) =>
                 {
-                    config.Transactions().Enable();
+                    config.UseTransport(context.GetTransportType())
+                            .Transactions(TransportTransactionMode.ReceiveOnly);
                 })
-                .WithConfig<AuditConfig>(c => c.OverrideTimeToBeReceived = TimeSpan.FromHours(1));
+                    .WithConfig<AuditConfig>(c => c.OverrideTimeToBeReceived = TimeSpan.FromHours(1));
             }
         }
     }

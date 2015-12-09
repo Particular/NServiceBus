@@ -30,9 +30,9 @@ namespace NServiceBus.Transports
         public abstract IEnumerable<Type> GetSupportedDeliveryConstraints();
 
         /// <summary>
-        /// Gets the supported transactionality for this transport.
+        /// Gets the highest supported transaction mode for the this transport.
         /// </summary>
-        public abstract TransactionSupport GetTransactionSupport();
+        public abstract TransportTransactionMode GetSupportedTransactionMode();
 
         /// <summary>
         /// Will be called if the transport has indicated that it has native support for pub sub.

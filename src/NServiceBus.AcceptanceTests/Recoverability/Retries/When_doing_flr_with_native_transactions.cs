@@ -46,10 +46,11 @@
         {
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServer>(b =>
+                EndpointSetup<DefaultServer>((config, context) =>
                 {
-                    b.EnableFeature<FirstLevelRetries>();
-                    b.Transactions().DisableDistributedTransactions();
+                    config.EnableFeature<FirstLevelRetries>();
+                    config.UseTransport(context.GetTransportType())
+                            .Transactions(TransportTransactionMode.ReceiveOnly);
                 });
             }
 

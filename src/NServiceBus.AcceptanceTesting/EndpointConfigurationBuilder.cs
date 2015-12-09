@@ -39,7 +39,7 @@
 
         public EndpointConfigurationBuilder AddMapping<T>(Type endpoint)
         {
-            configuration.EndpointMappings.Add(typeof(T),endpoint);
+            configuration.EndpointMappings.Add(typeof(T), endpoint);
 
             return this;
         }
@@ -62,24 +62,41 @@
             {
                 configurationBuilderCustomization = b => { };
             }
-            configuration.GetConfiguration = async (settings, routingTable) =>
-                {
-                    var endpointSetupTemplate = new T();
-                    var scenarioConfigSource = new ScenarioConfigSource(configuration, routingTable);
-                    var endpointConfiguration = await endpointSetupTemplate.GetConfiguration(settings, configuration, scenarioConfigSource, configurationBuilderCustomization);
 
-                    return endpointConfiguration;
-                };
+            return EndpointSetup<T>((bc, esc) =>
+            {
+                configurationBuilderCustomization(bc);
+            });
+        }
+
+        public EndpointConfigurationBuilder EndpointSetup<T>(Action<BusConfiguration, RunDescriptor> configurationBuilderCustomization) where T : IEndpointSetupTemplate, new()
+        {
+            if (configurationBuilderCustomization == null)
+            {
+                configurationBuilderCustomization = (rd, b) => { };
+            }
+            configuration.GetConfiguration = async (runDescriptor, routingTable) =>
+            {
+                var endpointSetupTemplate = new T();
+                var scenarioConfigSource = new ScenarioConfigSource(configuration, routingTable);
+                var endpointConfiguration = await endpointSetupTemplate.GetConfiguration(runDescriptor, configuration, scenarioConfigSource, bc =>
+                {
+                    configurationBuilderCustomization(bc, runDescriptor);
+                });
+
+                return endpointConfiguration;
+            };
 
             return this;
         }
+
 
         EndpointConfiguration IEndpointConfigurationFactory.Get()
         {
             return CreateScenario();
         }
 
-       
+
         EndpointConfiguration configuration = new EndpointConfiguration();
 
         public EndpointConfigurationBuilder WithConfig<T>(Action<T> action) where T : new()
@@ -88,8 +105,8 @@
 
             action(config);
 
-            configuration.UserDefinedConfigSections[typeof (T)] = config;
-            
+            configuration.UserDefinedConfigSections[typeof(T)] = config;
+
             return this;
         }
 

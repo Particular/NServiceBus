@@ -36,9 +36,11 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(c => {
-                    c.Transactions().DisableDistributedTransactions();
-                    c.EnableFeature<FirstLevelRetries>();
+                EndpointSetup<DefaultServer>((config, context) =>
+                {
+                    config.EnableFeature<FirstLevelRetries>();
+                    config.UseTransport(context.GetTransportType())
+                            .Transactions(TransportTransactionMode.ReceiveOnly);
                 });
             }
 

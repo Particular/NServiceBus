@@ -39,7 +39,10 @@
         {
             public NonDTCEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.Transactions().DisableDistributedTransactions());
+                EndpointSetup<DefaultServer>((config, context) =>
+                {
+                    config.UseTransport(context.GetTransportType()).Transactions(TransportTransactionMode.SendsAtomicWithReceive);
+                });
             }
 
             public class MyMessageHandler : IHandleMessages<MyMessage>
