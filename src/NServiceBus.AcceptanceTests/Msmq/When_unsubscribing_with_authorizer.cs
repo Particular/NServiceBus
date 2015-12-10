@@ -50,11 +50,10 @@
             {
                 EndpointSetup<DefaultPublisher>(b =>
                 {
-                    b.UseTransport<MsmqTransport>();
                     b.OnEndpointSubscribed<TestContext>((s, context) =>
                     {
                         context.Subscribed = true;
-                            context.UnsubscribeAttempted = true;
+                        context.UnsubscribeAttempted = true;
                     });
                     b.DisableFeature<AutoSubscribe>();
                 });

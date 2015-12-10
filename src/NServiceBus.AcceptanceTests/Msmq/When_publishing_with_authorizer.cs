@@ -52,7 +52,6 @@
             {
                 EndpointSetup<DefaultPublisher>(b =>
                 {
-                    b.UseTransport<MsmqTransport>();
                     b.OnEndpointSubscribed<TestContext>((s, context) =>
                     {
                         if (s.SubscriberReturnAddress.Queue.Contains("Subscriber1"))
