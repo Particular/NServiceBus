@@ -20,7 +20,7 @@
                     .Should(c =>
                     {
                         Assert.True(c.InvokedAt.HasValue);
-                        Assert.Greater(c.InvokedAt.Value - c.RequestedAt, TimeSpan.FromSeconds(5));
+                        Assert.Greater(c.InvokedAt.Value - c.RequestedAt, TimeSpan.FromMilliseconds(5));
                     })
                   .Run(TimeSpan.FromSeconds(20));
         }
@@ -45,7 +45,7 @@
                 {
                     Context.RequestedAt = DateTime.UtcNow;
 
-                    return context.ScheduleEvery(TimeSpan.FromSeconds(5), "MyTask", c =>
+                    return context.ScheduleEvery(TimeSpan.FromMilliseconds(5), "MyTask", c =>
                     {
                         Context.InvokedAt = DateTime.UtcNow;
                         return Task.FromResult(0);

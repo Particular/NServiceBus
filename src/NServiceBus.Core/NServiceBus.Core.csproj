@@ -111,6 +111,9 @@
     <Compile Include="ConfigureHandlerSettings.cs" />
     <Compile Include="ConsistencyGuarantees\ConsistencyGuaranteeSettingsExtensions.cs" />
     <Compile Include="ConsistencyGuarantees\TransactionScopes\WrapHandlersInTransactionScope.cs" />
+    <Compile Include="Recoverability\Faults\FaultNotificationConfigExtensions.cs" />
+    <Compile Include="Recoverability\Faults\FaultsSettings.cs" />
+    <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetryConfigExtensions.cs" />
     <Compile Include="Persistence\CompletableSynchronizedStorageSession.cs" />
     <Compile Include="Persistence\InMemory\InMemorySynchronizedStorage.cs" />
     <Compile Include="Persistence\InMemory\InMemoryTransactionalSynchronizedStorageAdapter.cs" />
@@ -135,6 +138,7 @@
     <Compile Include="Pipeline\Outgoing\OutgoingReplyContextImpl.cs" />
     <Compile Include="Pipeline\Outgoing\OutgoingSendContextImpl.cs" />
     <Compile Include="Pipeline\Outgoing\RoutingContextImpl.cs" />
+    <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetriesSettings.cs" />
     <Compile Include="Routing\Legacy\ConfigureMSMQDistributor.cs" />
     <Compile Include="Routing\Legacy\DistributorHeaders.cs" />
     <Compile Include="Routing\Legacy\ProcessedMessageCounterBehavior.cs" />
@@ -249,7 +253,6 @@
     <Compile Include="Encryption\RijndaelExpiredKey.cs" />
     <Compile Include="Encryption\RijndaelExpiredKeyCollection.cs" />
     <Compile Include="Encryption\RijndaelEncryptionService.cs" />
-    <Compile Include="BusNotifications.cs" />
     <Compile Include="Extensibility\ExtendableOptions.cs" />
     <Compile Include="Extensibility\ExtendableOptionsExtensions.cs" />
     <Compile Include="Extensibility\ReadOnlyContextBag.cs" />
@@ -257,8 +260,6 @@
     <Compile Include="EndpointInstanceName.cs" />
     <Compile Include="EndpointName.cs" />
     <Compile Include="Recoverability\Faults\FailedMessage.cs" />
-    <Compile Include="Recoverability\Faults\ErrorsNotifications.cs" />
-    <Compile Include="Recoverability\Faults\ErrorSubscribers.cs" />
     <Compile Include="Features\FeatureRunner.cs" />
     <Compile Include="Features\FeatureState.cs" />
     <Compile Include="Performance\MessageProcessingOptimizations\MessageProcessingOptimizationExtensions.cs" />
@@ -588,8 +589,8 @@
     <Compile Include="CriticalError\ConfigureCriticalErrorAction.cs" />
     <Compile Include="DataBus\ConfigureFileShareDataBus.cs" />
     <Compile Include="Features\FeatureActivator.cs" />
-    <Compile Include="Recoverability\SecondLevelRetries\Config\SecondLevelRetriesConfigExtensions.cs" />
-    <Compile Include="Recoverability\SecondLevelRetries\Config\SecondLevelRetriesSettings.cs" />
+    <Compile Include="Recoverability\SecondLevelRetries\SecondLevelRetriesConfigExtensions.cs" />
+    <Compile Include="Recoverability\SecondLevelRetries\SecondLevelRetriesSettings.cs" />
     <Compile Include="Serializers\Json\Config\JsonSerialization.cs" />
     <Compile Include="Serializers\Json\Config\JsonSerializerConfigurationExtensions.cs" />
     <Compile Include="Serializers\XML\Config\XmlSerialization.cs" />
@@ -624,7 +625,7 @@
     <Compile Include="Transports\Msmq\QueueCreator.cs" />
     <Compile Include="Transports\Msmq\MsmqUtilities.cs" />
     <Compile Include="Encryption\RijndaelEncryptionServiceConfig.cs" />
-    <Compile Include="Recoverability\SecondLevelRetries\Config\SecondLevelRetriesConfig.cs" />
+    <Compile Include="Recoverability\SecondLevelRetries\SecondLevelRetriesConfig.cs" />
     <Compile Include="Recoverability\SecondLevelRetries\SecondLevelRetries.cs" />
     <Compile Include="Transports\TransportConfig.cs" />
     <Compile Include="Unicast\UnicastBusConfig.cs" />

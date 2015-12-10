@@ -92,10 +92,12 @@ namespace NServiceBus
         public void UseContainer(NServiceBus.ObjectBuilder.Common.IContainer builder) { }
         public void UseCustomLogicalToTransportAddressTranslation(System.Func<NServiceBus.LogicalAddress, string, string> translation) { }
     }
-    public class BusNotifications : System.IDisposable
+    [System.ObsoleteAttribute("Please use `NotificationExtensions` instead. Will be removed in version 7.0.0.", true)]
+    public class BusNotifications
     {
         public BusNotifications() { }
-        public NServiceBus.Faults.ErrorsNotifications Errors { get; }
+        [System.ObsoleteAttribute("Will be removed in version 7.0.0.", true)]
+        public NServiceBus.ErrorsNotifications Errors { get; }
         [System.ObsoleteAttribute("For performance reasons it is no longer possible to instrument the pipeline execu" +
             "tion. Will be removed in version 7.0.0.", true)]
         public NServiceBus.PipelineNotifications Pipeline { get; }
@@ -303,6 +305,20 @@ namespace NServiceBus
         public override int GetHashCode() { }
         public override string ToString() { }
     }
+    [System.ObsoleteAttribute("Will be removed in version 7.0.0.", true)]
+    public class ErrorsNotifications
+    {
+        public ErrorsNotifications() { }
+        [System.ObsoleteAttribute("Please use `busConfiguration.SecondLevelRetries().AddRetryNotification` instead. " +
+            "Will be removed in version 7.0.0.", true)]
+        public System.IObservable<NServiceBus.Faults.SecondLevelRetry> MessageHasBeenSentToSecondLevelRetries { get; }
+        [System.ObsoleteAttribute("Please use `busConfiguration.FirstLevelRetries().AddRetryNotification` instead. W" +
+            "ill be removed in version 7.0.0.", true)]
+        public System.IObservable<NServiceBus.Faults.FirstLevelRetry> MessageHasFailedAFirstLevelRetryAttempt { get; }
+        [System.ObsoleteAttribute("Please use `busConfiguration.Faults().AddFaultNotification` instead. Will be remo" +
+            "ved in version 7.0.0.", true)]
+        public System.IObservable<NServiceBus.Faults.FailedMessage> MessageSentToErrorQueue { get; }
+    }
     [System.AttributeUsageAttribute(System.AttributeTargets.Class | System.AttributeTargets.Interface | System.AttributeTargets.All)]
     public sealed class ExpressAttribute : System.Attribute
     {
@@ -321,6 +337,10 @@ namespace NServiceBus
         [System.ObsoleteAttribute("Headers can be set using the ``.SetHeader` method on the context object passed in" +
             "to your behavior or mutator. Will be removed in version 7.0.0.", true)]
         public static void SetMessageHeader(this NServiceBus.IBusContextFactory bus, object msg, string key, string value) { }
+    }
+    public class static FaultNotificationConfigExtensions
+    {
+        public static NServiceBus.Faults.FaultsSettings Faults(this NServiceBus.BusConfiguration busConfiguration) { }
     }
     public class static FileBasedRoutingConfigurationExtensions
     {
@@ -341,6 +361,10 @@ namespace NServiceBus
     public class First<T>
     {
         public First() { }
+    }
+    public class static FirstLevelRetryConfigExtensions
+    {
+        public static NServiceBus.SecondLevelRetries.Config.FirstLevelRetriesSettings FirstLevelRetries(this NServiceBus.BusConfiguration busConfiguration) { }
     }
     public class static HeaderOptionExtensions
     {
@@ -1312,13 +1336,6 @@ namespace NServiceBus.Extensibility
 }
 namespace NServiceBus.Faults
 {
-    public class ErrorsNotifications
-    {
-        public ErrorsNotifications() { }
-        public event System.EventHandler<NServiceBus.Faults.SecondLevelRetry> MessageHasBeenSentToSecondLevelRetries;
-        public event System.EventHandler<NServiceBus.Faults.FirstLevelRetry> MessageHasFailedAFirstLevelRetryAttempt;
-        public event System.EventHandler<NServiceBus.Faults.FailedMessage> MessageSentToErrorQueue;
-    }
     public struct FailedMessage
     {
         public FailedMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, System.Exception exception) { }
@@ -1330,6 +1347,10 @@ namespace NServiceBus.Faults
     public class static FaultsHeaderKeys
     {
         public const string FailedQ = "NServiceBus.FailedQ";
+    }
+    public class FaultsSettings
+    {
+        public void AddFaultNotification(System.Action<NServiceBus.Faults.FailedMessage> action) { }
     }
     public struct FirstLevelRetry
     {
@@ -2310,8 +2331,13 @@ namespace NServiceBus.Satellites
 }
 namespace NServiceBus.SecondLevelRetries.Config
 {
+    public class FirstLevelRetriesSettings
+    {
+        public void AddRetryNotification(System.Action<NServiceBus.Faults.FirstLevelRetry> action) { }
+    }
     public class SecondLevelRetriesSettings
     {
+        public void AddRetryNotification(System.Action<NServiceBus.Faults.SecondLevelRetry> action) { }
         [System.ObsoleteAttribute("Please use `CustomRetryPolicy(Func<IncomingMessage, TimeSpan> customPolicy)` inst" +
             "ead. Will be removed in version 7.0.0.", true)]
         public void CustomRetryPolicy(System.Func<NServiceBus.TransportMessage, System.TimeSpan> customPolicy) { }

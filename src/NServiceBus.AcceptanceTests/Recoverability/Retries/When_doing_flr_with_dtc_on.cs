@@ -13,7 +13,6 @@
     public class When_doing_flr_with_dtc_on : NServiceBusAcceptanceTest
     {
         const int maxretries = 4;
-
         [Test]
         public async Task Should_do_X_retries_by_default_with_dtc_on()
         {
@@ -21,7 +20,7 @@
                    .WithEndpoint<RetryEndpoint>(b => b
                         .When((bus, context) => bus.SendLocal(new MessageToBeRetried { Id = context.Id }))
                         .DoNotFailOnErrorMessages())
-                   .Done(c => c.GaveUpOnRetries)
+                   .Done(c => c.SentToErrorQueue)
                    .Repeat(r => r.For<AllDtcTransports>())
                    .Should(c =>
                    {
@@ -38,40 +37,27 @@
         public class Context : ScenarioContext
         {
             public Guid Id { get; set; }
-
             public int NumberOfTimesInvoked { get; set; }
-
-            public bool GaveUpOnRetries { get; set; }
-
             public string PhysicalMessageId { get; set; }
+            public bool SentToErrorQueue { get; set; }
         }
 
         public class RetryEndpoint : EndpointConfigurationBuilder
         {
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServer>(b => b
-                    .EnableFeature<FirstLevelRetries>())
+                EndpointSetup<DefaultServer>(b =>
+                {
+                    b.EnableFeature<FirstLevelRetries>();
+                    b.Faults().AddFaultNotification(message =>
+                    {
+                        var context = (Context) ScenarioContext;
+                        context.SentToErrorQueue = true;
+                    });
+                })
                     .WithConfig<TransportConfig>(c => c.MaxRetries = maxretries);
             }
 
-            class ErrorNotificationSpy : IWantToRunWhenBusStartsAndStops
-            {
-                public Context Context { get; set; }
-
-                public BusNotifications BusNotifications { get; set; }
-
-                public Task Start(IBusContext context)
-                {
-                    BusNotifications.Errors.MessageSentToErrorQueue += (sender, message) => Context.GaveUpOnRetries = true;
-                    return Task.FromResult(0);
-                }
-
-                public Task Stop(IBusContext context)
-                {
-                    return Task.FromResult(0);
-                }
-            }
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
             {

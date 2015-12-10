@@ -72,7 +72,7 @@
                     await context.Publish<SomethingHappenedEvent>(m => { m.DataId = message.DataId; });
 
                     //Request a timeout
-                    await RequestTimeout<Timeout1>(context, TimeSpan.FromSeconds(5));
+                    await RequestTimeout<Timeout1>(context, TimeSpan.FromMilliseconds(1));
                 }
 
                 public Task Timeout(Timeout1 state, IMessageHandlerContext context)
@@ -121,7 +121,7 @@
                 {
                     Data.DataId = message.DataId;
                     //Request a timeout
-                    return RequestTimeout<Saga2Timeout>(context, TimeSpan.FromSeconds(5));
+                    return RequestTimeout<Saga2Timeout>(context, TimeSpan.FromMilliseconds(1));
                 }
 
                 public Task Timeout(Saga2Timeout state, IMessageHandlerContext context)
