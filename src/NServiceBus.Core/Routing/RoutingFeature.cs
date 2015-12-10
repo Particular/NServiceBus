@@ -188,9 +188,9 @@
                     }
                 }
 
-                public IEnumerable<UnicastRoutingTarget> Resolve(Func<EndpointName, IEnumerable<EndpointInstance>> instanceResolver)
+                public Task<IEnumerable<UnicastRoutingTarget>> Resolve(Func<EndpointName, Task<IEnumerable<EndpointInstance>>> instanceResolver)
                 {
-                    yield return target;
+                    return Task.FromResult(EnumerableEx.Single(target));
                 }
             }
         }

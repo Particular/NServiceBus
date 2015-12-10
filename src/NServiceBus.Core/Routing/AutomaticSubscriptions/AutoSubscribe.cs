@@ -42,7 +42,7 @@
 
                     var messageTypesHandled = GetMessageTypesHandledByThisEndpoint(handlerRegistry, conventions, settings);
 
-                    return new ApplySubscriptions(messageTypesHandled);
+                    return new ApplySubscriptions(messageTypesHandled, type => Task.FromResult(true));
                 });
             }
             else
@@ -53,14 +53,23 @@
 
                     var messageTypesToSubscribe = GetMessageTypesHandledByThisEndpoint(handlerRegistry, conventions, settings);
 
+                    Func<Type, Task<bool>> asyncPredicate;
                     if (settings.RequireExplicitRouting)
                     {
                         var subscriptionRouter = b.Build<SubscriptionRouter>();
 
-                        messageTypesToSubscribe = messageTypesToSubscribe.Where(t => subscriptionRouter.GetAddressesForEventType(t).Any())
-                            .ToList();
+                        asyncPredicate = async type =>
+                        {
+                            var addresses = await subscriptionRouter.GetAddressesForEventType(type).ConfigureAwait(false);
+                            return addresses.Any();
+                        };
                     }
-                    return new ApplySubscriptions(messageTypesToSubscribe);
+                    else
+                    {
+                        asyncPredicate = type => Task.FromResult(true);
+                    }
+
+                    return new ApplySubscriptions(messageTypesToSubscribe, asyncPredicate);
                 });
             }
         }
@@ -79,17 +88,21 @@
 
         class ApplySubscriptions : FeatureStartupTask
         {
-            public ApplySubscriptions(IEnumerable<Type> eventsToSubscribe)
+            public ApplySubscriptions(IEnumerable<Type> messagesHandledByThisEndpoint, Func<Type, Task<bool>> asyncPredicate)
             {
-                this.eventsToSubscribe = eventsToSubscribe;
+                this.messagesHandledByThisEndpoint = messagesHandledByThisEndpoint;
+                this.asyncPredicate = asyncPredicate;
             }
 
             protected override async Task OnStart(IBusSession session)
             {
-                foreach (var eventType in eventsToSubscribe)
+                foreach (var eventType in messagesHandledByThisEndpoint)
                 {
-                    await session.Subscribe(eventType).ConfigureAwait(false);
-                    Logger.DebugFormat("Auto subscribed to event {0}", eventType);
+                    if (await asyncPredicate(eventType).ConfigureAwait(false))
+                    {
+                        await session.Subscribe(eventType).ConfigureAwait(false);
+                        Logger.DebugFormat("Auto subscribed to event {0}", eventType);
+                    }
                 }
             }
 
@@ -98,7 +111,8 @@
                 return TaskEx.Completed;
             }
 
-            IEnumerable<Type> eventsToSubscribe;
+            IEnumerable<Type> messagesHandledByThisEndpoint;
+            Func<Type, Task<bool>> asyncPredicate;
 
             static ILog Logger = LogManager.GetLogger<ApplySubscriptions>();
         }

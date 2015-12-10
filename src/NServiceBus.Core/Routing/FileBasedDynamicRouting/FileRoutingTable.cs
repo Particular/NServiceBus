@@ -92,14 +92,14 @@ namespace NServiceBus
             }
         }
 
-        IEnumerable<EndpointInstance> FindInstances(EndpointName endpoint)
+        Task<IEnumerable<EndpointInstance>> FindInstances(EndpointName endpoint)
         {
             HashSet<EndpointInstance> result;
             if (instanceMap.TryGetValue(endpoint, out result))
             {
-                return result;
+                return Task.FromResult((IEnumerable<EndpointInstance>)result);
             }
-            return Enumerable.Empty<EndpointInstance>();
+            return Task.FromResult(Enumerable.Empty<EndpointInstance>());
         }
 
         protected override Task OnStop(IBusSession context)

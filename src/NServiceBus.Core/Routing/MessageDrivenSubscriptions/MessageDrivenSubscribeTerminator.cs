@@ -22,11 +22,11 @@
             this.legacyMode = legacyMode;
         }
 
-        protected override Task Terminate(ISubscribeContext context)
+        protected override async Task Terminate(ISubscribeContext context)
         {
             var eventType = context.EventType;
 
-            var publisherAddresses = subscriptionRouter.GetAddressesForEventType(eventType)
+            var publisherAddresses = (await subscriptionRouter.GetAddressesForEventType(eventType).ConfigureAwait(false))
                 .EnsureNonEmpty(() => $"No publisher address could be found for message type {eventType}. Please ensure the configured publisher endpoint has at least one known instance.");
 
             var subscribeTasks = new List<Task>();
@@ -51,8 +51,7 @@
 
                 subscribeTasks.Add(SendSubscribeMessageWithRetries(address, subscriptionMessage, eventType.AssemblyQualifiedName, context.Extensions));
             }
-
-            return Task.WhenAll(subscribeTasks.ToArray());
+            await Task.WhenAll(subscribeTasks.ToArray()).ConfigureAwait(false);
         }
 
         async Task SendSubscribeMessageWithRetries(string destination, OutgoingMessage subscriptionMessage, string messageType, ContextBag context, int retriesCount = 0)

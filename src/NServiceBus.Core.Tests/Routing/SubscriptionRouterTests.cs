@@ -1,6 +1,7 @@
 namespace NServiceBus.Core.Tests.Routing
 {
     using System.Linq;
+    using System.Threading.Tasks;
     using NServiceBus.Routing;
     using NServiceBus.Routing.MessageDrivenSubscriptions;
     using NServiceBus.Transports;
@@ -9,14 +10,14 @@ namespace NServiceBus.Core.Tests.Routing
     class SubscriptionRouterTests
     {
         [Test]
-        public void Should_return_empty_list_for_events_with_no_routes()
+        public async Task Should_return_empty_list_for_events_with_no_routes()
         {
             var router = new SubscriptionRouter(new Publishers(), new EndpointInstances(), new TransportAddresses());
-            Assert.IsEmpty(router.GetAddressesForEventType(typeof(Message1)));
+            Assert.IsEmpty(await router.GetAddressesForEventType(typeof(Message1)));
         }
      
         [Test]
-        public void Should_return_correct_base_and_inherited_address_even_if_they_differ()
+        public async Task Should_return_correct_base_and_inherited_address_even_if_they_differ()
         {
             const string baseAddress = "baseAddress";
             const string inheritedAddress = "inheritedAddress";
@@ -30,19 +31,19 @@ namespace NServiceBus.Core.Tests.Routing
             publishers.AddStatic(baseEndpoint, baseType );
             publishers.AddStatic(inheritedEndpoint, baseType);
             publishers.AddStatic(inheritedEndpoint, inheritedType );
-            var knownEndpoints = new EndpointInstances();
-            knownEndpoints.AddDynamic(e => new [] { new EndpointInstance(e, null, null) });
+            var endpointInstances = new EndpointInstances();
+            endpointInstances.AddDynamic(e => Task.FromResult(EnumerableEx.Single(new EndpointInstance(e))));
             var physicalAddresses = new TransportAddresses();
             physicalAddresses.AddRule(i => i.Endpoint.ToString());
-            var router = new SubscriptionRouter(publishers, knownEndpoints, physicalAddresses);
+            var router = new SubscriptionRouter(publishers, endpointInstances, physicalAddresses);
 
-            Assert.Contains(baseAddress, router.GetAddressesForEventType(baseType).ToList());
-            Assert.Contains(inheritedAddress, router.GetAddressesForEventType(baseType).ToList());
-            Assert.AreSame(inheritedAddress, router.GetAddressesForEventType(inheritedType).Single());
+            Assert.Contains(baseAddress, (await router.GetAddressesForEventType(baseType)).ToList());
+            Assert.Contains(inheritedAddress, (await router.GetAddressesForEventType(baseType)).ToList());
+            Assert.AreSame(inheritedAddress, (await router.GetAddressesForEventType(inheritedType)).Single());
         }
 
         [Test]
-        public void Should_allow_multiple_addresses_per_type()
+        public async Task Should_allow_multiple_addresses_per_type()
         {
             var baseType = typeof(BaseMessage);
             var inheritedType = typeof(InheritedMessage);
@@ -55,12 +56,12 @@ namespace NServiceBus.Core.Tests.Routing
             publishers.AddStatic(inheritedEndpoint, baseType);
             publishers.AddStatic(inheritedEndpoint, inheritedType);
             var knownEndpoints = new EndpointInstances();
-            knownEndpoints.AddDynamic(e => new[] { new EndpointInstance(e, null, null) });
+            knownEndpoints.AddDynamic(e => Task.FromResult(EnumerableEx.Single(new EndpointInstance(e, null, null))));
             var physicalAddresses = new TransportAddresses();
             physicalAddresses.AddRule(i => i.Endpoint.ToString());
             var router = new SubscriptionRouter(publishers, knownEndpoints, physicalAddresses);
 
-            Assert.AreEqual(2, router.GetAddressesForEventType(baseType).Count());
+            Assert.AreEqual(2, (await router.GetAddressesForEventType(baseType)).Count());
         }
 
 

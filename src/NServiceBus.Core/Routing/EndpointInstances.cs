@@ -3,17 +3,23 @@ namespace NServiceBus.Routing
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Stores the information about instances of known endpoints.
     /// </summary>
     public class EndpointInstances
     {
-        List<Func<EndpointName, IEnumerable<EndpointInstance>>> rules = new List<Func<EndpointName, IEnumerable<EndpointInstance>>>();
+        List<Func<EndpointName, Task<IEnumerable<EndpointInstance>>>> rules = new List<Func<EndpointName, Task<IEnumerable<EndpointInstance>>>>();
 
-        internal IEnumerable<EndpointInstance> FindInstances(EndpointName endpoint)
+        internal async Task<IEnumerable<EndpointInstance>> FindInstances(EndpointName endpoint)
         {
-            var distinctInstances = rules.SelectMany(r => r(endpoint)).Distinct().ToArray();
+            var instances = new List<EndpointInstance>();
+            foreach (var rule in rules)
+            {
+                instances.AddRange(await rule.Invoke(endpoint).ConfigureAwait(false));
+            }
+            var distinctInstances = instances.Distinct().ToArray();
             return distinctInstances.EnsureNonEmpty(() => new EndpointInstance(endpoint));
         }
 
@@ -22,7 +28,7 @@ namespace NServiceBus.Routing
         /// Adds a dynamic rule for determining endpoint instances.
         /// </summary>
         /// <param name="dynamicRule">The rule.</param>
-        public void AddDynamic(Func<EndpointName, IEnumerable<EndpointInstance>> dynamicRule)
+        public void AddDynamic(Func<EndpointName, Task<IEnumerable<EndpointInstance>>> dynamicRule)
         {
             rules.Add(dynamicRule);
         }
@@ -46,13 +52,13 @@ namespace NServiceBus.Routing
             rules.Add(e => StaticRule(e, endpoint, instances));   
         }
 
-        static IEnumerable<EndpointInstance> StaticRule(EndpointName endpointBeingQueried, EndpointName configuredEndpoint, EndpointInstance[] configuredInstances)
+        static Task<IEnumerable<EndpointInstance>> StaticRule(EndpointName endpointBeingQueried, EndpointName configuredEndpoint, IEnumerable<EndpointInstance> configuredInstances)
         {
             if (endpointBeingQueried == configuredEndpoint)
             {
-                return configuredInstances;
+                return Task.FromResult(configuredInstances);
             }
-            return Enumerable.Empty<EndpointInstance>();
+            return Task.FromResult(Enumerable.Empty<EndpointInstance>());
         }
     }
 }
