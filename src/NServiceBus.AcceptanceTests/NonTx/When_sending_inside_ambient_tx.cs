@@ -6,6 +6,8 @@
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
+    using NServiceBus.Pipeline;
+    using NServiceBus.Pipeline.Contexts;
     using NUnit.Framework;
 
     public class When_sending_inside_ambient_tx : NServiceBusAcceptanceTest
@@ -34,7 +36,23 @@
         {
             public NonTransactionalEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.Transactions().Disable().WrapHandlersExecutionInATransactionScope());
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    c.Transactions().Disable();
+                    c.Pipeline.Register("WrapInScope", typeof(WrapHandlersInScope), "Wraps the handlers in a scope");
+                });
+            }
+
+            class WrapHandlersInScope:Behavior<IncomingLogicalMessageContext>
+            {
+                public override async Task Invoke(IncomingLogicalMessageContext context, Func<Task> next)
+                {
+                    using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                    {
+                        await next();
+                        tx.Complete();
+                    }
+                }
             }
 
             public class MyMessageHandler : IHandleMessages<MyMessage>

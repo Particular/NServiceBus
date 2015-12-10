@@ -16,8 +16,7 @@
             Guard.AgainstNull("config", config);
             var outboxSettings = new OutboxSettings(config.Settings);
             config.Transactions()
-                .DisableDistributedTransactions()
-                .DoNotWrapHandlersExecutionInATransactionScope();
+                .DisableDistributedTransactions();
             config.EnableFeature<Features.Outbox>();
             return outboxSettings;
         }

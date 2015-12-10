@@ -243,7 +243,7 @@
     <Compile Include="ScenarioDescriptors\Persistence.cs" />
     <Compile Include="Scheduling\When_scheduling_a_recurring_task.cs" />
     <Compile Include="Tx\FakePromotableResourceManager.cs" />
-    <Compile Include="Tx\When_receiving_with_dtc_disabled.cs" />
+    <Compile Include="Msmq\When_receiving_with_dtc_disabled.cs" />
     <Compile Include="Tx\When_receiving_with_dtc_enabled.cs" />
     <Compile Include="Tx\When_receiving_with_the_default_settings.cs" />
     <Compile Include="Tx\ImmediateDispatch\When_requesting_immediate_dispatch_with_at_most_once.cs" />
