@@ -56,7 +56,7 @@ namespace NServiceBus
                 this.preStartupCheck = preStartupCheck;
             }
 
-            protected override async Task OnStart(IBusContext context)
+            protected override async Task OnStart(IBusSession session)
             {
                 var result = await preStartupCheck().ConfigureAwait(false);
                 if (!result.Succeeded)
@@ -65,7 +65,7 @@ namespace NServiceBus
                 }
             }
 
-            protected override Task OnStop(IBusContext context)
+            protected override Task OnStop(IBusSession session)
             {
                 return TaskEx.Completed;
             }

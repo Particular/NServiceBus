@@ -2,17 +2,13 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
-    using NServiceBus.Pipeline;
 
-    class BusContext : IBusContext
+    class BusSession : IBusSession
     {
-        public BusContext(IBehaviorContext context)
+        public BusSession(RootContext context)
         {
             this.context = context;
         }
-
-        public ContextBag Extensions => context.Extensions;
 
         public Task Send(object message, SendOptions options)
         {
@@ -44,6 +40,6 @@ namespace NServiceBus
             return BusOperations.Unsubscribe(context, eventType, options);
         }
 
-        IBehaviorContext context;
+        RootContext context;
     }
 }

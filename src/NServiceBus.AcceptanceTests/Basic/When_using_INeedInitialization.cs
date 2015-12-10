@@ -51,12 +51,12 @@
 
             public class SendMessageToSender : IWantToRunWhenBusStartsAndStops
             {
-                public Task Start(IBusContext context)
+                public Task Start(IBusSession session)
                 {
-                    return context.Send(new SendMessage());
+                    return session.Send(new SendMessage());
                 }
 
-                public Task Stop(IBusContext context)
+                public Task Stop(IBusSession session)
                 {
                     return Task.FromResult(0);
                 }

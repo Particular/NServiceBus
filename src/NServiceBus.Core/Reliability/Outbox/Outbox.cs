@@ -82,7 +82,7 @@ The reason you need to do this is because we need to ensure that you have read a
 
     class DtcRunningWarning : FeatureStartupTask
     {
-        protected override Task OnStart(IBusContext context)
+        protected override Task OnStart(IBusSession session)
         {
             try
             {
@@ -107,7 +107,7 @@ Because you have configured this endpoint to run with Outbox enabled we recommen
             return TaskEx.Completed;
         }
 
-        protected override Task OnStop(IBusContext context)
+        protected override Task OnStop(IBusSession session)
         {
             return TaskEx.Completed;
         }

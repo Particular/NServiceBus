@@ -9,9 +9,9 @@ namespace NServiceBus
 
     class RunningEndpointInstance : IEndpointInstance
     {
-        public RunningEndpointInstance(IBuilder builder, PipelineCollection pipelineCollection, StartAndStoppablesRunner startAndStoppablesRunner, FeatureRunner featureRunner, IBusContextFactory busContextFactory)
+        public RunningEndpointInstance(IBuilder builder, PipelineCollection pipelineCollection, StartAndStoppablesRunner startAndStoppablesRunner, FeatureRunner featureRunner, IBusSessionFactory busSessionFactory)
         {
-            this.busContextFactory = busContextFactory;
+            this.busSessionFactory = busSessionFactory;
             this.pipelineCollection = pipelineCollection;
             this.startAndStoppablesRunner = startAndStoppablesRunner;
             this.featureRunner = featureRunner;
@@ -37,7 +37,7 @@ namespace NServiceBus
                 Log.Info("Initiating shutdown.");
 
                 await pipelineCollection.Stop().ConfigureAwait(false);
-                var busContext = CreateBusContext();
+            var busContext = CreateBusSession();
                 await featureRunner.Stop(busContext).ConfigureAwait(false);
                 await startAndStoppablesRunner.Stop(busContext).ConfigureAwait(false);
                 builder.Dispose();
@@ -51,9 +51,9 @@ namespace NServiceBus
             }
         }
 
-        public IBusContext CreateBusContext()
+        public IBusSession CreateBusSession()
         {
-            return busContextFactory.CreateBusContext();
+            return busSessionFactory.CreateBusSession();
         }
 
         volatile bool stopped;
@@ -63,7 +63,7 @@ namespace NServiceBus
         StartAndStoppablesRunner startAndStoppablesRunner;
         FeatureRunner featureRunner;
         IBuilder builder;
-        IBusContextFactory busContextFactory;
+        IBusSessionFactory busSessionFactory;
 
         static ILog Log = LogManager.GetLogger<UnicastBus>();
     }

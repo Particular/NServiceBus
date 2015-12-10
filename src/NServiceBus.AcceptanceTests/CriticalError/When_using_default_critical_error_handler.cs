@@ -105,7 +105,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Start(IBusContext context)
+                public Task Start(IBusSession session)
                 {
                     try
                     {
@@ -121,7 +121,7 @@
                     return Task.FromResult(0);
                 }
 
-                public Task Stop(IBusContext context)
+                public Task Stop(IBusSession session)
                 {
                     return Task.FromResult(0);
                 }

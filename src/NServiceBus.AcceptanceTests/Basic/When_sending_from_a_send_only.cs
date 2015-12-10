@@ -76,13 +76,13 @@
                         this.scenarioContext = scenarioContext;
                     }
 
-                    protected override Task OnStart(IBusContext context)
+                    protected override Task OnStart(IBusSession session)
                     {
                         scenarioContext.SendOnlyEndpointWasStarted = true;
                         return Task.FromResult(0);
                     }
 
-                    protected override Task OnStop(IBusContext context)
+                    protected override Task OnStop(IBusSession session)
                     {
                         return Task.FromResult(0);
                     }

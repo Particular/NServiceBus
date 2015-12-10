@@ -10,23 +10,23 @@
         /// <summary>
         /// Will be called after an endpoint has been started but before processing any messages, if the feature has been activated.
         /// </summary>
-        /// <param name="context">Bus context.</param>
-        protected abstract Task OnStart(IBusContext context);
+        /// <param name="session">Bus session.</param>
+        protected abstract Task OnStart(IBusSession session);
 
         /// <summary>
         /// Will be called after an endpoint has been started but before processing any messages, if the feature has been activated.
         /// </summary>
-        /// <param name="context">Bus context.</param>
-        protected abstract Task OnStop(IBusContext context);
+        /// <param name="session">Bus session.</param>
+        protected abstract Task OnStop(IBusSession session);
         
-        internal Task PerformStartup(IBusContext context)
+        internal Task PerformStartup(IBusSession session)
         {
-            return OnStart(context);
+            return OnStart(session);
         }
 
-        internal Task PerformStop(IBusContext context)
+        internal Task PerformStop(IBusSession session)
         {
-            return OnStop(context);
+            return OnStop(session);
         }
     }
 }

@@ -95,6 +95,7 @@
     <Compile Include="Audit\AuditToDispatchConnector.cs" />
     <Compile Include="Audit\InvokeAuditPipelineBehavior.cs" />
     <Compile Include="UnitOfWork\TransactionScopes\HandlerTransactionScopeWrapperBehavior.cs" />
+    <Compile Include="BusSession.cs" />
     <Compile Include="CriticalError\CriticalErrorAction.cs" />
     <Compile Include="BusConfiguration.cs" />
     <Compile Include="BusContext.cs" />
@@ -105,6 +106,8 @@
     <Compile Include="Forwarding\ForwardingContext.cs" />
     <Compile Include="IBusContext.cs" />
     <Compile Include="IBusContextExtensions.cs" />
+    <Compile Include="IBusSession.cs" />
+    <Compile Include="IBusSessionExtensions.cs" />
     <Compile Include="IMessageProcessingContext.cs" />
     <Compile Include="IMessageProcessingContextExtensions.cs" />
     <Compile Include="Causation\MessageCausation.cs" />
@@ -404,7 +407,7 @@
     <Compile Include="Hosting\HostInfoSettings.cs" />
     <Compile Include="INeedInitialization.cs" />
     <Compile Include="Installation\InstallConfigExtensions.cs" />
-    <Compile Include="IBusContextFactory.cs" />
+    <Compile Include="IBusSessionFactory.cs" />
     <Compile Include="Logging\DefaultFactory.cs" />
     <Compile Include="Logging\LoggingDefinition.cs" />
     <Compile Include="MessageInterfaces\MessageMapper\Reflection\ConcreteProxyCreator.cs" />
@@ -439,10 +442,10 @@
     <Compile Include="IEvent.cs" />
     <Compile Include="IMessage.cs" />
     <Compile Include="IMessageCreator.cs" />
-    <Compile Include="Unicast\BusOperationsIncomingContext.cs" />
+    <Compile Include="Unicast\IncomingBusOperations.cs" />
     <Compile Include="Unicast\BusOperationsInvokeHandlerContext.cs" />
     <Compile Include="Unicast\StartAndStoppablesRunner.cs" />
-    <Compile Include="Unicast\BusOperationsBehaviorContext.cs" />
+    <Compile Include="Unicast\BusOperations.cs" />
     <Compile Include="Unicast\Transport\Config\InboundTransport.cs" />
     <Compile Include="Unicast\Transport\Config\OutboundTransport.cs" />
     <Compile Include="Persistence\EnabledPersistence.cs" />

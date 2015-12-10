@@ -49,7 +49,7 @@ namespace NServiceBus
         /// <param name="options">The options for the send.</param>
         public Task Send(object message, SendOptions options)
         {
-            return BusOperationsBehaviorContext.Send(this, message, options);
+            return BusOperations.Send(this, message, options);
         }
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace NServiceBus
         /// <param name="options">The options for the send.</param>
         public Task Send<T>(Action<T> messageConstructor, SendOptions options)
         {
-            return BusOperationsBehaviorContext.Send(this, messageConstructor, options);
+            return BusOperations.Send(this, messageConstructor, options);
         }
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace NServiceBus
         /// <param name="options">The options for the publish.</param>
         public Task Publish(object message, PublishOptions options)
         {
-            return BusOperationsBehaviorContext.Publish(this, message, options);
+            return BusOperations.Publish(this, message, options);
         }
 
         /// <summary>
@@ -81,7 +81,7 @@ namespace NServiceBus
         /// <param name="publishOptions">Specific options for this event.</param>
         public Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)
         {
-            return BusOperationsBehaviorContext.Publish(this, messageConstructor, publishOptions);
+            return BusOperations.Publish(this, messageConstructor, publishOptions);
         }
 
         /// <summary>
@@ -92,7 +92,7 @@ namespace NServiceBus
         /// <param name="options">Options for the subscribe.</param>
         public Task Subscribe(Type eventType, SubscribeOptions options)
         {
-            return BusOperationsBehaviorContext.Subscribe(this, eventType, options);
+            return BusOperations.Subscribe(this, eventType, options);
         }
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace NServiceBus
         /// <param name="options">Options for the subscribe.</param>
         public Task Unsubscribe(Type eventType, UnsubscribeOptions options)
         {
-            return BusOperationsBehaviorContext.Unsubscribe(this, eventType, options);
+            return BusOperations.Unsubscribe(this, eventType, options);
         }
 
         /// <summary>
@@ -112,7 +112,7 @@ namespace NServiceBus
         /// <param name="options">Options for this reply.</param>
         public Task Reply(object message, ReplyOptions options)
         {
-            return BusOperationsBehaviorContext.Reply(this, message, options);
+            return BusOperations.Reply(this, message, options);
         }
 
         ///  <summary>
@@ -123,7 +123,7 @@ namespace NServiceBus
         /// <param name="options">Options for this reply.</param>
         public Task Reply<T>(Action<T> messageConstructor, ReplyOptions options)
         {
-            return BusOperationsBehaviorContext.Reply(this, messageConstructor, options);
+            return BusOperations.Reply(this, messageConstructor, options);
         }
 
         /// <summary>
@@ -132,7 +132,7 @@ namespace NServiceBus
         /// </summary>
         public Task ForwardCurrentMessageTo(string destination)
         {
-            return BusOperationsIncomingContext.ForwardCurrentMessageTo(this, destination);
+            return IncomingBusOperations.ForwardCurrentMessageTo(this, destination);
         }
     }
 }

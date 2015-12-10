@@ -332,7 +332,7 @@ namespace NServiceBus
         public static string GetMessageHeader(this NServiceBus.IBus bus, object msg, string key) { }
         [System.ObsoleteAttribute("Headers can be set using the ``.SetHeader` method on the context object passed in" +
             "to your behavior or mutator. Will be removed in version 7.0.0.", true)]
-        public static void SetMessageHeader(this NServiceBus.IBusContextFactory bus, object msg, string key, string value) { }
+        public static void SetMessageHeader(this NServiceBus.IBusSessionFactory bus, object msg, string key, string value) { }
     }
     public class static FileBasedRoutingConfigurationExtensions
     {
@@ -433,7 +433,7 @@ namespace NServiceBus
     {
         System.Collections.Generic.IReadOnlyCollection<NServiceBus.Transports.TransportOperation> Operations { get; }
     }
-    [System.ObsoleteAttribute("When in context of handler use IMessageHandlingContext. Otherwise use IBusContext" +
+    [System.ObsoleteAttribute("When in context of handler use IMessageHandlingContext. Otherwise use IBusSession" +
         "Factory to create sending context. Will be removed in version 7.0.0.", true)]
     public interface IBus { }
     public interface IBusContext : NServiceBus.Extensibility.IExtendable
@@ -460,10 +460,6 @@ namespace NServiceBus
         public static System.Threading.Tasks.Task Subscribe<T>(this NServiceBus.IBusContext context) { }
         public static System.Threading.Tasks.Task Unsubscribe(this NServiceBus.IBusContext context, System.Type messageType) { }
         public static System.Threading.Tasks.Task Unsubscribe<T>(this NServiceBus.IBusContext context) { }
-    }
-    public interface IBusContextFactory
-    {
-        NServiceBus.IBusContext CreateBusContext();
     }
     public class static IBusExtensions
     {
@@ -499,6 +495,35 @@ namespace NServiceBus
         [System.ObsoleteAttribute("Please use `Unsubscribe<T>()` instead. Will be removed in version 7.0.0.", true)]
         public static void Unsubscribe<T>(this NServiceBus.IBus bus) { }
     }
+    public interface IBusSession
+    {
+        System.Threading.Tasks.Task Publish(object message, NServiceBus.PublishOptions options);
+        System.Threading.Tasks.Task Publish<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions);
+        System.Threading.Tasks.Task Send(object message, NServiceBus.SendOptions options);
+        System.Threading.Tasks.Task Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options);
+        System.Threading.Tasks.Task Subscribe(System.Type eventType, NServiceBus.SubscribeOptions options);
+        System.Threading.Tasks.Task Unsubscribe(System.Type eventType, NServiceBus.UnsubscribeOptions options);
+    }
+    public class static IBusSessionExtensions
+    {
+        public static System.Threading.Tasks.Task Publish(this NServiceBus.IBusSession session, object message) { }
+        public static System.Threading.Tasks.Task Publish<T>(this NServiceBus.IBusSession session) { }
+        public static System.Threading.Tasks.Task Publish<T>(this NServiceBus.IBusSession session, System.Action<T> messageConstructor) { }
+        public static System.Threading.Tasks.Task Send(this NServiceBus.IBusSession session, object message) { }
+        public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IBusSession session, System.Action<T> messageConstructor) { }
+        public static System.Threading.Tasks.Task Send(this NServiceBus.IBusSession session, string destination, object message) { }
+        public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IBusSession session, string destination, System.Action<T> messageConstructor) { }
+        public static System.Threading.Tasks.Task SendLocal(this NServiceBus.IBusSession session, object message) { }
+        public static System.Threading.Tasks.Task SendLocal<T>(this NServiceBus.IBusSession session, System.Action<T> messageConstructor) { }
+        public static System.Threading.Tasks.Task Subscribe(this NServiceBus.IBusSession session, System.Type messageType) { }
+        public static System.Threading.Tasks.Task Subscribe<T>(this NServiceBus.IBusSession session) { }
+        public static System.Threading.Tasks.Task Unsubscribe(this NServiceBus.IBusSession session, System.Type messageType) { }
+        public static System.Threading.Tasks.Task Unsubscribe<T>(this NServiceBus.IBusSession session) { }
+    }
+    public interface IBusSessionFactory
+    {
+        NServiceBus.IBusSession CreateBusSession();
+    }
     [System.ObsoleteAttribute("Replaced by NServiceBus.Callbacks package. Will be removed in version 7.0.0.", true)]
     public interface ICallback { }
     public interface ICommand : NServiceBus.IMessage { }
@@ -525,7 +550,7 @@ namespace NServiceBus
     {
         System.Collections.Generic.IEnumerable<NServiceBus.Transports.TransportOperation> Operations { get; }
     }
-    public interface IEndpointInstance : NServiceBus.IBusContextFactory
+    public interface IEndpointInstance : NServiceBus.IBusSessionFactory
     {
         System.Threading.Tasks.Task Stop();
     }
@@ -641,7 +666,7 @@ namespace NServiceBus
         public void DoNotContinueDispatchingCurrentMessageToHandlers() { }
         public async System.Threading.Tasks.Task HandleCurrentMessageLater() { }
     }
-    [System.ObsoleteAttribute("Use IBusContextFactory to create sending context. Will be removed in version 7.0." +
+    [System.ObsoleteAttribute("Use IBusSessionFactory to create sending context. Will be removed in version 7.0." +
         "0.", true)]
     public interface ISendOnlyBus : System.IDisposable { }
     [System.ObsoleteAttribute("Please use `BusConfiguration.ExecuteTheseHandlersFirst` instead. Will be removed " +
@@ -663,8 +688,8 @@ namespace NServiceBus
     }
     public interface IWantToRunWhenBusStartsAndStops
     {
-        System.Threading.Tasks.Task Start(NServiceBus.IBusContext context);
-        System.Threading.Tasks.Task Stop(NServiceBus.IBusContext context);
+        System.Threading.Tasks.Task Start(NServiceBus.IBusSession session);
+        System.Threading.Tasks.Task Stop(NServiceBus.IBusSession session);
     }
     public class JsonSerializer : NServiceBus.Serialization.SerializationDefinition
     {
@@ -944,12 +969,12 @@ namespace NServiceBus
     {
         [System.ObsoleteAttribute("Please use `ScheduleEvery(this IBusContext context, TimeSpan timeSpan, Func<IBusC" +
             "ontext, Task> task)` instead. Will be removed in version 7.0.0.", true)]
-        public static void ScheduleEvery(this NServiceBus.IBusContext context, System.TimeSpan timeSpan, System.Action task) { }
+        public static void ScheduleEvery(this NServiceBus.IBusSession session, System.TimeSpan timeSpan, System.Action task) { }
         [System.ObsoleteAttribute("Please use `ScheduleEvery(this IBusContext context, TimeSpan timeSpan, string nam" +
             "e, Func<IBusContext, Task> task)` instead. Will be removed in version 7.0.0.", true)]
-        public static void ScheduleEvery(this NServiceBus.IBusContext context, System.TimeSpan timeSpan, string name, System.Action task) { }
-        public static System.Threading.Tasks.Task ScheduleEvery(this NServiceBus.IBusContext context, System.TimeSpan timeSpan, System.Func<NServiceBus.IBusContext, System.Threading.Tasks.Task> task) { }
-        public static System.Threading.Tasks.Task ScheduleEvery(this NServiceBus.IBusContext context, System.TimeSpan timeSpan, string name, System.Func<NServiceBus.IBusContext, System.Threading.Tasks.Task> task) { }
+        public static void ScheduleEvery(this NServiceBus.IBusSession session, System.TimeSpan timeSpan, string name, System.Action task) { }
+        public static System.Threading.Tasks.Task ScheduleEvery(this NServiceBus.IBusSession session, System.TimeSpan timeSpan, System.Func<NServiceBus.IBusContext, System.Threading.Tasks.Task> task) { }
+        public static System.Threading.Tasks.Task ScheduleEvery(this NServiceBus.IBusSession session, System.TimeSpan timeSpan, string name, System.Func<NServiceBus.IBusContext, System.Threading.Tasks.Task> task) { }
     }
     public class static SecondLevelRetriesConfigExtensions
     {
@@ -1577,8 +1602,8 @@ namespace NServiceBus.Features
     public abstract class FeatureStartupTask
     {
         protected FeatureStartupTask() { }
-        protected abstract System.Threading.Tasks.Task OnStart(NServiceBus.IBusContext context);
-        protected abstract System.Threading.Tasks.Task OnStop(NServiceBus.IBusContext context);
+        protected abstract System.Threading.Tasks.Task OnStart(NServiceBus.IBusSession session);
+        protected abstract System.Threading.Tasks.Task OnStop(NServiceBus.IBusSession session);
     }
     public enum FeatureState
     {
@@ -2987,7 +3012,7 @@ namespace NServiceBus.Unicast
         [System.ObsoleteAttribute("Please use `DelayDeliveryFor` instead. Will be removed in version 7.0.0.", true)]
         public System.Nullable<System.TimeSpan> DelayDeliveryWith { get; set; }
     }
-    [System.ObsoleteAttribute("UnicastBus has been made internal. Use IBusContextFactory to interact with the bu" +
+    [System.ObsoleteAttribute("UnicastBus has been made internal. Use IBusSessionFactory to interact with the bu" +
         "s from outside of the handler. Will be removed in version 7.0.0.", true)]
     public class UnicastBus
     {

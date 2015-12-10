@@ -1,10 +1,8 @@
 ﻿namespace NServiceBus.Scheduling.Tests
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
     using NUnit.Framework;
 
     [TestFixture]
@@ -12,13 +10,13 @@
     {
         const string ACTION_NAME = "my action";
         DefaultScheduler scheduler;
-        IBusContext context;
+        IBusSession context;
 
         [SetUp]
         public void SetUp()
         {
             scheduler = new DefaultScheduler();
-            context = new FakeBus(scheduler).CreateBusContext();
+            context = new FakeBusSession(scheduler);
         }
 
         [Test]
@@ -42,63 +40,44 @@
             return scheduler.scheduledTasks.Any(task => task.Value.Name.Equals(name));
         }
 
-        class FakeBus : IBusContextFactory
+        class FakeBusSession : IBusSession
         {
             readonly DefaultScheduler defaultScheduler;
-            public readonly List<Tuple<object, SendOptions>> SentMessages = new List<Tuple<object, SendOptions>>();
 
-            public FakeBus(DefaultScheduler defaultScheduler)
+            public FakeBusSession(DefaultScheduler defaultScheduler)
             {
                 this.defaultScheduler = defaultScheduler;
             }
-            public IBusContext CreateBusContext()
+
+            public Task Send(object message, SendOptions options)
             {
-                return new FakeBusContext(defaultScheduler, SentMessages);
+                defaultScheduler.Schedule(options.Context.Get<ScheduleBehavior.State>().TaskDefinition);
+                return Task.FromResult(0);
             }
 
-            class FakeBusContext : IBusContext
+            public Task Send<T>(Action<T> messageConstructor, SendOptions options)
             {
-                readonly DefaultScheduler defaultScheduler;
-                readonly List<Tuple<object, SendOptions>> sentMessages;
+                throw new NotImplementedException();
+            }
 
-                public FakeBusContext(DefaultScheduler defaultScheduler, List<Tuple<object, SendOptions>> sentMessages)
-                {
-                    this.defaultScheduler = defaultScheduler;
-                    this.sentMessages = sentMessages;
-                }
+            public Task Publish(object message, PublishOptions options)
+            {
+                throw new NotImplementedException();
+            }
 
-                public ContextBag Extensions => null;
-                public Task Send(object message, SendOptions options)
-                {
-                    sentMessages.Add(Tuple.Create(message, options));
-                    defaultScheduler.Schedule(options.Context.Get<ScheduleBehavior.State>().TaskDefinition);
-                    return Task.FromResult(0);
-                }
+            public Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)
+            {
+                throw new NotImplementedException();
+            }
 
-                public Task Send<T>(Action<T> messageConstructor, SendOptions options)
-                {
-                    throw new NotImplementedException();
-                }
+            public Task Subscribe(Type eventType, SubscribeOptions options)
+            {
+                throw new NotImplementedException();
+            }
 
-                public Task Publish(object message, PublishOptions options)
-                {
-                    throw new NotImplementedException();
-                }
-
-                public Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)
-                {
-                    throw new NotImplementedException();
-                }
-
-                public Task Subscribe(Type eventType, SubscribeOptions options)
-                {
-                    throw new NotImplementedException();
-                }
-
-                public Task Unsubscribe(Type eventType, UnsubscribeOptions options)
-                {
-                    throw new NotImplementedException();
-                }
+            public Task Unsubscribe(Type eventType, UnsubscribeOptions options)
+            {
+                throw new NotImplementedException();
             }
         }
     }

@@ -22,13 +22,13 @@
         {
             public IInitializableSubscriptionStorage SubscriptionStorage { get; set; }
 
-            protected override Task OnStart(IBusContext context)
+            protected override Task OnStart(IBusSession session)
             {
                 SubscriptionStorage?.Init();
                 return TaskEx.Completed;
             }
 
-            protected override Task OnStop(IBusContext context)
+            protected override Task OnStop(IBusSession session)
             {
                 return TaskEx.Completed;
             }

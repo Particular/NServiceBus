@@ -47,12 +47,12 @@ namespace NServiceBus.Features
         {
             public IDataBus DataBus { get; set; }
 
-            protected override Task OnStart(IBusContext context)
+            protected override Task OnStart(IBusSession session)
             {
                 return DataBus.Start();
             }
 
-            protected override Task OnStop(IBusContext context)
+            protected override Task OnStop(IBusSession session)
             {
                 return TaskEx.Completed;
             }

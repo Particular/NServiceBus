@@ -63,24 +63,24 @@ namespace NServiceBus.Features
             return new FeaturesReport(features.Select(t => t.Diagnostics).ToList());
         }
 
-        public async Task StartFeatures(IBuilder builder, IBusContext context)
+        public async Task StartFeatures(IBuilder builder, IBusSession session)
         {
             foreach (var feature in features.Where(f => f.Feature.IsActive))
             {
                 foreach (var taskController in feature.TaskControllers)
                 {
-                    await taskController.Start(builder, context).ConfigureAwait(false);
+                    await taskController.Start(builder, session).ConfigureAwait(false);
                 }
             }
         }
 
-        public async Task StopFeatures(IBusContext context)
+        public async Task StopFeatures(IBusSession session)
         {
             foreach (var feature in features.Where(f => f.Feature.IsActive))
             {
                 foreach (var task in feature.TaskControllers)
                 {
-                    await task.Stop(context).ConfigureAwait(false);
+                    await task.Stop(session).ConfigureAwait(false);
                 }
             }
         }

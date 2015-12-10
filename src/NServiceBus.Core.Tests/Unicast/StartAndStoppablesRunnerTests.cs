@@ -146,13 +146,13 @@
             public bool Started { get; set; }
             public bool Stopped { get; set; }
 
-            public Task Start(IBusContext context)
+            public Task Start(IBusSession session)
             {
                 Started = true;
                 return Task.FromResult(0);
             }
 
-            public Task Stop(IBusContext context)
+            public Task Stop(IBusSession session)
             {
                 Stopped = true;
                 return Task.FromResult(0);
@@ -164,13 +164,13 @@
             public bool Started { get; set; }
             public bool Stopped { get; set; }
 
-            public Task Start(IBusContext context)
+            public Task Start(IBusSession session)
             {
                 Started = true;
                 return Task.FromResult(0);
             }
 
-            public Task Stop(IBusContext context)
+            public Task Stop(IBusSession session)
             {
                 Stopped = true;
                 return Task.FromResult(0);
@@ -181,12 +181,12 @@
         {
             public bool Stopped { get; set; }
 
-            public Task Start(IBusContext context)
+            public Task Start(IBusSession session)
             {
                 throw new InvalidOperationException("SyncThrowingStart");
             }
 
-            public Task Stop(IBusContext context)
+            public Task Stop(IBusSession session)
             {
                 Stopped = true;
                 return Task.FromResult(0);
@@ -197,13 +197,13 @@
         {
             public bool Stopped { get; set; }
 
-            public async Task Start(IBusContext context)
+            public async Task Start(IBusSession session)
             {
                 await Task.Yield();
                 throw new InvalidOperationException("AsyncThrowingStart");
             }
 
-            public Task Stop(IBusContext context)
+            public Task Stop(IBusSession session)
             {
                 Stopped = true;
                 return Task.FromResult(0);
@@ -214,13 +214,13 @@
         {
             public bool Started { get; set; }
 
-            public Task Start(IBusContext context)
+            public Task Start(IBusSession session)
             {
                 Started = true;
                 return Task.FromResult(0);
             }
 
-            public Task Stop(IBusContext context)
+            public Task Stop(IBusSession session)
             {
                 throw new InvalidOperationException("SyncThrowingStop");
             }
@@ -230,13 +230,13 @@
         {
             public bool Started { get; set; }
 
-            public Task Start(IBusContext context)
+            public Task Start(IBusSession session)
             {
                 Started = true;
                 return Task.FromResult(0);
             }
 
-            public async Task Stop(IBusContext context)
+            public async Task Stop(IBusSession session)
             {
                 await Task.Yield();
                 throw new InvalidOperationException("AsyncThrowingStop");
