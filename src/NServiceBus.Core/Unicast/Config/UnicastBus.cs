@@ -3,7 +3,6 @@ namespace NServiceBus.Features
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using NServiceBus.Config;
     using NServiceBus.Logging;
     using NServiceBus.Settings;
     using NServiceBus.Transports;
@@ -14,17 +13,6 @@ namespace NServiceBus.Features
         internal UnicastBus()
         {
             EnableByDefault();
-
-            Defaults(s =>
-            {
-                var section = s.GetConfigSection<UnicastBusConfig>();
-                var timeoutManagerAddress = section?.TimeoutManagerAddress;
-                if (timeoutManagerAddress != null)
-                {
-                    s.Set("TimeoutManagerAddress", timeoutManagerAddress);
-                }
-            });
-
             Defaults(s =>
             {
                 var endpointInstanceName = GetEndpointInstanceName(s);
