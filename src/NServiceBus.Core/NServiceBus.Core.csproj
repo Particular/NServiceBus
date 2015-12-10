@@ -134,6 +134,7 @@
     <Compile Include="Pipeline\Outgoing\OutgoingReplyContextImpl.cs" />
     <Compile Include="Pipeline\Outgoing\OutgoingSendContextImpl.cs" />
     <Compile Include="Pipeline\Outgoing\RoutingContextImpl.cs" />
+    <Compile Include="Pipeline\Outgoing\LogOutgoingMessageBehavior.cs" />
     <Compile Include="Routing\Legacy\ConfigureMSMQDistributor.cs" />
     <Compile Include="Routing\Legacy\DistributorHeaders.cs" />
     <Compile Include="Routing\Legacy\ProcessedMessageCounterBehavior.cs" />
