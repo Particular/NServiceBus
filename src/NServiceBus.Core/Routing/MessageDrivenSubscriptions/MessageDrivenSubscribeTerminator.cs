@@ -14,11 +14,11 @@
 
     class MessageDrivenSubscribeTerminator : PipelineTerminator<SubscribeContext>
     {
-        public MessageDrivenSubscribeTerminator(SubscriptionRouter subscriptionRouter, string subscriberAddress, EndpointName subscriberEndpointName, IDispatchMessages dispatcher, bool legacyMode)
+        public MessageDrivenSubscribeTerminator(SubscriptionRouter subscriptionRouter, string subscriberAddress, Endpoint subscriberEndpoint, IDispatchMessages dispatcher, bool legacyMode)
         {
             this.subscriptionRouter = subscriptionRouter;
             this.subscriberAddress = subscriberAddress;
-            this.subscriberEndpointName = subscriberEndpointName;
+            this.subscriberEndpoint = subscriberEndpoint;
             this.dispatcher = dispatcher;
             this.legacyMode = legacyMode;
         }
@@ -46,7 +46,7 @@
                 else
                 {
                     subscriptionMessage.Headers[Headers.SubscriberTransportAddress] = subscriberAddress;
-                    subscriptionMessage.Headers[Headers.SubscriberEndpoint] = subscriberEndpointName.ToString();
+                    subscriptionMessage.Headers[Headers.SubscriberEndpoint] = subscriberEndpoint.ToString();
                 }
                 var address = publisherAddress;
 
@@ -94,7 +94,7 @@
 
         SubscriptionRouter subscriptionRouter;
         string subscriberAddress;
-        EndpointName subscriberEndpointName;
+        Endpoint subscriberEndpoint;
         IDispatchMessages dispatcher;
         bool legacyMode;
 

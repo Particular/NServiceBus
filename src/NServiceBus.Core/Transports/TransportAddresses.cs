@@ -10,16 +10,16 @@ namespace NServiceBus.Transports
     /// </summary>
     public class TransportAddresses
     {
-        List<Func<EndpointInstanceName, string>> rules = new List<Func<EndpointInstanceName, string>>();
-        Dictionary<EndpointInstanceName, string> exceptions = new Dictionary<EndpointInstanceName, string>();
-        Func<EndpointInstanceName, string> transportDefault;
+        List<Func<EndpointInstance, string>> rules = new List<Func<EndpointInstance, string>>();
+        Dictionary<EndpointInstance, string> exceptions = new Dictionary<EndpointInstance, string>();
+        Func<EndpointInstance, string> transportDefault;
 
         /// <summary>
         /// Adds an exception to the translation rules for a given endpoint instance.
         /// </summary>
         /// <param name="endpointInstance">Name of the instance for which the exception is created.</param>
         /// <param name="physicalAddress">Physical address of that instance.</param>
-        public void AddSpecialCase([NotNull] EndpointInstanceName endpointInstance, string physicalAddress)
+        public void AddSpecialCase([NotNull] EndpointInstance endpointInstance, string physicalAddress)
         {
             Guard.AgainstNull(nameof(endpointInstance),endpointInstance);
             Guard.AgainstNullAndEmpty(nameof(physicalAddress), physicalAddress);
@@ -31,18 +31,18 @@ namespace NServiceBus.Transports
         /// Adds a rule for translating endpoint instance names to physical addresses in direct routing.
         /// </summary>
         /// <param name="dynamicRule">The rule.</param>
-        public void AddRule(Func<EndpointInstanceName, string> dynamicRule)
+        public void AddRule(Func<EndpointInstance, string> dynamicRule)
         {
             Guard.AgainstNull(nameof(dynamicRule), dynamicRule);
             rules.Add(dynamicRule);
         }
 
-        internal void RegisterTransportDefault(Func<EndpointInstanceName, string> transportDefault)
+        internal void RegisterTransportDefault(Func<EndpointInstance, string> transportDefault)
         {
             this.transportDefault = transportDefault;
         }
 
-        internal string GetTransportAddress(EndpointInstanceName endpointInstance)
+        internal string GetTransportAddress(EndpointInstance endpointInstance)
         {
             string exception;
             if (exceptions.TryGetValue(endpointInstance, out exception))

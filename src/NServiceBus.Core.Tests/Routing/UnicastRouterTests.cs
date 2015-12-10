@@ -21,10 +21,10 @@
         [Test]
         public void Should_route_a_command_to_a_single_non_scaled_out_destination()
         {
-            var sales = new EndpointName("Sales");
+            var sales = new Endpoint("Sales");
             metadataRegistry.RegisterMessageType(typeof(Command));
-            routingTable.AddStatic(typeof(Command), sales);
-            endpointInstances.AddStatic(sales, new EndpointInstanceName(sales, null, null));
+            routingTable.RouteToEndpoint(typeof(Command), sales);
+            endpointInstances.AddStatic(sales, new EndpointInstance(sales, null, null));
             transportAddresses.AddRule(i => i.ToString());
 
             var routes = router.Route(typeof(Command), new SingleInstanceRoundRobinDistributionStrategy(), new ContextBag()).Result.ToArray();
@@ -38,10 +38,10 @@
         [Test]
         public void Should_route_an_event_to_a_single_non_scaled_out_destination()
         {
-            var sales = new EndpointName("Sales");
+            var sales = new Endpoint("Sales");
             metadataRegistry.RegisterMessageType(typeof(Event));
-            routingTable.AddStatic(typeof(Event), sales);
-            endpointInstances.AddStatic(sales, new EndpointInstanceName(sales, null, null));
+            routingTable.RouteToEndpoint(typeof(Event), sales);
+            endpointInstances.AddStatic(sales, new EndpointInstance(sales, null, null));
             transportAddresses.AddRule(i => i.ToString());
 
             var routes = router.Route(typeof(Event), new SingleInstanceRoundRobinDistributionStrategy(), new ContextBag()).Result.ToArray();
@@ -53,15 +53,15 @@
         [Test]
         public void Should_route_an_event_to_a_single_instance_of_each_endpoint()
         {
-            var sales = new EndpointName("Sales");
-            var shipping = new EndpointName("Shipping");
+            var sales = new Endpoint("Sales");
+            var shipping = new Endpoint("Shipping");
             metadataRegistry.RegisterMessageType(typeof(Event));
-            routingTable.AddStatic(typeof(Event), sales);
-            routingTable.AddStatic(typeof(Event), shipping);
+            routingTable.RouteToEndpoint(typeof(Event), sales);
+            routingTable.RouteToEndpoint(typeof(Event), shipping);
 
-            endpointInstances.AddStatic(sales, new EndpointInstanceName(sales, "1", null));
-            endpointInstances.AddDynamic(e => new[] { new EndpointInstanceName(sales, "2", null)});
-            endpointInstances.AddStatic(shipping, new EndpointInstanceName(shipping, "1", null), new EndpointInstanceName(shipping, "2", null));
+            endpointInstances.AddStatic(sales, new EndpointInstance(sales, "1", null));
+            endpointInstances.AddDynamic(e => new[] { new EndpointInstance(sales, "2", null)});
+            endpointInstances.AddStatic(shipping, new EndpointInstance(shipping, "1", null), new EndpointInstance(shipping, "2", null));
 
             transportAddresses.AddRule(i => i.ToString());
 

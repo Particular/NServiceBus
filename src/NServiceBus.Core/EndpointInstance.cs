@@ -6,17 +6,28 @@
     /// <summary>
     /// Represents a name of an endpoint instance.
     /// </summary>
-    public sealed class EndpointInstanceName
+    public sealed class EndpointInstance
     {
         /// <summary>
         /// Creates a new endpoint name for a given discriminator.
         /// </summary>
-        /// <param name="endpointName">The name of the endpoint.</param>
+        /// <param name="endpoint">The name of the endpoint.</param>
         /// <param name="userDiscriminator">The discriminator provided by the user, if any.</param>
         /// <param name="transportDiscriminator">The discriminator provided by the transport, if any.</param>
-        public EndpointInstanceName(EndpointName endpointName, string userDiscriminator, string transportDiscriminator)
+        public EndpointInstance(string endpoint, string userDiscriminator, string transportDiscriminator)
+            : this(new Endpoint(endpoint), userDiscriminator, transportDiscriminator)
         {
-            Guard.AgainstNull(nameof(endpointName),endpointName);
+        }
+
+        /// <summary>
+        /// Creates a new endpoint name for a given discriminator.
+        /// </summary>
+        /// <param name="endpoint">The name of the endpoint.</param>
+        /// <param name="userDiscriminator">The discriminator provided by the user, if any.</param>
+        /// <param name="transportDiscriminator">The discriminator provided by the transport, if any.</param>
+        public EndpointInstance(Endpoint endpoint, string userDiscriminator, string transportDiscriminator)
+        {
+            Guard.AgainstNull(nameof(endpoint),endpoint);
             if ("".Equals(userDiscriminator, StringComparison.InvariantCultureIgnoreCase))
             {
                 throw new ArgumentException("User-provided discriminator cannot be an empty string.");
@@ -25,7 +36,7 @@
             {
                 throw new ArgumentException("Transport-provided discriminator cannot be an empty string.");
             }
-            EndpointName = endpointName;
+            Endpoint = endpoint;
             UserDiscriminator = userDiscriminator;
             TransportDiscriminator = transportDiscriminator;
         }
@@ -33,7 +44,7 @@
         /// <summary>
         /// Returns the name of the endpoint.
         /// </summary>
-        public EndpointName EndpointName { get; }
+        public Endpoint Endpoint { get; }
 
         /// <summary>
         /// The discriminator provided by the user, if any.
@@ -53,7 +64,7 @@
         /// </returns>
         public override string ToString()
         {
-            var builder = new StringBuilder(EndpointName.ToString());
+            var builder = new StringBuilder(Endpoint.ToString());
             if (UserDiscriminator != null)
             {
                 builder.Append("-" + UserDiscriminator);
@@ -66,9 +77,9 @@
         }
 
 
-        bool Equals(EndpointInstanceName other)
+        bool Equals(EndpointInstance other)
         {
-            return Equals(EndpointName, other.EndpointName) && string.Equals(UserDiscriminator, other.UserDiscriminator) && string.Equals(TransportDiscriminator, other.TransportDiscriminator);
+            return Equals(Endpoint, other.Endpoint) && string.Equals(UserDiscriminator, other.UserDiscriminator) && string.Equals(TransportDiscriminator, other.TransportDiscriminator);
         }
 
         /// <summary>
@@ -88,7 +99,7 @@
             {
                 return true;
             }
-            return obj is EndpointInstanceName && Equals((EndpointInstanceName) obj);
+            return obj is EndpointInstance && Equals((EndpointInstance) obj);
         }
 
         /// <summary>
@@ -101,7 +112,7 @@
         {
             unchecked
             {
-                var hashCode = EndpointName?.GetHashCode() ?? 0;
+                var hashCode = Endpoint?.GetHashCode() ?? 0;
                 hashCode = (hashCode*397) ^ (UserDiscriminator?.GetHashCode() ?? 0);
                 hashCode = (hashCode*397) ^ (TransportDiscriminator?.GetHashCode() ?? 0);
                 return hashCode;
@@ -111,7 +122,7 @@
         /// <summary>
         /// Checks for equality.
         /// </summary>
-        public static bool operator ==(EndpointInstanceName left, EndpointInstanceName right)
+        public static bool operator ==(EndpointInstance left, EndpointInstance right)
         {
             return Equals(left, right);
         }
@@ -119,7 +130,7 @@
         /// <summary>
         /// Checks for inequality.
         /// </summary>
-        public static bool operator !=(EndpointInstanceName left, EndpointInstanceName right)
+        public static bool operator !=(EndpointInstance left, EndpointInstance right)
         {
             return !Equals(left, right);
         }

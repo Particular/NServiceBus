@@ -135,7 +135,7 @@ namespace NServiceBus
                 return null;
             }
             var endpointName = parts.Length > 1 
-                ? new EndpointName(parts[1]) 
+                ? new Endpoint(parts[1]) 
                 : null;
 
             return new Subscriber(parts[0], endpointName);

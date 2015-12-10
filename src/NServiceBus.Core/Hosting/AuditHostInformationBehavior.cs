@@ -9,10 +9,10 @@
 
     class AuditHostInformationBehavior : Behavior<AuditContext>
     {
-        public AuditHostInformationBehavior(HostInformation hostInfo, EndpointName endpointName)
+        public AuditHostInformationBehavior(HostInformation hostInfo, Endpoint endpoint)
         {
             this.hostInfo = hostInfo;
-            this.endpointName = endpointName;
+            this.endpoint = endpoint;
         }
 
         public override Task Invoke(AuditContext context, Func<Task> next)
@@ -21,12 +21,12 @@
             context.AddAuditData(Headers.HostDisplayName, hostInfo.DisplayName);
 
             context.AddAuditData(Headers.ProcessingMachine, RuntimeEnvironment.MachineName);
-            context.AddAuditData(Headers.ProcessingEndpoint, endpointName.ToString());
+            context.AddAuditData(Headers.ProcessingEndpoint, endpoint.ToString());
 
             return next();
         }
 
         HostInformation hostInfo;
-        EndpointName endpointName;
+        Endpoint endpoint;
     }
 }

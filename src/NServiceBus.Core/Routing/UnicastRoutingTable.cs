@@ -42,29 +42,27 @@ namespace NServiceBus.Routing
         /// </summary>
         /// <param name="messageType">Message type.</param>
         /// <param name="destination">Destination endpoint.</param>
-        public void AddStatic(Type messageType, EndpointName destination)
+        public void RouteToEndpoint(Type messageType, Endpoint destination)
         {
             staticRules.Add((t, c) => StaticRule(t, messageType, new UnicastRoute(destination)));
         }
-
-
+        
         /// <summary>
         /// Adds a static unicast route.
         /// </summary>
         /// <param name="messageType">Message type.</param>
-        /// <param name="destination">Destination endpoint instance.</param>
-        public void AddStatic(Type messageType, EndpointInstanceName destination)
+        /// <param name="destination">Destination endpoint.</param>
+        public void RouteToEndpoint(Type messageType, string destination)
         {
-            staticRules.Add((t, c) => StaticRule(t, messageType, new UnicastRoute(destination)));
+            RouteToEndpoint(messageType, new Endpoint(destination));
         }
-
 
         /// <summary>
         /// Adds a static unicast route.
         /// </summary>
         /// <param name="messageType">Message type.</param>
         /// <param name="destinationAddress">Destination endpoint instance address.</param>
-        public void AddStatic(Type messageType, string destinationAddress)
+        public void RouteToAddress(Type messageType, string destinationAddress)
         {
             staticRules.Add((t, c) => StaticRule(t, messageType, new UnicastRoute(destinationAddress)));
         }

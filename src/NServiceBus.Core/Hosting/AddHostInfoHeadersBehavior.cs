@@ -10,18 +10,18 @@
     class AddHostInfoHeadersBehavior : Behavior<OutgoingLogicalMessageContext>
     {
         HostInformation hostInformation;
-        EndpointName endpointName;
+        Endpoint endpoint;
 
-        public AddHostInfoHeadersBehavior(HostInformation hostInformation, EndpointName endpointName)
+        public AddHostInfoHeadersBehavior(HostInformation hostInformation, Endpoint endpoint)
         {
             this.hostInformation = hostInformation;
-            this.endpointName = endpointName;
+            this.endpoint = endpoint;
         }
 
         public override Task Invoke(OutgoingLogicalMessageContext context, Func<Task> next)
         {
             context.Headers[Headers.OriginatingMachine] = RuntimeEnvironment.MachineName;
-            context.Headers[Headers.OriginatingEndpoint] = endpointName.ToString();
+            context.Headers[Headers.OriginatingEndpoint] = endpoint.ToString();
             context.Headers[Headers.OriginatingHostId] = hostInformation.HostId.ToString("N");
 
             return next();

@@ -28,7 +28,7 @@
             {
                 scenarioContext = context;
                 this.notifications = notifications;
-                endpointName = settings.EndpointName();
+                endpoint = settings.EndpointName();
             }
 
             protected override Task OnStart(IBusContext context)
@@ -46,7 +46,7 @@
             void OnMessageSentToErrorQueue(object sender, FailedMessage failedMessage)
             {
                 scenarioContext.FailedMessages.AddOrUpdate(
-                    endpointName.ToString(),
+                    endpoint.ToString(),
                     new[]
                     {
                         failedMessage
@@ -61,7 +61,7 @@
 
             BusNotifications notifications;
             ScenarioContext scenarioContext;
-            EndpointName endpointName;
+            Endpoint endpoint;
         }
     }
 }

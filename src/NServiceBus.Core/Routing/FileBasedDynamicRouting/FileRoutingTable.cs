@@ -18,16 +18,16 @@ namespace NServiceBus.Routing
             this.timeToWaitBeforeRaisingFileChangedEvent = timeToWaitBeforeRaisingFileChangedEvent;
         }
 
-        public IEnumerable<EndpointInstanceName> GetInstances(EndpointName endpointName)
+        public IEnumerable<EndpointInstance> GetInstances(Endpoint endpoint)
         {
-            logger.DebugFormat("Request routes for {0}.", endpointName);
+            logger.DebugFormat("Request routes for {0}.", endpoint);
 
             CacheRoute routes;
-            if (!routeMapping.TryGetValue(endpointName.ToString(), out routes))
+            if (!routeMapping.TryGetValue(endpoint.ToString(), out routes))
             {
-                UpdateMapping(endpointName.ToString(), true);
+                UpdateMapping(endpoint.ToString(), true);
 
-                if (!routeMapping.TryGetValue(endpointName.ToString(), out routes))
+                if (!routeMapping.TryGetValue(endpoint.ToString(), out routes))
                 {
                     yield break;
                 }
@@ -40,7 +40,7 @@ namespace NServiceBus.Routing
                     var userDiscriminator = NullIfEmptyString(discriminators[0].Trim());
                     var transportDiscriminator = NullIfEmptyString(discriminators[1].Trim());
 
-                    yield return new EndpointInstanceName(endpointName, userDiscriminator, transportDiscriminator);
+                    yield return new EndpointInstance(endpoint, userDiscriminator, transportDiscriminator);
                 }
                 else
                 {

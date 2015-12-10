@@ -56,19 +56,19 @@ namespace NServiceBus
         /// <summary>
         /// Returns the name of this endpoint.
         /// </summary>
-        public static EndpointName EndpointName(this ReadOnlySettings settings)
+        public static Endpoint EndpointName(this ReadOnlySettings settings)
         {
             Guard.AgainstNull("settings", settings);
-            return settings.Get<EndpointName>();
+            return settings.Get<Endpoint>();
         }
         
         /// <summary>
         /// Returns the name of this instance of the endpoint.
         /// </summary>
-        public static EndpointInstanceName EndpointInstanceName(this ReadOnlySettings settings)
+        public static EndpointInstance EndpointInstanceName(this ReadOnlySettings settings)
         {
             Guard.AgainstNull("settings", settings);
-            return settings.Get<EndpointInstanceName>();
+            return settings.Get<EndpointInstance>();
         }
 
         /// <summary>
