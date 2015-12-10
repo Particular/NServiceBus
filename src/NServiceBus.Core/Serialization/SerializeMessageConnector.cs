@@ -4,6 +4,7 @@
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
+    using NServiceBus.Logging;
     using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.OutgoingPipeline;
@@ -24,6 +25,13 @@
 
         public override async Task Invoke(OutgoingLogicalMessageContext context, Func<OutgoingPhysicalMessageContext, Task> next)
         {
+            if (log.IsDebugEnabled)
+            {
+                log.DebugFormat("Serializing message '{0}' with id '{1}', ToString() of the message yields: {2} \n",
+                    context.Message.MessageType != null ? context.Message.MessageType.AssemblyQualifiedName : "unknown",
+                    context.MessageId, context.Message.Instance);
+            }
+
             if (context.ShouldSkipSerialization())
             {
                 await next(new OutgoingPhysicalMessageContextImpl(new byte[0], context.RoutingStrategies, context)).ConfigureAwait(false);
@@ -52,6 +60,8 @@
             var distinctTypes = metadata.MessageHierarchy.Distinct();
             return string.Join(";", distinctTypes.Select(t => t.AssemblyQualifiedName));
         }
+
+        static ILog log = LogManager.GetLogger<SerializeMessageConnector>();
 
     }
 }
