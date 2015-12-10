@@ -4,6 +4,7 @@
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NServiceBus.UnitOfWork;
     using NUnit.Framework;
 
@@ -12,12 +13,12 @@
         [Test]
         public async Task Should_invoke_uow()
         {
-            var context = await Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                     .WithEndpoint<UOWEndpoint>()
                     .Done(c => c.UowWasCalled)
+                    .Repeat(b => b.For<AllTransportsWithMessageDrivenPubSub>())
+                    .Should(c => Assert.True(c.UowWasCalled))
                     .Run();
-
-            Assert.True(context.UowWasCalled);
         }
 
         public class Context : ScenarioContext
