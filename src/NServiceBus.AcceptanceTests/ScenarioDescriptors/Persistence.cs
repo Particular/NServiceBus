@@ -75,6 +75,13 @@
                                 }
                 };
 
+                var connectionString = Environment.GetEnvironmentVariable(key + ".ConnectionString");
+
+                if (!string.IsNullOrEmpty(connectionString))
+                {
+                    runDescriptor.Settings.Add("Persistence.ConnectionString", connectionString);
+                }
+
                 yield return runDescriptor;
             }
         }
