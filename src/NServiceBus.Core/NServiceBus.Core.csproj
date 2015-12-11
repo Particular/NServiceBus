@@ -110,6 +110,7 @@
     <Compile Include="ConfigureHandlerSettings.cs" />
     <Compile Include="ConsistencyGuarantees\ConsistencyGuaranteeSettingsExtensions.cs" />
     <Compile Include="ConsistencyGuarantees\TransactionScopes\WrapHandlersInTransactionScope.cs" />
+    <Compile Include="MicroEndpointConfiguration.cs" />
     <Compile Include="Persistence\CompletableSynchronizedStorageSession.cs" />
     <Compile Include="Persistence\InMemory\InMemorySynchronizedStorage.cs" />
     <Compile Include="Persistence\InMemory\InMemoryTransactionalSynchronizedStorageAdapter.cs" />
@@ -141,6 +142,7 @@
     <Compile Include="Routing\Legacy\WorkerFeature.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\MessageDrivenSubscriptionsConfigExtensions.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\SubscriptionAuthorizer.cs" />
+    <Compile Include="StartableMicroEndpoint.cs" />
     <Compile Include="Transports\Msmq\QueuePermissionChecker.cs" />
     <Compile Include="Routing\SubscribeContextImpl.cs" />
     <Compile Include="Routing\UnsubscribeContextImpl.cs" />
@@ -433,6 +435,7 @@
     <Compile Include="IMessageCreator.cs" />
     <Compile Include="Unicast\BusOperationsIncomingContext.cs" />
     <Compile Include="Unicast\BusOperationsInvokeHandlerContext.cs" />
+    <Compile Include="Unicast\RunningNode.cs" />
     <Compile Include="Unicast\StartAndStoppablesRunner.cs" />
     <Compile Include="Unicast\BusOperationsBehaviorContext.cs" />
     <Compile Include="Unicast\Transport\Config\InboundTransport.cs" />
