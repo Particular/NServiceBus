@@ -24,7 +24,6 @@ namespace NServiceBus.Transports.Msmq
 
         public Task Init(Func<PushContext, Task> pipe, CriticalError criticalError, PushSettings settings)
         {
-            this.criticalError = criticalError;
             pipeline = pipe;
 
             receiveStrategy = receiveStrategyFactory(settings.RequiredTransactionSupport);
@@ -223,7 +222,6 @@ namespace NServiceBus.Transports.Msmq
         CancellationToken cancellationToken;
         CancellationTokenSource cancellationTokenSource;
         SemaphoreSlim concurrencyLimiter;
-        CriticalError criticalError;
         MessageQueue errorQueue;
         MessageQueue inputQueue;
 
