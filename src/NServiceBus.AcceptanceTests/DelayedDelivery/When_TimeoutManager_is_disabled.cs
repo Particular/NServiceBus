@@ -13,7 +13,7 @@
         [Test]
         public async Task Bus_Defer_should_throw()
         {
-            var context = await Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                     .WithEndpoint<Endpoint>(b => b.When((bus, c) =>
                     {
                         var options = new SendOptions();
