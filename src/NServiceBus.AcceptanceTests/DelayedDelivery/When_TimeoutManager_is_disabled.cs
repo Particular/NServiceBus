@@ -4,6 +4,7 @@
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NServiceBus.Features;
     using NUnit.Framework;
 
@@ -22,10 +23,13 @@
                         return bus.Send(new MyMessage(), options);
                     }))
                     .Done(c => c.ExceptionThrown || c.SecondMessageReceived)
+                    .Repeat(r => r.For<AllTransportsWithoutNativeDeferral>())
+                    .Should(c =>
+                    {
+                        Assert.AreEqual(true, c.ExceptionThrown);
+                        Assert.AreEqual(false, c.SecondMessageReceived);
+                    })
                     .Run();
-
-            Assert.AreEqual(true, context.ExceptionThrown);
-            Assert.AreEqual(false, context.SecondMessageReceived);
         }
 
         public class Context : ScenarioContext

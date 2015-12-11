@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Reflection;
     using AcceptanceTesting.Support;
+    using NServiceBus.DelayedDelivery;
     using NServiceBus.Hosting.Helpers;
     using NServiceBus.Settings;
     using NServiceBus.Transports;
@@ -65,6 +66,14 @@
         public AllTransportsWithMessageDrivenPubSub()
         {
             AllTransportsFilter.Run(t => t.GetOutboundRoutingPolicy(new SettingsHolder()).Publishes == OutboundRoutingType.Multicast, Remove);
+        }
+    }
+
+    public class AllTransportsWithoutNativeDeferral : AllTransports
+    {
+        public AllTransportsWithoutNativeDeferral()
+        {
+            AllTransportsFilter.Run(t => t.GetSupportedDeliveryConstraints().Any(c => typeof(DelayedDeliveryConstraint).IsAssignableFrom(c)), Remove);
         }
     }
 
