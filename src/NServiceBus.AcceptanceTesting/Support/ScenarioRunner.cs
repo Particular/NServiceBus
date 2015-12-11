@@ -6,6 +6,7 @@
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
+    using System.Runtime.ExceptionServices;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
@@ -84,7 +85,7 @@
 
             if (failedRuns.Any())
             {
-                throw new AggregateException("Test run failed due to one or more exception", failedRuns.Select(f => f.Result.Exception));
+                throw new AggregateException("Test run failed due to one or more exception", failedRuns.Select(f => f.Result.Exception)).Flatten();
             }
 
             foreach (var runSummary in results.Where(s => !s.Result.Failed))
@@ -288,6 +289,11 @@
             if (completedTask.Equals(timeoutTask))
             {
                 throw new Exception("Executing given and whens took longer than 2 minutes");
+            }
+
+            if (completedTask.IsFaulted && completedTask.Exception != null)
+            {
+                ExceptionDispatchInfo.Capture(completedTask.Exception).Throw();
             }
         }
 

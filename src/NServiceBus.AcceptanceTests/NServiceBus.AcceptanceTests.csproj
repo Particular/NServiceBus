@@ -138,7 +138,7 @@
     <Compile Include="MessageId\When_message_has_empty_id_header.cs" />
     <Compile Include="Routing\When_publishing_an_event_implementing_two_unrelated_interfaces.cs" />
     <Compile Include="ApiExtension\When_extending_the_publish_api.cs" />
-    <Compile Include="Routing\When_overriding_public_return_address.cs" />
+    <Compile Include="Routing\When_replying_to_message.cs" />
     <Compile Include="Sagas\When_forgetting_to_set_a_corr_property.cs" />
     <Compile Include="Sagas\When_auto_correlated_property_is_changed.cs" />
     <Compile Include="Sagas\When_updating_existing_correlation_property.cs" />
