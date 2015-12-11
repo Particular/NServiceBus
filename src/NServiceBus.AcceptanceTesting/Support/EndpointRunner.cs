@@ -157,8 +157,6 @@
             {
                 await endpointInstance.Stop().ConfigureAwait(false);
 
-                await Cleanup().ConfigureAwait(false);
-
                 return Result.Success();
             }
             catch (Exception ex)
@@ -166,6 +164,10 @@
                 Logger.Error("Failed to stop endpoint " + configuration.EndpointName, ex);
 
                 return Result.Failure(ex);
+            }
+            finally
+            {
+                await Cleanup().ConfigureAwait(false);
             }
         }
 
