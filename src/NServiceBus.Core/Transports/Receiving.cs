@@ -40,7 +40,7 @@ namespace NServiceBus.Transports
             context.Container.RegisterSingleton(inboundTransport.Definition);
 
             var receiveConfigResult = inboundTransport.Configure(context.Settings);
-            context.Container.ConfigureComponent(b => receiveConfigResult.MessagePumpFactory(b.Build<CriticalError>()), DependencyLifecycle.InstancePerCall);
+            context.Container.ConfigureComponent(b => receiveConfigResult.MessagePumpFactory(), DependencyLifecycle.InstancePerCall);
             context.Container.ConfigureComponent(b => receiveConfigResult.QueueCreatorFactory(), DependencyLifecycle.SingleInstance);
 
             context.RegisterStartupTask(new PrepareForReceiving(receiveConfigResult.PreStartupCheck));

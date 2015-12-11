@@ -10,7 +10,7 @@
     {
         protected override TransportReceivingConfigurationResult ConfigureForReceiving(TransportReceivingConfigurationContext context)
         {
-            return new TransportReceivingConfigurationResult(c => new FakeReceiver(c, context.Settings.Get<Exception>()), () => new FakeQueueCreator(), () => Task.FromResult(StartupCheckResult.Success));
+            return new TransportReceivingConfigurationResult(() => new FakeReceiver(context.Settings.Get<Exception>()), () => new FakeQueueCreator(), () => Task.FromResult(StartupCheckResult.Success));
         }
 
         protected override TransportSendingConfigurationResult ConfigureForSending(TransportSendingConfigurationContext context)

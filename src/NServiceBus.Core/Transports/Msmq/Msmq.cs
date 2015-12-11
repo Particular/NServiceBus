@@ -46,7 +46,7 @@ namespace NServiceBus
             };
 
             return new TransportReceivingConfigurationResult(
-                c => new MessagePump(c, guarantee => SelectReceiveStrategy(guarantee, transactionOptions)),
+                () => new MessagePump(guarantee => SelectReceiveStrategy(guarantee, transactionOptions)),
                 () => new QueueCreator(settings), 
                 () =>
                 {

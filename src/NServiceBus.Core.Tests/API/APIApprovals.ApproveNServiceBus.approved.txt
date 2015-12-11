@@ -2563,7 +2563,7 @@ namespace NServiceBus.Transports
     public interface IPublishMessages { }
     public interface IPushMessages
     {
-        System.Threading.Tasks.Task Init(System.Func<NServiceBus.Transports.PushContext, System.Threading.Tasks.Task> pipe, NServiceBus.Transports.PushSettings settings);
+        System.Threading.Tasks.Task Init(System.Func<NServiceBus.Transports.PushContext, System.Threading.Tasks.Task> pipe, NServiceBus.CriticalError criticalError, NServiceBus.Transports.PushSettings settings);
         void Start(NServiceBus.Transports.PushRuntimeSettings limitations);
         System.Threading.Tasks.Task Stop();
     }
@@ -2678,7 +2678,7 @@ namespace NServiceBus.Transports
     }
     public class TransportReceivingConfigurationResult
     {
-        public TransportReceivingConfigurationResult(System.Func<NServiceBus.CriticalError, NServiceBus.Transports.IPushMessages> messagePumpFactory, System.Func<NServiceBus.Transports.ICreateQueues> queueCreatorFactory, System.Func<System.Threading.Tasks.Task<NServiceBus.Transports.StartupCheckResult>> preStartupCheck) { }
+        public TransportReceivingConfigurationResult(System.Func<NServiceBus.Transports.IPushMessages> messagePumpFactory, System.Func<NServiceBus.Transports.ICreateQueues> queueCreatorFactory, System.Func<System.Threading.Tasks.Task<NServiceBus.Transports.StartupCheckResult>> preStartupCheck) { }
     }
     public class TransportSendingConfigurationContext
     {

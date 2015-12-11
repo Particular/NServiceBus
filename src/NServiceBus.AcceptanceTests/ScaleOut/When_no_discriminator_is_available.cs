@@ -53,7 +53,7 @@
         {
             protected override TransportReceivingConfigurationResult ConfigureForReceiving(TransportReceivingConfigurationContext context)
             {
-                return new TransportReceivingConfigurationResult(c => null, () => null, () => Task.FromResult(StartupCheckResult.Success));
+                return new TransportReceivingConfigurationResult(() => null, () => null, () => Task.FromResult(StartupCheckResult.Success));
             }
 
             protected override TransportSendingConfigurationResult ConfigureForSending(TransportSendingConfigurationContext context)

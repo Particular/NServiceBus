@@ -11,9 +11,9 @@ namespace NServiceBus.Transports.Msmq
 
     class MessagePump : IPushMessages, IDisposable
     {
-        public MessagePump(CriticalError criticalError, Func<TransactionSupport, ReceiveStrategy> receiveStrategyFactory)
+        public MessagePump(Func<TransactionSupport, ReceiveStrategy> receiveStrategyFactory)
         {
-            this.criticalError = criticalError;
+            
             this.receiveStrategyFactory = receiveStrategyFactory;
         }
 
@@ -22,7 +22,7 @@ namespace NServiceBus.Transports.Msmq
             // Injected
         }
 
-        public Task Init(Func<PushContext, Task> pipe, PushSettings settings)
+        public Task Init(Func<PushContext, Task> pipe, CriticalError criticalError, PushSettings settings)
         {
             pipeline = pipe;
 
@@ -222,7 +222,6 @@ namespace NServiceBus.Transports.Msmq
         CancellationToken cancellationToken;
         CancellationTokenSource cancellationTokenSource;
         SemaphoreSlim concurrencyLimiter;
-        CriticalError criticalError;
         MessageQueue errorQueue;
         MessageQueue inputQueue;
 
