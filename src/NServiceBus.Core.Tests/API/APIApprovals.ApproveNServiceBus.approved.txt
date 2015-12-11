@@ -1434,7 +1434,7 @@ namespace NServiceBus.Features
     {
         protected FeatureStartupTask() { }
         protected abstract System.Threading.Tasks.Task OnStart(NServiceBus.IBusContext context);
-        protected virtual System.Threading.Tasks.Task OnStop(NServiceBus.IBusContext context) { }
+        protected abstract System.Threading.Tasks.Task OnStop(NServiceBus.IBusContext context);
     }
     public enum FeatureState
     {

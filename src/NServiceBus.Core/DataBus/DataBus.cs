@@ -51,6 +51,11 @@ namespace NServiceBus.Features
             {
                 return DataBus.Start();
             }
+
+            protected override Task OnStop(IBusContext context)
+            {
+                return TaskEx.Completed;
+            }
         }
     }
 }

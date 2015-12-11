@@ -45,6 +45,11 @@ namespace NServiceBus.Serializers.Json.Tests
                     Assert.AreSame(Encoding.UTF7, serializer.Encoding);
                     return Task.FromResult(0);
                 }
+
+                protected override Task OnStop(IBusContext context)
+                {
+                    return TaskEx.Completed;
+                }
             }
         }
     }

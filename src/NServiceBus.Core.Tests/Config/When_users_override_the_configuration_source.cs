@@ -45,6 +45,11 @@ namespace NServiceBus.Core.Tests.Config
                     Assert.AreEqual(section.TestSetting, "TestValue");
                     return Task.FromResult(0);
                 }
+
+                protected override Task OnStop(IBusContext context)
+                {
+                    return TaskEx.Completed;
+                }
             }
         }
     }

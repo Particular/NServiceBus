@@ -81,6 +81,11 @@
                         scenarioContext.SendOnlyEndpointWasStarted = true;
                         return Task.FromResult(0);
                     }
+
+                    protected override Task OnStop(IBusContext context)
+                    {
+                        return Task.FromResult(0);
+                    }
                 }
             }
         }

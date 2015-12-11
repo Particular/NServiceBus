@@ -43,6 +43,11 @@
                 Serializer.Initialize(messageTypes);
                 return TaskEx.Completed;
             }
+
+            protected override Task OnStop(IBusContext context)
+            {
+                return TaskEx.Completed;
+            }
         }
     }
 }

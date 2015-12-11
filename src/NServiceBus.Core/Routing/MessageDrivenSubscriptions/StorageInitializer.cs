@@ -26,6 +26,11 @@
                 SubscriptionStorage?.Init();
                 return TaskEx.Completed;
             }
+
+            protected override Task OnStop(IBusContext context)
+            {
+                return TaskEx.Completed;
+            }
         }
     }
 }

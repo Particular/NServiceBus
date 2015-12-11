@@ -17,10 +17,7 @@
         /// Will be called after an endpoint has been started but before processing any messages, if the feature has been activated.
         /// </summary>
         /// <param name="context">Bus context.</param>
-        protected virtual Task OnStop(IBusContext context)
-        {
-            return TaskEx.Completed;
-        }
+        protected abstract Task OnStop(IBusContext context);
         
         internal Task PerformStartup(IBusContext context)
         {
