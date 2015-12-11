@@ -19,7 +19,7 @@
                 .WithEndpoint<EndpointWithLocalCallback>(b => b.When(
                     (bus, context) => bus.SendLocal(new MyRequest())))
                 .Done(c => c.ExceptionReceived)
-                .Repeat(r => r.For(Transports.Default))
+                .Repeat(r => r.For(Transports.AllAvailable.SingleOrDefault(t => t.Key == "FakeTransport")))
                 .Should(c =>
                 {
                     Assert.AreEqual("Startup task failed to complete.", c.Message);
