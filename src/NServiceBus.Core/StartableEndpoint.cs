@@ -19,13 +19,14 @@ namespace NServiceBus
     using NServiceBus.Transports;
     using NServiceBus.Unicast;
 
+
     class StartableEndpoint : IStartableEndpoint
     {
         SettingsHolder settings;
-        readonly IBuilder builder;
-        readonly FeatureActivator featureActivator;
+        IBuilder builder;
+        FeatureActivator featureActivator;
         PipelineConfiguration pipelineConfiguration;
-        readonly IReadOnlyCollection<IWantToRunWhenBusStartsAndStops> startables;
+        IReadOnlyCollection<IWantToRunWhenBusStartsAndStops> startables;
 
         public StartableEndpoint(SettingsHolder settings, IBuilder builder, FeatureActivator featureActivator, PipelineConfiguration pipelineConfiguration, IReadOnlyCollection<IWantToRunWhenBusStartsAndStops> startables)
         {
@@ -109,8 +110,8 @@ namespace NServiceBus
         string GetInstallationUserName()
         {
             string username;
-            return settings.TryGet("Installers.UserName", out username) 
-                ? username 
+            return settings.TryGet("Installers.UserName", out username)
+                ? username
                 : WindowsIdentity.GetCurrent().Name;
         }
 
