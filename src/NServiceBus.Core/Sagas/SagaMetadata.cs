@@ -173,7 +173,6 @@ Sagas must have at least one message that is allowed to start the saga. Please a
 
             var finders = new List<SagaFinderDefinition>();
 
-
             var propertyMappings = mapper.Mappings.Where(m => !m.HasCustomFinderMap)
                 .GroupBy(m=>m.SagaPropName)
                 .ToList();

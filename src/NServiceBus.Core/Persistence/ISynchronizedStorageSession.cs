@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Persistence
 {
     using System;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Represents a storage session.
@@ -10,6 +11,6 @@
         /// <summary>
         /// Adds a change to a session.
         /// </summary>
-        void Enlist(Action action);
+        Task Enlist<T>(Func<T, Task> action);
     }
 }
