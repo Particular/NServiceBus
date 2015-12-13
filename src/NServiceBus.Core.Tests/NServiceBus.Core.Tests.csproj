@@ -52,18 +52,6 @@
     <Reference Include="ApprovalUtilities.Net45">
       <HintPath>..\packages\ApprovalUtilities.3.0.8\lib\net45\ApprovalUtilities.Net45.dll</HintPath>
     </Reference>
-    <Reference Include="Mono.Cecil">
-      <HintPath>..\packages\Mono.Cecil.0.9.5.4\lib\net40\Mono.Cecil.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil.Mdb">
-      <HintPath>..\packages\Mono.Cecil.0.9.5.4\lib\net40\Mono.Cecil.Mdb.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil.Pdb">
-      <HintPath>..\packages\Mono.Cecil.0.9.5.4\lib\net40\Mono.Cecil.Pdb.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil.Rocks">
-      <HintPath>..\packages\Mono.Cecil.0.9.5.4\lib\net40\Mono.Cecil.Rocks.dll</HintPath>
-    </Reference>
     <Reference Include="NServiceBus.NewCompilerBits">
       <HintPath>TestDlls\NServiceBus.NewCompilerBits.dll</HintPath>
     </Reference>
@@ -108,9 +96,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Address\AddressTests.cs" />
-    <Compile Include="API\APIApprovals.cs" />
-    <Compile Include="API\PublicApiApprover.cs" />
-    <Compile Include="API\PublicApiGenerator.cs" />
     <Compile Include="AssemblyLocation.cs" />
     <Compile Include="AssemblyScanner\AssemblyScannerTests.cs" />
     <Compile Include="AssemblyScanner\When_directory_with_no_reference_dlls_is_scanned.cs" />
@@ -268,8 +253,9 @@
     <Compile Include="Unicast\Contexts\FakeMessageDeferrer.cs" />
     <Compile Include="Unicast\Contexts\InterfaceMessage.cs" />
     <Compile Include="Unicast\Contexts\using_the_unicastbus.cs" />
-    <Compile Include="Unicast\UnitOfWorkBehaviorTests.cs" />
     <Compile Include="Unicast\ThroughputLimiterTests.cs" />
+    <Compile Include="Unicast\UnitOfWorkBehaviorTests.cs" />
+    <Compile Include="Unicast\UnicastBusAuthorizationTests.cs" />
     <Compile Include="Unicast\MessagingBestPracticesTests.cs" />
     <Compile Include="Unicast\HandlerInvocationCache.cs" />
     <Compile Include="Unicast\DeferedMessages.cs" />
