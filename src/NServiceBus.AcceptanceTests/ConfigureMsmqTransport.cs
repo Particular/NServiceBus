@@ -11,9 +11,10 @@ public class ConfigureMsmqTransport
 {
     BusConfiguration busConfiguration;
 
-    public Task Configure(BusConfiguration configuration)
+    public Task Configure(BusConfiguration configuration, IDictionary<string, string> settings)
     {
         busConfiguration = configuration;
+        configuration.UseTransport<MsmqTransport>().ConnectionString(settings["Transport.ConnectionString"]);
         return Task.FromResult(0);
     }
 

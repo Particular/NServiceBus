@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Reflection;
     using System.Threading.Tasks;
+    using Microsoft.CSharp.RuntimeBinder;
     using NServiceBus.Configuration.AdvanceExtensibility;
     using ScenarioDescriptors;
 
@@ -34,19 +35,24 @@
             var configurerType = endpointBuilderType.GetNestedType(typeName) ??
                                  Type.GetType(transportTypeName, false);
 
-            if (configurerType != null)
+            if (configurerType == null)
+                throw new InvalidOperationException($"Acceptance Test project must include a non-namespaced class named 'Configure{{TransportType}}Transport whose methods will be invoked dynamically to configure and cleanup tests. See {typeof(ConfigureMsmqTransport).FullName} for an example.");
+            
+            var configurer = Activator.CreateInstance(configurerType);
+
+            dynamic dc = configurer;
+
+            try
             {
-                var configurer = Activator.CreateInstance(configurerType);
-
-                dynamic dc = configurer;
-
-                await dc.Configure(config);
-                var cleanupMethod = configurer.GetType().GetMethod("Cleanup", BindingFlags.Public | BindingFlags.Instance);
-                config.GetSettings().Set("CleanupTransport", cleanupMethod != null ? configurer : new Cleaner());
-                return;
+                await dc.Configure(config, settings);
             }
-
-            config.UseTransport(transportType).ConnectionString(settings["Transport.ConnectionString"]);
+            catch (RuntimeBinderException rbe)
+            {
+                throw new InvalidOperationException($"Class {configurerType.FullName} must include a \"public Task Configure(BusConfiguration configuration, IDictionary<string, string> settings)\" method.", rbe);
+            }
+            
+            var cleanupMethod = configurer.GetType().GetMethod("Cleanup", BindingFlags.Public | BindingFlags.Instance);
+            config.GetSettings().Set("CleanupTransport", cleanupMethod != null ? configurer : new Cleaner());
         }
 
         public static void DefineTransactions(this BusConfiguration config, IDictionary<string, string> settings)
@@ -71,20 +77,24 @@
 
             var configurerType = Type.GetType(typeName, false);
 
-            if (configurerType != null)
+            if (configurerType == null)
+                throw new InvalidOperationException($"Acceptance Test project must include a non-namespaced class named 'Configure{{PersistenceType}}Persistence whose methods will be invoked dynamically to configure and cleanup tests. See {typeof(ConfigureMsmqTransport).FullName} for an example.");
+
+            var configurer = Activator.CreateInstance(configurerType);
+
+            dynamic dc = configurer;
+
+            try
             {
-                var configurer = Activator.CreateInstance(configurerType);
-
-                dynamic dc = configurer;
-
-                await dc.Configure(config);
-
-                var cleanupMethod = configurer.GetType().GetMethod("Cleanup", BindingFlags.Public | BindingFlags.Instance);
-                config.GetSettings().Set("CleanupPersistence", cleanupMethod != null ? configurer : new Cleaner());
-                return;
+                await dc.Configure(config, settings);
+            }
+            catch (RuntimeBinderException rbe)
+            {
+                throw new InvalidOperationException($"Class {configurerType.FullName} must include a \"public Task Configure(BusConfiguration configuration, IDictionary<string, string> settings)\" method.", rbe);
             }
 
-            config.UsePersistence(persistenceType);
+            var cleanupMethod = configurer.GetType().GetMethod("Cleanup", BindingFlags.Public | BindingFlags.Instance);
+            config.GetSettings().Set("CleanupPersistence", cleanupMethod != null ? configurer : new Cleaner());
         }
 
         class Cleaner
