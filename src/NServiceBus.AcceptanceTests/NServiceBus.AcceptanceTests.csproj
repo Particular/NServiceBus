@@ -59,6 +59,7 @@
     <Compile Include="Basic\When_no_content_type.cs" />
     <Compile Include="ConfigureInMemoryPersistence.cs" />
     <Compile Include="Msmq\When_Audit_OverrideTimeToBeReceived_set_and_transactional_Msmq.cs" />
+    <Compile Include="Msmq\When_a_corrupted_message_is_received.cs" />
     <Compile Include="Msmq\When_TimeToBeReceivedOnForwardedMessages_set_and_transactional_Msmq.cs" />
     <Compile Include="Msmq\When_TimeToBeReceived_set_and_receivetransaction_Msmq.cs" />
     <Compile Include="Msmq\When_TimeToBeReceived_set_and_DTC_Msmq.cs" />

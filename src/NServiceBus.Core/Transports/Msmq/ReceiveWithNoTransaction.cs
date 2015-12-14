@@ -25,7 +25,7 @@ namespace NServiceBus
                 var error = $"Message '{message.Id}' is corrupt and will be moved to '{errorQueue.QueueName}'";
                 Logger.Error(error, ex);
 
-                errorQueue.Send(message, MessageQueueTransactionType.None);
+                errorQueue.Send(message, errorQueue.Transactional ? MessageQueueTransactionType.Single : MessageQueueTransactionType.None);
 
                 return;
             }

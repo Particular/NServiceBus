@@ -32,7 +32,7 @@ namespace NServiceBus
             receiveCircuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("MsmqReceive", TimeSpan.FromSeconds(30), ex => criticalError.Raise("Failed to receive from " + settings.InputQueue, ex));
 
             var inputAddress = MsmqAddress.Parse(settings.InputQueue);
-            var errorAddress = MsmqAddress.Parse(settings.InputQueue);
+            var errorAddress = MsmqAddress.Parse(settings.ErrorQueue);
 
             if (!string.Equals(errorAddress.Machine, Environment.MachineName, StringComparison.OrdinalIgnoreCase))
             {
