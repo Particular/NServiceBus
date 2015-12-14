@@ -154,6 +154,11 @@
                 return TaskEx.Completed;
             }
 
+            protected override Task OnStop(IBusContext context)
+            {
+                return TaskEx.Completed;
+            }
+
             static async Task<IEnumerable<IUnicastRoute>> QuerySubscriptionStore(ISubscriptionStorage subscriptions, List<Type> types, ContextBag contextBag)
             {
                 if (!(contextBag is IOutgoingPublishContext))

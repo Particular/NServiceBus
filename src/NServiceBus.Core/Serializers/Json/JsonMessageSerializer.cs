@@ -49,8 +49,8 @@ namespace NServiceBus.Serializers.Json
         /// <param name="stream">Stream for <paramref name="message"/> to be serialized into.</param>
         public void Serialize(object message, Stream stream)
         {
-            Guard.AgainstNull("stream", stream);
-            Guard.AgainstNull("message", message);
+            Guard.AgainstNull(nameof(stream), stream);
+            Guard.AgainstNull(nameof(message), message);
             var jsonSerializer = JsonSerializer.Create(serializerSettings);
             jsonSerializer.Binder = new JsonMessageSerializationBinder(messageMapper);
 
@@ -67,7 +67,7 @@ namespace NServiceBus.Serializers.Json
         /// <returns>Deserialized messages.</returns>
         public object[] Deserialize(Stream stream, IList<Type> messageTypes)
         {
-            Guard.AgainstNull("stream", stream);
+            Guard.AgainstNull(nameof(stream), stream);
             var settings = serializerSettings;
 
             var mostConcreteType = messageTypes?.FirstOrDefault();
@@ -166,8 +166,8 @@ namespace NServiceBus.Serializers.Json
         /// </summary>
         public object DeserializeObject(string value, Type type)
         {
-            Guard.AgainstNull("type", type);
-            Guard.AgainstNullAndEmpty("value", value);
+            Guard.AgainstNull(nameof(type), type);
+            Guard.AgainstNullAndEmpty(nameof(value), value);
             return JsonConvert.DeserializeObject(value, type);
         }
 
@@ -178,7 +178,7 @@ namespace NServiceBus.Serializers.Json
         /// <returns>The json string.</returns>
         public string SerializeObject(object value)
         {
-            Guard.AgainstNull("value", value);
+            Guard.AgainstNull(nameof(value), value);
             return JsonConvert.SerializeObject(value);
         }
         
@@ -191,7 +191,7 @@ namespace NServiceBus.Serializers.Json
             get { return encoding; }
             set
             {
-                Guard.AgainstNull("value", value);
+                Guard.AgainstNull(nameof(value), value);
                 encoding = value;
             }
         }

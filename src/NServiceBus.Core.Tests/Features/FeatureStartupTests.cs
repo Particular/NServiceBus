@@ -100,6 +100,11 @@
                     return Task.FromResult(0);
                 }
 
+                protected override Task OnStop(IBusContext context)
+                {
+                    return TaskEx.Completed;
+                }
+
                 public void Dispose()
                 {
                     Disposed = true;

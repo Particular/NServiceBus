@@ -11,15 +11,15 @@
         /// <param name="inputQueue">Input queue name.</param>
         /// <param name="errorQueue">Error queue name.</param>
         /// <param name="purgeOnStartup"><code>true</code> to purge <paramref name="inputQueue"/> at startup.</param>
-        /// <param name="requiredTransactionSupport">The required transaction support required for the receive operations.</param>
-        public PushSettings(string inputQueue, string errorQueue, bool purgeOnStartup, TransactionSupport requiredTransactionSupport)
+        /// <param name="requiredTransactionMode">The transaction mode required for receive operations.</param>
+        public PushSettings(string inputQueue, string errorQueue, bool purgeOnStartup, TransportTransactionMode requiredTransactionMode)
         {
-            Guard.AgainstNullAndEmpty("inputQueue", inputQueue);
-            Guard.AgainstNullAndEmpty("errorQueue", errorQueue);
-            Guard.AgainstNull("requiredTransactionSupport", requiredTransactionSupport);
+            Guard.AgainstNullAndEmpty(nameof(inputQueue), inputQueue);
+            Guard.AgainstNullAndEmpty(nameof(errorQueue), errorQueue);
+            Guard.AgainstNull(nameof(requiredTransactionMode), requiredTransactionMode);
 
             PurgeOnStartup = purgeOnStartup;
-            RequiredTransactionSupport = requiredTransactionSupport;
+            RequiredTransactionMode = requiredTransactionMode;
             InputQueue = inputQueue;
             ErrorQueue = errorQueue;
         }
@@ -40,8 +40,8 @@
         public bool PurgeOnStartup { get; private set; }
 
         /// <summary>
-        /// The required transaction support required for the receive operations.
+        /// The transaction mode required for receive operations.
         /// </summary>
-        public TransactionSupport RequiredTransactionSupport { get; private set; }
+        public TransportTransactionMode RequiredTransactionMode { get; private set; }
     }
 }

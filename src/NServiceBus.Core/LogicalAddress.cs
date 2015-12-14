@@ -17,7 +17,7 @@
         {
             if (qualifier == null)
             {
-                throw new ArgumentNullException("qualifier");
+                throw new ArgumentNullException(nameof(qualifier));
             }
             EndpointInstance = endpointInstance;
             Qualifier = qualifier;

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.Configuration.AdvanceExtensibility;
@@ -171,19 +172,16 @@
             }
         }
 
-        async Task Cleanup()
+        Task Cleanup()
         {
-            dynamic transportCleaner;
-            if (busConfiguration.GetSettings().TryGet("CleanupTransport", out transportCleaner))
+            List<IConfigureTestExecution> cleaners;
+            if (busConfiguration.GetSettings().TryGet("Cleaners", out cleaners))
             {
-                await transportCleaner.Cleanup();
+                var tasks = cleaners.Select(cleaner => cleaner.Cleanup());
+                return Task.WhenAll(tasks);
             }
 
-            dynamic persistenceCleaner;
-            if (busConfiguration.GetSettings().TryGet("CleanupPersistence", out persistenceCleaner))
-            {
-                await persistenceCleaner.Cleanup();
-            }
+            return Task.FromResult(0);
         }
 
         public string Name()

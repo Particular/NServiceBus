@@ -17,7 +17,7 @@
         {
             var messageDispatcher = new FakeMessageDispatcher();
             var timeoutPersister = new InMemoryTimeoutPersister();
-            var behavior = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransactionSupport.Distributed);
+            var behavior = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransportTransactionMode.TransactionScope);
             var timeoutData = CreateTimeout();
             await timeoutPersister.Add(timeoutData, null);
 
@@ -32,7 +32,7 @@
         {
             var messageDispatcher = new FakeMessageDispatcher();
             var timeoutPersister = new InMemoryTimeoutPersister();
-            var behavior = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransactionSupport.Distributed);
+            var behavior = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransportTransactionMode.TransactionScope);
 
             await behavior.Invoke(CreateContext(Guid.NewGuid().ToString()), context => TaskEx.Completed);
 
@@ -44,7 +44,7 @@
         {
             var messageDispatcher = new FailingMessageDispatcher();
             var timeoutPersister = new InMemoryTimeoutPersister();
-            var behavior = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransactionSupport.Distributed);
+            var behavior = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransportTransactionMode.TransactionScope);
             var timeoutData = CreateTimeout();
             await timeoutPersister.Add(timeoutData, null);
 
@@ -64,7 +64,7 @@
                 OnTryRemove = (id, bag) => false // simulates a concurrent delete
             };
 
-            var behavior = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransactionSupport.Distributed);
+            var behavior = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransportTransactionMode.TransactionScope);
 
             Assert.Throws<Exception>(async () => await behavior.Invoke(CreateContext(Guid.NewGuid().ToString()), context => TaskEx.Completed));
         }
@@ -74,7 +74,7 @@
         {
             var messageDispatcher = new FakeMessageDispatcher();
             var timeoutPersister = new InMemoryTimeoutPersister();
-            var behavior = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransactionSupport.Distributed);
+            var behavior = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransportTransactionMode.TransactionScope);
             var timeoutData = CreateTimeout();
             await timeoutPersister.Add(timeoutData, null);
 
@@ -84,10 +84,10 @@
             Assert.AreEqual(DispatchConsistency.Default, transportOperation.DispatchOptions.RequiredDispatchConsistency);
         }
 
-        [TestCase(TransactionSupport.MultiQueue)]
-        [TestCase(TransactionSupport.SingleQueue)]
-        [TestCase(TransactionSupport.None)]
-        public async Task Invoke_when_not_using_dtc_transport_should_not_enlist_dispatch_in_transaction(TransactionSupport nonDtcTxSettings)
+        [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
+        [TestCase(TransportTransactionMode.ReceiveOnly)]
+        [TestCase(TransportTransactionMode.None)]
+        public async Task Invoke_when_not_using_dtc_transport_should_not_enlist_dispatch_in_transaction(TransportTransactionMode nonDtcTxSettings)
         {
             var messageDispatcher = new FakeMessageDispatcher();
             var timeoutPersister = new InMemoryTimeoutPersister();

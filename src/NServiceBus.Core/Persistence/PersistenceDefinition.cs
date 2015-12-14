@@ -15,7 +15,7 @@
         /// </summary>
         protected void Supports<T>(Action<SettingsHolder> action) where T : StorageType
         {
-            Guard.AgainstNull("action", action);
+            Guard.AgainstNull(nameof(action), action);
             if (storageToActionMap.ContainsKey(typeof(T)))
             {
                 throw new Exception($"Action for {typeof(T)} already defined.");
@@ -40,7 +40,7 @@
         /// </summary>
         protected void Defaults(Action<SettingsHolder> action)
         {
-            Guard.AgainstNull("action", action);
+            Guard.AgainstNull(nameof(action), action);
             defaults.Add(action);
         }
 
@@ -69,7 +69,7 @@
         /// </summary>
         public bool HasSupportFor(Type storageType)
         {
-            Guard.AgainstNull("storageType", storageType);
+            Guard.AgainstNull(nameof(storageType), storageType);
             return storageToActionMap.ContainsKey(storageType);
         }
 
@@ -77,7 +77,7 @@
         {
             if (!storageType.IsSubclassOf(typeof(StorageType)))
             {
-                throw new ArgumentException($"Storage type '{storageType.FullName}' is not a sub-class of StorageType", "storageType");
+                throw new ArgumentException($"Storage type '{storageType.FullName}' is not a sub-class of StorageType", nameof(storageType));
             }
             var actionForStorage = storageToActionMap[storageType];
             actionForStorage(settings);

@@ -56,14 +56,14 @@ namespace NServiceBus
                 });
         }
 
-        ReceiveStrategy SelectReceiveStrategy(TransactionSupport minimumConsistencyGuarantee, TransactionOptions transactionOptions)
+        ReceiveStrategy SelectReceiveStrategy(TransportTransactionMode minimumConsistencyGuarantee, TransactionOptions transactionOptions)
         {
-            if (minimumConsistencyGuarantee == TransactionSupport.Distributed)
+            if (minimumConsistencyGuarantee == TransportTransactionMode.TransactionScope)
             {
                 return new ReceiveWithTransactionScope(transactionOptions);
             }
 
-            if (minimumConsistencyGuarantee == TransactionSupport.None)
+            if (minimumConsistencyGuarantee == TransportTransactionMode.None)
             {
                 return new ReceiveWithNoTransaction();
             }
@@ -112,9 +112,9 @@ namespace NServiceBus
         /// <summary>
         /// Gets the supported transactionality for this transport.
         /// </summary>
-        public override TransactionSupport GetTransactionSupport()
+        public override TransportTransactionMode GetSupportedTransactionMode()
         {
-            return TransactionSupport.Distributed;
+            return TransportTransactionMode.TransactionScope;
         }
 
         /// <summary>

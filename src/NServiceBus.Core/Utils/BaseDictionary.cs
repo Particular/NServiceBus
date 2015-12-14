@@ -183,10 +183,10 @@ namespace NServiceBus
 
         static void Copy<T>(ICollection<T> source, T[] array, int arrayIndex)
         {
-            Guard.AgainstNull("array", array);
+            Guard.AgainstNull(nameof(array), array);
 
             if (arrayIndex < 0 || arrayIndex > array.Length)
-                throw new ArgumentOutOfRangeException("arrayIndex");
+                throw new ArgumentOutOfRangeException(nameof(arrayIndex));
 
             if (array.Length - arrayIndex < source.Count)
                 throw new ArgumentException("Destination array is not large enough. Check array.Length and arrayIndex.");

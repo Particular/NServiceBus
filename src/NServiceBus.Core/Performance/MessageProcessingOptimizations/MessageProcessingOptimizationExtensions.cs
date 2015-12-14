@@ -12,8 +12,8 @@ namespace NServiceBus
         /// <param name="maxConcurrency">The max concurrency allowed.</param>
         public static void LimitMessageProcessingConcurrencyTo(this BusConfiguration config, int maxConcurrency)
         {
-            Guard.AgainstNull("config", config);
-            Guard.AgainstNegativeAndZero("maxConcurrency", maxConcurrency);
+            Guard.AgainstNull(nameof(config), config);
+            Guard.AgainstNegativeAndZero(nameof(maxConcurrency), maxConcurrency);
 
             config.Settings.Set<ConcurrencyLimit>(new ConcurrencyLimit { MaxValue = maxConcurrency });
         }

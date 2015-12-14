@@ -14,8 +14,8 @@ namespace NServiceBus.MessageMutator
         /// </summary>
         public MutateOutgoingMessageContext(object outgoingMessage, IDictionary<string, string> outgoingHeaders, object incomingMessage, IReadOnlyDictionary<string, string> incomingHeaders)
         {
-            Guard.AgainstNull("outgoingHeaders", outgoingHeaders);
-            Guard.AgainstNull("outgoingMessage", outgoingMessage);
+            Guard.AgainstNull(nameof(outgoingHeaders), outgoingHeaders);
+            Guard.AgainstNull(nameof(outgoingMessage), outgoingMessage);
             OutgoingHeaders = outgoingHeaders;
             this.incomingMessage = incomingMessage;
             this.incomingHeaders = incomingHeaders;
@@ -33,7 +33,7 @@ namespace NServiceBus.MessageMutator
             }
             set
             {
-                Guard.AgainstNull("value", value);
+                Guard.AgainstNull(nameof(value), value);
                 MessageInstanceChanged = true;
                 outgoingMessage = value;
             }

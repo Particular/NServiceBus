@@ -16,9 +16,9 @@ namespace NServiceBus.MessageMutator
         /// </summary>
         public MutateOutgoingTransportMessageContext(byte[] outgoingBody, object outgoingMessage, IDictionary<string, string> outgoingHeaders, object incomingMessage, IReadOnlyDictionary<string, string> incomingHeaders)
         {
-            Guard.AgainstNull("outgoingHeaders", outgoingHeaders);
-            Guard.AgainstNull("outgoingBody", outgoingBody);
-            Guard.AgainstNull("outgoingMessage", outgoingMessage);
+            Guard.AgainstNull(nameof(outgoingHeaders), outgoingHeaders);
+            Guard.AgainstNull(nameof(outgoingBody), outgoingBody);
+            Guard.AgainstNull(nameof(outgoingMessage), outgoingMessage);
             OutgoingHeaders = outgoingHeaders;
             OutgoingBody = outgoingBody;
             OutgoingMessage = outgoingMessage;
@@ -39,7 +39,7 @@ namespace NServiceBus.MessageMutator
             get { return outgoingBody; }
             set
             {
-                Guard.AgainstNull("value",value);
+                Guard.AgainstNull(nameof(value),value);
                 outgoingBody = value;
             }
         }

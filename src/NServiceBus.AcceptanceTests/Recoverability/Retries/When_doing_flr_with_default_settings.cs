@@ -39,7 +39,10 @@
         {
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServer>(b => b.Transactions().Disable());
+                EndpointSetup<DefaultServer>((config, context) =>
+                {
+                    config.UseTransport(context.GetTransportType()).Transactions(TransportTransactionMode.None);
+                });
             }
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>

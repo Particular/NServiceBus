@@ -36,6 +36,11 @@ namespace NServiceBus.Features
                 settings.Get<EndpointInstances>().AddDynamic(e => routingTable.GetInstances(e));
                 return TaskEx.Completed;
             }
+
+            protected override Task OnStop(IBusContext context)
+            {
+                return TaskEx.Completed;
+            }
         }
     }
 }

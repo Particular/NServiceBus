@@ -43,7 +43,11 @@
         {
             public TransactionalEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.Transactions().Enable().EnableDistributedTransactions());
+                EndpointSetup<DefaultServer>((config, context) =>
+                {
+                    config.UseTransport(context.GetTransportType())
+                            .Transactions(TransportTransactionMode.TransactionScope);
+                });
             }
         }
 

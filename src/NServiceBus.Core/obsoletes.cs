@@ -429,7 +429,8 @@ namespace NServiceBus.Timeout.Core
         [ObsoleteEx(
             Message = "Not used anymore",
             RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0")] public const string OriginalReplyToAddress = "NServiceBus.Timeout.ReplyToAddress";
+            TreatAsErrorFromVersion = "6.0")]
+        public const string OriginalReplyToAddress = "NServiceBus.Timeout.ReplyToAddress";
     }
 }
 
@@ -971,13 +972,13 @@ namespace NServiceBus.Unicast.Transport
         public bool DoNotWrapHandlersExecutionInATransactionScope { get; set; }
 
         [ObsoleteEx(
-         Message = "SuppressDistributedTransactions is no longer used here. Please use `context.Settings.GetRequiredTransactionSupportForReceives() != TransactionSupport.Distributed` instead.",
+         Message = "SuppressDistributedTransactions is no longer used here. Please use `context.Settings.GetRequiredTransactionModeForReceives() != Transactions.TransactionScope` instead.",
          RemoveInVersion = "7.0",
          TreatAsErrorFromVersion = "6.0")]
         public bool SuppressDistributedTransactions { get; set; }
 
         [ObsoleteEx(
-            Message = "IsTransactional is no longer used here. Please use `context.Settings.GetRequiredTransactionSupportForReceives() != TransactionSupport.None` instead.",
+            Message = "IsTransactional is no longer used here. Please use `context.Settings.GetRequiredTransactionModeForReceives() != Transactions.None` instead.",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public bool IsTransactional { get; set; }
@@ -1200,7 +1201,7 @@ namespace NServiceBus.Transports
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            Message = "GetTransactionSupport")]
+            Message = "GetSupportedTransactionMode")]
         public bool? HasSupportForDistributedTransactions
         {
             get { throw new NotImplementedException(); }
@@ -1210,7 +1211,7 @@ namespace NServiceBus.Transports
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            ReplacementTypeOrMember = "GetTransactionSupport")]
+            ReplacementTypeOrMember = "GetSupportedTransactionMode")]
         public bool HasSupportForMultiQueueNativeTransactions
         {
             get { throw new NotImplementedException(); }
@@ -1261,7 +1262,8 @@ namespace NServiceBus
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            Message = "The WinIdName header is no longer attached to outgoing message to avoid passing security related information on the wire. Should you rely on the header being present you can add a message mutator that sets it.")] public const string WindowsIdentityName = "WinIdName";
+            Message = "The WinIdName header is no longer attached to outgoing message to avoid passing security related information on the wire. Should you rely on the header being present you can add a message mutator that sets it.")]
+        public const string WindowsIdentityName = "WinIdName";
     }
 }
 
@@ -1576,12 +1578,48 @@ namespace NServiceBus.Settings
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
             Message =
-                @"No longer relevant since transaction scopes are no longer used by non DTC transports 
-to do delayed dispatch. If running in DTC mode with MSMQ or SQLServer you should opt out 
-from DTC Transactions using .DisableDistributedTransactions() since it would give you better 
-performance. Should you still want to suppress the ambient transaction you can create your own 
-behavior that wraps the pipeline in a suppressed transaction scope.")]
+                @"DoNotWrapHandlersExecutionInATransactionScope() has been removed since transaction scopes are no longer used by non DTC transports delay the dispatch of all outgoing operations until handlers have been executed.
+In Version 6 handlers will only be wrapped in a transactionscope if running the MSMQ or SQLServer transports in default mode. This means that performing storage operations against data sources also supporting transaction scopes 
+will escalate to a distributed transaction. Previous versions allowed opting out of this behavior using config.Transactions().DoNotWrapHandlersExecutionInATransactionScope(). In Version 6 it's recommended to use `busConfiguration.UseTransport<MyTransport>().Transactions(TransportTransactionMode.ReceiveOnly)` to lean on native transport transaction and the new batched dispatch support to achieve the same level of consistency with better performance.
+Suppressing the ambient transaction created by the MSMQ and SQL Server transports can still be achieved by creating a custom pipeline behavior with a suppressed transaction scope.")]
         public TransactionSettings DoNotWrapHandlersExecutionInATransactionScope()
+        {
+            throw new NotImplementedException();
+        }
+
+
+        [ObsoleteEx(
+          RemoveInVersion = "7.0",
+          TreatAsErrorFromVersion = "6.0",
+          ReplacementTypeOrMember = "config.UseTransport<MyTransport>().Transactions(TransportTransactionMode.None);")]
+        public TransactionSettings Disable()
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            ReplacementTypeOrMember = "config.UseTransport<MyTransport>().Transactions(TransportTransactionMode.ReceiveOnly|TransportTransactionMode.SendsAtomicWithReceive);")]
+        public TransactionSettings Enable()
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            ReplacementTypeOrMember = "config.UseTransport<MyTransport>().Transactions(TransportTransactionMode.ReceiveOnly|TransportTransactionMode.SendsAtomicWithReceive);")]
+        public TransactionSettings DisableDistributedTransactions()
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            ReplacementTypeOrMember = "config.UseTransport<MyTransport>().Transactions(TransportTransactionMode.TransactionScope);")]
+        public TransactionSettings EnableDistributedTransactions()
         {
             throw new NotImplementedException();
         }

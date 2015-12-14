@@ -42,7 +42,7 @@ namespace NServiceBus {
 				default:
 				{
 					throw new ArgumentOutOfRangeException
-                        ("xmlVersion", $"'{xmlVersion}' is not a valid XML version.");
+                        (nameof(xmlVersion), $"'{xmlVersion}' is not a valid XML version.");
 				}
 			}
 		}
@@ -111,9 +111,9 @@ namespace NServiceBus {
 	
 		public override int Read(char[] buffer, int index, int count)
         {
-            Guard.AgainstNull("buffer", buffer);
-            Guard.AgainstNegative("index", index);
-            Guard.AgainstNegative("count", count);
+            Guard.AgainstNull(nameof(buffer), buffer);
+            Guard.AgainstNegative(nameof(index), index);
+            Guard.AgainstNegative(nameof(count), count);
 
 			if (buffer.Length - index < count)
 			{

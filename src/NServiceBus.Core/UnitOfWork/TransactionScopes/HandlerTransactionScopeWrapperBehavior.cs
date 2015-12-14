@@ -1,4 +1,4 @@
-namespace NServiceBus
+﻿namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;

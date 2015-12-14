@@ -30,7 +30,7 @@
         {
             string processorAddress;
 
-            var requiredTransactionSupport = context.Settings.GetRequiredTransactionSupportForReceives();
+            var requiredTransactionSupport = context.Settings.GetRequiredTransactionModeForReceives();
 
             var messageProcessorPipeline = context.AddSatellitePipeline("Timeout Message Processor", "Timeouts", requiredTransactionSupport, PushRuntimeSettings.Default, out processorAddress);
             messageProcessorPipeline.Register<MoveFaultsToErrorQueueBehavior.Registration>();

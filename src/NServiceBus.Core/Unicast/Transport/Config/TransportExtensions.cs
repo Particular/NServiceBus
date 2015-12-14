@@ -45,6 +45,15 @@ namespace NServiceBus
             base.ConnectionString(connectionString);
             return this;
         }
+
+        /// <summary>
+        /// Configures the transport to use a specific transaction mode.
+        /// </summary>
+        public new TransportExtensions<T> Transactions(TransportTransactionMode transportTransactionMode)
+        {
+            base.Transactions(transportTransactionMode);
+            return this;
+        }
     }
 
     /// <summary>
@@ -77,7 +86,7 @@ namespace NServiceBus
         /// </summary>
         public TransportExtensions ConnectionStringName(string name)
         {
-            Guard.AgainstNullAndEmpty("name", name);
+            Guard.AgainstNullAndEmpty(nameof(name), name);
             Settings.Set<TransportConnectionString>(new TransportConnectionString(name));
             return this;
         }
@@ -87,8 +96,18 @@ namespace NServiceBus
         /// </summary>
         public TransportExtensions ConnectionString(Func<string> connectionString)
         {
-            Guard.AgainstNull("connectionString", connectionString);
+            Guard.AgainstNull(nameof(connectionString), connectionString);
             Settings.Set<TransportConnectionString>(new TransportConnectionString(connectionString));
+            return this;
+        }
+
+
+        /// <summary>
+        /// Configures the transport to use a explicit transaction mode.
+        /// </summary>
+        public TransportExtensions Transactions(TransportTransactionMode transportTransactionMode)
+        {
+            Settings.Set<TransportTransactionMode>(transportTransactionMode);
             return this;
         }
 

@@ -739,7 +739,7 @@ namespace NServiceBus
         public override NServiceBus.Transports.OutboundRoutingPolicy GetOutboundRoutingPolicy(NServiceBus.Settings.ReadOnlySettings settings) { }
         public override NServiceBus.Transports.IManageSubscriptions GetSubscriptionManager() { }
         public override System.Collections.Generic.IEnumerable<System.Type> GetSupportedDeliveryConstraints() { }
-        public override NServiceBus.Transports.TransactionSupport GetTransactionSupport() { }
+        public override NServiceBus.TransportTransactionMode GetSupportedTransactionMode() { }
         public override string ToTransportAddress(NServiceBus.LogicalAddress logicalAddress) { }
     }
     public class NonDurableDelivery : NServiceBus.DeliveryConstraints.DeliveryConstraint
@@ -1029,6 +1029,7 @@ namespace NServiceBus
         public NServiceBus.TransportExtensions ConnectionString(string connectionString) { }
         public NServiceBus.TransportExtensions ConnectionString(System.Func<string> connectionString) { }
         public NServiceBus.TransportExtensions ConnectionStringName(string name) { }
+        public NServiceBus.TransportExtensions Transactions(NServiceBus.TransportTransactionMode transportTransactionMode) { }
     }
     public class TransportExtensions<T> : NServiceBus.TransportExtensions
         where T : NServiceBus.Transports.TransportDefinition
@@ -1037,6 +1038,7 @@ namespace NServiceBus
         public NServiceBus.TransportExtensions<T> ConnectionString(string connectionString) { }
         public NServiceBus.TransportExtensions<T> ConnectionString(System.Func<string> connectionString) { }
         public NServiceBus.TransportExtensions<T> ConnectionStringName(string name) { }
+        public NServiceBus.TransportExtensions<T> Transactions(NServiceBus.TransportTransactionMode transportTransactionMode) { }
     }
     [System.ObsoleteAttribute("Not used anymore, use `OutgoingMessage` or `IncomingMessage` instead. Will be rem" +
         "oved in version 7.0.0.", true)]
@@ -1066,10 +1068,19 @@ namespace NServiceBus
         [System.ObsoleteAttribute(@"For sending purposes use `DeliveryConstraintContextExtensions.AddDeliveryConstraint(new DiscardIfNotReceivedBefore(timeToBeReceived))` to set the `TimeToBeReceived` or `DiscardIfNotReceivedBefore constraint;DeliveryConstraintContextExtensions.TryGetDeliveryConstraint(out constraint)` to read the `TimeToBeReceived`. When receiving look at the new 'NServiceBus.TimeToBeReceived' header. Will be removed in version 7.0.0.", true)]
         public System.TimeSpan TimeToBeReceived { get; set; }
     }
+<<<<<<< HEAD
     public class TransportReceiveContext : NServiceBus.BehaviorContext, NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.Contexts.ITransportReceiveContext, NServiceBus.Pipeline.IBehaviorContext
     {
         public TransportReceiveContext(NServiceBus.Transports.IncomingMessage receivedMessage, NServiceBus.Transports.TransportTransaction transportTransaction, NServiceBus.Pipeline.IBehaviorContext parentContext) { }
         public NServiceBus.Transports.IncomingMessage Message { get; }
+=======
+    public enum TransportTransactionMode
+    {
+        None = 0,
+        ReceiveOnly = 1,
+        SendsAtomicWithReceive = 2,
+        TransactionScope = 3,
+>>>>>>> develop
     }
     public sealed class UnicastRoutingTarget
     {
@@ -1321,15 +1332,9 @@ namespace NServiceBus.Configuration.AdvanceExtensibility
 }
 namespace NServiceBus.ConsistencyGuarantees
 {
-    public enum ConsistencyGuarantee
+    public class static TransactionModeSettingsExtensions
     {
-        AtMostOnce = 1,
-        AtLeastOnce = 2,
-        ExactlyOnce = 3,
-    }
-    public class static ConsistencyGuaranteeSettingsExtensions
-    {
-        public static NServiceBus.Transports.TransactionSupport GetRequiredTransactionSupportForReceives(this NServiceBus.Settings.ReadOnlySettings settings) { }
+        public static NServiceBus.TransportTransactionMode GetRequiredTransactionModeForReceives(this NServiceBus.Settings.ReadOnlySettings settings) { }
     }
 }
 namespace NServiceBus.Container
@@ -1546,7 +1551,7 @@ namespace NServiceBus.Features
         public NServiceBus.ObjectBuilder.IConfigureComponents Container { get; }
         public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
         public NServiceBus.Settings.ReadOnlySettings Settings { get; }
-        public NServiceBus.Pipeline.PipelineSettings AddSatellitePipeline(string name, string qualifier, NServiceBus.Transports.TransactionSupport requiredTransactionSupport, NServiceBus.Transports.PushRuntimeSettings runtimeSettings, out string transportAddress) { }
+        public NServiceBus.Pipeline.PipelineSettings AddSatellitePipeline(string name, string qualifier, NServiceBus.TransportTransactionMode requiredTransportTransactionMode, NServiceBus.Transports.PushRuntimeSettings runtimeSettings, out string transportAddress) { }
         public void RegisterStartupTask<TTask>(TTask startupTask)
             where TTask : NServiceBus.Features.FeatureStartupTask { }
         public void RegisterStartupTask<TTask>(System.Func<TTask> startupTaskFactory)
@@ -1573,14 +1578,8 @@ namespace NServiceBus.Features
     public abstract class FeatureStartupTask
     {
         protected FeatureStartupTask() { }
-        [System.ObsoleteAttribute("Please use `OnStart(IBusContext context)` instead. Will be removed in version 7.0" +
-            ".0.", true)]
-        protected virtual void OnStart() { }
         protected abstract System.Threading.Tasks.Task OnStart(NServiceBus.IBusContext context);
-        [System.ObsoleteAttribute("Please use `OnStop(IBusContext context)` instead. Will be removed in version 7.0." +
-            "0.", true)]
-        protected virtual void OnStop() { }
-        protected virtual System.Threading.Tasks.Task OnStop(NServiceBus.IBusContext context) { }
+        protected abstract System.Threading.Tasks.Task OnStop(NServiceBus.IBusContext context);
     }
     public enum FeatureState
     {
@@ -2566,11 +2565,21 @@ namespace NServiceBus.Settings
     public class TransactionSettings
     {
         public NServiceBus.Settings.TransactionSettings DefaultTimeout(System.TimeSpan defaultTimeout) { }
+        [System.ObsoleteAttribute("Please use `config.UseTransport<MyTransport>().Transactions(TransportTransactionM" +
+            "ode.None);` instead. Will be removed in version 7.0.0.", true)]
         public NServiceBus.Settings.TransactionSettings Disable() { }
+        [System.ObsoleteAttribute("Please use `config.UseTransport<MyTransport>().Transactions(TransportTransactionM" +
+            "ode.ReceiveOnly|TransportTransactionMode.SendsAtomicWithReceive);` instead. Will" +
+            " be removed in version 7.0.0.", true)]
         public NServiceBus.Settings.TransactionSettings DisableDistributedTransactions() { }
-        [System.ObsoleteAttribute(@"No longer relevant since transaction scopes are no longer used by non DTC transports \r\nto do delayed dispatch. If running in DTC mode with MSMQ or SQLServer you should opt out \r\nfrom DTC Transactions using .DisableDistributedTransactions() since it would give you better \r\nperformance. Should you still want to suppress the ambient transaction you can create your own \r\nbehavior that wraps the pipeline in a suppressed transaction scope. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute(@"DoNotWrapHandlersExecutionInATransactionScope() has been removed since transaction scopes are no longer used by non DTC transports delay the dispatch of all outgoing operations until handlers have been executed.\r\nIn Version 6 handlers will only be wrapped in a transactionscope if running the MSMQ or SQLServer transports in default mode. This means that performing storage operations against data sources also supporting transaction scopes \r\nwill escalate to a distributed transaction. Previous versions allowed opting out of this behavior using config.Transactions().DoNotWrapHandlersExecutionInATransactionScope(). In Version 6 it's recommended to use `busConfiguration.UseTransport<MyTransport>().Transactions(TransportTransactionMode.ReceiveOnly)` to lean on native transport transaction and the new batched dispatch support to achieve the same level of consistency with better performance.\r\nSuppressing the ambient transaction created by the MSMQ and SQL Server transports can still be achieved by creating a custom pipeline behavior with a suppressed transaction scope. Will be removed in version 7.0.0.", true)]
         public NServiceBus.Settings.TransactionSettings DoNotWrapHandlersExecutionInATransactionScope() { }
+        [System.ObsoleteAttribute("Please use `config.UseTransport<MyTransport>().Transactions(TransportTransactionM" +
+            "ode.ReceiveOnly|TransportTransactionMode.SendsAtomicWithReceive);` instead. Will" +
+            " be removed in version 7.0.0.", true)]
         public NServiceBus.Settings.TransactionSettings Enable() { }
+        [System.ObsoleteAttribute("Please use `config.UseTransport<MyTransport>().Transactions(TransportTransactionM" +
+            "ode.TransactionScope);` instead. Will be removed in version 7.0.0.", true)]
         public NServiceBus.Settings.TransactionSettings EnableDistributedTransactions() { }
         public NServiceBus.Settings.TransactionSettings IsolationLevel(System.Transactions.IsolationLevel isolationLevel) { }
         public NServiceBus.Settings.TransactionSettings WrapHandlersExecutionInATransactionScope() { }
@@ -2748,11 +2757,11 @@ namespace NServiceBus.Transports
     }
     public class PushSettings
     {
-        public PushSettings(string inputQueue, string errorQueue, bool purgeOnStartup, NServiceBus.Transports.TransactionSupport requiredTransactionSupport) { }
+        public PushSettings(string inputQueue, string errorQueue, bool purgeOnStartup, NServiceBus.TransportTransactionMode requiredTransactionMode) { }
         public string ErrorQueue { get; }
         public string InputQueue { get; }
         public bool PurgeOnStartup { get; }
-        public NServiceBus.Transports.TransactionSupport RequiredTransactionSupport { get; }
+        public NServiceBus.TransportTransactionMode RequiredTransactionMode { get; }
     }
     public class QueueBindings
     {
@@ -2769,13 +2778,6 @@ namespace NServiceBus.Transports
         public bool Succeeded { get; }
         public static NServiceBus.Transports.StartupCheckResult Failed(string errorMessage) { }
     }
-    public enum TransactionSupport
-    {
-        None = 0,
-        SingleQueue = 1,
-        MultiQueue = 2,
-        Distributed = 3,
-    }
     public class TransportAddresses
     {
         public TransportAddresses() { }
@@ -2790,9 +2792,10 @@ namespace NServiceBus.Transports
         public bool HasNativePubSubSupport { get; set; }
         [System.ObsoleteAttribute("Please use `GetOutboundRoutingPolicy` instead. Will be removed in version 7.0.0.", true)]
         public bool HasSupportForCentralizedPubSub { get; set; }
-        [System.ObsoleteAttribute("GetTransactionSupport. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("GetSupportedTransactionMode. Will be removed in version 7.0.0.", true)]
         public System.Nullable<bool> HasSupportForDistributedTransactions { get; set; }
-        [System.ObsoleteAttribute("Please use `GetTransactionSupport` instead. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Please use `GetSupportedTransactionMode` instead. Will be removed in version 7.0." +
+            "0.", true)]
         public bool HasSupportForMultiQueueNativeTransactions { get; set; }
         public bool RequireOutboxConsent { get; set; }
         public virtual bool RequiresConnectionString { get; }
@@ -2802,7 +2805,7 @@ namespace NServiceBus.Transports
         public abstract NServiceBus.Transports.OutboundRoutingPolicy GetOutboundRoutingPolicy(NServiceBus.Settings.ReadOnlySettings settings);
         public abstract NServiceBus.Transports.IManageSubscriptions GetSubscriptionManager();
         public abstract System.Collections.Generic.IEnumerable<System.Type> GetSupportedDeliveryConstraints();
-        public abstract NServiceBus.Transports.TransactionSupport GetTransactionSupport();
+        public abstract NServiceBus.TransportTransactionMode GetSupportedTransactionMode();
         public abstract string ToTransportAddress(NServiceBus.LogicalAddress logicalAddress);
     }
     public class TransportOperation
@@ -3133,12 +3136,12 @@ namespace NServiceBus.Unicast.Transport
         public bool DoNotWrapHandlersExecutionInATransactionScope { get; set; }
         public System.Transactions.IsolationLevel IsolationLevel { get; set; }
         [System.ObsoleteAttribute("IsTransactional is no longer used here. Please use `context.Settings.GetRequiredT" +
-            "ransactionSupportForReceives() != TransactionSupport.None` instead. Will be remo" +
-            "ved in version 7.0.0.", true)]
+            "ransactionModeForReceives() != Transactions.None` instead. Will be removed in ve" +
+            "rsion 7.0.0.", true)]
         public bool IsTransactional { get; set; }
         [System.ObsoleteAttribute("SuppressDistributedTransactions is no longer used here. Please use `context.Setti" +
-            "ngs.GetRequiredTransactionSupportForReceives() != TransactionSupport.Distributed" +
-            "` instead. Will be removed in version 7.0.0.", true)]
+            "ngs.GetRequiredTransactionModeForReceives() != Transactions.TransactionScope` in" +
+            "stead. Will be removed in version 7.0.0.", true)]
         public bool SuppressDistributedTransactions { get; set; }
         public System.TimeSpan TransactionTimeout { get; set; }
     }
