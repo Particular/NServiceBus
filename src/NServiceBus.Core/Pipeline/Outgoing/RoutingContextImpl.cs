@@ -1,9 +1,9 @@
-namespace NServiceBus.TransportDispatch
+namespace NServiceBus
 {
     using System.Collections.Generic;
-    using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
+    using NServiceBus.TransportDispatch;
     using NServiceBus.Transports;
 
     class RoutingContextImpl : OutgoingContextImpl, RoutingContext

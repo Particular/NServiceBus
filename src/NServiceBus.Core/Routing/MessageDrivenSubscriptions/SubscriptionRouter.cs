@@ -1,8 +1,10 @@
-﻿namespace NServiceBus.Routing.MessageDrivenSubscriptions
+﻿namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using NServiceBus.Routing;
+    using NServiceBus.Routing.MessageDrivenSubscriptions;
     using NServiceBus.Transports;
 
     class SubscriptionRouter

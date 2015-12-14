@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Serializers.XML
+﻿namespace NServiceBus
 {
     using System;
     using System.Collections;
@@ -12,9 +12,9 @@
     using NServiceBus.Logging;
     using NServiceBus.MessageInterfaces;
 
-    class Deserializer
+    class XmlDeserialization
     {
-        public Deserializer(IMessageMapper mapper, XmlSerializerCache cache, bool skipWrappingRawXml, bool sanitizeInput)
+        public XmlDeserialization(IMessageMapper mapper, XmlSerializerCache cache, bool skipWrappingRawXml, bool sanitizeInput)
         {
             this.mapper = mapper;
             this.cache = cache;
@@ -662,7 +662,7 @@
         }
 
         const string BASETYPE = "baseType";
-        static ILog logger = LogManager.GetLogger<Deserializer>();
+        static ILog logger = LogManager.GetLogger<XmlDeserialization>();
         XmlSerializerCache cache;
         bool skipWrappingRawXml;
         bool sanitizeInput;

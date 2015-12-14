@@ -1,4 +1,4 @@
-namespace NServiceBus.Routing
+namespace NServiceBus
 {
     using System;
     using System.Collections.Concurrent;
@@ -178,7 +178,7 @@ namespace NServiceBus.Routing
 
             void SetupTimer()
             {
-                delayUpdate.Change(toWaitBeforeRaisingFileChangedEvent, Timeout.InfiniteTimeSpan);
+                delayUpdate.Change(toWaitBeforeRaisingFileChangedEvent, System.Threading.Timeout.InfiniteTimeSpan);
             }
 
             Timer delayUpdate;

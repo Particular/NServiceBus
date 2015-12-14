@@ -5,7 +5,6 @@ namespace NServiceBus
     using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.Logging;
-    using Scheduling;
 
     /// <summary>
     /// Extends the context with scheduling capabilities.
@@ -88,7 +87,7 @@ namespace NServiceBus
             options.RouteToLocalEndpointInstance();
             options.Context.GetOrCreate<ScheduleBehavior.State>().TaskDefinition = taskDefinition;
 
-            return context.Send(new Scheduling.Messages.ScheduledTask
+            return context.Send(new ScheduledTask
             {
                 TaskId = taskDefinition.Id,
                 Name = taskDefinition.Name,

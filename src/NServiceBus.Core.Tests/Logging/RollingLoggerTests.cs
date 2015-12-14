@@ -4,8 +4,6 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using NServiceBus.Licensing;
-    using NServiceBus.Logging;
     using NUnit.Framework;
 
     [TestFixture]

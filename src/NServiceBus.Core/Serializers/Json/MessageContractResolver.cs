@@ -1,4 +1,4 @@
-namespace NServiceBus.Serializers.Json.Internal
+namespace NServiceBus
 {
     using System;
     using MessageInterfaces;

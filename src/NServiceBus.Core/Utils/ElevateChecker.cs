@@ -1,4 +1,4 @@
-namespace NServiceBus.Installation
+namespace NServiceBus
 {
     using System.Security.Principal;
 

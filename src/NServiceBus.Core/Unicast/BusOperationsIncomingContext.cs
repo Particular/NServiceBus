@@ -1,7 +1,6 @@
-namespace NServiceBus.Unicast
+namespace NServiceBus
 {
     using System.Threading.Tasks;
-    using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Routing;
     using NServiceBus.Settings;
@@ -10,10 +9,6 @@ namespace NServiceBus.Unicast
 
     static class BusOperationsIncomingContext
     {
-        /// <summary>
-        /// Forwards the current message being handled to the destination maintaining
-        /// all of its transport-level properties and headers.
-        /// </summary>
         public static async Task ForwardCurrentMessageTo(IncomingContext context, string destination)
         {
             var messageBeingProcessed = context.Extensions.Get<IncomingMessage>();

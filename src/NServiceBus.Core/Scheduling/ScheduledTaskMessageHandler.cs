@@ -1,7 +1,6 @@
-namespace NServiceBus.Scheduling
+namespace NServiceBus
 {
     using System.Threading.Tasks;
-    using Messages;
 
     class ScheduledTaskMessageHandler : IHandleMessages<ScheduledTask>
     {

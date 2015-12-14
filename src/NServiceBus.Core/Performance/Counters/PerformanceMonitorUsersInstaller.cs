@@ -1,4 +1,4 @@
-namespace NServiceBus.Performance.Counters
+namespace NServiceBus
 {
     using System;
     using System.Diagnostics;
@@ -7,10 +7,8 @@ namespace NServiceBus.Performance.Counters
     using System.Threading.Tasks;
     using NServiceBus.Installation;
     using NServiceBus.Logging;
-
-    /// <summary>
-    /// Add the identity to the 'Performance Monitor Users' local group 
-    /// </summary>
+    
+    // Add the identity to the 'Performance Monitor Users' local group 
     class PerformanceMonitorUsersInstaller : INeedToInstallSomething
     {
         static ILog logger = LogManager.GetLogger<PerformanceMonitorUsersInstaller>();

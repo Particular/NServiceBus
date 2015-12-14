@@ -93,7 +93,7 @@ namespace NServiceBus
                 {
                     var bindings = context.Settings.Get<QueueBindings>();
                     new QueuePermissionChecker().CheckQueuePermissions(bindings.SendingAddresses);
-                    var result = new TimeToBeReceivedOverrideCheck(context.Settings).CheckTimeToBeReceivedOverrides();
+                    var result = new MsmqTimeToBeReceivedOverrideCheck(context.Settings).CheckTimeToBeReceivedOverrides();
                     return Task.FromResult(result);
                 });
         }

@@ -1,4 +1,4 @@
-namespace NServiceBus.ObjectBuilder.Autofac
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
@@ -7,25 +7,17 @@ namespace NServiceBus.ObjectBuilder.Autofac
     using global::Autofac;
     using global::Autofac.Builder;
     using global::Autofac.Core;
+    using IContainer = NServiceBus.ObjectBuilder.Common.IContainer;
 
-    ///<summary>
-    /// Autofac implementation of <see cref="Common.IContainer"/>.
-    ///</summary>
-    class AutofacObjectBuilder : Common.IContainer
+    class AutofacObjectBuilder : IContainer
     {
         ILifetimeScope container;
 
-        ///<summary>
-        /// Instantiates the class utilizing the given container.
-        ///</summary>
         public AutofacObjectBuilder(ILifetimeScope container)
         {
             this.container = container ?? new ContainerBuilder().Build();
         }
 
-        ///<summary>
-        /// Instantiates the class with an empty Autofac container.
-        ///</summary>
         public AutofacObjectBuilder()
             : this(null)
         {
@@ -36,32 +28,22 @@ namespace NServiceBus.ObjectBuilder.Autofac
             //Injected at compile time
         }
 
-        /// <summary>
-        /// Returns a child instance of the container to facilitate deterministic disposal
-        /// of all resources built by the child container.
-        /// </summary>
-        public Common.IContainer BuildChildContainer()
+        public IContainer BuildChildContainer()
         {
             return new AutofacObjectBuilder(container.BeginLifetimeScope());
         }
 
-        ///<summary>
-        /// Build an instance of a given type using Autofac.
-        ///</summary>
         public object Build(Type typeToBuild)
         {
             return container.Resolve(typeToBuild);
         }
 
-        ///<summary>
-        /// Build all instances of a given type using Autofac.
-        ///</summary>
         public IEnumerable<object> BuildAll(Type typeToBuild)
         {
             return ResolveAll(container, typeToBuild);
         }
 
-        void Common.IContainer.Configure(Type component, DependencyLifecycle dependencyLifecycle)
+        void IContainer.Configure(Type component, DependencyLifecycle dependencyLifecycle)
         {
             var registration = GetComponentRegistration(component);
 
@@ -79,7 +61,7 @@ namespace NServiceBus.ObjectBuilder.Autofac
             builder.Update(container.ComponentRegistry);
         }
 
-        void Common.IContainer.Configure<T>(Func<T> componentFactory, DependencyLifecycle dependencyLifecycle)
+        void IContainer.Configure<T>(Func<T> componentFactory, DependencyLifecycle dependencyLifecycle)
         {
             var registration = GetComponentRegistration(typeof(T));
 
@@ -97,9 +79,6 @@ namespace NServiceBus.ObjectBuilder.Autofac
             builder.Update(container.ComponentRegistry);
         }
 
-        ///<summary>
-        /// Configure the value of a named component property.
-        ///</summary>
         public void ConfigureProperty(Type component, string property, object value)
         {
             var registration = GetComponentRegistration(component);
@@ -113,9 +92,6 @@ namespace NServiceBus.ObjectBuilder.Autofac
             registration.Activating += (sender, e) => SetPropertyValue(e.Instance, property, value);
         }
 
-        ///<summary>
-        /// Register a singleton instance of a dependency within Autofac.
-        ///</summary>
         public void RegisterSingleton(Type lookupType, object instance)
         {
             var builder = new ContainerBuilder();
@@ -132,9 +108,6 @@ namespace NServiceBus.ObjectBuilder.Autofac
         {
         }
 
-        ///<summary>
-        /// Set a property value on an instance using reflection
-        ///</summary>
         static void SetPropertyValue(object instance, string propertyName, object value)
         {
             instance.GetType()

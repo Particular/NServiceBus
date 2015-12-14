@@ -1,7 +1,6 @@
 namespace NServiceBus
 {
     using System.IO;
-    using Licensing;
     using Logging;
 
     /// <summary>

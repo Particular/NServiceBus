@@ -1,7 +1,8 @@
-namespace NServiceBus.Pipeline
+namespace NServiceBus
 {
     using System;
     using System.Linq;
+    using NServiceBus.Pipeline;
 
     static class BehaviorTypeChecker
     {
@@ -34,10 +35,15 @@ namespace NServiceBus.Pipeline
             }
 
             if (givenType.IsGenericType && givenType.GetGenericTypeDefinition() == iBehaviorType)
+            {
                 return true;
+            }
 
             var baseType = givenType.BaseType;
-            if (baseType == null) return false;
+            if (baseType == null)
+            {
+                return false;
+            }
 
             return IsAssignableToIBehavior(baseType);
         }

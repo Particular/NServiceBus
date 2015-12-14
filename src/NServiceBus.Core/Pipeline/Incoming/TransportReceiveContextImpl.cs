@@ -1,5 +1,7 @@
-﻿namespace NServiceBus.Pipeline.Contexts
+﻿namespace NServiceBus
 {
+    using NServiceBus.Pipeline;
+    using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Transports;
 
     class TransportReceiveContextImpl : BehaviorContextImpl, TransportReceiveContext

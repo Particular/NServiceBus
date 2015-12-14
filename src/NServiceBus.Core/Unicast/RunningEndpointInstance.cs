@@ -1,11 +1,11 @@
-namespace NServiceBus.Unicast
+namespace NServiceBus
 {
     using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.Features;
     using NServiceBus.Logging;
     using NServiceBus.ObjectBuilder;
-    using NServiceBus.Pipeline;
+    using UnicastBus = NServiceBus.Unicast.UnicastBus;
 
     class RunningEndpointInstance : IEndpointInstance
     {

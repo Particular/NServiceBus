@@ -1,4 +1,4 @@
-namespace NServiceBus.Transports.Msmq
+namespace NServiceBus
 {
     using System;
     using System.Collections.Concurrent;
@@ -8,12 +8,12 @@ namespace NServiceBus.Transports.Msmq
     using System.Threading;
     using System.Threading.Tasks;
     using Logging;
+    using NServiceBus.Transports;
 
     class MessagePump : IPushMessages, IDisposable
     {
         public MessagePump(Func<TransactionSupport, ReceiveStrategy> receiveStrategyFactory)
         {
-            
             this.receiveStrategyFactory = receiveStrategyFactory;
         }
 
@@ -57,10 +57,7 @@ namespace NServiceBus.Transports.Msmq
 
             return TaskEx.Completed;
         }
-
-        /// <summary>
-        ///     Starts the dequeuing of message using the specified
-        /// </summary>
+        
         public void Start(PushRuntimeSettings limitations)
         {
             MessageQueue.ClearConnectionCache();
@@ -74,10 +71,7 @@ namespace NServiceBus.Transports.Msmq
             // LongRunning is useless combined with async/await
             messagePumpTask = Task.Run(() => ProcessMessages(), CancellationToken.None);
         }
-
-        /// <summary>
-        ///     Stops the dequeuing of messages.
-        /// </summary>
+        
         public async Task Stop()
         {
             cancellationTokenSource.Cancel();

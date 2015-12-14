@@ -8,7 +8,6 @@
     using NServiceBus.Transports;
     using NUnit.Framework;
     using ObjectBuilder;
-    using Pipeline.Contexts;
     using UnitOfWork;
 
     [TestFixture]

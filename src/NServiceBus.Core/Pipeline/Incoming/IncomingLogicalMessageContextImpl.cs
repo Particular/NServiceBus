@@ -1,6 +1,8 @@
-﻿namespace NServiceBus.Pipeline.Contexts
+﻿namespace NServiceBus
 {
     using System.Collections.Generic;
+    using NServiceBus.Pipeline;
+    using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Unicast.Messages;
 
     class IncomingLogicalMessageContextImpl : IncomingContextImpl, IncomingLogicalMessageContext

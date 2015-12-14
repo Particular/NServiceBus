@@ -1,4 +1,4 @@
-namespace NServiceBus.DelayedDelivery.TimeoutManager
+namespace NServiceBus
 {
     using System;
     using System.Threading;

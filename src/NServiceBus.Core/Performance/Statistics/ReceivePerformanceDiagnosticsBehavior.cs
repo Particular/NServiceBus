@@ -3,7 +3,6 @@ namespace NServiceBus
     using System;
     using System.Threading.Tasks;
     using Janitor;
-    using Performance.Counters;
     using Pipeline;
 
     [SkipWeaving]

@@ -3,7 +3,6 @@ namespace NServiceBus.Features
     using System;
     using System.Diagnostics;
     using Logging;
-    using NServiceBus.Licensing;
 
     class LicenseReminder : Feature
     {

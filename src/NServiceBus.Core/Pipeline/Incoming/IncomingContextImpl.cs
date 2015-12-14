@@ -1,12 +1,10 @@
-namespace NServiceBus.Pipeline.Contexts
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.Unicast;
-    using PublishOptions = NServiceBus.PublishOptions;
-    using ReplyOptions = NServiceBus.ReplyOptions;
-    using SendOptions = NServiceBus.SendOptions;
+    using NServiceBus.Pipeline;
+    using NServiceBus.Pipeline.Contexts;
 
     abstract class IncomingContextImpl : BehaviorContextImpl, IncomingContext
     {

@@ -1,4 +1,4 @@
-namespace NServiceBus.Encryption
+namespace NServiceBus
 {
     using System;
     using System.Collections;
@@ -7,6 +7,7 @@ namespace NServiceBus.Encryption
     using System.Linq;
     using System.Reflection;
     using Logging;
+    using NServiceBus.Encryption;
 
     class EncryptionMutator
     {

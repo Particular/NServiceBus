@@ -1991,7 +1991,7 @@ namespace NServiceBus.Pipeline
         public void InsertBeforeIfExists(string id) { }
         public virtual bool IsEnabled(NServiceBus.Settings.ReadOnlySettings settings) { }
     }
-    public abstract class StageConnector<TFrom, TTo> : NServiceBus.Pipeline.IBehavior, NServiceBus.Pipeline.IBehavior<TFrom, TTo>, NServiceBus.Pipeline.IStageConnector
+    public abstract class StageConnector<TFrom, TTo> : NServiceBus.IStageConnector, NServiceBus.Pipeline.IBehavior, NServiceBus.Pipeline.IBehavior<TFrom, TTo>
         where TFrom : NServiceBus.Pipeline.BehaviorContext
         where TTo : NServiceBus.Pipeline.BehaviorContext
     {

@@ -1,7 +1,6 @@
-namespace NServiceBus.Unicast
+namespace NServiceBus
 {
     using System.Threading.Tasks;
-    using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Routing;
     using NServiceBus.Settings;
@@ -10,10 +9,6 @@ namespace NServiceBus.Unicast
 
     static class BusOperationsInvokeHandlerContext
     {
-        /// <summary>
-        /// Moves the message being handled to the back of the list of available 
-        /// messages so it can be handled later.
-        /// </summary>
         public static Task HandleCurrentMessageLater(InvokeHandlerContext context)
         {
             if (context.HandleCurrentMessageLaterWasCalled)

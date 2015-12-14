@@ -1,11 +1,10 @@
-namespace NServiceBus.Transport
+namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
     using Logging;
     using Unicast.Transport;
     using ObjectBuilder;
-    using Pipeline;
     using Pipeline.Contexts;
     using Transports;
 

@@ -1,4 +1,4 @@
-namespace NServiceBus.Serializers.Json.Internal
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
@@ -6,12 +6,12 @@ namespace NServiceBus.Serializers.Json.Internal
     using System.Runtime.Serialization;
     using MessageInterfaces;
 
-    class MessageSerializationBinder : SerializationBinder
+    class JsonMessageSerializationBinder : SerializationBinder
     {
         IMessageMapper _messageMapper;
         IList<Type> messageTypes;
 
-        public MessageSerializationBinder(IMessageMapper messageMapper, IList<Type> messageTypes = null)
+        public JsonMessageSerializationBinder(IMessageMapper messageMapper, IList<Type> messageTypes = null)
         {
             _messageMapper = messageMapper;
             this.messageTypes = messageTypes;

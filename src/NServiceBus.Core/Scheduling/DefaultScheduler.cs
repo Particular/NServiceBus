@@ -1,4 +1,4 @@
-namespace NServiceBus.Scheduling
+namespace NServiceBus
 {
     using System;
     using System.Collections.Concurrent;
@@ -55,7 +55,7 @@ namespace NServiceBus.Scheduling
             options.DelayDeliveryWith(taskDefinition.Every);
             options.RouteToLocalEndpointInstance();
 
-            return bus.Send(new Messages.ScheduledTask
+            return bus.Send(new ScheduledTask
             {
                 TaskId = taskDefinition.Id,
                 Name = taskDefinition.Name,

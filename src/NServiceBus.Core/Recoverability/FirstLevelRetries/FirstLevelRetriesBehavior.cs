@@ -7,7 +7,6 @@ namespace NServiceBus
     using NServiceBus.Settings;
     using Pipeline;
     using Pipeline.Contexts;
-    using Recoverability.FirstLevelRetries;
 
     class FirstLevelRetriesBehavior : Behavior<TransportReceiveContext>
     {

@@ -5,7 +5,6 @@
     using System.Linq;
     using NServiceBus.Features;
     using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
-    using NServiceBus.Serializers;
 
     /// <summary>
     /// Base class for configuring <see cref="SerializationDefinition"/> features.

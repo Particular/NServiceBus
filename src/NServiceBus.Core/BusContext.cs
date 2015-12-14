@@ -4,7 +4,6 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using NServiceBus.Extensibility;
     using NServiceBus.Pipeline;
-    using NServiceBus.Unicast;
 
     class BusContext : IBusContext
     {

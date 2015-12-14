@@ -5,7 +5,6 @@
     using System.Messaging;
     using System.Security;
     using NServiceBus.Logging;
-    using NServiceBus.Transports.Msmq;
 
     class QueuePermissionChecker
     {
