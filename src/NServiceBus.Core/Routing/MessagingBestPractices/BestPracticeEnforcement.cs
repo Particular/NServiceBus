@@ -1,6 +1,5 @@
 namespace NServiceBus.Features
 {
-    using NServiceBus.MessagingBestPractices;
     using NServiceBus.Pipeline;
 
     /// <summary>

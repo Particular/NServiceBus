@@ -1,19 +1,17 @@
-namespace NServiceBus.Transports.Msmq
+namespace NServiceBus
 {
     using System;
     using System.Messaging;
     using System.Security.Principal;
     using System.Threading.Tasks;
-    using Config;
     using Logging;
+    using NServiceBus.Transports;
+    using NServiceBus.Transports.Msmq.Config;
 
     class QueueCreator : ICreateQueues
     {
         static ILog Logger = LogManager.GetLogger<QueueCreator>();
-
-        /// <summary>
-        /// The current runtime settings.
-        /// </summary>
+        
         MsmqSettings settings;
 
         public QueueCreator(MsmqSettings settings)
@@ -35,12 +33,7 @@ namespace NServiceBus.Transports.Msmq
 
             return TaskEx.Completed;
         }
-
-        ///<summary>
-        /// Utility method for creating a queue if it does not exist.
-        ///</summary>
-        ///<param name="address">Queue path to create</param>
-        ///<param name="identity">The identity to be given permissions to the queue</param>
+        
         void CreateQueueIfNecessary(string address, string identity)
         {
             if (address == null)
@@ -110,10 +103,7 @@ namespace NServiceBus.Transports.Msmq
                 SetPermissionsForQueue(messageQueue, account);
             }
         }
-
-        /// <summary>
-        /// Sets default permissions for queue.
-        /// </summary>
+        
         static void SetPermissionsForQueue(MessageQueue queue, string account)
         {
             queue.SetPermissions(LocalAdministratorsGroupName, MessageQueueAccessRights.FullControl, AccessControlEntryType.Allow);

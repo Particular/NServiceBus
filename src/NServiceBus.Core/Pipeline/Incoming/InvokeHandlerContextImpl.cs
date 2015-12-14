@@ -1,9 +1,10 @@
-namespace NServiceBus.Pipeline.Contexts
+namespace NServiceBus
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using NServiceBus.Persistence;
-    using NServiceBus.Unicast;
+    using NServiceBus.Pipeline;
+    using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Unicast.Behaviors;
     using NServiceBus.Unicast.Messages;
 

@@ -1,4 +1,4 @@
-namespace NServiceBus.Recoverability.SecondLevelRetries
+namespace NServiceBus
 {
     using System;
     using NServiceBus.Transports;

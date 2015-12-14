@@ -1,16 +1,17 @@
-﻿namespace NServiceBus.Transports.Msmq
+﻿namespace NServiceBus
 {
     using NServiceBus.Config;
     using System;
     using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.Features;
     using NServiceBus.Settings;
+    using NServiceBus.Transports;
 
-    class TimeToBeReceivedOverrideCheck
+    class MsmqTimeToBeReceivedOverrideCheck
     {
         ReadOnlySettings settings;
 
-        public TimeToBeReceivedOverrideCheck(ReadOnlySettings settings)
+        public MsmqTimeToBeReceivedOverrideCheck(ReadOnlySettings settings)
         {
             this.settings = settings;
         }
@@ -18,7 +19,7 @@
         {
             var usingMsmq = settings.Get<TransportDefinition>() is MsmqTransport;
             var isTransactional = settings.GetRequiredTransactionSupportForReceives() != TransactionSupport.None;
-            var outBoxRunning = settings.IsFeatureActive(typeof(Outbox));
+            var outBoxRunning = settings.IsFeatureActive(typeof(Features.Outbox));
 
             var messageAuditingConfig = settings.GetConfigSection<AuditConfig>();
             var auditTTBROverridden = messageAuditingConfig != null && messageAuditingConfig.OverrideTimeToBeReceived > TimeSpan.Zero;

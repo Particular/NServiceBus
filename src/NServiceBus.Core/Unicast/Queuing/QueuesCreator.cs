@@ -1,4 +1,4 @@
-namespace NServiceBus.Unicast.Queuing
+namespace NServiceBus
 {
     using System.Threading.Tasks;
     using Installation;

@@ -1,5 +1,6 @@
-﻿namespace NServiceBus.Transports.Msmq
+﻿namespace NServiceBus
 {
+    using NServiceBus.Transports;
 
     class TimeToBeReceivedOverrideChecker
     {

@@ -1,4 +1,4 @@
-namespace NServiceBus.Unicast.Transport
+namespace NServiceBus
 {
     using System.Collections.Generic;
 

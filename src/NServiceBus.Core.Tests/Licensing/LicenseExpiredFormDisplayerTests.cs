@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Licensing
 {
     using System;
-    using NServiceBus.Licensing;
     using NUnit.Framework;
 
     [TestFixture]

@@ -1,4 +1,4 @@
-namespace NServiceBus.InMemory.TimeoutPersister
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;

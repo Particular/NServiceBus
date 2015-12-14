@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Serializers
+﻿namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;

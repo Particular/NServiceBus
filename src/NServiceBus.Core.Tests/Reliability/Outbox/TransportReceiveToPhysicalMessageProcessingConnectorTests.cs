@@ -9,7 +9,6 @@
     using DeliveryConstraints;
     using NServiceBus.Outbox;
     using NServiceBus.Performance.TimeToBeReceived;
-    using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Routing;
     using Transports;

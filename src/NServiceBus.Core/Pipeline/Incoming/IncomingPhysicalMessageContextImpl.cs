@@ -1,12 +1,8 @@
 ﻿namespace NServiceBus
 {
     using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Transports;
 
-    /// <summary>
-    /// A context of behavior execution in physical message processing stage.
-    /// </summary>
     class IncomingPhysicalMessageContextImpl : IncomingContextImpl, IncomingPhysicalMessageContext
     {
         public IncomingPhysicalMessageContextImpl(IncomingMessage message, BehaviorContext parentContext)

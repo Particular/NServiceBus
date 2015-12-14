@@ -1,11 +1,9 @@
-namespace NServiceBus.Serializers.XML {
+namespace NServiceBus {
     using System;
     using System.IO;
     using System.Text;
 
-    /// <summary>
-	/// A StreamReader that excludes XML-illegal characters while reading.
-	/// </summary>
+	// A StreamReader that excludes XML-illegal characters while reading.
 	class XmlSanitizingStream : StreamReader
 	{
 		const int EOF = -1;

@@ -1,7 +1,8 @@
-﻿namespace NServiceBus.Routing
+﻿namespace NServiceBus
 {
     using System;
     using NServiceBus.Pipeline;
+    using NServiceBus.Routing;
 
     class UnsubscribeContextImpl : BehaviorContextImpl, UnsubscribeContext
     {

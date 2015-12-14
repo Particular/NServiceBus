@@ -1,10 +1,11 @@
-﻿namespace NServiceBus.Gateway.Deduplication
+﻿namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using Extensibility;
+    using NServiceBus.Gateway.Deduplication;
 
     class InMemoryGatewayDeduplication : IDeduplicateMessages
     {

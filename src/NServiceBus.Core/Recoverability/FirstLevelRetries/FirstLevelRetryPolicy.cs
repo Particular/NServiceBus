@@ -1,4 +1,4 @@
-namespace NServiceBus.Recoverability.FirstLevelRetries
+namespace NServiceBus
 {
     class FirstLevelRetryPolicy
     {

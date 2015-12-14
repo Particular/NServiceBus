@@ -1,4 +1,4 @@
-namespace NServiceBus.Forwarding
+namespace NServiceBus
 {
     using NServiceBus.Pipeline;
     using NServiceBus.Transports;

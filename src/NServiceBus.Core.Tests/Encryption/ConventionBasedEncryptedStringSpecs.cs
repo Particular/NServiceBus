@@ -2,7 +2,6 @@
 {
     using System;
     using NUnit.Framework;
-    using Conventions = NServiceBus.Conventions;
 
     [TestFixture]
     public class When_sending_a_message_with_user_defined_convention:UserDefinedConventionContext

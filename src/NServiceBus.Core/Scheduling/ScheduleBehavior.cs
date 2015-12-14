@@ -4,7 +4,6 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.OutgoingPipeline;
-    using NServiceBus.Scheduling;
 
     class ScheduleBehavior : Behavior<OutgoingLogicalMessageContext>
     {

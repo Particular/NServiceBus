@@ -2,7 +2,6 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using Forwarding;
     using Routing;
     using Pipeline;
     using TransportDispatch;

@@ -1,9 +1,10 @@
-﻿namespace NServiceBus.Pipeline
+﻿namespace NServiceBus
 {
     using System;
     using System.Diagnostics;
     using System.Linq;
     using System.Threading.Tasks;
+    using NServiceBus.Pipeline;
     using NServiceBus.Unicast.Transport;
 
     [DebuggerDisplay("{Type.Name}")]

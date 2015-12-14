@@ -1,7 +1,9 @@
-﻿namespace NServiceBus.Pipeline.OutgoingPipeline
+﻿namespace NServiceBus
 {
     using System.Collections.Generic;
     using NServiceBus.OutgoingPipeline;
+    using NServiceBus.Pipeline;
+    using NServiceBus.Pipeline.OutgoingPipeline;
     using NServiceBus.Routing;
 
     class OutgoingLogicalMessageContextImpl : OutgoingContextImpl, OutgoingLogicalMessageContext

@@ -3,9 +3,7 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using NServiceBus.Encryption;
     using NUnit.Framework;
-    using Conventions = NServiceBus.Conventions;
 
     [TestFixture]
     public class When_sending_a_message_using_the_default_convention : WireEncryptedStringContext

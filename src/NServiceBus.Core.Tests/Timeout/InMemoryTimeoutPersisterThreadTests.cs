@@ -7,7 +7,6 @@ namespace NServiceBus.Core.Tests.Timeout
     using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.Extensibility;
-    using NServiceBus.InMemory.TimeoutPersister;
     using NServiceBus.Timeout.Core;
     using NUnit.Framework;
 

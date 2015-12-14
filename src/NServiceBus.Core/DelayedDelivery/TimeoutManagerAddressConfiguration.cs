@@ -1,10 +1,7 @@
-﻿namespace NServiceBus.Features.DelayedDelivery
+﻿namespace NServiceBus
 {
     using System;
 
-    /// <summary>
-    /// Allows to configure the timeout address.
-    /// </summary>
     class TimeoutManagerAddressConfiguration
     {
         internal TimeoutManagerAddressConfiguration(string defaultTimeoutManagerAddress)
@@ -12,9 +9,6 @@
             TransportAddress = defaultTimeoutManagerAddress;
         }
 
-        /// <summary>
-        /// Sets the address of the timeout manager.
-        /// </summary>
         public void Set(string newTimeoutManagerAddress)
         {
             Guard.AgainstNullAndEmpty(newTimeoutManagerAddress, "newTimeoutManagerAddress");

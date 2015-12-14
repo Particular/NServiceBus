@@ -5,11 +5,9 @@
     using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.DelayedDelivery;
-    using NServiceBus.DelayedDelivery.TimeoutManager;
     using NServiceBus.DeliveryConstraints;
     using NServiceBus.Performance.TimeToBeReceived;
     using NServiceBus.Routing;
-    using NServiceBus.TransportDispatch;
     using NServiceBus.Transports;
     using NUnit.Framework;
 

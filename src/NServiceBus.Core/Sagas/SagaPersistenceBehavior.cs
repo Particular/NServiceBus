@@ -5,7 +5,6 @@
     using System.ComponentModel;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.DelayedDelivery.TimeoutManager;
     using NServiceBus.Logging;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;

@@ -2,9 +2,7 @@
 {
     using System;
     using NServiceBus.DelayedDelivery;
-    using NServiceBus.DelayedDelivery.TimeoutManager;
     using DeliveryConstraints;
-    using DelayedDelivery;
     using NServiceBus.ConsistencyGuarantees;
     using Settings;
     using Timeout.Core;

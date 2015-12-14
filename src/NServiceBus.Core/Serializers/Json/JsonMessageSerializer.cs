@@ -11,7 +11,6 @@ namespace NServiceBus.Serializers.Json
     using Newtonsoft.Json;
     using Newtonsoft.Json.Converters;
     using NServiceBus.Serialization;
-    using NServiceBus.Serializers.Json.Internal;
 
     /// <summary>
     /// JSON message serializer.
@@ -29,7 +28,7 @@ namespace NServiceBus.Serializers.Json
                 {
                     DateTimeStyles = DateTimeStyles.RoundtripKind
                 },
-                new XContainerConverter()
+                new XContainerJsonConverter()
             }
         };
         Encoding encoding = Encoding.UTF8;
@@ -53,7 +52,7 @@ namespace NServiceBus.Serializers.Json
             Guard.AgainstNull("stream", stream);
             Guard.AgainstNull("message", message);
             var jsonSerializer = JsonSerializer.Create(serializerSettings);
-            jsonSerializer.Binder = new MessageSerializationBinder(messageMapper);
+            jsonSerializer.Binder = new JsonMessageSerializationBinder(messageMapper);
 
             var jsonWriter = CreateJsonWriter(stream);
             jsonSerializer.Serialize(jsonWriter, message);
@@ -86,14 +85,14 @@ namespace NServiceBus.Serializers.Json
                         {
                             DateTimeStyles = DateTimeStyles.RoundtripKind
                         },
-                        new XContainerConverter()
+                        new XContainerJsonConverter()
                     }
                 };
             }
 
             var jsonSerializer = JsonSerializer.Create(settings);
             jsonSerializer.ContractResolver = new MessageContractResolver(messageMapper);
-            jsonSerializer.Binder = new MessageSerializationBinder(messageMapper, messageTypes);
+            jsonSerializer.Binder = new JsonMessageSerializationBinder(messageMapper, messageTypes);
 
             var reader = CreateJsonReader(stream);
             reader.Read();

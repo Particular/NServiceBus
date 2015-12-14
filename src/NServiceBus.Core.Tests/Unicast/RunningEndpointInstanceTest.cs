@@ -4,10 +4,7 @@
     using System.Threading.Tasks;
     using NServiceBus.Core.Tests;
     using NServiceBus.Features;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Settings;
-    using NServiceBus.Transport;
     using NUnit.Framework;
 
     [TestFixture]

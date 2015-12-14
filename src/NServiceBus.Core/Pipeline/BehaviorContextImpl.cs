@@ -1,11 +1,9 @@
-namespace NServiceBus.Pipeline
+namespace NServiceBus
 {
     using NServiceBus.Extensibility;
     using NServiceBus.ObjectBuilder;
+    using NServiceBus.Pipeline;
 
-    /// <summary>
-    /// Base class for a pipeline behavior.
-    /// </summary>
     abstract class BehaviorContextImpl : ContextBag, BehaviorContext
     {
         protected BehaviorContextImpl(BehaviorContext parentContext) : base(parentContext?.Extensions)

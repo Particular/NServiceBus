@@ -2,8 +2,6 @@ namespace NServiceBus.Features
 {
     using System;
     using NServiceBus.Config;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Recoverability.SecondLevelRetries;
     using NServiceBus.Settings;
     using NServiceBus.TransportDispatch;
     using NServiceBus.Transports;

@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using Features;
     using Serialization;
 
     /// <summary>
@@ -14,7 +13,7 @@
         /// </summary>
         protected internal override Type ProvidedByFeature()
         {
-            return typeof(XmlSerialization);
+            return typeof(Features.XmlSerialization);
         }
     }
 }

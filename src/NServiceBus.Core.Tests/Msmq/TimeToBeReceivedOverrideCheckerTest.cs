@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Core.Tests.Msmq
 {
-    using NServiceBus.Transports.Msmq;
     using NUnit.Framework;
 
     [TestFixture]

@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Unicast
+﻿namespace NServiceBus
 {
     using System;
     using System.Collections.Concurrent;

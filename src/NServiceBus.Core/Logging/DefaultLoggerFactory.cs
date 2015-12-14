@@ -1,7 +1,8 @@
-namespace NServiceBus.Logging
+namespace NServiceBus
 {
     using System;
     using System.Diagnostics;
+    using NServiceBus.Logging;
 
     class DefaultLoggerFactory : ILoggerFactory
     {

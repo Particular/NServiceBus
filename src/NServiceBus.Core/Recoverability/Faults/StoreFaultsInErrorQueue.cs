@@ -1,8 +1,6 @@
 namespace NServiceBus.Features
 {
-    using NServiceBus.Faults;
     using NServiceBus.Hosting;
-    using NServiceBus.Pipeline;
     using NServiceBus.TransportDispatch;
     using NServiceBus.Transports;
 

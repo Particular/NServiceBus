@@ -3,10 +3,8 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.InMemory.Outbox;
     using NServiceBus.Outbox;
     using NServiceBus.Transports;
-    using Pipeline.Contexts;
     using Unicast.Messages;
     using NUnit.Framework;
 

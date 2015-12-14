@@ -1,7 +1,6 @@
 namespace NServiceBus.Features
 {
-    using Scheduling;
-    using ScheduledTask = Scheduling.Messages.ScheduledTask;
+    using ScheduledTask = NServiceBus.ScheduledTask;
 
     /// <summary>
     /// NServiceBus scheduling capability you can schedule a task or an action/lambda, to be executed repeatedly in a given interval.

@@ -1,26 +1,19 @@
-namespace NServiceBus.Routing
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using NServiceBus.Routing;
 
     class DistributionPolicy
     {
-        List<Tuple<Func<Type, bool>,DistributionStrategy>> strategies = new List<Tuple<Func<Type, bool>, DistributionStrategy>>();
+        List<Tuple<Func<Type, bool>, DistributionStrategy>> strategies = new List<Tuple<Func<Type, bool>, DistributionStrategy>>();
 
-        /// <summary>
-        /// Creates a new distribution policy.
-        /// </summary>
         public DistributionPolicy()
         {
             strategies.Add(new Tuple<Func<Type, bool>, DistributionStrategy>(_ => true, new SingleInstanceRoundRobinDistributionStrategy()));
         }
 
-        /// <summary>
-        /// Sets a distribution strategy for a given subset of message types.
-        /// </summary>
-        /// <param name="distributionStrategy">The instance of a distribution strategy.</param>
-        /// <param name="typeMatchingRule">A predicate for determining the set of types.</param>
         internal void SetDistributionStrategy(DistributionStrategy distributionStrategy, Func<Type, bool> typeMatchingRule)
         {
             strategies.Insert(0, Tuple.Create(typeMatchingRule, distributionStrategy));

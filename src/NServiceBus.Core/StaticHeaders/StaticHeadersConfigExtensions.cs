@@ -1,6 +1,5 @@
 namespace NServiceBus
 {
-    using NServiceBus.StaticHeaders;
 
     /// <summary>
     /// Extensions to the public configuration api.

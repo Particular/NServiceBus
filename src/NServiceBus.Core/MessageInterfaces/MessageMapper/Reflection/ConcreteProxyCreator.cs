@@ -1,4 +1,4 @@
-namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;

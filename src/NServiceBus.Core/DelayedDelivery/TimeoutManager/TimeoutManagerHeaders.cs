@@ -1,4 +1,4 @@
-namespace NServiceBus.DelayedDelivery.TimeoutManager
+namespace NServiceBus
 {
     class TimeoutManagerHeaders
     {
