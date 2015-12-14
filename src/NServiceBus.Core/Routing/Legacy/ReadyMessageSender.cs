@@ -26,8 +26,9 @@
             Logger.DebugFormat("Ready startup message with WorkerSessionId {0} sent. ", workerSessionId);
         }
 
-        protected override void OnStop()
+        protected override Task OnStop(IBusContext context)
         {
+            return TaskEx.Completed;
         }
 
         Task SendReadyMessage(int capacity, bool isStarting)

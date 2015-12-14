@@ -93,6 +93,11 @@
                 }
             }
 
+            protected override Task OnStop(IBusContext context)
+            {
+                return TaskEx.Completed;
+            }
+
             IEnumerable<Type> eventsToSubscribe;
 
             static ILog Logger = LogManager.GetLogger<ApplySubscriptions>();

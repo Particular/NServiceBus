@@ -44,6 +44,11 @@ namespace NServiceBus
                     throw new Exception("Pre start-up check failed: "+ result.ErrorMessage);
                 }
             }
+
+            protected override Task OnStop(IBusContext context)
+            {
+                return TaskEx.Completed;
+            }
         }
     }
 }
