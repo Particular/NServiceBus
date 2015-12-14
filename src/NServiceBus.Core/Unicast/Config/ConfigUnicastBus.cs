@@ -8,6 +8,7 @@ namespace NServiceBus.Unicast.Config
     using Features;
     using Logging;
     using Messages;
+    using NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions;
     using ObjectBuilder;
     using Pipeline;
     using Pipeline.Contexts;
@@ -58,12 +59,31 @@ namespace NServiceBus.Unicast.Config
 
         void ConfigureSubscriptionAuthorization()
         {
-            var authType = TypesToScan.FirstOrDefault(t => typeof(IAuthorizeSubscriptions).IsAssignableFrom(t) && !t.IsInterface);
-
-            if (authType != null)
-                Configurer.ConfigureComponent(authType, DependencyLifecycle.SingleInstance);
+            var typeToUse = FindAuthorizationType(TypesToScan);
+            Configurer.ConfigureComponent(typeToUse, DependencyLifecycle.SingleInstance);
         }
-        
+
+
+        internal static Type FindAuthorizationType(IEnumerable<Type> availableTypes)
+        {
+            var authType = typeof(IAuthorizeSubscriptions);
+            var noopType = typeof(NoopSubscriptionAuthorizer);
+            var foundAuthTypes = availableTypes
+                .Where(t => t != noopType && authType.IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract)
+                .ToList();
+            if (foundAuthTypes.Count > 1)
+            {
+                var fullNames = foundAuthTypes.Select(type => type.FullName);
+                var error = string.Format("Only one instance of IAuthorizeSubscriptions is allowed. Found the following: '{0}'.", string.Join("', '", fullNames));
+                throw new Exception(error);
+            }
+            if (foundAuthTypes.Count == 0)
+            {
+                return noopType;
+            }
+            return foundAuthTypes.Single();
+        }
+
         /// <summary>
         /// Used to configure the bus.
         /// </summary>

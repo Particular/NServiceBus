@@ -108,6 +108,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BasicMessaging\When_starting_a_send_only.cs" />
+    <Compile Include="Msmq\When_publishing_with_authorizer.cs" />
+    <Compile Include="Msmq\When_unsubscribing_with_authorizer.cs" />
     <Compile Include="Msmq\When_TimeToBeReceivedOnForwardedMessages_set_and_transactional_Msmq.cs" />
     <Compile Include="Msmq\When_Audit_OverrideTimeToBeReceived_set_and_transactional_Msmq.cs" />
     <Compile Include="Msmq\When_TimeToBeReceived_set_and_DTC_Msmq.cs" />
