@@ -77,7 +77,7 @@
                 case Storage.Outbox:
                     return typeof(Outbox);
                 default:
-                    throw new ArgumentOutOfRangeException("storageEnum", "Unknown storage that has no equivalent StorageType");
+                    throw new ArgumentOutOfRangeException(nameof(storageEnum), "Unknown storage that has no equivalent StorageType");
             }
         }
 

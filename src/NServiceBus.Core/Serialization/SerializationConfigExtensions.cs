@@ -17,7 +17,7 @@
         /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
         public static SerializationExtentions<T> UseSerialization<T>(this BusConfiguration config) where T : SerializationDefinition, new()
         {
-            Guard.AgainstNull("config", config);
+            Guard.AgainstNull(nameof(config), config);
             var type = typeof(SerializationExtentions<>).MakeGenericType(typeof(T));
             var extension = (SerializationExtentions<T>)Activator.CreateInstance(type, config.Settings);
             var definition = (SerializationDefinition)Activator.CreateInstance(typeof(T));
@@ -34,8 +34,8 @@
         /// <param name="serializerType">The custom serializer type to use for serialization that implements <see cref="IMessageSerializer"/> or a derived type from <see cref="SerializationDefinition"/>.</param>
         public static void UseSerialization(this BusConfiguration config, Type serializerType)
         {
-            Guard.AgainstNull("config", config);
-            Guard.AgainstNull("serializerType", serializerType);
+            Guard.AgainstNull(nameof(config), config);
+            Guard.AgainstNull(nameof(serializerType), serializerType);
 
             if (typeof(SerializationDefinition).IsAssignableFrom(serializerType))
             {
@@ -46,7 +46,7 @@
 
             if (!typeof(IMessageSerializer).IsAssignableFrom(serializerType))
             {
-                throw new ArgumentException("The type needs to implement IMessageSerializer.", "serializerType");
+                throw new ArgumentException("The type needs to implement IMessageSerializer.", nameof(serializerType));
             }
 
             config.Settings.Set("SelectedSerializer", new CustomSerializer());
@@ -60,7 +60,7 @@
         /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
         public static void AddDeserializer<T>(this BusConfiguration config) where T : SerializationDefinition, new()
         {
-            Guard.AgainstNull("config", config);
+            Guard.AgainstNull(nameof(config), config);
 
             Dictionary<RuntimeTypeHandle, SerializationDefinition> deserializers;
             var instance = Activator.CreateInstance<T>();

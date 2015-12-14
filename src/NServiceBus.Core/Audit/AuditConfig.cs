@@ -44,7 +44,7 @@
             {
                 if (value < TimeSpan.Zero)
                 {
-                    throw new ArgumentException("OverrideTimeToBeReceived must be Zero (to indicate empty) or greater.", "value");
+                    throw new ArgumentException("OverrideTimeToBeReceived must be Zero (to indicate empty) or greater.", nameof(value));
                 }
                 this["OverrideTimeToBeReceived"] = value;
             }

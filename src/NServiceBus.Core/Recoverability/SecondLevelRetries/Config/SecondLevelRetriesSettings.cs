@@ -32,7 +32,7 @@ namespace NServiceBus.SecondLevelRetries.Config
         /// </summary>
         public void CustomRetryPolicy(Func<IncomingMessage, TimeSpan> customPolicy)
         {
-            Guard.AgainstNull("customPolicy", customPolicy);
+            Guard.AgainstNull(nameof(customPolicy), customPolicy);
             config.Settings.Set("SecondLevelRetries.RetryPolicy", customPolicy);
         }
     }

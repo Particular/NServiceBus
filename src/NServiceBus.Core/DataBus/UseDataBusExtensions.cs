@@ -14,7 +14,7 @@
         /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
         public static DataBusExtentions<T> UseDataBus<T>(this BusConfiguration config) where T : DataBusDefinition, new()
         {
-            Guard.AgainstNull("config", config);
+            Guard.AgainstNull(nameof(config), config);
             var type = typeof(DataBusExtentions<>).MakeGenericType(typeof(T));
             var extension = (DataBusExtentions<T>)Activator.CreateInstance(type, config.Settings);
             var definition = (DataBusDefinition)Activator.CreateInstance(typeof(T));
@@ -33,12 +33,12 @@
         /// <param name="dataBusType">The <see cref="IDataBus"/> <see cref="Type"/> to use.</param>
         public static DataBusExtentions UseDataBus(this BusConfiguration config, Type dataBusType)
         {
-            Guard.AgainstNull("config", config);
-            Guard.AgainstNull("dataBusType", dataBusType);
+            Guard.AgainstNull(nameof(config), config);
+            Guard.AgainstNull(nameof(dataBusType), dataBusType);
 
             if (!typeof(IDataBus).IsAssignableFrom(dataBusType))
             {
-                throw new ArgumentException("The type needs to implement IDataBus.", "dataBusType");
+                throw new ArgumentException("The type needs to implement IDataBus.", nameof(dataBusType));
             }
 
             config.Settings.Set("SelectedDataBus", new CustomDataBus());

@@ -16,8 +16,8 @@ namespace NServiceBus
         /// </summary>
         public ToSagaExpression(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration, Expression<Func<TMessage, object>> messageProperty)
         {
-            Guard.AgainstNull("sagaMessageFindingConfiguration", sagaMessageFindingConfiguration);
-            Guard.AgainstNull("messageProperty", messageProperty);
+            Guard.AgainstNull(nameof(sagaMessageFindingConfiguration), sagaMessageFindingConfiguration);
+            Guard.AgainstNull(nameof(messageProperty), messageProperty);
             this.sagaMessageFindingConfiguration = sagaMessageFindingConfiguration;
             this.messageProperty = messageProperty;
         }
@@ -29,7 +29,7 @@ namespace NServiceBus
         /// <param name="sagaEntityProperty">The property to map.</param>
         public void ToSaga(Expression<Func<TSagaData, object>> sagaEntityProperty)
         {
-            Guard.AgainstNull("sagaEntityProperty", sagaEntityProperty);
+            Guard.AgainstNull(nameof(sagaEntityProperty), sagaEntityProperty);
             sagaMessageFindingConfiguration.ConfigureMapping(sagaEntityProperty, messageProperty);
         }
     }

@@ -19,7 +19,7 @@ namespace NServiceBus
             get { return (TSagaData)Entity; }
             set
             {
-                Guard.AgainstNull("value", value);
+                Guard.AgainstNull(nameof(value), value);
                 Entity = value;
             }
         }

@@ -14,9 +14,9 @@
         /// <param name="requiredTransactionSupport">The required transaction support required for the receive operations.</param>
         public PushSettings(string inputQueue, string errorQueue, bool purgeOnStartup, TransactionSupport requiredTransactionSupport)
         {
-            Guard.AgainstNullAndEmpty("inputQueue", inputQueue);
-            Guard.AgainstNullAndEmpty("errorQueue", errorQueue);
-            Guard.AgainstNull("requiredTransactionSupport", requiredTransactionSupport);
+            Guard.AgainstNullAndEmpty(nameof(inputQueue), inputQueue);
+            Guard.AgainstNullAndEmpty(nameof(errorQueue), errorQueue);
+            Guard.AgainstNull(nameof(requiredTransactionSupport), requiredTransactionSupport);
 
             PurgeOnStartup = purgeOnStartup;
             RequiredTransactionSupport = requiredTransactionSupport;

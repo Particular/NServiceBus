@@ -93,7 +93,7 @@ namespace NServiceBus.Extensibility
         /// </summary>
         public void Set<T>(string key, T t)
         {
-            Guard.AgainstNullAndEmpty("key", key);
+            Guard.AgainstNullAndEmpty(nameof(key), key);
             stash[key] = t;
         }
 
@@ -106,7 +106,7 @@ namespace NServiceBus.Extensibility
         /// <returns><code>true</code> if found, otherwise <code>false</code>.</returns>
         public bool TryGet<T>(string key, out T result)
         {
-            Guard.AgainstNullAndEmpty("key", key);
+            Guard.AgainstNullAndEmpty(nameof(key), key);
             object value;
             if (stash.TryGetValue(key, out value))
             {
@@ -130,7 +130,7 @@ namespace NServiceBus.Extensibility
         }
         T Get<T>(string key)
         {
-            Guard.AgainstNullAndEmpty("key", key);
+            Guard.AgainstNullAndEmpty(nameof(key), key);
             T result;
 
             if (!TryGet(key, out result))
@@ -143,7 +143,7 @@ namespace NServiceBus.Extensibility
 
         void Remove(string key)
         {
-            Guard.AgainstNullAndEmpty("key", key);
+            Guard.AgainstNullAndEmpty(nameof(key), key);
             stash.Remove(key);
         }
 

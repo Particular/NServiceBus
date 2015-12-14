@@ -22,7 +22,7 @@
         /// <param name="next">Ignored since there by definition is no next behavior to call.</param>
         public sealed override Task Invoke(T context, Func<TerminatingContext, Task> next)
         {
-            Guard.AgainstNull("next", next);
+            Guard.AgainstNull(nameof(next), next);
 
             return Terminate(context);
         }

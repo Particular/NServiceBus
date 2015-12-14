@@ -48,8 +48,8 @@ namespace NServiceBus
         /// <param name="handlerTypes">The handler types to execute first.</param>
         public static void ExecuteTheseHandlersFirst(this BusConfiguration config, IEnumerable<Type> handlerTypes)
         {
-            Guard.AgainstNull("config", config);
-            Guard.AgainstNull("handlerTypes", handlerTypes);
+            Guard.AgainstNull(nameof(config), config);
+            Guard.AgainstNull(nameof(handlerTypes), handlerTypes);
 
             List<Type> list;
             if (!config.Settings.TryGet("NServiceBus.ExecuteTheseHandlersFirst", out list))
@@ -83,8 +83,8 @@ namespace NServiceBus
         /// <param name="handlerTypes">The handler types to execute first.</param>
         public static void ExecuteTheseHandlersFirst(this BusConfiguration config, params Type[] handlerTypes)
         {
-            Guard.AgainstNull("config", config);
-            Guard.AgainstNull("handlerTypes", handlerTypes);
+            Guard.AgainstNull(nameof(config), config);
+            Guard.AgainstNull(nameof(handlerTypes), handlerTypes);
 
             config.ExecuteTheseHandlersFirst((IEnumerable<Type>)handlerTypes);
         }

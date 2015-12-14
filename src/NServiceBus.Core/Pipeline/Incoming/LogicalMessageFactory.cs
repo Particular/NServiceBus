@@ -45,7 +45,7 @@ namespace NServiceBus.Unicast.Messages
 
             if (messageType == null)
             {
-                throw new ArgumentNullException("messageType");
+                throw new ArgumentNullException(nameof(messageType));
             }
 
             var realMessageType = messageMapper.GetMappedTypeFor(messageType);
