@@ -14,7 +14,11 @@
         {
             var context = await Scenario.Define<TestContext>()
                 .WithEndpoint<EndpointWithCriticalError>(b => b
-                    .When((bus, c) => bus.SendLocal(new Message())))
+                    .When((bus, c) =>
+                    {
+                        c.ContextId = Guid.NewGuid().ToString();
+                        return bus.SendLocal(new Message() { ContextId = c.ContextId });
+                    }))
                 .Done(c => c.CriticalErrorRaised)
                 .Run();
 
@@ -36,6 +40,7 @@
 
         public class TestContext : ScenarioContext
         {
+            public string ContextId { get; set; }
             public bool CriticalErrorRaised { get; set; }
             public Exception RaiseCriticalErrorException { get; set; }
         }
@@ -62,14 +67,20 @@
                 {
                     try
                     {
-                        criticalError.Raise("a ciritical error", new SimulatedException());
+                        if (testContext.ContextId == request.ContextId)
+                        {
+                            criticalError.Raise("a ciritical error", new SimulatedException());
+                        }
                     }
                     catch (Exception exception)
                     {
                         testContext.RaiseCriticalErrorException = exception;
                     }
 
-                    testContext.CriticalErrorRaised = true;
+                    if (testContext.ContextId == request.ContextId)
+                    {
+                        testContext.CriticalErrorRaised = true;
+                    }
 
                     return Task.FromResult(0);
                 }
@@ -118,6 +129,9 @@
         }
 
         [Serializable]
-        public class Message : IMessage { }
+        public class Message : IMessage
+        {
+            public string ContextId { get; set; }
+        }
     }
 }
