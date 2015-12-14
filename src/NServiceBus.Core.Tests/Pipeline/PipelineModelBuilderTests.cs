@@ -58,9 +58,9 @@
             Assert.AreEqual(3, model.Count);
         }
 
-        class ParentContext : BehaviorContextImpl
+        class ParentContext : BehaviorContext
         {
-            public ParentContext(BehaviorContext parentContext)
+            public ParentContext(IBehaviorContext parentContext)
                 : base(parentContext)
             {
             }
@@ -68,15 +68,15 @@
 
         class ChildContext : ParentContext
         {
-            public ChildContext(BehaviorContext parentContext)
+            public ChildContext(IBehaviorContext parentContext)
                 : base(parentContext)
             {
             }
         }
 
-        class ChildContextReachableButNotInheritingFromRootContext : BehaviorContextImpl
+        class ChildContextReachableButNotInheritingFromRootContext : BehaviorContext
         {
-            public ChildContextReachableButNotInheritingFromRootContext(BehaviorContext parentContext)
+            public ChildContextReachableButNotInheritingFromRootContext(IBehaviorContext parentContext)
                 : base(parentContext)
             {
             }

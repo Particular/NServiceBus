@@ -27,7 +27,7 @@
             context.Container.ConfigureComponent(b =>
             {
                 var pipelinesCollection = context.Settings.Get<PipelineConfiguration>();
-                var auditPipeline = new PipelineBase<AuditContext>(b, context.Settings, pipelinesCollection.MainPipeline);
+                var auditPipeline = new PipelineBase<IAuditContext>(b, context.Settings, pipelinesCollection.MainPipeline);
 
                 return new InvokeAuditPipelineBehavior(auditPipeline,auditConfig.Address);
             }, DependencyLifecycle.InstancePerCall);

@@ -161,7 +161,7 @@
 
             static async Task<IEnumerable<IUnicastRoute>> QuerySubscriptionStore(ISubscriptionStorage subscriptions, List<Type> types, ContextBag contextBag)
             {
-                if (!(contextBag is OutgoingPublishContext))
+                if (!(contextBag is IOutgoingPublishContext))
                 {
                     return new List<IUnicastRoute>();
                 }

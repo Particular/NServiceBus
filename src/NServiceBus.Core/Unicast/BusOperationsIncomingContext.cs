@@ -9,12 +9,12 @@ namespace NServiceBus
 
     static class BusOperationsIncomingContext
     {
-        public static async Task ForwardCurrentMessageTo(IncomingContext context, string destination)
+        public static async Task ForwardCurrentMessageTo(IIncomingContext context, string destination)
         {
             var messageBeingProcessed = context.Extensions.Get<IncomingMessage>();
             var settings = context.Builder.Build<ReadOnlySettings>();
 
-            var pipeline = new PipelineBase<RoutingContext>(
+            var pipeline = new PipelineBase<IRoutingContext>(
                 context.Builder,
                 settings,
                 settings.Get<PipelineConfiguration>().MainPipeline);
@@ -24,7 +24,7 @@ namespace NServiceBus
                 messageBeingProcessed.Headers,
                 messageBeingProcessed.Body);
 
-            var routingContext = new RoutingContextImpl(outgoingMessage, new UnicastRoutingStrategy(destination), context);
+            var routingContext = new RoutingContext(outgoingMessage, new UnicastRoutingStrategy(destination), context);
 
             await pipeline.Invoke(routingContext).ConfigureAwait(false);
         }

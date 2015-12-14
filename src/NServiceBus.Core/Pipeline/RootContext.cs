@@ -2,11 +2,17 @@ namespace NServiceBus
 {
     using ObjectBuilder;
 
-    class RootContext : BehaviorContextImpl
+    /// <summary>
+    /// The root context.
+    /// </summary>
+    public class RootContext : BehaviorContext
     {
+        /// <summary>
+        /// Creates a new instance of a root context.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
         public RootContext(IBuilder builder) : base(null)
         {
-            //TODO DanielTim: Should we guard parameters against null and provide a FakeContext for testing?
             Set(builder);
         }
     }

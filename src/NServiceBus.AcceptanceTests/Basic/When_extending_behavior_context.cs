@@ -69,9 +69,9 @@
                 }
             }
 
-            class CustomContextExtensionBehavior : Behavior<IncomingLogicalMessageContext>
+            class CustomContextExtensionBehavior : Behavior<IIncomingLogicalMessageContext>
             {
-                public override Task Invoke(IncomingLogicalMessageContext context, Func<Task> next)
+                public override Task Invoke(IIncomingLogicalMessageContext context, Func<Task> next)
                 {
                     context.Extensions.Set("CustomExtension", ExtensionValue);
                     return next();

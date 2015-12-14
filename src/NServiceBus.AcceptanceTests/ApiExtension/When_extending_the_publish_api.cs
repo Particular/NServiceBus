@@ -62,9 +62,9 @@
                 });
             }
 
-            public class PublishExtensionBehavior : Behavior<OutgoingLogicalMessageContext>
+            public class PublishExtensionBehavior : Behavior<IOutgoingLogicalMessageContext>
             {
-                public override Task Invoke(OutgoingLogicalMessageContext context, Func<Task> next)
+                public override Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
                 {
                     Context data;
 

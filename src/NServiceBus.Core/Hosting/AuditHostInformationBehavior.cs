@@ -7,7 +7,7 @@
     using NServiceBus.Pipeline;
     using NServiceBus.Support;
 
-    class AuditHostInformationBehavior : Behavior<AuditContext>
+    class AuditHostInformationBehavior : Behavior<IAuditContext>
     {
         public AuditHostInformationBehavior(HostInformation hostInfo, Endpoint endpoint)
         {
@@ -15,7 +15,7 @@
             this.endpoint = endpoint;
         }
 
-        public override Task Invoke(AuditContext context, Func<Task> next)
+        public override Task Invoke(IAuditContext context, Func<Task> next)
         {
             context.AddAuditData(Headers.HostId, hostInfo.HostId.ToString("N"));
             context.AddAuditData(Headers.HostDisplayName, hostInfo.DisplayName);

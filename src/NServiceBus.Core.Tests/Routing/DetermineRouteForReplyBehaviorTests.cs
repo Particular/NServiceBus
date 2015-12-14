@@ -19,10 +19,10 @@
             var behavior = new UnicastReplyRouterConnector();
             var options = new ReplyOptions();
 
-            var context = new OutgoingReplyContextImpl(
+            var context = new OutgoingReplyContext(
                 new OutgoingLogicalMessage(new MyReply()),
                 options,
-                new TransportReceiveContextImpl(
+                new TransportReceiveContext(
                     new IncomingMessage(
                         "id",
                         new Dictionary<string, string>
@@ -48,10 +48,10 @@
             var behavior = new UnicastReplyRouterConnector();
             var options = new ReplyOptions();
 
-            var context = new OutgoingReplyContextImpl(
+            var context = new OutgoingReplyContext(
                 new OutgoingLogicalMessage(new MyReply()),
                 options,
-                new TransportReceiveContextImpl(
+                new TransportReceiveContext(
                     new IncomingMessage(
                         "id",
                         new Dictionary<string, string>(),
@@ -71,7 +71,7 @@
 
             options.OverrideReplyToAddressOfIncomingMessage("CustomReplyToAddress");
 
-            var context = new OutgoingReplyContextImpl(
+            var context = new OutgoingReplyContext(
                 new OutgoingLogicalMessage(new MyReply()),
                 options,
                 new RootContext(null));

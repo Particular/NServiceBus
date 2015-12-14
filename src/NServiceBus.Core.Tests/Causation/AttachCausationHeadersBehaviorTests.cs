@@ -66,9 +66,9 @@
             Assert.AreEqual("the message id", context.Headers[Headers.RelatedTo]);
         }
 
-        static OutgoingPhysicalMessageContext InitializeContext()
+        static IOutgoingPhysicalMessageContext InitializeContext()
         {
-            var context = new OutgoingPhysicalMessageContextImpl(null, null, ContextHelpers.GetOutgoingContext(new SendOptions()));
+            var context = new OutgoingPhysicalMessageContext(null, null, ContextHelpers.GetOutgoingContext(new SendOptions()));
             return context;
         }
     }

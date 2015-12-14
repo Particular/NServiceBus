@@ -7,9 +7,9 @@
     using Audit;
     using Pipeline;
 
-    class AuditInvalidLicenseBehavior : Behavior<AuditContext>
+    class AuditInvalidLicenseBehavior : Behavior<IAuditContext>
     {
-        public override async Task Invoke(AuditContext context, Func<Task> next)
+        public override async Task Invoke(IAuditContext context, Func<Task> next)
         {
             context.AddAuditData(Headers.HasLicenseExpired, true.ToString().ToLower());
 

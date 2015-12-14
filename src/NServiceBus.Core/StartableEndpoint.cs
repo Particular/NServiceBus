@@ -180,7 +180,7 @@ namespace NServiceBus
 
         TransportReceiver BuildPipelineInstance(PipelineModifications modifications, string name, PushSettings pushSettings, PushRuntimeSettings runtimeSettings)
         {
-            var pipelineInstance = new PipelineBase<TransportReceiveContext>(builder, settings, modifications);
+            var pipelineInstance = new PipelineBase<ITransportReceiveContext>(builder, settings, modifications);
             var receiver = new TransportReceiver(
                 name,
                 builder,

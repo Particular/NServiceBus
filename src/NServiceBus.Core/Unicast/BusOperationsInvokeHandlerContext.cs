@@ -9,7 +9,7 @@ namespace NServiceBus
 
     static class BusOperationsInvokeHandlerContext
     {
-        public static Task HandleCurrentMessageLater(InvokeHandlerContext context)
+        public static Task HandleCurrentMessageLater(IInvokeHandlerContext context)
         {
             if (context.HandleCurrentMessageLaterWasCalled)
             {
@@ -19,7 +19,7 @@ namespace NServiceBus
             var messageBeingProcessed = context.Extensions.Get<IncomingMessage>();
             var settings = context.Builder.Build<ReadOnlySettings>();
 
-            var pipeline = new PipelineBase<RoutingContext>(
+            var pipeline = new PipelineBase<IRoutingContext>(
                 context.Builder,
                 settings,
                 settings.Get<PipelineConfiguration>().MainPipeline);
@@ -29,7 +29,7 @@ namespace NServiceBus
                 messageBeingProcessed.Headers,
                 messageBeingProcessed.Body);
 
-            var routingContext = new RoutingContextImpl(outgoingMessage, new UnicastRoutingStrategy(settings.LocalAddress()), context);
+            var routingContext = new RoutingContext(outgoingMessage, new UnicastRoutingStrategy(settings.LocalAddress()), context);
 
             return pipeline.Invoke(routingContext);
         }

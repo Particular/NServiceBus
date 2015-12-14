@@ -4,7 +4,7 @@
     using System.Threading.Tasks;
     using NServiceBus.Pipeline;
 
-    class ProcessedMessageCounterBehavior : Behavior<IncomingPhysicalMessageContext>
+    class ProcessedMessageCounterBehavior : Behavior<IIncomingPhysicalMessageContext>
     {
         ReadyMessageSender readyMessageSender;
 
@@ -13,7 +13,7 @@
             this.readyMessageSender = readyMessageSender;
         }
 
-        public override async Task Invoke(IncomingPhysicalMessageContext context, Func<Task> next)
+        public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
         {
             await next().ConfigureAwait(false);
             readyMessageSender.MessageProcessed(context.Message.Headers);

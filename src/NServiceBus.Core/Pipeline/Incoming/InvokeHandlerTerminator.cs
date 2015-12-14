@@ -6,9 +6,9 @@
     using Pipeline.Contexts;
     using Sagas;
 
-    class InvokeHandlerTerminator : PipelineTerminator<InvokeHandlerContext>
+    class InvokeHandlerTerminator : PipelineTerminator<IInvokeHandlerContext>
     {
-        protected override async Task Terminate(InvokeHandlerContext context)
+        protected override async Task Terminate(IInvokeHandlerContext context)
         {
             context.Extensions.Set(new State { ScopeWasPresent = Transaction.Current != null });
 

@@ -10,8 +10,8 @@ namespace NServiceBus.Pipeline
     /// <typeparam name="TIn">The type of context that this behavior should receive.</typeparam>
     /// <typeparam name="TOut">The type of context that this behavior should output.</typeparam>
     public interface IBehavior<in TIn, out TOut> : IBehavior
-        where TIn : BehaviorContext
-        where TOut : BehaviorContext
+        where TIn : IBehaviorContext
+        where TOut : IBehaviorContext
     {
         /// <summary>
         /// Called when the behavior is executed.

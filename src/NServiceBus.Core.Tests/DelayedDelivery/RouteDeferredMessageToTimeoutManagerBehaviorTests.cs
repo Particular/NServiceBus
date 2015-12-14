@@ -20,7 +20,7 @@
             var delay = TimeSpan.FromDays(1);
             var message = new OutgoingMessage("id", new Dictionary<string, string>(), new byte[0]);
 
-            var context = new RoutingContextImpl(message, new UnicastRoutingStrategy("target"), null);
+            var context = new RoutingContext(message, new UnicastRoutingStrategy("target"), null);
 
             context.AddDeliveryConstraint(new DelayDeliveryWith(delay));
 
@@ -40,7 +40,7 @@
 
             var message = new OutgoingMessage("id", new Dictionary<string, string>(), new byte[0]);
 
-            var context = new RoutingContextImpl(message, new MulticastRoutingStrategy(null), null);
+            var context = new RoutingContext(message, new MulticastRoutingStrategy(null), null);
             context.AddDeliveryConstraint(new DelayDeliveryWith(delay));
 
             var ex = Assert.Throws<Exception>(async () => await behavior.Invoke(context, () => Task.FromResult(0)));
@@ -56,7 +56,7 @@
 
             var message = new OutgoingMessage("id", new Dictionary<string, string>(), new byte[0]);
 
-            var context = new RoutingContextImpl(message, new UnicastRoutingStrategy("target"), null);
+            var context = new RoutingContext(message, new UnicastRoutingStrategy("target"), null);
             context.AddDeliveryConstraint(new DelayDeliveryWith(delay));
             context.AddDeliveryConstraint(new DiscardIfNotReceivedBefore(TimeSpan.FromSeconds(30)));
 
@@ -72,7 +72,7 @@
 
             var message = new OutgoingMessage("id", new Dictionary<string, string>(), new byte[0]);
 
-            var context = new RoutingContextImpl(message, new UnicastRoutingStrategy("target"), null);
+            var context = new RoutingContext(message, new UnicastRoutingStrategy("target"), null);
             context.AddDeliveryConstraint(new DelayDeliveryWith(delay));
 
             await behavior.Invoke(context, () => Task.FromResult(0));
@@ -88,7 +88,7 @@
 
             var message = new OutgoingMessage("id", new Dictionary<string, string>(), new byte[0]);
 
-            var context = new RoutingContextImpl(message, new UnicastRoutingStrategy("target"), null);
+            var context = new RoutingContext(message, new UnicastRoutingStrategy("target"), null);
             context.AddDeliveryConstraint(new DoNotDeliverBefore(at));
 
             await behavior.Invoke(context, () => Task.FromResult(0));

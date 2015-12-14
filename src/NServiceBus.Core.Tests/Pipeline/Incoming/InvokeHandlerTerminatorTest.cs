@@ -119,7 +119,7 @@
             Assert.IsTrue(behaviorContext.Extensions.Get<InvokeHandlerTerminator.State>().ScopeWasPresent);
         }
 
-        static ActiveSagaInstance AssociateSagaWithMessage(FakeSaga saga, InvokeHandlerContext behaviorContext)
+        static ActiveSagaInstance AssociateSagaWithMessage(FakeSaga saga, IInvokeHandlerContext behaviorContext)
         {
             var sagaInstance = new ActiveSagaInstance(saga, SagaMetadata.Create(typeof(FakeSaga), new List<Type>(), new Conventions()));
             behaviorContext.Extensions.Set(sagaInstance);
@@ -139,9 +139,9 @@
             return messageHandler;
         }
 
-        static InvokeHandlerContext CreateBehaviorContext(MessageHandler messageHandler)
+        static IInvokeHandlerContext CreateBehaviorContext(MessageHandler messageHandler)
         {
-            var behaviorContext = new InvokeHandlerContextImpl(
+            var behaviorContext = new InvokeHandlerContext(
                 messageHandler,
                 "messageId",
                 "replyToAddress",

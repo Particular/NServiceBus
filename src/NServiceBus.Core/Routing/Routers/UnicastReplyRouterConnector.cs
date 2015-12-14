@@ -12,9 +12,9 @@ namespace NServiceBus
     using Routing;
     using Transports;
 
-    class UnicastReplyRouterConnector : StageConnector<OutgoingReplyContext, OutgoingLogicalMessageContext>
+    class UnicastReplyRouterConnector : StageConnector<IOutgoingReplyContext, IOutgoingLogicalMessageContext>
     {
-        public override async Task Invoke(OutgoingReplyContext context, Func<OutgoingLogicalMessageContext, Task> next)
+        public override async Task Invoke(IOutgoingReplyContext context, Func<IOutgoingLogicalMessageContext, Task> next)
         {
             var state = context.Extensions.GetOrCreate<State>();
 
@@ -28,7 +28,7 @@ namespace NServiceBus
             context.Headers[Headers.MessageIntent] = MessageIntentEnum.Reply.ToString();
 
             var addressLabels = RouteToDestination(replyToAddress).EnsureNonEmpty(() => "No destination specified.").ToArray();
-            var logicalMessageContext = new OutgoingLogicalMessageContextImpl(
+            var logicalMessageContext = new OutgoingLogicalMessageContext(
                     context.MessageId,
                     context.Headers,
                     context.Message,
@@ -45,7 +45,7 @@ namespace NServiceBus
             }
         }
 
-        static string GetReplyToAddressFromIncomingMessage(OutgoingReplyContext context)
+        static string GetReplyToAddressFromIncomingMessage(IOutgoingReplyContext context)
         {
             IncomingMessage incomingMessage;
 

@@ -8,7 +8,7 @@
     /// This is the base interface to implement to create a <see cref="IBehavior"/> that can be registered in a pipeline.
     /// </summary>
     /// <typeparam name="TContext">The context that this <see cref="IBehavior"/> should receive.</typeparam>
-    public abstract class Behavior<TContext> : IBehavior<TContext, TContext> where TContext : BehaviorContext
+    public abstract class Behavior<TContext> : IBehavior<TContext, TContext> where TContext : IBehaviorContext
     {
         /// <summary>
         /// Contains information about the pipeline this behavior is part of.

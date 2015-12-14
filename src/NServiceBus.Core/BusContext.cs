@@ -7,7 +7,7 @@ namespace NServiceBus
 
     class BusContext : IBusContext
     {
-        public BusContext(BehaviorContext context)
+        public BusContext(IBehaviorContext context)
         {
             this.context = context;
         }
@@ -44,6 +44,6 @@ namespace NServiceBus
             return BusOperationsBehaviorContext.Unsubscribe(context, eventType, options);
         }
 
-        BehaviorContext context;
+        IBehaviorContext context;
     }
 }

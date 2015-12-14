@@ -29,7 +29,7 @@
 
         public Type Type { get; }
 
-        public Task Invoke(BehaviorContext context, Func<BehaviorContext, Task> next)
+        public Task Invoke(IBehaviorContext context, Func<IBehaviorContext, Task> next)
         {
             return invoker.Invoke(instance, context, next);
         }

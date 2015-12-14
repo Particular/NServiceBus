@@ -7,14 +7,14 @@
     using Performance.TimeToBeReceived;
     using Pipeline;
 
-    class ApplyTimeToBeReceivedBehavior : Behavior<OutgoingLogicalMessageContext>
+    class ApplyTimeToBeReceivedBehavior : Behavior<IOutgoingLogicalMessageContext>
     {
         public ApplyTimeToBeReceivedBehavior(TimeToBeReceivedMappings timeToBeReceivedMappings)
         {
             this.timeToBeReceivedMappings = timeToBeReceivedMappings;
         }
         
-        public override Task Invoke(OutgoingLogicalMessageContext context, Func<Task> next)
+        public override Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
         {
             TimeSpan timeToBeReceived;
 

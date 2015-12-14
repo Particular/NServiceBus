@@ -7,16 +7,16 @@ namespace NServiceBus
     using OutgoingPipeline;
     using Pipeline;
 
-    class AttachCausationHeadersBehavior : Behavior<OutgoingPhysicalMessageContext>
+    class AttachCausationHeadersBehavior : Behavior<IOutgoingPhysicalMessageContext>
     {
-        public override Task Invoke(OutgoingPhysicalMessageContext context, Func<Task> next)
+        public override Task Invoke(IOutgoingPhysicalMessageContext context, Func<Task> next)
         {
             ApplyHeaders(context);
 
             return next();
         }
 
-        void ApplyHeaders(OutgoingPhysicalMessageContext context)
+        void ApplyHeaders(IOutgoingPhysicalMessageContext context)
         {
             var conversationId = CombGuid.Generate().ToString();
 

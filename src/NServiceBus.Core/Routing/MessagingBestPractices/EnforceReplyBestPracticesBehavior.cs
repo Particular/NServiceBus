@@ -5,14 +5,14 @@ namespace NServiceBus
     using OutgoingPipeline;
     using Pipeline;
 
-    class EnforceReplyBestPracticesBehavior : Behavior<OutgoingReplyContext>
+    class EnforceReplyBestPracticesBehavior : Behavior<IOutgoingReplyContext>
     {
         public EnforceReplyBestPracticesBehavior(Validations validations)
         {
             this.validations = validations;
         }
 
-        public override Task Invoke(OutgoingReplyContext context, Func<Task> next)
+        public override Task Invoke(IOutgoingReplyContext context, Func<Task> next)
         {
             EnforceBestPracticesOptions options;
 

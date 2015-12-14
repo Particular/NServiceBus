@@ -10,7 +10,7 @@ namespace NServiceBus
     using NServiceBus.Routing;
     using NServiceBus.Unicast.Queuing;
 
-    class UnicastSendRouterConnector : StageConnector<OutgoingSendContext, OutgoingLogicalMessageContext>
+    class UnicastSendRouterConnector : StageConnector<IOutgoingSendContext, IOutgoingLogicalMessageContext>
     {
         IUnicastRouter unicastRouter;
         DistributionPolicy distributionPolicy;
@@ -24,7 +24,7 @@ namespace NServiceBus
             this.distributionPolicy = distributionPolicy;
         }
 
-        public override async Task Invoke(OutgoingSendContext context, Func<OutgoingLogicalMessageContext, Task> next)
+        public override async Task Invoke(IOutgoingSendContext context, Func<IOutgoingLogicalMessageContext, Task> next)
         {
             var messageType = context.Message.MessageType;
             var distributionStrategy = distributionPolicy.GetDistributionStrategy(messageType);
@@ -38,7 +38,7 @@ namespace NServiceBus
 
             context.Headers[Headers.MessageIntent] = MessageIntentEnum.Send.ToString();
 
-            var logicalMessageContext = new OutgoingLogicalMessageContextImpl(
+            var logicalMessageContext = new OutgoingLogicalMessageContext(
                     context.MessageId,
                     context.Headers,
                     context.Message,

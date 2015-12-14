@@ -5,14 +5,14 @@
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.OutgoingPipeline;
 
-    class ApplyReplyToAddressBehavior : Behavior<OutgoingLogicalMessageContext>
+    class ApplyReplyToAddressBehavior : Behavior<IOutgoingLogicalMessageContext>
     {
         public ApplyReplyToAddressBehavior(string replyToAddress)
         {
             this.replyToAddress = replyToAddress;
         }
 
-        public override Task Invoke(OutgoingLogicalMessageContext context, Func<Task> next)
+        public override Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
         {
             context.Headers[Headers.ReplyToAddress] = replyToAddress;
 

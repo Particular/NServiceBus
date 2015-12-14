@@ -43,7 +43,7 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
                     .AddMapping<MyEvent>(typeof(Subscriber)); //just map to our self for this test
             }
 
-            public class SubscriptionSpy : Behavior<SubscribeContext>
+            public class SubscriptionSpy : Behavior<ISubscribeContext>
             {
                 Context testContext;
 
@@ -52,7 +52,7 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
                     this.testContext = testContext;
                 }
 
-                public override async Task Invoke(SubscribeContext context, Func<Task> next)
+                public override async Task Invoke(ISubscribeContext context, Func<Task> next)
                 {
                     await next().ConfigureAwait(false);
 

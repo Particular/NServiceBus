@@ -7,7 +7,7 @@
     using NServiceBus.Pipeline.OutgoingPipeline;
     using NServiceBus.Support;
 
-    class AddHostInfoHeadersBehavior : Behavior<OutgoingLogicalMessageContext>
+    class AddHostInfoHeadersBehavior : Behavior<IOutgoingLogicalMessageContext>
     {
         HostInformation hostInformation;
         Endpoint endpoint;
@@ -18,7 +18,7 @@
             this.endpoint = endpoint;
         }
 
-        public override Task Invoke(OutgoingLogicalMessageContext context, Func<Task> next)
+        public override Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
         {
             context.Headers[Headers.OriginatingMachine] = RuntimeEnvironment.MachineName;
             context.Headers[Headers.OriginatingEndpoint] = endpoint.ToString();

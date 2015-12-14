@@ -10,7 +10,7 @@
 
     [SkipWeaving]
     class PipelineBase<T> : IPipelineBase<T>
-        where T : BehaviorContext
+        where T : IBehaviorContext
     {
         public PipelineBase(IBuilder builder, ReadOnlySettings settings, PipelineModifications pipelineModifications)
         {

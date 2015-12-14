@@ -170,9 +170,9 @@
             return flrBehavior;
         }
 
-        TransportReceiveContext CreateContext(string messageId)
+        ITransportReceiveContext CreateContext(string messageId)
         {
-            return new TransportReceiveContextImpl(new IncomingMessage(messageId, new Dictionary<string, string>(), new MemoryStream()), null, new RootContext(null));
+            return new TransportReceiveContext(new IncomingMessage(messageId, new Dictionary<string, string>(), new MemoryStream()), null, new RootContext(null));
         }
     }
 }

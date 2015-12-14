@@ -7,7 +7,7 @@
     using Pipeline;
     using Pipeline.Contexts;
 
-    class DataBusReceiveBehavior : Behavior<IncomingLogicalMessageContext>
+    class DataBusReceiveBehavior : Behavior<IIncomingLogicalMessageContext>
     {
         public IDataBus DataBus { get; set; }
 
@@ -15,7 +15,7 @@
 
         public Conventions Conventions { get; set; }
 
-        public override async Task Invoke(IncomingLogicalMessageContext context, Func<Task> next)
+        public override async Task Invoke(IIncomingLogicalMessageContext context, Func<Task> next)
         {
             var message = context.Message.Instance;
 

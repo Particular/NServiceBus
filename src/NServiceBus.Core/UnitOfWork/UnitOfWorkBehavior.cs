@@ -7,9 +7,9 @@
     using Pipeline;
     using UnitOfWork;
 
-    class UnitOfWorkBehavior : Behavior<IncomingPhysicalMessageContext>
+    class UnitOfWorkBehavior : Behavior<IIncomingPhysicalMessageContext>
     {
-        public override async Task Invoke(IncomingPhysicalMessageContext context, Func<Task> next)
+        public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
         {
             var unitsOfWork = new Stack<IManageUnitsOfWork>();
 

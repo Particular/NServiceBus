@@ -8,7 +8,7 @@ namespace NServiceBus.Core.Tests
 
     class ContextHelpers
     {
-        public static OutgoingLogicalMessageContext GetOutgoingContext(ExtendableOptions options)
+        public static IOutgoingLogicalMessageContext GetOutgoingContext(ExtendableOptions options)
         {
             var context = GetOutgoingContext(new MyMessage());
 
@@ -19,9 +19,9 @@ namespace NServiceBus.Core.Tests
 
         class MyMessage { }
 
-        public static OutgoingLogicalMessageContext GetOutgoingContext(object message)
+        public static IOutgoingLogicalMessageContext GetOutgoingContext(object message)
         {
-            return new OutgoingLogicalMessageContextImpl(
+            return new OutgoingLogicalMessageContext(
                 Guid.NewGuid().ToString(),
                 new Dictionary<string, string>(), 
                 new OutgoingLogicalMessage(message), 

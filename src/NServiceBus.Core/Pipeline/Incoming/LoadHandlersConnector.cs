@@ -11,7 +11,7 @@
     using NServiceBus.Transports;
     using NServiceBus.Unicast;
 
-    class LoadHandlersConnector : StageConnector<IncomingLogicalMessageContext, InvokeHandlerContext>
+    class LoadHandlersConnector : StageConnector<IIncomingLogicalMessageContext, IInvokeHandlerContext>
     {
         public LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry, ISynchronizedStorage synchronizedStorage, ISynchronizedStorageAdapter adapter)
         {
@@ -20,7 +20,7 @@
             this.adapter = adapter;
         }
 
-        public override async Task Invoke(IncomingLogicalMessageContext context, Func<InvokeHandlerContext, Task> next)
+        public override async Task Invoke(IIncomingLogicalMessageContext context, Func<IInvokeHandlerContext, Task> next)
         {
             var outboxTransaction = context.Extensions.Get<OutboxTransaction>();
             var transportTransaction = context.Extensions.Get<TransportTransaction>();
@@ -38,7 +38,7 @@
                 {
                     messageHandler.Instance = context.Builder.Build(messageHandler.HandlerType);
 
-                    var handlingContext = new InvokeHandlerContextImpl(messageHandler, storageSession, context);
+                    var handlingContext = new InvokeHandlerContext(messageHandler, storageSession, context);
                     await next(handlingContext).ConfigureAwait(false);
 
                     if (handlingContext.HandlerInvocationAborted)

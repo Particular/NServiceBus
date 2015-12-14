@@ -6,9 +6,9 @@
     using NServiceBus.Pipeline.OutgoingPipeline;
     using NServiceBus.Sagas;
 
-    class AttachSagaDetailsToOutGoingMessageBehavior : Behavior<OutgoingLogicalMessageContext>
+    class AttachSagaDetailsToOutGoingMessageBehavior : Behavior<IOutgoingLogicalMessageContext>
     {
-        public override Task Invoke(OutgoingLogicalMessageContext context, Func<Task> next)
+        public override Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
         {
             ActiveSagaInstance saga;
 

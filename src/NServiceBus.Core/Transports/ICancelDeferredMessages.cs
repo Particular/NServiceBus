@@ -11,6 +11,6 @@
         /// <summary>
         ///     Clears all timeouts for the given timeout key.
         /// </summary>
-        Task CancelDeferredMessages(string messageKey, BehaviorContext context);
+        Task CancelDeferredMessages(string messageKey, IBehaviorContext context);
     }
 }

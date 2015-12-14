@@ -7,9 +7,9 @@
     using NServiceBus.Pipeline.OutgoingPipeline;
     using NServiceBus.Transports;
 
-    class AttachCorrelationIdBehavior : Behavior<OutgoingLogicalMessageContext>
+    class AttachCorrelationIdBehavior : Behavior<IOutgoingLogicalMessageContext>
     {
-        public override Task Invoke(OutgoingLogicalMessageContext context, Func<Task> next)
+        public override Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
         {
             var correlationId = context.Extensions.GetOrCreate<State>().CustomCorrelationId;
 

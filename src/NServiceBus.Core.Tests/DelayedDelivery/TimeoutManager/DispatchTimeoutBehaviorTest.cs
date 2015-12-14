@@ -110,7 +110,7 @@
             };
         }
 
-        static IncomingPhysicalMessageContext CreateContext(string timeoutId)
+        static IIncomingPhysicalMessageContext CreateContext(string timeoutId)
         {
             var messageId = Guid.NewGuid().ToString("D");
             var headers = new Dictionary<string, string>
@@ -118,7 +118,7 @@
                 {"Timeout.Id", timeoutId}
             };
 
-            return new IncomingPhysicalMessageContextImpl(
+            return new IncomingPhysicalMessageContext(
                 new IncomingMessage(messageId, headers, new MemoryStream()), null);
         }
 
