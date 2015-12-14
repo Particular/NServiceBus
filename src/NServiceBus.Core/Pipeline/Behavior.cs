@@ -29,8 +29,8 @@
         /// <param name="next">The next <see cref="IBehavior{TIn,TOut}"/> in the chain to execute.</param>
         public Task Invoke(TContext context, Func<TContext, Task> next)
         {
-            Guard.AgainstNull("context", context);
-            Guard.AgainstNull("next", next);
+            Guard.AgainstNull(nameof(context), context);
+            Guard.AgainstNull(nameof(next), next);
             return Invoke(context, () => next(context));
         }
 

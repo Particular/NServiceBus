@@ -28,7 +28,7 @@
         /// <param name="info">The <see cref="SerializationInfo"/> to populate with data. </param><param name="context">The destination (see <see cref="StreamingContext"/>) for this serialization. </param><exception cref="SecurityException">The caller does not have the required permission. </exception>
         protected DataBusProperty(SerializationInfo info, StreamingContext context)
         {
-            Guard.AgainstNull("info", info);
+            Guard.AgainstNull(nameof(info), info);
             Key = info.GetString("Key");
 			HasValue = info.GetBoolean("HasValue");
         }
@@ -56,7 +56,7 @@
         /// <param name="info">The <see cref="SerializationInfo"/> to populate with data. </param><param name="context">The destination (see <see cref="StreamingContext"/>) for this serialization. </param><exception cref="T:System.Security.SecurityException">The caller does not have the required permission. </exception>
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            Guard.AgainstNull("info", info);
+            Guard.AgainstNull(nameof(info), info);
             info.AddValue("Key", Key);
 			info.AddValue("HasValue", HasValue);
 		}

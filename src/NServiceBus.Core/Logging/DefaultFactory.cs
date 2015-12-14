@@ -49,7 +49,7 @@ namespace NServiceBus.Logging
         /// </summary>
         public void Directory(string directory)
         {
-            Guard.AgainstNullAndEmpty("directory", directory);
+            Guard.AgainstNullAndEmpty(nameof(directory), directory);
             if (!IODirectory.Exists(directory))
             {
                 var message = $"Could not find logging directory: '{directory}'";

@@ -19,7 +19,7 @@ namespace NServiceBus
         /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
         public static void RijndaelEncryptionService(this BusConfiguration config)
         {
-            Guard.AgainstNull("config", config);
+            Guard.AgainstNull(nameof(config), config);
             RegisterEncryptionService(config, context =>
             {
                 var section = context.Build<ReadOnlySettings>()
@@ -76,8 +76,8 @@ namespace NServiceBus
         /// <param name="expiredKeys">The secondary expired keys that will be used for decryption.</param>
         public static void RijndaelEncryptionService(this BusConfiguration config, string encryptionKey, List<string> expiredKeys = null)
         {
-            Guard.AgainstNull("config", config);
-            Guard.AgainstNullAndEmpty("encryptionKey", encryptionKey);
+            Guard.AgainstNull(nameof(config), config);
+            Guard.AgainstNullAndEmpty(nameof(encryptionKey), encryptionKey);
 
             if (expiredKeys == null)
             {
@@ -95,14 +95,14 @@ namespace NServiceBus
         {
             if (expiredKeys.Count != expiredKeys.Distinct().Count())
             {
-                throw new ArgumentException("Overlapping keys defined. Please ensure that no keys overlap.", "expiredKeys");
+                throw new ArgumentException("Overlapping keys defined. Please ensure that no keys overlap.", nameof(expiredKeys));
             }
             for (var index = 0; index < expiredKeys.Count; index++)
             {
                 var encryptionKey = expiredKeys[index];
                 if (string.IsNullOrWhiteSpace(encryptionKey))
                 {
-                    throw new ArgumentException($"Empty encryption key detected in position {index}.", "expiredKeys");
+                    throw new ArgumentException($"Empty encryption key detected in position {index}.", nameof(expiredKeys));
                 }
             }
         }
@@ -119,7 +119,7 @@ namespace NServiceBus
         /// <param name="func">A delegate that constructs the insatnce of <see cref="IEncryptionService"/> to use for all encryption.</param>
         public static void RegisterEncryptionService(this BusConfiguration config, Func<IBuilder, IEncryptionService> func)
         {
-            Guard.AgainstNull("config", config);
+            Guard.AgainstNull(nameof(config), config);
             config.Settings.Set("EncryptionServiceConstructor", func);
         }
 

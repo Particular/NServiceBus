@@ -14,7 +14,7 @@ namespace NServiceBus
         /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
         public static void DoNotCreateQueues(this BusConfiguration config)
         {
-            Guard.AgainstNull("config", config);
+            Guard.AgainstNull(nameof(config), config);
             config.Settings.Set("Transport.CreateQueues", false);
         }
 

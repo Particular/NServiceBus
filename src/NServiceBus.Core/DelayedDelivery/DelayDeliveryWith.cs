@@ -13,7 +13,7 @@
         /// <param name="delay">How long to delay the delivery of the message.</param>
         public DelayDeliveryWith(TimeSpan delay)
         {
-            Guard.AgainstNegative("delay", delay);
+            Guard.AgainstNegative(nameof(delay), delay);
 
             Delay = delay;
         }

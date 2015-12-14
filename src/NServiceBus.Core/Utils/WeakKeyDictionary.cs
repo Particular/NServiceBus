@@ -146,7 +146,7 @@ namespace NServiceBus
 
         public override void Add(TKey key, TValue value)
         {
-            if (key == null) throw new ArgumentNullException("key");
+            if (key == null) throw new ArgumentNullException(nameof(key));
             WeakReference<TKey> weakKey = new WeakKeyReference<TKey>(key, comparer);
             dictionary.Add(weakKey, value);
         }

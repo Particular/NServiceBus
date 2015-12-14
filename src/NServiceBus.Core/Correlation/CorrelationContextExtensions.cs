@@ -12,8 +12,8 @@
         /// <param name="correlationId">The custom correlation id.</param>
         public static void SetCorrelationId(this SendOptions options, string correlationId)
         {
-            Guard.AgainstNull("options", options);
-            Guard.AgainstNullAndEmpty("correlationId", correlationId);
+            Guard.AgainstNull(nameof(options), options);
+            Guard.AgainstNullAndEmpty(nameof(correlationId), correlationId);
 
             options.Context.GetOrCreate<AttachCorrelationIdBehavior.State>()
                 .CustomCorrelationId = correlationId;
@@ -26,8 +26,8 @@
         /// <param name="correlationId">The custom correlation id.</param>
         public static void SetCorrelationId(this ReplyOptions options, string correlationId)
         {
-            Guard.AgainstNull("options", options);
-            Guard.AgainstNullAndEmpty("correlationId", correlationId);
+            Guard.AgainstNull(nameof(options), options);
+            Guard.AgainstNullAndEmpty(nameof(correlationId), correlationId);
 
             options.Context.GetOrCreate<AttachCorrelationIdBehavior.State>()
                 .CustomCorrelationId = correlationId;

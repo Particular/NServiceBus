@@ -14,8 +14,8 @@ namespace NServiceBus.MessageMutator
         /// </summary>
         public MutateIncomingMessageContext(object message, IDictionary<string, string> headers)
         {
-            Guard.AgainstNull("headers", headers);
-            Guard.AgainstNull("message", message);
+            Guard.AgainstNull(nameof(headers), headers);
+            Guard.AgainstNull(nameof(message), message);
             Headers = headers;
             this.message = message;
         }
@@ -31,7 +31,7 @@ namespace NServiceBus.MessageMutator
             }
             set
             {
-                Guard.AgainstNull("value", value);
+                Guard.AgainstNull(nameof(value), value);
                 MessageChanged = true;
                 message = value;
             }

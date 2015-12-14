@@ -15,7 +15,7 @@ namespace NServiceBus
         /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
         public static void EnableDurableMessages(this BusConfiguration config)
         {
-            Guard.AgainstNull("config", config);
+            Guard.AgainstNull(nameof(config), config);
             config.Settings.Set("Endpoint.DurableMessages", true);
         }
 
@@ -25,7 +25,7 @@ namespace NServiceBus
         /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
         public static void DisableDurableMessages(this BusConfiguration config)
         {
-            Guard.AgainstNull("config", config);
+            Guard.AgainstNull(nameof(config), config);
             config.Settings.Set("Endpoint.DurableMessages", false);
         }
 

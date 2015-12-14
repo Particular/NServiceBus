@@ -15,7 +15,7 @@ namespace NServiceBus
         /// <param name="options">The options being extended.</param>
         public static void RequireImmediateDispatch(this ExtendableOptions options)
         {
-            Guard.AgainstNull("options", options);
+            Guard.AgainstNull(nameof(options), options);
 
             options.GetExtensions().Set(new RoutingToDispatchConnector.State {ImmediateDispatch = true});
         }

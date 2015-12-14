@@ -35,7 +35,7 @@ namespace NServiceBus.Transports.Msmq
         /// </summary>
         public Task Dispatch(IEnumerable<TransportOperation> transportOperations, ContextBag context)
         {
-            Guard.AgainstNull("transportOperations", transportOperations);
+            Guard.AgainstNull(nameof(transportOperations), transportOperations);
 
             foreach (var transportOperation in transportOperations)
             {

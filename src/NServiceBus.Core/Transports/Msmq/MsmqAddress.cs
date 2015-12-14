@@ -27,21 +27,21 @@ namespace NServiceBus
         /// <returns>A new instance of <see cref="Address"/>.</returns>
         public static MsmqAddress Parse(string address)
         {
-            Guard.AgainstNullAndEmpty("address", address);
+            Guard.AgainstNullAndEmpty(nameof(address), address);
 
             var split = address.Split('@');
 
             if (split.Length > 2)
             {
                 var message = $"Address contains multiple @ characters. Address supplied: '{address}'";
-                throw new ArgumentException(message, "address");
+                throw new ArgumentException(message, nameof(address));
             }
 
             var queue = split[0];
             if (string.IsNullOrWhiteSpace(queue))
             {
                 var message = $"Empty queue part of address. Address supplied: '{address}'";
-                throw new ArgumentException(message, "address");
+                throw new ArgumentException(message, nameof(address));
             }
 
             string machineName;
@@ -51,7 +51,7 @@ namespace NServiceBus
                 if (string.IsNullOrWhiteSpace(machineName))
                 {
                     var message = $"Empty machine part of address. Address supplied: '{address}'";
-                    throw new ArgumentException(message,"address");
+                    throw new ArgumentException(message,nameof(address));
                 }
                 machineName = ApplyLocalMachineConventions(machineName);
             }
