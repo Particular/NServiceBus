@@ -94,14 +94,14 @@
             Assert.True(ex.Message.Contains("No destination specified"));
         }
 
-        static OutgoingSendContext CreateContext(SendOptions options, object message = null)
+        static IOutgoingSendContext CreateContext(SendOptions options, object message = null)
         {
             if (message == null)
             {
                 message = new MyMessage();
             }
 
-            var context = new OutgoingSendContextImpl(new OutgoingLogicalMessage(message), options, new RootContext(null));
+            var context = new OutgoingSendContext(new OutgoingLogicalMessage(message), options, new RootContext(null));
             return context;
         }
 

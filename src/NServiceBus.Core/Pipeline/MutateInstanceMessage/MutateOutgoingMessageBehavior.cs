@@ -8,9 +8,9 @@
     using NServiceBus.Unicast.Messages;
     using Pipeline;
 
-    class MutateOutgoingMessageBehavior : Behavior<OutgoingLogicalMessageContext>
+    class MutateOutgoingMessageBehavior : Behavior<IOutgoingLogicalMessageContext>
     {
-        public override async Task Invoke(OutgoingLogicalMessageContext context, Func<Task> next)
+        public override async Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
         {
             LogicalMessage incomingLogicalMessage;
             context.Extensions.TryGet(out incomingLogicalMessage);

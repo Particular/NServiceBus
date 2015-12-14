@@ -5,14 +5,14 @@ namespace NServiceBus
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
 
-    class EnforceUnsubscribeBestPracticesBehavior : Behavior<UnsubscribeContext>
+    class EnforceUnsubscribeBestPracticesBehavior : Behavior<IUnsubscribeContext>
     {
         public EnforceUnsubscribeBestPracticesBehavior(Validations validations)
         {
             this.validations = validations;
         }
 
-        public override Task Invoke(UnsubscribeContext context, Func<Task> next)
+        public override Task Invoke(IUnsubscribeContext context, Func<Task> next)
         {
             EnforceBestPracticesOptions options;
 

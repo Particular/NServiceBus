@@ -4,9 +4,9 @@
     using System.Threading.Tasks;
     using Pipeline;
 
-    class ProcessingStatisticsBehavior : Behavior<IncomingPhysicalMessageContext>
+    class ProcessingStatisticsBehavior : Behavior<IIncomingPhysicalMessageContext>
     {
-        public override async Task Invoke(IncomingPhysicalMessageContext context, Func<Task> next)
+        public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
         {
             var state = new State();
 

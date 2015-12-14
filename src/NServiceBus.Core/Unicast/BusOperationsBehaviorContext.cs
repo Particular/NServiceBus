@@ -10,21 +10,21 @@ namespace NServiceBus
 
     static class BusOperationsBehaviorContext
     {
-        public static Task Publish<T>(BehaviorContext context, Action<T> messageConstructor, PublishOptions options)
+        public static Task Publish<T>(IBehaviorContext context, Action<T> messageConstructor, PublishOptions options)
         {
             var mapper = context.Builder.Build<IMessageMapper>();
             return Publish(context, mapper.CreateInstance(messageConstructor), options);
         }
 
-        public static Task Publish(BehaviorContext context, object message, PublishOptions options)
+        public static Task Publish(IBehaviorContext context, object message, PublishOptions options)
         {
             var settings = context.Builder.Build<ReadOnlySettings>();
-            var pipeline = new PipelineBase<OutgoingPublishContext>(
+            var pipeline = new PipelineBase<IOutgoingPublishContext>(
                 context.Builder, 
                 settings, 
                 settings.Get<PipelineConfiguration>().MainPipeline);
 
-            var publishContext = new OutgoingPublishContextImpl(
+            var publishContext = new OutgoingPublishContext(
                 new OutgoingLogicalMessage(message),
                 options,
                 context);
@@ -32,12 +32,12 @@ namespace NServiceBus
             return pipeline.Invoke(publishContext);
         }
 
-        public static Task Subscribe(BehaviorContext context, Type eventType, SubscribeOptions options)
+        public static Task Subscribe(IBehaviorContext context, Type eventType, SubscribeOptions options)
         {
             var settings = context.Builder.Build<ReadOnlySettings>();
-            var pipeline = new PipelineBase<SubscribeContext>(context.Builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
+            var pipeline = new PipelineBase<ISubscribeContext>(context.Builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
 
-            var subscribeContext = new SubscribeContextImpl(
+            var subscribeContext = new SubscribeContext(
                 context,
                 eventType,
                 options);
@@ -45,12 +45,12 @@ namespace NServiceBus
             return pipeline.Invoke(subscribeContext);
         }
 
-        public static Task Unsubscribe(BehaviorContext context, Type eventType, UnsubscribeOptions options)
+        public static Task Unsubscribe(IBehaviorContext context, Type eventType, UnsubscribeOptions options)
         {
             var settings = context.Builder.Build<ReadOnlySettings>();
-            var pipeline = new PipelineBase<UnsubscribeContext>(context.Builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
+            var pipeline = new PipelineBase<IUnsubscribeContext>(context.Builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
 
-            var subscribeContext = new UnsubscribeContextImpl(
+            var subscribeContext = new UnsubscribeContext(
                 context,
                 eventType,
                 options);
@@ -58,25 +58,25 @@ namespace NServiceBus
             return pipeline.Invoke(subscribeContext);
         }
 
-        public static Task Send<T>(BehaviorContext context, Action<T> messageConstructor, SendOptions options)
+        public static Task Send<T>(IBehaviorContext context, Action<T> messageConstructor, SendOptions options)
         {
             var mapper = context.Builder.Build<IMessageMapper>();
             return Send(context, mapper.CreateInstance(messageConstructor), options);
         }
 
-        public static Task Send(BehaviorContext context, object message, SendOptions options)
+        public static Task Send(IBehaviorContext context, object message, SendOptions options)
         {
             var messageType = message.GetType();
 
             return context.SendMessage(messageType, message, options);
         }
 
-        static Task SendMessage(this BehaviorContext context, Type messageType, object message, SendOptions options)
+        static Task SendMessage(this IBehaviorContext context, Type messageType, object message, SendOptions options)
         {
             var settings = context.Builder.Build<ReadOnlySettings>();
-            var pipeline = new PipelineBase<OutgoingSendContext>(context.Builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
+            var pipeline = new PipelineBase<IOutgoingSendContext>(context.Builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
 
-            var outgoingContext = new OutgoingSendContextImpl(
+            var outgoingContext = new OutgoingSendContext(
                 new OutgoingLogicalMessage(messageType, message),
                 options,
                 context);
@@ -84,15 +84,15 @@ namespace NServiceBus
             return pipeline.Invoke(outgoingContext);
         }
 
-        public static Task Reply(BehaviorContext context, object message, ReplyOptions options)
+        public static Task Reply(IBehaviorContext context, object message, ReplyOptions options)
         {
             var settings = context.Builder.Build<ReadOnlySettings>();
-            var pipeline = new PipelineBase<OutgoingReplyContext>(
+            var pipeline = new PipelineBase<IOutgoingReplyContext>(
                 context.Builder, 
                 settings, 
                 settings.Get<PipelineConfiguration>().MainPipeline);
 
-            var outgoingContext = new OutgoingReplyContextImpl(
+            var outgoingContext = new OutgoingReplyContext(
                 new OutgoingLogicalMessage(message),
                 options,
                 context);
@@ -100,7 +100,7 @@ namespace NServiceBus
             return pipeline.Invoke(outgoingContext);
         }
 
-        public static Task Reply<T>(BehaviorContext context, Action<T> messageConstructor, ReplyOptions options)
+        public static Task Reply<T>(IBehaviorContext context, Action<T> messageConstructor, ReplyOptions options)
         {
             var mapper = context.Builder.Build<IMessageMapper>();
             return Reply(context, mapper.CreateInstance(messageConstructor), options);

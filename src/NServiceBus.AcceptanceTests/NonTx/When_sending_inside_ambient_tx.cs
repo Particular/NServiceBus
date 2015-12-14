@@ -43,9 +43,9 @@
                 });
             }
 
-            class WrapHandlersInScope:Behavior<IncomingLogicalMessageContext>
+            class WrapHandlersInScope:Behavior<IIncomingLogicalMessageContext>
             {
-                public override async Task Invoke(IncomingLogicalMessageContext context, Func<Task> next)
+                public override async Task Invoke(IIncomingLogicalMessageContext context, Func<Task> next)
                 {
                     using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                     {

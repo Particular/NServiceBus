@@ -5,7 +5,7 @@
     using NServiceBus.Pipeline.OutgoingPipeline;
     using Pipeline;
 
-    class EncryptBehavior : Behavior<OutgoingLogicalMessageContext>
+    class EncryptBehavior : Behavior<IOutgoingLogicalMessageContext>
     {
         EncryptionMutator messageMutator;
 
@@ -14,7 +14,7 @@
             this.messageMutator = messageMutator;
         }
 
-        public override Task Invoke(OutgoingLogicalMessageContext context, Func<Task> next)
+        public override Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
         {
             var currentMessageToSend = context.Message.Instance;
 

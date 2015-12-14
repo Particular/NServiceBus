@@ -11,7 +11,7 @@
     using NServiceBus.Unicast.Queuing;
     using NServiceBus.Unicast.Transport;
 
-    class MessageDrivenUnsubscribeTerminator : PipelineTerminator<UnsubscribeContext>
+    class MessageDrivenUnsubscribeTerminator : PipelineTerminator<IUnsubscribeContext>
     {
         public MessageDrivenUnsubscribeTerminator(SubscriptionRouter subscriptionRouter, string replyToAddress, Endpoint endpoint, IDispatchMessages dispatcher, bool legacyMode)
         {
@@ -22,7 +22,7 @@
             this.legacyMode = legacyMode;
         }
 
-        protected override Task Terminate(UnsubscribeContext context)
+        protected override Task Terminate(IUnsubscribeContext context)
         {
             var eventType = context.EventType;
 

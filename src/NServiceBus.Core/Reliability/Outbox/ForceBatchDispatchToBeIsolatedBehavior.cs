@@ -5,9 +5,9 @@ namespace NServiceBus
     using NServiceBus.Pipeline;
     using NServiceBus.Transports;
 
-    class ForceBatchDispatchToBeIsolatedBehavior: Behavior<BatchDispatchContext>
+    class ForceBatchDispatchToBeIsolatedBehavior: Behavior<IBatchDispatchContext>
     {
-        public override Task Invoke(BatchDispatchContext context, Func<Task> next)
+        public override Task Invoke(IBatchDispatchContext context, Func<Task> next)
         {
             foreach (var operation in context.Operations)
             {

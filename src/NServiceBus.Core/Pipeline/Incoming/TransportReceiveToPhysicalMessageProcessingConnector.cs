@@ -14,18 +14,18 @@ namespace NServiceBus
     using Transports;
     using TransportOperation = Transports.TransportOperation;
 
-    class TransportReceiveToPhysicalMessageProcessingConnector : StageConnector<TransportReceiveContext, IncomingPhysicalMessageContext>
+    class TransportReceiveToPhysicalMessageProcessingConnector : StageConnector<ITransportReceiveContext, IIncomingPhysicalMessageContext>
     {
-        public TransportReceiveToPhysicalMessageProcessingConnector(IPipelineBase<BatchDispatchContext> batchDispatchPipeline, IOutboxStorage outboxStorage)
+        public TransportReceiveToPhysicalMessageProcessingConnector(IPipelineBase<IBatchDispatchContext> batchDispatchPipeline, IOutboxStorage outboxStorage)
         {
             this.batchDispatchPipeline = batchDispatchPipeline;
             this.outboxStorage = outboxStorage;
         }
 
-        public override async Task Invoke(TransportReceiveContext context, Func<IncomingPhysicalMessageContext, Task> next)
+        public override async Task Invoke(ITransportReceiveContext context, Func<IIncomingPhysicalMessageContext, Task> next)
         {
             var messageId = context.Message.MessageId;
-            var physicalMessageContext = new IncomingPhysicalMessageContextImpl(context.Message, context);
+            var physicalMessageContext = new IncomingPhysicalMessageContext(context.Message, context);
 
             var deduplicationEntry = await outboxStorage.Get(messageId, context.Extensions).ConfigureAwait(false);
             var pendingTransportOperations = new PendingTransportOperations();
@@ -53,7 +53,7 @@ namespace NServiceBus
 
             if (pendingTransportOperations.Operations.Any())
             {
-                var batchDispatchContext = new BatchDispatchContextImpl(pendingTransportOperations.Operations, physicalMessageContext);
+                var batchDispatchContext = new BatchDispatchContext(pendingTransportOperations.Operations, physicalMessageContext);
 
                 await batchDispatchPipeline.Invoke(batchDispatchContext).ConfigureAwait(false);
             }
@@ -191,7 +191,7 @@ namespace NServiceBus
             throw new Exception("Could not find routing strategy to deserialize");
         }
 
-        IPipelineBase<BatchDispatchContext> batchDispatchPipeline;
+        IPipelineBase<IBatchDispatchContext> batchDispatchPipeline;
         IOutboxStorage outboxStorage;
     }
 }

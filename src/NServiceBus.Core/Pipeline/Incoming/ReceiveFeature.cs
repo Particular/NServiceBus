@@ -32,7 +32,7 @@
             {
                 var pipelinesCollection = context.Settings.Get<PipelineConfiguration>();
 
-                var pipeline = new PipelineBase<BatchDispatchContext>(b, context.Settings, pipelinesCollection.MainPipeline);
+                var pipeline = new PipelineBase<IBatchDispatchContext>(b, context.Settings, pipelinesCollection.MainPipeline);
 
                 var storage = context.Container.HasComponent<IOutboxStorage>() ? b.Build<IOutboxStorage>() : new NoOpOutbox();
                 

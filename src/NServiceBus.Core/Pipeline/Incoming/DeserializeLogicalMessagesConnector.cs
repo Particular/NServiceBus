@@ -11,7 +11,7 @@
     using NServiceBus.Transports;
     using NServiceBus.Unicast.Messages;
 
-    class DeserializeLogicalMessagesConnector : StageConnector<IncomingPhysicalMessageContext, IncomingLogicalMessageContext>
+    class DeserializeLogicalMessagesConnector : StageConnector<IIncomingPhysicalMessageContext, IIncomingLogicalMessageContext>
     {
         public DeserializeLogicalMessagesConnector(MessageDeserializerResolver deserializerResolver, LogicalMessageFactory logicalMessageFactory, MessageMetadataRegistry messageMetadataRegistry)
         {
@@ -20,7 +20,7 @@
             this.messageMetadataRegistry = messageMetadataRegistry;
         }
 
-        public override async Task Invoke(IncomingPhysicalMessageContext context, Func<IncomingLogicalMessageContext, Task> next)
+        public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> next)
         {
             var incomingMessage = context.Message;
 
@@ -28,7 +28,7 @@
 
             foreach (var message in messages)
             {
-                await next(new IncomingLogicalMessageContextImpl(message, context)).ConfigureAwait(false);
+                await next(new IncomingLogicalMessageContext(message, context)).ConfigureAwait(false);
             }
         }
 

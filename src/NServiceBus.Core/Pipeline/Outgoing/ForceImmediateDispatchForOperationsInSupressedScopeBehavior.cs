@@ -8,9 +8,9 @@ namespace NServiceBus
     using TransportDispatch;
 
     [ObsoleteEx(RemoveInVersion = "7")]
-    class ForceImmediateDispatchForOperationsInSuppressedScopeBehavior : Behavior<RoutingContext>
+    class ForceImmediateDispatchForOperationsInSuppressedScopeBehavior : Behavior<IRoutingContext>
     {
-        public override Task Invoke(RoutingContext context, Func<Task> next)
+        public override Task Invoke(IRoutingContext context, Func<Task> next)
         {
             var state = context.Extensions.GetOrCreate<InvokeHandlerTerminator.State>();
 

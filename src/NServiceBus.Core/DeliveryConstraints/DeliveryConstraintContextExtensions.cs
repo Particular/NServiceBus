@@ -10,31 +10,31 @@ namespace NServiceBus.DeliveryConstraints
     using NServiceBus.Transports;
 
     /// <summary>
-    /// Gives access to <see cref="DeliveryConstraint"/>s that exist in the various <see cref="BehaviorContext"/>s.
+    /// Gives access to <see cref="DeliveryConstraint"/>s that exist in the various <see cref="IBehaviorContext"/>s.
     /// </summary>
     public static class DeliveryConstraintContextExtensions
     {
         /// <summary>
-        /// Adds a <see cref="DeliveryConstraint"/> to a <see cref="RoutingContext"/>.
+        /// Adds a <see cref="DeliveryConstraint"/> to a <see cref="IRoutingContext"/>.
         /// </summary>
-        public static void AddDeliveryConstraint(this RoutingContext context, DeliveryConstraint constraint)
+        public static void AddDeliveryConstraint(this IRoutingContext context, DeliveryConstraint constraint)
         {
             AddDeliveryConstraintInternal(context, constraint);
         }
 
         /// <summary>
-        /// Adds a <see cref="DeliveryConstraint"/> to a <see cref="OutgoingLogicalMessageContext"/>.
+        /// Adds a <see cref="DeliveryConstraint"/> to a <see cref="IOutgoingLogicalMessageContext"/>.
         /// </summary>
-        public static void AddDeliveryConstraint(this OutgoingLogicalMessageContext context, DeliveryConstraint constraint)
+        public static void AddDeliveryConstraint(this IOutgoingLogicalMessageContext context, DeliveryConstraint constraint)
         {
             AddDeliveryConstraintInternal(context, constraint);
         }
 
 
         /// <summary>
-        /// Tries to retrieves an instance of <typeparamref name="T"/> from a <see cref="RoutingContext"/>.
+        /// Tries to retrieves an instance of <typeparamref name="T"/> from a <see cref="IRoutingContext"/>.
         /// </summary>
-        public static bool TryGetDeliveryConstraint<T>(this RoutingContext context, out T constraint) where T : DeliveryConstraint
+        public static bool TryGetDeliveryConstraint<T>(this IRoutingContext context, out T constraint) where T : DeliveryConstraint
         {
             List<DeliveryConstraint> constraints;
 
@@ -47,9 +47,9 @@ namespace NServiceBus.DeliveryConstraints
         }
 
         /// <summary>
-        /// Tries to retrieves an instance of <typeparamref name="T"/> from a <see cref="OutgoingLogicalMessageContext"/>.
+        /// Tries to retrieves an instance of <typeparamref name="T"/> from a <see cref="IOutgoingLogicalMessageContext"/>.
         /// </summary>
-        public static bool TryGetDeliveryConstraint<T>(this OutgoingLogicalMessageContext context, out T constraint) where T : DeliveryConstraint
+        public static bool TryGetDeliveryConstraint<T>(this IOutgoingLogicalMessageContext context, out T constraint) where T : DeliveryConstraint
         {
             List<DeliveryConstraint> constraints;
 
@@ -62,9 +62,9 @@ namespace NServiceBus.DeliveryConstraints
         }
 
         /// <summary>
-        /// Removes a <see cref="DeliveryConstraint"/> to a <see cref="RoutingContext"/>.
+        /// Removes a <see cref="DeliveryConstraint"/> to a <see cref="IRoutingContext"/>.
         /// </summary>
-        public static void RemoveDeliveryConstaint(this RoutingContext context, DeliveryConstraint constraint)
+        public static void RemoveDeliveryConstaint(this IRoutingContext context, DeliveryConstraint constraint)
         {
             List<DeliveryConstraint> constraints;
 
@@ -77,9 +77,9 @@ namespace NServiceBus.DeliveryConstraints
         }
 
         /// <summary>
-        /// Removes a <see cref="DeliveryConstraint"/> to a <see cref="RoutingContext"/>.
+        /// Removes a <see cref="DeliveryConstraint"/> to a <see cref="IRoutingContext"/>.
         /// </summary>
-        public static IEnumerable<DeliveryConstraint> GetDeliveryConstraints(this RoutingContext context)
+        public static IEnumerable<DeliveryConstraint> GetDeliveryConstraints(this IRoutingContext context)
         {
             List<DeliveryConstraint> constraints;
 
@@ -104,7 +104,7 @@ namespace NServiceBus.DeliveryConstraints
                 .GetSupportedDeliveryConstraints().Any(t => typeof(T).IsAssignableFrom(t));
         }
 
-        static void AddDeliveryConstraintInternal(BehaviorContext context, DeliveryConstraint constraint)
+        static void AddDeliveryConstraintInternal(IBehaviorContext context, DeliveryConstraint constraint)
         {
             List<DeliveryConstraint> constraints;
 

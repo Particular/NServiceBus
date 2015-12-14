@@ -12,9 +12,9 @@ namespace NServiceBus
     using TransportDispatch;
     using Transports;
 
-    class SecondLevelRetriesBehavior : Behavior<TransportReceiveContext>
+    class SecondLevelRetriesBehavior : Behavior<ITransportReceiveContext>
     {
-        public SecondLevelRetriesBehavior(IPipelineBase<RoutingContext> dispatchPipeline, SecondLevelRetryPolicy retryPolicy, BusNotifications notifications, string localAddress)
+        public SecondLevelRetriesBehavior(IPipelineBase<IRoutingContext> dispatchPipeline, SecondLevelRetryPolicy retryPolicy, BusNotifications notifications, string localAddress)
         {
             this.dispatchPipeline = dispatchPipeline;
             this.retryPolicy = retryPolicy;
@@ -22,7 +22,7 @@ namespace NServiceBus
             this.localAddress = localAddress;
         }
 
-        public override async Task Invoke(TransportReceiveContext context, Func<Task> next)
+        public override async Task Invoke(ITransportReceiveContext context, Func<Task> next)
         {
             try
             {
@@ -53,7 +53,7 @@ namespace NServiceBus
                     messageToRetry.Headers[RetriesTimestamp] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
 
 
-                    var dispatchContext = new RoutingContextImpl(messageToRetry, new UnicastRoutingStrategy(localAddress), context);
+                    var dispatchContext = new RoutingContext(messageToRetry, new UnicastRoutingStrategy(localAddress), context);
 
                     context.Extensions.Set(new List<DeliveryConstraint>
                     {
@@ -91,7 +91,7 @@ namespace NServiceBus
         }
 
 
-        IPipelineBase<RoutingContext> dispatchPipeline;
+        IPipelineBase<IRoutingContext> dispatchPipeline;
         SecondLevelRetryPolicy retryPolicy;
         BusNotifications notifications;
         string localAddress;

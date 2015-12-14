@@ -6,7 +6,7 @@ namespace NServiceBus
     using Pipeline;
 
     [SkipWeaving]
-    class ReceivePerformanceDiagnosticsBehavior : Behavior<IncomingPhysicalMessageContext>
+    class ReceivePerformanceDiagnosticsBehavior : Behavior<IIncomingPhysicalMessageContext>
     {
    
         public override Task Warmup()
@@ -18,7 +18,7 @@ namespace NServiceBus
             return base.Warmup();
         }
 
-        public override async Task Invoke(IncomingPhysicalMessageContext context, Func<Task> next)
+        public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
         {
             messagesPulledFromQueueCounter.Increment();
 

@@ -55,9 +55,9 @@
                 }
             }
 
-            public class TestingSendOptionsExtensionBehavior : Behavior<OutgoingLogicalMessageContext>
+            public class TestingSendOptionsExtensionBehavior : Behavior<IOutgoingLogicalMessageContext>
             {
-                public override Task Invoke(OutgoingLogicalMessageContext context, Func<Task> next)
+                public override Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
                 {
                     Context data;
                     if (context.Extensions.TryGet(out data))

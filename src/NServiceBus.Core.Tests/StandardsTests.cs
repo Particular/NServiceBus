@@ -7,6 +7,7 @@
     using System.Runtime.CompilerServices;
     using global::NServiceBus.Features;
     using global::NServiceBus.Logging;
+    using NServiceBus.Pipeline;
     using NUnit.Framework;
 
     [TestFixture]
@@ -62,7 +63,7 @@
         {
             foreach (var type in typeof(IBusContextFactory).Assembly.GetTypes())
             {
-                foreach (var field in type.GetFields(BindingFlags.Instance|BindingFlags.NonPublic|BindingFlags.Public))
+                foreach (var field in type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
                 {
                     if (field.FieldType == typeof(ILog))
                     {
@@ -95,7 +96,7 @@
         static IEnumerable<Type> GetBehaviors()
         {
             return typeof(IBusContextFactory).Assembly.GetTypes()
-                .Where(type => type.GetInterfaces().Any(face=>face.Name.StartsWith("IBehavior")) && !type.IsAbstract &&!type.IsGenericType);
+                .Where(type => type.GetInterfaces().Any(face => face.Name == typeof(IBehavior).Name) && !type.IsAbstract && !type.IsGenericType);
         }
         static IEnumerable<Type> GetFeatures()
         {

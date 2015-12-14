@@ -5,15 +5,15 @@
     using Pipeline;
     using Transports;
 
-    class InvokeForwardingPipelineBehavior : Behavior<IncomingPhysicalMessageContext>
+    class InvokeForwardingPipelineBehavior : Behavior<IIncomingPhysicalMessageContext>
     {
-        public InvokeForwardingPipelineBehavior(IPipelineBase<ForwardingContext> forwardingPipeline, string forwardingAddress)
+        public InvokeForwardingPipelineBehavior(IPipelineBase<IForwardingContext> forwardingPipeline, string forwardingAddress)
         {
             this.forwardingPipeline = forwardingPipeline;
             this.forwardingAddress = forwardingAddress;
         }
 
-        public override async Task Invoke(IncomingPhysicalMessageContext context, Func<Task> next)
+        public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
         {
             await next().ConfigureAwait(false);
 
@@ -21,12 +21,12 @@
 
             var processedMessage = new OutgoingMessage(context.Message.MessageId, context.Message.Headers, context.Message.Body);
 
-            var forwardingContext = new ForwardingContextImpl(processedMessage, forwardingAddress, context);
+            var forwardingContext = new ForwardingContext(processedMessage, forwardingAddress, context);
 
             await forwardingPipeline.Invoke(forwardingContext).ConfigureAwait(false);
         }
 
-        IPipelineBase<ForwardingContext> forwardingPipeline;
+        IPipelineBase<IForwardingContext> forwardingPipeline;
         string forwardingAddress;
     }
 }

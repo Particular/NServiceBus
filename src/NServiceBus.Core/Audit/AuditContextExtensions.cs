@@ -11,7 +11,7 @@
         /// <param name="context">The context being extended.</param>
         /// <param name="key">The audit key.</param>
         /// <param name="value">The value.</param>
-        public static void AddAuditData(this AuditContext context, string key, string value)
+        public static void AddAuditData(this IAuditContext context, string key, string value)
         {
             Guard.AgainstNull("context", context);
             Guard.AgainstNullAndEmpty("key", key);

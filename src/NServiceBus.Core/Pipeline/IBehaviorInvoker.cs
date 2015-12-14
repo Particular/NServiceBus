@@ -6,6 +6,6 @@
 
     interface IBehaviorInvoker
     {
-        Task Invoke(object behavior, BehaviorContext context, Func<BehaviorContext, Task> next);
+        Task Invoke(object behavior, IBehaviorContext context, Func<IBehaviorContext, Task> next);
     }
 }

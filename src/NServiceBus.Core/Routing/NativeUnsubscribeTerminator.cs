@@ -5,14 +5,14 @@ namespace NServiceBus
     using NServiceBus.Routing;
     using NServiceBus.Transports;
 
-    class NativeUnsubscribeTerminator : PipelineTerminator<UnsubscribeContext>
+    class NativeUnsubscribeTerminator : PipelineTerminator<IUnsubscribeContext>
     {
         public NativeUnsubscribeTerminator(IManageSubscriptions subscriptionManager)
         {
             this.subscriptionManager = subscriptionManager;
         }
 
-        protected override Task Terminate(UnsubscribeContext context)
+        protected override Task Terminate(IUnsubscribeContext context)
         {
             return subscriptionManager.Unsubscribe(context.EventType, context.Extensions);
         }

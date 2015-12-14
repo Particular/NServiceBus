@@ -52,9 +52,9 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
                 }
             }
 
-            class AddContextStorage : Behavior<IncomingPhysicalMessageContext>
+            class AddContextStorage : Behavior<IIncomingPhysicalMessageContext>
             {
-                public override Task Invoke(IncomingPhysicalMessageContext context, Func<Task> next)
+                public override Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
                 {
                     context.Extensions.Set(new AuditFilterResult());
 
@@ -71,9 +71,9 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
                 }
             }
 
-            class SetFiltering : Behavior<IncomingLogicalMessageContext>
+            class SetFiltering : Behavior<IIncomingLogicalMessageContext>
             {
-                public override Task Invoke(IncomingLogicalMessageContext context, Func<Task> next)
+                public override Task Invoke(IIncomingLogicalMessageContext context, Func<Task> next)
                 {
                     if (context.Message.MessageType == typeof(MessageToBeAudited))
                     {
@@ -89,9 +89,9 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
                 public bool DoNotAuditMessage { get; set; }
             }
 
-            class FilteringAuditBehavior : Behavior<AuditContext>
+            class FilteringAuditBehavior : Behavior<IAuditContext>
             {
-                public override Task Invoke(AuditContext context, Func<Task> next)
+                public override Task Invoke(IAuditContext context, Func<Task> next)
                 {
                     AuditFilterResult result;
 

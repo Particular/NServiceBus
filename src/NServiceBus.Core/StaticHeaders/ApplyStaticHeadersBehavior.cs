@@ -5,7 +5,7 @@ namespace NServiceBus
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.OutgoingPipeline;
 
-    class ApplyStaticHeadersBehavior:Behavior<OutgoingLogicalMessageContext>
+    class ApplyStaticHeadersBehavior:Behavior<IOutgoingLogicalMessageContext>
     {
         CurrentStaticHeaders currentStaticHeaders;
 
@@ -14,7 +14,7 @@ namespace NServiceBus
             this.currentStaticHeaders = currentStaticHeaders;
         }
 
-        public override Task Invoke(OutgoingLogicalMessageContext context, Func<Task> next)
+        public override Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
         {
             foreach (var staticHeader in currentStaticHeaders)
             {

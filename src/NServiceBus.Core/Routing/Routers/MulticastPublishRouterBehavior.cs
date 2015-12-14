@@ -7,13 +7,13 @@ namespace NServiceBus
     using Pipeline;
     using Routing;
 
-    class MulticastPublishRouterBehavior : StageConnector<OutgoingPublishContext, OutgoingLogicalMessageContext>
+    class MulticastPublishRouterBehavior : StageConnector<IOutgoingPublishContext, IOutgoingLogicalMessageContext>
     {
-        public override Task Invoke(OutgoingPublishContext context, Func<OutgoingLogicalMessageContext, Task> next)
+        public override Task Invoke(IOutgoingPublishContext context, Func<IOutgoingLogicalMessageContext, Task> next)
         {
             context.Headers[Headers.MessageIntent] = MessageIntentEnum.Publish.ToString();
 
-            var logicalMessageContext = new OutgoingLogicalMessageContextImpl(
+            var logicalMessageContext = new OutgoingLogicalMessageContext(
                 context.MessageId,
                 context.Headers,
                 context.Message,

@@ -23,7 +23,7 @@ namespace NServiceBus
             additions.Add(rego);
         }
 
-        public IList<RegisterStep> BuildPipelineModelFor<TRootContext>() where TRootContext:BehaviorContext
+        public IList<RegisterStep> BuildPipelineModelFor<TRootContext>() where TRootContext:IBehaviorContext
         {
             var reachableContexts = ContextsReachableFrom<TRootContext>(additions)
                 .ToList();

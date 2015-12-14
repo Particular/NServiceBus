@@ -21,9 +21,9 @@
     }
 
 
-    class AuditProcessingStatisticsBehavior : Behavior<AuditContext>
+    class AuditProcessingStatisticsBehavior : Behavior<IAuditContext>
     {
-        public override Task Invoke(AuditContext context, Func<Task> next)
+        public override Task Invoke(IAuditContext context, Func<Task> next)
         {
 
             ProcessingStatisticsBehavior.State state;

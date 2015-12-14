@@ -124,17 +124,17 @@ namespace NServiceBus.Core.Tests
             Assert.AreEqual("testex", failedMessageNotification.Exception.Message);
         }
         
-        TransportReceiveContext CreateContext(string messageId)
+        ITransportReceiveContext CreateContext(string messageId)
         {
-            return new TransportReceiveContextImpl(new IncomingMessage(messageId, new Dictionary<string, string>(), new MemoryStream()), null, new RootContext(null));
+            return new TransportReceiveContext(new IncomingMessage(messageId, new Dictionary<string, string>(), new MemoryStream()), null, new RootContext(null));
         }
-        class FakeDispatchPipeline : IPipelineBase<RoutingContext>
+        class FakeDispatchPipeline : IPipelineBase<IRoutingContext>
         {
             public string Destination { get; private set; }
             public OutgoingMessage MessageSent { get; private set; }
             public bool ThrowOnDispatch { get; set; }
 
-            public Task Invoke(RoutingContext context)
+            public Task Invoke(IRoutingContext context)
             {
                 if (ThrowOnDispatch)
                 {

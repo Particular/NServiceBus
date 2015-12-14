@@ -58,7 +58,7 @@
                 });
             }
 
-            bool Authorizer(IncomingPhysicalMessageContext context)
+            bool Authorizer(IIncomingPhysicalMessageContext context)
             {
                 var isUnsubscribe = context
                     .MessageHeaders["NServiceBus.MessageIntent"] == "Unsubscribe";

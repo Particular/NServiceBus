@@ -46,9 +46,9 @@
                      .WithConfig<UnicastBusConfig>(c => c.ForwardReceivedMessagesTo = "forward_receiver_outbox");
             }
 
-            class BlowUpAfterDispatchBehavior : Behavior<BatchDispatchContext>
+            class BlowUpAfterDispatchBehavior : Behavior<IBatchDispatchContext>
             {
-                public async override Task Invoke(BatchDispatchContext context, Func<Task> next)
+                public async override Task Invoke(IBatchDispatchContext context, Func<Task> next)
                 {
                     if (!context.Operations.Any(op => op.Message.Headers[Headers.EnclosedMessageTypes].Contains(typeof(MessageToBeForwarded).Name)))
                     {

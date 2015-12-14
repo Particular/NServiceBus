@@ -5,14 +5,14 @@
     using OutgoingPipeline;
     using Pipeline;
 
-    class EnforceSendBestPracticesBehavior : Behavior<OutgoingSendContext>
+    class EnforceSendBestPracticesBehavior : Behavior<IOutgoingSendContext>
     {
         public EnforceSendBestPracticesBehavior(Validations validations)
         {
             this.validations = validations;
         }
 
-        public override Task Invoke(OutgoingSendContext context, Func<Task> next)
+        public override Task Invoke(IOutgoingSendContext context, Func<Task> next)
         {
             EnforceBestPracticesOptions options;
 

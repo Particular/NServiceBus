@@ -20,7 +20,7 @@
         /// <summary>
         /// Turns off the best practice enforcement for the given context.
         /// </summary>
-        public static void DoNotEnforceBestPractices(this OutgoingReplyContext context)
+        public static void DoNotEnforceBestPractices(this IOutgoingReplyContext context)
         {
             context.Extensions.SetDoNotEnforceBestPractices();
         }
@@ -28,7 +28,7 @@
         /// <summary>
         /// Turns off the best practice enforcement for the given context.
         /// </summary>
-        public static void DoNotEnforceBestPractices(this OutgoingSendContext context)
+        public static void DoNotEnforceBestPractices(this IOutgoingSendContext context)
         {
             context.Extensions.SetDoNotEnforceBestPractices();
         }
@@ -36,7 +36,7 @@
         /// <summary>
         /// Turns off the best practice enforcement for the given context.
         /// </summary>
-        public static void DoNotEnforceBestPractices(this SubscribeContext context)
+        public static void DoNotEnforceBestPractices(this ISubscribeContext context)
         {
             context.Extensions.SetDoNotEnforceBestPractices();
         }
@@ -44,7 +44,7 @@
         /// <summary>
         /// Turns off the best practice enforcement for the given context.
         /// </summary>
-        public static void DoNotEnforceBestPractices(this OutgoingPublishContext context)
+        public static void DoNotEnforceBestPractices(this IOutgoingPublishContext context)
         {
             context.Extensions.SetDoNotEnforceBestPractices();
         }
@@ -52,7 +52,7 @@
         /// <summary>
         /// Turns off the best practice enforcement for the given context.
         /// </summary>
-        public static void DoNotEnforceBestPractices(this UnsubscribeContext context)
+        public static void DoNotEnforceBestPractices(this IUnsubscribeContext context)
         {
             context.Extensions.SetDoNotEnforceBestPractices();
         }

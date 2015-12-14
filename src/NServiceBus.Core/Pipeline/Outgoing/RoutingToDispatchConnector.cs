@@ -12,9 +12,9 @@
     using TransportDispatch;
     using Transports;
 
-    class RoutingToDispatchConnector : StageConnector<RoutingContext, DispatchContext>
+    class RoutingToDispatchConnector : StageConnector<IRoutingContext, IDispatchContext>
     {
-        public async override Task Invoke(RoutingContext context, Func<DispatchContext, Task> next)
+        public async override Task Invoke(IRoutingContext context, Func<IDispatchContext, Task> next)
         {
             var state = context.Extensions.GetOrCreate<State>();
             var dispatchConsistency = state.ImmediateDispatch ? DispatchConsistency.Isolated : DispatchConsistency.Default;
@@ -52,7 +52,7 @@
                 return;
             }
 
-            await next(new DispatchContextImpl(operations.ToArray(), context)).ConfigureAwait(false);
+            await next(new DispatchContext(operations.ToArray(), context)).ConfigureAwait(false);
         }
 
         public class State

@@ -14,7 +14,7 @@
             itemDescriptors = behaviorList.ToArray();
         }
 
-        public Task Invoke(BehaviorContext context)
+        public Task Invoke(IBehaviorContext context)
         {
             Guard.AgainstNull(nameof(context), context);
 
@@ -26,7 +26,7 @@
 
         }
 
-        Task InvokeNext(BehaviorContext context, int currentIndex)
+        Task InvokeNext(IBehaviorContext context, int currentIndex)
         {
             if (currentIndex == itemDescriptors.Length)
             {

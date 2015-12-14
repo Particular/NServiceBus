@@ -23,11 +23,11 @@
             Assert.AreEqual(context.MessageId, context.Headers[Headers.MessageId], "Should populate the NServiceBus.MessageId header with the new value");
         }
 
-        public class CorruptionBehavior : Behavior<DispatchContext>
+        public class CorruptionBehavior : Behavior<IDispatchContext>
         {
             public Context Context { get; set; }
 
-            public override Task Invoke(DispatchContext context, Func<Task> next)
+            public override Task Invoke(IDispatchContext context, Func<Task> next)
             {
                 context.Operations.First().Message.Headers[Headers.MessageId] = "";
 

@@ -7,16 +7,16 @@
     using NServiceBus.Pipeline.Outgoing;
     using NServiceBus.Transports;
 
-    class PopulateAutoCorrelationHeadersForRepliesBehavior : Behavior<OutgoingReplyContext>
+    class PopulateAutoCorrelationHeadersForRepliesBehavior : Behavior<IOutgoingReplyContext>
     {
-        public override Task Invoke(OutgoingReplyContext context, Func<Task> next)
+        public override Task Invoke(IOutgoingReplyContext context, Func<Task> next)
         {
             FlowDetailsForRequestingSagaToOutgoingMessage(context);
 
             return next();
         }
 
-        static void FlowDetailsForRequestingSagaToOutgoingMessage(OutgoingReplyContext context)
+        static void FlowDetailsForRequestingSagaToOutgoingMessage(IOutgoingReplyContext context)
         {
             IncomingMessage incomingMessage;
 

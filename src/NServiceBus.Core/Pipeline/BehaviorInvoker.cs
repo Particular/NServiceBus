@@ -5,10 +5,10 @@
     using NServiceBus.Pipeline;
 
     class BehaviorInvoker<TIn, TOut> : IBehaviorInvoker 
-        where TOut : BehaviorContext
-        where TIn : BehaviorContext
+        where TOut : IBehaviorContext
+        where TIn : IBehaviorContext
     {
-        public Task Invoke(object behavior, BehaviorContext context, Func<BehaviorContext, Task> next)
+        public Task Invoke(object behavior, IBehaviorContext context, Func<IBehaviorContext, Task> next)
         {
             return ((IBehavior<TIn, TOut>)behavior).Invoke((TIn)context, next as Func<TOut, Task>);
         }

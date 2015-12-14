@@ -133,20 +133,20 @@
             Assert.AreEqual(originalContent, Encoding.UTF8.GetString(message.Body));
         }
 
-        TransportReceiveContext CreateContext(string messageId, int currentRetryCount, byte[] messageBody = null)
+        ITransportReceiveContext CreateContext(string messageId, int currentRetryCount, byte[] messageBody = null)
         {
-            return new TransportReceiveContextImpl(new IncomingMessage(messageId, new Dictionary<string, string>
+            return new TransportReceiveContext(new IncomingMessage(messageId, new Dictionary<string, string>
             {
                 {Headers.Retries, currentRetryCount.ToString()}
             }, new MemoryStream(messageBody ?? new byte[0])), null, new RootContext(null));
         }
     }
 
-    class FakeDispatchPipeline : IPipelineBase<RoutingContext>
+    class FakeDispatchPipeline : IPipelineBase<IRoutingContext>
     {
-        public RoutingContext RoutingContext { get; set; }
+        public IRoutingContext RoutingContext { get; set; }
 
-        public Task Invoke(RoutingContext context)
+        public Task Invoke(IRoutingContext context)
         {
             RoutingContext = context;
             return Task.FromResult(0);

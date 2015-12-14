@@ -10,7 +10,7 @@ namespace NServiceBus
     using NServiceBus.Routing;
     using NServiceBus.Unicast.Queuing;
 
-    class UnicastPublishRouterConnector : StageConnector<OutgoingPublishContext, OutgoingLogicalMessageContext>
+    class UnicastPublishRouterConnector : StageConnector<IOutgoingPublishContext, IOutgoingLogicalMessageContext>
     {
         IUnicastRouter unicastRouter;
         DistributionPolicy distributionPolicy;
@@ -20,7 +20,7 @@ namespace NServiceBus
             this.distributionPolicy = distributionPolicy;
         }
 
-        public override async Task Invoke(OutgoingPublishContext context, Func<OutgoingLogicalMessageContext, Task> next)
+        public override async Task Invoke(IOutgoingPublishContext context, Func<IOutgoingLogicalMessageContext, Task> next)
         {
             var eventType = context.Message.MessageType;
             var addressLabels = await GetRoutingStrategies(context, eventType).ConfigureAwait(false);
@@ -35,7 +35,7 @@ namespace NServiceBus
             try
             {
                 await next(
-                    new OutgoingLogicalMessageContextImpl(
+                    new OutgoingLogicalMessageContext(
                         context.MessageId,
                         context.Headers,
                         context.Message,
@@ -49,7 +49,7 @@ namespace NServiceBus
             }
         }
 
-        async Task<List<UnicastRoutingStrategy>> GetRoutingStrategies(OutgoingPublishContext context, Type eventType)
+        async Task<List<UnicastRoutingStrategy>> GetRoutingStrategies(IOutgoingPublishContext context, Type eventType)
         {
             var distributionStrategy = distributionPolicy.GetDistributionStrategy(eventType);
             var addressLabels = await unicastRouter.Route(eventType, distributionStrategy, context.Extensions).ConfigureAwait(false);

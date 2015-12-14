@@ -11,7 +11,7 @@
     using NServiceBus.Sagas;
     using NServiceBus.Transports;
 
-    class SagaPersistenceBehavior : Behavior<InvokeHandlerContext>
+    class SagaPersistenceBehavior : Behavior<IInvokeHandlerContext>
     {
         public SagaPersistenceBehavior(ISagaPersister persister, ICancelDeferredMessages timeoutCancellation, SagaMetadataCollection sagaMetadataCollection)
         {
@@ -20,7 +20,7 @@
             this.sagaMetadataCollection = sagaMetadataCollection;
         }
 
-        public override async Task Invoke(InvokeHandlerContext context, Func<Task> next)
+        public override async Task Invoke(IInvokeHandlerContext context, Func<Task> next)
         {
             currentContext = context;
 
@@ -116,7 +116,7 @@
             }
         }
 
-        static void RemoveSagaHeadersIfProcessingAEvent(InvokeHandlerContext context)
+        static void RemoveSagaHeadersIfProcessingAEvent(IInvokeHandlerContext context)
         {
             // We need this for backwards compatibility because in v4.0.0 we still have this headers being sent as part of the message even if MessageIntent == MessageIntentEnum.Publish
             string messageIntentString;
@@ -132,7 +132,7 @@
             }
         }
 
-        static bool IsMessageAllowedToStartTheSaga(InvokeHandlerContext context, SagaMetadata sagaMetadata)
+        static bool IsMessageAllowedToStartTheSaga(IInvokeHandlerContext context, SagaMetadata sagaMetadata)
         {
             string sagaType;
 
@@ -202,7 +202,7 @@
             return true;
         }
 
-        Task<IContainSagaData> TryLoadSagaEntity(SagaMetadata metadata, InvokeHandlerContext context)
+        Task<IContainSagaData> TryLoadSagaEntity(SagaMetadata metadata, IInvokeHandlerContext context)
         {
             string sagaId;
 
@@ -240,7 +240,7 @@
             return finder.Find(currentContext.Builder, finderDefinition, context.SynchronizedStorageSession, context.Extensions, context.MessageBeingHandled);
         }
 
-        IContainSagaData CreateNewSagaEntity(SagaMetadata metadata, InvokeHandlerContext context)
+        IContainSagaData CreateNewSagaEntity(SagaMetadata metadata, IInvokeHandlerContext context)
         {
             var sagaEntityType = metadata.SagaEntityType;
 
@@ -273,7 +273,7 @@
             return sagaEntity;
         }
 
-        InvokeHandlerContext currentContext;
+        IInvokeHandlerContext currentContext;
         SagaMetadataCollection sagaMetadataCollection;
 
         ISagaPersister sagaPersister;

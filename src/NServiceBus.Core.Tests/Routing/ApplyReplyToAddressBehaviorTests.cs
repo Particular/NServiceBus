@@ -14,7 +14,7 @@
         public async Task Should_set_the_reply_to_header_to_configured_address()
         {
             var behavior = new ApplyReplyToAddressBehavior("MyAddress");
-            var context = new OutgoingLogicalMessageContextImpl(
+            var context = new OutgoingLogicalMessageContext(
                 Guid.NewGuid().ToString(),
                 new Dictionary<string, string>(), 
                 new OutgoingLogicalMessage(new MyMessage()), 

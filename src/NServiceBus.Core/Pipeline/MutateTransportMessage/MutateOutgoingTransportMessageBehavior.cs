@@ -8,9 +8,9 @@
     using OutgoingPipeline;
     using Pipeline;
 
-    class MutateOutgoingTransportMessageBehavior : Behavior<OutgoingPhysicalMessageContext>
+    class MutateOutgoingTransportMessageBehavior : Behavior<IOutgoingPhysicalMessageContext>
     {
-        public override async Task Invoke(OutgoingPhysicalMessageContext context, Func<Task> next)
+        public override async Task Invoke(IOutgoingPhysicalMessageContext context, Func<Task> next)
         {
             var outgoingMessage = context.Extensions.Get<OutgoingLogicalMessage>();
 

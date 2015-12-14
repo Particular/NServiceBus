@@ -10,7 +10,7 @@
     using Performance.TimeToBeReceived;
     using Pipeline;
 
-    class DataBusSendBehavior : Behavior<OutgoingLogicalMessageContext>
+    class DataBusSendBehavior : Behavior<IOutgoingLogicalMessageContext>
     {
         public IDataBus DataBus { get; set; }
 
@@ -18,7 +18,7 @@
 
         public Conventions Conventions { get; set; }
 
-        public override async Task Invoke(OutgoingLogicalMessageContext context, Func<Task> next)
+        public override async Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
         {
             var timeToBeReceived = TimeSpan.MaxValue;
 

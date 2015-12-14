@@ -5,7 +5,7 @@
     using OutgoingPipeline;
     using Pipeline;
 
-    class EnforcePublishBestPracticesBehavior : Behavior<OutgoingPublishContext>
+    class EnforcePublishBestPracticesBehavior : Behavior<IOutgoingPublishContext>
     {
         Validations validations;
 
@@ -14,7 +14,7 @@
             this.validations = validations;
         }
 
-        public override Task Invoke(OutgoingPublishContext context, Func<Task> next)
+        public override Task Invoke(IOutgoingPublishContext context, Func<Task> next)
         {
             EnforceBestPracticesOptions options;
 
