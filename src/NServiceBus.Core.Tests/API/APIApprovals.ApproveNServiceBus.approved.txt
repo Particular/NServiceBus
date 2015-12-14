@@ -1287,6 +1287,7 @@ namespace NServiceBus.Extensibility
         public T GetOrCreate<T>()
             where T :  class, new () { }
         public void Remove<T>() { }
+        public void Remove(string key) { }
         public void Set<T>(T t) { }
         public void Set<T>(string key, T t) { }
         public bool TryGet<T>(out T result) { }
