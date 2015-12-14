@@ -173,13 +173,13 @@
 
         async Task Cleanup()
         {
-            dynamic transportCleaner;
+            IConfigureTestExecution transportCleaner;
             if (busConfiguration.GetSettings().TryGet("CleanupTransport", out transportCleaner))
             {
                 await transportCleaner.Cleanup();
             }
 
-            dynamic persistenceCleaner;
+            IConfigureTestExecution persistenceCleaner;
             if (busConfiguration.GetSettings().TryGet("CleanupPersistence", out persistenceCleaner))
             {
                 await persistenceCleaner.Cleanup();

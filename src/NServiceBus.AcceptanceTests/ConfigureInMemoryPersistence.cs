@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using NServiceBus;
+using NServiceBus.AcceptanceTesting.Support;
 
 
-public class ConfigureInMemoryPersistence
+public class ConfigureInMemoryPersistence : IConfigureTestExecution
 {
     public Task Configure(BusConfiguration configuration, IDictionary<string, string> settings)
     {
