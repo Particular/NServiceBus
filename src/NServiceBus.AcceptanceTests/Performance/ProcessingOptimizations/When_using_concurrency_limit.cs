@@ -87,9 +87,9 @@
                 yield break;
             }
 
-            public override TransactionSupport GetTransactionSupport()
+            public override TransportTransactionMode GetSupportedTransactionMode()
             {
-                return TransactionSupport.None;
+                return TransportTransactionMode.None;
             }
 
             public override IManageSubscriptions GetSubscriptionManager()

@@ -4,11 +4,11 @@
 
     class SatellitePipelineModifications : PipelineModifications
     {
-        public SatellitePipelineModifications(string name, string receiveAddress, TransactionSupport requiredTransactionSupport, PushRuntimeSettings runtimeSettings)
+        public SatellitePipelineModifications(string name, string receiveAddress, TransportTransactionMode requiredTransportTransactionMode, PushRuntimeSettings runtimeSettings)
         {
             Name = name;
             ReceiveAddress = receiveAddress;
-            RequiredTransactionSupport = requiredTransactionSupport;
+            RequiredTransportTransactionMode = requiredTransportTransactionMode;
             RuntimeSettings = runtimeSettings;
         }
 
@@ -16,7 +16,7 @@
 
         public string ReceiveAddress { get; private set; }
 
-        public TransactionSupport RequiredTransactionSupport { get; private set; }
+        public TransportTransactionMode RequiredTransportTransactionMode { get; private set; }
 
         public PushRuntimeSettings RuntimeSettings { get; private set; }
     }

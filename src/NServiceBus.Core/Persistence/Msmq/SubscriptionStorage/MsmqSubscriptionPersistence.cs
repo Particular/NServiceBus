@@ -43,7 +43,7 @@
 
             context.Container.ConfigureComponent(b =>
             {
-                var isTransactional = context.Settings.GetRequiredTransactionSupportForReceives() != TransactionSupport.None;
+                var isTransactional = context.Settings.GetRequiredTransactionModeForReceives() != TransportTransactionMode.None;
 
                 var queue = new MsmqSubscriptionStorageQueue(MsmqAddress.Parse(queueName), isTransactional, false);
                 return new MsmqSubscriptionStorage(queue);

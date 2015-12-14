@@ -27,14 +27,8 @@
             }
 
             return ConfigureTestExecution(TestDependencyType.Transport, config, settings);
-        }
 
-        public static void DefineTransactions(this BusConfiguration config, IDictionary<string, string> settings)
-        {
-            if (settings.ContainsKey("Transactions.Disable"))
-            {
-                config.Transactions().Disable();
-            }
+
         }
 
         public static Task DefinePersistence(this BusConfiguration config, IDictionary<string, string> settings)

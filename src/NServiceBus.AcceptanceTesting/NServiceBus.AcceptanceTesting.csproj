@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="Customization\BusConfigExtensions.cs" />
     <Compile Include="Customization\Conventions.cs" />
+    <Compile Include="RunDescriptorExtensions.cs" />
     <Compile Include="IScenarioVerification.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScenarioVerification.cs" />

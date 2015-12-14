@@ -41,7 +41,7 @@
     {
         public AllDtcTransports()
         {
-            AllTransportsFilter.Run(t => t.GetTransactionSupport() != TransactionSupport.Distributed, Remove);
+            AllTransportsFilter.Run(t => t.GetSupportedTransactionMode() != TransportTransactionMode.TransactionScope, Remove);
         }
     }
 
@@ -49,7 +49,7 @@
     {
         public AllNativeMultiQueueTransactionTransports()
         {
-            AllTransportsFilter.Run(t => t.GetTransactionSupport() < TransactionSupport.MultiQueue, Remove);
+            AllTransportsFilter.Run(t => t.GetSupportedTransactionMode() < TransportTransactionMode.SendsAtomicWithReceive, Remove);
         }
     }
 

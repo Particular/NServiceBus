@@ -7,17 +7,17 @@
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.Transports;
     using NUnit.Framework;
 
     public class When_a_corrupted_message_is_received : NServiceBusAcceptanceTest
     {
         const string errorQueue = @".\private$\errorQueueForCorruptedMessages";
 
-        [TestCase(TransactionSupport.Distributed)]
-        [TestCase(TransactionSupport.MultiQueue)]
-        [TestCase(TransactionSupport.None)]
-        public async Task Should_move_it_to_the_error_queue(TransactionSupport txMode)
+        [TestCase(TransportTransactionMode.TransactionScope)]
+        [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
+        [TestCase(TransportTransactionMode.ReceiveOnly)]
+        [TestCase(TransportTransactionMode.None)]
+        public async Task Should_move_it_to_the_error_queue(TransportTransactionMode transactionMode)
         {
             DeleteQueue();
             try
@@ -27,18 +27,8 @@
                     {
                         b.CustomConfig(c =>
                         {
-                            switch (txMode)
-                            {
-                                case TransactionSupport.Distributed:
-                                    c.Transactions().EnableDistributedTransactions();
-                                    break;
-                                case TransactionSupport.MultiQueue:
-                                    c.Transactions().DisableDistributedTransactions();
-                                    break;
-                                case TransactionSupport.None:
-                                    c.Transactions().Disable();
-                                    break;
-                            }
+                            c.UseTransport<MsmqTransport>()
+                                .Transactions(transactionMode);
                         });
                         b.When((bus, c) =>
                         {

@@ -8,11 +8,11 @@ namespace NServiceBus
 
     class DispatchTimeoutBehavior : SatelliteBehavior
     {
-        public DispatchTimeoutBehavior(IDispatchMessages dispatcher, IPersistTimeouts persister, TransactionSupport transactionSupport)
+        public DispatchTimeoutBehavior(IDispatchMessages dispatcher, IPersistTimeouts persister, TransportTransactionMode transportTransactionMode)
         {
             this.dispatcher = dispatcher;
             this.persister = persister;
-            dispatchConsistency = GetDispatchConsistency(transactionSupport);
+            dispatchConsistency = GetDispatchConsistency(transportTransactionMode);
         }
 
         protected override async Task Terminate(IncomingPhysicalMessageContext context)
@@ -42,10 +42,10 @@ namespace NServiceBus
             }
         }
 
-        static DispatchConsistency GetDispatchConsistency(TransactionSupport transactionSupport)
+        static DispatchConsistency GetDispatchConsistency(TransportTransactionMode transportTransactionMode)
         {
             // dispatch message isolated from existing transactions when not using DTC to avoid loosing timeout data when the transaction commit fails.
-            return transactionSupport == TransactionSupport.Distributed
+            return transportTransactionMode == TransportTransactionMode.TransactionScope
                 ? DispatchConsistency.Default
                 : DispatchConsistency.Isolated;
         }

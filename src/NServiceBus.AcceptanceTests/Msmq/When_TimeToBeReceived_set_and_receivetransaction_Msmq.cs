@@ -33,7 +33,10 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.Transactions().Enable().DisableDistributedTransactions());
+                EndpointSetup<DefaultServer>((config, context) =>
+                {
+                    config.UseTransport(context.GetTransportType()).Transactions(TransportTransactionMode.SendsAtomicWithReceive);
+                });
             }
             public class MyMessageHandler : IHandleMessages<MyMessage>
             {

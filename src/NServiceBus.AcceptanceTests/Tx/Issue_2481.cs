@@ -33,7 +33,11 @@
         {
             public DTCEndpoint()
             {
-                EndpointSetup<DefaultServer>(c=>c.Transactions().EnableDistributedTransactions());
+                EndpointSetup<DefaultServer>((config, context) =>
+                {
+                    config.UseTransport(context.GetTransportType())
+                            .Transactions(TransportTransactionMode.TransactionScope);
+                });
             }
 
             public class MyMessageHandler : IHandleMessages<MyMessage>

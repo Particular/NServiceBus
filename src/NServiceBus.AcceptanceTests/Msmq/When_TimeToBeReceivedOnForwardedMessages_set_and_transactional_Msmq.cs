@@ -26,11 +26,12 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(config =>
+                EndpointSetup<DefaultServer>((config, context) =>
                 {
-                    config.Transactions().Enable();
+                    config.UseTransport(context.GetTransportType())
+                            .Transactions(TransportTransactionMode.TransactionScope);
                 })
-                .WithConfig<UnicastBusConfig>(c => c.TimeToBeReceivedOnForwardedMessages = TimeSpan.FromHours(1));
+                    .WithConfig<UnicastBusConfig>(c => c.TimeToBeReceivedOnForwardedMessages = TimeSpan.FromHours(1));
             }
         }
     }

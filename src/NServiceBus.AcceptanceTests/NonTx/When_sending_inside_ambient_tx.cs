@@ -36,10 +36,10 @@
         {
             public NonTransactionalEndpoint()
             {
-                EndpointSetup<DefaultServer>(c =>
+                EndpointSetup<DefaultServer>((config,context) =>
                 {
-                    c.Transactions().Disable();
-                    c.Pipeline.Register("WrapInScope", typeof(WrapHandlersInScope), "Wraps the handlers in a scope");
+                    config.UseTransport(context.GetTransportType()).Transactions(TransportTransactionMode.None);
+                    config.Pipeline.Register("WrapInScope", typeof(WrapHandlersInScope), "Wraps the handlers in a scope");
                 });
             }
 

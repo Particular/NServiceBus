@@ -18,7 +18,7 @@
         public StartupCheckResult CheckTimeToBeReceivedOverrides()
         {
             var usingMsmq = settings.Get<TransportDefinition>() is MsmqTransport;
-            var isTransactional = settings.GetRequiredTransactionSupportForReceives() != TransactionSupport.None;
+            var isTransactional = settings.GetRequiredTransactionModeForReceives() != TransportTransactionMode.None;
             var outBoxRunning = settings.IsFeatureActive(typeof(Features.Outbox));
 
             var messageAuditingConfig = settings.GetConfigSection<AuditConfig>();

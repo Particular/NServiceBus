@@ -66,9 +66,9 @@
                 return new List<Type>();
             }
 
-            public override TransactionSupport GetTransactionSupport()
+            public override TransportTransactionMode GetSupportedTransactionMode()
             {
-                return TransactionSupport.SingleQueue;
+                return TransportTransactionMode.ReceiveOnly;
             }
 
             public override IManageSubscriptions GetSubscriptionManager()

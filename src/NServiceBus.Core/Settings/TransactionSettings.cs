@@ -4,7 +4,6 @@ namespace NServiceBus.Settings
     using System.Configuration;
     using System.Transactions;
     using System.Transactions.Configuration;
-    using NServiceBus.ConsistencyGuarantees;
     using NServiceBus.Features;
 
     /// <summary>
@@ -17,25 +16,7 @@ namespace NServiceBus.Settings
             this.config = config;
         }
 
-        /// <summary>
-        /// Configures the endpoint not to not use any transactions.
-        /// </summary>
-        public TransactionSettings Disable()
-        {
-            config.Settings.Set<ConsistencyGuarantee>(ConsistencyGuarantee.AtMostOnce);
-
-            return this;
-        }
-
-        /// <summary>
-        /// Configures the endpoint to use transactions.
-        /// </summary>
-        public TransactionSettings Enable()
-        {
-            config.Settings.Set<ConsistencyGuarantee>(ConsistencyGuarantee.AtLeastOnce);
-
-            return this;
-        }
+     
 
         /// <summary>
         /// Sets the isolation level of the transaction.
@@ -50,25 +31,7 @@ namespace NServiceBus.Settings
 
             return this;
         }
-
-        /// <summary>
-        /// Configures the endpoint not to enlist in Distributed Transactions.
-        /// </summary>
-        public TransactionSettings DisableDistributedTransactions()
-        {
-            config.Settings.Set<ConsistencyGuarantee>(ConsistencyGuarantee.AtLeastOnce);
-            return this;
-        }
-
-        /// <summary>
-        /// Configures the endpoint to enlist in Distributed Transactions.
-        /// </summary>
-        public TransactionSettings EnableDistributedTransactions()
-        {
-            config.Settings.Set<ConsistencyGuarantee>(ConsistencyGuarantee.ExactlyOnce);
-            return this;
-        }
-
+      
         /// <summary>
         /// Configures this endpoint so that <see cref="IHandleMessages{T}">handlers</see> not wrapped in a
         /// <see cref="TransactionScope" />.
