@@ -1068,19 +1068,17 @@ namespace NServiceBus
         [System.ObsoleteAttribute(@"For sending purposes use `DeliveryConstraintContextExtensions.AddDeliveryConstraint(new DiscardIfNotReceivedBefore(timeToBeReceived))` to set the `TimeToBeReceived` or `DiscardIfNotReceivedBefore constraint;DeliveryConstraintContextExtensions.TryGetDeliveryConstraint(out constraint)` to read the `TimeToBeReceived`. When receiving look at the new 'NServiceBus.TimeToBeReceived' header. Will be removed in version 7.0.0.", true)]
         public System.TimeSpan TimeToBeReceived { get; set; }
     }
-<<<<<<< HEAD
     public class TransportReceiveContext : NServiceBus.BehaviorContext, NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.Contexts.ITransportReceiveContext, NServiceBus.Pipeline.IBehaviorContext
     {
         public TransportReceiveContext(NServiceBus.Transports.IncomingMessage receivedMessage, NServiceBus.Transports.TransportTransaction transportTransaction, NServiceBus.Pipeline.IBehaviorContext parentContext) { }
         public NServiceBus.Transports.IncomingMessage Message { get; }
-=======
+    }
     public enum TransportTransactionMode
     {
         None = 0,
         ReceiveOnly = 1,
         SendsAtomicWithReceive = 2,
         TransactionScope = 3,
->>>>>>> develop
     }
     public sealed class UnicastRoutingTarget
     {
