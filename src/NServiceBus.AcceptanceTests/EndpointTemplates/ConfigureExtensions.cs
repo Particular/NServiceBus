@@ -73,7 +73,15 @@
 
             await configurer.Configure(config, settings).ConfigureAwait(false);
 
-            config.GetSettings().Set("Cleanup" + dependencyTypeString, configurer);
+            var configSettings = config.GetSettings();
+
+            List<IConfigureTestExecution> cleaners;
+            if (!configSettings.TryGet("Cleaners", out cleaners))
+            {
+                cleaners = new List<IConfigureTestExecution>();
+                configSettings.Set("Cleaners", cleaners);
+            }
+            cleaners.Add(configurer);
         }
 
         class Cleaner

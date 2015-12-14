@@ -7,7 +7,7 @@
 
     public abstract class ScenarioContext
     {
-        public Guid UniqueTestRunId { get; } = Guid.NewGuid();
+        public Guid TestRunId { get; } = Guid.NewGuid();
 
         public bool EndpointsStarted { get; set; }
 
