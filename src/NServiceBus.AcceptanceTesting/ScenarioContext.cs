@@ -7,6 +7,8 @@
 
     public abstract class ScenarioContext
     {
+        public Guid TestRunId { get; } = Guid.NewGuid();
+
         public bool EndpointsStarted { get; set; }
 
         public bool HasNativePubSubSupport { get; set; }

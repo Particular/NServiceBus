@@ -4,10 +4,11 @@ using System.Linq;
 using System.Messaging;
 using System.Threading.Tasks;
 using NServiceBus;
+using NServiceBus.AcceptanceTesting.Support;
 using NServiceBus.Configuration.AdvanceExtensibility;
 using NServiceBus.Transports;
 
-public class ConfigureMsmqTransport
+public class ConfigureMsmqTransport : IConfigureTestExecution
 {
     BusConfiguration busConfiguration;
 
