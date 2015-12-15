@@ -1,8 +1,6 @@
 namespace NServiceBus
 {
     using System;
-    using System.Linq;
-    using NServiceBus.Pipeline;
 
     static class BehaviorTypeChecker
     {
@@ -17,29 +15,22 @@ namespace NServiceBus
             {
                 throw new ArgumentException($"The behavior '{behavior.Name}' is invalid since it is an open generic.", paramName);
             }
-            if (!IsAssignableToIBehavior(behavior))
+            if (!behavior.IsBehavior())
             {
                 throw new ArgumentException($@"The behavior '{behavior.Name}' is invalid since it does not implement IBehavior<TFrom, TTo>.", paramName);
             }
-        }
 
-        static Type iBehaviorType = typeof(IBehavior<,>);
-
-        static bool IsAssignableToIBehavior(Type givenType)
-        {
-            var interfaceTypes = givenType.GetInterfaces();
-
-            if (interfaceTypes.Any(it => it.IsGenericType && it.GetGenericTypeDefinition() == iBehaviorType))
+            var inputContextType = behavior.GetInputContext();
+            if (!inputContextType.IsInterface)
             {
-                return true;
+                throw new ArgumentException($@"The behavior '{behavior.Name}' is invalid since the TFrom context of IBehavior<TFrom, TTo> is not an interface.", paramName);
             }
 
-            if (givenType.IsGenericType && givenType.GetGenericTypeDefinition() == iBehaviorType)
+            var outputContextType = behavior.GetOutputContext();
+            if (!outputContextType.IsInterface)
             {
-                return true;
+                throw new ArgumentException($@"The behavior '{behavior.Name}' is invalid since the TTo context of IBehavior<TFrom, TTo> is not an interface.", paramName);
             }
-
-            return false;
         }
     }
 }

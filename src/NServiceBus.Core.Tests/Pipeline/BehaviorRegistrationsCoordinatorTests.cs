@@ -216,15 +216,17 @@ namespace NServiceBus.Core.Tests.Pipeline
             }
         }
 
-        class FakeStageConnector : StageConnector<IIncomingContext,ChildContext>
+        class FakeStageConnector : StageConnector<IIncomingContext, IChildContext>
         {
-            public override Task Invoke(IIncomingContext context, Func<ChildContext, Task> next)
+            public override Task Invoke(IIncomingContext context, Func<IChildContext, Task> next)
             {
                 throw new NotImplementedException();
             }
         }
 
-        class ChildContext : IncomingContext
+        interface IChildContext : IIncomingContext { }
+
+        class ChildContext : IncomingContext, IChildContext
         {
             public ChildContext() : base("messageId", "replyToAddress", new Dictionary<string, string>(), null)
             {
