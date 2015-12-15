@@ -16,10 +16,10 @@
             var behavior = new ApplyReplyToAddressBehavior("MyAddress");
             var context = new OutgoingLogicalMessageContext(
                 Guid.NewGuid().ToString(),
-                new Dictionary<string, string>(), 
-                new OutgoingLogicalMessage(new MyMessage()), 
-                new RoutingStrategy[] {},  
-                new RootContext(null));
+                new Dictionary<string, string>(),
+                new OutgoingLogicalMessage(new MyMessage()),
+                new RoutingStrategy[] { },
+                new RootContext(null, null));
 
             await behavior.Invoke(context, () => Task.FromResult(0));
 

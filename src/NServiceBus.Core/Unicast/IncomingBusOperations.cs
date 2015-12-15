@@ -3,7 +3,6 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Routing;
-    using NServiceBus.Settings;
     using NServiceBus.TransportDispatch;
     using NServiceBus.Transports;
 
@@ -12,12 +11,9 @@ namespace NServiceBus
         public static async Task ForwardCurrentMessageTo(IIncomingContext context, string destination)
         {
             var messageBeingProcessed = context.Extensions.Get<IncomingMessage>();
-            var settings = context.Builder.Build<ReadOnlySettings>();
 
-            var pipeline = new PipelineBase<IRoutingContext>(
-                context.Builder,
-                settings,
-                settings.Get<PipelineConfiguration>().MainPipeline);
+            var cache = context.Extensions.Get<IPipelineCache>();
+            var pipeline = cache.Pipeline<IRoutingContext>();
 
             var outgoingMessage = new OutgoingMessage(
                 messageBeingProcessed.MessageId,

@@ -30,12 +30,12 @@
                             {Headers.ReplyToAddress, "ReplyAddressOfIncomingMessage"}
                         },
                         new MemoryStream()), null,
-                    new RootContext(null)));
+                    new RootContext(null, null)));
 
             UnicastAddressTag addressTag = null;
             await behavior.Invoke(context, c =>
             {
-                addressTag = (UnicastAddressTag) c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
+                addressTag = (UnicastAddressTag)c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
                 return Task.FromResult(0);
             });
 
@@ -56,7 +56,7 @@
                         "id",
                         new Dictionary<string, string>(),
                         new MemoryStream()), null,
-                    new RootContext(null)));
+                    new RootContext(null, null)));
 
             var ex = Assert.Throws<Exception>(async () => await behavior.Invoke(context, _ => Task.FromResult(0)));
 
@@ -74,12 +74,12 @@
             var context = new OutgoingReplyContext(
                 new OutgoingLogicalMessage(new MyReply()),
                 options,
-                new RootContext(null));
+                new RootContext(null, null));
 
             UnicastAddressTag addressTag = null;
             await behavior.Invoke(context, c =>
             {
-                addressTag = (UnicastAddressTag) c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
+                addressTag = (UnicastAddressTag)c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
                 return Task.FromResult(0);
             });
 

@@ -6,7 +6,6 @@ namespace NServiceBus
     using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
-    using NServiceBus.Settings;
 
     static class BusOperations
     {
@@ -18,11 +17,8 @@ namespace NServiceBus
 
         public static Task Publish(IBehaviorContext context, object message, PublishOptions options)
         {
-            var settings = context.Builder.Build<ReadOnlySettings>();
-            var pipeline = new PipelineBase<IOutgoingPublishContext>(
-                context.Builder, 
-                settings, 
-                settings.Get<PipelineConfiguration>().MainPipeline);
+            var cache = context.Extensions.Get<IPipelineCache>();
+            var pipeline = cache.Pipeline<IOutgoingPublishContext>();
 
             var publishContext = new OutgoingPublishContext(
                 new OutgoingLogicalMessage(message),
@@ -34,8 +30,8 @@ namespace NServiceBus
 
         public static Task Subscribe(IBehaviorContext context, Type eventType, SubscribeOptions options)
         {
-            var settings = context.Builder.Build<ReadOnlySettings>();
-            var pipeline = new PipelineBase<ISubscribeContext>(context.Builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
+            var cache = context.Extensions.Get<IPipelineCache>();
+            var pipeline = cache.Pipeline<ISubscribeContext>();
 
             var subscribeContext = new SubscribeContext(
                 context,
@@ -47,8 +43,8 @@ namespace NServiceBus
 
         public static Task Unsubscribe(IBehaviorContext context, Type eventType, UnsubscribeOptions options)
         {
-            var settings = context.Builder.Build<ReadOnlySettings>();
-            var pipeline = new PipelineBase<IUnsubscribeContext>(context.Builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
+            var cache = context.Extensions.Get<IPipelineCache>();
+            var pipeline = cache.Pipeline<IUnsubscribeContext>();
 
             var subscribeContext = new UnsubscribeContext(
                 context,
@@ -73,8 +69,8 @@ namespace NServiceBus
 
         static Task SendMessage(this IBehaviorContext context, Type messageType, object message, SendOptions options)
         {
-            var settings = context.Builder.Build<ReadOnlySettings>();
-            var pipeline = new PipelineBase<IOutgoingSendContext>(context.Builder, settings, settings.Get<PipelineConfiguration>().MainPipeline);
+            var cache = context.Extensions.Get<IPipelineCache>();
+            var pipeline = cache.Pipeline<IOutgoingSendContext>();
 
             var outgoingContext = new OutgoingSendContext(
                 new OutgoingLogicalMessage(messageType, message),
@@ -86,11 +82,8 @@ namespace NServiceBus
 
         public static Task Reply(IBehaviorContext context, object message, ReplyOptions options)
         {
-            var settings = context.Builder.Build<ReadOnlySettings>();
-            var pipeline = new PipelineBase<IOutgoingReplyContext>(
-                context.Builder, 
-                settings, 
-                settings.Get<PipelineConfiguration>().MainPipeline);
+            var cache = context.Extensions.Get<IPipelineCache>();
+            var pipeline = cache.Pipeline<IOutgoingReplyContext>();
 
             var outgoingContext = new OutgoingReplyContext(
                 new OutgoingLogicalMessage(message),

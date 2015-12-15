@@ -6,25 +6,20 @@ namespace NServiceBus
     using NServiceBus.Logging;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.Settings;
     using NServiceBus.Transports;
 
-    class MoveFaultsToErrorQueueBehavior : Behavior<ITransportReceiveContext>
+    class MoveFaultsToErrorQueueBehavior : ForkConnector<ITransportReceiveContext, IFaultContext>
     {
-        public MoveFaultsToErrorQueueBehavior(CriticalError criticalError, 
-            IPipelineBase<IFaultContext> faultPipeline, 
-            BusNotifications notifications, 
-            string errorQueueAddress,
-            string localAddress)
+        public MoveFaultsToErrorQueueBehavior(CriticalError criticalError, BusNotifications notifications, string errorQueueAddress, string localAddress)
+
         {
             this.criticalError = criticalError;
-            this.faultPipeline = faultPipeline;
             this.notifications = notifications;
             this.errorQueueAddress = errorQueueAddress;
             this.localAddress = localAddress;
         }
 
-        public override async Task Invoke(ITransportReceiveContext context, Func<Task> next)
+        public override async Task Invoke(ITransportReceiveContext context, Func<Task> next, Func<IFaultContext, Task> fork)
         {
             try
             {
@@ -50,7 +45,7 @@ namespace NServiceBus
 
                     var faultContext = new FaultContext(new OutgoingMessage(message.MessageId, message.Headers, message.Body), errorQueueAddress, exception, context);
 
-                    await faultPipeline.Invoke(faultContext).ConfigureAwait(false);
+                    await fork(faultContext).ConfigureAwait(false);
                     
                     notifications.Errors.InvokeMessageHasBeenSentToErrorQueue(message,exception);
                 }
@@ -63,7 +58,6 @@ namespace NServiceBus
         }
 
         CriticalError criticalError;
-        IPipelineBase<IFaultContext> faultPipeline;
         BusNotifications notifications;
         string errorQueueAddress;
         string localAddress;
@@ -71,18 +65,13 @@ namespace NServiceBus
 
         public class Registration : RegisterStep
         {
-            public Registration(ReadOnlySettings settings, string localAddress)
+            public Registration(string errorQueueAddress, string localAddress)
                 : base("MoveFaultsToErrorQueue", typeof(MoveFaultsToErrorQueueBehavior), "Moved failing messages to the configured error queue", b =>
                 {
-                    var errorQueue = ErrorQueueSettings.GetConfiguredErrorQueue(settings);
-                    var pipelinesCollection = settings.Get<PipelineConfiguration>();
-                    var dispatchPipeline = new PipelineBase<IFaultContext>(b, settings, pipelinesCollection.MainPipeline);
-
                     return new MoveFaultsToErrorQueueBehavior(
                         b.Build<CriticalError>(),
-                        dispatchPipeline,
                         b.Build<BusNotifications>(),
-                        errorQueue,
+                        errorQueueAddress,
                         localAddress);
                 })
             {

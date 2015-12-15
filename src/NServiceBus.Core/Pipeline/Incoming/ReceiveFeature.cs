@@ -30,13 +30,9 @@
 
             context.Container.ConfigureComponent(b =>
             {
-                var pipelinesCollection = context.Settings.Get<PipelineConfiguration>();
-
-                var pipeline = new PipelineBase<IBatchDispatchContext>(b, context.Settings, pipelinesCollection.MainPipeline);
-
                 var storage = context.Container.HasComponent<IOutboxStorage>() ? b.Build<IOutboxStorage>() : new NoOpOutbox();
                 
-                return new TransportReceiveToPhysicalMessageProcessingConnector(pipeline, storage);
+                return new TransportReceiveToPhysicalMessageProcessingConnector(storage);
             }, DependencyLifecycle.InstancePerCall);
 
             context.Container.ConfigureComponent(b =>

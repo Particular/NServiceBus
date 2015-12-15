@@ -29,7 +29,7 @@
         {
             public IBusSession CreateBusSession()
             {
-                return new BusSession(new RootContext(null));
+                return new BusSession(new RootContext(null, null));
             }
         }
     }

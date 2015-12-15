@@ -29,11 +29,12 @@
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             string processorAddress;
+            var errorQueueAddress = ErrorQueueSettings.GetConfiguredErrorQueue(context.Settings);
 
             var requiredTransactionSupport = context.Settings.GetRequiredTransactionModeForReceives();
 
             var messageProcessorPipeline = context.AddSatellitePipeline("Timeout Message Processor", "Timeouts", requiredTransactionSupport, PushRuntimeSettings.Default, out processorAddress);
-            messageProcessorPipeline.Register(new MoveFaultsToErrorQueueBehavior.Registration(context.Settings, processorAddress));
+            messageProcessorPipeline.Register(new MoveFaultsToErrorQueueBehavior.Registration(errorQueueAddress, processorAddress));
             messageProcessorPipeline.Register(new FirstLevelRetriesBehavior.Registration("Timeouts"));
             messageProcessorPipeline.Register<StoreTimeoutBehavior.Registration>();
             context.Container.ConfigureComponent(b => new StoreTimeoutBehavior(b.Build<ExpiredTimeoutsPoller>(),
@@ -45,7 +46,7 @@
 
             string dispatcherAddress;
             var dispatcherProcessorPipeline = context.AddSatellitePipeline("Timeout Dispatcher Processor", "TimeoutsDispatcher", requiredTransactionSupport, PushRuntimeSettings.Default, out dispatcherAddress);
-            dispatcherProcessorPipeline.Register(new MoveFaultsToErrorQueueBehavior.Registration(context.Settings, dispatcherAddress));
+            dispatcherProcessorPipeline.Register(new MoveFaultsToErrorQueueBehavior.Registration(errorQueueAddress, dispatcherAddress));
             dispatcherProcessorPipeline.Register(new FirstLevelRetriesBehavior.Registration("TimeoutsDispatcher"));
             dispatcherProcessorPipeline.Register("TimeoutDispatcherProcessor", typeof(DispatchTimeoutBehavior), "Dispatches timeout messages");
             context.Container.ConfigureComponent(b => new DispatchTimeoutBehavior(

@@ -19,10 +19,8 @@ namespace NServiceBus
             var messageBeingProcessed = context.Extensions.Get<IncomingMessage>();
             var settings = context.Builder.Build<ReadOnlySettings>();
 
-            var pipeline = new PipelineBase<IRoutingContext>(
-                context.Builder,
-                settings,
-                settings.Get<PipelineConfiguration>().MainPipeline);
+            var cache = context.Extensions.Get<IPipelineCache>();
+            var pipeline = cache.Pipeline<IRoutingContext>();
 
             var outgoingMessage = new OutgoingMessage(
                 messageBeingProcessed.MessageId,
