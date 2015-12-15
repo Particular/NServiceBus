@@ -470,7 +470,7 @@ namespace NServiceBus.Unicast
     using System.Collections.Generic;
 
     [ObsoleteEx(
-        Message = "UnicastBus has been made internal. Use IBusContextFactory to interact with the bus from outside of the handler.",
+        Message = "UnicastBus has been made internal. Use IBusSessionFactory to interact with the bus from outside of the handler.",
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7")]
     public class UnicastBus
@@ -629,7 +629,7 @@ namespace NServiceBus
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
             Message = "Headers can be set using the ``.SetHeader` method on the context object passed into your behavior or mutator")]
-        public static void SetMessageHeader(this IBusContextFactory bus, object msg, string key, string value)
+        public static void SetMessageHeader(this IBusSessionFactory bus, object msg, string key, string value)
         {
             throw new NotImplementedException();
         }
@@ -1274,7 +1274,7 @@ namespace NServiceBus
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
-        Message = "Use IBusContextFactory to create sending context.")]
+        Message = "Use IBusSessionFactory to create sending context.")]
     public interface ISendOnlyBus : IDisposable
     {
     }
@@ -1282,7 +1282,7 @@ namespace NServiceBus
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
-        Message = "When in context of handler use IMessageHandlingContext. Otherwise use IBusContextFactory to create sending context.")]
+        Message = "When in context of handler use IMessageHandlingContext. Otherwise use IBusSessionFactory to create sending context.")]
     public interface IBus
     {
     }

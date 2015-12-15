@@ -40,14 +40,14 @@ namespace NServiceBus.Serializers.Json.Tests
                     this.builder = builder;
                 }
 
-                protected override Task OnStart(IBusContext context)
+                protected override Task OnStart(IBusSession session)
                 {
                     var serializer = builder.Build<JsonMessageSerializer>();
                     Assert.AreSame(Encoding.UTF8, serializer.Encoding);
                     return Task.FromResult(0);
                 }
 
-                protected override Task OnStop(IBusContext context)
+                protected override Task OnStop(IBusSession session)
                 {
                     return TaskEx.Completed;
                 }

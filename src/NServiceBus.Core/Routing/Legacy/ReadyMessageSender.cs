@@ -20,13 +20,13 @@
             this.receiveAddress = receiveAddress;
         }
 
-        protected override async Task OnStart(IBusContext busContext)
+        protected override async Task OnStart(IBusSession session)
         {
             await SendReadyMessage(initialCapacity, true).ConfigureAwait(false);
             Logger.DebugFormat("Ready startup message with WorkerSessionId {0} sent. ", workerSessionId);
         }
 
-        protected override Task OnStop(IBusContext context)
+        protected override Task OnStop(IBusSession session)
         {
             return TaskEx.Completed;
         }

@@ -35,7 +35,7 @@
         public void NonPublicShouldHaveSimpleNamespace()
         {
             // we still need an NServiceBus prefix for people who do logging filtering
-            var types = typeof(IBusContextFactory).Assembly.GetTypes()
+            var types = typeof(IBusSessionFactory).Assembly.GetTypes()
                 .Where(x =>
                     !x.IsPublic &&
                     !x.IsNested &&
@@ -61,7 +61,7 @@
         [Test]
         public void LoggersShouldBeStaticField()
         {
-            foreach (var type in typeof(IBusContextFactory).Assembly.GetTypes())
+            foreach (var type in typeof(IBusSessionFactory).Assembly.GetTypes())
             {
                 foreach (var field in type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
                 {
@@ -95,18 +95,18 @@
 
         static IEnumerable<Type> GetBehaviors()
         {
-            return typeof(IBusContextFactory).Assembly.GetTypes()
+            return typeof(IBusSessionFactory).Assembly.GetTypes()
                 .Where(type => type.GetInterfaces().Any(face => face.Name == typeof(IBehavior).Name) && !type.IsAbstract && !type.IsGenericType);
         }
         static IEnumerable<Type> GetFeatures()
         {
-            return typeof(IBusContextFactory).Assembly.GetTypes()
+            return typeof(IBusSessionFactory).Assembly.GetTypes()
                 .Where(type => typeof(Feature).IsAssignableFrom(type) && type.IsPublic && !type.IsAbstract);
         }
 
         static IEnumerable<Type> GetAttributeTypes()
         {
-            return typeof(IBusContextFactory).Assembly.GetTypes()
+            return typeof(IBusSessionFactory).Assembly.GetTypes()
                 .Where(type => type.Namespace != null &&
                                typeof(Attribute).IsAssignableFrom(type) &&
                                //Ignore log4net attributes

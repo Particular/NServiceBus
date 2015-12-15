@@ -8,7 +8,7 @@ namespace NServiceBus
     using NServiceBus.Routing;
     using NServiceBus.Settings;
 
-    static class BusOperationsBehaviorContext
+    static class BusOperations
     {
         public static Task Publish<T>(IBehaviorContext context, Action<T> messageConstructor, PublishOptions options)
         {

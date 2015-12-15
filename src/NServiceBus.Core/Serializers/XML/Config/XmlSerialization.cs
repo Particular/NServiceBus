@@ -35,7 +35,7 @@
             public XmlMessageSerializer Serializer { get; set; }
             public ReadOnlySettings Settings { get; set; }
 
-            protected override Task OnStart(IBusContext context)
+            protected override Task OnStart(IBusSession session)
             {
                 var conventions = Settings.Get<Conventions>();
                 var messageTypes = Settings.GetAvailableTypes()
@@ -44,7 +44,7 @@
                 return TaskEx.Completed;
             }
 
-            protected override Task OnStop(IBusContext context)
+            protected override Task OnStop(IBusSession session)
             {
                 return TaskEx.Completed;
             }

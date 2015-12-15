@@ -18,7 +18,7 @@
         [Test]
         public void EnsureNoDocumentationIsEmpty()
         {
-            var assembly = typeof(IBusContextFactory).Assembly;
+            var assembly = typeof(IBusSessionFactory).Assembly;
             var codeBase = assembly.CodeBase;
             var uri = new UriBuilder(codeBase);
             var path = Uri.UnescapeDataString(uri.Path);

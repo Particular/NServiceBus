@@ -41,18 +41,19 @@
             class SetupScheduledAction : IWantToRunWhenBusStartsAndStops
             {
                 public Context Context { get; set; }
-                public Task Start(IBusContext context)
+
+                public Task Start(IBusSession session)
                 {
                     Context.RequestedAt = DateTime.UtcNow;
 
-                    return context.ScheduleEvery(TimeSpan.FromSeconds(5), "MyTask", c =>
+                    return session.ScheduleEvery(TimeSpan.FromSeconds(5), "MyTask", c =>
                     {
                         Context.InvokedAt = DateTime.UtcNow;
                         return Task.FromResult(0);
                     });
                 }
 
-                public Task Stop(IBusContext context)
+                public Task Stop(IBusSession session)
                 {
                     return Task.FromResult(0);
                 }

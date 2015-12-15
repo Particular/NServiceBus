@@ -84,16 +84,16 @@
                 this.eventsToSubscribe = eventsToSubscribe;
             }
 
-            protected override async Task OnStart(IBusContext context)
+            protected override async Task OnStart(IBusSession session)
             {
                 foreach (var eventType in eventsToSubscribe)
                 {
-                    await context.Subscribe(eventType).ConfigureAwait(false);
+                    await session.Subscribe(eventType).ConfigureAwait(false);
                     Logger.DebugFormat("Auto subscribed to event {0}", eventType);
                 }
             }
 
-            protected override Task OnStop(IBusContext context)
+            protected override Task OnStop(IBusSession session)
             {
                 return TaskEx.Completed;
             }

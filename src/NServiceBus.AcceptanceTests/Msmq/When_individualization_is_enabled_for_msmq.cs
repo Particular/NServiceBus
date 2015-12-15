@@ -39,14 +39,14 @@
 
                 public ReadOnlySettings ReadOnlySettings { get; set; }
 
-                public Task Start(IBusContext context)
+                public Task Start(IBusSession session)
                 {
                     Context.Address = ReadOnlySettings.Get<TransportDefinition>().ToTransportAddress(ReadOnlySettings.RootLogicalAddress());
                     Context.EndpointName = ReadOnlySettings.EndpointName().ToString();
                     return Task.FromResult(0);
                 }
 
-                public Task Stop(IBusContext context)
+                public Task Stop(IBusSession session)
                 {
                     return Task.FromResult(0);
                 }

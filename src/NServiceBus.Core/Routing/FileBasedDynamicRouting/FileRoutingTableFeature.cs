@@ -31,13 +31,13 @@ namespace NServiceBus.Features
                 this.routingTable = routingTable;
             }
 
-            protected override Task OnStart(IBusContext contexts)
+            protected override Task OnStart(IBusSession session)
             {
                 settings.Get<EndpointInstances>().AddDynamic(e => routingTable.GetInstances(e));
                 return TaskEx.Completed;
             }
 
-            protected override Task OnStop(IBusContext context)
+            protected override Task OnStop(IBusSession session)
             {
                 return TaskEx.Completed;
             }

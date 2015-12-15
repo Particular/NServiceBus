@@ -31,13 +31,13 @@
                 endpoint = settings.EndpointName();
             }
 
-            protected override Task OnStart(IBusContext context)
+            protected override Task OnStart(IBusSession session)
             {
                 notifications.Errors.MessageSentToErrorQueue += OnMessageSentToErrorQueue;
                 return TaskEx.Completed;
             }
 
-            protected override Task OnStop(IBusContext context)
+            protected override Task OnStop(IBusSession session)
             {
                 notifications.Errors.MessageSentToErrorQueue -= OnMessageSentToErrorQueue;
                 return TaskEx.Completed;

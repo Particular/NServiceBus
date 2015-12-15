@@ -18,18 +18,18 @@
                 new PipelineCollection(Enumerable.Empty<TransportReceiver>()), 
                 new StartAndStoppablesRunner(Enumerable.Empty<IWantToRunWhenBusStartsAndStops>()), 
                 new FeatureRunner(new FeatureActivator(new SettingsHolder())), 
-                new FakeContextFactory());
+                new FakeSessionFactory());
 
             await testee.Stop();
 
             Assert.DoesNotThrow(async () => await testee.Stop());
         }
 
-        class FakeContextFactory : IBusContextFactory
+        class FakeSessionFactory : IBusSessionFactory
         {
-            public IBusContext CreateBusContext()
+            public IBusSession CreateBusSession()
             {
-                return new BusContext(new RootContext(null));
+                return new BusSession(new RootContext(null));
             }
         }
     }

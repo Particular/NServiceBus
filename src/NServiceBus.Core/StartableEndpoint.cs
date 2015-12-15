@@ -35,11 +35,11 @@ namespace NServiceBus
         public async Task<IEndpointInstance> Start()
         {
             var busInterface = new StartUpBusInterface(builder);
-            var busContext = busInterface.CreateBusContext();
+            var busSession = busInterface.CreateBusSession();
 
             await RunInstallers().ConfigureAwait(false);
-            var featureRunner = await StartFeatures(busContext).ConfigureAwait(false);
-            var runner = await StartStartables(busContext).ConfigureAwait(false);
+            var featureRunner = await StartFeatures(busSession).ConfigureAwait(false);
+            var runner = await StartStartables(busSession).ConfigureAwait(false);
 
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 
@@ -75,18 +75,18 @@ namespace NServiceBus
             return pipelineCollection;
         }
 
-        async Task<StartAndStoppablesRunner> StartStartables(IBusContext busContext)
+        async Task<StartAndStoppablesRunner> StartStartables(IBusSession session)
         {
             var allStartables = builder.BuildAll<IWantToRunWhenBusStartsAndStops>().Concat(startables).ToList();
             var runner = new StartAndStoppablesRunner(allStartables);
-            await runner.Start(busContext).ConfigureAwait(false);
+            await runner.Start(session).ConfigureAwait(false);
             return runner;
         }
 
-        async Task<FeatureRunner> StartFeatures(IBusContext busContext)
+        async Task<FeatureRunner> StartFeatures(IBusSession session)
         {
             var featureRunner = new FeatureRunner(featureActivator);
-            await featureRunner.Start(builder, busContext).ConfigureAwait(false);
+            await featureRunner.Start(builder, session).ConfigureAwait(false);
             return featureRunner;
         }
 
@@ -110,7 +110,7 @@ namespace NServiceBus
                 : WindowsIdentity.GetCurrent().Name;
         }
 
-        class StartUpBusInterface : IBusContextFactory
+        class StartUpBusInterface : IBusSessionFactory
         {
             IBuilder builder;
 
@@ -119,10 +119,10 @@ namespace NServiceBus
                 this.builder = builder;
             }
 
-            public IBusContext CreateBusContext()
+            public IBusSession CreateBusSession()
             {
                 var rootContext = new RootContext(builder);
-                return new BusContext(rootContext);
+                return new BusSession(rootContext);
             }
         }
 

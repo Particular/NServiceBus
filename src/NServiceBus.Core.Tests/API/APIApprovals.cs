@@ -16,7 +16,7 @@
         [MethodImpl(MethodImplOptions.NoInlining)]
         public void ApproveNServiceBus()
         {
-            var assemblyPath = Path.GetFullPath(typeof(IBusContextFactory).Assembly.Location);
+            var assemblyPath = Path.GetFullPath(typeof(IBusSessionFactory).Assembly.Location);
             var asm = AssemblyDefinition.ReadAssembly(assemblyPath);
             var publicApi = Filter(PublicApiGenerator.CreatePublicApiForAssembly(asm));
             Approvals.Verify(publicApi);
