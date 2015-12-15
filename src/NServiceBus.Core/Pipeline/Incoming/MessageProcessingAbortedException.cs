@@ -1,14 +1,11 @@
-namespace NServiceBus
+namespace NServiceBus.Transports
 {
     using System;
     using System.Runtime.Serialization;
     using JetBrains.Annotations;
-    using NServiceBus.Features;
-    using NServiceBus.Transports;
 
     /// <summary>
-    /// This exception can be thrown by any of recoverability behaviors ie.e <see cref="FirstLevelRetries"/>, <see cref="SecondLevelRetries"/> or <see cref="StoreFaultsInErrorQueue"/>
-    /// It is meant to indicate to the <see cref="IPushMessages"/> that message should be returned to input queue and will be handeled by recoverability mechanisms on next receive.
+    /// When thrown during pipeline invocation indicates that <see cref="IPushMessages"/> should return message to the input queue causing any recive transactions to rollback.
     /// </summary>
     [Serializable]
     public class MessageProcessingAbortedException : Exception

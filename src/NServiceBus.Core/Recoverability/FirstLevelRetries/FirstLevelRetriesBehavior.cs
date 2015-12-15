@@ -5,6 +5,7 @@ namespace NServiceBus
     using Logging;
     using NServiceBus.Features;
     using NServiceBus.Settings;
+    using NServiceBus.Transports;
     using Pipeline;
     using Pipeline.Contexts;
 
@@ -26,6 +27,10 @@ namespace NServiceBus
             catch (MessageDeserializationException)
             {
                 throw; // no retries for poison messages
+            }
+            catch (MessageProcessingAbortedException)
+            {
+                throw; // we do not not count explicit abort as failed processing
             }
             catch (Exception ex)
             {
