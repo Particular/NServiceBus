@@ -113,7 +113,7 @@ namespace NServiceBus
 
                 if (stageConnectors.Count > 1)
                 {
-                    var connectors = string.Join(";", stageConnectors.Select(sc => sc.BehaviorType.FullName));
+                    var connectors = $"'{string.Join("', '", stageConnectors.Select(sc => sc.BehaviorType.FullName))}'";
                     throw new Exception($"Multiple stage connectors found for stage '{currentStage.Key.FullName}'. Please remove one of: {connectors}");
                 }
 
@@ -224,7 +224,7 @@ namespace NServiceBus
                     continue;
                 }
                 var currentStepIds = GetCurrentIds(nameToNode);
-                var message = $"Registration '{beforeReference.DependsOnId}' specified in the insertbefore of the '{node.StepId}' step does not exist in this stage. Current StepIds: {currentStepIds}";
+                var message = $"Registration '{beforeReference.DependsOnId}' specified in the insertbefore of the '{node.StepId}' step does not exist. Current StepIds: {currentStepIds}";
 
                 if (!beforeReference.Enforce)
                 {
