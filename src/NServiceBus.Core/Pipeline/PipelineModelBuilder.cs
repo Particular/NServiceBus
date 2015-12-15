@@ -8,7 +8,7 @@ namespace NServiceBus
 
     class PipelineModelBuilder
     {
-        public PipelineModelBuilder(Type rootContextType,List<RegisterStep> additions, List<RemoveStep> removals, List<ReplaceBehavior> replacements)
+        public PipelineModelBuilder(Type rootContextType, List<RegisterStep> additions, List<RemoveStep> removals, List<ReplaceStep> replacements)
         {
             this.rootContextType = rootContextType;
             this.additions = additions;
@@ -276,7 +276,7 @@ namespace NServiceBus
         Type rootContextType;
         List<RegisterStep> additions;
         List<RemoveStep> removals;
-        List<ReplaceBehavior> replacements;
+        List<ReplaceStep> replacements;
         static ILog Logger = LogManager.GetLogger<PipelineModelBuilder>();
 
 
@@ -318,8 +318,6 @@ namespace NServiceBus
             public Type OutputContext { get; private set; }
         }
 
-
-
         class CaseInsensitiveIdComparer : IEqualityComparer<RemoveStep>
         {
             public bool Equals(RemoveStep x, RemoveStep y)
@@ -332,6 +330,5 @@ namespace NServiceBus
                 return obj.RemoveId.ToLower().GetHashCode();
             }
         }
-
     }
 }

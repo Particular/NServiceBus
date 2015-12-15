@@ -14,13 +14,13 @@ namespace NServiceBus.Core.Tests.Pipeline
     {
         StepRegistrationsCoordinator coordinator;
         List<RemoveStep> removals;
-        List<ReplaceBehavior> replacements;
+        List<ReplaceStep> replacements;
 
         [SetUp]
         public void Setup()
         {
             removals = new List<RemoveStep>();
-            replacements = new List<ReplaceBehavior>();
+            replacements = new List<ReplaceStep>();
 
             coordinator = new StepRegistrationsCoordinator(removals, replacements);
         }
@@ -60,8 +60,8 @@ namespace NServiceBus.Core.Tests.Pipeline
             coordinator.Register("2", typeof(FakeBehavior), "2");
             coordinator.Register("3", typeof(FakeBehavior), "3");
 
-            replacements.Add(new ReplaceBehavior("1", typeof(ReplacedBehavior), "new"));
-            replacements.Add(new ReplaceBehavior("2", typeof(ReplacedBehavior)));
+            replacements.Add(new ReplaceStep("1", typeof(ReplacedBehavior), "new"));
+            replacements.Add(new ReplaceStep("2", typeof(ReplacedBehavior)));
 
             var model = coordinator.BuildPipelineModelFor<IIncomingContext>().ToList();
 
