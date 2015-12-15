@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
@@ -10,6 +11,7 @@
     using NServiceBus.Transports;
     using NUnit.Framework;
     using CriticalError = NServiceBus.CriticalError;
+    using ScenarioDescriptors;
 
     public class When_using_concurrency_limit : NServiceBusAcceptanceTest
     {
@@ -19,6 +21,7 @@
             await Scenario.Define<Context>()
                 .WithEndpoint<ThrottledEndpoint>(b => b.CustomConfig(c => c.LimitMessageProcessingConcurrencyTo(10)))
                 .Done(c => c.EndpointsStarted)
+                .Repeat(r => r.For(Transports.AllAvailable.SingleOrDefault(t => t.Key == "FakeTransport")))
                 .Run();
 
             //Assert in FakeReceiver.Start
