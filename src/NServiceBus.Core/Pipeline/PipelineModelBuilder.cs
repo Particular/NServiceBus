@@ -188,24 +188,6 @@ namespace NServiceBus
                 node.Visit(output);
             }
 
-            // Step 4: Validate intput and output types
-            for (var i = 1; i < output.Count; i++)
-            {
-                var previousBehavior = output[i - 1].BehaviorType;
-                var thisBehavior = output[i].BehaviorType;
-
-                var incomingType = previousBehavior.GetOutputContext();
-                var inputType = thisBehavior.GetInputContext();
-
-                if (!inputType.IsAssignableFrom(incomingType))
-                {
-                    throw new Exception(string.Format("Cannot chain behavior {0} and {1} together because output type of behavior {0} ({2}) cannot be passed as input for behavior {1} ({3})",
-                        previousBehavior.FullName,
-                        thisBehavior.FullName,
-                        incomingType,
-                        inputType));
-                }
-            }
             return output;
         }
 
