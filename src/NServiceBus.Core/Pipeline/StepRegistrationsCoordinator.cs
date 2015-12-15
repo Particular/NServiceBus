@@ -23,18 +23,16 @@ namespace NServiceBus
             additions.Add(rego);
         }
 
-        public IList<RegisterStep> BuildPipelineModelFor<TRootContext>() where TRootContext:IBehaviorContext
+        public IList<RegisterStep> BuildPipelineModelFor<TRootContext>() where TRootContext : IBehaviorContext
         {
             var reachableContexts = ContextsReachableFrom<TRootContext>(additions)
                 .ToList();
 
             var relevantAdditions = additions.Where(addition => reachableContexts.Contains(addition.BehaviorType.GetInputContext())).ToList();
-            var relevantRemovals = removals.Where(removal => relevantAdditions.Any(a=>a.StepId == removal.RemoveId)).ToList();
+            var relevantRemovals = removals.Where(removal => relevantAdditions.Any(a => a.StepId == removal.RemoveId)).ToList();
             var relevantReplacements = replacements.Where(removal => relevantAdditions.Any(a => a.StepId == removal.ReplaceId)).ToList();
 
-
-            var piplineModelBuilder = new PipelineModelBuilder(typeof(TRootContext),relevantAdditions, relevantRemovals, relevantReplacements);
-
+            var piplineModelBuilder = new PipelineModelBuilder(typeof(TRootContext), relevantAdditions, relevantRemovals, relevantReplacements);
 
             return piplineModelBuilder.Build();
         }
@@ -46,29 +44,16 @@ namespace NServiceBus
 
             var currentContext = typeof(TRootContext);
 
-         
             while (currentContext != null)
             {
                 yield return currentContext;
-                
+
                 var context = currentContext;
-                
-                currentContext = stageConnectors.Where(sc=>sc.GetInputContext() == context)
-                    .Select(sc=>sc.GetOutputContext())
+
+                currentContext = stageConnectors.Where(sc => sc.GetInputContext() == context)
+                    .Select(sc => sc.GetOutputContext())
                     .FirstOrDefault();
             }
-        }
-
-        static Type GetInputType(Type behaviorType)
-        {
-            var behaviorInterface = GetBehaviorInterface(behaviorType);
-            return behaviorInterface.GetGenericArguments()[0];
-        }
-
-        static Type GetBehaviorInterface(Type behaviorType)
-        {
-            var behaviorInterface = behaviorType.GetInterfaces().First(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IBehavior<,>));
-            return behaviorInterface;
         }
 
         List<RegisterStep> additions = new List<RegisterStep>();
