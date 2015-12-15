@@ -9,17 +9,17 @@ namespace NServiceBus
         public static void ThrowIfInvalid(Type behavior, string paramName)
         {
             Guard.AgainstNull(nameof(behavior), behavior);
-            //if (behavior.IsAbstract)
-            //{
-            //    throw new ArgumentException(string.Format("The behavior '{0}' is invalid since it is abstract.", behavior.Name), paramName);
-            //}
+            if (behavior.IsAbstract)
+            {
+                throw new ArgumentException($"The behavior '{behavior.Name}' is invalid since it is abstract.", paramName);
+            }
             if (behavior.IsGenericTypeDefinition)
             {
                 throw new ArgumentException($"The behavior '{behavior.Name}' is invalid since it is an open generic.", paramName);
             }
             if (!IsAssignableToIBehavior(behavior))
             {
-                throw new ArgumentException($@"The behavior '{behavior.Name}' is invalid since it does not implement IBehavior<T>.", paramName);
+                throw new ArgumentException($@"The behavior '{behavior.Name}' is invalid since it does not implement IBehavior<TFrom, TTo>.", paramName);
             }
         }
 

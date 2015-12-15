@@ -40,12 +40,22 @@
             Assert.Throws<ArgumentException>(() => BehaviorTypeChecker.ThrowIfInvalid(typeof(GenericBehavior<>), "foo"));
         }
 
+        [Test]
+        public void Should_throw_for_abstract_behavior()
+        {
+            Assert.Throws<ArgumentException>(() => BehaviorTypeChecker.ThrowIfInvalid(typeof(AbstractBehavior), "foo"));
+        }
+
         class GenericBehavior<T> : Behavior<RootContext>
         {
             public override Task Invoke(RootContext context, Func<Task> next)
             {
                 return Task.FromResult(0);
             }
+        }
+
+        abstract class AbstractBehavior : Behavior<RootContext>
+        {
         }
     }
 }
