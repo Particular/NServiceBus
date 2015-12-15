@@ -93,7 +93,6 @@ namespace NServiceBus
                 return finalOrder;
             }
 
-            //todo: add test and better ex for missing start stage
             var currentStage = stages.SingleOrDefault(stage => stage.Key == rootContextType);
 
             if (currentStage == null)
@@ -110,23 +109,21 @@ namespace NServiceBus
                 //add the stage connector
                 finalOrder.AddRange(Sort(stageSteps));
 
-
-                //todo: add tests and better ex for missing stage connector
                 var stageConnectors = currentStage.Where(IsStageConnector).ToList();
 
-                if (stageConnectors.Count() > 1)
+                if (stageConnectors.Count > 1)
                 {
                     var connectors = string.Join(";", stageConnectors.Select(sc => sc.BehaviorType.FullName));
-                    throw new Exception($"Multiple stage connectors found for stage {currentStage.Key.FullName}. Please remove one of: {connectors}");
+                    throw new Exception($"Multiple stage connectors found for stage '{currentStage.Key.FullName}'. Please remove one of: {connectors}");
                 }
 
                 var stageConnector = stageConnectors.FirstOrDefault();
 
                 if (stageConnector == null)
                 {
-                    if (stageNumber < stages.Count())
+                    if (stageNumber < stages.Count)
                     {
-                        throw new Exception($"No stage connector found for stage {currentStage.Key.FullName}");    
+                        throw new Exception($"No stage connector found for stage {currentStage.Key.FullName}");
                     }
 
                     currentStage = null;
@@ -143,8 +140,8 @@ namespace NServiceBus
                     {
                         var args = stageConnector.BehaviorType.BaseType.GetGenericArguments();
                         var stageEndType = args[1];
-                        currentStage = stages.SingleOrDefault(stage => stage.Key == stageEndType);      
-                    }      
+                        currentStage = stages.SingleOrDefault(stage => stage.Key == stageEndType);
+                    }
                 }
 
                 stageNumber++;
