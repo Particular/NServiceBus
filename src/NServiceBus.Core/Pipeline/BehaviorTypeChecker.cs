@@ -39,13 +39,7 @@ namespace NServiceBus
                 return true;
             }
 
-            var baseType = givenType.BaseType;
-            if (baseType == null)
-            {
-                return false;
-            }
-
-            return IsAssignableToIBehavior(baseType);
+            return false;
         }
     }
 }
