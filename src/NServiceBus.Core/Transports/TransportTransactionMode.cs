@@ -13,7 +13,7 @@ namespace NServiceBus
 
         /// <summary>
         /// The receive operation will be transactional and the message will be rolled back to the queue in case of failure.
-        /// Outgoing queueing operations will not enlist in the ongoing receive transaction and will be rolled back should a failure occur.
+        /// Outgoing queueing operations will not be enlisted in the ongoing receive transaction and therefor NOT roll back should a failure occur.
         /// </summary>
         ReceiveOnly = 1,
 
