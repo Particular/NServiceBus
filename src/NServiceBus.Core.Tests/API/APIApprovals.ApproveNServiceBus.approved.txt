@@ -2695,13 +2695,6 @@ namespace NServiceBus.Transports
         Default = 1,
         Isolated = 2,
     }
-    public class DispatchOptions
-    {
-        public DispatchOptions(NServiceBus.Routing.AddressTag addressTag, NServiceBus.Transports.DispatchConsistency requiredDispatchConsistency, System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints = null) { }
-        public NServiceBus.Routing.AddressTag AddressTag { get; }
-        public System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> DeliveryConstraints { get; }
-        public NServiceBus.Transports.DispatchConsistency RequiredDispatchConsistency { get; set; }
-    }
     [System.ObsoleteAttribute("No longer used, safe to remove. Will be removed in version 7.0.0.", true)]
     public interface IAuditMessages { }
     public interface ICancelDeferredMessages
@@ -2728,7 +2721,7 @@ namespace NServiceBus.Transports
     }
     public interface IDispatchMessages
     {
-        System.Threading.Tasks.Task Dispatch(System.Collections.Generic.IEnumerable<NServiceBus.Transports.TransportOperation> outgoingMessages, NServiceBus.Extensibility.ContextBag context);
+        System.Threading.Tasks.Task Dispatch(NServiceBus.Transports.TransportOperations outgoingMessages, NServiceBus.Extensibility.ContextBag context);
     }
     public interface IManageSubscriptions
     {
@@ -2760,6 +2753,14 @@ namespace NServiceBus.Transports
     public interface ISendMessages
     {
         void Send(NServiceBus.TransportMessage message, NServiceBus.Unicast.SendOptions sendOptions);
+    }
+    public class MulticastTransportOperation
+    {
+        public MulticastTransportOperation(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Routing.MulticastAddressTag addressTag, System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints = null, NServiceBus.Transports.DispatchConsistency requiredDispatchConsistency = 1) { }
+        public NServiceBus.Routing.MulticastAddressTag AddressTag { get; }
+        public System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> DeliveryConstraints { get; }
+        public NServiceBus.Transports.OutgoingMessage Message { get; }
+        public NServiceBus.Transports.DispatchConsistency RequiredDispatchConsistency { get; }
     }
     public class OutboundRoutingPolicy
     {
@@ -2850,9 +2851,17 @@ namespace NServiceBus.Transports
     }
     public class TransportOperation
     {
-        public TransportOperation(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Transports.DispatchOptions dispatchOptions) { }
-        public NServiceBus.Transports.DispatchOptions DispatchOptions { get; }
+        public TransportOperation(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Routing.AddressTag addressTag, NServiceBus.Transports.DispatchConsistency requiredDispatchConsistency, System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints = null) { }
+        public NServiceBus.Routing.AddressTag AddressTag { get; }
+        public System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> DeliveryConstraints { get; }
         public NServiceBus.Transports.OutgoingMessage Message { get; }
+        public NServiceBus.Transports.DispatchConsistency RequiredDispatchConsistency { get; set; }
+    }
+    public class TransportOperations
+    {
+        public TransportOperations(System.Collections.Generic.IEnumerable<NServiceBus.Transports.MulticastTransportOperation> multicastTransportOperations, System.Collections.Generic.IEnumerable<NServiceBus.Transports.UnicastTransportOperation> unicastTransportOperations) { }
+        public System.Collections.Generic.IEnumerable<NServiceBus.Transports.MulticastTransportOperation> MulticastTransportOperations { get; }
+        public System.Collections.Generic.IEnumerable<NServiceBus.Transports.UnicastTransportOperation> UnicastTransportOperations { get; }
     }
     public class TransportReceivingConfigurationContext
     {
@@ -2875,6 +2884,14 @@ namespace NServiceBus.Transports
     public class TransportTransaction : NServiceBus.Extensibility.ContextBag
     {
         public TransportTransaction() { }
+    }
+    public class UnicastTransportOperation
+    {
+        public UnicastTransportOperation(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Routing.UnicastAddressTag addressTag, System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints = null, NServiceBus.Transports.DispatchConsistency requiredDispatchConsistency = 1) { }
+        public NServiceBus.Routing.UnicastAddressTag AddressTag { get; set; }
+        public System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> DeliveryConstraints { get; }
+        public NServiceBus.Transports.OutgoingMessage Message { get; set; }
+        public NServiceBus.Transports.DispatchConsistency RequiredDispatchConsistency { get; }
     }
 }
 namespace NServiceBus.Transports.Msmq.Config
@@ -2906,7 +2923,7 @@ namespace NServiceBus.Transports.Msmq
     public class MsmqMessageSender : NServiceBus.Transports.IDispatchMessages
     {
         public MsmqMessageSender(NServiceBus.Transports.Msmq.Config.MsmqSettings settings, NServiceBus.MsmqLabelGenerator messageLabelGenerator) { }
-        public System.Threading.Tasks.Task Dispatch(System.Collections.Generic.IEnumerable<NServiceBus.Transports.TransportOperation> transportOperations, NServiceBus.Extensibility.ContextBag context) { }
+        public System.Threading.Tasks.Task Dispatch(NServiceBus.Transports.TransportOperations outgoingMessages, NServiceBus.Extensibility.ContextBag context) { }
     }
     [System.ObsoleteAttribute("The msmq transaction is now available via the pipeline context. Will be removed i" +
         "n version 7.0.0.", true)]

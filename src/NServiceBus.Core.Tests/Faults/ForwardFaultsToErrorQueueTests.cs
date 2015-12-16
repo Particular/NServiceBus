@@ -9,8 +9,8 @@ namespace NServiceBus.Core.Tests
     using Hosting;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Routing;
+    using NServiceBus.Transports;
     using TransportDispatch;
-    using Transports;
     using Unicast.Transport;
     using NUnit.Framework;
 

@@ -3,13 +3,13 @@ namespace NServiceBus.Transports.Msmq
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.Linq;
     using System.Messaging;
     using System.Threading.Tasks;
     using System.Transactions;
     using NServiceBus.DeliveryConstraints;
     using NServiceBus.Extensibility;
     using NServiceBus.Performance.TimeToBeReceived;
-    using NServiceBus.Routing;
     using NServiceBus.Transports.Msmq.Config;
     using NServiceBus.Unicast.Queuing;
 
@@ -33,33 +33,34 @@ namespace NServiceBus.Transports.Msmq
         /// <summary>
         /// Dispatches the given operations to the transport.
         /// </summary>
-        public Task Dispatch(IEnumerable<TransportOperation> transportOperations, ContextBag context)
+        public Task Dispatch(TransportOperations outgoingMessages, ContextBag context)
         {
-            Guard.AgainstNull(nameof(transportOperations), transportOperations);
+            Guard.AgainstNull(nameof(outgoingMessages), outgoingMessages);
 
-            foreach (var transportOperation in transportOperations)
+            if (outgoingMessages.MulticastTransportOperations.Any())
             {
-                ExecuteTransportOperation(context, transportOperation);
+                throw new Exception("The MSMQ transport only supports unicast transport operations.");
             }
+
+            foreach (var unicastTransportOperation in outgoingMessages.UnicastTransportOperations)
+            {
+                ExecuteTransportOperation(context, unicastTransportOperation);
+            }
+
             return TaskEx.Completed;
         }
 
-        void ExecuteTransportOperation(ReadOnlyContextBag context, TransportOperation transportOperation)
+        void ExecuteTransportOperation(ReadOnlyContextBag context, UnicastTransportOperation transportOperation)
         {
-            var dispatchOptions = transportOperation.DispatchOptions;
             var message = transportOperation.Message;
 
-            var routingStrategy = dispatchOptions.AddressTag as UnicastAddressTag;
-
-            if (routingStrategy == null)
-            {
-                throw new Exception($"The MSMQ transport only supports the `DirectRoutingStrategy`, strategy required {dispatchOptions.AddressTag.GetType().Name}");
-            }
-            
-            var destination = routingStrategy.Destination;
+            var destination = transportOperation.AddressTag.Destination;
             var destinationAddress = MsmqAddress.Parse(destination);
 
-            if (IsCombiningTimeToBeReceivedWithTransactions(context, dispatchOptions))
+            if (IsCombiningTimeToBeReceivedWithTransactions(
+                context,
+                transportOperation.RequiredDispatchConsistency, 
+                transportOperation.DeliveryConstraints))
             {
                 throw new Exception($"Failed to send message to address: {destinationAddress.Queue}@{destinationAddress.Machine}. Sending messages with a custom TimeToBeReceived is not supported on transactional MSMQ.");
             }
@@ -67,7 +68,7 @@ namespace NServiceBus.Transports.Msmq
             try
             {
                 using (var q = new MessageQueue(destinationAddress.FullPath, false, settings.UseConnectionCache, QueueAccessMode.Send))
-                using (var toSend = MsmqUtilities.Convert(message, dispatchOptions))
+                using (var toSend = MsmqUtilities.Convert(message, transportOperation.DeliveryConstraints))
                 {
                     toSend.UseDeadLetterQueue = settings.UseDeadLetterQueue;
                     toSend.UseJournalQueue = settings.UseJournalQueue;
@@ -82,7 +83,7 @@ namespace NServiceBus.Transports.Msmq
 
                     var label = GetLabel(message);
 
-                    if (dispatchOptions.RequiredDispatchConsistency == DispatchConsistency.Isolated)
+                    if (transportOperation.RequiredDispatchConsistency == DispatchConsistency.Isolated)
                     {
                         q.Send(toSend, label, GetIsolatedTransactionType());
                         return;
@@ -94,7 +95,7 @@ namespace NServiceBus.Transports.Msmq
                         q.Send(toSend, label, activeTransaction);
                         return;
                     }
-                    
+
                     q.Send(toSend, label, GetTransactionTypeForSend());
                 }
             }
@@ -117,20 +118,20 @@ namespace NServiceBus.Transports.Msmq
             }
         }
 
-        bool IsCombiningTimeToBeReceivedWithTransactions(ReadOnlyContextBag context, DispatchOptions dispatchOptions)
+        bool IsCombiningTimeToBeReceivedWithTransactions(ReadOnlyContextBag context, DispatchConsistency requiredDispatchConsistency, IEnumerable<DeliveryConstraint> deliveryConstraints)
         {
             if (!settings.UseTransactionalQueues)
             {
                 return false;
             }
 
-            if (dispatchOptions.RequiredDispatchConsistency == DispatchConsistency.Isolated)
+            if (requiredDispatchConsistency == DispatchConsistency.Isolated)
             {
                 return false;
             }
 
             DiscardIfNotReceivedBefore discardIfNotReceivedBefore;
-            var timeToBeReceivedRequested = dispatchOptions.DeliveryConstraints.TryGet(out discardIfNotReceivedBefore) && discardIfNotReceivedBefore.MaxTime < MessageQueue.InfiniteTimeout;
+            var timeToBeReceivedRequested = deliveryConstraints.TryGet(out discardIfNotReceivedBefore) && discardIfNotReceivedBefore.MaxTime < MessageQueue.InfiniteTimeout;
 
             if (!timeToBeReceivedRequested)
             {

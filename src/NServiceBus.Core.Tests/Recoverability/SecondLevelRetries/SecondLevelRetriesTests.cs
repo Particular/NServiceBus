@@ -11,8 +11,8 @@
     using Faults;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Routing;
+    using NServiceBus.Transports;
     using TransportDispatch;
-    using Transports;
     using Unicast.Transport;
     using NUnit.Framework;
 

@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.IO;
     using NServiceBus.Pipeline.Contexts;
-    using Transports;
+    using NServiceBus.Transports;
     using Unicast.Transport;
     using NUnit.Framework;
 

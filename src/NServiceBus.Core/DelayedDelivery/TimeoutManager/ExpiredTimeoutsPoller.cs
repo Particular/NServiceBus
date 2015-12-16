@@ -98,9 +98,8 @@ namespace NServiceBus
 
                     dispatchRequest.Headers["Timeout.Id"] = timeoutData.Id;
 
-                    var dispatchOptions = new DispatchOptions(new UnicastAddressTag(dispatcherAddress), DispatchConsistency.Default);
-                    var transportOperation = new TransportOperation(dispatchRequest, dispatchOptions);
-                    await dispatcher.Dispatch(new[] { transportOperation }, new ContextBag()).ConfigureAwait(false);
+                    var transportOperation = new TransportOperation(dispatchRequest, new UnicastAddressTag(dispatcherAddress), DispatchConsistency.Default);
+                    await dispatcher.Dispatch(new TransportOperations(transportOperation), new ContextBag()).ConfigureAwait(false);
                 }
 
                 lock (lockObject)

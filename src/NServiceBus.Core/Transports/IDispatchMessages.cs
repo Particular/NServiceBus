@@ -1,7 +1,6 @@
 namespace NServiceBus.Transports
 {
     using System.Threading.Tasks;
-    using System.Collections.Generic;
     using Extensibility;
 
     /// <summary>
@@ -12,6 +11,6 @@ namespace NServiceBus.Transports
         /// <summary>
         /// Dispatches the given operations to the transport.
         /// </summary>
-        Task Dispatch(IEnumerable<TransportOperation> outgoingMessages, ContextBag context);
+        Task Dispatch(TransportOperations outgoingMessages, ContextBag context);
     }
 }

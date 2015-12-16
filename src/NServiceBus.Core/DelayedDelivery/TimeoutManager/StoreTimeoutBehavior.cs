@@ -63,10 +63,9 @@ namespace NServiceBus
 
                 if (data.Time.AddSeconds(-1) <= DateTime.UtcNow)
                 {
-                    var sendOptions = new DispatchOptions(new UnicastAddressTag(data.Destination), DispatchConsistency.Default);
                     var outgoingMessage = new OutgoingMessage(message.MessageId, data.Headers, data.State);
-
-                    await dispatcher.Dispatch(new[] { new TransportOperation(outgoingMessage, sendOptions) }, context.Extensions).ConfigureAwait(false);
+                    var transportOperation = new TransportOperation(outgoingMessage, new UnicastAddressTag(data.Destination), DispatchConsistency.Default);
+                    await dispatcher.Dispatch(new TransportOperations(transportOperation), context.Extensions).ConfigureAwait(false);
                     return;
                 }
 

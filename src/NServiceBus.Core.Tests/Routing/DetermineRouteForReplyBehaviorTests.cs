@@ -7,7 +7,7 @@
     using System.Threading.Tasks;
     using OutgoingPipeline;
     using NServiceBus.Routing;
-    using Transports;
+    using NServiceBus.Transports;
     using NUnit.Framework;
 
     [TestFixture]

@@ -45,8 +45,8 @@
                 readyMessage.Headers.Add(LegacyDistributorHeaders.WorkerStarting, bool.TrueString);
             }
 
-            var dispatchOptions = new DispatchOptions(new UnicastAddressTag(distributorControlAddress), DispatchConsistency.Default);
-            return dispatcher.Dispatch(new[] { new TransportOperation(readyMessage, dispatchOptions) }, new ContextBag());
+            var transportOperation = new TransportOperation(readyMessage, new UnicastAddressTag(distributorControlAddress), DispatchConsistency.Default);
+            return dispatcher.Dispatch(new TransportOperations(transportOperation), new ContextBag());
         }
         
         public void MessageProcessed(Dictionary<string, string> headers)

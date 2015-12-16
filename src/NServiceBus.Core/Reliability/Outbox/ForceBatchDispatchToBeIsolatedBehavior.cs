@@ -11,7 +11,7 @@ namespace NServiceBus
         {
             foreach (var operation in context.Operations)
             {
-                operation.DispatchOptions.RequiredDispatchConsistency = DispatchConsistency.Isolated;
+                operation.RequiredDispatchConsistency = DispatchConsistency.Isolated;
             }
             return next();
         }

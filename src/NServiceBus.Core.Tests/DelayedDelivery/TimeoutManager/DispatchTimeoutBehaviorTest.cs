@@ -36,7 +36,7 @@
 
             await behavior.Invoke(CreateContext(Guid.NewGuid().ToString()), context => TaskEx.Completed);
 
-            Assert.AreEqual(0, messageDispatcher.OutgoingMessages.Count());
+            Assert.AreEqual(0, messageDispatcher.OutgoingTransportOperations.UnicastTransportOperations.Count());
         }
 
         [Test]
@@ -80,8 +80,8 @@
 
             await behavior.Invoke(CreateContext(timeoutData.Id), context => TaskEx.Completed);
 
-            var transportOperation = messageDispatcher.OutgoingMessages.Single();
-            Assert.AreEqual(DispatchConsistency.Default, transportOperation.DispatchOptions.RequiredDispatchConsistency);
+            var transportOperation = messageDispatcher.OutgoingTransportOperations.UnicastTransportOperations.Single();
+            Assert.AreEqual(DispatchConsistency.Default, transportOperation.RequiredDispatchConsistency);
         }
 
         [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
@@ -97,8 +97,8 @@
 
             await behavior.Invoke(CreateContext(timeoutData.Id), context => TaskEx.Completed);
 
-            var transportOperation = messageDispatcher.OutgoingMessages.Single();
-            Assert.AreEqual(DispatchConsistency.Isolated, transportOperation.DispatchOptions.RequiredDispatchConsistency);
+            var transportOperation = messageDispatcher.OutgoingTransportOperations.UnicastTransportOperations.Single();
+            Assert.AreEqual(DispatchConsistency.Isolated, transportOperation.RequiredDispatchConsistency);
         }
 
         static TimeoutData CreateTimeout()
@@ -124,11 +124,11 @@
 
         class FakeMessageDispatcher : IDispatchMessages
         {
-            public IEnumerable<TransportOperation> OutgoingMessages { get; private set; } = Enumerable.Empty<TransportOperation>();
+            public TransportOperations OutgoingTransportOperations { get; private set; } = new TransportOperations();
 
-            public Task Dispatch(IEnumerable<TransportOperation> outgoingMessages, ContextBag context)
+            public Task Dispatch(TransportOperations outgoingMessages, ContextBag context)
             {
-                OutgoingMessages = outgoingMessages;
+                OutgoingTransportOperations = outgoingMessages;
                 return TaskEx.Completed;
             }
         }
@@ -136,6 +136,11 @@
         class FailingMessageDispatcher : IDispatchMessages
         {
             public Task Dispatch(IEnumerable<TransportOperation> outgoingMessages, ContextBag context)
+            {
+                throw new Exception("simulated exception");
+            }
+
+            public Task Dispatch(TransportOperations outgoingMessages, ContextBag context)
             {
                 throw new Exception("simulated exception");
             }

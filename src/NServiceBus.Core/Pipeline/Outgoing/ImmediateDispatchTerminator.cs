@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using System.Linq;
     using System.Threading.Tasks;
     using Pipeline;
     using Transports;
@@ -13,7 +14,7 @@
 
         protected override Task Terminate(IDispatchContext context)
         {
-            return dispatcher.Dispatch(context.Operations, context.Extensions);
+            return dispatcher.Dispatch(new TransportOperations(context.Operations.ToArray()), context.Extensions);
         }
 
         IDispatchMessages dispatcher;

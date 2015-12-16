@@ -96,6 +96,9 @@
     <Compile Include="Audit\InvokeAuditPipelineBehavior.cs" />
     <Compile Include="EndpointHelper.cs" />
     <Compile Include="Endpoint.cs" />
+    <Compile Include="Transports\MulticastTransportOperation.cs" />
+    <Compile Include="Transports\TransportOperations.cs" />
+    <Compile Include="Transports\UnicastTransportOperation.cs" />
     <Compile Include="UnitOfWork\TransactionScopes\HandlerTransactionScopeWrapperBehavior.cs" />
     <Compile Include="BusSession.cs" />
     <Compile Include="CriticalError\CriticalErrorAction.cs" />
@@ -389,7 +392,6 @@
     <Compile Include="Transports\TransportReceivingConfigurationContext.cs" />
     <Compile Include="Transports\TransportSendingConfigurationContext.cs" />
     <Compile Include="Transports\TransportOperation.cs" />
-    <Compile Include="Transports\DispatchOptions.cs" />
     <Compile Include="Pipeline\Outgoing\HeaderOptionExtensions.cs" />
     <Compile Include="Pipeline\Outgoing\MessageIdExtensions.cs" />
     <Compile Include="Sagas\SagaInvocationResult.cs" />
