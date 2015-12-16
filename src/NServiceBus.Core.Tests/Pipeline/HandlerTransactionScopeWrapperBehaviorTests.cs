@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Pipeline
 {
+    using System;
     using System.Threading.Tasks;
     using System.Transactions;
     using NUnit.Framework;
@@ -8,23 +9,25 @@
     public class HandlerTransactionScopeWrapperBehaviorTests
     {
         [Test]
-        public async Task ShouldNotInterfereWithExistingScope()
+        public void ShouldBlowUpIfExistingScopeExists()
         {
-            var behavior = new HandlerTransactionScopeWrapperBehavior(new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted });
+            var behavior = new TransactionScopeUnitOfWorkBehavior(new TransactionOptions());
 
-            using (new TransactionScope(TransactionScopeOption.Required, new TransactionOptions
+            var ex = Assert.Throws<Exception>(async () =>
             {
-                IsolationLevel = IsolationLevel.Serializable
-            }, TransactionScopeAsyncFlowOption.Enabled))
-            {
-                await behavior.Invoke(null, () => TaskEx.CompletedTask);
-            }
+                using (new TransactionScope(TransactionScopeOption.Required, TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    await behavior.Invoke(null, () => TaskEx.CompletedTask);
+                }
+            });
+
+            StringAssert.Contains("Ambient transaction detected. The transaction scope unit of work is not supported when there already is a scope present.", ex.Message);
         }
 
         [Test]
         public async Task ShouldWrapInnerBehaviorsIfNoAmbientExists()
         {
-            var behavior = new HandlerTransactionScopeWrapperBehavior(new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted });
+            var behavior = new TransactionScopeUnitOfWorkBehavior(new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted });
 
             await behavior.Invoke(null, () =>
             {

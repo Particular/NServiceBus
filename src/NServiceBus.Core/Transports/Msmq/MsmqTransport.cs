@@ -2,9 +2,11 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.Configuration;
     using System.Text;
     using System.Threading.Tasks;
     using System.Transactions;
+    using System.Transactions.Configuration;
     using NServiceBus.Features;
     using NServiceBus.Performance.TimeToBeReceived;
     using NServiceBus.Routing;
@@ -12,7 +14,6 @@ namespace NServiceBus
     using NServiceBus.Transports;
     using NServiceBus.Transports.Msmq;
     using NServiceBus.Transports.Msmq.Config;
-    using TransactionSettings = NServiceBus.Unicast.Transport.TransactionSettings;
 
     /// <summary>
     /// Transport definition for MSMQ.
@@ -38,15 +39,15 @@ namespace NServiceBus
                 ? new MsmqConnectionStringBuilder(context.ConnectionString).RetrieveSettings()
                 : new MsmqSettings();
 
-            var transactionSettings = new TransactionSettings(context.Settings);
-            var transactionOptions = new TransactionOptions
-            {
-                IsolationLevel = transactionSettings.IsolationLevel,
-                Timeout = transactionSettings.TransactionTimeout
-            };
+            MsmqScopeOptions scopeOptions;
 
+            if (!context.Settings.TryGet(out scopeOptions))
+            {
+                scopeOptions = new MsmqScopeOptions();
+            }
+           
             return new TransportReceivingConfigurationResult(
-                () => new MessagePump(guarantee => SelectReceiveStrategy(guarantee, transactionOptions)),
+                () => new MessagePump(guarantee => SelectReceiveStrategy(guarantee, scopeOptions.TransactionOptions)),
                 () => new QueueCreator(settings), 
                 () =>
                 {
@@ -181,5 +182,57 @@ namespace NServiceBus
         /// Used by implementations to control if a connection string is necessary.
         /// </summary>
         public override bool RequiresConnectionString => false;
+
+        internal class MsmqScopeOptions
+        {
+            public TransactionOptions TransactionOptions { get; }
+
+            public MsmqScopeOptions(TimeSpan? requestedTimeout = null, IsolationLevel? requestedIsolationLevel = null)
+            {
+                var timeout = TransactionManager.DefaultTimeout;
+                var isolationLevel = IsolationLevel.ReadCommitted;
+                if (requestedTimeout.HasValue)
+                {
+                    var maxTimeout = GetMaxTimeout();
+
+                    if (requestedTimeout.Value > maxTimeout)
+                    {
+                        throw new ConfigurationErrorsException(
+                            "Timeout requested is longer than the maximum value for this machine. Please override using the maxTimeout setting of the system.transactions section in machine.config");
+                    }
+
+                    timeout = requestedTimeout.Value;
+                }
+
+                if (requestedIsolationLevel.HasValue)
+                {
+                    isolationLevel = requestedIsolationLevel.Value;
+                }
+
+                TransactionOptions = new TransactionOptions
+                {
+                    IsolationLevel = isolationLevel,
+                    Timeout = timeout
+                };
+            }
+
+            static TimeSpan GetMaxTimeout()
+            {
+                //default is always 10 minutes
+                var maxTimeout = TimeSpan.FromMinutes(10);
+
+                var systemTransactionsGroup = ConfigurationManager.OpenMachineConfiguration()
+                    .GetSectionGroup("system.transactions");
+
+                var machineSettings = systemTransactionsGroup?.Sections.Get("machineSettings") as MachineSettingsSection;
+
+                if (machineSettings != null)
+                {
+                    maxTimeout = machineSettings.MaxTimeout;
+                }
+
+                return maxTimeout;
+            }
+        }
     }
 }

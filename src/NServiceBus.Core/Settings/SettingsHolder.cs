@@ -5,7 +5,7 @@ namespace NServiceBus.Settings
     using System.Collections.Generic;
     using System.Configuration;
     using System.Linq.Expressions;
-    using NServiceBus.ObjectBuilder;
+    using global::NServiceBus.ObjectBuilder;
 
     /// <summary>
     /// Setting container.

@@ -5,9 +5,9 @@
     using System.Transactions;
     using Pipeline;
 
-    class HandlerTransactionScopeWrapperBehavior : Behavior<IIncomingPhysicalMessageContext>
+    class TransactionScopeUnitOfWorkBehavior : Behavior<IIncomingPhysicalMessageContext>
     {
-        public HandlerTransactionScopeWrapperBehavior(TransactionOptions transactionOptions)
+        public TransactionScopeUnitOfWorkBehavior(TransactionOptions transactionOptions)
         {
             this.transactionOptions = transactionOptions;
         }
@@ -16,8 +16,7 @@
         {
             if (Transaction.Current != null)
             {
-                await next().ConfigureAwait(false);
-                return;
+                throw new Exception("Ambient transaction detected. The transaction scope unit of work is not supported when there already is a scope present.");
             }
 
             using (var tx = new TransactionScope(TransactionScopeOption.Required, transactionOptions, TransactionScopeAsyncFlowOption.Enabled))

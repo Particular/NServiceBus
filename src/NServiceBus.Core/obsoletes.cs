@@ -966,9 +966,24 @@ namespace NServiceBus.Unicast.Transport
 {
     using System;
     using System.Transactions;
-
-    public partial class TransactionSettings
+    [ObsoleteEx(
+          Message = "Transaction settings is no longer available via this class. Please see obsoletes on individual members for further details",
+          RemoveInVersion = "7.0",
+          TreatAsErrorFromVersion = "6.0")]
+    public class TransactionSettings
     {
+        [ObsoleteEx(
+            Message = "Timeouts are now controlled explicitly for the transaction scope unit of work using config.UnitOfWork().WrapHandlersInATransactionScope(timeout: X)",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public TimeSpan TransactionTimeout { get; set; }
+
+        [ObsoleteEx(
+            Message = "Isolation level are now controlled explicitly for the transaction scope unit of work using config.UnitOfWork().WrapHandlersInATransactionScope(isolationlevel: X)",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public IsolationLevel IsolationLevel { get; set; }
+
         [ObsoleteEx(
             Message = "No longer used",
             RemoveInVersion = "7.0",
@@ -1601,8 +1616,9 @@ namespace NServiceBus
 namespace NServiceBus.Settings
 {
     using System;
+    using System.Transactions;
 
-    public partial class TransactionSettings
+    public class TransactionSettings
     {
         [ObsoleteEx(
             RemoveInVersion = "7.0",
@@ -1652,6 +1668,51 @@ Suppressing the ambient transaction created by the MSMQ and SQL Server transport
         public TransactionSettings EnableDistributedTransactions()
         {
             throw new NotImplementedException();
+        }
+        [ObsoleteEx(
+                  RemoveInVersion = "7.0",
+                  TreatAsErrorFromVersion = "6.0",
+                  ReplacementTypeOrMember = "config.UnitOfWork().WrapHandlersInATransactionScope(isolationLevel: IsolationLevel.X);")]
+        public TransactionSettings IsolationLevel(IsolationLevel isolationLevel)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+              RemoveInVersion = "7.0",
+              TreatAsErrorFromVersion = "6.0",
+              ReplacementTypeOrMember = "config.UnitOfWork().WrapHandlersInATransactionScope();")]
+        public TransactionSettings WrapHandlersExecutionInATransactionScope()
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+              RemoveInVersion = "7.0",
+              TreatAsErrorFromVersion = "6.0",
+               ReplacementTypeOrMember = "config.UnitOfWork().WrapHandlersInATransactionScope(timeout: TimeSpan.FromSeconds(X));")]
+        public TransactionSettings DefaultTimeout(TimeSpan defaultTimeout)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    namespace NServiceBus
+    {
+        [ObsoleteEx(
+             RemoveInVersion = "7.0",
+             TreatAsErrorFromVersion = "6.0",
+              Message = "No longer used, can safely be removed")]
+        public static class TransactionSettingsExtentions
+        {
+            [ObsoleteEx(
+               RemoveInVersion = "7.0",
+               TreatAsErrorFromVersion = "6.0",
+                Message = "No longer used, can safely be removed")]
+            public static TransactionSettings Transactions(this BusConfiguration config)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }
