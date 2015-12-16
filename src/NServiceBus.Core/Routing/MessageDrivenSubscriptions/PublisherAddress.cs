@@ -9,14 +9,14 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
     /// </summary>
     public class PublisherAddress
     {
-        Endpoint endpoint;
+        EndpointName endpoint;
         EndpointInstance[] instances;
         string[] addresses;
 
         /// <summary>
         /// Creates a new publisher based on the endpoint name.
         /// </summary>
-        public PublisherAddress(Endpoint endpoint)
+        public PublisherAddress(EndpointName endpoint)
         {
             Guard.AgainstNull(nameof(endpoint), endpoint);
             this.endpoint = endpoint;
@@ -48,7 +48,7 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
             this.addresses = addresses;
         }
 
-        internal IEnumerable<string> Resolve(Func<Endpoint, IEnumerable<EndpointInstance>> instanceResolver, Func<EndpointInstance, string> addressResolver)
+        internal IEnumerable<string> Resolve(Func<EndpointName, IEnumerable<EndpointInstance>> instanceResolver, Func<EndpointInstance, string> addressResolver)
         {
             if (addresses != null)
             {

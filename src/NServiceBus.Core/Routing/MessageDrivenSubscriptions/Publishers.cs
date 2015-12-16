@@ -17,7 +17,7 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
         /// </summary>
         /// <param name="publisher">Publisher endpoint.</param>
         /// <param name="eventType">Event type.</param>
-        public void AddStatic(Endpoint publisher, Type eventType)
+        public void AddStatic(EndpointName publisher, Type eventType)
         {
             rules.Add(new Rule(type => StaticTypeRule(type, eventType, new PublisherAddress(publisher)), $"{eventType.FullName} -> {publisher}"));
         }
@@ -51,7 +51,7 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
         /// <param name="publisher">Publisher endpoint.</param>
         /// <param name="eventAssembly">Assembly containing events.</param>
         /// <param name="eventNamespace">Optional namespace containing events.</param>
-        public void AddStatic(Endpoint publisher, Assembly eventAssembly, string eventNamespace = null)
+        public void AddStatic(EndpointName publisher, Assembly eventAssembly, string eventNamespace = null)
         {
             rules.Add(new Rule(type => StaticAssemblyRule(type, eventAssembly, eventNamespace, new PublisherAddress(publisher)), $"{eventAssembly.GetName().Name}/{eventNamespace ?? "*"} -> {publisher}"));
         }

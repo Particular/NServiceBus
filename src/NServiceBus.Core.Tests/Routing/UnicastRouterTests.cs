@@ -21,7 +21,7 @@
         [Test]
         public void Should_route_a_command_to_a_single_non_scaled_out_destination()
         {
-            var sales = new Endpoint("Sales");
+            var sales = new EndpointName("Sales");
             metadataRegistry.RegisterMessageType(typeof(Command));
             routingTable.RouteToEndpoint(typeof(Command), sales);
             endpointInstances.AddStatic(sales, new EndpointInstance(sales, null, null));
@@ -38,7 +38,7 @@
         [Test]
         public void Should_route_an_event_to_a_single_non_scaled_out_destination()
         {
-            var sales = new Endpoint("Sales");
+            var sales = new EndpointName("Sales");
             metadataRegistry.RegisterMessageType(typeof(Event));
             routingTable.RouteToEndpoint(typeof(Event), sales);
             endpointInstances.AddStatic(sales, new EndpointInstance(sales));
@@ -53,8 +53,8 @@
         [Test]
         public void Should_route_an_event_to_a_single_instance_of_each_endpoint()
         {
-            var sales = new Endpoint("Sales");
-            var shipping = new Endpoint("Shipping");
+            var sales = new EndpointName("Sales");
+            var shipping = new EndpointName("Shipping");
             metadataRegistry.RegisterMessageType(typeof(Event));
             routingTable.RouteToEndpoint(typeof(Event), sales);
             routingTable.RouteToEndpoint(typeof(Event), shipping);

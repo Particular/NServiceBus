@@ -23,7 +23,7 @@
         /// </summary>
         /// <param name="endpoint">Endpoint name.</param>
         /// <param name="transportAddress">Instance transport address.</param>
-        public static UnicastRoutingTarget ToAnonymousInstance(Endpoint endpoint, string transportAddress)
+        public static UnicastRoutingTarget ToAnonymousInstance(EndpointName endpoint, string transportAddress)
         {
             Guard.AgainstNull(nameof(endpoint), transportAddress);
             Guard.AgainstNull(nameof(transportAddress), transportAddress);
@@ -40,7 +40,7 @@
             return new UnicastRoutingTarget(null, null, transportAddress);
         }
 
-        UnicastRoutingTarget(Endpoint endpoint, EndpointInstance instance, string transportAddress)
+        UnicastRoutingTarget(EndpointName endpoint, EndpointInstance instance, string transportAddress)
         {
             Endpoint = endpoint;
             Instance = instance;
@@ -55,7 +55,7 @@
         /// <summary>
         /// Endpoint name, if specified.
         /// </summary>
-        public Endpoint Endpoint { get; }
+        public EndpointName Endpoint { get; }
 
         /// <summary>
         /// Endpoint instance name, if specified.

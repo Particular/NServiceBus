@@ -107,7 +107,7 @@
                     c.EndpointName("DistributingAnEvent.SubscriberA");
                     c.ScaleOut().InstanceDiscriminator("1");
 
-                    var publisher = new Endpoint("DistributingAnEvent.Publisher");
+                    var publisher = new EndpointName("DistributingAnEvent.Publisher");
                     c.Pubishers().AddStatic(publisher, typeof(MyEvent));
                     c.Routing().EndpointInstances.AddStatic(publisher, new EndpointInstance(publisher, null, null));
                 });
@@ -134,7 +134,7 @@
                     c.EndpointName("DistributingAnEvent.SubscriberA");
                     c.ScaleOut().InstanceDiscriminator("2");
                     
-                    var publisher = new Endpoint("DistributingAnEvent.Publisher");
+                    var publisher = new EndpointName("DistributingAnEvent.Publisher");
                     c.Pubishers().AddStatic(publisher, typeof(MyEvent));
                     c.Routing().EndpointInstances.AddStatic(publisher, new EndpointInstance(publisher, null, null));
                 });
@@ -161,7 +161,7 @@
                     c.EndpointName("DistributingAnEvent.SubscriberB");
                     c.ScaleOut().InstanceDiscriminator("1");
                     
-                    var publisher = new Endpoint("DistributingAnEvent.Publisher");
+                    var publisher = new EndpointName("DistributingAnEvent.Publisher");
                     c.Pubishers().AddStatic(publisher, typeof(MyEvent));
                     c.Routing().EndpointInstances.AddStatic(publisher, new EndpointInstance(publisher, null, null));
                 });
@@ -187,7 +187,7 @@
                     c.EndpointName("DistributingAnEvent.SubscriberB");
                     c.ScaleOut().InstanceDiscriminator("2");
                     
-                    var publisher = new Endpoint("DistributingAnEvent.Publisher");
+                    var publisher = new EndpointName("DistributingAnEvent.Publisher");
                     c.Pubishers().AddStatic(publisher, typeof(MyEvent));
                     c.Routing().EndpointInstances.AddStatic(publisher, new EndpointInstance(publisher, null, null));
                 });

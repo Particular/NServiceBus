@@ -95,6 +95,7 @@
     <Compile Include="Audit\AuditToDispatchConnector.cs" />
     <Compile Include="Audit\InvokeAuditPipelineBehavior.cs" />
     <Compile Include="EndpointHelper.cs" />
+    <Compile Include="Endpoint.cs" />
     <Compile Include="UnitOfWork\TransactionScopes\HandlerTransactionScopeWrapperBehavior.cs" />
     <Compile Include="BusSession.cs" />
     <Compile Include="CriticalError\CriticalErrorAction.cs" />
@@ -273,7 +274,7 @@
     <Compile Include="Extensibility\ReadOnlyContextBag.cs" />
     <Compile Include="Recoverability\Faults\ConfigureError.cs" />
     <Compile Include="Routing\EndpointInstance.cs" />
-    <Compile Include="Routing\Endpoint.cs" />
+    <Compile Include="Routing\EndpointName.cs" />
     <Compile Include="Recoverability\Faults\FailedMessage.cs" />
     <Compile Include="Recoverability\Faults\ErrorsNotifications.cs" />
     <Compile Include="Recoverability\Faults\ErrorSubscribers.cs" />

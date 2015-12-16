@@ -118,7 +118,7 @@ namespace NServiceBus
         public void EndpointName(string name)
         {
             Guard.AgainstNullAndEmpty(nameof(name), name);
-            endpoint = new Endpoint(name);
+            endpoint = new EndpointName(name);
         }
 
         /// <summary>
@@ -234,7 +234,7 @@ namespace NServiceBus
             var endpointHelper = new EndpointHelper(new StackTrace());
 
             Settings.SetDefault("EndpointVersion", endpointHelper.GetEndpointVersion());
-            Settings.SetDefault<Endpoint>(endpoint ?? new Endpoint(endpointHelper.GetDefaultEndpointName()));
+            Settings.SetDefault<EndpointName>(endpoint ?? new EndpointName(endpointHelper.GetDefaultEndpointName()));
             if (addressTranslation != null)
             {
                 Settings.Set("LogicalToTransportAddressTranslation", addressTranslation);
@@ -305,7 +305,7 @@ namespace NServiceBus
         ConventionsBuilder conventionsBuilder;
         List<Action<IConfigureComponents>> registrations = new List<Action<IConfigureComponents>>();
         IContainer customBuilder;
-        Endpoint endpoint;
+        EndpointName endpoint;
         Func<LogicalAddress, string, string> addressTranslation;
         List<IWantToRunWhenBusStartsAndStops> startables = new List<IWantToRunWhenBusStartsAndStops>();
         List<Type> scannedTypes;

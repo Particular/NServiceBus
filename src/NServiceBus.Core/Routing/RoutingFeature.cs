@@ -188,7 +188,7 @@
                     }
                 }
 
-                public IEnumerable<UnicastRoutingTarget> Resolve(Func<Endpoint, IEnumerable<EndpointInstance>> instanceResolver)
+                public IEnumerable<UnicastRoutingTarget> Resolve(Func<EndpointName, IEnumerable<EndpointInstance>> instanceResolver)
                 {
                     yield return target;
                 }

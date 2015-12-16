@@ -14,7 +14,7 @@ namespace NServiceBus
     {
         static readonly ILog log = LogManager.GetLogger(typeof(FileRoutingTable));
 
-        Dictionary<Endpoint, HashSet<EndpointInstance>> instanceMap = new Dictionary<Endpoint, HashSet<EndpointInstance>>();
+        Dictionary<EndpointName, HashSet<EndpointInstance>> instanceMap = new Dictionary<EndpointName, HashSet<EndpointInstance>>();
         ReadOnlySettings settings;
         string filePath;
         TimeSpan checkInterval;
@@ -48,7 +48,7 @@ namespace NServiceBus
         {
             var doc = await ReadFileWithRetries().ConfigureAwait(false);
             var instances = parser.Parse(doc);
-            var newInstanceMap = new Dictionary<Endpoint, HashSet<EndpointInstance>>();
+            var newInstanceMap = new Dictionary<EndpointName, HashSet<EndpointInstance>>();
 
             foreach (var i in instances)
             {
@@ -92,7 +92,7 @@ namespace NServiceBus
             }
         }
 
-        IEnumerable<EndpointInstance> FindInstances(Endpoint endpoint)
+        IEnumerable<EndpointInstance> FindInstances(EndpointName endpoint)
         {
             HashSet<EndpointInstance> result;
             if (instanceMap.TryGetValue(endpoint, out result))

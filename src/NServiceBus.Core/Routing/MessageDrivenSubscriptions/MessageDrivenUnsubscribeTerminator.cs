@@ -13,7 +13,7 @@
 
     class MessageDrivenUnsubscribeTerminator : PipelineTerminator<IUnsubscribeContext>
     {
-        public MessageDrivenUnsubscribeTerminator(SubscriptionRouter subscriptionRouter, string replyToAddress, Endpoint endpoint, IDispatchMessages dispatcher, bool legacyMode)
+        public MessageDrivenUnsubscribeTerminator(SubscriptionRouter subscriptionRouter, string replyToAddress, EndpointName endpoint, IDispatchMessages dispatcher, bool legacyMode)
         {
             this.subscriptionRouter = subscriptionRouter;
             this.replyToAddress = replyToAddress;
@@ -92,7 +92,7 @@
 
         SubscriptionRouter subscriptionRouter;
         string replyToAddress;
-        readonly Endpoint endpoint;
+        readonly EndpointName endpoint;
         IDispatchMessages dispatcher;
         readonly bool legacyMode;
 

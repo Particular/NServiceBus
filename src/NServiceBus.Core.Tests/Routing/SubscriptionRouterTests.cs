@@ -23,8 +23,8 @@ namespace NServiceBus.Core.Tests.Routing
 
             var baseType = typeof(BaseMessage);
             var inheritedType = typeof(InheritedMessage);
-            var baseEndpoint = new Endpoint(baseAddress);
-            var inheritedEndpoint = new Endpoint(inheritedAddress);
+            var baseEndpoint = new EndpointName(baseAddress);
+            var inheritedEndpoint = new EndpointName(inheritedAddress);
 
             var publishers = new Publishers();
             publishers.AddStatic(baseEndpoint, baseType );
@@ -47,8 +47,8 @@ namespace NServiceBus.Core.Tests.Routing
             var baseType = typeof(BaseMessage);
             var inheritedType = typeof(InheritedMessage);
 
-            var baseEndpoint = new Endpoint("addressA");
-            var inheritedEndpoint = new Endpoint("addressB");
+            var baseEndpoint = new EndpointName("addressA");
+            var inheritedEndpoint = new EndpointName("addressB");
 
             var publishers = new Publishers();
             publishers.AddStatic(baseEndpoint, baseType);

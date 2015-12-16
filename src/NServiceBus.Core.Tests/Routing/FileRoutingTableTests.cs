@@ -31,7 +31,7 @@
             var table = new FileRoutingTable("unused", TimeSpan.Zero, timer, fileAccess, 2, settings);
             await table.PerformStartup(null);
 
-            var instance = instances.FindInstances(new Endpoint("A")).Single();
+            var instance = instances.FindInstances(new EndpointName("A")).Single();
             Assert.AreEqual(new EndpointInstance("A"), instance);
         }
 

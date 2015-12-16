@@ -62,7 +62,7 @@
 
             BusNotifications notifications;
             ScenarioContext scenarioContext;
-            Endpoint endpoint;
+            EndpointName endpoint;
         }
     }
 }

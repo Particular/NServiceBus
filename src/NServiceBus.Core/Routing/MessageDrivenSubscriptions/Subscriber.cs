@@ -12,7 +12,7 @@ namespace NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions
         /// </summary>
         /// <param name="transportAddress">Transport address.</param>
         /// <param name="endpoint">Endpoint name (optional).</param>
-        public Subscriber(string transportAddress, Endpoint endpoint)
+        public Subscriber(string transportAddress, EndpointName endpoint)
         {
             TransportAddress = transportAddress;
             Endpoint = endpoint;
@@ -26,6 +26,6 @@ namespace NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions
         /// <summary>
         /// The endpoint name of the subscriber or null if unknown.
         /// </summary>
-        public Endpoint Endpoint { get; }
+        public EndpointName Endpoint { get; }
     }
 }

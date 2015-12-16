@@ -22,7 +22,7 @@ namespace NServiceBus
                 {
                     throw new Exception("Endpoint does not have a name.");
                 }
-                var endpointName = new Endpoint(nameAttribute.Value);
+                var endpointName = new EndpointName(nameAttribute.Value);
                 foreach (var i in e.Descendants("instance"))
                 {
                     var discriminatorAttribute = i.Attribute("discriminator");

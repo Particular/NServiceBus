@@ -42,11 +42,11 @@
             }
 
             string subscriberAddress;
-            Endpoint subscriberEndpoint = null;
+            EndpointName subscriberEndpoint = null;
 
             if (incomingMessage.Headers.TryGetValue(Headers.SubscriberTransportAddress, out subscriberAddress))
             {
-                subscriberEndpoint = new Endpoint(incomingMessage.Headers[Headers.SubscriberEndpoint]);
+                subscriberEndpoint = new EndpointName(incomingMessage.Headers[Headers.SubscriberEndpoint]);
             }
             else
             {

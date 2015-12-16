@@ -42,7 +42,7 @@ namespace NServiceBus.Routing
         /// </summary>
         /// <param name="messageType">Message type.</param>
         /// <param name="destination">Destination endpoint.</param>
-        public void RouteToEndpoint(Type messageType, Endpoint destination)
+        public void RouteToEndpoint(Type messageType, EndpointName destination)
         {
             staticRules.Add((t, c) => StaticRule(t, messageType, new UnicastRoute(destination)));
         }
@@ -54,7 +54,7 @@ namespace NServiceBus.Routing
         /// <param name="destination">Destination endpoint.</param>
         public void RouteToEndpoint(Type messageType, string destination)
         {
-            RouteToEndpoint(messageType, new Endpoint(destination));
+            RouteToEndpoint(messageType, new EndpointName(destination));
         }
 
         /// <summary>
