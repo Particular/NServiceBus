@@ -100,6 +100,10 @@
     <Compile Include="Transports\MulticastTransportOperation.cs" />
     <Compile Include="Transports\TransportOperations.cs" />
     <Compile Include="Transports\UnicastTransportOperation.cs" />
+    <Compile Include="Hosting\FaultHostInformationBehavior.cs" />
+    <Compile Include="Recoverability\Faults\FaultToDispatchConnector.cs" />
+    <Compile Include="Recoverability\Faults\FaultContext.cs" />
+    <Compile Include="Recoverability\Faults\IFaultContext.cs" />
     <Compile Include="UnitOfWork\TransactionScopes\HandlerTransactionScopeWrapperBehavior.cs" />
     <Compile Include="BusSession.cs" />
     <Compile Include="CriticalError\CriticalErrorContext.cs" />

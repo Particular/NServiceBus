@@ -19,6 +19,7 @@ namespace NServiceBus.Features
             var errorQueue = ErrorQueueSettings.GetConfiguredErrorQueue(context.Settings);
             context.Settings.Get<QueueBindings>().BindSending(errorQueue);
             context.Pipeline.Register(new MoveFaultsToErrorQueueBehavior.Registration(context.Settings, context.Settings.LocalAddress()));
+            context.Pipeline.RegisterConnector<FaultToDispatchConnector>("Connector to dispatch faulted messages");
         }
 
 
