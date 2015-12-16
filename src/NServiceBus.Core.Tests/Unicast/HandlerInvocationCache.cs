@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.Extensibility;
     using NServiceBus.Persistence;
@@ -203,7 +204,9 @@
         public string MessageId { get; }
         public string ReplyToAddress { get; }
         public IReadOnlyDictionary<string, string> MessageHeaders { get; }
+        public CancellationToken CancellationToken { get; }
         public ContextBag Extensions { get; }
+
         public Task Send(object message, SendOptions options)
         {
             throw new NotImplementedException();

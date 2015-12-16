@@ -65,11 +65,12 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
+                public async Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
+                    await Task.Delay(TimeSpan.FromMinutes(2), context.CancellationToken);
+
                     testContext.Headers = context.MessageHeaders;
                     testContext.IsMessageHandledByTheAuditEndpoint = true;
-                    return Task.FromResult(0);
                 }
             }
         }

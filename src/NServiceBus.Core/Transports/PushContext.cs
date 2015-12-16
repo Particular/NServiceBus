@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.IO;
+    using System.Threading;
     using Extensibility;
 
     /// <summary>
@@ -16,20 +17,24 @@
         /// <param name="headers">The message headers.</param>
         /// <param name="bodyStream">The message body stream.</param>
         /// <param name="transportTransaction">Transaction (along with connection if applicable) used to receive the message.</param>
+        /// <param name="tokenSource">The cancellation token source.</param>
         /// <param name="context">Any context that the transport wants to be available on the pipeline.</param>
-        public PushContext(string messageId, Dictionary<string, string> headers, Stream bodyStream, TransportTransaction transportTransaction, ContextBag context)
+        public PushContext(string messageId, Dictionary<string, string> headers, Stream bodyStream, TransportTransaction transportTransaction, CancellationTokenSource tokenSource, ContextBag context)
         {
             Guard.AgainstNullAndEmpty(nameof(messageId), messageId);
             Guard.AgainstNull(nameof(bodyStream), bodyStream);
             Guard.AgainstNull(nameof(headers), headers);
             Guard.AgainstNull(nameof(transportTransaction), transportTransaction);
             Guard.AgainstNull(nameof(context), context);
+            Guard.AgainstNull(nameof(tokenSource), tokenSource);
 
             Headers = headers;
             BodyStream = bodyStream;
             MessageId = messageId;
             Context = context;
             TransportTransaction = transportTransaction;
+
+            Context.Set(tokenSource);
         }
 
         /// <summary>

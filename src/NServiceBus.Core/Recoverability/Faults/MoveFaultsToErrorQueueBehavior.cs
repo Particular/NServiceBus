@@ -27,10 +27,6 @@ namespace NServiceBus
             {
                 await next().ConfigureAwait(false);
             }
-            catch (MessageProcessingAbortedException)
-            {
-                throw;
-            }
             catch (Exception exception)
             {
                 try

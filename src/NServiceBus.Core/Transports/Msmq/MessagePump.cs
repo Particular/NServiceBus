@@ -146,17 +146,20 @@ namespace NServiceBus
 
                     await concurrencyLimiter.WaitAsync(cancellationToken).ConfigureAwait(false);
 
+                    var tokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenSource.Token); // or new CancellationTokenSource()
+
                     var receiveTask = Task.Run(async () =>
                     {
                         try
                         {
-                            await receiveStrategy.ReceiveMessage(inputQueue, errorQueue, pipeline).ConfigureAwait(false);
+                            await receiveStrategy.ReceiveMessage(inputQueue, errorQueue, tokenSource, pipeline).ConfigureAwait(false);
+
+                            if (tokenSource.IsCancellationRequested)
+                            {
+                                return;
+                            }
 
                             receiveCircuitBreaker.Success();
-                        }
-                        catch (MessageProcessingAbortedException)
-                        {
-                            //expected to happen
                         }
                         catch (MessageQueueException ex)
                         {
@@ -178,7 +181,7 @@ namespace NServiceBus
                         {
                             concurrencyLimiter.Release();
                         }
-                    }, cancellationToken);
+                    }, tokenSource.Token);
 
                     runningReceiveTasks.TryAdd(receiveTask, receiveTask);
 
