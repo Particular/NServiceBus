@@ -34,17 +34,18 @@
         {
             public Sender()
             {
-                var basePath = AppDomain.CurrentDomain.BaseDirectory;
-
-                File.WriteAllLines(Path.Combine(basePath, "DistributingACommand.Receiver.txt"), new[]
-                {
-                    "1:",
-                    "2:"
-                });
+                var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "routes.xml");
+                File.WriteAllText(filePath, @"<endpoints>
+    <endpoint name=""DistributingACommand.Receiver"">
+        <instance discriminator=""1""/>
+        <instance discriminator=""2""/>
+    </endpoint>
+</endpoints>
+");
 
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.Routing().UseFileBasedEndpointInstanceLists().LookForFilesIn(basePath);
+                    c.Routing().UseFileBasedEndpointInstanceMapping(filePath);
                     c.Routing().UnicastRoutingTable.RouteToEndpoint(typeof(Request), new Endpoint("DistributingACommand.Receiver"));
                     c.Routing().SetMessageDistributionStrategy(new AllInstancesDistributionStrategy(), t => t == typeof(Request));
                 });
@@ -77,7 +78,7 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.EndpointName("DistributingACommand.Receiver");
-                    c.ScaleOut().UniqueQueuePerEndpointInstance("1");
+                    c.ScaleOut().InstanceDiscriminator("1");
                 });
             }
 
@@ -100,7 +101,7 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.EndpointName("DistributingACommand.Receiver");
-                    c.ScaleOut().UniqueQueuePerEndpointInstance("2");
+                    c.ScaleOut().InstanceDiscriminator("2");
                 });
             }
 

@@ -5,6 +5,7 @@
     using NServiceBus.DelayedDelivery;
     using NServiceBus.DeliveryConstraints;
     using NServiceBus.Features;
+    using NServiceBus.Routing;
     using NServiceBus.Settings;
     using NServiceBus.Transports;
     using NUnit.Framework;
@@ -50,7 +51,7 @@
                 throw new NotImplementedException();
             }
 
-            public override string GetDiscriminatorForThisEndpointInstance(ReadOnlySettings settings)
+            public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance, ReadOnlySettings settings)
             {
                 throw new NotImplementedException();
             }

@@ -5,6 +5,7 @@
     using NServiceBus.Hosting;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.OutgoingPipeline;
+    using NServiceBus.Routing;
     using NServiceBus.Support;
 
     class AddHostInfoHeadersBehavior : Behavior<IOutgoingLogicalMessageContext>

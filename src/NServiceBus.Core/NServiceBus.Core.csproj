@@ -94,6 +94,7 @@
     <Compile Include="Audit\ConfigureAudit.cs" />
     <Compile Include="Audit\AuditToDispatchConnector.cs" />
     <Compile Include="Audit\InvokeAuditPipelineBehavior.cs" />
+    <Compile Include="EndpointHelper.cs" />
     <Compile Include="UnitOfWork\TransactionScopes\HandlerTransactionScopeWrapperBehavior.cs" />
     <Compile Include="BusSession.cs" />
     <Compile Include="CriticalError\CriticalErrorAction.cs" />
@@ -145,6 +146,11 @@
     <Compile Include="Pipeline\Outgoing\RoutingContext.cs" />
     <Compile Include="Pipeline\RegisterStepExtensions.cs" />
     <Compile Include="Pipeline\SatellitePipelineModifications.cs" />
+    <Compile Include="Routing\FileBasedDynamicRouting\AsyncTimer.cs" />
+    <Compile Include="Routing\FileBasedDynamicRouting\FileRoutingTableParser.cs" />
+    <Compile Include="Routing\FileBasedDynamicRouting\IAsyncTimer.cs" />
+    <Compile Include="Routing\FileBasedDynamicRouting\IRoutingFileAccess.cs" />
+    <Compile Include="Routing\FileBasedDynamicRouting\RoutingFileAccess.cs" />
     <Compile Include="Routing\Legacy\ConfigureMSMQDistributor.cs" />
     <Compile Include="Routing\Legacy\LegacyDistributorHeaders.cs" />
     <Compile Include="Routing\Legacy\ProcessedMessageCounterBehavior.cs" />
@@ -153,6 +159,7 @@
     <Compile Include="Routing\MessageDrivenSubscriptions\MessageDrivenSubscriptionsConfigExtensions.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\SubscriptionAuthorizer.cs" />
     <Compile Include="StaticHeaders\StaticHeaders.cs" />
+    <Compile Include="Transports\Msmq\EndpointInstanceExtensions.cs" />
     <Compile Include="Transports\Msmq\QueuePermissionChecker.cs" />
     <Compile Include="Routing\SubscribeContext.cs" />
     <Compile Include="Routing\UnsubscribeContext.cs" />
@@ -265,8 +272,8 @@
     <Compile Include="Extensibility\ExtendableOptionsExtensions.cs" />
     <Compile Include="Extensibility\ReadOnlyContextBag.cs" />
     <Compile Include="Recoverability\Faults\ConfigureError.cs" />
-    <Compile Include="EndpointInstance.cs" />
-    <Compile Include="Endpoint.cs" />
+    <Compile Include="Routing\EndpointInstance.cs" />
+    <Compile Include="Routing\Endpoint.cs" />
     <Compile Include="Recoverability\Faults\FailedMessage.cs" />
     <Compile Include="Recoverability\Faults\ErrorsNotifications.cs" />
     <Compile Include="Recoverability\Faults\ErrorSubscribers.cs" />
@@ -611,7 +618,6 @@
     <Compile Include="Encryption\ConfigureRijndaelEncryptionService.cs" />
     <Compile Include="ConfigurationSource\DefaultConfigurationSource.cs" />
     <Compile Include="ConfigurationSource\IConfigurationSource.cs" />
-    <Compile Include="EndpointHelper.cs" />
     <Compile Include="Logging\Logging.cs" />
     <Compile Include="Distributor\MasterNode\MasterNodeConfig.cs" />
     <Compile Include="Routing\MessageEndpointMapping.cs" />
@@ -624,7 +630,7 @@
     <Compile Include="Transports\IManageSubscriptions.cs" />
     <Compile Include="Transports\IDispatchMessages.cs" />
     <Compile Include="Transports\TransportDefinition.cs" />
-    <Compile Include="Transports\Msmq\Msmq.cs" />
+    <Compile Include="Transports\Msmq\MsmqTransport.cs" />
     <Compile Include="Transports\Msmq\MsmqSettings.cs" />
     <Compile Include="Transports\Msmq\HeaderInfo.cs" />
     <Compile Include="Transports\Msmq\MessagePump.cs" />

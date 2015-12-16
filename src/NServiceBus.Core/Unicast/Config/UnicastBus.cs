@@ -4,6 +4,7 @@ namespace NServiceBus.Features
     using System.Collections.Generic;
     using System.Linq;
     using NServiceBus.Logging;
+    using NServiceBus.Routing;
     using NServiceBus.Settings;
     using NServiceBus.Transports;
     using NServiceBus.Unicast.Messages;
@@ -25,13 +26,8 @@ namespace NServiceBus.Features
         static EndpointInstance GetEndpointInstanceName(ReadOnlySettings settings)
         {
             var userDiscriminator = settings.GetOrDefault<string>("EndpointInstanceDiscriminator");
-            var scaleOut = settings.GetOrDefault<bool>("IndividualizeEndpointAddress");
-            var transportDiscriminator = settings.Get<TransportDefinition>().GetDiscriminatorForThisEndpointInstance(settings);
-            if (scaleOut && userDiscriminator == null && transportDiscriminator == null)
-            {
-                throw new Exception("No endpoint instance discriminator found. This value is usually provided by your transport so please make sure you're on the lastest version of your specific transport or set the discriminator using 'configuration.ScaleOut().UniqueQueuePerEndpointInstance(myDiscriminator)'");
-            }
-            return new EndpointInstance(settings.EndpointName(), userDiscriminator, transportDiscriminator);
+            var boundInstance = settings.Get<TransportDefinition>().BindToLocalEndpoint(new EndpointInstance(settings.EndpointName(), userDiscriminator), settings);
+            return boundInstance;
         }
 
         protected internal override void Setup(FeatureConfigurationContext context)

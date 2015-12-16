@@ -31,7 +31,7 @@
 
             public IndividualizedEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.ScaleOut().UniqueQueuePerEndpointInstance(discriminator));
+                EndpointSetup<DefaultServer>(c => c.ScaleOut().InstanceDiscriminator(discriminator));
             }
 
             class AddressSpy : IWantToRunWhenBusStartsAndStops

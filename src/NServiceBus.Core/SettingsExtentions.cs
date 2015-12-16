@@ -4,6 +4,7 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Linq;
     using Config.ConfigurationSource;
+    using NServiceBus.Routing;
     using Settings;
 
     /// <summary>

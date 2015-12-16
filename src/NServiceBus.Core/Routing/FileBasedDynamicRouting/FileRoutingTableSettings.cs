@@ -1,6 +1,8 @@
 namespace NServiceBus
 {
+    using System;
     using NServiceBus.Configuration.AdvanceExtensibility;
+    using NServiceBus.Features;
     using NServiceBus.Settings;
 
     /// <summary>
@@ -11,17 +13,30 @@ namespace NServiceBus
         /// <summary>
         /// Creates new instance.
         /// </summary>
-        public FileRoutingTableSettings(SettingsHolder settings) : base(settings)
+        public FileRoutingTableSettings(SettingsHolder settings) 
+            : base(settings)
         {
         }
 
         /// <summary>
-        /// Folder path where to look for files when using file-based direct routing table.
+        /// Specifies the interval between route data refresh attempts.
         /// </summary>
-        /// <param name="path">The folder path. This can be a UNC path.</param>
-        public void LookForFilesIn(string path)
+        /// <param name="refreshInterval">Refresh interval.</param>
+        public FileRoutingTableSettings RefreshInterval(TimeSpan refreshInterval)
         {
-            Settings.Set("FileBasedRouting.BasePath", path);
+            Settings.Set(FileRoutingTableFeature.CheckIntervalSettingsKey, refreshInterval);
+            return this;
         }
+
+        /// <summary>
+        /// Specifies the maximum number of attempts to load contents of a file before logging an error.
+        /// </summary>
+        /// <param name="maxLoadAttempts">Max load attepts.</param>
+        public FileRoutingTableSettings MaxLoadAttempts(int maxLoadAttempts)
+        {
+            Settings.Set(FileRoutingTableFeature.MaxLoadAttemptsSettingsKey, maxLoadAttempts);
+            return this;
+        }
+
     }
 }

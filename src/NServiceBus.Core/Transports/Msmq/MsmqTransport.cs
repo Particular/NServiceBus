@@ -7,8 +7,8 @@ namespace NServiceBus
     using System.Transactions;
     using NServiceBus.Features;
     using NServiceBus.Performance.TimeToBeReceived;
+    using NServiceBus.Routing;
     using NServiceBus.Settings;
-    using NServiceBus.Support;
     using NServiceBus.Transports;
     using NServiceBus.Transports.Msmq;
     using NServiceBus.Transports.Msmq.Config;
@@ -128,11 +128,8 @@ namespace NServiceBus
         /// <summary>
         /// Returns the discriminator for this endpoint instance.
         /// </summary>
-        public override string GetDiscriminatorForThisEndpointInstance(ReadOnlySettings settings)
-        {
-            return RuntimeEnvironment.MachineName;
-        }
-       
+        public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance, ReadOnlySettings settings) => instance.AtMachine(Environment.MachineName);
+
         /// <summary>
         /// Converts a given logical address to the transport address.
         /// </summary>
@@ -140,12 +137,16 @@ namespace NServiceBus
         /// <returns>The transport address.</returns>
         public override string ToTransportAddress(LogicalAddress logicalAddress)
         {
-            var machine = logicalAddress.EndpointInstance.TransportDiscriminator ?? RuntimeEnvironment.MachineName;
+            string machine;
+            if (!logicalAddress.EndpointInstance.Properties.TryGetValue("Machine", out machine))
+            {
+                machine = Environment.MachineName;
+            }
 
             var queue = new StringBuilder(logicalAddress.EndpointInstance.Endpoint.ToString());
-            if (logicalAddress.EndpointInstance.UserDiscriminator != null)
+            if (logicalAddress.EndpointInstance.Discriminator != null)
             {
-                queue.Append("-" + logicalAddress.EndpointInstance.UserDiscriminator);
+                queue.Append("-" + logicalAddress.EndpointInstance.Discriminator);
             }
             if (logicalAddress.Qualifier != null)
             {

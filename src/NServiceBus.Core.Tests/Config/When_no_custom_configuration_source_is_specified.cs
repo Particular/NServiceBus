@@ -2,6 +2,7 @@ namespace NServiceBus.Core.Tests.Config
 {
     using System.Threading.Tasks;
     using NServiceBus.Features;
+    using NServiceBus.Routing;
     using NServiceBus.Settings;
     using NUnit.Framework;
 

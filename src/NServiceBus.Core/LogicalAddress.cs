@@ -2,6 +2,7 @@
 {
     using System;
     using JetBrains.Annotations;
+    using NServiceBus.Routing;
 
     /// <summary>
     /// Represents a logical address (independent of transport).

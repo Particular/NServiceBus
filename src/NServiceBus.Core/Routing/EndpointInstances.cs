@@ -14,7 +14,7 @@ namespace NServiceBus.Routing
         internal IEnumerable<EndpointInstance> FindInstances(Endpoint endpoint)
         {
             var distinctInstances = rules.SelectMany(r => r(endpoint)).Distinct().ToArray();
-            return distinctInstances.EnsureNonEmpty(() => new EndpointInstance(endpoint, null, null));
+            return distinctInstances.EnsureNonEmpty(() => new EndpointInstance(endpoint));
         }
 
 

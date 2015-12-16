@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using NServiceBus.Routing;
 
     /// <summary>
     /// Represents a reference to an endpoint instance (which is either its name or a transport address).

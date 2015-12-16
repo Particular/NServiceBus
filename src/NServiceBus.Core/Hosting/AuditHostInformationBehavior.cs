@@ -5,6 +5,7 @@
     using NServiceBus.Audit;
     using NServiceBus.Hosting;
     using NServiceBus.Pipeline;
+    using NServiceBus.Routing;
     using NServiceBus.Support;
 
     class AuditHostInformationBehavior : Behavior<IAuditContext>
