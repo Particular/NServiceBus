@@ -2,9 +2,9 @@ namespace NServiceBus
 {
     using System;
 
-    class ReplaceBehavior
+    class ReplaceStep
     {
-        public ReplaceBehavior(string idToReplace, Type behavior, string description = null)
+        public ReplaceStep(string idToReplace, Type behavior, string description = null)
         {
             ReplaceId = idToReplace;
             Description = description;

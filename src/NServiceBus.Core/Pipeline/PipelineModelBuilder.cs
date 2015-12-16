@@ -8,7 +8,7 @@ namespace NServiceBus
 
     class PipelineModelBuilder
     {
-        public PipelineModelBuilder(Type rootContextType,List<RegisterStep> additions, List<RemoveStep> removals, List<ReplaceBehavior> replacements)
+        public PipelineModelBuilder(Type rootContextType, List<RegisterStep> additions, List<RemoveStep> removals, List<ReplaceStep> replacements)
         {
             this.rootContextType = rootContextType;
             this.additions = additions;
@@ -93,7 +93,6 @@ namespace NServiceBus
                 return finalOrder;
             }
 
-            //todo: add test and better ex for missing start stage
             var currentStage = stages.SingleOrDefault(stage => stage.Key == rootContextType);
 
             if (currentStage == null)
@@ -110,23 +109,21 @@ namespace NServiceBus
                 //add the stage connector
                 finalOrder.AddRange(Sort(stageSteps));
 
-
-                //todo: add tests and better ex for missing stage connector
                 var stageConnectors = currentStage.Where(IsStageConnector).ToList();
 
-                if (stageConnectors.Count() > 1)
+                if (stageConnectors.Count > 1)
                 {
-                    var connectors = string.Join(";", stageConnectors.Select(sc => sc.BehaviorType.FullName));
-                    throw new Exception($"Multiple stage connectors found for stage {currentStage.Key.FullName}. Please remove one of: {connectors}");
+                    var connectors = $"'{string.Join("', '", stageConnectors.Select(sc => sc.BehaviorType.FullName))}'";
+                    throw new Exception($"Multiple stage connectors found for stage '{currentStage.Key.FullName}'. Please remove one of: {connectors}");
                 }
 
                 var stageConnector = stageConnectors.FirstOrDefault();
 
                 if (stageConnector == null)
                 {
-                    if (stageNumber < stages.Count())
+                    if (stageNumber < stages.Count)
                     {
-                        throw new Exception($"No stage connector found for stage {currentStage.Key.FullName}");    
+                        throw new Exception($"No stage connector found for stage {currentStage.Key.FullName}");
                     }
 
                     currentStage = null;
@@ -143,8 +140,8 @@ namespace NServiceBus
                     {
                         var args = stageConnector.BehaviorType.BaseType.GetGenericArguments();
                         var stageEndType = args[1];
-                        currentStage = stages.SingleOrDefault(stage => stage.Key == stageEndType);      
-                    }      
+                        currentStage = stages.SingleOrDefault(stage => stage.Key == stageEndType);
+                    }
                 }
 
                 stageNumber++;
@@ -191,24 +188,6 @@ namespace NServiceBus
                 node.Visit(output);
             }
 
-            // Step 4: Validate intput and output types
-            for (var i = 1; i < output.Count; i++)
-            {
-                var previousBehavior = output[i - 1].BehaviorType;
-                var thisBehavior = output[i].BehaviorType;
-
-                var incomingType = previousBehavior.GetOutputContext();
-                var inputType = thisBehavior.GetInputContext();
-
-                if (!inputType.IsAssignableFrom(incomingType))
-                {
-                    throw new Exception(string.Format("Cannot chain behavior {0} and {1} together because output type of behavior {0} ({2}) cannot be passed as input for behavior {1} ({3})",
-                        previousBehavior.FullName,
-                        thisBehavior.FullName,
-                        incomingType,
-                        inputType));
-                }
-            }
             return output;
         }
 
@@ -227,7 +206,7 @@ namespace NServiceBus
                     continue;
                 }
                 var currentStepIds = GetCurrentIds(nameToNode);
-                var message = $"Registration '{beforeReference.DependsOnId}' specified in the insertbefore of the '{node.StepId}' step does not exist in this stage. Current StepIds: {currentStepIds}";
+                var message = $"Registration '{beforeReference.DependsOnId}' specified in the insertbefore of the '{node.StepId}' step does not exist. Current StepIds: {currentStepIds}";
 
                 if (!beforeReference.Enforce)
                 {
@@ -276,7 +255,7 @@ namespace NServiceBus
         Type rootContextType;
         List<RegisterStep> additions;
         List<RemoveStep> removals;
-        List<ReplaceBehavior> replacements;
+        List<ReplaceStep> replacements;
         static ILog Logger = LogManager.GetLogger<PipelineModelBuilder>();
 
 
@@ -318,8 +297,6 @@ namespace NServiceBus
             public Type OutputContext { get; private set; }
         }
 
-
-
         class CaseInsensitiveIdComparer : IEqualityComparer<RemoveStep>
         {
             public bool Equals(RemoveStep x, RemoveStep y)
@@ -332,6 +309,5 @@ namespace NServiceBus
                 return obj.RemoveId.ToLower().GetHashCode();
             }
         }
-
     }
 }

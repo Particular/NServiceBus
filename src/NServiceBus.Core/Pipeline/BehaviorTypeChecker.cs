@@ -1,51 +1,57 @@
 namespace NServiceBus
 {
     using System;
-    using System.Linq;
+    using System.Collections.Generic;
+    using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline;
+    using NServiceBus.Pipeline.Contexts;
 
     static class BehaviorTypeChecker
     {
+        static HashSet<Type> NotAllowedInterfaces = new HashSet<Type>
+        {
+            typeof(IBehaviorContext),
+            typeof(IIncomingContext),
+            typeof(IOutgoingContext),
+        };
+
         public static void ThrowIfInvalid(Type behavior, string paramName)
         {
             Guard.AgainstNull(nameof(behavior), behavior);
-            //if (behavior.IsAbstract)
-            //{
-            //    throw new ArgumentException(string.Format("The behavior '{0}' is invalid since it is abstract.", behavior.Name), paramName);
-            //}
+            if (behavior.IsAbstract)
+            {
+                throw new ArgumentException($"The behavior '{behavior.Name}' is invalid since it is abstract.", paramName);
+            }
             if (behavior.IsGenericTypeDefinition)
             {
                 throw new ArgumentException($"The behavior '{behavior.Name}' is invalid since it is an open generic.", paramName);
             }
-            if (!IsAssignableToIBehavior(behavior))
+            if (!behavior.IsBehavior())
             {
-                throw new ArgumentException($@"The behavior '{behavior.Name}' is invalid since it does not implement IBehavior<T>.", paramName);
-            }
-        }
-
-        static Type iBehaviorType = typeof(IBehavior<,>);
-
-        static bool IsAssignableToIBehavior(Type givenType)
-        {
-            var interfaceTypes = givenType.GetInterfaces();
-
-            if (interfaceTypes.Any(it => it.IsGenericType && it.GetGenericTypeDefinition() == iBehaviorType))
-            {
-                return true;
+                throw new ArgumentException($@"The behavior '{behavior.Name}' is invalid since it does not implement IBehavior<TFrom, TTo>.", paramName);
             }
 
-            if (givenType.IsGenericType && givenType.GetGenericTypeDefinition() == iBehaviorType)
+            var inputContextType = behavior.GetInputContext();
+            if (!inputContextType.IsInterface)
             {
-                return true;
+                throw new ArgumentException($@"The behavior '{behavior.Name}' is invalid since the TFrom context of IBehavior<TFrom, TTo> is not an interface.", paramName);
             }
 
-            var baseType = givenType.BaseType;
-            if (baseType == null)
+            if (NotAllowedInterfaces.Contains(inputContextType))
             {
-                return false;
+                throw new ArgumentException($@"The behavior '{behavior.Name}' is invalid since the TFrom {inputContextType} context of IBehavior<TFrom, TTo> is not intended to be used.", paramName);
             }
 
-            return IsAssignableToIBehavior(baseType);
+            var outputContextType = behavior.GetOutputContext();
+            if (!outputContextType.IsInterface)
+            {
+                throw new ArgumentException($@"The behavior '{behavior.Name}' is invalid since the TTo context of IBehavior<TFrom, TTo> is not an interface.", paramName);
+            }
+
+            if (NotAllowedInterfaces.Contains(outputContextType))
+            {
+                throw new ArgumentException($@"The behavior '{behavior.Name}' is invalid since the TTo {outputContextType} context of IBehavior<TFrom, TTo> is not intended to be used.", paramName);
+            }
         }
     }
 }

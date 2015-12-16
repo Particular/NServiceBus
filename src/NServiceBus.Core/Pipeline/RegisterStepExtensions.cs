@@ -6,6 +6,8 @@ namespace NServiceBus
 
     static class RegisterStepExtensions
     {
+        static Type BehaviorInterfaceType = typeof(IBehavior<,>);
+
         public static bool IsStageConnector(this RegisterStep step)
         {
             return typeof(IStageConnector).IsAssignableFrom(step.BehaviorType);
@@ -17,10 +19,16 @@ namespace NServiceBus
             return behaviorInterface.GetGenericArguments()[0];
         }
 
+        public static bool IsBehavior(this Type behaviorType)
+        {
+            return behaviorType.GetInterfaces()
+                .Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == BehaviorInterfaceType);
+        }
+
         public static Type GetBehaviorInterface(this Type behaviorType)
         {
             return behaviorType.GetInterfaces()
-                .First(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IBehavior<,>));
+                .First(x => x.IsGenericType && x.GetGenericTypeDefinition() == BehaviorInterfaceType);
         }
 
         public static Type GetOutputContext(this RegisterStep step)

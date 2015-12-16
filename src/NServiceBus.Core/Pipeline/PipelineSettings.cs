@@ -52,7 +52,7 @@ namespace NServiceBus.Pipeline
             Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
 
             registeredBehaviors.Add(newBehavior);
-            modifications.Replacements.Add(new ReplaceBehavior(stepId, newBehavior, description));
+            modifications.Replacements.Add(new ReplaceStep(stepId, newBehavior, description));
         }
 
         /// <summary>
