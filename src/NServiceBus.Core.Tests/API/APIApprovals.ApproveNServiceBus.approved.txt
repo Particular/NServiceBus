@@ -294,6 +294,12 @@ namespace NServiceBus
         public string Base64Iv { get; set; }
         public string EncryptedBase64Value { get; set; }
     }
+    public class static Endpoint
+    {
+        public static System.Threading.Tasks.Task<NServiceBus.IStartableEndpoint> Create(NServiceBus.BusConfiguration configuration) { }
+        public static NServiceBus.IInitializableEndpoint Prepare(NServiceBus.BusConfiguration configuration) { }
+        public static async System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(NServiceBus.BusConfiguration configuration) { }
+    }
     public class static EndpointInstanceExtensions
     {
         public static NServiceBus.Routing.EndpointInstance AtMachine(this NServiceBus.Routing.EndpointInstance instance, string machineName) { }
