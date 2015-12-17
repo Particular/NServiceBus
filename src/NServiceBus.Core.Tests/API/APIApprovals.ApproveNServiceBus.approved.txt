@@ -2758,6 +2758,11 @@ namespace NServiceBus.Transports
     {
         void Send(NServiceBus.TransportMessage message, NServiceBus.Unicast.SendOptions sendOptions);
     }
+    public class MessageProcessingAbortedException : System.Exception
+    {
+        public MessageProcessingAbortedException() { }
+        protected MessageProcessingAbortedException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
+    }
     public class OutboundRoutingPolicy
     {
         public OutboundRoutingPolicy(NServiceBus.Transports.OutboundRoutingType sends, NServiceBus.Transports.OutboundRoutingType publishes, NServiceBus.Transports.OutboundRoutingType replies) { }
