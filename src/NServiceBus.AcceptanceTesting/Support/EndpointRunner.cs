@@ -44,7 +44,7 @@
                 busConfiguration = await configuration.GetConfiguration(run, routingTable).ConfigureAwait(false);
                 RegisterInheritanceHierarchyOfContextInSettings(scenarioContext);
 
-                endpointBehavior.CustomConfig.ForEach(customAction => customAction(busConfiguration));
+                endpointBehavior.CustomConfig.ForEach(customAction => customAction(busConfiguration, scenarioContext));
 
                 if (configuration.SendOnly)
                 {
