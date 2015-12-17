@@ -46,7 +46,7 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.Routing().UseFileBasedEndpointInstanceMapping(filePath);
-                    c.Routing().UnicastRoutingTable.RouteToEndpoint(typeof(Request), new Endpoint("DistributingACommand.Receiver"));
+                    c.Routing().UnicastRoutingTable.RouteToEndpoint(typeof(Request), new EndpointName("DistributingACommand.Receiver"));
                     c.Routing().SetMessageDistributionStrategy(new AllInstancesDistributionStrategy(), t => t == typeof(Request));
                 });
             }

@@ -11,9 +11,9 @@
     class AddHostInfoHeadersBehavior : Behavior<IOutgoingLogicalMessageContext>
     {
         HostInformation hostInformation;
-        Endpoint endpoint;
+        EndpointName endpoint;
 
-        public AddHostInfoHeadersBehavior(HostInformation hostInformation, Endpoint endpoint)
+        public AddHostInfoHeadersBehavior(HostInformation hostInformation, EndpointName endpoint)
         {
             this.hostInformation = hostInformation;
             this.endpoint = endpoint;

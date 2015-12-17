@@ -13,7 +13,7 @@
 
     class MessageDrivenSubscribeTerminator : PipelineTerminator<ISubscribeContext>
     {
-        public MessageDrivenSubscribeTerminator(SubscriptionRouter subscriptionRouter, string subscriberAddress, Endpoint subscriberEndpoint, IDispatchMessages dispatcher, bool legacyMode)
+        public MessageDrivenSubscribeTerminator(SubscriptionRouter subscriptionRouter, string subscriberAddress, EndpointName subscriberEndpoint, IDispatchMessages dispatcher, bool legacyMode)
         {
             this.subscriptionRouter = subscriptionRouter;
             this.subscriberAddress = subscriberAddress;
@@ -93,7 +93,7 @@
 
         SubscriptionRouter subscriptionRouter;
         string subscriberAddress;
-        Endpoint subscriberEndpoint;
+        EndpointName subscriberEndpoint;
         IDispatchMessages dispatcher;
         bool legacyMode;
 

@@ -10,7 +10,7 @@
 
     class AuditHostInformationBehavior : Behavior<IAuditContext>
     {
-        public AuditHostInformationBehavior(HostInformation hostInfo, Endpoint endpoint)
+        public AuditHostInformationBehavior(HostInformation hostInfo, EndpointName endpoint)
         {
             this.hostInfo = hostInfo;
             this.endpoint = endpoint;
@@ -28,6 +28,6 @@
         }
 
         HostInformation hostInfo;
-        Endpoint endpoint;
+        EndpointName endpoint;
     }
 }

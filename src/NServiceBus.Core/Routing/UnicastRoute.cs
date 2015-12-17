@@ -8,7 +8,7 @@ namespace NServiceBus.Routing
     /// </summary>
     public class UnicastRoute : IUnicastRoute
     {
-        Endpoint endpoint;
+        EndpointName endpoint;
         EndpointInstance instance;
         string physicalAddress;
 
@@ -16,7 +16,7 @@ namespace NServiceBus.Routing
         /// Creates a destination based on the name of the endpoint.
         /// </summary>
         /// <param name="endpoint">Destination endpoint.</param>
-        public UnicastRoute(Endpoint endpoint)
+        public UnicastRoute(EndpointName endpoint)
         {
             Guard.AgainstNull(nameof(endpoint), endpoint);
             this.endpoint = endpoint;
@@ -42,7 +42,7 @@ namespace NServiceBus.Routing
             this.physicalAddress = physicalAddress;
         }
 
-        IEnumerable<UnicastRoutingTarget> IUnicastRoute.Resolve(Func<Endpoint, IEnumerable<EndpointInstance>> instanceResolver)
+        IEnumerable<UnicastRoutingTarget> IUnicastRoute.Resolve(Func<EndpointName, IEnumerable<EndpointInstance>> instanceResolver)
         {
             if (physicalAddress != null)
             {

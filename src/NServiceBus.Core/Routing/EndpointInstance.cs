@@ -13,7 +13,7 @@
         /// <summary>
         /// Returns the name of the endpoint.
         /// </summary>
-        public Endpoint Endpoint { get; }
+        public EndpointName Endpoint { get; }
 
         /// <summary>
         /// A specific discriminator for scale-out purposes.
@@ -27,7 +27,7 @@
         /// <param name="discriminator">A specific discriminator for scale-out purposes.</param>
         /// <param name="properties">A bag of additional properties that differentiate this endpoint instance from other instances.</param>
         public EndpointInstance(string endpoint, string discriminator = null, IReadOnlyDictionary<string, string> properties = null)
-            : this(new Endpoint(endpoint), discriminator, properties)
+            : this(new EndpointName(endpoint), discriminator, properties)
         {
         }
 
@@ -37,7 +37,7 @@
         /// <param name="endpoint">The name of the endpoint.</param>
         /// <param name="discriminator">A specific discriminator for scale-out purposes.</param>
         /// <param name="properties">A bag of additional properties that differentiate this endpoint instance from other instances.</param>
-        public EndpointInstance(Endpoint endpoint, string discriminator = null, IReadOnlyDictionary<string, string> properties = null)
+        public EndpointInstance(EndpointName endpoint, string discriminator = null, IReadOnlyDictionary<string, string> properties = null)
         {
             Guard.AgainstNull(nameof(endpoint),endpoint);
 
