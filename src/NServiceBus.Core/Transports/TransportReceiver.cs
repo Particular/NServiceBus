@@ -10,10 +10,10 @@ namespace NServiceBus
     class TransportReceiver
     {
         public TransportReceiver(
-            string id, 
-            IBuilder builder, 
-            IPushMessages receiver, 
-            PushSettings pushSettings, 
+            string id,
+            IBuilder builder,
+            IPushMessages receiver,
+            PushSettings pushSettings,
             IPipeline<ITransportReceiveContext> pipeline, 
             IPipelineCache pipelineCache,
             PushRuntimeSettings pushRuntimeSettings)
@@ -61,7 +61,7 @@ namespace NServiceBus
         {
             using (var childBuilder = builder.CreateChildBuilder())
             {
-                var context = new TransportReceiveContext(new IncomingMessage(pushContext.MessageId, pushContext.Headers, pushContext.BodyStream), pushContext.TransportTransaction, new RootContext(childBuilder, pipelineCache));
+                var context = new TransportReceiveContext(new IncomingMessage(pushContext.MessageId, pushContext.Headers, pushContext.BodyStream), pushContext.TransportTransaction, pushContext.ReceiveCancellationTokenSource, new RootContext(childBuilder, pipelineCache));
                 context.Extensions.Merge(pushContext.Context);
                 await pipeline.Invoke(context).ConfigureAwait(false);
             }

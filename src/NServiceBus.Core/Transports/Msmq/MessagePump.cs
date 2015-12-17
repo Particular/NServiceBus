@@ -57,7 +57,7 @@ namespace NServiceBus
 
             return TaskEx.Completed;
         }
-        
+
         public void Start(PushRuntimeSettings limitations)
         {
             MessageQueue.ClearConnectionCache();
@@ -71,7 +71,7 @@ namespace NServiceBus
             // LongRunning is useless combined with async/await
             messagePumpTask = Task.Run(() => ProcessMessages(), CancellationToken.None);
         }
-        
+
         public async Task Stop()
         {
             cancellationTokenSource.Cancel();
@@ -146,17 +146,15 @@ namespace NServiceBus
 
                     await concurrencyLimiter.WaitAsync(cancellationToken).ConfigureAwait(false);
 
+                    var tokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenSource.Token);
+
                     var receiveTask = Task.Run(async () =>
                     {
                         try
                         {
-                            await receiveStrategy.ReceiveMessage(inputQueue, errorQueue, pipeline).ConfigureAwait(false);
+                            await receiveStrategy.ReceiveMessage(inputQueue, errorQueue, tokenSource, pipeline).ConfigureAwait(false);
 
                             receiveCircuitBreaker.Success();
-                        }
-                        catch (MessageProcessingAbortedException)
-                        {
-                            //expected to happen
                         }
                         catch (MessageQueueException ex)
                         {
@@ -178,7 +176,7 @@ namespace NServiceBus
                         {
                             concurrencyLimiter.Release();
                         }
-                    }, cancellationToken);
+                    }, tokenSource.Token);
 
                     runningReceiveTasks.TryAdd(receiveTask, receiveTask);
 

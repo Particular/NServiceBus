@@ -2119,6 +2119,7 @@ namespace NServiceBus.Pipeline.Contexts
     public interface ITransportReceiveContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext
     {
         NServiceBus.Transports.IncomingMessage Message { get; }
+        void AbortReceiveOperation();
     }
     [System.ObsoleteAttribute("Please use `OutgoingLogicalMessage` instead. Will be removed in version 7.0.0.", true)]
     public class OutgoingContext
@@ -2702,11 +2703,12 @@ namespace NServiceBus.Transports
     }
     public class PushContext
     {
-        public PushContext(string messageId, System.Collections.Generic.Dictionary<string, string> headers, System.IO.Stream bodyStream, NServiceBus.Transports.TransportTransaction transportTransaction, NServiceBus.Extensibility.ContextBag context) { }
+        public PushContext(string messageId, System.Collections.Generic.Dictionary<string, string> headers, System.IO.Stream bodyStream, NServiceBus.Transports.TransportTransaction transportTransaction, System.Threading.CancellationTokenSource receiveCancellationTokenSource, NServiceBus.Extensibility.ContextBag context) { }
         public System.IO.Stream BodyStream { get; }
         public NServiceBus.Extensibility.ContextBag Context { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string MessageId { get; }
+        public System.Threading.CancellationTokenSource ReceiveCancellationTokenSource { get; }
         public NServiceBus.Transports.TransportTransaction TransportTransaction { get; }
     }
     public class PushRuntimeSettings

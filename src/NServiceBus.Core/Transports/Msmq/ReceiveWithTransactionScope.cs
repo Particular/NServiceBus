@@ -3,6 +3,7 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Messaging;
+    using System.Threading;
     using System.Threading.Tasks;
     using System.Transactions;
     using Extensibility;
@@ -16,7 +17,7 @@ namespace NServiceBus
             this.transactionOptions = transactionOptions;
         }
 
-        public override async Task ReceiveMessage(MessageQueue inputQueue, MessageQueue errorQueue, Func<PushContext, Task> onMessage)
+        public override async Task ReceiveMessage(MessageQueue inputQueue, MessageQueue errorQueue, CancellationTokenSource cancellationTokenSource, Func<PushContext, Task> onMessage)
         {
             using (var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions, TransactionScopeAsyncFlowOption.Enabled))
             {
@@ -43,12 +44,15 @@ namespace NServiceBus
                 {
                     var ambientTransaction = new TransportTransaction();
                     ambientTransaction.Set(Transaction.Current);
-                    var pushContext = new PushContext(message.Id, headers, bodyStream, ambientTransaction, new ContextBag());
+                    var pushContext = new PushContext(message.Id, headers, bodyStream, ambientTransaction, cancellationTokenSource, new ContextBag());
 
                     await onMessage(pushContext).ConfigureAwait(false);
                 }
 
-                scope.Complete();
+                if (!cancellationTokenSource.Token.IsCancellationRequested)
+                {
+                    scope.Complete();
+                }
             }
         }
 

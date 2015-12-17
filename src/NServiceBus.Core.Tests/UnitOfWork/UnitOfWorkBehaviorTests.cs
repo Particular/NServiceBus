@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Threading;
     using System.Threading.Tasks;
     using Core.Tests;
     using NServiceBus.Transports;
@@ -144,7 +145,7 @@
         {
             var runner = new UnitOfWorkBehavior();
 
-            var receiveContext = new TransportReceiveContext(new IncomingMessage("fakeId", new Dictionary<string, string>(), new MemoryStream()), null, new RootContext(builder, null));
+            var receiveContext = new TransportReceiveContext(new IncomingMessage("fakeId", new Dictionary<string, string>(), new MemoryStream()), null, new CancellationTokenSource(), new RootContext(builder, null));
 
             var context = new IncomingPhysicalMessageContext(receiveContext.Message, receiveContext);
 

@@ -3,8 +3,9 @@ namespace NServiceBus.Core.Tests
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Threading;
     using System.Threading.Tasks;
-    using Faults;
+    using NServiceBus.Faults;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Transports;
@@ -26,10 +27,7 @@ namespace NServiceBus.Core.Tests
 
             var context = CreateContext("someid", fakeFaultPipeline);
 
-            await behavior.Invoke(context, () =>
-            {
-                throw new Exception("testex");
-            });
+            await behavior.Invoke(context, () => { throw new Exception("testex"); });
 
             Assert.AreEqual(errorQueueAddress, fakeFaultPipeline.Destination);
 
@@ -40,7 +38,7 @@ namespace NServiceBus.Core.Tests
         public void ShouldInvokeCriticalErrorIfForwardingFails()
         {
             var criticalError = new FakeCriticalError();
-            var fakeFaultPipeline = new FakeFaultPipeline{ThrowOnDispatch = true};
+            var fakeDispatchPipeline = new FakeFaultPipeline { ThrowOnDispatch = true };
 
             var behavior = new MoveFaultsToErrorQueueBehavior(
                 criticalError,
@@ -49,10 +47,7 @@ namespace NServiceBus.Core.Tests
                 "public-receive-address");
 
             //the ex should bubble to force the transport to rollback. If not the message will be lost
-            Assert.Throws<Exception>(async () => await behavior.Invoke(CreateContext("someid", fakeFaultPipeline), () =>
-            {
-                throw new Exception("testex");
-            }));
+            Assert.Throws<Exception>(async () => await behavior.Invoke(CreateContext("someid", fakeDispatchPipeline), () => { throw new Exception("testex"); }));
 
             Assert.True(criticalError.ErrorRaised);
         }
@@ -69,10 +64,7 @@ namespace NServiceBus.Core.Tests
                 "error",
                 "public-receive-address");
 
-            await behavior.Invoke(context, () =>
-            {
-                throw new Exception("testex");
-            });
+            await behavior.Invoke(context, () => { throw new Exception("testex"); });
 
             Assert.AreEqual("public-receive-address", fakeFaultPipeline.MessageSent.Headers[FaultsHeaderKeys.FailedQ]);
             //exception details
@@ -106,7 +98,7 @@ namespace NServiceBus.Core.Tests
 
         static ITransportReceiveContext CreateContext(string messageId, FakeFaultPipeline pipeline)
         {
-            return new TransportReceiveContext(new IncomingMessage(messageId, new Dictionary<string, string>(), new MemoryStream()), null, new RootContext(null, new FakePipelineCache(pipeline)));
+            return new TransportReceiveContext(new IncomingMessage(messageId, new Dictionary<string, string>(), new MemoryStream()), null, new CancellationTokenSource(), new RootContext(null, new FakePipelineCache(pipeline)));
         }
 
         class FakePipelineCache : IPipelineCache
@@ -151,12 +143,12 @@ namespace NServiceBus.Core.Tests
             {
             }
 
+            public bool ErrorRaised { get; private set; }
+
             public override void Raise(string errorMessage, Exception exception)
             {
                 ErrorRaised = true;
             }
-
-            public bool ErrorRaised { get; private set; }
         }
     }
 }

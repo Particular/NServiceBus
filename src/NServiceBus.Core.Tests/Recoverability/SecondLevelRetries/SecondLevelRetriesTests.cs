@@ -5,6 +5,7 @@
     using System.IO;
     using System.Linq;
     using System.Text;
+    using System.Threading;
     using System.Threading.Tasks;
     using DelayedDelivery;
     using DeliveryConstraints;
@@ -131,7 +132,7 @@
             return new TransportReceiveContext(new IncomingMessage(messageId, new Dictionary<string, string>
             {
                 {Headers.Retries, currentRetryCount.ToString()}
-            }, new MemoryStream(messageBody ?? new byte[0])), null, new RootContext(null, new FakePipelineCache(pipeline)));
+            }, new MemoryStream(messageBody ?? new byte[0])), null, new CancellationTokenSource(),  new RootContext(null, new FakePipelineCache(pipeline)));
         }
     }
 

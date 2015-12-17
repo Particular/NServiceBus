@@ -26,10 +26,6 @@ namespace NServiceBus
             {
                 await next().ConfigureAwait(false);
             }
-            catch (MessageProcessingAbortedException)
-            {
-                throw; // flr asked to abort
-            }
             catch (MessageDeserializationException)
             {
                 context.Message.Headers.Remove(Headers.Retries);
