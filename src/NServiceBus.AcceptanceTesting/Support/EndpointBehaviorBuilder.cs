@@ -46,9 +46,9 @@
             return this;
         }
 
-        public EndpointBehaviorBuilder<TContext> CustomConfig(Action<BusConfiguration, ScenarioContext> action)
+        public EndpointBehaviorBuilder<TContext> CustomConfig(Action<BusConfiguration, TContext> action)
         {
-            behavior.CustomConfig.Add(action);
+            behavior.CustomConfig.Add(((configuration, context) => action(configuration, (TContext) context)));
 
             return this;
         }
