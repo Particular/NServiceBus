@@ -14,7 +14,7 @@
 
     class RoutingToDispatchConnector : StageConnector<IRoutingContext, IDispatchContext>
     {
-        public async override Task Invoke(IRoutingContext context, Func<IDispatchContext, Task> next)
+        public override Task Invoke(IRoutingContext context, Func<IDispatchContext, Task> next)
         {
             var state = context.Extensions.GetOrCreate<State>();
             var dispatchConsistency = state.ImmediateDispatch ? DispatchConsistency.Isolated : DispatchConsistency.Default;
@@ -49,10 +49,10 @@
             if (!state.ImmediateDispatch && context.Extensions.TryGet(out pendingOperations))
             {
                 pendingOperations.AddRange(operations);
-                return;
+                return TaskEx.Completed;
             }
 
-            await next(new DispatchContext(operations.ToArray(), context)).ConfigureAwait(false);
+            return next(new DispatchContext(operations.ToArray(), context));
         }
 
         public class State
