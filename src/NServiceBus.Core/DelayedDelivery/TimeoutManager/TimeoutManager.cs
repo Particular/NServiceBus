@@ -33,8 +33,8 @@
             var requiredTransactionSupport = context.Settings.GetRequiredTransactionModeForReceives();
 
             var messageProcessorPipeline = context.AddSatellitePipeline("Timeout Message Processor", "Timeouts", requiredTransactionSupport, PushRuntimeSettings.Default, out processorAddress);
-            messageProcessorPipeline.Register<MoveFaultsToErrorQueueBehavior.Registration>();
-            messageProcessorPipeline.Register<FirstLevelRetriesBehavior.Registration>();
+            messageProcessorPipeline.Register(new MoveFaultsToErrorQueueBehavior.Registration(context.Settings, processorAddress));
+            messageProcessorPipeline.Register(new FirstLevelRetriesBehavior.Registration("Timeouts"));
             messageProcessorPipeline.Register<StoreTimeoutBehavior.Registration>();
             context.Container.ConfigureComponent(b => new StoreTimeoutBehavior(b.Build<ExpiredTimeoutsPoller>(),
                 b.Build<IDispatchMessages>(),
@@ -45,14 +45,16 @@
 
             string dispatcherAddress;
             var dispatcherProcessorPipeline = context.AddSatellitePipeline("Timeout Dispatcher Processor", "TimeoutsDispatcher", requiredTransactionSupport, PushRuntimeSettings.Default, out dispatcherAddress);
-            dispatcherProcessorPipeline.Register<MoveFaultsToErrorQueueBehavior.Registration>();
-            dispatcherProcessorPipeline.Register<FirstLevelRetriesBehavior.Registration>();
+            dispatcherProcessorPipeline.Register(new MoveFaultsToErrorQueueBehavior.Registration(context.Settings, dispatcherAddress));
+            dispatcherProcessorPipeline.Register(new FirstLevelRetriesBehavior.Registration("TimeoutsDispatcher"));
             dispatcherProcessorPipeline.Register("TimeoutDispatcherProcessor", typeof(DispatchTimeoutBehavior), "Dispatches timeout messages");
             context.Container.ConfigureComponent(b => new DispatchTimeoutBehavior(
                 b.Build<IDispatchMessages>(),
                 b.Build<IPersistTimeouts>(),
                 requiredTransactionSupport),
                 DependencyLifecycle.InstancePerCall);
+
+            context.RegisterStartupTask(b => new TimeoutPollerRunner(b.Build<ExpiredTimeoutsPoller>()));
 
             context.Container.ConfigureComponent(b =>
             {

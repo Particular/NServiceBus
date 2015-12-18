@@ -37,7 +37,7 @@ namespace NServiceBus.Features
 
             context.RegisterStartupTask(new FlrStatusStorageCleaner(flrStatusStorage));
 
-            context.Pipeline.Register<FirstLevelRetriesBehavior.Registration>();
+            context.Pipeline.Register(new FirstLevelRetriesBehavior.Registration("Main"));
         }
        
 

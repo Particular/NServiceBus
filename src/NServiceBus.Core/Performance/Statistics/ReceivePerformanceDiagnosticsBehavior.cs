@@ -8,14 +8,22 @@ namespace NServiceBus
     [SkipWeaving]
     class ReceivePerformanceDiagnosticsBehavior : Behavior<IIncomingPhysicalMessageContext>
     {
-   
-        public override Task Warmup()
+        public ReceivePerformanceDiagnosticsBehavior(string transportAddress)
         {
-            messagesPulledFromQueueCounter = PerformanceCounterHelper.TryToInstantiatePerformanceCounter("# of msgs pulled from the input queue /sec", PipelineInfo.TransportAddress);
-            successRateCounter = PerformanceCounterHelper.TryToInstantiatePerformanceCounter("# of msgs successfully processed / sec", PipelineInfo.TransportAddress);
-            failureRateCounter = PerformanceCounterHelper.TryToInstantiatePerformanceCounter("# of msgs failures / sec", PipelineInfo.TransportAddress);
-         
-            return base.Warmup();
+            this.transportAddress = transportAddress;
+        }
+
+        public void Warmup()
+        {
+            messagesPulledFromQueueCounter = PerformanceCounterHelper.TryToInstantiatePerformanceCounter(
+                "# of msgs pulled from the input queue /sec", 
+                transportAddress);
+            successRateCounter = PerformanceCounterHelper.TryToInstantiatePerformanceCounter(
+                "# of msgs successfully processed / sec",
+                transportAddress);
+            failureRateCounter = PerformanceCounterHelper.TryToInstantiatePerformanceCounter(
+                "# of msgs failures / sec", 
+                transportAddress);
         }
 
         public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
@@ -35,20 +43,16 @@ namespace NServiceBus
             successRateCounter.Increment();
         }
 
-        public override Task Cooldown()
+        public void Cooldown()
         {
             messagesPulledFromQueueCounter?.Dispose();
             successRateCounter?.Dispose();
             failureRateCounter?.Dispose();
-
-            return base.Cooldown();
         }
 
+        string transportAddress;
         IPerformanceCounterInstance messagesPulledFromQueueCounter;
         IPerformanceCounterInstance successRateCounter;
         IPerformanceCounterInstance failureRateCounter;
-
-
-       
     }
 }

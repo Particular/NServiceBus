@@ -5,7 +5,6 @@
     using Janitor;
     using NServiceBus.Pipeline;
     using NServiceBus.Settings;
-    using NServiceBus.Unicast.Transport;
     using ObjectBuilder;
 
     [SkipWeaving]
@@ -24,31 +23,7 @@
             behaviors = coordinator.BuildPipelineModelFor<T>()
                 .Select(r => r.CreateBehavior(builder)).ToArray();
         }
-
-        public void Initialize(PipelineInfo pipelineInfo)
-        {
-            foreach (var behaviorInstance in behaviors)
-            {
-                behaviorInstance.Initialize(pipelineInfo);
-            }
-        }
-
-        public async Task Warmup()
-        {
-            foreach (var result in behaviors.Select(x => x.Warmup()))
-            {
-                await result.ConfigureAwait(false);
-            }
-        }
-
-        public async Task Cooldown()
-        {
-            foreach (var result in behaviors.Select(x => x.Cooldown()))
-            {
-                await result.ConfigureAwait(false);
-            }
-        }
-
+        
         public Task Invoke(T context)
         {
             var pipeline = new BehaviorChain(behaviors);

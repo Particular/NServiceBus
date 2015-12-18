@@ -2074,19 +2074,10 @@ namespace NServiceBus.Pipeline
         where TContext : NServiceBus.Pipeline.IBehaviorContext
     {
         protected Behavior() { }
-        protected NServiceBus.Unicast.Transport.PipelineInfo PipelineInfo { get; }
-        public virtual System.Threading.Tasks.Task Cooldown() { }
-        public void Initialize(NServiceBus.Unicast.Transport.PipelineInfo pipelineInfo) { }
         public abstract System.Threading.Tasks.Task Invoke(TContext context, System.Func<System.Threading.Tasks.Task> next);
         public System.Threading.Tasks.Task Invoke(TContext context, System.Func<TContext, System.Threading.Tasks.Task> next) { }
-        public virtual System.Threading.Tasks.Task Warmup() { }
     }
-    public interface IBehavior
-    {
-        System.Threading.Tasks.Task Cooldown();
-        void Initialize(NServiceBus.Unicast.Transport.PipelineInfo pipelineInfo);
-        System.Threading.Tasks.Task Warmup();
-    }
+    public interface IBehavior { }
     [System.ObsoleteAttribute("Please use `Behavior<T>` instead. Will be removed in version 7.0.0.", true)]
     public interface IBehavior<in TContext> { }
     public interface IBehavior<in TIn, out TOut> : NServiceBus.Pipeline.IBehavior
@@ -2109,6 +2100,10 @@ namespace NServiceBus.Pipeline
     public class PipelineSettings
     {
         public NServiceBus.Pipeline.StepRegistrationSequence Register(string stepId, System.Type behavior, string description) { }
+        public NServiceBus.Pipeline.StepRegistrationSequence Register<T>(string stepId, System.Func<NServiceBus.ObjectBuilder.IBuilder, T> factoryMethod, string description)
+            where T : NServiceBus.Pipeline.IBehavior { }
+        public NServiceBus.Pipeline.StepRegistrationSequence Register<T>(string stepId, T behavior, string description)
+            where T : NServiceBus.Pipeline.IBehavior { }
         public NServiceBus.Pipeline.StepRegistrationSequence Register(NServiceBus.Pipeline.WellKnownStep wellKnownStep, System.Type behavior, string description) { }
         public void Register<TRegisterStep>()
             where TRegisterStep : NServiceBus.Pipeline.RegisterStep, new () { }
@@ -2130,7 +2125,7 @@ namespace NServiceBus.Pipeline
     [System.Diagnostics.DebuggerDisplayAttribute("{StepId}({BehaviorType.FullName}) - {Description}")]
     public abstract class RegisterStep
     {
-        protected RegisterStep(string stepId, System.Type behavior, string description) { }
+        protected RegisterStep(string stepId, System.Type behavior, string description, System.Func<NServiceBus.ObjectBuilder.IBuilder, NServiceBus.Pipeline.IBehavior> factoryMethod = null) { }
         public System.Type BehaviorType { get; }
         public string Description { get; }
         public string StepId { get; }
@@ -2149,11 +2144,7 @@ namespace NServiceBus.Pipeline
         where TTo : NServiceBus.Pipeline.IBehaviorContext
     {
         protected StageConnector() { }
-        protected NServiceBus.Unicast.Transport.PipelineInfo PipelineInfo { get; }
-        public virtual System.Threading.Tasks.Task Cooldown() { }
-        public void Initialize(NServiceBus.Unicast.Transport.PipelineInfo pipelineInfo) { }
         public abstract System.Threading.Tasks.Task Invoke(TFrom context, System.Func<TTo, System.Threading.Tasks.Task> next);
-        public virtual System.Threading.Tasks.Task Warmup() { }
     }
     public class StepRegistrationSequence
     {
@@ -3172,12 +3163,6 @@ namespace NServiceBus.Unicast.Transport
     }
     [System.ObsoleteAttribute("Please use `IPushMessages` instead. Will be removed in version 7.0.0.", true)]
     public interface ITransport { }
-    public class PipelineInfo
-    {
-        public PipelineInfo(string name, string transportAddress) { }
-        public string Name { get; }
-        public string TransportAddress { get; }
-    }
     [System.ObsoleteAttribute("No longer used, can safely be removed. Will be removed in version 7.0.0.", true)]
     public class StartedMessageProcessingEventArgs
     {

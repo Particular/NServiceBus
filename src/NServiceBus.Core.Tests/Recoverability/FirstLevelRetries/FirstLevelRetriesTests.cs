@@ -5,7 +5,6 @@
     using System.IO;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Transports;
-    using Unicast.Transport;
     using NUnit.Framework;
 
     [TestFixture]
@@ -54,17 +53,16 @@
         {
             const string messageId = "someid";
             var storage = new FlrStatusStorage();
-            var pipeline = new PipelineInfo("somePipeline", "someAddress");
-            var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1), storage, pipelineInfo: pipeline);
+            var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1), storage);
 
-            storage.IncrementFailuresForMessage(pipeline.Name + messageId);
+            storage.IncrementFailuresForMessage(messageId);
 
             Assert.Throws<Exception>(async () => await behavior.Invoke(CreateContext(messageId), () =>
             {
                 throw new Exception("test");
             }));
 
-            Assert.AreEqual(0, storage.GetFailuresForMessage(pipeline.Name + messageId));
+            Assert.AreEqual(0, storage.GetFailuresForMessage(messageId));
         }
 
         [Test]
@@ -72,15 +70,14 @@
         {
             const string messageId = "someid";
             var storage = new FlrStatusStorage();
-            var pipeline = new PipelineInfo("anotherPipeline", "anotherAddress");
-            var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1), storage, pipelineInfo: pipeline);
+            var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1), storage);
 
             Assert.Throws<MessageProcessingAbortedException>(async ()=> await behavior.Invoke(CreateContext(messageId), () =>
             {
                 throw new Exception("test");
             }));
 
-            Assert.AreEqual(1, storage.GetFailuresForMessage(pipeline.Name + messageId));
+            Assert.AreEqual(1, storage.GetFailuresForMessage(messageId));
         }
 
         [Test]
@@ -133,10 +130,8 @@
         {
             const string messageId = "someId";
             var storage = new FlrStatusStorage();
-            var pipeline1 = new PipelineInfo("pipeline1", "address");
-            var behavior1 = CreateFlrBehavior(new FirstLevelRetryPolicy(1), storage, pipelineInfo: pipeline1);
-            var pipeline2 = new PipelineInfo("pipeline2", "address");
-            var behavior2 = CreateFlrBehavior(new FirstLevelRetryPolicy(2), storage, pipelineInfo: pipeline2);
+            var behavior1 = CreateFlrBehavior(new FirstLevelRetryPolicy(1), storage, pipeline: "1");
+            var behavior2 = CreateFlrBehavior(new FirstLevelRetryPolicy(2), storage, pipeline: "2");
 
             Assert.Throws<MessageProcessingAbortedException>(async () => await behavior1.Invoke(CreateContext(messageId), () =>
             {
@@ -159,14 +154,14 @@
             }));
         }
 
-        static FirstLevelRetriesBehavior CreateFlrBehavior(FirstLevelRetryPolicy retryPolicy, FlrStatusStorage storage = null, BusNotifications busNotifications = null, PipelineInfo pipelineInfo = null)
+        static FirstLevelRetriesBehavior CreateFlrBehavior(FirstLevelRetryPolicy retryPolicy, FlrStatusStorage storage = null, BusNotifications busNotifications = null, string pipeline = "")
         {
             var flrBehavior = new FirstLevelRetriesBehavior(
                 storage ?? new FlrStatusStorage(), 
                 retryPolicy, 
-                busNotifications ?? new BusNotifications());
+                busNotifications ?? new BusNotifications(), 
+                pipeline);
 
-            flrBehavior.Initialize(pipelineInfo ?? new PipelineInfo("samplePipeline", "address"));
             return flrBehavior;
         }
 
