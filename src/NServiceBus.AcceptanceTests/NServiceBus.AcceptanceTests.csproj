@@ -58,6 +58,14 @@
     <Compile Include="Basic\When_registering_additional_deserializers.cs" />
     <Compile Include="Basic\When_no_content_type.cs" />
     <Compile Include="ConfigureInMemoryPersistence.cs" />
+    <Compile Include="FakeTransport\CriticalError\When_registering_custom_critical_error_handler.cs" />
+    <Compile Include="FakeTransport\FakeDispatcher.cs" />
+    <Compile Include="FakeTransport\FakeQueueCreator.cs" />
+    <Compile Include="FakeTransport\FakeReceiver.cs" />
+    <Compile Include="FakeTransport\FakeTransport.cs" />
+    <Compile Include="FakeTransport\FakeTransportSetingsExtensions.cs" />
+    <Compile Include="FakeTransport\ProcessingOptimizations\When_limiting_concurrency_via_both_api_and_config.cs" />
+    <Compile Include="FakeTransport\ProcessingOptimizations\When_using_concurrency_limit.cs" />
     <Compile Include="Msmq\When_Audit_OverrideTimeToBeReceived_set_and_transactional_Msmq.cs" />
     <Compile Include="Msmq\When_a_corrupted_message_is_received.cs" />
     <Compile Include="Msmq\When_TimeToBeReceivedOnForwardedMessages_set_and_transactional_Msmq.cs" />
@@ -69,7 +77,6 @@
     <Compile Include="Basic\When_deferring_to_non_local.cs" />
     <Compile Include="DelayedDelivery\When_TimeoutManager_is_disabled.cs" />
     <Compile Include="Msmq\When_starting_up_the_endpoint.cs" />
-    <Compile Include="FakeTransport\FakeTransportSetingsExtensions.cs" />
     <Compile Include="Mutators\When_mutating.cs" />
     <Compile Include="BestPractices\When_publishing_command_bestpractices_disabled_on_endpoint.cs" />
     <Compile Include="BestPractices\When_sending_events_bestpractices_disabled_on_endpoint.cs" />
@@ -79,12 +86,6 @@
     <Compile Include="EndpointTemplates\DefaultPublisher.cs" />
     <Compile Include="EndpointTemplates\DefaultServer.cs" />
     <Compile Include="Mutators\When_using_outgoing_tm_mutator.cs" />
-    <Compile Include="FakeTransport\FakeDispatcher.cs" />
-    <Compile Include="FakeTransport\FakeQueueCreator.cs" />
-    <Compile Include="FakeTransport\FakeReceiver.cs" />
-    <Compile Include="FakeTransport\FakeTransport.cs" />
-    <Compile Include="Performance\ProcessingOptimizations\When_limiting_concurrency_via_both_api_and_config.cs" />
-    <Compile Include="Performance\ProcessingOptimizations\When_using_concurrency_limit.cs" />
     <Compile Include="Recoverability\Retries\When_message_fails_retries.cs" />
     <Compile Include="Recoverability\When_error_is_overridden_in_code.cs" />
     <Compile Include="BestPractices\When_publishing_command_bestpractices_disabled.cs" />
@@ -158,7 +159,6 @@
     <Compile Include="Msmq\When_not_providing_user_discriminator.cs" />
     <Compile Include="ScaleOut\When_individualization_is_enabled.cs" />
     <Compile Include="Config\When_startup_is_complete.cs" />
-    <Compile Include="CriticalError\When_registering_custom_critical_error_handler.cs" />
     <Compile Include="DataBus\When_using_custom_IDataBus.cs" />
     <Compile Include="DeterministicGuid.cs" />
     <Compile Include="MessageId\When_message_has_no_id_header.cs" />
