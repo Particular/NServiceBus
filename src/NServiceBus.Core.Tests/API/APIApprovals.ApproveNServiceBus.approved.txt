@@ -2262,7 +2262,7 @@ namespace NServiceBus.Routing
     public class EndpointInstances
     {
         public EndpointInstances() { }
-        public void AddDynamic(System.Func<NServiceBus.Routing.EndpointName, System.Collections.Generic.IEnumerable<NServiceBus.Routing.EndpointInstance>> dynamicRule) { }
+        public void AddDynamic(System.Func<NServiceBus.Routing.EndpointName, System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<NServiceBus.Routing.EndpointInstance>>> dynamicRule) { }
         public void AddStatic(NServiceBus.Routing.EndpointName endpoint, params NServiceBus.Routing.EndpointInstance[] instances) { }
     }
     public sealed class EndpointName
@@ -2278,7 +2278,7 @@ namespace NServiceBus.Routing
     }
     public interface IUnicastRoute
     {
-        System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> Resolve(System.Func<NServiceBus.Routing.EndpointName, System.Collections.Generic.IEnumerable<NServiceBus.Routing.EndpointInstance>> instanceResolver);
+        System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget>> Resolve(System.Func<NServiceBus.Routing.EndpointName, System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<NServiceBus.Routing.EndpointInstance>>> instanceResolver);
     }
     public interface IUnsubscribeContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext
     {

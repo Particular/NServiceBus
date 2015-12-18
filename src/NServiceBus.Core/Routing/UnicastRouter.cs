@@ -32,15 +32,23 @@ namespace NServiceBus
                 .ToList();
             
             var routes = await unicastRoutingTable.GetDestinationsFor(typesToRoute, contextBag).ConfigureAwait(false);
+            var destinations = new List<UnicastRoutingTarget>();
+            foreach (var route in routes)
+            {
+                destinations.AddRange(await route.Resolve(InstanceResolver).ConfigureAwait(false));
+            }
 
-            var destinations = routes.SelectMany(d => d.Resolve(e => endpointInstances.FindInstances(e))).Distinct();
-
-            var destinationsByEndpoint = destinations.GroupBy(d => d.Endpoint, d => d);
+            var destinationsByEndpoint = destinations.Distinct().GroupBy(d => d.Endpoint, d => d);
 
             var selectedDestinations = SelectDestinationsForEachEndpoint(distributionStrategy, destinationsByEndpoint);
 
             return selectedDestinations
                 .Select(destination => new UnicastRoutingStrategy(destination.Resolve(physicalAddresses.GetTransportAddress)));
+        }
+
+        Task<IEnumerable<EndpointInstance>> InstanceResolver(EndpointName endpoint)
+        {
+            return endpointInstances.FindInstances(endpoint);
         }
 
         static IEnumerable<UnicastRoutingTarget> SelectDestinationsForEachEndpoint(DistributionStrategy distributionStrategy, IEnumerable<IGrouping<EndpointName, UnicastRoutingTarget>> destinationsByEndpoint)

@@ -3,6 +3,7 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Represents an address of a publisher.
@@ -48,7 +49,7 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
             this.addresses = addresses;
         }
 
-        internal IEnumerable<string> Resolve(Func<EndpointName, IEnumerable<EndpointInstance>> instanceResolver, Func<EndpointInstance, string> addressResolver)
+        internal async Task<IEnumerable<string>> Resolve(Func<EndpointName, Task<IEnumerable<EndpointInstance>>> instanceResolver, Func<EndpointInstance, string> addressResolver)
         {
             if (addresses != null)
             {
@@ -58,7 +59,8 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
             {
                 return instances.Select(addressResolver);
             }
-            return instanceResolver(endpoint).Select(addressResolver);
+            var result = await instanceResolver(endpoint).ConfigureAwait(false);
+            return result.Select(addressResolver);
         }
     }
 }
