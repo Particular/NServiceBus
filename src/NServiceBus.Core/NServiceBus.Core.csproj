@@ -99,6 +99,7 @@
     <Compile Include="Transports\MulticastTransportOperation.cs" />
     <Compile Include="Transports\TransportOperations.cs" />
     <Compile Include="Transports\UnicastTransportOperation.cs" />
+    <Compile Include="Sagas\LoadSagaBehavior.cs" />
     <Compile Include="UnitOfWork\TransactionScopes\HandlerTransactionScopeWrapperBehavior.cs" />
     <Compile Include="BusSession.cs" />
     <Compile Include="CriticalError\CriticalErrorAction.cs" />
@@ -396,7 +397,6 @@
     <Compile Include="Transports\TransportOperation.cs" />
     <Compile Include="Pipeline\Outgoing\HeaderOptionExtensions.cs" />
     <Compile Include="Pipeline\Outgoing\MessageIdExtensions.cs" />
-    <Compile Include="Sagas\SagaInvocationResult.cs" />
     <Compile Include="Pipeline\Incoming\TransportReceiveToPhysicalMessageProcessingConnector.cs" />
     <Compile Include="Pipeline\IBehaviorInvoker.cs" />
     <Compile Include="Recoverability\SecondLevelRetries\SecondLevelRetry.cs" />
@@ -492,7 +492,6 @@
     <Compile Include="Serializers\XML\XmlSerializerCache.cs" />
     <Compile Include="Performance\MessageDurability\DurableMessagesConfig.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\ConfigurationBuilderExtensions.cs" />
-    <Compile Include="Sagas\InvokeSagaNotFoundBehavior.cs" />
     <Compile Include="Transports\Msmq\ReceiveWithTransactionScope.cs" />
     <Compile Include="Forwarding\ForwardReceivedMessages.cs" />
     <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetriesBehavior.cs" />
@@ -597,7 +596,7 @@
     <Compile Include="Pipeline\RootContext.cs" />
     <Compile Include="Routing\MessagingBestPractices\EnforceSendBestPracticesBehavior.cs" />
     <Compile Include="Sagas\ActiveSagaInstance.cs" />
-    <Compile Include="Sagas\SagaPersistenceBehavior.cs" />
+    <Compile Include="Sagas\PersistSagaBehavior.cs" />
     <Compile Include="Pipeline\Incoming\LogicalMessageFactory.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\StorageInitializer.cs" />
     <Compile Include="Unicast\Transport\TransportMessageExtensions.cs" />
