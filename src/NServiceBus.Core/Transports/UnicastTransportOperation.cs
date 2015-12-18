@@ -3,7 +3,6 @@ namespace NServiceBus.Transports
     using System.Collections.Generic;
     using System.Linq;
     using NServiceBus.DeliveryConstraints;
-    using NServiceBus.Routing;
 
     /// <summary>
     /// Represents a transport operation which should be delivered to a single receiver.
@@ -13,10 +12,10 @@ namespace NServiceBus.Transports
         /// <summary>
         /// Creates a new <see cref="UnicastTransportOperation"/> instance.
         /// </summary>
-        public UnicastTransportOperation(OutgoingMessage message, UnicastAddressTag addressTag, IEnumerable<DeliveryConstraint> deliveryConstraints = null, DispatchConsistency requiredDispatchConsistency = DispatchConsistency.Default)
+        public UnicastTransportOperation(OutgoingMessage message, string destination, IEnumerable<DeliveryConstraint> deliveryConstraints = null, DispatchConsistency requiredDispatchConsistency = DispatchConsistency.Default)
         {
             Message = message;
-            AddressTag = addressTag;
+            Destination = destination;
             DeliveryConstraints = deliveryConstraints ?? Enumerable.Empty<DeliveryConstraint>();
             RequiredDispatchConsistency = requiredDispatchConsistency;
         }
@@ -24,12 +23,12 @@ namespace NServiceBus.Transports
         /// <summary>
         /// The message to be sent over the transport.
         /// </summary>
-        public OutgoingMessage Message { get; set; }
+        public OutgoingMessage Message { get; }
 
         /// <summary>
-        /// Defines the receiver of the message.
+        /// Defines the destination address of the receiver.
         /// </summary>
-        public UnicastAddressTag AddressTag { get; set; }
+        public string Destination { get; }
 
         /// <summary>
         /// The delivery constraints that must be honored by the transport.

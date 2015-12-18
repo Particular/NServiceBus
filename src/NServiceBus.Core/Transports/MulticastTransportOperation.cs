@@ -1,9 +1,9 @@
 namespace NServiceBus.Transports
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using NServiceBus.DeliveryConstraints;
-    using NServiceBus.Routing;
 
     /// <summary>
     /// Represents a transport operation which should be delivered to multiple receivers.
@@ -13,10 +13,10 @@ namespace NServiceBus.Transports
         /// <summary>
         /// Creates a new <see cref="MulticastTransportOperation"/> instance.
         /// </summary>
-        public MulticastTransportOperation(OutgoingMessage message, MulticastAddressTag addressTag, IEnumerable<DeliveryConstraint> deliveryConstraints = null, DispatchConsistency requiredDispatchConsistency = DispatchConsistency.Default)
+        public MulticastTransportOperation(OutgoingMessage message, Type messageType, IEnumerable<DeliveryConstraint> deliveryConstraints = null, DispatchConsistency requiredDispatchConsistency = DispatchConsistency.Default)
         {
             Message = message;
-            AddressTag = addressTag;
+            MessageType = messageType;
             DeliveryConstraints = deliveryConstraints ?? Enumerable.Empty<DeliveryConstraint>();
             RequiredDispatchConsistency = requiredDispatchConsistency;
         }
@@ -27,9 +27,9 @@ namespace NServiceBus.Transports
         public OutgoingMessage Message { get; }
 
         /// <summary>
-        /// Defines the receivers of the message.
+        /// Defines the message type which needs to be multicasted.
         /// </summary>
-        public MulticastAddressTag AddressTag { get; }
+        public Type MessageType { get; }
 
         /// <summary>
         /// The delivery constraints that must be honored by the transport.

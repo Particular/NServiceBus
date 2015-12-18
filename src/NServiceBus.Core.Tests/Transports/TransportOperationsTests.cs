@@ -26,14 +26,14 @@
             Assert.AreEqual(1, result.MulticastTransportOperations.Count());
             var multicastOp = result.MulticastTransportOperations.Single();
             Assert.AreEqual(multicastOperation.Message, multicastOp.Message);
-            Assert.AreEqual(multicastOperation.AddressTag, multicastOp.AddressTag);
+            Assert.AreEqual((multicastOperation.AddressTag as MulticastAddressTag)?.MessageType, multicastOp.MessageType);
             Assert.AreEqual(multicastOperation.DeliveryConstraints, multicastOp.DeliveryConstraints);
             Assert.AreEqual(multicastOperation.RequiredDispatchConsistency, multicastOp.RequiredDispatchConsistency);
 
             Assert.AreEqual(1, result.UnicastTransportOperations.Count());
             var unicastOp = result.UnicastTransportOperations.Single();
             Assert.AreEqual(unicastOperation.Message, unicastOp.Message);
-            Assert.AreEqual(unicastOperation.AddressTag, unicastOp.AddressTag);
+            Assert.AreEqual((unicastOperation.AddressTag as UnicastAddressTag)?.Destination, unicastOp.Destination);
             Assert.AreEqual(unicastOperation.DeliveryConstraints, unicastOp.DeliveryConstraints);
             Assert.AreEqual(unicastOperation.RequiredDispatchConsistency, unicastOp.RequiredDispatchConsistency);
         }

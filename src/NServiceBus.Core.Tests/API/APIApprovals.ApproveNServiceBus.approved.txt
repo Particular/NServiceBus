@@ -2756,10 +2756,10 @@ namespace NServiceBus.Transports
     }
     public class MulticastTransportOperation
     {
-        public MulticastTransportOperation(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Routing.MulticastAddressTag addressTag, System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints = null, NServiceBus.Transports.DispatchConsistency requiredDispatchConsistency = 1) { }
-        public NServiceBus.Routing.MulticastAddressTag AddressTag { get; }
+        public MulticastTransportOperation(NServiceBus.Transports.OutgoingMessage message, System.Type messageType, System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints = null, NServiceBus.Transports.DispatchConsistency requiredDispatchConsistency = 1) { }
         public System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> DeliveryConstraints { get; }
         public NServiceBus.Transports.OutgoingMessage Message { get; }
+        public System.Type MessageType { get; }
         public NServiceBus.Transports.DispatchConsistency RequiredDispatchConsistency { get; }
     }
     public class OutboundRoutingPolicy
@@ -2887,10 +2887,10 @@ namespace NServiceBus.Transports
     }
     public class UnicastTransportOperation
     {
-        public UnicastTransportOperation(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Routing.UnicastAddressTag addressTag, System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints = null, NServiceBus.Transports.DispatchConsistency requiredDispatchConsistency = 1) { }
-        public NServiceBus.Routing.UnicastAddressTag AddressTag { get; set; }
+        public UnicastTransportOperation(NServiceBus.Transports.OutgoingMessage message, string destination, System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints = null, NServiceBus.Transports.DispatchConsistency requiredDispatchConsistency = 1) { }
         public System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> DeliveryConstraints { get; }
-        public NServiceBus.Transports.OutgoingMessage Message { get; set; }
+        public string Destination { get; }
+        public NServiceBus.Transports.OutgoingMessage Message { get; }
         public NServiceBus.Transports.DispatchConsistency RequiredDispatchConsistency { get; }
     }
 }

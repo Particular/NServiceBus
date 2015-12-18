@@ -54,7 +54,7 @@ namespace NServiceBus.Transports.Msmq
         {
             var message = transportOperation.Message;
 
-            var destination = transportOperation.AddressTag.Destination;
+            var destination = transportOperation.Destination;
             var destinationAddress = MsmqAddress.Parse(destination);
 
             if (IsCombiningTimeToBeReceivedWithTransactions(
