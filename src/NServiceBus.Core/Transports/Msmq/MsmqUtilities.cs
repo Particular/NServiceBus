@@ -129,7 +129,7 @@ namespace NServiceBus
         ///     Converts a TransportMessage to an Msmq message.
         ///     Doesn't set the ResponseQueue of the result.
         /// </summary>
-        public static Message Convert(OutgoingMessage message, DispatchOptions sendOptions)
+        public static Message Convert(OutgoingMessage message, IEnumerable<DeliveryConstraint> deliveryConstraints)
         {
             var result = new Message();
 
@@ -140,11 +140,11 @@ namespace NServiceBus
 
 
             AssignMsmqNativeCorrelationId(message, result);
-            result.Recoverable = !sendOptions.DeliveryConstraints.Any(c => c is NonDurableDelivery);
+            result.Recoverable = !deliveryConstraints.Any(c => c is NonDurableDelivery);
 
             DiscardIfNotReceivedBefore timeToBeReceived;
 
-            if (sendOptions.DeliveryConstraints.TryGet(out timeToBeReceived) && timeToBeReceived.MaxTime < MessageQueue.InfiniteTimeout)
+            if (deliveryConstraints.TryGet(out timeToBeReceived) && timeToBeReceived.MaxTime < MessageQueue.InfiniteTimeout)
             {
                 result.TimeToBeReceived = timeToBeReceived.MaxTime;
             }

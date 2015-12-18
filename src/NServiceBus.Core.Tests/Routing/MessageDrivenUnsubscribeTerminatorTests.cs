@@ -32,7 +32,7 @@
         {
             await terminator.Invoke(new UnsubscribeContext(new FakeContext(), typeof(object), new UnsubscribeOptions()), c => Task.FromResult(0));
 
-            Assert.AreEqual(1, dispatcher.DispatchedOperations.Count);
+            Assert.AreEqual(1, dispatcher.DispatchedTransportOperations.Count);
         }
 
         [Test]
@@ -46,7 +46,7 @@
 
             await terminator.Invoke(new UnsubscribeContext(new FakeContext(), typeof(object), options), c => Task.FromResult(0));
 
-            Assert.AreEqual(1, dispatcher.DispatchedOperations.Count);
+            Assert.AreEqual(1, dispatcher.DispatchedTransportOperations.Count);
             Assert.AreEqual(10, dispatcher.FailedNumberOfTimes);
         }
 
@@ -61,7 +61,7 @@
 
             Assert.Throws<QueueNotFoundException>(async () => await terminator.Invoke(new UnsubscribeContext(new FakeContext(), typeof(object), options), c => Task.FromResult(0)));
 
-            Assert.AreEqual(0, dispatcher.DispatchedOperations.Count);
+            Assert.AreEqual(0, dispatcher.DispatchedTransportOperations.Count);
             Assert.AreEqual(11, dispatcher.FailedNumberOfTimes);
         }
 
@@ -69,21 +69,16 @@
         {
             int? numberOfTimes;
 
-            public FakeDispatcher()
-            {
-                DispatchedOperations = new List<IEnumerable<TransportOperation>>();
-            }
-
             public int FailedNumberOfTimes { get; private set; } = 0;
 
-            public List<IEnumerable<TransportOperation>> DispatchedOperations { get; }
+            public List<TransportOperations> DispatchedTransportOperations { get; } = new List<TransportOperations>();
 
             public void FailDispatch(int times)
             {
                 numberOfTimes = times;
             }
 
-            public Task Dispatch(IEnumerable<TransportOperation> outgoingMessages, ContextBag context)
+            public Task Dispatch(TransportOperations outgoingMessages, ContextBag context)
             {
                 if (numberOfTimes.HasValue && FailedNumberOfTimes < numberOfTimes.Value)
                 {
@@ -91,7 +86,7 @@
                     throw new QueueNotFoundException();
                 }
 
-                DispatchedOperations.Add(outgoingMessages);
+                DispatchedTransportOperations.Add(outgoingMessages);
                 return Task.FromResult(0);
             }
         }

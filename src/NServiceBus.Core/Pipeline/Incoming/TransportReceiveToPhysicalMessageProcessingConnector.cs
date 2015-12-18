@@ -65,13 +65,14 @@ namespace NServiceBus
         {
             foreach (var operation in deduplicationEntry.TransportOperations)
             {
-                var options = new DispatchOptions(DeserializeRoutingStrategy(operation.Options),
-                    DispatchConsistency.Isolated,
-                    DeserializeConstraints(operation.Options));
-
                 var message = new OutgoingMessage(operation.MessageId, operation.Headers, operation.Body);
 
-                pendingTransportOperations.Add(new TransportOperation(message, options));
+                pendingTransportOperations.Add(
+                    new TransportOperation(
+                        message, 
+                        DeserializeRoutingStrategy(operation.Options), 
+                        DispatchConsistency.Isolated, 
+                        DeserializeConstraints(operation.Options)));
             }
         }
 
@@ -81,12 +82,12 @@ namespace NServiceBus
             {
                 var options = new Dictionary<string, string>();
 
-                foreach (var constraint in operation.DispatchOptions.DeliveryConstraints)
+                foreach (var constraint in operation.DeliveryConstraints)
                 {
                     SerializeDeliveryConstraint(constraint, options);
                 }
 
-                SerializeRoutingStrategy(operation.DispatchOptions.AddressTag, options);
+                SerializeRoutingStrategy(operation.AddressTag, options);
 
                 yield return new Outbox.TransportOperation(operation.Message.MessageId,
                     options, operation.Message.Body, operation.Message.Headers);

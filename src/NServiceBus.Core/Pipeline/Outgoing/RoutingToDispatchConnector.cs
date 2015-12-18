@@ -25,7 +25,7 @@
                     var headers = new Dictionary<string, string>(context.Message.Headers);
                     var addressLabel = rs.Apply(headers);
                     var message = new OutgoingMessage(context.Message.MessageId, context.Message.Headers, context.Message.Body);
-                    return new TransportOperation(message, new DispatchOptions(addressLabel, dispatchConsistency, context.GetDeliveryConstraints()));
+                    return new TransportOperation(message, addressLabel, dispatchConsistency, context.GetDeliveryConstraints());
                 });
 
             if (log.IsDebugEnabled)
@@ -33,7 +33,7 @@
                 var sb = new StringBuilder();
                 foreach (var operation in operations)
                 {
-                    var unicastAddressTag = operation.DispatchOptions.AddressTag as UnicastAddressTag;
+                    var unicastAddressTag = operation.AddressTag as UnicastAddressTag;
                     if (unicastAddressTag != null)
                     {
                         sb.AppendFormat("Destination: {0}\n", unicastAddressTag.Destination);

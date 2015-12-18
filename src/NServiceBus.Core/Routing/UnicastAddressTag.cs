@@ -6,11 +6,6 @@ namespace NServiceBus.Routing
     public class UnicastAddressTag : AddressTag
     {
         /// <summary>
-        /// The destination.
-        /// </summary>
-        public string Destination { get; }
-
-        /// <summary>
         /// Initializes the strategy.
         /// </summary>
         /// <param name="destination">The destination.</param>
@@ -19,5 +14,10 @@ namespace NServiceBus.Routing
             Guard.AgainstNullAndEmpty(nameof(destination), destination);
             Destination = destination;
         }
+
+        /// <summary>
+        /// The destination.
+        /// </summary>
+        public string Destination { get; }
     }
 }

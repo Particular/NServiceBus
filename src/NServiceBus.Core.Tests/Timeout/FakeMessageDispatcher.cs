@@ -1,6 +1,5 @@
 namespace NServiceBus.Core.Tests.Timeout
 {
-    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.Extensibility;
@@ -14,9 +13,9 @@ namespace NServiceBus.Core.Tests.Timeout
             set { messagesSent = value; }
         }
 
-        public Task Dispatch(IEnumerable<TransportOperation> outgoingMessages, ContextBag context)
+        public Task Dispatch(TransportOperations outgoingMessages, ContextBag context)
         {
-            MessagesSent += outgoingMessages.Count();
+            MessagesSent += outgoingMessages.MulticastTransportOperations.Count() + outgoingMessages.UnicastTransportOperations.Count();
             return Task.FromResult(0);
         }
 

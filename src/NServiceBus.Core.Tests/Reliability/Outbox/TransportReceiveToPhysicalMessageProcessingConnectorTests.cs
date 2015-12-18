@@ -11,7 +11,7 @@
     using NServiceBus.Performance.TimeToBeReceived;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Routing;
-    using Transports;
+    using NServiceBus.Transports;
     using NUnit.Framework;
     using TransportOperation = NServiceBus.Outbox.TransportOperation;
 
@@ -42,21 +42,21 @@
 
             await Invoke(context);
 
-            Assert.True(fakeBatchPipeline.TransportOperations.First().DispatchOptions.DeliveryConstraints.Any(c => c is NonDurableDelivery));
+            Assert.True(fakeBatchPipeline.TransportOperations.First().DeliveryConstraints.Any(c => c is NonDurableDelivery));
 
             DelayDeliveryWith delayDeliveryWith;
 
-            Assert.True(fakeBatchPipeline.TransportOperations.First().DispatchOptions.DeliveryConstraints.TryGet(out delayDeliveryWith));
+            Assert.True(fakeBatchPipeline.TransportOperations.First().DeliveryConstraints.TryGet(out delayDeliveryWith));
             Assert.AreEqual(TimeSpan.FromSeconds(10), delayDeliveryWith.Delay);
 
             DoNotDeliverBefore doNotDeliverBefore;
 
-            Assert.True(fakeBatchPipeline.TransportOperations.First().DispatchOptions.DeliveryConstraints.TryGet(out doNotDeliverBefore));
+            Assert.True(fakeBatchPipeline.TransportOperations.First().DeliveryConstraints.TryGet(out doNotDeliverBefore));
             Assert.AreEqual(deliverTime.ToString(), doNotDeliverBefore.At.ToString());
 
             DiscardIfNotReceivedBefore discard;
 
-            Assert.True(fakeBatchPipeline.TransportOperations.First().DispatchOptions.DeliveryConstraints.TryGet(out discard));
+            Assert.True(fakeBatchPipeline.TransportOperations.First().DeliveryConstraints.TryGet(out discard));
             Assert.AreEqual(maxTime, discard.MaxTime);
 
             Assert.Null(fakeOutbox.StoredMessage);
@@ -78,7 +78,7 @@
 
             await Invoke(context);
 
-            var routing = fakeBatchPipeline.TransportOperations.First().DispatchOptions.AddressTag as UnicastAddressTag;
+            var routing = fakeBatchPipeline.TransportOperations.First().AddressTag as UnicastAddressTag;
             Assert.NotNull(routing);
             Assert.AreEqual("myEndpoint", routing.Destination);
             Assert.Null(fakeOutbox.StoredMessage);
@@ -101,7 +101,7 @@
 
             await Invoke(context);
 
-            var routing = fakeBatchPipeline.TransportOperations.First().DispatchOptions.AddressTag as MulticastAddressTag;
+            var routing = fakeBatchPipeline.TransportOperations.First().AddressTag as MulticastAddressTag;
             Assert.NotNull(routing);
             Assert.AreEqual(typeof(MyEvent), routing.MessageType);
             Assert.Null(fakeOutbox.StoredMessage);
@@ -134,7 +134,7 @@
         class MyEvent { }
         class FakeBatchPipeline : IPipelineBase<IBatchDispatchContext>
         {
-            public IEnumerable<Transports.TransportOperation> TransportOperations { get; set; }
+            public IEnumerable<NServiceBus.Transports.TransportOperation> TransportOperations { get; set; }
 
             public Task Invoke(IBatchDispatchContext context)
             {

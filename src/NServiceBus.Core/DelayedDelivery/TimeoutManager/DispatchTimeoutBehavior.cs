@@ -27,12 +27,12 @@ namespace NServiceBus
                 return;
             }
 
-            var sendOptions = new DispatchOptions(new UnicastAddressTag(timeoutData.Destination), dispatchConsistency);
-
             timeoutData.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
             timeoutData.Headers["NServiceBus.RelatedToTimeoutId"] = timeoutData.Id;
 
-            await dispatcher.Dispatch(new[] { new TransportOperation(new OutgoingMessage(message.MessageId, timeoutData.Headers, timeoutData.State), sendOptions) }, context.Extensions).ConfigureAwait(false);
+            var outgoingMessage = new OutgoingMessage(message.MessageId, timeoutData.Headers, timeoutData.State);
+            var transportOperation = new TransportOperation(outgoingMessage, new UnicastAddressTag(timeoutData.Destination), dispatchConsistency);
+            await dispatcher.Dispatch(new TransportOperations(transportOperation), context.Extensions).ConfigureAwait(false);
 
             var timeoutRemoved = await persister.TryRemove(timeoutId, context.Extensions).ConfigureAwait(false);
             if (!timeoutRemoved)
