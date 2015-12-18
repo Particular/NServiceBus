@@ -15,6 +15,7 @@
         public string MessageId { get; }
         public string ReplyToAddress { get; }
         public IReadOnlyDictionary<string, string> MessageHeaders { get; }
+        public CancellationToken CancellationToken { get; }
         public ContextBag Extensions { get; }
 
         public Task Send(object message, SendOptions options)

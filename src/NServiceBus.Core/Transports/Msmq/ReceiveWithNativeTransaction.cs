@@ -3,6 +3,7 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Messaging;
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using Logging;
@@ -10,7 +11,7 @@ namespace NServiceBus
 
     class ReceiveWithNativeTransaction : ReceiveStrategy
     {
-        public override async Task ReceiveMessage(MessageQueue inputQueue, MessageQueue errorQueue, Func<PushContext, Task> onMessage)
+        public override async Task ReceiveMessage(MessageQueue inputQueue, MessageQueue errorQueue, CancellationTokenSource tokenSource, Func<PushContext, Task> onMessage)
         {
             using (var msmqTransaction = new MessageQueueTransaction())
             {
@@ -46,7 +47,7 @@ namespace NServiceBus
                         var nativeMsmqTransaction = new TransportTransaction();
                         nativeMsmqTransaction.Set(msmqTransaction);
                         
-                        var pushContext = new PushContext(message.Id, headers, bodyStream, nativeMsmqTransaction, context);
+                        var pushContext = new PushContext(message.Id, headers, bodyStream, nativeMsmqTransaction, tokenSource, context);
 
                         await onMessage(pushContext).ConfigureAwait(false);
                     }

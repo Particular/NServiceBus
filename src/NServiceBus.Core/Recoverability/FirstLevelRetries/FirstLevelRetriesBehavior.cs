@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Logging;
     using NServiceBus.Features;
@@ -49,7 +50,7 @@ namespace NServiceBus
                 //question: should we invoke this the first time around? feels like the naming is off?
                 notifications.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(numberOfFailures, context.Message, ex);
 
-                throw new MessageProcessingAbortedException();
+                context.Extensions.Get<CancellationTokenSource>().Cancel();
             }
         }
 

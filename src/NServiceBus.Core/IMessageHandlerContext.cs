@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.Persistence;
 
@@ -25,5 +26,10 @@ namespace NServiceBus
         /// via this session will be persisted before the message receive is acknowledged.
         /// </summary>
         SynchronizedStorageSession SynchronizedStorageSession { get; }
+
+        /// <summary>
+        /// Token
+        /// </summary>
+        CancellationToken CancellationToken { get; }
     }
 }
