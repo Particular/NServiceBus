@@ -5,6 +5,7 @@
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NServiceBus.Configuration.AdvanceExtensibility;
     using NServiceBus.Extensibility;
     using NServiceBus.Features;
@@ -17,15 +18,15 @@
         [Test]
         public async Task Should_record_the_request_to_clear_in_outbox()
         {
-            var context = await Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                 .WithEndpoint<NonDtcReceivingEndpoint>(b => b.When(bus => bus.SendLocal(new PlaceOrder
                 {
                     DataId = Guid.NewGuid()
                 })))
                 .Done(c => c.Done)
+                .Repeat(b => b.For<AllTransportsWithoutNativeDeferral>())
+                .Should(ctx => Assert.AreEqual(2, ctx.NumberOfOps, "Request to clear and a done signal should be in the outbox"))
                 .Run();
-
-            Assert.AreEqual(2, context.NumberOfOps, "Request to clear and a done signal should be in the outbox");
         }
 
         public class Context : ScenarioContext
