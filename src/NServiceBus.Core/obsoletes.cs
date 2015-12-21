@@ -1300,7 +1300,7 @@ namespace NServiceBus
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
-        Message = "When in context of handler use IMessageHandlingContext. Otherwise use IBusSessionFactory to create sending context.")]
+        Message = "When in context of handler use IMessageHandlerContext. Otherwise use IBusSessionFactory to create sending context.")]
     public interface IBus
     {
     }
