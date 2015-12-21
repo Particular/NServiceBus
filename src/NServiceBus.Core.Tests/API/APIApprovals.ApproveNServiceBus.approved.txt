@@ -423,8 +423,8 @@ namespace NServiceBus
     {
         System.Collections.Generic.IReadOnlyCollection<NServiceBus.Transports.TransportOperation> Operations { get; }
     }
-    [System.ObsoleteAttribute("When in context of handler use IMessageHandlingContext. Otherwise use IBusSession" +
-        "Factory to create sending context. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("When in context of handler use IMessageHandlerContext. Otherwise use IBusSessionF" +
+        "actory to create sending context. Will be removed in version 7.0.0.", true)]
     public interface IBus { }
     public interface IBusContext : NServiceBus.Extensibility.IExtendable
     {
