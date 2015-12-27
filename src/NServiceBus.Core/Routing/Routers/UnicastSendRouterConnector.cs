@@ -12,14 +12,17 @@ namespace NServiceBus
 
     class UnicastSendRouterConnector : StageConnector<IOutgoingSendContext, IOutgoingLogicalMessageContext>
     {
+        string localAddress;
+        readonly EndpointInstance localEndpointInstance;
+        readonly LogicalToTransportAddressTranslation addressTranslator;
         IUnicastRouter unicastRouter;
         DistributionPolicy distributionPolicy;
 
-        public UnicastSendRouterConnector(string localAddress, 
-            IUnicastRouter unicastRouter, 
-            DistributionPolicy distributionPolicy)
+        public UnicastSendRouterConnector(string localAddress, EndpointInstance localEndpointInstance, LogicalToTransportAddressTranslation addressTranslator, IUnicastRouter unicastRouter, DistributionPolicy distributionPolicy)
         {
             this.localAddress = localAddress;
+            this.localEndpointInstance = localEndpointInstance;
+            this.addressTranslator = addressTranslator;
             this.unicastRouter = unicastRouter;
             this.distributionPolicy = distributionPolicy;
         }
@@ -30,11 +33,10 @@ namespace NServiceBus
             var distributionStrategy = distributionPolicy.GetDistributionStrategy(messageType);
 
             var state = context.Extensions.GetOrCreate<State>();
-            var destination = state.ExplicitDestination ?? (state.RouteToLocalInstance ? localAddress : null);
 
-            var addressLabels = string.IsNullOrEmpty(destination) 
+            var addressLabels = state.Routing == State.RoutingType.ByMessageType 
                 ? await unicastRouter.Route(messageType, distributionStrategy, context.Extensions).ConfigureAwait(false) 
-                : RouteToDestination(destination);
+                : RouteToDestination(state);
 
             context.Headers[Headers.MessageIntent] = MessageIntentEnum.Send.ToString();
 
@@ -55,17 +57,58 @@ namespace NServiceBus
             }
         }
 
-        static IEnumerable<UnicastRoutingStrategy> RouteToDestination(string physicalAddress)
+        IEnumerable<UnicastRoutingStrategy> RouteToDestination(State state)
         {
-            yield return new UnicastRoutingStrategy(physicalAddress);
+            if (state.Routing == State.RoutingType.ExplicitDestination)
+            {
+                yield return new UnicastRoutingStrategy(state.ExplicitDestination);
+            }
+            else if (state.Routing == State.RoutingType.LocalInstance)
+            {
+                yield return new UnicastRoutingStrategy(localAddress);
+            }
+            else
+            {
+                var satelliteLogicalAddress = new LogicalAddress(localEndpointInstance, state.Satellite);
+                yield return new UnicastRoutingStrategy(addressTranslator.Translate(satelliteLogicalAddress));
+            }
         }
-
-        string localAddress;
 
         public class State
         {
-            public string ExplicitDestination { get; set; }
-            public bool RouteToLocalInstance { get; set; }
+            public State() 
+            {
+                Routing = RoutingType.ByMessageType;
+            }
+
+            public string ExplicitDestination { get; private set; }
+            public RoutingType Routing { get; private set; }
+            public string Satellite { get; private set; }
+
+            public void RouteExplicit(string explicitDestination)
+            {
+                Routing = RoutingType.ExplicitDestination;
+                ExplicitDestination = explicitDestination;
+            }
+
+            public void RouteLocalInstance()
+            {
+                Routing = RoutingType.LocalInstance;
+            }
+
+            public void RouteToSatellite(string satellite)
+            {
+                Routing = RoutingType.Satellite;
+                Satellite = satellite;
+            }
+
+            public enum RoutingType
+            {
+               ByMessageType,
+               ExplicitDestination,
+               LocalInstance,
+               Satellite
+            }
         }
     }
 }
