@@ -44,7 +44,7 @@
                 }).WithConfig<SecondLevelRetriesConfig>(slr =>
                 {
                     slr.NumberOfRetries = 1;
-                    slr.TimeIncrease = TimeSpan.FromSeconds(1);
+                    slr.TimeIncrease = TimeSpan.FromMilliseconds(1);
                 });
             }
 

@@ -51,7 +51,7 @@
                 {
                     var options = new SendOptions();
 
-                    options.DelayDeliveryWith(TimeSpan.FromSeconds(10));
+                    options.DelayDeliveryWith(TimeSpan.FromMilliseconds(1));
                     options.RouteToLocalEndpointInstance();
 
                     return context.Send(new FinishMessage(), options);
@@ -152,7 +152,7 @@
                 {
                     var options = new SendOptions();
 
-                    options.DelayDeliveryWith(TimeSpan.FromSeconds(10));
+                    options.DelayDeliveryWith(TimeSpan.FromMilliseconds(1));
                     options.RouteToLocalEndpointInstance();
 
                     return context.Send(new FinishMessage(), options);

@@ -25,7 +25,7 @@
                     {
                         var options = new SendOptions();
 
-                        options.DelayDeliveryWith(TimeSpan.FromSeconds(5));
+                        options.DelayDeliveryWith(TimeSpan.FromMilliseconds(1));
                         options.RouteToLocalEndpointInstance();
 
                         return bus.Send(new MyMessage(), options);

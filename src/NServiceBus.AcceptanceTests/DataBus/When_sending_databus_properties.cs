@@ -4,14 +4,16 @@
     using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
+    using NServiceBus.MessageMutator;
     using NUnit.Framework;
 
     public class When_sending_databus_properties : NServiceBusAcceptanceTest
     {
+        const int PayloadSize = 100;
         [Test]
         public async Task Should_receive_messages_with_largepayload_correctly()
         {
-            var payloadToSend = new byte[1024 * 1024 * 10];
+            var payloadToSend = new byte[PayloadSize];
 
             var context = await Scenario.Define<Context>()
                     .WithEndpoint<Sender>(b => b.When(bus => bus.Send(new MyMessageWithLargePayload
@@ -35,7 +37,11 @@
         {
             public Sender()
             {
-                EndpointSetup<DefaultServer>(builder => builder.UseDataBus<FileShareDataBus>().BasePath(@".\databus\sender"))
+                EndpointSetup<DefaultServer>(builder =>
+                {
+                    builder.UseDataBus<FileShareDataBus>().BasePath(@".\databus\sender");
+                    builder.UseSerialization<JsonSerializer>();
+                })
                     .AddMapping<MyMessageWithLargePayload>(typeof(Receiver));
             }
         }
@@ -44,7 +50,12 @@
         {
             public Receiver()
             {
-                EndpointSetup<DefaultServer>(builder => builder.UseDataBus<FileShareDataBus>().BasePath(@".\databus\sender"));
+                EndpointSetup<DefaultServer>(builder =>
+                {
+                    builder.UseDataBus<FileShareDataBus>().BasePath(@".\databus\sender");
+                    builder.UseSerialization<JsonSerializer>();
+                    builder.RegisterComponents(c => c.ConfigureComponent<Mutator>(DependencyLifecycle.InstancePerCall));
+                });
             }
 
             public class MyMessageHandler : IHandleMessages<MyMessageWithLargePayload>
@@ -57,6 +68,19 @@
 
                     return Task.FromResult(0);
                 }
+            }
+
+            public class Mutator : IMutateIncomingTransportMessages
+            {
+                public Task MutateIncoming(MutateIncomingTransportMessageContext context)
+                {
+                    if (context.Body.Length > PayloadSize)
+                    {
+                        throw new Exception();
+                    }
+                    return Task.FromResult(0);
+                }
+
             }
         }
 

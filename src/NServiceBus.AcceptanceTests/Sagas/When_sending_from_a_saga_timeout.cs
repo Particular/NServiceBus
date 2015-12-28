@@ -42,7 +42,7 @@
                 public Task Handle(StartSaga1 message, IMessageHandlerContext context)
                 {
                     Data.DataId = message.DataId;
-                    return RequestTimeout(context, TimeSpan.FromSeconds(1), new Saga1Timeout());
+                    return RequestTimeout(context, TimeSpan.FromMilliseconds(1), new Saga1Timeout());
                 }
 
                 public async Task Timeout(Saga1Timeout state, IMessageHandlerContext context)

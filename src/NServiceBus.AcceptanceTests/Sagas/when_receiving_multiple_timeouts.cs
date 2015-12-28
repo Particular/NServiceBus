@@ -57,8 +57,8 @@
 
                     Data.ContextId = message.ContextId;
 
-                    await RequestTimeout(context, TimeSpan.FromSeconds(5), new Saga1Timeout { ContextId = TestContext.Id });
-                    await RequestTimeout(context, TimeSpan.FromMilliseconds(10), new Saga2Timeout { ContextId = TestContext.Id });
+                    await RequestTimeout(context, TimeSpan.FromMilliseconds(5), new Saga1Timeout { ContextId = TestContext.Id });
+                    await RequestTimeout(context, TimeSpan.FromMilliseconds(1), new Saga2Timeout { ContextId = TestContext.Id });
                 }
 
                 public Task Timeout(Saga1Timeout state, IMessageHandlerContext context)

@@ -74,7 +74,7 @@
 
                     if (TestContext.ReplyFromTimeout)
                     {
-                        await RequestTimeout<DelayReply>(context, TimeSpan.FromSeconds(1));
+                        await RequestTimeout<DelayReply>(context, TimeSpan.FromMilliseconds(1));
                     }
 
                     // Both reply and reply to originator work here since the sender of the incoming message is the requesting saga
