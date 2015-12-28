@@ -54,7 +54,7 @@
                     try
                     {
                         var opts = new SendOptions();
-                        opts.DelayDeliveryWith(TimeSpan.FromSeconds(5));
+                        opts.DelayDeliveryWith(TimeSpan.FromMilliseconds(1));
                         opts.RouteToLocalEndpointInstance();
 
                         await context.Send(new MyOtherMessage(), opts);

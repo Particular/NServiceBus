@@ -53,23 +53,27 @@
                 public async Task Handle(StartSaga1 message, IMessageHandlerContext context)
                 {
                     if (message.ContextId != TestContext.Id)
+                    {
                         return;
+                    }
 
                     Data.ContextId = message.ContextId;
 
-                    await RequestTimeout(context, TimeSpan.FromSeconds(5), new Saga1Timeout { ContextId = TestContext.Id });
-                    await RequestTimeout(context, TimeSpan.FromMilliseconds(10), new Saga2Timeout { ContextId = TestContext.Id });
+                    await RequestTimeout(context, TimeSpan.FromMilliseconds(1), new Saga1Timeout { ContextId = TestContext.Id });
+                    await RequestTimeout(context, TimeSpan.FromMilliseconds(1), new Saga2Timeout { ContextId = TestContext.Id });
                 }
 
                 public Task Timeout(Saga1Timeout state, IMessageHandlerContext context)
                 {
-                    MarkAsComplete();
-
                     if (state.ContextId == TestContext.Id)
                     {
                         TestContext.Saga1TimeoutFired = true;
                     }
 
+                    if (TestContext.Saga1TimeoutFired && TestContext.Saga2TimeoutFired)
+                    {
+                        MarkAsComplete();
+                    }
                     return Task.FromResult(0);
                 }
 
@@ -80,6 +84,10 @@
                         TestContext.Saga2TimeoutFired = true;
                     }
 
+                    if (TestContext.Saga1TimeoutFired && TestContext.Saga2TimeoutFired)
+                    {
+                        MarkAsComplete();
+                    }
                     return Task.FromResult(0);
                 }
 

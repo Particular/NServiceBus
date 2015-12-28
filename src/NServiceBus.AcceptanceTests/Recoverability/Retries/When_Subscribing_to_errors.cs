@@ -53,7 +53,7 @@
                     .WithConfig<SecondLevelRetriesConfig>(c =>
                     {
                         c.NumberOfRetries = 2;
-                        c.TimeIncrease = TimeSpan.FromSeconds(1);
+                        c.TimeIncrease = TimeSpan.FromMilliseconds(1);
                     });
             }
 

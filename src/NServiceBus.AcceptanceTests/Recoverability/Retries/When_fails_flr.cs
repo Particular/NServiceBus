@@ -11,7 +11,7 @@
 
     public class When_fails_flr : NServiceBusAcceptanceTest
     {
-        static TimeSpan SlrDelay = TimeSpan.FromSeconds(5);
+        static TimeSpan SlrDelay = TimeSpan.FromMilliseconds(1);
 
         [Test]
         public async Task Should_be_moved_to_slr()
