@@ -87,6 +87,7 @@
     <Compile Include="EndpointTemplates\DefaultServer.cs" />
     <Compile Include="Mutators\When_using_outgoing_tm_mutator.cs" />
     <Compile Include="Recoverability\Retries\When_message_fails_retries.cs" />
+    <Compile Include="Recoverability\Retries\When_performing_slr_and_counting.cs" />
     <Compile Include="Recoverability\When_error_is_overridden_in_code.cs" />
     <Compile Include="BestPractices\When_publishing_command_bestpractices_disabled.cs" />
     <Compile Include="BestPractices\When_unsubscribing_to_command_bestpractices_disabled_on_endpoint.cs" />
@@ -219,7 +220,6 @@
     <Compile Include="Routing\When_subscribing_to_a_polymorphic_event.cs" />
     <Compile Include="Routing\When_publishing_on_brokers.cs" />
     <Compile Include="Routing\When_publishing.cs" />
-    <Compile Include="Recoverability\Retries\When_performing_slr.cs" />
     <Compile Include="Recoverability\Retries\When_fails_flr.cs" />
     <Compile Include="Recoverability\Retries\When_fails_with_retries_set_to_0.cs" />
     <Compile Include="Recoverability\Retries\When_doing_flr_with_default_settings.cs" />
