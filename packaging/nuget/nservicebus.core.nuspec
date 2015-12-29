@@ -10,7 +10,7 @@
     <projectUrl>$projectUrl$</projectUrl>
     <iconUrl>$iconUrl$</iconUrl>
     <requireLicenseAcceptance>$requireLicenseAcceptance$</requireLicenseAcceptance>
-    <description>The most popular open-source service bus for .net</description>
+    <description>The most popular open-source service bus for .NET</description>
     <releaseNotes></releaseNotes>
     <copyright>$copyright$</copyright>
     <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
