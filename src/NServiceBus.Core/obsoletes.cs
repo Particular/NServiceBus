@@ -35,6 +35,18 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Reflection;
 
+
+    public static partial class ConfigureCriticalErrorAction
+    {
+        [ObsoleteEx(
+            RemoveInVersion = "7",
+            TreatAsErrorFromVersion = "6",
+            ReplacementTypeOrMember = "ConfigureCriticalErrorAction.DefineCriticalErrorAction(BusConfiguration, Func<CriticalErrorContext, Task>)")]
+        public static void DefineCriticalErrorAction(this BusConfiguration busConfiguration, Action<string, Exception> onCriticalError)
+        {
+        }
+    }
+
     [ObsoleteEx(
         Message = "Please use `IMessageHandlerContext` provided to message handlers instead.",
         RemoveInVersion = "7.0",

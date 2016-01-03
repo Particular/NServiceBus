@@ -94,6 +94,7 @@
     <Compile Include="Audit\ConfigureAudit.cs" />
     <Compile Include="Audit\AuditToDispatchConnector.cs" />
     <Compile Include="Audit\InvokeAuditPipelineBehavior.cs" />
+    <Compile Include="CriticalError\ICriticalErrorContext.cs" />
     <Compile Include="EndpointHelper.cs" />
     <Compile Include="Endpoint.cs" />
     <Compile Include="Transports\MulticastTransportOperation.cs" />
@@ -101,7 +102,7 @@
     <Compile Include="Transports\UnicastTransportOperation.cs" />
     <Compile Include="UnitOfWork\TransactionScopes\HandlerTransactionScopeWrapperBehavior.cs" />
     <Compile Include="BusSession.cs" />
-    <Compile Include="CriticalError\CriticalErrorAction.cs" />
+    <Compile Include="CriticalError\CriticalErrorContext.cs" />
     <Compile Include="BusConfiguration.cs" />
     <Compile Include="BusContext.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\TimeoutPollerRunner.cs" />

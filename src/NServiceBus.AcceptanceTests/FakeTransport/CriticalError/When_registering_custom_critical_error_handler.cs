@@ -44,12 +44,12 @@
                     builder.UseTransport<FakeTransport>()
                         .RaiseCriticalErrorDuringStartup(new AggregateException("Startup task failed to complete.", new InvalidOperationException("ExceptionInBusStarts")));
 
-                    builder.DefineCriticalErrorAction((endpoint, s, exception) =>
+                    builder.DefineCriticalErrorAction(errorContext =>
                     {
-                        var aggregateException = (AggregateException) exception;
+                        var aggregateException = (AggregateException)errorContext.Exception;
                         var context = builder.GetSettings().Get<Context>();
                         context.Exception = aggregateException.InnerExceptions.First();
-                        context.Message = s;
+                        context.Message = errorContext.Error;
                         context.ExceptionReceived = true;
                         return Task.FromResult(0);
                     });
