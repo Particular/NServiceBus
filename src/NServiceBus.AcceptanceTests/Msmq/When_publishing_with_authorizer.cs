@@ -10,12 +10,11 @@
 
     public class When_publishing_with_authorizer : NServiceBusAcceptanceTest
     {
-        static TestContext Context;
 
         [Test]
         public async Task Should_only_deliver_to_authorized()
         {
-            await Scenario.Define<TestContext>(context => Context = context)
+            await Scenario.Define<TestContext>()
                 .WithEndpoint<Publisher>(b =>
                     b.When(c => c.Subscriber1Subscribed && c.Subscriber2Subscribed, (bus, c) => bus.Publish(new MyEvent()))
                 )
@@ -78,7 +77,8 @@
                     .EndsWith("Subscriber1");
                 if (!isFromSubscriber1)
                 {
-                    Context.DeclinedSubscriber2 = true;
+                    var testContext = (TestContext)ScenarioContext;
+                    testContext.DeclinedSubscriber2 = true;
                 }
                 return isFromSubscriber1;
             }

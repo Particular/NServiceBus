@@ -10,12 +10,10 @@
 
     public class When_unsubscribing_with_authorizer : NServiceBusAcceptanceTest
     {
-        static TestContext Context;
-
         [Test]
         public async Task Should_ignore_unsubscribe()
         {
-            await Scenario.Define<TestContext>(context => Context = context)
+            await Scenario.Define<TestContext>()
                 .WithEndpoint<Publisher>(b =>
                     b.When(c => c.Subscribed, (bus, c) => bus.Publish(new MyEvent()))
                 )
@@ -66,7 +64,8 @@
                 {
                     return true;
                 }
-                Context.DeclinedUnSubscribe = true;
+                var testContext = (TestContext)ScenarioContext;
+                testContext.DeclinedUnSubscribe = true;
                 return false;
             }
         }

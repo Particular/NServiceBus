@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Routing
 {
-    using System;
-
+    
     /// <summary>
     /// Represents a name of a logical endpoint.
     /// </summary>
@@ -27,7 +26,7 @@
 
         bool Equals(EndpointName other)
         {
-            return String.Equals(name, other.name);
+            return string.Equals(name, other.name);
         }
 
         /// <summary>

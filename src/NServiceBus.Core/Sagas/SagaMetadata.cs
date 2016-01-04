@@ -448,12 +448,12 @@ Sagas can only have mappings that correlate on a single saga property. Please us
             /// <summary>
             /// The name of the correlation property.
             /// </summary>
-            public string Name { get; private set; }
+            public string Name { get; }
 
             /// <summary>
             /// The type of the correlation property.
             /// </summary>
-            public Type Type { get; private set; }
+            public Type Type { get; }
         }
     }
 }

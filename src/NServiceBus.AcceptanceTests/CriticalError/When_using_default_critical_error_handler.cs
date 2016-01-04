@@ -17,7 +17,7 @@
                     .When((bus, c) =>
                     {
                         c.ContextId = Guid.NewGuid().ToString();
-                        return bus.SendLocal(new Message() { ContextId = c.ContextId });
+                        return bus.SendLocal(new Message { ContextId = c.ContextId });
                     }))
                 .Done(c => c.CriticalErrorRaised)
                 .Run();
