@@ -148,7 +148,7 @@ namespace NServiceBus.Core.Tests
 
         class FakeCriticalError : CriticalError
         {
-            public FakeCriticalError() : base((d, s, e) => TaskEx.Completed)
+            public FakeCriticalError() : base(_ => TaskEx.Completed)
             {
             }
 

@@ -5,14 +5,14 @@ namespace NServiceBus
     using NServiceBus.Logging;
 
     /// <summary>
-    /// A holder for that exposes access to the action defined by <see cref="ConfigureCriticalErrorAction.DefineCriticalErrorAction"/>.
+    /// A holder for that exposes access to the action defined by <see cref="ConfigureCriticalErrorAction.DefineCriticalErrorAction(BusConfiguration, Func{ICriticalErrorContext, Task})"/>.
     /// </summary>
     /// <returns>
     /// Call <see cref="Raise"/> to trigger the action.
     /// </returns>
     public class CriticalError
     {
-        CriticalErrorAction onCriticalErrorAction;
+        Func<CriticalErrorContext, Task> criticalErrorAction;
 
         /// <summary>
         /// The started endpoint which will be passed to the configured critical error action.
@@ -23,25 +23,25 @@ namespace NServiceBus
         /// Initializes a new instance of <see cref="CriticalError"/>.
         /// </summary>
         /// <param name="onCriticalErrorAction">The action to execute when a critical error is triggered.</param>
-        public CriticalError(CriticalErrorAction onCriticalErrorAction)
+        public CriticalError(Func<ICriticalErrorContext, Task> onCriticalErrorAction)
         {
             if (onCriticalErrorAction == null)
             {
-                this.onCriticalErrorAction = DefaultCriticalErrorHandling;
+                criticalErrorAction = DefaultCriticalErrorHandling;
             }
             else
             {
-                this.onCriticalErrorAction = onCriticalErrorAction;
+                criticalErrorAction = onCriticalErrorAction;
             }
         }
 
-        static Task DefaultCriticalErrorHandling(IEndpointInstance endpoint, string errorMessage, Exception exception)
+        static Task DefaultCriticalErrorHandling(ICriticalErrorContext criticalErrorContext)
         {
-            return endpoint.Stop();
+            return criticalErrorContext.Stop();
         }
 
         /// <summary>
-        /// Trigger the action defined by <see cref="ConfigureCriticalErrorAction.DefineCriticalErrorAction"/>.
+        /// Trigger the action defined by <see cref="ConfigureCriticalErrorAction.DefineCriticalErrorAction(BusConfiguration, Func{ICriticalErrorContext, Task})"/>.
         /// </summary>
         public virtual void Raise(string errorMessage, Exception exception)
         {
@@ -55,7 +55,11 @@ namespace NServiceBus
             }
 
             // don't await the criticalErrorAction in order to avoid deadlocks
-            Task.Run(() => onCriticalErrorAction(Endpoint, errorMessage, exception));
+            Task.Run(() =>
+            {
+                var context = new CriticalErrorContext(Endpoint.Stop, errorMessage, exception);
+                return criticalErrorAction(context);
+            });
         }
     }
 }

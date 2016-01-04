@@ -104,7 +104,7 @@ namespace NServiceBus
 
         void RegisterCriticalErrorHandler()
         {
-            CriticalErrorAction errorAction;
+            Func<ICriticalErrorContext, Task> errorAction;
             settings.TryGet("onCriticalErrorAction", out errorAction);
             container.ConfigureComponent(() => new CriticalError(errorAction), DependencyLifecycle.SingleInstance);
         }
