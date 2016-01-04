@@ -9,9 +9,9 @@
     public interface ICriticalErrorContext
     {
         /// <summary>
-        /// The instance of <see cref="IEndpointInstance"/> that cause the error.
+        /// A delegate that optionally stops the bus. By default this is a pointer <see cref="IEndpointInstance.Stop"/>.
         /// </summary>
-        IEndpointInstance EndpointInstance { get; }
+        Func<Task> Stop { get; }
 
         /// <summary>
         /// A description of the error.

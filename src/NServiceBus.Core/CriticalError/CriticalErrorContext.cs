@@ -1,33 +1,34 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// See <see cref="ICriticalErrorContext"/>.
     /// </summary>
-    public class CriticalErrorContext: ICriticalErrorContext
+    public class CriticalErrorContext : ICriticalErrorContext
     {
         /// <summary>
         /// Initizes a new instance of <see cref="CriticalErrorContext"/>.
         /// </summary>
-        /// <param name="endpointInstance">See <see cref="ICriticalErrorContext.EndpointInstance"/>.</param>
+        /// <param name="stop">See <see cref="ICriticalErrorContext.Stop"/>.</param>
         /// <param name="error">See <see cref="ICriticalErrorContext.Error"/>.</param>
         /// <param name="exception">See <see cref="ICriticalErrorContext.Exception"/>.</param>
-        public CriticalErrorContext(IEndpointInstance endpointInstance, string error, Exception exception)
+        public CriticalErrorContext(Func<Task> stop, string error, Exception exception)
         {
-            Guard.AgainstNull(nameof(endpointInstance),endpointInstance);
+            Guard.AgainstNull(nameof(stop), stop);
             Guard.AgainstNullAndEmpty(nameof(error), error);
             Guard.AgainstNull(nameof(exception), exception);
-            EndpointInstance = endpointInstance;
+            Stop = stop;
             Error = error;
             Exception = exception;
         }
-        
+
         /// <summary>
-        /// See <see cref="ICriticalErrorContext.EndpointInstance"/>.
+        /// See <see cref="ICriticalErrorContext.Stop"/>.
         /// </summary>
-        public IEndpointInstance EndpointInstance { get; }
-        
+        public Func<Task> Stop { get; }
+
         /// <summary>
         /// See <see cref="ICriticalErrorContext.Error"/>.
         /// </summary>

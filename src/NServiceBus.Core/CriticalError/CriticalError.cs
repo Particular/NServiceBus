@@ -37,7 +37,7 @@ namespace NServiceBus
 
         static Task DefaultCriticalErrorHandling(ICriticalErrorContext criticalErrorContext)
         {
-            return criticalErrorContext.EndpointInstance.Stop();
+            return criticalErrorContext.Stop();
         }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace NServiceBus
             // don't await the criticalErrorAction in order to avoid deadlocks
             Task.Run(() =>
             {
-                var context = new CriticalErrorContext(Endpoint, errorMessage, exception);
+                var context = new CriticalErrorContext(Endpoint.Stop, errorMessage, exception);
                 return criticalErrorAction(context);
             });
         }

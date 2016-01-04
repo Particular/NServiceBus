@@ -244,10 +244,10 @@ namespace NServiceBus
     }
     public class CriticalErrorContext : NServiceBus.ICriticalErrorContext
     {
-        public CriticalErrorContext(NServiceBus.IEndpointInstance endpointInstance, string error, System.Exception exception) { }
-        public NServiceBus.IEndpointInstance EndpointInstance { get; }
+        public CriticalErrorContext(System.Func<System.Threading.Tasks.Task> stop, string error, System.Exception exception) { }
         public string Error { get; }
         public System.Exception Exception { get; }
+        public System.Func<System.Threading.Tasks.Task> Stop { get; }
     }
     public class static CriticalTimeMonitoringConfig
     {
@@ -541,9 +541,9 @@ namespace NServiceBus
     }
     public interface ICriticalErrorContext
     {
-        NServiceBus.IEndpointInstance EndpointInstance { get; }
         string Error { get; }
         System.Exception Exception { get; }
+        System.Func<System.Threading.Tasks.Task> Stop { get; }
     }
     public interface IDataBusProperty
     {
