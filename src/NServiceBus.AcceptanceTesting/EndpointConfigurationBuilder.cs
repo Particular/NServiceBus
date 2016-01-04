@@ -95,6 +95,7 @@
         {
             return CreateScenario();
         }
+        public ScenarioContext ScenarioContext { get; set; }
 
 
         EndpointConfiguration configuration = new EndpointConfiguration();
