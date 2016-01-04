@@ -41,7 +41,7 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "7",
             TreatAsErrorFromVersion = "6",
-            ReplacementTypeOrMember = "ConfigureCriticalErrorAction.DefineCriticalErrorAction(BusConfiguration, Func<CriticalErrorContext, Task>)")]
+            ReplacementTypeOrMember = "ConfigureCriticalErrorAction.DefineCriticalErrorAction(BusConfiguration, Func<ICriticalErrorContext, Task>)")]
         public static void DefineCriticalErrorAction(this BusConfiguration busConfiguration, Action<string, Exception> onCriticalError)
         {
         }

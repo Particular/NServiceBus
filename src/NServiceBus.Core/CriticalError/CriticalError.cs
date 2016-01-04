@@ -5,7 +5,7 @@ namespace NServiceBus
     using NServiceBus.Logging;
 
     /// <summary>
-    /// A holder for that exposes access to the action defined by <see cref="ConfigureCriticalErrorAction.DefineCriticalErrorAction(BusConfiguration, Func{CriticalErrorContext, Task})"/>.
+    /// A holder for that exposes access to the action defined by <see cref="ConfigureCriticalErrorAction.DefineCriticalErrorAction(BusConfiguration, Func{ICriticalErrorContext, Task})"/>.
     /// </summary>
     /// <returns>
     /// Call <see cref="Raise"/> to trigger the action.
@@ -23,7 +23,7 @@ namespace NServiceBus
         /// Initializes a new instance of <see cref="CriticalError"/>.
         /// </summary>
         /// <param name="onCriticalErrorAction">The action to execute when a critical error is triggered.</param>
-        public CriticalError(Func<CriticalErrorContext, Task> onCriticalErrorAction)
+        public CriticalError(Func<ICriticalErrorContext, Task> onCriticalErrorAction)
         {
             if (onCriticalErrorAction == null)
             {
@@ -35,13 +35,13 @@ namespace NServiceBus
             }
         }
 
-        static Task DefaultCriticalErrorHandling(CriticalErrorContext criticalErrorContext)
+        static Task DefaultCriticalErrorHandling(ICriticalErrorContext criticalErrorContext)
         {
             return criticalErrorContext.EndpointInstance.Stop();
         }
 
         /// <summary>
-        /// Trigger the action defined by <see cref="ConfigureCriticalErrorAction.DefineCriticalErrorAction(BusConfiguration, Func{CriticalErrorContext, Task})"/>.
+        /// Trigger the action defined by <see cref="ConfigureCriticalErrorAction.DefineCriticalErrorAction(BusConfiguration, Func{ICriticalErrorContext, Task})"/>.
         /// </summary>
         public virtual void Raise(string errorMessage, Exception exception)
         {

@@ -142,10 +142,10 @@ namespace NServiceBus
     }
     public class static ConfigureCriticalErrorAction
     {
-        public static void DefineCriticalErrorAction(this NServiceBus.BusConfiguration busConfiguration, System.Func<NServiceBus.CriticalErrorContext, System.Threading.Tasks.Task> onCriticalError) { }
+        public static void DefineCriticalErrorAction(this NServiceBus.BusConfiguration busConfiguration, System.Func<NServiceBus.ICriticalErrorContext, System.Threading.Tasks.Task> onCriticalError) { }
         [System.ObsoleteAttribute("Please use `ConfigureCriticalErrorAction.DefineCriticalErrorAction(BusConfigurati" +
-            "on, Func<CriticalErrorContext, Task>)` instead. Will be removed in version 7.0.0" +
-            ".", true)]
+            "on, Func<ICriticalErrorContext, Task>)` instead. Will be removed in version 7.0." +
+            "0.", true)]
         public static void DefineCriticalErrorAction(this NServiceBus.BusConfiguration busConfiguration, System.Action<string, System.Exception> onCriticalError) { }
     }
     public class static ConfigureError
@@ -239,11 +239,12 @@ namespace NServiceBus
     }
     public class CriticalError
     {
-        public CriticalError(System.Func<NServiceBus.CriticalErrorContext, System.Threading.Tasks.Task> onCriticalErrorAction) { }
+        public CriticalError(System.Func<NServiceBus.ICriticalErrorContext, System.Threading.Tasks.Task> onCriticalErrorAction) { }
         public virtual void Raise(string errorMessage, System.Exception exception) { }
     }
     public class CriticalErrorContext : NServiceBus.ICriticalErrorContext
     {
+        public CriticalErrorContext(NServiceBus.IEndpointInstance endpointInstance, string error, System.Exception exception) { }
         public NServiceBus.IEndpointInstance EndpointInstance { get; }
         public string Error { get; }
         public System.Exception Exception { get; }
