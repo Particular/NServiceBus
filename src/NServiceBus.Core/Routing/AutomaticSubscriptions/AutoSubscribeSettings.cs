@@ -22,16 +22,6 @@ namespace NServiceBus.AutomaticSubscriptions.Config
             GetSettings().AutoSubscribeSagas = false;
         }
 
-        /// <summary>
-        /// Turns on auto-subscriptions for messages not marked as commands as only messages marked as events are included by default. 
-        /// This was the default before v4.
-        /// </summary>
-        public void AutoSubscribePlainMessages()
-        {
-            GetSettings().SubscribePlainMessages = true;
-        }
-
-
         AutoSubscribe.SubscribeSettings GetSettings()
         {
             AutoSubscribe.SubscribeSettings settings;

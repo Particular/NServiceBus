@@ -832,6 +832,15 @@ namespace NServiceBus.AutomaticSubscriptions.Config
         {
             throw new NotImplementedException();
         }
+
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
+            Message = "Encourages bad practices. IBusSession.Subscribe should be explicitly used.")]
+        public void AutoSubscribePlainMessages()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
 
