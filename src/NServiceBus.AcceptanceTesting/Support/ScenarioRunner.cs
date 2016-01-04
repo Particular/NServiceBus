@@ -213,16 +213,16 @@
             var cts = new CancellationTokenSource();
             var endpoints = runners.Select(r => r.Instance).ToList();
 
-            await StartEndpoints(endpoints, allowedExceptions, cts).ConfigureAwait(false);
-            runDescriptor.ScenarioContext.EndpointsStarted = true;
-            await ExecuteWhens(endpoints, allowedExceptions, cts).ConfigureAwait(false);
-
-            var startTime = DateTime.UtcNow;
-            var maxTime = runDescriptor.TestExecutionTimeout;
-
             // ReSharper disable once LoopVariableIsNeverChangedInsideLoop
             try
             {
+                await StartEndpoints(endpoints, allowedExceptions, cts).ConfigureAwait(false);
+                runDescriptor.ScenarioContext.EndpointsStarted = true;
+                await ExecuteWhens(endpoints, allowedExceptions, cts).ConfigureAwait(false);
+
+                var startTime = DateTime.UtcNow;
+                var maxTime = runDescriptor.TestExecutionTimeout;
+
                 while (!done() && !cts.Token.IsCancellationRequested)
                 {
                     if (DateTime.UtcNow - startTime > maxTime)
