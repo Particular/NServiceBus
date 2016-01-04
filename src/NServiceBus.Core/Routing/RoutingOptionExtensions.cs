@@ -15,7 +15,7 @@
             Guard.AgainstNullAndEmpty(nameof(destination), destination);
 
             option.Context.GetOrCreate<UnicastSendRouterConnector.State>()
-                .ExplicitDestination = destination;
+                .RouteExplicit(destination);
         }
 
         /// <summary>
@@ -38,7 +38,18 @@
         public static void RouteToLocalEndpointInstance(this SendOptions option)
         {
             option.Context.GetOrCreate<UnicastSendRouterConnector.State>()
-                .RouteToLocalInstance = true;
+                .RouteLocalInstance();
+        }
+
+        /// <summary>
+        /// Routes this message to the local satellite instance.
+        /// </summary>
+        /// <param name="option">Context being extended.</param>
+        /// <param name="satellite">The satellite name.</param>
+        public static void RouteToSatellite(this SendOptions option, string satellite)
+        {
+            var state = option.Context.GetOrCreate<UnicastSendRouterConnector.State>();
+            state.RouteToSatellite(satellite);
         }
     }
 }

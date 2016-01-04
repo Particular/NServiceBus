@@ -112,7 +112,7 @@
             var metadataRegistry = new MessageMetadataRegistry(new Conventions());
             metadataRegistry.RegisterMessageType(typeof(MyMessage));
             metadataRegistry.RegisterMessageType(typeof(MessageWithoutRouting));
-            return new UnicastSendRouterConnector(localAddress, strategy ?? new FakeRoutingStrategy(), new DistributionPolicy());
+            return new UnicastSendRouterConnector(localAddress, null, null, strategy ?? new FakeRoutingStrategy(), new DistributionPolicy());
         }
 
         class FakeRoutingStrategy : IUnicastRouter

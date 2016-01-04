@@ -40,7 +40,7 @@
             context.Container.ConfigureComponent(b => context.Settings.Get<Publishers>(), DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent(b => context.Settings.Get<DistributionPolicy>(), DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent<UnicastRouter>(DependencyLifecycle.SingleInstance);
-            context.Container.ConfigureComponent(b => new UnicastSendRouterConnector(LocalAddress(b), b.Build<UnicastRouter>(), b.Build<DistributionPolicy>()), DependencyLifecycle.InstancePerCall);
+            context.Container.ConfigureComponent(b => new UnicastSendRouterConnector(LocalAddress(b), context.Settings.EndpointInstanceName(), context.Settings.Get<LogicalToTransportAddressTranslation>(), b.Build<UnicastRouter>(), b.Build<DistributionPolicy>()), DependencyLifecycle.InstancePerCall);
 
             var transportAddresses = context.Settings.Get<TransportAddresses>();
             transportAddresses.RegisterTransportDefault(x => transportDefinition.ToTransportAddress(new LogicalAddress(x)));
