@@ -50,27 +50,17 @@
         {
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServer>(b => b
-                    .EnableFeature<FirstLevelRetries>())
+                EndpointSetup<DefaultServer>(b =>
+                {
+                    b.EnableFeature<FirstLevelRetries>();
+                    b.Faults().SetFaultNotification(message =>
+                    {
+                        var testcontext = (Context) ScenarioContext;
+                        testcontext.GaveUpOnRetries = true;
+                        return Task.FromResult(0);
+                    });
+                })
                     .WithConfig<TransportConfig>(c => c.MaxRetries = maxretries);
-            }
-
-            class ErrorNotificationSpy : IWantToRunWhenBusStartsAndStops
-            {
-                public Context Context { get; set; }
-
-                public BusNotifications BusNotifications { get; set; }
-
-                public Task Start(IBusSession session)
-                {
-                    BusNotifications.Errors.MessageSentToErrorQueue += (sender, message) => Context.GaveUpOnRetries = true;
-                    return Task.FromResult(0);
-                }
-
-                public Task Stop(IBusSession session)
-                {
-                    return Task.FromResult(0);
-                }
             }
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>

@@ -38,6 +38,12 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
             {
                 EndpointSetup<DefaultServer>(configure =>
                 {
+                    configure.Faults().SetFaultNotification(message =>
+                    {
+                        var context = (Context)ScenarioContext;
+                        context.SlrChecksum = Checksum(message.Body);
+                        return Task.FromResult(0);
+                    });
                     configure.DisableFeature<FirstLevelRetries>();
                     configure.EnableFeature<SecondLevelRetries>();
                     configure.EnableFeature<TimeoutManager>();
@@ -84,33 +90,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
                     return Task.FromResult(0);
                 }
             }
-
-            class ErrorNotificationSpy : IWantToRunWhenBusStartsAndStops
-            {
-                BusNotifications notifications;
-                Context context;
-
-                public ErrorNotificationSpy(Context context, BusNotifications notifications)
-                {
-                    this.notifications = notifications;
-                    this.context = context;
-                }
-
-                public Task Start(IBusSession session)
-                {
-                    notifications.Errors.MessageSentToErrorQueue += (sender, message) =>
-                    {
-                        context.SlrChecksum = Checksum(message.Body);
-                    };
-                    return Task.FromResult(0);
-                }
-
-                public Task Stop(IBusSession session)
-                {
-                    return Task.FromResult(0);
-                }
-            }
-
+            
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
             {
                 public Task Handle(MessageToBeRetried message, IMessageHandlerContext context)

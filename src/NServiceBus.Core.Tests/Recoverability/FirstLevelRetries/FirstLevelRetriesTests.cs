@@ -3,6 +3,8 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Threading.Tasks;
+    using NServiceBus.Faults;
     using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Transports;
     using NUnit.Framework;
@@ -13,8 +15,9 @@
         [Test]
         public void ShouldNotPerformFLROnMessagesThatCantBeDeserialized()
         {
-            var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(0));
-
+            var storage = new FlrStatusStorage();
+            var retryPolicy = new FirstLevelRetryPolicy(0);
+            var behavior = new FirstLevelRetriesBehavior(storage, retryPolicy, null, "");
             Assert.Throws<MessageDeserializationException>(async () => await behavior.Invoke(null, () =>
             {
                 throw new MessageDeserializationException("test");
@@ -24,19 +27,23 @@
         [Test]
         public void ShouldPerformFLRIfThereAreRetriesLeftToDo()
         {
-            var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1));
+            var retryPolicy = new FirstLevelRetryPolicy(1);
+            var storage = new FlrStatusStorage();
+            var behavior = new FirstLevelRetriesBehavior(storage, retryPolicy, null, "");
             var context = CreateContext("someid");
 
             Assert.Throws<MessageProcessingAbortedException>(async () => await behavior.Invoke(context, () =>
             {
                 throw new Exception("test");
             }));
- }
+        }
 
         [Test]
         public void ShouldBubbleTheExceptionUpIfThereAreNoMoreRetriesLeft()
         {
-            var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(0));
+            var storage = new FlrStatusStorage();
+            var retryPolicy = new FirstLevelRetryPolicy(0);
+            var behavior = new FirstLevelRetriesBehavior(storage, retryPolicy, null, "");
             var context = CreateContext("someid");
 
             Assert.Throws<Exception>(async () => await behavior.Invoke(context, () =>
@@ -53,7 +60,8 @@
         {
             const string messageId = "someid";
             var storage = new FlrStatusStorage();
-            var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1), storage);
+            var retryPolicy = new FirstLevelRetryPolicy(1);
+            var behavior = new FirstLevelRetriesBehavior(storage, retryPolicy, null, "");
 
             storage.IncrementFailuresForMessage(messageId);
 
@@ -70,7 +78,8 @@
         {
             const string messageId = "someid";
             var storage = new FlrStatusStorage();
-            var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1), storage);
+            var retryPolicy = new FirstLevelRetryPolicy(1);
+            var behavior = new FirstLevelRetriesBehavior(storage, retryPolicy, null, "");
 
             Assert.Throws<MessageProcessingAbortedException>(async ()=> await behavior.Invoke(CreateContext(messageId), () =>
             {
@@ -83,19 +92,18 @@
         [Test]
         public void ShouldRaiseBusNotificationsForFLR()
         {
-            var notifications = new BusNotifications();
-            var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1), busNotifications: notifications);
-
             var notificationFired = false;
-
-            notifications.Errors.MessageHasFailedAFirstLevelRetryAttempt += (sender, retry) =>
+            Func<FirstLevelRetry, Task> notifications = retry =>
             {
                 Assert.AreEqual(0, retry.RetryAttempt);
                 Assert.AreEqual("test", retry.Exception.Message);
                 Assert.AreEqual("someid", retry.MessageId);
-
                 notificationFired = true;
-            };
+                return Task.FromResult(0);
+            }; 
+            var storage = new FlrStatusStorage();
+            var retryPolicy = new FirstLevelRetryPolicy(1);
+            var behavior = new FirstLevelRetriesBehavior(storage, retryPolicy, notifications, "");
 
             Assert.Throws<MessageProcessingAbortedException>(async () => await behavior.Invoke(CreateContext("someid"), () =>
             {
@@ -110,7 +118,8 @@
         {
             const string messageId = "someId";
             var storage = new FlrStatusStorage();
-            var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1), storage);
+            var retryPolicy = new FirstLevelRetryPolicy(1);
+            var behavior = new FirstLevelRetriesBehavior(storage, retryPolicy, null, "");
 
             Assert.Throws<MessageProcessingAbortedException>(async () => await behavior.Invoke(CreateContext(messageId), () =>
             {
@@ -130,8 +139,10 @@
         {
             const string messageId = "someId";
             var storage = new FlrStatusStorage();
-            var behavior1 = CreateFlrBehavior(new FirstLevelRetryPolicy(1), storage, pipeline: "1");
-            var behavior2 = CreateFlrBehavior(new FirstLevelRetryPolicy(2), storage, pipeline: "2");
+            var retryPolicy1 = new FirstLevelRetryPolicy(1);
+            var behavior1 = new FirstLevelRetriesBehavior(storage, retryPolicy1, null, "1");
+            var retryPolicy2 = new FirstLevelRetryPolicy(2);
+            var behavior2 = new FirstLevelRetriesBehavior(storage, retryPolicy2, null,"2");
 
             Assert.Throws<MessageProcessingAbortedException>(async () => await behavior1.Invoke(CreateContext(messageId), () =>
             {
@@ -152,17 +163,6 @@
             {
                 throw new Exception("test");
             }));
-        }
-
-        static FirstLevelRetriesBehavior CreateFlrBehavior(FirstLevelRetryPolicy retryPolicy, FlrStatusStorage storage = null, BusNotifications busNotifications = null, string pipeline = "")
-        {
-            var flrBehavior = new FirstLevelRetriesBehavior(
-                storage ?? new FlrStatusStorage(), 
-                retryPolicy, 
-                busNotifications ?? new BusNotifications(), 
-                pipeline);
-
-            return flrBehavior;
         }
 
         ITransportReceiveContext CreateContext(string messageId)

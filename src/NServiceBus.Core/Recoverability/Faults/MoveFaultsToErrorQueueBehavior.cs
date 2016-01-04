@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
+    using NServiceBus.Faults;
     using NServiceBus.Hosting;
     using NServiceBus.Logging;
     using NServiceBus.Pipeline;
@@ -15,15 +16,15 @@ namespace NServiceBus
     {
         public MoveFaultsToErrorQueueBehavior(CriticalError criticalError, 
             IPipelineBase<IRoutingContext> dispatchPipeline, 
-            HostInformation hostInformation, 
-            BusNotifications notifications, 
+            HostInformation hostInformation,
+            Func<FailedMessage, Task> notification, 
             string errorQueueAddress,
             string localAddress)
         {
             this.criticalError = criticalError;
             this.dispatchPipeline = dispatchPipeline;
             this.hostInformation = hostInformation;
-            this.notifications = notifications;
+            this.notification = notification;
             this.errorQueueAddress = errorQueueAddress;
             this.localAddress = localAddress;
         }
@@ -62,8 +63,7 @@ namespace NServiceBus
                         context);
                     
                     await dispatchPipeline.Invoke(dispatchContext).ConfigureAwait(false);
-
-                    notifications.Errors.InvokeMessageHasBeenSentToErrorQueue(message,exception);
+                    await InvokeNotification(message, exception);
                 }
                 catch (Exception ex)
                 {
@@ -73,10 +73,20 @@ namespace NServiceBus
             }
         }
 
+        Task InvokeNotification(IncomingMessage message, Exception exception)
+        {
+            if (notification == null)
+            {
+                return TaskEx.Completed;
+            }
+            var failedMessage = new FailedMessage(message.MessageId, message.Headers, message.Body, exception);
+            return notification(failedMessage);
+        }
+
         CriticalError criticalError;
         IPipelineBase<IRoutingContext> dispatchPipeline;
         HostInformation hostInformation;
-        BusNotifications notifications;
+        Func<FailedMessage, Task> notification;
         string errorQueueAddress;
         string localAddress;
         static ILog Logger = LogManager.GetLogger<MoveFaultsToErrorQueueBehavior>();
@@ -89,12 +99,12 @@ namespace NServiceBus
                     var errorQueue = ErrorQueueSettings.GetConfiguredErrorQueue(settings);
                     var pipelinesCollection = settings.Get<PipelineConfiguration>();
                     var dispatchPipeline = new PipelineBase<IRoutingContext>(b, settings, pipelinesCollection.MainPipeline);
-
+                    var failedMessageActions = settings.GetFailedMessageNotification();
                     return new MoveFaultsToErrorQueueBehavior(
                         b.Build<CriticalError>(),
                         dispatchPipeline,
                         b.Build<HostInformation>(),
-                        b.Build<BusNotifications>(),
+                        failedMessageActions,
                         errorQueue,
                         localAddress);
                 })

@@ -37,6 +37,13 @@
             {
                 EndpointSetup<DefaultServer>(configure =>
                 {
+                    configure.Faults().SetFaultNotification(message =>
+                    {
+                        var testContext = (Context)ScenarioContext;
+                        testContext.ForwardedToErrorQueue = true;
+                        testContext.SlrChecksum = Checksum(message.Body);
+                        return Task.FromResult(0);
+                    });
                     configure.DisableFeature<FirstLevelRetries>();
                     configure.EnableFeature<SecondLevelRetries>();
                     configure.EnableFeature<TimeoutManager>();
@@ -73,33 +80,6 @@
                 }
 
                 public Task MutateOutgoing(MutateOutgoingTransportMessageContext context)
-                {
-                    return Task.FromResult(0);
-                }
-            }
-
-            class ErrorNotificationSpy : IWantToRunWhenBusStartsAndStops
-            {
-                Context testContext;
-                BusNotifications notifications;
-
-                public ErrorNotificationSpy(Context testContext, BusNotifications notifications)
-                {
-                    this.testContext = testContext;
-                    this.notifications = notifications;
-                }
-
-                public Task Start(IBusSession session)
-                {
-                    notifications.Errors.MessageSentToErrorQueue += (sender, message) =>
-                    {
-                        testContext.ForwardedToErrorQueue = true;
-                        testContext.SlrChecksum = Checksum(message.Body);
-                    };
-                    return Task.FromResult(0);
-                }
-
-                public Task Stop(IBusSession session)
                 {
                     return Task.FromResult(0);
                 }

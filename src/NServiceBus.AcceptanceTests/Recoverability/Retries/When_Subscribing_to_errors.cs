@@ -14,9 +14,16 @@
         [Test]
         public async Task Should_retain_exception_details_over_FLR_and_SLR()
         {
-            var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                .WithEndpoint<SLREndpoint>(b => b
-                    .DoNotFailOnErrorMessages())
+            var newGuid = Guid.NewGuid();
+            var context = await Scenario.Define<Context>(c => { c.Id = newGuid; })
+                .WithEndpoint<SLREndpoint>(b =>
+                {
+                    b.When(bus => bus.SendLocal(new MessageToBeRetried
+                    {
+                        Id = newGuid
+                    }));
+                    b.DoNotFailOnErrorMessages();
+                })
                 .Done(c => c.MessageSentToError)
                 .Run();
 
@@ -48,6 +55,24 @@
                     config.EnableFeature<SecondLevelRetries>();
                     config.EnableFeature<TimeoutManager>();
                     config.EnableFeature<FirstLevelRetries>();
+                    var context = (Context) ScenarioContext;
+                    config.Faults().SetFaultNotification(message =>
+                    {
+                        context.MessageSentToErrorException = message.Exception;
+                        context.MessageSentToError = true;
+                        return Task.FromResult(0);
+                    });
+                    config.FirstLevelRetries().SetRetryNotification(retry =>
+                    {
+                        context.TotalNumberOfFLRTimesInvoked++;
+                        return Task.FromResult(0);
+                    });
+                    config.SecondLevelRetries().SetRetryNotification(retry =>
+                    {
+                        context.NumberOfSLRRetriesPerformed++;
+                        return Task.FromResult(0);
+                    });
+
                 })
                     .WithConfig<TransportConfig>(c => { c.MaxRetries = 3; })
                     .WithConfig<SecondLevelRetriesConfig>(c =>
@@ -56,7 +81,6 @@
                         c.TimeIncrease = TimeSpan.FromMilliseconds(1);
                     });
             }
-
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
             {
@@ -81,34 +105,6 @@
         {
             public Guid Id { get; set; }
         }
-
-        public class MyErrorSubscriber : IWantToRunWhenBusStartsAndStops
-        {
-            public Context Context { get; set; }
-
-            public BusNotifications Notifications { get; set; }
-
-            public Task Start(IBusSession session)
-            {
-                Notifications.Errors.MessageSentToErrorQueue += (sender, message) =>
-                {
-                    Context.MessageSentToErrorException = message.Exception;
-                    Context.MessageSentToError = true;
-                };
-
-                Notifications.Errors.MessageHasFailedAFirstLevelRetryAttempt += (sender, retry) => Context.TotalNumberOfFLRTimesInvoked++;
-                Notifications.Errors.MessageHasBeenSentToSecondLevelRetries += (sender, retry) => Context.NumberOfSLRRetriesPerformed++;
-
-                return session.SendLocal(new MessageToBeRetried
-                {
-                    Id = Context.Id
-                });
-            }
-
-            public Task Stop(IBusSession session)
-            {
-                return Task.FromResult(0);
-            }
-        }
+        
     }
 }

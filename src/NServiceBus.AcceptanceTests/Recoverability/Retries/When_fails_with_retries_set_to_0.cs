@@ -12,9 +12,20 @@
         [Test]
         public async Task Should_not_retry_the_message_using_flr()
         {
-            var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                    .WithEndpoint<RetryEndpoint>(b => b
-                        .DoNotFailOnErrorMessages())
+            var guid = Guid.NewGuid();
+            var context = await Scenario.Define<Context>(c => { c.Id = guid; })
+                    .WithEndpoint<RetryEndpoint>(b =>
+                    {
+                        b.When(session =>
+                        {
+                            var message = new MessageToBeRetried
+                            {
+                                ContextId = guid
+                            };
+                            return session.SendLocal(message);
+                        });
+                        b.DoNotFailOnErrorMessages();
+                    })
                     .Done(c => c.GaveUp)
                     .Run();
 
@@ -33,32 +44,20 @@
         {
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServer>(b => b.DisableFeature<Features.SecondLevelRetries>())
+                EndpointSetup<DefaultServer>(b =>
+                {
+                    b.Faults().SetFaultNotification(message =>
+                    {
+                        var testcontext = (Context)ScenarioContext;
+                        testcontext.GaveUp = true;
+                        return Task.FromResult(0);
+                    });
+                    b.DisableFeature<Features.SecondLevelRetries>();
+                })
                     .WithConfig<TransportConfig>(c =>
                     {
                         c.MaxRetries = 0;
                     });
-            }
-
-            class ErrorNotificationSpy : IWantToRunWhenBusStartsAndStops
-            {
-                public Context Context { get; set; }
-
-                public BusNotifications BusNotifications { get; set; }
-
-                public Task Start(IBusSession session)
-                {
-                    BusNotifications.Errors.MessageSentToErrorQueue += (sender, message) => Context.GaveUp = true;
-                    return session.SendLocal(new MessageToBeRetried
-                    {
-                        ContextId = Context.Id
-                    });
-                }
-
-                public Task Stop(IBusSession session)
-                {
-                    return Task.FromResult(0);
-                }
             }
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>

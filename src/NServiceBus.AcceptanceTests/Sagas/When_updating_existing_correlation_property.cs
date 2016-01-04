@@ -1,44 +1,53 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
-    using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTesting.Support;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using NServiceBus.Features;
     using NUnit.Framework;
 
     public class When_updating_existing_correlation_property : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_blow_up()
+        public async void Should_blow_up()
         {
-            var exception = Assert.Throws<AggregateException>(async () =>
-                await Scenario.Define<Context>()
-                    .WithEndpoint<ChangePropertyEndpoint>(b => b.When(bus => bus.SendLocal(new StartSagaMessage
+            var context = await Scenario.Define<Context>()
+                .WithEndpoint<ChangePropertyEndpoint>(b =>
+                {
+                    b.When(bus => bus.SendLocal(new StartSagaMessage
                     {
                         SomeId = Guid.NewGuid()
-                    })))
-                    .Done(c => c.Exceptions.Any())
-                    .Run())
-                .ExpectFailedMessages();
-
-            Assert.AreEqual(1, exception.FailedMessages.Count);
+                    }));
+                })
+                .Done(c => c.Exception != null)
+                .Run();
 
             StringAssert.Contains(
                 "Changing the value of correlated properties at runtime is currently not supported",
-                exception.FailedMessages.Single().Exception.Message);
+                context.Exception.Message);
         }
 
         public class Context : ScenarioContext
         {
+            public Exception Exception { get; set; }
         }
 
         public class ChangePropertyEndpoint : EndpointConfigurationBuilder
         {
             public ChangePropertyEndpoint()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>(configure =>
+                {
+                    configure.Faults().SetFaultNotification(message =>
+                    {
+                        var testcontext = (Context)ScenarioContext;
+                        testcontext.Exception = message.Exception;
+                        return Task.FromResult(0);
+                    });
+                    configure.DisableFeature<FirstLevelRetries>();
+                    configure.DisableFeature<SecondLevelRetries>();
+                });
             }
 
             public class ChangeCorrPropertySaga : Saga<ChangeCorrPropertySagaData>, IAmStartedByMessages<StartSagaMessage>

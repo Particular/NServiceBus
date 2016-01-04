@@ -34,6 +34,7 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Reflection;
+    using NServiceBus.Faults;
 
 
     public static partial class ConfigureCriticalErrorAction
@@ -296,16 +297,72 @@ namespace NServiceBus
         public Dictionary<string, string> Headers { get; } = new Dictionary<string, string>();
     }
 
-    public partial class BusNotifications
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        ReplacementTypeOrMember = "NotificationExtensions")]
+    public class BusNotifications
     {
-        [ObsoleteEx(Message = "For performance reasons it is no longer possible to instrument the pipeline execution", RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0")]
+        [ObsoleteEx(
+            Message = "For performance reasons it is no longer possible to instrument the pipeline execution",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
         public PipelineNotifications Pipeline
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public ErrorsNotifications Errors
+        {
+            get { throw new NotImplementedException(); }
+        }
+    }
+}
+
+namespace NServiceBus.Faults
+{
+    using System;
+
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0")]
+    public class ErrorsNotifications
+    {
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            ReplacementTypeOrMember = "busConfiguration.Faults().AddFaultNotification")]
+        public IObservable<FailedMessage> MessageSentToErrorQueue
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            ReplacementTypeOrMember = "busConfiguration.FirstLevelRetries().AddRetryNotification")]
+        public IObservable<FirstLevelRetry> MessageHasFailedAFirstLevelRetryAttempt
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            ReplacementTypeOrMember = "busConfiguration.SecondLevelRetries().AddRetryNotification")]
+        public IObservable<SecondLevelRetry> MessageHasBeenSentToSecondLevelRetries
         {
             get { throw new NotImplementedException(); }
         }
     }
 
-    [ObsoleteEx(Message = "For performance reasons it is no longer possible to instrument the pipeline execution", RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0")]
+    [ObsoleteEx(
+        Message = "For performance reasons it is no longer possible to instrument the pipeline execution",
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0")]
     public class PipelineNotifications
     {
     }
