@@ -13,7 +13,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
     {
         public class Context : ScenarioContext
         {
-            public bool ForwardedToErrorQueue { get; set; }
+            public bool SentToErrorQueue { get; set; }
             public string PhysicalMessageId { get; set; }
         }
 
@@ -24,10 +24,10 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
                 .WithEndpoint<RetryEndpoint>(b => b
                     .When(bus => bus.SendLocal(new MessageToBeRetried()))
                     .DoNotFailOnErrorMessages())
-                .Done(c => c.ForwardedToErrorQueue)
+                .Done(c => c.SentToErrorQueue)
                 .Run();
 
-            Assert.IsTrue(context.ForwardedToErrorQueue);
+            Assert.IsTrue(context.SentToErrorQueue);
             Assert.AreEqual(3, context.Logs.Count(l => l.Message
                 .StartsWith($"Second Level Retry will reschedule message '{context.PhysicalMessageId}'")));
             Assert.AreEqual(1, context.Logs.Count(l => l.Message
@@ -43,36 +43,14 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
                     configure.DisableFeature<FirstLevelRetries>();
                     configure.EnableFeature<SecondLevelRetries>();
                     configure.EnableFeature<TimeoutManager>();
+                    var context = (Context)ScenarioContext;
+                    configure.Faults().SetFaultNotification(message =>
+                    {
+                        context.SentToErrorQueue = true;
+                        return Task.FromResult(0);
+                    });
                 })
                 .WithConfig<SecondLevelRetriesConfig>(c => c.TimeIncrease = TimeSpan.FromMilliseconds(1));
-            }
-
-            class ErrorNotificationSpy : IWantToRunWhenBusStartsAndStops
-            {
-                Context testContext;
-                BusNotifications notifications;
-
-                public ErrorNotificationSpy(Context testContext, BusNotifications notifications)
-                {
-                    this.testContext = testContext;
-                    this.notifications = notifications;
-                }
-
-                public BusNotifications BusNotifications { get; set; }
-
-                public Task Start(IBusSession session)
-                {
-                    notifications.Errors.MessageSentToErrorQueue += (sender, message) =>
-                    {
-                        testContext.ForwardedToErrorQueue = true;
-                    };
-                    return Task.FromResult(0);
-                }
-
-                public Task Stop(IBusSession session)
-                {
-                    return Task.FromResult(0);
-                }
             }
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>

@@ -1,45 +1,55 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
-    using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTesting.Support;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using NServiceBus.Features;
     using NUnit.Framework;
 
     [TestFixture]
     public class When_auto_correlated_property_is_changed : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_throw()
+        public async void Should_throw()
         {
-            var exception = Assert.Throws<AggregateException>(async () =>
-                await Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(
-                        b => b.When(bus => bus.SendLocal(new StartSaga
-                        {
-                            DataId = Guid.NewGuid()
-                        })))
-                    .Done(c => c.Exceptions.Any())
-                    .Run())
-                .ExpectFailedMessages();
+            var context = await Scenario.Define<Context>()
+                .WithEndpoint<Endpoint>(b =>
+                {
+                    b.When(bus => bus.SendLocal(new StartSaga
+                    {
+                        DataId = Guid.NewGuid()
+                    }));
+                })
+                .Done(c => c.Exception != null)
+                .Run();
 
-            Assert.AreEqual(1, exception.FailedMessages.Count);
+            var exception = context.Exception;
             StringAssert.Contains(
                 "Changing the value of correlated properties at runtime is currently not supported",
-                exception.FailedMessages.Single().Exception.Message);
+                exception.Message);
         }
 
         public class Context : ScenarioContext
         {
+            public Exception Exception { get; set; }
         }
 
         public class Endpoint : EndpointConfigurationBuilder
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>(configure =>
+                {
+                    configure.Faults().SetFaultNotification(message =>
+                    {
+                        var testcontext = (Context)ScenarioContext;
+                        testcontext.Exception = message.Exception;
+                        return Task.FromResult(0);
+                    });
+                    configure.DisableFeature<FirstLevelRetries>();
+                    configure.DisableFeature<SecondLevelRetries>();
+                });
             }
 
             public class CorrIdChangedSaga : Saga<CorrIdChangedSaga.CorrIdChangedSagaData>,
@@ -53,7 +63,8 @@
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<CorrIdChangedSagaData> mapper)
                 {
-                    mapper.ConfigureMapping<StartSaga>(m => m.DataId).ToSaga(s => s.DataId);
+                    mapper.ConfigureMapping<StartSaga>(m => m.DataId)
+                        .ToSaga(s => s.DataId);
                 }
 
                 public class CorrIdChangedSagaData : ContainSagaData

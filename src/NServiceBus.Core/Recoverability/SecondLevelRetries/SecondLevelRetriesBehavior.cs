@@ -6,6 +6,7 @@ namespace NServiceBus
     using DelayedDelivery;
     using DeliveryConstraints;
     using Logging;
+    using NServiceBus.Faults;
     using Pipeline;
     using Pipeline.Contexts;
     using Routing;
@@ -14,11 +15,11 @@ namespace NServiceBus
 
     class SecondLevelRetriesBehavior : Behavior<ITransportReceiveContext>
     {
-        public SecondLevelRetriesBehavior(IPipelineBase<IRoutingContext> dispatchPipeline, SecondLevelRetryPolicy retryPolicy, BusNotifications notifications, string localAddress)
+        public SecondLevelRetriesBehavior(IPipelineBase<IRoutingContext> dispatchPipeline, SecondLevelRetryPolicy retryPolicy, Func<SecondLevelRetry, Task> secondLevelRetryNotification, string localAddress)
         {
             this.dispatchPipeline = dispatchPipeline;
             this.retryPolicy = retryPolicy;
-            this.notifications = notifications;
+            this.secondLevelRetryNotification = secondLevelRetryNotification;
             this.localAddress = localAddress;
         }
 
@@ -37,14 +38,14 @@ namespace NServiceBus
                 context.Message.Headers.Remove(Headers.Retries);
                 throw; // no SLR for poison messages
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
                 var message = context.Message;
                 var currentRetry = GetNumberOfRetries(message.Headers) + 1;
 
                 TimeSpan delay;
 
-                if (retryPolicy.TryGetDelay(message, ex, currentRetry, out delay))
+                if (retryPolicy.TryGetDelay(message, exception, currentRetry, out delay))
                 {
                     message.RevertToOriginalBodyIfNeeded();
                     var messageToRetry = new OutgoingMessage(message.MessageId, message.Headers, message.Body);
@@ -60,11 +61,11 @@ namespace NServiceBus
                         new DelayDeliveryWith(delay)
                     });
 
-                    Logger.Warn($"Second Level Retry will reschedule message '{message.MessageId}' after a delay of {delay} because of an exception:", ex);
+                    Logger.Warn($"Second Level Retry will reschedule message '{message.MessageId}' after a delay of {delay} because of an exception:", exception);
 
                     await dispatchPipeline.Invoke(dispatchContext).ConfigureAwait(false);
 
-                    notifications.Errors.InvokeMessageHasBeenSentToSecondLevelRetries(currentRetry, message, ex);
+                    await InvokeNotification(message, exception, currentRetry);
 
                     return;
                 }
@@ -74,6 +75,16 @@ namespace NServiceBus
                 throw;
             }
 
+        }
+
+        Task InvokeNotification(IncomingMessage message, Exception exception, int currentRetry)
+        {
+            if (secondLevelRetryNotification == null)
+            {
+                return TaskEx.Completed;
+            }
+            var secondLevelRetry = new SecondLevelRetry(message.Headers, message.Body, exception, currentRetry);
+            return secondLevelRetryNotification(secondLevelRetry);
         }
 
         static int GetNumberOfRetries(Dictionary<string, string> headers)
@@ -93,7 +104,7 @@ namespace NServiceBus
 
         IPipelineBase<IRoutingContext> dispatchPipeline;
         SecondLevelRetryPolicy retryPolicy;
-        BusNotifications notifications;
+        Func<SecondLevelRetry, Task> secondLevelRetryNotification;
         string localAddress;
 
         static ILog Logger = LogManager.GetLogger<SecondLevelRetriesBehavior>();

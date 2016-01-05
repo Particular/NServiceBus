@@ -18,7 +18,8 @@ namespace NServiceBus.Features
         {
             var errorQueue = ErrorQueueSettings.GetConfiguredErrorQueue(context.Settings);
             context.Settings.Get<QueueBindings>().BindSending(errorQueue);
-            context.Pipeline.Register(new MoveFaultsToErrorQueueBehavior.Registration(context.Settings, context.Settings.LocalAddress()));
+            var registerStep = new MoveFaultsToErrorQueueBehavior.Registration(context.Settings, context.Settings.LocalAddress());
+            context.Pipeline.Register(registerStep);
         }
 
 

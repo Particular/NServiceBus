@@ -17,6 +17,10 @@ namespace NServiceBus.Faults
         /// <param name="retryAttempt">Number of retry attempt.</param>
         public SecondLevelRetry(Dictionary<string, string> headers, byte[] body, Exception exception, int retryAttempt)
         {
+            Guard.AgainstNull(nameof(headers), headers);
+            Guard.AgainstNull(nameof(body), body);
+            Guard.AgainstNull(nameof(exception), exception);
+            Guard.AgainstNegative(nameof(retryAttempt), retryAttempt);
             Headers = headers;
             Body = body;
             Exception = exception;
@@ -24,22 +28,22 @@ namespace NServiceBus.Faults
         }
 
         /// <summary>
-        ///     Gets the message headers.
+        /// Gets the message headers.
         /// </summary>
         public Dictionary<string, string> Headers { get; }
 
         /// <summary>
-        ///     Gets a byte array to the body content of the message.
+        /// Gets a byte array to the body content of the message.
         /// </summary>
         public byte[] Body { get; }
 
         /// <summary>
-        ///     The exception that caused this message to fail.
+        /// The exception that caused this message to fail.
         /// </summary>
         public Exception Exception { get; }
 
         /// <summary>
-        ///     Number of retry attempt.
+        /// Number of retry attempt.
         /// </summary>
         public int RetryAttempt { get; }
     }

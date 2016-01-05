@@ -48,30 +48,17 @@
             {
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
+                    config.Faults().SetFaultNotification(message =>
+                    {
+                        var testcontext = (Context)ScenarioContext;
+                        testcontext.ForwardedToErrorQueue = true;
+                        return Task.FromResult(0);
+                    });
                     config.EnableFeature<FirstLevelRetries>();
                     config.UseTransport(context.GetTransportType())
                             .Transactions(TransportTransactionMode.ReceiveOnly);
                 });
             }
-
-            class ErrorNotificationSpy : IWantToRunWhenBusStartsAndStops
-            {
-                public Context Context { get; set; }
-
-                public BusNotifications BusNotifications { get; set; }
-
-                public Task Start(IBusSession session)
-                {
-                    BusNotifications.Errors.MessageSentToErrorQueue += (sender, message) => Context.ForwardedToErrorQueue = true;
-                    return Task.FromResult(0);
-                }
-
-                public Task Stop(IBusSession session)
-                {
-                    return Task.FromResult(0);
-                }
-            }
-
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
             {

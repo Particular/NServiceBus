@@ -21,11 +21,12 @@ namespace NServiceBus.Core.Tests
         {
             var fakeDispatchPipeline = new FakeDispatchPipeline();
             var errorQueueAddress = "error";
+            var hostInformation = new HostInformation(Guid.NewGuid(), "my host");
             var behavior = new MoveFaultsToErrorQueueBehavior(
                 new FakeCriticalError(),
                 fakeDispatchPipeline, 
-                new HostInformation(Guid.NewGuid(), "my host"),
-                new BusNotifications(), 
+                hostInformation,
+                null, 
                 errorQueueAddress,
                 "public-receive-address");
 
@@ -47,12 +48,12 @@ namespace NServiceBus.Core.Tests
             var criticalError = new FakeCriticalError();
             var fakeDispatchPipeline = new FakeDispatchPipeline{ThrowOnDispatch = true};
 
-
+            var hostInformation = new HostInformation(Guid.NewGuid(), "my host");
             var behavior = new MoveFaultsToErrorQueueBehavior(
                 criticalError, 
                 fakeDispatchPipeline, 
-                new HostInformation(Guid.NewGuid(), "my host"), 
-                new BusNotifications(), 
+                hostInformation, 
+                null, 
                 "error",
                 "public-receive-address");
 
@@ -72,12 +73,11 @@ namespace NServiceBus.Core.Tests
             var hostInfo = new HostInformation(Guid.NewGuid(), "my host");
             var context = CreateContext("someid");
 
-
             var behavior = new MoveFaultsToErrorQueueBehavior(
                 new FakeCriticalError(), 
                 fakeDispatchPipeline, 
                 hostInfo, 
-                new BusNotifications(), 
+                null, 
                 "error",
                 "public-receive-address");
 
@@ -98,8 +98,12 @@ namespace NServiceBus.Core.Tests
         [Test]
         public async Task ShouldRaiseNotificationWhenMessageIsForwarded()
         {
-
-            var notifications = new BusNotifications();
+            var failedMessageNotification = new FailedMessage();
+            Func<FailedMessage, Task> notifications = message =>
+            {
+                failedMessageNotification = message;
+                return Task.FromResult(0);
+            };
             var fakeDispatchPipeline = new FakeDispatchPipeline();
          
             var behavior = new MoveFaultsToErrorQueueBehavior(
@@ -109,9 +113,6 @@ namespace NServiceBus.Core.Tests
                 notifications, 
                 "error",
                 "public-receive-address");
-            var failedMessageNotification = new FailedMessage();
-
-            notifications.Errors.MessageSentToErrorQueue += (sender, message) => failedMessageNotification = message;
 
             await behavior.Invoke(CreateContext("someid"), () =>
             {
