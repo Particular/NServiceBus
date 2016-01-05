@@ -2,27 +2,23 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Hosting;
+    using NServiceBus.Faults;
     using NServiceBus.Logging;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.Routing;
     using NServiceBus.Settings;
-    using NServiceBus.TransportDispatch;
     using NServiceBus.Transports;
 
     class MoveFaultsToErrorQueueBehavior : Behavior<ITransportReceiveContext>
     {
         public MoveFaultsToErrorQueueBehavior(CriticalError criticalError, 
-            IPipelineBase<IRoutingContext> dispatchPipeline, 
-            HostInformation hostInformation, 
+            IPipelineBase<IFaultContext> faultPipeline, 
             BusNotifications notifications, 
             string errorQueueAddress,
             string localAddress)
         {
             this.criticalError = criticalError;
-            this.dispatchPipeline = dispatchPipeline;
-            this.hostInformation = hostInformation;
+            this.faultPipeline = faultPipeline;
             this.notifications = notifications;
             this.errorQueueAddress = errorQueueAddress;
             this.localAddress = localAddress;
@@ -52,17 +48,10 @@ namespace NServiceBus
 
                     message.Headers.Remove(Headers.Retries);
 
-                    //todo: move this to a error pipeline
-                    message.Headers[Headers.HostId] = hostInformation.HostId.ToString("N");
-                    message.Headers[Headers.HostDisplayName] = hostInformation.DisplayName;
+                    var faultContext = new FaultContext(new OutgoingMessage(message.MessageId, message.Headers, message.Body), errorQueueAddress, exception, context);
 
-
-                    var dispatchContext = new RoutingContext(new OutgoingMessage(message.MessageId, message.Headers, message.Body), 
-                        new UnicastRoutingStrategy(errorQueueAddress), 
-                        context);
+                    await faultPipeline.Invoke(faultContext).ConfigureAwait(false);
                     
-                    await dispatchPipeline.Invoke(dispatchContext).ConfigureAwait(false);
-
                     notifications.Errors.InvokeMessageHasBeenSentToErrorQueue(message,exception);
                 }
                 catch (Exception ex)
@@ -74,8 +63,7 @@ namespace NServiceBus
         }
 
         CriticalError criticalError;
-        IPipelineBase<IRoutingContext> dispatchPipeline;
-        HostInformation hostInformation;
+        IPipelineBase<IFaultContext> faultPipeline;
         BusNotifications notifications;
         string errorQueueAddress;
         string localAddress;
@@ -88,12 +76,11 @@ namespace NServiceBus
                 {
                     var errorQueue = ErrorQueueSettings.GetConfiguredErrorQueue(settings);
                     var pipelinesCollection = settings.Get<PipelineConfiguration>();
-                    var dispatchPipeline = new PipelineBase<IRoutingContext>(b, settings, pipelinesCollection.MainPipeline);
+                    var dispatchPipeline = new PipelineBase<IFaultContext>(b, settings, pipelinesCollection.MainPipeline);
 
                     return new MoveFaultsToErrorQueueBehavior(
                         b.Build<CriticalError>(),
                         dispatchPipeline,
-                        b.Build<HostInformation>(),
                         b.Build<BusNotifications>(),
                         errorQueue,
                         localAddress);

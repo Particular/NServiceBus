@@ -3,14 +3,10 @@ namespace NServiceBus.Core.Tests
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
     using System.Threading.Tasks;
     using Faults;
-    using Hosting;
     using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.Routing;
     using NServiceBus.Transports;
-    using TransportDispatch;
     using NUnit.Framework;
 
     [TestFixture]
@@ -19,12 +15,11 @@ namespace NServiceBus.Core.Tests
         [Test]
         public async Task ShouldForwardToErrorQueueForAllExceptions()
         {
-            var fakeDispatchPipeline = new FakeDispatchPipeline();
+            var fakeDispatchPipeline = new FakeFaultPipeline();
             var errorQueueAddress = "error";
             var behavior = new MoveFaultsToErrorQueueBehavior(
                 new FakeCriticalError(),
                 fakeDispatchPipeline, 
-                new HostInformation(Guid.NewGuid(), "my host"),
                 new BusNotifications(), 
                 errorQueueAddress,
                 "public-receive-address");
@@ -45,13 +40,12 @@ namespace NServiceBus.Core.Tests
         public void ShouldInvokeCriticalErrorIfForwardingFails()
         {
             var criticalError = new FakeCriticalError();
-            var fakeDispatchPipeline = new FakeDispatchPipeline{ThrowOnDispatch = true};
+            var fakeDispatchPipeline = new FakeFaultPipeline{ThrowOnDispatch = true};
 
 
             var behavior = new MoveFaultsToErrorQueueBehavior(
                 criticalError, 
                 fakeDispatchPipeline, 
-                new HostInformation(Guid.NewGuid(), "my host"), 
                 new BusNotifications(), 
                 "error",
                 "public-receive-address");
@@ -66,17 +60,15 @@ namespace NServiceBus.Core.Tests
         }
 
         [Test]
-        public async Task ShouldEnrichHeadersWithHostAndExceptionDetails()
+        public async Task ShouldEnrichHeadersWithExceptionDetails()
         {
-            var fakeDispatchPipeline = new FakeDispatchPipeline();
-            var hostInfo = new HostInformation(Guid.NewGuid(), "my host");
+            var fakeDispatchPipeline = new FakeFaultPipeline();
             var context = CreateContext("someid");
 
 
             var behavior = new MoveFaultsToErrorQueueBehavior(
                 new FakeCriticalError(), 
                 fakeDispatchPipeline, 
-                hostInfo, 
                 new BusNotifications(), 
                 "error",
                 "public-receive-address");
@@ -85,10 +77,6 @@ namespace NServiceBus.Core.Tests
             {
                 throw new Exception("testex");
             });
-
-            //host info
-            Assert.AreEqual(hostInfo.HostId.ToString("N"), fakeDispatchPipeline.MessageSent.Headers[Headers.HostId]);
-            Assert.AreEqual(hostInfo.DisplayName, fakeDispatchPipeline.MessageSent.Headers[Headers.HostDisplayName]);
 
             Assert.AreEqual("public-receive-address", fakeDispatchPipeline.MessageSent.Headers[FaultsHeaderKeys.FailedQ]);
             //exception details
@@ -100,12 +88,11 @@ namespace NServiceBus.Core.Tests
         {
 
             var notifications = new BusNotifications();
-            var fakeDispatchPipeline = new FakeDispatchPipeline();
+            var fakeDispatchPipeline = new FakeFaultPipeline();
          
             var behavior = new MoveFaultsToErrorQueueBehavior(
                 new FakeCriticalError(),
                 fakeDispatchPipeline, 
-                new HostInformation(Guid.NewGuid(), "my host"),
                 notifications, 
                 "error",
                 "public-receive-address");
@@ -127,20 +114,20 @@ namespace NServiceBus.Core.Tests
         {
             return new TransportReceiveContext(new IncomingMessage(messageId, new Dictionary<string, string>(), new MemoryStream()), null, new RootContext(null));
         }
-        class FakeDispatchPipeline : IPipelineBase<IRoutingContext>
+        class FakeFaultPipeline : IPipelineBase<IFaultContext>
         {
             public string Destination { get; private set; }
             public OutgoingMessage MessageSent { get; private set; }
             public bool ThrowOnDispatch { get; set; }
 
-            public Task Invoke(IRoutingContext context)
+            public Task Invoke(IFaultContext context)
             {
                 if (ThrowOnDispatch)
                 {
                     throw new Exception("Failed to dispatch");
                 }
 
-                Destination = ((UnicastAddressTag) context.RoutingStrategies.First().Apply(new Dictionary<string, string>())).Destination;
+                Destination = context.ErrorQueueAddress;
                 MessageSent = context.Message;
                 return Task.FromResult(0);
             }
