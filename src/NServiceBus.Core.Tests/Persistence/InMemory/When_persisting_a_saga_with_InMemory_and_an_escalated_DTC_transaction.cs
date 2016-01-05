@@ -1,0 +1,83 @@
+﻿namespace NServiceBus.SagaPersisters.InMemory.Tests
+{
+    using System;
+    using System.Threading.Tasks;
+    using NServiceBus.Extensibility;
+    using NUnit.Framework;
+    using System.Transactions;
+    using Transports;
+    using Persistence;
+
+    [TestFixture]
+    class When_persisting_a_saga_with_InMemory_and_an_escalated_DTC_transaction
+    {
+        [Test]
+        public async Task Save_fails_when_data_changes_between_concurrent_instances()
+        {
+            var saga = new TestSagaData
+            {
+                Id = Guid.NewGuid()
+            };
+
+            var persister = new InMemorySagaPersister();
+            var storageAdapter = new InMemoryTransactionalSynchronizedStorageAdapter();
+            var insertSession = new InMemorySynchronizedStorageSession();
+
+            await persister.Save(saga, SagaMetadataHelper.GetMetadata<TestSaga>(saga), insertSession, new ContextBag());
+            await insertSession.CompleteAsync();
+
+            Assert.That(async () =>
+            {
+                using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    Transaction.Current.EnlistDurable(DummyEnlistmentNotification.Id, new DummyEnlistmentNotification(), EnlistmentOptions.None);
+
+                    var transportTransaction = new TransportTransaction();
+                    transportTransaction.Set(Transaction.Current);
+
+                    var unenlistedSession = new InMemorySynchronizedStorageSession();
+
+                    CompletableSynchronizedStorageSession enlistedSession;
+                    storageAdapter.TryAdapt(transportTransaction, out enlistedSession);
+
+                    var unenlistedRecord = await persister.Get<TestSagaData>(saga.Id, unenlistedSession, new ContextBag());
+                    var enlistedRecord = await persister.Get<TestSagaData>("Id", saga.Id, enlistedSession, new ContextBag());
+
+                    await persister.Save(unenlistedRecord, SagaMetadataHelper.GetMetadata<TestSaga>(saga), unenlistedSession, new ContextBag());
+                    await persister.Save(enlistedRecord, SagaMetadataHelper.GetMetadata<TestSaga>(saga), enlistedSession, new ContextBag());
+
+                    await unenlistedSession.CompleteAsync();
+
+                    tx.Complete();
+                }
+            }, Throws.Exception.TypeOf<TransactionAbortedException>());
+        }
+    }
+
+    public class DummyEnlistmentNotification : IEnlistmentNotification
+    {
+        public static readonly Guid Id = Guid.NewGuid();
+
+        private bool WasCommitted { get; set; }
+        public void Prepare(PreparingEnlistment preparingEnlistment)
+        {
+            preparingEnlistment.Prepared();
+        }
+
+        public void Commit(Enlistment enlistment)
+        {
+            WasCommitted = true;
+            enlistment.Done();
+        }
+
+        public void Rollback(Enlistment enlistment)
+        {
+            enlistment.Done();
+        }
+
+        public void InDoubt(Enlistment enlistment)
+        {
+            enlistment.Done();
+        }
+    }
+}
