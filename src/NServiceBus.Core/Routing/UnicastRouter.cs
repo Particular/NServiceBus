@@ -16,7 +16,10 @@ namespace NServiceBus
         MessageMetadataRegistry messageMetadataRegistry;
         UnicastRoutingTable unicastRoutingTable;
 
-        public UnicastRouter(MessageMetadataRegistry messageMetadataRegistry, UnicastRoutingTable unicastRoutingTable, EndpointInstances endpointInstances, TransportAddresses physicalAddresses)
+        public UnicastRouter(MessageMetadataRegistry messageMetadataRegistry, 
+            UnicastRoutingTable unicastRoutingTable, 
+            EndpointInstances endpointInstances, 
+            TransportAddresses physicalAddresses)
         {
             this.messageMetadataRegistry = messageMetadataRegistry;
             this.unicastRoutingTable = unicastRoutingTable;
@@ -38,12 +41,15 @@ namespace NServiceBus
                 destinations.AddRange(await route.Resolve(InstanceResolver).ConfigureAwait(false));
             }
 
-            var destinationsByEndpoint = destinations.Distinct().GroupBy(d => d.Endpoint, d => d);
+            var destinationsByEndpoint = destinations
+                .GroupBy(d => d.Endpoint, d => d);
 
             var selectedDestinations = SelectDestinationsForEachEndpoint(distributionStrategy, destinationsByEndpoint);
 
             return selectedDestinations
-                .Select(destination => new UnicastRoutingStrategy(destination.Resolve(i => physicalAddresses.GetTransportAddress(new LogicalAddress(i)))));
+                .Select(destination => destination.Resolve(x => physicalAddresses.GetTransportAddress(new LogicalAddress(x))))
+                .Distinct() //Make sure we are sending only one to each transport destination. Might happen when there are multiple routing information sources.
+                .Select(destination => new UnicastRoutingStrategy(destination));
         }
 
         Task<IEnumerable<EndpointInstance>> InstanceResolver(EndpointName endpoint)

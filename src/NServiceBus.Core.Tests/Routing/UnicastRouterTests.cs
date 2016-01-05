@@ -73,6 +73,55 @@
             Assert.AreEqual("Shipping-1", ExtractDestination(routes[1]));
         }
 
+        [Test]
+        public void Should_not_send_multiple_copies_of_message_to_one_physical_destination()
+        {
+            var sales = new EndpointName("Sales");
+            metadataRegistry.RegisterMessageType(typeof(Event));
+
+            routingTable.RouteToEndpoint(typeof(Event), sales);
+            routingTable.RouteToAddress(typeof(Event), "Sales-1");
+            endpointInstances.AddStatic(sales, new EndpointInstance(sales, "1"));
+            transportAddresses.AddRule(i => i.ToString());
+
+            var routes = router.Route(typeof(Event), new SingleInstanceRoundRobinDistributionStrategy(), new ContextBag()).Result.ToArray();
+
+            Assert.AreEqual(1, routes.Length);
+        }
+
+        [Test]
+        public void Should_not_pass_duplicate_routes_to_distribution_strategy()
+        {
+            var sales = new EndpointName("Sales");
+            metadataRegistry.RegisterMessageType(typeof(Event));
+
+            routingTable.RouteToEndpoint(typeof(Event), sales);
+            endpointInstances.AddStatic(sales, new EndpointInstance(sales, "1"));
+            endpointInstances.AddDynamic(name =>
+            {
+                IEnumerable<EndpointInstance> results = new[]
+                {
+                    new EndpointInstance(sales, "1")
+                };
+                return Task.FromResult(results);
+            });
+            transportAddresses.AddRule(i => i.ToString());
+
+            var routes = router.Route(typeof(Event), new TestDistributionStrategy(), new ContextBag()).Result.ToArray();
+
+            Assert.AreEqual(1, routes.Length);
+        }
+
+        class TestDistributionStrategy : DistributionStrategy
+        {
+            public override IEnumerable<UnicastRoutingTarget> SelectDestination(IEnumerable<UnicastRoutingTarget> allInstances)
+            {
+                var instances = allInstances.ToList();
+                Assert.AreEqual(1, instances.Count);
+                return instances;
+            }
+        }
+
         static string ExtractDestination(UnicastRoutingStrategy route)
         {
             var headers = new Dictionary<string, string>();

@@ -54,6 +54,15 @@ namespace NServiceBus.Transports
         public abstract string ToTransportAddress(LogicalAddress logicalAddress);
 
         /// <summary>
+        /// Returns the canonical for of the given transport address so various transport addresses can be effectively compared and deduplicated.
+        /// </summary>
+        /// <param name="transportAddress">A transport address.</param>
+        public virtual string MakeCanonicalForm(string transportAddress)
+        {
+            return transportAddress;
+        }
+
+        /// <summary>
         /// Returns the outbound routing policy selected for the transport.
         /// </summary>
         public abstract OutboundRoutingPolicy GetOutboundRoutingPolicy(ReadOnlySettings settings);
