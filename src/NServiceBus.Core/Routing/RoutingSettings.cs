@@ -4,7 +4,6 @@
     using NServiceBus.Configuration.AdvanceExtensibility;
     using NServiceBus.Routing;
     using NServiceBus.Settings;
-    using NServiceBus.Transports;
 
     /// <summary>
     /// Exposes settings related to routing.
@@ -35,12 +34,7 @@
         {
             GetOrCreate<DistributionPolicy>().SetDistributionStrategy(distributionStrategy, typeMatchingRule);
         }
-
-        /// <summary>
-        /// Gets the transport addresses.
-        /// </summary>
-        public TransportAddresses TransportAddresses => GetOrCreate<TransportAddresses>();
-
+        
         T GetOrCreate<T>()
             where T : new()
         {

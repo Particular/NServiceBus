@@ -23,7 +23,7 @@
             {
                 results.AddRange(await publisherAddress.Resolve(
                     ResolveInstances, 
-                    i => physicalAddresses.GetTransportAddress(i)).ConfigureAwait(false));
+                    i => physicalAddresses.GetTransportAddress(new LogicalAddress(i))).ConfigureAwait(false));
             }
             return results;
         }

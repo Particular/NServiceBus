@@ -176,7 +176,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            ReplacementTypeOrMember = "UseCustomLogicalToTransportAddressTranslation",
+            ReplacementTypeOrMember = "UseTransport<T>().AddAddressTranslationRule",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public void OverrideLocalAddress(string queue)

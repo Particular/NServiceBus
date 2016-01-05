@@ -66,6 +66,7 @@
     <Compile Include="FakeTransport\FakeTransportSetingsExtensions.cs" />
     <Compile Include="FakeTransport\ProcessingOptimizations\When_limiting_concurrency_via_both_api_and_config.cs" />
     <Compile Include="FakeTransport\ProcessingOptimizations\When_using_concurrency_limit.cs" />
+    <Compile Include="Hosting\When_overriding_local_addresses.cs" />
     <Compile Include="Msmq\When_Audit_OverrideTimeToBeReceived_set_and_transactional_Msmq.cs" />
     <Compile Include="Msmq\When_a_corrupted_message_is_received.cs" />
     <Compile Include="Msmq\When_TimeToBeReceivedOnForwardedMessages_set_and_transactional_Msmq.cs" />

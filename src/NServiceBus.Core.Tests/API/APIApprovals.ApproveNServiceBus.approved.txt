@@ -84,8 +84,8 @@ namespace NServiceBus
         public void EndpointName(string name) { }
         public void ExcludeAssemblies(params string[] assemblies) { }
         public void ExcludeTypes(params System.Type[] types) { }
-        [System.ObsoleteAttribute("Please use `UseCustomLogicalToTransportAddressTranslation` instead. Will be remov" +
-            "ed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Please use `UseTransport<T>().AddAddressTranslationRule` instead. Will be removed" +
+            " in version 7.0.0.", true)]
         public void OverrideLocalAddress(string queue) { }
         public void OverridePublicReturnAddress(string address) { }
         [System.ObsoleteAttribute("Please use `OverridePublicReturnAddress(string address)` instead. Will be removed" +
@@ -103,7 +103,6 @@ namespace NServiceBus
             where T : NServiceBus.Container.ContainerDefinition, new () { }
         public void UseContainer(System.Type definitionType) { }
         public void UseContainer(NServiceBus.ObjectBuilder.Common.IContainer builder) { }
-        public void UseCustomLogicalToTransportAddressTranslation(System.Func<NServiceBus.LogicalAddress, string, string> translation) { }
     }
     public class BusNotifications : System.IDisposable
     {
@@ -894,7 +893,6 @@ namespace NServiceBus
     public class RoutingSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
         public NServiceBus.Routing.EndpointInstances EndpointInstances { get; }
-        public NServiceBus.Transports.TransportAddresses TransportAddresses { get; }
         public NServiceBus.Routing.UnicastRoutingTable UnicastRoutingTable { get; }
         public void SetMessageDistributionStrategy(NServiceBus.Routing.DistributionStrategy distributionStrategy, System.Func<System.Type, bool> typeMatchingRule) { }
     }
@@ -1055,8 +1053,9 @@ namespace NServiceBus
     public class TransportExtensions : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
         public TransportExtensions(NServiceBus.Settings.SettingsHolder settings) { }
+        public NServiceBus.TransportExtensions AddAddressTranslationException(NServiceBus.LogicalAddress logicalAddress, string transportAddress) { }
         public NServiceBus.TransportExtensions AddAddressTranslationException(NServiceBus.Routing.EndpointInstance endpointInstance, string transportAddress) { }
-        public NServiceBus.TransportExtensions AddAddressTranslationRule(System.Func<NServiceBus.Routing.EndpointInstance, string> rule) { }
+        public NServiceBus.TransportExtensions AddAddressTranslationRule(System.Func<NServiceBus.LogicalAddress, string> rule) { }
         public NServiceBus.TransportExtensions ConnectionString(string connectionString) { }
         public NServiceBus.TransportExtensions ConnectionString(System.Func<string> connectionString) { }
         public NServiceBus.TransportExtensions ConnectionStringName(string name) { }
@@ -2828,8 +2827,8 @@ namespace NServiceBus.Transports
     }
     public class TransportAddresses
     {
-        public TransportAddresses() { }
-        public void AddRule(System.Func<NServiceBus.Routing.EndpointInstance, string> dynamicRule) { }
+        public void AddRule(System.Func<NServiceBus.LogicalAddress, string> dynamicRule) { }
+        public void AddSpecialCase(NServiceBus.LogicalAddress endpointInstance, string physicalAddress) { }
         public void AddSpecialCase(NServiceBus.Routing.EndpointInstance endpointInstance, string physicalAddress) { }
     }
     public abstract class TransportDefinition

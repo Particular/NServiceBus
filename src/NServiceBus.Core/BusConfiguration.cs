@@ -118,19 +118,7 @@ namespace NServiceBus
         public void EndpointName(string name)
         {
             Guard.AgainstNullAndEmpty(nameof(name), name);
-            endpoint = new EndpointName(name);
-        }
-
-        /// <summary>
-        /// Registers a callback which allows to override the default translation of a logical address to the transport address in case the default
-        /// does not comply with naming rules implied by the transport (e.g. too long, invalid characters).
-        /// The callback takes a logical address and a default translation and should return an overridden (or the provided default) translation.
-        /// </summary>
-        /// <param name="translation">The translation callback.</param>
-        public void UseCustomLogicalToTransportAddressTranslation(Func<LogicalAddress, string, string> translation)
-        {
-            Guard.AgainstNull(nameof(translation), translation);
-            addressTranslation = translation;
+            endpointName = new EndpointName(name);
         }
 
         /// <summary>
@@ -234,11 +222,7 @@ namespace NServiceBus
             var endpointHelper = new EndpointHelper(new StackTrace());
 
             Settings.SetDefault("EndpointVersion", endpointHelper.GetEndpointVersion());
-            Settings.SetDefault<EndpointName>(endpoint ?? new EndpointName(endpointHelper.GetDefaultEndpointName()));
-            if (addressTranslation != null)
-            {
-                Settings.Set("LogicalToTransportAddressTranslation", addressTranslation);
-            }
+            Settings.SetDefault<EndpointName>(endpointName ?? new EndpointName(endpointHelper.GetDefaultEndpointName()));
             if (publicReturnAddress != null)
             {
                 Settings.SetDefault("PublicReturnAddress", publicReturnAddress);
@@ -305,8 +289,7 @@ namespace NServiceBus
         ConventionsBuilder conventionsBuilder;
         List<Action<IConfigureComponents>> registrations = new List<Action<IConfigureComponents>>();
         IContainer customBuilder;
-        EndpointName endpoint;
-        Func<LogicalAddress, string, string> addressTranslation;
+        EndpointName endpointName;
         List<IWantToRunWhenBusStartsAndStops> startables = new List<IWantToRunWhenBusStartsAndStops>();
         List<Type> scannedTypes;
         List<Type> excludedTypes = new List<Type>();
