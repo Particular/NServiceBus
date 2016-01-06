@@ -30,7 +30,7 @@
             {
                 using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                 {
-                    Transaction.Current.EnlistDurable(DummyEnlistmentNotification.Id, new DummyEnlistmentNotification(), EnlistmentOptions.None);
+                    Transaction.Current.EnlistDurable(EnlistmentWhichEnforcesDtcEscalation.Id, new EnlistmentWhichEnforcesDtcEscalation(), EnlistmentOptions.None);
 
                     var transportTransaction = new TransportTransaction();
                     transportTransaction.Set(Transaction.Current);
@@ -54,7 +54,7 @@
         }
     }
 
-    public class DummyEnlistmentNotification : IEnlistmentNotification
+    public class EnlistmentWhichEnforcesDtcEscalation : IEnlistmentNotification
     {
         public static readonly Guid Id = Guid.NewGuid();
 

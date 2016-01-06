@@ -34,7 +34,7 @@ namespace NServiceBus
             return false;
         }
 
-        private class EnlistmentNotification : IEnlistmentNotification
+        class EnlistmentNotification : IEnlistmentNotification
         {
             InMemoryTransaction transaction;
 
@@ -63,6 +63,7 @@ namespace NServiceBus
 
             public void Rollback(Enlistment enlistment)
             {
+                transaction.Rollback();
                 enlistment.Done();
             }
 

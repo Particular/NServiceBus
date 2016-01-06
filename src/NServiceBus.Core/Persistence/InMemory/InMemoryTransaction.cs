@@ -20,5 +20,10 @@ namespace NServiceBus
             }
             actions.Clear();
         }
+
+        public void Rollback()
+        {
+            actions.Clear();
+        }
     }
 }
