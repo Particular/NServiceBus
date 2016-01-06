@@ -2178,7 +2178,7 @@ namespace NServiceBus.Pipeline
         where TTo : NServiceBus.Pipeline.IBehaviorContext
     {
         protected StageConnector() { }
-        public abstract System.Threading.Tasks.Task Invoke(TFrom context, System.Func<TTo, System.Threading.Tasks.Task> next);
+        public abstract System.Threading.Tasks.Task Invoke(TFrom context, System.Func<TTo, System.Threading.Tasks.Task> stage);
     }
     public abstract class StageForkConnector<TFromContext, TToContext, TForkContext> : NServiceBus.IForkConnector, NServiceBus.IForkConnector<TForkContext>, NServiceBus.IStageConnector, NServiceBus.Pipeline.IBehavior, NServiceBus.Pipeline.IBehavior<TFromContext, TToContext>
         where TFromContext : NServiceBus.Pipeline.IBehaviorContext
@@ -2186,7 +2186,7 @@ namespace NServiceBus.Pipeline
         where TForkContext : NServiceBus.Pipeline.IBehaviorContext
     {
         protected StageForkConnector() { }
-        public abstract System.Threading.Tasks.Task Invoke(TFromContext context, System.Func<TToContext, System.Threading.Tasks.Task> next, System.Func<TForkContext, System.Threading.Tasks.Task> fork);
+        public abstract System.Threading.Tasks.Task Invoke(TFromContext context, System.Func<TToContext, System.Threading.Tasks.Task> stage, System.Func<TForkContext, System.Threading.Tasks.Task> fork);
         public System.Threading.Tasks.Task Invoke(TFromContext context, System.Func<TToContext, System.Threading.Tasks.Task> next) { }
     }
     public class StepRegistrationSequence

@@ -19,7 +19,7 @@ namespace NServiceBus
             this.timeToBeReceived = timeToBeReceived;
         }
 
-        public override Task Invoke(IAuditContext context, Func<IRoutingContext, Task> next)
+        public override Task Invoke(IAuditContext context, Func<IRoutingContext, Task> stage)
         {
             var message = context.Message;
 
@@ -45,7 +45,7 @@ namespace NServiceBus
 
             dispatchContext.Set(deliveryConstraints);
 
-            return next(dispatchContext);
+            return stage(dispatchContext);
         }
 
         public class State

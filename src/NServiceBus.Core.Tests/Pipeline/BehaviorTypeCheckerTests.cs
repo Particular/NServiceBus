@@ -115,7 +115,7 @@
 
         class BehaviorUsingContextImplementationOnTTo : IBehavior<IAuditContext, RootContext>
         {
-            public Task Invoke(IAuditContext context, Func<RootContext, Task> next)
+            public Task Invoke(IAuditContext context, Func<RootContext, Task> stage)
             {
                 return Task.FromResult(0);
             }

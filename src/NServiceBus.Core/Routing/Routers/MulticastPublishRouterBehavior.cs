@@ -9,7 +9,7 @@ namespace NServiceBus
 
     class MulticastPublishRouterBehavior : StageConnector<IOutgoingPublishContext, IOutgoingLogicalMessageContext>
     {
-        public override Task Invoke(IOutgoingPublishContext context, Func<IOutgoingLogicalMessageContext, Task> next)
+        public override Task Invoke(IOutgoingPublishContext context, Func<IOutgoingLogicalMessageContext, Task> stage)
         {
             context.Headers[Headers.MessageIntent] = MessageIntentEnum.Publish.ToString();
 
@@ -23,7 +23,7 @@ namespace NServiceBus
                 },
                 context);
 
-            return next(logicalMessageContext);
+            return stage(logicalMessageContext);
         }
     }
 }

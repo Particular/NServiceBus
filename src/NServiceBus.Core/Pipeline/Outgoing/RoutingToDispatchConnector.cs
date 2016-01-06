@@ -14,7 +14,7 @@
 
     class RoutingToDispatchConnector : StageConnector<IRoutingContext, IDispatchContext>
     {
-        public override Task Invoke(IRoutingContext context, Func<IDispatchContext, Task> next)
+        public override Task Invoke(IRoutingContext context, Func<IDispatchContext, Task> stage)
         {
             var state = context.Extensions.GetOrCreate<State>();
             var dispatchConsistency = state.ImmediateDispatch ? DispatchConsistency.Isolated : DispatchConsistency.Default;
@@ -52,7 +52,7 @@
                 return TaskEx.Completed;
             }
 
-            return next(new DispatchContext(operations.ToArray(), context));
+            return stage(new DispatchContext(operations.ToArray(), context));
         }
 
         public class State

@@ -6,9 +6,9 @@
 
     class BatchToDispatchConnector : StageConnector<IBatchDispatchContext, IDispatchContext>
     {
-        public override Task Invoke(IBatchDispatchContext context, Func<IDispatchContext, Task> next)
+        public override Task Invoke(IBatchDispatchContext context, Func<IDispatchContext, Task> stage)
         {
-            return next(new DispatchContext(context.Operations, context));
+            return stage(new DispatchContext(context.Operations, context));
         }
     }
 }

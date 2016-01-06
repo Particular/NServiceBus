@@ -21,7 +21,7 @@ namespace NServiceBus
             this.outboxStorage = outboxStorage;
         }
 
-        public override async Task Invoke(ITransportReceiveContext context, Func<IIncomingPhysicalMessageContext, Task> next, Func<IBatchDispatchContext, Task> fork)
+        public override async Task Invoke(ITransportReceiveContext context, Func<IIncomingPhysicalMessageContext, Task> stage, Func<IBatchDispatchContext, Task> fork)
         {
             var messageId = context.Message.MessageId;
             var physicalMessageContext = new IncomingPhysicalMessageContext(context.Message, context);
@@ -36,7 +36,7 @@ namespace NServiceBus
                 using (var outboxTransaction = await outboxStorage.BeginTransaction(context.Extensions).ConfigureAwait(false))
                 {
                     context.Extensions.Set(outboxTransaction);
-                    await next(physicalMessageContext).ConfigureAwait(false);
+                    await stage(physicalMessageContext).ConfigureAwait(false);
 
                     var outboxMessage = new OutboxMessage(messageId, ConvertToOutboxOperations(pendingTransportOperations.Operations).ToList());
                     await outboxStorage.Store(outboxMessage, outboxTransaction, context.Extensions).ConfigureAwait(false);
@@ -60,7 +60,7 @@ namespace NServiceBus
             await outboxStorage.SetAsDispatched(messageId, context.Extensions).ConfigureAwait(false);
         }
 
-        void ConvertToPendingOperations(OutboxMessage deduplicationEntry, PendingTransportOperations pendingTransportOperations)
+        static void ConvertToPendingOperations(OutboxMessage deduplicationEntry, PendingTransportOperations pendingTransportOperations)
         {
             foreach (var operation in deduplicationEntry.TransportOperations)
             {

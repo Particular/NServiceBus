@@ -218,7 +218,7 @@ namespace NServiceBus.Core.Tests.Pipeline
 
         class FakeStageConnector : StageConnector<IRootContext, IChildContext>
         {
-            public override Task Invoke(IRootContext context, Func<IChildContext, Task> next)
+            public override Task Invoke(IRootContext context, Func<IChildContext, Task> stage)
             {
                 throw new NotImplementedException();
             }

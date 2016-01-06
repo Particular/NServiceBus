@@ -23,7 +23,7 @@
             this.messageMetadataRegistry = messageMetadataRegistry;
         }
 
-        public override async Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingPhysicalMessageContext, Task> next)
+        public override async Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingPhysicalMessageContext, Task> stage)
         {
             if (log.IsDebugEnabled)
             {
@@ -34,7 +34,7 @@
 
             if (context.ShouldSkipSerialization())
             {
-                await next(new OutgoingPhysicalMessageContext(new byte[0], context.RoutingStrategies, context)).ConfigureAwait(false);
+                await stage(new OutgoingPhysicalMessageContext(new byte[0], context.RoutingStrategies, context)).ConfigureAwait(false);
                 return;
             }
 
@@ -42,7 +42,7 @@
             context.Headers[Headers.EnclosedMessageTypes] = SerializeEnclosedMessageTypes(context.Message.MessageType);
 
             var array = Serialize(context);
-            await next(new OutgoingPhysicalMessageContext(array, context.RoutingStrategies, context)).ConfigureAwait(false);
+            await stage(new OutgoingPhysicalMessageContext(array, context.RoutingStrategies, context)).ConfigureAwait(false);
         }
 
         byte[] Serialize(IOutgoingLogicalMessageContext context)

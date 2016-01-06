@@ -15,7 +15,7 @@ namespace NServiceBus.Pipeline
         where TForkContext : IBehaviorContext
     {
         /// <inheritdoc />
-        public abstract Task Invoke(TFromContext context, Func<TToContext, Task> next, Func<TForkContext, Task> fork);
+        public abstract Task Invoke(TFromContext context, Func<TToContext, Task> stage, Func<TForkContext, Task> fork);
 
         /// <inheritdoc />
         public Task Invoke(TFromContext context, Func<TToContext, Task> next)

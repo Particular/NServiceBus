@@ -14,6 +14,6 @@
         /// Contains information about the pipeline this behavior is part of.
         /// </summary>
         /// <inheritdoc />
-        public abstract Task Invoke(TFrom context, Func<TTo, Task> next);
+        public abstract Task Invoke(TFrom context, Func<TTo, Task> stage);
     }
 }
