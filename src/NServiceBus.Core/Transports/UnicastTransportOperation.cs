@@ -7,7 +7,7 @@ namespace NServiceBus.Transports
     /// <summary>
     /// Represents a transport operation which should be delivered to a single receiver.
     /// </summary>
-    public class UnicastTransportOperation
+    public class UnicastTransportOperation: IOutgoingTransportOperation
     {
         /// <summary>
         /// Creates a new <see cref="UnicastTransportOperation"/> instance.
