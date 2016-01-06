@@ -4,7 +4,7 @@ namespace NServiceBus
     using NServiceBus.Outbox;
     using NServiceBus.Persistence;
     using NServiceBus.Transports;
-
+    using System;
     class InMemoryTransactionalSynchronizedStorageAdapter : ISynchronizedStorageAdapter
     {
         public bool TryAdapt(OutboxTransaction transaction, out CompletableSynchronizedStorageSession session)
@@ -34,7 +34,7 @@ namespace NServiceBus
             return false;
         }
 
-        private class EnlistmentNotification : IEnlistmentNotification
+        class EnlistmentNotification : IEnlistmentNotification
         {
             InMemoryTransaction transaction;
 
@@ -45,8 +45,15 @@ namespace NServiceBus
 
             public void Prepare(PreparingEnlistment preparingEnlistment)
             {
-                transaction.Commit();
-                preparingEnlistment.Prepared();
+                try
+                {
+                    transaction.Commit();
+                    preparingEnlistment.Prepared();
+                }
+                catch (Exception ex)
+                {
+                    preparingEnlistment.ForceRollback(ex);
+                }
             }
 
             public void Commit(Enlistment enlistment)
@@ -56,6 +63,7 @@ namespace NServiceBus
 
             public void Rollback(Enlistment enlistment)
             {
+                transaction.Rollback();
                 enlistment.Done();
             }
 
