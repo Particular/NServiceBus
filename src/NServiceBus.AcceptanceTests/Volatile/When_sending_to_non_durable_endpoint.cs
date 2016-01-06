@@ -4,6 +4,7 @@
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
+    using NServiceBus.Config;
     using NUnit.Framework;
 
     public class When_sending_to_non_durable_endpoint : NServiceBusAcceptanceTest
@@ -30,7 +31,11 @@
             public Sender()
             {
                 EndpointSetup<DefaultServer>(builder => builder.DisableDurableMessages())
-                    .AddMapping<MyMessage>(typeof(Receiver));
+                    .AddMapping<MyMessage>(typeof(Receiver))
+                    .WithConfig<MessageForwardingInCaseOfFaultConfig>(c =>
+                    {
+                        c.ErrorQueue = "NonDurableError";
+                    });
             }
         }
 
@@ -38,7 +43,11 @@
         {
             public Receiver()
             {
-                EndpointSetup<DefaultServer>(builder => builder.DisableDurableMessages());
+                EndpointSetup<DefaultServer>(builder => builder.DisableDurableMessages())
+                    .WithConfig<MessageForwardingInCaseOfFaultConfig>(c =>
+                    {
+                        c.ErrorQueue = "NonDurableError";
+                    });
             }
         }
 
