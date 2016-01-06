@@ -3,7 +3,6 @@ namespace NServiceBus.Features
     using System;
     using NServiceBus.Config;
     using NServiceBus.Settings;
-    using NServiceBus.TransportDispatch;
     using NServiceBus.Transports;
 
     /// <summary>
@@ -27,19 +26,12 @@ namespace NServiceBus.Features
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var  retryPolicy = GetRetryPolicy(context.Settings);
+            var retryPolicy = GetRetryPolicy(context.Settings);
 
             context.Container.RegisterSingleton(typeof(SecondLevelRetryPolicy), retryPolicy);
             context.Pipeline.Register<SecondLevelRetriesBehavior.Registration>();
 
-
-            context.Container.ConfigureComponent(b =>
-            {
-                var pipelinesCollection = context.Settings.Get<PipelineConfiguration>();
-             
-                var dispatchPipeline = new PipelineBase<IRoutingContext>(b, context.Settings, pipelinesCollection.MainPipeline);
-                return new SecondLevelRetriesBehavior(dispatchPipeline,retryPolicy,b.Build<BusNotifications>(), context.Settings.LocalAddress());
-            }, DependencyLifecycle.InstancePerCall);
+            context.Container.ConfigureComponent(b => new SecondLevelRetriesBehavior(retryPolicy, b.Build<BusNotifications>(), context.Settings.LocalAddress()), DependencyLifecycle.InstancePerCall);
         }
 
         bool IsEnabledInConfig(FeatureConfigurationContext context)
@@ -70,7 +62,7 @@ namespace NServiceBus.Features
                 return new DefaultSecondLevelRetryPolicy(retriesConfig.NumberOfRetries, retriesConfig.TimeIncrease);
             }
 
-            return new DefaultSecondLevelRetryPolicy(DefaultSecondLevelRetryPolicy.DefaultNumberOfRetries,DefaultSecondLevelRetryPolicy.DefaultTimeIncrease);
+            return new DefaultSecondLevelRetryPolicy(DefaultSecondLevelRetryPolicy.DefaultNumberOfRetries, DefaultSecondLevelRetryPolicy.DefaultTimeIncrease);
         }
     }
 }

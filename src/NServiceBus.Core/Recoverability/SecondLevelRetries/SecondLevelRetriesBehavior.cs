@@ -12,17 +12,16 @@ namespace NServiceBus
     using TransportDispatch;
     using Transports;
 
-    class SecondLevelRetriesBehavior : Behavior<ITransportReceiveContext>
+    class SecondLevelRetriesBehavior : ForkConnector<ITransportReceiveContext, IRoutingContext>
     {
-        public SecondLevelRetriesBehavior(IPipelineBase<IRoutingContext> dispatchPipeline, SecondLevelRetryPolicy retryPolicy, BusNotifications notifications, string localAddress)
+        public SecondLevelRetriesBehavior(SecondLevelRetryPolicy retryPolicy, BusNotifications notifications, string localAddress)
         {
-            this.dispatchPipeline = dispatchPipeline;
             this.retryPolicy = retryPolicy;
             this.notifications = notifications;
             this.localAddress = localAddress;
         }
 
-        public override async Task Invoke(ITransportReceiveContext context, Func<Task> next)
+        public override async Task Invoke(ITransportReceiveContext context, Func<Task> next, Func<IRoutingContext, Task> fork)
         {
             try
             {
@@ -62,7 +61,7 @@ namespace NServiceBus
 
                     Logger.Warn($"Second Level Retry will reschedule message '{message.MessageId}' after a delay of {delay} because of an exception:", ex);
 
-                    await dispatchPipeline.Invoke(dispatchContext).ConfigureAwait(false);
+                    await fork(dispatchContext).ConfigureAwait(false);
 
                     notifications.Errors.InvokeMessageHasBeenSentToSecondLevelRetries(currentRetry, message, ex);
 
@@ -90,8 +89,6 @@ namespace NServiceBus
             return 0;
         }
 
-
-        IPipelineBase<IRoutingContext> dispatchPipeline;
         SecondLevelRetryPolicy retryPolicy;
         BusNotifications notifications;
         string localAddress;

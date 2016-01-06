@@ -10,7 +10,7 @@ namespace NServiceBus
 
     class FaultToDispatchConnector : StageConnector<IFaultContext, IRoutingContext>
     {
-        public override Task Invoke(IFaultContext context, Func<IRoutingContext, Task> next)
+        public override Task Invoke(IFaultContext context, Func<IRoutingContext, Task> stage)
         {
             var message = context.Message;
 
@@ -27,7 +27,7 @@ namespace NServiceBus
 
             var dispatchContext = new RoutingContext(message, new UnicastRoutingStrategy(context.ErrorQueueAddress), context);
             
-            return next(dispatchContext);
+            return stage(dispatchContext);
         }
 
         public class State

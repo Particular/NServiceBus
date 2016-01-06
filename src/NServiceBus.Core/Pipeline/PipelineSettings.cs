@@ -97,8 +97,8 @@ namespace NServiceBus.Pipeline
         {
             BehaviorTypeChecker.ThrowIfInvalid(typeof(T), "behavior");
 
-            Guard.AgainstNullAndEmpty("stepId", stepId);
-            Guard.AgainstNullAndEmpty("description", description);
+            Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
+            Guard.AgainstNullAndEmpty(nameof(description), description);
 
             AddStep(RegisterStep.Create(stepId, typeof(T), description, b => factoryMethod(b)));
             return new StepRegistrationSequence(AddStep);
@@ -115,8 +115,8 @@ namespace NServiceBus.Pipeline
         {
             BehaviorTypeChecker.ThrowIfInvalid(typeof(T), "behavior");
 
-            Guard.AgainstNullAndEmpty("stepId", stepId);
-            Guard.AgainstNullAndEmpty("description", description);
+            Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
+            Guard.AgainstNullAndEmpty(nameof(description), description);
 
             AddStep(RegisterStep.Create(stepId, typeof(T), description, _ => behavior));
             return new StepRegistrationSequence(AddStep);

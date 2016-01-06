@@ -97,6 +97,10 @@
     <Compile Include="CriticalError\ICriticalErrorContext.cs" />
     <Compile Include="EndpointHelper.cs" />
     <Compile Include="Endpoint.cs" />
+    <Compile Include="Pipeline\ForkConnector.cs" />
+    <Compile Include="Pipeline\IPipelineCache.cs" />
+    <Compile Include="Pipeline\PipelineCache.cs" />
+    <Compile Include="Pipeline\StageForkConnector.cs" />
     <Compile Include="Transports\MulticastTransportOperation.cs" />
     <Compile Include="Transports\TransportOperations.cs" />
     <Compile Include="Transports\UnicastTransportOperation.cs" />
@@ -104,6 +108,7 @@
     <Compile Include="Recoverability\Faults\FaultToDispatchConnector.cs" />
     <Compile Include="Recoverability\Faults\FaultContext.cs" />
     <Compile Include="Recoverability\Faults\IFaultContext.cs" />
+    <Compile Include="Pipeline\IForkConnector.cs" />
     <Compile Include="UnitOfWork\TransactionScopes\HandlerTransactionScopeWrapperBehavior.cs" />
     <Compile Include="BusSession.cs" />
     <Compile Include="CriticalError\CriticalErrorContext.cs" />
@@ -145,7 +150,6 @@
     <Compile Include="Pipeline\Incoming\IncomingLogicalMessageContext.cs" />
     <Compile Include="Pipeline\Incoming\IncomingPhysicalMessageContext.cs" />
     <Compile Include="Pipeline\Incoming\TransportReceiveContext.cs" />
-    <Compile Include="Pipeline\IPipelineBase.cs" />
     <Compile Include="Pipeline\Outgoing\BatchDispatchContext.cs" />
     <Compile Include="Pipeline\Outgoing\DispatchContext.cs" />
     <Compile Include="Pipeline\Outgoing\OutgoingContext.cs" />
@@ -412,7 +416,7 @@
     <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetries.cs" />
     <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetryPolicy.cs" />
     <Compile Include="Pipeline\BehaviorInstance.cs" />
-    <Compile Include="Pipeline\Pipeline.cs" />
+    <Compile Include="Pipeline\IPipeline.cs" />
     <Compile Include="Pipeline\StepRegistrationSequence.cs" />
     <Compile Include="Pipeline\PipelineCollection.cs" />
     <Compile Include="Recoverability\SecondLevelRetries\CustomSecondLevelRetryPolicy.cs" />
@@ -598,7 +602,7 @@
     <Compile Include="Pipeline\Outgoing\OutgoingPhysicalToRoutingConnector.cs" />
     <Compile Include="Pipeline\MutateInstanceMessage\MutateOutgoingMessageBehavior.cs" />
     <Compile Include="Pipeline\MutateTransportMessage\MutateOutgoingTransportMessageBehavior.cs" />
-    <Compile Include="Pipeline\PipelineBase.cs" />
+    <Compile Include="Pipeline\Pipeline.cs" />
     <Compile Include="Pipeline\RootContext.cs" />
     <Compile Include="Routing\MessagingBestPractices\EnforceSendBestPracticesBehavior.cs" />
     <Compile Include="Sagas\ActiveSagaInstance.cs" />

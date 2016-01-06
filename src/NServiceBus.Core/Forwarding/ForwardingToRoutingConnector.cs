@@ -8,9 +8,9 @@ namespace NServiceBus
 
     class ForwardingToRoutingConnector : StageConnector<IForwardingContext, IRoutingContext>
     {
-        public override Task Invoke(IForwardingContext context, Func<IRoutingContext, Task> next)
+        public override Task Invoke(IForwardingContext context, Func<IRoutingContext, Task> stage)
         {
-            return next(new RoutingContext(context.Message, new UnicastRoutingStrategy(context.Address), context));
+            return stage(new RoutingContext(context.Message, new UnicastRoutingStrategy(context.Address), context));
         }
     }
 }

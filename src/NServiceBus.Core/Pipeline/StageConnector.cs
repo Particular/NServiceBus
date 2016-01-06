@@ -6,7 +6,7 @@
     /// <summary>
     /// Connects two stages of the pipeline.
     /// </summary>
-    public abstract class StageConnector<TFrom, TTo> :IStageConnector, IBehavior<TFrom, TTo> 
+    public abstract class StageConnector<TFrom, TTo> : IBehavior<TFrom, TTo>, IStageConnector
         where TFrom : IBehaviorContext
         where TTo : IBehaviorContext
     {
@@ -14,6 +14,6 @@
         /// Contains information about the pipeline this behavior is part of.
         /// </summary>
         /// <inheritdoc />
-        public abstract Task Invoke(TFrom context, Func<TTo, Task> next);
+        public abstract Task Invoke(TFrom context, Func<TTo, Task> stage);
     }
 }

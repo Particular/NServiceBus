@@ -24,7 +24,7 @@ namespace NServiceBus
             this.distributionPolicy = distributionPolicy;
         }
 
-        public override async Task Invoke(IOutgoingSendContext context, Func<IOutgoingLogicalMessageContext, Task> next)
+        public override async Task Invoke(IOutgoingSendContext context, Func<IOutgoingLogicalMessageContext, Task> stage)
         {
             var messageType = context.Message.MessageType;
             var distributionStrategy = distributionPolicy.GetDistributionStrategy(messageType);
@@ -47,7 +47,7 @@ namespace NServiceBus
 
             try
             {
-                await next(logicalMessageContext).ConfigureAwait(false);
+                await stage(logicalMessageContext).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {

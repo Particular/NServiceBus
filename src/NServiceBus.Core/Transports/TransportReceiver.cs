@@ -14,11 +14,13 @@ namespace NServiceBus
             IBuilder builder, 
             IPushMessages receiver, 
             PushSettings pushSettings, 
-            PipelineBase<ITransportReceiveContext> pipeline, 
+            IPipeline<ITransportReceiveContext> pipeline, 
+            IPipelineCache pipelineCache,
             PushRuntimeSettings pushRuntimeSettings)
         {
             Id = id;
             this.pipeline = pipeline;
+            this.pipelineCache = pipelineCache;
             this.pushRuntimeSettings = pushRuntimeSettings;
             this.pushSettings = pushSettings;
             this.receiver = receiver;
@@ -59,7 +61,7 @@ namespace NServiceBus
         {
             using (var childBuilder = builder.CreateChildBuilder())
             {
-                var context = new TransportReceiveContext(new IncomingMessage(pushContext.MessageId, pushContext.Headers, pushContext.BodyStream), pushContext.TransportTransaction, new RootContext(childBuilder));
+                var context = new TransportReceiveContext(new IncomingMessage(pushContext.MessageId, pushContext.Headers, pushContext.BodyStream), pushContext.TransportTransaction, new RootContext(childBuilder, pipelineCache));
                 context.Extensions.Merge(pushContext.Context);
                 await pipeline.Invoke(context).ConfigureAwait(false);
             }
@@ -68,11 +70,12 @@ namespace NServiceBus
         static ILog Logger = LogManager.GetLogger<TransportReceiver>();
 
         IBuilder builder;
-        PipelineBase<ITransportReceiveContext> pipeline;
+        IPipeline<ITransportReceiveContext> pipeline;
         PushRuntimeSettings pushRuntimeSettings;
         IPushMessages receiver;
 
         bool isStarted;
         PushSettings pushSettings;
+        IPipelineCache pipelineCache;
     }
 }

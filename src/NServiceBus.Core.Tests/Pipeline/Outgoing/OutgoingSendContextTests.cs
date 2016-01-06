@@ -13,7 +13,7 @@
             var options = new SendOptions();
             options.SetHeader("someHeader", "someValue");
 
-            var testee = new OutgoingSendContext(message, options, new RootContext(null));
+            var testee = new OutgoingSendContext(message, options, new RootContext(null, null));
             testee.Headers["someHeader"] = "updatedValue";
             testee.Headers["anotherHeader"] = "anotherValue";
 
@@ -30,7 +30,7 @@
             var options = new SendOptions();
             options.Context.Set("someKey", "someValue");
 
-            var testee = new OutgoingSendContext(message, options, new RootContext(null));
+            var testee = new OutgoingSendContext(message, options, new RootContext(null, null));
             testee.Extensions.Set("someKey", "updatedValue");
             testee.Extensions.Set("anotherKey", "anotherValue");
 

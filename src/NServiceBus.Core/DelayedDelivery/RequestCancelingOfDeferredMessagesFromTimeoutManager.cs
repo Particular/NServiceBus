@@ -9,11 +9,9 @@
 
     class RequestCancelingOfDeferredMessagesFromTimeoutManager : ICancelDeferredMessages
     {
-
-        public RequestCancelingOfDeferredMessagesFromTimeoutManager(string timeoutManagerAddress, IPipelineBase<IRoutingContext> dispatchPipeline)
+        public RequestCancelingOfDeferredMessagesFromTimeoutManager(string timeoutManagerAddress)
         {
             this.timeoutManagerAddress = timeoutManagerAddress;
-            this.dispatchPipeline = dispatchPipeline;
         }
 
         public Task CancelDeferredMessages(string messageKey, IBehaviorContext context)
@@ -24,11 +22,12 @@
             controlMessage.Headers[TimeoutManagerHeaders.ClearTimeouts] = bool.TrueString;
 
             var dispatchContext = new RoutingContext(controlMessage, new UnicastRoutingStrategy(timeoutManagerAddress), context);
-            
+
+            var cache = context.Extensions.Get<IPipelineCache>();
+            var dispatchPipeline = cache.Pipeline<IRoutingContext>();
             return dispatchPipeline.Invoke(dispatchContext);
         }
 
         string timeoutManagerAddress;
-        IPipelineBase<IRoutingContext> dispatchPipeline;
     }
 }

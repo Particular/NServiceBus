@@ -20,7 +20,7 @@ namespace NServiceBus
             this.distributionPolicy = distributionPolicy;
         }
 
-        public override async Task Invoke(IOutgoingPublishContext context, Func<IOutgoingLogicalMessageContext, Task> next)
+        public override async Task Invoke(IOutgoingPublishContext context, Func<IOutgoingLogicalMessageContext, Task> stage)
         {
             var eventType = context.Message.MessageType;
             var addressLabels = await GetRoutingStrategies(context, eventType).ConfigureAwait(false);
@@ -34,7 +34,7 @@ namespace NServiceBus
 
             try
             {
-                await next(
+                await stage(
                     new OutgoingLogicalMessageContext(
                         context.MessageId,
                         context.Headers,

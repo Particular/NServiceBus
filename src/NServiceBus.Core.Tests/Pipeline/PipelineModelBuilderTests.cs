@@ -258,7 +258,7 @@
 
         class ParentContextToChildContextConnector : StageConnector<IParentContext, IChildContext>
         {
-            public override Task Invoke(IParentContext context, Func<IChildContext, Task> next)
+            public override Task Invoke(IParentContext context, Func<IChildContext, Task> stage)
             {
                 throw new NotImplementedException();
             }
@@ -274,7 +274,7 @@
 
         class ParentContextToChildContextNotInheritedFromParentContextConnector : StageConnector<IParentContext, IChildContextNotInheritedFromParentContext>
         {
-            public override Task Invoke(IParentContext context, Func<IChildContextNotInheritedFromParentContext, Task> next)
+            public override Task Invoke(IParentContext context, Func<IChildContextNotInheritedFromParentContext, Task> stage)
             {
                 throw new NotImplementedException();
             }

@@ -2,6 +2,5 @@
 {
     interface IStageConnector
     {
-        
     }
 }

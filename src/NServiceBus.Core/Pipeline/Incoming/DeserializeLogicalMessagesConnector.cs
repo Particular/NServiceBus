@@ -20,7 +20,7 @@
             this.messageMetadataRegistry = messageMetadataRegistry;
         }
 
-        public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> next)
+        public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> stage)
         {
             var incomingMessage = context.Message;
 
@@ -28,7 +28,7 @@
 
             foreach (var message in messages)
             {
-                await next(new IncomingLogicalMessageContext(message, context)).ConfigureAwait(false);
+                await stage(new IncomingLogicalMessageContext(message, context)).ConfigureAwait(false);
             }
         }
 

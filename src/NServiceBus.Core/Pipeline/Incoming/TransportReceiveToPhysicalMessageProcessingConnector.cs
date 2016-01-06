@@ -14,15 +14,14 @@ namespace NServiceBus
     using Transports;
     using TransportOperation = Transports.TransportOperation;
 
-    class TransportReceiveToPhysicalMessageProcessingConnector : StageConnector<ITransportReceiveContext, IIncomingPhysicalMessageContext>
+    class TransportReceiveToPhysicalMessageProcessingConnector : StageForkConnector<ITransportReceiveContext, IIncomingPhysicalMessageContext, IBatchDispatchContext>
     {
-        public TransportReceiveToPhysicalMessageProcessingConnector(IPipelineBase<IBatchDispatchContext> batchDispatchPipeline, IOutboxStorage outboxStorage)
+        public TransportReceiveToPhysicalMessageProcessingConnector(IOutboxStorage outboxStorage)
         {
-            this.batchDispatchPipeline = batchDispatchPipeline;
             this.outboxStorage = outboxStorage;
         }
 
-        public override async Task Invoke(ITransportReceiveContext context, Func<IIncomingPhysicalMessageContext, Task> next)
+        public override async Task Invoke(ITransportReceiveContext context, Func<IIncomingPhysicalMessageContext, Task> stage, Func<IBatchDispatchContext, Task> fork)
         {
             var messageId = context.Message.MessageId;
             var physicalMessageContext = new IncomingPhysicalMessageContext(context.Message, context);
@@ -37,7 +36,7 @@ namespace NServiceBus
                 using (var outboxTransaction = await outboxStorage.BeginTransaction(context.Extensions).ConfigureAwait(false))
                 {
                     context.Extensions.Set(outboxTransaction);
-                    await next(physicalMessageContext).ConfigureAwait(false);
+                    await stage(physicalMessageContext).ConfigureAwait(false);
 
                     var outboxMessage = new OutboxMessage(messageId, ConvertToOutboxOperations(pendingTransportOperations.Operations).ToList());
                     await outboxStorage.Store(outboxMessage, outboxTransaction, context.Extensions).ConfigureAwait(false);
@@ -55,13 +54,13 @@ namespace NServiceBus
             {
                 var batchDispatchContext = new BatchDispatchContext(pendingTransportOperations.Operations, physicalMessageContext);
 
-                await batchDispatchPipeline.Invoke(batchDispatchContext).ConfigureAwait(false);
+                await fork(batchDispatchContext).ConfigureAwait(false);
             }
 
             await outboxStorage.SetAsDispatched(messageId, context.Extensions).ConfigureAwait(false);
         }
 
-        void ConvertToPendingOperations(OutboxMessage deduplicationEntry, PendingTransportOperations pendingTransportOperations)
+        static void ConvertToPendingOperations(OutboxMessage deduplicationEntry, PendingTransportOperations pendingTransportOperations)
         {
             foreach (var operation in deduplicationEntry.TransportOperations)
             {
@@ -192,7 +191,6 @@ namespace NServiceBus
             throw new Exception("Could not find routing strategy to deserialize");
         }
 
-        IPipelineBase<IBatchDispatchContext> batchDispatchPipeline;
         IOutboxStorage outboxStorage;
     }
 }

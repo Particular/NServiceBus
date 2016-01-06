@@ -873,10 +873,6 @@ namespace NServiceBus
     {
         public ReplyOptions() { }
     }
-    public class RootContext : NServiceBus.BehaviorContext
-    {
-        public RootContext(NServiceBus.ObjectBuilder.IBuilder builder) { }
-    }
     public class RoutingContext : NServiceBus.OutgoingContext, NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.TransportDispatch.IRoutingContext
     {
         public RoutingContext(NServiceBus.Transports.OutgoingMessage messageToDispatch, NServiceBus.Routing.RoutingStrategy routingStrategy, NServiceBus.Pipeline.IBehaviorContext parentContext) { }
@@ -2107,14 +2103,22 @@ namespace NServiceBus.Pipeline
         public abstract System.Threading.Tasks.Task Invoke(TContext context, System.Func<System.Threading.Tasks.Task> next);
         public System.Threading.Tasks.Task Invoke(TContext context, System.Func<TContext, System.Threading.Tasks.Task> next) { }
     }
+    public abstract class ForkConnector<TFromContext, TForkContext> : NServiceBus.Pipeline.Behavior<TFromContext>, NServiceBus.IForkConnector, NServiceBus.IForkConnector<TForkContext>
+        where TFromContext : NServiceBus.Pipeline.IBehaviorContext
+        where TForkContext : NServiceBus.Pipeline.IBehaviorContext
+    {
+        protected ForkConnector() { }
+        public abstract System.Threading.Tasks.Task Invoke(TFromContext context, System.Func<System.Threading.Tasks.Task> next, System.Func<TForkContext, System.Threading.Tasks.Task> fork);
+        public virtual System.Threading.Tasks.Task Invoke(TFromContext context, System.Func<System.Threading.Tasks.Task> next) { }
+    }
     public interface IBehavior { }
     [System.ObsoleteAttribute("Please use `Behavior<T>` instead. Will be removed in version 7.0.0.", true)]
     public interface IBehavior<in TContext> { }
-    public interface IBehavior<in TIn, out TOut> : NServiceBus.Pipeline.IBehavior
-        where in TIn : NServiceBus.Pipeline.IBehaviorContext
-        where out TOut : NServiceBus.Pipeline.IBehaviorContext
+    public interface IBehavior<in TInContext, out TOutContext> : NServiceBus.Pipeline.IBehavior
+        where in TInContext : NServiceBus.Pipeline.IBehaviorContext
+        where out TOutContext : NServiceBus.Pipeline.IBehaviorContext
     {
-        System.Threading.Tasks.Task Invoke(TIn context, System.Func<TOut, System.Threading.Tasks.Task> next);
+        System.Threading.Tasks.Task Invoke(TInContext context, System.Func<TOutContext, System.Threading.Tasks.Task> next);
     }
     public interface IBehaviorContext : NServiceBus.Extensibility.IExtendable
     {
@@ -2174,7 +2178,16 @@ namespace NServiceBus.Pipeline
         where TTo : NServiceBus.Pipeline.IBehaviorContext
     {
         protected StageConnector() { }
-        public abstract System.Threading.Tasks.Task Invoke(TFrom context, System.Func<TTo, System.Threading.Tasks.Task> next);
+        public abstract System.Threading.Tasks.Task Invoke(TFrom context, System.Func<TTo, System.Threading.Tasks.Task> stage);
+    }
+    public abstract class StageForkConnector<TFromContext, TToContext, TForkContext> : NServiceBus.IForkConnector, NServiceBus.IForkConnector<TForkContext>, NServiceBus.IStageConnector, NServiceBus.Pipeline.IBehavior, NServiceBus.Pipeline.IBehavior<TFromContext, TToContext>
+        where TFromContext : NServiceBus.Pipeline.IBehaviorContext
+        where TToContext : NServiceBus.Pipeline.IBehaviorContext
+        where TForkContext : NServiceBus.Pipeline.IBehaviorContext
+    {
+        protected StageForkConnector() { }
+        public abstract System.Threading.Tasks.Task Invoke(TFromContext context, System.Func<TToContext, System.Threading.Tasks.Task> stage, System.Func<TForkContext, System.Threading.Tasks.Task> fork);
+        public System.Threading.Tasks.Task Invoke(TFromContext context, System.Func<TToContext, System.Threading.Tasks.Task> next) { }
     }
     public class StepRegistrationSequence
     {

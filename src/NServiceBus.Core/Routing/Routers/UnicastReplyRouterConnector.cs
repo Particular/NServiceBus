@@ -14,7 +14,7 @@ namespace NServiceBus
 
     class UnicastReplyRouterConnector : StageConnector<IOutgoingReplyContext, IOutgoingLogicalMessageContext>
     {
-        public override async Task Invoke(IOutgoingReplyContext context, Func<IOutgoingLogicalMessageContext, Task> next)
+        public override async Task Invoke(IOutgoingReplyContext context, Func<IOutgoingLogicalMessageContext, Task> stage)
         {
             var state = context.Extensions.GetOrCreate<State>();
 
@@ -37,7 +37,7 @@ namespace NServiceBus
 
             try
             {
-                await next(logicalMessageContext).ConfigureAwait(false);
+                await stage(logicalMessageContext).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {
