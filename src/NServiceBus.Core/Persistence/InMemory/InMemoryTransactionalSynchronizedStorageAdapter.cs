@@ -1,10 +1,11 @@
 namespace NServiceBus
 {
+    using System;
     using System.Transactions;
     using NServiceBus.Outbox;
     using NServiceBus.Persistence;
     using NServiceBus.Transports;
-    using System;
+
     class InMemoryTransactionalSynchronizedStorageAdapter : ISynchronizedStorageAdapter
     {
         public bool TryAdapt(OutboxTransaction transaction, out CompletableSynchronizedStorageSession session)
@@ -22,7 +23,7 @@ namespace NServiceBus
         public bool TryAdapt(TransportTransaction transportTransaction, out CompletableSynchronizedStorageSession session)
         {
             Transaction ambientTransaction;
-            
+
             if (transportTransaction.TryGet(out ambientTransaction))
             {
                 var transaction = new InMemoryTransaction();
@@ -36,8 +37,6 @@ namespace NServiceBus
 
         class EnlistmentNotification : IEnlistmentNotification
         {
-            InMemoryTransaction transaction;
-
             public EnlistmentNotification(InMemoryTransaction transaction)
             {
                 this.transaction = transaction;
@@ -71,6 +70,8 @@ namespace NServiceBus
             {
                 enlistment.Done();
             }
+
+            InMemoryTransaction transaction;
         }
     }
 }
