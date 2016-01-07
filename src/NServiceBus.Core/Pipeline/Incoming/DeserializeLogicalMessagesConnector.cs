@@ -28,7 +28,7 @@
 
             foreach (var message in messages)
             {
-                await stage(new IncomingLogicalMessageContext(message, context)).ConfigureAwait(false);
+                await stage(this.CreateIncomingLogicalMessageContext(message, context)).ConfigureAwait(false);
             }
         }
 

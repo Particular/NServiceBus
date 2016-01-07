@@ -38,12 +38,10 @@ namespace NServiceBus
 
             context.Headers[Headers.MessageIntent] = MessageIntentEnum.Send.ToString();
 
-            var logicalMessageContext = new OutgoingLogicalMessageContext(
-                    context.MessageId,
-                    context.Headers,
-                    context.Message,
-                    addressLabels.EnsureNonEmpty(() => "No destination specified for message: " + messageType).ToArray(),
-                    context);
+            var logicalMessageContext = this.CreateOutgoingLogicalMessageContext(
+                context.Message, 
+                addressLabels.EnsureNonEmpty(() => "No destination specified for message: " + messageType).ToArray(), 
+                context);
 
             try
             {

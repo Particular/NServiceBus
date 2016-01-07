@@ -32,22 +32,12 @@ namespace NServiceBus
             }
 
             var inputContextType = behavior.GetInputContext();
-            if (!inputContextType.IsInterface)
-            {
-                throw new ArgumentException($@"The behavior '{behavior.Name}' is invalid since the TFrom context of IBehavior<TFrom, TTo> is not an interface.", paramName);
-            }
-
             if (NotAllowedInterfaces.Contains(inputContextType))
             {
                 throw new ArgumentException($@"The behavior '{behavior.Name}' is invalid since the TFrom {inputContextType} context of IBehavior<TFrom, TTo> is not intended to be used.", paramName);
             }
 
             var outputContextType = behavior.GetOutputContext();
-            if (!outputContextType.IsInterface)
-            {
-                throw new ArgumentException($@"The behavior '{behavior.Name}' is invalid since the TTo context of IBehavior<TFrom, TTo> is not an interface.", paramName);
-            }
-
             if (NotAllowedInterfaces.Contains(outputContextType))
             {
                 throw new ArgumentException($@"The behavior '{behavior.Name}' is invalid since the TTo {outputContextType} context of IBehavior<TFrom, TTo> is not intended to be used.", paramName);

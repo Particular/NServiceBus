@@ -43,7 +43,8 @@ namespace NServiceBus
 
                     message.Headers.Remove(Headers.Retries);
 
-                    var faultContext = new FaultContext(new OutgoingMessage(message.MessageId, message.Headers, message.Body), errorQueueAddress, exception, context);
+                    var outgoingMessage = new OutgoingMessage(message.MessageId, message.Headers, message.Body);
+                    var faultContext = this.CreateFaultContext(context, outgoingMessage, errorQueueAddress, exception);
 
                     await fork(faultContext).ConfigureAwait(false);
                     

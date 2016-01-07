@@ -8,7 +8,6 @@ namespace NServiceBus
     using Logging;
     using Pipeline;
     using Pipeline.Contexts;
-    using Routing;
     using TransportDispatch;
     using Transports;
 
@@ -51,8 +50,7 @@ namespace NServiceBus
                     messageToRetry.Headers[Headers.Retries] = currentRetry.ToString();
                     messageToRetry.Headers[RetriesTimestamp] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
 
-
-                    var dispatchContext = new RoutingContext(messageToRetry, new UnicastRoutingStrategy(localAddress), context);
+                    var dispatchContext = this.CreateRoutingContext(messageToRetry, localAddress, context);
 
                     context.Extensions.Set(new List<DeliveryConstraint>
                     {

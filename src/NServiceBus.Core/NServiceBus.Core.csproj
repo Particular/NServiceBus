@@ -101,6 +101,7 @@
     <Compile Include="Pipeline\IPipelineCache.cs" />
     <Compile Include="Pipeline\PipelineCache.cs" />
     <Compile Include="Pipeline\StageForkConnector.cs" />
+    <Compile Include="Pipeline\ConnectorContextExtensions.cs" />
     <Compile Include="Transports\MulticastTransportOperation.cs" />
     <Compile Include="Transports\TransportOperations.cs" />
     <Compile Include="Transports\UnicastTransportOperation.cs" />

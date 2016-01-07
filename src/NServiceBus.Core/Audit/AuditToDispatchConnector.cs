@@ -5,7 +5,7 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using Audit;
     using DeliveryConstraints;
-    using Routing;
+    using NServiceBus.Routing;
     using Performance.TimeToBeReceived;
     using Pipeline;
     using TransportDispatch;
@@ -41,9 +41,9 @@ namespace NServiceBus
                 deliveryConstraints.Add(new DiscardIfNotReceivedBefore(timeToBeReceived.Value));
             }
 
-            var dispatchContext = new RoutingContext(message, new UnicastRoutingStrategy(context.AuditAddress), context);
+            var dispatchContext = this.CreateRoutingContext(context.Message, new UnicastRoutingStrategy(context.AuditAddress), context);
 
-            dispatchContext.Set(deliveryConstraints);
+            dispatchContext.Extensions.Set(deliveryConstraints);
 
             return stage(dispatchContext);
         }

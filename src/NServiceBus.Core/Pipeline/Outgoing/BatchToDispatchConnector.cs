@@ -8,7 +8,7 @@
     {
         public override Task Invoke(IBatchDispatchContext context, Func<IDispatchContext, Task> stage)
         {
-            return stage(new DispatchContext(context.Operations, context));
+            return stage(this.CreateDispatchContext(context.Operations, context));
         }
     }
 }

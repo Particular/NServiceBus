@@ -52,7 +52,7 @@
                 return TaskEx.Completed;
             }
 
-            return stage(new DispatchContext(operations.ToArray(), context));
+            return stage(this.CreateDispatchContext(operations.ToArray(), context));
         }
 
         public class State
