@@ -156,6 +156,15 @@ namespace NServiceBus
         }
 
         /// <summary>
+        /// Returns the canonical for of the given transport address so various transport addresses can be effectively compared and deduplicated.
+        /// </summary>
+        /// <param name="transportAddress">A transport address.</param>
+        public override string MakeCanonicalForm(string transportAddress)
+        {
+            return MsmqAddress.Parse(transportAddress).ToString();
+        }
+
+        /// <summary>
         /// Returns the outbound routing policy selected for the transport.
         /// </summary>
         public override OutboundRoutingPolicy GetOutboundRoutingPolicy(ReadOnlySettings settings)

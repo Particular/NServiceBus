@@ -770,6 +770,7 @@ namespace NServiceBus
         public override NServiceBus.Transports.IManageSubscriptions GetSubscriptionManager() { }
         public override System.Collections.Generic.IEnumerable<System.Type> GetSupportedDeliveryConstraints() { }
         public override NServiceBus.TransportTransactionMode GetSupportedTransactionMode() { }
+        public override string MakeCanonicalForm(string transportAddress) { }
         public override string ToTransportAddress(NServiceBus.LogicalAddress logicalAddress) { }
     }
     public class NonDurableDelivery : NServiceBus.DeliveryConstraints.DeliveryConstraint
@@ -2881,6 +2882,7 @@ namespace NServiceBus.Transports
         public abstract NServiceBus.Transports.IManageSubscriptions GetSubscriptionManager();
         public abstract System.Collections.Generic.IEnumerable<System.Type> GetSupportedDeliveryConstraints();
         public abstract NServiceBus.TransportTransactionMode GetSupportedTransactionMode();
+        public virtual string MakeCanonicalForm(string transportAddress) { }
         public abstract string ToTransportAddress(NServiceBus.LogicalAddress logicalAddress);
     }
     public class TransportOperation
