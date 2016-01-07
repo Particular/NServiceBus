@@ -6,14 +6,14 @@
     /// <summary>
     /// Connects two stages of the pipeline.
     /// </summary>
-    public abstract class StageConnector<TFrom, TTo> : IBehavior<TFrom, TTo>, IStageConnector
-        where TFrom : IBehaviorContext
-        where TTo : IBehaviorContext
+    public abstract class StageConnector<TFromContext, TToContext> : IBehavior<TFromContext, TToContext>, IStageConnector
+        where TFromContext : IBehaviorContext
+        where TToContext : IBehaviorContext
     {
         /// <summary>
         /// Contains information about the pipeline this behavior is part of.
         /// </summary>
         /// <inheritdoc />
-        public abstract Task Invoke(TFrom context, Func<TTo, Task> stage);
+        public abstract Task Invoke(TFromContext context, Func<TToContext, Task> stage);
     }
 }
