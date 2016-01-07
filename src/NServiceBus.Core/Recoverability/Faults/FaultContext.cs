@@ -54,10 +54,10 @@
 
             FaultToDispatchConnector.State state;
 
-            if (!this.Extensions.TryGet(out state))
+            if (!Extensions.TryGet(out state))
             {
                 state = new FaultToDispatchConnector.State();
-                this.Extensions.Set(state);
+                Extensions.Set(state);
             }
             state.FaultyValues[key] = value;
         }
