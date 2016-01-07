@@ -12,7 +12,7 @@
         public async Task Message_should_not_be_received()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(b => b.When((bus, c) => bus.SendLocal(new MyMessage())))
+                    .WithEndpoint<Endpoint>()
                     .Run(TimeSpan.FromSeconds(10));
 
             Assert.IsFalse(context.WasCalled);
@@ -39,10 +39,30 @@
                     return Task.FromResult(0);
                 }
             }
+
+            class DelayReceiverFromStarting: IWantToRunWhenBusStartsAndStops
+            {
+                /// <summary>
+                /// Method called at startup.
+                /// </summary>
+                public async Task Start(IBusSession session)
+                {
+                    await session.SendLocal(new MyMessage());
+                    await Task.Delay(TimeSpan.FromSeconds(5));
+                }
+
+                /// <summary>
+                /// Method called on shutdown.
+                /// </summary>
+                public Task Stop(IBusSession session)
+                {
+                    return Task.FromResult(0);
+                }
+            }
         }
 
         [Serializable]
-        [TimeToBeReceived("00:00:00.0000001")]
+        [TimeToBeReceived("00:00:02")]
         public class MyMessage : IMessage
         {
         }
