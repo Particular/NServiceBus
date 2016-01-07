@@ -1312,7 +1312,7 @@ namespace NServiceBus
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
-        Message = "When in context of handler use IMessageHandlerContext. Otherwise use IBusSessionFactory to create sending context.")]
+        Message = "IHandleMessages<T> now exposes the IMessageHandlerContext parameter. You can use this to access what used to be available in the IBus interface.  If you're trying to send messages outside IHandleMessages<T> use either the provided IBusSession or create one with the IBusSessionFactory.")]
     public interface IBus
     {
     }
