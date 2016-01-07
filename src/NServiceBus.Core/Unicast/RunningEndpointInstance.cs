@@ -37,7 +37,7 @@ namespace NServiceBus
                 Log.Info("Initiating shutdown.");
 
                 await pipelineCollection.Stop().ConfigureAwait(false);
-            var busContext = CreateBusSession();
+                var busContext = CreateBusSession();
                 await featureRunner.Stop(busContext).ConfigureAwait(false);
                 await startAndStoppablesRunner.Stop(busContext).ConfigureAwait(false);
                 builder.Dispose();

@@ -5,7 +5,7 @@ namespace NServiceBus
     /// <summary>
     /// A base class for satellite behaviors.
     /// </summary>
-    public abstract class SatelliteBehavior: PipelineTerminator<IIncomingPhysicalMessageContext>
+    public abstract class SatelliteBehavior : PipelineTerminator<IIncomingPhysicalMessageContext>
     {
     }
 }
