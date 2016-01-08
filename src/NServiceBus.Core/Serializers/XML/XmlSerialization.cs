@@ -14,6 +14,8 @@
         const string BaseType = "baseType";
 
         const string DefaultNamespace = "http://tempuri.net";
+        static XNamespace xsiNamespace = "http://www.w3.org/2001/XMLSchema-instance";
+        static XNamespace xsdNamespace = "http://www.w3.org/2001/XMLSchema";
 
         Type messageType;
         XmlWriter writer;
@@ -188,7 +190,8 @@
                     var nullableType = typeof(Nullable<>).MakeGenericType(args);
                     if (type == nullableType)
                     {
-                        WriteEntry(elem, name, typeof(string), "null");
+                        elem.Add(new XElement(name, new XAttribute(xsiNamespace + "nil", true), null));
+
                         return;
                     }
                 }
@@ -282,8 +285,8 @@
 
         void WriteElementNamespaces(XElement elem, IReadOnlyList<string> baseTypes)
         {
-            elem.Add(new XAttribute(XNamespace.Xmlns + "xsi", "http://www.w3.org/2001/XMLSchema-instance"),
-                     new XAttribute(XNamespace.Xmlns + "xsd", "http://www.w3.org/2001/XMLSchema"));
+            elem.Add(new XAttribute(XNamespace.Xmlns + "xsi", xsiNamespace),
+                     new XAttribute(XNamespace.Xmlns + "xsd", xsdNamespace));
 
             for (var i = 0; i < baseTypes.Count; i++)
             {
