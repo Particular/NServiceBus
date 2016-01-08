@@ -45,6 +45,10 @@
         /// The max throughput for the transport. This allows the user to throttle their endpoint if needed.
         /// </summary>
         [ConfigurationProperty("MaximumMessageThroughputPerSecond", IsRequired = false, DefaultValue = -1)]
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6", 
+            RemoveInVersion = "7", 
+            Message = "Message throughput throttling has been removed. Please consult the documentation for further information.")]
         public int MaximumMessageThroughputPerSecond
         {
             get
