@@ -8,7 +8,7 @@ namespace NServiceBus.Transports
     /// <summary>
     /// Represents a transport operation which should be delivered to multiple receivers.
     /// </summary>
-    public class MulticastTransportOperation
+    public class MulticastTransportOperation : IOutgoingTransportOperation
     {
         /// <summary>
         /// Creates a new <see cref="MulticastTransportOperation"/> instance.

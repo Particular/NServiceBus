@@ -2655,6 +2655,12 @@ namespace NServiceBus.Transports
         public static NServiceBus.MessageIntentEnum GetMesssageIntent(this NServiceBus.Transports.IncomingMessage message) { }
         public static string GetReplyToAddress(this NServiceBus.Transports.IncomingMessage message) { }
     }
+    public interface IOutgoingTransportOperation
+    {
+        System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> DeliveryConstraints { get; }
+        NServiceBus.Transports.OutgoingMessage Message { get; }
+        NServiceBus.Transports.DispatchConsistency RequiredDispatchConsistency { get; }
+    }
     [System.ObsoleteAttribute("Please use `IDispatchMessages` instead. Will be removed in version 7.0.0.", true)]
     public interface IPublishMessages { }
     public interface IPushMessages
@@ -2668,7 +2674,7 @@ namespace NServiceBus.Transports
     {
         void Send(NServiceBus.TransportMessage message, NServiceBus.Unicast.SendOptions sendOptions);
     }
-    public class MulticastTransportOperation
+    public class MulticastTransportOperation : NServiceBus.Transports.IOutgoingTransportOperation
     {
         public MulticastTransportOperation(NServiceBus.Transports.OutgoingMessage message, System.Type messageType, System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints = null, NServiceBus.Transports.DispatchConsistency requiredDispatchConsistency = 1) { }
         public System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> DeliveryConstraints { get; }
@@ -2800,7 +2806,7 @@ namespace NServiceBus.Transports
     {
         public TransportTransaction() { }
     }
-    public class UnicastTransportOperation
+    public class UnicastTransportOperation : NServiceBus.Transports.IOutgoingTransportOperation
     {
         public UnicastTransportOperation(NServiceBus.Transports.OutgoingMessage message, string destination, System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints = null, NServiceBus.Transports.DispatchConsistency requiredDispatchConsistency = 1) { }
         public System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> DeliveryConstraints { get; }
