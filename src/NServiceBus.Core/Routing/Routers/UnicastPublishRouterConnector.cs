@@ -34,14 +34,7 @@ namespace NServiceBus
 
             try
             {
-                await stage(
-                    new OutgoingLogicalMessageContext(
-                        context.MessageId,
-                        context.Headers,
-                        context.Message,
-                        addressLabels,
-                        context))
-                    .ConfigureAwait(false);
+                await stage(this.CreateOutgoingLogicalMessageContext(context.Message, addressLabels, context)).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {

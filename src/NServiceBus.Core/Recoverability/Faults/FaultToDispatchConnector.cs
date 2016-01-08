@@ -4,7 +4,7 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using NServiceBus.Faults;
-    using Routing;
+    using NServiceBus.Routing;
     using Pipeline;
     using TransportDispatch;
 
@@ -25,7 +25,7 @@ namespace NServiceBus
                 }
             }
 
-            var dispatchContext = new RoutingContext(message, new UnicastRoutingStrategy(context.ErrorQueueAddress), context);
+            var dispatchContext = this.CreateRoutingContext(context.Message, new UnicastRoutingStrategy(context.ErrorQueueAddress), context);
             
             return stage(dispatchContext);
         }

@@ -50,18 +50,6 @@
         }
 
         [Test]
-        public void Should_throw_for_behavior_using_context_implementations_on_tfrom()
-        {
-            Assert.Throws<ArgumentException>(() => BehaviorTypeChecker.ThrowIfInvalid(typeof(BehaviorUsingContextImplementationOnTFrom), Description));
-        }
-
-        [Test]
-        public void Should_throw_for_behavior_using_context_implementations_on_tto()
-        {
-            Assert.Throws<ArgumentException>(() => BehaviorTypeChecker.ThrowIfInvalid(typeof(BehaviorUsingContextImplementationOnTTo), Description));
-        }
-
-        [Test]
         public void Should_throw_for_behavior_using_IIncomingContext()
         {
             Assert.Throws<ArgumentException>(() => BehaviorTypeChecker.ThrowIfInvalid(typeof(BehaviorUsingIncomingContext), Description));

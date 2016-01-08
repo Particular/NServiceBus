@@ -15,7 +15,7 @@
 
             var message = new OutgoingMessage(context.MessageId, context.Headers, context.Body);
 
-            return stage(new RoutingContext(message, context.RoutingStrategies, context));
+            return stage(this.CreateRoutingContext(message, context.RoutingStrategies, context));
         }
     }
 }

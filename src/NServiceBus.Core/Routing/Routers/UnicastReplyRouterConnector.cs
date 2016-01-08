@@ -28,12 +28,7 @@ namespace NServiceBus
             context.Headers[Headers.MessageIntent] = MessageIntentEnum.Reply.ToString();
 
             var addressLabels = RouteToDestination(replyToAddress).EnsureNonEmpty(() => "No destination specified.").ToArray();
-            var logicalMessageContext = new OutgoingLogicalMessageContext(
-                    context.MessageId,
-                    context.Headers,
-                    context.Message,
-                    addressLabels,
-                    context);
+            var logicalMessageContext = this.CreateOutgoingLogicalMessageContext(context.Message, addressLabels, context);
 
             try
             {

@@ -3,9 +3,9 @@ namespace NServiceBus
     using System;
     using System.Threading.Tasks;
     using NServiceBus.Pipeline.OutgoingPipeline;
+    using NServiceBus.Routing;
     using OutgoingPipeline;
     using Pipeline;
-    using Routing;
 
     class MulticastPublishRouterBehavior : StageConnector<IOutgoingPublishContext, IOutgoingLogicalMessageContext>
     {
@@ -13,9 +13,7 @@ namespace NServiceBus
         {
             context.Headers[Headers.MessageIntent] = MessageIntentEnum.Publish.ToString();
 
-            var logicalMessageContext = new OutgoingLogicalMessageContext(
-                context.MessageId,
-                context.Headers,
+            var logicalMessageContext = this.CreateOutgoingLogicalMessageContext(
                 context.Message,
                 new[]
                 {
