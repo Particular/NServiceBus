@@ -162,5 +162,21 @@ namespace NServiceBus
         {
             return new FaultContext(outgoingMessage, errorQueueAddress, exception, sourceContext);
         }
+
+        /// <summary>
+        /// Creates a <see cref="IAuditContext"/> based on the current context.
+        /// </summary>
+        public static IAuditContext CreateAuditContext(this ForkConnector<IIncomingPhysicalMessageContext, IAuditContext> forkConnector, OutgoingMessage message, string auditAddress, IIncomingPhysicalMessageContext sourceContext)
+        {
+            return new AuditContext(message, auditAddress, sourceContext);
+        }
+
+        /// <summary>
+        /// Creates a <see cref="IForwardingContext"/> based on the current context.
+        /// </summary>
+        public static IForwardingContext CreateForwardingContext(this ForkConnector<IIncomingPhysicalMessageContext, IForwardingContext> forwardingContext, OutgoingMessage message, string forwardingAddress, IIncomingPhysicalMessageContext sourceContext)
+        {
+            return new ForwardingContext(message, forwardingAddress, sourceContext);
+        }
     }
 }
