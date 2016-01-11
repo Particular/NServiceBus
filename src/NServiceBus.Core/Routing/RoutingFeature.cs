@@ -32,7 +32,7 @@
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             var canReceive = !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly");
-            var transportDefinition = context.Settings.Get<TransportDefinition>();
+            var transportInfrastructure = context.Settings.Get<TransportInfrastructure>();
 
             context.Container.ConfigureComponent(b => context.Settings.Get<UnicastRoutingTable>(), DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent(b => context.Settings.Get<EndpointInstances>(), DependencyLifecycle.SingleInstance);
@@ -55,7 +55,7 @@
 
                 foreach (MessageEndpointMapping m in legacyRoutingConfig)
                 {
-                    m.Configure((type, s) => routeTable.RouteToAddress(type, transportDefinition.MakeCanonicalForm(s)));
+                    m.Configure((type, s) => routeTable.RouteToAddress(type, transportInfrastructure.MakeCanonicalForm(s)));
                     m.Configure((type, s) =>
                     {
                         var typesEnclosed = knownMessageTypes.Where(t => t.IsAssignableFrom(type));
@@ -68,7 +68,7 @@
             }
 
             context.RegisterStartupTask(b => new SubscriptionStoreRouteInformationProvider(context.Settings, b));
-            var outboundRoutingPolicy = transportDefinition.GetOutboundRoutingPolicy(context.Settings);
+            var outboundRoutingPolicy = transportInfrastructure.OutboundRoutingPolicy;
             context.Pipeline.Register("UnicastSendRouterConnector", typeof(UnicastSendRouterConnector), "Determines how the message being sent should be routed");
             context.Pipeline.Register("UnicastReplyRouterConnector", typeof(UnicastReplyRouterConnector), "Determines how replies should be routed");
             if (outboundRoutingPolicy.Publishes == OutboundRoutingType.Unicast)
@@ -116,7 +116,10 @@
                 }
                 else
                 {
-                    context.Container.RegisterSingleton(transportDefinition.GetSubscriptionManager());
+                    var transportSubscriptionInfrastructure = transportInfrastructure.ConfigureSubscriptionInfrastructure();
+                    var subscriptionManager = transportSubscriptionInfrastructure.SubscriptionManagerFactory();
+
+                    context.Container.RegisterSingleton(subscriptionManager);
                     context.Pipeline.Register("NativeSubscribeTerminator", typeof(NativeSubscribeTerminator), "Requests the transport to subscribe to a given message type");
                     context.Pipeline.Register("NativeUnsubscribeTerminator", typeof(NativeUnsubscribeTerminator), "Requests the transport to unsubscribe to a given message type");
                 }
@@ -136,8 +139,8 @@
 
             protected override Task OnStart(IMessageSession session)
             {
-                var transportDefinition = settings.Get<TransportDefinition>();
-                if (transportDefinition.GetOutboundRoutingPolicy(settings).Publishes == OutboundRoutingType.Unicast) //Publish via send
+                var transportInfrastructure = settings.Get<TransportInfrastructure>();
+                if (transportInfrastructure.OutboundRoutingPolicy.Publishes == OutboundRoutingType.Unicast) //Publish via send
                 {
                     var subscriptions = builder.BuildAll<ISubscriptionStorage>().FirstOrDefault();
                     if (subscriptions != null)

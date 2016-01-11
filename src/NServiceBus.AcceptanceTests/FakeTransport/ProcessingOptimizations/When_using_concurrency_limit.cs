@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
@@ -73,44 +74,33 @@
 
         class FakeTransport : TransportDefinition
         {
-            protected override TransportReceivingConfigurationResult ConfigureForReceiving(TransportReceivingConfigurationContext context)
+            protected override TransportInfrastructure Initialize(SettingsHolder settings)
             {
-                return new TransportReceivingConfigurationResult(() => new FakeReceiver(), () => new FakeQueueCreator(), () => Task.FromResult(StartupCheckResult.Success));
+                return new FakeTransportInfrastructure(
+                    Enumerable.Empty<Type>(),
+                    TransportTransactionMode.None,
+                    new OutboundRoutingPolicy(OutboundRoutingType.Unicast, OutboundRoutingType.Unicast, OutboundRoutingType.Unicast),
+                    s => new TransportSendInfrastructure(() => new FakeDispatcher(), () => Task.FromResult(StartupCheckResult.Success)),
+                    s => new TransportReceiveInfrastructure(() => new FakeReceiver(), () => new FakeQueueCreator(), () => Task.FromResult(StartupCheckResult.Success)));
             }
 
-            protected override TransportSendingConfigurationResult ConfigureForSending(TransportSendingConfigurationContext context)
-            {
-                return new TransportSendingConfigurationResult(() => new FakeDispatcher(), () => Task.FromResult(StartupCheckResult.Success));
-            }
             
-            public override IEnumerable<Type> GetSupportedDeliveryConstraints()
-            {
-                yield break;
-            }
+        }
 
-            public override TransportTransactionMode GetSupportedTransactionMode()
+        class FakeTransportInfrastructure : TransportInfrastructure
+        {
+            public FakeTransportInfrastructure(IEnumerable<Type> deliveryConstraints, TransportTransactionMode transactionMode, OutboundRoutingPolicy outboundRoutingPolicy, Func<string, TransportSendInfrastructure> configureSendInfrastructure, Func<string, TransportReceiveInfrastructure> configureReceiveInfrastructure = null, Func<TransportSubscriptionInfrastructure> configureSubscriptionInfrastructure = null) : base(deliveryConstraints, transactionMode, outboundRoutingPolicy, configureSendInfrastructure, configureReceiveInfrastructure, configureSubscriptionInfrastructure)
             {
-                return TransportTransactionMode.None;
-            }
-
-            public override IManageSubscriptions GetSubscriptionManager()
-            {
-                throw new NotImplementedException();
             }
 
             public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance, ReadOnlySettings settings)
             {
                 return instance;
             }
-            
+
             public override string ToTransportAddress(LogicalAddress logicalAddress)
             {
                 return logicalAddress.ToString();
-            }
-
-            public override OutboundRoutingPolicy GetOutboundRoutingPolicy(ReadOnlySettings settings)
-            {
-                return new OutboundRoutingPolicy(OutboundRoutingType.Unicast, OutboundRoutingType.Unicast, OutboundRoutingType.Unicast);
             }
 
             public override string ExampleConnectionStringForErrorMessage => null;

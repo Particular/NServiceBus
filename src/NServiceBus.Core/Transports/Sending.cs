@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.Features;
     using NServiceBus.Transports;
@@ -16,29 +17,28 @@ namespace NServiceBus
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             var transport = context.Settings.Get<OutboundTransport>();
-            var sendConfigContext = transport.Configure(context.Settings);
-
+            var lazySendingConfigResult = new Lazy<TransportSendInfrastructure>(() => transport.Configure(context.Settings), LazyThreadSafetyMode.ExecutionAndPublication);
             context.Container.ConfigureComponent(c =>
             {
-                var dispatcher = sendConfigContext.DispatcherFactory();
+                var dispatcher = lazySendingConfigResult.Value.DispatcherFactory();
                 return dispatcher;
             }, DependencyLifecycle.SingleInstance);
 
-            context.RegisterStartupTask(new PrepareForSending(sendConfigContext.PreStartupCheck));
+            context.RegisterStartupTask(new PrepareForSending(lazySendingConfigResult));
         }
         
         class PrepareForSending : FeatureStartupTask
         {
-            readonly Func<Task<StartupCheckResult>> preStartupCheck;
+            private readonly Lazy<TransportSendInfrastructure> lazy;
 
-            public PrepareForSending(Func<Task<StartupCheckResult>> preStartupCheck)
+            public PrepareForSending(Lazy<TransportSendInfrastructure> lazy)
             {
-                this.preStartupCheck = preStartupCheck;
+                this.lazy = lazy;
             }
 
             protected override async Task OnStart(IMessageSession session)
             {
-                var result = await preStartupCheck().ConfigureAwait(false);
+                var result = await lazy.Value.PreStartupCheck().ConfigureAwait(false);
                 if (!result.Succeeded)
                 {
                     throw new Exception("Pre start-up check failed: "+ result.ErrorMessage);

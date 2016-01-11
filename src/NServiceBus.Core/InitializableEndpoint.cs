@@ -11,6 +11,7 @@ namespace NServiceBus
     using NServiceBus.ObjectBuilder.Common;
     using NServiceBus.Pipeline;
     using NServiceBus.Settings;
+    using NServiceBus.Transports;
 
     class InitializableEndpoint : IInitializableEndpoint
     {
@@ -41,6 +42,8 @@ namespace NServiceBus
             ConfigureStartsAndStops(concreteTypes);
 
             ConfigRunBeforeIsFinalized(concreteTypes);
+
+            settings.Set<TransportInfrastructure>(settings.Get<TransportDefinition>().Initialize(settings));
 
             var featureStats = featureActivator.SetupFeatures(container, pipelineSettings);
 

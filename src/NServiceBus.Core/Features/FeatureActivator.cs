@@ -58,6 +58,7 @@ namespace NServiceBus.Features
             {
                 ActivateFeature(feature, enabledFeatures, container, pipelineSettings);
             }
+
             settings.PreventChanges();
 
             return new FeaturesReport(features.Select(t => t.Diagnostics).ToList());

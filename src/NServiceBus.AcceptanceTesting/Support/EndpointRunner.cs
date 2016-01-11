@@ -55,8 +55,8 @@
 
                 if (!configuration.SendOnly)
                 {
-                    var transportDefinition = endpointConfiguration.GetSettings().Get<TransportDefinition>();
-                    scenarioContext.HasNativePubSubSupport = transportDefinition.GetOutboundRoutingPolicy(endpointConfiguration.GetSettings()).Publishes == OutboundRoutingType.Multicast;
+                    var transportInfrastructure = endpointConfiguration.GetSettings().Get<TransportInfrastructure>();
+                    scenarioContext.HasNativePubSubSupport = transportInfrastructure.OutboundRoutingPolicy.Publishes == OutboundRoutingType.Multicast;
                 }
 
                 return Result.Success();

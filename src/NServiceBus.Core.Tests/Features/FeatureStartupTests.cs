@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using NServiceBus.Features;
+    using NServiceBus.Transports;
     using NUnit.Framework;
     using ObjectBuilder;
     using Settings;
@@ -11,13 +12,22 @@
     [TestFixture]
     public class FeatureStartupTests
     {
+        private FeatureActivator featureSettings;
+        private SettingsHolder settings;
+
+        [SetUp]
+        public void Init()
+        {
+            settings = new SettingsHolder();
+            settings.Set<TransportDefinition>(new MsmqTransport());
+            featureSettings = new FeatureActivator(settings);
+        }
+
         [Test]
         public async Task Should_start_and_stop_features()
         {
             var feature = new FeatureWithStartupTask();
        
-            var featureSettings = new FeatureActivator(new SettingsHolder());
-
             featureSettings.Add(feature);
 
             var builder = new FakeBuilder(typeof(FeatureWithStartupTask.Runner));
@@ -35,8 +45,6 @@
         public async Task Should_dispose_feature_when_they_implement_IDisposable()
         {
             var feature = new FeatureWithStartupTaskWhichIsDisposable();
-
-            var featureSettings = new FeatureActivator(new SettingsHolder());
 
             featureSettings.Add(feature);
 

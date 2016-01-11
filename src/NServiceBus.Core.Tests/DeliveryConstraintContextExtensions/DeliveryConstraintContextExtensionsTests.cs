@@ -17,38 +17,31 @@
         public void Should_be_able_to_determine_if_delivery_constraint_is_supported()
         {
             var settings = new SettingsHolder();
-            settings.Set<TransportDefinition>(new FakeTransportDefinition());
-            var context = new FeatureConfigurationContext(settings, null, null);
+            var fakeTransportDefinition = new FakeTransportDefinition();
+            settings.Set<TransportDefinition>(fakeTransportDefinition);
+            settings.Set<TransportInfrastructure>(fakeTransportDefinition.Initialize(settings));
 
+            var context = new FeatureConfigurationContext(settings, null, null);
             var result = context.DoesTransportSupportConstraint<DeliveryConstraint>();
             Assert.IsTrue(result);
         }
 
         class FakeTransportDefinition : TransportDefinition
         {
-            protected internal override TransportReceivingConfigurationResult ConfigureForReceiving(TransportReceivingConfigurationContext context)
+            protected internal override TransportInfrastructure Initialize(SettingsHolder settings)
             {
-                throw new NotImplementedException();
+                return new FakeTransportInfrastructure(
+                    new[] { typeof(DelayDeliveryWith) },
+                    TransportTransactionMode.None,
+                    new OutboundRoutingPolicy(OutboundRoutingType.Unicast, OutboundRoutingType.Unicast, OutboundRoutingType.Unicast), 
+                    s => new TransportSendInfrastructure(() => null, () => null));
             }
+        }
 
-            protected internal override TransportSendingConfigurationResult ConfigureForSending(TransportSendingConfigurationContext context)
+        class FakeTransportInfrastructure : TransportInfrastructure
+        {
+            public FakeTransportInfrastructure(IEnumerable<Type> deliveryConstraints, TransportTransactionMode transactionMode, OutboundRoutingPolicy outboundRoutingPolicy, Func<string, TransportSendInfrastructure> configureSendInfrastructure, Func<string, TransportReceiveInfrastructure> configureReceiveInfrastructure = null, Func<TransportSubscriptionInfrastructure> configureSubscriptionInfrastructure = null) : base(deliveryConstraints, transactionMode, outboundRoutingPolicy, configureSendInfrastructure, configureReceiveInfrastructure, configureSubscriptionInfrastructure)
             {
-                throw new NotImplementedException();
-            }
-
-            public override IEnumerable<Type> GetSupportedDeliveryConstraints()
-            {
-                yield return typeof(DelayDeliveryWith);
-            }
-
-            public override TransportTransactionMode GetSupportedTransactionMode()
-            {
-                throw new NotImplementedException();
-            }
-
-            public override IManageSubscriptions GetSubscriptionManager()
-            {
-                throw new NotImplementedException();
             }
 
             public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance, ReadOnlySettings settings)
@@ -61,12 +54,7 @@
                 throw new NotImplementedException();
             }
 
-            public override OutboundRoutingPolicy GetOutboundRoutingPolicy(ReadOnlySettings settings)
-            {
-                throw new NotImplementedException();
-            }
-
-            public override string ExampleConnectionStringForErrorMessage { get; } = "";
+            public override string ExampleConnectionStringForErrorMessage { get; } = String.Empty;
         }
     }
 }

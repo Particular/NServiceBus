@@ -3,23 +3,32 @@
     using System;
     using System.Linq;
     using NServiceBus.Features;
+    using NServiceBus.Transports;
     using NUnit.Framework;
     using Settings;
 
     [TestFixture]
     public class FeatureSettingsTests
     {
+        private FeatureActivator featureSettings;
+        private SettingsHolder settings;
+
+        [SetUp]
+        public void Init()
+        {
+            settings = new SettingsHolder();
+            settings.Set<TransportDefinition>(new MsmqTransport());
+            featureSettings = new FeatureActivator(settings);
+        }
+
         [Test]
         public void Should_check_prerequisites()
         {
             var featureWithTrueCondition = new MyFeatureWithSatisfiedPrerequisite();
             var featureWithFalseCondition = new MyFeatureWithUnsatisfiedPrerequisite();
 
-            var featureSettings = new FeatureActivator(new SettingsHolder());
-
             featureSettings.Add(featureWithTrueCondition);
             featureSettings.Add(featureWithFalseCondition);
-
 
             featureSettings.SetupFeatures(null, null);
 
@@ -32,9 +41,6 @@
         [Test]
         public void Should_register_defaults_if_feature_is_activated()
         {
-            var settings = new SettingsHolder();
-            var featureSettings = new FeatureActivator(settings);
-
             featureSettings.Add(new MyFeatureWithDefaults());
 
             featureSettings.SetupFeatures(null, null);
@@ -45,9 +51,6 @@
         [Test,Ignore("We need to discuss if this is possible since pre-requirements can only be checked when settings is locked. And with settings locked we can't register defaults. So there is always a chance that the feature decides to not go ahead with the setup and in that case defaults would already been applied")]
         public void Should_not_register_defaults_if_feature_is_not_activated()
         {
-            var settings = new SettingsHolder();
-            var featureSettings = new FeatureActivator(settings);
-
             featureSettings.Add(new MyFeatureWithDefaultsNotActive());
             featureSettings.Add(new MyFeatureWithDefaultsNotActiveDueToUnsatisfiedPrerequisite());
 

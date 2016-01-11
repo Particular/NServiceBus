@@ -3,7 +3,6 @@ namespace NServiceBus
     using System;
     using NServiceBus.Pipeline;
     using NServiceBus.Settings;
-    using NServiceBus.Transports;
 
     /// <summary>
     /// Provides extensions for configuring message driven subscriptions.
@@ -33,12 +32,6 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(authorizer), authorizer);
             var settings = transportExtensions.Settings;
-            var transport = settings.Get<TransportDefinition>();
-            if (transport.GetOutboundRoutingPolicy(settings).Publishes == OutboundRoutingType.Multicast)
-            {
-                var message = $"The transport {transport.GetType().Name} supports native publish-subscribe so subscriptions are not managed by the transport in the publishing endpoint. Use the native transport tools managing subscritions.";
-                throw new ArgumentException(message, nameof(authorizer));
-            }
 
             settings.Set("SubscriptionAuthorizer", authorizer);
         }

@@ -5,18 +5,11 @@ namespace NServiceBus
 
     class InboundTransport
     {
-        public TransportDefinition Definition { get; }
-
-        public InboundTransport(TransportDefinition transportDefinition)
+        public TransportReceiveInfrastructure Configure(ReadOnlySettings settings)
         {
-            Definition = transportDefinition;
-        }
-
-        public TransportReceivingConfigurationResult Configure(ReadOnlySettings settings)
-        {
-            var connectionString = settings.Get<TransportConnectionString>().GetConnectionStringOrRaiseError(Definition);
-            var context = new TransportReceivingConfigurationContext(settings, connectionString);
-            return Definition.ConfigureForReceiving(context);
+            var transportInfrastructure = settings.Get<TransportInfrastructure>();
+            var connectionString = settings.Get<TransportConnectionString>().GetConnectionStringOrRaiseError(transportInfrastructure);
+            return transportInfrastructure.ConfigureReceiveInfrastructure(connectionString);
         }        
     }
 }

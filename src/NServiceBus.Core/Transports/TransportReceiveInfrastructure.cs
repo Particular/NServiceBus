@@ -4,14 +4,14 @@ namespace NServiceBus.Transports
     using System.Threading.Tasks;
 
     /// <summary>
-    /// Represents the result of configuring the transport for receiving.
+    /// Represents the infrastructure of the transport used for receiving.
     /// </summary>
-    public class TransportReceivingConfigurationResult
+    public class TransportReceiveInfrastructure
     {
         /// <summary>
         /// Creates new result.
         /// </summary>
-        public TransportReceivingConfigurationResult(
+        public TransportReceiveInfrastructure(
             Func<IPushMessages> messagePumpFactory, 
             Func<ICreateQueues> queueCreatorFactory,
             Func<Task<StartupCheckResult>> preStartupCheck)

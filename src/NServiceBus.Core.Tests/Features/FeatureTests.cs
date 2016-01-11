@@ -10,7 +10,6 @@
         {
             var feature = new MyFeature();
 
-         
             Assert.False(feature.IsEnabledByDefault);
         }
 
@@ -18,7 +17,6 @@
         public void Should_be_allow_features_to_request_being_enabled_by_default()
         {
             var feature = new MyEnabledByDefaultFeature();
-
 
             Assert.True(feature.IsEnabledByDefault);
         }
