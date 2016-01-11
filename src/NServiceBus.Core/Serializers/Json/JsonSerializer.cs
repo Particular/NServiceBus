@@ -1,7 +1,9 @@
 namespace NServiceBus
 {
     using System;
-    using Features;
+    using System.Text;
+    using NServiceBus.MessageInterfaces;
+    using NServiceBus.Settings;
     using Serialization;
 
     /// <summary>
@@ -10,11 +12,12 @@ namespace NServiceBus
     public class JsonSerializer : SerializationDefinition
     {
         /// <summary>
-        /// <see cref="SerializationDefinition.ProvidedByFeature"/>.
+        /// Provides a factory method for building a message serializer.
         /// </summary>
-        protected internal override Type ProvidedByFeature()
+        protected internal override Func<IMessageMapper, IMessageSerializer> Configure(ReadOnlySettings settings)
         {
-            return typeof(JsonSerialization);
+            var encoding = settings.GetOrDefault<Encoding>("Serialization.Json.Encoding") ?? Encoding.UTF8;
+            return mapper => new JsonMessageSerializer(mapper, encoding);
         }
     }
 }

@@ -1,4 +1,4 @@
-namespace NServiceBus.Serializers.Json
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
@@ -12,12 +12,11 @@ namespace NServiceBus.Serializers.Json
     using Newtonsoft.Json.Converters;
     using NServiceBus.Serialization;
 
-    /// <summary>
-    /// JSON message serializer.
-    /// </summary>
-    public class JsonMessageSerializer : IMessageSerializer
+    class JsonMessageSerializer : IMessageSerializer
     {
         IMessageMapper messageMapper;
+        Encoding encoding;
+
         JsonSerializerSettings serializerSettings = new JsonSerializerSettings
         {
             TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple,
@@ -31,16 +30,23 @@ namespace NServiceBus.Serializers.Json
                 new XContainerJsonConverter()
             }
         };
-        Encoding encoding = Encoding.UTF8;
+
+        /// <summary>
+        /// Initializes a new instance of <see cref="JsonMessageSerializer"/>.
+        /// </summary>
+        public JsonMessageSerializer(IMessageMapper messageMapper, Encoding encoding)
+        {
+            this.messageMapper = messageMapper;
+            this.encoding = encoding;
+        }
 
         /// <summary>
         /// Initializes a new instance of <see cref="JsonMessageSerializer"/>.
         /// </summary>
         public JsonMessageSerializer(IMessageMapper messageMapper)
+            : this(messageMapper, Encoding.UTF8)
         {
-            this.messageMapper = messageMapper;
         }
-
 
         /// <summary>
         /// Serializes the given set of messages into the given stream.
@@ -51,7 +57,7 @@ namespace NServiceBus.Serializers.Json
         {
             Guard.AgainstNull(nameof(stream), stream);
             Guard.AgainstNull(nameof(message), message);
-            var jsonSerializer = JsonSerializer.Create(serializerSettings);
+            var jsonSerializer = Newtonsoft.Json.JsonSerializer.Create(serializerSettings);
             jsonSerializer.Binder = new JsonMessageSerializationBinder(messageMapper);
 
             var jsonWriter = CreateJsonWriter(stream);
@@ -90,7 +96,7 @@ namespace NServiceBus.Serializers.Json
                 };
             }
 
-            var jsonSerializer = JsonSerializer.Create(settings);
+            var jsonSerializer = Newtonsoft.Json.JsonSerializer.Create(settings);
             jsonSerializer.ContractResolver = new MessageContractResolver(messageMapper);
             jsonSerializer.Binder = new JsonMessageSerializationBinder(messageMapper, messageTypes);
 

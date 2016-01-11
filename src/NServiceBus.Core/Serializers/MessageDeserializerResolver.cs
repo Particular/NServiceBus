@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using NServiceBus.Serialization;
@@ -10,10 +9,10 @@
         Dictionary<string, IMessageSerializer> serializersMap;
         IMessageSerializer defaultSerializer;
 
-        public MessageDeserializerResolver(IEnumerable<IMessageSerializer> messageSerializers, Type defaultSerializerType)
+        public MessageDeserializerResolver(IMessageSerializer defaultSerializer, IEnumerable<IMessageSerializer> additionalDeserializers)
         {
-            serializersMap = messageSerializers.ToDictionary(key => key.ContentType, value => value);
-            defaultSerializer = serializersMap.Values.Single(serializer => serializer.GetType() == defaultSerializerType);
+            this.defaultSerializer = defaultSerializer;
+            serializersMap = additionalDeserializers.ToDictionary(key => key.ContentType, value => value);
         }
 
         public IMessageSerializer Resolve(Dictionary<string, string> headers)

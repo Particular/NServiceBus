@@ -7,8 +7,9 @@
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.Features;
+    using NServiceBus.MessageInterfaces;
     using NServiceBus.Serialization;
+    using NServiceBus.Settings;
     using NUnit.Framework;
 
     public class When_registering_additional_deserializers : NServiceBusAcceptanceTest
@@ -65,6 +66,8 @@
                 public Task Handle(MyRequest request, IMessageHandlerContext context)
                 {
                     Context.HandlerGotTheRequest = true;
+                    Context.DeserializeCalled = request.DeserializerCalled;
+                    Context.SerializeCalled = request.SerializerCalled;
                     return Task.FromResult(0);
                 }
             }
@@ -73,49 +76,36 @@
         [Serializable]
         public class MyRequest : IMessage
         {
+            public bool DeserializerCalled { get; set; }
+            public bool SerializerCalled { get; set; }
         }
 
         class MyCustomSerializer : SerializationDefinition
         {
-            protected override Type ProvidedByFeature()
+            protected override Func<IMessageMapper, IMessageSerializer> Configure(ReadOnlySettings settings)
             {
-                return typeof(MyCustomSerialization);
+                return mapper => new MyCustomMessageSerializer();
             }
         }
-
-        class MyCustomSerialization : ConfigureSerialization
-        {
-            public MyCustomSerialization()
-            {
-                EnableByDefault();
-            }
-
-            protected override Type GetSerializerType(FeatureConfigurationContext context)
-            {
-                return typeof(MyCustomMessageSerializer);
-            }
-        }
-
+        
         class MyCustomMessageSerializer : IMessageSerializer
         {
-            public Context Context { get; set; }
-
             public void Serialize(object message, Stream stream)
             {
                 var serializer = new BinaryFormatter();
-                serializer.Serialize(stream, message);
 
-                Context.SerializeCalled = true;
+                ((MyRequest) message).SerializerCalled = true;
+
+                serializer.Serialize(stream, message);
             }
 
             public object[] Deserialize(Stream stream, IList<Type> messageTypes = null)
             {
                 var serializer = new BinaryFormatter();
 
-                Context.DeserializeCalled = true;
                 stream.Position = 0;
                 var msg = serializer.Deserialize(stream);
-
+                ((MyRequest) msg).DeserializerCalled = true;
                 return new[]
                 {
                     msg

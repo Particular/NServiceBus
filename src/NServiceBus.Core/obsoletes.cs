@@ -37,7 +37,6 @@ namespace NServiceBus
     using NServiceBus.Encryption;
     using NServiceBus.ObjectBuilder;
 
-
     public static partial class ConfigureCriticalErrorAction
     {
         [ObsoleteEx(
@@ -1734,5 +1733,57 @@ Suppressing the ambient transaction created by the MSMQ and SQL Server transport
                 throw new NotImplementedException();
             }
         }
+    }
+}
+
+namespace NServiceBus
+{
+    using System;
+
+    public static partial class SerializationConfigExtensions
+    {
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "To use a custom serializer derive from SerializationDefinition and provide a factory method for creating the serializer instance.")]
+        public static void UseSerialization(this BusConfiguration config, Type serializerType)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+
+namespace NServiceBus.Serialization
+{
+    [ObsoleteEx(
+           RemoveInVersion = "7.0",
+           TreatAsErrorFromVersion = "6.0",
+           Message = "To use a custom serializer derive from SerializationDefinition and provide a factory method for creating the serializer instance.")]
+    public abstract class ConfigureSerialization
+    {
+    }
+}
+
+namespace NServiceBus.Serializers.Json
+{
+    [ObsoleteEx(
+           RemoveInVersion = "7.0",
+           TreatAsErrorFromVersion = "6.0",
+           Message = "Built-in serializers are internal. Please consider switching to alternative (e.g. Json.net) or copy the serializer code.")]
+    public class JsonMessageSerializer
+    {
+    }
+
+}
+
+namespace NServiceBus.Serializers.XML
+{
+    [ObsoleteEx(
+           RemoveInVersion = "7.0",
+           TreatAsErrorFromVersion = "6.0",
+           Message = "Built-in serializers are internal. Please consider switching to alternative (e.g. XmlSerializer) or copy the serializer code.")]
+    public class XmlMessageSerializer
+    {
     }
 }

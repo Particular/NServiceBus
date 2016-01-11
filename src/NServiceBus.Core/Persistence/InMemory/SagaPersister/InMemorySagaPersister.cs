@@ -8,7 +8,6 @@ namespace NServiceBus
     using NServiceBus.Extensibility;
     using NServiceBus.Persistence;
     using NServiceBus.Sagas;
-    using NServiceBus.Serializers.Json;
 
     class InMemorySagaPersister : ISagaPersister
     {
