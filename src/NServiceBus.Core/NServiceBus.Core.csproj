@@ -89,7 +89,6 @@
     <Compile Include="App_Packages\Particular.Licensing\UserSidChecker.cs" />
     <Compile Include="Audit\AuditConfigReader.cs" />
     <Compile Include="Audit\IAuditContext.cs" />
-    <Compile Include="Audit\AuditContextExtensions.cs" />
     <Compile Include="Audit\AuditContext.cs" />
     <Compile Include="Audit\ConfigureAudit.cs" />
     <Compile Include="Audit\AuditToDispatchConnector.cs" />

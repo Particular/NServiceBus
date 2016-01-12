@@ -1054,14 +1054,11 @@ namespace NServiceBus
 }
 namespace NServiceBus.Audit
 {
-    public class static AuditContextExtensions
-    {
-        public static void AddAuditData(this NServiceBus.Audit.IAuditContext context, string key, string value) { }
-    }
     public interface IAuditContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext
     {
         string AuditAddress { get; }
         NServiceBus.Transports.OutgoingMessage Message { get; }
+        void AddAuditData(string key, string value);
     }
 }
 namespace NServiceBus.AutomaticSubscriptions.Config
