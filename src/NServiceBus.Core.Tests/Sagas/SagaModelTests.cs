@@ -89,8 +89,8 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyEntity> mapper)
             {
-                mapper.ConfigureMapping<Message1>(m => m.UniqueProperty).ToSaga(s => s.UniqueProperty);
-                mapper.ConfigureMapping<Message2>(m => m.UniqueProperty).ToSaga(s => s.UniqueProperty);
+                mapper.ConfigureMapping<Message1, int>(m => m.UniqueProperty).ToSaga(s => s.UniqueProperty);
+                mapper.ConfigureMapping<Message2, int>(m => m.UniqueProperty).ToSaga(s => s.UniqueProperty);
             }
 
             public class MyEntity : ContainSagaData

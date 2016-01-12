@@ -97,7 +97,7 @@
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ReplyToPubMsgSagaData> mapper)
                 {
-                    mapper.ConfigureMapping<StartSaga>(m => m.DataId).ToSaga(s => s.DataId);
+                    mapper.ConfigureMapping<StartSaga, Guid>(m => m.DataId).ToSaga(s => s.DataId);
                 }
 
                 public class ReplyToPubMsgSagaData : ContainSagaData

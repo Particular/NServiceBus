@@ -70,7 +70,7 @@
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<PlaceOrderSagaData> mapper)
                 {
-                    mapper.ConfigureMapping<PlaceOrder>(m => m.DataId).ToSaga(s => s.DataId);
+                    mapper.ConfigureMapping<PlaceOrder, Guid>(m => m.DataId).ToSaga(s => s.DataId);
                 }
 
                 public class PlaceOrderSagaData : ContainSagaData

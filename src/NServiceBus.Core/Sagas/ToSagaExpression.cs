@@ -6,15 +6,15 @@ namespace NServiceBus
     /// <summary>
     /// Allows a more fluent way to map sagas.
     /// </summary>
-    public class ToSagaExpression<TSagaData, TMessage> where TSagaData : IContainSagaData
+    public class ToSagaExpression<TSagaData, TMessage, TSagaIdentifier> where TSagaData : IContainSagaData
     {
         IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration;
-        Expression<Func<TMessage, object>> messageProperty;
+        Expression<Func<TMessage, TSagaIdentifier>> messageProperty;
 
         /// <summary>
-        /// Initializes a new instance of <see cref="ToSagaExpression{TSagaData,TMessage}"/>.
+        /// Initializes a new instance of <see cref="ToSagaExpression{TSagaData,TMessage,TSagaIdentifier}"/>.
         /// </summary>
-        public ToSagaExpression(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration, Expression<Func<TMessage, object>> messageProperty)
+        public ToSagaExpression(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration, Expression<Func<TMessage, TSagaIdentifier>> messageProperty)
         {
             Guard.AgainstNull(nameof(sagaMessageFindingConfiguration), sagaMessageFindingConfiguration);
             Guard.AgainstNull(nameof(messageProperty), messageProperty);
@@ -27,7 +27,7 @@ namespace NServiceBus
         /// Defines the property on the saga data to which the message property should be mapped.
         /// </summary>
         /// <param name="sagaEntityProperty">The property to map.</param>
-        public void ToSaga(Expression<Func<TSagaData, object>> sagaEntityProperty)
+        public void ToSaga(Expression<Func<TSagaData, TSagaIdentifier>> sagaEntityProperty)
         {
             Guard.AgainstNull(nameof(sagaEntityProperty), sagaEntityProperty);
             sagaMessageFindingConfiguration.ConfigureMapping(sagaEntityProperty, messageProperty);

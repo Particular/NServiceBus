@@ -25,7 +25,7 @@ namespace NServiceBus
                 .ToList();
         }
 
-        public static PropertyInfo GetProperty(Expression<Func<TTarget, object>> property, bool checkForSingleDot)
+        public static PropertyInfo GetProperty<TSagaIdentifier>(Expression<Func<TTarget, TSagaIdentifier>> property, bool checkForSingleDot)
         {
             return GetMemberInfo(property, checkForSingleDot) as PropertyInfo;
         }

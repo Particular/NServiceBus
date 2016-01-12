@@ -91,8 +91,8 @@
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<CantBeFoundSaga1Data> mapper)
                 {
-                    mapper.ConfigureMapping<StartSaga>(m => m.Id).ToSaga(s => s.MessageId);
-                    mapper.ConfigureMapping<MessageToSaga>(m => m.Id).ToSaga(s => s.MessageId);
+                    mapper.ConfigureMapping<StartSaga, Guid>(m => m.Id).ToSaga(s => s.MessageId);
+                    mapper.ConfigureMapping<MessageToSaga, Guid>(m => m.Id).ToSaga(s => s.MessageId);
                 }
             }
 
@@ -117,8 +117,8 @@
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<CantBeFoundSaga2Data> mapper)
                 {
-                    mapper.ConfigureMapping<StartSaga>(m => m.Id).ToSaga(s => s.MessageId);
-                    mapper.ConfigureMapping<MessageToSaga>(m => m.Id).ToSaga(s => s.MessageId);
+                    mapper.ConfigureMapping<StartSaga, Guid>(m => m.Id).ToSaga(s => s.MessageId);
+                    mapper.ConfigureMapping<MessageToSaga, Guid>(m => m.Id).ToSaga(s => s.MessageId);
                 }
             }
 
@@ -191,8 +191,8 @@
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ReceiverWithOrderedSagasSaga1Data> mapper)
                 {
-                    mapper.ConfigureMapping<StartSaga>(m => m.Id).ToSaga(s => s.MessageId);
-                    mapper.ConfigureMapping<MessageToSaga>(m => m.Id).ToSaga(s => s.MessageId);
+                    mapper.ConfigureMapping<StartSaga, Guid>(m => m.Id).ToSaga(s => s.MessageId);
+                    mapper.ConfigureMapping<MessageToSaga, Guid>(m => m.Id).ToSaga(s => s.MessageId);
                 }
             }
 
@@ -220,8 +220,8 @@
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ReceiverWithOrderedSagasSaga2Data> mapper)
                 {
-                    mapper.ConfigureMapping<StartSaga>(m => m.Id).ToSaga(s => s.MessageId);
-                    mapper.ConfigureMapping<MessageToSaga>(m => m.Id).ToSaga(s => s.MessageId);
+                    mapper.ConfigureMapping<StartSaga, Guid>(m => m.Id).ToSaga(s => s.MessageId);
+                    mapper.ConfigureMapping<MessageToSaga, Guid>(m => m.Id).ToSaga(s => s.MessageId);
                 }
             }
 

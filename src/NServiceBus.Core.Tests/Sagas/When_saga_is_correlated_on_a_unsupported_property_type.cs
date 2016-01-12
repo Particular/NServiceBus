@@ -27,7 +27,7 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyEntity> mapper)
             {
-                mapper.ConfigureMapping<Message1>(m => m.InvalidProp)
+                mapper.ConfigureMapping<Message1, DateTime>(m => m.InvalidProp)
                     .ToSaga(s => s.InvalidProp);
             }
 

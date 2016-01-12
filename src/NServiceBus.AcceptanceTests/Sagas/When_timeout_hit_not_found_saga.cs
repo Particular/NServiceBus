@@ -56,8 +56,8 @@
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TimeoutHitsNotFoundSagaData> mapper)
                 {
-                    mapper.ConfigureMapping<StartSaga>(m => m.DataId).ToSaga(s => s.DataId);
-                    mapper.ConfigureMapping<SomeOtherMessage>(m => m.DataId).ToSaga(s => s.DataId);
+                    mapper.ConfigureMapping<StartSaga, Guid>(m => m.DataId).ToSaga(s => s.DataId);
+                    mapper.ConfigureMapping<SomeOtherMessage, Guid>(m => m.DataId).ToSaga(s => s.DataId);
                 }
 
                 public class TimeoutHitsNotFoundSagaData : ContainSagaData

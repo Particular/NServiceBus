@@ -22,12 +22,12 @@
                 .Done(c => c.Done || c.Exceptions.Any())
                 .Run();
 
-            Assert.AreEqual(context.SomeId, id.ToString());
+            Assert.AreEqual(context.SomeId, id);
         }
 
         public class Context : ScenarioContext
         {
-            public string SomeId { get; set; }
+            public Guid SomeId { get; set; }
             public bool Done { get; set; }
         }
 
@@ -61,14 +61,14 @@
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NullCorrPropertySagaData> mapper)
                 {
-                    mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
+                    mapper.ConfigureMapping<StartSagaMessage, Guid>(m => m.SomeId)
                         .ToSaga(s => s.SomeId);
                 }
             }
 
             public class NullCorrPropertySagaData : IContainSagaData
             {
-                public virtual string SomeId { get; set; }
+                public virtual Guid SomeId { get; set; }
                 public virtual Guid Id { get; set; }
                 public virtual string Originator { get; set; }
                 public virtual string OriginalMessageId { get; set; }

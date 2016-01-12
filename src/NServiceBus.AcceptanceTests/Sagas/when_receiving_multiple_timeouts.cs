@@ -98,7 +98,7 @@
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MultiTimeoutsSaga1Data> mapper)
                 {
-                    mapper.ConfigureMapping<StartSaga1>(m => m.ContextId)
+                    mapper.ConfigureMapping<StartSaga1, Guid>(m => m.ContextId)
                         .ToSaga(s => s.Id);
                 }
             }

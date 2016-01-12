@@ -79,7 +79,7 @@
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MessageWithSagaIdSagaData> mapper)
                 {
-                    mapper.ConfigureMapping<MessageWithSagaId>(m => m.DataId)
+                    mapper.ConfigureMapping<MessageWithSagaId, Guid>(m => m.DataId)
                         .ToSaga(s => s.DataId);
                 }
 

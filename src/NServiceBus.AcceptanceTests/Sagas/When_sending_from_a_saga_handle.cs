@@ -58,8 +58,8 @@
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TwoSaga1Saga1Data> mapper)
                 {
-                    mapper.ConfigureMapping<MessageSaga1WillHandle>(m => m.DataId).ToSaga(s => s.DataId);
-                    mapper.ConfigureMapping<StartSaga1>(m => m.DataId).ToSaga(s => s.DataId);
+                    mapper.ConfigureMapping<MessageSaga1WillHandle, Guid>(m => m.DataId).ToSaga(s => s.DataId);
+                    mapper.ConfigureMapping<StartSaga1, Guid>(m => m.DataId).ToSaga(s => s.DataId);
                 }
             }
 
@@ -83,7 +83,7 @@
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TwoSaga1Saga2Data> mapper)
                 {
-                    mapper.ConfigureMapping<StartSaga2>(m => m.DataId).ToSaga(s => s.DataId);
+                    mapper.ConfigureMapping<StartSaga2, Guid>(m => m.DataId).ToSaga(s => s.DataId);
                 }
 
                 public class TwoSaga1Saga2Data : ContainSagaData

@@ -93,7 +93,7 @@
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<EventFromOtherSaga1Data> mapper)
                 {
-                    mapper.ConfigureMapping<StartSaga>(m => m.DataId).ToSaga(s => s.DataId);
+                    mapper.ConfigureMapping<StartSaga, Guid>(m => m.DataId).ToSaga(s => s.DataId);
                 }
             }
         }
@@ -142,7 +142,7 @@
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<EventFromOtherSaga2Data> mapper)
                 {
-                    mapper.ConfigureMapping<SomethingHappenedEvent>(m => m.DataId).ToSaga(s => s.DataId);
+                    mapper.ConfigureMapping<SomethingHappenedEvent, Guid>(m => m.DataId).ToSaga(s => s.DataId);
                 }
             }
         }

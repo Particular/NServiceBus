@@ -48,8 +48,8 @@
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestResponseRequestingSagaData> mapper)
                 {
-                    mapper.ConfigureMapping<InitiateRequestingSaga>(m => m.Id).ToSaga(s => s.CorrIdForResponse);
-                    mapper.ConfigureMapping<ResponseFromOtherSaga>(m => m.SomeCorrelationId).ToSaga(s => s.CorrIdForResponse);
+                    mapper.ConfigureMapping<InitiateRequestingSaga, Guid>(m => m.Id).ToSaga(s => s.CorrIdForResponse);
+                    mapper.ConfigureMapping<ResponseFromOtherSaga, Guid>(m => m.SomeCorrelationId).ToSaga(s => s.CorrIdForResponse);
                 }
 
                 public class RequestResponseRequestingSagaData : ContainSagaData
@@ -85,9 +85,9 @@
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestResponseRespondingSagaData> mapper)
                 {
-                    mapper.ConfigureMapping<RequestToRespondingSaga>(m => m.SomeIdThatTheResponseSagaCanCorrelateBackToUs).ToSaga(s => s.CorrIdForRequest);
+                    mapper.ConfigureMapping<RequestToRespondingSaga, Guid>(m => m.SomeIdThatTheResponseSagaCanCorrelateBackToUs).ToSaga(s => s.CorrIdForRequest);
                     //this line is just needed so we can test the non initiating handler case
-                    mapper.ConfigureMapping<SendReplyFromNonInitiatingHandler>(m => m.SagaIdSoWeCanCorrelate).ToSaga(s => s.CorrIdForRequest);
+                    mapper.ConfigureMapping<SendReplyFromNonInitiatingHandler, Guid>(m => m.SagaIdSoWeCanCorrelate).ToSaga(s => s.CorrIdForRequest);
                 }
 
                 public class RequestResponseRespondingSagaData : ContainSagaData

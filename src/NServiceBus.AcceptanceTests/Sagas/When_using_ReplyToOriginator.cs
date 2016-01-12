@@ -55,9 +55,9 @@
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestingSagaData> mapper)
                 {
-                    mapper.ConfigureMapping<InitiateRequestingSaga>(m => m.SomeCorrelationId)
+                    mapper.ConfigureMapping<InitiateRequestingSaga, Guid>(m => m.SomeCorrelationId)
                         .ToSaga(s => s.CorrIdForResponse);
-                    mapper.ConfigureMapping<AnotherRequest>(m => m.SomeCorrelationId)
+                    mapper.ConfigureMapping<AnotherRequest, Guid>(m => m.SomeCorrelationId)
                         .ToSaga(s => s.CorrIdForResponse);
                 }
 

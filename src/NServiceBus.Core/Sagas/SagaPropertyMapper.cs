@@ -17,15 +17,16 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Specify how to map between <typeparamref name="TSagaData"/> and <typeparamref name="TMessage"/>.
+        /// Specify how to map between <typeparamref name="TSagaData"/> and <typeparamref name="TMessage"/> with identifier type <typeparamref name="TSagaIdentifier"/>.
         /// </summary>
         /// <typeparam name="TMessage">The message type to map to.</typeparam>
+        /// <typeparam name="TSagaIdentifier">The type used to identify the saga.</typeparam>
         /// <param name="messageProperty">An <see cref="Expression{TDelegate}"/> that represents the message.</param>
-        /// <returns>A <see cref="ToSagaExpression{TSagaData,TMessage}"/> that provides the fluent chained <see cref="ToSagaExpression{TSagaData,TMessage}.ToSaga"/> to link <paramref name="messageProperty"/> with <typeparamref name="TSagaData"/>.</returns>
-        public ToSagaExpression<TSagaData, TMessage> ConfigureMapping<TMessage>(Expression<Func<TMessage, object>> messageProperty)
+        /// <returns>A <see cref="ToSagaExpression{TSagaData,TMessage,TSagaIdentifier}"/> that provides the fluent chained <see cref="ToSagaExpression{TSagaData,TMessage,TSagaIdentifier}.ToSaga"/> to link <paramref name="messageProperty"/> with <typeparamref name="TSagaData"/>.</returns>
+        public ToSagaExpression<TSagaData, TMessage, TSagaIdentifier> ConfigureMapping<TMessage, TSagaIdentifier>(Expression<Func<TMessage, TSagaIdentifier>> messageProperty)
         {
             Guard.AgainstNull(nameof(messageProperty), messageProperty);
-            return new ToSagaExpression<TSagaData, TMessage>(sagaMessageFindingConfiguration, messageProperty);
+            return new ToSagaExpression<TSagaData, TMessage, TSagaIdentifier>(sagaMessageFindingConfiguration, messageProperty);
         }
     }
 }

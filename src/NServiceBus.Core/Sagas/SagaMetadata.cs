@@ -343,7 +343,7 @@ Sagas can only have mappings that correlate on a single saga property. Please us
 
         class SagaMapper : IConfigureHowToFindSagaWithMessage
         {
-            void IConfigureHowToFindSagaWithMessage.ConfigureMapping<TSagaEntity, TMessage>(Expression<Func<TSagaEntity, object>> sagaEntityProperty, Expression<Func<TMessage, object>> messageExpression)
+            void IConfigureHowToFindSagaWithMessage.ConfigureMapping<TSagaEntity, TMessage, TSagaIdentifier>(Expression<Func<TSagaEntity, TSagaIdentifier>> sagaEntityProperty, Expression<Func<TMessage, TSagaIdentifier>> messageExpression)
             {
                 var sagaProp = Reflect<TSagaEntity>.GetProperty(sagaEntityProperty, true);
 
@@ -362,7 +362,7 @@ Sagas can only have mappings that correlate on a single saga property. Please us
                 });
             }
 
-            static void ValidateMapping<TMessage>(Expression<Func<TMessage, object>> messageExpression, PropertyInfo sagaProp)
+            static void ValidateMapping<TMessage, TSagaIdentifier>(Expression<Func<TMessage, TSagaIdentifier>> messageExpression, PropertyInfo sagaProp)
             {
                 if (sagaProp.Name.ToLower() != "id")
                 {
@@ -417,7 +417,7 @@ Sagas can only have mappings that correlate on a single saga property. Please us
             }
 
             // ReSharper disable once UnusedParameter.Local
-            void ThrowIfNotPropertyLambdaExpression<TSagaEntity>(Expression<Func<TSagaEntity, object>> expression, PropertyInfo propertyInfo)
+            void ThrowIfNotPropertyLambdaExpression<TSagaEntity, TSagaIdentifier>(Expression<Func<TSagaEntity, TSagaIdentifier>> expression, PropertyInfo propertyInfo)
             {
                 if (propertyInfo == null)
                 {

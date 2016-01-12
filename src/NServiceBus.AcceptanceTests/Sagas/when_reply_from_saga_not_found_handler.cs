@@ -78,9 +78,9 @@
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NotFoundHandlerSaga1Data> mapper)
                 {
-                    mapper.ConfigureMapping<StartSaga1>(m => m.ContextId)
+                    mapper.ConfigureMapping<StartSaga1, Guid>(m => m.ContextId)
                         .ToSaga(s => s.ContextId);
-                    mapper.ConfigureMapping<MessageToSaga>(m => m.ContextId)
+                    mapper.ConfigureMapping<MessageToSaga, Guid>(m => m.ContextId)
                         .ToSaga(s => s.ContextId);
                 }
             }
