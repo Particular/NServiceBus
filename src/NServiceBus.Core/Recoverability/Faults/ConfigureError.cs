@@ -1,6 +1,5 @@
 namespace NServiceBus
 {
-
     /// <summary>
     /// Contains extension methods to <see cref="BusConfiguration"/>.
     /// </summary>

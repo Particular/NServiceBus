@@ -2,7 +2,6 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using OutgoingPipeline;
     using Pipeline;
 
     class EnforceReplyBestPracticesBehavior : Behavior<IOutgoingReplyContext>

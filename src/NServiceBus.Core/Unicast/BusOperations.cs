@@ -3,9 +3,7 @@ namespace NServiceBus
     using System;
     using System.Threading.Tasks;
     using NServiceBus.MessageInterfaces;
-    using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline;
-    using NServiceBus.Routing;
 
     static class BusOperations
     {

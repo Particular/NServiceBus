@@ -1,7 +1,6 @@
-﻿namespace NServiceBus.Pipeline.Contexts
+﻿namespace NServiceBus.Pipeline
 {
     using System.Collections.Generic;
-    using NServiceBus.Unicast.Messages;
 
     /// <summary>
     /// A context of behavior execution in logical message processing stage.

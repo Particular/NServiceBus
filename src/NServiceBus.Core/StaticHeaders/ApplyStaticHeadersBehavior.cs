@@ -3,7 +3,6 @@ namespace NServiceBus
     using System;
     using System.Threading.Tasks;
     using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.OutgoingPipeline;
 
     class ApplyStaticHeadersBehavior:Behavior<IOutgoingLogicalMessageContext>
     {

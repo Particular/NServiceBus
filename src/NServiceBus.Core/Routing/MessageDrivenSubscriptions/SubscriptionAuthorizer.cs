@@ -1,5 +1,7 @@
 namespace NServiceBus
 {
+    using NServiceBus.Pipeline;
+
     /// <summary>
     /// The signature of a subscription authorizer used by <see cref="MessageDrivenSubscriptionsConfigExtensions.SubscriptionAuthorizer"/>.
     /// </summary>

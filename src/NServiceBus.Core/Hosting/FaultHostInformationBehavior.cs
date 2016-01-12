@@ -2,7 +2,6 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Faults;
     using NServiceBus.Hosting;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;

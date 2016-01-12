@@ -1,7 +1,8 @@
-namespace NServiceBus.Unicast.Messages
+namespace NServiceBus.Pipeline
 {
     using System;
     using NServiceBus.MessageInterfaces;
+    using NServiceBus.Unicast.Messages;
 
     /// <summary>
     /// Factory to create <see cref="LogicalMessage"/>s.

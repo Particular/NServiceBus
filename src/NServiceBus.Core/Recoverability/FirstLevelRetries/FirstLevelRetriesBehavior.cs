@@ -6,7 +6,6 @@ namespace NServiceBus
     using NServiceBus.Features;
     using NServiceBus.Settings;
     using Pipeline;
-    using Pipeline.Contexts;
 
     class FirstLevelRetriesBehavior : Behavior<ITransportReceiveContext>
     {

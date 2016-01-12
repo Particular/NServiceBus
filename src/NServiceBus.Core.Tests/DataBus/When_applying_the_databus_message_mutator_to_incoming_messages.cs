@@ -6,6 +6,7 @@ namespace NServiceBus.Core.Tests.DataBus
     using System.Runtime.Serialization.Formatters.Binary;
     using System.Threading.Tasks;
     using NServiceBus.DataBus;
+    using NServiceBus.Pipeline;
     using Unicast.Messages;
     using NUnit.Framework;
     using Conventions = NServiceBus.Conventions;

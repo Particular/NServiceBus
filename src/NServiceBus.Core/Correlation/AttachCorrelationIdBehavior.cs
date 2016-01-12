@@ -3,8 +3,6 @@
     using System;
     using System.Threading.Tasks;
     using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Outgoing;
-    using NServiceBus.Pipeline.OutgoingPipeline;
     using NServiceBus.Transports;
 
     class AttachCorrelationIdBehavior : Behavior<IOutgoingLogicalMessageContext>

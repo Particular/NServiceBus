@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
+    using NServiceBus.Pipeline;
     using Routing;
     using Timeout.Core;
     using Transports;

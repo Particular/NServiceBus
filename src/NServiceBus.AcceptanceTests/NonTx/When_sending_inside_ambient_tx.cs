@@ -7,7 +7,6 @@
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
     using NUnit.Framework;
 
     public class When_sending_inside_ambient_tx : NServiceBusAcceptanceTest

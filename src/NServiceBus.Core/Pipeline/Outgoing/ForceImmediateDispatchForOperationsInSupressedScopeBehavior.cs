@@ -5,7 +5,6 @@ namespace NServiceBus
     using System.Transactions;
     using Logging;
     using Pipeline;
-    using TransportDispatch;
 
     [ObsoleteEx(RemoveInVersion = "7")]
     class ForceImmediateDispatchForOperationsInSuppressedScopeBehavior : Behavior<IRoutingContext>

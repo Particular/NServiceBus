@@ -2,7 +2,7 @@
 {
     using System;
     using System.Runtime.Serialization;
-    using NServiceBus.Unicast.Messages;
+    using NServiceBus.Pipeline;
 
     /// <summary>
     /// Wraps the <see cref="Exception"/> that occurs when the contents of a <see cref="TransportMessage"/> is deserialized to a list of <see cref="LogicalMessage"/>s.
@@ -25,7 +25,6 @@
         public MessageDeserializationException(string  transportMessageId, Exception innerException)
             : base("An error occurred while attempting to extract logical messages from transport message " + transportMessageId, innerException)
         {
-            
         }
 
         /// <summary>

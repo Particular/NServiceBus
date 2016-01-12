@@ -4,8 +4,6 @@
     using System.Threading.Tasks;
     using MessageMutator;
     using NServiceBus.Transports;
-    using NServiceBus.Unicast.Messages;
-    using OutgoingPipeline;
     using Pipeline;
 
     class MutateOutgoingTransportMessageBehavior : Behavior<IOutgoingPhysicalMessageContext>

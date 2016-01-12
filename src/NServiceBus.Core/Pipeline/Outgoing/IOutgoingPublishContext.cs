@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.OutgoingPipeline
+﻿namespace NServiceBus.Pipeline
 {
     /// <summary>
     /// Pipeline context for publish operations.

@@ -9,7 +9,6 @@
     using NServiceBus.Extensibility;
     using NServiceBus.Features;
     using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.OutgoingPipeline;
     using NUnit.Framework;
 
     public class When_extending_the_publish_api : NServiceBusAcceptanceTest

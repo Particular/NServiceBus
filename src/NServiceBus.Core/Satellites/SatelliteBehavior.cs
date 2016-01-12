@@ -1,7 +1,5 @@
-namespace NServiceBus
+namespace NServiceBus.Pipeline
 {
-    using Pipeline;
-
     /// <summary>
     /// A base class for satellite behaviors.
     /// </summary>

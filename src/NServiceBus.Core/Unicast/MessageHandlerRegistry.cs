@@ -6,7 +6,7 @@
     using System.Linq.Expressions;
     using System.Threading.Tasks;
     using NServiceBus.Logging;
-    using NServiceBus.Unicast.Behaviors;
+    using NServiceBus.Pipeline;
 
     /// <summary>
     ///     Maintains the message handlers for this endpoint.

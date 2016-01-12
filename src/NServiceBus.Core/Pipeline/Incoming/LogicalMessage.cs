@@ -1,6 +1,7 @@
-﻿namespace NServiceBus.Unicast.Messages
+﻿namespace NServiceBus.Pipeline
 {
     using System;
+    using NServiceBus.Unicast.Messages;
 
     /// <summary>
     /// The logical message.

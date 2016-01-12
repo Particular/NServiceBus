@@ -2,9 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Pipeline.OutgoingPipeline;
     using NServiceBus.Routing;
-    using OutgoingPipeline;
     using Pipeline;
 
     class MulticastPublishRouterBehavior : StageConnector<IOutgoingPublishContext, IOutgoingLogicalMessageContext>

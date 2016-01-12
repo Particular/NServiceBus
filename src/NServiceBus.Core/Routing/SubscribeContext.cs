@@ -2,7 +2,6 @@
 {
     using System;
     using NServiceBus.Pipeline;
-    using NServiceBus.Routing;
 
     class SubscribeContext : BehaviorContext, ISubscribeContext
     {

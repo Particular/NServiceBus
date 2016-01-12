@@ -3,7 +3,6 @@ namespace NServiceBus
     using System;
     using System.Threading.Tasks;
     using Pipeline;
-    using Pipeline.Contexts;
 
     class DecryptBehavior : Behavior<IIncomingLogicalMessageContext>
     {

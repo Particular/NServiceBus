@@ -1,8 +1,7 @@
 ﻿namespace NServiceBus
 {
     using NServiceBus.Extensibility;
-    using NServiceBus.OutgoingPipeline;
-    using NServiceBus.Routing;
+    using NServiceBus.Pipeline;
 
     /// <summary>
     /// Provides options for disabling the best practice enforcement.

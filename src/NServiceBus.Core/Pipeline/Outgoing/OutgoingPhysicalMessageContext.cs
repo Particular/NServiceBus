@@ -1,8 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System.Collections.Generic;
-    using NServiceBus.OutgoingPipeline;
-    using NServiceBus.Pipeline.OutgoingPipeline;
+    using NServiceBus.Pipeline;
     using NServiceBus.Routing;
 
     class OutgoingPhysicalMessageContext : OutgoingContext, IOutgoingPhysicalMessageContext

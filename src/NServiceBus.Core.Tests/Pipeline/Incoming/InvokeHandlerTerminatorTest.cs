@@ -4,11 +4,9 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using System.Transactions;
-    using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Pipeline;
     using NServiceBus.Sagas;
-    using NServiceBus.Unicast.Behaviors;
     using NUnit.Framework;
-    using Conventions = NServiceBus.Conventions;
 
     [TestFixture]
     public class InvokeHandlerTerminatorTest

@@ -1,7 +1,6 @@
-﻿namespace NServiceBus.OutgoingPipeline
+﻿namespace NServiceBus.Pipeline
 {
     using System.Collections.Generic;
-    using NServiceBus.Pipeline;
 
     /// <summary>
     /// The base interface for everything inside the outgoing pipeline.

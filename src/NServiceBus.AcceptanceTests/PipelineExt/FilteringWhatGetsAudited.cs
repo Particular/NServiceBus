@@ -5,9 +5,7 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.Audit;
     using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
     using NUnit.Framework;
 
     /// <summary>

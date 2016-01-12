@@ -1,7 +1,6 @@
-﻿namespace NServiceBus.Pipeline.OutgoingPipeline
+﻿namespace NServiceBus.Pipeline
 {
     using System.Collections.Generic;
-    using NServiceBus.OutgoingPipeline;
     using NServiceBus.Routing;
 
     /// <summary>

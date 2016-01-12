@@ -3,9 +3,9 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using NServiceBus.Pipeline;
     using System.Threading;
     using System.Threading.Tasks;
-    using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Transports;
     using NUnit.Framework;
 

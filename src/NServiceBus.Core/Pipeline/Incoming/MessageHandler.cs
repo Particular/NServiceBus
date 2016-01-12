@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Unicast.Behaviors
+﻿namespace NServiceBus.Pipeline
 {
     using System;
     using System.Threading.Tasks;
@@ -6,7 +6,7 @@
     /// <summary>
     /// Represents a message handler and its invocation.
     /// </summary>
-    public partial class MessageHandler
+    public class MessageHandler
     {
         Func<object, object, IMessageHandlerContext, Task> invocation;
 

@@ -3,8 +3,8 @@ namespace NServiceBus
     using System;
     using System.Threading.Tasks;
     using Logging;
+    using NServiceBus.Pipeline;
     using ObjectBuilder;
-    using Pipeline.Contexts;
     using Transports;
 
     class TransportReceiver

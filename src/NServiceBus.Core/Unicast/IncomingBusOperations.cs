@@ -1,9 +1,8 @@
 namespace NServiceBus
 {
     using System.Threading.Tasks;
-    using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Pipeline;
     using NServiceBus.Routing;
-    using NServiceBus.TransportDispatch;
     using NServiceBus.Transports;
 
     static class IncomingBusOperations

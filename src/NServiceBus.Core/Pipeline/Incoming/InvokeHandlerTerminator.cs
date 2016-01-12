@@ -3,7 +3,6 @@
     using System.Threading.Tasks;
     using System.Transactions;
     using Pipeline;
-    using Pipeline.Contexts;
     using Sagas;
 
     class InvokeHandlerTerminator : PipelineTerminator<IInvokeHandlerContext>

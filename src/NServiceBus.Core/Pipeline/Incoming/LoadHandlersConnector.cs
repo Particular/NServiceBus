@@ -7,7 +7,6 @@
     using NServiceBus.Outbox;
     using NServiceBus.Persistence;
     using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Transports;
     using NServiceBus.Unicast;
 

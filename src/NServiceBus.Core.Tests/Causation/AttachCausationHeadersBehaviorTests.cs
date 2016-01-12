@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Threading.Tasks;
-    using NServiceBus.OutgoingPipeline;
+    using NServiceBus.Pipeline;
     using NServiceBus.Transports;
     using NUnit.Framework;
 

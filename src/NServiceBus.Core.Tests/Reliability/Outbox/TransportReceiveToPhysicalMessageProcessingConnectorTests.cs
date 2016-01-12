@@ -11,7 +11,6 @@
     using NServiceBus.Outbox;
     using NServiceBus.Performance.TimeToBeReceived;
     using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Routing;
     using NServiceBus.Transports;
     using NUnit.Framework;

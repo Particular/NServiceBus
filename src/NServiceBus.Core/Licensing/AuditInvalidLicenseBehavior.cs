@@ -4,7 +4,6 @@
     using System.Diagnostics;
     using System.Threading.Tasks;
     using Logging;
-    using Audit;
     using Pipeline;
 
     class AuditInvalidLicenseBehavior : Behavior<IAuditContext>

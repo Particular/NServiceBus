@@ -3,9 +3,7 @@
     using System;
     using System.Threading.Tasks;
     using MessageMutator;
-    using NServiceBus.Pipeline.OutgoingPipeline;
     using NServiceBus.Transports;
-    using NServiceBus.Unicast.Messages;
     using Pipeline;
 
     class MutateOutgoingMessageBehavior : Behavior<IOutgoingLogicalMessageContext>
