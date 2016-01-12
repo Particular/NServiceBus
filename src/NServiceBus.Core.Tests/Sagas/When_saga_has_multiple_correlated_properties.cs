@@ -33,9 +33,9 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyEntity> mapper)
             {
-                mapper.ConfigureMapping<Message1>(m=>m.OrderId)
+                mapper.ConfigureMapping<Message1, string>(m=>m.OrderId)
                     .ToSaga(s=>s.OrderId);
-                mapper.ConfigureMapping<Message2>(m => m.LegacyOrderId)
+                mapper.ConfigureMapping<Message2, string>(m => m.LegacyOrderId)
                     .ToSaga(s => s.LegacyOrderId);
             }
 

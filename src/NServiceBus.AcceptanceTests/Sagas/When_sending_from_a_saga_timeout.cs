@@ -61,7 +61,7 @@
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SendFromTimeoutSaga1Data> mapper)
                 {
-                    mapper.ConfigureMapping<StartSaga1>(m => m.DataId).ToSaga(s => s.DataId);
+                    mapper.ConfigureMapping<StartSaga1, Guid>(m => m.DataId).ToSaga(s => s.DataId);
                 }
             }
 
@@ -83,7 +83,7 @@
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SendFromTimeoutSaga2Data> mapper)
                 {
-                    mapper.ConfigureMapping<StartSaga2>(m => m.DataId).ToSaga(s => s.DataId);
+                    mapper.ConfigureMapping<StartSaga2, Guid>(m => m.DataId).ToSaga(s => s.DataId);
                 }
             }
 

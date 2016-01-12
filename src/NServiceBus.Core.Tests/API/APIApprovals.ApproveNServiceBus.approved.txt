@@ -520,7 +520,7 @@ namespace NServiceBus
     public interface ICommand : NServiceBus.IMessage { }
     public interface IConfigureHowToFindSagaWithMessage
     {
-        void ConfigureMapping<TSagaEntity, TMessage>(System.Linq.Expressions.Expression<System.Func<TSagaEntity, object>> sagaEntityProperty, System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty)
+        void ConfigureMapping<TSagaEntity, TMessage, TSagaIdentifier>(System.Linq.Expressions.Expression<System.Func<TSagaEntity, TSagaIdentifier>> sagaEntityProperty, System.Linq.Expressions.Expression<System.Func<TMessage, TSagaIdentifier>> messageProperty)
             where TSagaEntity : NServiceBus.IContainSagaData
         ;
     }
@@ -854,7 +854,7 @@ namespace NServiceBus
     public class SagaPropertyMapper<TSagaData>
         where TSagaData : NServiceBus.IContainSagaData
     {
-        public NServiceBus.ToSagaExpression<TSagaData, TMessage> ConfigureMapping<TMessage>(System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty) { }
+        public NServiceBus.ToSagaExpression<TSagaData, TMessage, TSagaIdentifier> ConfigureMapping<TMessage, TSagaIdentifier>(System.Linq.Expressions.Expression<System.Func<TMessage, TSagaIdentifier>> messageProperty) { }
     }
     public abstract class SatelliteBehavior : NServiceBus.Pipeline.PipelineTerminator<NServiceBus.IIncomingPhysicalMessageContext>
     {
@@ -936,11 +936,11 @@ namespace NServiceBus
     {
         public static NServiceBus.ConventionsBuilder DefiningTimeToBeReceivedAs(this NServiceBus.ConventionsBuilder builder, System.Func<System.Type, System.TimeSpan> retrieveTimeToBeReceived) { }
     }
-    public class ToSagaExpression<TSagaData, TMessage>
+    public class ToSagaExpression<TSagaData, TMessage, TSagaIdentifier>
         where TSagaData : NServiceBus.IContainSagaData
     {
-        public ToSagaExpression(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration, System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty) { }
-        public void ToSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object>> sagaEntityProperty) { }
+        public ToSagaExpression(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration, System.Linq.Expressions.Expression<System.Func<TMessage, TSagaIdentifier>> messageProperty) { }
+        public void ToSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, TSagaIdentifier>> sagaEntityProperty) { }
     }
     public class static TransactionSettingsExtentions
     {

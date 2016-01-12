@@ -12,7 +12,7 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
 
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithUniquePropertyData> mapper)
         {
-            mapper.ConfigureMapping<M12>(m => m.UniqueString).ToSaga(s => s.UniqueString);
+            mapper.ConfigureMapping<M12, string>(m => m.UniqueString).ToSaga(s => s.UniqueString);
         }
     }
     public class SagaWithUniquePropertyData : ContainSagaData

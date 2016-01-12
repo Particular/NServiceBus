@@ -93,8 +93,8 @@
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<CorrelationTestSagaData> mapper)
                 {
-                    mapper.ConfigureMapping<StartSaga>(m => m.RunId).ToSaga(s => s.RunId);
-                    mapper.ConfigureMapping<DoSomethingResponse>(m => m.RunId).ToSaga(s => s.RunId);
+                    mapper.ConfigureMapping<StartSaga, Guid>(m => m.RunId).ToSaga(s => s.RunId);
+                    mapper.ConfigureMapping<DoSomethingResponse, Guid>(m => m.RunId).ToSaga(s => s.RunId);
                 }
 
                 public class CorrelationTestSagaData : ContainSagaData

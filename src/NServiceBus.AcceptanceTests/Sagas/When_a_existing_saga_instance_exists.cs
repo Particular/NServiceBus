@@ -58,7 +58,7 @@
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData05> mapper)
                 {
-                    mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
+                    mapper.ConfigureMapping<StartSagaMessage, Guid>(m => m.SomeId)
                         .ToSaga(s => s.SomeId);
                 }
             }

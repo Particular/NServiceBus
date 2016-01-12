@@ -122,11 +122,11 @@
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData10> mapper)
                 {
-                    mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
+                    mapper.ConfigureMapping<StartSagaMessage, Guid>(m => m.SomeId)
                         .ToSaga(s => s.SomeId);
-                    mapper.ConfigureMapping<CompleteSagaMessage>(m => m.SomeId)
+                    mapper.ConfigureMapping<CompleteSagaMessage, Guid>(m => m.SomeId)
                         .ToSaga(s => s.SomeId);
-                    mapper.ConfigureMapping<AnotherMessage>(m => m.SomeId)
+                    mapper.ConfigureMapping<AnotherMessage, Guid>(m => m.SomeId)
                         .ToSaga(s => s.SomeId);
                 }
             }

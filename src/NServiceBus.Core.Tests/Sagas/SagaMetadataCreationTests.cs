@@ -135,21 +135,6 @@
         }
 
         [Test]
-        public void ValidateThatMappingOnSagaIdHasTypeGuidForMessageProps()
-        {
-            var ex = Assert.Throws<Exception>(() => SagaMetadata.Create(typeof(SagaWithIdMappedToNonGuidMessageProperty)));
-            Assert.True(ex.Message.Contains(typeof(SomeMessage).Name));
-        }
-
-
-        [Test]
-        public void ValidateThatMappingOnSagaIdHasTypeGuidForMessageFields()
-        {
-            var ex = Assert.Throws<Exception>(() => SagaMetadata.Create(typeof(SagaWithIdMappedToNonGuidMessageField)));
-            Assert.True(ex.Message.Contains(typeof(SomeMessage).Name));
-        }
-
-        [Test]
         public void DetectAndRegisterCustomFindersUsingScanning()
         {
             var availableTypes = new List<Type>
@@ -200,7 +185,7 @@
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyEntity> mapper)
             {
-                mapper.ConfigureMapping<M1>(m => m.UniqueProperty).ToSaga(s => s.UniqueProperty);
+                mapper.ConfigureMapping<M1, int>(m => m.UniqueProperty).ToSaga(s => s.UniqueProperty);
             }
 
             internal class MyEntity : ContainSagaData
@@ -256,7 +241,7 @@
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
             {
-                mapper.ConfigureMapping<StartSagaMessage>(m => m.Property)
+                mapper.ConfigureMapping<StartSagaMessage, string>(m => m.Property)
                     .ToSaga(s => s.Property);
             }
 
@@ -288,7 +273,7 @@
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
             {
-                mapper.ConfigureMapping<SomeMessage>(m => m.SomeProperty)
+                mapper.ConfigureMapping<SomeMessage, int>(m => m.SomeProperty)
                     .ToSaga(s => s.UniqueProperty);
             }
 
@@ -311,7 +296,7 @@
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
             {
-                mapper.ConfigureMapping<SomeMessage>(m => m.SomeProperty)
+                mapper.ConfigureMapping<SomeMessage, int>(m => m.SomeProperty)
                     .ToSaga(s => s.UniqueProperty);
             }
 
@@ -387,9 +372,9 @@
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
             {
-                mapper.ConfigureMapping<StartMessage1>(m => m.SomeId)
+                mapper.ConfigureMapping<StartMessage1, string>(m => m.SomeId)
                     .ToSaga(s => s.SomeId);
-                mapper.ConfigureMapping<StartMessage2>(m => m.SomeId)
+                mapper.ConfigureMapping<StartMessage2, string>(m => m.SomeId)
                     .ToSaga(s => s.SomeId);
             }
 
@@ -413,44 +398,6 @@
             }
 
             public class MyTimeout
-            {
-            }
-        }
-
-        class SagaWithIdMappedToNonGuidMessageProperty : Saga<SagaWithIdMappedToNonGuidMessageProperty.SagaData>,
-            IAmStartedByMessages<SomeMessage>
-        {
-            public Task Handle(SomeMessage message, IMessageHandlerContext context)
-            {
-                return Task.FromResult(0);
-            }
-
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
-            {
-                mapper.ConfigureMapping<SomeMessage>(m => m.SomeProperty)
-                    .ToSaga(s => s.Id);
-            }
-
-            public class SagaData : ContainSagaData
-            {
-            }
-        }
-
-        class SagaWithIdMappedToNonGuidMessageField : Saga<SagaWithIdMappedToNonGuidMessageField.SagaData>,
-            IAmStartedByMessages<SomeMessageWithField>
-        {
-            public Task Handle(SomeMessageWithField message, IMessageHandlerContext context)
-            {
-                return Task.FromResult(0);
-            }
-
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
-            {
-                mapper.ConfigureMapping<SomeMessageWithField>(m => m.SomeProperty)
-                    .ToSaga(s => s.Id);
-            }
-
-            public class SagaData : ContainSagaData
             {
             }
         }

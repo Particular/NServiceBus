@@ -98,8 +98,8 @@
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySaga1Data> mapper)
                 {
-                    mapper.ConfigureMapping<GroupPendingEvent>(m => m.DataId).ToSaga(s => s.DataId);
-                    mapper.ConfigureMapping<CompleteSaga1Now>(m => m.DataId).ToSaga(s => s.DataId);
+                    mapper.ConfigureMapping<GroupPendingEvent, Guid>(m => m.DataId).ToSaga(s => s.DataId);
+                    mapper.ConfigureMapping<CompleteSaga1Now, Guid>(m => m.DataId).ToSaga(s => s.DataId);
                 }
 
                 public class MySaga1Data : ContainSagaData
@@ -130,8 +130,8 @@
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySaga2Data> mapper)
                 {
-                    mapper.ConfigureMapping<StartSaga2>(m => m.DataId).ToSaga(s => s.DataId);
-                    mapper.ConfigureMapping<GroupPendingEvent>(m => m.DataId).ToSaga(s => s.DataId);
+                    mapper.ConfigureMapping<StartSaga2, Guid>(m => m.DataId).ToSaga(s => s.DataId);
+                    mapper.ConfigureMapping<GroupPendingEvent, Guid>(m => m.DataId).ToSaga(s => s.DataId);
                 }
 
                 public class MySaga2Data : ContainSagaData

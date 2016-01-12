@@ -49,10 +49,10 @@
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData02> mapper)
                 {
-                    mapper.ConfigureMapping<StartSagaMessage>(m => m.Key)
+                    mapper.ConfigureMapping<StartSagaMessage, string>(m => m.Key)
                         .ToSaga(s => s.KeyValue);
 
-                    mapper.ConfigureMapping<OtherMessage>(m => m.Part1 + "_" + m.Part2)
+                    mapper.ConfigureMapping<OtherMessage, string>(m => m.Part1 + "_" + m.Part2)
                         .ToSaga(s => s.KeyValue);
                 }
 
