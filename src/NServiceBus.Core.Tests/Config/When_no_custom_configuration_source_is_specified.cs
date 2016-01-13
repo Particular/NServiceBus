@@ -16,7 +16,7 @@ namespace NServiceBus.Core.Tests.Config
             config.SendOnly();
             config.TypesToScanInternal(new[] { typeof(ConfigSectionValidatorFeature) });
             config.EnableFeature<ConfigSectionValidatorFeature>();
-
+            config.UseTransport<FakeTransportDefinition>();
             var endpoint = await Endpoint.Start(config);
             await endpoint.Stop();
         }

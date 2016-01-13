@@ -3,6 +3,7 @@ namespace NServiceBus.Serializers.Json.Tests
     using System.Text;
     using System.Threading.Tasks;
     using Features;
+    using NServiceBus.Core.Tests;
     using NServiceBus.ObjectBuilder;
     using NUnit.Framework;
 
@@ -19,6 +20,7 @@ namespace NServiceBus.Serializers.Json.Tests
             builder.TypesToScanInternal(new[] { typeof(EncodingValidatorFeature) });
             builder.UseSerialization<JsonSerializer>();
             builder.EnableFeature<EncodingValidatorFeature>();
+            builder.UseTransport<FakeTransportDefinition>();
 
             var endpoint = await Endpoint.Start(builder);
             await endpoint.Stop();

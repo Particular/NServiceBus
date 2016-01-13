@@ -18,6 +18,7 @@ namespace NServiceBus.Core.Tests.Config
             builder.TypesToScanInternal(new[] { typeof(ConfigSectionValidatorFeature) });
             builder.EnableFeature<ConfigSectionValidatorFeature>();
             builder.CustomConfigurationSource(new UserConfigurationSource());
+            builder.UseTransport<FakeTransportDefinition>();
 
             var endpoint = await Endpoint.Start(builder);
             await endpoint.Stop();

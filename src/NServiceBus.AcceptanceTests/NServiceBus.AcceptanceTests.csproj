@@ -275,6 +275,10 @@
       <Project>{758357f6-cd31-4337-80c4-ba377fc257af}</Project>
       <Name>NServiceBus.AcceptanceTesting</Name>
     </ProjectReference>
+    <ProjectReference Include="..\NServiceBus.MSMQ\NServiceBus.MSMQ.csproj">
+      <Project>{c06c2924-5a81-48a9-96c3-12976fa8834c}</Project>
+      <Name>NServiceBus.MSMQ</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

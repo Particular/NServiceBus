@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <id>NServiceBus.MSMQ</id>
+    <title>NServiceBus MSMQ</title>
+    <version>$version$</version>
+    <authors>$authors$</authors>
+    <owners>$owners$</owners>
+    <licenseUrl>$licenseUrl$</licenseUrl>
+    <projectUrl>$projectUrl$</projectUrl>
+    <iconUrl>$iconUrl$</iconUrl>
+    <requireLicenseAcceptance>$requireLicenseAcceptance$</requireLicenseAcceptance>
+    <description>The most popular open-source service bus for .NET</description>
+    <releaseNotes></releaseNotes>
+    <copyright>$copyright$</copyright>
+    <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System" targetFramework="net452" />
+      <frameworkAssembly assemblyName="System.Core" targetFramework="net452" />
+	  <frameworkAssembly assemblyName="System.Messaging" targetFramework="net452" />
+	  <frameworkAssembly assemblyName="System.Transactions" targetFramework="net452" />
+    </frameworkAssemblies>
+    <dependencies>
+      <dependency id="NServiceBus" version="[5.0.0, 6.0.0)" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="..\..\binaries\NServiceBus.MSMQ.???" target="lib\net452" />
+  </files>
+</package>

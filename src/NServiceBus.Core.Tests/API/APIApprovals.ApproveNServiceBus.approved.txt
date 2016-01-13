@@ -308,10 +308,6 @@ namespace NServiceBus
         public static NServiceBus.IInitializableEndpoint Prepare(NServiceBus.BusConfiguration configuration) { }
         public static async System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(NServiceBus.BusConfiguration configuration) { }
     }
-    public class static EndpointInstanceExtensions
-    {
-        public static NServiceBus.Routing.EndpointInstance AtMachine(this NServiceBus.Routing.EndpointInstance instance, string machineName) { }
-    }
     [System.AttributeUsageAttribute(System.AttributeTargets.Class | System.AttributeTargets.Interface | System.AttributeTargets.All)]
     public sealed class ExpressAttribute : System.Attribute
     {
@@ -700,29 +696,14 @@ namespace NServiceBus
         Unsubscribe = 4,
         Reply = 5,
     }
+    public class MessageProcessingAbortedException : System.Exception
+    {
+        public MessageProcessingAbortedException() { }
+        protected MessageProcessingAbortedException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
+    }
     public class static MessageProcessingOptimizationExtensions
     {
         public static void LimitMessageProcessingConcurrencyTo(this NServiceBus.BusConfiguration config, int maxConcurrency) { }
-    }
-    public class static MsmqConfigurationExtensions
-    {
-        public static void ApplyLabelToMessages(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> transportExtensions, NServiceBus.MsmqLabelGenerator labelGenerator) { }
-    }
-    public delegate string MsmqLabelGenerator(System.Collections.Generic.IReadOnlyDictionary<string, string> headers);
-    public class MsmqTransport : NServiceBus.Transports.TransportDefinition
-    {
-        public MsmqTransport() { }
-        public override string ExampleConnectionStringForErrorMessage { get; }
-        public override bool RequiresConnectionString { get; }
-        public override NServiceBus.Routing.EndpointInstance BindToLocalEndpoint(NServiceBus.Routing.EndpointInstance instance, NServiceBus.Settings.ReadOnlySettings settings) { }
-        protected internal override NServiceBus.Transports.TransportReceivingConfigurationResult ConfigureForReceiving(NServiceBus.Transports.TransportReceivingConfigurationContext context) { }
-        protected internal override NServiceBus.Transports.TransportSendingConfigurationResult ConfigureForSending(NServiceBus.Transports.TransportSendingConfigurationContext context) { }
-        public override NServiceBus.Transports.OutboundRoutingPolicy GetOutboundRoutingPolicy(NServiceBus.Settings.ReadOnlySettings settings) { }
-        public override NServiceBus.Transports.IManageSubscriptions GetSubscriptionManager() { }
-        public override System.Collections.Generic.IEnumerable<System.Type> GetSupportedDeliveryConstraints() { }
-        public override NServiceBus.TransportTransactionMode GetSupportedTransactionMode() { }
-        public override string MakeCanonicalForm(string transportAddress) { }
-        public override string ToTransportAddress(NServiceBus.LogicalAddress logicalAddress) { }
     }
     public class NonDurableDelivery : NServiceBus.DeliveryConstraints.DeliveryConstraint
     {
@@ -1142,12 +1123,6 @@ namespace NServiceBus.Config
         [System.Configuration.ConfigurationPropertyAttribute("ErrorQueue", IsRequired=true)]
         public string ErrorQueue { get; set; }
     }
-    public class MsmqSubscriptionStorageConfig : System.Configuration.ConfigurationSection
-    {
-        public MsmqSubscriptionStorageConfig() { }
-        [System.Configuration.ConfigurationPropertyAttribute("Queue", IsRequired=true)]
-        public string Queue { get; set; }
-    }
     public class RijndaelEncryptionServiceConfig : System.Configuration.ConfigurationSection
     {
         public RijndaelEncryptionServiceConfig() { }
@@ -1319,6 +1294,8 @@ namespace NServiceBus.DeliveryConstraints
         public static void AddDeliveryConstraint(this NServiceBus.Pipeline.OutgoingPipeline.IOutgoingLogicalMessageContext context, NServiceBus.DeliveryConstraints.DeliveryConstraint constraint) { }
         public static System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> GetDeliveryConstraints(this NServiceBus.TransportDispatch.IRoutingContext context) { }
         public static void RemoveDeliveryConstaint(this NServiceBus.TransportDispatch.IRoutingContext context, NServiceBus.DeliveryConstraints.DeliveryConstraint constraint) { }
+        public static bool TryGet<T>(this System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> list, out T constraint)
+            where T : NServiceBus.DeliveryConstraints.DeliveryConstraint { }
         public static bool TryGetDeliveryConstraint<T>(this NServiceBus.TransportDispatch.IRoutingContext context, out T constraint)
             where T : NServiceBus.DeliveryConstraints.DeliveryConstraint { }
         public static bool TryGetDeliveryConstraint<T>(this NServiceBus.Pipeline.OutgoingPipeline.IOutgoingLogicalMessageContext context, out T constraint)
@@ -1542,10 +1519,6 @@ namespace NServiceBus.Features
         protected override System.Type GetSerializerType(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class MessageDrivenSubscriptions : NServiceBus.Features.Feature
-    {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
-    }
-    public class MsmqSubscriptionPersistence : NServiceBus.Features.Feature
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
@@ -1970,10 +1943,6 @@ namespace NServiceBus.Persistence
         public sealed class Timeouts : NServiceBus.Persistence.StorageType { }
     }
     public interface SynchronizedStorageSession { }
-}
-namespace NServiceBus.Persistence.Legacy
-{
-    public class MsmqPersistence : NServiceBus.Persistence.PersistenceDefinition { }
 }
 namespace NServiceBus.Pipeline
 {
@@ -2818,36 +2787,13 @@ namespace NServiceBus.Transports
         public NServiceBus.Transports.DispatchConsistency RequiredDispatchConsistency { get; }
     }
 }
-namespace NServiceBus.Transports.Msmq.Config
-{
-    public class MsmqSettings
-    {
-        public MsmqSettings() { }
-        public System.TimeSpan TimeToReachQueue { get; set; }
-        public bool UseConnectionCache { get; set; }
-        public bool UseDeadLetterQueue { get; set; }
-        public bool UseJournalQueue { get; set; }
-        public bool UseTransactionalQueues { get; set; }
-    }
-}
 namespace NServiceBus.Transports.Msmq
 {
-    public class HeaderInfo
-    {
-        public HeaderInfo() { }
-        public string Key { get; set; }
-        public string Value { get; set; }
-    }
     [System.ObsoleteAttribute("No longer available, resolve an instance of IPushMessages from the container inst" +
         "ead. Will be removed in version 7.0.0.", true)]
     public class MsmqDequeueStrategy
     {
         public MsmqDequeueStrategy() { }
-    }
-    public class MsmqMessageSender : NServiceBus.Transports.IDispatchMessages
-    {
-        public MsmqMessageSender(NServiceBus.Transports.Msmq.Config.MsmqSettings settings, NServiceBus.MsmqLabelGenerator messageLabelGenerator) { }
-        public System.Threading.Tasks.Task Dispatch(NServiceBus.Transports.TransportOperations outgoingMessages, NServiceBus.Extensibility.ContextBag context) { }
     }
     [System.ObsoleteAttribute("The msmq transaction is now available via the pipeline context. Will be removed i" +
         "n version 7.0.0.", true)]

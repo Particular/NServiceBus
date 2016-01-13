@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System.Messaging;
+    using NServiceBus.Configuration.AdvanceExtensibility;
     using NServiceBus.Settings;
 
     /// <summary>
@@ -21,7 +22,7 @@ namespace NServiceBus
         public static void ApplyLabelToMessages(this TransportExtensions<MsmqTransport> transportExtensions, MsmqLabelGenerator labelGenerator)
         {
             Guard.AgainstNull(nameof(labelGenerator), labelGenerator);
-            transportExtensions.Settings.Set<MsmqLabelGenerator>(labelGenerator);
+            transportExtensions.GetSettings().Set<MsmqLabelGenerator>(labelGenerator);
         }
 
         internal static MsmqLabelGenerator GetMessageLabelGenerator(this ReadOnlySettings settings)

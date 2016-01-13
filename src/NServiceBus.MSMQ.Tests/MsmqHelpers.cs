@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Core.Tests.Msmq
+﻿namespace NServiceBus.MSMQ.Tests
 {
     using System.Messaging;
 

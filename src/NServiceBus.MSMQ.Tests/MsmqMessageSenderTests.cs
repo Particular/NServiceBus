@@ -1,10 +1,10 @@
-﻿namespace NServiceBus.Core.Tests.Msmq
+﻿namespace NServiceBus.MSMQ.Tests
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Messaging;
     using NServiceBus.Extensibility;
-    using NServiceBus.Routing;
     using NServiceBus.Transports;
     using NServiceBus.Transports.Msmq;
     using NServiceBus.Transports.Msmq.Config;
@@ -30,8 +30,8 @@
                 };
                 var headers = new Dictionary<string, string>();
                 var outgoingMessage = new OutgoingMessage("1", headers, bytes);
-                var transportOperation = new TransportOperation(outgoingMessage, new UnicastAddressTag(queueName), DispatchConsistency.Default);
-                messageSender.Dispatch(new TransportOperations(transportOperation), new ContextBag());
+                var transportOperation = new UnicastTransportOperation(outgoingMessage, queueName);
+                messageSender.Dispatch(new TransportOperations(Enumerable.Empty<MulticastTransportOperation>(), new [] { transportOperation}), new ContextBag());
                 var messageLabel = ReadMessageLabel(path);
                 Assert.AreEqual("mylabel", messageLabel);
 
@@ -58,8 +58,8 @@
                 };
                 var headers = new Dictionary<string, string>();
                 var outgoingMessage = new OutgoingMessage("1", headers, bytes);
-                var transportOperation = new TransportOperation(outgoingMessage, new UnicastAddressTag(queueName), DispatchConsistency.Default);
-                messageSender.Dispatch(new TransportOperations(transportOperation), new ContextBag());
+                var transportOperation = new UnicastTransportOperation(outgoingMessage, queueName);
+                messageSender.Dispatch(new TransportOperations(Enumerable.Empty<MulticastTransportOperation>(), new[] { transportOperation }), new ContextBag());
                 var messageLabel = ReadMessageLabel(path);
                 Assert.IsEmpty(messageLabel);
 
