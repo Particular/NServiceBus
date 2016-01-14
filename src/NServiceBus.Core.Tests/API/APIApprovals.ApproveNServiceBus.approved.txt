@@ -696,11 +696,6 @@ namespace NServiceBus
         Unsubscribe = 4,
         Reply = 5,
     }
-    public class MessageProcessingAbortedException : System.Exception
-    {
-        public MessageProcessingAbortedException() { }
-        protected MessageProcessingAbortedException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
-    }
     public class static MessageProcessingOptimizationExtensions
     {
         public static void LimitMessageProcessingConcurrencyTo(this NServiceBus.BusConfiguration config, int maxConcurrency) { }
