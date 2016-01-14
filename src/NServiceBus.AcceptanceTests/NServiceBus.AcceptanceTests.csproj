@@ -59,7 +59,7 @@
     <Compile Include="Basic\When_no_content_type.cs" />
     <Compile Include="Causation\When_a_message_is_faulted.cs" />
     <Compile Include="Causation\When_a_message_is_audited.cs" />
-    <Compile Include="ConfigureInMemoryPersistence.cs" />
+    <Compile Include="ConfigureMsmqPersistence.cs" />
     <Compile Include="FakeTransport\CriticalError\When_registering_custom_critical_error_handler.cs" />
     <Compile Include="FakeTransport\FakeDispatcher.cs" />
     <Compile Include="FakeTransport\FakeQueueCreator.cs" />

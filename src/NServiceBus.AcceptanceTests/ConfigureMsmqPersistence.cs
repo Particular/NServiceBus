@@ -4,7 +4,7 @@ using NServiceBus;
 using NServiceBus.AcceptanceTesting.Support;
 
 
-public class ConfigureInMemoryPersistence : IConfigureTestExecution
+public class ConfigureMsmqPersistence : IConfigureTestExecution
 {
     public Task Configure(BusConfiguration configuration, IDictionary<string, string> settings)
     {
