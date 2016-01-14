@@ -141,6 +141,19 @@
             Assert.True(ex.Message.Contains(typeof(SomeMessage).Name));
         }
 
+        [Test]
+        public void ValidateThatMappingOnSagaIdFromStringToGuidForMessagePropsThrowsException()
+        {
+            var ex = Assert.Throws<Exception>(() => SagaMetadata.Create(typeof(SagaWithIdMappedToStringMessageProperty)));
+            Assert.True(ex.Message.Contains(typeof(SomeMessage).Name));
+        }
+
+        [Test]
+        public void ValidateThatMappingOnNonSagaIdGuidPropertyFromStringToGuidForMessagePropsThrowsException()
+        {
+            var ex = Assert.Throws<Exception>(() => SagaMetadata.Create(typeof(SagaWithNonIdPropertyMappedToStringMessageProperty)));
+            Assert.True(ex.Message.Contains(typeof(SomeMessage).Name));
+        }
 
         [Test]
         public void ValidateThatMappingOnSagaIdHasTypeGuidForMessageFields()
@@ -417,6 +430,45 @@
             }
         }
 
+        class SagaWithIdMappedToStringMessageProperty : Saga<SagaWithIdMappedToStringMessageProperty.SagaData>,
+            IAmStartedByMessages<SomeMessageWithStringProperty>
+        {
+            public class SagaData : ContainSagaData
+            {
+            }
+
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
+            {
+                mapper.ConfigureMapping<SomeMessageWithStringProperty>(m => m.StringProperty)
+                    .ToSaga(s => s.Id);
+            }
+
+            public Task Handle(SomeMessageWithStringProperty message, IMessageHandlerContext context)
+            {
+                return Task.FromResult(0);
+            }
+        }
+
+        class SagaWithNonIdPropertyMappedToStringMessageProperty : Saga<SagaWithNonIdPropertyMappedToStringMessageProperty.SagaData>,
+            IAmStartedByMessages<SomeMessageWithStringProperty>
+        {
+            public class SagaData : ContainSagaData
+            {
+                public Guid NonIdColumn { get; set; }
+            }
+
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
+            {
+                mapper.ConfigureMapping<SomeMessageWithStringProperty>(m => m.StringProperty)
+                    .ToSaga(s => s.NonIdColumn);
+            }
+
+            public Task Handle(SomeMessageWithStringProperty message, IMessageHandlerContext context)
+            {
+                return Task.FromResult(0);
+            }
+        }
+
         class SagaWithIdMappedToNonGuidMessageProperty : Saga<SagaWithIdMappedToNonGuidMessageProperty.SagaData>,
             IAmStartedByMessages<SomeMessage>
         {
@@ -517,5 +569,10 @@
     class SomeMessage : IMessage
     {
         public int SomeProperty { get; set; }
+    }
+
+    class SomeMessageWithStringProperty : IMessage
+    {
+        public string StringProperty { get; set; }
     }
 }

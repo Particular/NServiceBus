@@ -22,12 +22,12 @@
                 .Done(c => c.Done || c.Exceptions.Any())
                 .Run();
 
-            Assert.AreEqual(context.SomeId, id.ToString());
+            Assert.AreEqual(context.SomeId, id);
         }
 
         public class Context : ScenarioContext
         {
-            public string SomeId { get; set; }
+            public Guid SomeId { get; set; }
             public bool Done { get; set; }
         }
 
@@ -68,7 +68,7 @@
 
             public class NullCorrPropertySagaData : IContainSagaData
             {
-                public virtual string SomeId { get; set; }
+                public virtual Guid SomeId { get; set; }
                 public virtual Guid Id { get; set; }
                 public virtual string Originator { get; set; }
                 public virtual string OriginalMessageId { get; set; }

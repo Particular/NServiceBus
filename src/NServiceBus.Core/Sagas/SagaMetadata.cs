@@ -364,17 +364,12 @@ Sagas can only have mappings that correlate on a single saga property. Please us
 
             static void ValidateMapping<TMessage>(Expression<Func<TMessage, object>> messageExpression, PropertyInfo sagaProp)
             {
-                if (sagaProp.Name.ToLower() != "id")
-                {
-                    return;
-                }
+                var memberExpr = messageExpression.Body as MemberExpression;
 
-                if (messageExpression.Body.NodeType != ExpressionType.Convert)
+                if (messageExpression.Body.NodeType == ExpressionType.Convert)
                 {
-                    return;
+                    memberExpr = ((UnaryExpression) messageExpression.Body).Operand as MemberExpression;
                 }
-
-                var memberExpr = ((UnaryExpression) messageExpression.Body).Operand as MemberExpression;
 
                 if (memberExpr == null)
                 {
@@ -387,7 +382,7 @@ Sagas can only have mappings that correlate on a single saga property. Please us
 
                 if (propertyInfo != null)
                 {
-                    if (propertyInfo.PropertyType != typeof(Guid))
+                    if (propertyInfo.PropertyType != sagaProp.PropertyType)
                     {
                         throw new Exception(string.Format(message, propertyInfo.Name, typeof(TMessage).Name));
                     }
@@ -395,12 +390,11 @@ Sagas can only have mappings that correlate on a single saga property. Please us
                     return;
                 }
 
-
                 var fieldInfo = memberExpr.Member as FieldInfo;
 
                 if (fieldInfo != null)
                 {
-                    if (fieldInfo.FieldType != typeof(Guid))
+                    if (fieldInfo.FieldType != sagaProp.PropertyType)
                     {
                         throw new Exception(string.Format(message, fieldInfo.Name, typeof(TMessage).Name));
                     }
