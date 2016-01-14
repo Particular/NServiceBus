@@ -1193,6 +1193,8 @@ namespace NServiceBus.Config
         [System.Configuration.ConfigurationPropertyAttribute("MaximumConcurrencyLevel", DefaultValue=0, IsRequired=false)]
         public int MaximumConcurrencyLevel { get; set; }
         [System.Configuration.ConfigurationPropertyAttribute("MaximumMessageThroughputPerSecond", DefaultValue=-1, IsRequired=false)]
+        [System.ObsoleteAttribute("Message throughput throttling has been removed. Please consult the documentation " +
+            "for further information. Will be removed in version 7.0.0.", true)]
         public int MaximumMessageThroughputPerSecond { get; set; }
         [System.Configuration.ConfigurationPropertyAttribute("MaxRetries", DefaultValue=5, IsRequired=false)]
         public int MaxRetries { get; set; }

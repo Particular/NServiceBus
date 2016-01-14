@@ -34,6 +34,13 @@ namespace NServiceBus
 
         public async Task<IEndpointInstance> Start()
         {
+            // remove in v7:
+            var throughputConfiguration = settings.GetConfigSection<TransportConfig>()?.MaximumMessageThroughputPerSecond;
+            if (throughputConfiguration.HasValue && throughputConfiguration != -1)
+            {
+                throw new NotSupportedException($"Message throughput throttling has been removed. Please remove the '{nameof(TransportConfig.MaximumMessageThroughputPerSecond)}' attribute from the '{nameof(TransportConfig)}' configuration section and consult the documentation for further information.");
+            }
+
             var pipelineCache = new PipelineCache(builder, settings);
             var busInterface = new StartUpBusInterface(builder, pipelineCache);
             var busSession = busInterface.CreateBusSession();
