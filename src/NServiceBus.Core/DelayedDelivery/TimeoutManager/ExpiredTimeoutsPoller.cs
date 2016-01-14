@@ -12,12 +12,23 @@ namespace NServiceBus
 
     class ExpiredTimeoutsPoller : IDisposable
     {
-        public ExpiredTimeoutsPoller(IQueryTimeouts timeoutsFetcher, IDispatchMessages dispatcher, string dispatcherAddress, RepeatedFailuresOverTimeCircuitBreaker circuitBreaker)
+        public ExpiredTimeoutsPoller(IQueryTimeouts timeoutsFetcher, IDispatchMessages dispatcher, string dispatcherAddress, ICircuitBreaker circuitBreaker,
+            TimeSpan? sleepTillNextRetrieval = null, TimeSpan? maxNextRetrievalDelay = null)
         {
             this.timeoutsFetcher = timeoutsFetcher;
             this.dispatcher = dispatcher;
             this.dispatcherAddress = dispatcherAddress;
             this.circuitBreaker = circuitBreaker;
+            nextRetrievalPollSleep = sleepTillNextRetrieval ?? TimeSpan.FromMilliseconds(1000);
+            this.maxNextRetrievalDelay = maxNextRetrievalDelay ?? DefaultMaxNextRetrievalDelay;
+            startSlice = DateTime.UtcNow.AddYears(-10);
+        }
+
+        public DateTime NextRetrieval { get; set; } = DateTime.UtcNow;
+
+        public void Dispose()
+        {
+            //Injected
         }
 
         public void Start()
@@ -41,17 +52,12 @@ namespace NServiceBus
         {
             lock (lockObject)
             {
-                if (nextRetrieval > expiryTime)
+                if (NextRetrieval > expiryTime)
                 {
-                    nextRetrieval = expiryTime;
+                    NextRetrieval = expiryTime;
                 }
                 timeoutPushed = true;
             }
-        }
-
-        public void Dispose()
-        {
-            //Injected
         }
 
         async Task Poll(CancellationToken cancellationToken)
@@ -72,76 +78,82 @@ namespace NServiceBus
 
         async Task InnerPoll(CancellationToken cancellationToken)
         {
-            var startSlice = DateTime.UtcNow.AddYears(-10);
-
             while (!cancellationToken.IsCancellationRequested)
             {
-                if (nextRetrieval > DateTime.UtcNow)
-                {
-                    // ReSharper disable once MethodSupportsCancellation
-                    await Task.Delay(1000).ConfigureAwait(false);
-                    continue;
-                }
-
-                Logger.DebugFormat("Polling for timeouts at {0}.", DateTime.Now);
-
-                var timeoutChunk = await timeoutsFetcher.GetNextChunk(startSlice).ConfigureAwait(false);
-
-                foreach (var timeoutData in timeoutChunk.DueTimeouts)
-                {
-                    if (startSlice < timeoutData.DueTime)
-                    {
-                        startSlice = timeoutData.DueTime;
-                    }
-
-                    var dispatchRequest = ControlMessageFactory.Create(MessageIntentEnum.Send);
-
-                    dispatchRequest.Headers["Timeout.Id"] = timeoutData.Id;
-
-                    var transportOperation = new TransportOperation(dispatchRequest, new UnicastAddressTag(dispatcherAddress), DispatchConsistency.Default);
-                    await dispatcher.Dispatch(new TransportOperations(transportOperation), new ContextBag()).ConfigureAwait(false);
-                }
-
-                lock (lockObject)
-                {
-                    //Check if nextRetrieval has been modified (This means that a push come in) and if it has check if it is earlier than nextExpiredTimeout time
-                    if (!timeoutPushed)
-                    {
-                        nextRetrieval = timeoutChunk.NextTimeToQuery;
-                    }
-                    else if (timeoutChunk.NextTimeToQuery < nextRetrieval)
-                    {
-                        nextRetrieval = timeoutChunk.NextTimeToQuery;
-                    }
-
-                    timeoutPushed = false;
-                }
-
-                // we cap the next retrieval to max 1 minute this will make sure that we trip the circuit breaker if we
-                // loose connectivity to our storage. This will also make sure that timeouts added (during migration) direct to storage
-                // will be picked up after at most 1 minute
-                var maxNextRetrieval = DateTime.UtcNow + TimeSpan.FromMinutes(1);
-
-                if (nextRetrieval > maxNextRetrieval)
-                {
-                    nextRetrieval = maxNextRetrieval;
-                }
-
-                Logger.DebugFormat("Polling next retrieval is at {0}.", nextRetrieval.ToLocalTime());
-                circuitBreaker.Success();
+                await SpinOnce();
             }
         }
 
-        IQueryTimeouts timeoutsFetcher;
+        internal async Task SpinOnce()
+        {
+            if (NextRetrieval > DateTime.UtcNow)
+            {
+                await Task.Delay(nextRetrievalPollSleep).ConfigureAwait(false);
+                return;
+            }
+
+            Logger.DebugFormat("Polling for timeouts at {0}.", DateTime.Now);
+
+            var timeoutChunk = await timeoutsFetcher.GetNextChunk(startSlice).ConfigureAwait(false);
+
+            foreach (var timeoutData in timeoutChunk.DueTimeouts)
+            {
+                if (startSlice < timeoutData.DueTime)
+                {
+                    startSlice = timeoutData.DueTime;
+                }
+
+                var dispatchRequest = ControlMessageFactory.Create(MessageIntentEnum.Send);
+
+                dispatchRequest.Headers["Timeout.Id"] = timeoutData.Id;
+
+                var transportOperation = new TransportOperation(dispatchRequest, new UnicastAddressTag(dispatcherAddress), DispatchConsistency.Default);
+                await dispatcher.Dispatch(new TransportOperations(transportOperation), new ContextBag()).ConfigureAwait(false);
+            }
+
+            lock (lockObject)
+            {
+                //Check if nextRetrieval has been modified (This means that a push come in) and if it has check if it is earlier than nextExpiredTimeout time
+                if (!timeoutPushed)
+                {
+                    NextRetrieval = timeoutChunk.NextTimeToQuery;
+                }
+                else if (timeoutChunk.NextTimeToQuery < NextRetrieval)
+                {
+                    NextRetrieval = timeoutChunk.NextTimeToQuery;
+                }
+
+                timeoutPushed = false;
+            }
+
+            // we cap the next retrieval to max 1 minute this will make sure that we trip the circuit breaker if we
+            // loose connectivity to our storage. This will also make sure that timeouts added (during migration) direct to storage
+            // will be picked up after at most 1 minute
+            var maxNextRetrieval = DateTime.UtcNow + maxNextRetrievalDelay;
+
+            if (NextRetrieval > maxNextRetrieval)
+            {
+                NextRetrieval = maxNextRetrieval;
+            }
+
+            Logger.DebugFormat("Polling next retrieval is at {0}.", NextRetrieval.ToLocalTime());
+            circuitBreaker.Success();
+        }
+
+        ICircuitBreaker circuitBreaker;
         IDispatchMessages dispatcher;
         string dispatcherAddress;
-        RepeatedFailuresOverTimeCircuitBreaker circuitBreaker;
         object lockObject = new object();
+        TimeSpan maxNextRetrievalDelay;
+        TimeSpan nextRetrievalPollSleep;
+        DateTime startSlice;
         Task timeoutPollerTask;
-        DateTime nextRetrieval = DateTime.UtcNow;
         volatile bool timeoutPushed;
+
+        IQueryTimeouts timeoutsFetcher;
         CancellationTokenSource tokenSource;
 
         static ILog Logger = LogManager.GetLogger<ExpiredTimeoutsPoller>();
+        static readonly TimeSpan DefaultMaxNextRetrievalDelay = TimeSpan.FromMinutes(1);
     }
 }
