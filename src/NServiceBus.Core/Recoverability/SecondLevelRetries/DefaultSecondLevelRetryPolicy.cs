@@ -7,11 +7,20 @@ namespace NServiceBus
     {
         int maxRetries;
         TimeSpan timeIncrease;
+        Func<DateTime> currentUtcTimeProvider;
 
-        public DefaultSecondLevelRetryPolicy(int maxRetries,TimeSpan timeIncrease)
+        public DefaultSecondLevelRetryPolicy(int maxRetries, TimeSpan timeIncrease)
+            : this(maxRetries, timeIncrease, () => DateTime.UtcNow)
         {
+        }
+
+        internal DefaultSecondLevelRetryPolicy(int maxRetries, TimeSpan timeIncrease, Func<DateTime> currentUtcTimeProvider)
+        {
+            Guard.AgainstNull(nameof(currentUtcTimeProvider), currentUtcTimeProvider);
+
             this.maxRetries = maxRetries;
             this.timeIncrease = timeIncrease;
+            this.currentUtcTimeProvider = currentUtcTimeProvider;
         }
 
         public override bool TryGetDelay(IncomingMessage message, Exception ex, int currentRetry, out TimeSpan delay)
@@ -33,7 +42,7 @@ namespace NServiceBus
             return true;
         }
 
-        static bool HasReachedMaxTime(IncomingMessage message)
+        private bool HasReachedMaxTime(IncomingMessage message)
         {
             string timestampHeader;
 
@@ -52,7 +61,8 @@ namespace NServiceBus
             {
                 var handledAt = DateTimeExtensions.ToUtcDateTime(timestampHeader);
 
-                if (DateTime.UtcNow > handledAt.AddDays(1))
+                var now = currentUtcTimeProvider();
+                if (now > handledAt.AddDays(1))
                 {
                     return true;
                 }

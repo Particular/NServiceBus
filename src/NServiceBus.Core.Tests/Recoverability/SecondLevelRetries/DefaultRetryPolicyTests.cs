@@ -27,14 +27,16 @@
         [Test]
         public void ShouldCapTheRetryMaxTimeTo24Hours()
         {
+            var now = DateTime.UtcNow;
             var baseDelay = TimeSpan.FromSeconds(10);
 
-            var policy = new DefaultSecondLevelRetryPolicy(2, baseDelay);
+            var policy = new DefaultSecondLevelRetryPolicy(2, baseDelay, () => now);
             TimeSpan delay;
 
+            var moreThanADayAgo = now.AddHours(-24).AddTicks(-1);
             var headers = new Dictionary<string, string>
             {
-                {SecondLevelRetriesBehavior.RetriesTimestamp, DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow.AddHours(-24))}
+                {SecondLevelRetriesBehavior.RetriesTimestamp, DateTimeExtensions.ToWireFormattedString(moreThanADayAgo)}
             };
 
             Assert.False(policy.TryGetDelay(new IncomingMessage("someid", headers, Stream.Null), new Exception(""), 1, out delay));
