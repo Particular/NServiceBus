@@ -1,9 +1,9 @@
-﻿namespace NServiceBus.Pipeline
+﻿namespace NServiceBus
 {
     /// <summary>
     /// Marker interface for pipeline terminators.
     /// </summary>
-    public interface IPipelineTerminator
+    interface IPipelineTerminator
     {
     }
 }

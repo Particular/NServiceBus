@@ -2005,7 +2005,6 @@ namespace NServiceBus.Pipeline
     {
         NServiceBus.ObjectBuilder.IBuilder Builder { get; }
     }
-    public interface IPipelineTerminator { }
     [System.ObsoleteAttribute("You can no longer get access to the pipeline context via DI. Please use a behavio" +
         "r to get access instead. Will be removed in version 7.0.0.", true)]
     public class PipelineExecutor
@@ -2028,7 +2027,7 @@ namespace NServiceBus.Pipeline
         public void Replace(string stepId, System.Type newBehavior, string description = null) { }
         public void Replace(NServiceBus.Pipeline.WellKnownStep wellKnownStep, System.Type newBehavior, string description = null) { }
     }
-    public abstract class PipelineTerminator<T> : NServiceBus.Pipeline.StageConnector<T, NServiceBus.Pipeline.PipelineTerminator<T>.ITerminatingContext>, NServiceBus.Pipeline.IPipelineTerminator
+    public abstract class PipelineTerminator<T> : NServiceBus.Pipeline.StageConnector<T, NServiceBus.Pipeline.PipelineTerminator<T>.ITerminatingContext>, NServiceBus.IPipelineTerminator
         where T : NServiceBus.Pipeline.IBehaviorContext
     {
         protected PipelineTerminator() { }
