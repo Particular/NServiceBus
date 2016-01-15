@@ -34,12 +34,7 @@ namespace NServiceBus
 
         public async Task<IEndpointInstance> Start()
         {
-            // remove in v7:
-            var throughputConfiguration = settings.GetConfigSection<TransportConfig>()?.MaximumMessageThroughputPerSecond;
-            if (throughputConfiguration.HasValue && throughputConfiguration != -1)
-            {
-                throw new NotSupportedException($"Message throughput throttling has been removed. Please remove the '{nameof(TransportConfig.MaximumMessageThroughputPerSecond)}' attribute from the '{nameof(TransportConfig)}' configuration section and consult the documentation for further information.");
-            }
+            DetectThrottlingConfig();
 
             var pipelineCache = new PipelineCache(builder, settings);
             var busInterface = new StartUpBusInterface(builder, pipelineCache);
@@ -54,7 +49,7 @@ namespace NServiceBus
             var pipelineCollection = CreateIncomingPipelines(pipelineCache);
 
             var runningInstance = new RunningEndpointInstance(builder, pipelineCollection, runner, featureRunner, busInterface);
-            
+
             // set the started endpoint on CriticalError to pass the endpoint to the critical error action
             builder.Build<CriticalError>().Endpoint = runningInstance;
 
@@ -113,9 +108,19 @@ namespace NServiceBus
         string GetInstallationUserName()
         {
             string username;
-            return settings.TryGet("Installers.UserName", out username) 
-                ? username 
+            return settings.TryGet("Installers.UserName", out username)
+                ? username
                 : WindowsIdentity.GetCurrent().Name;
+        }
+
+        [ObsoleteEx(Message = "Not needed anymore", RemoveInVersion = "7.0")]
+        void DetectThrottlingConfig()
+        {
+            var throughputConfiguration = settings.GetConfigSection<TransportConfig>()?.MaximumMessageThroughputPerSecond;
+            if (throughputConfiguration.HasValue && throughputConfiguration != -1)
+            {
+                throw new NotSupportedException($"Message throughput throttling has been removed. Please remove the '{nameof(TransportConfig.MaximumMessageThroughputPerSecond)}' attribute from the '{nameof(TransportConfig)}' configuration section and consult the documentation for further information.");
+            }
         }
 
         class StartUpBusInterface : IBusSessionFactory
