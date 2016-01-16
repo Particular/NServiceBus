@@ -10,8 +10,6 @@ namespace NServiceBus.Routing
     /// </summary>
     public class EndpointInstances
     {
-        static Task<IEnumerable<EndpointInstance>> EmptyStaticRuleTask = Task.FromResult(Enumerable.Empty<EndpointInstance>());
-
         internal async Task<IEnumerable<EndpointInstance>> FindInstances(EndpointName endpoint)
         {
             var instances = new List<EndpointInstance>();
@@ -62,5 +60,6 @@ namespace NServiceBus.Routing
         }
 
         List<Func<EndpointName, Task<IEnumerable<EndpointInstance>>>> rules = new List<Func<EndpointName, Task<IEnumerable<EndpointInstance>>>>();
+        static Task<IEnumerable<EndpointInstance>> EmptyStaticRuleTask = Task.FromResult(Enumerable.Empty<EndpointInstance>());
     }
 }
