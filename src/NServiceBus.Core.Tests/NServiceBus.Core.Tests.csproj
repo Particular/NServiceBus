@@ -110,7 +110,9 @@
     <Compile Include="DelayedDelivery\RouteDeferredMessageToTimeoutManagerBehaviorTests.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\DispatchTimeoutBehaviorTest.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\ExpiredTimeoutsPollerTests.cs" />
+    <Compile Include="DelayedDelivery\TimeoutManager\FailureInfoStorageTests.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\RecordingFakeDispatcher.cs" />
+    <Compile Include="DelayedDelivery\TimeoutManager\TimeoutRecoverabilityBehaviourTest.cs" />
     <Compile Include="DeliveryConstraintContextExtensions\DeliveryConstraintContextExtensionsTests.cs" />
     <Compile Include="Msmq\TimeToBeReceivedOverrideCheckerTest.cs" />
     <Compile Include="Msmq\MsmqExtensionsTests.cs" />

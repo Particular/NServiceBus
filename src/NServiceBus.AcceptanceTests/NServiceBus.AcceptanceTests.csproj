@@ -61,6 +61,9 @@
     <Compile Include="Causation\When_a_message_is_audited.cs" />
     <Compile Include="ConfigureInMemoryPersistence.cs" />
     <Compile Include="DelayedDelivery\When_deferring_a_message_to_the_past.cs" />
+    <Compile Include="DelayedDelivery\TimeoutManager\When_timeout_dispatch_fails.cs" />
+    <Compile Include="DelayedDelivery\TimeoutManager\When_timeout_dispatch_fails_on_timeout_data_removal.cs" />
+    <Compile Include="DelayedDelivery\TimeoutManager\When_timeout_storage_fails.cs" />
     <Compile Include="FakeTransport\CriticalError\When_registering_custom_critical_error_handler.cs" />
     <Compile Include="FakeTransport\FakeDispatcher.cs" />
     <Compile Include="FakeTransport\FakeQueueCreator.cs" />
@@ -80,7 +83,7 @@
     <Compile Include="Msmq\When_publishing.cs" />
     <Compile Include="Msmq\When_setting_msmq_label_generator.cs" />
     <Compile Include="Basic\When_deferring_to_non_local.cs" />
-    <Compile Include="DelayedDelivery\When_TimeoutManager_is_disabled.cs" />
+    <Compile Include="DelayedDelivery\TimeoutManager\When_TimeoutManager_is_disabled.cs" />
     <Compile Include="Msmq\When_starting_up_the_endpoint.cs" />
     <Compile Include="Msmq\When_using_scope_timeout_greater_than_machine_max.cs" />
     <Compile Include="Mutators\When_mutating.cs" />
