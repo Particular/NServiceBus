@@ -46,8 +46,6 @@ namespace NServiceBus
 
             pipelineConfiguration.RegisterBehaviorsInContainer(settings, container);
 
-            container.RegisterSingleton(featureStats);
-
             DisplayDiagnosticsForFeatures.Run(featureStats);
             WireUpInstallers(concreteTypes);
 

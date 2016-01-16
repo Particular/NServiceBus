@@ -2,10 +2,7 @@ namespace NServiceBus.Features
 {
     using System.Collections.Generic;
 
-    /// <summary>
-    /// The prerequisite status of a feature.
-    /// </summary>
-    public class PrerequisiteStatus
+    class PrerequisiteStatus
     {
         internal PrerequisiteStatus()
         {
@@ -13,14 +10,8 @@ namespace NServiceBus.Features
             IsSatisfied = true;
         }
 
-        /// <summary>
-        /// True if all prerequisites for the feature is satisfied.
-        /// </summary>
         public bool IsSatisfied { get; private set; }
 
-        /// <summary>
-        /// The list of reason why the prerequisites are not fullfilled if applicable.
-        /// </summary>
         public List<string> Reasons { get; }
 
         internal void ReportFailure(string description)
