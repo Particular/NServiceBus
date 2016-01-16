@@ -231,7 +231,7 @@
             //check if we could find a finder
             if (finderDefinition == null)
             {
-                return Task.FromResult(default(IContainSagaData));
+                return defaultSagaDataCompletedTask;
             }
 
             var finderType = finderDefinition.Type;
@@ -279,6 +279,7 @@
         ISagaPersister sagaPersister;
         ICancelDeferredMessages timeoutCancellation;
 
+        static Task<IContainSagaData> defaultSagaDataCompletedTask = Task.FromResult(default(IContainSagaData));
         static ILog logger = LogManager.GetLogger<SagaPersistenceBehavior>();
     }
 }

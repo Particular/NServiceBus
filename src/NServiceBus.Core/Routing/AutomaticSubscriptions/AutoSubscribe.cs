@@ -9,7 +9,7 @@
     using NServiceBus.Unicast;
 
     /// <summary>
-    /// Used to configure auto subscriptions.
+    ///     Used to configure auto subscriptions.
     /// </summary>
     public class AutoSubscribe : Feature
     {
@@ -20,7 +20,7 @@
         }
 
         /// <summary>
-        /// See <see cref="Feature.Setup"/>.
+        ///     See <see cref="Feature.Setup" />.
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
@@ -42,7 +42,7 @@
 
                     var messageTypesHandled = GetMessageTypesHandledByThisEndpoint(handlerRegistry, conventions, settings);
 
-                    return new ApplySubscriptions(messageTypesHandled, type => Task.FromResult(true));
+                    return new ApplySubscriptions(messageTypesHandled, type => TaskEx.TrueTask);
                 });
             }
             else
@@ -66,7 +66,7 @@
                     }
                     else
                     {
-                        asyncPredicate = type => Task.FromResult(true);
+                        asyncPredicate = type => TaskEx.TrueTask;
                     }
 
                     return new ApplySubscriptions(messageTypesToSubscribe, asyncPredicate);
@@ -76,11 +76,11 @@
 
         static List<Type> GetMessageTypesHandledByThisEndpoint(MessageHandlerRegistry handlerRegistry, Conventions conventions, SubscribeSettings settings)
         {
-            var messageTypesHandled = handlerRegistry.GetMessageTypes()//get all potential messages
+            var messageTypesHandled = handlerRegistry.GetMessageTypes() //get all potential messages
                 .Where(t => !conventions.IsInSystemConventionList(t)) //never auto-subscribe system messages
                 .Where(t => !conventions.IsCommandType(t)) //commands should never be subscribed to
                 .Where(t => settings.SubscribePlainMessages || conventions.IsEventType(t)) //only events unless the user asked for all messages
-                .Where(t => settings.AutoSubscribeSagas || handlerRegistry.GetHandlersFor(t).Any(handler => !typeof(Saga).IsAssignableFrom(handler.HandlerType)))//get messages with other handlers than sagas if needed
+                .Where(t => settings.AutoSubscribeSagas || handlerRegistry.GetHandlersFor(t).Any(handler => !typeof(Saga).IsAssignableFrom(handler.HandlerType))) //get messages with other handlers than sagas if needed
                 .ToList();
 
             return messageTypesHandled;
@@ -88,6 +88,8 @@
 
         class ApplySubscriptions : FeatureStartupTask
         {
+            static ILog Logger = LogManager.GetLogger<ApplySubscriptions>();
+
             public ApplySubscriptions(IEnumerable<Type> messagesHandledByThisEndpoint, Func<Type, Task<bool>> asyncPredicate)
             {
                 this.messagesHandledByThisEndpoint = messagesHandledByThisEndpoint;
@@ -111,10 +113,9 @@
                 return TaskEx.CompletedTask;
             }
 
-            IEnumerable<Type> messagesHandledByThisEndpoint;
             Func<Type, Task<bool>> asyncPredicate;
 
-            static ILog Logger = LogManager.GetLogger<ApplySubscriptions>();
+            IEnumerable<Type> messagesHandledByThisEndpoint;
         }
 
         internal class SubscribeSettings

@@ -55,11 +55,11 @@ namespace NServiceBus
                     if (data.Id == timeoutId)
                     {
                         storage.RemoveAt(index);
-                        return Task.FromResult(true);
+                        return TaskEx.TrueTask;
                     }
                 }
 
-                return Task.FromResult(false);
+                return TaskEx.FalseTask;
             }
             finally
             {

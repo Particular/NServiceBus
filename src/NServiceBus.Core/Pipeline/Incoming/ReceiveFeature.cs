@@ -61,7 +61,7 @@
         {
             public Task<OutboxMessage> Get(string messageId, ContextBag options)
             {
-                return Task.FromResult<OutboxMessage>(null);
+                return noOutboxMessageTask;
             }
 
             public Task Store(OutboxMessage message, OutboxTransaction transaction, ContextBag options)
@@ -76,8 +76,11 @@
 
             public Task<OutboxTransaction> BeginTransaction(ContextBag context)
             {
-                return Task.FromResult<OutboxTransaction>(new NoOpOutboxTransaction());
+                return noOpTransactionTask;
             }
+
+            static Task<OutboxTransaction> noOpTransactionTask = Task.FromResult<OutboxTransaction>(new NoOpOutboxTransaction());
+            static Task<OutboxMessage> noOutboxMessageTask = Task.FromResult<OutboxMessage>(null);
         }
         class NoOpOutboxTransaction : OutboxTransaction
         {

@@ -8,8 +8,9 @@ namespace NServiceBus
     {
         public Task<CompletableSynchronizedStorageSession> OpenSession(ContextBag contextBag)
         {
-            var session = (CompletableSynchronizedStorageSession)new InMemorySynchronizedStorageSession();
-            return Task.FromResult(session);
+            return InMemorySynchronizedSessionTask;
         }
+
+        static Task<CompletableSynchronizedStorageSession> InMemorySynchronizedSessionTask = Task.FromResult((CompletableSynchronizedStorageSession)new InMemorySynchronizedStorageSession());
     }
 }

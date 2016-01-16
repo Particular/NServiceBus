@@ -15,7 +15,7 @@
             StoredMessage storedMessage;
             if (!storage.TryGetValue(messageId, out storedMessage))
             {
-                return Task.FromResult(default(OutboxMessage));
+                return noOutboxMessageTask;
             }
 
             return Task.FromResult(new OutboxMessage(messageId, storedMessage.TransportOperations));
@@ -23,7 +23,7 @@
 
         public Task<OutboxTransaction> BeginTransaction(ContextBag context)
         {
-            return Task.FromResult<OutboxTransaction>(new InMemoryOutboxTransaction());
+            return inMemoryOutboxTransactionTask;
         }
 
         public Task Store(OutboxMessage message, OutboxTransaction transaction, ContextBag context)
@@ -71,6 +71,8 @@
 
 
         ConcurrentDictionary<string, StoredMessage> storage = new ConcurrentDictionary<string, StoredMessage>();
+        static Task<OutboxMessage> noOutboxMessageTask = Task.FromResult(default(OutboxMessage));
+        static Task<OutboxTransaction> inMemoryOutboxTransactionTask = Task.FromResult<OutboxTransaction>(new InMemoryOutboxTransaction());
 
         class StoredMessage
         {
