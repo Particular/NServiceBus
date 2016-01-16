@@ -59,7 +59,7 @@
     <Compile Include="Basic\When_no_content_type.cs" />
     <Compile Include="Causation\When_a_message_is_faulted.cs" />
     <Compile Include="Causation\When_a_message_is_audited.cs" />
-    <Compile Include="ConfigureInMemoryPersistence.cs" />
+    <Compile Include="ConfigureMsmqPersistence.cs" />
     <Compile Include="FakeTransport\CriticalError\When_registering_custom_critical_error_handler.cs" />
     <Compile Include="FakeTransport\FakeDispatcher.cs" />
     <Compile Include="FakeTransport\FakeQueueCreator.cs" />
@@ -274,6 +274,10 @@
     <ProjectReference Include="..\NServiceBus.AcceptanceTesting\NServiceBus.AcceptanceTesting.csproj">
       <Project>{758357f6-cd31-4337-80c4-ba377fc257af}</Project>
       <Name>NServiceBus.AcceptanceTesting</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NServiceBus.MSMQ\NServiceBus.MSMQ.csproj">
+      <Project>{c06c2924-5a81-48a9-96c3-12976fa8834c}</Project>
+      <Name>NServiceBus.MSMQ</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

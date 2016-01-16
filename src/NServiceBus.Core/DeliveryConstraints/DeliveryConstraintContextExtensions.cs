@@ -77,7 +77,7 @@ namespace NServiceBus.DeliveryConstraints
         }
 
         /// <summary>
-        /// Removes a <see cref="DeliveryConstraint"/> to a <see cref="IRoutingContext"/>.
+        /// Returns all <see cref="DeliveryConstraint"/> for a <see cref="IRoutingContext"/>.
         /// </summary>
         public static IEnumerable<DeliveryConstraint> GetDeliveryConstraints(this IRoutingContext context)
         {
@@ -88,10 +88,17 @@ namespace NServiceBus.DeliveryConstraints
                 return constraints;
             }
 
-            return new List<DeliveryConstraint>();
+            return Enumerable.Empty<DeliveryConstraint>();
         }
 
-        internal static bool TryGet<T>(this IEnumerable<DeliveryConstraint> list, out T constraint) where T : DeliveryConstraint
+        /// <summary>
+        /// Tries to return a constraint.
+        /// </summary>
+        /// <typeparam name="T">Constraint type</typeparam>
+        /// <param name="list">List of constraints.</param>
+        /// <param name="constraint">Constraint to look for.</param>
+        /// <returns><code>true</code> if constraint found.</returns>
+        public static bool TryGet<T>(this IEnumerable<DeliveryConstraint> list, out T constraint) where T : DeliveryConstraint
         {
             constraint = list.OfType<T>().FirstOrDefault();
 

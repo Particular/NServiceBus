@@ -10,7 +10,7 @@
     /// <summary> 
     /// This class provides implementers of persisters with an extension mechanism for custom settings for specific storage type via extention methods.
     /// </summary>
-    /// <typeparam name="T">The persister definition eg <see cref="NServiceBus.InMemory" />, <see cref="MsmqTransport" />, etc.</typeparam>
+    /// <typeparam name="T">The persister definition eg <see cref="NServiceBus.InMemory" />, etc.</typeparam>
     /// <typeparam name="S">The <see cref="StorageType"/>storage type.</typeparam>
     public class PersistenceExtentions<T, S> : PersistenceExtentions<T>
         where T : PersistenceDefinition
@@ -29,7 +29,7 @@
     ///     This class provides implementers of persisters with an extension mechanism for custom settings via extention
     ///     methods.
     /// </summary>
-    /// <typeparam name="T">The persister definition eg <see cref="NServiceBus.InMemory" />, <see cref="MsmqTransport" />, etc.</typeparam>
+    /// <typeparam name="T">The persister definition eg <see cref="NServiceBus.InMemory" />, etc.</typeparam>
     public class PersistenceExtentions<T> : PersistenceExtentions where T : PersistenceDefinition
     {
         /// <summary>

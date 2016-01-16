@@ -42,13 +42,5 @@ namespace NServiceBus
             busConfiguration.Settings.Set<TransportDefinition>(transportDefinition);
             busConfiguration.Settings.Set<OutboundTransport>(new OutboundTransport(transportDefinition, true));
         }
-
-        internal static void EnsureTransportConfigured(BusConfiguration busConfiguration)
-        {
-            if (!busConfiguration.Settings.HasExplicitValue<TransportDefinition>())
-            {
-                busConfiguration.UseTransport<MsmqTransport>();
-            }
-        }
     }
 }

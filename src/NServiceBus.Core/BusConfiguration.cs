@@ -214,7 +214,6 @@ namespace NServiceBus
             Settings.Set("Endpoint.SendOnly", sendOnly);
             ActivateAndInvoke<INeedInitialization>(scannedTypes, t => t.Customize(this));
 
-            UseTransportExtensions.EnsureTransportConfigured(this);
             var container = customBuilder ?? new AutofacObjectBuilder();
 
             Settings.SetDefault<IConfigurationSource>(configurationSourceToUse);

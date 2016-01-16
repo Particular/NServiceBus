@@ -66,7 +66,6 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
-    <Reference Include="System.Messaging" />
     <Reference Include="System.Security" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.ServiceProcess" />
@@ -138,13 +137,6 @@
     <Compile Include="Persistence\CompletableSynchronizedStorageSession.cs" />
     <Compile Include="Persistence\InMemory\InMemorySynchronizedStorage.cs" />
     <Compile Include="Persistence\InMemory\InMemoryTransactionalSynchronizedStorageAdapter.cs" />
-    <Compile Include="Persistence\Msmq\Msmq.cs" />
-    <Compile Include="Persistence\Msmq\SubscriptionStorage\Entry.cs" />
-    <Compile Include="Persistence\Msmq\SubscriptionStorage\IMsmqSubscriptionStorageQueue.cs" />
-    <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionPersistence.cs" />
-    <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionStorage.cs" />
-    <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionStorageConfig.cs" />
-    <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionStorageQueue.cs" />
     <Compile Include="Pipeline\BehaviorContext.cs" />
     <Compile Include="Pipeline\Incoming\IncomingContext.cs" />
     <Compile Include="Pipeline\Incoming\InvokeHandlerContext.cs" />
@@ -175,12 +167,8 @@
     <Compile Include="Routing\MessageDrivenSubscriptions\MessageDrivenSubscriptionsConfigExtensions.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\SubscriptionAuthorizer.cs" />
     <Compile Include="StaticHeaders\StaticHeaders.cs" />
-    <Compile Include="Transports\Msmq\EndpointInstanceExtensions.cs" />
-    <Compile Include="Transports\Msmq\QueuePermissionChecker.cs" />
     <Compile Include="Routing\SubscribeContext.cs" />
     <Compile Include="Routing\UnsubscribeContext.cs" />
-    <Compile Include="Transports\Msmq\MsmqTimeToBeReceivedOverrideCheck.cs" />
-    <Compile Include="Transports\Msmq\TimeToBeReceivedOverrideChecker.cs" />
     <Compile Include="Transports\StartupCheckResult.cs" />
     <Compile Include="Transports\Transport.cs" />
     <Compile Include="Transports\TransportReceivingConfigurationResult.cs" />
@@ -248,7 +236,6 @@
     <Compile Include="Pipeline\Outgoing\ImmediateDispatchTerminator.cs" />
     <Compile Include="Transports\DispatchConsistency.cs" />
     <Compile Include="Transports\IncomingMessageExtensions.cs" />
-    <Compile Include="Transports\Msmq\MsmqConnectionStringBuilder.cs" />
     <Compile Include="Container\ContainerCustomizations.cs" />
     <Compile Include="Container\ContainerDefinition.cs" />
     <Compile Include="ConventionsBuilder.cs" />
@@ -390,13 +377,7 @@
     <Compile Include="Transports\OutboundRoutingPolicy.cs" />
     <Compile Include="Transports\OutboundRoutingType.cs" />
     <Compile Include="Transports\PushRuntimeSettings.cs" />
-    <Compile Include="Transports\Msmq\MsmqLabelGenerator.cs" />
     <Compile Include="Transports\ICancelDeferredMessages.cs" />
-    <Compile Include="Transports\Msmq\MsmqAddress.cs" />
-    <Compile Include="Transports\Msmq\MsmqConfigurationExtensions.cs" />
-    <Compile Include="Transports\Msmq\ReceiveStrategy.cs" />
-    <Compile Include="Transports\Msmq\ReceiveWithNativeTransaction.cs" />
-    <Compile Include="Transports\Msmq\ReceiveWithNoTransaction.cs" />
     <Compile Include="Transports\OutgoingMessage.cs" />
     <Compile Include="Transports\PushContext.cs" />
     <Compile Include="Transports\QueueBindings.cs" />
@@ -503,7 +484,6 @@
     <Compile Include="Performance\MessageDurability\DurableMessagesConfig.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\ConfigurationBuilderExtensions.cs" />
     <Compile Include="Sagas\InvokeSagaNotFoundBehavior.cs" />
-    <Compile Include="Transports\Msmq\ReceiveWithTransactionScope.cs" />
     <Compile Include="Forwarding\ForwardReceivedMessages.cs" />
     <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetriesBehavior.cs" />
     <Compile Include="Unicast\Config\RegisterHandlersInOrder.cs" />
@@ -514,7 +494,6 @@
     <Compile Include="MessageDeserializationException.cs" />
     <Compile Include="Hosting\AuditHostInformationBehavior.cs" />
     <Compile Include="Utils\BaseDictionary.cs" />
-    <Compile Include="Utils\MessageQueueExtensions.cs" />
     <Compile Include="Utils\PathUtilities.cs" />
     <Compile Include="Utils\WeakKeyDictionary.cs" />
     <Compile Include="Routing\FileBasedDynamicRouting\FileRoutingTable.cs" />
@@ -592,7 +571,6 @@
     <Compile Include="Support\RuntimeEnvironment.cs" />
     <Compile Include="Performance\TimeToBeReceived\TimeToBeReceivedAttribute.cs" />
     <Compile Include="Transports\Receiving.cs" />
-    <Compile Include="Transports\Msmq\CheckMachineNameForComplianceWithDtcLimitation.cs" />
     <Compile Include="Pipeline\Incoming\InvokeHandlerTerminator.cs" />
     <Compile Include="Pipeline\Incoming\LoadHandlersConnector.cs" />
     <Compile Include="Unicast\Config\UnicastBus.cs" />
@@ -643,13 +621,6 @@
     <Compile Include="Transports\IManageSubscriptions.cs" />
     <Compile Include="Transports\IDispatchMessages.cs" />
     <Compile Include="Transports\TransportDefinition.cs" />
-    <Compile Include="Transports\Msmq\MsmqTransport.cs" />
-    <Compile Include="Transports\Msmq\MsmqSettings.cs" />
-    <Compile Include="Transports\Msmq\HeaderInfo.cs" />
-    <Compile Include="Transports\Msmq\MessagePump.cs" />
-    <Compile Include="Transports\Msmq\MsmqMessageSender.cs" />
-    <Compile Include="Transports\Msmq\QueueCreator.cs" />
-    <Compile Include="Transports\Msmq\MsmqUtilities.cs" />
     <Compile Include="Encryption\RijndaelEncryptionServiceConfig.cs" />
     <Compile Include="Recoverability\SecondLevelRetries\Config\SecondLevelRetriesConfig.cs" />
     <Compile Include="Recoverability\SecondLevelRetries\SecondLevelRetries.cs" />

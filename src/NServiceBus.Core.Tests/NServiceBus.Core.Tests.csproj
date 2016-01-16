@@ -110,11 +110,7 @@
     <Compile Include="DelayedDelivery\RouteDeferredMessageToTimeoutManagerBehaviorTests.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\DispatchTimeoutBehaviorTest.cs" />
     <Compile Include="DeliveryConstraintContextExtensions\DeliveryConstraintContextExtensionsTests.cs" />
-    <Compile Include="Msmq\TimeToBeReceivedOverrideCheckerTest.cs" />
-    <Compile Include="Msmq\MsmqExtensionsTests.cs" />
-    <Compile Include="Msmq\MsmqHelpers.cs" />
-    <Compile Include="Msmq\MsmqAddressTests.cs" />
-    <Compile Include="Msmq\MsmqSubscriptionStorageQueueTests.cs" />
+    <Compile Include="FakeTransportDefinition.cs" />
     <Compile Include="Persistence\InMemory\When_persisting_a_saga_with_InMemory_and_an_escalated_DTC_transaction.cs" />
     <Compile Include="Pipeline\Incoming\InvokeHandlerTerminatorTest.cs" />
     <Compile Include="Pipeline\Outgoing\OutgoingPublishContextTests.cs" />
@@ -153,7 +149,6 @@
     <Compile Include="Faults\ForwardFaultsToErrorQueueTests.cs" />
     <Compile Include="Hosting\HostInfoSettingsTests.cs" />
     <Compile Include="Logging\DefaultFactoryTests.cs" />
-    <Compile Include="Msmq\MsmqMessageSenderTests.cs" />
     <Compile Include="Persistence\InMemory\SagaMetadataHelper.cs" />
     <Compile Include="Persistence\InMemory\When_persisting_a_saga_with_the_same_unique_property_as_a_completed_saga.cs" />
     <Compile Include="Persistence\PersistenceExtentionsTests.cs" />
@@ -161,7 +156,6 @@
     <Compile Include="Pipeline\HandlerTransactionScopeWrapperBehaviorTests.cs" />
     <Compile Include="Pipeline\PipelineModelBuilderTests.cs" />
     <Compile Include="Routing\DetermineRouteForReplyBehaviorTests.cs" />
-    <Compile Include="Msmq\ConnectionStringParserTests.cs" />
     <Compile Include="Sagas\SagaModelTests.cs" />
     <Compile Include="Sagas\SagaMetadataCreationTests.cs" />
     <Compile Include="Recoverability\SecondLevelRetries\DefaultRetryPolicyTests.cs" />
@@ -221,7 +215,6 @@
     <Compile Include="MessageMapper\When_mapping_ienumerable_implementations.cs" />
     <Compile Include="MessageMapper\When_mapping_interfaces.cs" />
     <Compile Include="MessageMapper\When_mapping_usinggenerics.cs" />
-    <Compile Include="Msmq\MsmqUtilitiesTests.cs" />
     <Compile Include="Reliability\Outbox\FakeOutboxStorage.cs" />
     <Compile Include="Reliability\Outbox\TransportReceiveToPhysicalMessageProcessingConnectorTests.cs" />
     <Compile Include="Scheduler\DefaultSchedulerTests.cs" />

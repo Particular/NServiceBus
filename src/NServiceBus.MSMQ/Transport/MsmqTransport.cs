@@ -12,7 +12,6 @@ namespace NServiceBus
     using NServiceBus.Transports;
     using NServiceBus.Transports.Msmq;
     using NServiceBus.Transports.Msmq.Config;
-    using TransactionSettings = NServiceBus.Unicast.Transport.TransactionSettings;
 
     /// <summary>
     /// Transport definition for MSMQ.
@@ -30,7 +29,7 @@ namespace NServiceBus
         /// <summary>
         /// Configures transport for receiving.
         /// </summary>
-        protected internal override TransportReceivingConfigurationResult ConfigureForReceiving(TransportReceivingConfigurationContext context)
+        protected override TransportReceivingConfigurationResult ConfigureForReceiving(TransportReceivingConfigurationContext context)
         {
             new CheckMachineNameForComplianceWithDtcLimitation().Check();
 
@@ -74,7 +73,7 @@ namespace NServiceBus
         /// <summary>
         /// Configures transport for sending.
         /// </summary>
-        protected internal override TransportSendingConfigurationResult ConfigureForSending(TransportSendingConfigurationContext context)
+        protected override TransportSendingConfigurationResult ConfigureForSending(TransportSendingConfigurationContext context)
         {
             new CheckMachineNameForComplianceWithDtcLimitation().Check();
 
