@@ -2,13 +2,12 @@
 // we need writable fields for disposing
 namespace NServiceBus
 {
-    using System;
     using NServiceBus.Faults;
 
     /// <summary>
     ///     Bus notifications.
     /// </summary>
-    public partial class BusNotifications: IDisposable
+    public partial class BusNotifications
     {
         /// <summary>
         ///     Errors push-based notifications.
@@ -16,10 +15,5 @@ namespace NServiceBus
         public ErrorsNotifications Errors => errorNotifications;
 
         ErrorsNotifications errorNotifications = new ErrorsNotifications();
-
-        void IDisposable.Dispose()
-        {
-            // Injected
-        }
     }
 }
