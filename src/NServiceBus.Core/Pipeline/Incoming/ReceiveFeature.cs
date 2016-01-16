@@ -66,12 +66,12 @@
 
             public Task Store(OutboxMessage message, OutboxTransaction transaction, ContextBag options)
             {
-                return TaskEx.Completed;
+                return TaskEx.CompletedTask;
             }
 
             public Task SetAsDispatched(string messageId, ContextBag options)
             {
-                return TaskEx.Completed;
+                return TaskEx.CompletedTask;
             }
 
             public Task<OutboxTransaction> BeginTransaction(ContextBag context)
@@ -87,7 +87,7 @@
 
             public Task Commit()
             {
-                return TaskEx.Completed;
+                return TaskEx.CompletedTask;
             }
         }
     }

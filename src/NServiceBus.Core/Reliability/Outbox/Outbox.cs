@@ -104,12 +104,12 @@ Because you have configured this endpoint to run with Outbox enabled we recommen
                 // Ignore if we can't check it.
             }
 
-            return TaskEx.Completed;
+            return TaskEx.CompletedTask;
         }
 
         protected override Task OnStop(IBusSession session)
         {
-            return TaskEx.Completed;
+            return TaskEx.CompletedTask;
         }
 
         static ILog log = LogManager.GetLogger<DtcRunningWarning>();

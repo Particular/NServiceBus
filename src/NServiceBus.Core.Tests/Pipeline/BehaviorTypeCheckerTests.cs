@@ -73,7 +73,7 @@
         {
             public override Task Invoke(IRootContext context, Func<Task> next)
             {
-                return Task.FromResult(0);
+                return TaskEx.CompletedTask;
             }
         }
 
@@ -81,7 +81,7 @@
         {
             public override Task Invoke(IBehaviorContext context, Func<Task> next)
             {
-                return Task.FromResult(0);
+                return TaskEx.CompletedTask;
             }
         }
 
@@ -89,7 +89,7 @@
         {
             public override Task Invoke(IIncomingContext context, Func<Task> next)
             {
-                return Task.FromResult(0);
+                return TaskEx.CompletedTask;
             }
         }
 
@@ -97,7 +97,7 @@
         {
             public override Task Invoke(IOutgoingContext context, Func<Task> next)
             {
-                return Task.FromResult(0);
+                return TaskEx.CompletedTask;
             }
         }
 
@@ -105,7 +105,7 @@
         {
             public Task Invoke(IAuditContext context, Func<RootContext, Task> stage)
             {
-                return Task.FromResult(0);
+                return TaskEx.CompletedTask;
             }
         }
 
@@ -113,7 +113,7 @@
         {
             public override Task Invoke(IAuditContext context, Func<Task> next)
             {
-                return Task.FromResult(0);
+                return TaskEx.CompletedTask;
             }
         }
 
@@ -121,7 +121,7 @@
         {
             public override Task Invoke(RootContext context, Func<Task> next)
             {
-                return Task.FromResult(0);
+                return TaskEx.CompletedTask;
             }
         }
 
@@ -129,7 +129,7 @@
         {
             public override Task Invoke(IRootContext context, Func<Task> next)
             {
-                return Task.FromResult(0);
+                return TaskEx.CompletedTask;
             }
         }
 

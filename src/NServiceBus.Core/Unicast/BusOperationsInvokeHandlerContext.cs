@@ -13,7 +13,7 @@ namespace NServiceBus
         {
             if (context.HandleCurrentMessageLaterWasCalled)
             {
-                return TaskEx.Completed;
+                return TaskEx.CompletedTask;
             }
 
             var messageBeingProcessed = context.Extensions.Get<IncomingMessage>();

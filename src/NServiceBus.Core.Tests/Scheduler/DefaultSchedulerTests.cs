@@ -33,7 +33,7 @@
             var task = new TaskDefinition
             {
                 Every = TimeSpan.FromSeconds(5),
-                Task = c => TaskEx.Completed
+                Task = c => TaskEx.CompletedTask
             };
             var taskId = task.Id;
 
@@ -56,7 +56,7 @@
                 Task = c =>
                 {
                     i++;
-                    return TaskEx.Completed;
+                    return TaskEx.CompletedTask;
                 }
             };
             var taskId = task.Id;

@@ -149,13 +149,13 @@
             public Task Start(IBusSession session)
             {
                 Started = true;
-                return Task.FromResult(0);
+                return TaskEx.CompletedTask;
             }
 
             public Task Stop(IBusSession session)
             {
                 Stopped = true;
-                return Task.FromResult(0);
+                return TaskEx.CompletedTask;
             }
         }
 
@@ -167,13 +167,13 @@
             public Task Start(IBusSession session)
             {
                 Started = true;
-                return Task.FromResult(0);
+                return TaskEx.CompletedTask;
             }
 
             public Task Stop(IBusSession session)
             {
                 Stopped = true;
-                return Task.FromResult(0);
+                return TaskEx.CompletedTask;
             }
         }
 
@@ -189,7 +189,7 @@
             public Task Stop(IBusSession session)
             {
                 Stopped = true;
-                return Task.FromResult(0);
+                return TaskEx.CompletedTask;
             }
         }
 
@@ -206,7 +206,7 @@
             public Task Stop(IBusSession session)
             {
                 Stopped = true;
-                return Task.FromResult(0);
+                return TaskEx.CompletedTask;
             }
         }
 
@@ -217,7 +217,7 @@
             public Task Start(IBusSession session)
             {
                 Started = true;
-                return Task.FromResult(0);
+                return TaskEx.CompletedTask;
             }
 
             public Task Stop(IBusSession session)
@@ -233,7 +233,7 @@
             public Task Start(IBusSession session)
             {
                 Started = true;
-                return Task.FromResult(0);
+                return TaskEx.CompletedTask;
             }
 
             public async Task Stop(IBusSession session)

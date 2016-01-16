@@ -28,7 +28,7 @@
 
         protected override Task OnStop(IBusSession session)
         {
-            return TaskEx.Completed;
+            return TaskEx.CompletedTask;
         }
 
         Task SendReadyMessage(int capacity, bool isStarting)

@@ -126,7 +126,7 @@
 
         async Task Invoke(ITransportReceiveContext context)
         {
-            await behavior.Invoke(context, c => TaskEx.Completed).ConfigureAwait(false);
+            await behavior.Invoke(context, c => TaskEx.CompletedTask).ConfigureAwait(false);
         }
 
         FakeBatchPipeline fakeBatchPipeline;
@@ -160,7 +160,7 @@
             {
                 TransportOperations = context.Operations;
 
-                return TaskEx.Completed;
+                return TaskEx.CompletedTask;
             }
         }
     }

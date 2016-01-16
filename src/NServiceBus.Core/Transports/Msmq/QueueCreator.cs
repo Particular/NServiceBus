@@ -31,7 +31,7 @@ namespace NServiceBus
                 CreateQueueIfNecessary(sendingAddress, identity);
             }
 
-            return TaskEx.Completed;
+            return TaskEx.CompletedTask;
         }
         
         void CreateQueueIfNecessary(string address, string identity)

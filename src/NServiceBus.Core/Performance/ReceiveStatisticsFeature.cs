@@ -32,13 +32,13 @@
             protected override Task OnStart(IBusSession session)
             {
                 behavior.Warmup();
-                return TaskEx.Completed;
+                return TaskEx.CompletedTask;
             }
 
             protected override Task OnStop(IBusSession session)
             {
                 behavior.Cooldown();
-                return TaskEx.Completed;
+                return TaskEx.CompletedTask;
             }
         }
     }

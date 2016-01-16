@@ -133,13 +133,13 @@ namespace NServiceBus.Core.Tests
 
                 Destination = context.ErrorQueueAddress;
                 MessageSent = context.Message;
-                return Task.FromResult(0);
+                return TaskEx.CompletedTask;
             }
         }
 
         class FakeCriticalError : CriticalError
         {
-            public FakeCriticalError() : base(_ => TaskEx.Completed)
+            public FakeCriticalError() : base(_ => TaskEx.CompletedTask)
             {
             }
 

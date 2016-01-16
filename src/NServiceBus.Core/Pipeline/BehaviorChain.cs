@@ -30,7 +30,7 @@
         {
             if (currentIndex == itemDescriptors.Length)
             {
-                return TaskEx.Completed;
+                return TaskEx.CompletedTask;
             }
 
             var behavior = itemDescriptors[currentIndex];

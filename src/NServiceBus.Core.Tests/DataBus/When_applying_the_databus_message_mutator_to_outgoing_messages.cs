@@ -31,7 +31,7 @@ namespace NServiceBus.Core.Tests.DataBus
                 DataBusSerializer = new DefaultDataBusSerializer(),
             };
 
-            await sendBehavior.Invoke(context, () => Task.FromResult(0));
+            await sendBehavior.Invoke(context, () => TaskEx.CompletedTask);
 
             Assert.AreEqual(TimeSpan.MaxValue, fakeDatabus.TTBRUsed);
         }
@@ -57,7 +57,7 @@ namespace NServiceBus.Core.Tests.DataBus
                DataBusSerializer = new DefaultDataBusSerializer(),
            };
 
-           await sendBehavior.Invoke(context, () => Task.FromResult(0));
+           await sendBehavior.Invoke(context, () => TaskEx.CompletedTask);
 
            Assert.AreEqual(TimeSpan.FromMinutes(1),fakeDatabus.TTBRUsed);
         }

@@ -32,7 +32,7 @@
                     DeferedMessage = message;
                 }
             }
-            return Task.FromResult(0);
+            return TaskEx.CompletedTask;
         }
 
         public Task Send<T>(Action<T> messageConstructor, SendOptions options)

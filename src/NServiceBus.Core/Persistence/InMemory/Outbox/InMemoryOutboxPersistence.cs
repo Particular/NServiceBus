@@ -42,7 +42,7 @@
             protected override Task OnStart(IBusSession session)
             {
                 cleanupTimer = new Timer(PerformCleanup, null, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
-                return TaskEx.Completed;
+                return TaskEx.CompletedTask;
             }
 
             protected override Task OnStop(IBusSession session)
@@ -54,7 +54,7 @@
                     // TODO: Use async synchronization primitive
                     waitHandle.WaitOne();
                 }
-                return TaskEx.Completed;
+                return TaskEx.CompletedTask;
             }
 
             void PerformCleanup(object state)

@@ -47,7 +47,7 @@ namespace NServiceBus.Transports.Msmq
                 ExecuteTransportOperation(context, unicastTransportOperation);
             }
 
-            return TaskEx.Completed;
+            return TaskEx.CompletedTask;
         }
 
         void ExecuteTransportOperation(ReadOnlyContextBag context, UnicastTransportOperation transportOperation)

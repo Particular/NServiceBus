@@ -16,7 +16,7 @@ namespace NServiceBus.Core.Tests.Timeout
         public Task Dispatch(TransportOperations outgoingMessages, ContextBag context)
         {
             MessagesSent += outgoingMessages.MulticastTransportOperations.Count() + outgoingMessages.UnicastTransportOperations.Count();
-            return Task.FromResult(0);
+            return TaskEx.CompletedTask;
         }
 
         volatile int messagesSent;

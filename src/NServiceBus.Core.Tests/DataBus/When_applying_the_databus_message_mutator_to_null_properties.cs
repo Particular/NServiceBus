@@ -25,7 +25,7 @@ namespace NServiceBus.Core.Tests.DataBus
                 new BinaryFormatter().Serialize(stream, "test");
                 stream.Position = 0;
 
-                await sendBehavior.Invoke(context, () => Task.FromResult(0));            
+                await sendBehavior.Invoke(context, () => TaskEx.CompletedTask);            
             }
         }
 

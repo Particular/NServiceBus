@@ -18,7 +18,7 @@ namespace NServiceBus
 
                 dict.AddOrUpdate(subscriber.TransportAddress, _ => subscriber, (_, __) => subscriber);
             }
-            return TaskEx.Completed;
+            return TaskEx.CompletedTask;
         }
 
         public Task Unsubscribe(Subscriber subscriber, IReadOnlyCollection<MessageType> messageTypes, ContextBag context)
@@ -32,7 +32,7 @@ namespace NServiceBus
                     dict.TryRemove(subscriber.TransportAddress, out _);
                 }
             }
-            return TaskEx.Completed;
+            return TaskEx.CompletedTask;
         }
 
         public Task<IEnumerable<Subscriber>> GetSubscriberAddressesForMessage(IReadOnlyCollection<MessageType> messageTypes, ContextBag context)

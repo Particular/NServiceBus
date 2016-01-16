@@ -67,13 +67,13 @@
                 protected override Task OnStart(IBusSession session)
                 {
                     Started = true;
-                    return Task.FromResult(0);
+                    return TaskEx.CompletedTask;
                 }
 
                 protected override Task OnStop(IBusSession session)
                 {
                     Stopped = true;
-                    return Task.FromResult(0);
+                    return TaskEx.CompletedTask;
                 }
 
                 public static bool Started { get; private set; }
@@ -97,12 +97,12 @@
             {
                 protected override Task OnStart(IBusSession session)
                 {
-                    return Task.FromResult(0);
+                    return TaskEx.CompletedTask;
                 }
 
                 protected override Task OnStop(IBusSession session)
                 {
-                    return TaskEx.Completed;
+                    return TaskEx.CompletedTask;
                 }
 
                 public void Dispose()

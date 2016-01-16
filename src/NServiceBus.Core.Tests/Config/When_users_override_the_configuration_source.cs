@@ -43,12 +43,12 @@ namespace NServiceBus.Core.Tests.Config
                 {
                     var section = settings.GetConfigSection<TestConfigurationSection>();
                     Assert.AreEqual(section.TestSetting, "TestValue");
-                    return Task.FromResult(0);
+                    return TaskEx.CompletedTask;
                 }
 
                 protected override Task OnStop(IBusSession session)
                 {
-                    return TaskEx.Completed;
+                    return TaskEx.CompletedTask;
                 }
             }
         }

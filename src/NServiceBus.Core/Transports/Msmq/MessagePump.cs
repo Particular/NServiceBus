@@ -55,7 +55,7 @@ namespace NServiceBus
                 inputQueue.Purge();
             }
 
-            return TaskEx.Completed;
+            return TaskEx.CompletedTask;
         }
 
         public void Start(PushRuntimeSettings limitations)

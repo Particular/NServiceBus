@@ -17,7 +17,7 @@
             var behavior = new AttachCausationHeadersBehavior();
             var context = InitializeContext();
 
-            await behavior.Invoke(context, ()=> Task.FromResult(0));
+            await behavior.Invoke(context, ()=> TaskEx.CompletedTask);
 
             Assert.AreNotEqual(Guid.Empty.ToString(), context.Headers[Headers.ConversationId]);
         }
@@ -33,7 +33,7 @@
             var transportMessage = new IncomingMessage("xyz", new Dictionary<string, string> { { Headers.ConversationId, incomingConversationId } }, Stream.Null);
             context.Extensions.Set(transportMessage);
 
-            await behavior.Invoke(context, () => Task.FromResult(0));
+            await behavior.Invoke(context, () => TaskEx.CompletedTask);
 
             Assert.AreEqual(incomingConversationId, context.Headers[Headers.ConversationId]);
         }
@@ -47,7 +47,7 @@
             var context = InitializeContext();
 
             
-            await behavior.Invoke(context, () => Task.FromResult(0));
+            await behavior.Invoke(context, () => TaskEx.CompletedTask);
 
             Assert.AreEqual(userConversationId, context.Headers[Headers.ConversationId]);
         }
@@ -61,7 +61,7 @@
 
             context.Extensions.Set(new IncomingMessage("the message id", new Dictionary<string, string>(), Stream.Null));
 
-            await behavior.Invoke(context, () => Task.FromResult(0));
+            await behavior.Invoke(context, () => TaskEx.CompletedTask);
 
             Assert.AreEqual("the message id", context.Headers[Headers.RelatedTo]);
         }

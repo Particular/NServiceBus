@@ -43,12 +43,12 @@ namespace NServiceBus.Serializers.Json.Tests
                 {
                     var serializer = builder.Build<JsonMessageSerializer>();
                     Assert.AreSame(Encoding.UTF7, serializer.Encoding);
-                    return Task.FromResult(0);
+                    return TaskEx.CompletedTask;
                 }
 
                 protected override Task OnStop(IBusSession session)
                 {
-                    return TaskEx.Completed;
+                    return TaskEx.CompletedTask;
                 }
             }
         }

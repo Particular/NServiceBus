@@ -17,7 +17,7 @@
                 IsolationLevel = IsolationLevel.Serializable
             }, TransactionScopeAsyncFlowOption.Enabled))
             {
-                await behavior.Invoke(null, () => Task.FromResult(0));
+                await behavior.Invoke(null, () => TaskEx.CompletedTask);
             }
         }
 
@@ -29,7 +29,7 @@
             await behavior.Invoke(null, () =>
             {
                 Assert.NotNull(Transaction.Current);
-                return Task.FromResult(0);
+                return TaskEx.CompletedTask;
             });
         }
     }

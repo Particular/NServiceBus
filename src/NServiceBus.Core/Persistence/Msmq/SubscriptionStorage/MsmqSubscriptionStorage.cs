@@ -85,7 +85,7 @@ namespace NServiceBus
                     }
                 }
             }
-            return TaskEx.Completed;
+            return TaskEx.CompletedTask;
         }
 
         public Task Unsubscribe(Subscriber subscriber, IReadOnlyCollection<MessageType> messageTypes, ContextBag context)
@@ -105,7 +105,7 @@ namespace NServiceBus
                     log.Debug($"Subscriber {subscriber} removed for message {entry.MessageType}.");
                 }    
             }
-            return TaskEx.Completed;
+            return TaskEx.CompletedTask;
         }
 
         void Add(Subscriber subscriber, MessageType messageType)
