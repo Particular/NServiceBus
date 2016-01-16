@@ -12,18 +12,6 @@ namespace NServiceBus
 
     class FileRoutingTable : FeatureStartupTask
     {
-        static readonly ILog log = LogManager.GetLogger(typeof(FileRoutingTable));
-
-        Dictionary<EndpointName, HashSet<EndpointInstance>> instanceMap = new Dictionary<EndpointName, HashSet<EndpointInstance>>();
-        ReadOnlySettings settings;
-        string filePath;
-        TimeSpan checkInterval;
-        IAsyncTimer timer;
-        IRoutingFileAccess fileAccess;
-        FileRoutingTableParser parser = new FileRoutingTableParser();
-        int maxLoadAttempts;
-        
-
         public FileRoutingTable(string filePath, TimeSpan checkInterval, IAsyncTimer timer, IRoutingFileAccess fileAccess, int maxLoadAttempts, ReadOnlySettings settings)
         {
             this.settings = settings;
@@ -48,18 +36,11 @@ namespace NServiceBus
         {
             var doc = await ReadFileWithRetries().ConfigureAwait(false);
             var instances = parser.Parse(doc);
-            var newInstanceMap = new Dictionary<EndpointName, HashSet<EndpointInstance>>();
 
-            foreach (var i in instances)
-            {
-                HashSet<EndpointInstance> instancesOfThisEndpoint;
-                if (!newInstanceMap.TryGetValue(i.Endpoint, out instancesOfThisEndpoint))
-                {
-                    instancesOfThisEndpoint = new HashSet<EndpointInstance>();
-                    newInstanceMap[i.Endpoint] = instancesOfThisEndpoint;
-                }
-                instancesOfThisEndpoint.Add(i);
-            }
+            var newInstanceMap = instances
+                .GroupBy(i => i.Endpoint)
+                .ToDictionary(g => g.Key, g => Task.FromResult((IEnumerable<EndpointInstance>) new HashSet<EndpointInstance>(g)));
+
             instanceMap = newInstanceMap;
         }
 
@@ -94,17 +75,26 @@ namespace NServiceBus
 
         Task<IEnumerable<EndpointInstance>> FindInstances(EndpointName endpoint)
         {
-            HashSet<EndpointInstance> result;
-            if (instanceMap.TryGetValue(endpoint, out result))
-            {
-                return Task.FromResult((IEnumerable<EndpointInstance>)result);
-            }
-            return Task.FromResult(Enumerable.Empty<EndpointInstance>());
+            Task<IEnumerable<EndpointInstance>> result;
+            return instanceMap.TryGetValue(endpoint, out result) ? result : emptyEndpointInstancesTask;
         }
 
         protected override Task OnStop(IBusSession context)
         {
             return timer.Stop();
         }
+
+        TimeSpan checkInterval;
+        IRoutingFileAccess fileAccess;
+        string filePath;
+
+        Dictionary<EndpointName, Task<IEnumerable<EndpointInstance>>> instanceMap = new Dictionary<EndpointName, Task<IEnumerable<EndpointInstance>>>();
+        int maxLoadAttempts;
+        FileRoutingTableParser parser = new FileRoutingTableParser();
+        ReadOnlySettings settings;
+        IAsyncTimer timer;
+
+        static readonly ILog log = LogManager.GetLogger(typeof(FileRoutingTable));
+        static Task<IEnumerable<EndpointInstance>> emptyEndpointInstancesTask = Task.FromResult(Enumerable.Empty<EndpointInstance>());
     }
 }
