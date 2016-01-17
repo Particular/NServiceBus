@@ -62,13 +62,13 @@ namespace NServiceBus.Features
             protected override Task OnStart(IBusSession session)
             {
                 timer = new Timer(ClearFlrStatusStorage, null, ClearingInterval, ClearingInterval);
-                return TaskEx.Completed;
+                return TaskEx.CompletedTask;
             }
 
             protected override Task OnStop(IBusSession session)
             {
                 timer?.Dispose();
-                return TaskEx.Completed;
+                return TaskEx.CompletedTask;
             }
 
             void ClearFlrStatusStorage(object state)

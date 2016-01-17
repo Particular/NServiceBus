@@ -14,7 +14,7 @@ namespace NServiceBus.Features
         protected override Task OnStart(IBusSession session)
         {
             poller.Start();
-            return TaskEx.Completed;
+            return TaskEx.CompletedTask;
         }
 
         protected override Task OnStop(IBusSession session)

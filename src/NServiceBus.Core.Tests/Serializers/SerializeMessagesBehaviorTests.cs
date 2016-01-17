@@ -21,7 +21,7 @@
             var context = ContextHelpers.GetOutgoingContext(new MyMessage());
             var behavior = new SerializeMessageConnector(new FakeSerializer("myContentType"), registry);
             
-            await behavior.Invoke(context, c => Task.FromResult(0));
+            await behavior.Invoke(context, c => TaskEx.CompletedTask);
 
             Assert.AreEqual("myContentType", context.Headers[Headers.ContentType]);
         }

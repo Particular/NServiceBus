@@ -6,12 +6,10 @@ namespace NServiceBus.Routing
     using System.Threading.Tasks;
 
     /// <summary>
-    /// Stores the information about instances of known endpoints.
+    ///     Stores the information about instances of known endpoints.
     /// </summary>
     public class EndpointInstances
     {
-        List<Func<EndpointName, Task<IEnumerable<EndpointInstance>>>> rules = new List<Func<EndpointName, Task<IEnumerable<EndpointInstance>>>>();
-
         internal async Task<IEnumerable<EndpointInstance>> FindInstances(EndpointName endpoint)
         {
             var instances = new List<EndpointInstance>();
@@ -25,7 +23,7 @@ namespace NServiceBus.Routing
 
 
         /// <summary>
-        /// Adds a dynamic rule for determining endpoint instances.
+        ///     Adds a dynamic rule for determining endpoint instances.
         /// </summary>
         /// <param name="dynamicRule">The rule.</param>
         public void AddDynamic(Func<EndpointName, Task<IEnumerable<EndpointInstance>>> dynamicRule)
@@ -34,7 +32,7 @@ namespace NServiceBus.Routing
         }
 
         /// <summary>
-        /// Adds static information about an endpoint.
+        ///     Adds static information about an endpoint.
         /// </summary>
         /// <param name="endpoint">Name of the endpoint.</param>
         /// <param name="instances">A static list of endpoint's instances.</param>
@@ -49,7 +47,7 @@ namespace NServiceBus.Routing
             {
                 throw new ArgumentException("At least one of the instances belongs to a different endpoint than specified in the 'endpoint' parameter.", nameof(instances));
             }
-            rules.Add(e => StaticRule(e, endpoint, instances));   
+            rules.Add(e => StaticRule(e, endpoint, instances));
         }
 
         static Task<IEnumerable<EndpointInstance>> StaticRule(EndpointName endpointBeingQueried, EndpointName configuredEndpoint, IEnumerable<EndpointInstance> configuredInstances)
@@ -58,7 +56,10 @@ namespace NServiceBus.Routing
             {
                 return Task.FromResult(configuredInstances);
             }
-            return Task.FromResult(Enumerable.Empty<EndpointInstance>());
+            return EmptyStaticRuleTask;
         }
+
+        List<Func<EndpointName, Task<IEnumerable<EndpointInstance>>>> rules = new List<Func<EndpointName, Task<IEnumerable<EndpointInstance>>>>();
+        static Task<IEnumerable<EndpointInstance>> EmptyStaticRuleTask = Task.FromResult(Enumerable.Empty<EndpointInstance>());
     }
 }

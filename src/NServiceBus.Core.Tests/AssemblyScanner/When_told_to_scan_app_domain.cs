@@ -28,7 +28,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
         {
             public Task Handle(string message, IMessageHandlerContext context)
             {
-                return Task.FromResult(0);
+                return TaskEx.CompletedTask;
             }
         }
 

@@ -24,7 +24,7 @@
 
             context.AddDeliveryConstraint(new DelayDeliveryWith(delay));
 
-            await behavior.Invoke(context, () => Task.FromResult(0));
+            await behavior.Invoke(context, () => TaskEx.CompletedTask);
 
             Assert.AreEqual("tm", ((UnicastAddressTag)context.RoutingStrategies.First().Apply(new Dictionary<string, string>())).Destination);
 
@@ -43,7 +43,7 @@
             var context = new RoutingContext(message, new MulticastRoutingStrategy(null), null);
             context.AddDeliveryConstraint(new DelayDeliveryWith(delay));
 
-            var ex = Assert.Throws<Exception>(async () => await behavior.Invoke(context, () => Task.FromResult(0)));
+            var ex = Assert.Throws<Exception>(async () => await behavior.Invoke(context, () => TaskEx.CompletedTask));
 
             Assert.True(ex.Message.Contains("unicast routing"));
         }
@@ -60,7 +60,7 @@
             context.AddDeliveryConstraint(new DelayDeliveryWith(delay));
             context.AddDeliveryConstraint(new DiscardIfNotReceivedBefore(TimeSpan.FromSeconds(30)));
 
-            var ex = Assert.Throws<Exception>(async () => await behavior.Invoke(context, () => Task.FromResult(0)));
+            var ex = Assert.Throws<Exception>(async () => await behavior.Invoke(context, () => TaskEx.CompletedTask));
 
             Assert.True(ex.Message.Contains("TimeToBeReceived"));
         }
@@ -75,7 +75,7 @@
             var context = new RoutingContext(message, new UnicastRoutingStrategy("target"), null);
             context.AddDeliveryConstraint(new DelayDeliveryWith(delay));
 
-            await behavior.Invoke(context, () => Task.FromResult(0));
+            await behavior.Invoke(context, () => TaskEx.CompletedTask);
 
             Assert.LessOrEqual(DateTimeExtensions.ToUtcDateTime(message.Headers[TimeoutManagerHeaders.Expire]), DateTime.UtcNow + delay);
         }
@@ -91,7 +91,7 @@
             var context = new RoutingContext(message, new UnicastRoutingStrategy("target"), null);
             context.AddDeliveryConstraint(new DoNotDeliverBefore(at));
 
-            await behavior.Invoke(context, () => Task.FromResult(0));
+            await behavior.Invoke(context, () => TaskEx.CompletedTask);
 
             Assert.AreEqual(message.Headers[TimeoutManagerHeaders.Expire], DateTimeExtensions.ToWireFormattedString(at));
         }

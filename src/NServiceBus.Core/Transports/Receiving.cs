@@ -57,7 +57,7 @@ namespace NServiceBus
 
             protected override Task OnStop(IBusSession session)
             {
-                return TaskEx.Completed;
+                return TaskEx.CompletedTask;
             }
         }
     }

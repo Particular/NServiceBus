@@ -39,7 +39,7 @@ namespace NServiceBus
             {
                 Transaction.Commit();
             }
-            return TaskEx.Completed;
+            return TaskEx.CompletedTask;
         }
     }
 }

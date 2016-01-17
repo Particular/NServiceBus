@@ -41,12 +41,12 @@
                 var messageTypes = Settings.GetAvailableTypes()
                     .Where(conventions.IsMessageType).ToList();
                 Serializer.Initialize(messageTypes);
-                return TaskEx.Completed;
+                return TaskEx.CompletedTask;
             }
 
             protected override Task OnStop(IBusSession session)
             {
-                return TaskEx.Completed;
+                return TaskEx.CompletedTask;
             }
         }
     }

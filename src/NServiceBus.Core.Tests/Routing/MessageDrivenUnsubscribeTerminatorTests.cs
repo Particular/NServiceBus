@@ -30,7 +30,7 @@
         [Test]
         public async Task Should_Dispatch_for_all_publishers()
         {
-            await terminator.Invoke(new UnsubscribeContext(new FakeContext(), typeof(object), new UnsubscribeOptions()), c => Task.FromResult(0));
+            await terminator.Invoke(new UnsubscribeContext(new FakeContext(), typeof(object), new UnsubscribeOptions()), c => TaskEx.CompletedTask);
 
             Assert.AreEqual(1, dispatcher.DispatchedTransportOperations.Count);
         }
@@ -44,7 +44,7 @@
             state.RetryDelay = TimeSpan.Zero;
             dispatcher.FailDispatch(10);
 
-            await terminator.Invoke(new UnsubscribeContext(new FakeContext(), typeof(object), options), c => Task.FromResult(0));
+            await terminator.Invoke(new UnsubscribeContext(new FakeContext(), typeof(object), options), c => TaskEx.CompletedTask);
 
             Assert.AreEqual(1, dispatcher.DispatchedTransportOperations.Count);
             Assert.AreEqual(10, dispatcher.FailedNumberOfTimes);
@@ -59,7 +59,7 @@
             state.RetryDelay = TimeSpan.Zero;
             dispatcher.FailDispatch(11);
 
-            Assert.Throws<QueueNotFoundException>(async () => await terminator.Invoke(new UnsubscribeContext(new FakeContext(), typeof(object), options), c => Task.FromResult(0)));
+            Assert.Throws<QueueNotFoundException>(async () => await terminator.Invoke(new UnsubscribeContext(new FakeContext(), typeof(object), options), c => TaskEx.CompletedTask));
 
             Assert.AreEqual(0, dispatcher.DispatchedTransportOperations.Count);
             Assert.AreEqual(11, dispatcher.FailedNumberOfTimes);
@@ -87,7 +87,7 @@
                 }
 
                 DispatchedTransportOperations.Add(outgoingMessages);
-                return Task.FromResult(0);
+                return TaskEx.CompletedTask;
             }
         }
 

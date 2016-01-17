@@ -22,7 +22,7 @@
         [Test]
         public async Task When_scheduling_an_action_with_a_name_the_task_should_get_that_name()
         {
-            await context.ScheduleEvery(TimeSpan.FromMinutes(5), ACTION_NAME, c => TaskEx.Completed);
+            await context.ScheduleEvery(TimeSpan.FromMinutes(5), ACTION_NAME, c => TaskEx.CompletedTask);
 
             Assert.That(EnsureThatNameExists(ACTION_NAME));
         }
@@ -30,7 +30,7 @@
         [Test]
         public async Task When_scheduling_an_action_without_a_name_the_task_should_get_the_DeclaringType_as_name()
         {
-            await context.ScheduleEvery(TimeSpan.FromMinutes(5), c => TaskEx.Completed);
+            await context.ScheduleEvery(TimeSpan.FromMinutes(5), c => TaskEx.CompletedTask);
 
             Assert.That(EnsureThatNameExists("ScheduleTests"));
         }
@@ -52,7 +52,7 @@
             public Task Send(object message, SendOptions options)
             {
                 defaultScheduler.Schedule(options.Context.Get<ScheduleBehavior.State>().TaskDefinition);
-                return Task.FromResult(0);
+                return TaskEx.CompletedTask;
             }
 
             public Task Send<T>(Action<T> messageConstructor, SendOptions options)

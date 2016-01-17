@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Threading.Tasks;
     using NServiceBus.Outbox;
     using NServiceBus.Transports;
     using Unicast.Messages;
@@ -26,7 +25,7 @@
             context.Extensions.Set<OutboxTransaction>(new InMemoryOutboxTransaction());
             context.Extensions.Set<TransportTransaction>(new FakeTransportTransaction());
 
-            Assert.Throws<InvalidOperationException>(async () => await behavior.Invoke(context, c => Task.FromResult(0)));
+            Assert.Throws<InvalidOperationException>(async () => await behavior.Invoke(context, c => TaskEx.CompletedTask));
         }
 
         private class FakeTransportTransaction : TransportTransaction

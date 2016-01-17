@@ -160,7 +160,7 @@
         public Task Invoke(IRoutingContext context)
         {
             RoutingContext = context;
-            return Task.FromResult(0);
+            return TaskEx.CompletedTask;
         }
     }
 

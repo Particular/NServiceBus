@@ -21,7 +21,7 @@
             var timeoutData = CreateTimeout();
             await timeoutPersister.Add(timeoutData, null);
 
-            await behavior.Invoke(CreateContext(timeoutData.Id), context => TaskEx.Completed);
+            await behavior.Invoke(CreateContext(timeoutData.Id), context => TaskEx.CompletedTask);
 
             var result = await timeoutPersister.Peek(timeoutData.Id, null);
             Assert.Null(result);
@@ -34,7 +34,7 @@
             var timeoutPersister = new InMemoryTimeoutPersister();
             var behavior = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransportTransactionMode.TransactionScope);
 
-            await behavior.Invoke(CreateContext(Guid.NewGuid().ToString()), context => TaskEx.Completed);
+            await behavior.Invoke(CreateContext(Guid.NewGuid().ToString()), context => TaskEx.CompletedTask);
 
             Assert.AreEqual(0, messageDispatcher.OutgoingTransportOperations.UnicastTransportOperations.Count());
         }
@@ -48,7 +48,7 @@
             var timeoutData = CreateTimeout();
             await timeoutPersister.Add(timeoutData, null);
 
-            Assert.Throws<Exception>(async () => await behavior.Invoke(CreateContext(timeoutData.Id), context => TaskEx.Completed));
+            Assert.Throws<Exception>(async () => await behavior.Invoke(CreateContext(timeoutData.Id), context => TaskEx.CompletedTask));
 
             var result = await timeoutPersister.Peek(timeoutData.Id, null);
             Assert.NotNull(result);
@@ -66,7 +66,7 @@
 
             var behavior = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransportTransactionMode.TransactionScope);
 
-            Assert.Throws<Exception>(async () => await behavior.Invoke(CreateContext(Guid.NewGuid().ToString()), context => TaskEx.Completed));
+            Assert.Throws<Exception>(async () => await behavior.Invoke(CreateContext(Guid.NewGuid().ToString()), context => TaskEx.CompletedTask));
         }
 
         [Test]
@@ -78,7 +78,7 @@
             var timeoutData = CreateTimeout();
             await timeoutPersister.Add(timeoutData, null);
 
-            await behavior.Invoke(CreateContext(timeoutData.Id), context => TaskEx.Completed);
+            await behavior.Invoke(CreateContext(timeoutData.Id), context => TaskEx.CompletedTask);
 
             var transportOperation = messageDispatcher.OutgoingTransportOperations.UnicastTransportOperations.Single();
             Assert.AreEqual(DispatchConsistency.Default, transportOperation.RequiredDispatchConsistency);
@@ -95,7 +95,7 @@
             var timeoutData = CreateTimeout();
             await timeoutPersister.Add(timeoutData, null);
 
-            await behavior.Invoke(CreateContext(timeoutData.Id), context => TaskEx.Completed);
+            await behavior.Invoke(CreateContext(timeoutData.Id), context => TaskEx.CompletedTask);
 
             var transportOperation = messageDispatcher.OutgoingTransportOperations.UnicastTransportOperations.Single();
             Assert.AreEqual(DispatchConsistency.Isolated, transportOperation.RequiredDispatchConsistency);
@@ -129,7 +129,7 @@
             public Task Dispatch(TransportOperations outgoingMessages, ContextBag context)
             {
                 OutgoingTransportOperations = outgoingMessages;
-                return TaskEx.Completed;
+                return TaskEx.CompletedTask;
             }
         }
 
@@ -150,7 +150,7 @@
         {
             public Task Add(TimeoutData timeout, ContextBag context)
             {
-                return TaskEx.Completed;
+                return TaskEx.CompletedTask;
             }
 
             public Task<bool> TryRemove(string timeoutId, ContextBag context)
@@ -165,7 +165,7 @@
 
             public Task RemoveTimeoutBy(Guid sagaId, ContextBag context)
             {
-                return TaskEx.Completed;
+                return TaskEx.CompletedTask;
             }
 
             public Func<string, ContextBag, bool> OnTryRemove { get; set; } = (id, bag) => true;

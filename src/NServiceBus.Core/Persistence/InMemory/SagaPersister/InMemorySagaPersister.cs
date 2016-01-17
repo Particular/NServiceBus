@@ -20,7 +20,7 @@ namespace NServiceBus
                 VersionedSagaEntity value;
                 data.TryRemove(sagaData.Id, out value);
             });
-            return TaskEx.Completed;
+            return TaskEx.CompletedTask;
         }
 
         public Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, SynchronizedStorageSession session, ContextBag context) where TSagaData : IContainSagaData
@@ -87,7 +87,7 @@ namespace NServiceBus
 
                 Interlocked.Increment(ref version);
             });
-            return TaskEx.Completed;
+            return TaskEx.CompletedTask;
         }
 
         public Task Update(IContainSagaData sagaData, SynchronizedStorageSession session, ContextBag context)
@@ -112,7 +112,7 @@ namespace NServiceBus
 
                 Interlocked.Increment(ref version);
             });
-            return TaskEx.Completed;
+            return TaskEx.CompletedTask;
         }
 
         void ValidateUniqueProperties(SagaCorrelationProperty correlationProperty, IContainSagaData saga)

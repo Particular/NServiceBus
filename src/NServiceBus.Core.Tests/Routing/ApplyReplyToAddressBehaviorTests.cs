@@ -21,7 +21,7 @@
                 new RoutingStrategy[] { },
                 new RootContext(null, null));
 
-            await behavior.Invoke(context, () => Task.FromResult(0));
+            await behavior.Invoke(context, () => TaskEx.CompletedTask);
 
             Assert.AreEqual("MyAddress", context.Headers[Headers.ReplyToAddress]);
         }

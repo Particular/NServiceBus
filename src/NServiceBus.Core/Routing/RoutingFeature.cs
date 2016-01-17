@@ -146,12 +146,12 @@
                         settings.Get<UnicastRoutingTable>().AddDynamic((t, c) => QuerySubscriptionStore(subscriptions, t, c));
                     }
                 }
-                return TaskEx.Completed;
+                return TaskEx.CompletedTask;
             }
 
             protected override Task OnStop(IBusSession session)
             {
-                return TaskEx.Completed;
+                return TaskEx.CompletedTask;
             }
 
             static async Task<IEnumerable<IUnicastRoute>> QuerySubscriptionStore(ISubscriptionStorage subscriptions, List<Type> types, ContextBag contextBag)

@@ -21,11 +21,11 @@ namespace NServiceBus
         {
             if (settings.Get<bool>("Endpoint.SendOnly"))
             {
-                return TaskEx.Completed;
+                return TaskEx.CompletedTask;
             }
             if (!settings.CreateQueues())
             {
-                return TaskEx.Completed;
+                return TaskEx.CompletedTask;
             }
             var queueCreator = builder.Build<ICreateQueues>();
             var queueBindings = settings.Get<QueueBindings>();

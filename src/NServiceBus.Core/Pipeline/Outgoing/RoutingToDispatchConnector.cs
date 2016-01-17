@@ -49,7 +49,7 @@
             if (!state.ImmediateDispatch && context.Extensions.TryGet(out pendingOperations))
             {
                 pendingOperations.AddRange(operations);
-                return TaskEx.Completed;
+                return TaskEx.CompletedTask;
             }
 
             return stage(this.CreateDispatchContext(operations.ToArray(), context));

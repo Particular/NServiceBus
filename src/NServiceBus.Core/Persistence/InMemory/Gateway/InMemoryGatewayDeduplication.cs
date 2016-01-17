@@ -16,7 +16,7 @@
                 var item = persistence.SingleOrDefault(m => m.Id == clientId);
                 if (item != null)
                 {
-                    return Task.FromResult(false);
+                    return TaskEx.FalseTask;
                 }
 
                 return Task.FromResult(persistence.Add(new GatewayMessage

@@ -135,7 +135,7 @@
 
             public Task Stop()
             {
-                return Task.FromResult(0);
+                return TaskEx.CompletedTask;
             }
         }
     }

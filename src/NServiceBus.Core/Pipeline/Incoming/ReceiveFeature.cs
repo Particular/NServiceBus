@@ -61,23 +61,25 @@
         {
             public Task<OutboxMessage> Get(string messageId, ContextBag options)
             {
-                return Task.FromResult<OutboxMessage>(null);
+                return NoOutboxMessageTask;
             }
 
             public Task Store(OutboxMessage message, OutboxTransaction transaction, ContextBag options)
             {
-                return TaskEx.Completed;
+                return TaskEx.CompletedTask;
             }
 
             public Task SetAsDispatched(string messageId, ContextBag options)
             {
-                return TaskEx.Completed;
+                return TaskEx.CompletedTask;
             }
 
             public Task<OutboxTransaction> BeginTransaction(ContextBag context)
             {
                 return Task.FromResult<OutboxTransaction>(new NoOpOutboxTransaction());
             }
+
+            static Task<OutboxMessage> NoOutboxMessageTask = Task.FromResult<OutboxMessage>(null);
         }
         class NoOpOutboxTransaction : OutboxTransaction
         {
@@ -87,7 +89,7 @@
 
             public Task Commit()
             {
-                return TaskEx.Completed;
+                return TaskEx.CompletedTask;
             }
         }
     }

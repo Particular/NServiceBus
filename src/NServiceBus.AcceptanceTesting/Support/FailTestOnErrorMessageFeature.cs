@@ -35,13 +35,13 @@
             protected override Task OnStart(IBusSession session)
             {
                 notifications.Errors.MessageSentToErrorQueue += OnMessageSentToErrorQueue;
-                return TaskEx.Completed;
+                return TaskEx.CompletedTask;
             }
 
             protected override Task OnStop(IBusSession session)
             {
                 notifications.Errors.MessageSentToErrorQueue -= OnMessageSentToErrorQueue;
-                return TaskEx.Completed;
+                return TaskEx.CompletedTask;
             }
 
             void OnMessageSentToErrorQueue(object sender, FailedMessage failedMessage)

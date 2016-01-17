@@ -33,7 +33,7 @@ namespace NServiceBus
                 {
                     logger.InfoFormat(@"Did not attempt to add user '{0}' to group '{1}' since process is not running with elevate privileges. Processing will continue. To manually perform this action run the following command from an admin console:
 net localgroup ""{1}"" ""{0}"" /add", identity, builtinPerformanceMonitoringUsersName);
-                    return TaskEx.Completed;
+                    return TaskEx.CompletedTask;
                 }
                 StartProcess(identity);
             }
@@ -46,7 +46,7 @@ net localgroup ""{1}"" ""{0}"" /add", identity, builtinPerformanceMonitoringUser
                 logger.Warn(message, win32Exception);
             }
 
-            return TaskEx.Completed;
+            return TaskEx.CompletedTask;
         }
 
 

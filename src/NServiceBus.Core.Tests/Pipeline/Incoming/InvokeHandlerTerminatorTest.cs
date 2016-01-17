@@ -24,7 +24,7 @@
             var behaviorContext = CreateBehaviorContext(messageHandler);
             AssociateSagaWithMessage(saga, behaviorContext);
 
-            await terminator.Invoke(behaviorContext, _ => TaskEx.Completed);
+            await terminator.Invoke(behaviorContext, _ => TaskEx.CompletedTask);
 
             Assert.IsTrue(handlerInvoked);
         }
@@ -41,7 +41,7 @@
             var sagaInstance = AssociateSagaWithMessage(saga, behaviorContext);
             sagaInstance.MarkAsNotFound();
 
-            await terminator.Invoke(behaviorContext, _ => TaskEx.Completed);
+            await terminator.Invoke(behaviorContext, _ => TaskEx.CompletedTask);
 
             Assert.IsFalse(handlerInvoked);
         }
@@ -57,7 +57,7 @@
             var sagaInstance = AssociateSagaWithMessage(new FakeSaga(), behaviorContext);
             sagaInstance.MarkAsNotFound();
 
-            await terminator.Invoke(behaviorContext, _ => TaskEx.Completed);
+            await terminator.Invoke(behaviorContext, _ => TaskEx.CompletedTask);
 
             Assert.IsTrue(handlerInvoked);
         }
@@ -71,7 +71,7 @@
             var messageHandler = CreateMessageHandler((i, m, ctx) => handlerInvoked = true, new FakeMessageHandler());
             var behaviorContext = CreateBehaviorContext(messageHandler);
 
-            await terminator.Invoke(behaviorContext, _ => TaskEx.Completed);
+            await terminator.Invoke(behaviorContext, _ => TaskEx.CompletedTask);
 
             Assert.IsTrue(handlerInvoked);
         }
@@ -84,7 +84,7 @@
             var messageHandler = CreateMessageHandler((i, m, ctx) => receivedMessage = m, new FakeMessageHandler());
             var behaviorContext = CreateBehaviorContext(messageHandler);
 
-            await terminator.Invoke(behaviorContext, _ => TaskEx.Completed);
+            await terminator.Invoke(behaviorContext, _ => TaskEx.CompletedTask);
 
             Assert.AreSame(behaviorContext.MessageBeingHandled, receivedMessage);
         }
@@ -97,7 +97,7 @@
             var messageHandler = CreateMessageHandler((i, m, ctx) => { }, new FakeMessageHandler());
             var behaviorContext = CreateBehaviorContext(messageHandler);
 
-            await terminator.Invoke(behaviorContext, _ => TaskEx.Completed);
+            await terminator.Invoke(behaviorContext, _ => TaskEx.CompletedTask);
 
             Assert.IsFalse(behaviorContext.Extensions.Get<InvokeHandlerTerminator.State>().ScopeWasPresent);
         }
@@ -112,7 +112,7 @@
 
             using (var scope = new TransactionScope())
             {
-                await terminator.Invoke(behaviorContext, _ => TaskEx.Completed);
+                await terminator.Invoke(behaviorContext, _ => TaskEx.CompletedTask);
                 scope.Complete();
             }
 
@@ -131,7 +131,7 @@
             var messageHandler = new MessageHandler((instance, message, handlerContext) =>
             {
                 invocationAction(instance, message, handlerContext);
-                return TaskEx.Completed;
+                return TaskEx.CompletedTask;
             }, handlerInstance.GetType())
             {
                 Instance = handlerInstance

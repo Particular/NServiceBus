@@ -28,7 +28,7 @@
             await behavior.Invoke(context, c =>
             {
                 addressTag = (UnicastAddressTag) c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
-                return Task.FromResult(0);
+                return TaskEx.CompletedTask;
             });
 
             Assert.AreEqual("destination endpoint", addressTag.Destination);
@@ -48,7 +48,7 @@
             await behavior.Invoke(context, c =>
             {
                 addressTag = (UnicastAddressTag) c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
-                return Task.FromResult(0);
+                return TaskEx.CompletedTask;
             });
             
             Assert.AreEqual("MyLocalAddress", addressTag.Destination);
@@ -70,7 +70,7 @@
             await behavior.Invoke(context, c =>
             {
                 addressTag = (UnicastAddressTag) c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
-                return Task.FromResult(0);
+                return TaskEx.CompletedTask;
             });
             
             Assert.AreEqual("MappedDestination", addressTag.Destination);
@@ -89,7 +89,7 @@
 
             var context = CreateContext(options, new MessageWithoutRouting());
 
-            var ex = Assert.Throws<Exception>(async() => await behavior.Invoke(context, _ => Task.FromResult(0)));
+            var ex = Assert.Throws<Exception>(async() => await behavior.Invoke(context, _ => TaskEx.CompletedTask));
 
             Assert.True(ex.Message.Contains("No destination specified"));
         }

@@ -15,7 +15,7 @@
             StoredMessage storedMessage;
             if (!storage.TryGetValue(messageId, out storedMessage))
             {
-                return Task.FromResult(default(OutboxMessage));
+                return NoOutboxMessageTask;
             }
 
             return Task.FromResult(new OutboxMessage(messageId, storedMessage.TransportOperations));
@@ -36,7 +36,7 @@
                     throw new Exception($"Outbox message with id '{message.MessageId}' is already present in storage.");
                 }
             });
-            return TaskEx.Completed;
+            return TaskEx.CompletedTask;
         }
 
         public Task SetAsDispatched(string messageId, ContextBag context)
@@ -45,13 +45,13 @@
 
             if (!storage.TryGetValue(messageId, out storedMessage))
             {
-                return TaskEx.Completed;
+                return TaskEx.CompletedTask;
             }
 
             storedMessage.TransportOperations.Clear();
             storedMessage.Dispatched = true;
 
-            return TaskEx.Completed;
+            return TaskEx.CompletedTask;
         }
 
         public void RemoveEntriesOlderThan(DateTime dateTime)
@@ -71,6 +71,7 @@
 
 
         ConcurrentDictionary<string, StoredMessage> storage = new ConcurrentDictionary<string, StoredMessage>();
+        static Task<OutboxMessage> NoOutboxMessageTask = Task.FromResult(default(OutboxMessage));
 
         class StoredMessage
         {

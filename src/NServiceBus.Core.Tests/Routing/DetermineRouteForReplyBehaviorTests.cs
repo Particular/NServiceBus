@@ -37,7 +37,7 @@
             await behavior.Invoke(context, c =>
             {
                 addressTag = (UnicastAddressTag)c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
-                return Task.FromResult(0);
+                return TaskEx.CompletedTask;
             });
 
             Assert.AreEqual("ReplyAddressOfIncomingMessage", addressTag.Destination);
@@ -59,7 +59,7 @@
                         new MemoryStream()), null, new CancellationTokenSource(),
                     new RootContext(null, null)));
 
-            var ex = Assert.Throws<Exception>(async () => await behavior.Invoke(context, _ => Task.FromResult(0)));
+            var ex = Assert.Throws<Exception>(async () => await behavior.Invoke(context, _ => TaskEx.CompletedTask));
 
             Assert.True(ex.Message.Contains(typeof(MyReply).FullName));
         }
@@ -81,7 +81,7 @@
             await behavior.Invoke(context, c =>
             {
                 addressTag = (UnicastAddressTag)c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
-                return Task.FromResult(0);
+                return TaskEx.CompletedTask;
             });
 
             Assert.AreEqual("CustomReplyToAddress", addressTag.Destination);

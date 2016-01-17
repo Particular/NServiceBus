@@ -21,7 +21,7 @@
             var task = new TaskDefinition
             {
                 Every = TimeSpan.FromSeconds(5),
-                Task = c => TaskEx.Completed
+                Task = c => TaskEx.CompletedTask
             };
             taskId = task.Id;
             scheduler.Schedule(task);

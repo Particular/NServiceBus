@@ -25,12 +25,12 @@
             protected override Task OnStart(IBusSession session)
             {
                 SubscriptionStorage?.Init();
-                return TaskEx.Completed;
+                return TaskEx.CompletedTask;
             }
 
             protected override Task OnStop(IBusSession session)
             {
-                return TaskEx.Completed;
+                return TaskEx.CompletedTask;
             }
         }
     }
