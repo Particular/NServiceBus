@@ -87,7 +87,7 @@ namespace NServiceBus
         public void UseContainer(System.Type definitionType) { }
         public void UseContainer(NServiceBus.ObjectBuilder.Common.IContainer builder) { }
     }
-    public class BusNotifications : System.IDisposable
+    public class BusNotifications
     {
         public BusNotifications() { }
         public NServiceBus.Faults.ErrorsNotifications Errors { get; }
