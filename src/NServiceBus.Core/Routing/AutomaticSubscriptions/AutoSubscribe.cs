@@ -88,8 +88,6 @@
 
         class ApplySubscriptions : FeatureStartupTask
         {
-            static ILog Logger = LogManager.GetLogger<ApplySubscriptions>();
-
             public ApplySubscriptions(IEnumerable<Type> messagesHandledByThisEndpoint, Func<Type, Task<bool>> asyncPredicate)
             {
                 this.messagesHandledByThisEndpoint = messagesHandledByThisEndpoint;
@@ -116,6 +114,8 @@
             Func<Type, Task<bool>> asyncPredicate;
 
             IEnumerable<Type> messagesHandledByThisEndpoint;
+
+            static ILog Logger = LogManager.GetLogger<ApplySubscriptions>();
         }
 
         internal class SubscribeSettings
