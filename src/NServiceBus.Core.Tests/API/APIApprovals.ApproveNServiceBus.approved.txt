@@ -170,6 +170,8 @@ namespace NServiceBus
     }
     public class static ConfigureRijndaelEncryptionService
     {
+        public static void RegisterEncryptionService(this NServiceBus.BusConfiguration config, System.Func<NServiceBus.Encryption.IEncryptionService> func) { }
+        [System.ObsoleteAttribute(@"It is no longer possible to access the builder to create an encryption service. If you require container access use your container directly in the factory. Please use `RegisterEncryptionService(this BusConfiguration config, Func<IEncryptionService> func)` instead. Will be removed in version 7.0.0.", true)]
         public static void RegisterEncryptionService(this NServiceBus.BusConfiguration config, System.Func<NServiceBus.ObjectBuilder.IBuilder, NServiceBus.Encryption.IEncryptionService> func) { }
         public static void RijndaelEncryptionService(this NServiceBus.BusConfiguration config) { }
         public static void RijndaelEncryptionService(this NServiceBus.BusConfiguration config, string encryptionKey, System.Collections.Generic.List<string> expiredKeys = null) { }

@@ -34,6 +34,8 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Reflection;
+    using NServiceBus.Encryption;
+    using NServiceBus.ObjectBuilder;
 
 
     public static partial class ConfigureCriticalErrorAction
@@ -308,6 +310,15 @@ namespace NServiceBus
     [ObsoleteEx(Message = "For performance reasons it is no longer possible to instrument the pipeline execution", RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0")]
     public class PipelineNotifications
     {
+    }
+
+    public static partial class ConfigureRijndaelEncryptionService
+    {
+        [ObsoleteEx(ReplacementTypeOrMember = "RegisterEncryptionService(this BusConfiguration config, Func<IEncryptionService> func)", RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "It is no longer possible to access the builder to create an encryption service. If you require container access use your container directly in the factory.")]
+        public static void RegisterEncryptionService(this BusConfiguration config, Func<IBuilder, IEncryptionService> func)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
 
