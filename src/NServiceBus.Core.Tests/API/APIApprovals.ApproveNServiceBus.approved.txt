@@ -706,7 +706,8 @@ namespace NServiceBus
     }
     public class static MsmqConfigurationExtensions
     {
-        public static void ApplyLabelToMessages(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> transportExtensions, NServiceBus.MsmqLabelGenerator labelGenerator) { }
+        public static NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> ApplyLabelToMessages(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> transportExtensions, NServiceBus.MsmqLabelGenerator labelGenerator) { }
+        public static NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> TransactionScopeOptions(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> transportExtensions, System.Nullable<System.TimeSpan> timeout = null, System.Nullable<System.Transactions.IsolationLevel> isolationLevel = null) { }
     }
     public delegate string MsmqLabelGenerator(System.Collections.Generic.IReadOnlyDictionary<string, string> headers);
     public class MsmqTransport : NServiceBus.Transports.TransportDefinition
@@ -942,10 +943,6 @@ namespace NServiceBus
         public ToSagaExpression(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration, System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty) { }
         public void ToSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object>> sagaEntityProperty) { }
     }
-    public class static TransactionSettingsExtentions
-    {
-        public static NServiceBus.Settings.TransactionSettings Transactions(this NServiceBus.BusConfiguration config) { }
-    }
     public class TransportExtensions : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
         public TransportExtensions(NServiceBus.Settings.SettingsHolder settings) { }
@@ -1011,6 +1008,14 @@ namespace NServiceBus
         public static NServiceBus.UnicastRoutingTarget ToAnonymousInstance(NServiceBus.Routing.EndpointName endpoint, string transportAddress) { }
         public static NServiceBus.UnicastRoutingTarget ToEndpointInstance(NServiceBus.Routing.EndpointInstance instance) { }
         public static NServiceBus.UnicastRoutingTarget ToTransportAddress(string transportAddress) { }
+    }
+    public class UnitOfWorkSettings
+    {
+        public NServiceBus.UnitOfWorkSettings WrapHandlersInATransactionScope(System.Nullable<System.TimeSpan> timeout = null, System.Nullable<System.Transactions.IsolationLevel> isolationLevel = null) { }
+    }
+    public class static UnitOfWorkSettingsExtensions
+    {
+        public static NServiceBus.UnitOfWorkSettings UnitOfWork(this NServiceBus.BusConfiguration config) { }
     }
     public class UnsubscribeOptions : NServiceBus.Extensibility.ExtendableOptions
     {
@@ -2457,6 +2462,15 @@ namespace NServiceBus.Serializers.XML
         public void Serialize(object message, System.IO.Stream stream) { }
     }
 }
+namespace NServiceBus.Settings.NServiceBus
+{
+    [System.ObsoleteAttribute("No longer used, can safely be removed. Will be removed in version 7.0.0.", true)]
+    public class static TransactionSettingsExtentions
+    {
+        [System.ObsoleteAttribute("No longer used, can safely be removed. Will be removed in version 7.0.0.", true)]
+        public static NServiceBus.Settings.TransactionSettings Transactions(this NServiceBus.BusConfiguration config) { }
+    }
+}
 namespace NServiceBus.Settings
 {
     public interface ReadOnlySettings
@@ -2519,6 +2533,9 @@ namespace NServiceBus.Settings
     }
     public class TransactionSettings
     {
+        public TransactionSettings() { }
+        [System.ObsoleteAttribute("Please use `config.UnitOfWork().WrapHandlersInATransactionScope(timeout: TimeSpan" +
+            ".FromSeconds(X));` instead. Will be removed in version 7.0.0.", true)]
         public NServiceBus.Settings.TransactionSettings DefaultTimeout(System.TimeSpan defaultTimeout) { }
         [System.ObsoleteAttribute("Please use `config.UseTransport<MyTransport>().Transactions(TransportTransactionM" +
             "ode.None);` instead. Will be removed in version 7.0.0.", true)]
@@ -2536,7 +2553,11 @@ namespace NServiceBus.Settings
         [System.ObsoleteAttribute("Please use `config.UseTransport<MyTransport>().Transactions(TransportTransactionM" +
             "ode.TransactionScope);` instead. Will be removed in version 7.0.0.", true)]
         public NServiceBus.Settings.TransactionSettings EnableDistributedTransactions() { }
+        [System.ObsoleteAttribute("Please use `config.UnitOfWork().WrapHandlersInATransactionScope(isolationLevel: I" +
+            "solationLevel.X);` instead. Will be removed in version 7.0.0.", true)]
         public NServiceBus.Settings.TransactionSettings IsolationLevel(System.Transactions.IsolationLevel isolationLevel) { }
+        [System.ObsoleteAttribute("Please use `config.UnitOfWork().WrapHandlersInATransactionScope();` instead. Will" +
+            " be removed in version 7.0.0.", true)]
         public NServiceBus.Settings.TransactionSettings WrapHandlersExecutionInATransactionScope() { }
     }
 }
@@ -3100,6 +3121,8 @@ namespace NServiceBus.Unicast.Transport
     {
         public StartedMessageProcessingEventArgs() { }
     }
+    [System.ObsoleteAttribute("Transaction settings is no longer available via this class. Please see obsoletes " +
+        "on individual members for further details. Will be removed in version 7.0.0.", true)]
     public class TransactionSettings
     {
         [System.ObsoleteAttribute("No longer used. Will be removed in version 7.0.0.", true)]
@@ -3108,6 +3131,9 @@ namespace NServiceBus.Unicast.Transport
             "settings.GetOrDefault<bool>(\'Transactions.DoNotWrapHandlersExecutionInATransacti" +
             "onScope\') instead. Will be removed in version 7.0.0.", true)]
         public bool DoNotWrapHandlersExecutionInATransactionScope { get; set; }
+        [System.ObsoleteAttribute("Isolation level are now controlled explicitly for the transaction scope unit of w" +
+            "ork using config.UnitOfWork().WrapHandlersInATransactionScope(isolationlevel: X)" +
+            ". Will be removed in version 7.0.0.", true)]
         public System.Transactions.IsolationLevel IsolationLevel { get; set; }
         [System.ObsoleteAttribute("IsTransactional is no longer used here. Please use `context.Settings.GetRequiredT" +
             "ransactionModeForReceives() != Transactions.None` instead. Will be removed in ve" +
@@ -3117,6 +3143,9 @@ namespace NServiceBus.Unicast.Transport
             "ngs.GetRequiredTransactionModeForReceives() != Transactions.TransactionScope` in" +
             "stead. Will be removed in version 7.0.0.", true)]
         public bool SuppressDistributedTransactions { get; set; }
+        [System.ObsoleteAttribute("Timeouts are now controlled explicitly for the transaction scope unit of work usi" +
+            "ng config.UnitOfWork().WrapHandlersInATransactionScope(timeout: X). Will be remo" +
+            "ved in version 7.0.0.", true)]
         public System.TimeSpan TransactionTimeout { get; set; }
     }
     [System.ObsoleteAttribute("No longer used, can safely be removed. Will be removed in version 7.0.0.", true)]
