@@ -120,7 +120,7 @@ namespace NServiceBus
 
             if (nextTimeToRunQuery == DateTime.MaxValue)
             {
-                nextTimeToRunQuery = now.AddMinutes(1);
+                nextTimeToRunQuery = now.Add(EmptyResultsNextTimeToRunQuerySpan);
             }
 
             return Task.FromResult(new TimeoutsChunk(dueTimeouts, nextTimeToRunQuery));
@@ -128,5 +128,6 @@ namespace NServiceBus
 
         ReaderWriterLockSlim readerWriterLock = new ReaderWriterLockSlim();
         List<TimeoutData> storage = new List<TimeoutData>();
+        public static TimeSpan EmptyResultsNextTimeToRunQuerySpan = TimeSpan.FromMinutes(1);
     }
 }
