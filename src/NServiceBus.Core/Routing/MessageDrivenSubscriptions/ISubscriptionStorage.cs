@@ -10,12 +10,12 @@ namespace NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions
     public interface ISubscriptionStorage
     {
         /// <summary>
-        /// Subscribes the given client to messages of the given types.
+        /// Subscribes the given client to messages of a given type.
         /// </summary>
         Task Subscribe(Subscriber subscriber, MessageType messageType, ContextBag context);
 
         /// <summary>
-        /// Unsubscribes the given client from messages of the given types.
+        /// Unsubscribes the given client from messages of given type.
         /// </summary>
         Task Unsubscribe(Subscriber subscriber, MessageType messageType, ContextBag context);
 
