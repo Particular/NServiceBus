@@ -12,16 +12,16 @@ namespace NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions
         /// <summary>
         /// Subscribes the given client to messages of the given types.
         /// </summary>
-        Task Subscribe(Subscriber subscriber, IReadOnlyCollection<MessageType> messageTypes, ContextBag context);
+        Task Subscribe(Subscriber subscriber, MessageType messageType, ContextBag context);
 
         /// <summary>
         /// Unsubscribes the given client from messages of the given types.
         /// </summary>
-        Task Unsubscribe(Subscriber subscriber, IReadOnlyCollection<MessageType> messageTypes, ContextBag context);
+        Task Unsubscribe(Subscriber subscriber, MessageType messageType, ContextBag context);
 
         /// <summary>
         /// Returns a list of addresses for subscribers currently subscribed to the given message type.
         /// </summary>
-        Task<IEnumerable<Subscriber>> GetSubscriberAddressesForMessage(IReadOnlyCollection<MessageType> messageTypes, ContextBag context);
+        Task<IEnumerable<Subscriber>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes, ContextBag context);
     }
 }

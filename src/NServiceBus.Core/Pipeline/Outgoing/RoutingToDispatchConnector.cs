@@ -26,7 +26,7 @@
                     var addressLabel = rs.Apply(headers);
                     var message = new OutgoingMessage(context.Message.MessageId, context.Message.Headers, context.Message.Body);
                     return new TransportOperation(message, addressLabel, dispatchConsistency, context.GetDeliveryConstraints());
-                });
+                }).ToList();
 
             if (log.IsDebugEnabled)
             {

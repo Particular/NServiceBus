@@ -77,22 +77,15 @@
                 return;
             }
             Logger.Info($"{intent} from {subscriberAddress} on message type {messageTypeString}");
+            var subscriber = new Subscriber(subscriberAddress, subscriberEndpoint);
             if (incomingMessage.GetMesssageIntent() == MessageIntentEnum.Subscribe)
             {
                 var messageType = new MessageType(messageTypeString);
-
-                await subscriptionStorage.Subscribe(new Subscriber(subscriberAddress, subscriberEndpoint), new[]
-                {
-                    messageType
-                }, context.Extensions).ConfigureAwait(false);
-
+                await subscriptionStorage.Subscribe(subscriber, messageType, context.Extensions).ConfigureAwait(false);
                 return;
             }
-            
-            await subscriptionStorage.Unsubscribe(new Subscriber(subscriberAddress, subscriberEndpoint), new[]
-            {
-                new MessageType(messageTypeString)
-            }, context.Extensions).ConfigureAwait(false);
+
+            await subscriptionStorage.Unsubscribe(subscriber, new MessageType(messageTypeString), context.Extensions).ConfigureAwait(false);
         }
 
         static string GetSubscriptionMessageTypeFrom(IncomingMessage msg)
