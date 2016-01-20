@@ -1485,22 +1485,6 @@ namespace NServiceBus.Features
         public void RegisterStartupTask<TTask>(System.Func<NServiceBus.ObjectBuilder.IBuilder, TTask> startupTaskFactory)
             where TTask : NServiceBus.Features.FeatureStartupTask { }
     }
-    public class FeatureDiagnosticData
-    {
-        public FeatureDiagnosticData() { }
-        public bool Active { get; }
-        public System.Collections.Generic.IReadOnlyList<System.Collections.Generic.IReadOnlyList<string>> Dependencies { get; }
-        public bool DependenciesAreMeet { get; set; }
-        public bool EnabledByDefault { get; }
-        public string Name { get; }
-        public NServiceBus.Features.PrerequisiteStatus PrerequisiteStatus { get; }
-        public System.Collections.Generic.IReadOnlyList<string> StartupTasks { get; }
-        public string Version { get; }
-    }
-    public class FeaturesReport
-    {
-        public System.Collections.Generic.IReadOnlyList<NServiceBus.Features.FeatureDiagnosticData> Features { get; }
-    }
     public abstract class FeatureStartupTask
     {
         protected FeatureStartupTask() { }
@@ -1557,11 +1541,6 @@ namespace NServiceBus.Features
     public class Outbox : NServiceBus.Features.Feature
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
-    }
-    public class PrerequisiteStatus
-    {
-        public bool IsSatisfied { get; }
-        public System.Collections.Generic.List<string> Reasons { get; }
     }
     public class Sagas : NServiceBus.Features.Feature
     {
