@@ -161,8 +161,7 @@
                     return new List<IUnicastRoute>();
                 }
 
-                var messageTypes = types.Select(t => new MessageType(t)).ToArray();
-                
+                var messageTypes = types.Select(t => new MessageType(t));
                 var subscribers = await subscriptions.GetSubscriberAddressesForMessage(messageTypes, contextBag).ConfigureAwait(false);
                 return subscribers.Select(s => new SubscriberDestination(s));
             }

@@ -36,7 +36,7 @@ namespace NServiceBus
             }
         }
 
-        public Task<IEnumerable<Subscriber>> GetSubscriberAddressesForMessage(IReadOnlyCollection<MessageType> messageTypes, ContextBag context)
+        public Task<IEnumerable<Subscriber>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes, ContextBag context)
         {
             var messagelist = messageTypes.ToList();
             lock (locker)
@@ -53,49 +53,38 @@ namespace NServiceBus
             }
         }
 
-        public Task Subscribe(Subscriber subscriber, IReadOnlyCollection<MessageType> messageTypes, ContextBag context)
+        public Task Subscribe(Subscriber subscriber, MessageType messageType, ContextBag context)
         {
             lock (locker)
             {
-                var messagelist = messageTypes.ToList();
-                foreach (var messageType in messagelist)
+                var found = entries.Any(e =>
+                    e.MessageType == messageType &&
+                    e.Subscriber.TransportAddress == subscriber.TransportAddress);
+
+                if (!found)
                 {
-                    var found = false;
-                    foreach (var e in entries)
+                    Add(subscriber, messageType);
+
+                    var entry = new Entry
                     {
-                        if (e.MessageType == messageType && e.Subscriber.TransportAddress == subscriber.TransportAddress)
-                        {
-                            found = true;
-                            break;
-                        }
-                    }
+                        MessageType = messageType,
+                        Subscriber = subscriber
+                    };
+                    entries.Add(entry);
 
-                    if (!found)
-                    {
-                        Add(subscriber, messageType);
-
-                        var entry = new Entry
-                        {
-                            MessageType = messageType,
-                            Subscriber = subscriber
-                        };
-                        entries.Add(entry);
-
-                        log.DebugFormat("Subscriber {0} added for message {1}.", subscriber, messageType);
-                    }
+                    log.DebugFormat("Subscriber {0} added for message {1}.", subscriber, messageType);
                 }
             }
             return TaskEx.CompletedTask;
         }
 
-        public Task Unsubscribe(Subscriber subscriber, IReadOnlyCollection<MessageType> messageTypes, ContextBag context)
+        public Task Unsubscribe(Subscriber subscriber, MessageType messageType, ContextBag context)
         {
             lock (locker)
             {
                 var toRemove =
                     from e in entries.ToArray()
-                    from m in messageTypes
-                    where e.MessageType == m && e.Subscriber.TransportAddress == subscriber.TransportAddress
+                    where e.MessageType == messageType && e.Subscriber.TransportAddress == subscriber.TransportAddress
                     select e;
 
                 foreach (var entry in toRemove)

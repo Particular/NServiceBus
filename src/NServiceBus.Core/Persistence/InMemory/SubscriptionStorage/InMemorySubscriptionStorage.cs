@@ -10,32 +10,26 @@ namespace NServiceBus
 
     class InMemorySubscriptionStorage : ISubscriptionStorage
     {
-        public Task Subscribe(Subscriber subscriber, IReadOnlyCollection<MessageType> messageTypes, ContextBag context)
+        public Task Subscribe(Subscriber subscriber, MessageType messageType, ContextBag context)
         {
-            foreach (var m in messageTypes)
-            {
-                var dict = storage.GetOrAdd(m, type => new ConcurrentDictionary<string, Subscriber>(StringComparer.OrdinalIgnoreCase));
+            var dict = storage.GetOrAdd(messageType, type => new ConcurrentDictionary<string, Subscriber>(StringComparer.OrdinalIgnoreCase));
 
-                dict.AddOrUpdate(subscriber.TransportAddress, _ => subscriber, (_, __) => subscriber);
+            dict.AddOrUpdate(subscriber.TransportAddress, _ => subscriber, (_, __) => subscriber);
+            return TaskEx.CompletedTask;
+        }
+
+        public Task Unsubscribe(Subscriber subscriber, MessageType messageType, ContextBag context)
+        {
+            ConcurrentDictionary<string, Subscriber> dict;
+            if (storage.TryGetValue(messageType, out dict))
+            {
+                Subscriber _;
+                dict.TryRemove(subscriber.TransportAddress, out _);
             }
             return TaskEx.CompletedTask;
         }
 
-        public Task Unsubscribe(Subscriber subscriber, IReadOnlyCollection<MessageType> messageTypes, ContextBag context)
-        {
-            foreach (var m in messageTypes)
-            {
-                ConcurrentDictionary<string, Subscriber> dict;
-                if (storage.TryGetValue(m, out dict))
-                {
-                    Subscriber _;
-                    dict.TryRemove(subscriber.TransportAddress, out _);
-                }
-            }
-            return TaskEx.CompletedTask;
-        }
-
-        public Task<IEnumerable<Subscriber>> GetSubscriberAddressesForMessage(IReadOnlyCollection<MessageType> messageTypes, ContextBag context)
+        public Task<IEnumerable<Subscriber>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes, ContextBag context)
         {
             var result = new HashSet<Subscriber>();
             foreach (var m in messageTypes)

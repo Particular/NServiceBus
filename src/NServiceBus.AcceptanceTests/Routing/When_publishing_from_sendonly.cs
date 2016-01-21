@@ -97,17 +97,17 @@
                 }.AsEnumerable());
             }
 
-            public Task Subscribe(Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber subscriber, IReadOnlyCollection<MessageType> messageTypes, ContextBag context)
+            public Task Subscribe(Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber subscriber, MessageType messageType, ContextBag context)
             {
                 return Task.FromResult(0);
             }
 
-            public Task Unsubscribe(Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber subscriber, IReadOnlyCollection<MessageType> messageTypes, ContextBag context)
+            public Task Unsubscribe(Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber subscriber, MessageType messageType, ContextBag context)
             {
                 return Task.FromResult(0);
             }
 
-            public Task<IEnumerable<Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber>> GetSubscriberAddressesForMessage(IReadOnlyCollection<MessageType> messageTypes, ContextBag context)
+            public Task<IEnumerable<Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes, ContextBag context)
             {
                 return addressTask;
             }
