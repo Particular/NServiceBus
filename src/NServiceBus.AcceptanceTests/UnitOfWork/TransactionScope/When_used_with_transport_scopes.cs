@@ -6,7 +6,7 @@
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NUnit.Framework;
 
-    public class When_used_with_transport_scopes
+    public class When_used_with_transport_scopes : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_blow_up()
