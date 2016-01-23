@@ -29,7 +29,7 @@
 
             Defaults(s => s.Set<SagaMetadataCollection>(new SagaMetadataCollection()));
 
-            Prerequisite(config => config.Settings.GetAvailableTypes().Any(IsSagaType), "No sagas was found in scanned types");
+            Prerequisite(config => config.Settings.GetAvailableTypes().Any(IsSagaType), "No sagas were found in the scanned types");
         }
 
         /// <summary>

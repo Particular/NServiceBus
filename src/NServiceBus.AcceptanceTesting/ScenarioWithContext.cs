@@ -58,7 +58,7 @@ namespace NServiceBus.AcceptanceTesting
 
             if (!runDescriptors.Any())
             {
-                Console.WriteLine("No active rundescriptors was found for this test, test will not be executed");
+                Console.WriteLine("No active rundescriptors were found for this test, test will not be executed");
                 return new List<TContext>();
             }
 
