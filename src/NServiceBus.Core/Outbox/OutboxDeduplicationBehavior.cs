@@ -34,12 +34,12 @@
                 context.Set(outboxMessage);
 
                 //we use this scope to make sure that we escalate to DTC if the user is talking to another resource by misstake
-                using (var checkForEscalationScope = new TransactionScope(TransactionScopeOption.RequiresNew,new TransactionOptions{IsolationLevel = TransactionSettings.IsolationLevel,Timeout = TransactionSettings.TransactionTimeout}))
+                using (var checkForEscalationScope = new TransactionScope(TransactionScopeOption.RequiresNew, new TransactionOptions { IsolationLevel = TransactionSettings.IsolationLevel, Timeout = TransactionSettings.TransactionTimeout }))
                 {
                     next();
                     checkForEscalationScope.Complete();
                 }
-                
+
 
                 if (context.handleCurrentMessageLaterWasCalled)
                 {
@@ -65,17 +65,24 @@
                     Body = transportOperation.Body
                 };
 
+                string ttbr;
+
+                if (transportOperation.Options.TryGetValue("TimeToBeReceived", out ttbr))
+                {
+                    message.TimeToBeReceived = TimeSpan.Parse(ttbr);
+                }
+
                 //dispatch to transport
 
                 if (transportOperation.Options["Operation"] != "Audit")
                 {
-                    DispatchMessageToTransportBehavior.InvokeNative(deliveryOptions, message);    
+                    DispatchMessageToTransportBehavior.InvokeNative(deliveryOptions, message);
                 }
                 else
                 {
                     DefaultMessageAuditer.Audit(deliveryOptions as SendOptions, message);
                 }
-                
+
             }
         }
 
