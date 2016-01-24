@@ -15,7 +15,15 @@ namespace NServiceBus
 
             if (context.TryGet(out currentOutboxMessage))
             {
-                currentOutboxMessage.TransportOperations.Add( new TransportOperation(context.OutgoingMessage.Id, context.DeliveryOptions.ToTransportOperationOptions(), context.OutgoingMessage.Body, context.OutgoingMessage.Headers)); 
+                var options = context.DeliveryOptions.ToTransportOperationOptions();
+                var transportOperation = new TransportOperation(context.OutgoingMessage.Id, options, context.OutgoingMessage.Body, context.OutgoingMessage.Headers);
+
+                if (context.OutgoingMessage.TimeToBeReceived != TimeSpan.MaxValue)
+                {
+                    options["TimeToBeReceived"] = context.OutgoingMessage.TimeToBeReceived.ToString();
+                }
+
+                currentOutboxMessage.TransportOperations.Add(transportOperation);
             }
             else
             {
