@@ -28,21 +28,6 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
                .Run();
         }
 
-        [Test]
-        public async Task Should_autosubscribe_plain_messages_if_asked_to()
-        {
-            await Scenario.Define<Context>()
-                .WithEndpoint<Subscriber>(b => b.CustomConfig(c => c.AutoSubscribe().AutoSubscribePlainMessages()))
-                .Done(c => c.EventsSubscribedTo.Count >= 2)
-                .Repeat(b => b.For<AllTransportsWithMessageDrivenPubSub>())
-                .Should(ctx => Assert.True(ctx.EventsSubscribedTo.Contains(typeof(MyEvent)), "Events should be auto subscribed"))
-                .Should(ctx => Assert.False(ctx.EventsSubscribedTo.Contains(typeof(MyEventWithNoRouting)), "Events without routing should not be auto subscribed"))
-                .Should(ctx => Assert.False(ctx.EventsSubscribedTo.Contains(typeof(MyEventWithNoHandler)), "Events without handlers should not be auto subscribed"))
-                .Should(ctx => Assert.False(ctx.EventsSubscribedTo.Contains(typeof(MyCommand)), "Commands should not be auto subscribed"))
-                .Should(ctx => Assert.True(ctx.EventsSubscribedTo.Contains(typeof(MyMessage)), "Plain messages should be auto subscribed by if asked to"))
-                .Run();
-        }
-
         class Context : ScenarioContext
         {
             public Context()

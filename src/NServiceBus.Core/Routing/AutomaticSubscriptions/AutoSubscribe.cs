@@ -5,7 +5,6 @@
     using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.Logging;
-    using NServiceBus.Transports;
     using NServiceBus.Unicast;
 
     /// <summary>
@@ -24,7 +23,6 @@
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var transportDefinition = context.Settings.Get<TransportDefinition>();
             SubscribeSettings settings;
 
             if (!context.Settings.TryGet(out settings))
@@ -34,44 +32,14 @@
 
             var conventions = context.Settings.Get<Conventions>();
 
-            if (transportDefinition.GetOutboundRoutingPolicy(context.Settings).Publishes == OutboundRoutingType.Multicast)
+            context.RegisterStartupTask(b =>
             {
-                context.RegisterStartupTask(b =>
-                {
-                    var handlerRegistry = b.Build<MessageHandlerRegistry>();
+                var handlerRegistry = b.Build<MessageHandlerRegistry>();
 
-                    var messageTypesHandled = GetMessageTypesHandledByThisEndpoint(handlerRegistry, conventions, settings);
+                var messageTypesHandled = GetMessageTypesHandledByThisEndpoint(handlerRegistry, conventions, settings);
 
-                    return new ApplySubscriptions(messageTypesHandled, type => TaskEx.TrueTask);
-                });
-            }
-            else
-            {
-                context.RegisterStartupTask(b =>
-                {
-                    var handlerRegistry = b.Build<MessageHandlerRegistry>();
-
-                    var messageTypesToSubscribe = GetMessageTypesHandledByThisEndpoint(handlerRegistry, conventions, settings);
-
-                    Func<Type, Task<bool>> asyncPredicate;
-                    if (settings.RequireExplicitRouting)
-                    {
-                        var subscriptionRouter = b.Build<SubscriptionRouter>();
-
-                        asyncPredicate = async type =>
-                        {
-                            var addresses = await subscriptionRouter.GetAddressesForEventType(type).ConfigureAwait(false);
-                            return addresses.Any();
-                        };
-                    }
-                    else
-                    {
-                        asyncPredicate = type => TaskEx.TrueTask;
-                    }
-
-                    return new ApplySubscriptions(messageTypesToSubscribe, asyncPredicate);
-                });
-            }
+                return new ApplySubscriptions(messageTypesHandled, type => TaskEx.TrueTask);
+            });
         }
 
         static List<Type> GetMessageTypesHandledByThisEndpoint(MessageHandlerRegistry handlerRegistry, Conventions conventions, SubscribeSettings settings)
@@ -79,7 +47,7 @@
             var messageTypesHandled = handlerRegistry.GetMessageTypes() //get all potential messages
                 .Where(t => !conventions.IsInSystemConventionList(t)) //never auto-subscribe system messages
                 .Where(t => !conventions.IsCommandType(t)) //commands should never be subscribed to
-                .Where(t => settings.SubscribePlainMessages || conventions.IsEventType(t)) //only events unless the user asked for all messages
+                .Where(t => conventions.IsEventType(t)) //only events unless the user asked for all messages
                 .Where(t => settings.AutoSubscribeSagas || handlerRegistry.GetHandlersFor(t).Any(handler => !typeof(Saga).IsAssignableFrom(handler.HandlerType))) //get messages with other handlers than sagas if needed
                 .ToList();
 
@@ -123,12 +91,9 @@
             public SubscribeSettings()
             {
                 AutoSubscribeSagas = true;
-                RequireExplicitRouting = true;
             }
 
             public bool AutoSubscribeSagas { get; set; }
-            public bool RequireExplicitRouting { get; set; }
-            public bool SubscribePlainMessages { get; set; }
         }
     }
 }
