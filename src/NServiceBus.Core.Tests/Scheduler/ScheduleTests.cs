@@ -65,7 +65,7 @@
                 throw new NotImplementedException();
             }
 
-            public Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)
+            public Task Publish<T>(Action<T> messageConstructor, PublishOptions options)
             {
                 throw new NotImplementedException();
             }
@@ -78,6 +78,15 @@
             public Task Unsubscribe(Type eventType, UnsubscribeOptions options)
             {
                 throw new NotImplementedException();
+            }
+
+            public Task Dispatch()
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Dispose()
+            {
             }
         }
     }

@@ -30,7 +30,7 @@
                             c.UseTransport<MsmqTransport>()
                                 .Transactions(transactionMode);
                         });
-                        b.When((bus, c) =>
+                        b.When(() =>
                         {
                             var endpoint = AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(Endpoint));
 

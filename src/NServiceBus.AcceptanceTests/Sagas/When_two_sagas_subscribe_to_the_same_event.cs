@@ -16,7 +16,7 @@
         public async Task Should_invoke_all_handlers_on_all_sagas()
         {
             await Scenario.Define<Context>()
-                    .WithEndpoint<Publisher>(b => b.When((bus, context) =>
+                    .WithEndpoint<Publisher>(b => b.When(context =>
                     {
                         if (context.HasNativePubSubSupport)
                         {

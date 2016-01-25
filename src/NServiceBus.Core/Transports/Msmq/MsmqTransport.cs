@@ -7,6 +7,7 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using System.Transactions;
     using System.Transactions.Configuration;
+    using NServiceBus.Extensibility;
     using NServiceBus.Features;
     using NServiceBus.Performance.TimeToBeReceived;
     using NServiceBus.Routing;
@@ -96,7 +97,8 @@ namespace NServiceBus
                     new QueuePermissionChecker().CheckQueuePermissions(bindings.SendingAddresses);
                     var result = new MsmqTimeToBeReceivedOverrideCheck(context.Settings).CheckTimeToBeReceivedOverrides();
                     return Task.FromResult(result);
-                });
+                },
+                () => new SessionContext(new TransportTransaction(), new ContextBag()));
         }
 
         /// <summary>

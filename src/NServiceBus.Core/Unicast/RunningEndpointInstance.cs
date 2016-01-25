@@ -37,9 +37,9 @@ namespace NServiceBus
                 Log.Info("Initiating shutdown.");
 
                 await pipelineCollection.Stop().ConfigureAwait(false);
-                var busContext = CreateBusSession();
-                await featureRunner.Stop(busContext).ConfigureAwait(false);
-                await startAndStoppablesRunner.Stop(busContext).ConfigureAwait(false);
+                var busSession = CreateBusSession();
+                await featureRunner.Stop(busSession).ConfigureAwait(false);
+                await startAndStoppablesRunner.Stop(busSession).ConfigureAwait(false);
                 builder.Dispose();
 
                 stopped = true;
@@ -51,9 +51,9 @@ namespace NServiceBus
             }
         }
 
-        public IBusSession CreateBusSession()
+        public IBusSession CreateBusSession(bool autoDispatch = true)
         {
-            return busSessionFactory.CreateBusSession();
+            return busSessionFactory.CreateBusSession(autoDispatch);
         }
 
         volatile bool stopped;

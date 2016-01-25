@@ -38,7 +38,7 @@ namespace NServiceBus
 
             var pipelineCache = new PipelineCache(builder, settings);
             var busInterface = new StartUpBusInterface(builder, pipelineCache);
-            var busSession = busInterface.CreateBusSession();
+            var busSession = busInterface.CreateBusSession(true);
 
             await RunInstallers().ConfigureAwait(false);
             var featureRunner = await StartFeatures(busSession).ConfigureAwait(false);
@@ -134,10 +134,14 @@ namespace NServiceBus
                 this.builder = builder;
             }
 
-            public IBusSession CreateBusSession()
+            public IBusSession CreateBusSession(bool autoDispatch)
             {
-                var rootContext = new RootContext(builder, cache);
-                return new BusSession(rootContext);
+                // TODO: Do the evil builder access as a spike
+                var sessionContext = builder.Build<Func<SessionContext>>()();
+                var transportSendContext = new TransportSendContext(sessionContext.TransportTransaction, new RootContext(builder, cache));
+                transportSendContext.Extensions.Merge(sessionContext.Context);
+                IBusSession busSession = new BusSession(transportSendContext);
+                return autoDispatch ? new AutoDispatchBusSession(busSession) : busSession;
             }
         }
 

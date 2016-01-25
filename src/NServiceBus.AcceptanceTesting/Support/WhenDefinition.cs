@@ -5,14 +5,14 @@ namespace NServiceBus.AcceptanceTesting.Support
 
     public class WhenDefinition<TContext> : IWhenDefinition where TContext : ScenarioContext
     {
-        public WhenDefinition(Predicate<TContext> condition, Func<IBusSession, Task> action)
+        public WhenDefinition(Predicate<TContext> condition, Func<IBusSessionFactory, Task> action)
         {
             Id = Guid.NewGuid();
             this.condition = condition;
             busAction = action;
         }
 
-        public WhenDefinition(Predicate<TContext> condition, Func<IBusSession, TContext, Task> actionWithContext)
+        public WhenDefinition(Predicate<TContext> condition, Func<IBusSessionFactory, TContext, Task> actionWithContext)
         {
             Id = Guid.NewGuid();
             this.condition = condition;
@@ -21,7 +21,7 @@ namespace NServiceBus.AcceptanceTesting.Support
 
         public Guid Id { get; }
 
-        public async Task<bool> ExecuteAction(ScenarioContext context, IBusSession session)
+        public async Task<bool> ExecuteAction(ScenarioContext context, IBusSessionFactory sessionFactory)
         {
             var c = (TContext)context;
 
@@ -32,18 +32,18 @@ namespace NServiceBus.AcceptanceTesting.Support
 
             if (busAction != null)
             {
-                await busAction(session).ConfigureAwait(false);
+                await busAction(sessionFactory).ConfigureAwait(false);
             }
             else
             {
-                await busAndContextAction(session, c).ConfigureAwait(false);
+                await busAndContextAction(sessionFactory, c).ConfigureAwait(false);
             }
 
             return true;
         }
 
         Predicate<TContext> condition;
-        Func<IBusSession, Task> busAction;
-        Func<IBusSession, TContext, Task> busAndContextAction;
+        Func<IBusSessionFactory, Task> busAction;
+        Func<IBusSessionFactory, TContext, Task> busAndContextAction;
     }
 }

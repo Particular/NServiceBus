@@ -80,7 +80,7 @@
 
             protected override TransportSendingConfigurationResult ConfigureForSending(TransportSendingConfigurationContext context)
             {
-                return new TransportSendingConfigurationResult(() => new FakeDispatcher(), () => Task.FromResult(StartupCheckResult.Success));
+                return new TransportSendingConfigurationResult(() => new FakeDispatcher(), () => Task.FromResult(StartupCheckResult.Success), () => new SessionContext(new TransportTransaction(), new ContextBag()));
             }
             
             public override IEnumerable<Type> GetSupportedDeliveryConstraints()

@@ -27,9 +27,9 @@
 
         class FakeSessionFactory : IBusSessionFactory
         {
-            public IBusSession CreateBusSession()
+            public IBusSession CreateBusSession(bool autoDispatch = true)
             {
-                return new BusSession(new RootContext(null, null));
+                return new BusSession(new TransportSendContext(null, null));
             }
         }
     }

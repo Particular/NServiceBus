@@ -24,6 +24,13 @@ namespace NServiceBus
                 return dispatcher;
             }, DependencyLifecycle.SingleInstance);
 
+            // TODO: I don't want to use the builder
+            context.Container.ConfigureComponent(c =>
+            {
+                var sessionContextFactory = sendConfigContext.SessionContextFactory();
+                return sessionContextFactory;
+            }, DependencyLifecycle.SingleInstance);
+
             context.RegisterStartupTask(new PrepareForSending(sendConfigContext.PreStartupCheck));
         }
         
