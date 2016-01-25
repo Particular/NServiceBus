@@ -2,6 +2,7 @@ namespace NServiceBus.Serializers.XML.Test
 {
     using System;
     using System.IO;
+    using System.Linq;
     using System.Text;
     using System.Xml.Linq;
     using NUnit.Framework;
@@ -154,6 +155,71 @@ namespace NServiceBus.Serializers.XML.Test
                 var result = (MessageWithNullableArray)msgArray[0];
 
                 Assert.AreEqual(null, result.SomeInts[0]);
+            }
+        }
+
+        [Test]
+        public void CanDeserializeNullableArrayWithFirstEntryXsiNilAttributeSetToTrue()
+        {
+            var xml = @"<?xml version=""1.0"" ?>
+<MessageWithNullableArray xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://tempuri.net/NServiceBus.Serializers.XML.Test"">
+<SagaId>00000000-0000-0000-0000-000000000000</SagaId>
+<SomeInts>
+<NullableOfInt32 xsi:nil=""true""></NullableOfInt32>
+</SomeInts>
+</MessageWithNullableArray>
+";
+            var data = Encoding.UTF8.GetBytes(xml);
+
+            using (var stream = new MemoryStream(data))
+            {
+                var msgArray = SerializerFactory.Create<MessageWithNullableArray>().Deserialize(stream, new[] { typeof(MessageWithNullableArray) });
+                var result = (MessageWithNullableArray)msgArray[0];
+
+                Assert.AreEqual(null, result.SomeInts[0]);
+            }
+        }
+
+        [Test]
+        public void CanDeserializeNullableArrayWithXsiNilAttributeSetToTrue()
+        {
+            var xml = @"<?xml version=""1.0"" ?>
+<MessageWithNullableArray xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://tempuri.net/NServiceBus.Serializers.XML.Test"">
+<SagaId>00000000-0000-0000-0000-000000000000</SagaId>
+<SomeInts xsi:nil=""true"">
+</SomeInts>
+</MessageWithNullableArray>
+";
+            var data = Encoding.UTF8.GetBytes(xml);
+
+            using (var stream = new MemoryStream(data))
+            {
+                var msgArray = SerializerFactory.Create<MessageWithNullableArray>().Deserialize(stream, new[] { typeof(MessageWithNullableArray) });
+                var result = (MessageWithNullableArray)msgArray[0];
+
+                Assert.IsFalse(result.SomeInts.Any());
+            }
+        }
+
+        [Test]
+        public void CanDeserializeNullableArrayWithNoElementsToEmptyList()
+        {
+            var xml = @"<?xml version=""1.0"" ?>
+<MessageWithNullableArray xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://tempuri.net/NServiceBus.Serializers.XML.Test"">
+<SagaId>00000000-0000-0000-0000-000000000000</SagaId>
+<SomeInts>
+</SomeInts>
+</MessageWithNullableArray>
+";
+            var data = Encoding.UTF8.GetBytes(xml);
+
+            using (var stream = new MemoryStream(data))
+            {
+                var msgArray = SerializerFactory.Create<MessageWithNullableArray>().Deserialize(stream, new[] { typeof(MessageWithNullableArray) });
+                var result = (MessageWithNullableArray)msgArray[0];
+
+                Assert.NotNull(result.SomeInts);
+                Assert.AreEqual(0, result.SomeInts.Length);
             }
         }
 
