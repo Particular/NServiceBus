@@ -652,7 +652,7 @@ namespace NServiceBus
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
             Message = "Headers can be set using the ``.SetHeader` method on the context object passed into your behavior or mutator")]
-        public static void SetMessageHeader(this IBusSessionFactory bus, object msg, string key, string value)
+        public static void SetMessageHeader(this IBus bus, object msg, string key, string value)
         {
             throw new NotImplementedException();
         }

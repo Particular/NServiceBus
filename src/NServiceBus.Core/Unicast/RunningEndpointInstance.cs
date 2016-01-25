@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using System;
     using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.Features;
@@ -9,13 +10,13 @@ namespace NServiceBus
 
     class RunningEndpointInstance : IEndpointInstance
     {
-        public RunningEndpointInstance(IBuilder builder, PipelineCollection pipelineCollection, StartAndStoppablesRunner startAndStoppablesRunner, FeatureRunner featureRunner, IBusSessionFactory busSessionFactory)
+        public RunningEndpointInstance(IBuilder builder, PipelineCollection pipelineCollection, StartAndStoppablesRunner startAndStoppablesRunner, FeatureRunner featureRunner, IBusSession busSession)
         {
-            this.busSessionFactory = busSessionFactory;
+            this.builder = builder;
             this.pipelineCollection = pipelineCollection;
             this.startAndStoppablesRunner = startAndStoppablesRunner;
             this.featureRunner = featureRunner;
-            this.builder = builder;
+            this.busSession = busSession;
         }
 
         public async Task Stop()
@@ -37,9 +38,8 @@ namespace NServiceBus
                 Log.Info("Initiating shutdown.");
 
                 await pipelineCollection.Stop().ConfigureAwait(false);
-                var busContext = CreateBusSession();
-                await featureRunner.Stop(busContext).ConfigureAwait(false);
-                await startAndStoppablesRunner.Stop(busContext).ConfigureAwait(false);
+                await featureRunner.Stop(busSession).ConfigureAwait(false);
+                await startAndStoppablesRunner.Stop(busSession).ConfigureAwait(false);
                 builder.Dispose();
 
                 stopped = true;
@@ -51,9 +51,34 @@ namespace NServiceBus
             }
         }
 
-        public IBusSession CreateBusSession()
+        public Task Send(object message, SendOptions options)
         {
-            return busSessionFactory.CreateBusSession();
+            return busSession.Send(message, options);
+        }
+
+        public Task Send<T>(Action<T> messageConstructor, SendOptions options)
+        {
+            return busSession.Send(messageConstructor, options);
+        }
+
+        public Task Publish(object message, PublishOptions options)
+        {
+            return busSession.Publish(message, options);
+        }
+
+        public Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)
+        {
+            return busSession.Publish(messageConstructor, publishOptions);
+        }
+
+        public Task Subscribe(Type eventType, SubscribeOptions options)
+        {
+            return busSession.Subscribe(eventType, options);
+        }
+
+        public Task Unsubscribe(Type eventType, UnsubscribeOptions options)
+        {
+            return busSession.Unsubscribe(eventType, options);
         }
 
         volatile bool stopped;
@@ -62,8 +87,8 @@ namespace NServiceBus
         PipelineCollection pipelineCollection;
         StartAndStoppablesRunner startAndStoppablesRunner;
         FeatureRunner featureRunner;
+        IBusSession busSession;
         IBuilder builder;
-        IBusSessionFactory busSessionFactory;
 
         static ILog Log = LogManager.GetLogger<UnicastBus>();
     }

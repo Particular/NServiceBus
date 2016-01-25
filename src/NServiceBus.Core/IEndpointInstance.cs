@@ -5,7 +5,7 @@ namespace NServiceBus
     /// <summary>
     /// Represents an endpoind in the running phase.
     /// </summary>
-    public interface IEndpointInstance : IBusSessionFactory
+    public interface IEndpointInstance : IBusSession
     {
         /// <summary>
         /// Stops the endpoint.
