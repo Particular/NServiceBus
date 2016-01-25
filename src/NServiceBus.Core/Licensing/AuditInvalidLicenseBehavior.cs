@@ -11,7 +11,7 @@
     {
         public override async Task Invoke(IAuditContext context, Func<Task> next)
         {
-            context.AddAuditData(Headers.HasLicenseExpired, true.ToString().ToLower());
+            context.AddAuditData(Headers.HasLicenseExpired, "true");
 
             await next().ConfigureAwait(false);
 
