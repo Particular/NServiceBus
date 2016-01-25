@@ -133,7 +133,7 @@
                                     continue;
                                 }
 
-                                if (await when.ExecuteAction(scenarioContext, endpointInstance))
+                                if (await when.ExecuteAction(scenarioContext, endpointInstance).ConfigureAwait(false))
                                 {
                                     executedWhens.Add(when.Id);
                                 }
