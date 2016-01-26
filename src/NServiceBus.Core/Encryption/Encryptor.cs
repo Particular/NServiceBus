@@ -7,14 +7,13 @@
     using System.Text;
     using NServiceBus.Encryption;
     using NServiceBus.Logging;
-    using NServiceBus.ObjectBuilder;
 
     /// <summary>
     /// Used to configure encryption.
     /// </summary>
     public class Encryptor : Feature
     {
-        Func<IBuilder, IEncryptionService> serviceConstructor;
+        Func<IEncryptionService> serviceConstructor;
 
         internal Encryptor()
         {
@@ -66,11 +65,11 @@ Perhaps you forgot to define your encryption message conventions or to define me
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.Container.ConfigureComponent(serviceConstructor, DependencyLifecycle.SingleInstance);
-            context.Container.ConfigureComponent<EncryptionMutator>(DependencyLifecycle.SingleInstance);
+            var encryptionService = serviceConstructor();
+            var mutator = new EncryptionMutator(encryptionService, context.Settings.Get<Conventions>());
 
-            context.Pipeline.Register<EncryptBehavior.EncryptRegistration>();
-            context.Pipeline.Register<DecryptBehavior.DecryptRegistration>();
+            context.Pipeline.Register(new EncryptBehavior.EncryptRegistration(mutator));
+            context.Pipeline.Register(new DecryptBehavior.DecryptRegistration(mutator));
         }
 
         static ILog log = LogManager.GetLogger<Encryptor>();

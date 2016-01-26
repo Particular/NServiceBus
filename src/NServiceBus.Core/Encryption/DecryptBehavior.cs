@@ -28,8 +28,8 @@ namespace NServiceBus
 
         public class DecryptRegistration : RegisterStep
         {
-            public DecryptRegistration()
-                : base("InvokeDecryption", typeof(DecryptBehavior), "Invokes the decryption logic")
+            public DecryptRegistration(EncryptionMutator mutator)
+                : base("InvokeDecryption", typeof(DecryptBehavior), "Invokes the decryption logic", b => new DecryptBehavior(mutator))
             {
                 InsertBefore(WellKnownStep.MutateIncomingMessages);
             }

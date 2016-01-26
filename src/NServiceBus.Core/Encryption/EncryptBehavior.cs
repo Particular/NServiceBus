@@ -26,8 +26,8 @@
 
         public class EncryptRegistration : RegisterStep
         {
-            public EncryptRegistration()
-                : base("InvokeEncryption", typeof(EncryptBehavior), "Invokes the encryption logic")
+            public EncryptRegistration(EncryptionMutator mutator)
+                : base("InvokeEncryption", typeof(EncryptBehavior), "Invokes the encryption logic", b => new EncryptBehavior(mutator))
             {
                 InsertAfter(WellKnownStep.MutateOutgoingMessages);
             }
