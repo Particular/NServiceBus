@@ -3,7 +3,6 @@
     using System;
     using System.Threading.Tasks;
     using DeliveryConstraints;
-    using NServiceBus.Pipeline.OutgoingPipeline;
     using Performance.TimeToBeReceived;
     using Pipeline;
 

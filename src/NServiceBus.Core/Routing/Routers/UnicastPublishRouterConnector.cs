@@ -4,9 +4,7 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.OutgoingPipeline;
     using NServiceBus.Routing;
     using NServiceBus.Unicast.Queuing;
 

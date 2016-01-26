@@ -533,12 +533,12 @@ namespace NServiceBus.Unicast.Behaviors
 {
     using System;
 
-    public partial class MessageHandler
+    public class MessageHandler
     {
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            ReplacementTypeOrMember = "MessageHandler(Action<object, object, object> invocation, Type handlerType)")]
+            ReplacementTypeOrMember = "NServiceBus.Pipeline.MessageHandler(Action<object, object, object> invocation, Type handlerType)")]
         public MessageHandler()
         {
             throw new NotImplementedException("Creator of the message handler must assign the handler type and the invocation delegate");
@@ -547,7 +547,7 @@ namespace NServiceBus.Unicast.Behaviors
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            ReplacementTypeOrMember = "MessageHandler.Invoke")]
+            ReplacementTypeOrMember = "NServiceBus.Pipeline.MessageHandler.Invoke")]
         public Action<object, object> Invocation
         {
             get { throw new NotImplementedException(); }

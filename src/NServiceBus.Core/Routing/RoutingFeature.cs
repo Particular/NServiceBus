@@ -7,7 +7,7 @@
     using NServiceBus.Config;
     using NServiceBus.Extensibility;
     using NServiceBus.ObjectBuilder;
-    using NServiceBus.OutgoingPipeline;
+    using NServiceBus.Pipeline;
     using NServiceBus.Routing;
     using NServiceBus.Routing.MessageDrivenSubscriptions;
     using NServiceBus.Settings;

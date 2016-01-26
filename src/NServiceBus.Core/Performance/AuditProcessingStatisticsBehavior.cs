@@ -2,7 +2,6 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Audit;
     using NServiceBus.Pipeline;
 
     class AuditProcessingStatisticsBehavior : Behavior<IAuditContext>

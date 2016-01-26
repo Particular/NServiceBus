@@ -1,7 +1,6 @@
-﻿namespace NServiceBus.Routing
+﻿namespace NServiceBus.Pipeline
 {
     using System;
-    using NServiceBus.Pipeline;
 
     /// <summary>
     /// Provides context for unsubscribe requests.

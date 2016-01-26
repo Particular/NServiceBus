@@ -3,14 +3,9 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Threading;
-    using NServiceBus.Audit;
-    using NServiceBus.Faults;
     using NServiceBus.ObjectBuilder;
-    using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline;
-    using NServiceBus.Routing;
     using NServiceBus.Settings;
-    using NServiceBus.TransportDispatch;
 
     class PipelineCache : IPipelineCache
     {

@@ -2,7 +2,6 @@
 {
     using System;
     using System.Threading.Tasks;
-    using OutgoingPipeline;
     using Pipeline;
 
     class EnforcePublishBestPracticesBehavior : Behavior<IOutgoingPublishContext>

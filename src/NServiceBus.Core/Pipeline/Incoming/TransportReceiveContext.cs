@@ -2,7 +2,6 @@
 {
     using System.Threading;
     using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Transports;
 
     /// <summary>

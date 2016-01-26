@@ -11,7 +11,7 @@ namespace NServiceBus
     using NServiceBus.Features;
     using NServiceBus.Installation;
     using NServiceBus.ObjectBuilder;
-    using NServiceBus.Pipeline.Contexts;
+    using NServiceBus.Pipeline;
     using NServiceBus.Settings;
     using NServiceBus.Transports;
 

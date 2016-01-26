@@ -3,12 +3,10 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Audit;
     using DeliveryConstraints;
     using NServiceBus.Routing;
     using Performance.TimeToBeReceived;
     using Pipeline;
-    using TransportDispatch;
 
     class AuditToDispatchConnector : StageConnector<IAuditContext, IRoutingContext>
     {

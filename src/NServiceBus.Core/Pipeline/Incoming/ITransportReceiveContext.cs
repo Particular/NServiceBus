@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Pipeline.Contexts
+﻿namespace NServiceBus.Pipeline
 {
     using Transports;
 

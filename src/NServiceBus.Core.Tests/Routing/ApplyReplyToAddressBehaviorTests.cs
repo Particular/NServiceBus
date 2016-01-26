@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using OutgoingPipeline;
+    using NServiceBus.Pipeline;
     using NServiceBus.Routing;
     using NUnit.Framework;
 

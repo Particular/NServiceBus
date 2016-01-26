@@ -2,18 +2,10 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
-    using NServiceBus.Audit;
-    using NServiceBus.Faults;
-    using NServiceBus.OutgoingPipeline;
     using NServiceBus.Persistence;
     using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.Pipeline.OutgoingPipeline;
     using NServiceBus.Routing;
-    using NServiceBus.TransportDispatch;
     using NServiceBus.Transports;
-    using NServiceBus.Unicast.Behaviors;
-    using NServiceBus.Unicast.Messages;
 
     /// <summary>
     /// Contains extensions methods to map behavior contexts.

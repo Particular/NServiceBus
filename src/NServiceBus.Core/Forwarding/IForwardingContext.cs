@@ -1,6 +1,5 @@
-namespace NServiceBus
+namespace NServiceBus.Pipeline
 {
-    using NServiceBus.Pipeline;
     using NServiceBus.Transports;
 
     /// <summary>

@@ -4,7 +4,6 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using DeliveryConstraints;
-    using NServiceBus.Pipeline.OutgoingPipeline;
     using Pipeline;
 
     class DetermineMessageDurabilityBehavior : Behavior<IOutgoingLogicalMessageContext>

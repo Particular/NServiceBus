@@ -3,10 +3,8 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.Faults;
     using NServiceBus.Routing;
     using Pipeline;
-    using TransportDispatch;
 
     class FaultToDispatchConnector : StageConnector<IFaultContext, IRoutingContext>
     {

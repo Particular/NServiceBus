@@ -5,7 +5,6 @@
     using System.Transactions;
     using DataBus;
     using Pipeline;
-    using Pipeline.Contexts;
 
     class DataBusReceiveBehavior : Behavior<IIncomingLogicalMessageContext>
     {

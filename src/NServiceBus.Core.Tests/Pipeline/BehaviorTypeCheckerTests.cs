@@ -2,10 +2,7 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Audit;
-    using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
     using NUnit.Framework;
 
     [TestFixture]

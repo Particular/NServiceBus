@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using NServiceBus.Outbox;
+    using NServiceBus.Pipeline;
     using NServiceBus.Transports;
     using Unicast.Messages;
     using NUnit.Framework;

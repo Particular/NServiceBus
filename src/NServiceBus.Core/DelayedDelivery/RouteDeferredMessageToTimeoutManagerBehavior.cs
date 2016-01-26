@@ -9,7 +9,6 @@ namespace NServiceBus
     using Performance.TimeToBeReceived;
     using Pipeline;
     using Routing;
-    using TransportDispatch;
 
     class RouteDeferredMessageToTimeoutManagerBehavior : Behavior<IRoutingContext>
     {

@@ -1,7 +1,6 @@
-namespace NServiceBus
+namespace NServiceBus.Pipeline
 {
     using System.Collections.Generic;
-    using NServiceBus.Pipeline;
     using NServiceBus.Transports;
 
     /// <summary>

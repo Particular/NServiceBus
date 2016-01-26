@@ -2,9 +2,7 @@
 {
     using System;
     using System.Threading.Tasks;
-    using OutgoingPipeline;
     using Pipeline;
-    using TransportDispatch;
     using Transports;
 
     class OutgoingPhysicalToRoutingConnector : StageConnector<IOutgoingPhysicalMessageContext, IRoutingContext>

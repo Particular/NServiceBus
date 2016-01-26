@@ -7,7 +7,6 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NServiceBus.Pipeline;
-    using NServiceBus.Routing;
     using NUnit.Framework;
 
     [TestFixture]

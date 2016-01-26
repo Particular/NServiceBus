@@ -7,8 +7,6 @@ namespace NServiceBus
     using DeliveryConstraints;
     using Logging;
     using Pipeline;
-    using Pipeline.Contexts;
-    using TransportDispatch;
     using Transports;
 
     class SecondLevelRetriesBehavior : ForkConnector<ITransportReceiveContext, IRoutingContext>

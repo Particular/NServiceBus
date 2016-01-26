@@ -3,7 +3,6 @@ namespace NServiceBus
     using System.Collections.Generic;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
-    using NServiceBus.TransportDispatch;
     using NServiceBus.Transports;
 
     class RoutingContext : OutgoingContext, IRoutingContext

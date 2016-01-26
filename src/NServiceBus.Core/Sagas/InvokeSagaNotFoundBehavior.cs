@@ -4,7 +4,6 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using Logging;
     using NServiceBus.Pipeline;
-    using Pipeline.Contexts;
     using Sagas;
 
     class InvokeSagaNotFoundBehavior : Behavior<IIncomingLogicalMessageContext>

@@ -5,7 +5,6 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using Extensibility;
-    using NServiceBus.Pipeline.OutgoingPipeline;
     using Pipeline;
     using NUnit.Framework;
 

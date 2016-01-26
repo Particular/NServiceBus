@@ -2,8 +2,6 @@
 {
     using System.Collections.Generic;
     using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.Unicast.Messages;
 
     class IncomingLogicalMessageContext : IncomingContext, IIncomingLogicalMessageContext
     {

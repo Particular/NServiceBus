@@ -1,7 +1,6 @@
-﻿namespace NServiceBus.Faults
+﻿namespace NServiceBus.Pipeline
 {
     using System;
-    using NServiceBus.Pipeline;
     using NServiceBus.Transports;
 
     /// <summary>

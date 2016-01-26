@@ -4,8 +4,6 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using NServiceBus.Persistence;
     using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.Unicast.Behaviors;
     using NServiceBus.Unicast.Messages;
 
     class InvokeHandlerContext : IncomingContext, IInvokeHandlerContext

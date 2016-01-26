@@ -2,7 +2,6 @@
 {
     using System;
     using System.Threading.Tasks;
-    using Audit;
     using Pipeline;
     using Transports;
 

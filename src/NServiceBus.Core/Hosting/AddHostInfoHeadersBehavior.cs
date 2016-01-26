@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using NServiceBus.Hosting;
     using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.OutgoingPipeline;
     using NServiceBus.Routing;
     using NServiceBus.Support;
 

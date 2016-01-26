@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using MessageMutator;
     using Pipeline;
-    using Pipeline.Contexts;
 
     class MutateIncomingMessageBehavior : Behavior<IIncomingLogicalMessageContext>
     {

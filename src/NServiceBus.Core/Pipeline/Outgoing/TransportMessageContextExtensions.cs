@@ -1,7 +1,5 @@
-namespace NServiceBus.Pipeline.Outgoing
+namespace NServiceBus.Pipeline
 {
-    using NServiceBus.OutgoingPipeline;
-    using NServiceBus.Pipeline.OutgoingPipeline;
     using NServiceBus.Transports;
 
     /// <summary>

@@ -9,7 +9,6 @@
     using NServiceBus.Logging;
     using NServiceBus.Routing;
     using Pipeline;
-    using TransportDispatch;
     using Transports;
 
     class RoutingToDispatchConnector : StageConnector<IRoutingContext, IDispatchContext>

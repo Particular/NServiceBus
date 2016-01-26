@@ -3,8 +3,7 @@ namespace NServiceBus.Core.Tests
     using System;
     using System.Collections.Generic;
     using NServiceBus.Extensibility;
-    using NServiceBus.OutgoingPipeline;
-    using NServiceBus.Pipeline.OutgoingPipeline;
+    using NServiceBus.Pipeline;
 
     class ContextHelpers
     {

@@ -2,7 +2,6 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Pipeline.OutgoingPipeline;
     using Pipeline;
 
     class EncryptBehavior : Behavior<IOutgoingLogicalMessageContext>

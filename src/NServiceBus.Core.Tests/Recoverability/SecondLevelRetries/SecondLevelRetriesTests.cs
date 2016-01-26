@@ -11,10 +11,8 @@
     using DeliveryConstraints;
     using Faults;
     using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Routing;
     using NServiceBus.Transports;
-    using TransportDispatch;
     using NUnit.Framework;
 
     [TestFixture]

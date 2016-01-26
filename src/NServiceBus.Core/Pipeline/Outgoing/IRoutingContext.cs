@@ -1,8 +1,7 @@
-namespace NServiceBus.TransportDispatch
+namespace NServiceBus.Pipeline
 {
     using System.Collections.Generic;
     using Routing;
-    using Pipeline;
     using Transports;
 
     /// <summary>

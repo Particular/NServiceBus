@@ -6,7 +6,7 @@
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using OutgoingPipeline;
+    using NServiceBus.Pipeline;
     using NServiceBus.Routing;
     using NServiceBus.Transports;
     using NUnit.Framework;

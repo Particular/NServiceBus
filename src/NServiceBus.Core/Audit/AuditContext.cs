@@ -1,6 +1,5 @@
 namespace NServiceBus
 {
-    using NServiceBus.Audit;
     using NServiceBus.Pipeline;
     using NServiceBus.Transports;
 

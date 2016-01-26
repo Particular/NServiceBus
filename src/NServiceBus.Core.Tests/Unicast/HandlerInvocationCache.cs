@@ -7,7 +7,7 @@
     using System.Threading.Tasks;
     using NServiceBus.Extensibility;
     using NServiceBus.Persistence;
-    using NServiceBus.Unicast.Behaviors;
+    using NServiceBus.Pipeline;
     using NUnit.Framework;
     using PublishOptions = NServiceBus.PublishOptions;
     using ReplyOptions = NServiceBus.ReplyOptions;
@@ -203,15 +203,26 @@
         public string MessageId { get; }
         public string ReplyToAddress { get; }
         public IReadOnlyDictionary<string, string> MessageHeaders { get; }
+        public Task Reply(object message, ReplyOptions options)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task IMessageProcessingContext.Reply<T>(Action<T> messageConstructor, ReplyOptions options)
+        {
+            return Reply(messageConstructor, options);
+        }
+
         public ContextBag Extensions { get; }
+
         public Task Send(object message, SendOptions options)
         {
             throw new NotImplementedException();
         }
 
-        public Task Send<T>(Action<T> messageConstructor, SendOptions options)
+        Task IBusContext.Send<T>(Action<T> messageConstructor, SendOptions options)
         {
-            throw new NotImplementedException();
+            return Send(messageConstructor, options);
         }
 
         public Task Publish(object message, PublishOptions options)
@@ -219,9 +230,9 @@
             throw new NotImplementedException();
         }
 
-        public Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)
+        Task IBusContext.Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)
         {
-            throw new NotImplementedException();
+            return Publish(messageConstructor, publishOptions);
         }
 
         public Task Subscribe(Type eventType, SubscribeOptions options)
@@ -230,16 +241,6 @@
         }
 
         public Task Unsubscribe(Type eventType, UnsubscribeOptions options)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task Reply(object message, ReplyOptions options)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task Reply<T>(Action<T> messageConstructor, ReplyOptions options)
         {
             throw new NotImplementedException();
         }

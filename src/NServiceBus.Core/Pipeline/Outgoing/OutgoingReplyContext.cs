@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus
 {
     using System.Collections.Generic;
-    using NServiceBus.OutgoingPipeline;
     using NServiceBus.Pipeline;
 
     class OutgoingReplyContext : OutgoingContext, IOutgoingReplyContext

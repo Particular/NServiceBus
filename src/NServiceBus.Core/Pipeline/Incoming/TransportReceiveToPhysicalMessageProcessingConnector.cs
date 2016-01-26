@@ -10,7 +10,6 @@ namespace NServiceBus
     using Routing;
     using Outbox;
     using Pipeline;
-    using Pipeline.Contexts;
     using Transports;
     using TransportOperation = Transports.TransportOperation;
 

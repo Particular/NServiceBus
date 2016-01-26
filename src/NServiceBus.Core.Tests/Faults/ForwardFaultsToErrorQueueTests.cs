@@ -7,7 +7,6 @@ namespace NServiceBus.Core.Tests
     using System.Threading.Tasks;
     using NServiceBus.Faults;
     using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Transports;
     using NUnit.Framework;
 

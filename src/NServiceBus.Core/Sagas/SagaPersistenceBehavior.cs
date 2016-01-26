@@ -7,7 +7,6 @@
     using System.Threading.Tasks;
     using NServiceBus.Logging;
     using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
     using NServiceBus.Sagas;
     using NServiceBus.Transports;
 
