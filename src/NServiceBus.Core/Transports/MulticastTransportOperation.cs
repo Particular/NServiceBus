@@ -13,7 +13,7 @@ namespace NServiceBus.Transports
         /// <summary>
         /// Creates a new <see cref="MulticastTransportOperation"/> instance.
         /// </summary>
-        public MulticastTransportOperation(OutgoingMessage message, Type messageType, IEnumerable<DeliveryConstraint> deliveryConstraints = null, DispatchConsistency requiredDispatchConsistency = DispatchConsistency.Default)
+        public MulticastTransportOperation(OutgoingMessage message, Type messageType, DispatchConsistency requiredDispatchConsistency = DispatchConsistency.Default, IEnumerable<DeliveryConstraint> deliveryConstraints = null)
         {
             Message = message;
             MessageType = messageType;

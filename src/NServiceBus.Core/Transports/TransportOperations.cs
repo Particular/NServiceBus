@@ -9,7 +9,10 @@ namespace NServiceBus.Transports
     /// </summary>
     public class TransportOperations
     {
-        internal TransportOperations(params TransportOperation[] transportOperations)
+        /// <summary>
+        /// Creates a new set of dispatchable transport operations.
+        /// </summary>
+        public TransportOperations(params TransportOperation[] transportOperations)
         {
             var multicastOperations = new List<MulticastTransportOperation>(transportOperations.Length);
             var unicastOperations = new List<UnicastTransportOperation>(transportOperations.Length);
@@ -21,16 +24,16 @@ namespace NServiceBus.Transports
                     multicastOperations.Add(new MulticastTransportOperation(
                         transportOperation.Message, 
                         ((MulticastAddressTag) transportOperation.AddressTag).MessageType, 
-                        transportOperation.DeliveryConstraints, 
-                        transportOperation.RequiredDispatchConsistency));
+                        transportOperation.RequiredDispatchConsistency, 
+                        transportOperation.DeliveryConstraints));
                 }
                 else if (transportOperation.AddressTag is UnicastAddressTag)
                 {
                     unicastOperations.Add(new UnicastTransportOperation(
                         transportOperation.Message,
                         ((UnicastAddressTag) transportOperation.AddressTag).Destination,
-                        transportOperation.DeliveryConstraints,
-                        transportOperation.RequiredDispatchConsistency));
+                        transportOperation.RequiredDispatchConsistency,
+                        transportOperation.DeliveryConstraints));
                 }
                 else
                 {
@@ -42,18 +45,6 @@ namespace NServiceBus.Transports
 
             MulticastTransportOperations = multicastOperations;
             UnicastTransportOperations = unicastOperations;
-        }
-
-        /// <summary>
-        /// Creates a new set of dispatchable transport operations.
-        /// </summary>
-        public TransportOperations(IEnumerable<MulticastTransportOperation> multicastTransportOperations, IEnumerable<UnicastTransportOperation> unicastTransportOperations)
-        {
-            Guard.AgainstNull(nameof(multicastTransportOperations), multicastTransportOperations);
-            Guard.AgainstNull(nameof(unicastTransportOperations), unicastTransportOperations);
-
-            MulticastTransportOperations = multicastTransportOperations;
-            UnicastTransportOperations = unicastTransportOperations;
         }
 
         /// <summary>

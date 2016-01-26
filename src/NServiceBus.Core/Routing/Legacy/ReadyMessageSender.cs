@@ -45,7 +45,7 @@
                 readyMessage.Headers.Add(LegacyDistributorHeaders.WorkerStarting, bool.TrueString);
             }
 
-            var transportOperation = new TransportOperation(readyMessage, new UnicastAddressTag(distributorControlAddress), DispatchConsistency.Default);
+            var transportOperation = new TransportOperation(readyMessage, new UnicastAddressTag(distributorControlAddress));
             return dispatcher.Dispatch(new TransportOperations(transportOperation), new ContextBag());
         }
         
