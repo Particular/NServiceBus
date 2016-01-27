@@ -122,7 +122,39 @@ namespace NServiceBus.Features
                 node.Visit(output);
             }
 
+            // Step 4: DFS to check if we have an directed acyclic graph
+            foreach (var node in allNodes)
+            {
+                if (DirectedCycleExistsFrom(node, new Node [] { }))
+                {
+                    throw new ArgumentException("Cycle in dependency graph detected");
+                }
+            }
+
             return output;
+        }
+
+        static bool DirectedCycleExistsFrom(Node node, IEnumerable<Node> visitedNodes)
+        {
+            if (node.previous.Any())
+            {
+                if (visitedNodes.Any(n => n == node))
+                {
+                    return true;
+                }
+
+                var newVisitedNodes = visitedNodes.Union(new[] { node });
+
+                foreach (var subNode in node.previous)
+                {
+                    if (DirectedCycleExistsFrom(subNode, newVisitedNodes))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         bool ActivateFeature(FeatureInfo featureInfo, List<FeatureInfo> featuresToActivate, IConfigureComponents container, PipelineSettings pipelineSettings)

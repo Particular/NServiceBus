@@ -175,6 +175,30 @@
             Assert.IsInstanceOf<Level3>(order[2], "Upstream dependencies should be activated first");
         }
 
+        [Test]
+        public void Should_throw_exception_when_dependency_cycle_is_found()
+        {
+            var order = new List<Feature>();
+
+
+            var level1 = new CycleLevel1
+            {
+                OnActivation = f => order.Add(f)
+            };
+            var level2 = new CycleLevel2
+            {
+                OnActivation = f => order.Add(f)
+            };
+
+            var settings = new SettingsHolder();
+            var featureSettings = new FeatureActivator(settings);
+
+            featureSettings.Add(level1);
+            featureSettings.Add(level2);
+
+            Assert.Throws<ArgumentException>(() => featureSettings.SetupFeatures(null, null));
+        }
+
         public class Level1 : TestFeature
         {
             public Level1()
@@ -198,6 +222,24 @@
             {
                 EnableByDefault();
                 DependsOn<Level2>();
+            }
+        }
+
+        public class CycleLevel1 : TestFeature
+        {
+            public CycleLevel1()
+            {
+                EnableByDefault();
+                DependsOn<CycleLevel2>();
+            }
+        }
+
+        public class CycleLevel2 : TestFeature
+        {
+            public CycleLevel2()
+            {
+                EnableByDefault();
+                DependsOn<CycleLevel1>();
             }
         }
 
