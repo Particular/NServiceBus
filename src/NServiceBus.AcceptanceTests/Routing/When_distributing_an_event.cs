@@ -17,7 +17,7 @@
                 {
                     await bus.Publish(new MyEvent());
                 }))
-                .WithEndpoint<SubscriberA_1>(b => b.When((bus, c) =>
+                .WithEndpoint<SubscriberA_1>(b => b.When(c =>
                 {
                     if (c.HasNativePubSubSupport)
                     {
@@ -25,7 +25,7 @@
                     }
                     return Task.FromResult(0);
                 }))
-                .WithEndpoint<SubscriberA_2>(b => b.When((bus, c) =>
+                .WithEndpoint<SubscriberA_2>(b => b.When(c =>
                 {
                     if (c.HasNativePubSubSupport)
                     {
@@ -33,7 +33,7 @@
                     }
                     return Task.FromResult(0);
                 }))
-                .WithEndpoint<SubscriberB_1>(b => b.When((bus, c) =>
+                .WithEndpoint<SubscriberB_1>(b => b.When(c =>
                 {
                     if (c.HasNativePubSubSupport)
                     {
@@ -41,7 +41,7 @@
                     }
                     return Task.FromResult(0);
                 })).
-                WithEndpoint<SubscriberB_2>(b => b.When((bus, c) =>
+                WithEndpoint<SubscriberB_2>(b => b.When(c =>
                 {
                     if (c.HasNativePubSubSupport)
                     {

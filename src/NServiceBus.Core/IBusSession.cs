@@ -6,7 +6,8 @@ namespace NServiceBus
     /// <summary>
     /// A session which provides basic bus operations.
     /// </summary>
-    public interface IBusSession
+    /// <remarks>Bus sessions are not thread-safe.</remarks>
+    public interface IBusSession : IDisposable
     {
         /// <summary>
         /// Sends the provided message.
@@ -35,8 +36,8 @@ namespace NServiceBus
         /// </summary>
         /// <typeparam name="T">The type of message, usually an interface.</typeparam>
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
-        /// <param name="publishOptions">Specific options for this event.</param>
-        Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions);
+        /// <param name="options">Specific options for this event.</param>
+        Task Publish<T>(Action<T> messageConstructor, PublishOptions options);
 
         /// <summary>
         /// Subscribes to receive published messages of the specified type.
@@ -52,5 +53,10 @@ namespace NServiceBus
         /// <param name="eventType">The type of event to unsubscribe to.</param>
         /// <param name="options">Options for the subscribe.</param>
         Task Unsubscribe(Type eventType, UnsubscribeOptions options);
+
+        /// <summary>
+        /// Dispatches all pending operations to the transport.
+        /// </summary>
+        Task Dispatch();
     }
 }

@@ -103,6 +103,7 @@
     <Compile Include="AssemblyScanner\When_scanning_for_dlls_only.cs" />
     <Compile Include="AssemblyScanner\When_scanning_top_level_only.cs" />
     <Compile Include="AssemblyScanner\When_told_to_scan_app_domain.cs" />
+    <Compile Include="BusSessionTests.cs" />
     <Compile Include="Causation\AttachCausationHeadersBehaviorTests.cs" />
     <Compile Include="Config\When_using_initialization.cs" />
     <Compile Include="ContextBagTests.cs" />

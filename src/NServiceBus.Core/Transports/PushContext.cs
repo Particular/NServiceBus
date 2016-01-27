@@ -62,7 +62,7 @@
         /// It also allows the transport to communicate to the pipeline to abort if possible.
         /// </summary>
         public CancellationTokenSource ReceiveCancellationTokenSource { get; }
-       
+
         /// <summary>
         /// Context provided by the transport.
         /// </summary>

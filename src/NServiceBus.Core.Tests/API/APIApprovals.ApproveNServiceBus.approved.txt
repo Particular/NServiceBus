@@ -484,10 +484,11 @@ namespace NServiceBus
         [System.ObsoleteAttribute("Please use `Unsubscribe<T>()` instead. Will be removed in version 7.0.0.", true)]
         public static void Unsubscribe<T>(this NServiceBus.IBus bus) { }
     }
-    public interface IBusSession
+    public interface IBusSession : System.IDisposable
     {
+        System.Threading.Tasks.Task Dispatch();
         System.Threading.Tasks.Task Publish(object message, NServiceBus.PublishOptions options);
-        System.Threading.Tasks.Task Publish<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions);
+        System.Threading.Tasks.Task Publish<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions options);
         System.Threading.Tasks.Task Send(object message, NServiceBus.SendOptions options);
         System.Threading.Tasks.Task Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options);
         System.Threading.Tasks.Task Subscribe(System.Type eventType, NServiceBus.SubscribeOptions options);
@@ -511,7 +512,7 @@ namespace NServiceBus
     }
     public interface IBusSessionFactory
     {
-        NServiceBus.IBusSession CreateBusSession();
+        NServiceBus.IBusSession CreateBusSession(bool autoDispatch = True);
     }
     [System.ObsoleteAttribute("Replaced by NServiceBus.Callbacks package. Will be removed in version 7.0.0.", true)]
     public interface ICallback { }
@@ -2742,6 +2743,12 @@ namespace NServiceBus.Transports
         public void BindReceiving(string address) { }
         public void BindSending(string transportAddress) { }
     }
+    public class SessionContext
+    {
+        public SessionContext(NServiceBus.Transports.TransportTransaction transportTransaction, NServiceBus.Extensibility.ContextBag context) { }
+        public NServiceBus.Extensibility.ContextBag Context { get; }
+        public NServiceBus.Transports.TransportTransaction TransportTransaction { get; }
+    }
     public class StartupCheckResult
     {
         public static readonly NServiceBus.Transports.StartupCheckResult Success;
@@ -2810,7 +2817,7 @@ namespace NServiceBus.Transports
     }
     public class TransportSendingConfigurationResult
     {
-        public TransportSendingConfigurationResult(System.Func<NServiceBus.Transports.IDispatchMessages> dispatcherFactory, System.Func<System.Threading.Tasks.Task<NServiceBus.Transports.StartupCheckResult>> preStartupCheck) { }
+        public TransportSendingConfigurationResult(System.Func<NServiceBus.Transports.IDispatchMessages> dispatcherFactory, System.Func<System.Threading.Tasks.Task<NServiceBus.Transports.StartupCheckResult>> preStartupCheck, System.Func<NServiceBus.Transports.SessionContext> sessionContextFactory) { }
     }
     public class TransportTransaction : NServiceBus.Extensibility.ContextBag
     {
