@@ -379,7 +379,6 @@
     <Compile Include="Routing\RoutingOptionExtensions.cs" />
     <Compile Include="Routing\AddressTag.cs" />
     <Compile Include="Routing\MulticastAddressTag.cs" />
-    <Compile Include="Satellites\SatelliteBehavior.cs" />
     <Compile Include="SendOptions.cs" />
     <Compile Include="Serialization\ConfigureSerialization.cs" />
     <Compile Include="Serializers\MessageDeserializerResolver.cs" />

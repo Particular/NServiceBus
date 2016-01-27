@@ -7,7 +7,7 @@ namespace NServiceBus
     using Timeout.Core;
     using Transports;
 
-    class DispatchTimeoutBehavior : SatelliteBehavior
+    class DispatchTimeoutBehavior : PipelineTerminator<IIncomingPhysicalMessageContext>
     {
         public DispatchTimeoutBehavior(IDispatchMessages dispatcher, IPersistTimeouts persister, TransportTransactionMode transportTransactionMode)
         {
