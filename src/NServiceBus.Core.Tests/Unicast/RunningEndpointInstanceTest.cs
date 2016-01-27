@@ -17,20 +17,12 @@
                 new FuncBuilder(), 
                 new PipelineCollection(Enumerable.Empty<TransportReceiver>()), 
                 new StartAndStoppablesRunner(Enumerable.Empty<IWantToRunWhenBusStartsAndStops>()), 
-                new FeatureRunner(new FeatureActivator(new SettingsHolder())), 
-                new FakeSessionFactory());
+                new FeatureRunner(new FeatureActivator(new SettingsHolder())),
+                new BusSession(new RootContext(null, null)));
 
             await testee.Stop();
 
             Assert.DoesNotThrow(async () => await testee.Stop());
-        }
-
-        class FakeSessionFactory : IBusSessionFactory
-        {
-            public IBusSession CreateBusSession()
-            {
-                return new BusSession(new RootContext(null, null));
-            }
         }
     }
 }

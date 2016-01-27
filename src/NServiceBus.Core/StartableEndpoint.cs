@@ -37,8 +37,7 @@ namespace NServiceBus
             DetectThrottlingConfig();
 
             var pipelineCache = new PipelineCache(builder, settings);
-            var busInterface = new StartUpBusInterface(builder, pipelineCache);
-            var busSession = busInterface.CreateBusSession();
+            var busSession = CreateBusSession(builder, pipelineCache);
 
             await RunInstallers().ConfigureAwait(false);
             var featureRunner = await StartFeatures(busSession).ConfigureAwait(false);
@@ -48,7 +47,7 @@ namespace NServiceBus
 
             var pipelineCollection = CreateIncomingPipelines(pipelineCache);
 
-            var runningInstance = new RunningEndpointInstance(builder, pipelineCollection, runner, featureRunner, busInterface);
+            var runningInstance = new RunningEndpointInstance(builder, pipelineCollection, runner, featureRunner, busSession);
 
             // set the started endpoint on CriticalError to pass the endpoint to the critical error action
             builder.Build<CriticalError>().Endpoint = runningInstance;
@@ -75,6 +74,7 @@ namespace NServiceBus
                 var pipelines = BuildPipelines(pipelineCache).ToArray();
                 pipelineCollection = new PipelineCollection(pipelines);
             }
+
             return pipelineCollection;
         }
 
@@ -123,22 +123,10 @@ namespace NServiceBus
             }
         }
 
-        class StartUpBusInterface : IBusSessionFactory
+        static IBusSession CreateBusSession(IBuilder builder, IPipelineCache cache)
         {
-            IBuilder builder;
-            readonly IPipelineCache cache;
-
-            public StartUpBusInterface(IBuilder builder, IPipelineCache cache)
-            {
-                this.cache = cache;
-                this.builder = builder;
-            }
-
-            public IBusSession CreateBusSession()
-            {
-                var rootContext = new RootContext(builder, cache);
-                return new BusSession(rootContext);
-            }
+            var rootContext = new RootContext(builder, cache);
+            return new BusSession(rootContext);
         }
 
         IEnumerable<TransportReceiver> BuildPipelines(IPipelineCache cache)

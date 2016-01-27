@@ -38,7 +38,7 @@
 
         static IEnumerable<Type> GetExceptionTypes()
         {
-            foreach (var type in typeof(IBusSessionFactory).Assembly.GetTypes())
+            foreach (var type in typeof(Endpoint).Assembly.GetTypes())
             {
                 if (typeof(Exception).IsAssignableFrom(type) && type.Namespace.StartsWith("NServiceBus"))
                 {

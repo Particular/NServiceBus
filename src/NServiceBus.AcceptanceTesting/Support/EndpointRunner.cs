@@ -108,8 +108,7 @@
                     await Task.Run(async () =>
                     {
                         var executedWhens = new List<Guid>();
-                        var sendContext = endpointInstance.CreateBusSession();
-
+                        
                         while (!token.IsCancellationRequested)
                         {
                             if (executedWhens.Count == behavior.Whens.Count)
@@ -134,7 +133,7 @@
                                     continue;
                                 }
 
-                                if (await when.ExecuteAction(scenarioContext, sendContext))
+                                if (await when.ExecuteAction(scenarioContext, endpointInstance).ConfigureAwait(false))
                                 {
                                     executedWhens.Add(when.Id);
                                 }

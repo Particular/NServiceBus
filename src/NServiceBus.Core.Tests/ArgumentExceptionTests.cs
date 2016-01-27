@@ -13,7 +13,7 @@
         [Explicit]
         public void WriteAllPublicMembersWithNoArgumentChecking()
         {
-            var codeBase = typeof(IBusSessionFactory).Assembly.CodeBase;
+            var codeBase = typeof(Endpoint).Assembly.CodeBase;
             var uri = new UriBuilder(codeBase);
             var path = Uri.UnescapeDataString(uri.Path);
 

@@ -331,7 +331,7 @@ namespace NServiceBus
         public static string GetMessageHeader(this NServiceBus.IBus bus, object msg, string key) { }
         [System.ObsoleteAttribute("Headers can be set using the ``.SetHeader` method on the context object passed in" +
             "to your behavior or mutator. Will be removed in version 7.0.0.", true)]
-        public static void SetMessageHeader(this NServiceBus.IBusSessionFactory bus, object msg, string key, string value) { }
+        public static void SetMessageHeader(this NServiceBus.IBus bus, object msg, string key, string value) { }
     }
     public class static FileBasedRoutingConfigurationExtensions
     {
@@ -509,10 +509,6 @@ namespace NServiceBus
         public static System.Threading.Tasks.Task Unsubscribe(this NServiceBus.IBusSession session, System.Type messageType) { }
         public static System.Threading.Tasks.Task Unsubscribe<T>(this NServiceBus.IBusSession session) { }
     }
-    public interface IBusSessionFactory
-    {
-        NServiceBus.IBusSession CreateBusSession();
-    }
     [System.ObsoleteAttribute("Replaced by NServiceBus.Callbacks package. Will be removed in version 7.0.0.", true)]
     public interface ICallback { }
     public interface ICommand : NServiceBus.IMessage { }
@@ -541,7 +537,7 @@ namespace NServiceBus
         object GetValue();
         void SetValue(object value);
     }
-    public interface IEndpointInstance : NServiceBus.IBusSessionFactory
+    public interface IEndpointInstance : NServiceBus.IBusSession
     {
         System.Threading.Tasks.Task Stop();
     }
