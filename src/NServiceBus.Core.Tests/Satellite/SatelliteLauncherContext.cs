@@ -4,7 +4,7 @@
     using System.Reflection;
     using System.Transactions;
     using Fakes;
-    using Faults;
+    using NServiceBus.Faults;
     using NUnit.Framework;
     using Satellites;
     using Settings;
@@ -22,7 +22,7 @@
         public void SetUp()
         {
             Builder = new FuncBuilder();
-            InMemoryFaultManager = new Faults.InMemory.FaultManager();
+            InMemoryFaultManager = new NServiceBus.Faults.InMemory.FaultManager();
             FakeReceiver = new FakeReceiver();
 
             var configurationBuilder = new BusConfiguration();

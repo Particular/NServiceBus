@@ -3,6 +3,7 @@
     using System;
     using System.Transactions;
     using Fakes;
+    using NServiceBus.Faults;
     using NUnit.Framework;
     using Settings;
     using Unicast.Transport;
@@ -21,5 +22,23 @@
 
         protected FakeReceiver fakeReceiver;
         protected TransportReceiver TransportReceiver;
+
+        public class FakeFailureManager : IManageMessageFailures
+        {
+            public void SerializationFailedForMessage(TransportMessage message, Exception e)
+            {
+
+            }
+
+            public void ProcessingAlwaysFailsForMessage(TransportMessage message, Exception e)
+            {
+
+            }
+
+            public void Init(Address address)
+            {
+
+            }
+        }
     }
 }
