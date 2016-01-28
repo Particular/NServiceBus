@@ -2,8 +2,8 @@
 {
     using System.Reflection;
     using Fakes;
-    using Faults;
     using NServiceBus.Config;
+    using NServiceBus.Faults;
     using NUnit.Framework;
     using Satellites;
     using Unicast.Transport;
@@ -19,7 +19,7 @@
         public void SetUp()
         {
             Builder = new FuncBuilder();
-            InMemoryFaultManager = new Faults.InMemory.FaultManager();
+            InMemoryFaultManager = new NServiceBus.Faults.InMemory.FaultManager();
             FakeReceiver = new FakeReceiver();
 
             Transport = new TransportReceiver

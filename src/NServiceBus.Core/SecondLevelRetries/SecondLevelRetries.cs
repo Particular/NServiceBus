@@ -65,7 +65,7 @@ namespace NServiceBus.Features
                 processorAddress = SettingsHolder.Get<Address>("SecondLevelRetries.AddressOfRetryProcessor");
             }
 
-            Configure.Instance.Configurer.ConfigureProperty<FaultManager>(fm => fm.RetriesErrorQueue, processorAddress);
+            Configure.Instance.Configurer.ConfigureProperty<FaultManager>(fm => fm.RetriesQueue, processorAddress);
             Configure.Instance.Configurer.ConfigureProperty<SecondLevelRetriesProcessor>(rs => rs.InputAddress, processorAddress);
             Configure.Instance.Configurer.ConfigureProperty<SecondLevelRetriesProcessor>(rs => rs.RetryPolicy, SettingsHolder.Get<Func<TransportMessage,TimeSpan>>("SecondLevelRetries.RetryPolicy"));
 
