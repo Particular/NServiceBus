@@ -42,7 +42,7 @@ namespace NServiceBus.Features
                 secondLevelRetriesConfiguration.RetryPolicy = retryPolicy;
             }
 
-            container.ConfigureProperty<FaultManager>(fm => fm.RetriesErrorQueue, processorAddress)
+            container.ConfigureProperty<FaultManager>(fm => fm.RetriesQueue, processorAddress)
                 .ConfigureProperty<FaultManager>(fm => fm.SecondLevelRetriesConfiguration, secondLevelRetriesConfiguration);
 
             container.ConfigureProperty<SecondLevelRetriesProcessor>(p => p.InputAddress, processorAddress)
