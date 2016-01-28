@@ -34,7 +34,7 @@ namespace NServiceBus.Features
             }
 
             var container = context.Container;
-            container.ConfigureProperty<FaultManager>(fm => fm.RetriesErrorQueue, processorAddress);
+            container.ConfigureProperty<FaultManager>(fm => fm.RetriesQueue, processorAddress);
             container.ConfigureProperty<SecondLevelRetriesProcessor>(rs => rs.InputAddress, processorAddress);
             var retryPolicy = context.Settings.GetOrDefault<Func<TransportMessage, TimeSpan>>("SecondLevelRetries.RetryPolicy");
             if (retryPolicy != null)
