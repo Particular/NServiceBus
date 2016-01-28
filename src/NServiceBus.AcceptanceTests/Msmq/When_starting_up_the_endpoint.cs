@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Security.Principal;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
@@ -16,9 +17,12 @@
                 .WithEndpoint<Endpoint>(b => b.When((bus, c) => Task.FromResult(0)))
                 .Run();
 
-            var logItem = context.Logs.FirstOrDefault(item => item.Message.Contains(@"[Everyone] and [NT AUTHORITY\ANONYMOUS LOGON]"));
+            var everyone = new SecurityIdentifier(WellKnownSidType.WorldSid, null).Translate(typeof(NTAccount)).ToString();
+            var anonymous = new SecurityIdentifier(WellKnownSidType.AnonymousSid, null).Translate(typeof(NTAccount)).ToString();
+
+            var logItem = context.Logs.FirstOrDefault(item => item.Message.Contains($"[{everyone}] and [{anonymous}]"));
             Assert.IsNotNull(logItem);
-            StringAssert.Contains(@"is running with [Everyone] and [NT AUTHORITY\ANONYMOUS LOGON] permissions. Consider setting appropriate permissions, if required by your organization", logItem.Message);
+            StringAssert.Contains($"is running with [{everyone}] and [{anonymous}] permissions. Consider setting appropriate permissions, if required by your organization", logItem.Message);
         }
 
         class Context : ScenarioContext
