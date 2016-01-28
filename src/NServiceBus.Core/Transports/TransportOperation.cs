@@ -17,7 +17,7 @@ namespace NServiceBus.Transports
         /// <param name="addressTag">The address to use when routing this message.</param>
         /// <param name="requiredDispatchConsistency">The required consistency level for the dispatch operation.</param>
         /// <param name="deliveryConstraints">The delivery constraints that must be honored by the transport.</param>
-        public TransportOperation(OutgoingMessage message, AddressTag addressTag, DispatchConsistency requiredDispatchConsistency, IEnumerable<DeliveryConstraint> deliveryConstraints = null)
+        public TransportOperation(OutgoingMessage message, AddressTag addressTag, DispatchConsistency requiredDispatchConsistency = DispatchConsistency.Default, IEnumerable<DeliveryConstraint> deliveryConstraints = null)
         {
             Message = message;
             AddressTag = addressTag;

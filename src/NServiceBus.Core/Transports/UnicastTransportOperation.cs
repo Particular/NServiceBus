@@ -12,7 +12,7 @@ namespace NServiceBus.Transports
         /// <summary>
         /// Creates a new <see cref="UnicastTransportOperation"/> instance.
         /// </summary>
-        public UnicastTransportOperation(OutgoingMessage message, string destination, IEnumerable<DeliveryConstraint> deliveryConstraints = null, DispatchConsistency requiredDispatchConsistency = DispatchConsistency.Default)
+        public UnicastTransportOperation(OutgoingMessage message, string destination, DispatchConsistency requiredDispatchConsistency = DispatchConsistency.Default, IEnumerable<DeliveryConstraint> deliveryConstraints = null)
         {
             Message = message;
             Destination = destination;

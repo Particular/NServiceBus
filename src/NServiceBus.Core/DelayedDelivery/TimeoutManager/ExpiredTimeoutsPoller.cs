@@ -80,7 +80,7 @@ namespace NServiceBus
         {
             while (!cancellationToken.IsCancellationRequested)
             {
-                await SpinOnce();
+                await SpinOnce().ConfigureAwait(false);
             }
         }
 
@@ -107,7 +107,7 @@ namespace NServiceBus
 
                 dispatchRequest.Headers["Timeout.Id"] = timeoutData.Id;
 
-                var transportOperation = new TransportOperation(dispatchRequest, new UnicastAddressTag(dispatcherAddress), DispatchConsistency.Default);
+                var transportOperation = new TransportOperation(dispatchRequest, new UnicastAddressTag(dispatcherAddress));
                 await dispatcher.Dispatch(new TransportOperations(transportOperation), new ContextBag()).ConfigureAwait(false);
             }
 

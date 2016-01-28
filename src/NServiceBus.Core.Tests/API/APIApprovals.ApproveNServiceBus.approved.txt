@@ -2681,7 +2681,7 @@ namespace NServiceBus.Transports
     }
     public class MulticastTransportOperation : NServiceBus.Transports.IOutgoingTransportOperation
     {
-        public MulticastTransportOperation(NServiceBus.Transports.OutgoingMessage message, System.Type messageType, System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints = null, NServiceBus.Transports.DispatchConsistency requiredDispatchConsistency = 1) { }
+        public MulticastTransportOperation(NServiceBus.Transports.OutgoingMessage message, System.Type messageType, NServiceBus.Transports.DispatchConsistency requiredDispatchConsistency = 1, System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints = null) { }
         public System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> DeliveryConstraints { get; }
         public NServiceBus.Transports.OutgoingMessage Message { get; }
         public System.Type MessageType { get; }
@@ -2778,7 +2778,7 @@ namespace NServiceBus.Transports
     }
     public class TransportOperation
     {
-        public TransportOperation(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Routing.AddressTag addressTag, NServiceBus.Transports.DispatchConsistency requiredDispatchConsistency, System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints = null) { }
+        public TransportOperation(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Routing.AddressTag addressTag, NServiceBus.Transports.DispatchConsistency requiredDispatchConsistency = 1, System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints = null) { }
         public NServiceBus.Routing.AddressTag AddressTag { get; }
         public System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> DeliveryConstraints { get; }
         public NServiceBus.Transports.OutgoingMessage Message { get; }
@@ -2786,7 +2786,7 @@ namespace NServiceBus.Transports
     }
     public class TransportOperations
     {
-        public TransportOperations(System.Collections.Generic.IEnumerable<NServiceBus.Transports.MulticastTransportOperation> multicastTransportOperations, System.Collections.Generic.IEnumerable<NServiceBus.Transports.UnicastTransportOperation> unicastTransportOperations) { }
+        public TransportOperations(params NServiceBus.Transports.TransportOperation[] transportOperations) { }
         public System.Collections.Generic.IEnumerable<NServiceBus.Transports.MulticastTransportOperation> MulticastTransportOperations { get; }
         public System.Collections.Generic.IEnumerable<NServiceBus.Transports.UnicastTransportOperation> UnicastTransportOperations { get; }
     }
@@ -2814,7 +2814,7 @@ namespace NServiceBus.Transports
     }
     public class UnicastTransportOperation : NServiceBus.Transports.IOutgoingTransportOperation
     {
-        public UnicastTransportOperation(NServiceBus.Transports.OutgoingMessage message, string destination, System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints = null, NServiceBus.Transports.DispatchConsistency requiredDispatchConsistency = 1) { }
+        public UnicastTransportOperation(NServiceBus.Transports.OutgoingMessage message, string destination, NServiceBus.Transports.DispatchConsistency requiredDispatchConsistency = 1, System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints = null) { }
         public System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> DeliveryConstraints { get; }
         public string Destination { get; }
         public NServiceBus.Transports.OutgoingMessage Message { get; }
