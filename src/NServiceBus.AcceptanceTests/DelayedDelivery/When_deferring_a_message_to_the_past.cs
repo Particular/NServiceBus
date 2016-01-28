@@ -18,7 +18,7 @@
                         var options = new SendOptions();
 
                         options.DoNotDeliverBefore(DateTime.Now.AddHours(-1));
-                        options.RouteToLocalEndpointInstance();
+                        options.RouteToThisEndpoint();
 
                         return bus.Send(new MyMessage(), options);
                     }))

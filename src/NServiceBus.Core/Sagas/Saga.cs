@@ -57,7 +57,7 @@ namespace NServiceBus
             var options = new SendOptions();
 
             options.DoNotDeliverBefore(at);
-            options.RouteToLocalEndpointInstance();
+            options.RouteToThisEndpoint();
 
             SetTimeoutHeaders(options);
 
@@ -87,7 +87,7 @@ namespace NServiceBus
             var sendOptions = new SendOptions();
 
             sendOptions.DelayDeliveryWith(within);
-            sendOptions.RouteToLocalEndpointInstance();
+            sendOptions.RouteToThisEndpoint();
 
             SetTimeoutHeaders(sendOptions);
 

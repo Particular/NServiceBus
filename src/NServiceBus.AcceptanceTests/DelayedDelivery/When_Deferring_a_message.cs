@@ -20,7 +20,7 @@
                         var options = new SendOptions();
 
                         options.DelayDeliveryWith(delay);
-                        options.RouteToLocalEndpointInstance();
+                        options.RouteToThisEndpoint();
 
                         c.SentAt = DateTime.UtcNow;
 

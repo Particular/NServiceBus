@@ -3,6 +3,7 @@ namespace NServiceBus
     using System;
     using System.Threading.Tasks;
     using Features;
+    using NServiceBus.Routing;
     using NServiceBus.Transports;
 
     class Receiving : Feature
@@ -14,8 +15,18 @@ namespace NServiceBus
             Prerequisite(c => !c.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Endpoint is configured as send-only");
             Defaults(s =>
             {
-                var receiveAddress = s.Get<TransportAddresses>().GetTransportAddress(s.RootLogicalAddress());
-                s.SetDefault("NServiceBus.LocalAddress", receiveAddress);
+                var transportAddresses = s.Get<TransportAddresses>();
+                var userDiscriminator = s.GetOrDefault<string>("EndpointInstanceDiscriminator");
+
+                if (userDiscriminator != null)
+                {
+                    var p = s.Get<TransportDefinition>().BindToLocalEndpoint(new EndpointInstance(s.EndpointName(), userDiscriminator), s);
+                    s.SetDefault("NServiceBus.EndpointSpecificQueue", transportAddresses.GetTransportAddress(new LogicalAddress(p)));
+                }
+                var instanceProperties = s.Get<TransportDefinition>().BindToLocalEndpoint(new EndpointInstance(s.EndpointName()), s);
+                s.SetDefault("NServiceBus.SharedQueue", transportAddresses.GetTransportAddress(new LogicalAddress(instanceProperties)));
+
+                s.SetDefault<EndpointInstance>(instanceProperties);
             });
         }
 
@@ -27,7 +38,11 @@ namespace NServiceBus
             var inboundTransport = context.Settings.Get<InboundTransport>();
 
             context.Settings.Get<QueueBindings>().BindReceiving(context.Settings.LocalAddress());
-
+            var instanceSpecificQueue = context.Settings.InstanceSpecificQueue();
+            if (instanceSpecificQueue != null)
+            {
+                context.Settings.Get<QueueBindings>().BindReceiving(instanceSpecificQueue);
+            }
             context.Container.RegisterSingleton(inboundTransport.Definition);
 
             var receiveConfigResult = inboundTransport.Configure(context.Settings);

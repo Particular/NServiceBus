@@ -84,7 +84,7 @@ namespace NServiceBus
 
             var options = new SendOptions();
             options.DelayDeliveryWith(taskDefinition.Every);
-            options.RouteToLocalEndpointInstance();
+            options.RouteToThisEndpoint();
             options.Context.GetOrCreate<ScheduleBehavior.State>().TaskDefinition = taskDefinition;
 
             return session.Send(new ScheduledTask

@@ -73,21 +73,21 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Returns the queue name of this endpoint.
+        /// Returns the shared queue name of this endpoint.
         /// </summary>
         public static string LocalAddress(this ReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
-            return settings.Get<string>("NServiceBus.LocalAddress");
+            return settings.Get<string>("NServiceBus.SharedQueue");
         }
         
         /// <summary>
-        /// Returns the root logical address of this endpoint.
+        /// Returns the instance-specific queue name of this endpoint.
         /// </summary>
-        public static LogicalAddress RootLogicalAddress(this ReadOnlySettings settings)
+        public static string InstanceSpecificQueue(this ReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
-            return settings.Get<LogicalAddress>();
+            return settings.GetOrDefault<string>("NServiceBus.EndpointSpecificQueue");
         }
 
         static bool HasConstructorThatAcceptsSettings(Type sectionOverrideType)

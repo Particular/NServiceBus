@@ -18,7 +18,7 @@
                     {
                         var options = new SendOptions();
 
-                        options.RouteToLocalEndpointInstance();
+                        options.RouteToThisEndpoint();
 
                         return session.Send(new MyMessage(), options);
                     }))
@@ -55,7 +55,7 @@
                     {
                         var opts = new SendOptions();
                         opts.DelayDeliveryWith(TimeSpan.FromMilliseconds(1));
-                        opts.RouteToLocalEndpointInstance();
+                        opts.RouteToThisEndpoint();
 
                         await context.Send(new MyOtherMessage(), opts);
                     }

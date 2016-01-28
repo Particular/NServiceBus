@@ -131,20 +131,27 @@ namespace NServiceBus
 
         IEnumerable<TransportReceiver> BuildPipelines(IPipelineCache cache)
         {
+            var purgeOnStartup = settings.GetOrDefault<bool>("Transport.PurgeOnStartup");
             var errorQueue = ErrorQueueSettings.GetConfiguredErrorQueue(settings);
-
             var dequeueLimitations = GeDequeueLimitationsForReceivePipeline();
             var requiredTransactionSupport = settings.GetRequiredTransactionModeForReceives();
 
-            var pushSettings = new PushSettings(settings.LocalAddress(), errorQueue, settings.GetOrDefault<bool>("Transport.PurgeOnStartup"), requiredTransactionSupport);
+            var mainPipelineInstance = new Pipeline<ITransportReceiveContext>(builder, settings, pipelineConfiguration.MainPipeline);
 
-            yield return BuildPipelineInstance(pipelineConfiguration.MainPipeline, "Main", pushSettings, dequeueLimitations, cache);
+            var pushSettings = new PushSettings(settings.LocalAddress(), errorQueue, purgeOnStartup, requiredTransactionSupport);
+            yield return BuildReceiver(mainPipelineInstance, "Main", pushSettings, dequeueLimitations, cache);
+
+            if (settings.InstanceSpecificQueue() != null)
+            {
+                var sharedReceiverPushSettings = new PushSettings(settings.InstanceSpecificQueue(), errorQueue, purgeOnStartup, requiredTransactionSupport);
+                yield return BuildReceiver(mainPipelineInstance, "Main", sharedReceiverPushSettings, dequeueLimitations, cache);
+            }
 
             foreach (var satellitePipeline in pipelineConfiguration.SatellitePipelines)
             {
-                var satellitePushSettings = new PushSettings(satellitePipeline.ReceiveAddress, errorQueue, settings.GetOrDefault<bool>("Transport.PurgeOnStartup"), satellitePipeline.RequiredTransportTransactionMode);
-
-                yield return BuildPipelineInstance(satellitePipeline, satellitePipeline.Name, satellitePushSettings, satellitePipeline.RuntimeSettings, cache);
+                var satellitePushSettings = new PushSettings(satellitePipeline.ReceiveAddress, errorQueue, purgeOnStartup, satellitePipeline.RequiredTransportTransactionMode);
+                var satellitePipelineInstance = new Pipeline<ITransportReceiveContext>(builder, settings, satellitePipeline);
+                yield return BuildReceiver(satellitePipelineInstance, satellitePipeline.Name, satellitePushSettings, satellitePipeline.RuntimeSettings, cache);
             }
         }
 
@@ -169,9 +176,8 @@ namespace NServiceBus
             return PushRuntimeSettings.Default;
         }
 
-        TransportReceiver BuildPipelineInstance(PipelineModifications modifications, string name, PushSettings pushSettings, PushRuntimeSettings runtimeSettings, IPipelineCache cache)
+        TransportReceiver BuildReceiver(Pipeline<ITransportReceiveContext> pipelineInstance, string name, PushSettings pushSettings, PushRuntimeSettings runtimeSettings, IPipelineCache cache)
         {
-            var pipelineInstance = new Pipeline<ITransportReceiveContext>(builder, settings, modifications);
             var receiver = new TransportReceiver(
                 name,
                 builder,
