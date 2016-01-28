@@ -110,7 +110,8 @@
     <Compile Include="Conventions\MessageConventionSpecs.cs" />
     <Compile Include="DataBus\InMemoryDataBus.cs" />
     <Compile Include="Encryption\ValidationFixture.cs" />
-    <Compile Include="Features\FeatureDefaultsTests.cs" />    
+    <Compile Include="Features\FeatureDefaultsTests.cs" />
+    <Compile Include="Faults\FaultManagerTests.cs" />
     <Compile Include="Msmq\TimeToBeRceivedOverrideCheckerTest.cs" />
     <Compile Include="Msmq\ConnectionStringParserTests.cs" />
     <Compile Include="ObservableTests.cs" />
@@ -225,7 +226,6 @@
     <Compile Include="Timeout\When_pooling_timeouts.cs" />
     <Compile Include="Timeout\When_receiving_timeouts.cs" />
     <Compile Include="Timeout\When_removing_timeouts_from_the_storage.cs" />
-    <Compile Include="Fakes\FakeFailureManager.cs" />
     <Compile Include="Fakes\FakeReceiver.cs" />
     <Compile Include="Transport\for_the_transactional_transport.cs" />
     <Compile Include="Transport\When_specifying_a_non_zero_throughput_limit.cs" />
@@ -293,5 +293,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
