@@ -1,17 +1,28 @@
 namespace NServiceBus.Faults.Forwarder
 {
     using System;
-    using Logging;
-    using SecondLevelRetries.Helpers;
-    using Transports;
-    using Unicast.Queuing;
+    using NServiceBus.Logging;
+    using NServiceBus.SecondLevelRetries.Helpers;
+    using NServiceBus.Transports;
+    using NServiceBus.Unicast.Queuing;
 
     /// <summary>
-    /// Implementation of IManageMessageFailures by forwarding messages
-    /// using ISendMessages.
+    /// Implementation of IManageMessageFailures by forwarding messages using ISendMessages.
     /// </summary>
     public class FaultManager : IManageMessageFailures
     {
+        static readonly ILog Logger = LogManager.GetLogger(typeof(FaultManager));
+
+        /// <summary>
+        ///     Endpoint to which message failures are forwarded
+        /// </summary>
+        public Address ErrorQueue { get; set; }
+
+        /// <summary>
+        ///     The address of the Second Level Retries input queue when SLR is enabled
+        /// </summary>
+        public Address RetriesQueue { get; set; }
+
         void IManageMessageFailures.SerializationFailedForMessage(TransportMessage message, Exception e)
         {
             SendFailureMessage(message, e, true);
@@ -33,12 +44,13 @@ namespace NServiceBus.Faults.Forwarder
 
             try
             {
-                var destinationQ = RetriesErrorQueue ?? ErrorQueue;
-               
+                var destinationQ = RetriesQueue ?? ErrorQueue;
+
                 // Intentionally service-locate ISendMessages to avoid circular
                 // resolution problem in the container
                 var sender = Configure.Instance.Builder.Build<ISendMessages>();
 
+                message.TimeToBeReceived = TimeSpan.MaxValue;
                 if (serializationException || MessageWasSentFromSLR(message))
                 {
                     sender.Send(message, ErrorQueue);
@@ -48,7 +60,7 @@ namespace NServiceBus.Faults.Forwarder
                 sender.Send(message, destinationQ);
 
                 //HACK: We need this hack here till we refactor the SLR to be a first class concept in the TransportReceiver
-                if (RetriesErrorQueue == null)
+                if (RetriesQueue == null)
                 {
                     Logger.ErrorFormat("Message with '{0}' id has failed FLR and will be moved to the configured error queue.", message.Id);
                 }
@@ -66,7 +78,7 @@ namespace NServiceBus.Faults.Forwarder
 
                 if (queueNotFoundException != null)
                 {
-                    errorMessage = string.Format("Could not forward failed message to error queue '{0}' as it could not be found.", queueNotFoundException.Queue);
+                    errorMessage = $"Could not forward failed message to error queue '{queueNotFoundException.Queue}' as it could not be found.";
                     Logger.Fatal(errorMessage);
                 }
                 else
@@ -81,27 +93,16 @@ namespace NServiceBus.Faults.Forwarder
 
         bool MessageWasSentFromSLR(TransportMessage message)
         {
-            if (RetriesErrorQueue == null)
+            if (RetriesQueue == null)
             {
                 return false;
             }
 
             // if the reply to address == ErrorQueue and RealErrorQueue is not null, the
             // SecondLevelRetries sat is running and the error happened within that sat.            
-            return TransportMessageHelpers.GetAddressOfFaultingEndpoint(message) == RetriesErrorQueue;
+            return TransportMessageHelpers.GetAddressOfFaultingEndpoint(message) == RetriesQueue;
         }
 
-        /// <summary>
-        /// Endpoint to which message failures are forwarded
-        /// </summary>
-        public Address ErrorQueue { get; set; }
-
-        /// <summary>
-        /// The address of the Second Level Retries input queue when SLR is enabled
-        /// </summary>
-        public Address RetriesErrorQueue { get; set; }
-
         Address localAddress;
-        static readonly ILog Logger = LogManager.GetLogger(typeof(FaultManager));
     }
 }

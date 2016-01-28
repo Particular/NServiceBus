@@ -1,6 +1,8 @@
 ﻿namespace NServiceBus.Core.Tests.Transport
 {
+    using System;
     using Fakes;
+    using NServiceBus.Faults;
     using NUnit.Framework;
     using Unicast.Transport;
 
@@ -22,5 +24,23 @@
 
         protected FakeReceiver fakeReceiver;
         protected TransportReceiver TransportReceiver;
+
+        public class FakeFailureManager : IManageMessageFailures
+        {
+            public void SerializationFailedForMessage(TransportMessage message, Exception e)
+            {
+
+            }
+
+            public void ProcessingAlwaysFailsForMessage(TransportMessage message, Exception e)
+            {
+
+            }
+
+            public void Init(Address address)
+            {
+
+            }
+        }
     }
 }

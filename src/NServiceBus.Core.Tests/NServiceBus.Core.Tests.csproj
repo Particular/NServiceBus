@@ -66,6 +66,7 @@
     <Reference Include="Lucene.Net.Contrib.Spatial.NTS">
       <HintPath>..\packages\RavenDB.Database.2.0.2380\lib\net40\Lucene.Net.Contrib.Spatial.NTS.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="Mono.Cecil">
       <HintPath>..\packages\RavenDB.Database.2.0.2380\lib\net40\Mono.Cecil.dll</HintPath>
     </Reference>
@@ -135,6 +136,7 @@
     <Compile Include="Conventions\MessageConventionSpecs.cs" />
     <Compile Include="AttributeTests.cs" />
     <Compile Include="Encryption\RijndaelEncryptionServiceConfigValidationsTests.cs" />
+    <Compile Include="Faults\FaultManagerTests.cs" />
     <Compile Include="Msmq\TimeToBeRceivedOverrideCheckerTest.cs" />
     <Compile Include="UnicastBusAuthorizationTests.cs" />
     <Compile Include="Utils\ExceptionHeaderHelperTests.cs" />
@@ -267,7 +269,6 @@
     <Compile Include="Timeout\When_pooling_timeouts.cs" />
     <Compile Include="Timeout\When_receiving_timeouts.cs" />
     <Compile Include="Timeout\When_removing_timeouts_from_the_storage.cs" />
-    <Compile Include="Fakes\FakeFailureManager.cs" />
     <Compile Include="Fakes\FakeReceiver.cs" />
     <Compile Include="Transport\for_the_transactional_transport.cs" />
     <Compile Include="Transport\When_specifying_a_non_zero_throughput_limit.cs" />
