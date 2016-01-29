@@ -58,7 +58,7 @@ namespace NServiceBus
 
             lock (endpointCriticalLock)
             {
-                if (endpoint == null || criticalErrors.Any())
+                if (endpoint == null)
                 {
                     criticalErrors.Add(new LatentCritical()
                     {
