@@ -76,7 +76,7 @@
     <Compile Include="Msmq\When_TimeToBeReceivedOnForwardedMessages_set_and_transactional_Msmq.cs" />
     <Compile Include="Msmq\When_TimeToBeReceived_set_and_receivetransaction_Msmq.cs" />
     <Compile Include="Msmq\When_TimeToBeReceived_set_and_DTC_Msmq.cs" />
-    <Compile Include="CriticalError\When_using_default_critical_error_handler.cs" />
+    <Compile Include="CriticalError\When_raising_critical_error.cs" />
     <Compile Include="Msmq\When_publishing.cs" />
     <Compile Include="Msmq\When_setting_msmq_label_generator.cs" />
     <Compile Include="Basic\When_deferring_to_non_local.cs" />

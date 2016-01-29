@@ -26,27 +26,26 @@
         {
             var stopTime = DateTime.Now.AddSeconds(45);
 
-            await Scenario.Define<TimeoutTestContext>(c =>
-            {
-                c.SecondsToWait = 10;
-            })
-                //.AllowExceptions(ex => ex.Message.Contains("Persister is temporarily unavailable"))
-                .WithEndpoint<EndpointWithFlakyTimeoutPersister>(b =>
-                {
-                    b.CustomConfig((busConfig, context) =>
+            var testContext =
+                await Scenario.Define<TimeoutTestContext>(c =>
                     {
-                        busConfig.DefineCriticalErrorAction(criticalErrorContext =>
+                        c.SecondsToWait = 10;
+                    })
+                    .WithEndpoint<EndpointWithFlakyTimeoutPersister>(b =>
+                    {
+                        b.CustomConfig((busConfig, context) =>
                         {
-                            if (criticalErrorContext.Error.Contains("Persister is temporarily unavailable"))
+                            busConfig.DefineCriticalErrorAction(criticalErrorContext =>
+                            {
                                 context.FatalErrorOccurred = true;
-                            return Task.FromResult(true);
+                                return Task.FromResult(true);
+                            });
                         });
-                    });
-                })
-                .Done(c => c.FatalErrorOccurred || stopTime <= DateTime.Now)
-                .Repeat(r => r.For(Transports.Msmq))
-                .Should(c => Assert.IsFalse(c.FatalErrorOccurred, "Circuit breaker was trigged too soon."))
-                .Run();
+                    })
+                    .Done(c => c.FatalErrorOccurred || stopTime <= DateTime.Now)
+                    .Run();
+
+            Assert.IsFalse(testContext.FatalErrorOccurred, "Circuit breaker was trigged too soon.");
         }
 
         public class TimeoutTestContext : ScenarioContext
@@ -66,7 +65,6 @@
                 EndpointSetup<DefaultServer>(config =>
                 {
                     config.EnableFeature<TimeoutManager>();
-                    //config.SuppressOutdatedTimeoutPersistenceWarning();
                 });
             }
 
