@@ -1,6 +1,8 @@
 namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.Logging;
 
@@ -14,10 +16,15 @@ namespace NServiceBus
     {
         Func<CriticalErrorContext, Task> criticalErrorAction;
 
-        /// <summary>
-        /// The started endpoint which will be passed to the configured critical error action.
-        /// </summary>
-        internal IEndpointInstance Endpoint { private get; set; }
+        class LatentCritical
+        {
+            public string Message { get; set; }
+            public Exception Exception { get; set; }
+        }
+
+        List<LatentCritical> criticalErrors = new List<LatentCritical>();
+        object endpointCriticalLock = new object();
+        IEndpointInstance endpoint;
 
         /// <summary>
         /// Initializes a new instance of <see cref="CriticalError"/>.
@@ -49,17 +56,43 @@ namespace NServiceBus
             Guard.AgainstNull(nameof(exception), exception);
             LogManager.GetLogger("NServiceBus").Fatal(errorMessage, exception);
 
-            if (Endpoint == null)
+            lock (endpointCriticalLock)
             {
-                throw new InvalidOperationException("You can only raise critical errors on a started endpoint but the endpoint wasn't started yet.");
+                if (endpoint == null || criticalErrors.Any())
+                {
+                    criticalErrors.Add(new LatentCritical()
+                    {
+                        Message = errorMessage,
+                        Exception = exception
+                    });
+                    return;
+                }
             }
 
             // don't await the criticalErrorAction in order to avoid deadlocks
+            RaiseForEndpoint(errorMessage, exception);
+        }
+
+        void RaiseForEndpoint(string errorMessage, Exception exception)
+        {
             Task.Run(() =>
             {
-                var context = new CriticalErrorContext(Endpoint.Stop, errorMessage, exception);
+                var context = new CriticalErrorContext(endpoint.Stop, errorMessage, exception);
                 return criticalErrorAction(context);
             });
+        }
+
+        internal void SetEndpoint(IEndpointInstance endpointInstance)
+        {
+            lock (endpointCriticalLock)
+            {
+                endpoint = endpointInstance;
+                foreach (var latentCritical in criticalErrors)
+                {
+                    RaiseForEndpoint(latentCritical.Message, latentCritical.Exception);
+                }
+                criticalErrors.Clear();
+            }
         }
     }
 }
