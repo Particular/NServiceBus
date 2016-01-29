@@ -1,48 +1,79 @@
 ﻿namespace NServiceBus.AcceptanceTests.CriticalError
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
     using CriticalError = NServiceBus.CriticalError;
 
-    public class When_using_default_critical_error_handler : NServiceBusAcceptanceTest
+    public class When_raising_critical_error : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_stop_endpoint_when_endpoint_started()
+        public async Task Should_trigger_critical_error_action_when_raised_from_handler()
         {
-            var context = await Scenario.Define<TestContext>()
-                .WithEndpoint<EndpointWithCriticalError>(b => b
-                    .When((bus, c) =>
+            var exceptions = new ConcurrentDictionary<string, Exception>();
+
+            Func<ICriticalErrorContext, Task> addCritical = criticalContext =>
+            {
+                exceptions.TryAdd(criticalContext.Error, criticalContext.Exception);
+                return Task.FromResult(0);
+            };
+
+            await Scenario.Define<TestContext>()
+                .WithEndpoint<EndpointWithCriticalError>(b =>
+                {
+                    b.CustomConfig(config =>
+                    {
+                        config.DefineCriticalErrorAction(addCritical);
+                    });
+
+                    b.When((bus, c) =>
                     {
                         c.ContextId = Guid.NewGuid().ToString();
-                        return bus.SendLocal(new Message { ContextId = c.ContextId });
-                    }))
-                .Done(c => c.CriticalErrorRaised)
+                        return bus.SendLocal(new Message
+                        {
+                            ContextId = c.ContextId
+                        });
+                    });
+                })
+                .Done(c => c.CriticalErrorsRaised > 0)
                 .Run();
 
-            Assert.IsNull(context.RaiseCriticalErrorException);
-            Assert.IsTrue(context.CriticalErrorRaised);
+            Assert.IsTrue(exceptions.Keys.Count == 1);
         }
 
         [Test]
-        public async Task Should_throw_when_endpoint_not_started()
+        public async Task Should_call_critical_error_action_for_every_error_that_occurred_before_startup()
         {
+            var exceptions = new ConcurrentDictionary<string, Exception>();
+
+            Func<ICriticalErrorContext, Task> addCritical = criticalContext =>
+            {
+                exceptions.TryAdd(criticalContext.Error, criticalContext.Exception);
+                return Task.FromResult(0);
+            };
+
             var context = await Scenario.Define<TestContext>()
-                .WithEndpoint<EndpointWithCriticalErrorStartup>()
+                .WithEndpoint<EndpointWithCriticalErrorStartup>(b =>
+                {
+                    b.CustomConfig(config =>
+                    {
+                        config.DefineCriticalErrorAction(addCritical);
+                    });
+                })
                 .Done(c => c.EndpointsStarted)
                 .Run();
 
-            Assert.IsTrue(context.CriticalErrorRaised);
-            Assert.IsAssignableFrom<InvalidOperationException>(context.RaiseCriticalErrorException);
+            Assert.IsTrue(context.CriticalErrorsRaised == 2);
+            Assert.IsTrue(exceptions.Keys.Count == context.CriticalErrorsRaised);
         }
 
         public class TestContext : ScenarioContext
         {
             public string ContextId { get; set; }
-            public bool CriticalErrorRaised { get; set; }
-            public Exception RaiseCriticalErrorException { get; set; }
+            public int CriticalErrorsRaised { get; set; }
         }
 
         public class EndpointWithCriticalError : EndpointConfigurationBuilder
@@ -65,21 +96,10 @@
 
                 public Task Handle(Message request, IMessageHandlerContext context)
                 {
-                    try
-                    {
-                        if (testContext.ContextId == request.ContextId)
-                        {
-                            criticalError.Raise("a ciritical error", new SimulatedException());
-                        }
-                    }
-                    catch (Exception exception)
-                    {
-                        testContext.RaiseCriticalErrorException = exception;
-                    }
-
                     if (testContext.ContextId == request.ContextId)
                     {
-                        testContext.CriticalErrorRaised = true;
+                        criticalError.Raise("a critical error", new SimulatedException());
+                        testContext.CriticalErrorsRaised++;
                     }
 
                     return Task.FromResult(0);
@@ -107,16 +127,11 @@
 
                 public Task Start(IBusSession session)
                 {
-                    try
-                    {
-                        criticalError.Raise("critical error", new SimulatedException());
-                    }
-                    catch (Exception e)
-                    {
-                        testContext.RaiseCriticalErrorException = e;
-                    }
+                    criticalError.Raise("critical error 1", new SimulatedException());
+                    testContext.CriticalErrorsRaised++;
 
-                    testContext.CriticalErrorRaised = true;
+                    criticalError.Raise("critical error 2", new SimulatedException());
+                    testContext.CriticalErrorsRaised++;
 
                     return Task.FromResult(0);
                 }
