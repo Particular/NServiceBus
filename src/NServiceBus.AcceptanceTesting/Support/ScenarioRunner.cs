@@ -85,7 +85,7 @@
 
             if (failedRuns.Any())
             {
-                throw new AggregateException("Test run failed due to one or more exception", failedRuns.Select(f => f.Result.Exception)).Flatten();
+                throw new AggregateException("Test run failed due to one or more exceptions", failedRuns.Select(f => f.Result.Exception)).Flatten();
             }
 
             foreach (var runSummary in results.Where(s => !s.Result.Failed))
