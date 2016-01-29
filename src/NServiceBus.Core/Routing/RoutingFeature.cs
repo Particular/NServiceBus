@@ -55,7 +55,7 @@
 
                 foreach (MessageEndpointMapping m in legacyRoutingConfig)
                 {
-                    m.Configure((type, s) => routeTable.RouteToAddress(type, transportDefinition.MakeCanonicalForm(s)));
+                    m.Configure((type, s) => routeTable.RouteToAddress(type, transportDefinition.MakeCanonicalForm(s, context.Settings)));
                     m.Configure((type, s) =>
                     {
                         var typesEnclosed = knownMessageTypes.Where(t => t.IsAssignableFrom(type));

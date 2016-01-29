@@ -56,8 +56,7 @@ namespace NServiceBus.Transports
         /// <summary>
         /// Returns the canonical for of the given transport address so various transport addresses can be effectively compared and deduplicated.
         /// </summary>
-        /// <param name="transportAddress">A transport address.</param>
-        public virtual string MakeCanonicalForm(string transportAddress)
+        public virtual string MakeCanonicalForm(string transportAddress, ReadOnlySettings settings)
         {
             return transportAddress;
         }
