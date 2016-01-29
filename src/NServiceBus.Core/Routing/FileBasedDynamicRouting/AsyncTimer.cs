@@ -38,6 +38,7 @@ namespace NServiceBus
         public Task Stop()
         {
             tokenSource.Cancel();
+            tokenSource.Dispose();
             return task;
         }
     }
