@@ -28,7 +28,7 @@ namespace NServiceBus
                 return;
             }
 
-            context.Headers[Headers.MessageIntent] = MessageIntentEnum.Send.ToString();
+            context.Headers[Headers.MessageIntent] = MessageIntentEnum.Publish.ToString();
 
             try
             {

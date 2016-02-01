@@ -131,6 +131,10 @@
     <Compile Include="Routing\FileRoutingTableTests.cs" />
     <Compile Include="Routing\MessageDrivenSubscribeTerminatorTests.cs" />
     <Compile Include="Routing\MessageDrivenUnsubscribeTerminatorTests.cs" />
+    <Compile Include="Routing\Routers\MulticastPublishRouterBehaviorTests.cs" />
+    <Compile Include="Routing\Routers\UnicastSendRouterConnectorTests.cs" />
+    <Compile Include="Routing\Routers\UnicastReplyRouterConnectorTests.cs" />
+    <Compile Include="Routing\Routers\UnicastPublishRouterConnectorTests.cs" />
     <Compile Include="Routing\SubscriptionRouterTests.cs" />
     <Compile Include="Sagas\When_saga_has_multiple_correlated_properties.cs" />
     <Compile Include="Sagas\When_saga_is_correlated_on_a_unsupported_property_type.cs" />
