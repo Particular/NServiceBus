@@ -3,7 +3,7 @@ namespace NServiceBus
     using System.Threading.Tasks;
 
     /// <summary>
-    /// Represents an endpoint int the start-up phase.
+    /// Represents an endpoint in the start-up phase.
     /// </summary>
     public interface IStartableEndpoint
     {
