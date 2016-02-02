@@ -1,13 +1,42 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
     using System.Transactions;
+    using NServiceBus.Extensibility;
     using NServiceBus.Outbox;
     using NServiceBus.Persistence;
     using NServiceBus.Transports;
 
     class InMemoryTransactionalSynchronizedStorageAdapter : ISynchronizedStorageAdapter
     {
+        static readonly Task<CompletableSynchronizedStorageSession> EmptyTask = Task.FromResult<CompletableSynchronizedStorageSession>(null);
+
+        public Task<CompletableSynchronizedStorageSession> TryAdapt(OutboxTransaction transaction, ContextBag context)
+        {
+            var inMemOutboxTransaction = transaction as InMemoryOutboxTransaction;
+            if (inMemOutboxTransaction != null)
+            {
+                CompletableSynchronizedStorageSession session = new InMemorySynchronizedStorageSession(inMemOutboxTransaction.Transaction);
+                return Task.FromResult(session);
+            }
+            return EmptyTask;
+        }
+
+        public Task<CompletableSynchronizedStorageSession> TryAdapt(TransportTransaction transportTransaction, ContextBag context)
+        {
+            Transaction ambientTransaction;
+
+            if (transportTransaction.TryGet(out ambientTransaction))
+            {
+                var transaction = new InMemoryTransaction();
+                CompletableSynchronizedStorageSession session = new InMemorySynchronizedStorageSession(transaction);
+                ambientTransaction.EnlistVolatile(new EnlistmentNotification(transaction), EnlistmentOptions.None);
+                return Task.FromResult(session);
+            }
+            return EmptyTask;
+        }
+
         public bool TryAdapt(OutboxTransaction transaction, out CompletableSynchronizedStorageSession session)
         {
             var inMemOutboxTransaction = transaction as InMemoryOutboxTransaction;
@@ -73,5 +102,6 @@ namespace NServiceBus
 
             InMemoryTransaction transaction;
         }
+
     }
 }
