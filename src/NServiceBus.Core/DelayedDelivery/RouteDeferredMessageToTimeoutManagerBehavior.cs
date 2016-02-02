@@ -21,7 +21,6 @@ namespace NServiceBus
         public override Task Invoke(IRoutingContext context, Func<Task> next)
         {
             DelayedDeliveryConstraint constraint;
-
             if (context.Extensions.TryGetDeliveryConstraint(out constraint))
             {
                 if (context.RoutingStrategies.Any(l => l.GetType() != typeof(UnicastRoutingStrategy)))
