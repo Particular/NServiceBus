@@ -27,11 +27,11 @@
         /// </summary>
         /// <param name="options">The options being extended.</param>
         /// <param name="at">The time when this message should be made available.</param>
-        public static void DoNotDeliverBefore(this SendOptions options, DateTime at)
+        public static void DoNotDeliverBefore(this SendOptions options, DateTimeOffset at)
         {
             Guard.AgainstNull(nameof(options), options);
 
-            options.GetExtensions().AddDeliveryConstraint(new DoNotDeliverBefore(at));
+            options.GetExtensions().AddDeliveryConstraint(new DoNotDeliverBefore(at.UtcDateTime));
         }
     }
 }

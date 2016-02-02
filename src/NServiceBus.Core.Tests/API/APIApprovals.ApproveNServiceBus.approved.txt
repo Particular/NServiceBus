@@ -278,7 +278,7 @@ namespace NServiceBus
     public class static DelayedDeliveryOptionExtensions
     {
         public static void DelayDeliveryWith(this NServiceBus.SendOptions options, System.TimeSpan delay) { }
-        public static void DoNotDeliverBefore(this NServiceBus.SendOptions options, System.DateTime at) { }
+        public static void DoNotDeliverBefore(this NServiceBus.SendOptions options, System.DateTimeOffset at) { }
     }
     public enum DependencyLifecycle
     {
