@@ -59,7 +59,7 @@ namespace NServiceBus
             {
                 if (endpoint == null)
                 {
-                    criticalErrors.Add(new LatentCritical()
+                    criticalErrors.Add(new LatentCritical
                     {
                         Message = errorMessage,
                         Exception = exception

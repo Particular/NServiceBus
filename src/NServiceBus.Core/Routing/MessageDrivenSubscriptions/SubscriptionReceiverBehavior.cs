@@ -12,7 +12,7 @@
 
     class SubscriptionReceiverBehavior : Behavior<IIncomingPhysicalMessageContext>
     {
-        public SubscriptionReceiverBehavior(ISubscriptionStorage subscriptionStorage, SubscriptionAuthorizer authorizer)
+        public SubscriptionReceiverBehavior(ISubscriptionStorage subscriptionStorage, Func<IIncomingPhysicalMessageContext, bool> authorizer)
         {
             this.subscriptionStorage = subscriptionStorage;
             this.authorizer = authorizer;
@@ -96,7 +96,7 @@
         }
 
         ISubscriptionStorage subscriptionStorage;
-        SubscriptionAuthorizer authorizer;
+        Func<IIncomingPhysicalMessageContext, bool> authorizer;
 
         static ILog Logger = LogManager.GetLogger<SubscriptionReceiverBehavior>();
 
