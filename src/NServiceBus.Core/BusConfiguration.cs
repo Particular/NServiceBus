@@ -40,7 +40,6 @@ namespace NServiceBus
             Settings.SetDefault("Endpoint.SendOnly", false);
             Settings.SetDefault("Transactions.IsolationLevel", IsolationLevel.ReadCommitted);
             Settings.SetDefault("Transactions.DefaultTimeout", TransactionManager.DefaultTimeout);
-            Settings.SetDefault("DefaultSerializer", new XmlSerializer());
 
             conventionsBuilder = new ConventionsBuilder(Settings);
         }
