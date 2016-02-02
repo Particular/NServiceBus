@@ -102,6 +102,8 @@
     <Compile Include="Pipeline\PipelineCache.cs" />
     <Compile Include="Pipeline\StageForkConnector.cs" />
     <Compile Include="Pipeline\ConnectorContextExtensions.cs" />
+    <Compile Include="Serialization\SerializationFeature.cs" />
+    <Compile Include="Serializers\XML\XmlSerialization.cs" />
     <Compile Include="Transports\IOutgoingTransportOperation.cs" />
     <Compile Include="Transports\MulticastTransportOperation.cs" />
     <Compile Include="Transports\TransportOperations.cs" />
@@ -380,7 +382,6 @@
     <Compile Include="Routing\MulticastAddressTag.cs" />
     <Compile Include="Satellites\SatelliteBehavior.cs" />
     <Compile Include="SendOptions.cs" />
-    <Compile Include="Serialization\ConfigureSerialization.cs" />
     <Compile Include="Serializers\MessageDeserializerResolver.cs" />
     <Compile Include="StaticHeaders\ApplyStaticHeadersBehavior.cs" />
     <Compile Include="StaticHeaders\StaticHeadersConfigExtensions.cs" />
@@ -488,16 +489,13 @@
     <Compile Include="Scheduling\TaskDefinition.cs" />
     <Compile Include="Recoverability\Faults\MoveFaultsToErrorQueueBehavior.cs" />
     <Compile Include="Recoverability\SecondLevelRetries\DefaultSecondLevelRetryPolicy.cs" />
-    <Compile Include="Serialization\CustomSerialization.cs" />
-    <Compile Include="Serialization\CustomSerializer.cs" />
     <Compile Include="Serialization\SerializationConfigExtensions.cs" />
     <Compile Include="Serialization\SerializationDefinition.cs" />
     <Compile Include="Serialization\SerializationExtentions.cs" />
     <Compile Include="Serializers\Json\JsonSerializer.cs" />
-    <Compile Include="Serializers\XML\Config\XmlSerializer.cs" />
+    <Compile Include="Serializers\XML\XmlSerializer.cs" />
     <Compile Include="Serializers\XML\Config\XmlSerializationExtentions.cs" />
     <Compile Include="Serializers\XML\XmlDeserialization.cs" />
-    <Compile Include="Serializers\XML\XmlSerialization.cs" />
     <Compile Include="Serializers\XML\XmlSerializerCache.cs" />
     <Compile Include="Performance\MessageDurability\DurableMessagesConfig.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\ConfigurationBuilderExtensions.cs" />
@@ -618,9 +616,7 @@
     <Compile Include="Features\FeatureActivator.cs" />
     <Compile Include="Recoverability\SecondLevelRetries\Config\SecondLevelRetriesConfigExtensions.cs" />
     <Compile Include="Recoverability\SecondLevelRetries\Config\SecondLevelRetriesSettings.cs" />
-    <Compile Include="Serializers\Json\Config\JsonSerialization.cs" />
     <Compile Include="Serializers\Json\Config\JsonSerializerConfigurationExtensions.cs" />
-    <Compile Include="Serializers\XML\Config\XmlSerialization.cs" />
     <Compile Include="Settings\ScaleOutSettings.cs" />
     <Compile Include="Pipeline\Incoming\DeserializeLogicalMessagesConnector.cs" />
     <Compile Include="Licensing\ConfigureLicenseExtensions.cs" />

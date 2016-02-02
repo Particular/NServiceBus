@@ -1,4 +1,4 @@
-namespace NServiceBus.Serializers.XML
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
@@ -7,10 +7,7 @@ namespace NServiceBus.Serializers.XML
     using NServiceBus.MessageInterfaces;
     using NServiceBus.Serialization;
 
-    /// <summary>
-    ///     Implementation of the message serializer over XML supporting interface-based messages.
-    /// </summary>
-    public class XmlMessageSerializer : IMessageSerializer
+    class XmlMessageSerializer : IMessageSerializer
     {
         /// <summary>
         ///     Initializes an instance of a <see cref="XmlMessageSerializer" />.

@@ -3,7 +3,6 @@ namespace NServiceBus
 {
     using System.Text;
     using NServiceBus.Serialization;
-    using NServiceBus.Serializers.Json;
 
     public static class JsonSerializerConfigurationExtensions
     {
@@ -16,7 +15,7 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(config), config);
             Guard.AgainstNull(nameof(encoding), encoding);
-            config.Settings.SetProperty<JsonMessageSerializer>(s => s.Encoding, encoding);
+            config.Settings.Set("Serialization.Json.Encoding", encoding);
         }
     }
 }

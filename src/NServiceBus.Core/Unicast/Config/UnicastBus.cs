@@ -1,14 +1,8 @@
 namespace NServiceBus.Features
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using NServiceBus.Logging;
-    using NServiceBus.Pipeline;
     using NServiceBus.Routing;
     using NServiceBus.Settings;
     using NServiceBus.Transports;
-    using NServiceBus.Unicast.Messages;
 
     class UnicastBus : Feature
     {
@@ -34,44 +28,6 @@ namespace NServiceBus.Features
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             context.Container.ConfigureComponent<BusNotifications>(DependencyLifecycle.SingleInstance);
-
-            var knownMessages = context.Settings.GetAvailableTypes()
-                .Where(context.Settings.Get<Conventions>().IsMessageType)
-                .ToList();
-
-            ConfigureMessageRegistry(context, knownMessages);
         }
-
-        static void ConfigureMessageRegistry(FeatureConfigurationContext context, IEnumerable<Type> knownMessages)
-        {
-            var messageRegistry = new MessageMetadataRegistry(context.Settings.Get<Conventions>());
-
-            foreach (var msg in knownMessages)
-            {
-                messageRegistry.RegisterMessageType(msg);
-            }
-
-            context.Container.RegisterSingleton(messageRegistry);
-            context.Container.ConfigureComponent<LogicalMessageFactory>(DependencyLifecycle.SingleInstance);
-
-            if (!Logger.IsInfoEnabled)
-            {
-                return;
-            }
-
-            var messageDefinitions = messageRegistry.GetAllMessages().ToList();
-
-            Logger.DebugFormat("Number of messages found: {0}", messageDefinitions.Count());
-
-            if (!Logger.IsDebugEnabled)
-            {
-                return;
-            }
-
-            Logger.DebugFormat("Message definitions: \n {0}",
-                string.Concat(messageDefinitions.Select(md => md.ToString() + "\n")));
-        }
-
-        static ILog Logger = LogManager.GetLogger<UnicastBus>();
     }
 }

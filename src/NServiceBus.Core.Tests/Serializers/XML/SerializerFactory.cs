@@ -6,9 +6,9 @@ namespace NServiceBus.Serializers.XML.Test
     using System.Xml;
     using MessageInterfaces.MessageMapper.Reflection;
 
-    public class SerializerFactory
+    class SerializerFactory
     {
-         public static XmlMessageSerializer Create<T>(MessageMapper mapper = null)
+         public static NServiceBus.XmlMessageSerializer Create<T>(MessageMapper mapper = null)
          {
              var types = new List<Type> {typeof (T)};
              if (mapper == null)
@@ -17,18 +17,18 @@ namespace NServiceBus.Serializers.XML.Test
              }
 
              mapper.Initialize(types);
-             var serializer = new XmlMessageSerializer(mapper, new Conventions());
+             var serializer = new NServiceBus.XmlMessageSerializer(mapper, new Conventions());
 
              serializer.Initialize(types);
 
              return serializer;
          }
 
-         public static XmlMessageSerializer Create(params Type[] types)
+         public static NServiceBus.XmlMessageSerializer Create(params Type[] types)
          {
              var mapper = new MessageMapper();
              mapper.Initialize(types);
-             var serializer = new XmlMessageSerializer(mapper, new Conventions());
+             var serializer = new NServiceBus.XmlMessageSerializer(mapper, new Conventions());
 
              serializer.Initialize(types);
 
@@ -61,7 +61,7 @@ namespace NServiceBus.Serializers.XML.Test
 
     }
 
-    public class Serializer
+    class Serializer
     {
         string xmlResult;
         XmlDocument xmlDocument;
@@ -79,7 +79,7 @@ namespace NServiceBus.Serializers.XML.Test
             return ForMessage<T>(msg);
         }
 
-        public static Serializer ForMessage<T>(object message,Action<XmlMessageSerializer> config = null)
+        public static Serializer ForMessage<T>(object message,Action<NServiceBus.XmlMessageSerializer> config = null)
         {
             using (var stream = new MemoryStream())
             {

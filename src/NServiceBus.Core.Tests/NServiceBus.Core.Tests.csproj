@@ -142,7 +142,6 @@
     <Compile Include="Routing\TransportAddressesTest.cs" />
     <Compile Include="Routing\UnicastRouterTests.cs" />
     <Compile Include="Serializers\MessageDeserializerResolverTests.cs" />
-    <Compile Include="Serializers\SerializationExtensionsTests.cs" />
     <Compile Include="Performance\TimeToBeReceived\TimeToBeReceivedAttributeTests.cs" />
     <Compile Include="Config\TestConfigurationSection.cs" />
     <Compile Include="Config\When_no_custom_configuration_source_is_specified.cs" />

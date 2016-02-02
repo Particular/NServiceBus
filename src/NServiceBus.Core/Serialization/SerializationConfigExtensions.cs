@@ -2,13 +2,12 @@
 {
     using System;
     using System.Collections.Generic;
-    using NServiceBus.Settings;
     using Serialization;
 
     /// <summary>
     /// Provides configuration options for serialization.
     /// </summary>
-    public static class SerializationConfigExtensions
+    public static partial class SerializationConfigExtensions
     {
         /// <summary>
         /// Configures the given serializer to be used.
@@ -18,39 +17,27 @@
         public static SerializationExtentions<T> UseSerialization<T>(this BusConfiguration config) where T : SerializationDefinition, new()
         {
             Guard.AgainstNull(nameof(config), config);
-            var type = typeof(SerializationExtentions<>).MakeGenericType(typeof(T));
-            var extension = (SerializationExtentions<T>)Activator.CreateInstance(type, config.Settings);
-            var definition = (SerializationDefinition)Activator.CreateInstance(typeof(T));
+            var definition = (T)Activator.CreateInstance(typeof(T));
 
-            config.Settings.Set("SelectedSerializer", definition);
-
-            return extension;
+            return UseSerialization(config, definition);
         }
 
         /// <summary>
         /// Configures the given serializer to be used.
         /// </summary>
+        /// <typeparam name="T">The serializer definition eg <see cref="JsonSerializer"/>, <see cref="XmlSerializer"/>, etc.</typeparam>
         /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
-        /// <param name="serializerType">The custom serializer type to use for serialization that implements <see cref="IMessageSerializer"/> or a derived type from <see cref="SerializationDefinition"/>.</param>
-        public static void UseSerialization(this BusConfiguration config, Type serializerType)
+        /// <param name="serializationDefinition">An instance of serialization definition.</param>
+        public static SerializationExtentions<T> UseSerialization<T>(this BusConfiguration config, T serializationDefinition) where T : SerializationDefinition
         {
             Guard.AgainstNull(nameof(config), config);
-            Guard.AgainstNull(nameof(serializerType), serializerType);
+            Guard.AgainstNull(nameof(serializationDefinition), serializationDefinition);
+            var type = typeof(SerializationExtentions<>).MakeGenericType(typeof(T));
+            var extension = (SerializationExtentions<T>)Activator.CreateInstance(type, config.Settings);
 
-            if (typeof(SerializationDefinition).IsAssignableFrom(serializerType))
-            {
-                var definition = (SerializationDefinition)Activator.CreateInstance(serializerType);
-                config.Settings.Set("SelectedSerializer", definition);
-                return;
-            }
+            config.Settings.Set<SerializationDefinition>(serializationDefinition);
 
-            if (!typeof(IMessageSerializer).IsAssignableFrom(serializerType))
-            {
-                throw new ArgumentException("The type needs to implement IMessageSerializer.", nameof(serializerType));
-            }
-
-            config.Settings.Set("SelectedSerializer", new CustomSerializer());
-            config.Settings.Set("CustomSerializerType", serializerType);
+            return extension;
         }
 
         /// <summary>
@@ -62,32 +49,14 @@
         {
             Guard.AgainstNull(nameof(config), config);
 
-            Dictionary<RuntimeTypeHandle, SerializationDefinition> deserializers;
+            List<SerializationDefinition> deserializers;
             var instance = Activator.CreateInstance<T>();
-            var typeHandle = instance.ProvidedByFeature().TypeHandle;
-            if (config.Settings.TryGet("AdditionalDeserializers", out deserializers))
+            if (!config.Settings.TryGet("AdditionalDeserializers", out deserializers))
             {
-                deserializers[typeHandle] = instance;
-            }
-            else
-            {
-                deserializers = new Dictionary<RuntimeTypeHandle, SerializationDefinition>
-                {
-                    {typeHandle, instance}
-                };
+                deserializers = new List<SerializationDefinition>();
                 config.Settings.Set("AdditionalDeserializers", deserializers);
             }
-        }
-
-        internal static SerializationDefinition GetSelectedSerializer(this ReadOnlySettings settings)
-        {
-            SerializationDefinition selectedSerializer;
-            if (settings.TryGet("SelectedSerializer", out selectedSerializer))
-            {
-                return selectedSerializer;
-            }
-
-            return settings.Get<SerializationDefinition>("DefaultSerializer");
+            deserializers.Add(instance);
         }
     }
 }

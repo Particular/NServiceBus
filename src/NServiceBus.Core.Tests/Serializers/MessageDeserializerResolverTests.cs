@@ -4,8 +4,6 @@
     using System.Collections.Generic;
     using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
     using NServiceBus.Serialization;
-    using NServiceBus.Serializers.Json;
-    using NServiceBus.Serializers.XML;
     using NUnit.Framework;
     using Conventions = NServiceBus.Conventions;
 
@@ -20,11 +18,11 @@
             var mapper = new MessageMapper();
             var xml = new XmlMessageSerializer(mapper, new Conventions());
             var json = new JsonMessageSerializer(mapper);
-            resolver = new MessageDeserializerResolver(new IMessageSerializer[]
+            resolver = new MessageDeserializerResolver(xml, new IMessageSerializer[]
             {
                 xml,
                 json
-            }, xml.GetType());
+            });
         }
 
         [TestCase(ContentTypes.Xml, typeof(XmlMessageSerializer))]

@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus
 {
     using NServiceBus.Serialization;
-    using NServiceBus.Serializers.XML;
 
     /// <summary>
     /// Custom extentions for the <see cref="XmlSerializer"/> serializer.

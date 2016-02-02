@@ -28,7 +28,7 @@ namespace NServiceBus.Serializers.Json.Tests
         public void Deserialize_messages_wrapped_in_array_from_older_endpoint()
         {
             var messageMapper = new MessageMapper();
-            var serializer = new JsonMessageSerializer(messageMapper);
+            var serializer = new NServiceBus.JsonMessageSerializer(messageMapper);
             var jsonWithMultipleMessages = @"
 [
   {
@@ -62,7 +62,7 @@ namespace NServiceBus.Serializers.Json.Tests
         public void Deserialize_message_with_interface_without_wrapping()
         {
             var messageMapper = new MessageMapper();
-            var serializer = new JsonMessageSerializer(messageMapper);
+            var serializer = new NServiceBus.JsonMessageSerializer(messageMapper);
             using (var stream = new MemoryStream())
             {
                 serializer.Serialize(new SuperMessage {SomeProperty = "John"}, stream);
@@ -80,7 +80,7 @@ namespace NServiceBus.Serializers.Json.Tests
         {
             var messageMapper = new MessageMapper();
             messageMapper.Initialize(new[] { typeof(IMyEventA), typeof(IMyEventB) });
-            var serializer = new JsonMessageSerializer(messageMapper);
+            var serializer = new NServiceBus.JsonMessageSerializer(messageMapper);
 
             using (var stream = new MemoryStream())
             {
@@ -106,7 +106,7 @@ namespace NServiceBus.Serializers.Json.Tests
         public void Serialize_message_without_wrapping()
         {
             var messageMapper = new MessageMapper();
-            var serializer = new JsonMessageSerializer(messageMapper);
+            var serializer = new NServiceBus.JsonMessageSerializer(messageMapper);
             using (var stream = new MemoryStream())
             {
                 serializer.Serialize(new SimpleMessage(), stream);
@@ -122,7 +122,7 @@ namespace NServiceBus.Serializers.Json.Tests
         public void Deserialize_message_without_wrapping()
         {
             var messageMapper = new MessageMapper();
-            var serializer = new JsonMessageSerializer(messageMapper);
+            var serializer = new NServiceBus.JsonMessageSerializer(messageMapper);
             using (var stream = new MemoryStream())
             {
                 serializer.Serialize(new SimpleMessage{SomeProperty = "test"}, stream);
@@ -139,7 +139,7 @@ namespace NServiceBus.Serializers.Json.Tests
         public void Serialize_message_without_typeInfo()
         {
             var messageMapper = new MessageMapper();
-            var serializer = new JsonMessageSerializer(messageMapper);
+            var serializer = new NServiceBus.JsonMessageSerializer(messageMapper);
             using (var stream = new MemoryStream())
             {
                 serializer.Serialize(new SimpleMessage(), stream);
@@ -156,7 +156,7 @@ namespace NServiceBus.Serializers.Json.Tests
         {
             var messageMapper = new MessageMapper();
             messageMapper.Initialize(new[] { typeof(ISuperMessageWithoutConcreteImpl) });
-            var serializer = new JsonMessageSerializer(messageMapper);
+            var serializer = new NServiceBus.JsonMessageSerializer(messageMapper);
 
             using (var stream = new MemoryStream())
             {
@@ -175,7 +175,7 @@ namespace NServiceBus.Serializers.Json.Tests
         {
             var messageMapper = new MessageMapper();
             messageMapper.Initialize(new[] { typeof(ISuperMessageWithoutConcreteImpl) });
-            var serializer = new JsonMessageSerializer(messageMapper);
+            var serializer = new NServiceBus.JsonMessageSerializer(messageMapper);
 
             using (var stream = new MemoryStream())
             {
@@ -198,7 +198,7 @@ namespace NServiceBus.Serializers.Json.Tests
             var map = new[] {typeof(SuperMessageWithConcreteImpl), typeof(ISuperMessageWithConcreteImpl)};
             var messageMapper = new MessageMapper();
             messageMapper.Initialize(map);
-            var serializer = new JsonMessageSerializer(messageMapper);
+            var serializer = new NServiceBus.JsonMessageSerializer(messageMapper);
 
             using (var stream = new MemoryStream())
             {
@@ -229,7 +229,7 @@ namespace NServiceBus.Serializers.Json.Tests
             var messageWithXElement = new MessageWithXElement { Document = XElement.Load(new StringReader(XmlElement)) };
 
             var messageMapper = new MessageMapper();
-            var serializer = new JsonMessageSerializer(messageMapper);
+            var serializer = new NServiceBus.JsonMessageSerializer(messageMapper);
             using (var stream = new MemoryStream())
             {
                 serializer.Serialize(messageWithXDocument, stream);
@@ -286,7 +286,7 @@ namespace NServiceBus.Serializers.Json.Tests
 
             var messageMapper = new MessageMapper();
             messageMapper.Initialize(new[] { typeof(IA), typeof(A) });
-            var serializer = new JsonMessageSerializer(messageMapper);
+            var serializer = new NServiceBus.JsonMessageSerializer(messageMapper);
 
             serializer.Serialize(obj, output);
 
@@ -334,7 +334,7 @@ namespace NServiceBus.Serializers.Json.Tests
 
             new Random().NextBytes(obj.Data);
 
-            var serializer = new JsonMessageSerializer(messageMapper);
+            var serializer = new NServiceBus.JsonMessageSerializer(messageMapper);
 
             serializer.Serialize(obj, output);
 
@@ -369,7 +369,7 @@ namespace NServiceBus.Serializers.Json.Tests
         {
             var messageMapper = new MessageMapper();
             messageMapper.Initialize(new[] { typeof(IAImpl), typeof(IA) });
-            var serializer = new JsonMessageSerializer(messageMapper);
+            var serializer = new NServiceBus.JsonMessageSerializer(messageMapper);
             var xml = @"[{
     $type: ""NServiceBus.Serializers.Json.Tests.IA, NServiceBus.Core.Tests"",
     Data: ""rhNAGU4dr/Qjz6ocAsOs3wk3ZmxHMOg="",

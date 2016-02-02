@@ -13,6 +13,7 @@
     using NServiceBus.Features;
     using NServiceBus.Hosting.Helpers;
     using NServiceBus.ObjectBuilder;
+    using NServiceBus.Serialization;
 
     public class DefaultServer : IEndpointSetupTemplate
     {
@@ -56,7 +57,7 @@
 
             if (serializer != null)
             {
-                builder.UseSerialization(Type.GetType(serializer));
+                builder.UseSerialization((SerializationDefinition)Activator.CreateInstance(Type.GetType(serializer, true)));
             }
             await builder.DefinePersistence(settings);
 
