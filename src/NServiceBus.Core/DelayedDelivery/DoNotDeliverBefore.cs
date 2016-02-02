@@ -8,22 +8,22 @@
     public class DoNotDeliverBefore : DelayedDeliveryConstraint
     {
         /// <summary>
-        /// The actual time when the message can be available to the recipient.
-        /// </summary>
-        public DateTime At { get; }
-
-        /// <summary>
-        /// Initializes a new insatnce of <see cref="DoNotDeliverBefore"/>.
+        /// Initializes a new insatnce of <see cref="DoNotDeliverBefore" />.
         /// </summary>
         /// <param name="at">The earliest time this message should be made available to its consumers.</param>
         public DoNotDeliverBefore(DateTime at)
         {
-            if (at <= DateTime.UtcNow)
+            if (at.ToUniversalTime() <= DateTime.UtcNow)
             {
-                throw new ArgumentException("Delivery time must be in the future",nameof(at));
+                throw new ArgumentException("Delivery time must be in the future", nameof(at));
             }
 
             At = at;
         }
+
+        /// <summary>
+        /// The actual time when the message can be available to the recipient.
+        /// </summary>
+        public DateTime At { get; }
     }
 }
