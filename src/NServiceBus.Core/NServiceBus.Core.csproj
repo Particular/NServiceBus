@@ -266,7 +266,6 @@
     <Compile Include="DataBus\DataBusExtentions.cs" />
     <Compile Include="DataBus\FileShareDataBus.cs" />
     <Compile Include="DataBus\UseDataBusExtensions.cs" />
-    <Compile Include="DelayedDelivery\ApplyDelayedDeliveryConstraintBehavior.cs" />
     <Compile Include="DelayedDelivery\DelayedDeliveryConstraint.cs" />
     <Compile Include="DelayedDelivery\DelayedDeliveryFeature.cs" />
     <Compile Include="DelayedDelivery\DelayedDeliveryOptionExtensions.cs" />

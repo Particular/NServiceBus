@@ -23,7 +23,7 @@
 
             DiscardIfNotReceivedBefore constraint;
 
-            if (context.TryGetDeliveryConstraint(out constraint))
+            if (context.Extensions.TryGetDeliveryConstraint(out constraint))
             {
                 timeToBeReceived = constraint.MaxTime;
             }

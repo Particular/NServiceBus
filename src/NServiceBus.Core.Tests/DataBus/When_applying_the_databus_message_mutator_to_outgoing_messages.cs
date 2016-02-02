@@ -46,7 +46,7 @@ namespace NServiceBus.Core.Tests.DataBus
 
            var context = ContextHelpers.GetOutgoingContext(message);
           
-            context.AddDeliveryConstraint(new DiscardIfNotReceivedBefore(TimeSpan.FromMinutes(1)));
+           context.Extensions.AddDeliveryConstraint(new DiscardIfNotReceivedBefore(TimeSpan.FromMinutes(1)));
 
            var fakeDatabus = new FakeDataBus();
            

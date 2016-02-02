@@ -19,7 +19,7 @@
 
             if (timeToBeReceivedMappings.TryGetTimeToBeReceived(context.Message.MessageType, out timeToBeReceived))
             {
-                context.AddDeliveryConstraint(new DiscardIfNotReceivedBefore(timeToBeReceived));
+                context.Extensions.AddDeliveryConstraint(new DiscardIfNotReceivedBefore(timeToBeReceived));
                 context.Headers[Headers.TimeToBeReceived] = timeToBeReceived.ToString();
             }
 

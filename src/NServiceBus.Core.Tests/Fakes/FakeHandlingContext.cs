@@ -5,6 +5,7 @@
     using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.DelayedDelivery;
+    using NServiceBus.DeliveryConstraints;
     using NServiceBus.Extensibility;
     using NServiceBus.Persistence;
 
@@ -19,19 +20,14 @@
 
         public Task Send(object message, SendOptions options)
         {
-            ApplyDelayedDeliveryConstraintBehavior.State state;
-
-            if (options.GetExtensions().TryGet(out state))
+            DelayDeliveryWith constraint;
+            if (options.GetExtensions().TryGetDeliveryConstraint(out constraint))
             {
-                var delayConstraint = state.RequestedDelay as DelayDeliveryWith;
-
-                if (delayConstraint != null)
-                {
-                    Interlocked.Increment(ref deferWasCalled);
-                    DeferDelay = delayConstraint.Delay;
-                    DeferedMessage = message;
-                }
+                Interlocked.Increment(ref deferWasCalled);
+                DeferDelay = constraint.Delay;
+                DeferedMessage = message;
             }
+
             return TaskEx.CompletedTask;
         }
 
