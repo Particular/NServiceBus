@@ -174,7 +174,6 @@
     <Compile Include="Routing\Legacy\ReadyMessageSender.cs" />
     <Compile Include="Routing\Legacy\WorkerFeature.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\MessageDrivenSubscriptionsConfigExtensions.cs" />
-    <Compile Include="Routing\MessageDrivenSubscriptions\SubscriptionAuthorizer.cs" />
     <Compile Include="StaticHeaders\StaticHeaders.cs" />
     <Compile Include="Transports\Msmq\EndpointInstanceExtensions.cs" />
     <Compile Include="Transports\Msmq\QueuePermissionChecker.cs" />

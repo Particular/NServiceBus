@@ -672,7 +672,7 @@ namespace NServiceBus
     }
     public class static MessageDrivenSubscriptionsConfigExtensions
     {
-        public static void SubscriptionAuthorizer(this NServiceBus.TransportExtensions transportExtensions, NServiceBus.SubscriptionAuthorizer authorizer) { }
+        public static void SubscriptionAuthorizer(this NServiceBus.TransportExtensions transportExtensions, System.Func<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, bool> authorizer) { }
         public static void UseLegacyMessageDrivenSubscriptionMode(this NServiceBus.BusConfiguration busConfiguration) { }
     }
     public class static MessageIdExtensions
@@ -909,7 +909,6 @@ namespace NServiceBus
     {
         public SubscribeOptions() { }
     }
-    public delegate bool SubscriptionAuthorizer(NServiceBus.Pipeline.IIncomingPhysicalMessageContext context);
     [System.AttributeUsageAttribute(System.AttributeTargets.Class | System.AttributeTargets.Interface | System.AttributeTargets.All)]
     public sealed class TimeToBeReceivedAttribute : System.Attribute
     {

@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using NServiceBus.Pipeline;
     using NServiceBus.Settings;
     using NServiceBus.Transports;
 
@@ -23,12 +24,12 @@ namespace NServiceBus
 
 
         /// <summary>
-        /// Set a <see cref="SubscriptionAuthorizer"/> to be used when verifying a <see cref="MessageIntentEnum.Subscribe"/> or <see cref="MessageIntentEnum.Unsubscribe"/> message.
+        /// Set a Authorizer to be used when verifying a <see cref="MessageIntentEnum.Subscribe"/> or <see cref="MessageIntentEnum.Unsubscribe"/> message.
         /// </summary>
         /// <remarks>This is a "single instance" extension point. So calling this api multiple time will result in only the last one added being executed at message receive time.</remarks>
         /// <param name="transportExtensions">The <see cref="TransportExtensions"/> to extend.</param>
-        /// <param name="authorizer">The <see cref="SubscriptionAuthorizer"/> to execute.</param>
-        public static void SubscriptionAuthorizer(this TransportExtensions transportExtensions, SubscriptionAuthorizer authorizer)
+        /// <param name="authorizer">The <see cref="Func{TI,TR}"/> to execute.</param>
+        public static void SubscriptionAuthorizer(this TransportExtensions transportExtensions, Func<IIncomingPhysicalMessageContext, bool> authorizer)
         {
             Guard.AgainstNull(nameof(authorizer), authorizer);
             var settings = transportExtensions.Settings;
@@ -39,13 +40,13 @@ namespace NServiceBus
                 throw new ArgumentException(message, nameof(authorizer));
             }
 
-            settings.Set<SubscriptionAuthorizer>(authorizer);
+            settings.Set("SubscriptionAuthorizer", authorizer);
         }
 
-        internal static SubscriptionAuthorizer GetSubscriptionAuthorizer(this ReadOnlySettings settings)
+        internal static Func<IIncomingPhysicalMessageContext, bool> GetSubscriptionAuthorizer(this ReadOnlySettings settings)
         {
-            SubscriptionAuthorizer authorizer;
-            settings.TryGet(out authorizer);
+            Func<IIncomingPhysicalMessageContext, bool> authorizer;
+            settings.TryGet("SubscriptionAuthorizer",out authorizer);
             return authorizer;
         }
     }
