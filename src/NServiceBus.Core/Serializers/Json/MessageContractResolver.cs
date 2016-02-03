@@ -9,7 +9,6 @@ namespace NServiceBus
         IMessageMapper messageMapper;
 
         public MessageContractResolver(IMessageMapper messageMapper)
-            : base(true)
         {
             this.messageMapper = messageMapper;
         }
