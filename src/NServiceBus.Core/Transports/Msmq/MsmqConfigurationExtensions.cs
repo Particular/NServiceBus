@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using System.Messaging;
     using System.Transactions;
 
@@ -19,10 +20,10 @@ namespace NServiceBus
         /// In some cases it may be useful to use the <see cref="Headers.ControlMessageHeader"/> key to determine if a message is a control message.
         /// The only exception to this rule is received messages with corrupted headers. These messages will be forwarded to the error queue with no label applied.
         /// </remarks>
-        public static TransportExtensions<MsmqTransport> ApplyLabelToMessages(this TransportExtensions<MsmqTransport> transportExtensions, MsmqLabelGenerator labelGenerator)
+        public static TransportExtensions<MsmqTransport> ApplyLabelToMessages(this TransportExtensions<MsmqTransport> transportExtensions, Func<IReadOnlyDictionary<string, string>, string> labelGenerator)
         {
             Guard.AgainstNull(nameof(labelGenerator), labelGenerator);
-            transportExtensions.Settings.Set<MsmqLabelGenerator>(labelGenerator);
+            transportExtensions.Settings.Set("msmqLabelGenerator", labelGenerator);
             return transportExtensions;
         }
 

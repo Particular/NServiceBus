@@ -83,8 +83,8 @@ namespace NServiceBus
             context.Settings.TryGet("Msmq.GetMessageLabel", out getMessageLabel);
             var settings = new MsmqConnectionStringBuilder(context.ConnectionString).RetrieveSettings();
 
-            MsmqLabelGenerator messageLabelGenerator;
-            if (!context.Settings.TryGet(out messageLabelGenerator))
+            Func<IReadOnlyDictionary<string, string>, string> messageLabelGenerator;
+            if (!context.Settings.TryGet("msmqLabelGenerator", out messageLabelGenerator))
             {
                 messageLabelGenerator = headers => string.Empty;
             }
