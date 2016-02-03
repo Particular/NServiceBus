@@ -38,6 +38,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
+                    c.EnableFeature<FirstLevelRetries>();
                     c.EnableFeature<TimeoutManager>();
                     c.ExecuteTheseHandlersFirst(typeof(CatchAllMessageHandler));
                 });
