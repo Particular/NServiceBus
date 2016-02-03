@@ -38,20 +38,5 @@ namespace NServiceBus
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
         /// <param name="publishOptions">Specific options for this event.</param>
         Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions);
-
-        /// <summary>
-        /// Subscribes to receive published messages of the specified type.
-        /// This method is only necessary if you turned off auto-subscribe.
-        /// </summary>
-        /// <param name="eventType">The type of event to subscribe to.</param>
-        /// <param name="options">Options for the subscribe.</param>
-        Task Subscribe(Type eventType, SubscribeOptions options);
-
-        /// <summary>
-        /// Unsubscribes to receive published messages of the specified type.
-        /// </summary>
-        /// <param name="eventType">The type of event to unsubscribe to.</param>
-        /// <param name="options">Options for the subscribe.</param>
-        Task Unsubscribe(Type eventType, UnsubscribeOptions options);
     }
 }
