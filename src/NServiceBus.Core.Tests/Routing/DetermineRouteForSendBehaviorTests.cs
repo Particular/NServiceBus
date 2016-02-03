@@ -89,9 +89,7 @@
 
             var context = CreateContext(options, new MessageWithoutRouting());
 
-            var ex = Assert.Throws<Exception>(async() => await behavior.Invoke(context, _ => TaskEx.CompletedTask));
-
-            Assert.True(ex.Message.Contains("No destination specified"));
+            Assert.That(async() => await behavior.Invoke(context, _ => TaskEx.CompletedTask), Throws.InstanceOf<Exception>().And.Message.Contains("No destination specified"));
         }
 
         static IOutgoingSendContext CreateContext(SendOptions options, object message = null)

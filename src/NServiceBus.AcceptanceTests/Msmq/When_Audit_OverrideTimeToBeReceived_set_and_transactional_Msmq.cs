@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Config;
@@ -10,7 +11,7 @@
     public class When_Audit_OverrideTimeToBeReceived_set_and_transactional_Msmq : NServiceBusAcceptanceTest
     {
         [Test]
-        public async void Endpoint_should_not_start_and_show_error()
+        public async Task Endpoint_should_not_start_and_show_error()
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>()

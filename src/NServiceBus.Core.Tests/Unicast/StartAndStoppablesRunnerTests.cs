@@ -31,7 +31,7 @@
 
             var runner = new StartAndStoppablesRunner(thingsToBeStarted);
 
-            Assert.Throws<InvalidOperationException>(async () => await runner.Start(null));
+            Assert.That(async () => await runner.Start(null), Throws.InvalidOperationException);
 
             Assert.True(startable1.Started);
             Assert.False(startable2.Started);
@@ -46,7 +46,7 @@
 
             var runner = new StartAndStoppablesRunner(thingsToBeStarted);
 
-            Assert.Throws<InvalidOperationException>(async () => await runner.Start(null));
+            Assert.That(async () => await runner.Start(null), Throws.InvalidOperationException);
 
             Assert.True(startable1.Started);
         }
@@ -112,7 +112,7 @@
                 // ignored
             }
 
-            Assert.DoesNotThrow(async() => await runner.Stop(null));
+            Assert.That(async () => await runner.Stop(null), Throws.Nothing);
             Assert.True(startable1.Stopped);
             Assert.True(startable2.Stopped);
         }
@@ -136,7 +136,7 @@
                 // ignored
             }
 
-            Assert.DoesNotThrow(async () => await runner.Stop(null));
+            Assert.That(async () => await runner.Stop(null), Throws.Nothing);
             Assert.True(startable1.Stopped);
             Assert.True(startable2.Stopped);
         }

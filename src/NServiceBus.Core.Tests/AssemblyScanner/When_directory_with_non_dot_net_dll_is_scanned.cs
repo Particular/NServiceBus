@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Core.Tests.AssemblyScanner
 {
-    using System.Collections.Generic;
     using System.Linq;
     using Hosting.Helpers;
     using NUnit.Framework;
@@ -8,26 +7,19 @@
     [TestFixture]
     public class When_directory_with_non_dot_net_dll_is_scanned
     {
-        AssemblyScannerResults results;
-        List<SkippedFile> skippedFiles;
-
-        [SetUp]
-        public void Context()
-        {
-            var assemblyScanner = new AssemblyScanner(AssemblyScannerTests.GetTestAssemblyDirectory())
-                {
-                    IncludeAppDomainAssemblies = false
-                };
-
-            results = assemblyScanner
-                .GetScannableAssemblies();
-
-            skippedFiles = results.SkippedFiles;
-        }
-
         [Test]
         public void non_dotnet_files_are_skipped()
         {
+            var assemblyScanner = new AssemblyScanner(AssemblyScannerTests.GetTestAssemblyDirectory())
+            {
+                IncludeAppDomainAssemblies = false
+            };
+
+            var results = assemblyScanner
+                .GetScannableAssemblies();
+
+            var skippedFiles = results.SkippedFiles;
+
             var notProperDotNetDlls = new[]
                 {
                     "libzmq-v120-mt-3_2_3.dll",

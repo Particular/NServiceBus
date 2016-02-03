@@ -15,17 +15,15 @@
         }
 
         [Test]
-        [ExpectedException]
         public void Should_not_allow_empty_string_for_a_custom_pipeline_step()
         {
-            WellKnownStep.Create(string.Empty);
+            Assert.That(() => WellKnownStep.Create(string.Empty), Throws.InvalidOperationException);
         }
 
         [Test]
-        [ExpectedException]
         public void Should_not_allow_null_for_a_custom_pipeline_step()
         {
-            WellKnownStep.Create(null);
+            Assert.That(() => WellKnownStep.Create(null), Throws.InvalidOperationException);
         }
 
         [Test]

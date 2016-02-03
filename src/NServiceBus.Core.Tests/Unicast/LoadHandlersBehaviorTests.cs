@@ -26,10 +26,10 @@
             context.Extensions.Set<OutboxTransaction>(new InMemoryOutboxTransaction());
             context.Extensions.Set<TransportTransaction>(new FakeTransportTransaction());
 
-            Assert.Throws<InvalidOperationException>(async () => await behavior.Invoke(context, c => TaskEx.CompletedTask));
+            Assert.That(async () => await behavior.Invoke(context, c => TaskEx.CompletedTask), Throws.InvalidOperationException);
         }
 
-        private class FakeTransportTransaction : TransportTransaction
+        class FakeTransportTransaction : TransportTransaction
         {
         }
     }
