@@ -22,7 +22,7 @@
 
             await testee.Stop();
 
-            Assert.DoesNotThrow(async () => await testee.Stop());
+            Assert.That(async () => await testee.Stop(), Throws.Nothing);
         }
     }
 }

@@ -26,7 +26,7 @@
             builder.Register<IManageUnitsOfWork>(() => unitOfWork);
 
             //since it is a single exception then it will not be an AggregateException 
-            Assert.Throws<InvalidOperationException>(async () => await InvokeBehavior(builder));
+            Assert.That(async () => await InvokeBehavior(builder), Throws.InvalidOperationException);
             Assert.IsTrue(unitOfWorkThatThrowsFromEnd.BeginCalled);
             Assert.IsTrue(unitOfWorkThatThrowsFromEnd.EndCalled);
             Assert.IsTrue(unitOfWork.BeginCalled);
@@ -41,10 +41,9 @@
             var unitOfWork = new UnitOfWorkThatThrowsFromEnd();
 
             builder.Register<IManageUnitsOfWork>(() => unitOfWork);
-            //since it is a single exception then it will not be an AggregateException 
-            var exception = Assert.Throws<InvalidOperationException>(async () => await InvokeBehavior(builder));
 
-            Assert.AreSame(unitOfWork.ExceptionThrownFromEnd, exception);
+            //since it is a single exception then it will not be an AggregateException 
+            Assert.That(async () => await InvokeBehavior(builder), Throws.InvalidOperationException.And.SameAs(unitOfWork.ExceptionThrownFromEnd));
         }
 
         [Test]
@@ -59,7 +58,7 @@
             builder.Register<IManageUnitsOfWork>(() => unitOfWork);
 
             //since it is a single exception then it will not be an AggregateException 
-            Assert.Throws<InvalidOperationException>(async () => await InvokeBehavior(builder));
+            Assert.That(async () => await InvokeBehavior(builder), Throws.InvalidOperationException);
             Assert.False(unitOfWork.EndCalled);
 
         }
@@ -76,12 +75,8 @@
 
             var ex = new Exception("Handler failed");
             //since it is a single exception then it will not be an AggregateException 
-            Assert.Throws<Exception>(async () =>
-            {
-                await InvokeBehavior(builder, ex);
-            });
+            Assert.That(async () => await InvokeBehavior(builder, ex), Throws.InstanceOf<Exception>().And.SameAs(ex));
             Assert.AreSame(ex, unitOfWork.ExceptionPassedToEnd);
-
         }
 
         [Test]
@@ -116,8 +111,7 @@
             builder.Register<IManageUnitsOfWork>(() => unitOfWorkThatThrows);
             builder.Register<IManageUnitsOfWork>(() => unitOfWork);
 
-            Assert.Throws<InvalidOperationException>(async () => await InvokeBehavior(builder));
-
+            Assert.That(async () => await InvokeBehavior(builder), Throws.InvalidOperationException);
             Assert.True(unitOfWork.EndCalled);
         }
 
@@ -134,7 +128,7 @@
             builder.Register<IManageUnitsOfWork>(() => unitOfWorkThatThrows);
             builder.Register<IManageUnitsOfWork>(() => unitOfWorkThatIsNeverCalled);
 
-            Assert.Throws<InvalidOperationException>(async () => await InvokeBehavior(builder));
+            Assert.That(async () => await InvokeBehavior(builder), Throws.InvalidOperationException);
 
             Assert.True(normalUnitOfWork.EndCalled);
             Assert.True(unitOfWorkThatThrows.EndCalled);
@@ -271,10 +265,8 @@
             builder.Register<IManageUnitsOfWork>(() => throwingUoW);
 
             //since it is a single exception then it will not be an AggregateException 
-            var exception = Assert.Throws<InvalidOperationException>(async () => await InvokeBehavior(builder));
-
+            Assert.That(async () => await InvokeBehavior(builder), Throws.InstanceOf<InvalidOperationException>().And.SameAs(throwingUoW.ExceptionThrownFromEnd));
             Assert.AreSame(throwingUoW.ExceptionThrownFromEnd, unitOfWork.Exception);
-            Assert.AreSame(throwingUoW.ExceptionThrownFromEnd, exception);
         }
 
         class CaptureExceptionPassedToEndUnitOfWork : IManageUnitsOfWork

@@ -43,9 +43,7 @@
             var context = new RoutingContext(message, new MulticastRoutingStrategy(null), null);
             context.AddDeliveryConstraint(new DelayDeliveryWith(delay));
 
-            var ex = Assert.Throws<Exception>(async () => await behavior.Invoke(context, () => TaskEx.CompletedTask));
-
-            Assert.True(ex.Message.Contains("unicast routing"));
+            Assert.That(async () => await behavior.Invoke(context, () => TaskEx.CompletedTask), Throws.InstanceOf<Exception>().And.Message.Contains("unicast routing"));
         }
 
         [Test]
@@ -60,10 +58,9 @@
             context.AddDeliveryConstraint(new DelayDeliveryWith(delay));
             context.AddDeliveryConstraint(new DiscardIfNotReceivedBefore(TimeSpan.FromSeconds(30)));
 
-            var ex = Assert.Throws<Exception>(async () => await behavior.Invoke(context, () => TaskEx.CompletedTask));
-
-            Assert.True(ex.Message.Contains("TimeToBeReceived"));
+            Assert.That(async () => await behavior.Invoke(context, () => TaskEx.CompletedTask), Throws.InstanceOf<Exception>().And.Message.Contains("TimeToBeReceived"));
         }
+
         [Test]
         public async Task Should_set_the_expiry_header_to_a_absolute_utc_time_calculated_based_on_delay()
         {

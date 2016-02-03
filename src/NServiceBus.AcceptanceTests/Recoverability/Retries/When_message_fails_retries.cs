@@ -12,15 +12,21 @@
     public class When_message_fails_retries : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_forward_message_to_error_queue()
+        public async Task Should_forward_message_to_error_queue()
         {
-            var exception = Assert.Throws<AggregateException>(async () => await
-                Scenario.Define<Context>()
-                    .WithEndpoint<RetryEndpoint>(b => b
-                        .When((bus, c) => bus.SendLocal(new MessageWhichFailsRetries())))
-                    .Done(c => c.ForwardedToErrorQueue)
-                    .Run())
-                .ExpectFailedMessages();
+            MessagesFailedException exception = null;
+            try
+            {
+                await Scenario.Define<Context>()
+                        .WithEndpoint<RetryEndpoint>(b => b
+                            .When((bus, c) => bus.SendLocal(new MessageWhichFailsRetries())))
+                        .Done(c => c.ForwardedToErrorQueue)
+                        .Run();
+            }
+            catch (AggregateException ex)
+            {
+                exception = ex.ExpectFailedMessages();
+            }
 
             Assert.AreEqual(1, exception.FailedMessages.Count);
             var failedMessage = exception.FailedMessages.Single();

@@ -23,14 +23,14 @@
         }
 
         [Test]
-        public async void Sends_no_messages_when_no_timeouts_registered()
+        public async Task Sends_no_messages_when_no_timeouts_registered()
         {
             await poller.SpinOnce();
             CollectionAssert.IsEmpty(dispatcher.DispatchedMessages);
         }
 
         [Test]
-        public async void Updates_next_retrieval_time_when_timeout_registered_in_the_middle_and_dispatches_the_message()
+        public async Task Updates_next_retrieval_time_when_timeout_registered_in_the_middle_and_dispatches_the_message()
         {
             await poller.SpinOnce();
 
@@ -47,7 +47,7 @@
         }
 
         [Test]
-        public async void Keeps_next_retrieval_equal_to_the_registered_timeout_even_when_persister_returns_more_timeouts_and_dispatches_both_timeouts()
+        public async Task Keeps_next_retrieval_equal_to_the_registered_timeout_even_when_persister_returns_more_timeouts_and_dispatches_both_timeouts()
         {
             var nextRetrieval = poller.NextRetrieval;
             var timeout1 = nextRetrieval.Subtract(HalfOfDefaultInMemoryPersisterSleep);

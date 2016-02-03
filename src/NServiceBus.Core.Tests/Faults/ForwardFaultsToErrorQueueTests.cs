@@ -46,8 +46,7 @@ namespace NServiceBus.Core.Tests
                 "public-receive-address");
 
             //the ex should bubble to force the transport to rollback. If not the message will be lost
-            Assert.Throws<Exception>(async () => await behavior.Invoke(CreateContext("someid", fakeDispatchPipeline), () => { throw new Exception("testex"); }));
-
+            Assert.That(async () => await behavior.Invoke(CreateContext("someid", fakeDispatchPipeline), () => { throw new Exception("testex"); }), Throws.InstanceOf<Exception>());
             Assert.True(criticalError.ErrorRaised);
         }
 
