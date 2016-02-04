@@ -6,7 +6,6 @@
     using NServiceBus.Extensibility;
     using NServiceBus.Routing;
     using NServiceBus.Transports;
-    using NServiceBus.Transports.Msmq.Config;
     using NUnit.Framework;
 
     [TestFixture]

@@ -6,7 +6,6 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using Logging;
     using NServiceBus.Transports;
-    using NServiceBus.Transports.Msmq.Config;
 
     class QueueCreator : ICreateQueues
     {

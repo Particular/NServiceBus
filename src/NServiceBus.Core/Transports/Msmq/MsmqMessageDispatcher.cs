@@ -11,7 +11,6 @@ namespace NServiceBus
     using NServiceBus.Extensibility;
     using NServiceBus.Performance.TimeToBeReceived;
     using NServiceBus.Transports;
-    using NServiceBus.Transports.Msmq.Config;
     using NServiceBus.Unicast.Queuing;
 
     class MsmqMessageDispatcher : IDispatchMessages

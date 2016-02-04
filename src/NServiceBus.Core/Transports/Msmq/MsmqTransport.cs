@@ -12,7 +12,6 @@ namespace NServiceBus
     using NServiceBus.Routing;
     using NServiceBus.Settings;
     using NServiceBus.Transports;
-    using NServiceBus.Transports.Msmq.Config;
 
     /// <summary>
     /// Transport definition for MSMQ.

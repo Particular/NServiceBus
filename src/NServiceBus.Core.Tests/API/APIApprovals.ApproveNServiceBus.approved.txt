@@ -2819,14 +2819,11 @@ namespace NServiceBus.Transports
 }
 namespace NServiceBus.Transports.Msmq.Config
 {
+    [System.ObsoleteAttribute("No longer available, please see our documentation for native sends for alternativ" +
+        "e solutions. Will be removed in version 7.0.0.", true)]
     public class MsmqSettings
     {
         public MsmqSettings() { }
-        public System.TimeSpan TimeToReachQueue { get; set; }
-        public bool UseConnectionCache { get; set; }
-        public bool UseDeadLetterQueue { get; set; }
-        public bool UseJournalQueue { get; set; }
-        public bool UseTransactionalQueues { get; set; }
     }
 }
 namespace NServiceBus.Transports.Msmq
@@ -2843,10 +2840,11 @@ namespace NServiceBus.Transports.Msmq
     {
         public MsmqDequeueStrategy() { }
     }
-    public class MsmqMessageSender : NServiceBus.Transports.IDispatchMessages
+    [System.ObsoleteAttribute("No longer available, please see our documentation for native sends for alternativ" +
+        "e solutions. Will be removed in version 7.0.0.", true)]
+    public class MsmqMessageSender
     {
-        public MsmqMessageSender(NServiceBus.Transports.Msmq.Config.MsmqSettings settings, System.Func<System.Collections.Generic.IReadOnlyDictionary<string, string>, string> messageLabelGenerator) { }
-        public System.Threading.Tasks.Task Dispatch(NServiceBus.Transports.TransportOperations outgoingMessages, NServiceBus.Extensibility.ContextBag context) { }
+        public MsmqMessageSender() { }
     }
     [System.ObsoleteAttribute("The msmq transaction is now available via the pipeline context. Will be removed i" +
         "n version 7.0.0.", true)]
