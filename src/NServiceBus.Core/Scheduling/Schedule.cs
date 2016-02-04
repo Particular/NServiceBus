@@ -9,7 +9,7 @@ namespace NServiceBus
     /// <summary>
     /// Extends the context with scheduling capabilities.
     /// </summary>
-    public static class ScheduleBusExtensions
+    public static class ScheduleExtensions
     {
         /// <summary>
         /// Schedules a task to be executed repeatedly in a given interval.

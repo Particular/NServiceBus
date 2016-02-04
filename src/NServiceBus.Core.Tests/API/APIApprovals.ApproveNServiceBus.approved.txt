@@ -852,7 +852,7 @@ namespace NServiceBus
     {
         public Schedule() { }
     }
-    public class static ScheduleBusExtensions
+    public class static ScheduleExtensions
     {
         [System.ObsoleteAttribute("Please use `ScheduleEvery(this IBusContext context, TimeSpan timeSpan, Func<IBusC" +
             "ontext, Task> task)` instead. Will be removed in version 7.0.0.", true)]
