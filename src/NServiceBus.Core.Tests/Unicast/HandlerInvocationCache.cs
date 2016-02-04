@@ -131,7 +131,7 @@
     public class When_invoking_a_cached_timeout_handler
     {
         [Test]
-        public async void Should_invoke_timeout_method()
+        public async Task Should_invoke_timeout_method()
         {
             var cache = new MessageHandlerRegistry(new Conventions());
             cache.RegisterHandler(typeof(StubHandler));
@@ -143,7 +143,7 @@
         }
 
         [Test]
-        public async void Should_have_passed_through_correct_state()
+        public async Task Should_have_passed_through_correct_state()
         {
             var cache = new MessageHandlerRegistry(new Conventions());
             cache.RegisterHandler(typeof(StubHandler));

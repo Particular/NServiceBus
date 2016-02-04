@@ -13,15 +13,13 @@
         {
             var behavior = new TransactionScopeUnitOfWorkBehavior(new TransactionOptions());
 
-            var ex = Assert.Throws<Exception>(async () =>
+            Assert.That(async () =>
             {
                 using (new TransactionScope(TransactionScopeOption.Required, TransactionScopeAsyncFlowOption.Enabled))
                 {
                     await behavior.Invoke(null, () => TaskEx.CompletedTask);
                 }
-            });
-
-            StringAssert.Contains("Ambient transaction detected. The transaction scope unit of work is not supported when there already is a scope present.", ex.Message);
+            }, Throws.InstanceOf<Exception>().And.Message.Contains("Ambient transaction detected. The transaction scope unit of work is not supported when there already is a scope present."));
         }
 
         [Test]

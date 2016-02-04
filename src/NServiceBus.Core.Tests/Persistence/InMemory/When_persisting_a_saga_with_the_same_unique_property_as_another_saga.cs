@@ -30,7 +30,8 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
             await persister.Save(saga2, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(saga1), losingSession, new ContextBag());
 
             await winningSession.CompleteAsync();
-            Assert.Throws<InvalidOperationException>(async () => await losingSession.CompleteAsync());
+
+            Assert.That(async () => await losingSession.CompleteAsync(), Throws.InstanceOf<InvalidOperationException>());
         }
     }
 }

@@ -11,8 +11,6 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
         static string baseDirectoryToScan = Path.Combine(Path.GetTempPath(), "empty");
         static string someSubDirectory = Path.Combine(baseDirectoryToScan, "subDir");
 
-        AssemblyScannerResults results;
-
         [SetUp]
         public void Context()
         {
@@ -21,13 +19,6 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
 
             var dllFilePath = Path.Combine(someSubDirectory, "NotAProper.dll");
             File.WriteAllText(dllFilePath, "This is not a proper DLL");
-
-            results = new AssemblyScanner(baseDirectoryToScan)
-                {
-                    IncludeAppDomainAssemblies = true,
-                    ScanNestedDirectories = false
-                }
-                .GetScannableAssemblies();
         }
 
         [TearDown]
@@ -40,6 +31,13 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
         [Test]
         public void should_not_find_assembly_in_sub_directory()
         {
+            var results = new AssemblyScanner(baseDirectoryToScan)
+            {
+                IncludeAppDomainAssemblies = true,
+                ScanNestedDirectories = false
+            }
+            .GetScannableAssemblies();
+
             var allEncounteredFileNames =
                 results.Assemblies
                     .Where(x => !x.IsDynamic)
