@@ -11,13 +11,13 @@ namespace NServiceBus
         /// <summary>
         /// Sets the function to be used when critical error occurs.
         /// </summary>
-        /// <param name="busConfiguration">The <see cref="BusConfiguration" /> to extend.</param>
+        /// <param name="endpointConfiguration">The <see cref="EndpointConfiguration" /> to extend.</param>
         /// <param name="onCriticalError">Assigns the action to perform on critical error.</param>
-        public static void DefineCriticalErrorAction(this BusConfiguration busConfiguration, Func<ICriticalErrorContext, Task> onCriticalError)
+        public static void DefineCriticalErrorAction(this EndpointConfiguration endpointConfiguration, Func<ICriticalErrorContext, Task> onCriticalError)
         {
-            Guard.AgainstNull(nameof(busConfiguration), busConfiguration);
+            Guard.AgainstNull(nameof(endpointConfiguration), endpointConfiguration);
             Guard.AgainstNull(nameof(onCriticalError), onCriticalError);
-            busConfiguration.Settings.Set("onCriticalErrorAction", onCriticalError);
+            endpointConfiguration.Settings.Set("onCriticalErrorAction", onCriticalError);
         }
     }
 }

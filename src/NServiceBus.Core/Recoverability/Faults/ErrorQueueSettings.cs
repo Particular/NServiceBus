@@ -13,7 +13,7 @@ namespace NServiceBus
 
             if (settings.TryGet("errorQueue", out errorQueue))
             {
-                Logger.Debug("Error queue retrieved from code configuration via 'BusConfiguration.SendFailedMessagesTo().");
+                Logger.Debug("Error queue retrieved from code configuration via 'EndpointConfiguration.SendFailedMessagesTo().");
                 return errorQueue;
             }
 
@@ -29,7 +29,7 @@ namespace NServiceBus
                 throw new Exception(
                     @"'MessageForwardingInCaseOfFaultConfig' configuration section is found but 'ErrorQueue' value is empty. 
 Please take on of the following actions: 
-- set the error queue at configuration time using 'BusConfiguration.SendFailedMessagesTo()'
+- set the error queue at configuration time using 'EndpointConfiguration.SendFailedMessagesTo()'
 - Add a valid value to to your app config. For example: 
  <MessageForwardingInCaseOfFaultConfig ErrorQueue=""error""/>");
             }
@@ -45,7 +45,7 @@ Please take on of the following actions:
                 throw new Exception(
                     @"'ErrorQueue' read from registry but the value is empty. 
 Please take on of the following actions: 
-- set the error queue at configuration time using 'BusConfiguration.SendFailedMessagesTo()'
+- set the error queue at configuration time using 'EndpointConfiguration.SendFailedMessagesTo()'
 - add a 'MessageForwardingInCaseOfFaultConfig' section to your app.config
 - give 'HKEY_LOCAL_MACHINE\SOFTWARE\ParticularSoftware\ServiceBus\ErrorQueue' a valid value for your error queue");
             }
@@ -53,7 +53,7 @@ Please take on of the following actions:
             throw new Exception(
 @"Faults forwarding requires an error queue to be specified. 
 Please take on of the following actions: 
-- set the error queue at configuration time using 'BusConfiguration.SendFailedMessagesTo()'
+- set the error queue at configuration time using 'EndpointConfiguration.SendFailedMessagesTo()'
 - add a 'MessageForwardingInCaseOfFaultConfig' section to your app.config
 - configure a global error queue in the registry using the powershell command: Set-NServiceBusLocalMachineSettings -ErrorQueue {address of error queue}");
         }

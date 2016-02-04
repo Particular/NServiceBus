@@ -9,7 +9,7 @@
         [Test]
         public void Should_throw_meaningful_exception()
         {
-            var builder = new BusConfiguration();
+            var builder = new EndpointConfiguration();
 
             builder.TypesToScanInternal(new[] { typeof(FeatureWithInitialization) });
 
@@ -24,10 +24,10 @@
             {
                 // Note: this ctor will cause the builder to throw an exception.
                 // If you are using assembly scanning in your tests, make sure to exclude this type by using:
-                // busConfiguration.ExcludeTypes(typeof(When_using_initialization_with_non_default_ctor.FeatureWithInitialization));
+                // endpointConfiguration.ExcludeTypes(typeof(When_using_initialization_with_non_default_ctor.FeatureWithInitialization));
             }
 
-            public void Customize(BusConfiguration configuration)
+            public void Customize(EndpointConfiguration configuration)
             {
             }
         }

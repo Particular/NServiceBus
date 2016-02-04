@@ -16,9 +16,9 @@
         EndpointBehavior behavior;
         IStartableEndpoint startable;
         IEndpointInstance endpointInstance;
-        EndpointConfiguration configuration;
+        EndpointCustomizationConfiguration configuration;
         ScenarioContext scenarioContext;
-        BusConfiguration busConfiguration;
+        EndpointConfiguration endpointConfiguration;
 
         public bool FailOnErrorMessage => !behavior.DoNotFailOnErrorMessages;
 
@@ -40,23 +40,23 @@
                 }
 
                 //apply custom config settings
-                busConfiguration = await configuration.GetConfiguration(run, routingTable).ConfigureAwait(false);
+                endpointConfiguration = await configuration.GetConfiguration(run, routingTable).ConfigureAwait(false);
                 RegisterInheritanceHierarchyOfContextInSettings(scenarioContext);
 
-                endpointBehavior.CustomConfig.ForEach(customAction => customAction(busConfiguration, scenarioContext));
+                endpointBehavior.CustomConfig.ForEach(customAction => customAction(endpointConfiguration, scenarioContext));
 
                 if (configuration.SendOnly)
                 {
-                    busConfiguration.SendOnly();
+                    endpointConfiguration.SendOnly();
                 }
 
-                var initializable = Endpoint.Prepare(busConfiguration);
+                var initializable = Endpoint.Prepare(endpointConfiguration);
                 startable = await initializable.Initialize().ConfigureAwait(false);
 
                 if (!configuration.SendOnly)
                 {
-                    var transportDefinition = busConfiguration.GetSettings().Get<TransportDefinition>();
-                    scenarioContext.HasNativePubSubSupport = transportDefinition.GetOutboundRoutingPolicy(busConfiguration.GetSettings()).Publishes == OutboundRoutingType.Multicast;
+                    var transportDefinition = endpointConfiguration.GetSettings().Get<TransportDefinition>();
+                    scenarioContext.HasNativePubSubSupport = transportDefinition.GetOutboundRoutingPolicy(endpointConfiguration.GetSettings()).Publishes == OutboundRoutingType.Multicast;
                 }
 
                 return Result.Success();
@@ -73,7 +73,7 @@
             var type = context.GetType();
             while (type != typeof(object))
             {
-                busConfiguration.GetSettings().Set(type.FullName, scenarioContext);
+                endpointConfiguration.GetSettings().Set(type.FullName, scenarioContext);
                 type = type.BaseType;
             }
         }
@@ -174,7 +174,7 @@
         Task Cleanup()
         {
             List<IConfigureTestExecution> cleaners;
-            if (busConfiguration.GetSettings().TryGet("Cleaners", out cleaners))
+            if (endpointConfiguration.GetSettings().TryGet("Cleaners", out cleaners))
             {
                 var tasks = cleaners.Select(cleaner => cleaner.Cleanup());
                 return Task.WhenAll(tasks);

@@ -8,9 +8,9 @@ namespace NServiceBus.SecondLevelRetries.Config
     /// </summary>
     public class SecondLevelRetriesSettings
     {
-        BusConfiguration config;
+        EndpointConfiguration config;
 
-        internal SecondLevelRetriesSettings(BusConfiguration config)
+        internal SecondLevelRetriesSettings(EndpointConfiguration config)
         {
             this.config = config;
         }

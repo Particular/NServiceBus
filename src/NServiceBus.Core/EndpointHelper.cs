@@ -97,7 +97,7 @@ namespace NServiceBus
                                 f =>
                                 {
                                     var declaringType = f.GetMethod().DeclaringType;
-                                    return declaringType != typeof(Configure) && declaringType != typeof(BusConfiguration);
+                                    return declaringType != typeof(Configure) && declaringType != typeof(EndpointConfiguration);
                                 });
                     }
                 }

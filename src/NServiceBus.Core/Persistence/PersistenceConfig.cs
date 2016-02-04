@@ -12,8 +12,8 @@
         /// Configures the given persistence to be used.
         /// </summary>
         /// <typeparam name="T">The persistence definition eg <see cref="InMemoryPersistence"/>, NHibernate etc.</typeparam>
-        /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
-        public static PersistenceExtentions<T> UsePersistence<T>(this BusConfiguration config) where T : PersistenceDefinition
+        /// <param name="config">The <see cref="EndpointConfiguration"/> instance to apply the settings to.</param>
+        public static PersistenceExtentions<T> UsePersistence<T>(this EndpointConfiguration config) where T : PersistenceDefinition
         {
             Guard.AgainstNull(nameof(config), config);
             var type = typeof(PersistenceExtentions<>).MakeGenericType(typeof(T));
@@ -25,8 +25,8 @@
         /// </summary>
         /// <typeparam name="T">The persistence definition eg <see cref="InMemoryPersistence"/>, NHibernate etc.</typeparam>
         /// <typeparam name="S">The <see cref="StorageType"/>storage type.</typeparam>
-        /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
-        public static PersistenceExtentions<T, S> UsePersistence<T, S>(this BusConfiguration config) where T : PersistenceDefinition
+        /// <param name="config">The <see cref="EndpointConfiguration"/> instance to apply the settings to.</param>
+        public static PersistenceExtentions<T, S> UsePersistence<T, S>(this EndpointConfiguration config) where T : PersistenceDefinition
                                                                                                      where S : StorageType
         {
             Guard.AgainstNull(nameof(config), config);
@@ -37,9 +37,9 @@
         /// <summary>
         ///  Configures the given persistence to be used.
         /// </summary>
-        /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
+        /// <param name="config">The <see cref="EndpointConfiguration"/> instance to apply the settings to.</param>
         /// <param name="definitionType">The persistence definition eg <see cref="InMemoryPersistence"/>, NHibernate etc.</param>
-        public static PersistenceExtentions UsePersistence(this BusConfiguration config, Type definitionType)
+        public static PersistenceExtentions UsePersistence(this EndpointConfiguration config, Type definitionType)
         {
             Guard.AgainstNull(nameof(config), config);
             Guard.AgainstNull(nameof(definitionType), definitionType);

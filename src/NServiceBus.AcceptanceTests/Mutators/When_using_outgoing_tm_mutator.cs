@@ -43,7 +43,7 @@
                     return Task.FromResult(0);
                 }
 
-                public void Customize(BusConfiguration configuration)
+                public void Customize(EndpointConfiguration configuration)
                 {
                     configuration.RegisterComponents(c => c.ConfigureComponent<MyTransportMessageMutator>(DependencyLifecycle.InstancePerCall));
                 }

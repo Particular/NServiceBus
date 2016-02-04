@@ -8,7 +8,7 @@
         /// <summary>
         /// Gets the routing table for the direct routing.
         /// </summary>
-        public static RoutingSettings Routing(this BusConfiguration config)
+        public static RoutingSettings Routing(this EndpointConfiguration config)
         {
             Guard.AgainstNull(nameof(config), config);
             return new RoutingSettings(config.Settings);

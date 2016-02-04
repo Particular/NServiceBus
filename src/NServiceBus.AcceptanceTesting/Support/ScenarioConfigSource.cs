@@ -8,10 +8,10 @@
 
     public class ScenarioConfigSource : IConfigurationSource
     {
-        EndpointConfiguration configuration;
+        EndpointCustomizationConfiguration configuration;
         IDictionary<Type, string> routingTable;
 
-        public ScenarioConfigSource(EndpointConfiguration configuration, IDictionary<Type, string> routingTable)
+        public ScenarioConfigSource(EndpointCustomizationConfiguration configuration, IDictionary<Type, string> routingTable)
         {
             this.configuration = configuration;
             this.routingTable = routingTable;

@@ -9,7 +9,7 @@
 
     static class SubscriptionBehaviorExtensions
     {
-        public static void OnEndpointSubscribed<TContext>(this BusConfiguration b, Action<SubscriptionEventArgs, TContext> action) where TContext : ScenarioContext
+        public static void OnEndpointSubscribed<TContext>(this EndpointConfiguration b, Action<SubscriptionEventArgs, TContext> action) where TContext : ScenarioContext
         {
             b.Pipeline.Register<SubscriptionBehavior<TContext>.Registration>();
 

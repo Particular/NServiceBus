@@ -8,9 +8,9 @@ namespace NServiceBus
         /// <summary>
         /// Instructs the transport to limits the allowed concurrency when processing messages.
         /// </summary>
-        /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
+        /// <param name="config">The <see cref="EndpointConfiguration"/> instance to apply the settings to.</param>
         /// <param name="maxConcurrency">The max concurrency allowed.</param>
-        public static void LimitMessageProcessingConcurrencyTo(this BusConfiguration config, int maxConcurrency)
+        public static void LimitMessageProcessingConcurrencyTo(this EndpointConfiguration config, int maxConcurrency)
         {
             Guard.AgainstNull(nameof(config), config);
             Guard.AgainstNegativeAndZero(nameof(maxConcurrency), maxConcurrency);

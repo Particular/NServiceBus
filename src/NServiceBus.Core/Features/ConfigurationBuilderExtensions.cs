@@ -11,8 +11,8 @@
         /// <summary>
         /// Enables the given feature.
         /// </summary>
-        /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
-        public static void EnableFeature<T>(this BusConfiguration config) where T : Feature
+        /// <param name="config">The <see cref="EndpointConfiguration"/> instance to apply the settings to.</param>
+        public static void EnableFeature<T>(this EndpointConfiguration config) where T : Feature
         {
             Guard.AgainstNull(nameof(config), config);
             config.EnableFeature(typeof(T));
@@ -21,9 +21,9 @@
         /// <summary>
         /// Enables the given feature.
         /// </summary>
-        /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
+        /// <param name="config">The <see cref="EndpointConfiguration"/> instance to apply the settings to.</param>
         /// <param name="featureType">The feature to enable.</param>
-        public static void EnableFeature(this BusConfiguration config, Type featureType)
+        public static void EnableFeature(this EndpointConfiguration config, Type featureType)
         {
             Guard.AgainstNull(nameof(config), config);
             Guard.AgainstNull(nameof(featureType), featureType);
@@ -34,8 +34,8 @@
         /// <summary>
         /// Disables the given feature.
         /// </summary>
-        /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
-        public static void DisableFeature<T>(this BusConfiguration config) where T : Feature
+        /// <param name="config">The <see cref="EndpointConfiguration"/> instance to apply the settings to.</param>
+        public static void DisableFeature<T>(this EndpointConfiguration config) where T : Feature
         {
             Guard.AgainstNull(nameof(config), config);
             config.DisableFeature(typeof(T));
@@ -44,9 +44,9 @@
         /// <summary>
         /// Enables the given feature.
         /// </summary>
-        /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
+        /// <param name="config">The <see cref="EndpointConfiguration"/> instance to apply the settings to.</param>
         /// <param name="featureType">The feature to disable.</param>
-        public static void DisableFeature(this BusConfiguration config, Type featureType)
+        public static void DisableFeature(this EndpointConfiguration config, Type featureType)
         {
             Guard.AgainstNull(nameof(config), config);
             Guard.AgainstNull(nameof(featureType), featureType);

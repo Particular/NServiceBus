@@ -44,7 +44,7 @@
             return this;
         }
 
-        EndpointConfiguration CreateScenario()
+        EndpointCustomizationConfiguration CreateScenario()
         {
             configuration.BuilderType = GetType();
 
@@ -56,7 +56,7 @@
             return EndpointSetup<T>(c => { });
         }
 
-        public EndpointConfigurationBuilder EndpointSetup<T>(Action<BusConfiguration> configurationBuilderCustomization) where T : IEndpointSetupTemplate, new()
+        public EndpointConfigurationBuilder EndpointSetup<T>(Action<EndpointConfiguration> configurationBuilderCustomization) where T : IEndpointSetupTemplate, new()
         {
             if (configurationBuilderCustomization == null)
             {
@@ -69,7 +69,7 @@
             });
         }
 
-        public EndpointConfigurationBuilder EndpointSetup<T>(Action<BusConfiguration, RunDescriptor> configurationBuilderCustomization) where T : IEndpointSetupTemplate, new()
+        public EndpointConfigurationBuilder EndpointSetup<T>(Action<EndpointConfiguration, RunDescriptor> configurationBuilderCustomization) where T : IEndpointSetupTemplate, new()
         {
             if (configurationBuilderCustomization == null)
             {
@@ -82,7 +82,7 @@
                 var endpointConfiguration = await endpointSetupTemplate.GetConfiguration(runDescriptor, configuration, scenarioConfigSource, bc =>
                 {
                     configurationBuilderCustomization(bc, runDescriptor);
-                });
+                }).ConfigureAwait(false);
 
                 return endpointConfiguration;
             };
@@ -91,14 +91,14 @@
         }
 
 
-        EndpointConfiguration IEndpointConfigurationFactory.Get()
+        EndpointCustomizationConfiguration IEndpointConfigurationFactory.Get()
         {
             return CreateScenario();
         }
         public ScenarioContext ScenarioContext { get; set; }
 
 
-        EndpointConfiguration configuration = new EndpointConfiguration();
+        EndpointCustomizationConfiguration configuration = new EndpointCustomizationConfiguration();
 
         public EndpointConfigurationBuilder WithConfig<T>(Action<T> action) where T : new()
         {

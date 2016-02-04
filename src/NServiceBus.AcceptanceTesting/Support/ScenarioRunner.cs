@@ -357,7 +357,7 @@
                 runners.Add(runner);
             }
 
-            await Task.WhenAll(runners.Select(r => r.InitializeTask).ToArray());
+            await Task.WhenAll(runners.Select(r => r.InitializeTask).ToArray()).ConfigureAwait(false);
             var failedRunner = runners.FirstOrDefault(r => r.InitializeTask.Result.Failed);
             if (failedRunner != null)
             {

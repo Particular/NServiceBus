@@ -42,8 +42,8 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "7",
             TreatAsErrorFromVersion = "6",
-            ReplacementTypeOrMember = "ConfigureCriticalErrorAction.DefineCriticalErrorAction(BusConfiguration, Func<ICriticalErrorContext, Task>)")]
-        public static void DefineCriticalErrorAction(this BusConfiguration busConfiguration, Action<string, Exception> onCriticalError)
+            ReplacementTypeOrMember = "ConfigureCriticalErrorAction.DefineCriticalErrorAction(EndpointConfiguration, Func<ICriticalErrorContext, Task>)")]
+        public static void DefineCriticalErrorAction(this EndpointConfiguration endpointConfiguration, Action<string, Exception> onCriticalError)
         {
         }
     }
@@ -89,7 +89,7 @@ namespace NServiceBus
             Message = "This is no longer supported. If you want full control over what happens when a message fails (including retries) please override the MoveFaultsToErrorQueue behavior.",
             RemoveInVersion = "7",
             TreatAsErrorFromVersion = "6")]
-        public static void DiscardFailedMessagesInsteadOfSendingToErrorQueue(this BusConfiguration config)
+        public static void DiscardFailedMessagesInsteadOfSendingToErrorQueue(this EndpointConfiguration config)
         {
             throw new NotImplementedException();
         }
@@ -98,7 +98,7 @@ namespace NServiceBus
     [ObsoleteEx(
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0",
-        ReplacementTypeOrMember = "BusConfiguration.ExecuteTheseHandlersFirst")]
+        ReplacementTypeOrMember = "EndpointConfiguration.ExecuteTheseHandlersFirst")]
     public interface ISpecifyMessageHandlerOrdering
     {
     }
@@ -106,7 +106,7 @@ namespace NServiceBus
     [ObsoleteEx(
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0",
-        ReplacementTypeOrMember = "BusConfiguration.ExecuteTheseHandlersFirst")]
+        ReplacementTypeOrMember = "EndpointConfiguration.ExecuteTheseHandlersFirst")]
     public class First<T>
     {
     }
@@ -114,13 +114,18 @@ namespace NServiceBus
     [ObsoleteEx(
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0",
-        ReplacementTypeOrMember = "BusConfiguration.ExecuteTheseHandlersFirst")]
+        ReplacementTypeOrMember = "EndpointConfiguration.ExecuteTheseHandlersFirst")]
     public class Order
     {
     }
 
+    [ObsoleteEx(
+        ReplacementTypeOrMember = "EndpointConfiguration",
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0")]
+    public class BusConfiguration { }
 
-    public partial class BusConfiguration
+    public partial class EndpointConfiguration
     {
         [ObsoleteEx(
             ReplacementTypeOrMember = "SetOutgoingHeaders(string key,string value)",
@@ -197,7 +202,7 @@ namespace NServiceBus
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
-        ReplacementTypeOrMember = "BusConfiguration.ExcludeAssemblies")]
+        ReplacementTypeOrMember = "EndpointConfiguration.ExcludeAssemblies")]
     public class AllAssemblies
     {
     }
@@ -313,8 +318,8 @@ namespace NServiceBus
 
     public static partial class ConfigureRijndaelEncryptionService
     {
-        [ObsoleteEx(ReplacementTypeOrMember = "RegisterEncryptionService(this BusConfiguration config, Func<IEncryptionService> func)", RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "It is no longer possible to access the builder to create an encryption service. If you require container access use your container directly in the factory.")]
-        public static void RegisterEncryptionService(this BusConfiguration config, Func<IBuilder, IEncryptionService> func)
+        [ObsoleteEx(ReplacementTypeOrMember = "RegisterEncryptionService(this EndpointConfiguration config, Func<IEncryptionService> func)", RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "It is no longer possible to access the builder to create an encryption service. If you require container access use your container directly in the factory.")]
+        public static void RegisterEncryptionService(this EndpointConfiguration config, Func<IBuilder, IEncryptionService> func)
         {
             throw new NotImplementedException();
         }
@@ -1370,7 +1375,7 @@ namespace NServiceBus
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
             ReplacementTypeOrMember = "Endpoint.Create")]
-        public static IStartableBus Create(BusConfiguration configuration)
+        public static IStartableBus Create(EndpointConfiguration configuration)
         {
             throw new NotImplementedException();
         }
@@ -1378,8 +1383,8 @@ namespace NServiceBus
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            ReplacementTypeOrMember = "BusConfiguration.SendOnly")]
-        public static IBus CreateSendOnly(BusConfiguration configuration)
+            ReplacementTypeOrMember = "EndpointConfiguration.SendOnly")]
+        public static IBus CreateSendOnly(EndpointConfiguration configuration)
         {
             throw new NotImplementedException();
         }
@@ -1645,7 +1650,7 @@ namespace NServiceBus.Settings
             Message =
                 @"DoNotWrapHandlersExecutionInATransactionScope() has been removed since transaction scopes are no longer used by non DTC transports delay the dispatch of all outgoing operations until handlers have been executed.
 In Version 6 handlers will only be wrapped in a transactionscope if running the MSMQ or SQLServer transports in default mode. This means that performing storage operations against data sources also supporting transaction scopes 
-will escalate to a distributed transaction. Previous versions allowed opting out of this behavior using config.Transactions().DoNotWrapHandlersExecutionInATransactionScope(). In Version 6 it's recommended to use `busConfiguration.UseTransport<MyTransport>().Transactions(TransportTransactionMode.ReceiveOnly)` to lean on native transport transaction and the new batched dispatch support to achieve the same level of consistency with better performance.
+will escalate to a distributed transaction. Previous versions allowed opting out of this behavior using config.Transactions().DoNotWrapHandlersExecutionInATransactionScope(). In Version 6 it's recommended to use `EndpointConfiguration.UseTransport<MyTransport>().Transactions(TransportTransactionMode.ReceiveOnly)` to lean on native transport transaction and the new batched dispatch support to achieve the same level of consistency with better performance.
 Suppressing the ambient transaction created by the MSMQ and SQL Server transports can still be achieved by creating a custom pipeline behavior with a suppressed transaction scope.")]
         public TransactionSettings DoNotWrapHandlersExecutionInATransactionScope()
         {
@@ -1728,7 +1733,7 @@ Suppressing the ambient transaction created by the MSMQ and SQL Server transport
                RemoveInVersion = "7.0",
                TreatAsErrorFromVersion = "6.0",
                 Message = "No longer used, can safely be removed")]
-            public static TransactionSettings Transactions(this BusConfiguration config)
+            public static TransactionSettings Transactions(this EndpointConfiguration config)
             {
                 throw new NotImplementedException();
             }
@@ -1747,7 +1752,7 @@ namespace NServiceBus
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
             Message = "To use a custom serializer derive from SerializationDefinition and provide a factory method for creating the serializer instance.")]
-        public static void UseSerialization(this BusConfiguration config, Type serializerType)
+        public static void UseSerialization(this EndpointConfiguration config, Type serializerType)
         {
             throw new NotImplementedException();
         }

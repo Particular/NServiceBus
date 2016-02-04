@@ -13,9 +13,9 @@ namespace NServiceBus
         /// Setting this to true may make sense for certain smart-client applications, 
         /// but rarely for server applications.
         /// </summary>
-        /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
+        /// <param name="config">The <see cref="EndpointConfiguration"/> instance to apply the settings to.</param>
         /// <param name="value">True to purge all message on startup; otherwise False.</param>
-        public static void PurgeOnStartup(this BusConfiguration config, bool value)
+        public static void PurgeOnStartup(this EndpointConfiguration config, bool value)
         {
             Guard.AgainstNull(nameof(config), config);
             config.Settings.Set("Transport.PurgeOnStartup", value);

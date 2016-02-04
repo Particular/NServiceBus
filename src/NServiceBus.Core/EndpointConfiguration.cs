@@ -19,14 +19,14 @@ namespace NServiceBus
     using NServiceBus.Transports;
 
     /// <summary>
-    ///     Configuration used to create a bus instance.
+    ///     Configuration used to create an endpoint instance.
     /// </summary>
-    public partial class BusConfiguration : ExposeSettings
+    public partial class EndpointConfiguration : ExposeSettings
     {
         /// <summary>
         /// Initializes a fresh instance of the builder.
         /// </summary>
-        public BusConfiguration()
+        public EndpointConfiguration()
             : base(new SettingsHolder())
         {
             configurationSourceToUse = new DefaultConfigurationSource();

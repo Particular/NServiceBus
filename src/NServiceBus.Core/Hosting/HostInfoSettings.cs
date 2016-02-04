@@ -9,9 +9,9 @@ namespace NServiceBus
     /// </summary>
     public class HostInfoSettings
     {
-        BusConfiguration config;
+        EndpointConfiguration config;
 
-        internal HostInfoSettings(BusConfiguration config)
+        internal HostInfoSettings(EndpointConfiguration config)
         {
             this.config = config;
         }

@@ -11,8 +11,8 @@
         /// <summary>
         /// Configures NServiceBus to use the given data bus definition.
         /// </summary>
-        /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
-        public static DataBusExtentions<T> UseDataBus<T>(this BusConfiguration config) where T : DataBusDefinition, new()
+        /// <param name="config">The <see cref="EndpointConfiguration"/> instance to apply the settings to.</param>
+        public static DataBusExtentions<T> UseDataBus<T>(this EndpointConfiguration config) where T : DataBusDefinition, new()
         {
             Guard.AgainstNull(nameof(config), config);
             var type = typeof(DataBusExtentions<>).MakeGenericType(typeof(T));
@@ -29,9 +29,9 @@
         /// <summary>
         /// Configures NServiceBus to use a custom <see cref="IDataBus"/> implementation.
         /// </summary>
-        /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
+        /// <param name="config">The <see cref="EndpointConfiguration"/> instance to apply the settings to.</param>
         /// <param name="dataBusType">The <see cref="IDataBus"/> <see cref="Type"/> to use.</param>
-        public static DataBusExtentions UseDataBus(this BusConfiguration config, Type dataBusType)
+        public static DataBusExtentions UseDataBus(this EndpointConfiguration config, Type dataBusType)
         {
             Guard.AgainstNull(nameof(config), config);
             Guard.AgainstNull(nameof(dataBusType), dataBusType);

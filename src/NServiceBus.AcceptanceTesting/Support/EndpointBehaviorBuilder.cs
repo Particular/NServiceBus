@@ -4,15 +4,14 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
-    public class EndpointBehaviorBuilder<TContext> where TContext:ScenarioContext
+    public class EndpointBehaviorBuilder<TContext> where TContext : ScenarioContext
     {
-        
         public EndpointBehaviorBuilder(Type type)
         {
             behavior = new EndpointBehavior(type)
-                {
-                    Whens = new List<IWhenDefinition>()
-                };
+            {
+                Whens = new List<IWhenDefinition>()
+            };
         }
 
         public EndpointBehaviorBuilder<TContext> When(Func<IBusSession, TContext, Task> action)
@@ -39,14 +38,14 @@
             return this;
         }
 
-        public EndpointBehaviorBuilder<TContext> CustomConfig(Action<BusConfiguration> action)
+        public EndpointBehaviorBuilder<TContext> CustomConfig(Action<EndpointConfiguration> action)
         {
             behavior.CustomConfig.Add((busConfig, context) => action(busConfig));
 
             return this;
         }
 
-        public EndpointBehaviorBuilder<TContext> CustomConfig(Action<BusConfiguration, TContext> action)
+        public EndpointBehaviorBuilder<TContext> CustomConfig(Action<EndpointConfiguration, TContext> action)
         {
             behavior.CustomConfig.Add(((configuration, context) => action(configuration, (TContext) context)));
 

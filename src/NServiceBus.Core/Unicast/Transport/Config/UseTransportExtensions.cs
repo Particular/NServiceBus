@@ -11,43 +11,43 @@ namespace NServiceBus
         /// <summary>
         /// Configures NServiceBus to use the given transport.
         /// </summary>
-        public static TransportExtensions<T> UseTransport<T>(this BusConfiguration busConfiguration) where T : TransportDefinition, new()
+        public static TransportExtensions<T> UseTransport<T>(this EndpointConfiguration endpointConfiguration) where T : TransportDefinition, new()
         {
-            Guard.AgainstNull(nameof(busConfiguration), busConfiguration);
+            Guard.AgainstNull(nameof(endpointConfiguration), endpointConfiguration);
             var type = typeof(TransportExtensions<>).MakeGenericType(typeof(T));
-            var extension = (TransportExtensions<T>)Activator.CreateInstance(type, busConfiguration.Settings);
+            var extension = (TransportExtensions<T>)Activator.CreateInstance(type, endpointConfiguration.Settings);
 
             var transportDefinition = new T();
-            ConfigureTransport(busConfiguration, transportDefinition);
+            ConfigureTransport(endpointConfiguration, transportDefinition);
             return extension;
         }
 
         /// <summary>
         /// Configures NServiceBus to use the given transport.
         /// </summary>
-        public static TransportExtensions UseTransport(this BusConfiguration busConfiguration, Type transportDefinitionType)
+        public static TransportExtensions UseTransport(this EndpointConfiguration endpointConfiguration, Type transportDefinitionType)
         {
-            Guard.AgainstNull(nameof(busConfiguration), busConfiguration);
+            Guard.AgainstNull(nameof(endpointConfiguration), endpointConfiguration);
             Guard.AgainstNull(nameof(transportDefinitionType), transportDefinitionType);
             Guard.TypeHasDefaultConstructor(transportDefinitionType, nameof(transportDefinitionType));
 
             var transportDefinition = transportDefinitionType.Construct<TransportDefinition>();
-            ConfigureTransport(busConfiguration, transportDefinition);
-            return new TransportExtensions(busConfiguration.Settings);
+            ConfigureTransport(endpointConfiguration, transportDefinition);
+            return new TransportExtensions(endpointConfiguration.Settings);
         }
 
-        static void ConfigureTransport(BusConfiguration busConfiguration, TransportDefinition transportDefinition)
+        static void ConfigureTransport(EndpointConfiguration endpointConfiguration, TransportDefinition transportDefinition)
         {
-            busConfiguration.Settings.Set<InboundTransport>(new InboundTransport(transportDefinition));
-            busConfiguration.Settings.Set<TransportDefinition>(transportDefinition);
-            busConfiguration.Settings.Set<OutboundTransport>(new OutboundTransport(transportDefinition, true));
+            endpointConfiguration.Settings.Set<InboundTransport>(new InboundTransport(transportDefinition));
+            endpointConfiguration.Settings.Set<TransportDefinition>(transportDefinition);
+            endpointConfiguration.Settings.Set<OutboundTransport>(new OutboundTransport(transportDefinition, true));
         }
 
-        internal static void EnsureTransportConfigured(BusConfiguration busConfiguration)
+        internal static void EnsureTransportConfigured(EndpointConfiguration endpointConfiguration)
         {
-            if (!busConfiguration.Settings.HasExplicitValue<TransportDefinition>())
+            if (!endpointConfiguration.Settings.HasExplicitValue<TransportDefinition>())
             {
-                busConfiguration.UseTransport<MsmqTransport>();
+                endpointConfiguration.UseTransport<MsmqTransport>();
             }
         }
     }

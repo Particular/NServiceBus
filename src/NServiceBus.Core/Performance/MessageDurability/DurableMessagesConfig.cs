@@ -12,8 +12,8 @@ namespace NServiceBus
         /// <summary>
         /// Configures messages to be guaranteed to be delivered in the event of a computer failure or network problem.
         /// </summary>
-        /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
-        public static void EnableDurableMessages(this BusConfiguration config)
+        /// <param name="config">The <see cref="EndpointConfiguration"/> instance to apply the settings to.</param>
+        public static void EnableDurableMessages(this EndpointConfiguration config)
         {
             Guard.AgainstNull(nameof(config), config);
             config.Settings.Set("Endpoint.DurableMessages", true);
@@ -22,8 +22,8 @@ namespace NServiceBus
         /// <summary>
         /// Configures messages that are not guaranteed to be delivered in the event of a computer failure or network problem.
         /// </summary>
-        /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
-        public static void DisableDurableMessages(this BusConfiguration config)
+        /// <param name="config">The <see cref="EndpointConfiguration"/> instance to apply the settings to.</param>
+        public static void DisableDurableMessages(this EndpointConfiguration config)
         {
             Guard.AgainstNull(nameof(config), config);
             config.Settings.Set("Endpoint.DurableMessages", false);

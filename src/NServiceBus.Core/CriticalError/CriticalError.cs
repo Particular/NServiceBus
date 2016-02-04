@@ -6,7 +6,7 @@ namespace NServiceBus
     using NServiceBus.Logging;
 
     /// <summary>
-    /// A holder for that exposes access to the action defined by <see cref="ConfigureCriticalErrorAction.DefineCriticalErrorAction(BusConfiguration, Func{ICriticalErrorContext, Task})"/>.
+    /// A holder for that exposes access to the action defined by <see cref="ConfigureCriticalErrorAction.DefineCriticalErrorAction(EndpointConfiguration, Func{ICriticalErrorContext, Task})"/>.
     /// </summary>
     /// <returns>
     /// Call <see cref="Raise"/> to trigger the action.
@@ -47,7 +47,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Trigger the action defined by <see cref="ConfigureCriticalErrorAction.DefineCriticalErrorAction(BusConfiguration, Func{ICriticalErrorContext, Task})"/>.
+        /// Trigger the action defined by <see cref="ConfigureCriticalErrorAction.DefineCriticalErrorAction(EndpointConfiguration, Func{ICriticalErrorContext, Task})"/>.
         /// </summary>
         public virtual void Raise(string errorMessage, Exception exception)
         {
