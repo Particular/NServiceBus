@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Unicast.Tests
 {
-    using System;
     using System.Collections.Generic;
     using NServiceBus.Outbox;
     using NServiceBus.Pipeline;
