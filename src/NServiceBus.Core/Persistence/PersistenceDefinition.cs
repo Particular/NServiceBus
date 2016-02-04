@@ -53,7 +53,7 @@
             ReplacementTypeOrMember = "HasSupportFor<T>()")]
         public bool HasSupportFor(Storage storage)
         {
-            return storageToActionMap.ContainsKey(StorageType.FromEnum(storage));
+            throw new NotImplementedException();
         }
 
         /// <summary>
