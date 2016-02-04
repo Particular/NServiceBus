@@ -64,13 +64,13 @@
 
             public class Runner : FeatureStartupTask
             {
-                protected override Task OnStart(IBusSession session)
+                protected override Task OnStart(IMessageSession session)
                 {
                     Started = true;
                     return TaskEx.CompletedTask;
                 }
 
-                protected override Task OnStop(IBusSession session)
+                protected override Task OnStop(IMessageSession session)
                 {
                     Stopped = true;
                     return TaskEx.CompletedTask;
@@ -95,12 +95,12 @@
 
             public class Runner : FeatureStartupTask, IDisposable
             {
-                protected override Task OnStart(IBusSession session)
+                protected override Task OnStart(IMessageSession session)
                 {
                     return TaskEx.CompletedTask;
                 }
 
-                protected override Task OnStop(IBusSession session)
+                protected override Task OnStop(IMessageSession session)
                 {
                     return TaskEx.CompletedTask;
                 }

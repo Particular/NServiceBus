@@ -19,11 +19,11 @@
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<CustomSerializationSender>(b => b.When(
-                    (bus, c) =>
+                    (session, c) =>
                     {
                         var sendOptions = new SendOptions();
                         sendOptions.SetHeader("ContentType", "MyCustomSerializer");
-                        return bus.Send(new MyRequest());
+                        return session.Send(new MyRequest());
                     }))
                 .WithEndpoint<XmlCustomSerializationReceiver>()
                 .Done(c => c.DeserializeCalled)

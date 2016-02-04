@@ -13,7 +13,7 @@
         public async Task Run()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(b => b.When((bus, c) => bus.SendLocal(new V1Message())))
+                    .WithEndpoint<Endpoint>(b => b.When((session, c) => session.SendLocal(new V1Message())))
                     .Done(c => c.V2MessageReceived || c.V1MessageReceived)
                     .Run();
 

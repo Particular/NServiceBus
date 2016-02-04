@@ -15,18 +15,18 @@
         {
             await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                     .WithEndpoint<Publisher>(b =>
-                        b.When(c => c.EventASubscribed && c.EventBSubscribed, (bus, ctx) =>
+                        b.When(c => c.EventASubscribed && c.EventBSubscribed, (session, ctx) =>
                         {
                             var message = new CompositeEvent
                             {
                                 ContextId = ctx.Id
                             };
-                            return bus.Publish(message);
+                            return session.Publish(message);
                         }))
-                    .WithEndpoint<Subscriber>(b => b.When(async (bus, context) =>
+                    .WithEndpoint<Subscriber>(b => b.When(async (session, context) =>
                     {
-                        await bus.Subscribe<IEventA>();
-                        await bus.Subscribe<IEventB>();
+                        await session.Subscribe<IEventA>();
+                        await session.Subscribe<IEventB>();
 
                         if (context.HasNativePubSubSupport)
                         {

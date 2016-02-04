@@ -40,13 +40,13 @@
 
                 public ReadOnlySettings Settings { get; set; }
 
-                public Task Start(IBusSession session)
+                public Task Start(IMessageSession session)
                 {
                     Context.Address = Settings.RootLogicalAddress().ToString();
                     return Task.FromResult(0);
                 }
 
-                public Task Stop(IBusSession session)
+                public Task Stop(IMessageSession session)
                 {
                     return Task.FromResult(0);
                 }

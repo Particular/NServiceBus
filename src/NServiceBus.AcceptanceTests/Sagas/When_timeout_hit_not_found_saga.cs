@@ -14,7 +14,7 @@
         public async Task Should_not_fire_notfound_for_tm()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Endpoint>(b => b.When(bus => bus.SendLocal(new StartSaga { DataId = Guid.NewGuid() })))
+                .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new StartSaga { DataId = Guid.NewGuid() })))
                 .Done(c => c.NotFoundHandlerCalledForRegularMessage)
                 .Run();
 

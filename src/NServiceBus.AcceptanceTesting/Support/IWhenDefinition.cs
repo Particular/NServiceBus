@@ -5,7 +5,7 @@
 
     public interface IWhenDefinition
     {
-        Task<bool> ExecuteAction(ScenarioContext context, IBusSession session);
+        Task<bool> ExecuteAction(ScenarioContext context, IMessageSession session);
 
         Guid Id { get; }
     }

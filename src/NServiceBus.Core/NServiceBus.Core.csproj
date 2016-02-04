@@ -116,7 +116,7 @@
     <Compile Include="Recoverability\Faults\IFaultContext.cs" />
     <Compile Include="Pipeline\IForkConnector.cs" />
     <Compile Include="UnitOfWork\TransactionScopes\TransactionScopeUnitOfWorkBehavior.cs" />
-    <Compile Include="BusSession.cs" />
+    <Compile Include="MessageSession.cs" />
     <Compile Include="CriticalError\CriticalErrorContext.cs" />
     <Compile Include="EndpointConfiguration.cs" />
     <Compile Include="BusContext.cs" />
@@ -128,8 +128,8 @@
     <Compile Include="Forwarding\ForwardingContext.cs" />
     <Compile Include="IBusContext.cs" />
     <Compile Include="IBusContextExtensions.cs" />
-    <Compile Include="IBusSession.cs" />
-    <Compile Include="IBusSessionExtensions.cs" />
+    <Compile Include="IMessageSession.cs" />
+    <Compile Include="IMessageSessionExtensions.cs" />
     <Compile Include="IMessageProcessingContext.cs" />
     <Compile Include="IMessageProcessingContextExtensions.cs" />
     <Compile Include="Causation\MessageCausation.cs" />
@@ -467,7 +467,7 @@
     <Compile Include="Unicast\IncomingBusOperations.cs" />
     <Compile Include="Unicast\BusOperationsInvokeHandlerContext.cs" />
     <Compile Include="Unicast\StartAndStoppablesRunner.cs" />
-    <Compile Include="Unicast\BusOperations.cs" />
+    <Compile Include="Unicast\MessageOperations.cs" />
     <Compile Include="Unicast\Transport\Config\InboundTransport.cs" />
     <Compile Include="Unicast\Transport\Config\OutboundTransport.cs" />
     <Compile Include="Persistence\EnabledPersistence.cs" />

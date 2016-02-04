@@ -14,7 +14,7 @@
         public async Task Should_match_different_saga()
         {
             await Scenario.Define<Context>()
-                .WithEndpoint<Endpoint>(b => b.When(bus => bus.SendLocal(new StartSaga1
+                .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new StartSaga1
                 {
                     DataId = Guid.NewGuid()
                 })))

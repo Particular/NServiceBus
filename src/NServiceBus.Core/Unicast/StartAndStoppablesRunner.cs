@@ -15,7 +15,7 @@
             wantToRunWhenBusStartsAndStopses = wantToRunWhenBusStartsAndStops;
         }
 
-        public Task Start(IBusSession session)
+        public Task Start(IMessageSession session)
         {
             var startableTasks = new List<Task>();
             foreach (var startable in wantToRunWhenBusStartsAndStopses)
@@ -39,7 +39,7 @@
             return Task.WhenAll(startableTasks.ToArray());
         }
 
-        public async Task Stop(IBusSession session)
+        public async Task Stop(IMessageSession session)
         {
             var stoppables = Interlocked.Exchange(ref thingsRanAtStartup, new ConcurrentBag<IWantToRunWhenBusStartsAndStops>());
             if (!stoppables.Any())

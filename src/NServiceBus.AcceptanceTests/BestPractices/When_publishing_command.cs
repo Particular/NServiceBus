@@ -12,11 +12,11 @@
         public async Task Should_throw()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(b => b.When(async (bus, c) =>
+                    .WithEndpoint<Endpoint>(b => b.When(async (session, c) =>
                     {
                         try
                         {
-                            await bus.Publish(new MyCommand());
+                            await session.Publish(new MyCommand());
                         }
                         catch (Exception ex)
                         {

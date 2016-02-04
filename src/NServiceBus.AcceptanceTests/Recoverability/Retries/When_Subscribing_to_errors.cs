@@ -88,7 +88,7 @@
 
             public BusNotifications Notifications { get; set; }
 
-            public Task Start(IBusSession session)
+            public Task Start(IMessageSession session)
             {
                 Notifications.Errors.MessageSentToErrorQueue += (sender, message) =>
                 {
@@ -105,7 +105,7 @@
                 });
             }
 
-            public Task Stop(IBusSession session)
+            public Task Stop(IMessageSession session)
             {
                 return Task.FromResult(0);
             }

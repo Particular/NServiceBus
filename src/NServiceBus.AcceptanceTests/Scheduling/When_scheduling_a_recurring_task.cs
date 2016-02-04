@@ -42,7 +42,7 @@
             {
                 public Context Context { get; set; }
 
-                public Task Start(IBusSession session)
+                public Task Start(IMessageSession session)
                 {
                     Context.RequestedAt = DateTime.UtcNow;
 
@@ -53,7 +53,7 @@
                     });
                 }
 
-                public Task Stop(IBusSession session)
+                public Task Stop(IMessageSession session)
                 {
                     return Task.FromResult(0);
                 }

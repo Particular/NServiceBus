@@ -16,7 +16,7 @@
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithAuditOn>(b => b
-                    .When(bus => bus.SendLocal(new MessageToBeAudited()))
+                    .When(session => session.SendLocal(new MessageToBeAudited()))
                     .DoNotFailOnErrorMessages())
                 .WithEndpoint<AuditSpyEndpoint>()
                 .Done(c => c.MessageAudited)

@@ -14,7 +14,7 @@
         public async Task Should_send_it_to_all_instances()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Sender>(b => b.When(c => c.EndpointsStarted, (bus, c) => bus.Send(new Request())))
+                .WithEndpoint<Sender>(b => b.When(c => c.EndpointsStarted, (session, c) => session.Send(new Request())))
                 .WithEndpoint<Receiver1>()
                 .WithEndpoint<Receiver2>()
                 .Done(c => c.Receiver1TimesCalled > 0 && c.Receiver2TimesCalled > 0)

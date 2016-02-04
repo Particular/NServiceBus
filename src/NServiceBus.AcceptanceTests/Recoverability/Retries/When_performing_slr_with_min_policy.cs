@@ -61,7 +61,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
                     this.context = context;
                 }
 
-                public Task Start(IBusSession session)
+                public Task Start(IMessageSession session)
                 {
                     notifications.Errors.MessageSentToErrorQueue += (sender, message) =>
                     {
@@ -70,7 +70,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
                     return Task.FromResult(0);
                 }
 
-                public Task Stop(IBusSession session)
+                public Task Stop(IMessageSession session)
                 {
                     return Task.FromResult(0);
                 }

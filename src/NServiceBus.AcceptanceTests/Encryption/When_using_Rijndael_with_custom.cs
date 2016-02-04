@@ -13,7 +13,7 @@
         public async Task Should_receive_decrypted_message()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(b => b.When(bus => bus.SendLocal(new MessageWithSecretData
+                    .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new MessageWithSecretData
                     {
                         Secret = "betcha can't guess my secret",
                         SubProperty = new MySecretSubProperty

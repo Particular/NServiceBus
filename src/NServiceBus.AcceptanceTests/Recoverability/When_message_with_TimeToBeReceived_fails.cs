@@ -14,7 +14,7 @@
         {
             var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointThatThrows>(b => b
-                .When(bus => bus.SendLocal(new MessageThatFails()))
+                .When(session => session.SendLocal(new MessageThatFails()))
                 .DoNotFailOnErrorMessages())
             .WithEndpoint<EndpointThatHandlesErrorMessages>()
             .Done(c => c.MessageFailed && c.TTBRHasExpiredAndMessageIsStillInErrorQueue)

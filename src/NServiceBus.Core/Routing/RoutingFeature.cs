@@ -135,7 +135,7 @@
                 this.builder = builder;
             }
 
-            protected override Task OnStart(IBusSession session)
+            protected override Task OnStart(IMessageSession session)
             {
                 var transportDefinition = settings.Get<TransportDefinition>();
                 if (transportDefinition.GetOutboundRoutingPolicy(settings).Publishes == OutboundRoutingType.Unicast) //Publish via send
@@ -149,7 +149,7 @@
                 return TaskEx.CompletedTask;
             }
 
-            protected override Task OnStop(IBusSession session)
+            protected override Task OnStop(IMessageSession session)
             {
                 return TaskEx.CompletedTask;
             }

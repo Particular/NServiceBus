@@ -4,9 +4,9 @@ namespace NServiceBus
     using System.Threading.Tasks;
 
     /// <summary>
-    /// A session which provides basic bus operations.
+    /// A session which provides basic message operations.
     /// </summary>
-    public interface IBusSession
+    public interface IMessageSession
     {
         /// <summary>
         /// Sends the provided message.

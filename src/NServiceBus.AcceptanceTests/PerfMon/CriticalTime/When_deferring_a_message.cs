@@ -21,14 +21,14 @@
             using (new Timer(state => CheckPerfCounter(counter), null, 0, 100))
             {
                 await Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(b => b.When((bus, c) =>
+                    .WithEndpoint<Endpoint>(b => b.When((session, c) =>
                     {
                         var options = new SendOptions();
 
                         options.DelayDeliveryWith(TimeSpan.FromMilliseconds(1));
                         options.RouteToLocalEndpointInstance();
 
-                        return bus.Send(new MyMessage(), options);
+                        return session.Send(new MyMessage(), options);
                     }))
                     .Done(c => c.WasCalled)
                     .Repeat(r => r.For(Transports.Default))

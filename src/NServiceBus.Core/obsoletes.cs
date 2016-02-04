@@ -497,7 +497,7 @@ namespace NServiceBus.Unicast
     using System.Collections.Generic;
 
     [ObsoleteEx(
-        Message = "UnicastBus has been made internal. Use IBusSessionFactory to interact with the bus from outside of the handler.",
+        Message = "UnicastBus has been made internal. Use IEndpointInstance instead.",
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7")]
     public class UnicastBus
@@ -851,7 +851,7 @@ namespace NServiceBus.AutomaticSubscriptions.Config
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            Message = "Encourages bad practices. IBusSession.Subscribe should be explicitly used.")]
+            Message = "Encourages bad practices. IMessageSession.Subscribe should be explicitly used.")]
         public void AutoSubscribePlainMessages()
         {
             throw new NotImplementedException();
@@ -1343,7 +1343,7 @@ namespace NServiceBus
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
-        Message = "Use IBusSessionFactory to create sending context.")]
+        Message = "Use IEndpointInstance to create sending session.")]
     public interface ISendOnlyBus : IDisposable
     {
     }
@@ -1351,7 +1351,7 @@ namespace NServiceBus
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
-        Message = "IHandleMessages<T> now exposes the IMessageHandlerContext parameter. You can use this to access what used to be available in the IBus interface.  If you're trying to send messages outside IHandleMessages<T> use either the provided IBusSession or create one with the IBusSessionFactory.")]
+        Message = "IHandleMessages<T> now exposes the IMessageHandlerContext parameter. You can use this to access what used to be available in the IBus interface.  If you're trying to send messages outside IHandleMessages<T> use the provided IMessageSession.")]
     public interface IBus
     {
     }

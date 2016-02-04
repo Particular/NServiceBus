@@ -11,12 +11,12 @@ namespace NServiceBus.AcceptanceTests.BestPractices
         public async Task Should_allow_sending_events()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Endpoint>(b => b.When((bus, c) =>
+                .WithEndpoint<Endpoint>(b => b.When((session, c) =>
                 {
                     var sendOptions = new SendOptions();
                     sendOptions.DoNotEnforceBestPractices();
 
-                    return bus.Send(new MyEvent(), sendOptions);
+                    return session.Send(new MyEvent(), sendOptions);
                 }))
                 .Done(c => c.EndpointsStarted)
                 .Run();

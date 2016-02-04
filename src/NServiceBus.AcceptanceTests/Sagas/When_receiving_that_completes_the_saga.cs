@@ -16,12 +16,12 @@
             await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                     .WithEndpoint<ReceiveCompletesSagaEndpoint>(b =>
                         {
-                            b.When((bus, context) => bus.SendLocal(new StartSagaMessage { SomeId = context.Id }));
-                            b.When(context => context.StartSagaMessageReceived, (bus, context) =>
+                            b.When((session, context) => session.SendLocal(new StartSagaMessage { SomeId = context.Id }));
+                            b.When(context => context.StartSagaMessageReceived, (session, context) =>
                             {
                                 context.AddTrace("CompleteSagaMessage sent");
 
-                                return bus.SendLocal(new CompleteSagaMessage
+                                return session.SendLocal(new CompleteSagaMessage
                                 {
                                     SomeId = context.Id
                                 });
@@ -39,19 +39,19 @@
             await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<ReceiveCompletesSagaEndpoint>(b =>
                 {
-                    b.When((bus, c) => bus.SendLocal(new StartSagaMessage
+                    b.When((session, c) => session.SendLocal(new StartSagaMessage
                     {
                         SomeId = c.Id
                     }));
-                    b.When(c => c.StartSagaMessageReceived, (bus, c) =>
+                    b.When(c => c.StartSagaMessageReceived, (session, c) =>
                     {
                         c.AddTrace("CompleteSagaMessage sent");
-                        return bus.SendLocal(new CompleteSagaMessage
+                        return session.SendLocal(new CompleteSagaMessage
                         {
                             SomeId = c.Id
                         });
                     });
-                    b.When(c => c.SagaCompleted, (bus, c) => bus.SendLocal(new AnotherMessage
+                    b.When(c => c.SagaCompleted, (session, c) => session.SendLocal(new AnotherMessage
                     {
                         SomeId = c.Id
                     }));

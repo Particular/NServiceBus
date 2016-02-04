@@ -29,13 +29,13 @@
                 this.behavior = behavior;
             }
 
-            protected override Task OnStart(IBusSession session)
+            protected override Task OnStart(IMessageSession session)
             {
                 behavior.Warmup();
                 return TaskEx.CompletedTask;
             }
 
-            protected override Task OnStop(IBusSession session)
+            protected override Task OnStop(IMessageSession session)
             {
                 behavior.Cooldown();
                 return TaskEx.CompletedTask;

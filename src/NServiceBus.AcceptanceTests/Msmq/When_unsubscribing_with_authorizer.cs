@@ -16,12 +16,12 @@
         {
             await Scenario.Define<TestContext>()
                 .WithEndpoint<Publisher>(b =>
-                    b.When(c => c.Subscribed, (bus, c) => bus.Publish(new MyEvent()))
+                    b.When(c => c.Subscribed, (session, c) => session.Publish(new MyEvent()))
                 )
-                .WithEndpoint<Subscriber>(b => b.When(async (bus, context) =>
+                .WithEndpoint<Subscriber>(b => b.When(async (session, context) =>
                 {
-                    await bus.Subscribe<MyEvent>();
-                    await bus.Unsubscribe<MyEvent>();
+                    await session.Subscribe<MyEvent>();
+                    await session.Unsubscribe<MyEvent>();
                 }))
                 .Done(c =>
                     c.SubscriberGotTheEvent &&

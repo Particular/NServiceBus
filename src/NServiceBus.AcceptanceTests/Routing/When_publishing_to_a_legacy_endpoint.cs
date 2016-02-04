@@ -14,10 +14,10 @@
         public async Task Should_be_delivered()
         {
             await Scenario.Define<Context>()
-                .WithEndpoint<Publisher>(b => b.When(c => c.Subscribed, (bus, c) => bus.Publish(new MyEvent())))
-                .WithEndpoint<LegacySubscriber>(b => b.When(async (bus, context) =>
+                .WithEndpoint<Publisher>(b => b.When(c => c.Subscribed, (session, c) => session.Publish(new MyEvent())))
+                .WithEndpoint<LegacySubscriber>(b => b.When(async (session, context) =>
                 {
-                    await bus.Subscribe<MyEvent>();
+                    await session.Subscribe<MyEvent>();
                 }))
                 .Done(c => c.Delivered)
                 .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())

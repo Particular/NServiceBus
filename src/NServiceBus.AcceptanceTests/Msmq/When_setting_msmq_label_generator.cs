@@ -20,7 +20,7 @@
             try
             {
                 await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                    .WithEndpoint<Endpoint>(b => b.When((bus, c) => bus.SendLocal(new MyMessage
+                    .WithEndpoint<Endpoint>(b => b.When((session, c) => session.SendLocal(new MyMessage
                     {
                         Id = c.Id
                     })))
@@ -88,13 +88,13 @@
                 public Context Context { get; set; }
                 public ReadOnlySettings Settings { get; set; }
 
-                public Task Start(IBusSession session)
+                public Task Start(IMessageSession session)
                 {
                     Context.GeneratorWasCalled = Settings.Get<bool>("GeneratorWasCalled");
                     return Task.FromResult(0);
                 }
 
-                public Task Stop(IBusSession session)
+                public Task Stop(IMessageSession session)
                 {
                     return Task.FromResult(0);
                 }

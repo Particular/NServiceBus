@@ -12,7 +12,7 @@
         public async Task Should_allow_sending_events()
         {
             await Scenario.Define<Context>()
-                .WithEndpoint<Endpoint>(b => b.When((bus, c) => bus.Send(new MyEvent())))
+                .WithEndpoint<Endpoint>(b => b.When((session, c) => session.Send(new MyEvent())))
                 .Done(c => c.EndpointsStarted)
                 .Run();
         }

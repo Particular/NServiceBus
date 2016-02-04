@@ -13,7 +13,7 @@
         public async Task Should_set_Reply_as_messageintent()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Endpoint>(b => b.When(bus => bus.SendLocal(new InitiateRequestingSaga { SomeCorrelationId = Guid.NewGuid() })))
+                .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new InitiateRequestingSaga { SomeCorrelationId = Guid.NewGuid() })))
                 .Done(c => c.Done)
                 .Run();
 

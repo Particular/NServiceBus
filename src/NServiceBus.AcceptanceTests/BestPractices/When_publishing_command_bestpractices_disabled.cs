@@ -11,12 +11,12 @@
         public async Task Should_allow_publishing_commands()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Endpoint>(b => b.When((bus, c) =>
+                .WithEndpoint<Endpoint>(b => b.When((session, c) =>
                 {
                     var publishOptions = new PublishOptions();
                     publishOptions.DoNotEnforceBestPractices();
 
-                    return bus.Publish(new MyCommand(), publishOptions);
+                    return session.Publish(new MyCommand(), publishOptions);
                 }))
                 .Done(c => c.EndpointsStarted)
                 .Run();

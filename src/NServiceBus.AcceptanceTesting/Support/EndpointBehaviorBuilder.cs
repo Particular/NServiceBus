@@ -14,24 +14,24 @@
             };
         }
 
-        public EndpointBehaviorBuilder<TContext> When(Func<IBusSession, TContext, Task> action)
+        public EndpointBehaviorBuilder<TContext> When(Func<IMessageSession, TContext, Task> action)
         {
             return When(c => true, action);
         }
 
-        public EndpointBehaviorBuilder<TContext> When(Func<IBusSession, Task> action)
+        public EndpointBehaviorBuilder<TContext> When(Func<IMessageSession, Task> action)
         {
             return When(c => true, action);
         }
 
-        public EndpointBehaviorBuilder<TContext> When(Predicate<TContext> condition, Func<IBusSession, Task> action)
+        public EndpointBehaviorBuilder<TContext> When(Predicate<TContext> condition, Func<IMessageSession, Task> action)
         {
             behavior.Whens.Add(new WhenDefinition<TContext>(condition, action));
 
             return this;
         }
 
-        public EndpointBehaviorBuilder<TContext> When(Predicate<TContext> condition, Func<IBusSession, TContext, Task> action)
+        public EndpointBehaviorBuilder<TContext> When(Predicate<TContext> condition, Func<IMessageSession, TContext, Task> action)
         {
             behavior.Whens.Add(new WhenDefinition<TContext>(condition, action));
 

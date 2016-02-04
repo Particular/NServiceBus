@@ -18,15 +18,15 @@
             await Scenario.Define<Context>()
                 .WithEndpoint<SagaThatPublishesAnEvent>(b =>
                     b.When(c => c.IsEventSubscriptionReceived,
-                            bus => bus.SendLocal(new StartSaga
+                            session => session.SendLocal(new StartSaga
                             {
                                 DataId = Guid.NewGuid()
                             }))
                 )
                 .WithEndpoint<SagaThatIsStartedByTheEvent>(
-                    b => b.When(async (bus, context) =>
+                    b => b.When(async (session, context) =>
                     {
-                        await bus.Subscribe<SomethingHappenedEvent>();
+                        await session.Subscribe<SomethingHappenedEvent>();
 
                         if (context.HasNativePubSubSupport)
                             context.IsEventSubscriptionReceived = true;

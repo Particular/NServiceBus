@@ -11,7 +11,7 @@
         public async Task Should_add_host_related_headers()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<EndpointWithAuditOn>(b => b.When((bus, c) => bus.SendLocal(new MessageThatFails())).DoNotFailOnErrorMessages())
+                    .WithEndpoint<EndpointWithAuditOn>(b => b.When((session, c) => session.SendLocal(new MessageThatFails())).DoNotFailOnErrorMessages())
                     .WithEndpoint<EndpointThatHandlesErrorMessages>()
                     .Done(c => c.Done)
                     .Run();

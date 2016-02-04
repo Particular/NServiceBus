@@ -14,14 +14,14 @@
         public async Task Should_use_the_given_id_as_the_transport_level_correlation_id()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<CorrelationEndpoint>(b => b.When(bus =>
+                    .WithEndpoint<CorrelationEndpoint>(b => b.When(session =>
                     {
                         var options = new SendOptions();
 
                         options.SetCorrelationId(CorrelationId);
                         options.RouteToLocalEndpointInstance();
 
-                        return bus.Send(new MessageWithCustomCorrelationId(), options);
+                        return session.Send(new MessageWithCustomCorrelationId(), options);
                     }))
                     .Done(c => c.GotRequest)
                     .Run();

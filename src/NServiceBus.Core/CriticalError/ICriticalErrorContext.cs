@@ -9,7 +9,7 @@
     public interface ICriticalErrorContext
     {
         /// <summary>
-        /// A delegate that optionally stops the bus. By default this is a pointer <see cref="IEndpointInstance.Stop"/>.
+        /// A delegate that optionally stops the endpoint. By default this is a pointer <see cref="IEndpointInstance.Stop"/>.
         /// </summary>
         Func<Task> Stop { get; }
 

@@ -16,7 +16,7 @@ namespace NServiceBus
         /// <param name="message">The message to handle.</param>
         /// <param name="context">The context of the currently handled message.</param>
         /// <remarks>
-        /// This method will be called when a message arrives on the bus and should contain
+        /// This method will be called when a message arrives on at the endpoint and should contain
         /// the custom logic to execute when the message is received.</remarks>
         Task Handle(T message, IMessageHandlerContext context);
     }
