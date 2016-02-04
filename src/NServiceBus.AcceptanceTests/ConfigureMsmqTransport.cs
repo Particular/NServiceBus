@@ -7,21 +7,22 @@ using NServiceBus;
 using NServiceBus.AcceptanceTesting.Support;
 using NServiceBus.Configuration.AdvanceExtensibility;
 using NServiceBus.Transports;
+using EndpointConfiguration = NServiceBus.EndpointConfiguration;
 
 public class ConfigureMsmqTransport : IConfigureTestExecution
 {
-    BusConfiguration busConfiguration;
+    EndpointConfiguration endpointConfiguration;
 
-    public Task Configure(BusConfiguration configuration, IDictionary<string, string> settings)
+    public Task Configure(EndpointConfiguration configuration, IDictionary<string, string> settings)
     {
-        busConfiguration = configuration;
+        endpointConfiguration = configuration;
         configuration.UseTransport<MsmqTransport>().ConnectionString(settings["Transport.ConnectionString"]);
         return Task.FromResult(0);
     }
 
     public Task Cleanup()
     {
-        var bindings = busConfiguration.GetSettings().Get<QueueBindings>();
+        var bindings = endpointConfiguration.GetSettings().Get<QueueBindings>();
         var allQueues = MessageQueue.GetPrivateQueuesByMachine("localhost");
         var queuesToBeDeleted = new List<string>();
 

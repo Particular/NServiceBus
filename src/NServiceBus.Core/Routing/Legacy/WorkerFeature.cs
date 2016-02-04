@@ -12,7 +12,7 @@
             {
                 if (s.GetOrDefault<string>("PublicReturnAddress") != null)
                 {
-                    throw new Exception("We detected you have overridden the public return address with BusConfiguration. In order to enlist with a legacy distributor you need to remove this override as the public address needs to be set to the distributor address.");
+                    throw new Exception("We detected you have overridden the public return address with EndpointConfiguration. In order to enlist with a legacy distributor you need to remove this override as the public address needs to be set to the distributor address.");
                 }
                 s.Set("PublicReturnAddress", s.Get<string>("LegacyDistributor.Address"));
             });

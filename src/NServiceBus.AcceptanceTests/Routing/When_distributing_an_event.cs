@@ -108,7 +108,7 @@
                     c.ScaleOut().InstanceDiscriminator("1");
 
                     var publisher = new EndpointName("DistributingAnEvent.Publisher");
-                    c.Pubishers().AddStatic(publisher, typeof(MyEvent));
+                    c.Publishers().AddStatic(publisher, typeof(MyEvent));
                     c.Routing().EndpointInstances.AddStatic(publisher, new EndpointInstance(publisher, null, null));
                 });
             }
@@ -135,7 +135,7 @@
                     c.ScaleOut().InstanceDiscriminator("2");
                     
                     var publisher = new EndpointName("DistributingAnEvent.Publisher");
-                    c.Pubishers().AddStatic(publisher, typeof(MyEvent));
+                    c.Publishers().AddStatic(publisher, typeof(MyEvent));
                     c.Routing().EndpointInstances.AddStatic(publisher, new EndpointInstance(publisher, null, null));
                 });
             }
@@ -162,7 +162,7 @@
                     c.ScaleOut().InstanceDiscriminator("1");
                     
                     var publisher = new EndpointName("DistributingAnEvent.Publisher");
-                    c.Pubishers().AddStatic(publisher, typeof(MyEvent));
+                    c.Publishers().AddStatic(publisher, typeof(MyEvent));
                     c.Routing().EndpointInstances.AddStatic(publisher, new EndpointInstance(publisher, null, null));
                 });
             }
@@ -188,7 +188,7 @@
                     c.ScaleOut().InstanceDiscriminator("2");
                     
                     var publisher = new EndpointName("DistributingAnEvent.Publisher");
-                    c.Pubishers().AddStatic(publisher, typeof(MyEvent));
+                    c.Publishers().AddStatic(publisher, typeof(MyEvent));
                     c.Routing().EndpointInstances.AddStatic(publisher, new EndpointInstance(publisher, null, null));
                 });
             }

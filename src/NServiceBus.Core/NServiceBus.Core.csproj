@@ -117,7 +117,7 @@
     <Compile Include="UnitOfWork\TransactionScopes\TransactionScopeUnitOfWorkBehavior.cs" />
     <Compile Include="BusSession.cs" />
     <Compile Include="CriticalError\CriticalErrorContext.cs" />
-    <Compile Include="BusConfiguration.cs" />
+    <Compile Include="EndpointConfiguration.cs" />
     <Compile Include="BusContext.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\TimeoutPollerRunner.cs" />
     <Compile Include="Extensibility\IExtendable.cs" />

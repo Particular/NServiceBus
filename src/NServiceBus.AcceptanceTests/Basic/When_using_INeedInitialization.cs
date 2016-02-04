@@ -43,7 +43,7 @@
 
             public class SetEndpointName : INeedInitialization
             {
-                public void Customize(BusConfiguration config)
+                public void Customize(EndpointConfiguration config)
                 {
                     config.EndpointName("INeedInitialization_receiver");
                 }

@@ -7,9 +7,9 @@ namespace NServiceBus.AutomaticSubscriptions.Config
     /// </summary>
     public partial class AutoSubscribeSettings
     {
-        BusConfiguration config;
+        EndpointConfiguration config;
 
-        internal AutoSubscribeSettings(BusConfiguration config)
+        internal AutoSubscribeSettings(EndpointConfiguration config)
         {
             this.config = config;
         }

@@ -10,7 +10,7 @@ namespace NServiceBus
         /// <summary>
         /// Gets the publisher settings.
         /// </summary>
-        public static Publishers Pubishers(this BusConfiguration config)
+        public static Publishers Publishers(this EndpointConfiguration config)
         {
             Guard.AgainstNull(nameof(config), config);
             Publishers publishers;

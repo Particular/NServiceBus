@@ -13,8 +13,8 @@
         /// Configures the given serializer to be used.
         /// </summary>
         /// <typeparam name="T">The serializer definition eg <see cref="JsonSerializer"/>, <see cref="XmlSerializer"/>, etc.</typeparam>
-        /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
-        public static SerializationExtentions<T> UseSerialization<T>(this BusConfiguration config) where T : SerializationDefinition, new()
+        /// <param name="config">The <see cref="EndpointConfiguration"/> instance to apply the settings to.</param>
+        public static SerializationExtentions<T> UseSerialization<T>(this EndpointConfiguration config) where T : SerializationDefinition, new()
         {
             Guard.AgainstNull(nameof(config), config);
             var definition = (T)Activator.CreateInstance(typeof(T));
@@ -26,9 +26,9 @@
         /// Configures the given serializer to be used.
         /// </summary>
         /// <typeparam name="T">The serializer definition eg <see cref="JsonSerializer"/>, <see cref="XmlSerializer"/>, etc.</typeparam>
-        /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
+        /// <param name="config">The <see cref="EndpointConfiguration"/> instance to apply the settings to.</param>
         /// <param name="serializationDefinition">An instance of serialization definition.</param>
-        public static SerializationExtentions<T> UseSerialization<T>(this BusConfiguration config, T serializationDefinition) where T : SerializationDefinition
+        public static SerializationExtentions<T> UseSerialization<T>(this EndpointConfiguration config, T serializationDefinition) where T : SerializationDefinition
         {
             Guard.AgainstNull(nameof(config), config);
             Guard.AgainstNull(nameof(serializationDefinition), serializationDefinition);
@@ -44,8 +44,8 @@
         /// Configures additional deserializers to be considered when processing messages. Can be called multiple times.
         /// </summary>
         /// <typeparam name="T">The serializer definition eg <see cref="JsonSerializer"/>, <see cref="XmlSerializer"/>, etc.</typeparam>
-        /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
-        public static void AddDeserializer<T>(this BusConfiguration config) where T : SerializationDefinition, new()
+        /// <param name="config">The <see cref="EndpointConfiguration"/> instance to apply the settings to.</param>
+        public static void AddDeserializer<T>(this EndpointConfiguration config) where T : SerializationDefinition, new()
         {
             Guard.AgainstNull(nameof(config), config);
 

@@ -9,7 +9,7 @@
     /// </summary>
     public class UnitOfWorkSettings
     {
-        internal UnitOfWorkSettings(BusConfiguration config)
+        internal UnitOfWorkSettings(EndpointConfiguration config)
         {
             this.config = config;
         }
@@ -24,6 +24,6 @@
             return this;
         }
         
-        BusConfiguration config;
+        EndpointConfiguration config;
     }
 }

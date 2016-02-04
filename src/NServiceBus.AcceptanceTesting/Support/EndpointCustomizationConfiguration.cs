@@ -4,9 +4,9 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
-    public class EndpointConfiguration
+    public class EndpointCustomizationConfiguration
     {
-        public EndpointConfiguration()
+        public EndpointCustomizationConfiguration()
         {
             UserDefinedConfigSections = new Dictionary<Type, object>();
             TypesToExclude = new List<Type>();
@@ -19,7 +19,7 @@
 
         public IList<Type> TypesToInclude { get; set; }
 
-        public Func<RunDescriptor, IDictionary<Type, string>, Task<BusConfiguration>> GetConfiguration { get; set; }
+        public Func<RunDescriptor, IDictionary<Type, string>, Task<EndpointConfiguration>> GetConfiguration { get; set; }
 
         public string EndpointName
         {

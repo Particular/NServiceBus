@@ -13,10 +13,10 @@ namespace NServiceBus
         /// Initializes <see cref="IHandleMessages{T}"/> with the specified properties.
         /// </summary>
         /// <typeparam name="THandler">The <see cref="IHandleMessages{T}"/> type.</typeparam>
-        /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
+        /// <param name="config">The <see cref="EndpointConfiguration"/> instance to apply the settings to.</param>
         /// <param name="property">The property name to be injected.</param>
         /// <param name="value">The value to assign to the <paramref name="property"/>.</param>
-        public static void InitializeHandlerProperty<THandler>(this BusConfiguration config, string property, object value)
+        public static void InitializeHandlerProperty<THandler>(this EndpointConfiguration config, string property, object value)
         {
             Guard.AgainstNull(nameof(config), config);
             Guard.AgainstNullAndEmpty(nameof(property), property);

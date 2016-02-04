@@ -12,11 +12,11 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
         [Test]
         public void Should_not_scan_nested_directories_by_default()
         {
-            var busConfiguration = new BusConfiguration();
-            busConfiguration.ExcludeTypes(typeof(When_using_initialization_with_non_default_ctor.FeatureWithInitialization));
-            busConfiguration.Build();
+            var endpointConfiguration = new EndpointConfiguration();
+            endpointConfiguration.ExcludeTypes(typeof(When_using_initialization_with_non_default_ctor.FeatureWithInitialization));
+            endpointConfiguration.Build();
 
-            var scanedTypes = busConfiguration.Settings.Get<IList<Type>>("TypesToScan");
+            var scanedTypes = endpointConfiguration.Settings.Get<IList<Type>>("TypesToScan");
             var foundTypeFromNestedAssembly = scanedTypes.Any(x => x.Name == "NestedClass");
             Assert.False(foundTypeFromNestedAssembly, "Was expected not to scan nested assemblies, but nested assembly was scanned.");
         }
@@ -25,12 +25,12 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
         [Test]
         public void Should_scan_nested_directories_if_requested()
         {
-            var busConfiguration = new BusConfiguration();
-            busConfiguration.ScanAssembliesInNestedDirectories();
-            busConfiguration.ExcludeTypes(typeof(When_using_initialization_with_non_default_ctor.FeatureWithInitialization));
-            busConfiguration.Build();
+            var endpointConfiguration = new EndpointConfiguration();
+            endpointConfiguration.ScanAssembliesInNestedDirectories();
+            endpointConfiguration.ExcludeTypes(typeof(When_using_initialization_with_non_default_ctor.FeatureWithInitialization));
+            endpointConfiguration.Build();
 
-            var scanedTypes = busConfiguration.Settings.Get<IList<Type>>("TypesToScan");
+            var scanedTypes = endpointConfiguration.Settings.Get<IList<Type>>("TypesToScan");
             var foundTypeFromNestedAssembly = scanedTypes.Any(x => x.Name == "NestedClass");
             Assert.True(foundTypeFromNestedAssembly, "Was expected to scan nested assemblies, but nested assembly were not scanned.");
         }

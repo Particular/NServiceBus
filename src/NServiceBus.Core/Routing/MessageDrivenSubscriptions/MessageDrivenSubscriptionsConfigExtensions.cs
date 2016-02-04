@@ -17,9 +17,9 @@ namespace NServiceBus
         /// When scaling out with queue per endpoint instance the legacy mode should be used only in a single instance. Enabling the legacy
         /// mode in multiple instances will result in message duplication.
         /// </remarks>
-        public static void UseLegacyMessageDrivenSubscriptionMode(this BusConfiguration busConfiguration)
+        public static void UseLegacyMessageDrivenSubscriptionMode(this EndpointConfiguration endpointConfiguration)
         {
-            busConfiguration.Settings.Set("NServiceBus.Routing.UseLegacyMessageDrivenSubscriptionMode", true);
+            endpointConfiguration.Settings.Set("NServiceBus.Routing.UseLegacyMessageDrivenSubscriptionMode", true);
         }
 
 

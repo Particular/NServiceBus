@@ -68,7 +68,7 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
                 //here we inject our behavior
                 class MyExceptionFilteringOverride : INeedInitialization
                 {
-                    public void Customize(BusConfiguration configuration)
+                    public void Customize(EndpointConfiguration configuration)
                     {
                         configuration.Pipeline.Register<MyExceptionFilteringRegistration>();
                     }

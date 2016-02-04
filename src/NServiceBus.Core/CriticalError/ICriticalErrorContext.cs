@@ -4,7 +4,7 @@
     using System.Threading.Tasks;
 
     /// <summary>
-    /// The context of a critical error handler used by <see cref="ConfigureCriticalErrorAction.DefineCriticalErrorAction(BusConfiguration, Func{ICriticalErrorContext, Task})"/>.
+    /// The context of a critical error handler used by <see cref="ConfigureCriticalErrorAction.DefineCriticalErrorAction(EndpointConfiguration, Func{ICriticalErrorContext, Task})"/>.
     /// </summary>
     public interface ICriticalErrorContext
     {

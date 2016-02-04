@@ -18,15 +18,15 @@ namespace NServiceBus
         Local = 0,
         Remote = 1,
     }
-    [System.ObsoleteAttribute("Please use `BusConfiguration.ExcludeAssemblies` instead. Will be removed in versi" +
-        "on 7.0.0.", true)]
+    [System.ObsoleteAttribute("Please use `EndpointConfiguration.ExcludeAssemblies` instead. Will be removed in " +
+        "version 7.0.0.", true)]
     public class AllAssemblies
     {
         public AllAssemblies() { }
     }
     public class static AutoSubscribeSettingsExtensions
     {
-        public static NServiceBus.AutomaticSubscriptions.Config.AutoSubscribeSettings AutoSubscribe(this NServiceBus.BusConfiguration config) { }
+        public static NServiceBus.AutomaticSubscriptions.Config.AutoSubscribeSettings AutoSubscribe(this NServiceBus.EndpointConfiguration config) { }
     }
     public class static BestPracticesOptionExtensions
     {
@@ -40,10 +40,10 @@ namespace NServiceBus
     public class static Bus
     {
         [System.ObsoleteAttribute("Please use `Endpoint.Create` instead. Will be removed in version 7.0.0.", true)]
-        public static NServiceBus.IStartableBus Create(NServiceBus.BusConfiguration configuration) { }
-        [System.ObsoleteAttribute("Please use `BusConfiguration.SendOnly` instead. Will be removed in version 7.0.0." +
-            "", true)]
-        public static NServiceBus.IBus CreateSendOnly(NServiceBus.BusConfiguration configuration) { }
+        public static NServiceBus.IStartableBus Create(NServiceBus.EndpointConfiguration configuration) { }
+        [System.ObsoleteAttribute("Please use `EndpointConfiguration.SendOnly` instead. Will be removed in version 7" +
+            ".0.0.", true)]
+        public static NServiceBus.IBus CreateSendOnly(NServiceBus.EndpointConfiguration configuration) { }
     }
     [System.ObsoleteAttribute("No longer used, please use the new callbacks api described in the v6 upgrade guid" +
         "e. Will be removed in version 7.0.0.", true)]
@@ -51,41 +51,10 @@ namespace NServiceBus
     {
         public BusAsyncResultEventArgs() { }
     }
-    public class BusConfiguration : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
+    [System.ObsoleteAttribute("Please use `EndpointConfiguration` instead. Will be removed in version 7.0.0.", true)]
+    public class BusConfiguration
     {
         public BusConfiguration() { }
-        [System.ObsoleteAttribute("Please use `SetOutgoingHeaders(string key,string value)` instead. Will be removed" +
-            " in version 7.0.0.", true)]
-        public System.Collections.Generic.IDictionary<string, string> OutgoingHeaders { get; }
-        public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
-        [System.ObsoleteAttribute("Please use `ExcludeAssemblies` instead. Will be removed in version 7.0.0.", true)]
-        public void AssembliesToScan(System.Collections.Generic.IEnumerable<System.Reflection.Assembly> assemblies) { }
-        [System.ObsoleteAttribute("Please use `ExcludeAssemblies` instead. Will be removed in version 7.0.0.", true)]
-        public void AssembliesToScan(params System.Reflection.Assembly[] assemblies) { }
-        public NServiceBus.ConventionsBuilder Conventions() { }
-        public void CustomConfigurationSource(NServiceBus.Config.ConfigurationSource.IConfigurationSource configurationSource) { }
-        public void EndpointName(string name) { }
-        public void ExcludeAssemblies(params string[] assemblies) { }
-        public void ExcludeTypes(params System.Type[] types) { }
-        [System.ObsoleteAttribute("Please use `UseTransport<T>().AddAddressTranslationRule` instead. Will be removed" +
-            " in version 7.0.0.", true)]
-        public void OverrideLocalAddress(string queue) { }
-        public void OverridePublicReturnAddress(string address) { }
-        [System.ObsoleteAttribute("Please use `OverridePublicReturnAddress(string address)` instead. Will be removed" +
-            " in version 7.0.0.", true)]
-        public void OverridePublicReturnAddress(NServiceBus.Address address) { }
-        public void RegisterComponents(System.Action<NServiceBus.ObjectBuilder.IConfigureComponents> registration) { }
-        public void RunWhenEndpointStartsAndStops(NServiceBus.IWantToRunWhenBusStartsAndStops callbackObject) { }
-        [System.ObsoleteAttribute("Please use `ExcludeAssemblies` instead. Will be removed in version 7.0.0.", true)]
-        public void ScanAssembliesInDirectory(string probeDirectory) { }
-        public void ScanAssembliesInNestedDirectories() { }
-        public void SendOnly() { }
-        [System.ObsoleteAttribute("Please use `ExcludeTypes` instead. Will be removed in version 7.0.0.", true)]
-        public void TypesToScan(System.Collections.Generic.IEnumerable<System.Type> typesToScan) { }
-        public void UseContainer<T>(System.Action<NServiceBus.Container.ContainerCustomizations> customizations = null)
-            where T : NServiceBus.Container.ContainerDefinition, new () { }
-        public void UseContainer(System.Type definitionType) { }
-        public void UseContainer(NServiceBus.ObjectBuilder.Common.IContainer builder) { }
     }
     public class BusNotifications
     {
@@ -102,16 +71,16 @@ namespace NServiceBus
     }
     public class static ConfigurationBuilderExtensions
     {
-        public static void DisableFeature<T>(this NServiceBus.BusConfiguration config)
+        public static void DisableFeature<T>(this NServiceBus.EndpointConfiguration config)
             where T : NServiceBus.Features.Feature { }
-        public static void DisableFeature(this NServiceBus.BusConfiguration config, System.Type featureType) { }
-        public static void EnableFeature<T>(this NServiceBus.BusConfiguration config)
+        public static void DisableFeature(this NServiceBus.EndpointConfiguration config, System.Type featureType) { }
+        public static void EnableFeature<T>(this NServiceBus.EndpointConfiguration config)
             where T : NServiceBus.Features.Feature { }
-        public static void EnableFeature(this NServiceBus.BusConfiguration config, System.Type featureType) { }
+        public static void EnableFeature(this NServiceBus.EndpointConfiguration config, System.Type featureType) { }
     }
     public class static ConfigurationTimeoutExtensions
     {
-        public static void TimeToWaitBeforeTriggeringCriticalErrorOnTimeoutOutages(this NServiceBus.BusConfiguration config, System.TimeSpan timeToWait) { }
+        public static void TimeToWaitBeforeTriggeringCriticalErrorOnTimeoutOutages(this NServiceBus.EndpointConfiguration config, System.TimeSpan timeToWait) { }
     }
     [System.ObsoleteAttribute("This is no longer a public API. Will be removed in version 7.0.0.", true)]
     public class Configure
@@ -120,19 +89,19 @@ namespace NServiceBus
     }
     public class static ConfigureAudit
     {
-        public static void AuditProcessedMessagesTo(this NServiceBus.BusConfiguration config, string auditQueue, System.Nullable<System.TimeSpan> timeToBeReceived = null) { }
+        public static void AuditProcessedMessagesTo(this NServiceBus.EndpointConfiguration config, string auditQueue, System.Nullable<System.TimeSpan> timeToBeReceived = null) { }
     }
     public class static ConfigureCriticalErrorAction
     {
-        public static void DefineCriticalErrorAction(this NServiceBus.BusConfiguration busConfiguration, System.Func<NServiceBus.ICriticalErrorContext, System.Threading.Tasks.Task> onCriticalError) { }
-        [System.ObsoleteAttribute("Please use `ConfigureCriticalErrorAction.DefineCriticalErrorAction(BusConfigurati" +
-            "on, Func<ICriticalErrorContext, Task>)` instead. Will be removed in version 7.0." +
-            "0.", true)]
-        public static void DefineCriticalErrorAction(this NServiceBus.BusConfiguration busConfiguration, System.Action<string, System.Exception> onCriticalError) { }
+        public static void DefineCriticalErrorAction(this NServiceBus.EndpointConfiguration endpointConfiguration, System.Func<NServiceBus.ICriticalErrorContext, System.Threading.Tasks.Task> onCriticalError) { }
+        [System.ObsoleteAttribute("Please use `ConfigureCriticalErrorAction.DefineCriticalErrorAction(EndpointConfig" +
+            "uration, Func<ICriticalErrorContext, Task>)` instead. Will be removed in version" +
+            " 7.0.0.", true)]
+        public static void DefineCriticalErrorAction(this NServiceBus.EndpointConfiguration endpointConfiguration, System.Action<string, System.Exception> onCriticalError) { }
     }
     public class static ConfigureError
     {
-        public static void SendFailedMessagesTo(this NServiceBus.BusConfiguration config, string errorQueue) { }
+        public static void SendFailedMessagesTo(this NServiceBus.EndpointConfiguration config, string errorQueue) { }
     }
     public class static ConfigureFileShareDataBus
     {
@@ -140,7 +109,7 @@ namespace NServiceBus
     }
     public class static ConfigureHandlerSettings
     {
-        public static void InitializeHandlerProperty<THandler>(this NServiceBus.BusConfiguration config, string property, object value) { }
+        public static void InitializeHandlerProperty<THandler>(this NServiceBus.EndpointConfiguration config, string property, object value) { }
     }
     [System.ObsoleteAttribute("Will be removed in version 7.0.0.", true)]
     public class static ConfigureInMemoryFaultManagement
@@ -148,16 +117,16 @@ namespace NServiceBus
         [System.ObsoleteAttribute("This is no longer supported. If you want full control over what happens when a me" +
             "ssage fails (including retries) please override the MoveFaultsToErrorQueue behav" +
             "ior. Will be removed in version 7.0.0.", true)]
-        public static void DiscardFailedMessagesInsteadOfSendingToErrorQueue(this NServiceBus.BusConfiguration config) { }
+        public static void DiscardFailedMessagesInsteadOfSendingToErrorQueue(this NServiceBus.EndpointConfiguration config) { }
     }
     public class static ConfigureLicenseExtensions
     {
-        public static void License(this NServiceBus.BusConfiguration config, string licenseText) { }
-        public static void LicensePath(this NServiceBus.BusConfiguration config, string licenseFile) { }
+        public static void License(this NServiceBus.EndpointConfiguration config, string licenseText) { }
+        public static void LicensePath(this NServiceBus.EndpointConfiguration config, string licenseFile) { }
     }
     public class static ConfigurePurging
     {
-        public static void PurgeOnStartup(this NServiceBus.BusConfiguration config, bool value) { }
+        public static void PurgeOnStartup(this NServiceBus.EndpointConfiguration config, bool value) { }
         [System.ObsoleteAttribute("Will be removed in version 7.0.0.", true)]
         public static bool PurgeOnStartup(this NServiceBus.Configure config) { }
     }
@@ -166,15 +135,15 @@ namespace NServiceBus
         [System.ObsoleteAttribute("Please use `CreateQueues` instead. Will be removed in version 7.0.0.", true)]
         public static bool CreateQueues(this NServiceBus.Configure config) { }
         public static bool CreateQueues(this NServiceBus.Settings.ReadOnlySettings settings) { }
-        public static void DoNotCreateQueues(this NServiceBus.BusConfiguration config) { }
+        public static void DoNotCreateQueues(this NServiceBus.EndpointConfiguration config) { }
     }
     public class static ConfigureRijndaelEncryptionService
     {
-        public static void RegisterEncryptionService(this NServiceBus.BusConfiguration config, System.Func<NServiceBus.Encryption.IEncryptionService> func) { }
-        [System.ObsoleteAttribute(@"It is no longer possible to access the builder to create an encryption service. If you require container access use your container directly in the factory. Please use `RegisterEncryptionService(this BusConfiguration config, Func<IEncryptionService> func)` instead. Will be removed in version 7.0.0.", true)]
-        public static void RegisterEncryptionService(this NServiceBus.BusConfiguration config, System.Func<NServiceBus.ObjectBuilder.IBuilder, NServiceBus.Encryption.IEncryptionService> func) { }
-        public static void RijndaelEncryptionService(this NServiceBus.BusConfiguration config) { }
-        public static void RijndaelEncryptionService(this NServiceBus.BusConfiguration config, string encryptionKey, System.Collections.Generic.List<string> expiredKeys = null) { }
+        public static void RegisterEncryptionService(this NServiceBus.EndpointConfiguration config, System.Func<NServiceBus.Encryption.IEncryptionService> func) { }
+        [System.ObsoleteAttribute(@"It is no longer possible to access the builder to create an encryption service. If you require container access use your container directly in the factory. Please use `RegisterEncryptionService(this EndpointConfiguration config, Func<IEncryptionService> func)` instead. Will be removed in version 7.0.0.", true)]
+        public static void RegisterEncryptionService(this NServiceBus.EndpointConfiguration config, System.Func<NServiceBus.ObjectBuilder.IBuilder, NServiceBus.Encryption.IEncryptionService> func) { }
+        public static void RijndaelEncryptionService(this NServiceBus.EndpointConfiguration config) { }
+        public static void RijndaelEncryptionService(this NServiceBus.EndpointConfiguration config, string encryptionKey, System.Collections.Generic.List<string> expiredKeys = null) { }
     }
     public class static ConfigureTransportConnectionString
     {
@@ -256,7 +225,7 @@ namespace NServiceBus
     }
     public class static CriticalTimeMonitoringConfig
     {
-        public static void EnableCriticalTimePerformanceCounter(this NServiceBus.BusConfiguration config) { }
+        public static void EnableCriticalTimePerformanceCounter(this NServiceBus.EndpointConfiguration config) { }
     }
     public class DataBusProperty<T> : NServiceBus.IDataBusProperty, System.Runtime.Serialization.ISerializable
         where T :  class
@@ -288,11 +257,11 @@ namespace NServiceBus
     }
     public class static DurableMessagesConfig
     {
-        public static void DisableDurableMessages(this NServiceBus.BusConfiguration config) { }
+        public static void DisableDurableMessages(this NServiceBus.EndpointConfiguration config) { }
         public static bool DurableMessagesEnabled(this NServiceBus.Settings.ReadOnlySettings settings) { }
         [System.ObsoleteAttribute("Please use `DurableMessagesEnabled` instead. Will be removed in version 7.0.0.", true)]
         public static bool DurableMessagesEnabled(this NServiceBus.Configure config) { }
-        public static void EnableDurableMessages(this NServiceBus.BusConfiguration config) { }
+        public static void EnableDurableMessages(this NServiceBus.EndpointConfiguration config) { }
     }
     public class static DurableMessagesConventionExtensions
     {
@@ -306,9 +275,45 @@ namespace NServiceBus
     }
     public class static Endpoint
     {
-        public static System.Threading.Tasks.Task<NServiceBus.IStartableEndpoint> Create(NServiceBus.BusConfiguration configuration) { }
-        public static NServiceBus.IInitializableEndpoint Prepare(NServiceBus.BusConfiguration configuration) { }
-        public static async System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(NServiceBus.BusConfiguration configuration) { }
+        public static System.Threading.Tasks.Task<NServiceBus.IStartableEndpoint> Create(NServiceBus.EndpointConfiguration configuration) { }
+        public static NServiceBus.IInitializableEndpoint Prepare(NServiceBus.EndpointConfiguration configuration) { }
+        public static async System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(NServiceBus.EndpointConfiguration configuration) { }
+    }
+    public class EndpointConfiguration : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
+    {
+        public EndpointConfiguration() { }
+        [System.ObsoleteAttribute("Please use `SetOutgoingHeaders(string key,string value)` instead. Will be removed" +
+            " in version 7.0.0.", true)]
+        public System.Collections.Generic.IDictionary<string, string> OutgoingHeaders { get; }
+        public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
+        [System.ObsoleteAttribute("Please use `ExcludeAssemblies` instead. Will be removed in version 7.0.0.", true)]
+        public void AssembliesToScan(System.Collections.Generic.IEnumerable<System.Reflection.Assembly> assemblies) { }
+        [System.ObsoleteAttribute("Please use `ExcludeAssemblies` instead. Will be removed in version 7.0.0.", true)]
+        public void AssembliesToScan(params System.Reflection.Assembly[] assemblies) { }
+        public NServiceBus.ConventionsBuilder Conventions() { }
+        public void CustomConfigurationSource(NServiceBus.Config.ConfigurationSource.IConfigurationSource configurationSource) { }
+        public void EndpointName(string name) { }
+        public void ExcludeAssemblies(params string[] assemblies) { }
+        public void ExcludeTypes(params System.Type[] types) { }
+        [System.ObsoleteAttribute("Please use `UseTransport<T>().AddAddressTranslationRule` instead. Will be removed" +
+            " in version 7.0.0.", true)]
+        public void OverrideLocalAddress(string queue) { }
+        public void OverridePublicReturnAddress(string address) { }
+        [System.ObsoleteAttribute("Please use `OverridePublicReturnAddress(string address)` instead. Will be removed" +
+            " in version 7.0.0.", true)]
+        public void OverridePublicReturnAddress(NServiceBus.Address address) { }
+        public void RegisterComponents(System.Action<NServiceBus.ObjectBuilder.IConfigureComponents> registration) { }
+        public void RunWhenEndpointStartsAndStops(NServiceBus.IWantToRunWhenBusStartsAndStops callbackObject) { }
+        [System.ObsoleteAttribute("Please use `ExcludeAssemblies` instead. Will be removed in version 7.0.0.", true)]
+        public void ScanAssembliesInDirectory(string probeDirectory) { }
+        public void ScanAssembliesInNestedDirectories() { }
+        public void SendOnly() { }
+        [System.ObsoleteAttribute("Please use `ExcludeTypes` instead. Will be removed in version 7.0.0.", true)]
+        public void TypesToScan(System.Collections.Generic.IEnumerable<System.Type> typesToScan) { }
+        public void UseContainer<T>(System.Action<NServiceBus.Container.ContainerCustomizations> customizations = null)
+            where T : NServiceBus.Container.ContainerDefinition, new () { }
+        public void UseContainer(System.Type definitionType) { }
+        public void UseContainer(NServiceBus.ObjectBuilder.Common.IContainer builder) { }
     }
     public class static EndpointInstanceExtensions
     {
@@ -348,8 +353,8 @@ namespace NServiceBus
         public FileShareDataBus() { }
         protected internal override System.Type ProvidedByFeature() { }
     }
-    [System.ObsoleteAttribute("Please use `BusConfiguration.ExecuteTheseHandlersFirst` instead. Will be removed " +
-        "in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Please use `EndpointConfiguration.ExecuteTheseHandlersFirst` instead. Will be rem" +
+        "oved in version 7.0.0.", true)]
     public class First<T>
     {
         public First() { }
@@ -410,7 +415,7 @@ namespace NServiceBus
     }
     public class static HostInfoConfigurationExtensions
     {
-        public static NServiceBus.HostInfoSettings UniquelyIdentifyRunningInstance(this NServiceBus.BusConfiguration config) { }
+        public static NServiceBus.HostInfoSettings UniquelyIdentifyRunningInstance(this NServiceBus.EndpointConfiguration config) { }
     }
     public class HostInfoSettings
     {
@@ -600,18 +605,18 @@ namespace NServiceBus
     [JetBrains.Annotations.UsedImplicitlyAttribute(JetBrains.Annotations.ImplicitUseTargetFlags.Default | JetBrains.Annotations.ImplicitUseTargetFlags.Itself | JetBrains.Annotations.ImplicitUseTargetFlags.Members | JetBrains.Annotations.ImplicitUseTargetFlags.WithMembers)]
     public interface INeedInitialization
     {
-        void Customize(NServiceBus.BusConfiguration configuration);
+        void Customize(NServiceBus.EndpointConfiguration configuration);
     }
     public class InMemoryPersistence : NServiceBus.Persistence.PersistenceDefinition { }
     public class static InstallConfigExtensions
     {
-        public static void EnableInstallers(this NServiceBus.BusConfiguration config, string username = null) { }
+        public static void EnableInstallers(this NServiceBus.EndpointConfiguration config, string username = null) { }
     }
     [System.ObsoleteAttribute("Use IBusSessionFactory to create sending context. Will be removed in version 7.0." +
         "0.", true)]
     public interface ISendOnlyBus : System.IDisposable { }
-    [System.ObsoleteAttribute("Please use `BusConfiguration.ExecuteTheseHandlersFirst` instead. Will be removed " +
-        "in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Please use `EndpointConfiguration.ExecuteTheseHandlersFirst` instead. Will be rem" +
+        "oved in version 7.0.0.", true)]
     public interface ISpecifyMessageHandlerOrdering { }
     [System.ObsoleteAttribute("Please use `IStartableEndpoint` instead. Will be removed in version 7.0.0.", true)]
     public interface IStartableBus : NServiceBus.IBus
@@ -645,14 +650,14 @@ namespace NServiceBus
     }
     public class static LoadMessageHandlersExtentions
     {
-        public static void ExecuteTheseHandlersFirst(this NServiceBus.BusConfiguration config, System.Collections.Generic.IEnumerable<System.Type> handlerTypes) { }
-        public static void ExecuteTheseHandlersFirst(this NServiceBus.BusConfiguration config, params System.Type[] handlerTypes) { }
+        public static void ExecuteTheseHandlersFirst(this NServiceBus.EndpointConfiguration config, System.Collections.Generic.IEnumerable<System.Type> handlerTypes) { }
+        public static void ExecuteTheseHandlersFirst(this NServiceBus.EndpointConfiguration config, params System.Type[] handlerTypes) { }
         [System.ObsoleteAttribute("Please use `ExecuteTheseHandlersFirst` instead. Will be removed in version 7.0.0." +
             "", true)]
-        public static void LoadMessageHandlers<TFirst>(this NServiceBus.BusConfiguration config) { }
+        public static void LoadMessageHandlers<TFirst>(this NServiceBus.EndpointConfiguration config) { }
         [System.ObsoleteAttribute("Please use `ExecuteTheseHandlersFirst` instead. Will be removed in version 7.0.0." +
             "", true)]
-        public static void LoadMessageHandlers<T>(this NServiceBus.BusConfiguration config, NServiceBus.First<T> order) { }
+        public static void LoadMessageHandlers<T>(this NServiceBus.EndpointConfiguration config, NServiceBus.First<T> order) { }
     }
     public sealed class LogicalAddress
     {
@@ -673,7 +678,7 @@ namespace NServiceBus
     public class static MessageDrivenSubscriptionsConfigExtensions
     {
         public static void SubscriptionAuthorizer(this NServiceBus.TransportExtensions transportExtensions, System.Func<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, bool> authorizer) { }
-        public static void UseLegacyMessageDrivenSubscriptionMode(this NServiceBus.BusConfiguration busConfiguration) { }
+        public static void UseLegacyMessageDrivenSubscriptionMode(this NServiceBus.EndpointConfiguration endpointConfiguration) { }
     }
     public class static MessageIdExtensions
     {
@@ -689,7 +694,7 @@ namespace NServiceBus
     }
     public class static MessageProcessingOptimizationExtensions
     {
-        public static void LimitMessageProcessingConcurrencyTo(this NServiceBus.BusConfiguration config, int maxConcurrency) { }
+        public static void LimitMessageProcessingConcurrencyTo(this NServiceBus.EndpointConfiguration config, int maxConcurrency) { }
     }
     public class static MsmqConfigurationExtensions
     {
@@ -716,24 +721,24 @@ namespace NServiceBus
     {
         public NonDurableDelivery() { }
     }
-    [System.ObsoleteAttribute("Please use `BusConfiguration.ExecuteTheseHandlersFirst` instead. Will be removed " +
-        "in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Please use `EndpointConfiguration.ExecuteTheseHandlersFirst` instead. Will be rem" +
+        "oved in version 7.0.0.", true)]
     public class Order
     {
         public Order() { }
     }
     public class static OutboxConfigExtensions
     {
-        public static NServiceBus.Outbox.OutboxSettings EnableOutbox(this NServiceBus.BusConfiguration config) { }
+        public static NServiceBus.Outbox.OutboxSettings EnableOutbox(this NServiceBus.EndpointConfiguration config) { }
     }
     public class static PersistenceConfig
     {
-        public static NServiceBus.PersistenceExtentions<T> UsePersistence<T>(this NServiceBus.BusConfiguration config)
+        public static NServiceBus.PersistenceExtentions<T> UsePersistence<T>(this NServiceBus.EndpointConfiguration config)
             where T : NServiceBus.Persistence.PersistenceDefinition { }
-        public static NServiceBus.PersistenceExtentions<T, S> UsePersistence<T, S>(this NServiceBus.BusConfiguration config)
+        public static NServiceBus.PersistenceExtentions<T, S> UsePersistence<T, S>(this NServiceBus.EndpointConfiguration config)
             where T : NServiceBus.Persistence.PersistenceDefinition
             where S : NServiceBus.Persistence.StorageType { }
-        public static NServiceBus.PersistenceExtentions UsePersistence(this NServiceBus.BusConfiguration config, System.Type definitionType) { }
+        public static NServiceBus.PersistenceExtentions UsePersistence(this NServiceBus.EndpointConfiguration config, System.Type definitionType) { }
     }
     public class PersistenceExtentions : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
@@ -763,7 +768,7 @@ namespace NServiceBus
     }
     public class static PublishersSettingsExtensions
     {
-        public static NServiceBus.Routing.MessageDrivenSubscriptions.Publishers Pubishers(this NServiceBus.BusConfiguration config) { }
+        public static NServiceBus.Routing.MessageDrivenSubscriptions.Publishers Publishers(this NServiceBus.EndpointConfiguration config) { }
     }
     public class PublishOptions : NServiceBus.Extensibility.ExtendableOptions
     {
@@ -787,7 +792,7 @@ namespace NServiceBus
     }
     public class static RoutingSettingsExtensions
     {
-        public static NServiceBus.RoutingSettings Routing(this NServiceBus.BusConfiguration config) { }
+        public static NServiceBus.RoutingSettings Routing(this NServiceBus.EndpointConfiguration config) { }
     }
     public abstract class Saga
     {
@@ -846,7 +851,7 @@ namespace NServiceBus
     }
     public class static ScaleOutExtentions
     {
-        public static NServiceBus.Settings.ScaleOutSettings ScaleOut(this NServiceBus.BusConfiguration config) { }
+        public static NServiceBus.Settings.ScaleOutSettings ScaleOut(this NServiceBus.EndpointConfiguration config) { }
     }
     [System.ObsoleteAttribute("Use extension methods provided on ISendOnlyBus. Will be removed in version 7.0.0." +
         "", true)]
@@ -867,7 +872,7 @@ namespace NServiceBus
     }
     public class static SecondLevelRetriesConfigExtensions
     {
-        public static NServiceBus.SecondLevelRetries.Config.SecondLevelRetriesSettings SecondLevelRetries(this NServiceBus.BusConfiguration config) { }
+        public static NServiceBus.SecondLevelRetries.Config.SecondLevelRetriesSettings SecondLevelRetries(this NServiceBus.EndpointConfiguration config) { }
     }
     public class SendOptions : NServiceBus.Extensibility.ExtendableOptions
     {
@@ -875,16 +880,16 @@ namespace NServiceBus
     }
     public class static SerializationConfigExtensions
     {
-        public static void AddDeserializer<T>(this NServiceBus.BusConfiguration config)
+        public static void AddDeserializer<T>(this NServiceBus.EndpointConfiguration config)
             where T : NServiceBus.Serialization.SerializationDefinition, new () { }
-        public static NServiceBus.Serialization.SerializationExtentions<T> UseSerialization<T>(this NServiceBus.BusConfiguration config)
+        public static NServiceBus.Serialization.SerializationExtentions<T> UseSerialization<T>(this NServiceBus.EndpointConfiguration config)
             where T : NServiceBus.Serialization.SerializationDefinition, new () { }
-        public static NServiceBus.Serialization.SerializationExtentions<T> UseSerialization<T>(this NServiceBus.BusConfiguration config, T serializationDefinition)
+        public static NServiceBus.Serialization.SerializationExtentions<T> UseSerialization<T>(this NServiceBus.EndpointConfiguration config, T serializationDefinition)
             where T : NServiceBus.Serialization.SerializationDefinition { }
         [System.ObsoleteAttribute("To use a custom serializer derive from SerializationDefinition and provide a fact" +
             "ory method for creating the serializer instance. Will be removed in version 7.0." +
             "0.", true)]
-        public static void UseSerialization(this NServiceBus.BusConfiguration config, System.Type serializerType) { }
+        public static void UseSerialization(this NServiceBus.EndpointConfiguration config, System.Type serializerType) { }
     }
     public class static SerializationContextExtensions
     {
@@ -903,12 +908,12 @@ namespace NServiceBus
     }
     public class static SLAMonitoringConfig
     {
-        public static void EnableSLAPerformanceCounter(this NServiceBus.BusConfiguration config, System.TimeSpan sla) { }
-        public static void EnableSLAPerformanceCounter(this NServiceBus.BusConfiguration config) { }
+        public static void EnableSLAPerformanceCounter(this NServiceBus.EndpointConfiguration config, System.TimeSpan sla) { }
+        public static void EnableSLAPerformanceCounter(this NServiceBus.EndpointConfiguration config) { }
     }
     public class static StaticHeadersConfigExtensions
     {
-        public static void AddHeaderToAllOutgoingMessages(this NServiceBus.BusConfiguration config, string key, string value) { }
+        public static void AddHeaderToAllOutgoingMessages(this NServiceBus.EndpointConfiguration config, string key, string value) { }
     }
     public class SubscribeOptions : NServiceBus.Extensibility.ExtendableOptions
     {
@@ -1002,7 +1007,7 @@ namespace NServiceBus
     }
     public class static UnitOfWorkSettingsExtensions
     {
-        public static NServiceBus.UnitOfWorkSettings UnitOfWork(this NServiceBus.BusConfiguration config) { }
+        public static NServiceBus.UnitOfWorkSettings UnitOfWork(this NServiceBus.EndpointConfiguration config) { }
     }
     public class UnsubscribeOptions : NServiceBus.Extensibility.ExtendableOptions
     {
@@ -1010,15 +1015,15 @@ namespace NServiceBus
     }
     public class static UseDataBusExtensions
     {
-        public static NServiceBus.DataBus.DataBusExtentions<T> UseDataBus<T>(this NServiceBus.BusConfiguration config)
+        public static NServiceBus.DataBus.DataBusExtentions<T> UseDataBus<T>(this NServiceBus.EndpointConfiguration config)
             where T : NServiceBus.DataBus.DataBusDefinition, new () { }
-        public static NServiceBus.DataBus.DataBusExtentions UseDataBus(this NServiceBus.BusConfiguration config, System.Type dataBusType) { }
+        public static NServiceBus.DataBus.DataBusExtentions UseDataBus(this NServiceBus.EndpointConfiguration config, System.Type dataBusType) { }
     }
     public class static UseTransportExtensions
     {
-        public static NServiceBus.TransportExtensions<T> UseTransport<T>(this NServiceBus.BusConfiguration busConfiguration)
+        public static NServiceBus.TransportExtensions<T> UseTransport<T>(this NServiceBus.EndpointConfiguration endpointConfiguration)
             where T : NServiceBus.Transports.TransportDefinition, new () { }
-        public static NServiceBus.TransportExtensions UseTransport(this NServiceBus.BusConfiguration busConfiguration, System.Type transportDefinitionType) { }
+        public static NServiceBus.TransportExtensions UseTransport(this NServiceBus.EndpointConfiguration endpointConfiguration, System.Type transportDefinitionType) { }
     }
     public class WireEncryptedString : System.Runtime.Serialization.ISerializable
     {
@@ -2257,7 +2262,7 @@ namespace NServiceBus.Routing.Legacy
 {
     public class static ConfigureMSMQDistributor
     {
-        public static void EnlistWithLegacyMSMQDistributor(this NServiceBus.BusConfiguration config, string masterNodeAddress, string masterNodeControlAddress, int capacity) { }
+        public static void EnlistWithLegacyMSMQDistributor(this NServiceBus.EndpointConfiguration config, string masterNodeAddress, string masterNodeControlAddress, int capacity) { }
     }
 }
 namespace NServiceBus.Routing.MessageDrivenSubscriptions
@@ -2460,7 +2465,7 @@ namespace NServiceBus.Settings.NServiceBus
     public class static TransactionSettingsExtentions
     {
         [System.ObsoleteAttribute("No longer used, can safely be removed. Will be removed in version 7.0.0.", true)]
-        public static NServiceBus.Settings.TransactionSettings Transactions(this NServiceBus.BusConfiguration config) { }
+        public static NServiceBus.Settings.TransactionSettings Transactions(this NServiceBus.EndpointConfiguration config) { }
     }
 }
 namespace NServiceBus.Settings
@@ -2536,7 +2541,7 @@ namespace NServiceBus.Settings
             "ode.ReceiveOnly|TransportTransactionMode.SendsAtomicWithReceive);` instead. Will" +
             " be removed in version 7.0.0.", true)]
         public NServiceBus.Settings.TransactionSettings DisableDistributedTransactions() { }
-        [System.ObsoleteAttribute(@"DoNotWrapHandlersExecutionInATransactionScope() has been removed since transaction scopes are no longer used by non DTC transports delay the dispatch of all outgoing operations until handlers have been executed.\r\nIn Version 6 handlers will only be wrapped in a transactionscope if running the MSMQ or SQLServer transports in default mode. This means that performing storage operations against data sources also supporting transaction scopes \r\nwill escalate to a distributed transaction. Previous versions allowed opting out of this behavior using config.Transactions().DoNotWrapHandlersExecutionInATransactionScope(). In Version 6 it's recommended to use `busConfiguration.UseTransport<MyTransport>().Transactions(TransportTransactionMode.ReceiveOnly)` to lean on native transport transaction and the new batched dispatch support to achieve the same level of consistency with better performance.\r\nSuppressing the ambient transaction created by the MSMQ and SQL Server transports can still be achieved by creating a custom pipeline behavior with a suppressed transaction scope. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute(@"DoNotWrapHandlersExecutionInATransactionScope() has been removed since transaction scopes are no longer used by non DTC transports delay the dispatch of all outgoing operations until handlers have been executed.\r\nIn Version 6 handlers will only be wrapped in a transactionscope if running the MSMQ or SQLServer transports in default mode. This means that performing storage operations against data sources also supporting transaction scopes \r\nwill escalate to a distributed transaction. Previous versions allowed opting out of this behavior using config.Transactions().DoNotWrapHandlersExecutionInATransactionScope(). In Version 6 it's recommended to use `EndpointConfiguration.UseTransport<MyTransport>().Transactions(TransportTransactionMode.ReceiveOnly)` to lean on native transport transaction and the new batched dispatch support to achieve the same level of consistency with better performance.\r\nSuppressing the ambient transaction created by the MSMQ and SQL Server transports can still be achieved by creating a custom pipeline behavior with a suppressed transaction scope. Will be removed in version 7.0.0.", true)]
         public NServiceBus.Settings.TransactionSettings DoNotWrapHandlersExecutionInATransactionScope() { }
         [System.ObsoleteAttribute("Please use `config.UseTransport<MyTransport>().Transactions(TransportTransactionM" +
             "ode.ReceiveOnly|TransportTransactionMode.SendsAtomicWithReceive);` instead. Will" +

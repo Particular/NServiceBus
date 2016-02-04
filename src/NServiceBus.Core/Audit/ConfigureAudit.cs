@@ -3,7 +3,7 @@ namespace NServiceBus
     using System;
 
     /// <summary>
-    /// Contains extension methods to <see cref="BusConfiguration"/>.
+    /// Contains extension methods to <see cref="EndpointConfiguration"/>.
     /// </summary>
     public static class ConfigureAudit
     {
@@ -11,10 +11,10 @@ namespace NServiceBus
         /// <summary>
         /// Configure Audit settings. 
         /// </summary>
-        /// <param name="config">The <see cref="BusConfiguration"/> instance to apply the settings to.</param>
+        /// <param name="config">The <see cref="EndpointConfiguration"/> instance to apply the settings to.</param>
         /// <param name="auditQueue">The name of the audit queue to use.</param>
         /// <param name="timeToBeReceived">The custom TTR to use for messages sent to the audit queue.</param>
-        public static void AuditProcessedMessagesTo(this BusConfiguration config, string auditQueue, TimeSpan? timeToBeReceived = null)
+        public static void AuditProcessedMessagesTo(this EndpointConfiguration config, string auditQueue, TimeSpan? timeToBeReceived = null)
         {
             Guard.AgainstNull(nameof(config), config);
             Guard.AgainstNullAndEmpty(nameof(auditQueue), auditQueue);

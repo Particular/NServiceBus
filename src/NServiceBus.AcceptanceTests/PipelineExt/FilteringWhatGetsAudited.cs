@@ -111,7 +111,7 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
 
             class AuditFilteringOverride : INeedInitialization
             {
-                public void Customize(BusConfiguration configuration)
+                public void Customize(EndpointConfiguration configuration)
                 {
                     configuration.Pipeline.Register<AddContextStorage.Registration>();
                     configuration.Pipeline.Register("SetFiltering", typeof(SetFiltering), "Filters audit entries");

@@ -5,9 +5,9 @@ namespace NServiceBus.Settings
     /// </summary>
     public partial class ScaleOutSettings
     {
-        BusConfiguration config;
+        EndpointConfiguration config;
 
-        internal ScaleOutSettings(BusConfiguration config)
+        internal ScaleOutSettings(EndpointConfiguration config)
         {
             this.config = config;
         }

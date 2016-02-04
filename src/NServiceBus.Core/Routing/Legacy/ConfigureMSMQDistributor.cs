@@ -11,7 +11,7 @@
         /// <summary>
         ///     Enlist Worker with Master node defined in the config.
         /// </summary>
-        public static void EnlistWithLegacyMSMQDistributor(this BusConfiguration config, string masterNodeAddress, string masterNodeControlAddress, int capacity)
+        public static void EnlistWithLegacyMSMQDistributor(this EndpointConfiguration config, string masterNodeAddress, string masterNodeControlAddress, int capacity)
         {
             if (masterNodeAddress == null)
             {

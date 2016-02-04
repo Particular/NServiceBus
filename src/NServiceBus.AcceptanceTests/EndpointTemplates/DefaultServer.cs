@@ -6,7 +6,6 @@
     using System.Reflection;
     using System.Threading.Tasks;
     using AcceptanceTesting.Support;
-    using NServiceBus;
     using NServiceBus.AcceptanceTesting.Customization;
     using NServiceBus.Config.ConfigurationSource;
     using NServiceBus.Configuration.AdvanceExtensibility;
@@ -29,7 +28,7 @@
             this.typesToInclude = typesToInclude;
         }
 
-        public async Task<BusConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointConfiguration endpointConfiguration, IConfigurationSource configSource, Action<BusConfiguration> configurationBuilderCustomization)
+        public async Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, IConfigurationSource configSource, Action<EndpointConfiguration> configurationBuilderCustomization)
         {
             var settings = runDescriptor.Settings;            
 
@@ -37,7 +36,7 @@
 
             typesToInclude.AddRange(types);
 
-            var builder = new BusConfiguration();
+            var builder = new EndpointConfiguration();
 
             builder.EndpointName(endpointConfiguration.EndpointName);
             builder.TypesToIncludeInScan(typesToInclude);
@@ -48,7 +47,7 @@
             builder.DisableFeature<SecondLevelRetries>();
             builder.DisableFeature<FirstLevelRetries>();
 
-            await builder.DefineTransport(settings, endpointConfiguration.BuilderType);
+            await builder.DefineTransport(settings, endpointConfiguration.BuilderType).ConfigureAwait(false);
 
             builder.DefineBuilder(settings);
             builder.RegisterComponents(r => { RegisterInheritanceHierarchyOfContextOnContainer(runDescriptor, r); });
@@ -59,7 +58,7 @@
             {
                 builder.UseSerialization((SerializationDefinition)Activator.CreateInstance(Type.GetType(serializer, true)));
             }
-            await builder.DefinePersistence(settings);
+            await builder.DefinePersistence(settings).ConfigureAwait(false);
 
             builder.GetSettings().SetDefault("ScaleOut.UseSingleBrokerQueue", true);
             configurationBuilderCustomization(builder);
@@ -78,7 +77,7 @@
             }
         }
 
-        static IEnumerable<Type> GetTypesScopedByTestClass(EndpointConfiguration endpointConfiguration)
+        static IEnumerable<Type> GetTypesScopedByTestClass(EndpointCustomizationConfiguration endpointConfiguration)
         {
             var assemblies = new AssemblyScanner().GetScannableAssemblies();
 
@@ -117,6 +116,5 @@
                 yield return nestedType;
             }
         }
-
     }
 }
