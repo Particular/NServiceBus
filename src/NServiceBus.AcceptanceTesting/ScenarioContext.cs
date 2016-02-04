@@ -13,11 +13,11 @@
 
         public bool HasNativePubSubSupport { get; set; }
 
-        public string Trace { get; set; }
+        public string Trace => String.Join(Environment.NewLine, traceQueue.ToArray());
 
         public void AddTrace(string trace)
         {
-            Trace += $"{DateTime.Now:HH:mm:ss.ffffff} - {trace}{Environment.NewLine}";
+            traceQueue.Enqueue($"{DateTime.Now:HH:mm:ss.ffffff} - {trace}");
         }
 
         public ConcurrentQueue<Exception> Exceptions = new ConcurrentQueue<Exception>();
@@ -25,6 +25,8 @@
         public ConcurrentDictionary<string, IReadOnlyCollection<FailedMessage>> FailedMessages = new ConcurrentDictionary<string, IReadOnlyCollection<FailedMessage>>();
 
         public ConcurrentQueue<LogItem> Logs = new ConcurrentQueue<LogItem>();
+
+        ConcurrentQueue<string> traceQueue = new ConcurrentQueue<string>();
 
         public class LogItem
         {
