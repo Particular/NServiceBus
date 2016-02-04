@@ -55,7 +55,7 @@
             state.RetryDelay = TimeSpan.Zero;
             dispatcher.FailDispatch(11);
 
-            Assert.Throws<QueueNotFoundException>(async () => await terminator.Invoke(new SubscribeContext(new FakeContext(), typeof(object), options), c => TaskEx.CompletedTask));
+            Assert.That(async () => await terminator.Invoke(new SubscribeContext(new FakeContext(), typeof(object), options), c => TaskEx.CompletedTask), Throws.InstanceOf<QueueNotFoundException>());
 
             Assert.AreEqual(0, dispatcher.DispatchedTransportOperations.Count);
             Assert.AreEqual(11, dispatcher.FailedNumberOfTimes);

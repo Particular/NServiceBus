@@ -7,23 +7,17 @@
     [TestFixture]
     public class When_directory_with_handler_dll_is_scanned
     {
-        AssemblyScannerResults results;
-
-        [SetUp]
-        public void Context()
-        {
-            var assemblyScanner = new AssemblyScanner(AssemblyLocation.CurrentDirectory)
-                {
-                    IncludeAppDomainAssemblies = false
-                };
-
-            results = assemblyScanner
-                .GetScannableAssemblies();
-        }
-
         [Test]
         public void dll_with_message_handlers_gets_loaded()
         {
+            var assemblyScanner = new AssemblyScanner(AssemblyLocation.CurrentDirectory)
+            {
+                IncludeAppDomainAssemblies = false
+            };
+
+            var results = assemblyScanner
+                .GetScannableAssemblies();
+
             var containsHandlers = "NServiceBus.Core.Tests"; //< assembly name, not file name
             var assembly = results.Assemblies
                 .FirstOrDefault(a => a.GetName().Name.Contains(containsHandlers));

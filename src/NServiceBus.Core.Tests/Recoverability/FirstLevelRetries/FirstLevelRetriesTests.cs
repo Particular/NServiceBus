@@ -17,7 +17,7 @@
         {
             var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(0));
 
-            Assert.Throws<MessageDeserializationException>(async () => await behavior.Invoke(null, () => { throw new MessageDeserializationException("test"); }));
+            Assert.That(async () => await behavior.Invoke(null, () => { throw new MessageDeserializationException("test"); }), Throws.InstanceOf< MessageDeserializationException>());
         }
 
         [Test]
@@ -38,7 +38,7 @@
             var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(0));
             var context = CreateContext("someid");
 
-            Assert.Throws<Exception>(async () => await behavior.Invoke(context, () => { throw new Exception("test"); }));
+            Assert.That(async () => await behavior.Invoke(context, () => { throw new Exception("test"); }), Throws.InstanceOf<Exception>());
 
             //should set the retries header to capture how many flr attempts where made
             Assert.AreEqual("0", context.Message.Headers[Headers.FLRetries]);
@@ -53,7 +53,7 @@
 
             storage.IncrementFailuresForMessage(messageId);
 
-            Assert.Throws<Exception>(async () => await behavior.Invoke(CreateContext(messageId), () => { throw new Exception("test"); }));
+            Assert.That(async () => await behavior.Invoke(CreateContext(messageId), () => { throw new Exception("test"); }), Throws.InstanceOf<Exception>());
 
             Assert.AreEqual(0, storage.GetFailuresForMessage(messageId));
         }
@@ -120,7 +120,7 @@
 
             await behavior1.Invoke(CreateContext(messageId), () => { throw new Exception("test"); });
 
-            Assert.Throws<Exception>(async () => await behavior2.Invoke(CreateContext(messageId), () => { throw new Exception("test"); }));
+            Assert.That(async () => await behavior2.Invoke(CreateContext(messageId), () => { throw new Exception("test"); }), Throws.InstanceOf<Exception>());
         }
 
         static FirstLevelRetriesBehavior CreateFlrBehavior(FirstLevelRetryPolicy retryPolicy, FlrStatusStorage storage = null, BusNotifications busNotifications = null, string pipeline = "")

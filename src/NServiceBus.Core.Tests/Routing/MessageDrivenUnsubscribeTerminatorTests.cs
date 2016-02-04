@@ -21,7 +21,7 @@
         public void SetUp()
         {
             var publishers = new Publishers();
-            publishers.AddStatic("publisher1",typeof(object));
+            publishers.AddStatic("publisher1", typeof(object));
             router = new SubscriptionRouter(publishers, new EndpointInstances(), new TransportAddresses(address => null));
             dispatcher = new FakeDispatcher();
             terminator = new MessageDrivenUnsubscribeTerminator(router, "replyToAddress", new EndpointName("Endpoint"), dispatcher, false);
@@ -59,7 +59,7 @@
             state.RetryDelay = TimeSpan.Zero;
             dispatcher.FailDispatch(11);
 
-            Assert.Throws<QueueNotFoundException>(async () => await terminator.Invoke(new UnsubscribeContext(new FakeContext(), typeof(object), options), c => TaskEx.CompletedTask));
+            Assert.That(async () => await terminator.Invoke(new UnsubscribeContext(new FakeContext(), typeof(object), options), c => TaskEx.CompletedTask), Throws.InstanceOf<QueueNotFoundException>());
 
             Assert.AreEqual(0, dispatcher.DispatchedTransportOperations.Count);
             Assert.AreEqual(11, dispatcher.FailedNumberOfTimes);

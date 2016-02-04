@@ -49,7 +49,7 @@
             var timeoutData = CreateTimeout();
             await timeoutPersister.Add(timeoutData, null);
 
-            Assert.Throws<Exception>(async () => await behavior.Invoke(CreateContext(timeoutData.Id), context => TaskEx.CompletedTask));
+            Assert.That(async () => await behavior.Invoke(CreateContext(timeoutData.Id), context => TaskEx.CompletedTask), Throws.InstanceOf<Exception>());
 
             var result = await timeoutPersister.Peek(timeoutData.Id, null);
             Assert.NotNull(result);
@@ -67,7 +67,7 @@
 
             var behavior = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransportTransactionMode.TransactionScope);
 
-            Assert.Throws<Exception>(async () => await behavior.Invoke(CreateContext(Guid.NewGuid().ToString()), context => TaskEx.CompletedTask));
+            Assert.That(async () => await behavior.Invoke(CreateContext(Guid.NewGuid().ToString()), context => TaskEx.CompletedTask), Throws.InstanceOf<Exception>());
         }
 
         [Test]

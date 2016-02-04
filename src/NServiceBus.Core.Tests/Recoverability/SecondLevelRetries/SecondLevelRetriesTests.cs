@@ -58,7 +58,7 @@
             var behavior = new SecondLevelRetriesBehavior(new FakePolicy(), new BusNotifications(), "MyAddress");
             var context = CreateContext("someid", 1, fakeDispatchPipeline);
 
-            Assert.Throws<Exception>(async () => await behavior.Invoke(context, () => { throw new Exception("testex"); }));
+            Assert.That(async () => await behavior.Invoke(context, () => { throw new Exception("testex"); }), Throws.InstanceOf<Exception>());
 
             Assert.False(context.Message.Headers.ContainsKey(Headers.Retries));
         }
@@ -70,7 +70,7 @@
             var behavior = new SecondLevelRetriesBehavior(new FakePolicy(TimeSpan.FromSeconds(5)), new BusNotifications(), "MyAddress");
             var context = CreateContext("someid", 1, fakeDispatchPipeline);
 
-            Assert.Throws<MessageDeserializationException>(async () => await behavior.Invoke(context, () => { throw new MessageDeserializationException("testex"); }));
+            Assert.That(async () => await behavior.Invoke(context, () => { throw new MessageDeserializationException("testex"); }), Throws.InstanceOf<MessageDeserializationException>());
             Assert.False(context.Message.Headers.ContainsKey(Headers.Retries));
         }
 

@@ -59,9 +59,7 @@
                         new MemoryStream()), null, new CancellationTokenSource(),
                     new RootContext(null, null)));
 
-            var ex = Assert.Throws<Exception>(async () => await behavior.Invoke(context, _ => TaskEx.CompletedTask));
-
-            Assert.True(ex.Message.Contains(typeof(MyReply).FullName));
+            Assert.That(async () => await behavior.Invoke(context, _ => TaskEx.CompletedTask), Throws.InstanceOf<Exception>().And.Message.Contains(typeof(MyReply).FullName));
         }
 
         [Test]
