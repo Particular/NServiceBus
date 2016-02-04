@@ -692,10 +692,9 @@ namespace NServiceBus
     }
     public class static MsmqConfigurationExtensions
     {
-        public static NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> ApplyLabelToMessages(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> transportExtensions, NServiceBus.MsmqLabelGenerator labelGenerator) { }
+        public static NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> ApplyLabelToMessages(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> transportExtensions, System.Func<System.Collections.Generic.IReadOnlyDictionary<string, string>, string> labelGenerator) { }
         public static NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> TransactionScopeOptions(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> transportExtensions, System.Nullable<System.TimeSpan> timeout = null, System.Nullable<System.Transactions.IsolationLevel> isolationLevel = null) { }
     }
-    public delegate string MsmqLabelGenerator(System.Collections.Generic.IReadOnlyDictionary<string, string> headers);
     public class MsmqTransport : NServiceBus.Transports.TransportDefinition
     {
         public MsmqTransport() { }
@@ -2849,7 +2848,7 @@ namespace NServiceBus.Transports.Msmq
     }
     public class MsmqMessageSender : NServiceBus.Transports.IDispatchMessages
     {
-        public MsmqMessageSender(NServiceBus.Transports.Msmq.Config.MsmqSettings settings, NServiceBus.MsmqLabelGenerator messageLabelGenerator) { }
+        public MsmqMessageSender(NServiceBus.Transports.Msmq.Config.MsmqSettings settings, System.Func<System.Collections.Generic.IReadOnlyDictionary<string, string>, string> messageLabelGenerator) { }
         public System.Threading.Tasks.Task Dispatch(NServiceBus.Transports.TransportOperations outgoingMessages, NServiceBus.Extensibility.ContextBag context) { }
     }
     [System.ObsoleteAttribute("The msmq transaction is now available via the pipeline context. Will be removed i" +

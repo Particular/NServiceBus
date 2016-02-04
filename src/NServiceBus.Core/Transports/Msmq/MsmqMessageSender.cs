@@ -21,7 +21,7 @@ namespace NServiceBus.Transports.Msmq
         /// <summary>
         /// Creates a new sender.
         /// </summary>
-        public MsmqMessageSender(MsmqSettings settings, MsmqLabelGenerator messageLabelGenerator)
+        public MsmqMessageSender(MsmqSettings settings, Func<IReadOnlyDictionary<string, string>,string> messageLabelGenerator)
         {
             Guard.AgainstNull(nameof(settings), settings);
             Guard.AgainstNull(nameof(messageLabelGenerator), messageLabelGenerator);
@@ -188,6 +188,6 @@ namespace NServiceBus.Transports.Msmq
         }
 
         MsmqSettings settings;
-        MsmqLabelGenerator messageLabelGenerator;
+        Func<IReadOnlyDictionary<string, string>, string> messageLabelGenerator;
     }
 }

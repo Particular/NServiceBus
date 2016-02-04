@@ -392,7 +392,6 @@
     <Compile Include="Transports\OutboundRoutingPolicy.cs" />
     <Compile Include="Transports\OutboundRoutingType.cs" />
     <Compile Include="Transports\PushRuntimeSettings.cs" />
-    <Compile Include="Transports\Msmq\MsmqLabelGenerator.cs" />
     <Compile Include="Transports\ICancelDeferredMessages.cs" />
     <Compile Include="Transports\Msmq\MsmqAddress.cs" />
     <Compile Include="Transports\Msmq\MsmqConfigurationExtensions.cs" />
