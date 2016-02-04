@@ -158,7 +158,7 @@
     <Compile Include="Faults\ForwardFaultsToErrorQueueTests.cs" />
     <Compile Include="Hosting\HostInfoSettingsTests.cs" />
     <Compile Include="Logging\DefaultFactoryTests.cs" />
-    <Compile Include="Msmq\MsmqMessageSenderTests.cs" />
+    <Compile Include="Msmq\MsmqMessageDispatcherTests.cs" />
     <Compile Include="Persistence\InMemory\SagaMetadataHelper.cs" />
     <Compile Include="Persistence\InMemory\When_persisting_a_saga_with_the_same_unique_property_as_a_completed_saga.cs" />
     <Compile Include="Persistence\PersistenceExtentionsTests.cs" />

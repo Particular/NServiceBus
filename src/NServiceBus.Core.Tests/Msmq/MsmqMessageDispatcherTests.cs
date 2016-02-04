@@ -6,12 +6,11 @@
     using NServiceBus.Extensibility;
     using NServiceBus.Routing;
     using NServiceBus.Transports;
-    using NServiceBus.Transports.Msmq;
     using NServiceBus.Transports.Msmq.Config;
     using NUnit.Framework;
 
     [TestFixture]
-    public class MsmqMessageSenderTests
+    public class MsmqMessageDispatcherTests
     {
         [Test]
         public void Should_set_label_when_convention_configured()
@@ -22,7 +21,7 @@
             {
                 MsmqHelpers.DeleteQueue(path);
                 MsmqHelpers.CreateQueue(path);
-                var messageSender = new MsmqMessageSender(new MsmqSettings(), _ => "mylabel");
+                var messageSender = new MsmqMessageDispatcher(new MsmqSettings(), _ => "mylabel");
 
                 var bytes = new byte[]
                 {
@@ -50,7 +49,7 @@
             {
                 MsmqHelpers.DeleteQueue(path);
                 MsmqHelpers.CreateQueue(path);
-                var messageSender = new MsmqMessageSender(new MsmqSettings(), pairs => string.Empty);
+                var messageSender = new MsmqMessageDispatcher(new MsmqSettings(), pairs => string.Empty);
 
                 var bytes = new byte[]
                 {

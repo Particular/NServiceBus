@@ -643,7 +643,7 @@
     <Compile Include="Transports\Msmq\MsmqSettings.cs" />
     <Compile Include="Transports\Msmq\HeaderInfo.cs" />
     <Compile Include="Transports\Msmq\MessagePump.cs" />
-    <Compile Include="Transports\Msmq\MsmqMessageSender.cs" />
+    <Compile Include="Transports\Msmq\MsmqMessageDispatcher.cs" />
     <Compile Include="Transports\Msmq\QueueCreator.cs" />
     <Compile Include="Transports\Msmq\MsmqUtilities.cs" />
     <Compile Include="Encryption\RijndaelEncryptionServiceConfig.cs" />

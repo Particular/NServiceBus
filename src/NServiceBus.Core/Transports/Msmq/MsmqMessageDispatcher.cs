@@ -1,4 +1,4 @@
-namespace NServiceBus.Transports.Msmq
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
@@ -10,18 +10,13 @@ namespace NServiceBus.Transports.Msmq
     using NServiceBus.DeliveryConstraints;
     using NServiceBus.Extensibility;
     using NServiceBus.Performance.TimeToBeReceived;
+    using NServiceBus.Transports;
     using NServiceBus.Transports.Msmq.Config;
     using NServiceBus.Unicast.Queuing;
 
-    /// <summary>
-    /// Default MSMQ <see cref="IDispatchMessages"/> implementation.
-    /// </summary>
-    public class MsmqMessageSender : IDispatchMessages
+    class MsmqMessageDispatcher : IDispatchMessages
     {
-        /// <summary>
-        /// Creates a new sender.
-        /// </summary>
-        public MsmqMessageSender(MsmqSettings settings, Func<IReadOnlyDictionary<string, string>,string> messageLabelGenerator)
+        public MsmqMessageDispatcher(MsmqSettings settings, Func<IReadOnlyDictionary<string, string>,string> messageLabelGenerator)
         {
             Guard.AgainstNull(nameof(settings), settings);
             Guard.AgainstNull(nameof(messageLabelGenerator), messageLabelGenerator);
@@ -30,9 +25,6 @@ namespace NServiceBus.Transports.Msmq
             this.messageLabelGenerator = messageLabelGenerator;
         }
 
-        /// <summary>
-        /// Dispatches the given operations to the transport.
-        /// </summary>
         public Task Dispatch(TransportOperations outgoingMessages, ContextBag context)
         {
             Guard.AgainstNull(nameof(outgoingMessages), outgoingMessages);
