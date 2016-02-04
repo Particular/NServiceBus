@@ -2,6 +2,7 @@
 {
     using System;
     using NServiceBus.DelayedDelivery;
+    using NServiceBus.DeliveryConstraints;
     using NServiceBus.Extensibility;
 
     /// <summary>
@@ -19,18 +20,18 @@
             Guard.AgainstNull(nameof(options), options);
             Guard.AgainstNegative(nameof(delay), delay);
 
-            options.GetExtensions().Set(new ApplyDelayedDeliveryConstraintBehavior.State(new DelayDeliveryWith(delay)));
+            options.GetExtensions().AddDeliveryConstraint(new DelayDeliveryWith(delay));
         }
         /// <summary>
         /// Requests that the message should not be delivered before the specified time.
         /// </summary>
         /// <param name="options">The options being extended.</param>
         /// <param name="at">The time when this message should be made available.</param>
-        public static void DoNotDeliverBefore(this SendOptions options, DateTime at)
+        public static void DoNotDeliverBefore(this SendOptions options, DateTimeOffset at)
         {
             Guard.AgainstNull(nameof(options), options);
 
-            options.GetExtensions().Set(new ApplyDelayedDeliveryConstraintBehavior.State(new DoNotDeliverBefore(at)));
+            options.GetExtensions().AddDeliveryConstraint(new DoNotDeliverBefore(at.UtcDateTime));
         }
     }
 }

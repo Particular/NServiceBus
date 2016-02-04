@@ -13,11 +13,6 @@
         /// <param name="at">The earliest time this message should be made available to its consumers.</param>
         public DoNotDeliverBefore(DateTime at)
         {
-            if (at.ToUniversalTime() <= DateTime.UtcNow)
-            {
-                throw new ArgumentException("Delivery time must be in the future", nameof(at));
-            }
-
             At = at;
         }
 

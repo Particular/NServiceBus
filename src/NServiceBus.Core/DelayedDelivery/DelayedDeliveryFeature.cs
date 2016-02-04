@@ -43,10 +43,7 @@
             else
             {
                 DoNotClearTimeouts(context);
-
             }
-
-            context.Pipeline.Register("ApplyDelayedDeliveryConstraint", typeof(ApplyDelayedDeliveryConstraintBehavior), "Applied relevant delayed delivery constraints requested by the user");
         }
 
         static bool IsTimeoutManagerDisabled(FeatureConfigurationContext context)

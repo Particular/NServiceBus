@@ -21,8 +21,7 @@ namespace NServiceBus
         public override Task Invoke(IRoutingContext context, Func<Task> next)
         {
             DelayedDeliveryConstraint constraint;
-
-            if (context.TryGetDeliveryConstraint(out constraint))
+            if (context.Extensions.TryGetDeliveryConstraint(out constraint))
             {
                 if (context.RoutingStrategies.Any(l => l.GetType() != typeof(UnicastRoutingStrategy)))
                 {
@@ -35,7 +34,7 @@ namespace NServiceBus
                 }
 
                 DiscardIfNotReceivedBefore discardIfNotReceivedBefore;
-                if (context.TryGetDeliveryConstraint(out discardIfNotReceivedBefore))
+                if (context.Extensions.TryGetDeliveryConstraint(out discardIfNotReceivedBefore))
                 {
                     throw new Exception("Postponed delivery of messages with TimeToBeReceived set is not supported. Remove the TimeToBeReceived attribute to postpone messages of this type.");
                 }
@@ -61,7 +60,7 @@ namespace NServiceBus
                 }
 
                 context.Message.Headers[TimeoutManagerHeaders.Expire] = DateTimeExtensions.ToWireFormattedString(deliverAt);
-                context.RemoveDeliveryConstaint(constraint);
+                context.Extensions.RemoveDeliveryConstaint(constraint);
             }
 
             return next();

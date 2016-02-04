@@ -18,7 +18,7 @@ namespace NServiceBus
             bool isDurable;
             if (durabilitySettings.TryGetValue(context.Message.MessageType, out isDurable) && !isDurable)
             {
-                context.AddDeliveryConstraint(new NonDurableDelivery());
+                context.Extensions.AddDeliveryConstraint(new NonDurableDelivery());
 
                 context.Headers[Headers.NonDurableMessage] = true.ToString();
             }

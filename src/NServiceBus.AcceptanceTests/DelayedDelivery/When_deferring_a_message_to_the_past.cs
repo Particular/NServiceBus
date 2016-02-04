@@ -7,36 +7,30 @@
     using NServiceBus.Features;
     using NUnit.Framework;
 
-    public class When_deferring_a_message : NServiceBusAcceptanceTest
+    public class When_deferring_a_message_to_the_past : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_delay_delivery()
+        public async Task Should_deliver_message()
         {
-            var delay = TimeSpan.FromMilliseconds(1);
-
             var context = await Scenario.Define<Context>()
                     .WithEndpoint<Endpoint>(b => b.When((bus, c) =>
                     {
                         var options = new SendOptions();
 
-                        options.DelayDeliveryWith(delay);
+                        options.DoNotDeliverBefore(DateTime.Now.AddHours(-1));
                         options.RouteToLocalEndpointInstance();
-
-                        c.SentAt = DateTime.UtcNow;
 
                         return bus.Send(new MyMessage(), options);
                     }))
-                    .Done(c => c.WasCalled)
+                    .Done(c => c.MessageReceived)
                     .Run();
 
-            Assert.GreaterOrEqual(context.ReceivedAt - context.SentAt, delay);
+            Assert.IsTrue(context.MessageReceived);
         }
 
         public class Context : ScenarioContext
         {
-            public bool WasCalled { get; set; }
-            public DateTime SentAt { get; set; }
-            public DateTime ReceivedAt { get; set; }
+            public bool MessageReceived { get; set; }
         }
 
         public class Endpoint : EndpointConfigurationBuilder
@@ -45,14 +39,14 @@
             {
                 EndpointSetup<DefaultServer>(config => config.EnableFeature<TimeoutManager>());
             }
+
             public class MyMessageHandler : IHandleMessages<MyMessage>
             {
                 public Context Context { get; set; }
 
                 public Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
-                    Context.ReceivedAt = DateTime.UtcNow;
-                    Context.WasCalled = true;
+                    Context.MessageReceived = true;
                     return Task.FromResult(0);
                 }
             }

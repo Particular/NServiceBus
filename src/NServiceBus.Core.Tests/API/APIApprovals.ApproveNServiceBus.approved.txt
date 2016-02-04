@@ -247,7 +247,7 @@ namespace NServiceBus
     public class static DelayedDeliveryOptionExtensions
     {
         public static void DelayDeliveryWith(this NServiceBus.SendOptions options, System.TimeSpan delay) { }
-        public static void DoNotDeliverBefore(this NServiceBus.SendOptions options, System.DateTime at) { }
+        public static void DoNotDeliverBefore(this NServiceBus.SendOptions options, System.DateTimeOffset at) { }
     }
     public enum DependencyLifecycle
     {
@@ -1298,13 +1298,10 @@ namespace NServiceBus.DeliveryConstraints
     }
     public class static DeliveryConstraintContextExtensions
     {
-        public static void AddDeliveryConstraint(this NServiceBus.Pipeline.IRoutingContext context, NServiceBus.DeliveryConstraints.DeliveryConstraint constraint) { }
-        public static void AddDeliveryConstraint(this NServiceBus.Pipeline.IOutgoingLogicalMessageContext context, NServiceBus.DeliveryConstraints.DeliveryConstraint constraint) { }
-        public static System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> GetDeliveryConstraints(this NServiceBus.Pipeline.IRoutingContext context) { }
-        public static void RemoveDeliveryConstaint(this NServiceBus.Pipeline.IRoutingContext context, NServiceBus.DeliveryConstraints.DeliveryConstraint constraint) { }
-        public static bool TryGetDeliveryConstraint<T>(this NServiceBus.Pipeline.IRoutingContext context, out T constraint)
-            where T : NServiceBus.DeliveryConstraints.DeliveryConstraint { }
-        public static bool TryGetDeliveryConstraint<T>(this NServiceBus.Pipeline.IOutgoingLogicalMessageContext context, out T constraint)
+        public static void AddDeliveryConstraint(this NServiceBus.Extensibility.ContextBag context, NServiceBus.DeliveryConstraints.DeliveryConstraint constraint) { }
+        public static System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> GetDeliveryConstraints(this NServiceBus.Extensibility.ContextBag context) { }
+        public static void RemoveDeliveryConstaint(this NServiceBus.Extensibility.ContextBag context, NServiceBus.DeliveryConstraints.DeliveryConstraint constraint) { }
+        public static bool TryGetDeliveryConstraint<T>(this NServiceBus.Extensibility.ContextBag context, out T constraint)
             where T : NServiceBus.DeliveryConstraints.DeliveryConstraint { }
     }
 }
