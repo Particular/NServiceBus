@@ -3,7 +3,7 @@ namespace NServiceBus.AcceptanceTesting.Customization
     using System;
     using System.Collections.Generic;
 
-    public static class BusConfigExtensions
+    public static class EndpointConfigurationExtensions
     {
         /// <summary>
         /// Backdoor into the core types to scan. This allows people to test a subset of functionality when running Acceptance tests
