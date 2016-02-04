@@ -11,6 +11,10 @@
         /// Specifies the maximum concurrency level this endpoint is able to support.
         /// </summary>
         [ConfigurationProperty("MaximumConcurrencyLevel", IsRequired = false, DefaultValue = 0)]
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
+            ReplacementTypeOrMember = "EndpointConfiguration.LimitMessageProcessingConcurrencyTo")]
         public int MaximumConcurrencyLevel
         {
             get

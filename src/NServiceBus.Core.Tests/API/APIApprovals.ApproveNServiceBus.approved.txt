@@ -1174,6 +1174,8 @@ namespace NServiceBus.Config
     {
         public TransportConfig() { }
         [System.Configuration.ConfigurationPropertyAttribute("MaximumConcurrencyLevel", DefaultValue=0, IsRequired=false)]
+        [System.ObsoleteAttribute("Please use `EndpointConfiguration.LimitMessageProcessingConcurrencyTo` instead. W" +
+            "ill be removed in version 7.0.0.", true)]
         public int MaximumConcurrencyLevel { get; set; }
         [System.Configuration.ConfigurationPropertyAttribute("MaximumMessageThroughputPerSecond", DefaultValue=-1, IsRequired=false)]
         [System.ObsoleteAttribute("Message throughput throttling has been removed. Please consult the documentation " +
