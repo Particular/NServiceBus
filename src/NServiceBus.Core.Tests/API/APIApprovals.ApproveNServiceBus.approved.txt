@@ -431,8 +431,6 @@ namespace NServiceBus
         System.Threading.Tasks.Task Publish<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions);
         System.Threading.Tasks.Task Send(object message, NServiceBus.SendOptions options);
         System.Threading.Tasks.Task Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options);
-        System.Threading.Tasks.Task Subscribe(System.Type eventType, NServiceBus.SubscribeOptions options);
-        System.Threading.Tasks.Task Unsubscribe(System.Type eventType, NServiceBus.UnsubscribeOptions options);
     }
     public class static IBusContextExtensions
     {
@@ -445,10 +443,6 @@ namespace NServiceBus
         public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IBusContext context, string destination, System.Action<T> messageConstructor) { }
         public static System.Threading.Tasks.Task SendLocal(this NServiceBus.IBusContext context, object message) { }
         public static System.Threading.Tasks.Task SendLocal<T>(this NServiceBus.IBusContext context, System.Action<T> messageConstructor) { }
-        public static System.Threading.Tasks.Task Subscribe(this NServiceBus.IBusContext context, System.Type messageType) { }
-        public static System.Threading.Tasks.Task Subscribe<T>(this NServiceBus.IBusContext context) { }
-        public static System.Threading.Tasks.Task Unsubscribe(this NServiceBus.IBusContext context, System.Type messageType) { }
-        public static System.Threading.Tasks.Task Unsubscribe<T>(this NServiceBus.IBusContext context) { }
     }
     public class static IBusExtensions
     {
