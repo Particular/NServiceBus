@@ -94,6 +94,8 @@
     <Compile Include="Mutators\When_using_outgoing_tm_mutator.cs" />
     <Compile Include="Recoverability\Retries\When_message_fails_retries.cs" />
     <Compile Include="Recoverability\Retries\When_performing_slr_and_counting.cs" />
+    <Compile Include="Recoverability\Retries\When_performing_slr_with_non_min_policy.cs" />
+    <Compile Include="Recoverability\Retries\When_performing_slr_with_min_policy.cs" />
     <Compile Include="Recoverability\When_error_is_overridden_in_code.cs" />
     <Compile Include="BestPractices\When_publishing_command_bestpractices_disabled.cs" />
     <Compile Include="BestPractices\When_unsubscribing_to_command_bestpractices_disabled_on_endpoint.cs" />
