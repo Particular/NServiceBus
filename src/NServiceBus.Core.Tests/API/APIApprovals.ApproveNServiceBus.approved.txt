@@ -2493,11 +2493,12 @@ namespace NServiceBus.Settings
             ".0.", true)]
         public void UseUniqueBrokerQueuePerMachine() { }
     }
-    public class SettingsHolder : NServiceBus.Settings.ReadOnlySettings
+    public class SettingsHolder : NServiceBus.Settings.ReadOnlySettings, System.IDisposable
     {
         public SettingsHolder() { }
         public void ApplyTo<T>(NServiceBus.ObjectBuilder.IComponentConfig config) { }
         public void ApplyTo(System.Type componentType, NServiceBus.ObjectBuilder.IComponentConfig config) { }
+        public void Dispose() { }
         public T Get<T>(string key) { }
         public T Get<T>() { }
         public object Get(string key) { }

@@ -10,7 +10,7 @@ namespace NServiceBus.Settings
     /// <summary>
     /// Setting container.
     /// </summary>
-    public class SettingsHolder : ReadOnlySettings
+    public class SettingsHolder : ReadOnlySettings, IDisposable
     {
         /// <summary>
         /// Gets the given setting by key.
@@ -301,6 +301,27 @@ namespace NServiceBus.Settings
                 {
                     config.ConfigureProperty(property.Name, Get(settingsKey));
                 }
+            }
+        }
+
+        /// <summary>
+        /// Disposes all IDisposable values stored in SettingsHolder
+        /// </summary>
+        public void Dispose()
+        {
+            //Injected at compile time
+        }
+
+        void DisposeManaged()
+        {
+            foreach (var item in Defaults.Values)
+            {
+                (item as IDisposable)?.Dispose();
+            }
+
+            foreach (var item in Overrides.Values)
+            {
+                (item as IDisposable)?.Dispose();
             }
         }
 
