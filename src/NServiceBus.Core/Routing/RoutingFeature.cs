@@ -107,7 +107,7 @@
             }
         }
 
-        static string ReplyToAddress(IBuilder builder)
+        static string ReplyToAddress(IChildBuilder builder)
         {
             var settings = builder.Build<ReadOnlySettings>();
             string replyToAddress;
@@ -119,7 +119,7 @@
             return replyToAddress;
         }
 
-        static string LocalAddress(IBuilder builder)
+        static string LocalAddress(IChildBuilder builder)
         {
             return builder.Build<ReadOnlySettings>().LocalAddress();
         }
@@ -127,9 +127,9 @@
         class SubscriptionStoreRouteInformationProvider : FeatureStartupTask
         {
             ReadOnlySettings settings;
-            IBuilder builder;
+            IChildBuilder builder;
 
-            public SubscriptionStoreRouteInformationProvider(ReadOnlySettings settings, IBuilder builder)
+            public SubscriptionStoreRouteInformationProvider(ReadOnlySettings settings, IChildBuilder builder)
             {
                 this.settings = settings;
                 this.builder = builder;

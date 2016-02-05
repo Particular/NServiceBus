@@ -51,24 +51,25 @@ namespace NServiceBus.ContainerTests
             }
         }
 
+        // This type of test would no longer be necessary as compile time checking would prevent changes from
+        // child scopes.
+        //[Test]
+        //public void Should_resolve_child_container_instance_first()
+        //{
+        //    using (var builder = TestContainerBuilder.ConstructBuilder())
+        //    {
+        //        builder.Configure(typeof(InstanceToReplaceInNested_Parent), DependencyLifecycle.SingleInstance);
+        //        var instance1 = builder.Build(typeof(IInstanceToReplaceInNested));
+        //        object instance2;
+        //        using (var nestedContainer = builder.BuildChildContainer())
+        //        {
+        //            nestedContainer.Configure(typeof(InstanceToReplaceInNested_Child), DependencyLifecycle.SingleInstance);
+        //            instance2 = nestedContainer.Build(typeof(IInstanceToReplaceInNested));
+        //        }
 
-        [Test]
-        public void Should_resolve_child_container_instance_first()
-        {
-            using (var builder = TestContainerBuilder.ConstructBuilder())
-            {
-                builder.Configure(typeof(InstanceToReplaceInNested_Parent), DependencyLifecycle.SingleInstance);
-                var instance1 = builder.Build(typeof(IInstanceToReplaceInNested));
-                object instance2;
-                using (var nestedContainer = builder.BuildChildContainer())
-                {
-                    nestedContainer.Configure(typeof(InstanceToReplaceInNested_Child), DependencyLifecycle.SingleInstance);
-                    instance2 = nestedContainer.Build(typeof(IInstanceToReplaceInNested));
-                }
-
-                Assert.AreNotSame(instance1, instance2);
-            }
-        }
+        //        Assert.AreNotSame(instance1, instance2);
+        //    }
+        //}
 
         public interface IInstanceToReplaceInNested
         {

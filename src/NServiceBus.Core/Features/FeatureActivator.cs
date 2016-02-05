@@ -63,7 +63,7 @@ namespace NServiceBus.Features
             return new FeaturesReport(features.Select(t => t.Diagnostics).ToList());
         }
 
-        public async Task StartFeatures(IBuilder builder, IBusSession session)
+        public async Task StartFeatures(IChildBuilder builder, IBusSession session)
         {
             foreach (var feature in features.Where(f => f.Feature.IsActive))
             {

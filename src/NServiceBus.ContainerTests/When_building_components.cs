@@ -127,14 +127,14 @@ namespace NServiceBus.ContainerTests
         }
 
 
-        void InitializeBuilder(IContainer container)
+        void InitializeBuilder(IContainer childContainer)
         {
-            container.Configure(typeof(SingletonComponent), DependencyLifecycle.SingleInstance);
-            container.Configure(typeof(SinglecallComponent), DependencyLifecycle.InstancePerCall);
-            container.Configure(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
-            container.Configure(() => new SingletonLambdaComponent(), DependencyLifecycle.SingleInstance);
-            container.Configure(() => new SingleCallLambdaComponent(), DependencyLifecycle.InstancePerCall);
-            container.Configure(() => new LambdaComponentUoW(), DependencyLifecycle.InstancePerUnitOfWork);
+            childContainer.Configure(typeof(SingletonComponent), DependencyLifecycle.SingleInstance);
+            childContainer.Configure(typeof(SinglecallComponent), DependencyLifecycle.InstancePerCall);
+            childContainer.Configure(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
+            childContainer.Configure(() => new SingletonLambdaComponent(), DependencyLifecycle.SingleInstance);
+            childContainer.Configure(() => new SingleCallLambdaComponent(), DependencyLifecycle.InstancePerCall);
+            childContainer.Configure(() => new LambdaComponentUoW(), DependencyLifecycle.InstancePerUnitOfWork);
         }
 
         public class SingletonComponent

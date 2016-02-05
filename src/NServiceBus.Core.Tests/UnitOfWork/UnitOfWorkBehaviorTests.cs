@@ -135,7 +135,7 @@
             Assert.False(unitOfWorkThatIsNeverCalled.EndCalled);
         }
 
-        static Task InvokeBehavior(IBuilder builder, Exception toThrow = null)
+        static Task InvokeBehavior(IChildBuilder builder, Exception toThrow = null)
         {
             var runner = new UnitOfWorkBehavior();
 

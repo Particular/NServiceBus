@@ -92,7 +92,7 @@ namespace NServiceBus.Pipeline
         /// <param name="stepId">The identifier of the new step to add.</param>
         /// <param name="factoryMethod">A callback that creates the behavior instance.</param>
         /// <param name="description">The description of the behavior.</param>
-        public StepRegistrationSequence Register<T>(string stepId, Func<IBuilder, T> factoryMethod, string description)
+        public StepRegistrationSequence Register<T>(string stepId, Func<IChildBuilder, T> factoryMethod, string description)
             where T : IBehavior
         {
             BehaviorTypeChecker.ThrowIfInvalid(typeof(T), "behavior");

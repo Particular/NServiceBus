@@ -123,7 +123,7 @@ namespace NServiceBus
             }
         }
 
-        static IBusSession CreateBusSession(IBuilder builder, IPipelineCache cache)
+        static IBusSession CreateBusSession(IChildBuilder builder, IPipelineCache cache)
         {
             var rootContext = new RootContext(builder, cache);
             return new BusSession(rootContext);

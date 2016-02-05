@@ -12,7 +12,7 @@ namespace NServiceBus.Features
             this.featureActivator = featureActivator;
         }
 
-        public Task Start(IBuilder builder, IBusSession busSession)
+        public Task Start(IChildBuilder builder, IBusSession busSession)
         {
             return featureActivator.StartFeatures(builder, busSession);
         }

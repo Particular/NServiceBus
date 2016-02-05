@@ -11,7 +11,7 @@
     class Pipeline<TContext> : IPipeline<TContext>
         where TContext : IBehaviorContext
     {
-        public Pipeline(IBuilder builder, ReadOnlySettings settings, PipelineModifications pipelineModifications)
+        public Pipeline(IChildBuilder builder, ReadOnlySettings settings, PipelineModifications pipelineModifications)
         {
             var coordinator = new StepRegistrationsCoordinator(pipelineModifications.Removals, pipelineModifications.Replacements);
           

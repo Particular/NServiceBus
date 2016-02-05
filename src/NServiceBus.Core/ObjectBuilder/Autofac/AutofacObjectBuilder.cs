@@ -7,9 +7,9 @@ namespace NServiceBus
     using global::Autofac;
     using global::Autofac.Builder;
     using global::Autofac.Core;
-    using IContainer = NServiceBus.ObjectBuilder.Common.IContainer;
+    using NServiceBus.ObjectBuilder.Common;
 
-    class AutofacObjectBuilder : IContainer
+    class AutofacObjectBuilder : global::NServiceBus.ObjectBuilder.Common.IContainer
     {
         ILifetimeScope container;
 
@@ -28,7 +28,7 @@ namespace NServiceBus
             //Injected at compile time
         }
 
-        public IContainer BuildChildContainer()
+        public IChildContainer BuildChildContainer()
         {
             return new AutofacObjectBuilder(container.BeginLifetimeScope());
         }
@@ -43,7 +43,7 @@ namespace NServiceBus
             return ResolveAll(container, typeToBuild);
         }
 
-        void IContainer.Configure(Type component, DependencyLifecycle dependencyLifecycle)
+        void global::NServiceBus.ObjectBuilder.Common.IContainer.Configure(Type component, DependencyLifecycle dependencyLifecycle)
         {
             var registration = GetComponentRegistration(component);
 
@@ -61,7 +61,7 @@ namespace NServiceBus
             builder.Update(container.ComponentRegistry);
         }
 
-        void IContainer.Configure<T>(Func<T> componentFactory, DependencyLifecycle dependencyLifecycle)
+        void global::NServiceBus.ObjectBuilder.Common.IContainer.Configure<T>(Func<T> componentFactory, DependencyLifecycle dependencyLifecycle)
         {
             var registration = GetComponentRegistration(typeof(T));
 

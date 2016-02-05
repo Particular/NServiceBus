@@ -8,10 +8,10 @@ namespace NServiceBus
 
     class QueuesCreator : INeedToInstallSomething
     {
-        readonly IBuilder builder;
+        readonly IChildBuilder builder;
         readonly ReadOnlySettings settings;
 
-        public QueuesCreator(IBuilder builder, ReadOnlySettings settings)
+        public QueuesCreator(IChildBuilder builder, ReadOnlySettings settings)
         {
             this.builder = builder;
             this.settings = settings;

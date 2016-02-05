@@ -11,7 +11,7 @@ namespace NServiceBus
     {
         Dictionary<Type, Lazy<IPipeline>> pipelines = new Dictionary<Type, Lazy<IPipeline>>();
 
-        public PipelineCache(IBuilder builder, ReadOnlySettings settings)
+        public PipelineCache(IChildBuilder builder, ReadOnlySettings settings)
         {
             FromMainPipeline<IAuditContext>(builder, settings);
             FromMainPipeline<IOutgoingPublishContext>(builder, settings);
@@ -37,7 +37,7 @@ namespace NServiceBus
             return default(IPipeline<TContext>);
         }
 
-        void FromMainPipeline<TContext>(IBuilder builder, ReadOnlySettings settings)
+        void FromMainPipeline<TContext>(IChildBuilder builder, ReadOnlySettings settings)
             where TContext : IBehaviorContext
         {
             var lazyPipeline = new Lazy<IPipeline>(() =>
