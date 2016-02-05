@@ -97,8 +97,10 @@
     <Compile Include="Audit\InvokeAuditPipelineBehavior.cs" />
     <Compile Include="CircuitBreakers\ICircuitBreaker.cs" />
     <Compile Include="CriticalError\ICriticalErrorContext.cs" />
+    <Compile Include="DetectObsoleteConfigurationSettings.cs" />
     <Compile Include="EndpointHelper.cs" />
     <Compile Include="Endpoint.cs" />
+    <Compile Include="Forwarding\ConfigureForwarding.cs" />
     <Compile Include="Pipeline\ForkConnector.cs" />
     <Compile Include="Pipeline\IPipelineCache.cs" />
     <Compile Include="Pipeline\PipelineCache.cs" />

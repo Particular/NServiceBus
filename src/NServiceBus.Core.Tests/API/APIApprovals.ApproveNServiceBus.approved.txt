@@ -107,6 +107,10 @@ namespace NServiceBus
     {
         public static NServiceBus.DataBus.DataBusExtentions<NServiceBus.FileShareDataBus> BasePath(this NServiceBus.DataBus.DataBusExtentions<NServiceBus.FileShareDataBus> config, string basePath) { }
     }
+    public class static ConfigureForwarding
+    {
+        public static void ForwardReceivedMessagesTo(this NServiceBus.EndpointConfiguration config, string address) { }
+    }
     public class static ConfigureHandlerSettings
     {
         public static void InitializeHandlerProperty<THandler>(this NServiceBus.EndpointConfiguration config, string property, object value) { }
@@ -1190,6 +1194,8 @@ namespace NServiceBus.Config
         [System.Configuration.ConfigurationPropertyAttribute("DistributorDataAddress", IsRequired=false)]
         public string DistributorDataAddress { get; set; }
         [System.Configuration.ConfigurationPropertyAttribute("ForwardReceivedMessagesTo", IsRequired=false)]
+        [System.ObsoleteAttribute("Please use \'EndpointConfiguration.ForwardReceivedMessagesTo\' to configure the for" +
+            "warding address. Will be removed in version 7.0.0.", true)]
         public string ForwardReceivedMessagesTo { get; set; }
         [System.Configuration.ConfigurationPropertyAttribute("MessageEndpointMappings", IsRequired=false)]
         public NServiceBus.Config.MessageEndpointMappingCollection MessageEndpointMappings { get; set; }
