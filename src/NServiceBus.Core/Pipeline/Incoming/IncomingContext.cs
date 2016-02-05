@@ -64,7 +64,7 @@ namespace NServiceBus
 
         public Task ForwardCurrentMessageTo(string destination)
         {
-            return IncomingBusOperations.ForwardCurrentMessageTo(this, destination);
+            return IncomingMessageOperations.ForwardCurrentMessageTo(this, destination);
         }
     }
 }

@@ -5,7 +5,7 @@ namespace NServiceBus
     using NServiceBus.Routing;
     using NServiceBus.Transports;
 
-    static class IncomingBusOperations
+    static class IncomingMessageOperations
     {
         public static async Task ForwardCurrentMessageTo(IIncomingContext context, string destination)
         {
