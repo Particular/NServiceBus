@@ -1351,7 +1351,7 @@ namespace NServiceBus
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
-        Message = "IHandleMessages<T> now exposes the IMessageHandlerContext parameter. You can use this to access what used to be available in the IBus interface.  If you're trying to send messages outside IHandleMessages<T> use the provided IMessageSession.")]
+        Message = "IHandleMessages<T> now exposes the IMessageHandlerContext parameter. You can use this to access what used to be available in the IBus interface. Please use the provided context in extension points like message handlers or IEndpointInstance when outside the message processing pipeline.")]
     public interface IBus
     {
     }
