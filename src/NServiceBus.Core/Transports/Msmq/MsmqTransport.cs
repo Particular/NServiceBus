@@ -12,8 +12,6 @@ namespace NServiceBus
     using NServiceBus.Routing;
     using NServiceBus.Settings;
     using NServiceBus.Transports;
-    using NServiceBus.Transports.Msmq;
-    using NServiceBus.Transports.Msmq.Config;
 
     /// <summary>
     /// Transport definition for MSMQ.
@@ -89,7 +87,7 @@ namespace NServiceBus
                 messageLabelGenerator = headers => string.Empty;
             }
             return new TransportSendingConfigurationResult(
-                () => new MsmqMessageSender(settings, messageLabelGenerator),
+                () => new MsmqMessageDispatcher(settings, messageLabelGenerator),
                 () =>
                 {
                     var bindings = context.Settings.Get<QueueBindings>();

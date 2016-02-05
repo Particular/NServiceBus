@@ -1792,3 +1792,26 @@ namespace NServiceBus.Serializers.XML
     {
     }
 }
+
+namespace NServiceBus.Transports.Msmq
+{
+
+    [ObsoleteEx(
+           RemoveInVersion = "7.0",
+           TreatAsErrorFromVersion = "6.0",
+           Message = "No longer available, please see our documentation for native sends for alternative solutions.")]
+    public class MsmqMessageSender
+    {
+    }
+}
+
+namespace NServiceBus.Transports.Msmq.Config
+{
+    [ObsoleteEx(
+         RemoveInVersion = "7.0",
+         TreatAsErrorFromVersion = "6.0",
+         Message = "No longer available, please see our documentation for native sends for alternative solutions.")]
+    public class MsmqSettings
+    {
+    }
+}
