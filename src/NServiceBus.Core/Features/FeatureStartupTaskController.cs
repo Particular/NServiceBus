@@ -6,17 +6,17 @@
 
     class FeatureStartupTaskController
     {
-        public FeatureStartupTaskController(string name, Func<IBuilder, FeatureStartupTask> factory)
+        public FeatureStartupTaskController(string name, Func<IChildBuilder, FeatureStartupTask> factory)
         {
             Name = name;
             this.factory = factory;
         }
 
         public string Name { get; }
-        Func<IBuilder, FeatureStartupTask> factory;
+        Func<IChildBuilder, FeatureStartupTask> factory;
         FeatureStartupTask instance;
 
-        public Task Start(IBuilder builder, IBusSession busSession)
+        public Task Start(IChildBuilder builder, IBusSession busSession)
         {
             instance = factory(builder);
             return instance.PerformStartup(busSession);

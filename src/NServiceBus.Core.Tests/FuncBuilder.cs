@@ -6,7 +6,7 @@
     using ObjectBuilder;
     using ObjectBuilder.Common;
 
-    public class FuncBuilder : IBuilder,IContainer
+    public class FuncBuilder : IBuilder, IContainer
     {
         IList<Tuple<Type, Func<object>>> funcs = new List<Tuple<Type, Func<object>>>();
 
@@ -80,12 +80,12 @@
             }
         }
 
-        public IContainer BuildChildContainer()
+        public IChildContainer BuildChildContainer()
         {
             throw new NotImplementedException();
         }
 
-        public IBuilder CreateChildBuilder()
+        public IChildBuilder CreateChildBuilder()
         {
             return this;
         }

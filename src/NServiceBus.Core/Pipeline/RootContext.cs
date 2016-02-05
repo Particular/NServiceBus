@@ -7,7 +7,7 @@ namespace NServiceBus
     /// </summary>
     class RootContext : BehaviorContext
     {
-        public RootContext(IBuilder builder, IPipelineCache pipelineCache) : base(null)
+        public RootContext(IChildBuilder builder, IPipelineCache pipelineCache) : base(null)
         {
             Set(builder);
             Set(pipelineCache);

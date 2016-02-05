@@ -10,11 +10,11 @@ namespace NServiceBus
         {
         }
 
-        public IBuilder Builder
+        public IChildBuilder Builder
         {
             get
             {
-                var rawBuilder = Get<IBuilder>();
+                var rawBuilder = Get<IChildBuilder>();
                 return rawBuilder;
             }
         }

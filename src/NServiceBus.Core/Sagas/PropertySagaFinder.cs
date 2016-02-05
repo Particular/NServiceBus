@@ -15,7 +15,7 @@ namespace NServiceBus
             this.sagaPersister = sagaPersister;
         }
 
-        public override async Task<IContainSagaData> Find(IBuilder builder, SagaFinderDefinition finderDefinition, SynchronizedStorageSession storageSession, ContextBag context, object message)
+        public override async Task<IContainSagaData> Find(IChildBuilder builder, SagaFinderDefinition finderDefinition, SynchronizedStorageSession storageSession, ContextBag context, object message)
         {
             var propertyAccessor = (Func<object, object>) finderDefinition.Properties["property-accessor"];
             var propertyValue = propertyAccessor(message);

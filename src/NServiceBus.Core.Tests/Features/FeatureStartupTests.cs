@@ -115,7 +115,7 @@
         }
     }
 
-    public class FakeBuilder : IBuilder
+    public class FakeBuilder : IChildBuilder
     {
         Type type;
 
@@ -140,11 +140,6 @@
                 throw new Exception("Not the expected type");
             }
             return Activator.CreateInstance(typeToBuild);
-        }
-
-        public IBuilder CreateChildBuilder()
-        {
-            throw new NotImplementedException();
         }
 
         public T Build<T>()

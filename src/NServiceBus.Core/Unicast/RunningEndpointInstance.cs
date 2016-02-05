@@ -10,7 +10,7 @@ namespace NServiceBus
 
     class RunningEndpointInstance : IEndpointInstance
     {
-        public RunningEndpointInstance(IBuilder builder, PipelineCollection pipelineCollection, StartAndStoppablesRunner startAndStoppablesRunner, FeatureRunner featureRunner, IBusSession busSession)
+        public RunningEndpointInstance(IChildBuilder builder, PipelineCollection pipelineCollection, StartAndStoppablesRunner startAndStoppablesRunner, FeatureRunner featureRunner, IBusSession busSession)
         {
             this.builder = builder;
             this.pipelineCollection = pipelineCollection;
@@ -88,7 +88,7 @@ namespace NServiceBus
         StartAndStoppablesRunner startAndStoppablesRunner;
         FeatureRunner featureRunner;
         IBusSession busSession;
-        IBuilder builder;
+        IChildBuilder builder;
 
         static ILog Log = LogManager.GetLogger<UnicastBus>();
     }

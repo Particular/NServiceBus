@@ -7,7 +7,7 @@ namespace NServiceBus
 
     class ComponentConfig<T> : ComponentConfig, IComponentConfig<T>
     {
-        public ComponentConfig(IContainer container) : base(typeof(T), container)
+        public ComponentConfig(IContainer childContainer) : base(typeof(T), childContainer)
         {
         }         
 

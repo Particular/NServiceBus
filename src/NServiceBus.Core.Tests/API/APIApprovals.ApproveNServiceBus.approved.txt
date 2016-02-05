@@ -141,7 +141,7 @@ namespace NServiceBus
     {
         public static void RegisterEncryptionService(this NServiceBus.EndpointConfiguration config, System.Func<NServiceBus.Encryption.IEncryptionService> func) { }
         [System.ObsoleteAttribute(@"It is no longer possible to access the builder to create an encryption service. If you require container access use your container directly in the factory. Please use `RegisterEncryptionService(this EndpointConfiguration config, Func<IEncryptionService> func)` instead. Will be removed in version 7.0.0.", true)]
-        public static void RegisterEncryptionService(this NServiceBus.EndpointConfiguration config, System.Func<NServiceBus.ObjectBuilder.IBuilder, NServiceBus.Encryption.IEncryptionService> func) { }
+        public static void RegisterEncryptionService(this NServiceBus.EndpointConfiguration config, System.Func<NServiceBus.ObjectBuilder.IChildBuilder, NServiceBus.Encryption.IEncryptionService> func) { }
         public static void RijndaelEncryptionService(this NServiceBus.EndpointConfiguration config) { }
         public static void RijndaelEncryptionService(this NServiceBus.EndpointConfiguration config, string encryptionKey, System.Collections.Generic.List<string> expiredKeys = null) { }
     }
@@ -1450,7 +1450,7 @@ namespace NServiceBus.Features
             where TTask : NServiceBus.Features.FeatureStartupTask { }
         public void RegisterStartupTask<TTask>(System.Func<TTask> startupTaskFactory)
             where TTask : NServiceBus.Features.FeatureStartupTask { }
-        public void RegisterStartupTask<TTask>(System.Func<NServiceBus.ObjectBuilder.IBuilder, TTask> startupTaskFactory)
+        public void RegisterStartupTask<TTask>(System.Func<NServiceBus.ObjectBuilder.IChildBuilder, TTask> startupTaskFactory)
             where TTask : NServiceBus.Features.FeatureStartupTask { }
     }
     public abstract class FeatureStartupTask
@@ -1753,29 +1753,35 @@ namespace NServiceBus.MessageMutator
 }
 namespace NServiceBus.ObjectBuilder.Common
 {
-    public interface IContainer : System.IDisposable
+    public interface IChildContainer : System.IDisposable
     {
         object Build(System.Type typeToBuild);
         System.Collections.Generic.IEnumerable<object> BuildAll(System.Type typeToBuild);
-        NServiceBus.ObjectBuilder.Common.IContainer BuildChildContainer();
+        bool HasComponent(System.Type componentType);
+        void Release(object instance);
+    }
+    public interface IContainer : NServiceBus.ObjectBuilder.Common.IChildContainer, System.IDisposable
+    {
+        NServiceBus.ObjectBuilder.Common.IChildContainer BuildChildContainer();
         void Configure(System.Type component, NServiceBus.DependencyLifecycle dependencyLifecycle);
         void Configure<T>(System.Func<T> component, NServiceBus.DependencyLifecycle dependencyLifecycle);
         void ConfigureProperty(System.Type component, string property, object value);
-        bool HasComponent(System.Type componentType);
         void RegisterSingleton(System.Type lookupType, object instance);
-        void Release(object instance);
     }
 }
 namespace NServiceBus.ObjectBuilder
 {
-    public interface IBuilder : System.IDisposable
+    public interface IBuilder : NServiceBus.ObjectBuilder.IChildBuilder, System.IDisposable
+    {
+        NServiceBus.ObjectBuilder.IChildBuilder CreateChildBuilder();
+    }
+    public interface IChildBuilder : System.IDisposable
     {
         object Build(System.Type typeToBuild);
         T Build<T>();
         System.Collections.Generic.IEnumerable<T> BuildAll<T>();
         System.Collections.Generic.IEnumerable<object> BuildAll(System.Type typeToBuild);
         void BuildAndDispatch(System.Type typeToBuild, System.Action<object> action);
-        NServiceBus.ObjectBuilder.IBuilder CreateChildBuilder();
         void Release(object instance);
     }
     public interface IComponentConfig
@@ -1791,7 +1797,7 @@ namespace NServiceBus.ObjectBuilder
         NServiceBus.ObjectBuilder.IComponentConfig ConfigureComponent(System.Type concreteComponent, NServiceBus.DependencyLifecycle dependencyLifecycle);
         NServiceBus.ObjectBuilder.IComponentConfig<T> ConfigureComponent<T>(NServiceBus.DependencyLifecycle dependencyLifecycle);
         NServiceBus.ObjectBuilder.IComponentConfig<T> ConfigureComponent<T>(System.Func<T> componentFactory, NServiceBus.DependencyLifecycle dependencyLifecycle);
-        NServiceBus.ObjectBuilder.IComponentConfig<T> ConfigureComponent<T>(System.Func<NServiceBus.ObjectBuilder.IBuilder, T> componentFactory, NServiceBus.DependencyLifecycle dependencyLifecycle);
+        NServiceBus.ObjectBuilder.IComponentConfig<T> ConfigureComponent<T>(System.Func<NServiceBus.ObjectBuilder.IChildBuilder, T> componentFactory, NServiceBus.DependencyLifecycle dependencyLifecycle);
         NServiceBus.ObjectBuilder.IConfigureComponents ConfigureProperty<T>(System.Linq.Expressions.Expression<System.Func<T, object>> property, object value);
         NServiceBus.ObjectBuilder.IConfigureComponents ConfigureProperty<T>(string propertyName, object value);
         bool HasComponent<T>();
@@ -1934,7 +1940,7 @@ namespace NServiceBus.Pipeline
     }
     public interface IBehaviorContext : NServiceBus.Extensibility.IExtendable
     {
-        NServiceBus.ObjectBuilder.IBuilder Builder { get; }
+        NServiceBus.ObjectBuilder.IChildBuilder Builder { get; }
     }
     public interface IDispatchContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext
     {
@@ -2053,7 +2059,7 @@ namespace NServiceBus.Pipeline
     public class PipelineSettings
     {
         public NServiceBus.Pipeline.StepRegistrationSequence Register(string stepId, System.Type behavior, string description) { }
-        public NServiceBus.Pipeline.StepRegistrationSequence Register<T>(string stepId, System.Func<NServiceBus.ObjectBuilder.IBuilder, T> factoryMethod, string description)
+        public NServiceBus.Pipeline.StepRegistrationSequence Register<T>(string stepId, System.Func<NServiceBus.ObjectBuilder.IChildBuilder, T> factoryMethod, string description)
             where T : NServiceBus.Pipeline.IBehavior { }
         public NServiceBus.Pipeline.StepRegistrationSequence Register<T>(string stepId, T behavior, string description)
             where T : NServiceBus.Pipeline.IBehavior { }
@@ -2078,7 +2084,7 @@ namespace NServiceBus.Pipeline
     [System.Diagnostics.DebuggerDisplayAttribute("{StepId}({BehaviorType.FullName}) - {Description}")]
     public abstract class RegisterStep
     {
-        protected RegisterStep(string stepId, System.Type behavior, string description, System.Func<NServiceBus.ObjectBuilder.IBuilder, NServiceBus.Pipeline.IBehavior> factoryMethod = null) { }
+        protected RegisterStep(string stepId, System.Type behavior, string description, System.Func<NServiceBus.ObjectBuilder.IChildBuilder, NServiceBus.Pipeline.IBehavior> factoryMethod = null) { }
         public System.Type BehaviorType { get; }
         public string Description { get; }
         public string StepId { get; }
@@ -2871,7 +2877,7 @@ namespace NServiceBus.Unicast
 {
     public class static BuilderExtensions
     {
-        public static void ForEach<T>(this NServiceBus.ObjectBuilder.IBuilder builder, System.Action<T> action) { }
+        public static void ForEach<T>(this NServiceBus.ObjectBuilder.IChildBuilder builder, System.Action<T> action) { }
     }
     [System.ObsoleteAttribute("No longer used, please use the new callbacks api described in the v6 upgrade guid" +
         "e. Will be removed in version 7.0.0.", true)]

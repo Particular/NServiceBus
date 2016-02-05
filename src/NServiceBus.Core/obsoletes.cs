@@ -319,7 +319,7 @@ namespace NServiceBus
     public static partial class ConfigureRijndaelEncryptionService
     {
         [ObsoleteEx(ReplacementTypeOrMember = "RegisterEncryptionService(this EndpointConfiguration config, Func<IEncryptionService> func)", RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "It is no longer possible to access the builder to create an encryption service. If you require container access use your container directly in the factory.")]
-        public static void RegisterEncryptionService(this EndpointConfiguration config, Func<IBuilder, IEncryptionService> func)
+        public static void RegisterEncryptionService(this EndpointConfiguration config, Func<IChildBuilder, IEncryptionService> func)
         {
             throw new NotImplementedException();
         }

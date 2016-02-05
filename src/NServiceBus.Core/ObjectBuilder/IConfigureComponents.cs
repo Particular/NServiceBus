@@ -33,7 +33,7 @@ namespace NServiceBus.ObjectBuilder
         /// <summary>
         /// Configures the given type, allowing to fluently configure properties.
         /// </summary>
-        IComponentConfig<T> ConfigureComponent<T>(Func<IBuilder,T> componentFactory, DependencyLifecycle dependencyLifecycle);
+        IComponentConfig<T> ConfigureComponent<T>(Func<IChildBuilder,T> componentFactory, DependencyLifecycle dependencyLifecycle);
 
         /// <summary>
         /// Configures the given property of the given type to be injected with the given value.

@@ -99,6 +99,9 @@
     <Compile Include="CriticalError\ICriticalErrorContext.cs" />
     <Compile Include="EndpointHelper.cs" />
     <Compile Include="Endpoint.cs" />
+    <Compile Include="ObjectBuilder\Common\CommonObjectChildBuilder.cs" />
+    <Compile Include="ObjectBuilder\Common\IChildContainer.cs" />
+    <Compile Include="ObjectBuilder\IChildBuilder.cs" />
     <Compile Include="Pipeline\ForkConnector.cs" />
     <Compile Include="Pipeline\IPipelineCache.cs" />
     <Compile Include="Pipeline\PipelineCache.cs" />

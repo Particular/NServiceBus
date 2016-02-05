@@ -33,7 +33,7 @@
             }
 
             public ContextBag Extensions { get; }
-            public IBuilder Builder { get; }
+            public IChildBuilder Builder { get; }
 
             public Task Send(object message, SendOptions options)
             {

@@ -7,17 +7,17 @@ namespace NServiceBus
     class ComponentConfig : IComponentConfig
     {
         Type component;
-        IContainer container;
+        IContainer childContainer;
 
-        public ComponentConfig(Type component, IContainer container)
+        public ComponentConfig(Type component, IContainer childContainer)
         {
             this.component = component;
-            this.container = container;
+            this.childContainer = childContainer;
         }
 
         IComponentConfig IComponentConfig.ConfigureProperty(string name, object value)
         {
-            container.ConfigureProperty(component, name, value);
+            childContainer.ConfigureProperty(component, name, value);
 
             return this;
         }

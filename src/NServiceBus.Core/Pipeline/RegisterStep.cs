@@ -12,7 +12,7 @@ namespace NServiceBus.Pipeline
     [DebuggerDisplay("{StepId}({BehaviorType.FullName}) - {Description}")]
     public abstract class RegisterStep
     {
-        readonly Func<IBuilder, IBehavior> factoryMethod;
+        readonly Func<IChildBuilder, IBehavior> factoryMethod;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RegisterStep"/> class.
@@ -21,7 +21,7 @@ namespace NServiceBus.Pipeline
         /// <param name="behavior">The type of <see cref="Behavior{TContext}"/> to register.</param>
         /// <param name="description">A brief description of what this step does.</param>
         /// <param name="factoryMethod">A factory method for creating the behavior.</param>
-        protected RegisterStep(string stepId, Type behavior, string description, Func<IBuilder, IBehavior> factoryMethod = null)
+        protected RegisterStep(string stepId, Type behavior, string description, Func<IChildBuilder, IBehavior> factoryMethod = null)
         {
             this.factoryMethod = factoryMethod;
             BehaviorTypeChecker.ThrowIfInvalid(behavior, "behavior");
@@ -173,7 +173,7 @@ namespace NServiceBus.Pipeline
             Afters.Add(new Dependency(StepId, id, Dependency.DependencyDirection.After, true));
         }
 
-        internal BehaviorInstance CreateBehavior(IBuilder defaultBuilder)
+        internal BehaviorInstance CreateBehavior(IChildBuilder defaultBuilder)
         {
             var behavior = factoryMethod != null 
                 ? factoryMethod(defaultBuilder) 
@@ -182,19 +182,19 @@ namespace NServiceBus.Pipeline
             return new BehaviorInstance(BehaviorType, behavior);
         }
 
-        internal static RegisterStep Create(WellKnownStep wellKnownStep, Type behavior, string description, Func<IBuilder, IBehavior> factoryMethod = null)
+        internal static RegisterStep Create(WellKnownStep wellKnownStep, Type behavior, string description, Func<IChildBuilder, IBehavior> factoryMethod = null)
         {
             return new DefaultRegisterStep(behavior, wellKnownStep, description, factoryMethod);
         }
 
-        internal static RegisterStep Create(string pipelineStep, Type behavior, string description, Func<IBuilder, IBehavior> factoryMethod = null)
+        internal static RegisterStep Create(string pipelineStep, Type behavior, string description, Func<IChildBuilder, IBehavior> factoryMethod = null)
         {
             return new DefaultRegisterStep(behavior, pipelineStep, description, factoryMethod);
         }
 
         class DefaultRegisterStep : RegisterStep
         {
-            public DefaultRegisterStep(Type behavior, string stepId, string description, Func<IBuilder, IBehavior> factoryMethod)
+            public DefaultRegisterStep(Type behavior, string stepId, string description, Func<IChildBuilder, IBehavior> factoryMethod)
                 : base(stepId, behavior, description, factoryMethod)
             {
             }

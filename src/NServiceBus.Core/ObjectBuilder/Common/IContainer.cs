@@ -4,31 +4,17 @@ namespace NServiceBus.ObjectBuilder.Common
     using System.Collections.Generic;
 
     /// <summary>
-    /// Abstraction of a container.
+    /// Parent container which can configure registrations and build child containers
     /// </summary>
-    public interface IContainer : IDisposable
+    /// <seealso cref="IChildContainer" />
+    public interface IContainer : IChildContainer
     {
-        /// <summary>
-        /// Returns an instantiation of the given type.
-        /// </summary>
-        /// <param name="typeToBuild">The <see cref="Type"/> to build.</param>
-        /// <returns>The component instance.</returns>
-        object Build(Type typeToBuild);
-
         /// <summary>
         /// Returns a child instance of the container to facilitate deterministic disposal
         /// of all resources built by the child container.
         /// </summary>
         /// <returns>Returns a new child container.</returns>
-        IContainer BuildChildContainer();
-
-        /// <summary>
-        /// Returns a list of objects instantiated because their type is compatible
-        /// with the given type.
-        /// </summary>
-        /// <param name="typeToBuild">Type to be build.</param>
-        /// <returns>Enumeration of all types that implement <paramref name="typeToBuild"/>.</returns>
-        IEnumerable<object> BuildAll(Type typeToBuild);
+        IChildContainer BuildChildContainer();
 
         /// <summary>
         /// Configures the call model of the given component type.
@@ -60,18 +46,5 @@ namespace NServiceBus.ObjectBuilder.Common
         /// <param name="lookupType">The interface type.</param>
         /// <param name="instance">The implementation instance.</param>
         void RegisterSingleton(Type lookupType, object instance);
-
-        /// <summary>
-        /// Indicates if a component of the given type has been configured.
-        /// </summary>
-        /// <param name="componentType">Component type to check.</param>
-        /// <returns><c>true</c> if the <paramref name="componentType"/> is registered in the container or <c>false</c> otherwise.</returns>
-        bool HasComponent(Type componentType);
-
-        /// <summary>
-        /// Releases a component instance.
-        /// </summary>
-        /// <param name="instance">The component instance to release.</param>
-        void Release(object instance);
     }
 }

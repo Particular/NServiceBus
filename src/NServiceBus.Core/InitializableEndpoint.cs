@@ -14,14 +14,14 @@ namespace NServiceBus
 
     class InitializableEndpoint : IInitializableEndpoint
     {
-        public InitializableEndpoint(SettingsHolder settings, IContainer container, List<Action<IConfigureComponents>> registrations, PipelineSettings pipelineSettings, PipelineConfiguration pipelineConfiguration, IReadOnlyCollection<IWantToRunWhenBusStartsAndStops> startables)
+        public InitializableEndpoint(SettingsHolder settings, IContainer childContainer, List<Action<IConfigureComponents>> registrations, PipelineSettings pipelineSettings, PipelineConfiguration pipelineConfiguration, IReadOnlyCollection<IWantToRunWhenBusStartsAndStops> startables)
         {
             this.settings = settings;
             this.pipelineSettings = pipelineSettings;
             this.pipelineConfiguration = pipelineConfiguration;
             this.startables = startables;
 
-            RegisterContainerAdapter(container);
+            RegisterContainerAdapter(childContainer);
             RunUserRegistrations(registrations);
 
             this.container.RegisterSingleton(this);
@@ -115,18 +115,18 @@ namespace NServiceBus
             }
         }
 
-        void RegisterContainerAdapter(IContainer containerToAdapt)
+        void RegisterContainerAdapter(IContainer childContainerToAdapt)
         {
             var b = new CommonObjectBuilder
             {
-                Container = containerToAdapt,
+                Container = childContainerToAdapt,
             };
 
             builder = b;
             container = b;
 
             container.ConfigureComponent<CommonObjectBuilder>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(c => c.Container, containerToAdapt);
+                .ConfigureProperty(c => c.Container, childContainerToAdapt);
         }
 
         void WireUpConfigSectionOverrides(IEnumerable<Type> concreteTypes)
