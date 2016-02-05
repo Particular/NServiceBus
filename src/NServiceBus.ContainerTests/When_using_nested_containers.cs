@@ -23,6 +23,42 @@ namespace NServiceBus.ContainerTests
         }
 
         [Test]
+        public void Instance_per_uow_components_should_yield_different_instances_between_parent_and_child_containers()
+        {
+            using (var builder = TestContainerBuilder.ConstructBuilder())
+            {
+                builder.Configure(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
+
+                var parentInstance = builder.Build(typeof(InstancePerUoWComponent));
+
+                using (var childContainer = builder.BuildChildContainer())
+                {
+                    var childInstance = childContainer.Build(typeof(InstancePerUoWComponent));
+
+                    Assert.AreNotSame(parentInstance, childInstance);
+                }
+            }
+        }
+
+        [Test]
+        public void Instance_per_uow_components_should_yield_different_instances_between_different_instances_of_child_containers()
+        {
+            using (var builder = TestContainerBuilder.ConstructBuilder())
+            {
+                builder.Configure(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
+
+                using (var childContainer1 = builder.BuildChildContainer())
+                using (var childContainer2 = builder.BuildChildContainer())
+                {
+                    var childInstance1 = childContainer1.Build(typeof(InstancePerUoWComponent));
+                    var childInstance2 = childContainer2.Build(typeof(InstancePerUoWComponent));
+
+                    Assert.AreNotSame(childInstance1, childInstance2);
+                }
+            }
+        }
+
+        [Test]
         public void Instance_per_uow_components_should_not_be_shared_across_child_containers()
         {
             using (var builder = TestContainerBuilder.ConstructBuilder())
