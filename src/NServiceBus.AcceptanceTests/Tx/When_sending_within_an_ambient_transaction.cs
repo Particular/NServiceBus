@@ -14,17 +14,17 @@
         public async Task Should_not_deliver_them_until_the_commit_phase()
         {
             await Scenario.Define<Context>()
-                    .WithEndpoint<TransactionalEndpoint>(b => b.When(async (bus, context) =>
+                    .WithEndpoint<TransactionalEndpoint>(b => b.When(async (session, context) =>
                         {
                             using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                             {
-                                await bus.Send(new MessageThatIsEnlisted { SequenceNumber = 1 });
-                                await bus.Send(new MessageThatIsEnlisted { SequenceNumber = 2 });
+                                await session.Send(new MessageThatIsEnlisted { SequenceNumber = 1 });
+                                await session.Send(new MessageThatIsEnlisted { SequenceNumber = 2 });
 
                                 //send another message as well so that we can check the order in the receiver
                                 using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
                                 {
-                                    await bus.Send(new MessageThatIsNotEnlisted());
+                                    await session.Send(new MessageThatIsNotEnlisted());
                                 }
 
                                 tx.Complete();
@@ -40,15 +40,15 @@
         public async Task Should_not_deliver_them_on_rollback()
         {
             await Scenario.Define<Context>()
-                    .WithEndpoint<TransactionalEndpoint>(b => b.When(async bus =>
+                    .WithEndpoint<TransactionalEndpoint>(b => b.When(async session =>
                         {
                             using (new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                             {
-                                await bus.Send(new MessageThatIsEnlisted());
+                                await session.Send(new MessageThatIsEnlisted());
                                 //rollback
                             }
 
-                            await bus.Send(new MessageThatIsNotEnlisted());
+                            await session.Send(new MessageThatIsNotEnlisted());
                         }))
                     .Done(c => c.MessageThatIsNotEnlistedHandlerWasCalled)
                     .Repeat(r => r.For<AllDtcTransports>())

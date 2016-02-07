@@ -19,7 +19,7 @@
         {
             await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                    .WithEndpoint<RetryEndpoint>(b => b
-                        .When((bus, context) => bus.SendLocal(new MessageToBeRetried { Id = context.Id }))
+                        .When((session, context) => session.SendLocal(new MessageToBeRetried { Id = context.Id }))
                         .DoNotFailOnErrorMessages())
                    .Done(c => c.GaveUpOnRetries)
                    .Repeat(r => r.For<AllDtcTransports>())
@@ -61,13 +61,13 @@
 
                 public BusNotifications BusNotifications { get; set; }
 
-                public Task Start(IBusSession session)
+                public Task Start(IMessageSession session)
                 {
                     BusNotifications.Errors.MessageSentToErrorQueue += (sender, message) => Context.GaveUpOnRetries = true;
                     return Task.FromResult(0);
                 }
 
-                public Task Stop(IBusSession session)
+                public Task Stop(IMessageSession session)
                 {
                     return Task.FromResult(0);
                 }

@@ -19,7 +19,7 @@
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithCustomSerializer>(b => b.When(
-                    (bus, c) => bus.SendLocal(new MyRequest
+                    (session, c) => session.SendLocal(new MyRequest
                     {
                         Serialized = false,
                         Deserialized = false

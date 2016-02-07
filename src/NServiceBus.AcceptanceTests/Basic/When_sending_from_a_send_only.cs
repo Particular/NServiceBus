@@ -13,7 +13,7 @@
         public async Task Should_receive_the_message()
         {
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                    .WithEndpoint<Sender>(b => b.When((bus, c) => bus.Send(new MyMessage
+                    .WithEndpoint<Sender>(b => b.When((session, c) => session.Send(new MyMessage
                     {
                         Id = c.Id
                     })))
@@ -76,13 +76,13 @@
                         this.scenarioContext = scenarioContext;
                     }
 
-                    protected override Task OnStart(IBusSession session)
+                    protected override Task OnStart(IMessageSession session)
                     {
                         scenarioContext.SendOnlyEndpointWasStarted = true;
                         return Task.FromResult(0);
                     }
 
-                    protected override Task OnStop(IBusSession session)
+                    protected override Task OnStop(IMessageSession session)
                     {
                         return Task.FromResult(0);
                     }

@@ -14,10 +14,10 @@
         {
             await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<RetryEndpoint>(b => b
-                    .When(async (bus, context) =>
+                    .When(async (session, context) =>
                     {
-                        await bus.SendLocal(new MessageToBeRetried { Id = context.Id });
-                        await bus.SendLocal(new MessageToBeRetried { Id = context.Id, SecondMessage = true });
+                        await session.SendLocal(new MessageToBeRetried { Id = context.Id });
+                        await session.SendLocal(new MessageToBeRetried { Id = context.Id, SecondMessage = true });
                     })
                     .DoNotFailOnErrorMessages())
                 .Done(c => c.SecondMessageReceived || c.NumberOfTimesInvoked > 1)

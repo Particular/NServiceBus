@@ -17,7 +17,7 @@
             var exception = Assert.Throws<AggregateException>(async () =>
                 await Scenario.Define<Context>()
                     .WithEndpoint<Endpoint>(
-                        b => b.When(bus => bus.SendLocal(new StartSaga
+                        b => b.When(session => session.SendLocal(new StartSaga
                         {
                             DataId = Guid.NewGuid()
                         })))

@@ -14,7 +14,7 @@
         public async Task Should_discard_them()
         {
             await Scenario.Define<Context>()
-                    .WithEndpoint<OutboxEndpoint>(b => b.When(async bus =>
+                    .WithEndpoint<OutboxEndpoint>(b => b.When(async session =>
                     {
                         var duplicateMessageId = Guid.NewGuid().ToString();
 
@@ -23,9 +23,9 @@
                         options.SetMessageId(duplicateMessageId);
                         options.RouteToLocalEndpointInstance();
 
-                        await bus.Send(new PlaceOrder(), options);
-                        await bus.Send(new PlaceOrder(), options);
-                        await bus.SendLocal(new PlaceOrder());
+                        await session.Send(new PlaceOrder(), options);
+                        await session.Send(new PlaceOrder(), options);
+                        await session.SendLocal(new PlaceOrder());
                     }))
                     .Done(c => c.OrderAckReceived >= 2)
                     .Repeat(r => r.For<AllOutboxCapableStorages>())

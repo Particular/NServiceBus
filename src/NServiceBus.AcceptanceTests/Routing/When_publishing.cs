@@ -15,11 +15,11 @@
         {
             await Scenario.Define<Context>()
                 .WithEndpoint<Publisher3>(b =>
-                    b.When(c => c.Subscriber3Subscribed, bus => bus.Publish<IFoo>())
+                    b.When(c => c.Subscriber3Subscribed, session => session.Publish<IFoo>())
                     )
-                .WithEndpoint<Subscriber3>(b => b.When(async (bus, context) =>
+                .WithEndpoint<Subscriber3>(b => b.When(async (session, context) =>
                 {
-                    await bus.Subscribe<IFoo>();
+                    await session.Subscribe<IFoo>();
 
                     if (context.HasNativePubSubSupport)
                     {
@@ -38,19 +38,19 @@
         {
             await Scenario.Define<Context>()
                     .WithEndpoint<Publisher>(b =>
-                        b.When(c => c.Subscriber1Subscribed && c.Subscriber2Subscribed, (bus, c) =>
+                        b.When(c => c.Subscriber1Subscribed && c.Subscriber2Subscribed, (session, c) =>
                         {
                             c.AddTrace("Both subscribers is subscribed, going to publish MyEvent");
 
                             var options = new PublishOptions();
 
                             options.SetHeader("MyHeader", "SomeValue");
-                            return bus.Publish(new MyEvent(), options);
+                            return session.Publish(new MyEvent(), options);
                         })
                      )
-                    .WithEndpoint<Subscriber1>(b => b.When(async (bus, context) =>
+                    .WithEndpoint<Subscriber1>(b => b.When(async (session, context) =>
                         {
-                            await bus.Subscribe<MyEvent>();
+                            await session.Subscribe<MyEvent>();
                             if (context.HasNativePubSubSupport)
                             {
                                 context.Subscriber1Subscribed = true;
@@ -61,9 +61,9 @@
                                 context.AddTrace("Subscriber1 has now asked to be subscribed to MyEvent");
                             }
                         }))
-                      .WithEndpoint<Subscriber2>(b => b.When(async (bus, context) =>
+                      .WithEndpoint<Subscriber2>(b => b.When(async (session, context) =>
                       {
-                          await bus.Subscribe<MyEvent>();
+                          await session.Subscribe<MyEvent>();
 
                           if (context.HasNativePubSubSupport)
                           {

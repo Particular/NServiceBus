@@ -13,7 +13,7 @@
         public async Task Should_forward_message()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<EndpointThatForwards>(b => b.When((bus, c) => bus.SendLocal(new MessageToForward())))
+                .WithEndpoint<EndpointThatForwards>(b => b.When((session, c) => session.SendLocal(new MessageToForward())))
                 .WithEndpoint<ForwardReceiver>()
                 .Done(c => c.GotForwardedMessage)
                 .Run();

@@ -18,7 +18,7 @@
 
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<ContextExtendingEndpoint>(e => e
-                    .When((bus, c) => bus.SendLocal(new SomeMessage())))
+                    .When((session, c) => session.SendLocal(new SomeMessage())))
                 .Done(c => c.HandlerAExtensionValue != null && c.HandlerBExtensionValue != null)
                 .Run();
 

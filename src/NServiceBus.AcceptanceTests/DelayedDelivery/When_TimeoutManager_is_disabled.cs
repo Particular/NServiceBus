@@ -14,13 +14,13 @@
         public async Task Bus_Defer_should_throw()
         {
             await Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(b => b.When((bus, c) =>
+                    .WithEndpoint<Endpoint>(b => b.When((session, c) =>
                     {
                         var options = new SendOptions();
 
                         options.RouteToLocalEndpointInstance();
 
-                        return bus.Send(new MyMessage(), options);
+                        return session.Send(new MyMessage(), options);
                     }))
                     .Done(c => c.ExceptionThrown || c.SecondMessageReceived)
                     .Repeat(r => r.For<AllTransportsWithoutNativeDeferral>())

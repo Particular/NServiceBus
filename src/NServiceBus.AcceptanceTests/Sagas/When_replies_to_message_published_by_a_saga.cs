@@ -17,14 +17,14 @@
         {
             await Scenario.Define<Context>()
                 .WithEndpoint<SagaEndpoint>
-                (b => b.When(c => c.Subscribed, bus => bus.SendLocal(new StartSaga
+                (b => b.When(c => c.Subscribed, session => session.SendLocal(new StartSaga
                 {
                     DataId = Guid.NewGuid()
                 }))
                 )
-                .WithEndpoint<ReplyEndpoint>(b => b.When(async (bus, context) =>
+                .WithEndpoint<ReplyEndpoint>(b => b.When(async (session, context) =>
                 {
-                    await bus.Subscribe<DidSomething>();
+                    await session.Subscribe<DidSomething>();
                     if (context.HasNativePubSubSupport)
                     {
                         context.Subscribed = true;

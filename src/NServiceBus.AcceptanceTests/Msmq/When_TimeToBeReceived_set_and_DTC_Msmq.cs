@@ -13,13 +13,13 @@
         public async Task Should_throw_on_send()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<TransactionalEndpoint>(b => b.When(async (bus, c) =>
+                    .WithEndpoint<TransactionalEndpoint>(b => b.When(async (session, c) =>
                     {
                         try
                         {
                             using (new TransactionScope(TransactionScopeOption.Required, TransactionScopeAsyncFlowOption.Enabled))
                             {
-                                await bus.SendLocal(new MyMessage());
+                                await session.SendLocal(new MyMessage());
                             }
                         }
                         catch (Exception ex)

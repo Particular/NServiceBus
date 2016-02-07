@@ -66,7 +66,7 @@
         public const string NServiceBusVersion = "NServiceBus.Version";
 
         /// <summary>
-        /// Used in a header when doing a callback (bus.return).
+        /// Used in a header when doing a callback (session.return).
         /// </summary>
         public const string ReturnMessageErrorCodeHeader = "NServiceBus.ReturnMessage.ErrorCode";
 

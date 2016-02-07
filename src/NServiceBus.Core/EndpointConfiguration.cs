@@ -95,7 +95,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Configures the bus to be send-only.
+        /// Configures the endpoint to be send-only.
         /// </summary>
         public void SendOnly()
         {

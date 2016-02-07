@@ -14,7 +14,7 @@
         public async Task Should_receive_decrypted_message()
         {
             await Scenario.Define<Context>()
-                    .WithEndpoint<Sender>(b => b.When((bus, context) => bus.Send(new MessageWithSecretData
+                    .WithEndpoint<Sender>(b => b.When((session, context) => session.Send(new MessageWithSecretData
                     {
                         Secret = "betcha can't guess my secret",
                     })))

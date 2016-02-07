@@ -8,9 +8,9 @@ namespace NServiceBus
     public interface IStartableEndpoint
     {
         /// <summary>
-        /// Starts the bus and returns a reference to it.
+        /// Starts the endpoint and returns a reference to it.
         /// </summary>
-        /// <returns>A reference to the bus.</returns>
+        /// <returns>A reference to the endpoint.</returns>
         Task<IEndpointInstance> Start();
     }
 }

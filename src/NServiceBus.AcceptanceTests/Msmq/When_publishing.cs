@@ -15,15 +15,15 @@
         {
             var ctx = await Scenario.Define<Context>()
                 .WithEndpoint<Publisher>(b =>
-                    b.When(c => c.Subscribed, (bus, c) =>
+                    b.When(c => c.Subscribed, (session, c) =>
                     {
                         c.AddTrace("Both subscribers is subscribed, going to publish MyEvent");
-                        return bus.Publish(new MyEvent());
+                        return session.Publish(new MyEvent());
                     })
                 )
-                .WithEndpoint<Subscriber>(b => b.When(async (bus, context) =>
+                .WithEndpoint<Subscriber>(b => b.When(async (session, context) =>
                 {
-                    await bus.Subscribe<MyEvent>();
+                    await session.Subscribe<MyEvent>();
                     if (context.HasNativePubSubSupport)
                     {
                         context.Subscribed = true;

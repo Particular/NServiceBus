@@ -16,7 +16,7 @@
         public async Task Should_use_it_to_find_saga()
         {
             var context = await Scenario.Define<Context>()
-                   .WithEndpoint<SagaEndpoint>(b => b.When(bus => bus.SendLocal(new StartSagaMessage())))
+                   .WithEndpoint<SagaEndpoint>(b => b.When(session => session.SendLocal(new StartSagaMessage())))
                    .Done(c => c.FinderUsed)
                    .Run();
 

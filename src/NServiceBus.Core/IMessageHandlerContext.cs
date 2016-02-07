@@ -15,7 +15,7 @@ namespace NServiceBus
         Task HandleCurrentMessageLater();
 
         /// <summary>
-        /// Tells the bus to stop dispatching the current message to additional
+        /// Tells the endpoint to stop dispatching the current message to additional
         /// handlers.
         /// </summary>
         void DoNotContinueDispatchingCurrentMessageToHandlers();

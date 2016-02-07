@@ -46,7 +46,7 @@
 
                 public BusNotifications BusNotifications { get; set; }
 
-                public Task Start(IBusSession session)
+                public Task Start(IMessageSession session)
                 {
                     BusNotifications.Errors.MessageSentToErrorQueue += (sender, message) => Context.GaveUp = true;
                     return session.SendLocal(new MessageToBeRetried
@@ -55,7 +55,7 @@
                     });
                 }
 
-                public Task Stop(IBusSession session)
+                public Task Stop(IMessageSession session)
                 {
                     return Task.FromResult(0);
                 }

@@ -39,7 +39,7 @@ namespace NServiceBus
 
         public async Task HandleCurrentMessageLater()
         {
-            await BusOperationsInvokeHandlerContext.HandleCurrentMessageLater(this).ConfigureAwait(false);
+            await MessageOperationsInvokeHandlerContext.HandleCurrentMessageLater(this).ConfigureAwait(false);
             HandleCurrentMessageLaterWasCalled = true;
             DoNotContinueDispatchingCurrentMessageToHandlers();
         }

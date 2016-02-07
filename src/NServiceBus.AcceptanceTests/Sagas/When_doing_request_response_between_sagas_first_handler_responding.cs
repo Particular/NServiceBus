@@ -10,7 +10,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
         public async Task Should_autocorrelate_the_response_back_to_the_requesting_saga_from_the_first_handler()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Endpoint>(b => b.When(bus => bus.SendLocal(new InitiateRequestingSaga())))
+                .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new InitiateRequestingSaga())))
                 .Done(c => c.DidRequestingSagaGetTheResponse)
                 .Run();
 

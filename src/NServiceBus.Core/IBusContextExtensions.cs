@@ -78,7 +78,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Sends the message back to the current bus.
+        /// Sends the message back to the current endpoint.
         /// </summary>
         /// <param name="context">Object being extended.</param>
         /// <param name="message">The message to send.</param>
@@ -95,7 +95,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Instantiates a message of type T and sends it back to the current bus.
+        /// Instantiates a message of type T and sends it back to the current endpoint.
         /// </summary>
         /// <typeparam name="T">The type of message, usually an interface.</typeparam>
         /// <param name="context">Object being extended.</param>

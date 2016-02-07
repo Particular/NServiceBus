@@ -10,19 +10,19 @@
     {
         const string ACTION_NAME = "my action";
         DefaultScheduler scheduler;
-        IBusSession context;
+        IMessageSession session;
 
         [SetUp]
         public void SetUp()
         {
             scheduler = new DefaultScheduler();
-            context = new FakeBusSession(scheduler);
+            session = new FakeMessageSession(scheduler);
         }
 
         [Test]
         public async Task When_scheduling_an_action_with_a_name_the_task_should_get_that_name()
         {
-            await context.ScheduleEvery(TimeSpan.FromMinutes(5), ACTION_NAME, c => TaskEx.CompletedTask);
+            await session.ScheduleEvery(TimeSpan.FromMinutes(5), ACTION_NAME, c => TaskEx.CompletedTask);
 
             Assert.That(EnsureThatNameExists(ACTION_NAME));
         }
@@ -30,7 +30,7 @@
         [Test]
         public async Task When_scheduling_an_action_without_a_name_the_task_should_get_the_DeclaringType_as_name()
         {
-            await context.ScheduleEvery(TimeSpan.FromMinutes(5), c => TaskEx.CompletedTask);
+            await session.ScheduleEvery(TimeSpan.FromMinutes(5), c => TaskEx.CompletedTask);
 
             Assert.That(EnsureThatNameExists("ScheduleTests"));
         }
@@ -40,11 +40,11 @@
             return scheduler.scheduledTasks.Any(task => task.Value.Name.Equals(name));
         }
 
-        class FakeBusSession : IBusSession
+        class FakeMessageSession : IMessageSession
         {
             readonly DefaultScheduler defaultScheduler;
 
-            public FakeBusSession(DefaultScheduler defaultScheduler)
+            public FakeMessageSession(DefaultScheduler defaultScheduler)
             {
                 this.defaultScheduler = defaultScheduler;
             }

@@ -15,7 +15,7 @@
         {
             var correlationId = Guid.NewGuid();
             var context = await Scenario.Define<Context>()
-                   .WithEndpoint<SagaEndpoint>(b => b.When(bus => bus.SendLocal(new StartSagaMessage
+                   .WithEndpoint<SagaEndpoint>(b => b.When(session => session.SendLocal(new StartSagaMessage
                    {
                        SomeId = correlationId
                    })))

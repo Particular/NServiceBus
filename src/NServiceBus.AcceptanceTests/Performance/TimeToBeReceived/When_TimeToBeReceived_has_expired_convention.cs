@@ -53,7 +53,7 @@
                 /// <summary>
                 /// Method called at startup.
                 /// </summary>
-                public async Task Start(IBusSession session)
+                public async Task Start(IMessageSession session)
                 {
                     await session.SendLocal(new MyMessage());
                     await Task.Delay(TimeSpan.FromSeconds(5));
@@ -62,7 +62,7 @@
                 /// <summary>
                 /// Method called on shutdown.
                 /// </summary>
-                public Task Stop(IBusSession session)
+                public Task Stop(IMessageSession session)
                 {
                     return Task.FromResult(0);
                 }

@@ -11,13 +11,13 @@ namespace NServiceBus.Features
             this.poller = poller;
         }
 
-        protected override Task OnStart(IBusSession session)
+        protected override Task OnStart(IMessageSession session)
         {
             poller.Start();
             return TaskEx.CompletedTask;
         }
 
-        protected override Task OnStop(IBusSession session)
+        protected override Task OnStop(IMessageSession session)
         {
             return poller.Stop();
         }

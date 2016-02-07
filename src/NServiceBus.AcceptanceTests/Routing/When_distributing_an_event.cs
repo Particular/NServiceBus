@@ -13,19 +13,11 @@
         public async Task Should_round_robin()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Publisher>(b => b.When(c => c.SubscribersCounter == 4, async (bus, c) =>
+                .WithEndpoint<Publisher>(b => b.When(c => c.SubscribersCounter == 4, async (session, c) =>
                 {
-                    await bus.Publish(new MyEvent());
+                    await session.Publish(new MyEvent());
                 }))
-                .WithEndpoint<SubscriberA_1>(b => b.When((bus, c) =>
-                {
-                    if (c.HasNativePubSubSupport)
-                    {
-                        c.IncrementSubscribersCounter();
-                    }
-                    return Task.FromResult(0);
-                }))
-                .WithEndpoint<SubscriberA_2>(b => b.When((bus, c) =>
+                .WithEndpoint<SubscriberA_1>(b => b.When((session, c) =>
                 {
                     if (c.HasNativePubSubSupport)
                     {
@@ -33,7 +25,15 @@
                     }
                     return Task.FromResult(0);
                 }))
-                .WithEndpoint<SubscriberB_1>(b => b.When((bus, c) =>
+                .WithEndpoint<SubscriberA_2>(b => b.When((session, c) =>
+                {
+                    if (c.HasNativePubSubSupport)
+                    {
+                        c.IncrementSubscribersCounter();
+                    }
+                    return Task.FromResult(0);
+                }))
+                .WithEndpoint<SubscriberB_1>(b => b.When((session, c) =>
                 {
                     if (c.HasNativePubSubSupport)
                     {
@@ -41,7 +41,7 @@
                     }
                     return Task.FromResult(0);
                 })).
-                WithEndpoint<SubscriberB_2>(b => b.When((bus, c) =>
+                WithEndpoint<SubscriberB_2>(b => b.When((session, c) =>
                 {
                     if (c.HasNativePubSubSupport)
                     {

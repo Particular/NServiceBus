@@ -22,7 +22,7 @@ namespace NServiceBus
             this.maxLoadAttempts = maxLoadAttempts;
         }
 
-        protected override async Task OnStart(IBusSession context)
+        protected override async Task OnStart(IMessageSession session)
         {
             var endpointInstances = settings.Get<EndpointInstances>();
             endpointInstances.AddDynamic(FindInstances);
@@ -79,7 +79,7 @@ namespace NServiceBus
             return instanceMap.TryGetValue(endpoint, out result) ? result : emptyEndpointInstancesTask;
         }
 
-        protected override Task OnStop(IBusSession context)
+        protected override Task OnStop(IMessageSession session)
         {
             return timer.Stop();
         }

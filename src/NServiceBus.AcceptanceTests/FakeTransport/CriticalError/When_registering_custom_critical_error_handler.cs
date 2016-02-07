@@ -17,7 +17,7 @@
         {
             await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithLocalCallback>(b => b.When(
-                    (bus, context) => bus.SendLocal(new MyRequest())))
+                    (session, context) => session.SendLocal(new MyRequest())))
                 .Done(c => c.ExceptionReceived)
                 .Repeat(r => r.For(Transports.AllAvailable.SingleOrDefault(t => t.Key == "FakeTransport")))
                 .Should(c =>

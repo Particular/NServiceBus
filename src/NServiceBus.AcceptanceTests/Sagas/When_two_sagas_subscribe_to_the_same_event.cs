@@ -16,7 +16,7 @@
         public async Task Should_invoke_all_handlers_on_all_sagas()
         {
             await Scenario.Define<Context>()
-                    .WithEndpoint<Publisher>(b => b.When((bus, context) =>
+                    .WithEndpoint<Publisher>(b => b.When((session, context) =>
                     {
                         if (context.HasNativePubSubSupport)
                         {
@@ -26,7 +26,7 @@
                         return Task.FromResult(0);
                     }))
                     .WithEndpoint<SagaEndpoint>(b =>
-                        b.When(c => c.Subscribed, bus => bus.SendLocal(new StartSaga2
+                        b.When(c => c.Subscribed, session => session.SendLocal(new StartSaga2
                         {
                             DataId = Guid.NewGuid()
                         }))

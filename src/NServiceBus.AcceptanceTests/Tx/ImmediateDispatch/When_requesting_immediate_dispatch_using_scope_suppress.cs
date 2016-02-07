@@ -16,7 +16,7 @@
         {
             await Scenario.Define<Context>()
                     .WithEndpoint<SuppressEndpoint>(b => b
-                        .When(bus => bus.SendLocal(new InitiatingMessage()))
+                        .When(session => session.SendLocal(new InitiatingMessage()))
                         .DoNotFailOnErrorMessages())
                     .Done(c => c.MessageDispatched)
                     .Repeat(r => r.For<AllDtcTransports>())

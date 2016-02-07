@@ -5,7 +5,7 @@ namespace NServiceBus
     using NServiceBus.MessageInterfaces;
     using NServiceBus.Pipeline;
 
-    static class BusOperations
+    static class MessageOperations
     {
         public static Task Publish<T>(IBehaviorContext context, Action<T> messageConstructor, PublishOptions options)
         {

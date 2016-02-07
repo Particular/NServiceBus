@@ -15,7 +15,7 @@
             var delay = TimeSpan.FromMilliseconds(1);
 
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(b => b.When((bus, c) =>
+                    .WithEndpoint<Endpoint>(b => b.When((session, c) =>
                     {
                         var options = new SendOptions();
 
@@ -24,7 +24,7 @@
 
                         c.SentAt = DateTime.UtcNow;
 
-                        return bus.Send(new MyMessage(), options);
+                        return session.Send(new MyMessage(), options);
                     }))
                     .Done(c => c.WasCalled)
                     .Run();

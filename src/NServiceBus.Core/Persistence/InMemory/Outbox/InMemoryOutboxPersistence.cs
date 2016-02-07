@@ -39,13 +39,13 @@
                 inMemoryOutboxStorage = storage;
             }
 
-            protected override Task OnStart(IBusSession session)
+            protected override Task OnStart(IMessageSession session)
             {
                 cleanupTimer = new Timer(PerformCleanup, null, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
                 return TaskEx.CompletedTask;
             }
 
-            protected override Task OnStop(IBusSession session)
+            protected override Task OnStop(IMessageSession session)
             {
                 using (var waitHandle = new ManualResetEvent(false))
                 {

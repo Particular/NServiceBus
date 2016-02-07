@@ -12,7 +12,7 @@
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<ExactlyOnceEndpoint>(b => b
-                    .When(bus => bus.SendLocal(new InitiatingMessage()))
+                    .When(session => session.SendLocal(new InitiatingMessage()))
                     .DoNotFailOnErrorMessages())
                 .Done(c => c.MessageDispatched)
                 .Run();

@@ -15,7 +15,7 @@
             var id = Guid.NewGuid();
 
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<NullPropertyEndpoint>(b => b.When(bus => bus.SendLocal(new StartSagaMessage
+                .WithEndpoint<NullPropertyEndpoint>(b => b.When(session => session.SendLocal(new StartSagaMessage
                 {
                     SomeId = id
                 })))

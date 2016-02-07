@@ -37,17 +37,17 @@ namespace NServiceBus
             DetectThrottlingConfig();
 
             var pipelineCache = new PipelineCache(builder, settings);
-            var busSession = CreateBusSession(builder, pipelineCache);
+            var messageSession = CreateMessageSession(builder, pipelineCache);
 
             await RunInstallers().ConfigureAwait(false);
-            var featureRunner = await StartFeatures(busSession).ConfigureAwait(false);
-            var runner = await StartStartables(busSession).ConfigureAwait(false);
+            var featureRunner = await StartFeatures(messageSession).ConfigureAwait(false);
+            var runner = await StartStartables(messageSession).ConfigureAwait(false);
 
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 
             var pipelineCollection = CreateIncomingPipelines(pipelineCache);
 
-            var runningInstance = new RunningEndpointInstance(builder, pipelineCollection, runner, featureRunner, busSession);
+            var runningInstance = new RunningEndpointInstance(builder, pipelineCollection, runner, featureRunner, messageSession);
 
             // set the started endpoint on CriticalError to pass the endpoint to the critical error action
             builder.Build<CriticalError>().SetEndpoint(runningInstance);
@@ -78,7 +78,7 @@ namespace NServiceBus
             return pipelineCollection;
         }
 
-        async Task<StartAndStoppablesRunner> StartStartables(IBusSession session)
+        async Task<StartAndStoppablesRunner> StartStartables(IMessageSession session)
         {
             var allStartables = builder.BuildAll<IWantToRunWhenBusStartsAndStops>().Concat(startables).ToList();
             var runner = new StartAndStoppablesRunner(allStartables);
@@ -86,7 +86,7 @@ namespace NServiceBus
             return runner;
         }
 
-        async Task<FeatureRunner> StartFeatures(IBusSession session)
+        async Task<FeatureRunner> StartFeatures(IMessageSession session)
         {
             var featureRunner = new FeatureRunner(featureActivator);
             await featureRunner.Start(builder, session).ConfigureAwait(false);
@@ -123,10 +123,10 @@ namespace NServiceBus
             }
         }
 
-        static IBusSession CreateBusSession(IBuilder builder, IPipelineCache cache)
+        static IMessageSession CreateMessageSession(IBuilder builder, IPipelineCache cache)
         {
             var rootContext = new RootContext(builder, cache);
-            return new BusSession(rootContext);
+            return new MessageSession(rootContext);
         }
 
         IEnumerable<TransportReceiver> BuildPipelines(IPipelineCache cache)

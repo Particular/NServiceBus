@@ -14,23 +14,23 @@
         {
             await Scenario.Define<Context>()
                     .WithEndpoint<V2Publisher>(b =>
-                        b.When(c => c.V1Subscribed && c.V2Subscribed, (bus, c) =>
+                        b.When(c => c.V1Subscribed && c.V2Subscribed, (session, c) =>
                         {
-                            return bus.Publish<V2Event>(e =>
+                            return session.Publish<V2Event>(e =>
                             {
                                 e.SomeData = 1;
                                 e.MoreInfo = "dasd";
                             });
                         }))
-                    .WithEndpoint<V1Subscriber>(b => b.When(async (bus,c) =>
+                    .WithEndpoint<V1Subscriber>(b => b.When(async (session,c) =>
                         {
-                            await bus.Subscribe<V1Event>();
+                            await session.Subscribe<V1Event>();
                             if (c.HasNativePubSubSupport)
                                 c.V1Subscribed = true;
                         }))
-                    .WithEndpoint<V2Subscriber>(b => b.When(async (bus,c) =>
+                    .WithEndpoint<V2Subscriber>(b => b.When(async (session,c) =>
                         {
-                            await bus.Subscribe<V2Event>();
+                            await session.Subscribe<V2Event>();
                             if (c.HasNativePubSubSupport)
                                 c.V2Subscribed = true;
                         }))

@@ -13,7 +13,7 @@ namespace NServiceBus.AcceptanceTests.Audit
         public async Task Should_not_be_forwarded_to_auditQueue_when_auditing_is_disabled()
         {
             var context = await Scenario.Define<Context>()
-            .WithEndpoint<EndpointWithAuditOff>(b => b.When(bus => bus.SendLocal(new MessageToBeAudited())))
+            .WithEndpoint<EndpointWithAuditOff>(b => b.When(session => session.SendLocal(new MessageToBeAudited())))
             .WithEndpoint<EndpointThatHandlesAuditMessages>()
             .Done(c => c.IsMessageHandlingComplete)
             .Run();
@@ -25,7 +25,7 @@ namespace NServiceBus.AcceptanceTests.Audit
         public async Task Should_be_forwarded_to_auditQueue_when_auditing_is_enabled()
         {
             var context = await Scenario.Define<Context>()
-            .WithEndpoint<EndpointWithAuditOn>(b => b.When(bus => bus.SendLocal(new MessageToBeAudited())))
+            .WithEndpoint<EndpointWithAuditOn>(b => b.When(session => session.SendLocal(new MessageToBeAudited())))
             .WithEndpoint<EndpointThatHandlesAuditMessages>()
             .Done(c => c.IsMessageHandlingComplete && c.IsMessageHandledByTheAuditEndpoint)
             .Run();

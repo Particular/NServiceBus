@@ -14,7 +14,7 @@
         public async Task Should_not_start_a_new_saga_if_not_found()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<SagaEndpoint>(b => b.When(bus =>
+                .WithEndpoint<SagaEndpoint>(b => b.When(session =>
                 {
                     var message = new MessageWithSagaId
                     {
@@ -25,7 +25,7 @@
                     options.SetHeader(Headers.SagaId, Guid.NewGuid().ToString());
                     options.SetHeader(Headers.SagaType, typeof(SagaEndpoint.MessageWithSagaIdSaga).AssemblyQualifiedName);
                     options.RouteToLocalEndpointInstance();
-                    return bus.Send(message, options);
+                    return session.Send(message, options);
                 }))
                 .Done(c => c.Done)
                 .Run();

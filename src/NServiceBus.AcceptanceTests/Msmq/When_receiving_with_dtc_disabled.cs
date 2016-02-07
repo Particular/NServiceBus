@@ -14,7 +14,7 @@
         public async Task Should_not_escalate_a_single_durable_rm_to_dtc_tx()
         {
             await Scenario.Define<Context>()
-                    .WithEndpoint<NonDTCEndpoint>(b => b.When(bus => bus.SendLocal(new MyMessage())))
+                    .WithEndpoint<NonDTCEndpoint>(b => b.When(session => session.SendLocal(new MyMessage())))
                     .Done(c => c.HandlerInvoked)
                     .Repeat(r => r.For<AllDtcTransports>())
                     .Should(c =>

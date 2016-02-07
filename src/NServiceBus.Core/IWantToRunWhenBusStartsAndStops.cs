@@ -13,11 +13,11 @@
         /// <summary>
         /// Method called at startup.
         /// </summary>
-        Task Start(IBusSession session);
+        Task Start(IMessageSession session);
 
         /// <summary>
         /// Method called on shutdown.
         /// </summary>
-        Task Stop(IBusSession session);
+        Task Stop(IMessageSession session);
     }
 }

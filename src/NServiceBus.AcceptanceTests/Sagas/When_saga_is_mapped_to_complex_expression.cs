@@ -13,8 +13,8 @@
         {
             var context = await Scenario.Define<Context>()
                     .WithEndpoint<SagaEndpoint>(b => b
-                        .When(bus => bus.SendLocal(new StartSagaMessage { Key = "Part1_Part2" }))
-                        .When(c => c.FirstMessageReceived, bus => bus.SendLocal(new OtherMessage { Part1 = "Part1", Part2 = "Part2" })))
+                        .When(session => session.SendLocal(new StartSagaMessage { Key = "Part1_Part2" }))
+                        .When(c => c.FirstMessageReceived, session => session.SendLocal(new OtherMessage { Part1 = "Part1", Part2 = "Part2" })))
                     .Done(c => c.SecondMessageReceived)
                     .Run();
 

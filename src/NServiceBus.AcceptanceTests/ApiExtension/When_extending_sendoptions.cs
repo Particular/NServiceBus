@@ -14,14 +14,14 @@
         public async Task Should_be_able_to_set_context_items_and_retrieve_it_via_a_behavior()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<SendOptionsExtensions>(b => b.When((bus, c) =>
+                    .WithEndpoint<SendOptionsExtensions>(b => b.When((session, c) =>
                     {
                         var options = new SendOptions();
 
                         options.GetExtensions().Set(new SendOptionsExtensions.TestingSendOptionsExtensionBehavior.Context { SomeValue = "I did it" });
                         options.RouteToLocalEndpointInstance();
 
-                        return bus.Send(new SendMessage(), options);
+                        return session.Send(new SendMessage(), options);
                     }))
                     .Done(c => c.WasCalled)
                     .Run();

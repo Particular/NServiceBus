@@ -5,23 +5,23 @@ namespace NServiceBus.AcceptanceTesting.Support
 
     public class WhenDefinition<TContext> : IWhenDefinition where TContext : ScenarioContext
     {
-        public WhenDefinition(Predicate<TContext> condition, Func<IBusSession, Task> action)
+        public WhenDefinition(Predicate<TContext> condition, Func<IMessageSession, Task> action)
         {
             Id = Guid.NewGuid();
             this.condition = condition;
-            busAction = action;
+            messageAction = action;
         }
 
-        public WhenDefinition(Predicate<TContext> condition, Func<IBusSession, TContext, Task> actionWithContext)
+        public WhenDefinition(Predicate<TContext> condition, Func<IMessageSession, TContext, Task> actionWithContext)
         {
             Id = Guid.NewGuid();
             this.condition = condition;
-            busAndContextAction = actionWithContext;
+            messageAndContextAction = actionWithContext;
         }
 
         public Guid Id { get; }
 
-        public async Task<bool> ExecuteAction(ScenarioContext context, IBusSession session)
+        public async Task<bool> ExecuteAction(ScenarioContext context, IMessageSession session)
         {
             var c = (TContext)context;
 
@@ -30,20 +30,20 @@ namespace NServiceBus.AcceptanceTesting.Support
                 return false;
             }
 
-            if (busAction != null)
+            if (messageAction != null)
             {
-                await busAction(session).ConfigureAwait(false);
+                await messageAction(session).ConfigureAwait(false);
             }
             else
             {
-                await busAndContextAction(session, c).ConfigureAwait(false);
+                await messageAndContextAction(session, c).ConfigureAwait(false);
             }
 
             return true;
         }
 
         Predicate<TContext> condition;
-        Func<IBusSession, Task> busAction;
-        Func<IBusSession, TContext, Task> busAndContextAction;
+        Func<IMessageSession, Task> messageAction;
+        Func<IMessageSession, TContext, Task> messageAndContextAction;
     }
 }

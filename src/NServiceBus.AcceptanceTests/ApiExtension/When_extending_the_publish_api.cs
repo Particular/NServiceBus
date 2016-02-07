@@ -18,18 +18,18 @@
         {
             await Scenario.Define<Context>()
                     .WithEndpoint<Publisher>(b =>
-                        b.When(c => c.Subscriber1Subscribed, bus =>
+                        b.When(c => c.Subscriber1Subscribed, session =>
                         {
                             var options = new PublishOptions();
 
                             options.GetExtensions().Set(new Publisher.PublishExtensionBehavior.Context { SomeProperty = "ItWorks" });
 
-                            return bus.Publish(new MyEvent(), options);
+                            return session.Publish(new MyEvent(), options);
                         })
                      )
-                    .WithEndpoint<Subscriber1>(b => b.When(async (bus, context) =>
+                    .WithEndpoint<Subscriber1>(b => b.When(async (session, context) =>
                         {
-                            await bus.Subscribe<MyEvent>();
+                            await session.Subscribe<MyEvent>();
 
                             if (context.HasNativePubSubSupport)
                                 context.Subscriber1Subscribed = true;

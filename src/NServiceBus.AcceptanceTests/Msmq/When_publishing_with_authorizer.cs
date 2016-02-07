@@ -17,15 +17,15 @@
         {
             await Scenario.Define<TestContext>()
                 .WithEndpoint<Publisher>(b =>
-                    b.When(c => c.Subscriber1Subscribed && c.Subscriber2Subscribed, (bus, c) => bus.Publish(new MyEvent()))
+                    b.When(c => c.Subscriber1Subscribed && c.Subscriber2Subscribed, (session, c) => session.Publish(new MyEvent()))
                 )
-                .WithEndpoint<Subscriber1>(b => b.When(async (bus, context) =>
+                .WithEndpoint<Subscriber1>(b => b.When(async (session, context) =>
                 {
-                    await bus.Subscribe<MyEvent>();
+                    await session.Subscribe<MyEvent>();
                 }))
-                .WithEndpoint<Subscriber2>(b => b.When(async (bus, context) =>
+                .WithEndpoint<Subscriber2>(b => b.When(async (session, context) =>
                 {
-                    await bus.Subscribe<MyEvent>();
+                    await session.Subscribe<MyEvent>();
                 }))
                 .Done(c =>
                     c.Subscriber1GotTheEvent && 

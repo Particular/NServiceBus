@@ -14,7 +14,7 @@
         {
             await Scenario.Define<Context>()
                 .WithEndpoint<EndpointViaType>(b => b.When(
-                    (bus, c) => bus.SendLocal(new Message
+                    (session, c) => session.SendLocal(new Message
                     {
                         Property = "value"
                     })))

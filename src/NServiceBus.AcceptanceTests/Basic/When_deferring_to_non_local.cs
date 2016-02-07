@@ -13,12 +13,12 @@
         public async Task Message_should_be_received()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(b => b.When((bus, c) =>
+                    .WithEndpoint<Endpoint>(b => b.When((session, c) =>
                     {
                         var options = new SendOptions();
 
                         options.DelayDeliveryWith(TimeSpan.FromMilliseconds(3));
-                        return bus.Send(new MyMessage(), options);
+                        return session.Send(new MyMessage(), options);
                     }))
                     .WithEndpoint<Receiver>()
                     .Done(c => c.WasCalled)

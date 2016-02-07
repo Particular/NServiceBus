@@ -6,7 +6,7 @@ namespace NServiceBus
     using NServiceBus.Settings;
     using NServiceBus.Transports;
 
-    static class BusOperationsInvokeHandlerContext
+    static class MessageOperationsInvokeHandlerContext
     {
         public static Task HandleCurrentMessageLater(IInvokeHandlerContext context)
         {

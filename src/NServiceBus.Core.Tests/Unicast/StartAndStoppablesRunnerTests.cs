@@ -146,13 +146,13 @@
             public bool Started { get; set; }
             public bool Stopped { get; set; }
 
-            public Task Start(IBusSession session)
+            public Task Start(IMessageSession session)
             {
                 Started = true;
                 return TaskEx.CompletedTask;
             }
 
-            public Task Stop(IBusSession session)
+            public Task Stop(IMessageSession session)
             {
                 Stopped = true;
                 return TaskEx.CompletedTask;
@@ -164,13 +164,13 @@
             public bool Started { get; set; }
             public bool Stopped { get; set; }
 
-            public Task Start(IBusSession session)
+            public Task Start(IMessageSession session)
             {
                 Started = true;
                 return TaskEx.CompletedTask;
             }
 
-            public Task Stop(IBusSession session)
+            public Task Stop(IMessageSession session)
             {
                 Stopped = true;
                 return TaskEx.CompletedTask;
@@ -181,12 +181,12 @@
         {
             public bool Stopped { get; set; }
 
-            public Task Start(IBusSession session)
+            public Task Start(IMessageSession session)
             {
                 throw new InvalidOperationException("SyncThrowingStart");
             }
 
-            public Task Stop(IBusSession session)
+            public Task Stop(IMessageSession session)
             {
                 Stopped = true;
                 return TaskEx.CompletedTask;
@@ -197,13 +197,13 @@
         {
             public bool Stopped { get; set; }
 
-            public async Task Start(IBusSession session)
+            public async Task Start(IMessageSession session)
             {
                 await Task.Yield();
                 throw new InvalidOperationException("AsyncThrowingStart");
             }
 
-            public Task Stop(IBusSession session)
+            public Task Stop(IMessageSession session)
             {
                 Stopped = true;
                 return TaskEx.CompletedTask;
@@ -214,13 +214,13 @@
         {
             public bool Started { get; set; }
 
-            public Task Start(IBusSession session)
+            public Task Start(IMessageSession session)
             {
                 Started = true;
                 return TaskEx.CompletedTask;
             }
 
-            public Task Stop(IBusSession session)
+            public Task Stop(IMessageSession session)
             {
                 throw new InvalidOperationException("SyncThrowingStop");
             }
@@ -230,13 +230,13 @@
         {
             public bool Started { get; set; }
 
-            public Task Start(IBusSession session)
+            public Task Start(IMessageSession session)
             {
                 Started = true;
                 return TaskEx.CompletedTask;
             }
 
-            public async Task Stop(IBusSession session)
+            public async Task Stop(IMessageSession session)
             {
                 await Task.Yield();
                 throw new InvalidOperationException("AsyncThrowingStop");

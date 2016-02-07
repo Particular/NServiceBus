@@ -16,7 +16,7 @@
         public async Task Should_correlate_all_saga_messages_properly()
         {
             var context = await Scenario.Define<Context>(c => { c.RunId = Guid.NewGuid(); })
-                    .WithEndpoint<EndpointThatHostsASaga>(b => b.When((bus, ctx) => bus.SendLocal(new StartSaga { RunId = ctx.RunId })))
+                    .WithEndpoint<EndpointThatHostsASaga>(b => b.When((session, ctx) => session.SendLocal(new StartSaga { RunId = ctx.RunId })))
                     .WithEndpoint<EndpointThatRepliesToSagaMessage>()
                     .Done(c => c.Done)
                     .Run();

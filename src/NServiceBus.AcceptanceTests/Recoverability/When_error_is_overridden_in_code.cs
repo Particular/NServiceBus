@@ -14,7 +14,7 @@
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<UserEndpoint>(b => b
-                    .When(bus => bus.SendLocal(new Message()))
+                    .When(session => session.SendLocal(new Message()))
                     .DoNotFailOnErrorMessages())
                 .WithEndpoint<ErrorSpy>()
                 .Done(c => c.MessageReceived)

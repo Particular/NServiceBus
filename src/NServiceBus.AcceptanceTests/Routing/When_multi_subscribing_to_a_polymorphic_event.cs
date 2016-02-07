@@ -13,21 +13,21 @@
         public async Task Both_events_should_be_delivered()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Publisher1>(b => b.When(c => c.Publisher1HasASubscriberForIMyEvent, (bus, c) =>
+                .WithEndpoint<Publisher1>(b => b.When(c => c.Publisher1HasASubscriberForIMyEvent, (session, c) =>
                 {
                     c.AddTrace("Publishing MyEvent1");
-                    return bus.Publish(new MyEvent1());
+                    return session.Publish(new MyEvent1());
                 }))
-                .WithEndpoint<Publisher2>(b => b.When(c => c.Publisher2HasDetectedASubscriberForEvent2, (bus, c) =>
+                .WithEndpoint<Publisher2>(b => b.When(c => c.Publisher2HasDetectedASubscriberForEvent2, (session, c) =>
                 {
                     c.AddTrace("Publishing MyEvent2");
-                    return bus.Publish(new MyEvent2());
+                    return session.Publish(new MyEvent2());
                 }))
-                .WithEndpoint<Subscriber1>(b => b.When(async (bus, c) =>
+                .WithEndpoint<Subscriber1>(b => b.When(async (session, c) =>
                 {
                     c.AddTrace("Subscriber1 subscribing to both events");
-                    await bus.Subscribe<IMyEvent>();
-                    await bus.Subscribe<MyEvent2>();
+                    await session.Subscribe<IMyEvent>();
+                    await session.Subscribe<MyEvent2>();
 
                     if (c.HasNativePubSubSupport)
                     {

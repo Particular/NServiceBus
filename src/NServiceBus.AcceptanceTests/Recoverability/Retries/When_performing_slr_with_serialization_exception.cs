@@ -24,7 +24,7 @@
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<RetryEndpoint>(b => b
-                    .When(bus => bus.SendLocal(new MessageToBeRetried()))
+                    .When(session => session.SendLocal(new MessageToBeRetried()))
                     .DoNotFailOnErrorMessages())
                 .Done(c => c.SlrChecksum != default(byte))
                 .Run();
@@ -89,7 +89,7 @@
                     this.notifications = notifications;
                 }
 
-                public Task Start(IBusSession session)
+                public Task Start(IMessageSession session)
                 {
                     notifications.Errors.MessageSentToErrorQueue += (sender, message) =>
                     {
@@ -99,7 +99,7 @@
                     return Task.FromResult(0);
                 }
 
-                public Task Stop(IBusSession session)
+                public Task Stop(IMessageSession session)
                 {
                     return Task.FromResult(0);
                 }

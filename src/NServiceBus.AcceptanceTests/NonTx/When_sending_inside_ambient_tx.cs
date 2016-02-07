@@ -16,11 +16,11 @@
         {
             await Scenario.Define<Context>()
                     .WithEndpoint<NonTransactionalEndpoint>(b => b
-                        .When(bus => bus.SendLocal(new MyMessage()))
+                        .When(session => session.SendLocal(new MyMessage()))
                         .DoNotFailOnErrorMessages())
                     .Done(c => c.TestComplete)
                     .Repeat(r => r.For<AllDtcTransports>())
-                    .Should(c => Assert.False(c.MessageEnlistedInTheAmbientTxReceived, "The enlisted bus.Send should not commit"))
+                    .Should(c => Assert.False(c.MessageEnlistedInTheAmbientTxReceived, "The enlisted session.Send should not commit"))
                     .Run();
         }
 

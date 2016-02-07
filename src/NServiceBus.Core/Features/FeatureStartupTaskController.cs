@@ -16,15 +16,15 @@
         Func<IBuilder, FeatureStartupTask> factory;
         FeatureStartupTask instance;
 
-        public Task Start(IBuilder builder, IBusSession busSession)
+        public Task Start(IBuilder builder, IMessageSession messageSession)
         {
             instance = factory(builder);
-            return instance.PerformStartup(busSession);
+            return instance.PerformStartup(messageSession);
         }
 
-        public async Task Stop(IBusSession IBusSession)
+        public async Task Stop(IMessageSession messageSession)
         {
-            await instance.PerformStop(IBusSession).ConfigureAwait(false);
+            await instance.PerformStop(messageSession).ConfigureAwait(false);
             DisposeIfNecessary(instance);
         }
 

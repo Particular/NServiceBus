@@ -14,7 +14,7 @@
         {
             var context = await Scenario.Define<Context>()
                     .WithEndpoint<EndpointThatHostsASaga>(
-                        b => b.When(bus => bus.SendLocal(new StartSaga {DataId = Guid.NewGuid()})))
+                        b => b.When(session => session.SendLocal(new StartSaga {DataId = Guid.NewGuid()})))
                     .Done(c => c.TimeoutReceived)
                     .Run();
 

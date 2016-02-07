@@ -15,7 +15,7 @@
         {
             var exception = Assert.Throws<AggregateException>(async () =>
                 await Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(b => b.When(async (bus, c) => await bus.SendLocal(new MyMessage())))
+                    .WithEndpoint<Endpoint>(b => b.When(async (session, c) => await session.SendLocal(new MyMessage())))
                     .Done(c => c.Exceptions.Any())
                     .Run())
                 .ExpectFailedMessages();

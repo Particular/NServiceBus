@@ -14,13 +14,13 @@
         {
             await Scenario.Define<Context>()
                 .WithEndpoint<Publisher>(b =>
-                    b.When(c => c.Subscribed, async bus =>
+                    b.When(c => c.Subscribed, async session =>
                     {
-                        await bus.Publish(new MyEvent());
-                        await bus.Send(new DoneCommand());
+                        await session.Publish(new MyEvent());
+                        await session.Send(new DoneCommand());
                     })
                     )
-                .WithEndpoint<Subscriber>(b => b.When((bus, context) => bus.Subscribe<MyEvent>()))
+                .WithEndpoint<Subscriber>(b => b.When((session, context) => session.Subscribe<MyEvent>()))
                 .Done(c => c.Done)
                 .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
                 .Should(c => Assert.True(c.HandlerInvoked == 1))

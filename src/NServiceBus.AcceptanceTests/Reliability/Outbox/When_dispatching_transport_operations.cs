@@ -15,7 +15,7 @@
         public async Task Should_honor_all_delivery_options()
         {
             await Scenario.Define<Context>()
-                .WithEndpoint<NonDtcReceivingEndpoint>(b => b.When(bus => bus.SendLocal(new PlaceOrder())))
+                .WithEndpoint<NonDtcReceivingEndpoint>(b => b.When(session => session.SendLocal(new PlaceOrder())))
                 .Done(c => c.DispatchedMessageReceived)
                 .Repeat(r=>r.For<AllOutboxCapableStorages>())
                 .Should(context =>

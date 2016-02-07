@@ -12,7 +12,7 @@
         public async Task Should_allow_unsubscribing_to_commands()
         {
             await Scenario.Define<Context>()
-                .WithEndpoint<Endpoint>(b => b.When((bus, c) => bus.Unsubscribe<MyCommand>()))
+                .WithEndpoint<Endpoint>(b => b.When((session, c) => session.Unsubscribe<MyCommand>()))
                 .Done(c => c.EndpointsStarted)
                 .Run();
         }
