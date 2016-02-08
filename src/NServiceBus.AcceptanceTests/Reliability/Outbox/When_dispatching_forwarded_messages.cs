@@ -5,7 +5,6 @@
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.Config;
     using NServiceBus.Configuration.AdvanceExtensibility;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
@@ -42,8 +41,8 @@
                         b.GetSettings().Set("DisableOutboxTransportCheck", true);
                         b.EnableOutbox();
                         b.Pipeline.Register("BlowUpAfterDispatchBehavior", typeof(BlowUpAfterDispatchBehavior), "For testing");
-                    })
-                     .WithConfig<UnicastBusConfig>(c => c.ForwardReceivedMessagesTo = "forward_receiver_outbox");
+                        b.ForwardReceivedMessagesTo("forward_receiver_outbox");
+                    });
             }
 
             class BlowUpAfterDispatchBehavior : Behavior<IBatchDispatchContext>

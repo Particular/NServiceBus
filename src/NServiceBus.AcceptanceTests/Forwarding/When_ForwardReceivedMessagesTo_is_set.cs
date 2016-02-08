@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.Config;
     using NUnit.Framework;
 
     public class When_ForwardReceivedMessagesTo_is_set : NServiceBusAcceptanceTest
@@ -50,8 +49,7 @@
         {
             public EndpointThatForwards()
             {
-                EndpointSetup<DefaultServer>()
-                    .WithConfig<UnicastBusConfig>(c => c.ForwardReceivedMessagesTo = "forward_receiver");
+                EndpointSetup<DefaultServer>(c => c.ForwardReceivedMessagesTo("forward_receiver"));
             }
 
             public class MessageToForwardHandler : IHandleMessages<MessageToForward>

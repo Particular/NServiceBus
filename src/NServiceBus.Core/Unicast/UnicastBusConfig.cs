@@ -52,6 +52,10 @@ namespace NServiceBus.Config
         /// Gets/sets the address to which messages received will be forwarded.
         /// </summary>
         [ConfigurationProperty("ForwardReceivedMessagesTo", IsRequired = false)]
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
+            Message = "Please use 'EndpointConfiguration.ForwardReceivedMessagesTo' to configure the forwarding address.")]
         public string ForwardReceivedMessagesTo
         {
             get
