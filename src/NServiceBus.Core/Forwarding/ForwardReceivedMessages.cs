@@ -10,7 +10,7 @@
         internal ForwardReceivedMessages()
         {
             EnableByDefault();
-            
+
             Prerequisite(config => config.Settings.HasSetting(ConfigureForwarding.SettingsKey), "No forwarding address was defined in the UnicastBus config");
         }
 
@@ -24,11 +24,9 @@
 
             context.Settings.Get<QueueBindings>().BindSending(forwardReceivedMessagesQueue);
 
-            context.Pipeline.Register("InvokeForwardingPipeline", typeof(InvokeForwardingPipelineBehavior), "Execute the forwarding pipeline");
+            context.Pipeline.Register("InvokeForwardingPipeline", new InvokeForwardingPipelineBehavior(forwardReceivedMessagesQueue), "Execute the forwarding pipeline");
 
-            context.Pipeline.RegisterConnector<ForwardingToRoutingConnector>("Makes sure that forwarded messages gets dispatched to the transport");
-
-            context.Container.ConfigureComponent(b => new InvokeForwardingPipelineBehavior(forwardReceivedMessagesQueue), DependencyLifecycle.InstancePerCall);
+            context.Pipeline.Register("ForwardingToRoutingConnector", new ForwardingToRoutingConnector(), "Makes sure that forwarded messages gets dispatched to the transport");
         }
     }
 }

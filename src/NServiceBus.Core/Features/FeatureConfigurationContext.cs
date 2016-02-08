@@ -8,7 +8,7 @@
     using NServiceBus.Transports;
 
     /// <summary>
-    ///     The context available to features when they are activated.
+    /// The context available to features when they are activated.
     /// </summary>
     public class FeatureConfigurationContext
     {
@@ -22,24 +22,24 @@
         }
 
         /// <summary>
-        ///     A read only copy of the settings.
+        /// A read only copy of the settings.
         /// </summary>
         public ReadOnlySettings Settings { get; }
 
         /// <summary>
-        ///     Access to the container to allow for registrations.
+        /// Access to the container to allow for registrations.
         /// </summary>
         public IConfigureComponents Container { get; }
 
         /// <summary>
-        ///     Access to the pipeline in order to customize it.
+        /// Access to the pipeline in order to customize it.
         /// </summary>
         public PipelineSettings Pipeline { get; }
 
-        internal List<FeatureStartupTaskController> TaskControllers { get; } 
+        internal List<FeatureStartupTaskController> TaskControllers { get; }
 
         /// <summary>
-        ///     Creates a new satellite processing pipeline.
+        /// Creates a new satellite processing pipeline.
         /// </summary>
         public PipelineSettings AddSatellitePipeline(string name, string qualifier, TransportTransactionMode requiredTransportTransactionMode, PushRuntimeSettings runtimeSettings, out string transportAddress)
         {
@@ -51,7 +51,7 @@
             Settings.Get<PipelineConfiguration>().SatellitePipelines.Add(pipelineModifications);
             var newPipeline = new PipelineSettings(pipelineModifications);
 
-            newPipeline.RegisterConnector<TransportReceiveToPhysicalMessageProcessingConnector>("Allows to abort processing the message");
+            newPipeline.Register("TransportReceiveToPhysicalMessageProcessingConnector", typeof(TransportReceiveToPhysicalMessageProcessingConnector), "Allows to abort processing the message");
             Settings.Get<QueueBindings>().BindReceiving(transportAddress);
 
             return newPipeline;

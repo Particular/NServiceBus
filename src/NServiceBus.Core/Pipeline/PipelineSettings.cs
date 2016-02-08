@@ -165,11 +165,5 @@ namespace NServiceBus.Pipeline
         List<Type> registeredBehaviors = new List<Type>();
 
         PipelineModifications modifications;
-
-
-        internal void RegisterConnector<T>(string description) where T : IStageConnector
-        {
-            Register(typeof(T).Name, typeof(T), description);
-        }
     }
 }
