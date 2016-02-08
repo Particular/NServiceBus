@@ -1193,8 +1193,10 @@ namespace NServiceBus.Config
     {
         public UnicastBusConfig() { }
         [System.Configuration.ConfigurationPropertyAttribute("DistributorControlAddress", IsRequired=false)]
+        [System.ObsoleteAttribute("Will be removed in version 7.0.0.", true)]
         public string DistributorControlAddress { get; set; }
         [System.Configuration.ConfigurationPropertyAttribute("DistributorDataAddress", IsRequired=false)]
+        [System.ObsoleteAttribute("Will be removed in version 7.0.0.", true)]
         public string DistributorDataAddress { get; set; }
         [System.Configuration.ConfigurationPropertyAttribute("ForwardReceivedMessagesTo", IsRequired=false)]
         [System.ObsoleteAttribute("Please use \'EndpointConfiguration.ForwardReceivedMessagesTo\' to configure the for" +
