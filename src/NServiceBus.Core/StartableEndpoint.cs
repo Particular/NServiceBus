@@ -47,7 +47,7 @@ namespace NServiceBus
 
             var pipelineCollection = CreateIncomingPipelines(pipelineCache);
 
-            var runningInstance = new RunningEndpointInstance(builder, pipelineCollection, runner, featureRunner, messageSession);
+            var runningInstance = new RunningEndpointInstance(settings, builder, pipelineCollection, runner, featureRunner, messageSession);
 
             // set the started endpoint on CriticalError to pass the endpoint to the critical error action
             builder.Build<CriticalError>().SetEndpoint(runningInstance);

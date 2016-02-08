@@ -172,6 +172,7 @@
     <Compile Include="Recoverability\SecondLevelRetries\DefaultRetryPolicyTests.cs" />
     <Compile Include="Serializers\SerializeMessagesBehaviorTests.cs" />
     <Compile Include="Serializers\XML\SerializingNullableTypesTests.cs" />
+    <Compile Include="Settings\SettingsHolderTests.cs" />
     <Compile Include="StandardsTests.cs" />
     <Compile Include="Encryption\ConfigureRijndaelEncryptionServiceTests.cs" />
     <Compile Include="Encryption\RijndaelEncryptionServiceTest.cs" />

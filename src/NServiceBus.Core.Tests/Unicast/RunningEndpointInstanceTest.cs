@@ -14,6 +14,7 @@
         public async Task ShouldAllowMultipleStops()
         {
             var testee = new RunningEndpointInstance(
+                new SettingsHolder(), 
                 new FuncBuilder(), 
                 new PipelineCollection(Enumerable.Empty<TransportReceiver>()), 
                 new StartAndStoppablesRunner(Enumerable.Empty<IWantToRunWhenBusStartsAndStops>()), 
