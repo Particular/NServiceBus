@@ -5,9 +5,9 @@ namespace NServiceBus
     using NServiceBus.Extensibility;
     using NServiceBus.Pipeline;
 
-    class BusContext : IBusContext
+    class PipelineContext : IPipelineContext
     {
-        public BusContext(IBehaviorContext context)
+        public PipelineContext(IBehaviorContext context)
         {
             this.context = context;
         }

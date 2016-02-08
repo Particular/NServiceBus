@@ -13,7 +13,7 @@ namespace NServiceBus
             scheduledTasks[taskDefinition.Id] = taskDefinition;
         }
 
-        public async Task Start(Guid taskId, IBusContext busContext)
+        public async Task Start(Guid taskId, IPipelineContext context)
         {
             TaskDefinition taskDefinition;
 
@@ -23,11 +23,11 @@ namespace NServiceBus
                 return;
             }
 
-            await DeferTask(taskDefinition, busContext).ConfigureAwait(false);
-            await ExecuteTask(taskDefinition, busContext).ConfigureAwait(false);
+            await DeferTask(taskDefinition, context).ConfigureAwait(false);
+            await ExecuteTask(taskDefinition, context).ConfigureAwait(false);
         }
 
-        static async Task ExecuteTask(TaskDefinition taskDefinition, IBusContext busContext)
+        static async Task ExecuteTask(TaskDefinition taskDefinition, IPipelineContext context)
         {
             logger.InfoFormat("Start executing scheduled task named '{0}'.", taskDefinition.Name);
             var sw = new Stopwatch();
@@ -35,7 +35,7 @@ namespace NServiceBus
 
             try
             {
-                await taskDefinition.Task(busContext).ConfigureAwait(false);
+                await taskDefinition.Task(context).ConfigureAwait(false);
                 logger.InfoFormat("Scheduled task '{0}' run for {1}", taskDefinition.Name, sw.Elapsed);
             }
             catch (Exception ex)
@@ -48,14 +48,14 @@ namespace NServiceBus
             }
         }
 
-        static Task DeferTask(TaskDefinition taskDefinition, IBusContext bus)
+        static Task DeferTask(TaskDefinition taskDefinition, IPipelineContext context)
         {
             var options = new SendOptions();
 
             options.DelayDeliveryWith(taskDefinition.Every);
             options.RouteToLocalEndpointInstance();
 
-            return bus.Send(new ScheduledTask
+            return context.Send(new ScheduledTask
             {
                 TaskId = taskDefinition.Id,
                 Name = taskDefinition.Name,
