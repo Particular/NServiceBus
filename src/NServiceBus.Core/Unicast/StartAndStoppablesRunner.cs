@@ -78,7 +78,7 @@
 
             try
             {
-                await Task.WhenAll(stoppableTasks.ToArray());
+                await Task.WhenAll(stoppableTasks.ToArray()).ConfigureAwait(false);
             }
 // ReSharper disable once EmptyGeneralCatchClause
             catch
