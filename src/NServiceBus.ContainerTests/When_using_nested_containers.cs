@@ -204,7 +204,7 @@ namespace NServiceBus.ContainerTests
         }
 
         [Test]
-        public void UoW_components_should_be_singletons_in_root_container()
+        public void UoW_components_built_on_root_container_should_be_singletons_even_with_child_builder_present()
         {
             using (var builder = TestContainerBuilder.ConstructBuilder())
             {
@@ -240,7 +240,7 @@ namespace NServiceBus.ContainerTests
         }
 
         [Test]
-        public void Should_dispose_all_IDisposable_components_in_child_container()
+        public void Should_dispose_all_non_percall_IDisposable_components_in_child_container()
         {
             using (var main = TestContainerBuilder.ConstructBuilder())
             {

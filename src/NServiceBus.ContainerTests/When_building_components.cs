@@ -55,7 +55,7 @@ namespace NServiceBus.ContainerTests
         }
 
         [Test]
-        public void Lambda_uow_components_should_resolve_from_main_container()
+        public void Lambda_uow_components_should_yield_the_same_instance()
         {
             using (var builder = TestContainerBuilder.ConstructBuilder())
             {
