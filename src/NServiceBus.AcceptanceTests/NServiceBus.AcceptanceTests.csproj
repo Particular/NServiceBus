@@ -67,7 +67,6 @@
     <Compile Include="FakeTransport\FakeReceiver.cs" />
     <Compile Include="FakeTransport\FakeTransport.cs" />
     <Compile Include="FakeTransport\FakeTransportSetingsExtensions.cs" />
-    <Compile Include="FakeTransport\ProcessingOptimizations\When_limiting_concurrency_via_both_api_and_config.cs" />
     <Compile Include="FakeTransport\ProcessingOptimizations\When_using_concurrency_limit.cs" />
     <Compile Include="Hosting\When_overriding_local_addresses.cs" />
     <Compile Include="Hosting\When_a_message_is_faulted.cs" />

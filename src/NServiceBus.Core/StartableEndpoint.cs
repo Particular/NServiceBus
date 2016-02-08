@@ -154,28 +154,16 @@ namespace NServiceBus
         {
             var transportConfig = settings.GetConfigSection<TransportConfig>();
 
-            int? concurrencyMaxFromConfig = null;
-
-            if (transportConfig != null && transportConfig.MaximumConcurrencyLevel > 0)
+            if (transportConfig != null && transportConfig.MaximumConcurrencyLevel != 0)
             {
-                concurrencyMaxFromConfig = transportConfig.MaximumConcurrencyLevel;
+                throw new NotSupportedException($"The TransportConfig.MaximumConcurrencyLevel has been removed. Please remove the '{nameof(TransportConfig.MaximumMessageThroughputPerSecond)}' attribute from the '{nameof(TransportConfig)}' configuration section and use 'EndpointConfiguration.LimitMessageProcessingConcurrencyTo' instead.");
             }
 
             MessageProcessingOptimizationExtensions.ConcurrencyLimit concurrencyLimit;
 
             if (settings.TryGet(out concurrencyLimit))
             {
-                if (concurrencyMaxFromConfig.HasValue)
-                {
-                    throw new Exception("Max receive concurrency specified both via API and configuration, please remove one of them.");
-                }
-
                 return new PushRuntimeSettings(concurrencyLimit.MaxValue);
-            }
-
-            if (concurrencyMaxFromConfig.HasValue)
-            {
-                return new PushRuntimeSettings(concurrencyMaxFromConfig.Value);
             }
 
             return PushRuntimeSettings.Default;
