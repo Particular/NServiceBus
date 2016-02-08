@@ -220,7 +220,7 @@
             throw new NotImplementedException();
         }
 
-        Task IBusContext.Send<T>(Action<T> messageConstructor, SendOptions options)
+        Task IPipelineContext.Send<T>(Action<T> messageConstructor, SendOptions options)
         {
             return Send(messageConstructor, options);
         }
@@ -230,7 +230,7 @@
             throw new NotImplementedException();
         }
 
-        Task IBusContext.Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)
+        Task IPipelineContext.Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)
         {
             return Publish(messageConstructor, publishOptions);
         }

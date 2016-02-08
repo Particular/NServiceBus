@@ -17,7 +17,7 @@ namespace NServiceBus
         /// <param name="session">The session which allows you to perform message operation.</param>
         /// <param name="timeSpan">The interval to repeatedly execute the <paramref name="task"/>.</param>
         /// <param name="task">The <see cref="System.Action"/> to execute.</param>
-        [ObsoleteEx(ReplacementTypeOrMember = "ScheduleEvery(this IMessageSession session, TimeSpan timeSpan, Func<IBusContext, Task> task)", TreatAsErrorFromVersion = "6", RemoveInVersion = "7")]
+        [ObsoleteEx(ReplacementTypeOrMember = "ScheduleEvery(this IMessageSession session, TimeSpan timeSpan, Func<IPipelineContext, Task> task)", TreatAsErrorFromVersion = "6", RemoveInVersion = "7")]
         public static void ScheduleEvery(this IMessageSession session, TimeSpan timeSpan, Action task)
         {
             throw new NotImplementedException();
@@ -30,7 +30,7 @@ namespace NServiceBus
         /// <param name="timeSpan">The interval to repeatedly execute the <paramref name="task"/>.</param>
         /// <param name="task">The <see cref="System.Action"/> to execute.</param>
         /// <param name="name">The name to use used for logging inside the new <see cref="Thread"/>.</param>
-        [ObsoleteEx(ReplacementTypeOrMember = "ScheduleEvery(this IMessageSession session, TimeSpan timeSpan, string name, Func<IBusContext, Task> task)", TreatAsErrorFromVersion = "6", RemoveInVersion = "7")]
+        [ObsoleteEx(ReplacementTypeOrMember = "ScheduleEvery(this IMessageSession session, TimeSpan timeSpan, string name, Func<IPipelineContext, Task> task)", TreatAsErrorFromVersion = "6", RemoveInVersion = "7")]
         public static void ScheduleEvery(this IMessageSession session, TimeSpan timeSpan, string name, Action task)
         {
             throw new NotImplementedException();
@@ -42,7 +42,7 @@ namespace NServiceBus
         /// <param name="session">The session which allows you to perform message operation.</param>
         /// <param name="timeSpan">The interval to repeatedly execute the <paramref name="task"/>.</param>
         /// <param name="task">The async function to execute.</param>
-        public static Task ScheduleEvery(this IMessageSession session, TimeSpan timeSpan, Func<IBusContext, Task> task)
+        public static Task ScheduleEvery(this IMessageSession session, TimeSpan timeSpan, Func<IPipelineContext, Task> task)
         {
             Guard.AgainstNull(nameof(task), task);
             Guard.AgainstNegativeAndZero(nameof(timeSpan), timeSpan);
@@ -64,7 +64,7 @@ namespace NServiceBus
         /// <param name="timeSpan">The interval to repeatedly execute the <paramref name="task"/>.</param>
         /// <param name="task">The async function to execute.</param>
         /// <param name="name">The name to used for logging the task being executed.</param>
-        public static Task ScheduleEvery(this IMessageSession session, TimeSpan timeSpan, string name, Func<IBusContext, Task> task)
+        public static Task ScheduleEvery(this IMessageSession session, TimeSpan timeSpan, string name, Func<IPipelineContext, Task> task)
         {
             Guard.AgainstNull(nameof(task), task);
             Guard.AgainstNullAndEmpty(nameof(name), name);
