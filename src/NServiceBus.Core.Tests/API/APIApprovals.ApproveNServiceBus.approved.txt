@@ -286,8 +286,8 @@ namespace NServiceBus
     public class EndpointConfiguration : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
         public EndpointConfiguration() { }
-        [System.ObsoleteAttribute("Please use `SetOutgoingHeaders(string key,string value)` instead. Will be removed" +
-            " in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Please use `AddHeaderToAllOutgoingMessages(string key,string value)` instead. Wil" +
+            "l be removed in version 7.0.0.", true)]
         public System.Collections.Generic.IDictionary<string, string> OutgoingHeaders { get; }
         public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
         [System.ObsoleteAttribute("Please use `ExcludeAssemblies` instead. Will be removed in version 7.0.0.", true)]

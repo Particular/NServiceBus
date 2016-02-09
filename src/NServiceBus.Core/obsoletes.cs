@@ -128,7 +128,7 @@ namespace NServiceBus
     public partial class EndpointConfiguration
     {
         [ObsoleteEx(
-            ReplacementTypeOrMember = "SetOutgoingHeaders(string key,string value)",
+            ReplacementTypeOrMember = "EndpointConfiguration.AddHeaderToAllOutgoingMessages(string key,string value)",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public IDictionary<string, string> OutgoingHeaders
@@ -139,7 +139,7 @@ namespace NServiceBus
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            ReplacementTypeOrMember = "ExcludeTypes")]
+            ReplacementTypeOrMember = "EndpointConfiguration.ExcludeTypes")]
         public void TypesToScan(IEnumerable<Type> typesToScan)
         {
             throw new NotImplementedException();
@@ -148,7 +148,7 @@ namespace NServiceBus
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            ReplacementTypeOrMember = "ExcludeAssemblies")]
+            ReplacementTypeOrMember = "EndpointConfiguration.ExcludeAssemblies")]
         public void AssembliesToScan(IEnumerable<Assembly> assemblies)
         {
             throw new NotImplementedException();
@@ -157,7 +157,7 @@ namespace NServiceBus
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            ReplacementTypeOrMember = "ExcludeAssemblies")]
+            ReplacementTypeOrMember = "EndpointConfiguration.ExcludeAssemblies")]
         public void AssembliesToScan(params Assembly[] assemblies)
         {
             throw new NotImplementedException();
@@ -166,14 +166,14 @@ namespace NServiceBus
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            ReplacementTypeOrMember = "ExcludeAssemblies")]
+            ReplacementTypeOrMember = "EndpointConfiguration.ExcludeAssemblies")]
         public void ScanAssembliesInDirectory(string probeDirectory)
         {
             throw new NotImplementedException();
         }
 
         [ObsoleteEx(
-            ReplacementTypeOrMember = "OverridePublicReturnAddress(string address)",
+            ReplacementTypeOrMember = "EndpointConfiguration.OverridePublicReturnAddress(string address)",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public void OverridePublicReturnAddress(Address address)
@@ -182,7 +182,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            ReplacementTypeOrMember = "UseTransport<T>().AddAddressTranslationRule",
+            ReplacementTypeOrMember = "EndpointConfiguration.UseTransport<T>().AddAddressTranslationRule",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public void OverrideLocalAddress(string queue)
