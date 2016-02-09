@@ -1415,6 +1415,12 @@ namespace NServiceBus.Features
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
+    [System.ObsoleteAttribute("Use extensions provided by the TransportDefinition class instead. Will be removed" +
+        " in version 7.0.0.", true)]
+    public class ConfigureTransport
+    {
+        public ConfigureTransport() { }
+    }
     public class CriticalTimeMonitoring : NServiceBus.Features.Feature
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
