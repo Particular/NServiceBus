@@ -21,7 +21,7 @@ namespace NServiceBus
     /// <summary>
     ///     Configuration used to create an endpoint instance.
     /// </summary>
-    public partial class EndpointConfiguration : ExposeSettings
+    public class EndpointConfiguration : ExposeSettings
     {
         /// <summary>
         /// Initializes a fresh instance of the builder.

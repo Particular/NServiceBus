@@ -123,9 +123,7 @@ namespace NServiceBus
         ReplacementTypeOrMember = "EndpointConfiguration",
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0")]
-    public class BusConfiguration { }
-
-    public partial class EndpointConfiguration
+    public class BusConfiguration
     {
         [ObsoleteEx(
             ReplacementTypeOrMember = "EndpointConfiguration.AddHeaderToAllOutgoingMessages(string key,string value)",
@@ -182,7 +180,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            ReplacementTypeOrMember = "EndpointConfiguration.UseTransport<T>().AddAddressTranslationRule",
+            ReplacementTypeOrMember = "EndpointConfiguration.UseTransport<T>().AddAddressTranslationRule(Func<LogicalAddress, string> rule)",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public void OverrideLocalAddress(string queue)
@@ -190,7 +188,7 @@ namespace NServiceBus
             throw new NotImplementedException();
         }
     }
-
+    
     [ObsoleteEx(
         Message = "This is no longer a public API",
         RemoveInVersion = "7.0",
