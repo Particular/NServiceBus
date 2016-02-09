@@ -7,6 +7,7 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using JetBrains.Annotations;
 
     class TimeoutRecoverabilityBehavior : Behavior<ITransportReceiveContext>
     {
@@ -45,23 +46,18 @@ namespace NServiceBus
             await MoveToErrorQueue(context, message, failureInfo).ConfigureAwait(false);
         }
 
-        bool ShouldAttemptAnotherRetry(ProcessingFailureInfo failureInfo)
+        bool ShouldAttemptAnotherRetry([NotNull] ProcessingFailureInfo failureInfo)
         {
-            if (failureInfo == null)
-            {
-                return true;
-            }
             return failureInfo.NumberOfFailedAttempts <= MaxNumberOfFailedRetries;
         }
 
-        void HandleProcessingFailure(ITransportReceiveContext context, IncomingMessage message, Exception exception, ProcessingFailureInfo failureInfo)
+        void HandleProcessingFailure(ITransportReceiveContext context, IncomingMessage message, Exception exception, [NotNull] ProcessingFailureInfo failureInfo)
         {
             failures.RecordFailureInfoForMessage(message.MessageId, exception);
 
             Logger.Info($"First Level Retry is going to retry message '{message.MessageId}' because of an exception:", exception);
 
-            var numberOfFailedAttempts = failureInfo?.NumberOfFailedAttempts ?? 0;
-            notifications.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(numberOfFailedAttempts, context.Message, exception);
+            notifications.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(failureInfo.NumberOfFailedAttempts, context.Message, exception);
         }
 
         void GiveUpForMessage(IncomingMessage message, ProcessingFailureInfo failureInfo)

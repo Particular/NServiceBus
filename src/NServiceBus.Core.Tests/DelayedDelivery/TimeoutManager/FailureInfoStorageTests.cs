@@ -55,7 +55,7 @@ namespace NServiceBus.Core.Tests.Timeout.TimeoutManager
             storage.ClearFailureInfoForMessage(messageId);
 
             failureInfo = storage.GetFailureInfoForMessage(messageId);
-            Assert.IsNull(failureInfo);
+            Assert.AreSame(ProcessingFailureInfo.NullFailureInfo, failureInfo);
         }
 
         [Test]
@@ -78,7 +78,7 @@ namespace NServiceBus.Core.Tests.Timeout.TimeoutManager
             }
 
             var lruFailureInfo = storage.GetFailureInfoForMessage(lruMessageId);
-            Assert.IsNull(lruFailureInfo);
+            Assert.AreSame(ProcessingFailureInfo.NullFailureInfo, lruFailureInfo);
         }
     }
 }
