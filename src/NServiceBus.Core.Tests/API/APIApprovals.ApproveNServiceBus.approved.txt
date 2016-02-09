@@ -2105,10 +2105,6 @@ namespace NServiceBus.Pipeline
         public void InsertBeforeIfExists(string id) { }
         public virtual bool IsEnabled(NServiceBus.Settings.ReadOnlySettings settings) { }
     }
-    public abstract class SatelliteBehavior : NServiceBus.Pipeline.PipelineTerminator<NServiceBus.Pipeline.IIncomingPhysicalMessageContext>
-    {
-        protected SatelliteBehavior() { }
-    }
     public abstract class StageConnector<TFromContext, TToContext> : NServiceBus.IStageConnector, NServiceBus.Pipeline.IBehavior, NServiceBus.Pipeline.IBehavior<TFromContext, TToContext>
         where TFromContext : NServiceBus.Pipeline.IBehaviorContext
         where TToContext : NServiceBus.Pipeline.IBehaviorContext
