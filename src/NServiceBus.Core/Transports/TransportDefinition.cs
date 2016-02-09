@@ -24,54 +24,34 @@ namespace NServiceBus.Transports
     public abstract class TransportInfrastructure
     {
         /// <summary>
-        /// Creates a new instance of <see cref="TransportInfrastructure"/>.
-        /// </summary>
-        /// <param name="configureSendInfrastructure">The factory to create <see cref="IDispatchMessages"/>.</param>
-        /// <param name="configureReceiveInfrastructure">The factory to create <see cref="IPushMessages"/>.</param>
-        /// <param name="configureSubscriptionInfrastructure">The factory to create <see cref="IManageSubscriptions"/>.</param>
-        /// <param name="deliveryConstraints">The delivery constraints.</param>
-        /// <param name="transactionMode">The transaction mode.</param>
-        /// <param name="outboundRoutingPolicy">The outbound routing policy.</param>
-        public TransportInfrastructure(IEnumerable<Type> deliveryConstraints, TransportTransactionMode transactionMode, OutboundRoutingPolicy outboundRoutingPolicy, Func<string, TransportSendInfrastructure> configureSendInfrastructure, Func<string, TransportReceiveInfrastructure> configureReceiveInfrastructure = null, Func<TransportSubscriptionInfrastructure> configureSubscriptionInfrastructure = null)
-        {
-            DeliveryConstraints = deliveryConstraints;
-            TransactionMode = transactionMode;
-            OutboundRoutingPolicy = outboundRoutingPolicy;
-            ConfigureSubscriptionInfrastructure = configureSubscriptionInfrastructure;
-            ConfigureReceiveInfrastructure = configureReceiveInfrastructure;
-            ConfigureSendInfrastructure = configureSendInfrastructure;
-        }
-
-        /// <summary>
         /// Gets the factories to receive message.
         /// </summary>
-        public Func<string, TransportReceiveInfrastructure> ConfigureReceiveInfrastructure { get; }
+        public abstract TransportReceiveInfrastructure ConfigureReceiveInfrastructure(string connectionString);
 
         /// <summary>
         /// Gets the factories to send message.
         /// </summary>
-        public Func<string, TransportSendInfrastructure> ConfigureSendInfrastructure { get; }
+        public abstract TransportSendInfrastructure ConfigureSendInfrastructure(string connectionString);
 
         /// <summary>
         /// Gets the factory to manage subscriptions.
         /// </summary>
-        public Func<TransportSubscriptionInfrastructure> ConfigureSubscriptionInfrastructure { get; }
+        public abstract TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure();
 
         /// <summary>
         /// Returns the list of supported delivery constraints for this transport.
         /// </summary>
-        public IEnumerable<Type> DeliveryConstraints { get; }
+        public abstract IEnumerable<Type> DeliveryConstraints { get; }
 
         /// <summary>
         /// Gets the highest supported transaction mode for the this transport.
         /// </summary>
-        public TransportTransactionMode TransactionMode { get; }
+        public abstract TransportTransactionMode TransactionMode { get; }
 
         /// <summary>
         /// Returns the outbound routing policy selected for the transport.
         /// </summary>
-        public OutboundRoutingPolicy OutboundRoutingPolicy { get; }
-
+        public abstract OutboundRoutingPolicy OutboundRoutingPolicy { get; }
 
         /// <summary>
         /// Gets an example connection string to use when reporting lack of configured connection string to the user.
@@ -101,7 +81,7 @@ namespace NServiceBus.Transports
         public abstract string ToTransportAddress(LogicalAddress logicalAddress);
 
         /// <summary>
-        /// Returns the canonical for of the given transport address so various transport addresses can be effectively compared and deduplicated.
+        /// Returns the canonical for of the given transport address so various transport addresses can be effectively compared and de-duplicated.
         /// </summary>
         /// <param name="transportAddress">A transport address.</param>
         public virtual string MakeCanonicalForm(string transportAddress)

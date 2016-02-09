@@ -35,7 +35,7 @@ namespace NServiceBus
         /// </remarks> 
         public static TransportExtensions<MsmqTransport> TransactionScopeOptions(this TransportExtensions<MsmqTransport> transportExtensions, TimeSpan? timeout = null, IsolationLevel? isolationLevel = null)
         {
-            transportExtensions.Settings.Set<MsmqTransport.MsmqScopeOptions>(new MsmqTransport.MsmqScopeOptions(timeout, isolationLevel));
+            transportExtensions.Settings.Set<MsmqScopeOptions>(new MsmqScopeOptions(timeout, isolationLevel));
             return transportExtensions;
         }
     }

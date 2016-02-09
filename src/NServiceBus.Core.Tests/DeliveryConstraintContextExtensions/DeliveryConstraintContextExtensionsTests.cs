@@ -30,19 +30,12 @@
         {
             protected internal override TransportInfrastructure Initialize(SettingsHolder settings)
             {
-                return new FakeTransportInfrastructure(
-                    new[] { typeof(DelayDeliveryWith) },
-                    TransportTransactionMode.None,
-                    new OutboundRoutingPolicy(OutboundRoutingType.Unicast, OutboundRoutingType.Unicast, OutboundRoutingType.Unicast), 
-                    s => new TransportSendInfrastructure(() => null, () => null));
+                return new FakeTransportInfrastructure();
             }
         }
 
         class FakeTransportInfrastructure : TransportInfrastructure
         {
-            public FakeTransportInfrastructure(IEnumerable<Type> deliveryConstraints, TransportTransactionMode transactionMode, OutboundRoutingPolicy outboundRoutingPolicy, Func<string, TransportSendInfrastructure> configureSendInfrastructure, Func<string, TransportReceiveInfrastructure> configureReceiveInfrastructure = null, Func<TransportSubscriptionInfrastructure> configureSubscriptionInfrastructure = null) : base(deliveryConstraints, transactionMode, outboundRoutingPolicy, configureSendInfrastructure, configureReceiveInfrastructure, configureSubscriptionInfrastructure)
-            {
-            }
 
             public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance, ReadOnlySettings settings)
             {
@@ -53,6 +46,27 @@
             {
                 throw new NotImplementedException();
             }
+
+            public override TransportReceiveInfrastructure ConfigureReceiveInfrastructure(string connectionString)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override TransportSendInfrastructure ConfigureSendInfrastructure(string connectionString)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure()
+            {
+                throw new NotImplementedException();
+            }
+
+            public override IEnumerable<Type> DeliveryConstraints { get; } = new[] { typeof(DelayDeliveryWith) };
+
+            public override TransportTransactionMode TransactionMode { get; } = TransportTransactionMode.None;
+
+            public override OutboundRoutingPolicy OutboundRoutingPolicy { get; } = new OutboundRoutingPolicy(OutboundRoutingType.Unicast, OutboundRoutingType.Unicast, OutboundRoutingType.Unicast);
 
             public override string ExampleConnectionStringForErrorMessage { get; } = String.Empty;
         }

@@ -76,23 +76,12 @@
         {
             protected override TransportInfrastructure Initialize(SettingsHolder settings)
             {
-                return new FakeTransportInfrastructure(
-                    Enumerable.Empty<Type>(),
-                    TransportTransactionMode.None,
-                    new OutboundRoutingPolicy(OutboundRoutingType.Unicast, OutboundRoutingType.Unicast, OutboundRoutingType.Unicast),
-                    s => new TransportSendInfrastructure(() => new FakeDispatcher(), () => Task.FromResult(StartupCheckResult.Success)),
-                    s => new TransportReceiveInfrastructure(() => new FakeReceiver(), () => new FakeQueueCreator(), () => Task.FromResult(StartupCheckResult.Success)));
+                return new FakeTransportInfrastructure();
             }
-
-            
         }
 
         class FakeTransportInfrastructure : TransportInfrastructure
         {
-            public FakeTransportInfrastructure(IEnumerable<Type> deliveryConstraints, TransportTransactionMode transactionMode, OutboundRoutingPolicy outboundRoutingPolicy, Func<string, TransportSendInfrastructure> configureSendInfrastructure, Func<string, TransportReceiveInfrastructure> configureReceiveInfrastructure = null, Func<TransportSubscriptionInfrastructure> configureSubscriptionInfrastructure = null) : base(deliveryConstraints, transactionMode, outboundRoutingPolicy, configureSendInfrastructure, configureReceiveInfrastructure, configureSubscriptionInfrastructure)
-            {
-            }
-
             public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance, ReadOnlySettings settings)
             {
                 return instance;
@@ -103,6 +92,24 @@
                 return logicalAddress.ToString();
             }
 
+            public override TransportReceiveInfrastructure ConfigureReceiveInfrastructure(string connectionString)
+            {
+                return new TransportReceiveInfrastructure(() => new FakeReceiver(), () => new FakeQueueCreator(), () => Task.FromResult(StartupCheckResult.Success));
+            }
+
+            public override TransportSendInfrastructure ConfigureSendInfrastructure(string connectionString)
+            {
+                return new TransportSendInfrastructure(() => new FakeDispatcher(), () => Task.FromResult(StartupCheckResult.Success));
+            }
+
+            public override TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure()
+            {
+                throw new NotImplementedException();
+            }
+
+            public override IEnumerable<Type> DeliveryConstraints { get; } = Enumerable.Empty<Type>();
+            public override TransportTransactionMode TransactionMode { get; } = TransportTransactionMode.None;
+            public override OutboundRoutingPolicy OutboundRoutingPolicy { get; } = new OutboundRoutingPolicy(OutboundRoutingType.Unicast, OutboundRoutingType.Unicast, OutboundRoutingType.Unicast);
             public override string ExampleConnectionStringForErrorMessage => null;
 
             public override bool RequiresConnectionString => false;

@@ -710,10 +710,15 @@ namespace NServiceBus
     }
     public class MsmqTransportInfrastructure : NServiceBus.Transports.TransportInfrastructure
     {
-        public MsmqTransportInfrastructure(System.Collections.Generic.IEnumerable<System.Type> deliveryConstraints, NServiceBus.TransportTransactionMode transactionMode, NServiceBus.Transports.OutboundRoutingPolicy outboundRoutingPolicy, System.Func<string, NServiceBus.Transports.TransportSendInfrastructure> configureSendInfrastructure, System.Func<string, NServiceBus.Transports.TransportReceiveInfrastructure> configureReceiveInfrastructure = null, System.Func<NServiceBus.Transports.TransportSubscriptionInfrastructure> configureSubscriptionInfrastructure = null) { }
+        public override System.Collections.Generic.IEnumerable<System.Type> DeliveryConstraints { get; }
         public override string ExampleConnectionStringForErrorMessage { get; }
+        public override NServiceBus.Transports.OutboundRoutingPolicy OutboundRoutingPolicy { get; }
         public override bool RequiresConnectionString { get; }
+        public override NServiceBus.TransportTransactionMode TransactionMode { get; }
         public override NServiceBus.Routing.EndpointInstance BindToLocalEndpoint(NServiceBus.Routing.EndpointInstance instance, NServiceBus.Settings.ReadOnlySettings settings) { }
+        public override NServiceBus.Transports.TransportReceiveInfrastructure ConfigureReceiveInfrastructure(string connectionString) { }
+        public override NServiceBus.Transports.TransportSendInfrastructure ConfigureSendInfrastructure(string connectionString) { }
+        public override NServiceBus.Transports.TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure() { }
         public override string MakeCanonicalForm(string transportAddress) { }
         public override string ToTransportAddress(NServiceBus.LogicalAddress logicalAddress) { }
     }
@@ -2783,17 +2788,17 @@ namespace NServiceBus.Transports
     }
     public abstract class TransportInfrastructure
     {
-        public TransportInfrastructure(System.Collections.Generic.IEnumerable<System.Type> deliveryConstraints, NServiceBus.TransportTransactionMode transactionMode, NServiceBus.Transports.OutboundRoutingPolicy outboundRoutingPolicy, System.Func<string, NServiceBus.Transports.TransportSendInfrastructure> configureSendInfrastructure, System.Func<string, NServiceBus.Transports.TransportReceiveInfrastructure> configureReceiveInfrastructure = null, System.Func<NServiceBus.Transports.TransportSubscriptionInfrastructure> configureSubscriptionInfrastructure = null) { }
-        public System.Func<string, NServiceBus.Transports.TransportReceiveInfrastructure> ConfigureReceiveInfrastructure { get; }
-        public System.Func<string, NServiceBus.Transports.TransportSendInfrastructure> ConfigureSendInfrastructure { get; }
-        public System.Func<NServiceBus.Transports.TransportSubscriptionInfrastructure> ConfigureSubscriptionInfrastructure { get; }
-        public System.Collections.Generic.IEnumerable<System.Type> DeliveryConstraints { get; }
+        protected TransportInfrastructure() { }
+        public abstract System.Collections.Generic.IEnumerable<System.Type> DeliveryConstraints { get; }
         public abstract string ExampleConnectionStringForErrorMessage { get; }
-        public NServiceBus.Transports.OutboundRoutingPolicy OutboundRoutingPolicy { get; }
+        public abstract NServiceBus.Transports.OutboundRoutingPolicy OutboundRoutingPolicy { get; }
         public bool RequireOutboxConsent { get; set; }
         public virtual bool RequiresConnectionString { get; }
-        public NServiceBus.TransportTransactionMode TransactionMode { get; }
+        public abstract NServiceBus.TransportTransactionMode TransactionMode { get; }
         public abstract NServiceBus.Routing.EndpointInstance BindToLocalEndpoint(NServiceBus.Routing.EndpointInstance instance, NServiceBus.Settings.ReadOnlySettings settings);
+        public abstract NServiceBus.Transports.TransportReceiveInfrastructure ConfigureReceiveInfrastructure(string connectionString);
+        public abstract NServiceBus.Transports.TransportSendInfrastructure ConfigureSendInfrastructure(string connectionString);
+        public abstract NServiceBus.Transports.TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure();
         public virtual string MakeCanonicalForm(string transportAddress) { }
         public abstract string ToTransportAddress(NServiceBus.LogicalAddress logicalAddress);
     }
