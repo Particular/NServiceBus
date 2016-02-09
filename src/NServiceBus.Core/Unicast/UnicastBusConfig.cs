@@ -14,7 +14,8 @@ namespace NServiceBus.Config
         [ConfigurationProperty("DistributorControlAddress", IsRequired = false)]
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
-            RemoveInVersion = "7")]
+            RemoveInVersion = "7",
+            Message = "Please switch to the code first API by using 'EndpointConfiguration.EnlistWithLegacyMSMQDistributor' instead.")]
         public string DistributorControlAddress
         {
             get
@@ -37,7 +38,8 @@ namespace NServiceBus.Config
         [ConfigurationProperty("DistributorDataAddress", IsRequired = false)]
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
-            RemoveInVersion = "7")]
+            RemoveInVersion = "7",
+            Message = "Please switch to the code first API by using 'EndpointConfiguration.EnlistWithLegacyMSMQDistributor' instead.")]
         public string DistributorDataAddress
         {
             get
