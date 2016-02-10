@@ -41,25 +41,31 @@ namespace NServiceBus.ContainerTests
         }
 
         [Test]
-        public void UoW_components_should_resolve_from_main_container()
+        public void UoW_components_should_yield_the_same_instance()
         {
             using (var builder = TestContainerBuilder.ConstructBuilder())
             {
                 InitializeBuilder(builder);
-                Assert.NotNull(builder.Build(typeof(InstancePerUoWComponent)));
+
+                var instance1 = builder.Build(typeof(InstancePerUoWComponent));
+                var instance2 = builder.Build(typeof(InstancePerUoWComponent));
+
+                Assert.AreSame(instance1, instance2);
             }
-            //Not supported by typeof(WindsorObjectBuilder));
         }
 
         [Test]
-        public void Lambda_uow_components_should_resolve_from_main_container()
+        public void Lambda_uow_components_should_yield_the_same_instance()
         {
             using (var builder = TestContainerBuilder.ConstructBuilder())
             {
                 InitializeBuilder(builder);
-                Assert.NotNull(builder.Build(typeof(LambdaComponentUoW)));
+
+                var instance1 = builder.Build(typeof(LambdaComponentUoW));
+                var instance2 = builder.Build(typeof(LambdaComponentUoW));
+
+                Assert.AreSame(instance1, instance2);
             }
-            //Not supported by typeof(WindsorObjectBuilder));
         }
 
         [Test]
