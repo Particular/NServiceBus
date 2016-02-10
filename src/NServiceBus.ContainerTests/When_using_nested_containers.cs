@@ -187,7 +187,7 @@ namespace NServiceBus.ContainerTests
         }
 
         [Test]
-        public void UoW_components_in_the_parent_container_should_be_singletons_in_the_child_container()
+        public void UoW_components_in_the_parent_container_should_be_singletons_in_the_same_child_container()
         {
             using (var builder = TestContainerBuilder.ConstructBuilder())
             {
