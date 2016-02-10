@@ -12,6 +12,10 @@ namespace NServiceBus.Config
         /// Gets/sets the address for sending control messages to the distributor.
         /// </summary>
         [ConfigurationProperty("DistributorControlAddress", IsRequired = false)]
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
+            Message = "Please switch to the code first API by using 'EndpointConfiguration.EnlistWithLegacyMSMQDistributor' instead.")]
         public string DistributorControlAddress
         {
             get
@@ -32,6 +36,10 @@ namespace NServiceBus.Config
         /// Gets/sets the distributor's data address - used as the return address of messages sent by this endpoint.
         /// </summary>
         [ConfigurationProperty("DistributorDataAddress", IsRequired = false)]
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
+            Message = "Please switch to the code first API by using 'EndpointConfiguration.EnlistWithLegacyMSMQDistributor' instead.")]
         public string DistributorDataAddress
         {
             get
