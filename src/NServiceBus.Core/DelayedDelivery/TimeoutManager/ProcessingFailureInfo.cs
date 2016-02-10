@@ -12,5 +12,7 @@
 
         public int NumberOfFailedAttempts { get; }
         public Exception Exception { get; }
+
+        public static readonly ProcessingFailureInfo NullFailureInfo = new ProcessingFailureInfo(0, null);
     }
 }

@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using JetBrains.Annotations;
 
     // The data structure has fixed maximum size. When the data structure reaches its maximum size,
     // the least recently used (LRU) message processing failure is removed from the storage.
@@ -48,13 +49,17 @@ namespace NServiceBus
             }
         }
 
+        [NotNull]
         public ProcessingFailureInfo GetFailureInfoForMessage(string messageId)
         {
             lock (lockObject)
             {
                 FailureInfoNode node;
-                failureInfoPerMessage.TryGetValue(messageId, out node);
-                return node?.FailureInfo;
+                if (failureInfoPerMessage.TryGetValue(messageId, out node))
+                {
+                    return node.FailureInfo;
+                }
+                return ProcessingFailureInfo.NullFailureInfo;
             }
         }
 
