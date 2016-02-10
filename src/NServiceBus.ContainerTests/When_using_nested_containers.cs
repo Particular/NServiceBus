@@ -59,28 +59,6 @@ namespace NServiceBus.ContainerTests
         }
 
         [Test]
-        public void Instance_per_uow_components_should_not_be_shared_across_child_containers()
-        {
-            using (var builder = TestContainerBuilder.ConstructBuilder())
-            {
-                builder.Configure(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
-
-                object instance1;
-                using (var childContainer = builder.BuildChildContainer())
-                {
-                    instance1 = childContainer.Build(typeof(InstancePerUoWComponent));
-                }
-
-                object instance2;
-                using (var childContainer = builder.BuildChildContainer())
-                {
-                    instance2 = childContainer.Build(typeof(InstancePerUoWComponent));
-                }
-                Assert.AreNotSame(instance1, instance2);
-            }
-        }
-
-        [Test]
         public void Should_not_allow_reconfiguration_of_child_container()
         {
             using (var builder = TestContainerBuilder.ConstructBuilder())
