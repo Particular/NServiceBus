@@ -68,7 +68,7 @@
 
         class MySuperSerializer : SerializationDefinition
         {
-            protected override Func<IMessageMapper, IMessageSerializer> Configure(ReadOnlySettings settings)
+            public override Func<IMessageMapper, IMessageSerializer> Configure(ReadOnlySettings settings)
             {
                 return mapper => new MyCustomSerializer();
             }

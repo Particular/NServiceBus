@@ -82,7 +82,7 @@
 
         class MyCustomSerializer : SerializationDefinition
         {
-            protected override Func<IMessageMapper, IMessageSerializer> Configure(ReadOnlySettings settings)
+            public override Func<IMessageMapper, IMessageSerializer> Configure(ReadOnlySettings settings)
             {
                 return mapper => new MyCustomMessageSerializer();
             }

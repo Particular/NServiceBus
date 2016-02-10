@@ -644,7 +644,7 @@ namespace NServiceBus
     public class JsonSerializer : NServiceBus.Serialization.SerializationDefinition
     {
         public JsonSerializer() { }
-        protected internal override System.Func<NServiceBus.MessageInterfaces.IMessageMapper, NServiceBus.Serialization.IMessageSerializer> Configure(NServiceBus.Settings.ReadOnlySettings settings) { }
+        public override System.Func<NServiceBus.MessageInterfaces.IMessageMapper, NServiceBus.Serialization.IMessageSerializer> Configure(NServiceBus.Settings.ReadOnlySettings settings) { }
     }
     public class static JsonSerializerConfigurationExtensions
     {
@@ -1048,7 +1048,7 @@ namespace NServiceBus
     public class XmlSerializer : NServiceBus.Serialization.SerializationDefinition
     {
         public XmlSerializer() { }
-        protected internal override System.Func<NServiceBus.MessageInterfaces.IMessageMapper, NServiceBus.Serialization.IMessageSerializer> Configure(NServiceBus.Settings.ReadOnlySettings settings) { }
+        public override System.Func<NServiceBus.MessageInterfaces.IMessageMapper, NServiceBus.Serialization.IMessageSerializer> Configure(NServiceBus.Settings.ReadOnlySettings settings) { }
     }
 }
 namespace NServiceBus.AutomaticSubscriptions.Config
@@ -2432,7 +2432,7 @@ namespace NServiceBus.Serialization
     public abstract class SerializationDefinition
     {
         protected SerializationDefinition() { }
-        protected internal abstract System.Func<NServiceBus.MessageInterfaces.IMessageMapper, NServiceBus.Serialization.IMessageSerializer> Configure(NServiceBus.Settings.ReadOnlySettings settings);
+        public abstract System.Func<NServiceBus.MessageInterfaces.IMessageMapper, NServiceBus.Serialization.IMessageSerializer> Configure(NServiceBus.Settings.ReadOnlySettings settings);
     }
     public class SerializationExtentions<T> : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
         where T : NServiceBus.Serialization.SerializationDefinition
