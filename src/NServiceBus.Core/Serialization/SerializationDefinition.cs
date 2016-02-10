@@ -12,6 +12,6 @@
         /// <summary>
         /// Provides a factory method for building a message serializer.
         /// </summary>
-        protected internal abstract Func<IMessageMapper, IMessageSerializer> Configure(ReadOnlySettings settings);
+        public abstract Func<IMessageMapper, IMessageSerializer> Configure(ReadOnlySettings settings);
     }
 }
