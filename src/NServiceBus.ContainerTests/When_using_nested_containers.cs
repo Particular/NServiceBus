@@ -1,7 +1,6 @@
 namespace NServiceBus.ContainerTests
 {
     using System;
-    using System.Diagnostics;
     using NUnit.Framework;
 
     [TestFixture]
