@@ -49,19 +49,6 @@ namespace NServiceBus.ContainerTests
         }
 
         [Test]
-        [Explicit]
-        public void A_registration_should_update_default_component_for_interface()
-        {
-            using (var builder = TestContainerBuilder.ConstructBuilder())
-            {
-                builder.Configure(typeof(SomeClass), DependencyLifecycle.InstancePerCall);
-                builder.Configure(typeof(SomeOtherClass), DependencyLifecycle.InstancePerCall);
-
-                Assert.IsInstanceOf<SomeOtherClass>(builder.Build(typeof(ISomeInterface)));
-            }
-        }
-
-        [Test]
         public void Register_singleton_should_be_supported()
         {
             using (var builder = TestContainerBuilder.ConstructBuilder())

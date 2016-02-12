@@ -1,7 +1,6 @@
 namespace NServiceBus.ContainerTests
 {
     using System;
-    using System.Diagnostics;
     using NUnit.Framework;
 
     [TestFixture]
@@ -91,76 +90,6 @@ namespace NServiceBus.ContainerTests
                     instance2 = anotherNestedContainer.Build(typeof(InstancePerCallComponent));
                 }
                 Assert.AreNotSame(instance1, instance2);
-            }
-        }
-
-        [Test]
-        [Explicit]
-        public void Instance_per_call_components_should_not_cause_memory_leaks()
-        {
-            const int iterations = 20000;
-
-            using (var builder = TestContainerBuilder.ConstructBuilder())
-            {
-                builder.Configure(typeof(InstancePerCallComponent), DependencyLifecycle.InstancePerCall);
-
-                GC.Collect();
-                var before = GC.GetTotalMemory(true);
-                var sw = Stopwatch.StartNew();
-
-                for (var i = 0; i < iterations; i++)
-                {
-                    using (var nestedContainer = builder.BuildChildContainer())
-                    {
-                        nestedContainer.Build(typeof(InstancePerCallComponent));
-                    }
-                }
-
-                sw.Stop();
-                // Collect all generations of memory.
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
-
-                var after = GC.GetTotalMemory(true);
-                Console.WriteLine("{0} Time: {1} MemDelta: {2} bytes", builder.GetType().Name, sw.Elapsed, after - before);
-
-                var upperLimitBytes = 200*1024;
-                Assert.That(after - before, Is.LessThan(upperLimitBytes), "Apparently {0} consumed more than {1} KB of memory", builder, upperLimitBytes/1024);
-            }
-        }
-
-        [Test]
-        [Explicit]
-        public void Instance_per_uow_components_should_not_cause_memory_leaks()
-        {
-            const int iterations = 20000;
-
-            using (var builder = TestContainerBuilder.ConstructBuilder())
-            {
-                builder.Configure(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
-
-                GC.Collect();
-                var before = GC.GetTotalMemory(true);
-                var sw = Stopwatch.StartNew();
-
-                for (var i = 0; i < iterations; i++)
-                {
-                    using (var nestedContainer = builder.BuildChildContainer())
-                    {
-                        nestedContainer.Build(typeof(InstancePerUoWComponent));
-                    }
-                }
-
-                sw.Stop();
-                // Collect all generations of memory.
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
-
-                var after = GC.GetTotalMemory(true);
-                Console.WriteLine("{0} Time: {1} MemDelta: {2} bytes", builder.GetType().Name, sw.Elapsed, after - before);
-
-                var upperLimitBytes = 200 * 1024;
-                Assert.That(after - before, Is.LessThan(upperLimitBytes), "Apparently {0} consumed more than {1} KB of memory", builder, upperLimitBytes / 1024);
             }
         }
 
