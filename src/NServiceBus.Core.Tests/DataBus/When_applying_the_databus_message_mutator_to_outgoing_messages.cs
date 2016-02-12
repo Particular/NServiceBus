@@ -23,13 +23,8 @@ namespace NServiceBus.Core.Tests.DataBus
             var context = ContextHelpers.GetOutgoingContext(message);
             
             var fakeDatabus = new FakeDataBus();
-           
-            var sendBehavior = new DataBusSendBehavior
-            {
-                DataBus = fakeDatabus,
-                Conventions = new Conventions(),
-                DataBusSerializer = new DefaultDataBusSerializer(),
-            };
+
+            var sendBehavior = new DataBusSendBehavior(fakeDatabus, new DefaultDataBusSerializer(), new Conventions());
 
             await sendBehavior.Invoke(context, () => TaskEx.CompletedTask);
 
@@ -49,15 +44,10 @@ namespace NServiceBus.Core.Tests.DataBus
            context.Extensions.AddDeliveryConstraint(new DiscardIfNotReceivedBefore(TimeSpan.FromMinutes(1)));
 
            var fakeDatabus = new FakeDataBus();
-           
-           var sendBehavior = new DataBusSendBehavior
-           {
-               DataBus = fakeDatabus,
-               Conventions = new Conventions(),
-               DataBusSerializer = new DefaultDataBusSerializer(),
-           };
 
-           await sendBehavior.Invoke(context, () => TaskEx.CompletedTask);
+            var sendBehavior = new DataBusSendBehavior(fakeDatabus, new DefaultDataBusSerializer(), new Conventions());
+
+            await sendBehavior.Invoke(context, () => TaskEx.CompletedTask);
 
            Assert.AreEqual(TimeSpan.FromMinutes(1),fakeDatabus.TTBRUsed);
         }

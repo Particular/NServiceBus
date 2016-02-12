@@ -4,18 +4,19 @@
     using System.IO;
     using System.Threading.Tasks;
     using System.Transactions;
-    using DataBus;
-    using DeliveryConstraints;
-    using Performance.TimeToBeReceived;
-    using Pipeline;
+    using NServiceBus.DataBus;
+    using NServiceBus.DeliveryConstraints;
+    using NServiceBus.Performance.TimeToBeReceived;
+    using NServiceBus.Pipeline;
 
     class DataBusSendBehavior : Behavior<IOutgoingLogicalMessageContext>
     {
-        public IDataBus DataBus { get; set; }
-
-        public IDataBusSerializer DataBusSerializer { get; set; }
-
-        public Conventions Conventions { get; set; }
+        public DataBusSendBehavior(IDataBus databus, IDataBusSerializer serializer, Conventions conventions)
+        {
+            this.conventions = conventions;
+            dataBusSerializer = serializer;
+            dataBus = databus;
+        }
 
         public override async Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
         {
@@ -30,12 +31,14 @@
 
             var message = context.Message.Instance;
 
-            foreach (var property in Conventions.GetDataBusProperties(message))
+            foreach (var property in conventions.GetDataBusProperties(message))
             {
                 var propertyValue = property.Getter(message);
 
                 if (propertyValue == null)
+                {
                     continue;
+                }
 
                 using (var stream = new MemoryStream())
                 {
@@ -46,14 +49,14 @@
                         propertyValue = dataBusProperty.GetValue();
                     }
 
-                    DataBusSerializer.Serialize(propertyValue, stream);
+                    dataBusSerializer.Serialize(propertyValue, stream);
                     stream.Position = 0;
 
                     string headerValue;
 
                     using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
                     {
-                        headerValue = await DataBus.Put(stream, timeToBeReceived).ConfigureAwait(false);
+                        headerValue = await dataBus.Put(stream, timeToBeReceived).ConfigureAwait(false);
                     }
 
                     string headerKey;
@@ -78,9 +81,13 @@
             await next().ConfigureAwait(false);
         }
 
+        Conventions conventions;
+        IDataBus dataBus;
+        IDataBusSerializer dataBusSerializer;
+
         public class Registration : RegisterStep
         {
-            public Registration(): base("DataBusSend", typeof(DataBusSendBehavior), "Saves the payload into the shared location")
+            public Registration(Conventions conventions) : base("DataBusSend", typeof(DataBusSendBehavior), "Saves the payload into the shared location", b => new DataBusSendBehavior(b.Build<IDataBus>(), b.Build<IDataBusSerializer>(), conventions))
             {
                 InsertAfter(WellKnownStep.MutateOutgoingMessages);
                 InsertAfter("ApplyTimeToBeReceived");

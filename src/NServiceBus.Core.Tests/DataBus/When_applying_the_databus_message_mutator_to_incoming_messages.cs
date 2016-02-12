@@ -29,12 +29,7 @@ namespace NServiceBus.Core.Tests.DataBus
                               }, null);
 
             var fakeDatabus = new FakeDataBus();
-            var receiveBehavior = new DataBusReceiveBehavior
-            {
-                DataBus = fakeDatabus,
-                DataBusSerializer = new DefaultDataBusSerializer(),
-                Conventions = new Conventions(),
-            };
+            var receiveBehavior = new DataBusReceiveBehavior(fakeDatabus, new DefaultDataBusSerializer(), new Conventions());
 
             using (var stream = new MemoryStream())
             {

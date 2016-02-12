@@ -39,8 +39,10 @@ namespace NServiceBus.Features
 
             context.RegisterStartupTask(b => b.Build<IDataBusInitializer>());
             context.Container.ConfigureComponent<IDataBusInitializer>(DependencyLifecycle.SingleInstance);
-            context.Pipeline.Register<DataBusReceiveBehavior.Registration>();
-            context.Pipeline.Register<DataBusSendBehavior.Registration>();
+
+            var conventions = context.Settings.Get<Conventions>();
+            context.Pipeline.Register(new DataBusReceiveBehavior.Registration(conventions));
+            context.Pipeline.Register(new DataBusSendBehavior.Registration(conventions));
         }
 
         class IDataBusInitializer : FeatureStartupTask

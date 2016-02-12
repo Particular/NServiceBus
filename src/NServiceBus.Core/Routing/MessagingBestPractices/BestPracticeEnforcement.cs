@@ -8,7 +8,7 @@ namespace NServiceBus.Features
     public class BestPracticeEnforcement : Feature
     {
         /// <summary>
-        /// Initializes a new instance of <see cref="BestPracticeEnforcement"/>.
+        /// Initializes a new instance of <see cref="BestPracticeEnforcement" />.
         /// </summary>
         internal BestPracticeEnforcement()
         {
@@ -21,33 +21,32 @@ namespace NServiceBus.Features
         /// <param name="context">The feature context.</param>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.Container.ConfigureComponent<Validations>(DependencyLifecycle.SingleInstance);
+            var validations = new Validations(context.Settings.Get<Conventions>());
 
             context.Pipeline.Register(
                 WellKnownStep.EnforceSendBestPractices,
-                typeof(EnforceSendBestPracticesBehavior),
+                new EnforceSendBestPracticesBehavior(validations),
                 "Enforces send messaging best practices");
 
             context.Pipeline.Register(
                 WellKnownStep.EnforceReplyBestPractices,
-                typeof(EnforceReplyBestPracticesBehavior),
+                new EnforceReplyBestPracticesBehavior(validations),
                 "Enforces reply messaging best practices");
 
             context.Pipeline.Register(
                 WellKnownStep.EnforcePublishBestPractices,
-                typeof(EnforcePublishBestPracticesBehavior),
+                new EnforcePublishBestPracticesBehavior(validations),
                 "Enforces publish messaging best practices");
 
             context.Pipeline.Register(
                 WellKnownStep.EnforceSubscribeBestPractices,
-                typeof(EnforceSubscribeBestPracticesBehavior),
+                new EnforceSubscribeBestPracticesBehavior(validations),
                 "Enforces subscribe messaging best practices");
 
             context.Pipeline.Register(
                 WellKnownStep.EnforceUnsubscribeBestPractices,
-                typeof(EnforceUnsubscribeBestPracticesBehavior),
+                new EnforceUnsubscribeBestPracticesBehavior(validations),
                 "Enforces unsubscribe messaging best practices");
         }
-
     }
 }
