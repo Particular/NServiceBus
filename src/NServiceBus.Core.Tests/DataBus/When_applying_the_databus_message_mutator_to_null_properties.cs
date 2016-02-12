@@ -13,12 +13,7 @@ namespace NServiceBus.Core.Tests.DataBus
         public async Task Should_not_blow_up()
         {
             var context = ContextHelpers.GetOutgoingContext(new MessageWithNullDataBusProperty());
-            var sendBehavior = new DataBusSendBehavior
-            {
-                DataBus = null,
-                Conventions = new Conventions(),
-                DataBusSerializer = new DefaultDataBusSerializer(),
-            };
+            var sendBehavior = new DataBusSendBehavior(null, new DefaultDataBusSerializer(), new Conventions());
             
             using (var stream = new MemoryStream())
             {

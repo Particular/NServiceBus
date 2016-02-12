@@ -3,22 +3,23 @@
     using System;
     using System.Threading.Tasks;
     using System.Transactions;
-    using DataBus;
-    using Pipeline;
+    using NServiceBus.DataBus;
+    using NServiceBus.Pipeline;
 
     class DataBusReceiveBehavior : Behavior<IIncomingLogicalMessageContext>
     {
-        public IDataBus DataBus { get; set; }
-
-        public IDataBusSerializer DataBusSerializer { get; set; }
-
-        public Conventions Conventions { get; set; }
+        public DataBusReceiveBehavior(IDataBus databus, IDataBusSerializer serializer, Conventions conventions)
+        {
+            this.conventions = conventions;
+            dataBusSerializer = serializer;
+            dataBus = databus;
+        }
 
         public override async Task Invoke(IIncomingLogicalMessageContext context, Func<Task> next)
         {
             var message = context.Message.Instance;
 
-            foreach (var property in Conventions.GetDataBusProperties(message))
+            foreach (var property in conventions.GetDataBusProperties(message))
             {
                 var propertyValue = property.Getter(message);
 
@@ -42,17 +43,19 @@
                 }
 
                 using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
-                using (var stream = await DataBus.Get(dataBusKey).ConfigureAwait(false))
                 {
-                    var value = DataBusSerializer.Deserialize(stream);
+                    using (var stream = await dataBus.Get(dataBusKey).ConfigureAwait(false))
+                    {
+                        var value = dataBusSerializer.Deserialize(stream);
 
-                    if (dataBusProperty != null)
-                    {
-                        dataBusProperty.SetValue(value);
-                    }
-                    else
-                    {
-                        property.Setter(message, value);
+                        if (dataBusProperty != null)
+                        {
+                            dataBusProperty.SetValue(value);
+                        }
+                        else
+                        {
+                            property.Setter(message, value);
+                        }
                     }
                 }
             }
@@ -60,9 +63,13 @@
             await next().ConfigureAwait(false);
         }
 
+        Conventions conventions;
+        IDataBus dataBus;
+        IDataBusSerializer dataBusSerializer;
+
         public class Registration : RegisterStep
         {
-            public Registration() : base("DataBusReceive", typeof(DataBusReceiveBehavior), "Copies the databus shared data back to the logical message")
+            public Registration(Conventions conventions) : base("DataBusReceive", typeof(DataBusReceiveBehavior), "Copies the databus shared data back to the logical message", b => new DataBusReceiveBehavior(b.Build<IDataBus>(), b.Build<IDataBusSerializer>(), conventions))
             {
                 InsertAfter(WellKnownStep.MutateIncomingMessages);
             }

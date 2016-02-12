@@ -37,7 +37,7 @@
                         context.Settings.Get<string>("NServiceBus.HostInformation.DisplayName"),
                         context.Settings.Get<Dictionary<string, string>>("NServiceBus.HostInformation.Properties"));
 
-            context.Container.RegisterSingleton(hostInformation);
+            context.Container.ConfigureComponent(() => hostInformation, DependencyLifecycle.SingleInstance);
 
             context.Pipeline.Register("AuditHostInformation", typeof(AuditHostInformationBehavior), "Adds audit host information");
             context.Pipeline.Register("FaultHostInformation", typeof(FaultHostInformationBehavior), "Adds fault host information");

@@ -226,7 +226,6 @@ namespace NServiceBus
             {
                 Settings.SetDefault("PublicReturnAddress", publicReturnAddress);
             }
-            container.RegisterSingleton(typeof(Conventions), conventionsBuilder.Conventions);
 
             Settings.SetDefault<Conventions>(conventionsBuilder.Conventions);
 
