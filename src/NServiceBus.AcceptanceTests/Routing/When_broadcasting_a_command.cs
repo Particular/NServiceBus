@@ -1,8 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing
 {
-    using System;
-    using System.IO;
     using System.Threading.Tasks;
+    using AcceptanceTesting.Customization;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Routing;
@@ -10,13 +9,21 @@
 
     public class When_broadcasting_a_command : NServiceBusAcceptanceTest
     {
+        static string ReceiverEdndpoint => Conventions.EndpointNamingConvention(typeof(Receiver));
+
         [Test]
         public async Task Should_send_it_to_all_instances()
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Sender>(b => b.When(c => c.EndpointsStarted, (session, c) => session.Send(new Request())))
-                .WithEndpoint<Receiver1>()
-                .WithEndpoint<Receiver2>()
+                .WithEndpoint<Receiver>(b =>
+                {
+                    b.CustomConfig(c => c.ScaleOut().InstanceDiscriminator("1"));
+                })
+                .WithEndpoint<Receiver>(b =>
+                {
+                    b.CustomConfig(c => c.ScaleOut().InstanceDiscriminator("2"));
+                })
                 .Done(c => c.Receiver1TimesCalled > 0 && c.Receiver2TimesCalled > 0)
                 .Run();
 
@@ -34,20 +41,14 @@
         {
             public Sender()
             {
-                var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "routes.xml");
-                File.WriteAllText(filePath, @"<endpoints>
-    <endpoint name=""DistributingACommand.Receiver"">
-        <instance discriminator=""1""/>
-        <instance discriminator=""2""/>
-    </endpoint>
-</endpoints>
-");
-
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.Routing().UseFileBasedEndpointInstanceMapping(filePath);
-                    c.Routing().UnicastRoutingTable.RouteToEndpoint(typeof(Request), new EndpointName("DistributingACommand.Receiver"));
-                    c.Routing().SetMessageDistributionStrategy(new AllInstancesDistributionStrategy(), t => t == typeof(Request));
+                    c.UnicastRouting().RouteToEndpoint(typeof(Request), ReceiverEdndpoint);
+
+                    c.UnicastRouting().Mapping.SetMessageDistributionStrategy(new AllInstancesDistributionStrategy(), t => t == typeof(Request));
+                    c.UnicastRouting().Mapping.Physical.Add(new EndpointName(ReceiverEdndpoint),
+                        new EndpointInstance(ReceiverEdndpoint, "1"),
+                        new EndpointInstance(ReceiverEdndpoint, "2"));
                 });
             }
 
@@ -71,15 +72,11 @@
             }
         }
 
-        public class Receiver1 : EndpointConfigurationBuilder
+        public class Receiver : EndpointConfigurationBuilder
         {
-            public Receiver1()
+            public Receiver()
             {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.ScaleOut().InstanceDiscriminator("1");
-                })
-                .CustomEndpointName("DistributingACommand.Receiver");
+                EndpointSetup<DefaultServer>();
             }
 
             public class MyMessageHandler : IHandleMessages<Request>
@@ -88,48 +85,17 @@
                 {
                     var options = new ReplyOptions();
                     options.RouteReplyToThisInstance();
-                    return context.Reply(new Response
-                    {
-                        EndpointName = "Receiver1"
-                    }, options);
+                    return context.Reply(new Response(), options);
                 }
             }
         }
 
-        public class Receiver2 : EndpointConfigurationBuilder
-        {
-            public Receiver2()
-            {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.ScaleOut().InstanceDiscriminator("2");
-                })
-                .CustomEndpointName("DistributingACommand.Receiver");
-            }
-
-            public class MyMessageHandler : IHandleMessages<Request>
-            {
-                public Task Handle(Request message, IMessageHandlerContext context)
-                {
-                    var options = new ReplyOptions();
-                    options.RouteReplyToThisInstance();
-                    return context.Reply(new Response
-                    {
-                        EndpointName = "Receiver2"
-                    }, options);
-                }
-            }
-        }
-
-        [Serializable]
         public class Request : ICommand
         {
         }
 
-        [Serializable]
         public class Response : IMessage
         {
-            public string EndpointName { get; set; }
         }
     }
 }

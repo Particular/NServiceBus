@@ -24,13 +24,11 @@ namespace NServiceBus.Core.Tests.Routing
 
             var baseType = typeof(BaseMessage);
             var inheritedType = typeof(InheritedMessage);
-            var baseEndpoint = new EndpointName(baseAddress);
-            var inheritedEndpoint = new EndpointName(inheritedAddress);
 
             var publishers = new Publishers();
-            publishers.AddStatic(baseEndpoint, baseType );
-            publishers.AddStatic(inheritedEndpoint, baseType);
-            publishers.AddStatic(inheritedEndpoint, inheritedType );
+            publishers.Add(baseAddress, baseType );
+            publishers.Add(inheritedAddress, baseType);
+            publishers.Add(inheritedAddress, inheritedType );
             var endpointInstances = new EndpointInstances();
             endpointInstances.AddDynamic(e => Task.FromResult(EnumerableEx.Single(new EndpointInstance(e))));
             var physicalAddresses = new TransportAddresses(address => null);
@@ -48,13 +46,10 @@ namespace NServiceBus.Core.Tests.Routing
             var baseType = typeof(BaseMessage);
             var inheritedType = typeof(InheritedMessage);
 
-            var baseEndpoint = new EndpointName("addressA");
-            var inheritedEndpoint = new EndpointName("addressB");
-
             var publishers = new Publishers();
-            publishers.AddStatic(baseEndpoint, baseType);
-            publishers.AddStatic(inheritedEndpoint, baseType);
-            publishers.AddStatic(inheritedEndpoint, inheritedType);
+            publishers.Add("addressA", baseType);
+            publishers.Add("addressB", baseType);
+            publishers.Add("addressB", inheritedType);
             var knownEndpoints = new EndpointInstances();
             knownEndpoints.AddDynamic(e => Task.FromResult(EnumerableEx.Single(new EndpointInstance(e, null, null))));
             var physicalAddresses = new TransportAddresses(address => null);

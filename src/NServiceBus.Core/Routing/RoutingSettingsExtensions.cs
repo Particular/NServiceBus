@@ -1,17 +1,19 @@
 ﻿namespace NServiceBus
 {
+    using Configuration.AdvanceExtensibility;
+
     /// <summary>
     /// Configuration extensions for routing.
     /// </summary>
     public static class RoutingSettingsExtensions
     {
         /// <summary>
-        /// Gets the routing table for the direct routing.
+        /// Controls the unicast routing.
         /// </summary>
-        public static RoutingSettings Routing(this EndpointConfiguration config)
+        public static UnicastRoutingSettings UnicastRouting(this ExposeSettings config)
         {
             Guard.AgainstNull(nameof(config), config);
-            return new RoutingSettings(config.Settings);
-        }
+            return new UnicastRoutingSettings(config.Settings);
+        }        
     }
 }

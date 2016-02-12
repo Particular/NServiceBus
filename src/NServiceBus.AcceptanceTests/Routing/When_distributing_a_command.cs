@@ -5,7 +5,6 @@
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.Routing;
     using NUnit.Framework;
 
     public class When_distributing_a_command : NServiceBusAcceptanceTest
@@ -37,16 +36,12 @@
                 var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "routes.xml");
                 File.WriteAllText(filePath, @"<endpoints>
     <endpoint name=""DistributingACommand.Receiver"">
-        <instance discriminator=""1""/>
-        <instance discriminator=""2""/>
+        <instance schema=""mySchema""/>
     </endpoint>
 </endpoints>
 ");
-
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.Routing().UseFileBasedEndpointInstanceMapping(filePath);
-                    c.Routing().UnicastRoutingTable.RouteToEndpoint(typeof(Request), new EndpointName("DistributingACommand.Receiver"));
                 });
             }
 
