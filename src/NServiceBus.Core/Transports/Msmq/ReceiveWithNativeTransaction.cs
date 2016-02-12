@@ -40,14 +40,10 @@ namespace NServiceBus
 
                     using (var bodyStream = message.BodyStream)
                     {
-                        var context = new ContextBag();
-
-                        context.Set(msmqTransaction);
-
                         var nativeMsmqTransaction = new TransportTransaction();
                         nativeMsmqTransaction.Set(msmqTransaction);
 
-                        var pushContext = new PushContext(message.Id, headers, bodyStream, nativeMsmqTransaction, cancellationTokenSource, context);
+                        var pushContext = new PushContext(message.Id, headers, bodyStream, nativeMsmqTransaction, cancellationTokenSource, new ContextBag());
 
                         await onMessage(pushContext).ConfigureAwait(false);
                     }
