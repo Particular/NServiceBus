@@ -4,12 +4,10 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using Logging;
+    using NServiceBus.Logging;
 
     class PipelineCollection
     {
-        TransportReceiver[] pipelines;
-
         public PipelineCollection(IEnumerable<TransportReceiver> pipelines)
         {
             this.pipelines = pipelines.ToArray();
@@ -33,15 +31,19 @@ namespace NServiceBus
             }
         }
 
-        public async Task Stop()
+        public Task Stop()
         {
-            foreach (var pipeline in pipelines)
+            var pipelineStopTasks = pipelines.Select(async pipeline =>
             {
                 Logger.DebugFormat("Stopping {0} pipeline", pipeline.Id);
                 await pipeline.Stop().ConfigureAwait(false);
                 Logger.DebugFormat("Stopped {0} pipeline", pipeline.Id);
-            }
+            });
+
+            return Task.WhenAll(pipelineStopTasks);
         }
+
+        TransportReceiver[] pipelines;
 
 
         static ILog Logger = LogManager.GetLogger<PipelineCollection>();
