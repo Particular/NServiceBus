@@ -233,6 +233,8 @@ namespace NServiceBus
     }
     public class static CorrelationContextExtensions
     {
+        public static string GetCorrelationId(this NServiceBus.SendOptions options) { }
+        public static string GetCorrelationId(this NServiceBus.ReplyOptions options) { }
         public static void SetCorrelationId(this NServiceBus.SendOptions options, string correlationId) { }
         public static void SetCorrelationId(this NServiceBus.ReplyOptions options, string correlationId) { }
     }
@@ -781,7 +783,7 @@ namespace NServiceBus
     }
     public class static RoutingOptionExtensions
     {
-        public static void OverrideReplyToAddressOfIncomingMessage(this NServiceBus.ReplyOptions option, string destination) { }
+        public static string GetDestination(this NServiceBus.ReplyOptions option) { }
         public static void RouteReplyTo(this NServiceBus.ReplyOptions option, string address) { }
         public static void RouteReplyTo(this NServiceBus.SendOptions option, string address) { }
         public static void RouteReplyToAnyInstance(this NServiceBus.SendOptions option) { }
@@ -792,6 +794,7 @@ namespace NServiceBus
         public static void RouteToThisEndpoint(this NServiceBus.SendOptions option) { }
         public static void RouteToThisInstance(this NServiceBus.SendOptions option) { }
         public static void SetDestination(this NServiceBus.SendOptions option, string destination) { }
+        public static void SetDestination(this NServiceBus.ReplyOptions option, string destination) { }
     }
     public class RoutingSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {

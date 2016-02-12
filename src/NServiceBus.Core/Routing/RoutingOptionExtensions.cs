@@ -24,12 +24,24 @@
         /// </summary>
         /// <param name="option">Option being extended.</param>
         /// <param name="destination">The new target address.</param>
-        public static void OverrideReplyToAddressOfIncomingMessage(this ReplyOptions option, string destination)
+        public static void SetDestination(this ReplyOptions option, string destination)
         {
             Guard.AgainstNullAndEmpty(nameof(destination), destination);
 
             option.Context.GetOrCreate<UnicastReplyRouterConnector.State>()
                 .ExplicitDestination = destination;
+        }
+
+        /// <summary>
+        /// Returns the destination configured by <see cref="SetDestination(ReplyOptions, string)"/>.
+        /// </summary>
+        /// <param name="option">Option being extended.</param>
+        /// <returns>The specified destination address or <c>null</c> when no destination was specified.</returns>
+        public static string GetDestination(this ReplyOptions option)
+        {
+            UnicastReplyRouterConnector.State state;
+            option.Context.TryGet(out state);
+            return state?.ExplicitDestination;
         }
 
         /// <summary>
