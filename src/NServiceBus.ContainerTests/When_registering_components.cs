@@ -122,7 +122,7 @@ namespace NServiceBus.ContainerTests
             using (var builder = TestContainerBuilder.ConstructBuilder())
             {
                 builder.Configure(typeof(SomeClass), DependencyLifecycle.InstancePerCall);
-                builder.RegisterSingleton(typeof(IWithSetterDependencies), new ClassWithSetterDependencies());
+                builder.Configure(typeof(ClassWithSetterDependencies), DependencyLifecycle.SingleInstance);
 
                 var component = (ClassWithSetterDependencies)builder.Build(typeof(IWithSetterDependencies));
                 Assert.NotNull(component.ConcreteDependency, "Concrete classed should be property injected");
