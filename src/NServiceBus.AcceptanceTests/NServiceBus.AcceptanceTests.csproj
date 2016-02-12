@@ -96,6 +96,7 @@
     <Compile Include="PerfMon\CriticalTime\When_deferring_a_message.cs" />
     <Compile Include="PubSub\When_publishing_from_sendonly.cs" />
     <Compile Include="PubSub\When_publishing_an_event_implementing_two_unrelated_interfaces.cs" />
+    <Compile Include="Retries\When_using_slr_with_custom_retrypolicy.cs" />
     <Compile Include="Sagas\When_sagas_cant_be_found.cs" />
     <Compile Include="Sagas\When_using_ReplyToOriginator.cs" />
     <Compile Include="ScaleOut\When_individualization_is_enabled_for_msmq.cs" />
