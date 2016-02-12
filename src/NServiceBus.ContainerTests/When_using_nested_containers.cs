@@ -46,14 +46,18 @@ namespace NServiceBus.ContainerTests
             {
                 builder.Configure(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
 
-                using (var childContainer1 = builder.BuildChildContainer())
-                using (var childContainer2 = builder.BuildChildContainer())
+                object instance1;
+                using (var nestedContainer = builder.BuildChildContainer())
                 {
-                    var childInstance1 = childContainer1.Build(typeof(InstancePerUoWComponent));
-                    var childInstance2 = childContainer2.Build(typeof(InstancePerUoWComponent));
-
-                    Assert.AreNotSame(childInstance1, childInstance2);
+                    instance1 = nestedContainer.Build(typeof(InstancePerUoWComponent));
                 }
+
+                object instance2;
+                using (var anotherNestedContainer = builder.BuildChildContainer())
+                {
+                    instance2 = anotherNestedContainer.Build(typeof(InstancePerUoWComponent));
+                }
+                Assert.AreNotSame(instance1, instance2);
             }
         }
 
