@@ -8,19 +8,6 @@ namespace NServiceBus.ContainerTests
     public class When_building_components
     {
         [Test]
-        public void Singleton_components_should_get_their_dependencies_autowired()
-        {
-            using (var builder = TestContainerBuilder.ConstructBuilder())
-            {
-                builder.RegisterSingleton(typeof(ISingletonComponentWithPropertyDependency), new SingletonComponentWithPropertyDependency());
-                builder.RegisterSingleton(typeof(SingletonComponent), new SingletonComponent());
-
-                var singleton = (SingletonComponentWithPropertyDependency)builder.Build(typeof(ISingletonComponentWithPropertyDependency));
-                Assert.IsNotNull(singleton.Dependency);
-            }
-        }
-
-        [Test]
         public void Singleton_components_should_yield_the_same_instance()
         {
             using (var builder = TestContainerBuilder.ConstructBuilder())
