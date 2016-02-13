@@ -5,7 +5,7 @@ namespace NServiceBus.Features
     using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.ObjectBuilder;
-    using Pipeline;
+    using NServiceBus.Pipeline;
     using NServiceBus.Settings;
 
     class FeatureActivator
@@ -32,7 +32,7 @@ namespace NServiceBus.Features
                 EnabledByDefault = feature.IsEnabledByDefault,
                 Name = feature.Name,
                 Version = feature.Version,
-                Dependencies = feature.Dependencies.AsReadOnly(),
+                Dependencies = feature.Dependencies.AsReadOnly()
             }));
         }
 
@@ -74,15 +74,13 @@ namespace NServiceBus.Features
             }
         }
 
-        public async Task StopFeatures(IMessageSession session)
+        public Task StopFeatures(IMessageSession session)
         {
-            foreach (var feature in features.Where(f => f.Feature.IsActive))
-            {
-                foreach (var task in feature.TaskControllers)
-                {
-                    await task.Stop(session).ConfigureAwait(false);
-                }
-            }
+            var featureStopTasks = features.Where(f => f.Feature.IsActive)
+                .SelectMany(f => f.TaskControllers)
+                .Select(task => task.Stop(session));
+
+            return Task.WhenAll(featureStopTasks);
         }
 
         static List<FeatureInfo> Sort(IEnumerable<FeatureInfo> features)
