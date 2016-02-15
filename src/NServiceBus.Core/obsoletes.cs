@@ -739,6 +739,14 @@ namespace NServiceBus.Features
             throw new NotImplementedException();
         }
     }
+
+    [ObsoleteEx(
+        Message = "Use extensions provided by the TransportDefinition class instead",
+        TreatAsErrorFromVersion = "6.0",
+        RemoveInVersion = "7.0")]
+    public class ConfigureTransport
+    {
+    }
 }
 
 namespace NServiceBus.Transports
