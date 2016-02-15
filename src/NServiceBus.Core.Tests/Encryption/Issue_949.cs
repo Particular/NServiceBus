@@ -11,12 +11,12 @@
         {
             var message = new TestMessageWithPrimitives
             {
-                Data = new int?[] {null, 1}
+                Data = new int?[] { null, 1 }
             };
 
-            mutator.MutateOutgoing(message);
+            inspector.ScanObject(message);
 
-            Assert.AreEqual(new int?[] { null, 1}, message.Data);
+            Assert.AreEqual(new int?[] { null, 1 }, message.Data);
         }
 
         [Test]
@@ -24,13 +24,13 @@
         {
             var message = new TestMessageWithObjects
             {
-                Data = new object[] {null, this, null}
+                Data = new object[] { null, this, null }
             };
 
-            mutator.MutateOutgoing(message);
+            inspector.ScanObject(message);
 
-            Assert.AreEqual(new object[] { null, this,null }, message.Data);
-            
+            Assert.AreEqual(new object[] { null, this, null }, message.Data);
+
         }
 
         class TestMessageWithPrimitives

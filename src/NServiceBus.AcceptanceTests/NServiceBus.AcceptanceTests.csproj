@@ -135,6 +135,7 @@
     <Compile Include="Reliability\Outbox\When_a_message_is_audited.cs" />
     <Compile Include="Reliability\Outbox\When_clearing_saga_timeouts.cs" />
     <Compile Include="Reliability\Outbox\When_dispatching_transport_operations.cs" />
+    <Compile Include="Encryption\When_using_Rijndael_without_incoming_key_identifier.cs" />
     <Compile Include="PerfMon\CriticalTime\When_deferring_a_message.cs" />
     <Compile Include="Audit\When_audit_is_overridden_in_code.cs" />
     <Compile Include="Reliability\Outbox\When_receiving_messages_already_dispatched.cs" />

@@ -6,7 +6,7 @@
     using System.Threading.Tasks;
     using EndpointTemplates;
     using AcceptanceTesting;
-    using NServiceBus.Encryption;
+    using NServiceBus.Pipeline;
     using NUnit.Framework;
 
     public class When_using_encryption_with_custom_service : NServiceBusAcceptanceTest
@@ -108,7 +108,7 @@
 
         public class MyEncryptionService : IEncryptionService
         {
-            public EncryptedValue Encrypt(string value)
+            public EncryptedValue Encrypt(string value, IOutgoingLogicalMessageContext context)
             {
                 return new EncryptedValue
                 {
@@ -116,7 +116,7 @@
                 };
             }
 
-            public string Decrypt(EncryptedValue encryptedValue)
+            public string Decrypt(EncryptedValue encryptedValue, IIncomingLogicalMessageContext context)
             {
                 return new string(encryptedValue.EncryptedBase64Value.Reverse().ToArray());
             }

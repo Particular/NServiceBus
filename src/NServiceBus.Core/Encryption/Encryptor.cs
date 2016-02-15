@@ -5,7 +5,6 @@
     using System.Linq;
     using System.Reflection;
     using System.Text;
-    using NServiceBus.Encryption;
     using NServiceBus.Logging;
 
     /// <summary>
@@ -65,13 +64,12 @@ Perhaps you forgot to define your encryption message conventions or to define me
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var encryptionService = serviceConstructor();
-            var mutator = new EncryptionMutator(encryptionService, context.Settings.Get<Conventions>());
+            var service = serviceConstructor();
+            var inspector = new EncryptionInspector(context.Settings.Get<Conventions>());
 
-            context.Pipeline.Register(new EncryptBehavior.EncryptRegistration(mutator));
-            context.Pipeline.Register(new DecryptBehavior.DecryptRegistration(mutator));
+            context.Pipeline.Register(new EncryptBehavior.EncryptRegistration(inspector, service));
+            context.Pipeline.Register(new DecryptBehavior.DecryptRegistration(inspector, service));
         }
-
         static ILog log = LogManager.GetLogger<Encryptor>();
     }
 }

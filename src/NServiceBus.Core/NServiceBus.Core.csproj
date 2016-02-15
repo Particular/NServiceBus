@@ -96,6 +96,7 @@
     <Compile Include="Audit\ConfigureAudit.cs" />
     <Compile Include="Audit\AuditToDispatchConnector.cs" />
     <Compile Include="Audit\InvokeAuditPipelineBehavior.cs" />
+    <Compile Include="Encryption\WireEncryptedStringConversions.cs" />
     <Compile Include="CircuitBreakers\ICircuitBreaker.cs" />
     <Compile Include="CriticalError\ICriticalErrorContext.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\FailureInfoStorage.cs" />
@@ -125,6 +126,7 @@
     <Compile Include="UnitOfWork\TransactionScopes\TransactionScopeUnitOfWorkBehavior.cs" />
     <Compile Include="MessageSession.cs" />
     <Compile Include="CriticalError\CriticalErrorContext.cs" />
+    <Compile Include="Encryption\StringConversions.cs" />
     <Compile Include="EndpointConfiguration.cs" />
     <Compile Include="PipelineContext.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\TimeoutPollerRunner.cs" />
@@ -291,6 +293,8 @@
     <Compile Include="Encryption\EncryptBehavior.cs" />
     <Compile Include="Encryption\EncryptedValue.cs" />
     <Compile Include="Encryption\Encryptor.cs" />
+    <Compile Include="Encryption\KeyFormat.cs" />
+    <Compile Include="Encryption\RijndaelEncryptionServiceConfigValidations.cs" />
     <Compile Include="Encryption\RijndaelExpiredKey.cs" />
     <Compile Include="Encryption\RijndaelExpiredKeyCollection.cs" />
     <Compile Include="Encryption\RijndaelEncryptionService.cs" />
@@ -663,7 +667,7 @@
     <Compile Include="DataBus\IDatabusSerializer.cs" />
     <Compile Include="DateTimeExtensions.cs" />
     <Compile Include="DependencyLifecycle.cs" />
-    <Compile Include="Encryption\EncryptionMutator.cs" />
+    <Compile Include="Encryption\EncryptionInspector.cs" />
     <Compile Include="Encryption\IEncryptionService.cs" />
     <Compile Include="Recoverability\Faults\FaultsHeaderKeys.cs" />
     <Compile Include="Hosting\Helpers\AssemblyScanner.cs" />

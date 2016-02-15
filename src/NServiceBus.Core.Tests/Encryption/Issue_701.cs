@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Encryption
 {
+    using System.Linq;
     using NUnit.Framework;
 
     [TestFixture]
@@ -13,9 +14,9 @@
                 Name = "John"
             };
 
-            var result = (TestMessageWithSets)mutator.MutateOutgoing(message);
+            var result = inspector.ScanObject(message).ToList();
 
-            Assert.AreEqual("John", result.Name);
+            Assert.AreEqual(0, result.Count);
         }
 
         [Test]
@@ -26,9 +27,9 @@
                 Name = "John"
             };
 
-            var result = (TestMessageWithGets)mutator.MutateOutgoing(message);
+            var result = inspector.ScanObject(message).ToList();
 
-            Assert.AreEqual("John", result.Name);
+            Assert.AreEqual(0, result.Count);
         }
 
         class TestMessageWithSets
@@ -37,7 +38,7 @@
 
             public string Options1
             {
-// ReSharper disable once ValueParameterNotUsed
+                // ReSharper disable once ValueParameterNotUsed
                 set
                 {
                     //do nothing
@@ -46,7 +47,7 @@
 
             public int Options2
             {
-// ReSharper disable once ValueParameterNotUsed
+                // ReSharper disable once ValueParameterNotUsed
                 set
                 {
                     //do nothing

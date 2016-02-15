@@ -1,58 +1,34 @@
 ﻿namespace NServiceBus.Core.Tests.Encryption
 {
     using System;
+    using System.Linq;
     using NUnit.Framework;
 
     [TestFixture]
-    public class When_sending_a_message_with_user_defined_convention:UserDefinedConventionContext
+    public class When_inspecting_a_message_with_user_defined_convention : UserDefinedConventionContext
     {
         [Test]
-        public void Should_encrypt_the_value()
-        {    
-            var message = new ConventionBasedSecureMessage
-                          {
-                                  EncryptedSecret = "A secret"
-                              };
-            mutator.MutateOutgoing(message);
-
-            Assert.AreEqual($"{"encrypted value"}@{"init_vector"}", message.EncryptedSecret);
-        }
-    }
-
-    [TestFixture]
-    public class When_receiving_a_message_with_user_defined_convention : UserDefinedConventionContext
-    {
-        [Test]
-        public void Should_encrypt_the_value()
+        public void Should_return_the_value()
         {
             var message = new ConventionBasedSecureMessage
-                          {
-                              EncryptedSecret = "encrypted value@init_vector"
-                          };
-            mutator.MutateIncoming(message);
+            {
+                EncryptedSecret = "A secret"
+            };
 
-            Assert.AreEqual("A secret", message.EncryptedSecret);
+            var result = inspector.ScanObject(message).ToList();
+
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual("EncryptedSecret", result[0].Item2.Name);
         }
     }
 
     [TestFixture]
-    public class When_encrypting_a_property_that_is_not_a_string:UserDefinedConventionContext
+    public class When_inspecting_a_property_that_is_not_a_string : UserDefinedConventionContext
     {
         [Test]
         public void Should_throw_an_exception()
         {
-            var exception = Assert.Throws<Exception>(() => mutator.MutateOutgoing(new MessageWithNonStringSecureProperty()));
-            Assert.AreEqual("Only string properties are supported for convention based encryption, please check your convention", exception.Message);
-        }
-    }
-
-    [TestFixture]
-    public class When_decrypting_a_property_that_is_not_a_string : UserDefinedConventionContext
-    {
-        [Test]
-        public void Should_throw_an_exception()
-        {
-            var exception = Assert.Throws<Exception>(() => mutator.MutateIncoming(new MessageWithNonStringSecureProperty()));
+            var exception = Assert.Throws<Exception>(() => inspector.ScanObject(new MessageWithNonStringSecureProperty()).ToList());
             Assert.AreEqual("Only string properties are supported for convention based encryption, please check your convention", exception.Message);
         }
     }
@@ -63,7 +39,7 @@
         {
             return new Conventions
             {
-                IsEncryptedPropertyAction= p => p.Name.StartsWith("Encrypted")
+                IsEncryptedPropertyAction = p => p.Name.StartsWith("Encrypted")
             };
         }
     }
@@ -73,7 +49,7 @@
         public int EncryptedInt { get; set; }
     }
 
-    public class ConventionBasedSecureMessage:IMessage
+    public class ConventionBasedSecureMessage : IMessage
     {
         public string EncryptedSecret { get; set; }
         public string EncryptedSecretThatIsNull { get; set; }
