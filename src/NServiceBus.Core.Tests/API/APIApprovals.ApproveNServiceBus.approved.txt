@@ -706,18 +706,18 @@ namespace NServiceBus
     public class MsmqTransport : NServiceBus.Transports.TransportDefinition
     {
         public MsmqTransport() { }
-        protected internal override NServiceBus.Transports.TransportInfrastructure Initialize(NServiceBus.Settings.SettingsHolder settings) { }
+        public override string ExampleConnectionStringForErrorMessage { get; }
+        public override bool RequiresConnectionString { get; }
+        protected internal override NServiceBus.Transports.TransportInfrastructure Initialize(NServiceBus.Settings.SettingsHolder settings, string connectionString) { }
     }
     public class MsmqTransportInfrastructure : NServiceBus.Transports.TransportInfrastructure
     {
         public override System.Collections.Generic.IEnumerable<System.Type> DeliveryConstraints { get; }
-        public override string ExampleConnectionStringForErrorMessage { get; }
         public override NServiceBus.Transports.OutboundRoutingPolicy OutboundRoutingPolicy { get; }
-        public override bool RequiresConnectionString { get; }
         public override NServiceBus.TransportTransactionMode TransactionMode { get; }
-        public override NServiceBus.Routing.EndpointInstance BindToLocalEndpoint(NServiceBus.Routing.EndpointInstance instance, NServiceBus.Settings.ReadOnlySettings settings) { }
-        public override NServiceBus.Transports.TransportReceiveInfrastructure ConfigureReceiveInfrastructure(string connectionString) { }
-        public override NServiceBus.Transports.TransportSendInfrastructure ConfigureSendInfrastructure(string connectionString) { }
+        public override NServiceBus.Routing.EndpointInstance BindToLocalEndpoint(NServiceBus.Routing.EndpointInstance instance) { }
+        public override NServiceBus.Transports.TransportReceiveInfrastructure ConfigureReceiveInfrastructure() { }
+        public override NServiceBus.Transports.TransportSendInfrastructure ConfigureSendInfrastructure() { }
         public override NServiceBus.Transports.TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure() { }
         public override string MakeCanonicalForm(string transportAddress) { }
         public override string ToTransportAddress(NServiceBus.LogicalAddress logicalAddress) { }
@@ -2775,6 +2775,7 @@ namespace NServiceBus.Transports
     public abstract class TransportDefinition
     {
         protected TransportDefinition() { }
+        public abstract string ExampleConnectionStringForErrorMessage { get; }
         [System.ObsoleteAttribute("Please use `GetOutboundRoutingPolicy` instead. Will be removed in version 7.0.0.", true)]
         public bool HasNativePubSubSupport { get; set; }
         [System.ObsoleteAttribute("Please use `GetOutboundRoutingPolicy` instead. Will be removed in version 7.0.0.", true)]
@@ -2784,20 +2785,19 @@ namespace NServiceBus.Transports
         [System.ObsoleteAttribute("Please use `GetSupportedTransactionMode` instead. Will be removed in version 7.0." +
             "0.", true)]
         public bool HasSupportForMultiQueueNativeTransactions { get; set; }
-        protected internal abstract NServiceBus.Transports.TransportInfrastructure Initialize(NServiceBus.Settings.SettingsHolder settings);
+        public virtual bool RequiresConnectionString { get; }
+        protected internal abstract NServiceBus.Transports.TransportInfrastructure Initialize(NServiceBus.Settings.SettingsHolder settings, string connectionString);
     }
     public abstract class TransportInfrastructure
     {
         protected TransportInfrastructure() { }
         public abstract System.Collections.Generic.IEnumerable<System.Type> DeliveryConstraints { get; }
-        public abstract string ExampleConnectionStringForErrorMessage { get; }
         public abstract NServiceBus.Transports.OutboundRoutingPolicy OutboundRoutingPolicy { get; }
         public bool RequireOutboxConsent { get; set; }
-        public virtual bool RequiresConnectionString { get; }
         public abstract NServiceBus.TransportTransactionMode TransactionMode { get; }
-        public abstract NServiceBus.Routing.EndpointInstance BindToLocalEndpoint(NServiceBus.Routing.EndpointInstance instance, NServiceBus.Settings.ReadOnlySettings settings);
-        public abstract NServiceBus.Transports.TransportReceiveInfrastructure ConfigureReceiveInfrastructure(string connectionString);
-        public abstract NServiceBus.Transports.TransportSendInfrastructure ConfigureSendInfrastructure(string connectionString);
+        public abstract NServiceBus.Routing.EndpointInstance BindToLocalEndpoint(NServiceBus.Routing.EndpointInstance instance);
+        public abstract NServiceBus.Transports.TransportReceiveInfrastructure ConfigureReceiveInfrastructure();
+        public abstract NServiceBus.Transports.TransportSendInfrastructure ConfigureSendInfrastructure();
         public abstract NServiceBus.Transports.TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure();
         public virtual string MakeCanonicalForm(string transportAddress) { }
         public abstract string ToTransportAddress(NServiceBus.LogicalAddress logicalAddress);

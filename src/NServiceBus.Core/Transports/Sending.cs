@@ -29,7 +29,7 @@ namespace NServiceBus
         
         class PrepareForSending : FeatureStartupTask
         {
-            private readonly Lazy<TransportSendInfrastructure> lazy;
+            readonly Lazy<TransportSendInfrastructure> lazy;
 
             public PrepareForSending(Lazy<TransportSendInfrastructure> lazy)
             {

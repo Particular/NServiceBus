@@ -20,10 +20,10 @@ namespace NServiceBus
 
                 if (userDiscriminator != null)
                 {
-                    var p = s.Get<TransportInfrastructure>().BindToLocalEndpoint(new EndpointInstance(s.EndpointName(), userDiscriminator), s);
+                    var p = s.Get<TransportInfrastructure>().BindToLocalEndpoint(new EndpointInstance(s.EndpointName(), userDiscriminator));
                     s.SetDefault("NServiceBus.EndpointSpecificQueue", transportAddresses.GetTransportAddress(new LogicalAddress(p)));
                 }
-                var instanceProperties = s.Get<TransportInfrastructure>().BindToLocalEndpoint(new EndpointInstance(s.EndpointName()), s);
+                var instanceProperties = s.Get<TransportInfrastructure>().BindToLocalEndpoint(new EndpointInstance(s.EndpointName()));
                 s.SetDefault("NServiceBus.SharedQueue", transportAddresses.GetTransportAddress(new LogicalAddress(instanceProperties)));
 
                 s.SetDefault<EndpointInstance>(instanceProperties);
@@ -54,7 +54,7 @@ namespace NServiceBus
         
         class PrepareForReceiving : FeatureStartupTask
         {
-            private readonly Lazy<TransportReceiveInfrastructure> lazy;
+            readonly Lazy<TransportReceiveInfrastructure> lazy;
 
             public PrepareForReceiving(Lazy<TransportReceiveInfrastructure> lazy)
             {

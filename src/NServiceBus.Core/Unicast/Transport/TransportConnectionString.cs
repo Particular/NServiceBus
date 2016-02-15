@@ -10,12 +10,12 @@
         {
         }
 
-        public string GetConnectionStringOrRaiseError(TransportInfrastructure transportInfrastructure)
+        public string GetConnectionStringOrRaiseError(TransportDefinition transportDefinition)
         {
             var connectionString = GetValue();
-            if (connectionString == null && transportInfrastructure.RequiresConnectionString)
+            if (connectionString == null && transportDefinition.RequiresConnectionString)
             {
-                throw new InvalidOperationException(string.Format(Message, transportInfrastructure.GetType().Name, transportInfrastructure.ExampleConnectionStringForErrorMessage));
+                throw new InvalidOperationException(string.Format(Message, transportDefinition.GetType().Name, transportDefinition.ExampleConnectionStringForErrorMessage));
             }
             return connectionString;
         }

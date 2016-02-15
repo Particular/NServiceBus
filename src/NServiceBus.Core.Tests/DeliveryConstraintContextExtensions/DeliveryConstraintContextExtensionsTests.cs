@@ -19,7 +19,7 @@
             var settings = new SettingsHolder();
             var fakeTransportDefinition = new FakeTransportDefinition();
             settings.Set<TransportDefinition>(fakeTransportDefinition);
-            settings.Set<TransportInfrastructure>(fakeTransportDefinition.Initialize(settings));
+            settings.Set<TransportInfrastructure>(fakeTransportDefinition.Initialize(settings, null));
 
             var context = new FeatureConfigurationContext(settings, null, null);
             var result = context.DoesTransportSupportConstraint<DeliveryConstraint>();
@@ -28,16 +28,18 @@
 
         class FakeTransportDefinition : TransportDefinition
         {
-            protected internal override TransportInfrastructure Initialize(SettingsHolder settings)
+            protected internal override TransportInfrastructure Initialize(SettingsHolder settings, string connectionString)
             {
                 return new FakeTransportInfrastructure();
             }
+
+            public override string ExampleConnectionStringForErrorMessage { get; } = String.Empty;
         }
 
         class FakeTransportInfrastructure : TransportInfrastructure
         {
 
-            public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance, ReadOnlySettings settings)
+            public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance)
             {
                 throw new NotImplementedException();
             }
@@ -47,12 +49,12 @@
                 throw new NotImplementedException();
             }
 
-            public override TransportReceiveInfrastructure ConfigureReceiveInfrastructure(string connectionString)
+            public override TransportReceiveInfrastructure ConfigureReceiveInfrastructure()
             {
                 throw new NotImplementedException();
             }
 
-            public override TransportSendInfrastructure ConfigureSendInfrastructure(string connectionString)
+            public override TransportSendInfrastructure ConfigureSendInfrastructure()
             {
                 throw new NotImplementedException();
             }
@@ -68,7 +70,7 @@
 
             public override OutboundRoutingPolicy OutboundRoutingPolicy { get; } = new OutboundRoutingPolicy(OutboundRoutingType.Unicast, OutboundRoutingType.Unicast, OutboundRoutingType.Unicast);
 
-            public override string ExampleConnectionStringForErrorMessage { get; } = String.Empty;
+            
         }
     }
 }

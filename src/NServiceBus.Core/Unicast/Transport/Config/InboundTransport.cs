@@ -8,8 +8,7 @@ namespace NServiceBus
         public TransportReceiveInfrastructure Configure(ReadOnlySettings settings)
         {
             var transportInfrastructure = settings.Get<TransportInfrastructure>();
-            var connectionString = settings.Get<TransportConnectionString>().GetConnectionStringOrRaiseError(transportInfrastructure);
-            return transportInfrastructure.ConfigureReceiveInfrastructure(connectionString);
+            return transportInfrastructure.ConfigureReceiveInfrastructure();
         }        
     }
 }

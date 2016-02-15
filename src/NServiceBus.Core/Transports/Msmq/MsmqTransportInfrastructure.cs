@@ -31,17 +31,18 @@ namespace NServiceBus
             return new ReceiveWithNativeTransaction();
         }
 
-        internal MsmqTransportInfrastructure(ReadOnlySettings settings)
+        internal MsmqTransportInfrastructure(ReadOnlySettings settings, string connectionString)
         {
             RequireOutboxConsent = true;
 
             this.settings = settings;
+            this.connectionString = connectionString;
         }
 
         /// <summary>
         /// Returns the discriminator for this endpoint instance.
         /// </summary>
-        public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance, ReadOnlySettings settings) => instance.AtMachine(Environment.MachineName);
+        public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance) => instance.AtMachine(Environment.MachineName);
 
         /// <summary>
         /// <see cref="TransportInfrastructure.ToTransportAddress"/>.
@@ -80,9 +81,8 @@ namespace NServiceBus
         /// <summary>
         /// <see cref="TransportInfrastructure.ConfigureReceiveInfrastructure"/>.
         /// </summary>
-        /// <param name="connectionString">Connection string.</param>
         /// <returns>Transport receive infrastructure.</returns>
-        public override TransportReceiveInfrastructure ConfigureReceiveInfrastructure(string connectionString)
+        public override TransportReceiveInfrastructure ConfigureReceiveInfrastructure()
         {
             new CheckMachineNameForComplianceWithDtcLimitation().Check();
 
@@ -111,9 +111,8 @@ namespace NServiceBus
         /// <summary>
         /// <see cref="TransportInfrastructure.ConfigureSendInfrastructure"/>.
         /// </summary>
-        /// <param name="connectionString">Connection string.</param>
         /// <returns>Transport send infrastructure.</returns>
-        public override TransportSendInfrastructure ConfigureSendInfrastructure(string connectionString)
+        public override TransportSendInfrastructure ConfigureSendInfrastructure()
         {
             new CheckMachineNameForComplianceWithDtcLimitation().Check();
 
@@ -166,16 +165,7 @@ namespace NServiceBus
         /// </summary>
         public override OutboundRoutingPolicy OutboundRoutingPolicy { get; } = new OutboundRoutingPolicy(OutboundRoutingType.Unicast, OutboundRoutingType.Unicast, OutboundRoutingType.Unicast);
 
-        /// <summary>
-        /// <see cref="TransportInfrastructure.ExampleConnectionStringForErrorMessage"/>.
-        /// </summary>
-        public override string ExampleConnectionStringForErrorMessage => "cacheSendConnection=true;journal=false;deadLetter=true";
-
-        /// <summary>
-        /// <see cref="TransportInfrastructure.RequiresConnectionString"/>.
-        /// </summary>
-        public override bool RequiresConnectionString => false;
-
         readonly ReadOnlySettings settings;
+        readonly string connectionString;
     }
 }

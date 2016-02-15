@@ -43,7 +43,9 @@ namespace NServiceBus
 
             ConfigRunBeforeIsFinalized(concreteTypes);
 
-            settings.Set<TransportInfrastructure>(settings.Get<TransportDefinition>().Initialize(settings));
+            var transportDefinition = settings.Get<TransportDefinition>();
+            var connectionString = settings.Get<TransportConnectionString>().GetConnectionStringOrRaiseError(transportDefinition);
+            settings.Set<TransportInfrastructure>(transportDefinition.Initialize(settings, connectionString));
 
             var featureStats = featureActivator.SetupFeatures(container, pipelineSettings);
 
