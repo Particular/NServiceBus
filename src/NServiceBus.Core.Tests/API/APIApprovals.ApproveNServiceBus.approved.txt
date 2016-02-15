@@ -2504,8 +2504,8 @@ namespace NServiceBus.Settings
             "sports the unique instance ID has to be provided. Will be removed in version 7.0" +
             ".0.", true)]
         public void UniqueQueuePerEndpointInstance() { }
-        [System.ObsoleteAttribute("Please use `EndpointConfiguration.ScaleOut.InstanceDiscriminator` instead. Will b" +
-            "e removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Please use `EndpointConfiguration.ScaleOut().InstanceDiscriminator(string discrim" +
+            "inator)` instead. Will be removed in version 7.0.0.", true)]
         public void UniqueQueuePerEndpointInstance(string discriminator) { }
         [System.ObsoleteAttribute("This is the default starting with V6. Will be removed in version 7.0.0.", true)]
         public void UseSingleBrokerQueue() { }
