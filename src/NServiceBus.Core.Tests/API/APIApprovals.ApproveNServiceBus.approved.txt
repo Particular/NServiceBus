@@ -782,7 +782,15 @@ namespace NServiceBus
     public class static RoutingOptionExtensions
     {
         public static void OverrideReplyToAddressOfIncomingMessage(this NServiceBus.ReplyOptions option, string destination) { }
-        public static void RouteToLocalEndpointInstance(this NServiceBus.SendOptions option) { }
+        public static void RouteReplyTo(this NServiceBus.ReplyOptions option, string address) { }
+        public static void RouteReplyTo(this NServiceBus.SendOptions option, string address) { }
+        public static void RouteReplyToAnyInstance(this NServiceBus.SendOptions option) { }
+        public static void RouteReplyToAnyInstance(this NServiceBus.ReplyOptions option) { }
+        public static void RouteReplyToThisInstance(this NServiceBus.SendOptions option) { }
+        public static void RouteReplyToThisInstance(this NServiceBus.ReplyOptions option) { }
+        public static void RouteToSpecificInstance(this NServiceBus.SendOptions option, string instanceId) { }
+        public static void RouteToThisEndpoint(this NServiceBus.SendOptions option) { }
+        public static void RouteToThisInstance(this NServiceBus.SendOptions option) { }
         public static void SetDestination(this NServiceBus.SendOptions option, string destination) { }
     }
     public class RoutingSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
@@ -905,8 +913,8 @@ namespace NServiceBus
         public static System.Collections.Generic.IList<System.Type> GetAvailableTypes(this NServiceBus.Settings.ReadOnlySettings settings) { }
         public static T GetConfigSection<T>(this NServiceBus.Settings.ReadOnlySettings settings)
             where T :  class, new () { }
+        public static string InstanceSpecificQueue(this NServiceBus.Settings.ReadOnlySettings settings) { }
         public static string LocalAddress(this NServiceBus.Settings.ReadOnlySettings settings) { }
-        public static NServiceBus.LogicalAddress RootLogicalAddress(this NServiceBus.Settings.ReadOnlySettings settings) { }
     }
     public class static SLAMonitoringConfig
     {
@@ -2496,8 +2504,8 @@ namespace NServiceBus.Settings
             "sports the unique instance ID has to be provided. Will be removed in version 7.0" +
             ".0.", true)]
         public void UniqueQueuePerEndpointInstance() { }
-        [System.ObsoleteAttribute("Please use `ScaleOutSettings.InstanceDiscriminator()` instead. Will be removed in" +
-            " version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Please use `EndpointConfiguration.ScaleOut().InstanceDiscriminator(string discrim" +
+            "inator)` instead. Will be removed in version 7.0.0.", true)]
         public void UniqueQueuePerEndpointInstance(string discriminator) { }
         [System.ObsoleteAttribute("This is the default starting with V6. Will be removed in version 7.0.0.", true)]
         public void UseSingleBrokerQueue() { }

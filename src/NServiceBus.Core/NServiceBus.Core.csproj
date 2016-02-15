@@ -112,6 +112,7 @@
     <Compile Include="Pipeline\ConnectorContextExtensions.cs" />
     <Compile Include="Serialization\SerializationFeature.cs" />
     <Compile Include="Serializers\XML\XmlSerialization.cs" />
+    <Compile Include="Settings\ScaleOutSettings.cs" />
     <Compile Include="Transports\IOutgoingTransportOperation.cs" />
     <Compile Include="Transports\MulticastTransportOperation.cs" />
     <Compile Include="Transports\TransportOperations.cs" />
@@ -622,7 +623,6 @@
     <Compile Include="Recoverability\SecondLevelRetries\Config\SecondLevelRetriesConfigExtensions.cs" />
     <Compile Include="Recoverability\SecondLevelRetries\Config\SecondLevelRetriesSettings.cs" />
     <Compile Include="Serializers\Json\Config\JsonSerializerConfigurationExtensions.cs" />
-    <Compile Include="Settings\ScaleOutSettings.cs" />
     <Compile Include="Pipeline\Incoming\DeserializeLogicalMessagesConnector.cs" />
     <Compile Include="Licensing\ConfigureLicenseExtensions.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\TimeoutManager.cs" />

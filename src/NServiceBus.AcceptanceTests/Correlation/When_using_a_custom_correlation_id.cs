@@ -19,7 +19,7 @@
                         var options = new SendOptions();
 
                         options.SetCorrelationId(CorrelationId);
-                        options.RouteToLocalEndpointInstance();
+                        options.RouteToThisEndpoint();
 
                         return session.Send(new MessageWithCustomCorrelationId(), options);
                     }))

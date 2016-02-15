@@ -86,10 +86,12 @@
             {
                 public Task Handle(Request message, IMessageHandlerContext context)
                 {
+                    var options = new ReplyOptions();
+                    options.RouteReplyToThisInstance();
                     return context.Reply(new Response
                     {
                         EndpointName = "Receiver1"
-                    });
+                    }, options);
                 }
             }
         }
@@ -109,10 +111,12 @@
             {
                 public Task Handle(Request message, IMessageHandlerContext context)
                 {
+                    var options = new ReplyOptions();
+                    options.RouteReplyToThisInstance();
                     return context.Reply(new Response
                     {
                         EndpointName = "Receiver2"
-                    });
+                    }, options);
                 }
             }
         }

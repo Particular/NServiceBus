@@ -26,7 +26,7 @@
                         var options = new SendOptions();
 
                         options.DelayDeliveryWith(TimeSpan.FromMilliseconds(1));
-                        options.RouteToLocalEndpointInstance();
+                        options.RouteToThisEndpoint();
 
                         return session.Send(new MyMessage(), options);
                     }))

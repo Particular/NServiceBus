@@ -52,7 +52,7 @@
                     var options = new SendOptions();
 
                     options.DelayDeliveryWith(TimeSpan.FromMilliseconds(1));
-                    options.RouteToLocalEndpointInstance();
+                    options.RouteToThisEndpoint();
 
                     return context.Send(new FinishMessage(), options);
                 }
@@ -153,7 +153,7 @@
                     var options = new SendOptions();
 
                     options.DelayDeliveryWith(TimeSpan.FromMilliseconds(1));
-                    options.RouteToLocalEndpointInstance();
+                    options.RouteToThisEndpoint();
 
                     return context.Send(new FinishMessage(), options);
                 }

@@ -89,7 +89,7 @@ namespace NServiceBus
 
             var options = new SendOptions();
 
-            options.RouteToLocalEndpointInstance();
+            options.RouteToThisEndpoint();
 
             return context.Send(message, options);
         }
@@ -107,7 +107,7 @@ namespace NServiceBus
 
             var options = new SendOptions();
 
-            options.RouteToLocalEndpointInstance();
+            options.RouteToThisEndpoint();
 
             return context.Send(messageConstructor, options);
         }

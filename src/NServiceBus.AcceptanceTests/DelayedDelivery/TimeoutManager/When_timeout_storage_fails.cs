@@ -25,7 +25,7 @@
 
                         options.DelayDeliveryWith(TimeSpan.FromDays(30));
 
-                        options.RouteToLocalEndpointInstance();
+                        options.RouteToThisEndpoint();
 
                         return bus.Send(new MyMessage(), options);
                     }))
