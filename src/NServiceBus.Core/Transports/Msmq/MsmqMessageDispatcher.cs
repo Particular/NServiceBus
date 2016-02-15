@@ -15,7 +15,7 @@ namespace NServiceBus
 
     class MsmqMessageDispatcher : IDispatchMessages
     {
-        public MsmqMessageDispatcher(MsmqSettings settings, Func<IReadOnlyDictionary<string, string>,string> messageLabelGenerator)
+        public MsmqMessageDispatcher(MsmqSettings settings, Func<IReadOnlyDictionary<string, string>, string> messageLabelGenerator)
         {
             Guard.AgainstNull(nameof(settings), settings);
             Guard.AgainstNull(nameof(messageLabelGenerator), messageLabelGenerator);
@@ -50,7 +50,7 @@ namespace NServiceBus
 
             if (IsCombiningTimeToBeReceivedWithTransactions(
                 context,
-                transportOperation.RequiredDispatchConsistency, 
+                transportOperation.RequiredDispatchConsistency,
                 transportOperation.DeliveryConstraints))
             {
                 throw new Exception($"Failed to send message to address: {destinationAddress.Queue}@{destinationAddress.Machine}. Sending messages with a custom TimeToBeReceived is not supported on transactional MSMQ.");
@@ -81,7 +81,7 @@ namespace NServiceBus
                     }
 
                     MessageQueueTransaction activeTransaction;
-                    if (context.TryGet(out activeTransaction))
+                    if (TryGetNativeTransaction(context, out activeTransaction))
                     {
                         q.Send(toSend, label, activeTransaction);
                         return;
@@ -129,12 +129,27 @@ namespace NServiceBus
                 return false;
             }
 
-            MessageQueueTransaction activeReceiveTransaction;
-            var hasActiveReceiveTransaction = context.TryGet(out activeReceiveTransaction);
+            if (Transaction.Current != null)
+            {
+                return true;
+            }
 
-            var isWrappedByTransactionScope = Transaction.Current != null;
-            
-            return hasActiveReceiveTransaction || isWrappedByTransactionScope;
+            MessageQueueTransaction activeReceiveTransaction;
+
+            return TryGetNativeTransaction(context, out activeReceiveTransaction);
+        }
+
+        bool TryGetNativeTransaction(ReadOnlyContextBag context, out MessageQueueTransaction transaction)
+        {
+            TransportTransaction transportTransaction;
+
+            if (!context.TryGet(out transportTransaction))
+            {
+                transaction = null;
+                return false;
+            }
+
+            return transportTransaction.TryGet(out transaction);
         }
 
         MessageQueueTransactionType GetIsolatedTransactionType()
