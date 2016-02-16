@@ -22,6 +22,20 @@
 
             options.GetExtensions().AddDeliveryConstraint(new DelayDeliveryWith(delay));
         }
+
+        /// <summary>
+        /// Returns the configured delivery delay by using <see cref="DelayDeliveryWith"/>.
+        /// </summary>
+        /// <param name="options">The options being extended.</param>
+        /// <returns>The configured <see cref="TimeSpan"/> or <c>null</c>.</returns>
+        public static TimeSpan? GetDeliveryDelay(this SendOptions options)
+        {
+            DelayDeliveryWith delay;
+            options.GetExtensions().TryGetDeliveryConstraint(out delay);
+
+            return delay?.Delay;
+        }
+
         /// <summary>
         /// Requests that the message should not be delivered before the specified time.
         /// </summary>
@@ -32,6 +46,19 @@
             Guard.AgainstNull(nameof(options), options);
 
             options.GetExtensions().AddDeliveryConstraint(new DoNotDeliverBefore(at.UtcDateTime));
+        }
+
+        /// <summary>
+        /// Returns the delivery date configured by using <see cref="DoNotDeliverBefore"/>.
+        /// </summary>
+        /// <param name="options">The options being extended.</param>
+        /// <returns>The configured <see cref="DateTimeOffset"/> or <c>null</c>.</returns>
+        public static DateTimeOffset? GetDeliveryDate(this SendOptions options)
+        {
+            DoNotDeliverBefore deliveryDate;
+            options.GetExtensions().TryGetDeliveryConstraint(out deliveryDate);
+
+            return deliveryDate?.At;
         }
     }
 }
