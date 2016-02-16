@@ -106,7 +106,7 @@ namespace NServiceBus
 
             var options = new ReplyOptions();
 
-            options.OverrideReplyToAddressOfIncomingMessage(Entity.Originator);
+            options.SetDestination(Entity.Originator);
             options.SetCorrelationId(Entity.OriginalMessageId);
 
             //until we have metadata we just set this to null to avoid our own saga id being set on outgoing messages since
