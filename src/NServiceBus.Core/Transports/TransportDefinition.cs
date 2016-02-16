@@ -11,61 +11,12 @@ namespace NServiceBus.Transports
     public abstract partial class TransportDefinition
     {
         /// <summary>
-        /// True if the transport.
+        /// Initializes all the factories and supported features for the transport. This method is called right before all features are activated and the settings will be locked down. This means you can use the SettingsHolder both for providing default capabilities as well as for initializing the transport's configuration based on those settings (the user cannot provide information anymore at this stage).
         /// </summary>
-        public bool RequireOutboxConsent { get; set; }
-
-        /// <summary>
-        /// Configures transport for receiving.
-        /// </summary>
-        protected internal abstract TransportReceivingConfigurationResult ConfigureForReceiving(TransportReceivingConfigurationContext context);
-
-        /// <summary>
-        /// Configures transport for sending.
-        /// </summary>
-        protected internal abstract TransportSendingConfigurationResult ConfigureForSending(TransportSendingConfigurationContext context);
-        
-        /// <summary>
-        /// Returns the list of supported delivery constraints for this transport.
-        /// </summary>
-        public abstract IEnumerable<Type> GetSupportedDeliveryConstraints();
-
-        /// <summary>
-        /// Gets the highest supported transaction mode for the this transport.
-        /// </summary>
-        public abstract TransportTransactionMode GetSupportedTransactionMode();
-
-        /// <summary>
-        /// Will be called if the transport has indicated that it has native support for pub sub.
-        /// Creates a transport address for the input queue defined by a logical address.
-        /// </summary>
-        public abstract IManageSubscriptions GetSubscriptionManager();
-
-        /// <summary>
-        /// Returns the discriminator for this endpoint instance.
-        /// </summary>
-        public abstract EndpointInstance BindToLocalEndpoint(EndpointInstance instance, ReadOnlySettings settings);
-
-        /// <summary>
-        /// Converts a given logical address to the transport address.
-        /// </summary>
-        /// <param name="logicalAddress">The logical address.</param>
-        /// <returns>The transport address.</returns>
-        public abstract string ToTransportAddress(LogicalAddress logicalAddress);
-
-        /// <summary>
-        /// Returns the canonical for of the given transport address so various transport addresses can be effectively compared and deduplicated.
-        /// </summary>
-        /// <param name="transportAddress">A transport address.</param>
-        public virtual string MakeCanonicalForm(string transportAddress)
-        {
-            return transportAddress;
-        }
-
-        /// <summary>
-        /// Returns the outbound routing policy selected for the transport.
-        /// </summary>
-        public abstract OutboundRoutingPolicy GetOutboundRoutingPolicy(ReadOnlySettings settings);
+        /// <param name="settings">An instance of the current settings.</param>
+        /// <param name="connectionString">The connection string.</param>
+        /// <returns>The supported factories.</returns>
+        protected internal abstract TransportInfrastructure Initialize(SettingsHolder settings, string connectionString);
 
         /// <summary>
         /// Gets an example connection string to use when reporting lack of configured connection string to the user.
@@ -75,6 +26,69 @@ namespace NServiceBus.Transports
         /// <summary>
         /// Used by implementations to control if a connection string is necessary.
         /// </summary>
-        public virtual bool RequiresConnectionString => true;        
+        public virtual bool RequiresConnectionString => true;
+
+    }
+
+    /// <summary>
+    /// Transport infrastructure definitions.
+    /// </summary>
+    public abstract class TransportInfrastructure
+    {
+        /// <summary>
+        /// Gets the factories to receive message.
+        /// </summary>
+        public abstract TransportReceiveInfrastructure ConfigureReceiveInfrastructure();
+
+        /// <summary>
+        /// Gets the factories to send message.
+        /// </summary>
+        public abstract TransportSendInfrastructure ConfigureSendInfrastructure();
+
+        /// <summary>
+        /// Gets the factory to manage subscriptions.
+        /// </summary>
+        public abstract TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure();
+
+        /// <summary>
+        /// Returns the list of supported delivery constraints for this transport.
+        /// </summary>
+        public abstract IEnumerable<Type> DeliveryConstraints { get; }
+
+        /// <summary>
+        /// Gets the highest supported transaction mode for the this transport.
+        /// </summary>
+        public abstract TransportTransactionMode TransactionMode { get; }
+
+        /// <summary>
+        /// Returns the outbound routing policy selected for the transport.
+        /// </summary>
+        public abstract OutboundRoutingPolicy OutboundRoutingPolicy { get; }
+       
+        /// <summary>
+        /// True if the transport.
+        /// </summary>
+        public bool RequireOutboxConsent { get; protected set; }
+
+        /// <summary>
+        /// Returns the discriminator for this endpoint instance.
+        /// </summary>
+        public abstract EndpointInstance BindToLocalEndpoint(EndpointInstance instance);
+
+        /// <summary>
+        /// Converts a given logical address to the transport address.
+        /// </summary>
+        /// <param name="logicalAddress">The logical address.</param>
+        /// <returns>The transport address.</returns>
+        public abstract string ToTransportAddress(LogicalAddress logicalAddress);
+
+        /// <summary>
+        /// Returns the canonical for of the given transport address so various transport addresses can be effectively compared and de-duplicated.
+        /// </summary>
+        /// <param name="transportAddress">A transport address.</param>
+        public virtual string MakeCanonicalForm(string transportAddress)
+        {
+            return transportAddress;
+        }
     }
 }

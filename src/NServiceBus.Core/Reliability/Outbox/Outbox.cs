@@ -22,7 +22,7 @@
 
             Prerequisite(c =>
             {
-                if (!c.Settings.Get<TransportDefinition>().RequireOutboxConsent)
+                if (!c.Settings.Get<TransportInfrastructure>().RequireOutboxConsent)
                 {
                     return true;
                 }

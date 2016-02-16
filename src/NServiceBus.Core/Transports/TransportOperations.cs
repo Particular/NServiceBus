@@ -19,6 +19,7 @@ namespace NServiceBus.Transports
 
             foreach (var transportOperation in transportOperations)
             {
+                // ReSharper disable once CanBeReplacedWithTryCastAndCheckForNull
                 if (transportOperation.AddressTag is MulticastAddressTag)
                 {
                     multicastOperations.Add(new MulticastTransportOperation(

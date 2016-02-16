@@ -149,8 +149,11 @@ namespace NServiceBus
             TransportAddresses value;
             if (!Settings.TryGet(out value))
             {
-                var transportDef = Settings.Get<TransportDefinition>();
-                value = new TransportAddresses(transportDef.ToTransportAddress);
+                value = new TransportAddresses(a =>
+                {
+                    var transportInfrastructure = Settings.Get<TransportInfrastructure>();
+                    return transportInfrastructure.ToTransportAddress(a);
+                });
                 Settings.Set<TransportAddresses>(value);
             }
             return value;

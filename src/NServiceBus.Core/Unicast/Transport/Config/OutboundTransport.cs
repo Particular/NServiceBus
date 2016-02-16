@@ -5,20 +5,17 @@ namespace NServiceBus
 
     class OutboundTransport
     {
-        public TransportDefinition Definition { get; }
         public bool IsDefault { get; }
 
-        public OutboundTransport(TransportDefinition definition, bool isDefault)
+        public OutboundTransport(bool isDefault)
         {
-            Definition = definition;
             IsDefault = isDefault;
         }
 
-        public TransportSendingConfigurationResult Configure(ReadOnlySettings settings)
+        public TransportSendInfrastructure Configure(ReadOnlySettings settings)
         {
-            var connectionString = settings.Get<TransportConnectionString>().GetConnectionStringOrRaiseError(Definition);
-            var context = new TransportSendingConfigurationContext(settings, connectionString);
-            return Definition.ConfigureForSending(context);
+            var transportInfrastructure = settings.Get<TransportInfrastructure>();
+            return transportInfrastructure.ConfigureSendInfrastructure();
         }
     }
 }

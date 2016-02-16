@@ -114,8 +114,11 @@
     <Compile Include="Serializers\XML\XmlSerialization.cs" />
     <Compile Include="Settings\ScaleOutSettings.cs" />
     <Compile Include="Transports\IOutgoingTransportOperation.cs" />
+    <Compile Include="Transports\Msmq\MsmqScopeOptions.cs" />
+    <Compile Include="Transports\Msmq\MsmqTransportInfrastructure.cs" />
     <Compile Include="Transports\MulticastTransportOperation.cs" />
     <Compile Include="Transports\TransportOperations.cs" />
+    <Compile Include="Transports\TransportSubscriptionInfrastructure.cs" />
     <Compile Include="Transports\UnicastTransportOperation.cs" />
     <Compile Include="Hosting\FaultHostInformationBehavior.cs" />
     <Compile Include="Recoverability\Faults\FaultToDispatchConnector.cs" />
@@ -194,8 +197,8 @@
     <Compile Include="Transports\Msmq\TimeToBeReceivedOverrideChecker.cs" />
     <Compile Include="Transports\StartupCheckResult.cs" />
     <Compile Include="Transports\Transport.cs" />
-    <Compile Include="Transports\TransportReceivingConfigurationResult.cs" />
-    <Compile Include="Transports\TransportSendingConfigurationResult.cs" />
+    <Compile Include="Transports\TransportReceiveInfrastructure.cs" />
+    <Compile Include="Transports\TransportSendInfrastructure.cs" />
     <Compile Include="UnicastRoutingTarget.cs" />
     <Compile Include="EnumerableEx.cs" />
     <Compile Include="IMessageHandlerContext.cs" />
@@ -408,8 +411,6 @@
     <Compile Include="Transports\PushContext.cs" />
     <Compile Include="Transports\QueueBindings.cs" />
     <Compile Include="Transports\IncomingMessage.cs" />
-    <Compile Include="Transports\TransportReceivingConfigurationContext.cs" />
-    <Compile Include="Transports\TransportSendingConfigurationContext.cs" />
     <Compile Include="Transports\TransportOperation.cs" />
     <Compile Include="Pipeline\Outgoing\HeaderOptionExtensions.cs" />
     <Compile Include="Pipeline\Outgoing\MessageIdExtensions.cs" />

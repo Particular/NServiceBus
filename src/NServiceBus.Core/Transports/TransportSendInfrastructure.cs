@@ -6,12 +6,12 @@ namespace NServiceBus.Transports
     /// <summary>
     /// Represents the result for configuring the transport for sending.
     /// </summary>
-    public class TransportSendingConfigurationResult
+    public class TransportSendInfrastructure
     {
         /// <summary>
         /// Creates new result object.
         /// </summary>
-        public TransportSendingConfigurationResult(Func<IDispatchMessages> dispatcherFactory,
+        public TransportSendInfrastructure(Func<IDispatchMessages> dispatcherFactory,
             Func<Task<StartupCheckResult>> preStartupCheck)
         {
             Guard.AgainstNull(nameof(dispatcherFactory), dispatcherFactory);

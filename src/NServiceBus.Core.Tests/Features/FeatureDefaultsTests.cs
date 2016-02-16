@@ -3,6 +3,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using NServiceBus.Features;
+    using NServiceBus.Transports;
     using NUnit.Framework;
     using Settings;
 
@@ -36,12 +37,21 @@
             }
         }
 
+        private FeatureActivator featureSettings;
+        private SettingsHolder settings;
+
+        [SetUp]
+        public void Init()
+        {
+            settings = new SettingsHolder();
+            settings.Set<TransportDefinition>(new MsmqTransport());
+            featureSettings = new FeatureActivator(settings);
+        }
+
         [Test]
         public void Feature_enabled_by_later_feature_should_have_default_called()
         {
             var featureThatIsEnabledByAnother = new FeatureThatIsEnabledByAnother();
-            var settings = new SettingsHolder();
-            var featureSettings = new FeatureActivator(settings);
             //the orders matter here to expose a bug
             featureSettings.Add(featureThatIsEnabledByAnother);
             featureSettings.Add(new FeatureThatEnablesAnother());
@@ -72,9 +82,6 @@
                 OnActivation = f => activatedOrder.Add(f),
                 OnDefaults = f => defaultsOrder.Add(f)
             };
-
-            var settings = new SettingsHolder();
-            var featureSettings = new FeatureActivator(settings);
 
             //the orders matter here to expose a bug
             featureSettings.Add(level3);
@@ -107,9 +114,6 @@
             {
                 OnDefaults = f => defaultsOrder.Add(f)
             };
-
-            var settings = new SettingsHolder();
-            var featureSettings = new FeatureActivator(settings);
 
             featureSettings.Add(dependingFeature);
             featureSettings.Add(feature);
@@ -144,9 +148,6 @@
             {
                 OnDefaults = f => defaultsOrder.Add(f)
             };
-
-            var settings = new SettingsHolder();
-            var featureSettings = new FeatureActivator(settings);
 
             featureSettings.Add(dependingFeature);
             featureSettings.Add(feature);
@@ -183,9 +184,6 @@
             {
                 OnDefaults = f => defaultsOrder.Add(f)
             };
-
-            var settings = new SettingsHolder();
-            var featureSettings = new FeatureActivator(settings);
 
             //the orders matter here to expose a bug
             featureSettings.Add(level3);

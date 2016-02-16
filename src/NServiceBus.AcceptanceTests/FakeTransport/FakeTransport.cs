@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.Routing;
     using Settings;
@@ -9,32 +10,26 @@
 
     public class FakeTransport : TransportDefinition
     {
-        protected override TransportReceivingConfigurationResult ConfigureForReceiving(TransportReceivingConfigurationContext context)
+        protected override TransportInfrastructure Initialize(SettingsHolder settings, string connectionString)
         {
-            return new TransportReceivingConfigurationResult(() => new FakeReceiver(context.Settings.Get<Exception>()), () => new FakeQueueCreator(), () => Task.FromResult(StartupCheckResult.Success));
+            return new FakeTransportInfrastructure(settings);
         }
 
-        protected override TransportSendingConfigurationResult ConfigureForSending(TransportSendingConfigurationContext context)
+        public override bool RequiresConnectionString => false;
+
+        public override string ExampleConnectionStringForErrorMessage => null;
+    }
+
+    public class FakeTransportInfrastructure : TransportInfrastructure
+    {
+        readonly ReadOnlySettings settings;
+
+        public FakeTransportInfrastructure(ReadOnlySettings settings)
         {
-            return new TransportSendingConfigurationResult(() => new FakeDispatcher(), () => Task.FromResult(StartupCheckResult.Success));
+            this.settings = settings;
         }
 
-        public override IEnumerable<Type> GetSupportedDeliveryConstraints()
-        {
-            return new List<Type>();
-        }
-
-        public override TransportTransactionMode GetSupportedTransactionMode()
-        {
-            return TransportTransactionMode.ReceiveOnly;
-        }
-
-        public override IManageSubscriptions GetSubscriptionManager()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance, ReadOnlySettings settings)
+        public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance)
         {
             return instance;
         }
@@ -44,13 +39,24 @@
             return logicalAddress.ToString();
         }
 
-        public override OutboundRoutingPolicy GetOutboundRoutingPolicy(ReadOnlySettings settings)
+        public override TransportReceiveInfrastructure ConfigureReceiveInfrastructure()
         {
-            return new OutboundRoutingPolicy(OutboundRoutingType.Unicast, OutboundRoutingType.Unicast, OutboundRoutingType.Unicast);
+            return new TransportReceiveInfrastructure(() => new FakeReceiver(settings.Get<Exception>()), () => new FakeQueueCreator(), () => Task.FromResult(StartupCheckResult.Success));
         }
 
-        public override bool RequiresConnectionString => false;
+        public override TransportSendInfrastructure ConfigureSendInfrastructure()
+        {
+            return new TransportSendInfrastructure(() => new FakeDispatcher(), () => Task.FromResult(StartupCheckResult.Success));
+        }
 
-        public override string ExampleConnectionStringForErrorMessage => null;
+        public override TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override IEnumerable<Type> DeliveryConstraints { get; } = Enumerable.Empty<Type>();
+        public override TransportTransactionMode TransactionMode { get; } = TransportTransactionMode.ReceiveOnly;
+        public override OutboundRoutingPolicy OutboundRoutingPolicy { get; } = new OutboundRoutingPolicy(OutboundRoutingType.Unicast, OutboundRoutingType.Unicast, OutboundRoutingType.Unicast);
+        
     }
 }

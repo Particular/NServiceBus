@@ -11,8 +11,8 @@ namespace NServiceBus
             DependsOn<UnicastBus>();
             Defaults(s =>
             {
-                var transportDef = s.Get<TransportDefinition>();
-                s.SetDefault<TransportAddresses>(new TransportAddresses(transportDef.ToTransportAddress));
+                var transportInfrastructure = s.Get<TransportInfrastructure>();
+                s.SetDefault<TransportAddresses>(new TransportAddresses(transportInfrastructure.ToTransportAddress));
             });
         }
 

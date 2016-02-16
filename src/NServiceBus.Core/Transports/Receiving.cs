@@ -20,10 +20,10 @@ namespace NServiceBus
 
                 if (userDiscriminator != null)
                 {
-                    var p = s.Get<TransportDefinition>().BindToLocalEndpoint(new EndpointInstance(s.EndpointName(), userDiscriminator), s);
+                    var p = s.Get<TransportInfrastructure>().BindToLocalEndpoint(new EndpointInstance(s.EndpointName(), userDiscriminator));
                     s.SetDefault("NServiceBus.EndpointSpecificQueue", transportAddresses.GetTransportAddress(new LogicalAddress(p)));
                 }
-                var instanceProperties = s.Get<TransportDefinition>().BindToLocalEndpoint(new EndpointInstance(s.EndpointName()), s);
+                var instanceProperties = s.Get<TransportInfrastructure>().BindToLocalEndpoint(new EndpointInstance(s.EndpointName()));
                 s.SetDefault("NServiceBus.SharedQueue", transportAddresses.GetTransportAddress(new LogicalAddress(instanceProperties)));
 
                 s.SetDefault<EndpointInstance>(instanceProperties);
@@ -38,32 +38,32 @@ namespace NServiceBus
             var inboundTransport = context.Settings.Get<InboundTransport>();
 
             context.Settings.Get<QueueBindings>().BindReceiving(context.Settings.LocalAddress());
+
             var instanceSpecificQueue = context.Settings.InstanceSpecificQueue();
             if (instanceSpecificQueue != null)
             {
                 context.Settings.Get<QueueBindings>().BindReceiving(instanceSpecificQueue);
             }
-            context.Container.RegisterSingleton(inboundTransport.Definition);
 
-            var receiveConfigResult = inboundTransport.Configure(context.Settings);
-            context.Container.ConfigureComponent(b => receiveConfigResult.MessagePumpFactory(), DependencyLifecycle.InstancePerCall);
-            context.Container.ConfigureComponent(b => receiveConfigResult.QueueCreatorFactory(), DependencyLifecycle.SingleInstance);
+            var lazyReceiveConfigResult = new Lazy<TransportReceiveInfrastructure>(()=> inboundTransport.Configure(context.Settings));
+            context.Container.ConfigureComponent(b => lazyReceiveConfigResult.Value.MessagePumpFactory(), DependencyLifecycle.InstancePerCall);
+            context.Container.ConfigureComponent(b => lazyReceiveConfigResult.Value.QueueCreatorFactory(), DependencyLifecycle.SingleInstance);
 
-            context.RegisterStartupTask(new PrepareForReceiving(receiveConfigResult.PreStartupCheck));
+            context.RegisterStartupTask(new PrepareForReceiving(lazyReceiveConfigResult));
         }
         
         class PrepareForReceiving : FeatureStartupTask
         {
-            readonly Func<Task<StartupCheckResult>> preStartupCheck;
+            readonly Lazy<TransportReceiveInfrastructure> lazy;
 
-            public PrepareForReceiving(Func<Task<StartupCheckResult>> preStartupCheck)
+            public PrepareForReceiving(Lazy<TransportReceiveInfrastructure> lazy)
             {
-                this.preStartupCheck = preStartupCheck;
+                this.lazy = lazy;
             }
 
             protected override async Task OnStart(IMessageSession session)
             {
-                var result = await preStartupCheck().ConfigureAwait(false);
+                var result = await lazy.Value.PreStartupCheck().ConfigureAwait(false);
                 if (!result.Succeeded)
                 {
                     throw new Exception($"Pre start-up check failed: {result.ErrorMessage}");
