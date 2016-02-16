@@ -34,7 +34,7 @@
                         }, options);
                     }))
                 .Done(c => c.FailedTimeoutMovedToError)
-                .Repeat(r => r.For<AllTransportsWithoutNativeDeferral>())
+                .Repeat(r => r.For<AllTransportsWithoutNativeDeferralAndWithAtomicSendAndReceive>())
                 .Should(c => Assert.IsFalse(c.DelayedMessageDeliveredToHandler, "Message was unexpectedly delivered to the handler"))
                 .Should(c => Assert.IsTrue(c.ObserversWereNotifiedOfFlr))
                 .Should(c => Assert.IsFalse(c.ObserversWereNotifiedOfSlr))
