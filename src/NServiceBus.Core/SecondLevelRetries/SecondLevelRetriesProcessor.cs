@@ -33,20 +33,31 @@ namespace NServiceBus.SecondLevelRetries
 
         public bool Handle(TransportMessage message)
         {
-            // ----------------------------------------------------------------------------------
-            // This check has now been moved to FaultManager.
-            // However the check remains here for backwards compatibility 
-            // with messages that could be in the retries queue.
-            var defer = SecondLevelRetriesConfiguration.RetryPolicy.Invoke(message);
+            DateTime retryMessageAt;
 
-            if (defer < TimeSpan.Zero)
+            if (TransportMessageHeaderHelper.HeaderExists(message, SecondLevelRetriesHeaders.RetriesRetryAt))
             {
-                SendToErrorQueue(message);
-                return true;
+                retryMessageAt = DateTimeExtensions.ToUtcDateTime(TransportMessageHeaderHelper.GetHeader(message, SecondLevelRetriesHeaders.RetriesRetryAt));
             }
-            // ----------------------------------------------------------------------------------
+            else
+            {
+                var defer = SecondLevelRetriesConfiguration.RetryPolicy.Invoke(message);
 
-            Defer(defer, message);
+                if (defer < TimeSpan.Zero)
+                {
+                    SendToErrorQueue(message);
+                    return true;
+                }
+
+                retryMessageAt = DateTime.UtcNow + defer;
+            }
+
+            if (retryMessageAt <= DateTime.UtcNow)
+            {
+                ReturnToFaultingEndpoint(message);
+            }
+
+            Defer(retryMessageAt, message);
 
             return true;
         }
@@ -62,10 +73,20 @@ namespace NServiceBus.SecondLevelRetries
             MessageSender.Send(message, new SendOptions(FaultManager.ErrorQueue));
         }
 
-        void Defer(TimeSpan defer, TransportMessage message)
+        void ReturnToFaultingEndpoint(TransportMessage message)
         {
-            var retryMessageAt = DateTime.UtcNow + defer;
+            var addressOfFaultingEndpoint = TransportMessageHeaderHelper.GetAddressOfFaultingEndpoint(message);
 
+            if (message.Headers.ContainsKey(SecondLevelRetriesHeaders.RetriesRetryAt))
+            {
+                message.Headers.Remove(SecondLevelRetriesHeaders.RetriesRetryAt);
+            }
+
+            MessageSender.Send(message, new SendOptions(addressOfFaultingEndpoint));
+        }
+
+        void Defer(DateTime retryMessageAt, TransportMessage message)
+        {
             TransportMessageHeaderHelper.SetHeader(message, Headers.Retries,
                 (TransportMessageHeaderHelper.GetNumberOfRetries(message) + 1).ToString(CultureInfo.InvariantCulture));
 
