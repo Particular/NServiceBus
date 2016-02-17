@@ -112,7 +112,17 @@ namespace NServiceBus.Faults.Forwarder
         {
             message.TimeToBeReceived = TimeSpan.MaxValue;
 
-            var retryMessageAt = DateTime.UtcNow + defer;
+            DateTime retryMessageAt;
+
+            try
+            {
+                retryMessageAt = DateTime.UtcNow + defer;
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                Logger.WarnFormat("SLR RetryPolicy TimeSpan is too large: {0}. Retry will occur at DateTime.MaxValue",defer);
+                retryMessageAt = DateTime.MaxValue;
+            }
 
             TransportMessageHeaderHelper.SetHeader(message, SecondLevelRetriesHeaders.RetriesRetryAt,
                 DateTimeExtensions.ToWireFormattedString(retryMessageAt));
