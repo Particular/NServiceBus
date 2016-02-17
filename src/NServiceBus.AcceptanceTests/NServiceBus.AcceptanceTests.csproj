@@ -143,7 +143,8 @@
     <Compile Include="Routing\AutomaticSubscriptions\When_starting_an_endpoint_with_autoSubscribe.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Routing\When_distributing_an_event.cs" />
+    <Compile Include="Routing\When_publishing_to_scaled_out_subscribers_on_unicast_transports.cs" />
+    <Compile Include="Routing\When_publishing_to_scaled_out_subscribers_on_multicast_transports.cs" />
     <Compile Include="Msmq\When_publishing_with_authorizer.cs" />
     <Compile Include="Msmq\When_unsubscribing_with_authorizer.cs" />
     <Compile Include="Routing\When_broadcasting_a_command.cs" />
@@ -237,7 +238,6 @@
     <Compile Include="Routing\SubscriptionEventArgs.cs" />
     <Compile Include="Routing\When_base_event_from_2_publishers.cs" />
     <Compile Include="Routing\When_subscribing_to_a_polymorphic_event.cs" />
-    <Compile Include="Routing\When_publishing_on_brokers.cs" />
     <Compile Include="Routing\When_publishing.cs" />
     <Compile Include="Recoverability\Retries\When_fails_flr.cs" />
     <Compile Include="Recoverability\Retries\When_fails_with_retries_set_to_0.cs" />
