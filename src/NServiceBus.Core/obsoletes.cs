@@ -1276,7 +1276,7 @@ namespace NServiceBus.Transports
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            Message = "GetSupportedTransactionMode")]
+            Message = "Use TransportInfrastructure.TransactionMode == TransportTransactionMode.TransactionScope instead.")]
         public bool? HasSupportForDistributedTransactions
         {
             get { throw new NotImplementedException(); }
@@ -1286,7 +1286,7 @@ namespace NServiceBus.Transports
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            ReplacementTypeOrMember = "GetSupportedTransactionMode")]
+            Message = "Use TransportInfrastructure.TransactionMode == TransportTransactionMode.SendsAtomicWithReceive instead.")]
         public bool HasSupportForMultiQueueNativeTransactions
         {
             get { throw new NotImplementedException(); }
@@ -1296,7 +1296,7 @@ namespace NServiceBus.Transports
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            ReplacementTypeOrMember = "GetOutboundRoutingPolicy")]
+            Message = "Use TransportInfrastructure.OutboundRoutingPolicy.Publishes == OutboundRoutingType.Multicast instead.")]
         public bool HasNativePubSubSupport
         {
             get { throw new NotImplementedException(); }
@@ -1306,7 +1306,7 @@ namespace NServiceBus.Transports
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            ReplacementTypeOrMember = "GetOutboundRoutingPolicy")]
+            Message = "The concept of centralized publish and subscribe is no longer available.")]
         public bool HasSupportForCentralizedPubSub
         {
             get { throw new NotImplementedException(); }
