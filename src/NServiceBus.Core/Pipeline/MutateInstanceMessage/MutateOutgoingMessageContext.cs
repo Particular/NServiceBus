@@ -7,8 +7,6 @@ namespace NServiceBus.MessageMutator
     /// </summary>
     public class MutateOutgoingMessageContext
     {
-
-        object outgoingMessage;
         /// <summary>
         /// Initializes the context.
         /// </summary>
@@ -27,10 +25,7 @@ namespace NServiceBus.MessageMutator
         /// </summary>
         public object OutgoingMessage
         {
-            get
-            {
-                return outgoingMessage;
-            }
+            get { return outgoingMessage; }
             set
             {
                 Guard.AgainstNull(nameof(value), value);
@@ -38,10 +33,6 @@ namespace NServiceBus.MessageMutator
                 outgoingMessage = value;
             }
         }
-
-        internal bool MessageInstanceChanged;
-        object incomingMessage;
-        IReadOnlyDictionary<string, string> incomingHeaders;
 
         /// <summary>
         /// The current outgoing headers.
@@ -65,5 +56,12 @@ namespace NServiceBus.MessageMutator
             incomingHeaders = this.incomingHeaders;
             return incomingHeaders != null;
         }
+
+        IReadOnlyDictionary<string, string> incomingHeaders;
+        object incomingMessage;
+
+        internal bool MessageInstanceChanged;
+
+        object outgoingMessage;
     }
 }

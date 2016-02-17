@@ -14,11 +14,16 @@
         /// <summary>
         /// A <see cref="byte"/> array containing the serialized contents of the outgoing message.
         /// </summary>
-        byte[] Body { get; set; }
+        byte[] Body { get; }
 
         /// <summary>
         /// The routing strategies for this message.
         /// </summary>
         IReadOnlyCollection<RoutingStrategy> RoutingStrategies { get; }
+
+        /// <summary>
+        /// Updates the message with the given body.
+        /// </summary>
+        void UpdateMessage(byte[] body);
     }
 }

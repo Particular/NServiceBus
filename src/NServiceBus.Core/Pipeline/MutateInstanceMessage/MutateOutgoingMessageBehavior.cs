@@ -2,9 +2,9 @@
 {
     using System;
     using System.Threading.Tasks;
-    using MessageMutator;
+    using NServiceBus.MessageMutator;
+    using NServiceBus.Pipeline;
     using NServiceBus.Transports;
-    using Pipeline;
 
     class MutateOutgoingMessageBehavior : Behavior<IOutgoingLogicalMessageContext>
     {
@@ -17,9 +17,9 @@
             context.Extensions.TryGet(out incomingPhysicalMessage);
 
             var mutatorContext = new MutateOutgoingMessageContext(
-                context.Message.Instance, 
+                context.Message.Instance,
                 context.Headers,
-                incomingLogicalMessage?.Instance, 
+                incomingLogicalMessage?.Instance,
                 incomingPhysicalMessage?.Headers);
 
             foreach (var mutator in context.Builder.BuildAll<IMutateOutgoingMessages>())
@@ -29,7 +29,7 @@
 
             if (mutatorContext.MessageInstanceChanged)
             {
-                context.UpdateMessageInstance(mutatorContext.OutgoingMessage);
+                context.UpdateMessage(mutatorContext.OutgoingMessage);
             }
 
             await next().ConfigureAwait(false);

@@ -12,5 +12,10 @@
         }
 
         public IncomingMessage Message { get; }
+
+        public void UpdateMessage(byte[] body)
+        {
+            Message.Body = body;
+        }
     }
 }

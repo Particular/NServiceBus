@@ -3,14 +3,12 @@ namespace NServiceBus.MessageMutator
     using System.Collections.Generic;
 
     /// <summary>
-    /// Context class for <see cref="IMutateIncomingTransportMessages"/>.
+    /// Context class for <see cref="IMutateIncomingTransportMessages" />.
     /// </summary>
     public class MutateIncomingTransportMessageContext
     {
-        byte[] body;
-
         /// <summary>
-        /// Initializes a new instance of <see cref="MutateOutgoingTransportMessageContext"/>.
+        /// Initializes a new instance of <see cref="MutateOutgoingTransportMessageContext" />.
         /// </summary>
         public MutateIncomingTransportMessageContext(byte[] body, IDictionary<string, string> headers)
         {
@@ -29,6 +27,7 @@ namespace NServiceBus.MessageMutator
             set
             {
                 Guard.AgainstNull(nameof(value), value);
+                MessageBodyChanged = true;
                 body = value;
             }
         }
@@ -38,5 +37,8 @@ namespace NServiceBus.MessageMutator
         /// </summary>
         public IDictionary<string, string> Headers { get; private set; }
 
+        byte[] body;
+
+        internal bool MessageBodyChanged;
     }
 }

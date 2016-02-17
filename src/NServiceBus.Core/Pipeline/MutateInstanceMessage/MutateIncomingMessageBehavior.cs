@@ -18,7 +18,7 @@
                 await mutator.MutateIncoming(mutatorContext).ConfigureAwait(false);
             }
 
-            if (mutatorContext.MessageChanged)
+            if (mutatorContext.MessageInstanceChanged)
             {
                 logicalMessage.UpdateMessageInstance(mutatorContext.Message);
             }
