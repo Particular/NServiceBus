@@ -26,27 +26,5 @@
 
             Assert.IsNull(destination);
         }
-
-        [Test]
-        public void SendOptions_GetDestination_Should_Return_Configured_Destination()
-        {
-          const string expectedDestination = "custom send destination";
-          var options = new SendOptions();
-          options.SetDestination(expectedDestination);
-
-          var destination = options.GetDestination();
-
-          Assert.AreEqual(expectedDestination, destination);
-        }
-
-        [Test]
-        public void SendOptions_GetDestination_Should_Return_Null_When_No_Destination_Configured()
-        {
-          var options = new SendOptions();
-
-          var destination = options.GetDestination();
-
-          Assert.IsNull(destination);
-        }
     }
 }
