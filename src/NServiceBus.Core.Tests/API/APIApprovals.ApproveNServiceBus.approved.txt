@@ -788,7 +788,6 @@ namespace NServiceBus
     public class static RoutingOptionExtensions
     {
         public static string GetDestination(this NServiceBus.ReplyOptions options) { }
-        public static string GetDestination(this NServiceBus.SendOptions options) { }
         public static void RouteReplyTo(this NServiceBus.ReplyOptions options, string address) { }
         public static void RouteReplyTo(this NServiceBus.SendOptions options, string address) { }
         public static void RouteReplyToAnyInstance(this NServiceBus.SendOptions options) { }
