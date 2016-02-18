@@ -33,11 +33,10 @@ namespace NServiceBus
 
         public Task Stop()
         {
-            var pipelineStopTasks = pipelines.Select(async pipeline =>
+            var pipelineStopTasks = pipelines.Select(pipeline =>
             {
                 Logger.DebugFormat("Stopping {0} pipeline", pipeline.Id);
-                await pipeline.Stop().ConfigureAwait(false);
-                Logger.DebugFormat("Stopped {0} pipeline", pipeline.Id);
+                return pipeline.Stop();
             });
 
             return Task.WhenAll(pipelineStopTasks);
