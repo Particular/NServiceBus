@@ -20,10 +20,11 @@
             this.receiveAddress = receiveAddress;
         }
 
-        protected override async Task OnStart(IMessageSession session)
+        protected override Task OnStart(IMessageSession session)
         {
-            await SendReadyMessage(initialCapacity, true).ConfigureAwait(false);
-            Logger.DebugFormat("Ready startup message with WorkerSessionId {0} sent. ", workerSessionId);
+            Logger.DebugFormat("Sending ready startup message with WorkerSessionId {0} sent. ", workerSessionId);
+
+            return SendReadyMessage(initialCapacity, true);
         }
 
         protected override Task OnStop(IMessageSession session)
@@ -49,25 +50,24 @@
             return dispatcher.Dispatch(new TransportOperations(transportOperation), new ContextBag());
         }
         
-        public void MessageProcessed(Dictionary<string, string> headers)
+        public Task MessageProcessed(Dictionary<string, string> headers)
         {
             //if there was a failure this "send" will be rolled back
             string messageSessionId;
             headers.TryGetValue(LegacyDistributorHeaders.WorkerSessionId, out messageSessionId);
             if (messageSessionId == null)
             {
-                return;
+                return TaskEx.CompletedTask;
             }
             var messageId = headers[Headers.MessageId];
             Logger.DebugFormat("Got message with id {0} and messageSessionId {1}. WorkerSessionId is {2}", messageId, messageSessionId, workerSessionId);
             if (messageSessionId != workerSessionId)
             {
                 Logger.InfoFormat("SKIPPED Ready message for message with id {0} because of sessionId mismatch. MessageSessionId {1}, WorkerSessionId {2}", messageId, messageSessionId, workerSessionId);
+                return TaskEx.CompletedTask;
             }
-            else
-            {
-                SendReadyMessage(1, false);
-            }
+
+            return SendReadyMessage(1, false);
         }
 
         string distributorControlAddress;
