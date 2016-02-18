@@ -26,7 +26,7 @@
 
             Assert.That(processingStarted, Is.EqualTo(now).Within(TimeSpan.FromSeconds(30)));
             Assert.That(processingEnded, Is.EqualTo(now).Within(TimeSpan.FromSeconds(30)));
-            Assert.That(processingStarted, Is.LessThan(processingEnded));
+            Assert.That(processingStarted, Is.LessThanOrEqualTo(processingEnded));
             Assert.IsTrue(context.IsMessageHandledByTheAuditEndpoint);
         }
 
