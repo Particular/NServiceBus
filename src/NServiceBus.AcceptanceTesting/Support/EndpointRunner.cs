@@ -40,6 +40,10 @@
                 }
 
                 //apply custom config settings
+                if (configuration.GetConfiguration == null)
+                {
+                    throw new Exception($"Missing EndpointSetup<T> in the constructor of {endpointName} endpoint.");
+                }
                 endpointConfiguration = await configuration.GetConfiguration(run, routingTable).ConfigureAwait(false);
                 RegisterInheritanceHierarchyOfContextInSettings(scenarioContext);
 

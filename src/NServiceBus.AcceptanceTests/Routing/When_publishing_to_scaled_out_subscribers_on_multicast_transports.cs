@@ -3,6 +3,7 @@
     using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
+    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NUnit.Framework;
 
@@ -49,10 +50,19 @@
 
         public class Publisher : EndpointConfigurationBuilder
         {
+            public Publisher()
+            {
+                EndpointSetup<DefaultServer>();
+            }
         }
 
         public class SubscriberA : EndpointConfigurationBuilder
         {
+            public SubscriberA()
+            {
+                EndpointSetup<DefaultServer>();
+            }
+
             public class MyEventHandler : IHandleMessages<MyEvent>
             {
                 public Context Context { get; set; }
@@ -67,6 +77,11 @@
 
         public class SubscriberB : EndpointConfigurationBuilder
         {
+            public SubscriberB()
+            {
+                EndpointSetup<DefaultServer>();
+            }
+
             public class MyEventHandler : IHandleMessages<MyEvent>
             {
                 public Context Context { get; set; }
