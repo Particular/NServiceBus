@@ -49,6 +49,20 @@
         }
 
         /// <summary>
+        /// Returns the destination configured by <see cref="SetDestination(SendOptions, string)"/>.
+        /// </summary>
+        /// <param name="options">Option being extended.</param>
+        /// <returns>The specified destination address or <c>null</c> when no destination was specified.</returns>
+        public static string GetDestination(this SendOptions options)
+        {
+          Guard.AgainstNull(nameof(options), options);
+
+          UnicastSendRouterConnector.State state;
+          options.Context.TryGet(out state);
+          return state?.ExplicitDestination;
+        }
+
+        /// <summary>
         /// Routes this message to any instance of this endpoint.
         /// </summary>
         /// <param name="options">Context being extended.</param>
