@@ -83,3 +83,7 @@ src/scaffolding.config
 
 # Approval tests temp file
 *.received.*
+
+# JetBrains Rider
+.idea/
+*.sln.iml
