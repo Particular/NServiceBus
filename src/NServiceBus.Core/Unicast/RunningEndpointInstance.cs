@@ -6,12 +6,14 @@ namespace NServiceBus
     using NServiceBus.Features;
     using NServiceBus.Logging;
     using NServiceBus.ObjectBuilder;
+    using NServiceBus.Settings;
     using UnicastBus = NServiceBus.Unicast.UnicastBus;
 
     class RunningEndpointInstance : IEndpointInstance
     {
-        public RunningEndpointInstance(IBuilder builder, PipelineCollection pipelineCollection, StartAndStoppablesRunner startAndStoppablesRunner, FeatureRunner featureRunner, IMessageSession messageSession)
+        public RunningEndpointInstance(SettingsHolder settings, IBuilder builder, PipelineCollection pipelineCollection, StartAndStoppablesRunner startAndStoppablesRunner, FeatureRunner featureRunner, IMessageSession messageSession)
         {
+            this.settings = settings;
             this.builder = builder;
             this.pipelineCollection = pipelineCollection;
             this.startAndStoppablesRunner = startAndStoppablesRunner;
@@ -40,6 +42,7 @@ namespace NServiceBus
                 await pipelineCollection.Stop().ConfigureAwait(false);
                 await featureRunner.Stop(messageSession).ConfigureAwait(false);
                 await startAndStoppablesRunner.Stop(messageSession).ConfigureAwait(false);
+                settings.Clear();
                 builder.Dispose();
 
                 stopped = true;
@@ -88,6 +91,7 @@ namespace NServiceBus
         StartAndStoppablesRunner startAndStoppablesRunner;
         FeatureRunner featureRunner;
         IMessageSession messageSession;
+        SettingsHolder settings;
         IBuilder builder;
 
         static ILog Log = LogManager.GetLogger<UnicastBus>();

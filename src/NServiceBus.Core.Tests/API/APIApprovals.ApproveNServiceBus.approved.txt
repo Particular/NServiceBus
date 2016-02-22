@@ -2533,6 +2533,7 @@ namespace NServiceBus.Settings
         public SettingsHolder() { }
         public void ApplyTo<T>(NServiceBus.ObjectBuilder.IComponentConfig config) { }
         public void ApplyTo(System.Type componentType, NServiceBus.ObjectBuilder.IComponentConfig config) { }
+        public void Clear() { }
         public T Get<T>(string key) { }
         public T Get<T>() { }
         public object Get(string key) { }

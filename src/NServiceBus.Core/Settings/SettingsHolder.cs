@@ -304,6 +304,26 @@ namespace NServiceBus.Settings
             }
         }
 
+        /// <summary>
+        /// Clears the settings holder default values and overrides, if a value is disposable the dispose method will be called.
+        /// </summary>
+        public void Clear()
+        {
+            foreach (var item in Defaults)
+            {
+                (item.Value as IDisposable)?.Dispose();
+            }
+
+            Defaults.Clear();
+
+            foreach (var item in Overrides)
+            {
+                (item.Value as IDisposable)?.Dispose();
+            }
+
+            Overrides.Clear();
+        }
+
         ConcurrentDictionary<string, object> Overrides = new ConcurrentDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
         ConcurrentDictionary<string, object> Defaults = new ConcurrentDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
     }
