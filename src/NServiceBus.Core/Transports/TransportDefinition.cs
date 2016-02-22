@@ -1,8 +1,5 @@
 namespace NServiceBus.Transports
 {
-    using System;
-    using System.Collections.Generic;
-    using NServiceBus.Routing;
     using Settings;
 
     /// <summary>
@@ -27,68 +24,5 @@ namespace NServiceBus.Transports
         /// Used by implementations to control if a connection string is necessary.
         /// </summary>
         public virtual bool RequiresConnectionString => true;
-
-    }
-
-    /// <summary>
-    /// Transport infrastructure definitions.
-    /// </summary>
-    public abstract class TransportInfrastructure
-    {
-        /// <summary>
-        /// Gets the factories to receive message.
-        /// </summary>
-        public abstract TransportReceiveInfrastructure ConfigureReceiveInfrastructure();
-
-        /// <summary>
-        /// Gets the factories to send message.
-        /// </summary>
-        public abstract TransportSendInfrastructure ConfigureSendInfrastructure();
-
-        /// <summary>
-        /// Gets the factory to manage subscriptions.
-        /// </summary>
-        public abstract TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure();
-
-        /// <summary>
-        /// Returns the list of supported delivery constraints for this transport.
-        /// </summary>
-        public abstract IEnumerable<Type> DeliveryConstraints { get; }
-
-        /// <summary>
-        /// Gets the highest supported transaction mode for the this transport.
-        /// </summary>
-        public abstract TransportTransactionMode TransactionMode { get; }
-
-        /// <summary>
-        /// Returns the outbound routing policy selected for the transport.
-        /// </summary>
-        public abstract OutboundRoutingPolicy OutboundRoutingPolicy { get; }
-       
-        /// <summary>
-        /// True if the transport.
-        /// </summary>
-        public bool RequireOutboxConsent { get; protected set; }
-
-        /// <summary>
-        /// Returns the discriminator for this endpoint instance.
-        /// </summary>
-        public abstract EndpointInstance BindToLocalEndpoint(EndpointInstance instance);
-
-        /// <summary>
-        /// Converts a given logical address to the transport address.
-        /// </summary>
-        /// <param name="logicalAddress">The logical address.</param>
-        /// <returns>The transport address.</returns>
-        public abstract string ToTransportAddress(LogicalAddress logicalAddress);
-
-        /// <summary>
-        /// Returns the canonical for of the given transport address so various transport addresses can be effectively compared and de-duplicated.
-        /// </summary>
-        /// <param name="transportAddress">A transport address.</param>
-        public virtual string MakeCanonicalForm(string transportAddress)
-        {
-            return transportAddress;
-        }
     }
 }

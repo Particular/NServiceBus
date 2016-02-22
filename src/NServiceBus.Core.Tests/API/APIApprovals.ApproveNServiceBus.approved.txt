@@ -2787,14 +2787,17 @@ namespace NServiceBus.Transports
     {
         protected TransportDefinition() { }
         public abstract string ExampleConnectionStringForErrorMessage { get; }
-        [System.ObsoleteAttribute("Please use `GetOutboundRoutingPolicy` instead. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use TransportInfrastructure.OutboundRoutingPolicy.Publishes == OutboundRoutingTyp" +
+            "e.Multicast instead. Will be removed in version 7.0.0.", true)]
         public bool HasNativePubSubSupport { get; set; }
-        [System.ObsoleteAttribute("Please use `GetOutboundRoutingPolicy` instead. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("The concept of centralized publish and subscribe is no longer available. Will be " +
+            "removed in version 7.0.0.", true)]
         public bool HasSupportForCentralizedPubSub { get; set; }
-        [System.ObsoleteAttribute("GetSupportedTransactionMode. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use TransportInfrastructure.TransactionMode == TransportTransactionMode.Transacti" +
+            "onScope instead. Will be removed in version 7.0.0.", true)]
         public System.Nullable<bool> HasSupportForDistributedTransactions { get; set; }
-        [System.ObsoleteAttribute("Please use `GetSupportedTransactionMode` instead. Will be removed in version 7.0." +
-            "0.", true)]
+        [System.ObsoleteAttribute("Use TransportInfrastructure.TransactionMode == TransportTransactionMode.SendsAtom" +
+            "icWithReceive instead. Will be removed in version 7.0.0.", true)]
         public bool HasSupportForMultiQueueNativeTransactions { get; set; }
         public virtual bool RequiresConnectionString { get; }
         protected internal abstract NServiceBus.Transports.TransportInfrastructure Initialize(NServiceBus.Settings.SettingsHolder settings, string connectionString);
