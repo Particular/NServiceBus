@@ -2,7 +2,7 @@
 {
     using System;
     using System.Threading.Tasks;
-    using Pipeline;
+    using NServiceBus.Pipeline;
 
     class ProcessingStatisticsBehavior : Behavior<IIncomingPhysicalMessageContext>
     {
@@ -19,7 +19,6 @@
             }
 
             state.ProcessingStarted = DateTime.UtcNow;
-
             context.Extensions.Set(state);
             try
             {
@@ -33,18 +32,9 @@
 
         public class State
         {
-            public DateTime? TimeSent{ get; set; }
+            public DateTime? TimeSent { get; set; }
             public DateTime ProcessingStarted { get; set; }
             public DateTime ProcessingEnded { get; set; }
-        }
-
-        public class Registration : RegisterStep
-        {
-            public Registration()
-                : base(WellKnownStep.ProcessingStatistics, typeof(ProcessingStatisticsBehavior), "Collects timing for ProcessingStarted and ProcessingEnded")
-            {
-                InsertAfterIfExists("InvokeAuditPipeline");
-            }
         }
     }
 }

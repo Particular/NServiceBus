@@ -13,14 +13,20 @@
         [Test]
         public async Task Should_contain_processing_stats_headers()
         {
+            var now = DateTime.UtcNow;
+
             var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithAuditOn>(b => b.When(session => session.SendLocal(new MessageToBeAudited())))
             .WithEndpoint<EndpointThatHandlesAuditMessages>()
             .Done(c => c.IsMessageHandledByTheAuditEndpoint)
             .Run();
 
-            Assert.IsTrue(context.Headers.ContainsKey(Headers.ProcessingStarted));
-            Assert.IsTrue(context.Headers.ContainsKey(Headers.ProcessingEnded));
+            var processingStarted = DateTimeExtensions.ToUtcDateTime(context.Headers[Headers.ProcessingStarted]);
+            var processingEnded = DateTimeExtensions.ToUtcDateTime(context.Headers[Headers.ProcessingEnded]);
+
+            Assert.That(processingStarted, Is.EqualTo(now).Within(TimeSpan.FromSeconds(30)));
+            Assert.That(processingEnded, Is.EqualTo(now).Within(TimeSpan.FromSeconds(30)));
+            Assert.That(processingStarted, Is.LessThanOrEqualTo(processingEnded));
             Assert.IsTrue(context.IsMessageHandledByTheAuditEndpoint);
         }
 
