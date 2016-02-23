@@ -2580,7 +2580,7 @@ namespace NServiceBus.Timeout.Core
     }
     public interface IQueryTimeouts
     {
-        System.Threading.Tasks.Task<NServiceBus.Timeout.Core.TimeoutsChunk> GetNextChunk(System.DateTime startSlice);
+        System.Threading.Tasks.Task<NServiceBus.Timeout.Core.TimeoutsChunk> GetNextChunk(System.DateTime startSlice, System.Threading.CancellationToken cancellationToken = null);
     }
     public class TimeoutData
     {
