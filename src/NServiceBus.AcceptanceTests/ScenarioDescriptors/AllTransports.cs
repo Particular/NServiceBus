@@ -74,6 +74,14 @@
         }
     }
 
+    public class AllTransportsWithoutNativeDeferralAndWithAtomicSendAndReceive : AllTransports
+    {
+        public AllTransportsWithoutNativeDeferralAndWithAtomicSendAndReceive()
+        {
+            ScenarioFilter.Run(this, Remove);
+        }
+    }
+
     public class TypeScanner
     {
         public static IEnumerable<Type> GetAllTypesAssignableTo<T>()
