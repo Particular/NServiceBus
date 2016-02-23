@@ -29,7 +29,7 @@
         {
             get
             {
-                var specificTransport = Environment.GetEnvironmentVariable("Transport.UseSpecific");
+                var specificTransport = EnvironmentHelper.GetEnvironmentVariable("Transport.UseSpecific");
 
                 if (!string.IsNullOrEmpty(specificTransport))
                     return AllAvailable.Single(r => r.Key == specificTransport);
