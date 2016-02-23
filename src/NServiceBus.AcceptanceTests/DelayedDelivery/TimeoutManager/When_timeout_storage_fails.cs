@@ -11,7 +11,7 @@
     using NServiceBus.Persistence;
     using NServiceBus.Timeout.Core;
     using NUnit.Framework;
-
+    using System.Threading;
     public class When_timeout_storage_fails : NServiceBusAcceptanceTest
     {
         [Test]
@@ -97,7 +97,7 @@
                     testContext = context;
                 }
 
-                public Task<TimeoutsChunk> GetNextChunk(DateTime startSlice)
+                public Task<TimeoutsChunk> GetNextChunk(DateTime startSlice, CancellationToken cancellationToken = default(CancellationToken))
                 {
                     return Task.FromResult(new TimeoutsChunk(new List<TimeoutsChunk.Timeout>(), DateTime.UtcNow + TimeSpan.FromSeconds(10)));
                 }

@@ -91,7 +91,7 @@ namespace NServiceBus
             return TaskEx.CompletedTask;
         }
 
-        public Task<TimeoutsChunk> GetNextChunk(DateTime startSlice)
+        public Task<TimeoutsChunk> GetNextChunk(DateTime startSlice, CancellationToken cancellationToken = default(CancellationToken))
         {
             var now = DateTime.UtcNow;
             var nextTimeToRunQuery = DateTime.MaxValue;

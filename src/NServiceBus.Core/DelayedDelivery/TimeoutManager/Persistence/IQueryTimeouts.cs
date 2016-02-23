@@ -1,6 +1,7 @@
 namespace NServiceBus.Timeout.Core
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -12,7 +13,10 @@ namespace NServiceBus.Timeout.Core
         /// Retrieves the next range of timeouts that are due.
         /// </summary>
         /// <param name="startSlice">The time where to start retrieving the next slice, the slice should exclude this date.</param>
-        /// <returns>Returns the next range of timeouts that are due.</returns>
-        Task<TimeoutsChunk> GetNextChunk(DateTime startSlice);
+        /// <param name="cancellationToken">The cancellation token used by the caller to notify that the pending work should be cancelled.</param>
+        /// <returns>
+        /// Returns the next range of timeouts that are due.
+        /// </returns>
+        Task<TimeoutsChunk> GetNextChunk(DateTime startSlice, CancellationToken cancellationToken = default(CancellationToken));
     }
 }
