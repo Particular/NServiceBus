@@ -21,6 +21,6 @@
         /// <summary>
         /// Updates the message instance.
         /// </summary>
-        void UpdateMessageInstance(object newInstance);
+        void UpdateMessage(object newInstance);
     }
 }

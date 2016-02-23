@@ -2001,6 +2001,7 @@ namespace NServiceBus.Pipeline
     public interface IIncomingPhysicalMessageContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IMessageProcessingContext, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IIncomingContext
     {
         NServiceBus.Transports.IncomingMessage Message { get; }
+        void UpdateMessage(byte[] body);
     }
     public interface IInvokeHandlerContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IMessageHandlerContext, NServiceBus.IMessageProcessingContext, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IIncomingContext
     {
@@ -2020,12 +2021,13 @@ namespace NServiceBus.Pipeline
     {
         NServiceBus.Pipeline.OutgoingLogicalMessage Message { get; }
         System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.RoutingStrategy> RoutingStrategies { get; }
-        void UpdateMessageInstance(object newInstance);
+        void UpdateMessage(object newInstance);
     }
     public interface IOutgoingPhysicalMessageContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IOutgoingContext
     {
-        byte[] Body { get; set; }
+        byte[] Body { get; }
         System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.RoutingStrategy> RoutingStrategies { get; }
+        void UpdateMessage(byte[] body);
     }
     public interface IOutgoingPublishContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IOutgoingContext
     {

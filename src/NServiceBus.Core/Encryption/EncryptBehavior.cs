@@ -19,7 +19,7 @@
 
             currentMessageToSend = messageMutator.MutateOutgoing(currentMessageToSend);
 
-            context.UpdateMessageInstance(currentMessageToSend);
+            context.UpdateMessage(currentMessageToSend);
 
             return next();
         }

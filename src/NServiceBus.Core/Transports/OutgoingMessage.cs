@@ -27,13 +27,13 @@ namespace NServiceBus.Transports
         /// <summary>
         /// The body to be sent.
         /// </summary>
-        public byte[] Body { get; private set; }
+        public byte[] Body { get; }
 
 
         /// <summary>
         /// The id of the message.
         /// </summary>
-        public string MessageId { get; private set; }
+        public string MessageId { get; }
 
         /// <summary>
         /// The headers for the message.

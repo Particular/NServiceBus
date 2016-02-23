@@ -13,8 +13,13 @@
             RoutingStrategies = routingStrategies;
         }
 
-        public byte[] Body { get; set; }
+        public byte[] Body { get; private set; }
 
-        public IReadOnlyCollection<RoutingStrategy> RoutingStrategies { get; } 
+        public IReadOnlyCollection<RoutingStrategy> RoutingStrategies { get; }
+
+        public void UpdateMessage(byte[] body)
+        {
+            Body = body;
+        }
     }
 }

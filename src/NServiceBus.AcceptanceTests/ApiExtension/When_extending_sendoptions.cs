@@ -61,7 +61,7 @@
                     Context data;
                     if (context.Extensions.TryGet(out data))
                     {
-                        context.UpdateMessageInstance(new SendMessage { Secret = data.SomeValue });
+                        context.UpdateMessage(new SendMessage { Secret = data.SomeValue });
                     }
 
                     return next();

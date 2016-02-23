@@ -2,8 +2,8 @@
 {
     using System;
     using System.Threading.Tasks;
-    using MessageMutator;
-    using Pipeline;
+    using NServiceBus.MessageMutator;
+    using NServiceBus.Pipeline;
 
     class MutateIncomingTransportMessageBehavior : Behavior<IIncomingPhysicalMessageContext>
     {
@@ -16,7 +16,12 @@
             {
                 await mutator.MutateIncoming(mutatorContext).ConfigureAwait(false);
             }
-            transportMessage.Body = mutatorContext.Body;
+
+            if (mutatorContext.MessageBodyChanged)
+            {
+                context.UpdateMessage(mutatorContext.Body);
+            }
+
             await next().ConfigureAwait(false);
         }
     }

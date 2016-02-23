@@ -18,7 +18,7 @@
 
         public IReadOnlyCollection<RoutingStrategy> RoutingStrategies { get; }
 
-        public void UpdateMessageInstance(object newInstance)
+        public void UpdateMessage(object newInstance)
         {
             Guard.AgainstNull(nameof(newInstance), newInstance);
 
