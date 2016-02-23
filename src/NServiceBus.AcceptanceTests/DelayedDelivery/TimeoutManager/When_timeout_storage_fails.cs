@@ -97,7 +97,7 @@
                     testContext = context;
                 }
 
-                public Task<TimeoutsChunk> GetNextChunk(DateTime startSlice, CancellationToken cancellationToken = default(CancellationToken))
+                public Task<TimeoutsChunk> GetNextChunk(DateTime startSlice, int maxChunkSize = Int32.MaxValue, CancellationToken cancellationToken = default(CancellationToken))
                 {
                     return Task.FromResult(new TimeoutsChunk(new List<TimeoutsChunk.Timeout>(), DateTime.UtcNow + TimeSpan.FromSeconds(10)));
                 }

@@ -95,7 +95,7 @@
             return Task.FromResult<TimeoutData>(null);
         }
 
-        public Task<TimeoutsChunk> GetNextChunk(DateTime startSlice, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<TimeoutsChunk> GetNextChunk(DateTime startSlice, int maxChunkSize = Int32.MaxValue, CancellationToken cancellationToken = default(CancellationToken))
         {
             ThrowExceptionUntilWaitTimeReached();
 
