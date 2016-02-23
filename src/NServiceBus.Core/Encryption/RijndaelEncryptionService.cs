@@ -30,6 +30,7 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Security.Cryptography;
     using Logging;
     using NServiceBus.Pipeline;
@@ -198,6 +199,13 @@ namespace NServiceBus
             using (var rijndael = new RijndaelManaged())
             {
                 var bitLength = key.Length * 8;
+
+                var maxValidKeyBitLength = rijndael.LegalKeySizes.OrderByDescending(keyLength => keyLength.MaxSize).Select(keyLength => keyLength.MaxSize).First();
+                if (bitLength < maxValidKeyBitLength)
+                {
+                    Log.WarnFormat("Encryption key is is {0} bits which is less than the maximum allowed {1} bits. Increasing the key length to {1} bits would provide stronger security.", bitLength, maxValidKeyBitLength);
+                }
+
                 return rijndael.ValidKeySize(bitLength);
             }
         }
