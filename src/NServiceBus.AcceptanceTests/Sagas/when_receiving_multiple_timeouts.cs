@@ -17,7 +17,7 @@
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                     .WithEndpoint<Endpoint>(b => b.When((session, c) => session.SendLocal(new StartSaga1 { ContextId = c.Id })))
                     .Done(c => (c.Saga1TimeoutFired && c.Saga2TimeoutFired) || c.SagaNotFound)
-                    .Run(TimeSpan.FromSeconds(20));
+                    .Run(TimeSpan.FromSeconds(60));
 
             Assert.IsFalse(context.SagaNotFound);
             Assert.IsTrue(context.Saga1TimeoutFired);
