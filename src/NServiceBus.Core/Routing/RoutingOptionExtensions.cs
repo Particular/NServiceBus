@@ -30,25 +30,31 @@
         }
 
         /// <summary>
+        /// Allows the target endpoint instance for this reply to set. If not used the reply will be sent to the `ReplyToAddress` of the incoming message.
         /// </summary>
-        public static void RouteTo(this ReplyOptions options, Destination destination)
+        /// <param name="options">Option being extended.</param>
+        /// <param name="destination">The new target address.</param>
+        public static void SetDestination(this ReplyOptions options, string destination)
         {
             Guard.AgainstNull(nameof(options), options);
-            Guard.AgainstNull(nameof(destination), destination);
+            Guard.AgainstNullAndEmpty(nameof(destination), destination);
 
-            options.GetExtensions().Set(destination);
+            options.Context.GetOrCreate<UnicastReplyRouterConnector.State>()
+                .ExplicitDestination = destination;
         }
 
         /// <summary>
+        /// Returns the destination configured by <see cref="SetDestination(ReplyOptions, string)"/>.
         /// </summary>
-        public static Destination GetRouteTo(this ReplyOptions options)
+        /// <param name="options">Option being extended.</param>
+        /// <returns>The specified destination address or <c>null</c> when no destination was specified.</returns>
+        public static string GetDestination(this ReplyOptions options)
         {
             Guard.AgainstNull(nameof(options), options);
 
-            Destination destination;
-            options.GetExtensions().TryGet(out destination);
-
-            return destination;
+            UnicastReplyRouterConnector.State state;
+            options.Context.TryGet(out state);
+            return state?.ExplicitDestination;
         }
 
         /// <summary>

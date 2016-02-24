@@ -286,6 +286,15 @@ namespace NServiceBus
         InstancePerUnitOfWork = 1,
         InstancePerCall = 2,
     }
+    public sealed class Destination
+    {
+        public static readonly NServiceBus.Destination ThisEndpoint;
+        public static readonly NServiceBus.Destination ThisInstance;
+        public static NServiceBus.Destination Address(string address) { }
+        public override bool Equals(object obj) { }
+        public override int GetHashCode() { }
+        public static NServiceBus.Destination SpecificInstance(string instanceId) { }
+    }
     public class static DurableMessagesConfig
     {
         public static void DisableDurableMessages(this NServiceBus.EndpointConfiguration config) { }
@@ -801,26 +810,20 @@ namespace NServiceBus
     public class static RoutingOptionExtensions
     {
         public static string GetDestination(this NServiceBus.ReplyOptions options) { }
-        public static string GetDestination(this NServiceBus.SendOptions options) { }
         public static string GetReplyToRoute(this NServiceBus.ReplyOptions options) { }
         public static string GetReplyToRoute(this NServiceBus.SendOptions options) { }
-        public static string GetRouteToSpecificInstance(this NServiceBus.SendOptions options) { }
+        public static NServiceBus.Destination GetRouteTo(this NServiceBus.SendOptions options) { }
         public static bool IsRoutingReplyToAnyInstance(this NServiceBus.SendOptions options) { }
         public static bool IsRoutingReplyToAnyInstance(this NServiceBus.ReplyOptions options) { }
         public static bool IsRoutingReplyToThisInstance(this NServiceBus.SendOptions options) { }
         public static bool IsRoutingReplyToThisInstance(this NServiceBus.ReplyOptions options) { }
-        public static bool IsRoutingToThisEndpoint(this NServiceBus.SendOptions options) { }
-        public static bool IsRoutingToThisInstance(this NServiceBus.SendOptions options) { }
         public static void RouteReplyTo(this NServiceBus.ReplyOptions options, string address) { }
         public static void RouteReplyTo(this NServiceBus.SendOptions options, string address) { }
         public static void RouteReplyToAnyInstance(this NServiceBus.SendOptions options) { }
         public static void RouteReplyToAnyInstance(this NServiceBus.ReplyOptions options) { }
         public static void RouteReplyToThisInstance(this NServiceBus.SendOptions options) { }
         public static void RouteReplyToThisInstance(this NServiceBus.ReplyOptions options) { }
-        public static void RouteToSpecificInstance(this NServiceBus.SendOptions options, string instanceId) { }
-        public static void RouteToThisEndpoint(this NServiceBus.SendOptions options) { }
-        public static void RouteToThisInstance(this NServiceBus.SendOptions options) { }
-        public static void SetDestination(this NServiceBus.SendOptions options, string destination) { }
+        public static void RouteTo(this NServiceBus.SendOptions options, NServiceBus.Destination destination) { }
         public static void SetDestination(this NServiceBus.ReplyOptions options, string destination) { }
     }
     public class RoutingSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings

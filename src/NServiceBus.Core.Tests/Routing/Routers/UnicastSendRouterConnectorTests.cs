@@ -19,7 +19,7 @@
         {
             var behavior = InitializeBehavior();
             var options = new SendOptions();
-//            options.SetDestination("destination endpoint");
+            options.RouteTo(Destination.Address("destination endpoint"));
             var context = CreateContext(options);
 
             await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
