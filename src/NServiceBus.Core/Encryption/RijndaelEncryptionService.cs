@@ -203,7 +203,7 @@ namespace NServiceBus
                 var maxValidKeyBitLength = rijndael.LegalKeySizes.OrderByDescending(keyLength => keyLength.MaxSize).Select(keyLength => keyLength.MaxSize).First();
                 if (bitLength < maxValidKeyBitLength)
                 {
-                    Log.WarnFormat("Encryption key is is {0} bits which is less than the maximum allowed {1} bits. Increasing the key length to {1} bits would provide stronger security.", bitLength, maxValidKeyBitLength);
+                    Log.WarnFormat("Encryption key is {0} bits which is less than the maximum allowed {1} bits. Increasing the key length to {1} bits would provide stronger security.", bitLength, maxValidKeyBitLength);
                 }
 
                 return rijndael.ValidKeySize(bitLength);
