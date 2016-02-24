@@ -53,7 +53,7 @@ namespace NServiceBus
             var options = new SendOptions();
 
             options.DelayDeliveryWith(taskDefinition.Every);
-            options.RouteToThisEndpoint();
+            options.RouteTo(Destination.ThisEndpoint);
 
             return context.Send(new ScheduledTask
             {

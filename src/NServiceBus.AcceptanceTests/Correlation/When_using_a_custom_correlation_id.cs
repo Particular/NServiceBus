@@ -19,7 +19,7 @@
                         var options = new SendOptions();
 
                         options.SetCorrelationId(CorrelationId);
-                        options.RouteToThisEndpoint();
+                        options.RouteTo(Destination.ThisEndpoint);
 
                         return session.Send(new MessageWithCustomCorrelationId(), options);
                     }))

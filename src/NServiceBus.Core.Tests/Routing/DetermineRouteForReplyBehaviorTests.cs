@@ -68,7 +68,7 @@
             var behavior = new UnicastReplyRouterConnector();
             var options = new ReplyOptions();
 
-            options.SetDestination("CustomReplyToAddress");
+            options.RouteTo(Destination.Address("CustomReplyToAddress"));
 
             var context = new OutgoingReplyContext(
                 new OutgoingLogicalMessage(new MyReply()),

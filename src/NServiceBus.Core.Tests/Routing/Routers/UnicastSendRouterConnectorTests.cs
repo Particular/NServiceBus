@@ -19,7 +19,7 @@
         {
             var behavior = InitializeBehavior();
             var options = new SendOptions();
-            options.SetDestination("destination endpoint");
+//            options.SetDestination("destination endpoint");
             var context = CreateContext(options);
 
             await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
@@ -34,7 +34,7 @@
             var behavior = InitializeBehavior();
             var options = new SendOptions();
 
-            options.SetDestination("destination endpoint");
+            options.RouteTo(Destination.Address("destination endpoint"));
 
             var context = CreateContext(options);
 
@@ -54,7 +54,7 @@
             var behavior = InitializeBehavior(sharedQueue: "MyLocalAddress");
             var options = new SendOptions();
 
-            options.RouteToThisEndpoint();
+            options.RouteTo(Destination.ThisEndpoint);
 
             var context = CreateContext(options);
 
@@ -74,7 +74,7 @@
             var behavior = InitializeBehavior(sharedQueue: "MyLocalAddress", instanceSpecificQueue: "MyInstance");
             var options = new SendOptions();
 
-            options.RouteToThisInstance();
+            options.RouteTo(Destination.ThisInstance);
 
             var context = CreateContext(options);
 
@@ -97,65 +97,11 @@
             {
                 var options = new SendOptions();
 
-                options.RouteToThisInstance();
+                options.RouteTo(Destination.ThisInstance);
 
                 var context = CreateContext(options);
                 await behavior.Invoke(context, c => TaskEx.CompletedTask);
                 Assert.Fail("RouteToThisInstance");
-            }
-            catch (Exception)
-            {
-                // ignored
-            }
-        }
-
-        [Test]
-        public async Task Should_throw_if_invalid_route_combinations_are_used()
-        {
-            var behavior = InitializeBehavior(sharedQueue: "MyLocalAddress", instanceSpecificQueue: "MyInstance");
-
-            try
-            {
-                var options = new SendOptions();
-
-                options.RouteToThisInstance();
-                options.SetDestination("Destination");
-
-                var context = CreateContext(options);
-                await behavior.Invoke(context, c => TaskEx.CompletedTask);
-                Assert.Fail("RouteToThisInstance+SetDestination");
-            }
-            catch (Exception)
-            {
-                // ignored
-            }
-
-            try
-            {
-                var options = new SendOptions();
-
-                options.RouteToThisEndpoint();
-                options.SetDestination("Destination");
-
-                var context = CreateContext(options);
-                await behavior.Invoke(context, c => TaskEx.CompletedTask);
-                Assert.Fail("RouteToThisEndpoint+SetDestination");
-            }
-            catch (Exception)
-            {
-                // ignored
-            }
-
-            try
-            {
-                var options = new SendOptions();
-
-                options.RouteToThisEndpoint();
-                options.RouteToThisInstance();
-
-                var context = CreateContext(options);
-                await behavior.Invoke(context, c => TaskEx.CompletedTask);
-                Assert.Fail("RouteToThisEndpoint+RouteToThisInstance");
             }
             catch (Exception)
             {

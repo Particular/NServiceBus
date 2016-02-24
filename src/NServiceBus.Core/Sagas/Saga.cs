@@ -57,7 +57,7 @@ namespace NServiceBus
             var options = new SendOptions();
 
             options.DoNotDeliverBefore(at);
-            options.RouteToThisEndpoint();
+            options.RouteTo(Destination.ThisEndpoint);
 
             SetTimeoutHeaders(options);
 
@@ -87,7 +87,7 @@ namespace NServiceBus
             var sendOptions = new SendOptions();
 
             sendOptions.DelayDeliveryWith(within);
-            sendOptions.RouteToThisEndpoint();
+            sendOptions.RouteTo(Destination.ThisEndpoint);
 
             SetTimeoutHeaders(sendOptions);
 
@@ -106,7 +106,7 @@ namespace NServiceBus
 
             var options = new ReplyOptions();
 
-            options.SetDestination(Entity.Originator);
+            options.RouteTo(Destination.Address(Entity.Originator));
             options.SetCorrelationId(Entity.OriginalMessageId);
 
             //until we have metadata we just set this to null to avoid our own saga id being set on outgoing messages since

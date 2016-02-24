@@ -21,7 +21,7 @@
                         var options = new SendOptions();
 
                         options.SetMessageId(duplicateMessageId);
-                        options.RouteToThisEndpoint();
+                        options.RouteTo(Destination.ThisEndpoint);
 
                         await session.Send(new PlaceOrder(), options);
                         await session.Send(new PlaceOrder(), options);
