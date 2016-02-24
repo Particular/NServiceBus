@@ -41,12 +41,31 @@
         /// <summary>
         /// Creates a new satellite processing pipeline.
         /// </summary>
+        /// <param name="name">Name of the satellite.</param>
+        /// <param name="transportAddress">Transport address to listen on.</param>
+        /// <param name="qualifier">The qualifier used to generate satellite's transport address.</param>
+        /// <param name="requiredTransportTransactionMode">Minimum required transaction mode.</param>
+        /// <param name="runtimeSettings">Transport runtime settings.</param>
+        /// <returns>The pipeline settings.</returns>
         public PipelineSettings AddSatellitePipeline(string name, string qualifier, TransportTransactionMode requiredTransportTransactionMode, PushRuntimeSettings runtimeSettings, out string transportAddress)
         {
             var instanceName = Settings.EndpointInstanceName();
             var satelliteLogicalAddress = new LogicalAddress(instanceName, qualifier);
             transportAddress = Settings.Get<TransportAddresses>().GetTransportAddress(satelliteLogicalAddress);
 
+            return AddSatellitePipeline(name, transportAddress, requiredTransportTransactionMode, runtimeSettings);
+        }
+
+        /// <summary>
+        /// Creates a new satellite processing pipeline.
+        /// </summary>
+        /// <param name="name">Name of the satellite.</param>
+        /// <param name="transportAddress">Transport address to listen on.</param>
+        /// <param name="requiredTransportTransactionMode">Minimum required transaction mode.</param>
+        /// <param name="runtimeSettings">Transport runtime settings.</param>
+        /// <returns>The pipeline settings.</returns>
+        public PipelineSettings AddSatellitePipeline(string name, string transportAddress, TransportTransactionMode requiredTransportTransactionMode, PushRuntimeSettings runtimeSettings)
+        {
             var pipelineModifications = new SatellitePipelineModifications(name, transportAddress, requiredTransportTransactionMode, runtimeSettings);
             Settings.Get<PipelineConfiguration>().SatellitePipelines.Add(pipelineModifications);
             var newPipeline = new PipelineSettings(pipelineModifications);
