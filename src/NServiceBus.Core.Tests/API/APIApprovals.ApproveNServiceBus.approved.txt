@@ -1497,6 +1497,7 @@ namespace NServiceBus.Features
         public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
         public NServiceBus.Settings.ReadOnlySettings Settings { get; }
         public NServiceBus.Pipeline.PipelineSettings AddSatellitePipeline(string name, string qualifier, NServiceBus.TransportTransactionMode requiredTransportTransactionMode, NServiceBus.Transports.PushRuntimeSettings runtimeSettings, out string transportAddress) { }
+        public NServiceBus.Pipeline.PipelineSettings AddSatellitePipeline(string name, string transportAddress, NServiceBus.TransportTransactionMode requiredTransportTransactionMode, NServiceBus.Transports.PushRuntimeSettings runtimeSettings) { }
         public void RegisterStartupTask<TTask>(TTask startupTask)
             where TTask : NServiceBus.Features.FeatureStartupTask { }
         public void RegisterStartupTask<TTask>(System.Func<TTask> startupTaskFactory)
