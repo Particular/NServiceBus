@@ -1,5 +1,7 @@
 ﻿namespace NServiceBus
 {
+    using NServiceBus.Extensibility;
+
     /// <summary>
     /// Gives users fine grained control over routing via extension methods.
     /// </summary>
@@ -60,6 +62,28 @@
           UnicastSendRouterConnector.State state;
           options.Context.TryGet(out state);
           return state?.ExplicitDestination;
+        }
+
+        /// <summary>
+        /// </summary>
+        public static void RouteTo(this SendOptions options, Destination destination)
+        {
+            Guard.AgainstNull(nameof(options), options);
+            Guard.AgainstNull(nameof(destination), destination);
+
+            options.GetExtensions().Set(destination);
+        }
+
+        /// <summary>
+        /// </summary>
+        public static Destination GetRouteTo(this SendOptions options)
+        {
+            Guard.AgainstNull(nameof(options), options);
+
+            Destination destination;
+            options.GetExtensions().TryGet(out destination);
+
+            return destination;
         }
 
         /// <summary>
