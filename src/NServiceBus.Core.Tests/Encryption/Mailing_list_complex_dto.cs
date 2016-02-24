@@ -11,14 +11,9 @@
         {
             var message = new TestDto();
 
-            var dict = message.Options[TestEnum.EnumValue1];
-            dict["test"] = "aString";
-
             message.Options[TestEnum.EnumValue1]["test"] = "aString";
 
-            var result = (TestDto)mutator.MutateOutgoing(message);
-
-            Assert.True(result.Options.ContainsKey(TestEnum.EnumValue1));
+            inspector.ScanObject(message);
         }
 
         enum TestEnum

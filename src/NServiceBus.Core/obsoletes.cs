@@ -34,7 +34,6 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Reflection;
-    using NServiceBus.Encryption;
     using NServiceBus.ObjectBuilder;
 
     public static partial class ConfigureCriticalErrorAction

@@ -3,8 +3,9 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using NServiceBus.Config;
-    using NServiceBus.Encryption;
+    using System.Text;
+    using Config;
+    using NServiceBus.Logging;
     using NServiceBus.Settings;
 
     /// <summary>
@@ -12,6 +13,8 @@ namespace NServiceBus
     /// </summary>
     public static partial class ConfigureRijndaelEncryptionService
     {
+        static readonly ILog Log = LogManager.GetLogger(typeof(ConfigureRijndaelEncryptionService));
+
         /// <summary>
         /// Use 256 bit AES encryption based on the Rijndael cipher.
         /// </summary>
@@ -23,71 +26,107 @@ namespace NServiceBus
             {
                 var section = config.Settings
                     .GetConfigSection<RijndaelEncryptionServiceConfig>();
+
                 return ConvertConfigToRijndaelService(section);
             });
         }
 
         internal static IEncryptionService ConvertConfigToRijndaelService(RijndaelEncryptionServiceConfig section)
         {
+            ValidateConfigSection(section);
+            var keys = ExtractKeysFromConfigSection(section);
+            var decryptionKeys = ExtractDecryptionKeysFromConfigSection(section);
+            return BuildRijndaelEncryptionService(
+                section.KeyIdentifier,
+                keys,
+                decryptionKeys
+                );
+        }
+
+        internal static void ValidateConfigSection(RijndaelEncryptionServiceConfig section)
+        {
             if (section == null)
             {
                 throw new Exception("No RijndaelEncryptionServiceConfig defined. Please specify a valid 'RijndaelEncryptionServiceConfig' in your application's configuration file.");
             }
-            if (string.IsNullOrWhiteSpace(section.Key))
-            {
-                throw new Exception("The RijndaelEncryptionServiceConfig has an empty a 'Key' property.");
-            }
-            var expiredKeys = ExtractExpiredKeysFromConfigSection(section);
-            return BuildRijndaelEncryptionService(section.Key, expiredKeys);
-        }
-
-        internal static List<string> ExtractExpiredKeysFromConfigSection(RijndaelEncryptionServiceConfig section)
-        {
             if (section.ExpiredKeys == null)
             {
-                return new List<string>();
+                throw new Exception("RijndaelEncryptionServiceConfig.ExpiredKeys is null.");
             }
-            var encryptionKeys = section.ExpiredKeys
-                .Cast<RijndaelExpiredKey>()
-                .Select(x => x.Key)
-                .ToList();
-            if (encryptionKeys.Any(string.IsNullOrWhiteSpace))
+            if (string.IsNullOrWhiteSpace(section.Key))
             {
-                throw new Exception("The RijndaelEncryptionServiceConfig has a 'ExpiredKeys' property defined however some keys have no data.");
+                throw new Exception("The RijndaelEncryptionServiceConfig has an empty 'Key' property.");
             }
-            if (encryptionKeys.Any(x => x == section.Key))
+            if (RijndaelEncryptionServiceConfigValidations.ExpiredKeysHaveWhiteSpace(section))
+            {
+                throw new Exception("The RijndaelEncryptionServiceConfig has a 'ExpiredKeys' property defined however some keys have no 'Key' property set.");
+            }
+            if (RijndaelEncryptionServiceConfigValidations.OneOrMoreExpiredKeysHaveNoKeyIdentifier(section))
+            {
+                Log.Warn("The RijndaelEncryptionServiceConfig has a 'ExpiredKeys' property defined however some keys have no 'KeyIdentifier' property value. Please verify if this is intentional.");
+            }
+            if (RijndaelEncryptionServiceConfigValidations.EncryptionKeyListedInExpiredKeys(section))
             {
                 throw new Exception("The RijndaelEncryptionServiceConfig has a 'Key' that is also defined inside the 'ExpiredKeys'.");
             }
-
-            if (encryptionKeys.Count != encryptionKeys.Distinct().Count())
+            if (RijndaelEncryptionServiceConfigValidations.ExpiredKeysHaveDuplicateKeys(section))
             {
                 throw new Exception("The RijndaelEncryptionServiceConfig has overlapping ExpiredKeys defined. Please ensure that no keys overlap in the 'ExpiredKeys' property.");
             }
-            return encryptionKeys;
+            if (RijndaelEncryptionServiceConfigValidations.ConfigurationHasDuplicateKeyIdentifiers(section))
+            {
+                throw new Exception("The RijndaelEncryptionServiceConfig has duplicate KeyIdentifiers defined with the same key identifier. Key identifiers must be unique in the complete configuration section.");
+            }
+
+        }
+
+        internal static List<byte[]> ExtractDecryptionKeysFromConfigSection(RijndaelEncryptionServiceConfig section)
+        {
+            var o = new List<byte[]>();
+            o.Add(ParseKey(section.Key, section.KeyFormat));
+            o.AddRange(section.ExpiredKeys
+                .Cast<RijndaelExpiredKey>()
+                .Select(x => ParseKey(x.Key, x.KeyFormat)));
+
+            return o;
         }
 
         /// <summary>
         /// Use 256 bit AES encryption based on the Rijndael cipher.
         /// </summary>
-        /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
-        /// <param name="encryptionKey">The default encryption key to use.</param>
-        /// <param name="expiredKeys">The secondary expired keys that will be used for decryption.</param>
-        public static void RijndaelEncryptionService(this EndpointConfiguration config, string encryptionKey, List<string> expiredKeys = null)
+        /// <param name="config">The <see cref="EndpointConfiguration"/> instance to apply the settings to.</param>
+        /// <param name="encryptionKeyIdentifier">Encryption key identifier.</param>
+        /// <param name="encryptionKey">Encryption Key.</param>
+        /// <param name="decryptionKeys">A list of decryption keys.</param>
+        public static void RijndaelEncryptionService(this EndpointConfiguration config, string encryptionKeyIdentifier, byte[] encryptionKey, IList<byte[]> decryptionKeys = null)
+
         {
             Guard.AgainstNull(nameof(config), config);
             Guard.AgainstNullAndEmpty(nameof(encryptionKey), encryptionKey);
 
-            if (expiredKeys == null)
-            {
-                expiredKeys = new List<string>();
-            }
-            else
-            {
-                VerifyKeys(expiredKeys);
-            }
+            decryptionKeys = decryptionKeys ?? new List<byte[]>();
 
-            RegisterEncryptionService(config, () => BuildRijndaelEncryptionService(encryptionKey, expiredKeys));
+            RegisterEncryptionService(config, () => BuildRijndaelEncryptionService(
+                encryptionKeyIdentifier,
+                new Dictionary<string, byte[]> { { encryptionKeyIdentifier, encryptionKey } },
+                decryptionKeys));
+        }
+
+        /// <summary>
+        /// Use 256 bit AES encryption based on the Rijndael cipher. 
+        /// </summary>
+        public static void RijndaelEncryptionService(this EndpointConfiguration config, string encryptionKeyIdentifier, IDictionary<string, byte[]> keys, IList<byte[]> decryptionKeys = null)
+        {
+            Guard.AgainstNull(nameof(config), config);
+            Guard.AgainstNull(nameof(encryptionKeyIdentifier), encryptionKeyIdentifier);
+            Guard.AgainstNull(nameof(keys), keys);
+
+            decryptionKeys = decryptionKeys ?? new List<byte[]>();
+
+            RegisterEncryptionService(config, () => BuildRijndaelEncryptionService(
+                encryptionKeyIdentifier,
+                keys,
+                decryptionKeys));
         }
 
         internal static void VerifyKeys(List<string> expiredKeys)
@@ -106,9 +145,16 @@ namespace NServiceBus
             }
         }
 
-        static IEncryptionService BuildRijndaelEncryptionService(string encryptionKey, List<string> expiredKeys)
-        {
-            return new RijndaelEncryptionService(encryptionKey, expiredKeys);
+        static IEncryptionService BuildRijndaelEncryptionService(
+            string encryptionKeyIdentifier,
+            IDictionary<string, byte[]> keys,
+            IList<byte[]> expiredKeys
+            )                {
+            return new RijndaelEncryptionService(
+                encryptionKeyIdentifier,
+                keys,
+                expiredKeys
+                );
         }
 
         /// <summary>
@@ -128,6 +174,41 @@ namespace NServiceBus
         internal static bool GetEncryptionServiceConstructor(this ReadOnlySettings settings, out Func<IEncryptionService> func)
         {
             return settings.TryGet("EncryptionServiceConstructor", out func);
+        }
+
+        static byte[] ParseKey(string key, KeyFormat keyFormat)
+        {
+            switch (keyFormat)
+            {
+                case KeyFormat.Ascii:
+                    return Encoding.ASCII.GetBytes(key);
+                case KeyFormat.Base64:
+                    return Convert.FromBase64String(key);
+            }
+            throw new NotSupportedException("Unsupported KeyFormat. Supported formats are: ASCII and Base64.");
+        }
+
+        internal static IDictionary<string, byte[]> ExtractKeysFromConfigSection(RijndaelEncryptionServiceConfig section)
+        {
+            var result = new Dictionary<string, byte[]>();
+
+            AddKeyIdentifierItems(section, result);
+
+            foreach (RijndaelExpiredKey item in section.ExpiredKeys)
+            {
+                AddKeyIdentifierItems(item, result);
+            }
+
+            return result;
+        }
+
+        static void AddKeyIdentifierItems(dynamic item, Dictionary<string, byte[]> result)
+        {
+            if (!string.IsNullOrEmpty(item.KeyIdentifier))
+            {
+                var key = ParseKey(item.Key, item.KeyFormat);
+                result.Add(item.KeyIdentifier, key);
+            }
         }
     }
 }

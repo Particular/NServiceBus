@@ -30,55 +30,76 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
     using System.Security.Cryptography;
-    using System.Text;
-    using NServiceBus.Encryption;
+    using Logging;
+    using NServiceBus.Pipeline;
 
     class RijndaelEncryptionService : IEncryptionService
     {
-
+        static readonly ILog Log = LogManager.GetLogger<RijndaelEncryptionService>();
+        readonly string encryptionKeyIdentifier;
         byte[] encryptionKey;
-        List<byte[]> decryptionKeys;
+        IDictionary<string, byte[]> keys;
+        IList<byte[]> decryptionKeys; // Required, as we decrypt in the configured order.
 
-        public RijndaelEncryptionService(string encryptionKey, List<string> expiredKeys)
+        public RijndaelEncryptionService(
+                string encryptionKeyIdentifier,
+                IDictionary<string, byte[]> keys,
+                IList<byte[]> decryptionKeys
+                )
         {
-            this.encryptionKey = Encoding.ASCII.GetBytes(encryptionKey);
-            VerifyEncryptionKey(this.encryptionKey);
-            var expiredKeyBytes = expiredKeys.Select(key => Encoding.ASCII.GetBytes(key)).ToList();
-            VerifyExpiredKeys(expiredKeyBytes);
-            VerifyKeysAreNotTooSimilar(expiredKeyBytes);
+            this.encryptionKeyIdentifier = encryptionKeyIdentifier;
+            this.decryptionKeys = decryptionKeys;
+            this.keys = keys;
 
-            decryptionKeys = new List<byte[]>{this.encryptionKey};
-            decryptionKeys.AddRange(expiredKeyBytes);
+            if (string.IsNullOrEmpty(encryptionKeyIdentifier))
+            {
+                Log.Error("No encryption key identifier configured. Messages with encrypted properties will fail to send. Please add an encryption key identifier to the rijndael encryption service configuration.");
+            }
+            else if (!keys.TryGetValue(encryptionKeyIdentifier, out encryptionKey))
+            {
+                throw new ArgumentException("No encryption key for given encryption key identifier.", nameof(encryptionKeyIdentifier));
+            }
+            else
+            {
+                VerifyEncryptionKey(encryptionKey);
+            }
 
+            VerifyExpiredKeys(decryptionKeys);
         }
 
-        void VerifyKeysAreNotTooSimilar(List<byte[]> expiredKeyBytes)
+        public string Decrypt(EncryptedValue encryptedValue, IIncomingLogicalMessageContext context)
         {
-            for (var index = 0; index < expiredKeyBytes.Count; index++)
+            string keyIdentifier;
+
+            if (TryGetKeyIdentifierHeader(out keyIdentifier, context))
             {
-                var decryption = expiredKeyBytes[index];
-                CryptographicException exception = null;
-                var encryptedValue = Encrypt("a");
-                try
-                {
-                    Decrypt(encryptedValue, decryption);
-                }
-                catch (CryptographicException cryptographicException)
-                {
-                    exception = cryptographicException;
-                }
-                if (exception == null)
-                {
-                    var message = $"The new Encryption Key is too similar to the Expired Key at index {index}. This can cause issues when decrypting data. To fix this issue please ensure the new encryption key is not too similar to the existing Expired Keys.";
-                    throw new Exception(message);
-                }
+                return DecryptUsingKeyIdentifier(encryptedValue, keyIdentifier);
+            }
+            Log.Warn($"Encrypted message has no '{Headers.RijndaelKeyIdentifier}' header. Possibility of data corruption. Please upgrade endpoints that send message with encrypted properties.");
+            return DecryptUsingAllKeys(encryptedValue);
+        }
+
+        string DecryptUsingKeyIdentifier(EncryptedValue encryptedValue, string keyIdentifier)
+        {
+            byte[] decryptionKey;
+
+            if (!keys.TryGetValue(keyIdentifier, out decryptionKey))
+            {
+                throw new InvalidOperationException($"Decryption key not available for key identifier '{keyIdentifier}'. Please add this key to the rijndael encryption service configuration. Key identifiers are case sensitive.");
+            }
+
+            try
+            {
+                return Decrypt(encryptedValue, decryptionKey);
+            }
+            catch (CryptographicException ex)
+            {
+                throw new InvalidOperationException("Unable to decrypt property using configured decryption key specified in key identifier header.", ex);
             }
         }
 
-
-        public string Decrypt(EncryptedValue encryptedValue)
+        string DecryptUsingAllKeys(EncryptedValue encryptedValue)
         {
             var cryptographicExceptions = new List<CryptographicException>();
 
@@ -115,8 +136,15 @@ namespace NServiceBus
             }
         }
 
-        public EncryptedValue Encrypt(string value)
+        public EncryptedValue Encrypt(string value, IOutgoingLogicalMessageContext context)
         {
+            if (string.IsNullOrEmpty(encryptionKeyIdentifier))
+            {
+                throw new InvalidOperationException("It is required to set the rijndael key identifier.");
+            }
+
+            AddKeyIdentifierHeader(context);
+
             using (var rijndael = new RijndaelManaged())
             {
                 rijndael.Key = encryptionKey;
@@ -141,7 +169,7 @@ namespace NServiceBus
             }
         }
 
-        static void VerifyExpiredKeys(List<byte[]> keys)
+        static void VerifyExpiredKeys(IList<byte[]> keys)
         {
             for (var index = 0; index < keys.Count; index++)
             {
@@ -169,9 +197,19 @@ namespace NServiceBus
         {
             using (var rijndael = new RijndaelManaged())
             {
-                var bitLength = key.Length*8;
+                var bitLength = key.Length * 8;
                 return rijndael.ValidKeySize(bitLength);
             }
+        }
+
+        protected virtual void AddKeyIdentifierHeader(IOutgoingLogicalMessageContext context)
+        {
+            context.Headers[Headers.RijndaelKeyIdentifier] = encryptionKeyIdentifier;
+        }
+
+        protected virtual bool TryGetKeyIdentifierHeader(out string keyIdentifier, IIncomingLogicalMessageContext context)
+        {
+            return context.Headers.TryGetValue(Headers.RijndaelKeyIdentifier, out keyIdentifier);
         }
     }
 }

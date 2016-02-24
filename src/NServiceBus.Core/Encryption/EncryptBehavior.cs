@@ -1,35 +1,64 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Reflection;
     using System.Threading.Tasks;
     using Pipeline;
 
     class EncryptBehavior : Behavior<IOutgoingLogicalMessageContext>
     {
-        EncryptionMutator messageMutator;
+        EncryptionInspector messageInspector;
+        IEncryptionService encryptionService;
 
-        public EncryptBehavior(EncryptionMutator messageMutator)
+        public EncryptBehavior(EncryptionInspector messageInspector, IEncryptionService encryptionService)
         {
-            this.messageMutator = messageMutator;
+            this.messageInspector = messageInspector;
+            this.encryptionService = encryptionService;
         }
 
         public override Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
         {
             var currentMessageToSend = context.Message.Instance;
 
-            currentMessageToSend = messageMutator.MutateOutgoing(currentMessageToSend);
+            foreach (var item in messageInspector.ScanObject(currentMessageToSend))
+            {
+                EncryptMember(item.Item1, item.Item2, context);
+            }
 
             context.UpdateMessage(currentMessageToSend);
 
             return next();
         }
 
+        void EncryptMember(object message, MemberInfo member, IOutgoingLogicalMessageContext context)
+        {
+            var valueToEncrypt = member.GetValue(message);
+
+            var wireEncryptedString = valueToEncrypt as WireEncryptedString;
+            if (wireEncryptedString != null)
+            {
+                encryptionService.EncryptValue(wireEncryptedString, context);
+                return;
+            }
+
+            var stringToEncrypt = valueToEncrypt as string;
+            if (stringToEncrypt != null)
+            {
+                encryptionService.EncryptValue(ref stringToEncrypt, context);
+
+                member.SetValue(message, stringToEncrypt);
+                return;
+            }
+
+            throw new Exception("Only string properties is supported for convention based encryption, please check your convention");
+        }
+
         public class EncryptRegistration : RegisterStep
         {
-            public EncryptRegistration(EncryptionMutator mutator)
-                : base("InvokeEncryption", typeof(EncryptBehavior), "Invokes the encryption logic", b => new EncryptBehavior(mutator))
+            public EncryptRegistration(EncryptionInspector inspector, IEncryptionService encryptionService)
+                : base("InvokeEncryption", typeof(EncryptBehavior), "Invokes the encryption logic", b => new EncryptBehavior(inspector, encryptionService))
             {
-                InsertAfter(WellKnownStep.MutateOutgoingMessages);
+                InsertAfter(WellKnownStep.MutateOutgoingMessages);  
             }
 
         }

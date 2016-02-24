@@ -116,6 +116,8 @@
     <Compile Include="ContextHelpers.cs" />
     <Compile Include="Correlation\CorrelationContextExtensionsTests.cs" />
     <Compile Include="DelayedDelivery\RouteDeferredMessageToTimeoutManagerBehaviorTests.cs" />
+    <Compile Include="Encryption\When_decrypting_a_member_that_is_missing_encryption_data.cs" />
+    <Compile Include="Encryption\When_sending_a_message_with_2x_compatibility_disabled.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\DispatchTimeoutBehaviorTest.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\ExpiredTimeoutsPollerTests.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\FailureInfoStorageTests.cs" />
@@ -162,6 +164,7 @@
     <Compile Include="DocumentationTests.cs" />
     <Compile Include="MessageConventionSpecs.cs" />
     <Compile Include="DataBus\InMemoryDataBus.cs" />
+    <Compile Include="Encryption\ValidationTests.cs" />
     <Compile Include="Encryption\When_message_contains_props_and_fields_that_cannot_be_set.cs" />
     <Compile Include="Features\FeatureDefaultsTests.cs" />
     <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetriesTests.cs" />
