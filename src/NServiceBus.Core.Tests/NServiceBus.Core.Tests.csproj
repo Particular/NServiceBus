@@ -115,6 +115,7 @@
     <Compile Include="ContextBagTests.cs" />
     <Compile Include="ContextHelpers.cs" />
     <Compile Include="Correlation\CorrelationContextExtensionsTests.cs" />
+    <Compile Include="DelayedDelivery\DelayedDeliveryOptionExtensionsTests.cs" />
     <Compile Include="DelayedDelivery\RouteDeferredMessageToTimeoutManagerBehaviorTests.cs" />
     <Compile Include="Encryption\When_decrypting_a_member_that_is_missing_encryption_data.cs" />
     <Compile Include="Encryption\When_sending_a_message_with_2x_compatibility_disabled.cs" />
@@ -130,11 +131,15 @@
     <Compile Include="Msmq\MsmqAddressTests.cs" />
     <Compile Include="Msmq\MsmqSubscriptionStorageQueueTests.cs" />
     <Compile Include="Persistence\InMemory\When_persisting_a_saga_with_InMemory_and_an_escalated_DTC_transaction.cs" />
+    <Compile Include="Pipeline\HeaderOptionExtensionsTests.cs" />
     <Compile Include="Pipeline\Incoming\InvokeHandlerTerminatorTest.cs" />
+    <Compile Include="Pipeline\Outgoing\ImmediateDispatchOptionExtensionsTests.cs" />
+    <Compile Include="Pipeline\Outgoing\MessageIdExtensionsTests.cs" />
     <Compile Include="Pipeline\Outgoing\OutgoingPublishContextTests.cs" />
     <Compile Include="Pipeline\Outgoing\OutgoingReplyContextTests.cs" />
     <Compile Include="Pipeline\Outgoing\OutgoingSendContextTests.cs" />
     <Compile Include="Routing\ApplyReplyToAddressBehaviorTests.cs" />
+    <Compile Include="Routing\BestPracticesOptionExtensionsTests.cs" />
     <Compile Include="Routing\DetermineRouteForPublishBehaviorTests.cs" />
     <Compile Include="Routing\Routers\UnicastSendRouterConnectorTests.cs" />
     <Compile Include="Routing\EndpointInstanceTests.cs" />

@@ -19,5 +19,20 @@ namespace NServiceBus
 
             options.GetExtensions().Set(new RoutingToDispatchConnector.State {ImmediateDispatch = true});
         }
+
+        /// <summary>
+        /// Returns whether immediate dispatch has been request by <see cref="RequireImmediateDispatch"/> or not.
+        /// </summary>
+        /// <param name="options">The options being extended.</param>
+        /// <returns><c>True</c> if immediate dispatch was requested, <c>False</c> otherwise.</returns>
+        public static bool RequiredImmediateDispatch(this ExtendableOptions options)
+        {
+            Guard.AgainstNull(nameof(options), options);
+
+            RoutingToDispatchConnector.State state;
+            options.GetExtensions().TryGet(out state);
+
+            return state?.ImmediateDispatch ?? false;
+        }
     }
 }

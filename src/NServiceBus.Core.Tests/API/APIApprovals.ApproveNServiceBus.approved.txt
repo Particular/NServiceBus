@@ -36,6 +36,7 @@ namespace NServiceBus
         public static void DoNotEnforceBestPractices(this NServiceBus.Pipeline.ISubscribeContext context) { }
         public static void DoNotEnforceBestPractices(this NServiceBus.Pipeline.IOutgoingPublishContext context) { }
         public static void DoNotEnforceBestPractices(this NServiceBus.Pipeline.IUnsubscribeContext context) { }
+        public static bool IgnoredBestPractices(this NServiceBus.Extensibility.ExtendableOptions options) { }
     }
     public class static Bus
     {
@@ -276,6 +277,8 @@ namespace NServiceBus
     {
         public static void DelayDeliveryWith(this NServiceBus.SendOptions options, System.TimeSpan delay) { }
         public static void DoNotDeliverBefore(this NServiceBus.SendOptions options, System.DateTimeOffset at) { }
+        public static System.Nullable<System.DateTimeOffset> GetDeliveryDate(this NServiceBus.SendOptions options) { }
+        public static System.Nullable<System.TimeSpan> GetDeliveryDelay(this NServiceBus.SendOptions options) { }
     }
     public enum DependencyLifecycle
     {
@@ -372,7 +375,8 @@ namespace NServiceBus
     }
     public class static HeaderOptionExtensions
     {
-        public static void SetHeader(this NServiceBus.Extensibility.ExtendableOptions context, string key, string value) { }
+        public static System.Collections.Generic.IReadOnlyDictionary<string, string> GetHeaders(this NServiceBus.Extensibility.ExtendableOptions options) { }
+        public static void SetHeader(this NServiceBus.Extensibility.ExtendableOptions options, string key, string value) { }
     }
     public class static Headers
     {
@@ -592,6 +596,7 @@ namespace NServiceBus
     }
     public class static ImmediateDispatchOptionExtensions
     {
+        public static bool RequiredImmediateDispatch(this NServiceBus.Extensibility.ExtendableOptions options) { }
         public static void RequireImmediateDispatch(this NServiceBus.Extensibility.ExtendableOptions options) { }
     }
     [JetBrains.Annotations.UsedImplicitlyAttribute(JetBrains.Annotations.ImplicitUseTargetFlags.Default | JetBrains.Annotations.ImplicitUseTargetFlags.Itself | JetBrains.Annotations.ImplicitUseTargetFlags.Members | JetBrains.Annotations.ImplicitUseTargetFlags.WithMembers)]
@@ -693,7 +698,8 @@ namespace NServiceBus
     }
     public class static MessageIdExtensions
     {
-        public static void SetMessageId(this NServiceBus.Extensibility.ExtendableOptions context, string messageId) { }
+        public static string GetMessageId(this NServiceBus.Extensibility.ExtendableOptions options) { }
+        public static void SetMessageId(this NServiceBus.Extensibility.ExtendableOptions options, string messageId) { }
     }
     public enum MessageIntentEnum
     {
@@ -796,6 +802,15 @@ namespace NServiceBus
     {
         public static string GetDestination(this NServiceBus.ReplyOptions options) { }
         public static string GetDestination(this NServiceBus.SendOptions options) { }
+        public static string GetReplyToRoute(this NServiceBus.ReplyOptions options) { }
+        public static string GetReplyToRoute(this NServiceBus.SendOptions options) { }
+        public static string GetRouteToSpecificInstance(this NServiceBus.SendOptions options) { }
+        public static bool IsRoutingReplyToAnyInstance(this NServiceBus.SendOptions options) { }
+        public static bool IsRoutingReplyToAnyInstance(this NServiceBus.ReplyOptions options) { }
+        public static bool IsRoutingReplyToThisInstance(this NServiceBus.SendOptions options) { }
+        public static bool IsRoutingReplyToThisInstance(this NServiceBus.ReplyOptions options) { }
+        public static bool IsRoutingToThisEndpoint(this NServiceBus.SendOptions options) { }
+        public static bool IsRoutingToThisInstance(this NServiceBus.SendOptions options) { }
         public static void RouteReplyTo(this NServiceBus.ReplyOptions options, string address) { }
         public static void RouteReplyTo(this NServiceBus.SendOptions options, string address) { }
         public static void RouteReplyToAnyInstance(this NServiceBus.SendOptions options) { }
