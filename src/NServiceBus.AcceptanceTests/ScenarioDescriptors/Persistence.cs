@@ -12,7 +12,7 @@
         {
             get
             {
-                var specificPersistence = Environment.GetEnvironmentVariable("Persistence.UseSpecific");
+                var specificPersistence = EnvironmentHelper.GetEnvironmentVariable("Persistence.UseSpecific");
 
                 if (!string.IsNullOrEmpty(specificPersistence))
                 {
