@@ -23,10 +23,13 @@
 
             var processingStarted = DateTimeExtensions.ToUtcDateTime(context.Headers[Headers.ProcessingStarted]);
             var processingEnded = DateTimeExtensions.ToUtcDateTime(context.Headers[Headers.ProcessingEnded]);
+            var timeSent = DateTimeExtensions.ToUtcDateTime(context.Headers[Headers.TimeSent]);
 
             Assert.That(processingStarted, Is.EqualTo(now).Within(TimeSpan.FromSeconds(30)));
             Assert.That(processingEnded, Is.EqualTo(now).Within(TimeSpan.FromSeconds(30)));
+            Assert.That(timeSent, Is.EqualTo(now).Within(TimeSpan.FromSeconds(30)));
             Assert.That(processingStarted, Is.LessThanOrEqualTo(processingEnded));
+            Assert.That(timeSent, Is.LessThanOrEqualTo(processingEnded));
             Assert.IsTrue(context.IsMessageHandledByTheAuditEndpoint);
         }
 
@@ -80,7 +83,6 @@
             }
         }
 
-        [Serializable]
         public class MessageToBeAudited : IMessage
         {
         }
