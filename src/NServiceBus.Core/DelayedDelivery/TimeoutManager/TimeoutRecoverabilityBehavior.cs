@@ -55,7 +55,7 @@ namespace NServiceBus
         {
             failures.RecordFailureInfoForMessage(message.MessageId, exception);
 
-            Logger.Info($"First Level Retry is going to retry message '{message.MessageId}' because of an exception:", exception);
+            Logger.Debug($"Going to retry message '{message.MessageId}' from satellite '{localAddress}' because of an exception:", exception);
 
             notifications.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(failureInfo.NumberOfFailedAttempts, context.Message, exception);
         }
@@ -66,15 +66,15 @@ namespace NServiceBus
 
             failures.ClearFailureInfoForMessage(message.MessageId);
 
-            Logger.Info($"Giving up First Level Retries for message '{message.MessageId}'.");
+            Logger.Debug($"Giving up Retries for message '{message.MessageId}' from satellite '{localAddress}' after {failureInfo.NumberOfFailedAttempts} attempts.");
         }
 
         async Task MoveToErrorQueue(ITransportReceiveContext context, IncomingMessage message, ProcessingFailureInfo failureInfo)
         {
             try
             {
-                Logger.Error($"Moving timeout message '{message.MessageId}' to the error queue because processing failed due to an exception:", failureInfo.Exception);
-
+                Logger.Error($"Moving timeout message '{message.MessageId}' from '{localAddress}' to '{errorQueueAddress}' because processing failed due to an exception:", failureInfo.Exception);
+                
                 message.SetExceptionHeaders(failureInfo.Exception, localAddress);
 
                 var outgoingMessage = new OutgoingMessage(message.MessageId, message.Headers, message.Body);
