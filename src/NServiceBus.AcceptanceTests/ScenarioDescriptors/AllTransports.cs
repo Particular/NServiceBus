@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using AcceptanceTesting.Support;
+    using NServiceBus.AcceptanceTesting.Support;
     using NServiceBus.Hosting.Helpers;
 
     public class AllTransports : ScenarioDescriptor
@@ -14,24 +14,7 @@
             AddRange(ActiveTransports);
         }
 
-        static IEnumerable<RunDescriptor> ActiveTransports
-        {
-            get
-            {
-                if (activeTransports == null)
-                {
-                    //temporary fix until we can get rid of the "AllTransports" all together
-                    activeTransports = new List<RunDescriptor>
-                    {
-                        Transports.Default
-                    };
-                }
-
-                return activeTransports;
-            }
-        }
-
-        static ICollection<RunDescriptor> activeTransports;
+        static IEnumerable<RunDescriptor> ActiveTransports => new List<RunDescriptor> { Transports.Default };
     }
 
     public class AllDtcTransports : AllTransports
@@ -84,13 +67,6 @@
 
     public class TypeScanner
     {
-        public static IEnumerable<Type> GetAllTypesAssignableTo<T>()
-        {
-            return AvailableAssemblies.SelectMany(a => a.GetTypes())
-                                      .Where(t => typeof(T).IsAssignableFrom(t) && t != typeof(T))
-                                      .ToList();
-        }
-
         static IEnumerable<Assembly> AvailableAssemblies
         {
             get
@@ -111,6 +87,13 @@
             }
         }
 
+        public static IEnumerable<Type> GetAllTypesAssignableTo<T>()
+        {
+            return AvailableAssemblies.SelectMany(a => a.GetTypes())
+                .Where(t => typeof(T).IsAssignableFrom(t) && t != typeof(T))
+                .ToList();
+        }
+
         static List<Assembly> assemblies;
     }
 
@@ -118,23 +101,26 @@
     {
         public static void Run(ScenarioDescriptor scenarioDescriptor, Func<RunDescriptor, bool> remove)
         {
-
-            foreach (var rundescriptor in Transports.AllAvailable)
+            var runDescriptors = Transports.AllAvailable;
+            foreach (var rundescriptor in runDescriptors)
             {
-                var transportAssemblyQualifiedName = rundescriptor.Settings["Transport"];
-                var type = Type.GetType(transportAssemblyQualifiedName);
-                if (type != null)
+                Type type;
+                if (rundescriptor.Settings.TryGet("Transport", out type))
                 {
-                    var configurerTypeName = "Configure" + type.Name;
+                    var configurerTypeName = "ConfigureScenariosFor" + type.Name;
                     var configurerType = Type.GetType(configurerTypeName, false);
 
                     if (configurerType == null)
-                        throw new InvalidOperationException($"Acceptance Test project must include a non-namespaced class named '{configurerTypeName}' implementing {typeof(IConfigureTestExecution).Name}. See {typeof(ConfigureMsmqTransport).FullName} for an example.");
+                    {
+                        throw new InvalidOperationException($"Acceptance Test project must include a non-namespaced class named '{configurerTypeName}' implementing {typeof(IConfigureSupportedScenariosForTestExecution).Name}. See {typeof(ConfigureScenariosForMsmqTransport).FullName} for an example.");
+                    }
 
-                    var configurer = Activator.CreateInstance(configurerType) as IConfigureTestExecution;
+                    var configurer = Activator.CreateInstance(configurerType) as IConfigureSupportedScenariosForTestExecution;
 
                     if (configurer == null)
-                        throw new InvalidOperationException($"{configurerTypeName} does not implement {typeof(IConfigureTestExecution).Name}.");
+                    {
+                        throw new InvalidOperationException($"{configurerTypeName} does not implement {typeof(IConfigureSupportedScenariosForTestExecution).Name}.");
+                    }
 
 
                     if (configurer.UnsupportedScenarioDescriptorTypes.Contains(scenarioDescriptor.GetType()))

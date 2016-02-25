@@ -5,8 +5,8 @@
     using System.Linq;
     using System.Reflection;
     using System.Threading.Tasks;
-    using AcceptanceTesting.Support;
     using NServiceBus.AcceptanceTesting.Customization;
+    using NServiceBus.AcceptanceTesting.Support;
     using NServiceBus.Config.ConfigurationSource;
     using NServiceBus.Configuration.AdvanceExtensibility;
     using NServiceBus.Features;
@@ -16,8 +16,6 @@
 
     public class DefaultServer : IEndpointSetupTemplate
     {
-        List<Type> typesToInclude;
-
         public DefaultServer()
         {
             typesToInclude = new List<Type>();
@@ -30,7 +28,7 @@
 
         public async Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, IConfigurationSource configSource, Action<EndpointConfiguration> configurationBuilderCustomization)
         {
-            var settings = runDescriptor.Settings;            
+            var settings = runDescriptor.Settings;
 
             var types = GetTypesScopedByTestClass(endpointConfiguration);
 
@@ -47,22 +45,20 @@
             builder.DisableFeature<SecondLevelRetries>();
             builder.DisableFeature<FirstLevelRetries>();
 
-            await builder.DefineTransport(settings, endpointConfiguration.BuilderType).ConfigureAwait(false);
+            await builder.DefineTransport(settings, endpointConfiguration.EndpointName).ConfigureAwait(false);
 
             builder.DefineBuilder(settings);
             builder.RegisterComponents(r => { RegisterInheritanceHierarchyOfContextOnContainer(runDescriptor, r); });
 
-            var serializer = settings.GetOrNull("Serializer");
-
-            if (serializer != null)
+            Type serializerType;
+            if (settings.TryGet("Serializer", out serializerType))
             {
-                builder.UseSerialization((SerializationDefinition)Activator.CreateInstance(Type.GetType(serializer, true)));
+                builder.UseSerialization((SerializationDefinition) Activator.CreateInstance(serializerType));
             }
-            await builder.DefinePersistence(settings).ConfigureAwait(false);
+            await builder.DefinePersistence(settings, endpointConfiguration.EndpointName).ConfigureAwait(false);
 
             builder.GetSettings().SetDefault("ScaleOut.UseSingleBrokerQueue", true);
             configurationBuilderCustomization(builder);
-
 
             return builder;
         }
@@ -83,13 +79,13 @@
 
             var types = assemblies.Assemblies
                 //exclude all test types by default
-                                  .Where(a =>
-                                  {
-                                      var references = a.GetReferencedAssemblies();
+                .Where(a =>
+                {
+                    var references = a.GetReferencedAssemblies();
 
-                                      return references.All(an => an.Name != "nunit.framework");
-                                  })
-                                  .SelectMany(a => a.GetTypes());
+                    return references.All(an => an.Name != "nunit.framework");
+                })
+                .SelectMany(a => a.GetTypes());
 
 
             types = types.Union(GetNestedTypeRecursive(endpointConfiguration.BuilderType.DeclaringType, endpointConfiguration.BuilderType));
@@ -103,18 +99,22 @@
         {
             if (rootType == null)
             {
-                throw new InvalidOperationException("Make sure you nest the endpoint infrastructure inside the TestFixture as nested classes");    
+                throw new InvalidOperationException("Make sure you nest the endpoint infrastructure inside the TestFixture as nested classes");
             }
 
             yield return rootType;
 
             if (typeof(IEndpointConfigurationFactory).IsAssignableFrom(rootType) && rootType != builderType)
+            {
                 yield break;
+            }
 
             foreach (var nestedType in rootType.GetNestedTypes(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic).SelectMany(t => GetNestedTypeRecursive(t, builderType)))
             {
                 yield return nestedType;
             }
         }
+
+        List<Type> typesToInclude;
     }
 }
