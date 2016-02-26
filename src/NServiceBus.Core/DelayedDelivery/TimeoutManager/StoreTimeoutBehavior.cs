@@ -7,7 +7,7 @@ namespace NServiceBus
     using Timeout.Core;
     using Transports;
 
-    class StoreTimeoutBehavior : PipelineTerminator<IIncomingPhysicalMessageContext>
+    class StoreTimeoutBehavior : PipelineTerminator<ISatelliteProcessingContext>
     {
         public StoreTimeoutBehavior(ExpiredTimeoutsPoller poller, IDispatchMessages dispatcher, IPersistTimeouts persister, string owningTimeoutManager)
         {
@@ -17,7 +17,7 @@ namespace NServiceBus
             this.owningTimeoutManager = owningTimeoutManager;
         }
 
-        protected override async Task Terminate(IIncomingPhysicalMessageContext context)
+        protected override async Task Terminate(ISatelliteProcessingContext context)
         {
             var message = context.Message;
             var sagaId = Guid.Empty;

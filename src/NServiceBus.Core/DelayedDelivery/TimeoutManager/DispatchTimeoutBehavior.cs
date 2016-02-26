@@ -7,7 +7,7 @@ namespace NServiceBus
     using Timeout.Core;
     using Transports;
 
-    class DispatchTimeoutBehavior : PipelineTerminator<IIncomingPhysicalMessageContext>
+    class DispatchTimeoutBehavior : PipelineTerminator<ISatelliteProcessingContext>
     {
         public DispatchTimeoutBehavior(IDispatchMessages dispatcher, IPersistTimeouts persister, TransportTransactionMode transportTransactionMode)
         {
@@ -16,7 +16,7 @@ namespace NServiceBus
             dispatchConsistency = GetDispatchConsistency(transportTransactionMode);
         }
 
-        protected override async Task Terminate(IIncomingPhysicalMessageContext context)
+        protected override async Task Terminate(ISatelliteProcessingContext context)
         {
             var message = context.Message;
             var timeoutId = message.Headers["Timeout.Id"];
