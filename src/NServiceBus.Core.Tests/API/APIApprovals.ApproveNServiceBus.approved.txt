@@ -694,7 +694,6 @@ namespace NServiceBus
     public class static MessageDrivenSubscriptionsConfigExtensions
     {
         public static void SubscriptionAuthorizer(this NServiceBus.TransportExtensions transportExtensions, System.Func<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, bool> authorizer) { }
-        public static void UseLegacyMessageDrivenSubscriptionMode(this NServiceBus.EndpointConfiguration endpointConfiguration) { }
     }
     public class static MessageIdExtensions
     {

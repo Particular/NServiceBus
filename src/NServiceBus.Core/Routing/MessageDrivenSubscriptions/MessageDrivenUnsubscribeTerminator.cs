@@ -13,13 +13,12 @@
 
     class MessageDrivenUnsubscribeTerminator : PipelineTerminator<IUnsubscribeContext>
     {
-        public MessageDrivenUnsubscribeTerminator(SubscriptionRouter subscriptionRouter, string replyToAddress, EndpointName endpoint, IDispatchMessages dispatcher, bool legacyMode)
+        public MessageDrivenUnsubscribeTerminator(SubscriptionRouter subscriptionRouter, string replyToAddress, EndpointName endpoint, IDispatchMessages dispatcher)
         {
             this.subscriptionRouter = subscriptionRouter;
             this.replyToAddress = replyToAddress;
             this.endpoint = endpoint;
             this.dispatcher = dispatcher;
-            this.legacyMode = legacyMode;
         }
 
         protected override async Task Terminate(IUnsubscribeContext context)
@@ -37,15 +36,9 @@
                 var unsubscribeMessage = ControlMessageFactory.Create(MessageIntentEnum.Unsubscribe);
 
                 unsubscribeMessage.Headers[Headers.SubscriptionMessageType] = eventType.AssemblyQualifiedName;
-                if (legacyMode)
-                {
-                    unsubscribeMessage.Headers[Headers.ReplyToAddress] = replyToAddress;
-                }
-                else
-                {
-                    unsubscribeMessage.Headers[Headers.SubscriberTransportAddress] = replyToAddress;
-                    unsubscribeMessage.Headers[Headers.SubscriberEndpoint] = endpoint.ToString();
-                }
+                unsubscribeMessage.Headers[Headers.ReplyToAddress] = replyToAddress;
+                unsubscribeMessage.Headers[Headers.SubscriberTransportAddress] = replyToAddress;
+                unsubscribeMessage.Headers[Headers.SubscriberEndpoint] = endpoint.ToString();
 
                 unsubscribeTasks.Add(SendUnsubscribeMessageWithRetries(publisherAddress, unsubscribeMessage, eventType.AssemblyQualifiedName, context.Extensions));
             }
@@ -92,7 +85,6 @@
         string replyToAddress;
         readonly EndpointName endpoint;
         IDispatchMessages dispatcher;
-        readonly bool legacyMode;
 
         static ILog Logger = LogManager.GetLogger<MessageDrivenUnsubscribeTerminator>();
     }

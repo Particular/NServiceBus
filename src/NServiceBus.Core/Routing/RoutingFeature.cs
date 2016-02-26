@@ -93,26 +93,9 @@
                     context.Pipeline.Register("MessageDrivenSubscribeTerminator", typeof(MessageDrivenSubscribeTerminator), "Sends subscription requests when message driven subscriptions is in use");
                     context.Pipeline.Register("MessageDrivenUnsubscribeTerminator", typeof(MessageDrivenUnsubscribeTerminator), "Sends requests to unsubscribe when message driven subscriptions is in use");
 
-                    var legacyMode = context.Settings.GetOrDefault<bool>("NServiceBus.Routing.UseLegacyMessageDrivenSubscriptionMode");
-
-                    context.Container.ConfigureComponent(b => {
-                                                                  var settings1 = b.Build<ReadOnlySettings>();
-                                                                  string replyToAddress2;
-
-                                                                  if (!settings1.TryGet("PublicReturnAddress", out replyToAddress2))
-                                                                  {
-                                                                      replyToAddress2 = settings1.LocalAddress();
-                                                                  }
-                                                                  return new MessageDrivenSubscribeTerminator(b.Build<SubscriptionRouter>(), replyToAddress2, context.Settings.EndpointName(), b.Build<IDispatchMessages>(), legacyMode); }, DependencyLifecycle.SingleInstance);
-                    context.Container.ConfigureComponent(b => {
-                                                                  var settings1 = b.Build<ReadOnlySettings>();
-                                                                  string replyToAddress2;
-
-                                                                  if (!settings1.TryGet("PublicReturnAddress", out replyToAddress2))
-                                                                  {
-                                                                      replyToAddress2 = settings1.LocalAddress();
-                                                                  }
-                                                                  return new MessageDrivenUnsubscribeTerminator(b.Build<SubscriptionRouter>(), replyToAddress2, context.Settings.EndpointName(), b.Build<IDispatchMessages>(), legacyMode); }, DependencyLifecycle.SingleInstance);
+                    var subscriberAddress = distributorAddress ?? context.Settings.LocalAddress();
+                    context.Container.ConfigureComponent(b => new MessageDrivenSubscribeTerminator(b.Build<SubscriptionRouter>(), subscriberAddress, context.Settings.EndpointName(), b.Build<IDispatchMessages>()), DependencyLifecycle.SingleInstance);
+                    context.Container.ConfigureComponent(b => new MessageDrivenUnsubscribeTerminator(b.Build<SubscriptionRouter>(), subscriberAddress, context.Settings.EndpointName(), b.Build<IDispatchMessages>()), DependencyLifecycle.SingleInstance);
                 }
                 else
                 {

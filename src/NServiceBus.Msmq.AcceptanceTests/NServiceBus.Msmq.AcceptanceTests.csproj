@@ -61,8 +61,10 @@
     <Compile Include="When_publishing.cs" />
     <Compile Include="When_publishing_with_authorizer.cs" />
     <Compile Include="When_receiving_with_dtc_disabled.cs" />
+    <Compile Include="When_replying_to_a_message_sent_via_a_distributor.cs" />
     <Compile Include="When_setting_label_generator.cs" />
     <Compile Include="When_starting_up_the_endpoint.cs" />
+    <Compile Include="When_subscribing_from_a_worker.cs" />
     <Compile Include="When_TimeToBeReceivedOnForwardedMessages_set_and_tx_scope_receives.cs" />
     <Compile Include="When_timetobereceived_set_and_dtc.cs" />
     <Compile Include="When_TimeToBeReceived_set_and_native_receivetransaction.cs" />
