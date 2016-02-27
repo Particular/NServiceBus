@@ -22,9 +22,9 @@ namespace NServiceBus.Core.Tests
         {
             return new OutgoingLogicalMessageContext(
                 Guid.NewGuid().ToString(),
-                new Dictionary<string, string>(), 
-                new OutgoingLogicalMessage(message), 
-                null, 
+                new Dictionary<string, string>(),
+                new OutgoingLogicalMessage(message.GetType(), message),
+                null,
                 null);
         }
     }

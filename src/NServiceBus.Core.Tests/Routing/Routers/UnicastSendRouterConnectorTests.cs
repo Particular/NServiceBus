@@ -41,7 +41,7 @@
             UnicastAddressTag addressTag = null;
             await behavior.Invoke(context, c =>
             {
-                addressTag = (UnicastAddressTag) c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
+                addressTag = (UnicastAddressTag)c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
                 return TaskEx.CompletedTask;
             });
 
@@ -61,7 +61,7 @@
             UnicastAddressTag addressTag = null;
             await behavior.Invoke(context, c =>
             {
-                addressTag = (UnicastAddressTag) c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
+                addressTag = (UnicastAddressTag)c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
                 return TaskEx.CompletedTask;
             });
 
@@ -81,7 +81,7 @@
             UnicastAddressTag addressTag = null;
             await behavior.Invoke(context, c =>
             {
-                addressTag = (UnicastAddressTag) c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
+                addressTag = (UnicastAddressTag)c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
                 return TaskEx.CompletedTask;
             });
 
@@ -181,7 +181,7 @@
             UnicastAddressTag addressTag = null;
             await behavior.Invoke(context, c =>
             {
-                addressTag = (UnicastAddressTag) c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
+                addressTag = (UnicastAddressTag)c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
                 return TaskEx.CompletedTask;
             });
 
@@ -213,7 +213,7 @@
                 message = new MyMessage();
             }
 
-            var context = new OutgoingSendContext(new OutgoingLogicalMessage(message), options, new RootContext(null, null));
+            var context = new OutgoingSendContext(new OutgoingLogicalMessage(message.GetType(), message), options, new RootContext(null, null));
             return context;
         }
 

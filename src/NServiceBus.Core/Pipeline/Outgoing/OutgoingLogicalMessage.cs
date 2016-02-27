@@ -8,17 +8,6 @@ namespace NServiceBus.Pipeline
     public class OutgoingLogicalMessage
     {
         /// <summary>
-        /// Initializes the message with the given instance. Message type will be set to the instance type.
-        /// </summary>
-        public OutgoingLogicalMessage(object message)
-        {
-            Guard.AgainstNull(nameof(message), message);
-
-            MessageType = message.GetType();
-            Instance = message;
-        }
-
-        /// <summary>
         /// Initializes the message with a explicit message type and instance. Use this constructor if the message type is
         /// different from the instance type.
         /// </summary>

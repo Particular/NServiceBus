@@ -22,7 +22,7 @@
         {
             Guard.AgainstNull(nameof(newInstance), newInstance);
 
-            Message = new OutgoingLogicalMessage(newInstance);
+            Message = new OutgoingLogicalMessage(newInstance.GetType(), newInstance);
         }
     }
 }

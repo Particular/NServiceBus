@@ -30,7 +30,7 @@
             var context = new OutgoingLogicalMessageContext(
                 Guid.NewGuid().ToString(),
                 new Dictionary<string, string>(),
-                new OutgoingLogicalMessage(new MyMessage()),
+                new OutgoingLogicalMessage(typeof(MyMessage), new MyMessage()),
                 new RoutingStrategy[]
                 {
                 },
@@ -73,7 +73,7 @@
 
             options.RouteReplyToThisInstance();
 
-            var context = CreateContext(options);            
+            var context = CreateContext(options);
             await behavior.Invoke(context, () => TaskEx.CompletedTask);
 
             Assert.AreEqual("MyInstance", context.Headers[Headers.ReplyToAddress]);
@@ -87,7 +87,7 @@
 
             options.RouteReplyTo("Destination");
 
-            var context = CreateContext(options);            
+            var context = CreateContext(options);
             await behavior.Invoke(context, () => TaskEx.CompletedTask);
 
             Assert.AreEqual("Destination", context.Headers[Headers.ReplyToAddress]);
@@ -97,7 +97,7 @@
         public async Task Should_set_the_reply_to_distributor_address_when_message_comes_from_a_distributor()
         {
             var behavior = new ApplyReplyToAddressBehavior("MyEndpoint", "MyInstance", "MyPublicAddress", "MyDistributor");
-            var options = new SendOptions();            
+            var options = new SendOptions();
             var context = CreateContext(options);
 
             context.Set(new IncomingMessage("ID", new Dictionary<string, string>

@@ -21,7 +21,7 @@
             var options = new ReplyOptions();
 
             var context = new OutgoingReplyContext(
-                new OutgoingLogicalMessage(new MyReply()),
+                new OutgoingLogicalMessage(typeof(MyReply), new MyReply()),
                 options,
                 new TransportReceiveContext(
                     new IncomingMessage(
@@ -50,7 +50,7 @@
             var options = new ReplyOptions();
 
             var context = new OutgoingReplyContext(
-                new OutgoingLogicalMessage(new MyReply()),
+                new OutgoingLogicalMessage(typeof(MyReply), new MyReply()),
                 options,
                 new TransportReceiveContext(
                     new IncomingMessage(
@@ -71,7 +71,7 @@
             options.SetDestination("CustomReplyToAddress");
 
             var context = new OutgoingReplyContext(
-                new OutgoingLogicalMessage(new MyReply()),
+                new OutgoingLogicalMessage(typeof(MyReply), new MyReply()),
                 options,
                 new RootContext(null, null));
 
