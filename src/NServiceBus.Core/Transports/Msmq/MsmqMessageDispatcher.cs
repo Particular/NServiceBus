@@ -11,41 +11,63 @@ namespace NServiceBus
     using NServiceBus.Extensibility;
     using NServiceBus.Performance.TimeToBeReceived;
     using NServiceBus.Transports;
+    using NServiceBus.Transports.Msmq;
     using NServiceBus.Unicast.Queuing;
 
     class MsmqMessageDispatcher : IDispatchMessages
     {
-        public MsmqMessageDispatcher(MsmqSettings settings, Func<IReadOnlyDictionary<string, string>, string> messageLabelGenerator)
+        public MsmqMessageDispatcher(MsmqSettings settings, Func<IReadOnlyDictionary<string, string>, string> messageLabelGenerator, IQuerySubscriptions subscriptionReader, IReadOnlyCollection<Type> allMessageTypes)
         {
             Guard.AgainstNull(nameof(settings), settings);
             Guard.AgainstNull(nameof(messageLabelGenerator), messageLabelGenerator);
+            Guard.AgainstNull(nameof(subscriptionReader), subscriptionReader);
+            Guard.AgainstNull(nameof(allMessageTypes), allMessageTypes);
 
             this.settings = settings;
             this.messageLabelGenerator = messageLabelGenerator;
+            this.subscriptionReader = subscriptionReader;
+            this.allMessageTypes = allMessageTypes;
+            this.random = new Random();
         }
 
-        public Task Dispatch(TransportOperations outgoingMessages, ContextBag context)
+        public async Task Dispatch(TransportOperations outgoingMessages, ContextBag context)
         {
             Guard.AgainstNull(nameof(outgoingMessages), outgoingMessages);
-
-            if (outgoingMessages.MulticastTransportOperations.Any())
-            {
-                throw new Exception("The MSMQ transport only supports unicast transport operations.");
-            }
-
+            
             foreach (var unicastTransportOperation in outgoingMessages.UnicastTransportOperations)
             {
-                ExecuteTransportOperation(context, unicastTransportOperation);
+                ExecuteUnicastOperation(context, unicastTransportOperation);
             }
 
-            return TaskEx.CompletedTask;
+            foreach (var multicastTransportOperation in outgoingMessages.MulticastTransportOperations)
+            {
+                await ExecuteMulticastOperation(context, multicastTransportOperation).ConfigureAwait(false);
+            }
         }
 
-        void ExecuteTransportOperation(ReadOnlyContextBag context, UnicastTransportOperation transportOperation)
+        async Task ExecuteMulticastOperation(ReadOnlyContextBag context, MulticastTransportOperation transportOperation)
+        {
+            var typesEnclosed = allMessageTypes.Where(t => t.IsAssignableFrom(transportOperation.MessageType));
+
+            var subscribers = await subscriptionReader.GetSubscribersFor(typesEnclosed).ConfigureAwait(false);
+            var subscribersByEndpoint = subscribers.GroupBy(s => s.Endpoint);
+            foreach (var endpoint in subscribersByEndpoint)
+            {
+                var subscriberArray = endpoint.ToArray();
+                var randomDestination = subscriberArray[random.Next(subscriberArray.Length)];
+                ExecuteTransportOperation(context, transportOperation, randomDestination.TransportAddress);
+            }
+        }
+
+        void ExecuteUnicastOperation(ReadOnlyContextBag context, UnicastTransportOperation transportOperation)
+        {
+            ExecuteTransportOperation(context, transportOperation, transportOperation.Destination);
+        }
+
+        void ExecuteTransportOperation(ReadOnlyContextBag context, IOutgoingTransportOperation transportOperation, string destination)
         {
             var message = transportOperation.Message;
 
-            var destination = transportOperation.Destination;
             var destinationAddress = MsmqAddress.Parse(destination);
 
             if (IsCombiningTimeToBeReceivedWithTransactions(
@@ -195,5 +217,8 @@ namespace NServiceBus
 
         MsmqSettings settings;
         Func<IReadOnlyDictionary<string, string>, string> messageLabelGenerator;
+        IQuerySubscriptions subscriptionReader;
+        IReadOnlyCollection<Type> allMessageTypes;
+        Random random;
     }
 }
