@@ -1,10 +1,8 @@
-﻿namespace NServiceBus.AcceptanceTests.Routing
+﻿namespace NServiceBus.AcceptanceTests
 {
     using System;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NServiceBus.Features;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
@@ -15,28 +13,25 @@
         [Test]
         public async Task Should_only_deliver_to_authorized()
         {
-            await Scenario.Define<TestContext>()
+            var context = await Scenario.Define<TestContext>()
                 .WithEndpoint<Publisher>(b =>
                     b.When(c => c.Subscriber1Subscribed && c.Subscriber2Subscribed, (session, c) => session.Publish(new MyEvent()))
                 )
-                .WithEndpoint<Subscriber1>(b => b.When(async (session, context) =>
+                .WithEndpoint<Subscriber1>(b => b.When(async (session, c) =>
                 {
                     await session.Subscribe<MyEvent>();
                 }))
-                .WithEndpoint<Subscriber2>(b => b.When(async (session, context) =>
+                .WithEndpoint<Subscriber2>(b => b.When(async (session, c) =>
                 {
                     await session.Subscribe<MyEvent>();
                 }))
                 .Done(c =>
                     c.Subscriber1GotTheEvent && 
                     c.DeclinedSubscriber2)
-                .Repeat(r => r.For(Transports.Msmq))
-                .Should(c =>
-                {
-                    Assert.True(c.Subscriber1GotTheEvent);
-                    Assert.False(c.Subscriber2GotTheEvent);
-                })
                 .Run(TimeSpan.FromSeconds(10));
+
+            Assert.True(context.Subscriber1GotTheEvent);
+            Assert.False(context.Subscriber2GotTheEvent);
         }
 
         public class TestContext : ScenarioContext

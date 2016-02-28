@@ -1,14 +1,13 @@
-﻿namespace NServiceBus.AcceptanceTests.Msmq
+﻿namespace NServiceBus.AcceptanceTests
 {
     using System;
     using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Config;
     using NUnit.Framework;
 
-    public class When_Audit_OverrideTimeToBeReceived_set_and_transactional_Msmq : NServiceBusAcceptanceTest
+    public class When_TimeToBeReceivedOnForwardedMessages_set_and_tx_scope_receives : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Endpoint_should_not_start_and_show_error()
@@ -18,9 +17,9 @@
                 .Done(c => c.EndpointsStarted)
                 .Run();
 
-            Assert.True(context.Exceptions.First().Message.Contains("Setting a custom OverrideTimeToBeReceived for audits is not supported on transactional MSMQ."));
+            Assert.True(context.Exceptions.First().Message.Contains("Setting a custom TimeToBeReceivedOnForwardedMessages is not supported on transactional MSMQ."));
         }
-
+        
         public class Context : ScenarioContext { }
 
         public class Endpoint : EndpointConfigurationBuilder
@@ -29,10 +28,10 @@
             {
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
-                    config.UseTransport(context.GetTransportType())
-                            .Transactions(TransportTransactionMode.ReceiveOnly);
+                    config.UseTransport<MsmqTransport>()
+                            .Transactions(TransportTransactionMode.TransactionScope);
                 })
-                    .WithConfig<AuditConfig>(c => c.OverrideTimeToBeReceived = TimeSpan.FromHours(1));
+                    .WithConfig<UnicastBusConfig>(c => c.TimeToBeReceivedOnForwardedMessages = TimeSpan.FromHours(1));
             }
         }
     }

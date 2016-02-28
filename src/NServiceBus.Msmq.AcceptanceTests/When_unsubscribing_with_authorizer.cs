@@ -1,10 +1,8 @@
-﻿namespace NServiceBus.AcceptanceTests.Routing
+﻿namespace NServiceBus.AcceptanceTests
 {
     using System;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NServiceBus.Features;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
@@ -26,7 +24,6 @@
                 .Done(c =>
                     c.SubscriberGotTheEvent &&
                     c.DeclinedUnSubscribe)
-                .Repeat(r => r.For(Transports.Msmq))
                 .Run(TimeSpan.FromSeconds(10));
         }
 

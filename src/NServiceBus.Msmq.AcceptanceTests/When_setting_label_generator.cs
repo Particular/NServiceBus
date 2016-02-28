@@ -1,15 +1,14 @@
-﻿namespace NServiceBus.AcceptanceTests.Msmq
+﻿namespace NServiceBus.AcceptanceTests
 {
     using System;
     using System.Collections.Generic;
     using System.Messaging;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Settings;
     using NUnit.Framework;
 
-    public class When_setting_msmq_label_generator : NServiceBusAcceptanceTest
+    public class When_setting_label_generator : NServiceBusAcceptanceTest
     {
         const string auditQueue = @".\private$\labelAuditQueue";
 

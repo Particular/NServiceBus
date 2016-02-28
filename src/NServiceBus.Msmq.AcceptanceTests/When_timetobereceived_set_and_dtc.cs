@@ -1,13 +1,12 @@
-﻿namespace NServiceBus.AcceptanceTests.Msmq
+﻿namespace NServiceBus.AcceptanceTests
 {
     using System;
     using System.Threading.Tasks;
     using System.Transactions;
     using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
-    public class When_TimeToBeReceived_set_and_DTC_Msmq : NServiceBusAcceptanceTest
+    public class When_TimeToBeReceived_set_and_dtc : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_throw_on_send()
@@ -45,13 +44,12 @@
             {
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
-                    config.UseTransport(context.GetTransportType())
+                    config.UseTransport<MsmqTransport>()
                             .Transactions(TransportTransactionMode.TransactionScope);
                 });
             }
         }
 
-        [Serializable]
         [TimeToBeReceived("00:00:10")]
         public class MyMessage : IMessage
         {
