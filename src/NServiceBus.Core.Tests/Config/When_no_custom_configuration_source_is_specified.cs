@@ -3,6 +3,7 @@ namespace NServiceBus.Core.Tests.Config
     using System.Threading.Tasks;
     using NServiceBus.Features;
     using NServiceBus.Settings;
+    using NServiceBus.Transports.Msmq;
     using NUnit.Framework;
 
     [TestFixture]
@@ -14,11 +15,20 @@ namespace NServiceBus.Core.Tests.Config
             var config = new EndpointConfiguration();
 
             config.SendOnly();
+            config.UseTransport<MsmqTransport>().UseSubscriptionStore<FakeSubscriptionStore>();
             config.TypesToScanInternal(new[] { typeof(ConfigSectionValidatorFeature) });
             config.EnableFeature<ConfigSectionValidatorFeature>();
 
             var endpoint = await Endpoint.Start(config);
             await endpoint.Stop();
+        }
+
+        class FakeSubscriptionStore : SubscriptionStoreDefinition
+        {
+            protected internal override SubscriptionStoreInfrastructure Initialize(SettingsHolder settings)
+            {
+                return new SubscriptionStoreInfrastructure(() => null, () => null);
+            }
         }
 
         class ConfigSectionValidatorFeature : Feature

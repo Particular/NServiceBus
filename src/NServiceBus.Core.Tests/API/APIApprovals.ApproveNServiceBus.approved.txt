@@ -717,6 +717,8 @@ namespace NServiceBus
     {
         public static NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> ApplyLabelToMessages(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> transportExtensions, System.Func<System.Collections.Generic.IReadOnlyDictionary<string, string>, string> labelGenerator) { }
         public static NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> TransactionScopeOptions(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> transportExtensions, System.Nullable<System.TimeSpan> timeout = null, System.Nullable<System.Transactions.IsolationLevel> isolationLevel = null) { }
+        public static NServiceBus.Transports.Msmq.SubscriptionStoreSettings<T> UseSubscriptionStore<T>(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> transportExtensions)
+            where T : NServiceBus.Transports.Msmq.SubscriptionStoreDefinition, new () { }
     }
     public class MsmqTransport : NServiceBus.Transports.TransportDefinition
     {
@@ -950,6 +952,17 @@ namespace NServiceBus
     {
         public static void EnableSLAPerformanceCounter(this NServiceBus.EndpointConfiguration config, System.TimeSpan sla) { }
         public static void EnableSLAPerformanceCounter(this NServiceBus.EndpointConfiguration config) { }
+    }
+    public class SqlServerSubscriptionStore : NServiceBus.Transports.Msmq.SubscriptionStoreDefinition
+    {
+        public SqlServerSubscriptionStore() { }
+        protected internal override NServiceBus.Transports.Msmq.SubscriptionStoreInfrastructure Initialize(NServiceBus.Settings.SettingsHolder settings) { }
+    }
+    public class static SqlSubscriptionStoreSettingsExtensions
+    {
+        public static NServiceBus.Transports.Msmq.SubscriptionStoreSettings<NServiceBus.SqlServerSubscriptionStore> ConnectionString(this NServiceBus.Transports.Msmq.SubscriptionStoreSettings<NServiceBus.SqlServerSubscriptionStore> definiton, string connectionString) { }
+        public static NServiceBus.Transports.Msmq.SubscriptionStoreSettings<NServiceBus.SqlServerSubscriptionStore> Schema(this NServiceBus.Transports.Msmq.SubscriptionStoreSettings<NServiceBus.SqlServerSubscriptionStore> definiton, string schemaName) { }
+        public static NServiceBus.Transports.Msmq.SubscriptionStoreSettings<NServiceBus.SqlServerSubscriptionStore> Table(this NServiceBus.Transports.Msmq.SubscriptionStoreSettings<NServiceBus.SqlServerSubscriptionStore> definiton, string tableName) { }
     }
     public class static StaticHeadersConfigExtensions
     {
@@ -2902,6 +2915,10 @@ namespace NServiceBus.Transports.Msmq
         public string Key { get; set; }
         public string Value { get; set; }
     }
+    public interface IQuerySubscriptions
+    {
+        System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<NServiceBus.Transports.Msmq.Subscriber>> GetSubscribersFor(System.Collections.Generic.IEnumerable<System.Type> eventTypes);
+    }
     [System.ObsoleteAttribute("No longer available, resolve an instance of IPushMessages from the container inst" +
         "ead. Will be removed in version 7.0.0.", true)]
     public class MsmqDequeueStrategy
@@ -2920,6 +2937,23 @@ namespace NServiceBus.Transports.Msmq
     {
         public MsmqUnitOfWork() { }
     }
+    public class Subscriber
+    {
+        public Subscriber(string endpoint, string transportAddress) { }
+        public string Endpoint { get; }
+        public string TransportAddress { get; }
+    }
+    public abstract class SubscriptionStoreDefinition
+    {
+        protected SubscriptionStoreDefinition() { }
+        protected internal abstract NServiceBus.Transports.Msmq.SubscriptionStoreInfrastructure Initialize(NServiceBus.Settings.SettingsHolder settings);
+    }
+    public class SubscriptionStoreInfrastructure
+    {
+        public SubscriptionStoreInfrastructure(System.Func<NServiceBus.Transports.Msmq.IQuerySubscriptions> subscriptionReaderFactory, System.Func<NServiceBus.Transports.IManageSubscriptions> subscriptionManagerFactory) { }
+    }
+    public class SubscriptionStoreSettings<T> : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
+        where T : NServiceBus.Transports.Msmq.SubscriptionStoreDefinition { }
 }
 namespace NServiceBus.Unicast.Behaviors
 {

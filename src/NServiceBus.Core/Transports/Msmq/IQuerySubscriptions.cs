@@ -13,7 +13,6 @@ namespace NServiceBus.Transports.Msmq
         /// Returns the subcribers for a given set of types.
         /// </summary>
         /// <param name="eventTypes">A collection of types representing a message.</param>
-        /// <returns></returns>
         Task<IEnumerable<Subscriber>> GetSubscribersFor(IEnumerable<Type> eventTypes);
     }
 }

@@ -33,7 +33,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Overrides the table name for subscription store (defaults to "Subscriptions")
+        /// Overrides the table name for subscription store (defaults to "Subscriptions").
         /// </summary>
         /// <param name="definiton">Store definition.</param>
         /// <param name="tableName">Table name.</param>

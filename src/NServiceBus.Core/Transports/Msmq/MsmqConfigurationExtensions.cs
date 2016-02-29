@@ -4,7 +4,6 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Messaging;
     using System.Transactions;
-    using JetBrains.Annotations;
     using NServiceBus.Transports.Msmq;
 
     /// <summary>
@@ -44,7 +43,7 @@ namespace NServiceBus
         /// <summary>
         /// Instructs MSMQ transport to use specified subscription store.
         /// </summary>
-        /// <typeparam name="T">Type of subscription store</typeparam>
+        /// <typeparam name="T">Type of subscription store.</typeparam>
         public static SubscriptionStoreSettings<T> UseSubscriptionStore<T>(this TransportExtensions<MsmqTransport> transportExtensions)
             where T : SubscriptionStoreDefinition, new()
         {
