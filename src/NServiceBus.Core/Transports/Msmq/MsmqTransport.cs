@@ -21,7 +21,7 @@ namespace NServiceBus
             SubscriptionStoreDefinition subscriptionStoreDefinition;
             if (!settings.TryGet(out subscriptionStoreDefinition))
             {
-                throw new Exception("When using SQL Server transport you need to specify subscription store using UseSubscriptionStore<T>() method.");
+                throw new Exception("When using MSMQ transport you need to specify subscription store using UseSubscriptionStore<T>() method.");
             }
             return new MsmqTransportInfrastructure(settings, connectionString, subscriptionStoreDefinition.Initialize(settings));
         }
