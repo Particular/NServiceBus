@@ -44,14 +44,14 @@ namespace NServiceBus.Features
             });
         }
 
-      
+
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             var defaultAddress = context.Settings.LocalAddress();
-            var hostInfo = new HostInformation(context.Settings.Get<Guid>("NServiceBus.HostInformation.HostId"), 
-                context.Settings.Get<string>("NServiceBus.HostInformation.DisplayName"), 
+            var hostInfo = new HostInformation(context.Settings.Get<Guid>("NServiceBus.HostInformation.HostId"),
+                context.Settings.Get<string>("NServiceBus.HostInformation.DisplayName"),
                 context.Settings.Get<Dictionary<string, string>>("NServiceBus.HostInformation.Properties"));
-            
+
             context.Container.ConfigureComponent<Unicast.UnicastBus>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(u => u.InputAddress, defaultAddress)
                 .ConfigureProperty(u => u.HostInformation, hostInfo);
@@ -59,7 +59,6 @@ namespace NServiceBus.Features
             ConfigureSubscriptionAuthorization(context);
 
             context.Container.ConfigureComponent<PipelineExecutor>(DependencyLifecycle.SingleInstance);
-            ConfigureBehaviors(context);
 
             var knownMessages = context.Settings.GetAvailableTypes()
                 .Where(context.Settings.Get<Conventions>().IsMessageType)
@@ -101,18 +100,6 @@ namespace NServiceBus.Features
                 CriticalError = b.Build<CriticalError>(),
                 Notifications = b.Build<BusNotifications>()
             }, DependencyLifecycle.InstancePerCall);
-        }
-
-        void ConfigureBehaviors(FeatureConfigurationContext context)
-        {
-            // ReSharper disable HeapView.SlowDelegateCreation
-            var behaviorTypes = context.Settings.GetAvailableTypes().Where(t => (typeof(IBehavior<IncomingContext>).IsAssignableFrom(t) || typeof(IBehavior<OutgoingContext>).IsAssignableFrom(t))
-                                                            && !(t.IsAbstract || t.IsInterface));
-            // ReSharper restore HeapView.SlowDelegateCreation
-            foreach (var behaviorType in behaviorTypes)
-            {
-                context.Container.ConfigureComponent(behaviorType, DependencyLifecycle.InstancePerCall);
-            }
         }
 
         void ConfigureSubscriptionAuthorization(FeatureConfigurationContext context)

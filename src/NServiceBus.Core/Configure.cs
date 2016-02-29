@@ -118,12 +118,20 @@ namespace NServiceBus
 
             featureActivator.RegisterStartupTasks(configurer);
 
-            localAddress =Settings.LocalAddress();
+            ConfigureBehaviors();
+            localAddress = Settings.LocalAddress();
 
             foreach (var o in Builder.BuildAll<IWantToRunWhenConfigurationIsComplete>())
             {
                 o.Run(this);
             }
+        }
+
+        void ConfigureBehaviors()
+        {
+            var pipeLineExecutor = Builder.Build<PipelineExecutor>();
+            foreach (var outgoingBehaviorType in pipeLineExecutor.Outgoing.Select(x => x.BehaviorType)) configurer.ConfigureComponent(outgoingBehaviorType, DependencyLifecycle.InstancePerCall);
+            foreach (var incomingBehaviorType in pipeLineExecutor.Incoming.Select(x => x.BehaviorType)) configurer.ConfigureComponent(incomingBehaviorType, DependencyLifecycle.InstancePerCall);
         }
 
         /// <summary>
