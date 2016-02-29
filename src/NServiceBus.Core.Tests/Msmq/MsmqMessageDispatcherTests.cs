@@ -3,16 +3,18 @@
     using System;
     using System.Collections.Generic;
     using System.Messaging;
+    using System.Threading.Tasks;
     using NServiceBus.Extensibility;
     using NServiceBus.Routing;
     using NServiceBus.Transports;
+    using NServiceBus.Transports.Msmq;
     using NUnit.Framework;
 
     [TestFixture]
     public class MsmqMessageDispatcherTests
     {
         [Test]
-        public void Should_set_label_when_convention_configured()
+        public async Task Should_set_label_when_convention_configured()
         {
             var queueName = "labelTest";
             var path = $@"{Environment.MachineName}\private$\{queueName}";
@@ -20,7 +22,7 @@
             {
                 MsmqHelpers.DeleteQueue(path);
                 MsmqHelpers.CreateQueue(path);
-                var messageSender = new MsmqMessageDispatcher(new MsmqSettings(), _ => "mylabel");
+                var messageSender = new MsmqMessageDispatcher(new MsmqSettings(), _ => "mylabel", new NullSubscriptionStore(), new Type[0]);
 
                 var bytes = new byte[]
                 {
@@ -29,7 +31,7 @@
                 var headers = new Dictionary<string, string>();
                 var outgoingMessage = new OutgoingMessage("1", headers, bytes);
                 var transportOperation = new TransportOperation(outgoingMessage, new UnicastAddressTag(queueName), DispatchConsistency.Default);
-                messageSender.Dispatch(new TransportOperations(transportOperation), new ContextBag());
+                await messageSender.Dispatch(new TransportOperations(transportOperation), new ContextBag()).ConfigureAwait(false);
                 var messageLabel = ReadMessageLabel(path);
                 Assert.AreEqual("mylabel", messageLabel);
 
@@ -40,7 +42,7 @@
             }
         }
         [Test]
-        public void Should_use_string_empty_label_when_no_convention_configured()
+        public async Task Should_use_string_empty_label_when_no_convention_configured()
         {
             var queueName = "emptyLabelTest";
             var path = $@".\private$\{queueName}";
@@ -48,7 +50,7 @@
             {
                 MsmqHelpers.DeleteQueue(path);
                 MsmqHelpers.CreateQueue(path);
-                var messageSender = new MsmqMessageDispatcher(new MsmqSettings(), pairs => string.Empty);
+                var messageSender = new MsmqMessageDispatcher(new MsmqSettings(), pairs => string.Empty, new NullSubscriptionStore(), new Type[0]);
 
                 var bytes = new byte[]
                 {
@@ -57,7 +59,7 @@
                 var headers = new Dictionary<string, string>();
                 var outgoingMessage = new OutgoingMessage("1", headers, bytes);
                 var transportOperation = new TransportOperation(outgoingMessage, new UnicastAddressTag(queueName), DispatchConsistency.Default);
-                messageSender.Dispatch(new TransportOperations(transportOperation), new ContextBag());
+                await messageSender.Dispatch(new TransportOperations(transportOperation), new ContextBag()).ConfigureAwait(false);
                 var messageLabel = ReadMessageLabel(path);
                 Assert.IsEmpty(messageLabel);
 
@@ -65,6 +67,14 @@
             finally
             {
                 MsmqHelpers.DeleteQueue(path);
+            }
+        }
+
+        class NullSubscriptionStore : IQuerySubscriptions
+        {
+            public Task<IEnumerable<Subscriber>> GetSubscribersFor(IEnumerable<Type> eventTypes)
+            {
+                throw new NotImplementedException();
             }
         }
 

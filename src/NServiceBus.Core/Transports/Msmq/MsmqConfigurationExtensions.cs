@@ -4,6 +4,7 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Messaging;
     using System.Transactions;
+    using NServiceBus.Transports.Msmq;
 
     /// <summary>
     /// Adds extensions methods to <see cref="TransportExtensions{T}"/> for configuration purposes.
@@ -37,6 +38,22 @@ namespace NServiceBus
         {
             transportExtensions.Settings.Set<MsmqScopeOptions>(new MsmqScopeOptions(timeout, isolationLevel));
             return transportExtensions;
+        }
+
+        /// <summary>
+        /// Instructs MSMQ transport to use specified subscription store.
+        /// </summary>
+        /// <typeparam name="T">Type of subscription store.</typeparam>
+        public static SubscriptionStoreSettings<T> UseSubscriptionStore<T>(this TransportExtensions<MsmqTransport> transportExtensions)
+            where T : SubscriptionStoreDefinition, new()
+        {
+            if (transportExtensions == null)
+            {
+                throw new ArgumentNullException(nameof(transportExtensions));
+            }
+            transportExtensions.Settings.Set<SubscriptionStoreDefinition>(new T());
+            var settings = new SubscriptionStoreSettings<T>(transportExtensions.Settings);
+            return settings;
         }
     }
 }

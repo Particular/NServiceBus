@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
     using System.Transactions;
@@ -10,6 +11,7 @@ namespace NServiceBus
     using NServiceBus.Routing;
     using NServiceBus.Settings;
     using NServiceBus.Transports;
+    using NServiceBus.Transports.Msmq;
 
     /// <summary>
     /// Transport infrastructure for MSMQ.
@@ -31,12 +33,13 @@ namespace NServiceBus
             return new ReceiveWithNativeTransaction();
         }
 
-        internal MsmqTransportInfrastructure(ReadOnlySettings settings, string connectionString)
+        internal MsmqTransportInfrastructure(ReadOnlySettings settings, string connectionString, SubscriptionStoreInfrastructure subscriptionStoreInfrastructure)
         {
             RequireOutboxConsent = true;
 
             this.settings = settings;
             this.connectionString = connectionString;
+            this.subscriptionStoreInfrastructure = subscriptionStoreInfrastructure;
         }
 
         /// <summary>
@@ -126,9 +129,11 @@ namespace NServiceBus
             }
 
             var builder = new MsmqConnectionStringBuilder(connectionString).RetrieveSettings();
+            var conventions = settings.Get<Conventions>();
+            var allMessageTypes = settings.GetAvailableTypes().Where(t => conventions.IsMessageType(t)).ToArray();
 
             return new TransportSendInfrastructure(
-                () => new MsmqMessageDispatcher(builder, messageLabelGenerator),
+                () => new MsmqMessageDispatcher(builder, messageLabelGenerator, subscriptionStoreInfrastructure.SubscriptionReaderFactory(), allMessageTypes),
                 () =>
                 {
                     var bindings = settings.Get<QueueBindings>();
@@ -144,7 +149,7 @@ namespace NServiceBus
         /// <returns>Transport subscription infrastructure.</returns>
         public override TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure()
         {
-            throw new NotImplementedException("MSMQ does not support native pub/sub.");
+            return new TransportSubscriptionInfrastructure(subscriptionStoreInfrastructure.SubscriptionManagerFactory);
         }
 
         /// <summary>
@@ -163,9 +168,10 @@ namespace NServiceBus
         /// <summary>
         /// <see cref="TransportInfrastructure.OutboundRoutingPolicy"/>.
         /// </summary>
-        public override OutboundRoutingPolicy OutboundRoutingPolicy { get; } = new OutboundRoutingPolicy(OutboundRoutingType.Unicast, OutboundRoutingType.Unicast, OutboundRoutingType.Unicast);
+        public override OutboundRoutingPolicy OutboundRoutingPolicy { get; } = new OutboundRoutingPolicy(OutboundRoutingType.Unicast, OutboundRoutingType.Multicast, OutboundRoutingType.Unicast);
 
         readonly ReadOnlySettings settings;
         readonly string connectionString;
+        readonly SubscriptionStoreInfrastructure subscriptionStoreInfrastructure;
     }
 }

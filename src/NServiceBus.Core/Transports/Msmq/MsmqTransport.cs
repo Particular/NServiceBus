@@ -1,7 +1,9 @@
 namespace NServiceBus
 {
+    using System;
     using NServiceBus.Settings;
     using NServiceBus.Transports;
+    using NServiceBus.Transports.Msmq;
 
     /// <summary>
     /// Transport definition for MSMQ.
@@ -16,7 +18,12 @@ namespace NServiceBus
         /// <returns>the transport infrastructure for msmq.</returns>
         protected internal override TransportInfrastructure Initialize(SettingsHolder settings, string connectionString)
         {
-            return new MsmqTransportInfrastructure(settings, connectionString);
+            SubscriptionStoreDefinition subscriptionStoreDefinition;
+            if (!settings.TryGet(out subscriptionStoreDefinition))
+            {
+                throw new Exception("When using MSMQ transport you need to specify subscription store using UseSubscriptionStore<T>() method.");
+            }
+            return new MsmqTransportInfrastructure(settings, connectionString, subscriptionStoreDefinition.Initialize(settings));
         }
 
         /// <summary>
