@@ -345,7 +345,12 @@ Sagas can only have mappings that correlate on a single saga property. Please us
         {
             void IConfigureHowToFindSagaWithMessage.ConfigureMapping<TSagaEntity, TMessage>(Expression<Func<TSagaEntity, object>> sagaEntityProperty, Expression<Func<TMessage, object>> messageExpression)
             {
-                var sagaProp = Reflect<TSagaEntity>.GetProperty(sagaEntityProperty, true);
+                var sagaMember = Reflect<TSagaEntity>.GetMemberInfo(sagaEntityProperty, true);
+                var sagaProp = sagaMember as PropertyInfo;
+                if (sagaProp == null)
+                {
+                    throw new InvalidOperationException($"Mapping expressions for saga members must point to properties. Please change member {sagaMember.Name} on {typeof(TSagaEntity).Name} to a property.");
+                }
 
                 ValidateMapping(messageExpression, sagaProp);
 
@@ -378,13 +383,15 @@ Sagas can only have mappings that correlate on a single saga property. Please us
 
                 var propertyInfo = memberExpr.Member as PropertyInfo;
 
-                const string message = "Message properties mapped to the saga id needs to be of type Guid, please change property {0} on message {1} to a Guid";
+                const string message = "When mapping a message to a saga, the member type on the message and the saga property must match. {0}.{1} is of type {2} and {3}.{4} is of type {5}.";
 
                 if (propertyInfo != null)
                 {
                     if (propertyInfo.PropertyType != sagaProp.PropertyType)
                     {
-                        throw new Exception(string.Format(message, propertyInfo.Name, typeof(TMessage).Name));
+                        throw new InvalidOperationException(string.Format(message,
+                            propertyInfo.DeclaringType.Name, propertyInfo.Name, propertyInfo.PropertyType,
+                            sagaProp.DeclaringType.Name, sagaProp.Name, sagaProp.PropertyType));
                     }
 
                     return;
@@ -396,7 +403,9 @@ Sagas can only have mappings that correlate on a single saga property. Please us
                 {
                     if (fieldInfo.FieldType != sagaProp.PropertyType)
                     {
-                        throw new Exception(string.Format(message, fieldInfo.Name, typeof(TMessage).Name));
+                        throw new InvalidOperationException(string.Format(message,
+                            fieldInfo.DeclaringType.Name, fieldInfo.Name, fieldInfo.FieldType,
+                            sagaProp.DeclaringType.Name, sagaProp.Name, sagaProp.PropertyType));
                     }
                 }
             }

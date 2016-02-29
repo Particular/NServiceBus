@@ -30,7 +30,7 @@ namespace NServiceBus
             return GetMemberInfo(property, checkForSingleDot) as PropertyInfo;
         }
 
-        static MemberInfo GetMemberInfo(Expression member, bool checkForSingleDot)
+        public static MemberInfo GetMemberInfo(Expression member, bool checkForSingleDot)
         {
             if (member == null) throw new ArgumentNullException(nameof(member));
 
