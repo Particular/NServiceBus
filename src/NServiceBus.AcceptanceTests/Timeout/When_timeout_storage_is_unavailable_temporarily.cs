@@ -16,7 +16,7 @@
             await Scenario.Define<TimeoutTestContext>()
                 .WithEndpoint<EndpointWithFlakyTimeoutPersister>()
                 .Done(c => c.EndpointsStarted)
-                .Repeat(r => r.For(Transports.Msmq))
+                .Repeat(r => r.For<AllTransportsWithoutNativeDeferral>())
                 .Should(c => Assert.IsTrue(c.EndpointsStarted))
                 .Run();
         }
@@ -45,7 +45,7 @@
                     .Done(c => c.FatalErrorOccurred || stopTime <= DateTime.Now)
                     .Run();
 
-            Assert.IsFalse(testContext.FatalErrorOccurred, "Circuit breaker was trigged too soon.");
+            Assert.IsFalse(testContext.FatalErrorOccurred, "Circuit breaker was triggered too soon.");
         }
 
         public class TimeoutTestContext : ScenarioContext

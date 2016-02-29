@@ -32,6 +32,15 @@
                         runDescriptor.Settings.Set("Transport.ConnectionString", connectionString);
                         yield return runDescriptor;
                     }
+                    else
+                    {
+                        var transportDefinition = (TransportDefinition)Activator.CreateInstance(transportDefinitionType);
+
+                        if (!transportDefinition.RequiresConnectionString)
+                        {
+                            yield return runDescriptor;
+                        }
+                    }
                 }
             }
         }
@@ -42,28 +51,25 @@
             {
                 var specificTransport = EnvironmentHelper.GetEnvironmentVariable("Transport.UseSpecific");
 
-                var runDescriptors = AllAvailable;
+                var runDescriptors = AllAvailable.ToList();
                 if (!string.IsNullOrEmpty(specificTransport))
                 {
                     return runDescriptors.Single(r => r.Key == specificTransport);
                 }
 
-                var transportsOtherThanMsmq = runDescriptors.Where(t => t != Msmq);
+                var transportsOtherThanMsmq = runDescriptors.Where(t => t.Key != MsmqDescriptorKey).ToList();
 
-                if (transportsOtherThanMsmq.Count() == 1)
+                if (transportsOtherThanMsmq.Count == 1)
                 {
                     return transportsOtherThanMsmq.First();
                 }
 
-                return Msmq;
+                return runDescriptors.Single(t => t.Key == MsmqDescriptorKey);
             }
         }
 
-        public static RunDescriptor Msmq
-        {
-            get { return AllAvailable.SingleOrDefault(r => r.Key == "MsmqTransport"); }
-        }
 
+        static string MsmqDescriptorKey = "MsmqTransport";
         static Lazy<List<Type>> foundDefinitions = new Lazy<List<Type>>(() => TypeScanner.GetAllTypesAssignableTo<TransportDefinition>().ToList());
 
         static Dictionary<string, string> DefaultConnectionStrings = new Dictionary<string, string>
