@@ -44,14 +44,14 @@ namespace NServiceBus.Features
             });
         }
 
-
+      
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             var defaultAddress = context.Settings.LocalAddress();
-            var hostInfo = new HostInformation(context.Settings.Get<Guid>("NServiceBus.HostInformation.HostId"),
-                context.Settings.Get<string>("NServiceBus.HostInformation.DisplayName"),
+            var hostInfo = new HostInformation(context.Settings.Get<Guid>("NServiceBus.HostInformation.HostId"), 
+                context.Settings.Get<string>("NServiceBus.HostInformation.DisplayName"), 
                 context.Settings.Get<Dictionary<string, string>>("NServiceBus.HostInformation.Properties"));
-
+            
             context.Container.ConfigureComponent<Unicast.UnicastBus>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(u => u.InputAddress, defaultAddress)
                 .ConfigureProperty(u => u.HostInformation, hostInfo);
