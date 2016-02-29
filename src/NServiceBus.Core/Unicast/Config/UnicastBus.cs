@@ -13,7 +13,6 @@ namespace NServiceBus.Features
     using NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions;
     using NServiceBus.Utils;
     using Pipeline;
-    using Pipeline.Contexts;
     using Transports;
     using Unicast.Messages;
     using Unicast.Routing;
