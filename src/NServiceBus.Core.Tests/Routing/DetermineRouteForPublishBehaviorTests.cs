@@ -14,7 +14,7 @@
         {
             var behavior = new MulticastPublishRouterBehavior();
 
-            var context = new OutgoingPublishContext(new OutgoingLogicalMessage(new MyEvent()), new PublishOptions(), new RootContext(null, null));
+            var context = new OutgoingPublishContext(new OutgoingLogicalMessage(typeof(MyEvent), new MyEvent()), new PublishOptions(), new RootContext(null, null));
 
             MulticastAddressTag addressTag = null;
             await behavior.Invoke(context, _ =>

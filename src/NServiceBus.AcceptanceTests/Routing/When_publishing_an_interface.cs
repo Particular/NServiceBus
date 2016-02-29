@@ -1,10 +1,12 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing
 {
+    using System;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NServiceBus.Features;
+    using NServiceBus.Pipeline;
     using NUnit.Framework;
 
     public class When_publishing_an_interface : NServiceBusAcceptanceTest
@@ -28,6 +30,7 @@
                 .Should(c =>
                 {
                     Assert.True(c.GotTheEvent);
+                    Assert.AreEqual(typeof(MyEvent), c.EventTypePassedToRouting);
                 })
                 .Run();
         }
@@ -36,22 +39,40 @@
         {
             public bool GotTheEvent { get; set; }
             public bool Subscribed { get; set; }
+            public Type EventTypePassedToRouting { get; set; }
         }
 
         public class Publisher : EndpointConfigurationBuilder
         {
             public Publisher()
             {
-                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) =>
+                EndpointSetup<DefaultPublisher>(c =>
                 {
-                    if (s.SubscriberReturnAddress.Contains("Subscriber"))
+                    c.Pipeline.Register("EventTypeSpy", typeof(EventTypeSpy), "EventTypeSpy");
+                    c.OnEndpointSubscribed<Context>((s, context) =>
                     {
                         if (s.SubscriberReturnAddress.Contains("Subscriber"))
                         {
                             context.Subscribed = true;
                         }
-                    }
-                }));
+                    });
+                });
+            }
+
+            class EventTypeSpy : Behavior<IOutgoingLogicalMessageContext>
+            {
+                public EventTypeSpy(Context testContext)
+                {
+                    this.testContext = testContext;
+                }
+
+                public override Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
+                {
+                    testContext.EventTypePassedToRouting = context.Message.MessageType;
+                    return next();
+                }
+
+                Context testContext;
             }
         }
 

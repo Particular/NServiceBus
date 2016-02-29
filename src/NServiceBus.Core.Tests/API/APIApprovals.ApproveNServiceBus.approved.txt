@@ -2108,7 +2108,6 @@ namespace NServiceBus.Pipeline
     }
     public class OutgoingLogicalMessage
     {
-        public OutgoingLogicalMessage(object message) { }
         public OutgoingLogicalMessage(System.Type messageType, object message) { }
         public object Instance { get; }
         public System.Type MessageType { get; }

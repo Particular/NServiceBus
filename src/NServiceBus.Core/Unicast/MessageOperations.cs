@@ -10,16 +10,21 @@ namespace NServiceBus
         public static Task Publish<T>(IBehaviorContext context, Action<T> messageConstructor, PublishOptions options)
         {
             var mapper = context.Builder.Build<IMessageMapper>();
-            return Publish(context, mapper.CreateInstance(messageConstructor), options);
+            return Publish(context, typeof(T), mapper.CreateInstance(messageConstructor), options);
         }
 
         public static Task Publish(IBehaviorContext context, object message, PublishOptions options)
+        {
+            return Publish(context, message.GetType(), message, options);
+        }
+
+        static Task Publish(IBehaviorContext context, Type messageType, object message, PublishOptions options)
         {
             var cache = context.Extensions.Get<IPipelineCache>();
             var pipeline = cache.Pipeline<IOutgoingPublishContext>();
 
             var publishContext = new OutgoingPublishContext(
-                new OutgoingLogicalMessage(message),
+                new OutgoingLogicalMessage(messageType, message),
                 options,
                 context);
 
@@ -84,7 +89,7 @@ namespace NServiceBus
             var pipeline = cache.Pipeline<IOutgoingReplyContext>();
 
             var outgoingContext = new OutgoingReplyContext(
-                new OutgoingLogicalMessage(message),
+                new OutgoingLogicalMessage(message.GetType(), message),
                 options,
                 context);
 
