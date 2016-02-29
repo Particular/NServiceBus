@@ -21,6 +21,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{ACCDE2
 		.nuget\packages.config = .nuget\packages.config
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Msmq.AcceptanceTests", "NServiceBus.Msmq.AcceptanceTests\NServiceBus.Msmq.AcceptanceTests.csproj", "{B83EB057-56C7-4296-B0C7-E41F4F70CB02}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -93,6 +95,18 @@ Global
 		{389628F6-2FB4-4AFF-BACC-16726C44FFA4}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{389628F6-2FB4-4AFF-BACC-16726C44FFA4}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{389628F6-2FB4-4AFF-BACC-16726C44FFA4}.Release|x86.ActiveCfg = Release|Any CPU
+		{B83EB057-56C7-4296-B0C7-E41F4F70CB02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B83EB057-56C7-4296-B0C7-E41F4F70CB02}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B83EB057-56C7-4296-B0C7-E41F4F70CB02}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{B83EB057-56C7-4296-B0C7-E41F4F70CB02}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{B83EB057-56C7-4296-B0C7-E41F4F70CB02}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B83EB057-56C7-4296-B0C7-E41F4F70CB02}.Debug|x86.Build.0 = Debug|Any CPU
+		{B83EB057-56C7-4296-B0C7-E41F4F70CB02}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B83EB057-56C7-4296-B0C7-E41F4F70CB02}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B83EB057-56C7-4296-B0C7-E41F4F70CB02}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{B83EB057-56C7-4296-B0C7-E41F4F70CB02}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{B83EB057-56C7-4296-B0C7-E41F4F70CB02}.Release|x86.ActiveCfg = Release|Any CPU
+		{B83EB057-56C7-4296-B0C7-E41F4F70CB02}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

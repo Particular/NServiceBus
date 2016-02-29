@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Msmq
+﻿namespace NServiceBus.AcceptanceTests
 {
     using System;
     using System.Linq;
@@ -6,7 +6,6 @@
     using System.Text;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
     public class When_a_corrupted_message_is_received : NServiceBusAcceptanceTest

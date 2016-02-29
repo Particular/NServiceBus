@@ -1,14 +1,13 @@
-﻿namespace NServiceBus.AcceptanceTests.Routing
+﻿namespace NServiceBus.AcceptanceTests
 {
     using System;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Features;
     using NServiceBus.Persistence.Legacy;
     using NUnit.Framework;
 
-    public class When_using_msmq_subscription_store : NServiceBusAcceptanceTest
+    public class When_using_subscription_store : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_be_delivered_to_all_subscribers()

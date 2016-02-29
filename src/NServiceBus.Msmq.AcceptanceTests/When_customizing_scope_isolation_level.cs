@@ -1,9 +1,8 @@
-﻿namespace NServiceBus.AcceptanceTests.UnitOfWork
+﻿namespace NServiceBus.AcceptanceTests
 {
     using System.Threading.Tasks;
     using System.Transactions;
     using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
     public class When_customizing_scope_isolation_level

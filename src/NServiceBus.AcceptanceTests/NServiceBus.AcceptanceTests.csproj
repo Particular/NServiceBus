@@ -73,19 +73,11 @@
     <Compile Include="FakeTransport\ProcessingOptimizations\When_using_concurrency_limit.cs" />
     <Compile Include="Hosting\When_overriding_local_addresses.cs" />
     <Compile Include="Hosting\When_a_message_is_faulted.cs" />
-    <Compile Include="Msmq\When_Audit_OverrideTimeToBeReceived_set_and_transactional_Msmq.cs" />
-    <Compile Include="Msmq\When_a_corrupted_message_is_received.cs" />
-    <Compile Include="Msmq\When_customizing_scope_isolation_level.cs" />
-    <Compile Include="Msmq\When_TimeToBeReceivedOnForwardedMessages_set_and_transactional_Msmq.cs" />
-    <Compile Include="Msmq\When_TimeToBeReceived_set_and_receivetransaction_Msmq.cs" />
-    <Compile Include="Msmq\When_TimeToBeReceived_set_and_DTC_Msmq.cs" />
+    <Compile Include="MessageId\When_message_has_empty_id_header.cs" />
+    <Compile Include="MessageId\When_message_has_no_id_header.cs" />
     <Compile Include="CriticalError\When_raising_critical_error.cs" />
-    <Compile Include="Msmq\When_publishing.cs" />
-    <Compile Include="Msmq\When_setting_msmq_label_generator.cs" />
     <Compile Include="Basic\When_deferring_to_non_local.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\When_TimeoutManager_is_disabled.cs" />
-    <Compile Include="Msmq\When_starting_up_the_endpoint.cs" />
-    <Compile Include="Msmq\When_using_scope_timeout_greater_than_machine_max.cs" />
     <Compile Include="Mutators\When_mutating.cs" />
     <Compile Include="BestPractices\When_publishing_command_bestpractices_disabled_on_endpoint.cs" />
     <Compile Include="BestPractices\When_sending_events_bestpractices_disabled_on_endpoint.cs" />
@@ -144,10 +136,9 @@
     <Compile Include="Routing\AutomaticSubscriptions\When_starting_an_endpoint_with_autoSubscribe.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Routing\SubscriptionBehaviorExtensions.cs" />
     <Compile Include="Routing\When_publishing_to_scaled_out_subscribers_on_unicast_transports.cs" />
     <Compile Include="Routing\When_publishing_to_scaled_out_subscribers_on_multicast_transports.cs" />
-    <Compile Include="Msmq\When_publishing_with_authorizer.cs" />
-    <Compile Include="Msmq\When_unsubscribing_with_authorizer.cs" />
     <Compile Include="Routing\When_broadcasting_a_command.cs" />
     <Compile Include="Routing\When_replying_to_a_message_sent_via_a_distributor.cs" />
     <Compile Include="Routing\When_replying_to_a_message_sent_to_specific_instance.cs" />
@@ -155,7 +146,6 @@
     <Compile Include="Routing\When_publishing_an_interface.cs" />
     <Compile Include="Routing\When_publishing_to_a_legacy_endpoint.cs" />
     <Compile Include="Routing\When_publishing_from_sendonly.cs" />
-    <Compile Include="MessageId\When_message_has_empty_id_header.cs" />
     <Compile Include="Routing\When_publishing_an_event_implementing_two_unrelated_interfaces.cs" />
     <Compile Include="ApiExtension\When_extending_the_publish_api.cs" />
     <Compile Include="Routing\When_replying_to_message.cs" />
@@ -178,7 +168,6 @@
     <Compile Include="Config\When_startup_is_complete.cs" />
     <Compile Include="DataBus\When_using_custom_IDataBus.cs" />
     <Compile Include="DeterministicGuid.cs" />
-    <Compile Include="MessageId\When_message_has_no_id_header.cs" />
     <Compile Include="Hosting\When_feature_overrides_hostinfo.cs" />
     <Compile Include="Routing\When_distributing_a_command.cs" />
     <Compile Include="Sagas\When_message_has_a_saga_id.cs" />
@@ -265,7 +254,6 @@
     <Compile Include="ScenarioDescriptors\Persistence.cs" />
     <Compile Include="Scheduling\When_scheduling_a_recurring_task.cs" />
     <Compile Include="Tx\FakePromotableResourceManager.cs" />
-    <Compile Include="Msmq\When_receiving_with_dtc_disabled.cs" />
     <Compile Include="Tx\When_receiving_with_dtc_enabled.cs" />
     <Compile Include="Tx\When_receiving_with_the_default_settings.cs" />
     <Compile Include="Tx\ImmediateDispatch\When_requesting_immediate_dispatch_with_at_most_once.cs" />
