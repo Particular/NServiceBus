@@ -130,8 +130,16 @@ namespace NServiceBus
         void ConfigureBehaviors()
         {
             var pipeLineExecutor = Builder.Build<PipelineExecutor>();
-            foreach (var outgoingBehaviorType in pipeLineExecutor.Outgoing.Select(registerStep => registerStep.BehaviorType)) configurer.ConfigureComponent(outgoingBehaviorType, DependencyLifecycle.InstancePerCall);
-            foreach (var incomingBehaviorType in pipeLineExecutor.Incoming.Select(registerStep => registerStep.BehaviorType)) configurer.ConfigureComponent(incomingBehaviorType, DependencyLifecycle.InstancePerCall);
+            var incomingBehaviorTypes = pipeLineExecutor.Incoming.Select(registerStep => registerStep.BehaviorType);
+            var outgoingBehaviorTypes = pipeLineExecutor.Outgoing.Select(registerStep => registerStep.BehaviorType);
+            foreach (var outgoingBehaviorType in outgoingBehaviorTypes)
+            {
+                configurer.ConfigureComponent(outgoingBehaviorType, DependencyLifecycle.InstancePerCall);
+            }
+            foreach (var incomingBehaviorType in incomingBehaviorTypes)
+            {
+                configurer.ConfigureComponent(incomingBehaviorType, DependencyLifecycle.InstancePerCall);
+            }
         }
 
         /// <summary>
