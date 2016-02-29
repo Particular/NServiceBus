@@ -2,8 +2,8 @@ namespace NServiceBus.Features
 {
     using System;
     using NServiceBus.Config;
+    using NServiceBus.Pipeline;
     using NServiceBus.Settings;
-    using NServiceBus.Transports;
 
     /// <summary>
     /// Used to configure Second Level Retries.
@@ -22,7 +22,7 @@ namespace NServiceBus.Features
         }
 
         /// <summary>
-        /// See <see cref="Feature.Setup"/>.
+        /// See <see cref="Feature.Setup" />.
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
@@ -39,17 +39,21 @@ namespace NServiceBus.Features
             var retriesConfig = context.Settings.GetConfigSection<SecondLevelRetriesConfig>();
 
             if (retriesConfig == null)
+            {
                 return true;
+            }
 
             if (retriesConfig.NumberOfRetries == 0)
+            {
                 return false;
+            }
 
             return retriesConfig.Enabled;
         }
 
         static SecondLevelRetryPolicy GetRetryPolicy(ReadOnlySettings settings)
         {
-            var customRetryPolicy = settings.GetOrDefault<Func<IncomingMessage, TimeSpan>>("SecondLevelRetries.RetryPolicy");
+            var customRetryPolicy = settings.GetOrDefault<Func<ITransportReceiveContext, TimeSpan>>("SecondLevelRetries.RetryPolicy");
 
             if (customRetryPolicy != null)
             {

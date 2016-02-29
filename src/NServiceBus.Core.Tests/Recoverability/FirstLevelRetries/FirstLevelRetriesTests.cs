@@ -41,7 +41,7 @@
             Assert.That(async () => await behavior.Invoke(context, () => { throw new Exception("test"); }), Throws.InstanceOf<Exception>());
 
             //should set the retries header to capture how many flr attempts where made
-            Assert.AreEqual("0", context.Message.Headers[Headers.FLRetries]);
+            Assert.AreEqual("0", context.Headers[Headers.FLRetries]);
         }
 
         [Test]
@@ -136,7 +136,7 @@
 
         ITransportReceiveContext CreateContext(string messageId, CancellationTokenSource cancellationTokenSource = null)
         {
-            return new TransportReceiveContext(new IncomingMessage(messageId, new Dictionary<string, string>(), new MemoryStream()), null, cancellationTokenSource ?? new CancellationTokenSource(), new RootContext(null, null));
+            return new TransportReceiveContext(messageId, new Dictionary<string, string>(), new MemoryStream(), null, cancellationTokenSource ?? new CancellationTokenSource(), new RootContext(null, null));
         }
     }
 }

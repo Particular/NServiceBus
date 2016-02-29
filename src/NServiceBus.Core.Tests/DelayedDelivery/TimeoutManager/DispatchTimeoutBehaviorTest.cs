@@ -120,7 +120,7 @@
             };
 
             return new IncomingPhysicalMessageContext(
-                new IncomingMessage(messageId, headers, new MemoryStream()), null);
+                messageId, headers, new MemoryStream().ToArray(), null);
         }
 
         class FakeMessageDispatcher : IDispatchMessages

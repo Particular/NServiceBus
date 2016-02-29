@@ -16,9 +16,9 @@
         {
             await next().ConfigureAwait(false);
 
-            context.Message.RevertToOriginalBodyIfNeeded();
+            context.RevertToOriginalBodyIfNeeded();
 
-            var processedMessage = new OutgoingMessage(context.Message.MessageId, context.Message.Headers, context.Message.Body);
+            var processedMessage = new OutgoingMessage(context.MessageId, context.Headers, context.Body);
 
             var forwardingContext = this.CreateForwardingContext(processedMessage, forwardingAddress, context);
 

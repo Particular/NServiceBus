@@ -2,16 +2,16 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using Logging;
     using NServiceBus.Features;
+    using NServiceBus.Logging;
+    using NServiceBus.Pipeline;
     using NServiceBus.Settings;
-    using Pipeline;
 
     class FirstLevelRetriesBehavior : Behavior<ITransportReceiveContext>
     {
         public FirstLevelRetriesBehavior(
-            FlrStatusStorage storage, 
-            FirstLevelRetryPolicy retryPolicy, 
+            FlrStatusStorage storage,
+            FirstLevelRetryPolicy retryPolicy,
             BusNotifications notifications,
             string uniqueKey)
         {
@@ -33,7 +33,7 @@ namespace NServiceBus
             }
             catch (Exception ex)
             {
-                var messageId = context.Message.MessageId;
+                var messageId = context.MessageId;
                 var pipelineUniqueMessageId = uniqueKey + messageId;
 
                 var numberOfFailures = storage.GetFailuresForMessage(pipelineUniqueMessageId);
@@ -41,8 +41,8 @@ namespace NServiceBus
                 if (retryPolicy.ShouldGiveUp(numberOfFailures))
                 {
                     storage.ClearFailuresForMessage(pipelineUniqueMessageId);
-                    context.Message.Headers[Headers.FLRetries] = numberOfFailures.ToString();
-                    notifications.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(numberOfFailures, context.Message, ex);
+                    context.Headers[Headers.FLRetries] = numberOfFailures.ToString();
+                    notifications.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(numberOfFailures, context, ex);
                     Logger.InfoFormat("Giving up First Level Retries for message '{0}'.", messageId);
                     throw;
                 }
@@ -51,24 +51,25 @@ namespace NServiceBus
 
                 Logger.Info($"First Level Retry is going to retry message '{messageId}' because of an exception:", ex);
                 //question: should we invoke this the first time around? feels like the naming is off?
-                notifications.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(numberOfFailures, context.Message, ex);
+                notifications.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(numberOfFailures, context, ex);
 
                 context.AbortReceiveOperation();
             }
         }
 
-        FlrStatusStorage storage;
-        FirstLevelRetryPolicy retryPolicy;
         BusNotifications notifications;
+        FirstLevelRetryPolicy retryPolicy;
+
+        FlrStatusStorage storage;
         string uniqueKey;
 
         static ILog Logger = LogManager.GetLogger<FirstLevelRetriesBehavior>();
 
         public class Registration : RegisterStep
         {
-            public Registration(string uniqueKey) 
-                : base("FirstLevelRetries", typeof(FirstLevelRetriesBehavior), "Performs first level retries", 
-                      b => new FirstLevelRetriesBehavior(b.Build<FlrStatusStorage>(), b.Build<FirstLevelRetryPolicy>(), b.Build<BusNotifications>(), uniqueKey))
+            public Registration(string uniqueKey)
+                : base("FirstLevelRetries", typeof(FirstLevelRetriesBehavior), "Performs first level retries",
+                    b => new FirstLevelRetriesBehavior(b.Build<FlrStatusStorage>(), b.Build<FirstLevelRetryPolicy>(), b.Build<BusNotifications>(), uniqueKey))
             {
             }
 

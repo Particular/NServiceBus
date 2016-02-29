@@ -264,7 +264,7 @@
     <Compile Include="Pipeline\Outgoing\IDispatchContext.cs" />
     <Compile Include="Pipeline\Outgoing\ImmediateDispatchTerminator.cs" />
     <Compile Include="Transports\DispatchConsistency.cs" />
-    <Compile Include="Transports\IncomingMessageExtensions.cs" />
+    <Compile Include="Transports\IIncomingPhysicalMessageContextExtensions.cs" />
     <Compile Include="Transports\Msmq\MsmqConnectionStringBuilder.cs" />
     <Compile Include="Container\ContainerCustomizations.cs" />
     <Compile Include="Container\ContainerDefinition.cs" />

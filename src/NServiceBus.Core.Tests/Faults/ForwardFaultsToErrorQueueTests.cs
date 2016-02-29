@@ -96,7 +96,7 @@ namespace NServiceBus.Core.Tests
 
         static ITransportReceiveContext CreateContext(string messageId, FakeFaultPipeline pipeline)
         {
-            return new TransportReceiveContext(new IncomingMessage(messageId, new Dictionary<string, string>(), new MemoryStream()), null, new CancellationTokenSource(), new RootContext(null, new FakePipelineCache(pipeline)));
+            return new TransportReceiveContext(messageId, new Dictionary<string, string>(), new MemoryStream(), null, new CancellationTokenSource(), new RootContext(null, new FakePipelineCache(pipeline)));
         }
 
         class FakePipelineCache : IPipelineCache
