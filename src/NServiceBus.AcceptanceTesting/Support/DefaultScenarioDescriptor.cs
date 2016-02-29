@@ -4,7 +4,7 @@
     {
         public DefaultScenarioDescriptor()
         {
-            Add(new RunDescriptor { Key = "Default Scenario" });
+            Add(new RunDescriptor("Default Scenario"));
         }
     }
 }

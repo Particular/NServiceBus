@@ -1,21 +1,20 @@
 ﻿namespace NServiceBus.AcceptanceTests.ScenarioDescriptors
 {
     using System;
-    using AcceptanceTesting.Support;
+    using NServiceBus.AcceptanceTesting.Support;
     using NServiceBus.Persistence;
 
-    public class AllOutboxCapableStorages:ScenarioDescriptor
+    public class AllOutboxCapableStorages : ScenarioDescriptor
     {
         public AllOutboxCapableStorages()
         {
-            var defaultStorage = Persistence.Default;
+            var defaultSettings = Persistence.Default;
 
-            var definitionType = Type.GetType(defaultStorage.Settings["Persistence"]);
-
-            var definition = (PersistenceDefinition)Activator.CreateInstance(definitionType, true);
+            var definitionType = defaultSettings.Settings.Get<Type>("Persistence");
+            var definition = (PersistenceDefinition) Activator.CreateInstance(definitionType, true);
             if (definition.HasSupportFor<StorageType.Outbox>())
             {
-                Add(defaultStorage);
+                Add(defaultSettings);
             }
         }
     }

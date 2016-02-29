@@ -2,18 +2,19 @@
 {
     using System;
     using NServiceBus.AcceptanceTesting.Support;
+    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
 
     public static class RunDescriptorExtensions
     {
         public static Type GetTransportType(this RunDescriptor runDescriptor)
         {
-            var settings = runDescriptor.Settings;
-            if (!settings.ContainsKey("Transport"))
+            Type transportType;
+            if (!runDescriptor.Settings.TryGet("Transport", out transportType))
             {
-                settings = ScenarioDescriptors.Transports.Default.Settings;
+                return Transports.Default.Settings.Get<Type>("Transport");
             }
 
-            return Type.GetType(settings["Transport"]);
+            return transportType;
         }
     }
 }

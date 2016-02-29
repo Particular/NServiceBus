@@ -18,6 +18,7 @@
         IEndpointInstance endpointInstance;
         EndpointCustomizationConfiguration configuration;
         ScenarioContext scenarioContext;
+        RunSettings runSettings;
         EndpointConfiguration endpointConfiguration;
 
         public bool FailOnErrorMessage => !behavior.DoNotFailOnErrorMessages;
@@ -29,6 +30,7 @@
             {
                 behavior = endpointBehavior;
                 scenarioContext = run.ScenarioContext;
+                runSettings = run.Settings;
                 var endpointConfigurationFactory = (IEndpointConfigurationFactory)Activator.CreateInstance(endpointBehavior.EndpointBuilderType);
                 endpointConfigurationFactory.ScenarioContext = run.ScenarioContext;
                 configuration = endpointConfigurationFactory.Get();
@@ -177,8 +179,9 @@
 
         Task Cleanup()
         {
-            List<IConfigureTestExecution> cleaners;
-            if (endpointConfiguration.GetSettings().TryGet("Cleaners", out cleaners))
+            ActiveTestExecutionConfigurer cleaners;
+            var cleanersKey = "ConfigureTestExecution." + configuration.EndpointName;
+            if (runSettings.TryGet(cleanersKey, out cleaners))
             {
                 var tasks = cleaners.Select(cleaner => cleaner.Cleanup());
                 return Task.WhenAll(tasks);

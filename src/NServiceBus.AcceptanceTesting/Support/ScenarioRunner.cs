@@ -16,7 +16,7 @@
     {
         public static async Task Run(List<RunDescriptor> runDescriptors, List<EndpointBehavior> behaviorDescriptors, List<IScenarioVerification> shoulds, Func<ScenarioContext, bool> done, int limitTestParallelismTo, Action<RunSummary> reports, Func<Exception, bool> allowedExceptions)
         {
-            var totalRuns = runDescriptors.Count();
+            var totalRuns = runDescriptors.Count;
             var cts = new CancellationTokenSource();
             var po = new ParallelOptions
             {
@@ -197,7 +197,7 @@
             return routingTable;
         }
 
-        static void PrintSettings(IEnumerable<KeyValuePair<string, string>> settings)
+        static void PrintSettings(IEnumerable<KeyValuePair<string, object>> settings)
         {
             Console.WriteLine();
             Console.WriteLine("Using settings:");
@@ -221,7 +221,7 @@
                 await ExecuteWhens(endpoints, allowedExceptions, cts).ConfigureAwait(false);
 
                 var startTime = DateTime.UtcNow;
-                var maxTime = runDescriptor.TestExecutionTimeout;
+                var maxTime = runDescriptor.Settings.TestExecutionTimeout;
 
                 while (!done() && !cts.Token.IsCancellationRequested)
                 {
@@ -310,7 +310,7 @@
 
         static async Task StopEndpoints(IEnumerable<EndpointRunner> endpoints)
         {
-            var tasks = endpoints.Select(async endpoint => 
+            var tasks = endpoints.Select(async endpoint =>
             {
                 Console.WriteLine("Stopping endpoint: {0}", endpoint.Name());
                 var stopwatch = Stopwatch.StartNew();
@@ -350,7 +350,7 @@
                 var runner = new ActiveRunner
                 {
                     Instance = new EndpointRunner(),
-                    EndpointName = endpointName,
+                    EndpointName = endpointName
                 };
 
                 runner.InitializeTask = Task.Run(() => runner.Instance.Initialize(runDescriptor, behaviorDescriptor, routingTable, endpointName));
@@ -387,7 +387,9 @@
             get
             {
                 if (activeEndpoints == null)
+                {
                     activeEndpoints = new List<string>();
+                }
 
                 return activeEndpoints;
             }
