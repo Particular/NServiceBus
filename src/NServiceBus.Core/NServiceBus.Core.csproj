@@ -159,8 +159,6 @@
     <Compile Include="IMessageProcessingContext.cs" />
     <Compile Include="IMessageProcessingContextExtensions.cs" />
     <Compile Include="Causation\MessageCausation.cs" />
-    <Compile Include="ConfigureHandlerSettings.cs" />
-    <Compile Include="ObjectBuilder\Common\GenericComponentConfig.cs" />
     <Compile Include="Performance\Counters\IPerformanceCounterInstance.cs" />
     <Compile Include="Performance\Counters\NonFunctionalPerformanceCounterInstance.cs" />
     <Compile Include="Transports\TransactionModeSettingsExtensions.cs" />
@@ -687,10 +685,8 @@
     <Compile Include="MessageInterfaces\MessageMapper\Reflection\MessageMapper.cs" />
     <Compile Include="ObjectBuilder\Autofac\AutofacObjectBuilder.cs" />
     <Compile Include="ObjectBuilder\Common\CommonObjectBuilder.cs" />
-    <Compile Include="ObjectBuilder\Common\ComponentConfig.cs" />
     <Compile Include="ObjectBuilder\Common\IContainer.cs" />
     <Compile Include="ObjectBuilder\IBuilder.cs" />
-    <Compile Include="ObjectBuilder\IComponentConfig.cs" />
     <Compile Include="ObjectBuilder\IConfigureComponents.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">

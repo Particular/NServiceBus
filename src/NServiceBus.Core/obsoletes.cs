@@ -2,6 +2,7 @@
 // ReSharper disable UnusedParameter.Local
 
 
+using NServiceBus;
 
 #pragma warning disable 1591
 // ReSharper disable UnusedParameter.Global
@@ -1857,6 +1858,37 @@ namespace NServiceBus.Transports.Msmq.Config
         TreatAsErrorFromVersion = "6.0",
         Message = "No longer available, see the documentation for native sends for alternative solutions.")]
     public class MsmqSettings
+    {
+    }
+}
+
+public static class ConfigureHandlerSettings
+{
+    [ObsoleteEx(
+         RemoveInVersion = "7.0",
+         TreatAsErrorFromVersion = "6.0",
+         Message = "Setting property values explicitly is no longer supported via the builtin container in NServiceBus. Property injection is still enabled by default. Use the `.ConfigureComponent(b=> new MyMessageHandler(){ MyProperty = X})` if you want full controll over property values. Other option is to use one of the supported containers and configure property injection using their native configuration API's.")]
+    public static void InitializeHandlerProperty<THandler>(this EndpointConfiguration config, string property, object value)
+    {
+    }
+}
+
+
+namespace NServiceBus.ObjectBuilder
+{
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        Message = "Setting property values explicitly is no longer supported via the builtin container in NServiceBus. Property injection is still enabled by default. Use the `.ConfigureComponent(b=> new MyClass(){ MyProperty = X})` if you want full controll over property values. Other option is to use one of the supported containers and configure property injection using their native configuration API's.")]
+    public interface IComponentConfig
+    {
+    }
+
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        Message = "Setting property values explicitly is no longer supported via the builtin container in NServiceBus. Property injection is still enabled by default. Use the `.ConfigureComponent(b=> new MyClass(){ MyProperty = X})` if you want full controll over property values. Other option is to use one of the supported containers and configure property injection using their native configuration API's.")]
+    public interface IComponentConfig<T>
     {
     }
 }

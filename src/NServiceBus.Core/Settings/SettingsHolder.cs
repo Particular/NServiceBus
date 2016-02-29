@@ -175,31 +175,25 @@ namespace NServiceBus.Settings
             return HasExplicitValue(key);
         }
 
-        /// <summary>
-        /// Applies property inject for the given type based on convention.
-        /// </summary>
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Property injection is no longer supported, please use constructor injection instead.")]
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         public void ApplyTo<T>(IComponentConfig config)
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         {
-            ApplyTo(typeof(T), config);
         }
 
-        /// <summary>
-        /// Setup property injection for the given type based on convention.
-        /// </summary>
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Property injection is no longer supported, please use constructor injection instead.")]
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         public void ApplyTo(Type componentType, IComponentConfig config)
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         {
-            Guard.AgainstNull(nameof(config), config);
-            var targetType = componentType;
-
-            foreach (var property in targetType.GetProperties())
-            {
-                var settingsKey = targetType.FullName + "." + property.Name;
-
-                if (HasSetting(settingsKey))
-                {
-                    config.ConfigureProperty(property.Name, Get(settingsKey));
-                }
-            }
         }
 
         /// <summary>

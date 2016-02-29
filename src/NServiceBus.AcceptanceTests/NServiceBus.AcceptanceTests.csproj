@@ -121,7 +121,6 @@
     <Compile Include="Basic\When_receiving_with_catch_all_handlers_registered.cs" />
     <Compile Include="Basic\When_handling_message_with_several_messagehandlers.cs" />
     <Compile Include="Basic\When_registering_custom_serializer.cs" />
-    <Compile Include="Basic\When_injecting_handler_props.cs" />
     <Compile Include="ApiExtension\When_extending_sendoptions.cs" />
     <Compile Include="Basic\When_sending_with_conventions.cs" />
     <Compile Include="Basic\When_sending_from_a_send_only.cs" />
