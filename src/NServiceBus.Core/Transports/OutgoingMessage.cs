@@ -20,8 +20,15 @@ namespace NServiceBus.Transports
             Headers = headers;
             Body = body;
 
-            Headers[NServiceBus.Headers.NServiceBusVersion] = GitFlowVersion.MajorMinorPatch;
-            Headers[NServiceBus.Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
+            if (!Headers.ContainsKey(NServiceBus.Headers.NServiceBusVersion))
+            {
+                Headers[NServiceBus.Headers.NServiceBusVersion] = GitFlowVersion.MajorMinorPatch;
+            }
+
+            if (!Headers.ContainsKey(NServiceBus.Headers.TimeSent))
+            {
+                Headers[NServiceBus.Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
+            }
         }
 
         /// <summary>
