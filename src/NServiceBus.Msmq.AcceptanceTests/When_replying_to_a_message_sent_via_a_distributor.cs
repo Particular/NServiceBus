@@ -3,7 +3,6 @@
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTesting.Customization;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.Routing;
     using NServiceBus.Routing.Legacy;
     using NUnit.Framework;

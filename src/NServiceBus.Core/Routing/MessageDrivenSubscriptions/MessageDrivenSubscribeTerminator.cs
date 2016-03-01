@@ -13,13 +13,12 @@
 
     class MessageDrivenSubscribeTerminator : PipelineTerminator<ISubscribeContext>
     {
-        public MessageDrivenSubscribeTerminator(SubscriptionRouter subscriptionRouter, string subscriberAddress, EndpointName subscriberEndpoint, IDispatchMessages dispatcher, bool legacyMode)
+        public MessageDrivenSubscribeTerminator(SubscriptionRouter subscriptionRouter, string subscriberAddress, EndpointName subscriberEndpoint, IDispatchMessages dispatcher)
         {
             this.subscriptionRouter = subscriptionRouter;
             this.subscriberAddress = subscriberAddress;
             this.subscriberEndpoint = subscriberEndpoint;
             this.dispatcher = dispatcher;
-            this.legacyMode = legacyMode;
         }
 
         protected override async Task Terminate(ISubscribeContext context)
@@ -37,16 +36,9 @@
                 var subscriptionMessage = ControlMessageFactory.Create(MessageIntentEnum.Subscribe);
 
                 subscriptionMessage.Headers[Headers.SubscriptionMessageType] = eventType.AssemblyQualifiedName;
-
-                if (legacyMode)
-                {
-                    subscriptionMessage.Headers[Headers.ReplyToAddress] = subscriberAddress;
-                }
-                else
-                {
-                    subscriptionMessage.Headers[Headers.SubscriberTransportAddress] = subscriberAddress;
-                    subscriptionMessage.Headers[Headers.SubscriberEndpoint] = subscriberEndpoint.ToString();
-                }
+                subscriptionMessage.Headers[Headers.ReplyToAddress] = subscriberAddress;
+                subscriptionMessage.Headers[Headers.SubscriberTransportAddress] = subscriberAddress;
+                subscriptionMessage.Headers[Headers.SubscriberEndpoint] = subscriberEndpoint.ToString();
                 var address = publisherAddress;
 
                 subscribeTasks.Add(SendSubscribeMessageWithRetries(address, subscriptionMessage, eventType.AssemblyQualifiedName, context.Extensions));
@@ -94,7 +86,6 @@
         string subscriberAddress;
         EndpointName subscriberEndpoint;
         IDispatchMessages dispatcher;
-        bool legacyMode;
 
         static ILog Logger = LogManager.GetLogger<MessageDrivenUnsubscribeTerminator>();
     }

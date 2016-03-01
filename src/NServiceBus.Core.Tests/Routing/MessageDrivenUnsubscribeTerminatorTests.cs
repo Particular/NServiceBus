@@ -24,7 +24,7 @@
             publishers.AddStatic("publisher1", typeof(object));
             router = new SubscriptionRouter(publishers, new EndpointInstances(), new TransportAddresses(address => null));
             dispatcher = new FakeDispatcher();
-            terminator = new MessageDrivenUnsubscribeTerminator(router, "replyToAddress", new EndpointName("Endpoint"), dispatcher, false);
+            terminator = new MessageDrivenUnsubscribeTerminator(router, "replyToAddress", new EndpointName("Endpoint"), dispatcher);
         }
 
         [Test]
