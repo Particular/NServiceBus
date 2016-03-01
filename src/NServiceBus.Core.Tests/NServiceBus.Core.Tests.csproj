@@ -289,7 +289,7 @@
     <Compile Include="Unicast\LoadHandlersBehaviorTests.cs" />
     <Compile Include="Unicast\RunningEndpointInstanceTest.cs" />
     <Compile Include="Unicast\StartAndStoppablesRunnerTests.cs" />
-    <Compile Include="Unicast\OutgoingMessageTests.cs" />
+    <Compile Include="Pipeline\Outgoing\AttachSenderRelatedInfoOnMessageTests.cs" />
     <Compile Include="Unicast\MessageTypeTests.cs" />
     <Compile Include="UnitOfWork\UnitOfWorkBehaviorTests.cs" />
     <Compile Include="Unicast\MessagingBestPracticesTests.cs" />
