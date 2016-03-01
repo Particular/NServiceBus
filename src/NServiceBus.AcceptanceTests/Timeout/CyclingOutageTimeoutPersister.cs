@@ -7,7 +7,7 @@
     using System.Threading.Tasks;
     using NServiceBus.Extensibility;
     using Timeout.Core;
-
+    using System.Threading;
     /// <summary>
     /// This class mocks outages for timeout storage. 
     /// If SecondsToWait is set to 10, it will throw exceptions for 10 seconds, then be available for 10 seconds, and repeat.
@@ -95,7 +95,7 @@
             return Task.FromResult<TimeoutData>(null);
         }
 
-        public Task<TimeoutsChunk> GetNextChunk(DateTime startSlice)
+        public Task<TimeoutsChunk> GetNextChunk(DateTime startSlice, int maxChunkSize = Int32.MaxValue, CancellationToken cancellationToken = default(CancellationToken))
         {
             ThrowExceptionUntilWaitTimeReached();
 

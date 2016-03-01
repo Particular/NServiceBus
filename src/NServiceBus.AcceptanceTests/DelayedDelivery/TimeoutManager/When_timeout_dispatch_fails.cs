@@ -11,7 +11,7 @@
     using NServiceBus.Persistence;
     using NServiceBus.Timeout.Core;
     using NUnit.Framework;
-
+    using System.Threading;
     public class When_timeout_dispatch_fails : NServiceBusAcceptanceTest
     {
         [Test]
@@ -90,7 +90,7 @@
             {
                 public Context TestContext { get; set; }
 
-                public Task<TimeoutsChunk> GetNextChunk(DateTime startSlice)
+                public Task<TimeoutsChunk> GetNextChunk(DateTime startSlice, int maxChunkSize = Int32.MaxValue, CancellationToken cancellationToken = default(CancellationToken))
                 {
                     var timeout = new TimeoutsChunk.Timeout(Guid.NewGuid().ToString(), DateTime.UtcNow);
                     var timeouts = new List<TimeoutsChunk.Timeout>

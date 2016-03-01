@@ -13,7 +13,7 @@
     using NServiceBus.Pipeline;
     using NServiceBus.Timeout.Core;
     using NUnit.Framework;
-
+    using System.Threading;
     public class When_timeout_dispatch_fails_on_timeout_data_removal : NServiceBusAcceptanceTest
     {
         [Test]
@@ -114,7 +114,7 @@
 
                 TimeoutData timeoutData;
 
-                public Task<TimeoutsChunk> GetNextChunk(DateTime startSlice)
+                public Task<TimeoutsChunk> GetNextChunk(DateTime startSlice, int maxChunkSize = Int32.MaxValue, CancellationToken cancellationToken = default(CancellationToken))
                 {
                     var timeouts = timeoutData != null
                         ? new List<TimeoutsChunk.Timeout>
