@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus.Pipeline
 {
-    using Transports;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Context containing a physical message.
@@ -8,12 +8,27 @@
     public interface ITransportReceiveContext : IBehaviorContext
     {
         /// <summary>
-        /// The physical message being processed.
+        /// The message id of the message being processed.
         /// </summary>
-        IncomingMessage Message { get; }
+        string MessageId { get; }
 
         /// <summary>
-        /// Allows the pipeline to flag that it has been aborted and the receive operation should be rolled back. 
+        /// The headers of the incoming message.
+        /// </summary>
+        Dictionary<string, string> Headers { get; }
+
+        /// <summary>
+        /// The body of the incoming message.
+        /// </summary>
+        byte[] Body { get; }
+
+        /// <summary>
+        /// Reverts to the original body if needed.
+        /// </summary>
+        void RevertToOriginalBodyIfNeeded();
+
+        /// <summary>
+        /// Allows the pipeline to flag that it has been aborted and the receive operation should be rolled back.
         /// </summary>
         void AbortReceiveOperation();
     }

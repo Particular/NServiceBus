@@ -166,8 +166,8 @@
 
                 public override async Task Invoke(ITransportReceiveContext context, Func<Task> next)
                 {
-                    if (context.Message.Headers.ContainsKey(Headers.ControlMessageHeader) &&
-                        context.Message.Headers["Timeout.Id"] == TestContext.TestRunId.ToString())
+                    if (context.Headers.ContainsKey(Headers.ControlMessageHeader) &&
+                        context.Headers["Timeout.Id"] == TestContext.TestRunId.ToString())
                     {
                         TestContext.FailedTimeoutMovedToError = true;
                         return;

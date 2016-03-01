@@ -26,20 +26,19 @@ namespace NServiceBus
             }
             catch (MessageDeserializationException)
             {
-                context.Message.Headers.Remove(Headers.Retries);
+                context.Headers.Remove(Headers.Retries);
                 throw; // no SLR for poison messages
             }
             catch (Exception ex)
             {
-                var message = context.Message;
-                var currentRetry = GetNumberOfRetries(message.Headers) + 1;
+                var currentRetry = GetNumberOfRetries(context.Headers) + 1;
 
                 TimeSpan delay;
 
-                if (retryPolicy.TryGetDelay(message, ex, currentRetry, out delay))
+                if (retryPolicy.TryGetDelay(context, ex, currentRetry, out delay))
                 {
-                    message.RevertToOriginalBodyIfNeeded();
-                    var messageToRetry = new OutgoingMessage(message.MessageId, message.Headers, message.Body);
+                    context.RevertToOriginalBodyIfNeeded();
+                    var messageToRetry = new OutgoingMessage(context.MessageId, context.Headers, context.Body);
 
                     messageToRetry.Headers[Headers.Retries] = currentRetry.ToString();
                     messageToRetry.Headers[RetriesTimestamp] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
@@ -51,17 +50,17 @@ namespace NServiceBus
                         new DelayDeliveryWith(delay)
                     });
 
-                    Logger.Warn($"Second Level Retry will reschedule message '{message.MessageId}' after a delay of {delay} because of an exception:", ex);
+                    Logger.Warn($"Second Level Retry will reschedule message '{context.MessageId}' after a delay of {delay} because of an exception:", ex);
 
                     await fork(dispatchContext).ConfigureAwait(false);
 
-                    notifications.Errors.InvokeMessageHasBeenSentToSecondLevelRetries(currentRetry, message, ex);
+                    notifications.Errors.InvokeMessageHasBeenSentToSecondLevelRetries(currentRetry, context, ex);
 
                     return;
                 }
 
-                message.Headers.Remove(Headers.Retries);
-                Logger.WarnFormat("Giving up Second Level Retries for message '{0}'.", message.MessageId);
+                context.Headers.Remove(Headers.Retries);
+                Logger.WarnFormat("Giving up Second Level Retries for message '{0}'.", context.MessageId);
                 throw;
             }
 

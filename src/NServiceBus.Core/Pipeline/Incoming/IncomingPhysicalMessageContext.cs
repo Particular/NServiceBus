@@ -1,21 +1,27 @@
 ﻿namespace NServiceBus
 {
+    using System.Collections.Generic;
     using NServiceBus.Pipeline;
-    using NServiceBus.Transports;
 
     class IncomingPhysicalMessageContext : IncomingContext, IIncomingPhysicalMessageContext
     {
-        public IncomingPhysicalMessageContext(IncomingMessage message, IBehaviorContext parentContext)
-            : base(message.MessageId, message.GetReplyToAddress(), message.Headers, parentContext)
+        public IncomingPhysicalMessageContext(string messageId, Dictionary<string, string> headers, byte[] body, IBehaviorContext parentContext)
+            : base(messageId, /*message.GetReplyToAddress()*/ null, headers, parentContext)
         {
-            Message = message;
+            Body = body;
+            Headers = headers;
         }
 
-        public IncomingMessage Message { get; }
+        public byte[] Body { get; }
+        public Dictionary<string, string> Headers { get; }
+
+        public void RevertToOriginalBodyIfNeeded()
+        {
+        }
 
         public void UpdateMessage(byte[] body)
         {
-            Message.Body = body;
+           // Message.Body = body;
         }
     }
 }

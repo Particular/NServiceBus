@@ -6,7 +6,7 @@
     class IncomingLogicalMessageContext : IncomingContext, IIncomingLogicalMessageContext
     {
         internal IncomingLogicalMessageContext(LogicalMessage logicalMessage, IIncomingPhysicalMessageContext parentContext)
-            : this(logicalMessage, parentContext.MessageId, parentContext.ReplyToAddress, parentContext.Message.Headers, parentContext)
+            : this(logicalMessage, parentContext.MessageId, parentContext.ReplyToAddress, parentContext.Headers, parentContext)
         {
         }
 

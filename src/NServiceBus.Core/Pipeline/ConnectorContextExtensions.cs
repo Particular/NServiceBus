@@ -55,9 +55,9 @@ namespace NServiceBus
         /// <summary>
         /// Creates a <see cref="IIncomingPhysicalMessageContext"/> based on the current context.
         /// </summary>
-        public static IIncomingPhysicalMessageContext CreateIncomingPhysicalMessageContext(this StageForkConnector<ITransportReceiveContext, IIncomingPhysicalMessageContext, IBatchDispatchContext> stageForkConnector, IncomingMessage incomingMessage, ITransportReceiveContext sourceContext)
+        public static IIncomingPhysicalMessageContext CreateIncomingPhysicalMessageContext(this StageForkConnector<ITransportReceiveContext, IIncomingPhysicalMessageContext, IBatchDispatchContext> stageForkConnector, string messageId, Dictionary<string, string> headers, byte[] body, ITransportReceiveContext sourceContext)
         {
-            return new IncomingPhysicalMessageContext(incomingMessage, sourceContext);
+            return new IncomingPhysicalMessageContext(messageId, headers, body, sourceContext);
         }
 
         /// <summary>

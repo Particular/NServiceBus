@@ -10,8 +10,7 @@
         public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
         {
             var mutators = context.Builder.BuildAll<IMutateIncomingTransportMessages>();
-            var transportMessage = context.Message;
-            var mutatorContext = new MutateIncomingTransportMessageContext(transportMessage.Body, transportMessage.Headers);
+            var mutatorContext = new MutateIncomingTransportMessageContext(context.Body, context.Headers);
             foreach (var mutator in mutators)
             {
                 await mutator.MutateIncoming(mutatorContext).ConfigureAwait(false);

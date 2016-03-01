@@ -1,22 +1,22 @@
 namespace NServiceBus
 {
     using System;
-    using NServiceBus.Transports;
+    using NServiceBus.Pipeline;
 
     class CustomSecondLevelRetryPolicy : SecondLevelRetryPolicy
     {
-        Func<IncomingMessage, TimeSpan> customRetryPolicy;
-
-        public CustomSecondLevelRetryPolicy(Func<IncomingMessage, TimeSpan> customRetryPolicy)
+        public CustomSecondLevelRetryPolicy(Func<ITransportReceiveContext, TimeSpan> customRetryPolicy)
         {
             this.customRetryPolicy = customRetryPolicy;
         }
 
-        public override bool TryGetDelay(IncomingMessage message, Exception ex, int currentRetry, out TimeSpan delay)
+        public override bool TryGetDelay(ITransportReceiveContext context, Exception ex, int currentRetry, out TimeSpan delay)
         {
-            delay = customRetryPolicy(message);
+            delay = customRetryPolicy(context);
 
             return delay != TimeSpan.Zero;
         }
+
+        Func<ITransportReceiveContext, TimeSpan> customRetryPolicy;
     }
 }

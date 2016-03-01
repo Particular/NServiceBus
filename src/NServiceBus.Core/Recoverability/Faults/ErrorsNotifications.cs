@@ -2,7 +2,7 @@ namespace NServiceBus.Faults
 {
     using System;
     using System.Collections.Generic;
-    using NServiceBus.Transports;
+    using NServiceBus.Pipeline;
 
     /// <summary>
     /// Errors notifications.
@@ -24,31 +24,31 @@ namespace NServiceBus.Faults
         /// </summary>
         public event EventHandler<SecondLevelRetry> MessageHasBeenSentToSecondLevelRetries;
 
-        internal void InvokeMessageHasBeenSentToErrorQueue(IncomingMessage message, Exception exception)
+        internal void InvokeMessageHasBeenSentToErrorQueue(ITransportReceiveContext context, Exception exception)
         {
             var failedMessage = new FailedMessage(
-                message.MessageId,
-                new Dictionary<string, string>(message.Headers),
-                CopyOfBody(message.Body), exception);
+                context.MessageId,
+                new Dictionary<string, string>(context.Headers),
+                CopyOfBody(context.Body), exception);
             MessageSentToErrorQueue?.Invoke(this, failedMessage);
         }
 
-        internal void InvokeMessageHasFailedAFirstLevelRetryAttempt(int firstLevelRetryAttempt, IncomingMessage message, Exception exception)
+        internal void InvokeMessageHasFailedAFirstLevelRetryAttempt(int firstLevelRetryAttempt, ITransportReceiveContext context, Exception exception)
         {
             var firstLevelRetry = new FirstLevelRetry(
-                message.MessageId,
-                new Dictionary<string, string>(message.Headers),
-                CopyOfBody(message.Body),
+                context.MessageId,
+                new Dictionary<string, string>(context.Headers),
+                CopyOfBody(context.Body),
                 exception,
                 firstLevelRetryAttempt);
             MessageHasFailedAFirstLevelRetryAttempt?.Invoke(this, firstLevelRetry);
         }
 
-        internal void InvokeMessageHasBeenSentToSecondLevelRetries(int secondLevelRetryAttempt, IncomingMessage message, Exception exception)
+        internal void InvokeMessageHasBeenSentToSecondLevelRetries(int secondLevelRetryAttempt, ITransportReceiveContext context, Exception exception)
         {
             var secondLevelRetry = new SecondLevelRetry(
-                new Dictionary<string, string>(message.Headers),
-                CopyOfBody(message.Body),
+                new Dictionary<string, string>(context.Headers),
+                CopyOfBody(context.Body),
                 exception,
                 secondLevelRetryAttempt);
 

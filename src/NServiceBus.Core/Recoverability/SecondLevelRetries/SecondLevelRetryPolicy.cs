@@ -1,10 +1,10 @@
 namespace NServiceBus
 {
     using System;
-    using NServiceBus.Transports;
+    using NServiceBus.Pipeline;
 
     abstract class SecondLevelRetryPolicy
     {
-        public abstract bool TryGetDelay(IncomingMessage message, Exception ex, int currentRetry,out TimeSpan delay);
+        public abstract bool TryGetDelay(ITransportReceiveContext context, Exception ex, int currentRetry,out TimeSpan delay);
     }
 }

@@ -8,7 +8,6 @@
     using System.Threading.Tasks;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
-    using NServiceBus.Transports;
     using NUnit.Framework;
 
     [TestFixture]
@@ -24,19 +23,18 @@
                 new OutgoingLogicalMessage(typeof(MyReply), new MyReply()),
                 options,
                 new TransportReceiveContext(
-                    new IncomingMessage(
-                        "id",
-                        new Dictionary<string, string>
-                        {
-                            {Headers.ReplyToAddress, "ReplyAddressOfIncomingMessage"}
-                        },
-                        new MemoryStream()), null, new CancellationTokenSource(),
+                    "id",
+                    new Dictionary<string, string>
+                    {
+                        {Headers.ReplyToAddress, "ReplyAddressOfIncomingMessage"}
+                    },
+                    new MemoryStream(), null, new CancellationTokenSource(),
                     new RootContext(null, null)));
 
             UnicastAddressTag addressTag = null;
             await behavior.Invoke(context, c =>
             {
-                addressTag = (UnicastAddressTag)c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
+                addressTag = (UnicastAddressTag) c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
                 return TaskEx.CompletedTask;
             });
 
@@ -53,10 +51,9 @@
                 new OutgoingLogicalMessage(typeof(MyReply), new MyReply()),
                 options,
                 new TransportReceiveContext(
-                    new IncomingMessage(
-                        "id",
-                        new Dictionary<string, string>(),
-                        new MemoryStream()), null, new CancellationTokenSource(),
+                    "id",
+                    new Dictionary<string, string>(),
+                    new MemoryStream(), null, new CancellationTokenSource(),
                     new RootContext(null, null)));
 
             Assert.That(async () => await behavior.Invoke(context, _ => TaskEx.CompletedTask), Throws.InstanceOf<Exception>().And.Message.Contains(typeof(MyReply).FullName));
@@ -78,7 +75,7 @@
             UnicastAddressTag addressTag = null;
             await behavior.Invoke(context, c =>
             {
-                addressTag = (UnicastAddressTag)c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
+                addressTag = (UnicastAddressTag) c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
                 return TaskEx.CompletedTask;
             });
 

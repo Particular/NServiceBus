@@ -1,14 +1,10 @@
 namespace NServiceBus
 {
     using System;
-    using NServiceBus.Transports;
+    using NServiceBus.Pipeline;
 
-    class DefaultSecondLevelRetryPolicy:SecondLevelRetryPolicy
+    class DefaultSecondLevelRetryPolicy : SecondLevelRetryPolicy
     {
-        int maxRetries;
-        TimeSpan timeIncrease;
-        Func<DateTime> currentUtcTimeProvider;
-
         public DefaultSecondLevelRetryPolicy(int maxRetries, TimeSpan timeIncrease)
             : this(maxRetries, timeIncrease, () => DateTime.UtcNow)
         {
@@ -23,7 +19,7 @@ namespace NServiceBus
             this.currentUtcTimeProvider = currentUtcTimeProvider;
         }
 
-        public override bool TryGetDelay(IncomingMessage message, Exception ex, int currentRetry, out TimeSpan delay)
+        public override bool TryGetDelay(ITransportReceiveContext context, Exception ex, int currentRetry, out TimeSpan delay)
         {
             delay = TimeSpan.MinValue;
 
@@ -32,26 +28,26 @@ namespace NServiceBus
                 return false;
             }
 
-            if (HasReachedMaxTime(message))
+            if (HasReachedMaxTime(context))
             {
                 return false;
             }
 
-            delay = TimeSpan.FromTicks(timeIncrease.Ticks * currentRetry);
+            delay = TimeSpan.FromTicks(timeIncrease.Ticks*currentRetry);
 
             return true;
         }
 
-        private bool HasReachedMaxTime(IncomingMessage message)
+        bool HasReachedMaxTime(ITransportReceiveContext context)
         {
             string timestampHeader;
 
-            if (!message.Headers.TryGetValue(SecondLevelRetriesBehavior.RetriesTimestamp, out timestampHeader))
+            if (!context.Headers.TryGetValue(SecondLevelRetriesBehavior.RetriesTimestamp, out timestampHeader))
             {
                 return false;
             }
 
-            
+
             if (string.IsNullOrEmpty(timestampHeader))
             {
                 return false;
@@ -68,8 +64,8 @@ namespace NServiceBus
                 }
             }
                 // ReSharper disable once EmptyGeneralCatchClause
-                // this code won't usually throw but in case a user has decided to hack a message/headers and for some bizarre reason 
-                // they changed the date and that parse fails, we want to make sure that doesn't prevent the message from being 
+                // this code won't usually throw but in case a user has decided to hack a context/headers and for some bizarre reason 
+                // they changed the date and that parse fails, we want to make sure that doesn't prevent the context from being 
                 // forwarded to the error queue.
             catch (Exception)
             {
@@ -78,7 +74,11 @@ namespace NServiceBus
             return false;
         }
 
-        
+        Func<DateTime> currentUtcTimeProvider;
+        int maxRetries;
+        TimeSpan timeIncrease;
+
+
         public static int DefaultNumberOfRetries = 3;
         public static TimeSpan DefaultTimeIncrease = TimeSpan.FromSeconds(10);
     }

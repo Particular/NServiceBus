@@ -1,13 +1,13 @@
 namespace NServiceBus
 {
-    using NServiceBus.Logging;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Routing;
-    using NServiceBus.Transports;
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using JetBrains.Annotations;
+    using NServiceBus.Logging;
+    using NServiceBus.Pipeline;
+    using NServiceBus.Routing;
+    using NServiceBus.Transports;
 
     class TimeoutRecoverabilityBehavior : Behavior<ITransportReceiveContext>
     {
@@ -22,8 +22,7 @@ namespace NServiceBus
 
         public override async Task Invoke(ITransportReceiveContext context, Func<Task> next)
         {
-            var message = context.Message;
-            var failureInfo = failures.GetFailureInfoForMessage(message.MessageId);
+            var failureInfo = failures.GetFailureInfoForMessage(context.MessageId);
 
             if (ShouldAttemptAnotherRetry(failureInfo))
             {
@@ -34,16 +33,16 @@ namespace NServiceBus
                 }
                 catch (Exception exception)
                 {
-                    HandleProcessingFailure(context, message, exception, failureInfo);
+                    HandleProcessingFailure(context, exception, failureInfo);
 
                     context.AbortReceiveOperation();
                     return;
                 }
             }
 
-            GiveUpForMessage(message, failureInfo);
+            GiveUpForMessage(context, failureInfo);
 
-            await MoveToErrorQueue(context, message, failureInfo).ConfigureAwait(false);
+            await MoveToErrorQueue(context, failureInfo).ConfigureAwait(false);
         }
 
         bool ShouldAttemptAnotherRetry([NotNull] ProcessingFailureInfo failureInfo)
@@ -51,33 +50,33 @@ namespace NServiceBus
             return failureInfo.NumberOfFailedAttempts <= MaxNumberOfFailedRetries;
         }
 
-        void HandleProcessingFailure(ITransportReceiveContext context, IncomingMessage message, Exception exception, [NotNull] ProcessingFailureInfo failureInfo)
+        void HandleProcessingFailure(ITransportReceiveContext context, Exception exception, [NotNull] ProcessingFailureInfo failureInfo)
         {
-            failures.RecordFailureInfoForMessage(message.MessageId, exception);
+            failures.RecordFailureInfoForMessage(context.MessageId, exception);
 
-            Logger.Debug($"Going to retry message '{message.MessageId}' from satellite '{localAddress}' because of an exception:", exception);
+            Logger.Debug($"Going to retry message '{context.MessageId}' from satellite '{localAddress}' because of an exception:", exception);
 
-            notifications.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(failureInfo.NumberOfFailedAttempts, context.Message, exception);
+            notifications.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(failureInfo.NumberOfFailedAttempts, context, exception);
         }
 
-        void GiveUpForMessage(IncomingMessage message, ProcessingFailureInfo failureInfo)
+        void GiveUpForMessage(ITransportReceiveContext context, ProcessingFailureInfo failureInfo)
         {
-            notifications.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(failureInfo.NumberOfFailedAttempts, message, failureInfo.Exception);
+            notifications.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(failureInfo.NumberOfFailedAttempts, context, failureInfo.Exception);
 
-            failures.ClearFailureInfoForMessage(message.MessageId);
+            failures.ClearFailureInfoForMessage(context.MessageId);
 
-            Logger.Debug($"Giving up Retries for message '{message.MessageId}' from satellite '{localAddress}' after {failureInfo.NumberOfFailedAttempts} attempts.");
+            Logger.Debug($"Giving up Retries for message '{context.MessageId}' from satellite '{localAddress}' after {failureInfo.NumberOfFailedAttempts} attempts.");
         }
 
-        async Task MoveToErrorQueue(ITransportReceiveContext context, IncomingMessage message, ProcessingFailureInfo failureInfo)
+        async Task MoveToErrorQueue(ITransportReceiveContext context, ProcessingFailureInfo failureInfo)
         {
             try
             {
-                Logger.Error($"Moving timeout message '{message.MessageId}' from '{localAddress}' to '{errorQueueAddress}' because processing failed due to an exception:", failureInfo.Exception);
-                
-                message.SetExceptionHeaders(failureInfo.Exception, localAddress);
+                Logger.Error($"Moving timeout message '{context.MessageId}' from '{localAddress}' to '{errorQueueAddress}' because processing failed due to an exception:", failureInfo.Exception);
 
-                var outgoingMessage = new OutgoingMessage(message.MessageId, message.Headers, message.Body);
+                context.SetExceptionHeaders(failureInfo.Exception, localAddress);
+
+                var outgoingMessage = new OutgoingMessage(context.MessageId, context.Headers, context.Body);
                 var routingStrategy = new UnicastRoutingStrategy(errorQueueAddress);
                 var addressTag = routingStrategy.Apply(new Dictionary<string, string>());
 
@@ -85,7 +84,7 @@ namespace NServiceBus
 
                 await dispatcher.Dispatch(transportOperations, context.Extensions).ConfigureAwait(false);
 
-                notifications.Errors.InvokeMessageHasBeenSentToErrorQueue(message, failureInfo.Exception);
+                notifications.Errors.InvokeMessageHasBeenSentToErrorQueue(context, failureInfo.Exception);
             }
             catch (Exception ex)
             {
@@ -95,14 +94,14 @@ namespace NServiceBus
         }
 
         CriticalError criticalError;
-        BusNotifications notifications;
         IDispatchMessages dispatcher;
         string errorQueueAddress;
-        string localAddress;
-
-        const int MaxNumberOfFailedRetries = 4;
 
         FailureInfoStorage failures = new FailureInfoStorage();
+        string localAddress;
+        BusNotifications notifications;
+
+        const int MaxNumberOfFailedRetries = 4;
 
         static ILog Logger = LogManager.GetLogger<TimeoutRecoverabilityBehavior>();
     }

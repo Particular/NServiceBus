@@ -60,7 +60,7 @@
 
             Assert.That(async () => await behavior.Invoke(context, () => { throw new Exception("testex"); }), Throws.InstanceOf<Exception>());
 
-            Assert.False(context.Message.Headers.ContainsKey(Headers.Retries));
+            Assert.False(context.Headers.ContainsKey(Headers.Retries));
         }
 
         [Test]
@@ -71,7 +71,7 @@
             var context = CreateContext("someid", 1, fakeDispatchPipeline);
 
             Assert.That(async () => await behavior.Invoke(context, () => { throw new MessageDeserializationException("testex"); }), Throws.InstanceOf<MessageDeserializationException>());
-            Assert.False(context.Message.Headers.ContainsKey(Headers.Retries));
+            Assert.False(context.Headers.ContainsKey(Headers.Retries));
         }
 
         [Test]
@@ -96,7 +96,7 @@
             var fakeDispatchPipeline = new FakeDispatchPipeline();
             var context = CreateContext("someid", 2, fakeDispatchPipeline);
 
-            context.Message.Headers.Clear();
+            context.Headers.Clear();
 
             var behavior = new SecondLevelRetriesBehavior(retryPolicy, new BusNotifications(), "MyAddress");
 
@@ -115,22 +115,21 @@
             var retryPolicy = new FakePolicy(TimeSpan.FromSeconds(0));
             var behavior = new SecondLevelRetriesBehavior(retryPolicy, new BusNotifications(), "test-address-for-this-pipeline");
 
-            var message = context.Message;
-            message.Body = Encoding.UTF8.GetBytes("modified content");
+            context.Body = Encoding.UTF8.GetBytes("modified content");
 
             await behavior.Invoke(context, () => { throw new Exception("test"); });
 
             var dispatchedMessage = fakeDispatchPipeline.RoutingContext.Message;
             Assert.AreEqual(originalContent, Encoding.UTF8.GetString(dispatchedMessage.Body));
-            Assert.AreEqual(originalContent, Encoding.UTF8.GetString(message.Body));
+            Assert.AreEqual(originalContent, Encoding.UTF8.GetString(context.Body));
         }
 
-        ITransportReceiveContext CreateContext(string messageId, int currentRetryCount, FakeDispatchPipeline pipeline, byte[] messageBody = null)
+        TransportReceiveContext CreateContext(string messageId, int currentRetryCount, FakeDispatchPipeline pipeline, byte[] messageBody = null)
         {
-            return new TransportReceiveContext(new IncomingMessage(messageId, new Dictionary<string, string>
+            return new TransportReceiveContext(messageId, new Dictionary<string, string>
             {
                 {Headers.Retries, currentRetryCount.ToString()}
-            }, new MemoryStream(messageBody ?? new byte[0])), null, new CancellationTokenSource(),  new RootContext(null, new FakePipelineCache(pipeline)));
+            }, new MemoryStream(messageBody ?? new byte[0]), null, new CancellationTokenSource(),  new RootContext(null, new FakePipelineCache(pipeline)));
         }
     }
 
@@ -175,7 +174,7 @@
 
         public int InvokedWithCurrentRetry { get; private set; }
 
-        public override bool TryGetDelay(IncomingMessage message, Exception ex, int currentRetry, out TimeSpan delay)
+        public override bool TryGetDelay(ITransportReceiveContext context, Exception ex, int currentRetry, out TimeSpan delay)
         {
             InvokedWithCurrentRetry = currentRetry;
 

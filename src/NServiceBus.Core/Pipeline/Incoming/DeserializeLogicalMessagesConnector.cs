@@ -21,9 +21,7 @@
 
         public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> stage)
         {
-            var incomingMessage = context.Message;
-
-            var messages = ExtractWithExceptionHandling(incomingMessage);
+            var messages = ExtractWithExceptionHandling(context);
 
             foreach (var message in messages)
             {
@@ -31,21 +29,21 @@
             }
         }
 
-        List<LogicalMessage> ExtractWithExceptionHandling(IncomingMessage message)
+        List<LogicalMessage> ExtractWithExceptionHandling(IIncomingPhysicalMessageContext context)
         {
             try
             {
-                return Extract(message);
+                return Extract(context);
             }
             catch (Exception exception)
             {
-                throw new MessageDeserializationException(message.MessageId, exception);
+                throw new MessageDeserializationException(context.MessageId, exception);
             }
         }
 
-        List<LogicalMessage> Extract(IncomingMessage physicalMessage)
+        List<LogicalMessage> Extract(IIncomingPhysicalMessageContext context)
         {
-            if (physicalMessage.Body == null || physicalMessage.Body.Length == 0)
+            if (context.Body == null || context.Body.Length == 0)
             {
                 return new List<LogicalMessage>();
             }
@@ -53,7 +51,7 @@
             string messageTypeIdentifier;
             var messageMetadata = new List<MessageMetadata>();
 
-            if (physicalMessage.Headers.TryGetValue(Headers.EnclosedMessageTypes, out messageTypeIdentifier))
+            if (context.Headers.TryGetValue(Headers.EnclosedMessageTypes, out messageTypeIdentifier))
             {
                 foreach (var messageTypeString in messageTypeIdentifier.Split(';'))
                 {
@@ -83,20 +81,20 @@
                     messageMetadata.Add(metadata);
                 }
 
-                if (messageMetadata.Count == 0 && physicalMessage.GetMesssageIntent() != MessageIntentEnum.Publish)
+                if (messageMetadata.Count == 0 && context.GetMesssageIntent() != MessageIntentEnum.Publish)
                 {
-                    log.WarnFormat("Could not determine message type from message header '{0}'. MessageId: {1}", messageTypeIdentifier, physicalMessage.MessageId);
+                    log.WarnFormat("Could not determine message type from message header '{0}'. MessageId: {1}", messageTypeIdentifier, context.MessageId);
                 }
             }
 
             var messageTypes = messageMetadata.Select(metadata => metadata.MessageType).ToList();
-            var messageSerializer = deserializerResolver.Resolve(physicalMessage.Headers);
+            var messageSerializer = deserializerResolver.Resolve(context.Headers);
 
             // For nested behaviors who have an expectation ContentType existing 
             // add the default content type 
-            physicalMessage.Headers[Headers.ContentType] = messageSerializer.ContentType;
+            context.Headers[Headers.ContentType] = messageSerializer.ContentType;
 
-            using (var stream = new MemoryStream(physicalMessage.Body))
+            using (var stream = new MemoryStream(context.Body))
             {
                 return messageSerializer.Deserialize(stream, messageTypes)
                     .Select(x => logicalMessageFactory.Create(x.GetType(), x))

@@ -61,7 +61,7 @@ namespace NServiceBus
         {
             using (var childBuilder = builder.CreateChildBuilder())
             {
-                var context = new TransportReceiveContext(new IncomingMessage(pushContext.MessageId, pushContext.Headers, pushContext.BodyStream), pushContext.TransportTransaction, pushContext.ReceiveCancellationTokenSource, new RootContext(childBuilder, pipelineCache));
+                var context = new TransportReceiveContext(pushContext.MessageId, pushContext.Headers, pushContext.BodyStream, pushContext.TransportTransaction, pushContext.ReceiveCancellationTokenSource, new RootContext(childBuilder, pipelineCache));
                 context.Extensions.Merge(pushContext.Context);
                 await pipeline.Invoke(context).ConfigureAwait(false);
             }

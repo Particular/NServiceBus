@@ -3,7 +3,7 @@
     using System;
     using System.Diagnostics;
     using System.Threading.Tasks;
-    using Logging;
+    using NServiceBus.Logging;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
     using NServiceBus.Transports;
@@ -20,10 +20,9 @@
 
         public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
         {
-            var incomingMessage = context.Message;
-            var messageTypeString = GetSubscriptionMessageTypeFrom(incomingMessage);
+            var messageTypeString = GetSubscriptionMessageTypeFrom(context);
 
-            var intent = incomingMessage.GetMesssageIntent();
+            var intent = context.GetMesssageIntent();
 
             if (string.IsNullOrEmpty(messageTypeString) && intent != MessageIntentEnum.Subscribe && intent != MessageIntentEnum.Unsubscribe)
             {
@@ -44,13 +43,13 @@
             string subscriberAddress;
             EndpointName subscriberEndpoint = null;
 
-            if (incomingMessage.Headers.TryGetValue(Headers.SubscriberTransportAddress, out subscriberAddress))
+            if (context.Headers.TryGetValue(Headers.SubscriberTransportAddress, out subscriberAddress))
             {
-                subscriberEndpoint = new EndpointName(incomingMessage.Headers[Headers.SubscriberEndpoint]);
+                subscriberEndpoint = new EndpointName(context.Headers[Headers.SubscriberEndpoint]);
             }
             else
             {
-                subscriberAddress = incomingMessage.GetReplyToAddress();
+                subscriberAddress = context.ReplyToAddress;
             }
 
             if (subscriberAddress == null)
@@ -78,7 +77,7 @@
             }
             Logger.Info($"{intent} from {subscriberAddress} on message type {messageTypeString}");
             var subscriber = new Subscriber(subscriberAddress, subscriberEndpoint);
-            if (incomingMessage.GetMesssageIntent() == MessageIntentEnum.Subscribe)
+            if (context.GetMesssageIntent() == MessageIntentEnum.Subscribe)
             {
                 var messageType = new MessageType(messageTypeString);
                 await subscriptionStorage.Subscribe(subscriber, messageType, context.Extensions).ConfigureAwait(false);
@@ -88,19 +87,20 @@
             await subscriptionStorage.Unsubscribe(subscriber, new MessageType(messageTypeString), context.Extensions).ConfigureAwait(false);
         }
 
-        static string GetSubscriptionMessageTypeFrom(IncomingMessage msg)
+        static string GetSubscriptionMessageTypeFrom(IIncomingPhysicalMessageContext context)
         {
             string value;
-            msg.Headers.TryGetValue(Headers.SubscriptionMessageType, out value);
+            context.Headers.TryGetValue(Headers.SubscriptionMessageType, out value);
             return value;
         }
 
-        ISubscriptionStorage subscriptionStorage;
         Func<IIncomingPhysicalMessageContext, bool> authorizer;
+
+        ISubscriptionStorage subscriptionStorage;
 
         static ILog Logger = LogManager.GetLogger<SubscriptionReceiverBehavior>();
 
-        public class Registration:RegisterStep
+        public class Registration : RegisterStep
         {
             public Registration()
                 : base("ProcessSubscriptionRequests", typeof(SubscriptionReceiverBehavior), "Check for subscription messages and execute the requested behavior to subscribe or unsubscribe.")

@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus.Pipeline
 {
-    using NServiceBus.Transports;
+    using System.Collections.Generic;
 
     /// <summary>
     /// A context of behavior execution in physical message processing stage.
@@ -8,9 +8,19 @@
     public interface IIncomingPhysicalMessageContext : IIncomingContext
     {
         /// <summary>
-        /// The physical message being processed.
+        /// The body of the incoming message.
         /// </summary>
-        IncomingMessage Message { get; }
+        byte[] Body { get; }
+
+        /// <summary>
+        /// The headers of the incoming message.
+        /// </summary>
+        Dictionary<string, string> Headers { get; }
+
+        /// <summary>
+        /// Reverts to the original body if needed.
+        /// </summary>
+        void RevertToOriginalBodyIfNeeded();
 
         /// <summary>
         /// Updates the message with the given body.

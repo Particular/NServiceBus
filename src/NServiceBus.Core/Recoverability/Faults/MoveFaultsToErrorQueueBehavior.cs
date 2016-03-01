@@ -27,22 +27,20 @@ namespace NServiceBus
             {
                 try
                 {
-                    var message = context.Message;
+                    Logger.Error($"Moving message '{context.MessageId}' to the error queue because processing failed due to an exception:", exception);
 
-                    Logger.Error($"Moving message '{message.MessageId}' to the error queue because processing failed due to an exception:", exception);
+                    context.RevertToOriginalBodyIfNeeded();
 
-                    message.RevertToOriginalBodyIfNeeded();
+                    context.SetExceptionHeaders(exception, localAddress);
 
-                    message.SetExceptionHeaders(exception, localAddress);
+                    context.Headers.Remove(Headers.Retries);
 
-                    message.Headers.Remove(Headers.Retries);
-
-                    var outgoingMessage = new OutgoingMessage(message.MessageId, message.Headers, message.Body);
+                    var outgoingMessage = new OutgoingMessage(context.MessageId, context.Headers, context.Body);
                     var faultContext = this.CreateFaultContext(context, outgoingMessage, errorQueueAddress, exception);
 
                     await fork(faultContext).ConfigureAwait(false);
                     
-                    notifications.Errors.InvokeMessageHasBeenSentToErrorQueue(message,exception);
+                    notifications.Errors.InvokeMessageHasBeenSentToErrorQueue(context, exception);
                 }
                 catch (Exception ex)
                 {

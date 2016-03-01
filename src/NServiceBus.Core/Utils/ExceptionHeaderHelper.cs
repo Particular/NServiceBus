@@ -5,15 +5,13 @@
     using System.Collections.Generic;
     using System.Configuration;
     using NServiceBus.Faults;
-    using NServiceBus.Transports;
+    using NServiceBus.Pipeline;
 
     static class ExceptionHeaderHelper
     {
-        static bool useLegacyStackTrace = string.Equals(ConfigurationManager.AppSettings["NServiceBus/Headers/UseLegacyExceptionStackTrace"], "true", StringComparison.OrdinalIgnoreCase);
-
-        public static void SetExceptionHeaders(this IncomingMessage message,Exception e, string failedQueue, string reason = null)
+        public static void SetExceptionHeaders(this ITransportReceiveContext context, Exception e, string failedQueue, string reason = null)
         {
-            var headers = message.Headers;
+            var headers = context.Headers;
             SetExceptionHeaders(headers, e, failedQueue, reason, useLegacyStackTrace);
         }
 
@@ -32,7 +30,7 @@
 
             headers["NServiceBus.ExceptionInfo.HelpLink"] = e.HelpLink;
             headers["NServiceBus.ExceptionInfo.Message"] = e.GetMessage().Truncate(16384);
-            headers["NServiceBus.ExceptionInfo.Source"] = e.Source; 
+            headers["NServiceBus.ExceptionInfo.Source"] = e.Source;
             if (legacyStackTrace)
             {
                 headers["NServiceBus.ExceptionInfo.StackTrace"] = e.StackTrace;
@@ -44,15 +42,21 @@
             headers[FaultsHeaderKeys.FailedQ] = failedQueue;
             headers["NServiceBus.TimeOfFailure"] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
 
-// ReSharper disable once ConditionIsAlwaysTrueOrFalse
-            if(e.Data == null)
-// ReSharper disable once HeuristicUnreachableCode
+            // ReSharper disable ConditionIsAlwaysTrueOrFalse
+            if (e.Data == null)
+                // ReSharper restore ConditionIsAlwaysTrueOrFalse
+                // ReSharper disable HeuristicUnreachableCode
+            {
                 return;
+            }
+            // ReSharper restore HeuristicUnreachableCode
 
             foreach (DictionaryEntry entry in e.Data)
             {
                 if (entry.Value == null)
+                {
                     continue;
+                }
                 headers["NServiceBus.ExceptionInfo.Data." + entry.Key] = entry.Value.ToString();
             }
         }
@@ -63,5 +67,7 @@
                 : (value.Length <= maxLength
                     ? value
                     : value.Substring(0, maxLength));
+
+        static bool useLegacyStackTrace = string.Equals(ConfigurationManager.AppSettings["NServiceBus/Headers/UseLegacyExceptionStackTrace"], "true", StringComparison.OrdinalIgnoreCase);
     }
 }

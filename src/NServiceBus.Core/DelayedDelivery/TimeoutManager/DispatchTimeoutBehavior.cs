@@ -3,9 +3,9 @@ namespace NServiceBus
     using System;
     using System.Threading.Tasks;
     using NServiceBus.Pipeline;
-    using Routing;
-    using Timeout.Core;
-    using Transports;
+    using NServiceBus.Routing;
+    using NServiceBus.Timeout.Core;
+    using NServiceBus.Transports;
 
     class DispatchTimeoutBehavior : PipelineTerminator<IIncomingPhysicalMessageContext>
     {
@@ -18,8 +18,7 @@ namespace NServiceBus
 
         protected override async Task Terminate(IIncomingPhysicalMessageContext context)
         {
-            var message = context.Message;
-            var timeoutId = message.Headers["Timeout.Id"];
+            var timeoutId = context.Headers["Timeout.Id"];
 
             var timeoutData = await persister.Peek(timeoutId, context.Extensions).ConfigureAwait(false);
 
@@ -31,7 +30,7 @@ namespace NServiceBus
             timeoutData.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
             timeoutData.Headers["NServiceBus.RelatedToTimeoutId"] = timeoutData.Id;
 
-            var outgoingMessage = new OutgoingMessage(message.MessageId, timeoutData.Headers, timeoutData.State);
+            var outgoingMessage = new OutgoingMessage(context.MessageId, timeoutData.Headers, timeoutData.State);
             var transportOperation = new TransportOperation(outgoingMessage, new UnicastAddressTag(timeoutData.Destination), dispatchConsistency);
             await dispatcher.Dispatch(new TransportOperations(transportOperation), context.Extensions).ConfigureAwait(false);
 
@@ -51,8 +50,9 @@ namespace NServiceBus
                 : DispatchConsistency.Isolated;
         }
 
+        readonly DispatchConsistency dispatchConsistency;
+
         IDispatchMessages dispatcher;
         IPersistTimeouts persister;
-        readonly DispatchConsistency dispatchConsistency;
     }
 }
