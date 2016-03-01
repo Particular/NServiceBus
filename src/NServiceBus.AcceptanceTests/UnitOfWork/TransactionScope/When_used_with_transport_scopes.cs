@@ -3,7 +3,7 @@
     using System;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
+    using NServiceBus.AcceptanceTests.FakeTransport;
     using NUnit.Framework;
 
     public class When_used_with_transport_scopes : NServiceBusAcceptanceTest
@@ -14,8 +14,13 @@
             var aex = Assert.Throws<AggregateException>(async () =>
             {
                 await Scenario.Define<Context>()
-                        .WithEndpoint<ScopeEndpoint>()
-                        .Repeat(b => b.For<AllDtcTransports>())
+                        .WithEndpoint<ScopeEndpoint>(b => b.CustomConfig(c =>
+                          {
+                              c.UseTransport<FakeTransport>()
+                                    .Transactions(TransportTransactionMode.TransactionScope);
+                              c.UnitOfWork()
+                                    .WrapHandlersInATransactionScope();
+                          }))
                         .Run();
             });
 
@@ -30,13 +35,7 @@
         {
             public ScopeEndpoint()
             {
-                EndpointSetup<DefaultServer>((c, r) =>
-                {
-                    c.UseTransport(r.GetTransportType())
-                        .Transactions(TransportTransactionMode.TransactionScope);
-                    c.UnitOfWork()
-                        .WrapHandlersInATransactionScope();
-                });
+                EndpointSetup<DefaultServer>();
             }
         }
     }
