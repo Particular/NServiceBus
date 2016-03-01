@@ -72,12 +72,18 @@ The reason you need to do this is because we need to ensure that you have read a
         {
             if (!PersistenceStartup.HasSupportFor<StorageType.Outbox>(context.Settings))
             {
-                throw new Exception("Selected persister doesn't have support for outbox storage. Please select another storage or disable the outbox feature using config.Features(f=>f.Disable<Outbox>())");    
+                throw new Exception("Selected persister doesn't have support for outbox storage. Please select another storage or disable the outbox feature using config.Features(f=>f.Disable<Outbox>())");
             }
 
             context.Pipeline.Register<OutboxDeduplicationBehavior.OutboxDeduplicationRegistration>();
             context.Pipeline.Register<OutboxRecordBehavior.OutboxRecorderRegistration>();
+
+            // Swap DispatchMessageToTransportBehavior with
+            // OutboxSendBehavior but register
+            // DispatchMessageToTransportBehavior as
+            // the outbox depends on it.
             context.Pipeline.Replace(WellKnownStep.DispatchMessageToTransport, typeof(OutboxSendBehavior), "Sending behavior with a delay sending until all business transactions are committed to the outbox storage");
+            context.Container.ConfigureComponent<DispatchMessageToTransportBehavior>(DependencyLifecycle.InstancePerCall);
 
             context.Container.ConfigureComponent<OutboxDeduplicationBehavior>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(t => t.TransactionSettings, new TransactionSettings(context.Settings));
