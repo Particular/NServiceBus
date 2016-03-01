@@ -145,17 +145,6 @@ namespace NServiceBus.Features
                 return;
             }
 
-            if (!string.IsNullOrWhiteSpace(unicastConfig.ForwardReceivedMessagesTo))
-            {
-                var forwardAddress = Address.Parse(unicastConfig.ForwardReceivedMessagesTo);
-                context.Container.ConfigureProperty<ForwardBehavior>(b => b.ForwardReceivedMessagesTo, forwardAddress);
-            }
-
-            if (unicastConfig.TimeToBeReceivedOnForwardedMessages != TimeSpan.Zero)
-            {
-                context.Container.ConfigureProperty<ForwardBehavior>(b => b.TimeToBeReceivedOnForwardedMessages, unicastConfig.TimeToBeReceivedOnForwardedMessages);
-            }
-
             var messageEndpointMappings = unicastConfig.MessageEndpointMappings.Cast<MessageEndpointMapping>()
                 .OrderByDescending(m => m)
                 .ToList();
