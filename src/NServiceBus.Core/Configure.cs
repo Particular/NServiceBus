@@ -134,11 +134,13 @@ namespace NServiceBus
             var outgoingBehaviorTypes = pipeLineExecutor.Outgoing.Select(registerStep => registerStep.BehaviorType).ToArray();
             foreach (var outgoingBehaviorType in outgoingBehaviorTypes)
             {
-                configurer.ConfigureComponent(outgoingBehaviorType, DependencyLifecycle.InstancePerCall);
+                if (!configurer.HasComponent(outgoingBehaviorType))
+                    configurer.ConfigureComponent(outgoingBehaviorType, DependencyLifecycle.InstancePerCall);
             }
             foreach (var incomingBehaviorType in incomingBehaviorTypes)
             {
-                configurer.ConfigureComponent(incomingBehaviorType, DependencyLifecycle.InstancePerCall);
+                if (!configurer.HasComponent(incomingBehaviorType))
+                    configurer.ConfigureComponent(incomingBehaviorType, DependencyLifecycle.InstancePerCall);
             }
         }
 
