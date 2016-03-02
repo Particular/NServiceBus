@@ -72,26 +72,30 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 
             var typeName = GetTypeName(t);
 
-            //already handled this type, prevent infinite recursion
-            if (nameToType.ContainsKey(typeName))
+            // check and proxy generation is not threadsafe
+            lock (messageInitializationLock)
             {
-                return;
-            }
-
-            if (t.IsInterface)
-            {
-                GenerateImplementationFor(t);
-            }
-            else
-            {
-                var constructorInfo = t.GetConstructor(Type.EmptyTypes);
-                if (constructorInfo != null)
+                //already handled this type, prevent infinite recursion
+                if (nameToType.ContainsKey(typeName))
                 {
-                    typeToConstructor[t.TypeHandle] = constructorInfo.MethodHandle;
+                    return;
                 }
-            }
 
-            nameToType[typeName] = t.TypeHandle;
+                if (t.IsInterface)
+                {
+                    GenerateImplementationFor(t);
+                }
+                else
+                {
+                    var constructorInfo = t.GetConstructor(Type.EmptyTypes);
+                    if (constructorInfo != null)
+                    {
+                        typeToConstructor[t.TypeHandle] = constructorInfo.MethodHandle;
+                    }
+                }
+
+                nameToType[typeName] = t.TypeHandle;
+            }
 
             foreach (var field in t.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy))
             {
@@ -115,7 +119,6 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
             {
                 throw new Exception($"We can only generate a concrete implementation for '{interfaceType.Name}' because the interface contains methods. Make sure interface messages do not contain methods.");
             }
-
             var mapped = concreteProxyCreator.CreateTypeFrom(interfaceType);
             interfaceToConcreteTypeMapping[interfaceType.TypeHandle] = mapped.TypeHandle;
             concreteToInterfaceTypeMapping[mapped.TypeHandle] = interfaceType.TypeHandle;
@@ -242,5 +245,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         ConcurrentDictionary<RuntimeTypeHandle, RuntimeTypeHandle> concreteToInterfaceTypeMapping = new ConcurrentDictionary<RuntimeTypeHandle, RuntimeTypeHandle>();
         ConcurrentDictionary<string, RuntimeTypeHandle> nameToType = new ConcurrentDictionary<string, RuntimeTypeHandle>();
         ConcurrentDictionary<RuntimeTypeHandle, RuntimeMethodHandle> typeToConstructor = new ConcurrentDictionary<RuntimeTypeHandle, RuntimeMethodHandle>();
+
+        private static readonly object messageInitializationLock = new object();
     }
 }
