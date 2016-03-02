@@ -24,7 +24,7 @@
 
                     options.SetHeader(Headers.SagaId, Guid.NewGuid().ToString());
                     options.SetHeader(Headers.SagaType, typeof(SagaEndpoint.MessageWithSagaIdSaga).AssemblyQualifiedName);
-                    options.RouteToThisEndpoint();
+                    options.RouteTo(Destination.ThisEndpoint);
                     return session.Send(message, options);
                 }))
                 .Done(c => c.Done)

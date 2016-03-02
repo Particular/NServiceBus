@@ -52,7 +52,7 @@ namespace NServiceBus
 
             var options = new SendOptions();
 
-            options.SetDestination(destination);
+            options.RouteTo(Destination.Address(destination));
 
             return context.Send(message, options);
         }
@@ -72,7 +72,7 @@ namespace NServiceBus
 
             var options = new SendOptions();
 
-            options.SetDestination(destination);
+            options.RouteTo(Destination.Address(destination));
 
             return context.Send(messageConstructor, options);
         }
@@ -89,7 +89,7 @@ namespace NServiceBus
 
             var options = new SendOptions();
 
-            options.RouteToThisEndpoint();
+            options.RouteTo(Destination.ThisEndpoint);
 
             return context.Send(message, options);
         }
@@ -107,7 +107,7 @@ namespace NServiceBus
 
             var options = new SendOptions();
 
-            options.RouteToThisEndpoint();
+            options.RouteTo(Destination.ThisEndpoint);
 
             return context.Send(messageConstructor, options);
         }

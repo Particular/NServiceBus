@@ -19,7 +19,7 @@
                         var options = new SendOptions();
 
                         options.GetExtensions().Set(new SendOptionsExtensions.TestingSendOptionsExtensionBehavior.Context { SomeValue = "I did it" });
-                        options.RouteToThisEndpoint();
+                        options.RouteTo(Destination.ThisEndpoint);
 
                         return session.Send(new SendMessage(), options);
                     }))

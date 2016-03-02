@@ -31,22 +31,24 @@ namespace NServiceBus
         {
             var messageType = context.Message.MessageType;
 
-            var state = context.Extensions.GetOrCreate<State>();
+            Destination customDestination;
+            context.Extensions.TryGet(out customDestination);
             
-            if (state.Option == RouteOption.RouteToThisInstance && instanceSpecificQueue == null)
+            if (customDestination == Destination.ThisInstance && instanceSpecificQueue == null)
             {
                 throw new InvalidOperationException("Cannot route to this specific instance because endpoint instance ID was not provided by either host, a plugin or user. You can specify it via BusConfiguration.EndpointInstanceId, use a specific host or plugin.");
             }
-            var thisEndpoint = state.Option == RouteOption.RouteToAnyInstanceOfThisEndpoint ? sharedQueue : null;
-            var thisInstance = state.Option == RouteOption.RouteToThisInstance ? instanceSpecificQueue : null;
-            var explicitDestination = state.Option == RouteOption.ExplicitDestination ? state.ExplicitDestination : null;
+
+            var thisEndpoint = customDestination == Destination.ThisEndpoint ? sharedQueue : null;
+            var thisInstance = customDestination == Destination.ThisInstance ? instanceSpecificQueue : null;
+            var explicitDestination = customDestination?.Option == Destination.RouteOption.ExplicitDestination ? customDestination.Value : null;
             var destination = explicitDestination ?? thisInstance ?? thisEndpoint;
 
             DistributionStrategy distributionStrategy;
 
-            if (state.Option == RouteOption.RouteToSpecificInstance)
+            if (customDestination?.Option == Destination.RouteOption.RouteToSpecificInstance)
             {
-                distributionStrategy = new SpecificInstanceDistributionStrategy(state.SpecificInstance);
+                distributionStrategy = new SpecificInstanceDistributionStrategy(customDestination.Value);
             }
             else
             {
@@ -96,34 +98,6 @@ namespace NServiceBus
                 }
                 yield return target;
             }
-        }
-
-        public class State
-        {
-            RouteOption option;
-            public string ExplicitDestination { get; set; }
-            public string SpecificInstance { get; set; }
-
-            public RouteOption Option
-            {
-                get { return option; }
-                set
-                {
-                    if (option != RouteOption.None)
-                    {
-                        throw new Exception("Already specified routing option for this message: " + option);
-                    }
-                    option = value;
-                }
-            }
-        }
-        public enum RouteOption
-        {
-            None,
-            ExplicitDestination,
-            RouteToThisInstance,
-            RouteToAnyInstanceOfThisEndpoint,
-            RouteToSpecificInstance
         }
     }
 }

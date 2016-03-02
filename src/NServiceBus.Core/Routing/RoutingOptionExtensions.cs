@@ -1,23 +1,32 @@
 ﻿namespace NServiceBus
 {
+    using NServiceBus.Extensibility;
+
     /// <summary>
     /// Gives users fine grained control over routing via extension methods.
     /// </summary>
     public static class RoutingOptionExtensions
     {
         /// <summary>
-        /// Allows a specific physical address to be used to route this message.
         /// </summary>
-        /// <param name="options">Option being extended.</param>
-        /// <param name="destination">The destination address.</param>
-        public static void SetDestination(this SendOptions options, string destination)
+        public static void RouteTo(this SendOptions options, Destination destination)
         {
             Guard.AgainstNull(nameof(options), options);
-            Guard.AgainstNullAndEmpty(nameof(destination), destination);
+            Guard.AgainstNull(nameof(destination), destination);
 
-            var state = options.Context.GetOrCreate<UnicastSendRouterConnector.State>();
-            state.Option = UnicastSendRouterConnector.RouteOption.ExplicitDestination;
-            state.ExplicitDestination = destination;
+            options.GetExtensions().Set(destination);
+        }
+
+        /// <summary>
+        /// </summary>
+        public static Destination GetRouteTo(this SendOptions options)
+        {
+            Guard.AgainstNull(nameof(options), options);
+
+            Destination destination;
+            options.GetExtensions().TryGet(out destination);
+
+            return destination;
         }
 
         /// <summary>
@@ -46,113 +55,6 @@
             UnicastReplyRouterConnector.State state;
             options.Context.TryGet(out state);
             return state?.ExplicitDestination;
-        }
-
-        /// <summary>
-        /// Returns the destination configured by <see cref="SetDestination(SendOptions, string)"/>.
-        /// </summary>
-        /// <param name="options">Option being extended.</param>
-        /// <returns>The specified destination address or <c>null</c> when no destination was specified.</returns>
-        public static string GetDestination(this SendOptions options)
-        {
-          Guard.AgainstNull(nameof(options), options);
-
-          UnicastSendRouterConnector.State state;
-          options.Context.TryGet(out state);
-          return state?.ExplicitDestination;
-        }
-
-        /// <summary>
-        /// Routes this message to any instance of this endpoint.
-        /// </summary>
-        /// <param name="options">Option being extended.</param>
-        public static void RouteToThisEndpoint(this SendOptions options)
-        {
-            Guard.AgainstNull(nameof(options), options);
-
-            options.Context.GetOrCreate<UnicastSendRouterConnector.State>()
-                .Option = UnicastSendRouterConnector.RouteOption.RouteToAnyInstanceOfThisEndpoint;
-        }
-
-        /// <summary>
-        /// Returns whether the message should be routed to this endpoint.
-        /// </summary>
-        /// <param name="options">Option being extended.</param>
-        /// <returns><c>true</c> when <see cref="RouteToThisEndpoint"/> has been called, <c>false</c> otherwhise.</returns>
-        public static bool IsRoutingToThisEndpoint(this SendOptions options)
-        {
-            Guard.AgainstNull(nameof(options), options);
-
-            UnicastSendRouterConnector.State state;
-            if (options.Context.TryGet(out state))
-            {
-                return state.Option == UnicastSendRouterConnector.RouteOption.RouteToAnyInstanceOfThisEndpoint;
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Routes this message to this endpoint instance.
-        /// </summary>
-        /// <param name="options">Option being extended.</param>
-        public static void RouteToThisInstance(this SendOptions options)
-        {
-            Guard.AgainstNull(nameof(options), options);
-
-            options.Context.GetOrCreate<UnicastSendRouterConnector.State>()
-                .Option = UnicastSendRouterConnector.RouteOption.RouteToThisInstance;
-        }
-
-        /// <summary>
-        /// Returns whether the message should be routed to this endpoint instance.
-        /// </summary>
-        /// <param name="options">Option being extended.</param>
-        /// <returns><c>true</c> when <see cref="IsRoutingToThisInstance"/> has been called, <c>false</c> otherwhise.</returns>
-        public static bool IsRoutingToThisInstance(this SendOptions options)
-        {
-            Guard.AgainstNull(nameof(options), options);
-
-            UnicastSendRouterConnector.State state;
-            if (options.Context.TryGet(out state))
-            {
-                return state.Option == UnicastSendRouterConnector.RouteOption.RouteToThisInstance;
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Routes this message to a specific instance of a destination endpoint.
-        /// </summary>
-        /// <param name="options">Option being extended.</param>
-        /// <param name="instanceId">ID of destination instance.</param>
-        public static void RouteToSpecificInstance(this SendOptions options, string instanceId)
-        {
-            Guard.AgainstNull(nameof(options), options);
-            Guard.AgainstNull(nameof(instanceId), instanceId);
-
-            var state = options.Context.GetOrCreate<UnicastSendRouterConnector.State>();
-            state.Option = UnicastSendRouterConnector.RouteOption.RouteToSpecificInstance;
-            state.SpecificInstance = instanceId;
-        }
-
-        /// <summary>
-        /// Returns the instance configured by <see cref="RouteToSpecificInstance"/> where the message should be routed to.
-        /// </summary>
-        /// <param name="options">Option being extended.</param>
-        /// <returns>The configured instance ID or <c>null</c> when no instance was configured.</returns>
-        public static string GetRouteToSpecificInstance(this SendOptions options)
-        {
-            Guard.AgainstNull(nameof(options), options);
-
-            UnicastSendRouterConnector.State state;
-            if (options.Context.TryGet(out state) && state.Option == UnicastSendRouterConnector.RouteOption.RouteToSpecificInstance)
-            {
-                return state.SpecificInstance;
-            }
-
-            return null;
         }
 
         /// <summary>

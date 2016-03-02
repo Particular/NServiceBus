@@ -43,7 +43,7 @@
                     var options = new SendOptions();
 
                     options.RequireImmediateDispatch();
-                    options.RouteToThisEndpoint();
+                    options.RouteTo(Destination.ThisEndpoint);
 
                     await context.Send(new MessageToBeDispatchedImmediately(), options);
 
