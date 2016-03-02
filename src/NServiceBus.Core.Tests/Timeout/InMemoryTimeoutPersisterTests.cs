@@ -14,7 +14,7 @@ namespace NServiceBus.Core.Tests.Timeout
         public async Task When_empty_NextTimeToRunQuery_is_1_minute()
         {
             var now = DateTime.UtcNow;
-            var persister = new InMemoryTimeoutPersister();
+            var persister = new InMemoryTimeoutPersister(() => DateTime.UtcNow);
             
             var result = await persister.GetNextChunk(now);
             
@@ -25,7 +25,7 @@ namespace NServiceBus.Core.Tests.Timeout
         public async Task When_multiple_NextTimeToRunQuery_is_min_date()
         {
             var now = DateTime.UtcNow;
-            var persister = new InMemoryTimeoutPersister();
+            var persister = new InMemoryTimeoutPersister(() => DateTime.UtcNow);
             await persister.Add(new TimeoutData
                           {
                               Time = DateTime.Now.AddDays(2)
@@ -44,7 +44,7 @@ namespace NServiceBus.Core.Tests.Timeout
         [Test]
         public async Task When_multiple_future_are_returned()
         {
-            var persister = new InMemoryTimeoutPersister();
+            var persister = new InMemoryTimeoutPersister(() => DateTime.UtcNow);
             await persister.Add(new TimeoutData
                           {
                               Time = DateTime.Now.AddDays(-2)
@@ -66,7 +66,7 @@ namespace NServiceBus.Core.Tests.Timeout
         [Test]
         public async Task TryRemove_when_existing_is_removed_should_return_true()
         {
-            var persister = new InMemoryTimeoutPersister();
+            var persister = new InMemoryTimeoutPersister(() => DateTime.UtcNow);
             var inputTimeout = new TimeoutData();
             await persister.Add(inputTimeout, new ContextBag());
 
@@ -78,7 +78,7 @@ namespace NServiceBus.Core.Tests.Timeout
         [Test]
         public async Task TryRemove_when_non_existing_is_removed_should_return_false()
         {
-            var persister = new InMemoryTimeoutPersister();
+            var persister = new InMemoryTimeoutPersister(() => DateTime.UtcNow);
             var inputTimeout = new TimeoutData();
             await persister.Add(inputTimeout, new ContextBag());
 
@@ -90,7 +90,7 @@ namespace NServiceBus.Core.Tests.Timeout
         [Test]
         public async Task Peek_when_timeout_exists_should_return_timeout()
         {
-            var persister = new InMemoryTimeoutPersister();
+            var persister = new InMemoryTimeoutPersister(() => DateTime.UtcNow);
             var inputTimeout = new TimeoutData();
             await persister.Add(inputTimeout, new ContextBag());
 
@@ -102,7 +102,7 @@ namespace NServiceBus.Core.Tests.Timeout
         [Test]
         public async Task Peek_when_timeout_does_not_exist_should_return_null()
         {
-            var persister = new InMemoryTimeoutPersister();
+            var persister = new InMemoryTimeoutPersister(() => DateTime.UtcNow);
             var inputTimeout = new TimeoutData();
             await persister.Add(inputTimeout, new ContextBag());
 
@@ -114,7 +114,7 @@ namespace NServiceBus.Core.Tests.Timeout
         [Test]
         public async Task When_existing_is_removed_by_saga_id()
         {
-            var persister = new InMemoryTimeoutPersister();
+            var persister = new InMemoryTimeoutPersister(() => DateTime.UtcNow);
             var newGuid = Guid.NewGuid();
             var inputTimeout = new TimeoutData
                                {
@@ -132,7 +132,7 @@ namespace NServiceBus.Core.Tests.Timeout
         public async Task When_all_in_past_NextTimeToRunQuery_is_1_minute()
         {
             var now = DateTime.UtcNow;
-            var persister = new InMemoryTimeoutPersister();
+            var persister = new InMemoryTimeoutPersister(() => DateTime.UtcNow);
             await persister.Add(new TimeoutData
                           {
                               Time = DateTime.Now.AddDays(-1)

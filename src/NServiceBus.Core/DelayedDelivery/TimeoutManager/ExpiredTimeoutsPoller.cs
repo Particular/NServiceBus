@@ -12,19 +12,20 @@ namespace NServiceBus
 
     class ExpiredTimeoutsPoller : IDisposable
     {
-        public ExpiredTimeoutsPoller(IQueryTimeouts timeoutsFetcher, IDispatchMessages dispatcher, string dispatcherAddress, ICircuitBreaker circuitBreaker,
-            TimeSpan? sleepTillNextRetrieval = null, TimeSpan? maxNextRetrievalDelay = null)
+        public ExpiredTimeoutsPoller(IQueryTimeouts timeoutsFetcher, IDispatchMessages dispatcher, string dispatcherAddress, ICircuitBreaker circuitBreaker, Func<DateTime> currentTimeProvider)
         {
             this.timeoutsFetcher = timeoutsFetcher;
             this.dispatcher = dispatcher;
             this.dispatcherAddress = dispatcherAddress;
             this.circuitBreaker = circuitBreaker;
-            nextRetrievalPollSleep = sleepTillNextRetrieval ?? TimeSpan.FromMilliseconds(1000);
-            this.maxNextRetrievalDelay = maxNextRetrievalDelay ?? DefaultMaxNextRetrievalDelay;
-            startSlice = DateTime.UtcNow.AddYears(-10);
+            this.currentTimeProvider = currentTimeProvider;
+
+            var now = currentTimeProvider();
+            startSlice = now.AddYears(-10);
+            NextRetrieval = now;
         }
 
-        public DateTime NextRetrieval { get; set; } = DateTime.UtcNow;
+        public DateTime NextRetrieval { get; private set; }
 
         public void Dispose()
         {
@@ -37,9 +38,7 @@ namespace NServiceBus
 
             var token = tokenSource.Token;
 
-            timeoutPollerTask = Task.Factory
-                .StartNew(() => Poll(token), TaskCreationOptions.LongRunning)
-                .Unwrap();
+            timeoutPollerTask = Task.Run(() => Poll(token));
         }
 
         public Task Stop()
@@ -56,7 +55,6 @@ namespace NServiceBus
                 {
                     NextRetrieval = expiryTime;
                 }
-                timeoutPushed = true;
             }
         }
 
@@ -67,6 +65,10 @@ namespace NServiceBus
                 try
                 {
                     await InnerPoll(cancellationToken).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException)
+                {
+                    // ok, since the InnerPoll could observe the token
                 }
                 catch (Exception ex)
                 {
@@ -81,19 +83,18 @@ namespace NServiceBus
             while (!cancellationToken.IsCancellationRequested)
             {
                 await SpinOnce().ConfigureAwait(false);
+                await Task.Delay(NextRetrievalPollSleep, cancellationToken).ConfigureAwait(false);
             }
         }
 
         internal async Task SpinOnce()
         {
-            if (NextRetrieval > DateTime.UtcNow)
+            if (NextRetrieval > currentTimeProvider())
             {
-                await Task.Delay(nextRetrievalPollSleep).ConfigureAwait(false);
                 return;
             }
 
-            Logger.DebugFormat("Polling for timeouts at {0}.", DateTime.Now);
-
+            Logger.DebugFormat("Polling for timeouts at {0}.", currentTimeProvider());
             var timeoutChunk = await timeoutsFetcher.GetNextChunk(startSlice).ConfigureAwait(false);
 
             foreach (var timeoutData in timeoutChunk.DueTimeouts)
@@ -113,47 +114,34 @@ namespace NServiceBus
 
             lock (lockObject)
             {
-                //Check if nextRetrieval has been modified (This means that a push come in) and if it has check if it is earlier than nextExpiredTimeout time
-                if (!timeoutPushed)
-                {
-                    NextRetrieval = timeoutChunk.NextTimeToQuery;
-                }
-                else if (timeoutChunk.NextTimeToQuery < NextRetrieval)
-                {
-                    NextRetrieval = timeoutChunk.NextTimeToQuery;
-                }
+                var nextTimeToQuery = timeoutChunk.NextTimeToQuery;
 
-                timeoutPushed = false;
+                // we cap the next retrieval to max 1 minute this will make sure that we trip the circuit breaker if we
+                // loose connectivity to our storage. This will also make sure that timeouts added (during migration) direct to storage
+                // will be picked up after at most 1 minute
+                var maxNextRetrieval = currentTimeProvider() + MaxNextRetrievalDelay;
+
+                NextRetrieval = nextTimeToQuery > maxNextRetrieval ? maxNextRetrieval : nextTimeToQuery;
+
+                Logger.DebugFormat("Polling next retrieval is at {0}.", NextRetrieval.ToLocalTime());
             }
 
-            // we cap the next retrieval to max 1 minute this will make sure that we trip the circuit breaker if we
-            // loose connectivity to our storage. This will also make sure that timeouts added (during migration) direct to storage
-            // will be picked up after at most 1 minute
-            var maxNextRetrieval = DateTime.UtcNow + maxNextRetrievalDelay;
-
-            if (NextRetrieval > maxNextRetrieval)
-            {
-                NextRetrieval = maxNextRetrieval;
-            }
-
-            Logger.DebugFormat("Polling next retrieval is at {0}.", NextRetrieval.ToLocalTime());
             circuitBreaker.Success();
         }
 
         ICircuitBreaker circuitBreaker;
+        Func<DateTime> currentTimeProvider;
         IDispatchMessages dispatcher;
         string dispatcherAddress;
         object lockObject = new object();
-        TimeSpan maxNextRetrievalDelay;
-        TimeSpan nextRetrievalPollSleep;
         DateTime startSlice;
         Task timeoutPollerTask;
-        volatile bool timeoutPushed;
 
         IQueryTimeouts timeoutsFetcher;
         CancellationTokenSource tokenSource;
 
         static ILog Logger = LogManager.GetLogger<ExpiredTimeoutsPoller>();
-        static readonly TimeSpan DefaultMaxNextRetrievalDelay = TimeSpan.FromMinutes(1);
+        static readonly TimeSpan MaxNextRetrievalDelay = TimeSpan.FromMinutes(1);
+        static readonly TimeSpan NextRetrievalPollSleep = TimeSpan.FromMilliseconds(1000);
     }
 }

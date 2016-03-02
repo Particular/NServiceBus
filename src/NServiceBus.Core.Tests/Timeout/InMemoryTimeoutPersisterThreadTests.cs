@@ -18,7 +18,7 @@ namespace NServiceBus.Core.Tests.Timeout
         public void Run()
         {
             var stopwatch = Stopwatch.StartNew();
-            var inMemoryTimeoutPersister = new InMemoryTimeoutPersister();
+            var inMemoryTimeoutPersister = new InMemoryTimeoutPersister(() => DateTime.UtcNow);
 
             for (var i = 0; i < 10; i++)
             {

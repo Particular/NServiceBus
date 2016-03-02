@@ -12,8 +12,8 @@
         {
             breaker = new FakeBreaker();
             dispatcher = new RecordingFakeDispatcher();
-            timeouts = new InMemoryTimeoutPersister();
-            poller = new ExpiredTimeoutsPoller(timeouts, dispatcher, "test", breaker, TimeSpan.Zero, TimeSpan.Zero);
+            timeouts = new InMemoryTimeoutPersister(() => currentTime);
+            poller = new ExpiredTimeoutsPoller(timeouts, dispatcher, "test", breaker, () => currentTime);
         }
 
         [TearDown]
@@ -30,24 +30,23 @@
         }
 
         [Test]
-        public async Task Updates_next_retrieval_time_when_timeout_registered_in_the_middle_and_dispatches_the_message()
+        public async Task Returns_to_normal_poll_cycle_after_dispatching_a_pushed_timeout()
         {
             await poller.SpinOnce();
-
             var nextRetrieval = poller.NextRetrieval;
-            var newTimeout = nextRetrieval.Subtract(HalfOfDefaultInMemoryPersisterSleep);
 
-            RegisterNewTimeout(newTimeout);
-            Assert.AreEqual(nextRetrieval, poller.NextRetrieval);
+            RegisterNewTimeout(nextRetrieval - HalfOfDefaultInMemoryPersisterSleep);
+
+            currentTime = poller.NextRetrieval;
 
             await poller.SpinOnce();
 
-            Assert.AreEqual(nextRetrieval, poller.NextRetrieval);
             Assert.AreEqual(1, dispatcher.DispatchedMessages.Count);
+            Assert.AreEqual(currentTime + InMemoryTimeoutPersister.EmptyResultsNextTimeToRunQuerySpan, poller.NextRetrieval);
         }
 
         [Test]
-        public async Task Keeps_next_retrieval_equal_to_the_registered_timeout_even_when_persister_returns_more_timeouts_and_dispatches_both_timeouts()
+        public async Task Returns_to_normal_poll_cycle_after_dispatching_a_non_pushed_timeout()
         {
             var nextRetrieval = poller.NextRetrieval;
             var timeout1 = nextRetrieval.Subtract(HalfOfDefaultInMemoryPersisterSleep);
@@ -57,10 +56,11 @@
             RegisterNewTimeout(timeout1);
             RegisterNewTimeout(timeout2, false);
 
+            currentTime = timeout2;
             await poller.SpinOnce();
 
-            Assert.AreEqual(timeout1, poller.NextRetrieval);
             Assert.AreEqual(2, dispatcher.DispatchedMessages.Count);
+            Assert.AreEqual(currentTime + InMemoryTimeoutPersister.EmptyResultsNextTimeToRunQuerySpan, poller.NextRetrieval);
         }
 
         void RegisterNewTimeout(DateTime newTimeout, bool withNotification = true)
@@ -77,8 +77,9 @@
 
         FakeBreaker breaker;
         RecordingFakeDispatcher dispatcher;
+        DateTime currentTime = DateTime.UtcNow;
         // ReSharper disable once PossibleLossOfFraction
-        TimeSpan HalfOfDefaultInMemoryPersisterSleep = TimeSpan.FromMilliseconds(InMemoryTimeoutPersister.EmptyResultsNextTimeToRunQuerySpan.Milliseconds/2);
+        TimeSpan HalfOfDefaultInMemoryPersisterSleep = TimeSpan.FromMilliseconds(InMemoryTimeoutPersister.EmptyResultsNextTimeToRunQuerySpan.TotalMilliseconds/2);
         ExpiredTimeoutsPoller poller;
         InMemoryTimeoutPersister timeouts;
 

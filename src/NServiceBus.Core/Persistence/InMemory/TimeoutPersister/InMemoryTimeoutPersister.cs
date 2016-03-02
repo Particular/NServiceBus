@@ -10,6 +10,11 @@ namespace NServiceBus
 
     class InMemoryTimeoutPersister : IPersistTimeouts, IQueryTimeouts, IDisposable
     {
+        public InMemoryTimeoutPersister(Func<DateTime> currentTimeProvider)
+        {
+            this.currentTimeProvider = currentTimeProvider;
+        }
+
         public void Dispose()
         {
         }
@@ -93,7 +98,7 @@ namespace NServiceBus
 
         public Task<TimeoutsChunk> GetNextChunk(DateTime startSlice)
         {
-            var now = DateTime.UtcNow;
+            var now = currentTimeProvider();
             var nextTimeToRunQuery = DateTime.MaxValue;
             var dueTimeouts = new List<TimeoutsChunk.Timeout>();
 
@@ -126,6 +131,7 @@ namespace NServiceBus
             return Task.FromResult(new TimeoutsChunk(dueTimeouts, nextTimeToRunQuery));
         }
 
+        Func<DateTime> currentTimeProvider;
         ReaderWriterLockSlim readerWriterLock = new ReaderWriterLockSlim();
         List<TimeoutData> storage = new List<TimeoutData>();
         public static TimeSpan EmptyResultsNextTimeToRunQuerySpan = TimeSpan.FromMinutes(1);
