@@ -111,7 +111,7 @@
             };
         }
 
-        static IIncomingPhysicalMessageContext CreateContext(string timeoutId)
+        static ISatelliteProcessingContext CreateContext(string timeoutId)
         {
             var messageId = Guid.NewGuid().ToString("D");
             var headers = new Dictionary<string, string>
@@ -119,7 +119,7 @@
                 {"Timeout.Id", timeoutId}
             };
 
-            return new IncomingPhysicalMessageContext(
+            return new SatelliteProcessingContext(
                 new IncomingMessage(messageId, headers, new MemoryStream()), null);
         }
 

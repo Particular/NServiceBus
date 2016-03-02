@@ -70,7 +70,7 @@
             Settings.Get<PipelineConfiguration>().SatellitePipelines.Add(pipelineModifications);
             var newPipeline = new PipelineSettings(pipelineModifications);
 
-            newPipeline.Register("TransportReceiveToPhysicalMessageProcessingConnector", typeof(TransportReceiveToPhysicalMessageProcessingConnector), "Allows to abort processing the message");
+            newPipeline.Register("TransportReceiveToSatelliteConnector", typeof(TransportReceiveToSatelliteConnector), "Allows attaching satellite message processing logic.");
             Settings.Get<QueueBindings>().BindReceiving(transportAddress);
 
             return newPipeline;

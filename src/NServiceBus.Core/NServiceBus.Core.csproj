@@ -107,6 +107,9 @@
     <Compile Include="Endpoint.cs" />
     <Compile Include="Forwarding\ConfigureForwarding.cs" />
     <Compile Include="Pipeline\ForkConnector.cs" />
+    <Compile Include="Pipeline\Incoming\ISatelliteProcessingContext.cs" />
+    <Compile Include="Pipeline\Incoming\SatelliteProcessingContext.cs" />
+    <Compile Include="Pipeline\Incoming\TransportReceiveToSatelliteConnector.cs" />
     <Compile Include="Pipeline\IPipelineCache.cs" />
     <Compile Include="Pipeline\PipelineCache.cs" />
     <Compile Include="Pipeline\StageForkConnector.cs" />
