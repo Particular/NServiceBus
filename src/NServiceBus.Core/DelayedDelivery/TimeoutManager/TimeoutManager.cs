@@ -62,7 +62,7 @@
         static string SetupDispatcherSatellite(FeatureConfigurationContext context, string errorQueueAddress, TransportTransactionMode requiredTransactionSupport)
         {
             string dispatcherAddress;
-            var dispatcherProcessorPipeline = context.AddSatellitePipeline("Timeout Dispatcher Processor", "TimeoutsDispatcher", requiredTransactionSupport, PushRuntimeSettings.Default, out dispatcherAddress);
+            var dispatcherProcessorPipeline = context.AddSatellitePipeline("Timeout Dispatcher Processor", requiredTransactionSupport, PushRuntimeSettings.Default, "TimeoutsDispatcher", out dispatcherAddress);
 
             dispatcherProcessorPipeline.Register("DispatchTimeoutRecoverability",
                 b => CreateTimeoutRecoverabilityBehavior(errorQueueAddress, dispatcherAddress, b),
@@ -79,7 +79,7 @@
         static void SetupStorageSatellite(FeatureConfigurationContext context, string errorQueueAddress, TransportTransactionMode requiredTransactionSupport)
         {
             string processorAddress;
-            var messageProcessorPipeline = context.AddSatellitePipeline("Timeout Message Processor", "Timeouts", requiredTransactionSupport, PushRuntimeSettings.Default, out processorAddress);
+            var messageProcessorPipeline = context.AddSatellitePipeline("Timeout Message Processor", requiredTransactionSupport, PushRuntimeSettings.Default, "Timeouts", out processorAddress);
 
             messageProcessorPipeline.Register("StoreTimeoutRecoverability",
                 b => CreateTimeoutRecoverabilityBehavior(errorQueueAddress, processorAddress, b),
