@@ -43,13 +43,15 @@ namespace NServiceBus
                     context.Extensions.Remove<OutboxTransaction>();
                     await outboxTransaction.Commit().ConfigureAwait(false);
                 }
+
+                physicalMessageContext.Extensions.Remove<PendingTransportOperations>();
             }
             else
             {
                 ConvertToPendingOperations(deduplicationEntry, pendingTransportOperations);
             }
 
-            if (pendingTransportOperations.Operations.Any())
+            if (pendingTransportOperations.HasOperations)
             {
                 var batchDispatchContext = this.CreateBatchDispatchContext(pendingTransportOperations.Operations, physicalMessageContext);
 
