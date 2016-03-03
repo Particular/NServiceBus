@@ -125,6 +125,7 @@
     <Compile Include="DelayedDelivery\TimeoutManager\RecordingFakeDispatcher.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\TimeoutRecoverabilityBehaviourTest.cs" />
     <Compile Include="DeliveryConstraintContextExtensions\DeliveryConstraintContextExtensionsTests.cs" />
+    <Compile Include="MessageMapper\MessageMapperTests.cs" />
     <Compile Include="Msmq\TimeToBeReceivedOverrideCheckerTest.cs" />
     <Compile Include="Msmq\MsmqExtensionsTests.cs" />
     <Compile Include="Msmq\MsmqHelpers.cs" />
