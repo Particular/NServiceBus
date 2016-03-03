@@ -12,11 +12,13 @@ namespace NServiceBus.UnitOfWork
         /// <summary>
         /// Called before all message handlers and modules.
         /// </summary>
+        /// <exception cref="System.Exception">This exception will be thrown if <code>null</code> is returned. Return a Task or mark the method as <code>async</code>.</exception>
         Task Begin();
 
         /// <summary>
         /// Called after all message handlers and modules, if an error has occurred the exception will be passed.
         /// </summary>
+        /// <exception cref="System.Exception">This exception will be thrown if <code>null</code> is returned. Return a Task or mark the method as <code>async</code>.</exception>
         Task End(Exception ex = null);
     }
 }

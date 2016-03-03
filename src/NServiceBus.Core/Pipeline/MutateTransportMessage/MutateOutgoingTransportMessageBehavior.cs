@@ -27,7 +27,9 @@
 
             foreach (var mutator in context.Builder.BuildAll<IMutateOutgoingTransportMessages>())
             {
-                await mutator.MutateOutgoing(mutatorContext).ConfigureAwait(false);
+                await mutator.MutateOutgoing(mutatorContext)
+                    .ThrowIfNull()
+                    .ConfigureAwait(false);
             }
 
             if (mutatorContext.MessageBodyChanged)

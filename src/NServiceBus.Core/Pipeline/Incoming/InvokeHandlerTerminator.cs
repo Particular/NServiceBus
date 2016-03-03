@@ -22,8 +22,10 @@
             }
 
             var messageHandler = context.MessageHandler;
+
             await messageHandler
                 .Invoke(context.MessageBeingHandled, context)
+                .ThrowIfNull()
                 .ConfigureAwait(false);
         }
 
