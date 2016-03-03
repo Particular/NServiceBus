@@ -139,6 +139,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Routing\SubscriptionBehaviorExtensions.cs" />
+    <Compile Include="Routing\When_multi_subscribing_to_a_polymorphic_event_on_multicast_transports.cs" />
     <Compile Include="Routing\When_publishing_to_scaled_out_subscribers_on_unicast_transports.cs" />
     <Compile Include="Routing\When_publishing_to_scaled_out_subscribers_on_multicast_transports.cs" />
     <Compile Include="Routing\When_broadcasting_a_command.cs" />
@@ -223,7 +224,7 @@
     <Compile Include="NServiceBusAcceptanceTest.cs" />
     <Compile Include="DataBus\When_sending_databus_properties.cs" />
     <Compile Include="Routing\SubscriptionBehavior.cs" />
-    <Compile Include="Routing\When_multi_subscribing_to_a_polymorphic_event.cs" />
+    <Compile Include="Routing\When_multi_subscribing_to_a_polymorphic_event_on_unicast_transports.cs" />
     <Compile Include="Routing\When_publishing_with_overridden_local_address.cs" />
     <Compile Include="Routing\When_publishing_with_only_local_messagehandlers.cs" />
     <Compile Include="Routing\SubscriptionEventArgs.cs" />

@@ -1,18 +1,18 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing
 {
-    using System;
     using System.Threading.Tasks;
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NServiceBus.Features;
     using NUnit.Framework;
 
-    public class When_multi_subscribing_to_a_polymorphic_event : NServiceBusAcceptanceTest
+    public class When_multi_subscribing_to_a_polymorphic_event_on_unicast_transports : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Both_events_should_be_delivered()
         {
-            var context = await Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                 .WithEndpoint<Publisher1>(b => b.When(c => c.Publisher1HasASubscriberForIMyEvent, (session, c) =>
                 {
                     c.AddTrace("Publishing MyEvent1");
@@ -28,18 +28,15 @@
                     c.AddTrace("Subscriber1 subscribing to both events");
                     await session.Subscribe<IMyEvent>();
                     await session.Subscribe<MyEvent2>();
-
-                    if (c.HasNativePubSubSupport)
-                    {
-                        c.Publisher1HasASubscriberForIMyEvent = true;
-                        c.Publisher2HasDetectedASubscriberForEvent2 = true;
-                    }
                 }))
                 .Done(c => c.SubscriberGotIMyEvent && c.SubscriberGotMyEvent2)
+                .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
+                .Should(c =>
+                {
+                    Assert.True(c.SubscriberGotIMyEvent);
+                    Assert.True(c.SubscriberGotMyEvent2);
+                })
                 .Run();
-
-            Assert.True(context.SubscriberGotIMyEvent);
-            Assert.True(context.SubscriberGotMyEvent2);
         }
 
         public class Context : ScenarioContext
@@ -54,14 +51,18 @@
         {
             public Publisher1()
             {
-                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((args, context) =>
-               {
-                   context.AddTrace("Publisher1 OnEndpointSubscribed " + args.MessageType);
-                   if (args.MessageType.Contains(typeof(IMyEvent).Name))
-                   {
-                       context.Publisher1HasASubscriberForIMyEvent = true;
-                   }
-               }));
+                EndpointSetup<DefaultPublisher>(b =>
+                {
+                    b.OnEndpointSubscribed<Context>((args, context) =>
+                    {
+                        context.AddTrace("Publisher1 OnEndpointSubscribed " + args.MessageType);
+                        if (args.MessageType.Contains(typeof(IMyEvent).Name))
+                        {
+                            context.Publisher1HasASubscriberForIMyEvent = true;
+                        }
+                    });
+                    b.EnableFeature<FirstLevelRetries>(); //Because subscription storages can throw on concurrecy violation and need to retry
+                });
             }
         }
 
@@ -69,15 +70,19 @@
         {
             public Publisher2()
             {
-                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((args, context) =>
+                EndpointSetup<DefaultPublisher>(b =>
                 {
-                    context.AddTrace("Publisher2 OnEndpointSubscribed " + args.MessageType);
-
-                    if (args.MessageType.Contains(typeof(MyEvent2).Name))
+                    b.OnEndpointSubscribed<Context>((args, context) =>
                     {
-                        context.Publisher2HasDetectedASubscriberForEvent2 = true;
-                    }
-                }));
+                        context.AddTrace("Publisher2 OnEndpointSubscribed " + args.MessageType);
+
+                        if (args.MessageType.Contains(typeof(MyEvent2).Name))
+                        {
+                            context.Publisher2HasDetectedASubscriberForEvent2 = true;
+                        }
+                    });
+                    b.EnableFeature<FirstLevelRetries>(); //Because subscription storages can throw on concurrecy violation and need to retry
+                });
             }
         }
 
@@ -111,12 +116,10 @@
             }
         }
 
-        [Serializable]
         public class MyEvent1 : IMyEvent
         {
         }
 
-        [Serializable]
         public class MyEvent2 : IMyEvent
         {
         }
