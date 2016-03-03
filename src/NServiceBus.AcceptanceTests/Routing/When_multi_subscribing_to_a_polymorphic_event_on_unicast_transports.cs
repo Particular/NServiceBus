@@ -4,7 +4,6 @@
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
-    using NServiceBus.Config;
     using NServiceBus.Features;
     using NUnit.Framework;
 
@@ -62,8 +61,8 @@
                             context.Publisher1HasASubscriberForIMyEvent = true;
                         }
                     });
-                    b.EnableFeature<FirstLevelRetries>();
-                }).WithConfig<TransportConfig>(c => { c.MaxRetries = 2; }); //Because subscription storages can throw on concurrecy violation and need to retry
+                    b.EnableFeature<FirstLevelRetries>(); //Because subscription storages can throw on concurrecy violation and need to retry
+                });
             }
         }
 
@@ -82,8 +81,8 @@
                             context.Publisher2HasDetectedASubscriberForEvent2 = true;
                         }
                     });
-                    b.EnableFeature<FirstLevelRetries>();
-                }).WithConfig<TransportConfig>(c => { c.MaxRetries = 2; }); //Because subscription storages can throw on concurrecy violation and need to retry
+                    b.EnableFeature<FirstLevelRetries>(); //Because subscription storages can throw on concurrecy violation and need to retry
+                });
             }
         }
 
