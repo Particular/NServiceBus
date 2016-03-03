@@ -111,6 +111,7 @@
     <Compile Include="Pipeline\Incoming\SatelliteProcessingContext.cs" />
     <Compile Include="Pipeline\Incoming\TransportReceiveToSatelliteConnector.cs" />
     <Compile Include="Pipeline\IPipelineCache.cs" />
+    <Compile Include="Pipeline\Outgoing\AttachSenderRelatedInfoOnMessageBehavior.cs" />
     <Compile Include="Pipeline\PipelineCache.cs" />
     <Compile Include="Pipeline\StageForkConnector.cs" />
     <Compile Include="Pipeline\ConnectorContextExtensions.cs" />

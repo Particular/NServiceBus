@@ -24,15 +24,16 @@
             var processingStarted = DateTimeExtensions.ToUtcDateTime(context.Headers[Headers.ProcessingStarted]);
             var processingEnded = DateTimeExtensions.ToUtcDateTime(context.Headers[Headers.ProcessingEnded]);
             var timeSent = DateTimeExtensions.ToUtcDateTime(context.Headers[Headers.TimeSent]);
-            var timeSentOfFailedMessage = DateTimeExtensions.ToUtcDateTime(context.FaultHeaders[Headers.TimeSent]);
+            var timeSentWhenFailedMessageWasSentToTheErrorQueue = DateTimeExtensions.ToUtcDateTime(context.FaultHeaders[Headers.TimeSent]);
 
             Assert.That(processingStarted, Is.EqualTo(now).Within(TimeSpan.FromSeconds(30)));
             Assert.That(processingEnded, Is.EqualTo(now).Within(TimeSpan.FromSeconds(30)));
             Assert.That(timeSent, Is.EqualTo(now).Within(TimeSpan.FromSeconds(30)));
-            Assert.That(timeSentOfFailedMessage, Is.EqualTo(now).Within(TimeSpan.FromSeconds(30)));
+            Assert.That(timeSentWhenFailedMessageWasSentToTheErrorQueue, Is.EqualTo(now).Within(TimeSpan.FromSeconds(30)));
             Assert.That(timeSent, Is.LessThanOrEqualTo(processingEnded));
-            Assert.That(timeSent, Is.LessThanOrEqualTo(timeSentOfFailedMessage));
-            Assert.That(timeSentOfFailedMessage, Is.LessThanOrEqualTo(processingEnded));
+            Assert.That(timeSent, Is.LessThanOrEqualTo(timeSentWhenFailedMessageWasSentToTheErrorQueue));
+
+            Assert.That(timeSentWhenFailedMessageWasSentToTheErrorQueue, Is.EqualTo(context.TimeSentOnTheFailingMessageWhenItWasHandled));
             Assert.That(processingStarted, Is.LessThanOrEqualTo(processingEnded));
             Assert.IsTrue(context.IsMessageHandledByTheFaultEndpoint);
         }
@@ -43,6 +44,7 @@
             public bool IsMessageHandledByTheFaultEndpoint { get; set; }
             public IReadOnlyDictionary<string, string> Headers { get; set; }
             public IReadOnlyDictionary<string, string> FaultHeaders { get; set; }
+            public DateTime TimeSentOnTheFailingMessageWhenItWasHandled { get; set; }
         }
 
         public class EndpointWithAuditOn : EndpointConfigurationBuilder
@@ -113,6 +115,7 @@
 
                 public Task Handle(MessageThatFails message, IMessageHandlerContext context)
                 {
+                    testContext.TimeSentOnTheFailingMessageWhenItWasHandled = DateTimeExtensions.ToUtcDateTime(context.MessageHeaders[Headers.TimeSent]);
                     testContext.FaultHeaders = context.MessageHeaders;
                     testContext.IsMessageHandledByTheFaultEndpoint = true;
 

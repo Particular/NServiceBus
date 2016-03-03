@@ -14,6 +14,8 @@
             context.Pipeline.Register(WellKnownStep.MutateOutgoingMessages, typeof(MutateOutgoingMessageBehavior), "Executes IMutateOutgoingMessages");
             context.Pipeline.Register(WellKnownStep.MutateOutgoingTransportMessage, typeof(MutateOutgoingTransportMessageBehavior), "Executes IMutateOutgoingTransportMessages");
 
+            context.Pipeline.Register("AttachSenderRelatedInfoOnMessageBehavior", new AttachSenderRelatedInfoOnMessageBehavior(), "Makes sure that outgoing messages contains relevant info on the sending endpoint.");
+
             context.Pipeline.Register("ForceImmediateDispatchForOperationsInSuppressedScopeBehavior", new ForceImmediateDispatchForOperationsInSuppressedScopeBehavior(), "Detects operations performed in a suppressed scope and request them to be immediately dispatched to the transport.");
 
             context.Pipeline.Register("OutgoingPhysicalToRoutingConnector", new OutgoingPhysicalToRoutingConnector(), "Starts the message dispatch pipeline");
