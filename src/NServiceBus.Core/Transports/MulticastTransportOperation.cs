@@ -3,7 +3,7 @@ namespace NServiceBus.Transports
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using NServiceBus.DeliveryConstraints;
+    using DeliveryConstraints;
 
     /// <summary>
     /// Represents a transport operation which should be delivered to multiple receivers.
@@ -11,7 +11,7 @@ namespace NServiceBus.Transports
     public class MulticastTransportOperation : IOutgoingTransportOperation
     {
         /// <summary>
-        /// Creates a new <see cref="MulticastTransportOperation"/> instance.
+        /// Creates a new <see cref="MulticastTransportOperation" /> instance.
         /// </summary>
         public MulticastTransportOperation(OutgoingMessage message, Type messageType, DispatchConsistency requiredDispatchConsistency = DispatchConsistency.Default, IEnumerable<DeliveryConstraint> deliveryConstraints = null)
         {
@@ -22,14 +22,14 @@ namespace NServiceBus.Transports
         }
 
         /// <summary>
-        /// The message to be sent over the transport.
-        /// </summary>
-        public OutgoingMessage Message { get; }
-
-        /// <summary>
         /// Defines the message type which needs to be multicasted.
         /// </summary>
         public Type MessageType { get; }
+
+        /// <summary>
+        /// The message to be sent over the transport.
+        /// </summary>
+        public OutgoingMessage Message { get; }
 
         /// <summary>
         /// The delivery constraints that must be honored by the transport.

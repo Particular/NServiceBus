@@ -6,23 +6,17 @@ namespace NServiceBus
     using System.Linq;
     using System.Security.Principal;
     using System.Threading.Tasks;
-    using NServiceBus.Config;
-    using NServiceBus.ConsistencyGuarantees;
-    using NServiceBus.Features;
-    using NServiceBus.Installation;
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Settings;
-    using NServiceBus.Transports;
+    using Config;
+    using ConsistencyGuarantees;
+    using Features;
+    using Installation;
+    using ObjectBuilder;
+    using Pipeline;
+    using Settings;
+    using Transports;
 
     class StartableEndpoint : IStartableEndpoint
     {
-        SettingsHolder settings;
-        IBuilder builder;
-        FeatureActivator featureActivator;
-        PipelineConfiguration pipelineConfiguration;
-        IReadOnlyCollection<IWantToRunWhenBusStartsAndStops> startables;
-
         public StartableEndpoint(SettingsHolder settings, IBuilder builder, FeatureActivator featureActivator, PipelineConfiguration pipelineConfiguration, IReadOnlyCollection<IWantToRunWhenBusStartsAndStops> startables)
         {
             this.settings = settings;
@@ -189,5 +183,11 @@ namespace NServiceBus
 
             return receiver;
         }
+
+        IBuilder builder;
+        FeatureActivator featureActivator;
+        PipelineConfiguration pipelineConfiguration;
+        SettingsHolder settings;
+        IReadOnlyCollection<IWantToRunWhenBusStartsAndStops> startables;
     }
 }

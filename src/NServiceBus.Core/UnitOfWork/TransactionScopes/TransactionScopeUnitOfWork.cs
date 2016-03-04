@@ -23,8 +23,6 @@
 
         public class Settings
         {
-            public TransactionOptions TransactionOptions { get; }
-            
             public Settings(TimeSpan? requestedTimeout, IsolationLevel? requestedIsolationLevel)
             {
                 var timeout = TransactionManager.DefaultTimeout;
@@ -41,18 +39,20 @@
 
                     timeout = requestedTimeout.Value;
                 }
-              
+
                 if (requestedIsolationLevel.HasValue)
                 {
                     isolationLevel = requestedIsolationLevel.Value;
                 }
-              
+
                 TransactionOptions = new TransactionOptions
                 {
                     IsolationLevel = isolationLevel,
                     Timeout = timeout
                 };
             }
+
+            public TransactionOptions TransactionOptions { get; }
 
             static TimeSpan GetMaxTimeout()
             {

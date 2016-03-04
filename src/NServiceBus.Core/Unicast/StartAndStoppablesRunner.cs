@@ -6,7 +6,7 @@
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using NServiceBus.Logging;
+    using Logging;
 
     class StartAndStoppablesRunner
     {
@@ -28,10 +28,7 @@
                     thingsRanAtStartup.Add(startable1);
                     Log.DebugFormat("Started {0}.", startable1.GetType().AssemblyQualifiedName);
                 }, TaskContinuationOptions.OnlyOnRanToCompletion | TaskContinuationOptions.ExecuteSynchronously);
-                task.ContinueWith(t =>
-                {
-                    Log.Error($"Startup task {startable1.GetType().AssemblyQualifiedName} failed to complete.", t.Exception);
-                }, TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously);
+                task.ContinueWith(t => { Log.Error($"Startup task {startable1.GetType().AssemblyQualifiedName} failed to complete.", t.Exception); }, TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously);
 
                 startableTasks.Add(task);
             }
@@ -60,13 +57,13 @@
                         thingsRanAtStartup.Add(stoppable1);
                         Log.DebugFormat("Stopped {0}.", stoppable1.GetType().AssemblyQualifiedName);
                     }, TaskContinuationOptions.OnlyOnRanToCompletion | TaskContinuationOptions.ExecuteSynchronously)
-                    .Ignore();
+                        .Ignore();
                     task.ContinueWith(t =>
                     {
                         Log.Fatal($"Startup task {stoppable1.GetType().AssemblyQualifiedName} failed to stop.", t.Exception);
                         t.Exception.Flatten().Handle(e => true);
                     }, TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously)
-                    .Ignore();
+                        .Ignore();
 
                     stoppableTasks.Add(task);
                 }

@@ -3,7 +3,7 @@ namespace NServiceBus.Transports
     using System;
 
     /// <summary>
-    /// Helper methods for <see cref="IncomingMessage"/>.
+    /// Helper methods for <see cref="IncomingMessage" />.
     /// </summary>
     public static class IncomingMessageExtensions
     {

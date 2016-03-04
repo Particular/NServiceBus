@@ -13,6 +13,7 @@ namespace NServiceBus.Transports
         {
             MaxConcurrency = maxConcurrency;
         }
+
         /// <summary>
         /// The maximum number of messages that should be in flight at any given time.
         /// </summary>

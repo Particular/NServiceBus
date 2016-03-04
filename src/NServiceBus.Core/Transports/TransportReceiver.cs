@@ -3,8 +3,8 @@ namespace NServiceBus
     using System;
     using System.Threading.Tasks;
     using Logging;
-    using NServiceBus.Pipeline;
     using ObjectBuilder;
+    using Pipeline;
     using Transports;
 
     class TransportReceiver
@@ -14,7 +14,7 @@ namespace NServiceBus
             IBuilder builder,
             IPushMessages receiver,
             PushSettings pushSettings,
-            IPipeline<ITransportReceiveContext> pipeline, 
+            IPipeline<ITransportReceiveContext> pipeline,
             IPipelineCache pipelineCache,
             PushRuntimeSettings pushRuntimeSettings)
         {
@@ -67,15 +67,15 @@ namespace NServiceBus
             }
         }
 
-        static ILog Logger = LogManager.GetLogger<TransportReceiver>();
-
         IBuilder builder;
-        IPipeline<ITransportReceiveContext> pipeline;
-        PushRuntimeSettings pushRuntimeSettings;
-        IPushMessages receiver;
 
         bool isStarted;
-        PushSettings pushSettings;
+        IPipeline<ITransportReceiveContext> pipeline;
         IPipelineCache pipelineCache;
+        PushRuntimeSettings pushRuntimeSettings;
+        PushSettings pushSettings;
+        IPushMessages receiver;
+
+        static ILog Logger = LogManager.GetLogger<TransportReceiver>();
     }
 }

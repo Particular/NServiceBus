@@ -1,6 +1,6 @@
 namespace NServiceBus.Transports
 {
-    using NServiceBus.Extensibility;
+    using Extensibility;
 
     /// <summary>
     /// Represents a transaction used to receive the message from the queueing infrastructure.
@@ -8,7 +8,7 @@ namespace NServiceBus.Transports
     public class TransportTransaction : ContextBag
     {
         /// <summary>
-        /// Create an instance of <see cref="TransportTransaction"/>.
+        /// Create an instance of <see cref="TransportTransaction" />.
         /// </summary>
         public TransportTransaction() : base(null)
         {

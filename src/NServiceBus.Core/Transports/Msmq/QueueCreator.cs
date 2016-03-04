@@ -5,14 +5,10 @@ namespace NServiceBus
     using System.Security.Principal;
     using System.Threading.Tasks;
     using Logging;
-    using NServiceBus.Transports;
+    using Transports;
 
     class QueueCreator : ICreateQueues
     {
-        static ILog Logger = LogManager.GetLogger<QueueCreator>();
-        
-        MsmqSettings settings;
-
         public QueueCreator(MsmqSettings settings)
         {
             this.settings = settings;
@@ -32,7 +28,7 @@ namespace NServiceBus
 
             return TaskEx.CompletedTask;
         }
-        
+
         void CreateQueueIfNecessary(string address, string identity)
         {
             if (address == null)
@@ -41,7 +37,7 @@ namespace NServiceBus
             }
             var msmqAddress = MsmqAddress.Parse(address);
             var queuePath = msmqAddress.PathWithoutPrefix;
-            
+
             if (msmqAddress.IsRemote)
             {
                 Logger.Debug("Queue is on remote machine.");
@@ -102,7 +98,7 @@ namespace NServiceBus
                 SetPermissionsForQueue(messageQueue, account);
             }
         }
-        
+
         static void SetPermissionsForQueue(MessageQueue queue, string account)
         {
             queue.SetPermissions(LocalAdministratorsGroupName, MessageQueueAccessRights.FullControl, AccessControlEntryType.Allow);
@@ -113,6 +109,9 @@ namespace NServiceBus
             queue.SetPermissions(account, MessageQueueAccessRights.ReceiveMessage, AccessControlEntryType.Allow);
             queue.SetPermissions(account, MessageQueueAccessRights.PeekMessage, AccessControlEntryType.Allow);
         }
+
+        MsmqSettings settings;
+        static ILog Logger = LogManager.GetLogger<QueueCreator>();
 
         internal static string LocalAdministratorsGroupName = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null).Translate(typeof(NTAccount)).ToString();
 

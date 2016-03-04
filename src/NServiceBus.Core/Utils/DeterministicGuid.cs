@@ -16,6 +16,6 @@
                 // generate a guid from the hash:
                 return new Guid(hashBytes);
             }
-        } 
+        }
     }
 }

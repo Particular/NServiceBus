@@ -4,7 +4,7 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Linq;
     using Config.ConfigurationSource;
-    using NServiceBus.Routing;
+    using Routing;
     using Settings;
 
     /// <summary>
@@ -13,7 +13,7 @@ namespace NServiceBus
     public static class SettingsExtentions
     {
         /// <summary>
-        ///     Returns the requested config section using the current configuration source.
+        /// Returns the requested config section using the current configuration source.
         /// </summary>
         public static T GetConfigSection<T>(this ReadOnlySettings settings) where T : class, new()
         {
@@ -35,11 +35,11 @@ namespace NServiceBus
 
             if (HasConstructorThatAcceptsSettings(sectionOverrideType))
             {
-                sectionOverride = (IProvideConfiguration<T>)Activator.CreateInstance(sectionOverrideType, settings);
+                sectionOverride = (IProvideConfiguration<T>) Activator.CreateInstance(sectionOverrideType, settings);
             }
             else
             {
-                sectionOverride = (IProvideConfiguration<T>)Activator.CreateInstance(sectionOverrideType);
+                sectionOverride = (IProvideConfiguration<T>) Activator.CreateInstance(sectionOverrideType);
             }
 
             return sectionOverride.GetConfiguration();
@@ -62,7 +62,7 @@ namespace NServiceBus
             Guard.AgainstNull(nameof(settings), settings);
             return settings.Get<EndpointName>();
         }
-        
+
         /// <summary>
         /// Returns the name of this instance of the endpoint.
         /// </summary>
@@ -80,7 +80,7 @@ namespace NServiceBus
             Guard.AgainstNull(nameof(settings), settings);
             return settings.Get<string>("NServiceBus.SharedQueue");
         }
-        
+
         /// <summary>
         /// Returns the instance-specific queue name of this endpoint.
         /// </summary>
@@ -92,7 +92,10 @@ namespace NServiceBus
 
         static bool HasConstructorThatAcceptsSettings(Type sectionOverrideType)
         {
-            return sectionOverrideType.GetConstructor(new [] { typeof(ReadOnlySettings) }) != null;
+            return sectionOverrideType.GetConstructor(new[]
+            {
+                typeof(ReadOnlySettings)
+            }) != null;
         }
     }
 }

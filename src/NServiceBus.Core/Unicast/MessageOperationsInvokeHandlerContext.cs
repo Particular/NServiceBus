@@ -1,10 +1,10 @@
 namespace NServiceBus
 {
     using System.Threading.Tasks;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Routing;
-    using NServiceBus.Settings;
-    using NServiceBus.Transports;
+    using Pipeline;
+    using Routing;
+    using Settings;
+    using Transports;
 
     static class MessageOperationsInvokeHandlerContext
     {

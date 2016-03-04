@@ -10,30 +10,6 @@ namespace NServiceBus.Transports
     public class IncomingMessage
     {
         /// <summary>
-        /// The native id of the message.
-        /// </summary>
-        public string MessageId { get; private set; }
-
-        /// <summary>
-        /// The message headers.
-        /// </summary>
-        public Dictionary<string, string> Headers { get; private set; }
-
-        /// <summary>
-        /// The message body.
-        /// </summary>
-        public Stream BodyStream { get; private set; }
-
-        /// <summary>
-        ///     Gets/sets a byte array to the body content of the message.
-        /// </summary>
-        public byte[] Body
-        {
-            get { return body; }
-            set { UpdateBody(value); }
-        }
-
-        /// <summary>
         /// Creates a new message.
         /// </summary>
         /// <param name="messageId">Native message id.</param>
@@ -67,7 +43,31 @@ namespace NServiceBus.Transports
         }
 
         /// <summary>
-        ///     Use this method to update the body if this message.
+        /// The native id of the message.
+        /// </summary>
+        public string MessageId { get; private set; }
+
+        /// <summary>
+        /// The message headers.
+        /// </summary>
+        public Dictionary<string, string> Headers { get; private set; }
+
+        /// <summary>
+        /// The message body.
+        /// </summary>
+        public Stream BodyStream { get; private set; }
+
+        /// <summary>
+        /// Gets/sets a byte array to the body content of the message.
+        /// </summary>
+        public byte[] Body
+        {
+            get { return body; }
+            set { UpdateBody(value); }
+        }
+
+        /// <summary>
+        /// Use this method to update the body if this message.
         /// </summary>
         void UpdateBody(byte[] updatedBody)
         {
@@ -82,7 +82,7 @@ namespace NServiceBus.Transports
         }
 
         /// <summary>
-        ///     Makes sure that the body is reset to the exact state as it was when the message was created.
+        /// Makes sure that the body is reset to the exact state as it was when the message was created.
         /// </summary>
         internal void RevertToOriginalBodyIfNeeded()
         {

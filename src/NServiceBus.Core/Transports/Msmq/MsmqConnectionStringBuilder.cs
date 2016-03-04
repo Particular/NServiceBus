@@ -2,7 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Data.Common;
-    
+
     class MsmqConnectionStringBuilder : DbConnectionStringBuilder
     {
         public MsmqConnectionStringBuilder(string connectionString)

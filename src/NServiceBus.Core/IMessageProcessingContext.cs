@@ -23,7 +23,7 @@ namespace NServiceBus
         /// Gets the list of key/value pairs found in the header of the message.
         /// </summary>
         IReadOnlyDictionary<string, string> MessageHeaders { get; }
-        
+
         /// <summary>
         /// Sends the message to the endpoint which sent the message currently being handled.
         /// </summary>
@@ -31,8 +31,8 @@ namespace NServiceBus
         /// <param name="options">Options for this reply.</param>
         Task Reply(object message, ReplyOptions options);
 
-        ///  <summary>
-        /// Instantiates a message of type T and performs a regular <see cref="Reply"/>.
+        /// <summary>
+        /// Instantiates a message of type T and performs a regular <see cref="Reply" />.
         /// </summary>
         /// <typeparam name="T">The type of message, usually an interface.</typeparam>
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>

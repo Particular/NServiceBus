@@ -2,8 +2,8 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
-    using NServiceBus.Pipeline;
+    using Extensibility;
+    using Pipeline;
 
     class PipelineContext : IPipelineContext
     {

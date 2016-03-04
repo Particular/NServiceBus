@@ -10,13 +10,12 @@
     /// Reads the Access Control Entries (ACE) from an MSMQ queue.
     /// </summary>
     /// <remarks>
-    /// There is no managed API for reading the queue permissions, this has to be done via P/Invoke. by calling <c>MQGetQueueSecurity</c> API.
+    /// There is no managed API for reading the queue permissions, this has to be done via P/Invoke. by calling
+    /// <c>MQGetQueueSecurity</c> API.
     /// See http://stackoverflow.com/questions/10177255/how-to-get-the-current-permissions-for-an-msmq-private-queue
     /// </remarks>
     static class MessageQueueExtensions
     {
-        static bool administerGranted;
-
         [DllImport("mqrt.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         static extern int MQGetQueueSecurity(string formatName, int SecurityInformation, IntPtr SecurityDescriptor, int length, out int lengthNeeded);
 
@@ -35,14 +34,15 @@
         [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         static extern bool ConvertSidToStringSid([MarshalAs(UnmanagedType.LPArray)] byte[] pSID, out IntPtr ptrSid);
 
-        // the following constants taken from MessageQueue.cs (see http://referencesource.microsoft.com/#System.Messaging/System/Messaging/MessageQueue.cs)
         const string PREFIX_FORMAT_NAME = "FORMATNAME:";
         const int DACL_SECURITY_INFORMATION = 4;
-
-        //Security constants
         const int MQ_ERROR_SECURITY_DESCRIPTOR_TOO_SMALL = unchecked((int) 0xc00e0023);
         const int MQ_OK = 0;
+        static bool administerGranted;
 
+        //Security constants
+
+        // the following constants taken from MessageQueue.cs (see http://referencesource.microsoft.com/#System.Messaging/System/Messaging/MessageQueue.cs)
         // ReSharper disable MemberCanBePrivate.Local
         [StructLayout(LayoutKind.Sequential)]
         struct ACE_HEADER
@@ -102,7 +102,7 @@
         static MessageQueueAccessRights GetPermissions(string formatName, string sid)
         {
             var SecurityDescriptor = new byte[100];
-            
+
             var sdHandle = GCHandle.Alloc(SecurityDescriptor, GCHandleType.Pinned);
             try
             {
@@ -138,24 +138,27 @@
                     out daclDefaulted);
 
                 if (!success)
+                {
                     throw new Win32Exception();
+                }
 
                 var allowedAce = GetAce(pDacl, sid);
 
                 return (MessageQueueAccessRights) allowedAce.Mask;
-
             }
             finally
             {
                 if (sdHandle.IsAllocated)
+                {
                     sdHandle.Free();
+                }
             }
         }
 
         static string GetSidForUser(string username)
         {
             var account = new NTAccount(username);
-            var sid = (SecurityIdentifier)account.Translate(typeof(SecurityIdentifier));
+            var sid = (SecurityIdentifier) account.Translate(typeof(SecurityIdentifier));
 
             return sid.ToString();
         }
@@ -171,7 +174,7 @@
                 GetAce(pDacl, i, out pAce);
                 var ace = (ACCESS_ALLOWED_ACE) Marshal.PtrToStructure(pAce, typeof(ACCESS_ALLOWED_ACE));
 
-                var iter = (IntPtr)((long)pAce + (long)Marshal.OffsetOf(typeof(ACCESS_ALLOWED_ACE), "SidStart"));
+                var iter = (IntPtr) ((long) pAce + (long) Marshal.OffsetOf(typeof(ACCESS_ALLOWED_ACE), "SidStart"));
                 var size = GetLengthSid(iter);
                 var bSID = new byte[size];
                 Marshal.Copy(iter, bSID, 0, size);

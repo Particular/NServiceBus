@@ -4,7 +4,6 @@ namespace NServiceBus
 
     static class ElevateChecker
     {
-
         public static bool IsCurrentUserElevated()
         {
             using (var windowsIdentity = WindowsIdentity.GetCurrent())

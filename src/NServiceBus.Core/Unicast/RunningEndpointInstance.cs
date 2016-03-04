@@ -3,11 +3,11 @@ namespace NServiceBus
     using System;
     using System.Threading;
     using System.Threading.Tasks;
-    using NServiceBus.Features;
-    using NServiceBus.Logging;
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.Settings;
-    using UnicastBus = NServiceBus.Unicast.UnicastBus;
+    using Features;
+    using Logging;
+    using ObjectBuilder;
+    using Settings;
+    using UnicastBus = Unicast.UnicastBus;
 
     class RunningEndpointInstance : IEndpointInstance
     {
@@ -84,15 +84,16 @@ namespace NServiceBus
             return messageSession.Unsubscribe(eventType, options);
         }
 
-        volatile bool stopped;
-        SemaphoreSlim stopSemaphore = new SemaphoreSlim(1);
-
-        PipelineCollection pipelineCollection;
-        StartAndStoppablesRunner startAndStoppablesRunner;
+        IBuilder builder;
         FeatureRunner featureRunner;
         IMessageSession messageSession;
+
+        PipelineCollection pipelineCollection;
         SettingsHolder settings;
-        IBuilder builder;
+        StartAndStoppablesRunner startAndStoppablesRunner;
+
+        volatile bool stopped;
+        SemaphoreSlim stopSemaphore = new SemaphoreSlim(1);
 
         static ILog Log = LogManager.GetLogger<UnicastBus>();
     }

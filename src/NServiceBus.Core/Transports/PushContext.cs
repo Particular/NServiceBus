@@ -17,8 +17,11 @@
         /// <param name="headers">The message headers.</param>
         /// <param name="bodyStream">The message body stream.</param>
         /// <param name="transportTransaction">Transaction (along with connection if applicable) used to receive the message.</param>
-        /// <param name="receiveCancellationTokenSource">Allows the pipeline to flag that it has been aborted and the receive operation should be rolled back. 
-        /// It also allows the transport to communicate to the pipeline to abort if possible. Transports should check if the token has been aborted after invoking the pipeline and roll back the message accordingly.</param>
+        /// <param name="receiveCancellationTokenSource">
+        /// Allows the pipeline to flag that it has been aborted and the receive operation should be rolled back.
+        /// It also allows the transport to communicate to the pipeline to abort if possible. Transports should check if the token
+        /// has been aborted after invoking the pipeline and roll back the message accordingly.
+        /// </param>
         /// <param name="context">Any context that the transport wants to be available on the pipeline.</param>
         public PushContext(string messageId, Dictionary<string, string> headers, Stream bodyStream, TransportTransaction transportTransaction, CancellationTokenSource receiveCancellationTokenSource, ContextBag context)
         {
@@ -58,11 +61,11 @@
         public TransportTransaction TransportTransaction { get; }
 
         /// <summary>
-        /// Allows the pipeline to flag that the pipeline has been aborted and the receive operation should be rolled back. 
+        /// Allows the pipeline to flag that the pipeline has been aborted and the receive operation should be rolled back.
         /// It also allows the transport to communicate to the pipeline to abort if possible.
         /// </summary>
         public CancellationTokenSource ReceiveCancellationTokenSource { get; }
-       
+
         /// <summary>
         /// Context provided by the transport.
         /// </summary>

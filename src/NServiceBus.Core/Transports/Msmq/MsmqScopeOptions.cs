@@ -7,8 +7,6 @@ namespace NServiceBus
 
     internal class MsmqScopeOptions
     {
-        public TransactionOptions TransactionOptions { get; }
-
         public MsmqScopeOptions(TimeSpan? requestedTimeout = null, IsolationLevel? requestedIsolationLevel = null)
         {
             var timeout = TransactionManager.DefaultTimeout;
@@ -37,6 +35,8 @@ namespace NServiceBus
                 Timeout = timeout
             };
         }
+
+        public TransactionOptions TransactionOptions { get; }
 
         static TimeSpan GetMaxTimeout()
         {

@@ -4,14 +4,14 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.Config.ConfigurationSource;
-    using NServiceBus.Features;
-    using NServiceBus.Installation;
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.ObjectBuilder.Common;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Settings;
-    using NServiceBus.Transports;
+    using Config.ConfigurationSource;
+    using Features;
+    using Installation;
+    using ObjectBuilder;
+    using ObjectBuilder.Common;
+    using Pipeline;
+    using Settings;
+    using Transports;
 
     class InitializableEndpoint : IInitializableEndpoint
     {
@@ -60,7 +60,7 @@ namespace NServiceBus
 
         static bool IsConcrete(Type x)
         {
-            return !x.IsAbstract && ! x.IsInterface;
+            return !x.IsAbstract && !x.IsInterface;
         }
 
         void ConfigRunBeforeIsFinalized(IEnumerable<Type> concreteTypes)
@@ -124,7 +124,7 @@ namespace NServiceBus
         {
             var b = new CommonObjectBuilder
             {
-                Container = containerToAdapt,
+                Container = containerToAdapt
             };
 
             builder = b;
@@ -177,11 +177,12 @@ namespace NServiceBus
             return typeof(INeedToInstallSomething).IsAssignableFrom(t);
         }
 
-        SettingsHolder settings;
         IBuilder builder;
         IConfigureComponents container;
-        PipelineSettings pipelineSettings;
         PipelineConfiguration pipelineConfiguration;
+        PipelineSettings pipelineSettings;
+
+        SettingsHolder settings;
         IReadOnlyCollection<IWantToRunWhenBusStartsAndStops> startables;
     }
 }

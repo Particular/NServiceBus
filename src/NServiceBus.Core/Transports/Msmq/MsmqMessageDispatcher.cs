@@ -7,11 +7,11 @@ namespace NServiceBus
     using System.Messaging;
     using System.Threading.Tasks;
     using System.Transactions;
-    using NServiceBus.DeliveryConstraints;
-    using NServiceBus.Extensibility;
-    using NServiceBus.Performance.TimeToBeReceived;
-    using NServiceBus.Transports;
-    using NServiceBus.Unicast.Queuing;
+    using DeliveryConstraints;
+    using Extensibility;
+    using Performance.TimeToBeReceived;
+    using Transports;
+    using Unicast.Queuing;
 
     class MsmqMessageDispatcher : IDispatchMessages
     {
@@ -59,35 +59,37 @@ namespace NServiceBus
             try
             {
                 using (var q = new MessageQueue(destinationAddress.FullPath, false, settings.UseConnectionCache, QueueAccessMode.Send))
-                using (var toSend = MsmqUtilities.Convert(message, transportOperation.DeliveryConstraints))
                 {
-                    toSend.UseDeadLetterQueue = settings.UseDeadLetterQueue;
-                    toSend.UseJournalQueue = settings.UseJournalQueue;
-                    toSend.TimeToReachQueue = settings.TimeToReachQueue;
-
-                    string replyToAddress;
-
-                    if (message.Headers.TryGetValue(Headers.ReplyToAddress, out replyToAddress))
+                    using (var toSend = MsmqUtilities.Convert(message, transportOperation.DeliveryConstraints))
                     {
-                        toSend.ResponseQueue = new MessageQueue(MsmqAddress.Parse(replyToAddress).FullPath);
+                        toSend.UseDeadLetterQueue = settings.UseDeadLetterQueue;
+                        toSend.UseJournalQueue = settings.UseJournalQueue;
+                        toSend.TimeToReachQueue = settings.TimeToReachQueue;
+
+                        string replyToAddress;
+
+                        if (message.Headers.TryGetValue(Headers.ReplyToAddress, out replyToAddress))
+                        {
+                            toSend.ResponseQueue = new MessageQueue(MsmqAddress.Parse(replyToAddress).FullPath);
+                        }
+
+                        var label = GetLabel(message);
+
+                        if (transportOperation.RequiredDispatchConsistency == DispatchConsistency.Isolated)
+                        {
+                            q.Send(toSend, label, GetIsolatedTransactionType());
+                            return;
+                        }
+
+                        MessageQueueTransaction activeTransaction;
+                        if (TryGetNativeTransaction(context, out activeTransaction))
+                        {
+                            q.Send(toSend, label, activeTransaction);
+                            return;
+                        }
+
+                        q.Send(toSend, label, GetTransactionTypeForSend());
                     }
-
-                    var label = GetLabel(message);
-
-                    if (transportOperation.RequiredDispatchConsistency == DispatchConsistency.Isolated)
-                    {
-                        q.Send(toSend, label, GetIsolatedTransactionType());
-                        return;
-                    }
-
-                    MessageQueueTransaction activeTransaction;
-                    if (TryGetNativeTransaction(context, out activeTransaction))
-                    {
-                        q.Send(toSend, label, activeTransaction);
-                        return;
-                    }
-
-                    q.Send(toSend, label, GetTransactionTypeForSend());
                 }
             }
             catch (MessageQueueException ex)
@@ -189,11 +191,12 @@ namespace NServiceBus
             }
 
             return Transaction.Current != null
-                       ? MessageQueueTransactionType.Automatic
-                       : MessageQueueTransactionType.Single;
+                ? MessageQueueTransactionType.Automatic
+                : MessageQueueTransactionType.Single;
         }
 
-        MsmqSettings settings;
         Func<IReadOnlyDictionary<string, string>, string> messageLabelGenerator;
+
+        MsmqSettings settings;
     }
 }

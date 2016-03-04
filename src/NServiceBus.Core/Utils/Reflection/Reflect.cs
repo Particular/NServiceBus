@@ -8,12 +8,15 @@ namespace NServiceBus
     using System.Linq.Expressions;
     using System.Reflection;
 
-    static class Reflect<TTarget> 
+    static class Reflect<TTarget>
     {
         public static PropertyInfo GetProperty(Expression<Func<TTarget, object>> property)
         {
             var info = GetMemberInfo(property, false) as PropertyInfo;
-            if (info == null) throw new ArgumentException("Member is not a property");
+            if (info == null)
+            {
+                throw new ArgumentException("Member is not a property");
+            }
 
             return info;
         }
@@ -32,10 +35,16 @@ namespace NServiceBus
 
         public static MemberInfo GetMemberInfo(Expression member, bool checkForSingleDot)
         {
-            if (member == null) throw new ArgumentNullException(nameof(member));
+            if (member == null)
+            {
+                throw new ArgumentNullException(nameof(member));
+            }
 
             var lambda = member as LambdaExpression;
-            if (lambda == null) throw new ArgumentException("Not a lambda expression", nameof(member));
+            if (lambda == null)
+            {
+                throw new ArgumentException("Not a lambda expression", nameof(member));
+            }
 
             MemberExpression memberExpr = null;
 
@@ -45,14 +54,17 @@ namespace NServiceBus
             {
                 // The cast is an unary expression, where the operand is the 
                 // actual member access expression.
-                memberExpr = ((UnaryExpression)lambda.Body).Operand as MemberExpression;
+                memberExpr = ((UnaryExpression) lambda.Body).Operand as MemberExpression;
             }
             else if (lambda.Body.NodeType == ExpressionType.MemberAccess)
             {
                 memberExpr = lambda.Body as MemberExpression;
             }
 
-            if (memberExpr == null) throw new ArgumentException("Not a member access", nameof(member));
+            if (memberExpr == null)
+            {
+                throw new ArgumentException("Not a member access", nameof(member));
+            }
 
             if (checkForSingleDot)
             {
@@ -65,6 +77,5 @@ namespace NServiceBus
 
             return memberExpr.Member;
         }
-
     }
 }

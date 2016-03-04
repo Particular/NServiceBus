@@ -1,16 +1,16 @@
 namespace NServiceBus
 {
-    using NServiceBus.Settings;
-    using NServiceBus.Transports;
+    using Settings;
+    using Transports;
 
     class OutboundTransport
     {
-        public bool IsDefault { get; }
-
         public OutboundTransport(bool isDefault)
         {
             IsDefault = isDefault;
         }
+
+        public bool IsDefault { get; }
 
         public TransportSendInfrastructure Configure(ReadOnlySettings settings)
         {

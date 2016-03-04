@@ -15,11 +15,11 @@
         }
 
         /// <summary>
-        /// The <see cref="Type"/> of the message instance.
+        /// The <see cref="Type" /> of the message instance.
         /// </summary>
         public Type MessageType { get; private set; }
 
-     
+
         /// <summary>
         /// The message instance hierarchy.
         /// </summary>

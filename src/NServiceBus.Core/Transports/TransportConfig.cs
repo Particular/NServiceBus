@@ -17,15 +17,8 @@
             ReplacementTypeOrMember = "EndpointConfiguration.LimitMessageProcessingConcurrencyTo")]
         public int MaximumConcurrencyLevel
         {
-            get
-            {
-                return (int)this["MaximumConcurrencyLevel"];
-            }
-            set
-            {
-                this["MaximumConcurrencyLevel"] = value;
-
-            }
+            get { return (int) this["MaximumConcurrencyLevel"]; }
+            set { this["MaximumConcurrencyLevel"] = value; }
         }
 
         /// <summary>
@@ -35,14 +28,8 @@
         [ConfigurationProperty("MaxRetries", IsRequired = false, DefaultValue = 5)]
         public int MaxRetries
         {
-            get
-            {
-                return (int)this["MaxRetries"];
-            }
-            set
-            {
-                this["MaxRetries"] = value;
-            }
+            get { return (int) this["MaxRetries"]; }
+            set { this["MaxRetries"] = value; }
         }
 
         /// <summary>
@@ -50,19 +37,13 @@
         /// </summary>
         [ConfigurationProperty("MaximumMessageThroughputPerSecond", IsRequired = false, DefaultValue = -1)]
         [ObsoleteEx(
-            TreatAsErrorFromVersion = "6", 
-            RemoveInVersion = "7", 
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
             Message = "Message throughput throttling has been removed. Consult the documentation for further information.")]
         public int MaximumMessageThroughputPerSecond
         {
-            get
-            {
-                return (int)this["MaximumMessageThroughputPerSecond"];
-            }
-            set
-            {
-                this["MaximumMessageThroughputPerSecond"] = value;
-            }
+            get { return (int) this["MaximumMessageThroughputPerSecond"]; }
+            set { this["MaximumMessageThroughputPerSecond"] = value; }
         }
     }
 }

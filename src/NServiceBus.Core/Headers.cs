@@ -29,7 +29,7 @@
         public const string DestinationSites = "NServiceBus.DestinationSites";
 
         /// <summary>
-        /// Header for specifying the key for the site where this message originated. 
+        /// Header for specifying the key for the site where this message originated.
         /// This header is considered an applicative header.
         /// </summary>
         public const string OriginatingSite = "NServiceBus.OriginatingSite";
@@ -131,7 +131,8 @@
         public const string ContentType = "NServiceBus.ContentType";
 
         /// <summary>
-        /// Header entry key for the given message type that is being subscribed to, when message intent is subscribe or unsubscribe.
+        /// Header entry key for the given message type that is being subscribed to, when message intent is subscribe or
+        /// unsubscribe.
         /// </summary>
         public const string SubscriptionMessageType = "SubscriptionMessageType";
 
@@ -139,7 +140,7 @@
         /// Header entry key for the transport address of the subscribing endpoint.
         /// </summary>
         public const string SubscriberTransportAddress = "NServiceBus.SubscriberAddress";
-        
+
         /// <summary>
         /// Header entry key for the logical name of the subscribing endpoint.
         /// </summary>
@@ -211,18 +212,18 @@
         public const string MessageIntent = "NServiceBus.MessageIntent";
 
         /// <summary>
-        /// The identifier to lookup the key to decrypt the encrypted data. 
+        /// The identifier to lookup the key to decrypt the encrypted data.
         /// </summary>
         public const string RijndaelKeyIdentifier = "NServiceBus.RijndaelKeyIdentifier";
 
         /// <summary>
         /// The time to be received for this message when it was sent the first time.
-        /// When moved to error and audit this header will be preserved to the original TTBR 
+        /// When moved to error and audit this header will be preserved to the original TTBR
         /// of the message can be known.
         /// </summary>
         public const string TimeToBeReceived = "NServiceBus.TimeToBeReceived";
 
-       
+
         /// <summary>
         /// Indicates that the message was sent as a non durable message.
         /// </summary>

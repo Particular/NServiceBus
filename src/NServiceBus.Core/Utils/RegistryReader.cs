@@ -6,12 +6,10 @@
 
     static class RegistryReader
     {
-        static ILog Logger = LogManager.GetLogger(typeof(RegistryReader));
-
         public static string Read(string name, string defaultValue = null)
         {
             try
-            {              
+            {
                 return ReadRegistryKeyValue(name, defaultValue);
             }
             catch (Exception ex)
@@ -42,5 +40,7 @@
                 return (string) key.GetValue(keyName, defaultValue);
             }
         }
+
+        static ILog Logger = LogManager.GetLogger(typeof(RegistryReader));
     }
 }

@@ -2,20 +2,20 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
-    using NServiceBus.ObjectBuilder;
+    using ObjectBuilder;
 
     /// <summary>
-    /// Extension methods for injecting props in <see cref="IHandleMessages{T}"/>.
+    /// Extension methods for injecting props in <see cref="IHandleMessages{T}" />.
     /// </summary>
     public static class ConfigureHandlerSettings
     {
         /// <summary>
-        /// Initializes <see cref="IHandleMessages{T}"/> with the specified properties.
+        /// Initializes <see cref="IHandleMessages{T}" /> with the specified properties.
         /// </summary>
-        /// <typeparam name="THandler">The <see cref="IHandleMessages{T}"/> type.</typeparam>
-        /// <param name="config">The <see cref="EndpointConfiguration"/> instance to apply the settings to.</param>
+        /// <typeparam name="THandler">The <see cref="IHandleMessages{T}" /> type.</typeparam>
+        /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
         /// <param name="property">The property name to be injected.</param>
-        /// <param name="value">The value to assign to the <paramref name="property"/>.</param>
+        /// <param name="value">The value to assign to the <paramref name="property" />.</param>
         public static void InitializeHandlerProperty<THandler>(this EndpointConfiguration config, string property, object value)
         {
             Guard.AgainstNull(nameof(config), config);
@@ -28,7 +28,7 @@ namespace NServiceBus
                 config.Settings.Set("NServiceBus.HandlerProperties", list);
             }
 
-            list.Add(c=> c.ConfigureProperty<THandler>(property, value));
+            list.Add(c => c.ConfigureProperty<THandler>(property, value));
         }
     }
 }

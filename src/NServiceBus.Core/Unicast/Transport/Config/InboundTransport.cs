@@ -1,7 +1,7 @@
 namespace NServiceBus
 {
-    using NServiceBus.Settings;
-    using NServiceBus.Transports;
+    using Settings;
+    using Transports;
 
     class InboundTransport
     {
@@ -9,6 +9,6 @@ namespace NServiceBus
         {
             var transportInfrastructure = settings.Get<TransportInfrastructure>();
             return transportInfrastructure.ConfigureReceiveInfrastructure();
-        }        
+        }
     }
 }

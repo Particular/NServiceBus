@@ -2,15 +2,12 @@ namespace NServiceBus
 {
     using System.Threading.Tasks;
     using Installation;
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.Settings;
+    using ObjectBuilder;
+    using Settings;
     using Transports;
 
     class QueuesCreator : INeedToInstallSomething
     {
-        readonly IBuilder builder;
-        readonly ReadOnlySettings settings;
-
         public QueuesCreator(IBuilder builder, ReadOnlySettings settings)
         {
             this.builder = builder;
@@ -32,5 +29,8 @@ namespace NServiceBus
 
             return queueCreator.CreateQueueIfNecessary(queueBindings, identity);
         }
+
+        readonly IBuilder builder;
+        readonly ReadOnlySettings settings;
     }
 }

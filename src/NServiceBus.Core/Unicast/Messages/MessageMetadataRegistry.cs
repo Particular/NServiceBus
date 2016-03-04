@@ -6,7 +6,7 @@
     using Logging;
 
     /// <summary>
-    ///     Cache of message metadata.
+    /// Cache of message metadata.
     /// </summary>
     public class MessageMetadataRegistry
     {
@@ -16,7 +16,7 @@
         }
 
         /// <summary>
-        ///     Retrieves the <see cref="MessageMetadata" /> for the specified type.
+        /// Retrieves the <see cref="MessageMetadata" /> for the specified type.
         /// </summary>
         /// <param name="messageType">The message type to retrieve metadata for.</param>
         /// <returns>The <see cref="MessageMetadata" /> for the specified type.</returns>
@@ -39,7 +39,7 @@
         }
 
         /// <summary>
-        ///     Retrieves the <see cref="MessageMetadata" /> for the message identifier.
+        /// Retrieves the <see cref="MessageMetadata" /> for the message identifier.
         /// </summary>
         /// <param name="messageTypeIdentifier">The message identifier to retrieve metadata for.</param>
         /// <returns>The <see cref="MessageMetadata" /> for the specified type.</returns>
@@ -122,8 +122,9 @@
             }
         }
 
-        static ILog Logger = LogManager.GetLogger<MessageMetadataRegistry>();
         Conventions conventions;
         Dictionary<RuntimeTypeHandle, MessageMetadata> messages = new Dictionary<RuntimeTypeHandle, MessageMetadata>();
+
+        static ILog Logger = LogManager.GetLogger<MessageMetadataRegistry>();
     }
 }

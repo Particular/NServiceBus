@@ -4,7 +4,7 @@ namespace NServiceBus
     using System.Threading.Tasks;
 
     /// <summary>
-    /// Syntactic sugar for <see cref="IMessageProcessingContext"/>.
+    /// Syntactic sugar for <see cref="IMessageProcessingContext" />.
     /// </summary>
     public static class IMessageProcessingContextExtensions
     {

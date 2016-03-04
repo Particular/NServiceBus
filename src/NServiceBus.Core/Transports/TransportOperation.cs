@@ -2,8 +2,8 @@ namespace NServiceBus.Transports
 {
     using System.Collections.Generic;
     using System.Linq;
-    using NServiceBus.DeliveryConstraints;
-    using NServiceBus.Routing;
+    using DeliveryConstraints;
+    using Routing;
 
     /// <summary>
     /// Defines the transport operations including the message and information how to send it.

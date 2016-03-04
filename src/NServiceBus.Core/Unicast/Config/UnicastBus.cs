@@ -1,6 +1,5 @@
 namespace NServiceBus.Features
 {
-
     class UnicastBus : Feature
     {
         internal UnicastBus()

@@ -12,7 +12,7 @@ namespace NServiceBus.Transports
         /// Creates new result.
         /// </summary>
         public TransportReceiveInfrastructure(
-            Func<IPushMessages> messagePumpFactory, 
+            Func<IPushMessages> messagePumpFactory,
             Func<ICreateQueues> queueCreatorFactory,
             Func<Task<StartupCheckResult>> preStartupCheck)
         {
@@ -27,7 +27,6 @@ namespace NServiceBus.Transports
 
         internal Func<IPushMessages> MessagePumpFactory { get; }
         internal Func<ICreateQueues> QueueCreatorFactory { get; }
-        internal Func<Task<StartupCheckResult>> PreStartupCheck { get; } 
-
+        internal Func<Task<StartupCheckResult>> PreStartupCheck { get; }
     }
 }

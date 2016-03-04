@@ -2,7 +2,7 @@
 {
     using System;
     using JetBrains.Annotations;
-    using NServiceBus.Routing;
+    using Routing;
 
     /// <summary>
     /// Represents a logical address (independent of transport).
@@ -85,7 +85,7 @@
         }
 
         /// <summary>
-        /// Serves as a hash function for a particular type. 
+        /// Serves as a hash function for a particular type.
         /// </summary>
         /// <returns>
         /// A hash code for the current object.

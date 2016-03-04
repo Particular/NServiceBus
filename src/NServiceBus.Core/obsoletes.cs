@@ -34,7 +34,7 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Reflection;
-    using NServiceBus.ObjectBuilder;
+    using ObjectBuilder;
 
     public static partial class ConfigureCriticalErrorAction
     {
@@ -187,7 +187,7 @@ namespace NServiceBus
             throw new NotImplementedException();
         }
     }
-    
+
     [ObsoleteEx(
         Message = "This is no longer a public API",
         RemoveInVersion = "7.0",
@@ -316,7 +316,7 @@ namespace NServiceBus
     public static partial class ConfigureRijndaelEncryptionService
     {
         [ObsoleteEx(
-            ReplacementTypeOrMember = "RegisterEncryptionService(this EndpointConfiguration config, Func<IEncryptionService> func)", 
+            ReplacementTypeOrMember = "RegisterEncryptionService(this EndpointConfiguration config, Func<IEncryptionService> func)",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
             Message = "It is no longer possible to access the builder to create an encryption service. If container access is required use the container directly in the factory.")]
@@ -423,7 +423,7 @@ namespace NServiceBus.Unicast
 namespace NServiceBus.Timeout.Core
 {
     using System;
-    using NServiceBus.Unicast;
+    using Unicast;
 
     public partial class TimeoutData
     {
@@ -457,8 +457,7 @@ namespace NServiceBus.Timeout.Core
         [ObsoleteEx(
             Message = "Not used anymore",
             RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0")]
-        public const string OriginalReplyToAddress = "NServiceBus.Timeout.ReplyToAddress";
+            TreatAsErrorFromVersion = "6.0")] public const string OriginalReplyToAddress = "NServiceBus.Timeout.ReplyToAddress";
     }
 }
 
@@ -781,7 +780,7 @@ namespace NServiceBus.Transports
 
 namespace NServiceBus.Transports
 {
-    using NServiceBus.Unicast;
+    using Unicast;
 
     [ObsoleteEx(
         RemoveInVersion = "7.0",
@@ -970,7 +969,7 @@ namespace NServiceBus.Unicast.Queuing
 namespace NServiceBus.Transports
 {
     using System;
-    using NServiceBus.Unicast.Transport;
+    using Unicast.Transport;
 
     [ObsoleteEx(
         ReplacementTypeOrMember = "NServiceBus.Transport.IPushMessages",
@@ -999,12 +998,21 @@ namespace NServiceBus.Unicast.Transport
 {
     using System;
     using System.Transactions;
+
     [ObsoleteEx(
-          Message = "Transaction settings is no longer available via this class. See obsoletes on individual members for further details",
-          RemoveInVersion = "7.0",
-          TreatAsErrorFromVersion = "6.0")]
+        Message = "Transaction settings is no longer available via this class. See obsoletes on individual members for further details",
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0")]
     public class TransactionSettings
     {
+        [ObsoleteEx(
+            Message = "No longer used",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public TransactionSettings(bool isTransactional, TimeSpan transactionTimeout, IsolationLevel isolationLevel, bool suppressDistributedTransactions, bool doNotWrapHandlersExecutionInATransactionScope)
+        {
+        }
+
         [ObsoleteEx(
             Message = "Timeouts are now controlled explicitly for the transaction scope unit of work using config.UnitOfWork().WrapHandlersInATransactionScope(timeout: X)",
             RemoveInVersion = "7.0",
@@ -1018,23 +1026,15 @@ namespace NServiceBus.Unicast.Transport
         public IsolationLevel IsolationLevel { get; set; }
 
         [ObsoleteEx(
-            Message = "No longer used",
-            RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0")]
-        public TransactionSettings(bool isTransactional, TimeSpan transactionTimeout, IsolationLevel isolationLevel, bool suppressDistributedTransactions, bool doNotWrapHandlersExecutionInATransactionScope)
-        {
-        }
-
-        [ObsoleteEx(
             Message = "DoNotWrapHandlersExecutionInATransactionScope is no longer used here. Use settings.GetOrDefault<bool>('Transactions.DoNotWrapHandlersExecutionInATransactionScope') instead",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public bool DoNotWrapHandlersExecutionInATransactionScope { get; set; }
 
         [ObsoleteEx(
-         Message = "SuppressDistributedTransactions is no longer used here. Uuse `context.Settings.GetRequiredTransactionModeForReceives() != Transactions.TransactionScope` instead.",
-         RemoveInVersion = "7.0",
-         TreatAsErrorFromVersion = "6.0")]
+            Message = "SuppressDistributedTransactions is no longer used here. Uuse `context.Settings.GetRequiredTransactionModeForReceives() != Transactions.TransactionScope` instead.",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
         public bool SuppressDistributedTransactions { get; set; }
 
         [ObsoleteEx(
@@ -1042,7 +1042,6 @@ namespace NServiceBus.Unicast.Transport
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public bool IsTransactional { get; set; }
-
     }
 
     [ObsoleteEx(
@@ -1340,8 +1339,7 @@ namespace NServiceBus
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            Message = "The WinIdName header is no longer attached to outgoing message to avoid passing security related information on the wire. Should you rely on the header being present you can add a message mutator that sets it.")]
-        public const string WindowsIdentityName = "WinIdName";
+            Message = "The WinIdName header is no longer attached to outgoing message to avoid passing security related information on the wire. Should you rely on the header being present you can add a message mutator that sets it.")] public const string WindowsIdentityName = "WinIdName";
     }
 }
 
@@ -1668,9 +1666,9 @@ Suppressing the ambient transaction created by the MSMQ and SQL Server transport
 
 
         [ObsoleteEx(
-          RemoveInVersion = "7.0",
-          TreatAsErrorFromVersion = "6.0",
-          ReplacementTypeOrMember = "config.UseTransport<MyTransport>().Transactions(TransportTransactionMode.None);")]
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            ReplacementTypeOrMember = "config.UseTransport<MyTransport>().Transactions(TransportTransactionMode.None);")]
         public TransactionSettings Disable()
         {
             throw new NotImplementedException();
@@ -1702,28 +1700,29 @@ Suppressing the ambient transaction created by the MSMQ and SQL Server transport
         {
             throw new NotImplementedException();
         }
+
         [ObsoleteEx(
-                  RemoveInVersion = "7.0",
-                  TreatAsErrorFromVersion = "6.0",
-                  ReplacementTypeOrMember = "config.UnitOfWork().WrapHandlersInATransactionScope(isolationLevel: IsolationLevel.X);")]
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            ReplacementTypeOrMember = "config.UnitOfWork().WrapHandlersInATransactionScope(isolationLevel: IsolationLevel.X);")]
         public TransactionSettings IsolationLevel(IsolationLevel isolationLevel)
         {
             throw new NotImplementedException();
         }
 
         [ObsoleteEx(
-              RemoveInVersion = "7.0",
-              TreatAsErrorFromVersion = "6.0",
-              ReplacementTypeOrMember = "config.UnitOfWork().WrapHandlersInATransactionScope();")]
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            ReplacementTypeOrMember = "config.UnitOfWork().WrapHandlersInATransactionScope();")]
         public TransactionSettings WrapHandlersExecutionInATransactionScope()
         {
             throw new NotImplementedException();
         }
 
         [ObsoleteEx(
-              RemoveInVersion = "7.0",
-              TreatAsErrorFromVersion = "6.0",
-               ReplacementTypeOrMember = "config.UnitOfWork().WrapHandlersInATransactionScope(timeout: TimeSpan.FromSeconds(X));")]
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            ReplacementTypeOrMember = "config.UnitOfWork().WrapHandlersInATransactionScope(timeout: TimeSpan.FromSeconds(X));")]
         public TransactionSettings DefaultTimeout(TimeSpan defaultTimeout)
         {
             throw new NotImplementedException();
@@ -1733,14 +1732,14 @@ Suppressing the ambient transaction created by the MSMQ and SQL Server transport
     namespace NServiceBus
     {
         [ObsoleteEx(
-             RemoveInVersion = "7.0",
-             TreatAsErrorFromVersion = "6.0",
-              Message = "No longer used, can safely be removed")]
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "No longer used, can safely be removed")]
         public static class TransactionSettingsExtentions
         {
             [ObsoleteEx(
-               RemoveInVersion = "7.0",
-               TreatAsErrorFromVersion = "6.0",
+                RemoveInVersion = "7.0",
+                TreatAsErrorFromVersion = "6.0",
                 Message = "No longer used, can safely be removed")]
             public static TransactionSettings Transactions(this EndpointConfiguration config)
             {
@@ -1756,7 +1755,6 @@ namespace NServiceBus
 
     public static partial class SerializationConfigExtensions
     {
-
         [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
@@ -1771,9 +1769,9 @@ namespace NServiceBus
 namespace NServiceBus.Serialization
 {
     [ObsoleteEx(
-           RemoveInVersion = "7.0",
-           TreatAsErrorFromVersion = "6.0",
-           Message = "To use a custom serializer derive from SerializationDefinition and provide a factory method for creating the serializer instance.")]
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        Message = "To use a custom serializer derive from SerializationDefinition and provide a factory method for creating the serializer instance.")]
     public abstract class ConfigureSerialization
     {
     }
@@ -1782,21 +1780,20 @@ namespace NServiceBus.Serialization
 namespace NServiceBus.Serializers.Json
 {
     [ObsoleteEx(
-           RemoveInVersion = "7.0",
-           TreatAsErrorFromVersion = "6.0",
-           Message = "Built-in serializers are internal. Switch to an alternative (e.g. Json.net) or copy the serializer code.")]
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        Message = "Built-in serializers are internal. Switch to an alternative (e.g. Json.net) or copy the serializer code.")]
     public class JsonMessageSerializer
     {
     }
-
 }
 
 namespace NServiceBus.Serializers.XML
 {
     [ObsoleteEx(
-           RemoveInVersion = "7.0",
-           TreatAsErrorFromVersion = "6.0",
-           Message = "Built-in serializers are internal. Switch to an  alternative (e.g. XmlSerializer) or copy the serializer code.")]
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        Message = "Built-in serializers are internal. Switch to an  alternative (e.g. XmlSerializer) or copy the serializer code.")]
     public class XmlMessageSerializer
     {
     }
@@ -1804,11 +1801,10 @@ namespace NServiceBus.Serializers.XML
 
 namespace NServiceBus.Transports.Msmq
 {
-
     [ObsoleteEx(
-           RemoveInVersion = "7.0",
-           TreatAsErrorFromVersion = "6.0",
-           Message = "No longer available, see the documentation for native sends for alternative solutions.")]
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        Message = "No longer available, see the documentation for native sends for alternative solutions.")]
     public class MsmqMessageSender
     {
     }
@@ -1817,9 +1813,9 @@ namespace NServiceBus.Transports.Msmq
 namespace NServiceBus.Transports.Msmq.Config
 {
     [ObsoleteEx(
-         RemoveInVersion = "7.0",
-         TreatAsErrorFromVersion = "6.0",
-         Message = "No longer available, see the documentation for native sends for alternative solutions.")]
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        Message = "No longer available, see the documentation for native sends for alternative solutions.")]
     public class MsmqSettings
     {
     }

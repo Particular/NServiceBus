@@ -7,7 +7,7 @@
     using System.Reflection;
 
     /// <summary>
-    ///     Message convention definitions.
+    /// Message convention definitions.
     /// </summary>
     public partial class Conventions
     {
@@ -24,7 +24,7 @@
                     {
                         Name = property.Name,
                         Getter = DelegateFactory.CreateGet(property),
-                        Setter = DelegateFactory.CreateSet(property),
+                        Setter = DelegateFactory.CreateSet(property)
                     }).ToList();
 
                 cache[messageType] = value;
@@ -33,9 +33,9 @@
             return value;
         }
 
-      
+
         /// <summary>
-        ///     Returns true if the given type is a message type.
+        /// Returns true if the given type is a message type.
         /// </summary>
         public bool IsMessageType(Type t)
         {
@@ -67,7 +67,7 @@
         }
 
         /// <summary>
-        ///     Returns true is message is a system message type.
+        /// Returns true is message is a system message type.
         /// </summary>
         public bool IsInSystemConventionList(Type t)
         {
@@ -76,7 +76,7 @@
         }
 
         /// <summary>
-        ///     Add system message convention.
+        /// Add system message convention.
         /// </summary>
         /// <param name="definesMessageType">Function to define system message convention.</param>
         public void AddSystemMessagesConventions(Func<Type, bool> definesMessageType)
@@ -90,7 +90,7 @@
         }
 
         /// <summary>
-        ///     Returns true if the given type is a command type.
+        /// Returns true if the given type is a command type.
         /// </summary>
         public bool IsCommandType(Type t)
         {
@@ -113,10 +113,9 @@
             }
         }
 
-    
 
         /// <summary>
-        ///     Returns true if the given property should be encrypted.
+        /// Returns true if the given property should be encrypted.
         /// </summary>
         public bool IsEncryptedProperty(PropertyInfo property)
         {
@@ -133,7 +132,7 @@
         }
 
         /// <summary>
-        ///     Returns true if the given property should be send via the DataBus.
+        /// Returns true if the given property should be send via the DataBus.
         /// </summary>
         public bool IsDataBusProperty(PropertyInfo property)
         {
@@ -149,7 +148,7 @@
         }
 
         /// <summary>
-        ///     Returns true if the given type is a event type.
+        /// Returns true if the given type is a event type.
         /// </summary>
         public bool IsEventType(Type t)
         {
@@ -176,7 +175,7 @@
 
         ConventionCache CommandsConventionCache = new ConventionCache();
         ConventionCache EventsConventionCache = new ConventionCache();
-        
+
         internal Func<Type, bool> IsCommandTypeAction = t => typeof(ICommand).IsAssignableFrom(t) && typeof(ICommand) != t;
 
         internal Func<PropertyInfo, bool> IsDataBusPropertyAction = p => typeof(IDataBusProperty).IsAssignableFrom(p.PropertyType) && typeof(IDataBusProperty) != p.PropertyType;
@@ -185,7 +184,7 @@
 
         internal Func<Type, bool> IsEventTypeAction = t => typeof(IEvent).IsAssignableFrom(t) && typeof(IEvent) != t;
 
-     
+
         internal Func<Type, bool> IsMessageTypeAction = t => typeof(IMessage).IsAssignableFrom(t) &&
                                                              typeof(IMessage) != t &&
                                                              typeof(IEvent) != t &&

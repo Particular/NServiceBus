@@ -8,10 +8,6 @@ namespace NServiceBus
 
     class EndpointHelper
     {
-        StackTrace stackTraceToExamine;
-        Type entryType;
-        bool initialized;
-
         public EndpointHelper(StackTrace stackTraceToExamine)
         {
             this.stackTraceToExamine = stackTraceToExamine;
@@ -44,7 +40,7 @@ namespace NServiceBus
         /// <summary>
         /// Gets the version of the endpoint.
         /// </summary>
-        /// <returns>The <see cref="Version"/> the endpoint.</returns>
+        /// <returns>The <see cref="Version" /> the endpoint.</returns>
         public string GetEndpointVersion()
         {
             Initialize();
@@ -55,13 +51,15 @@ namespace NServiceBus
             }
 
             throw new InvalidOperationException(
-                    "No version of the endpoint could not be retrieved using the default convention, specify a custom version using endpointConfiguration.EndpointVersion(version).");
+                "No version of the endpoint could not be retrieved using the default convention, specify a custom version using endpointConfiguration.EndpointVersion(version).");
         }
 
         void Initialize()
         {
             if (initialized)
+            {
                 return;
+            }
             try
             {
                 var entryAssembly = Assembly.GetEntryAssembly();
@@ -103,8 +101,10 @@ namespace NServiceBus
                 }
 
                 if (targetFrame == null)
+                {
                     targetFrame = stackFrames.FirstOrDefault(
-                       f => f.GetMethod().DeclaringType.Assembly != typeof(Configure).Assembly);
+                        f => f.GetMethod().DeclaringType.Assembly != typeof(Configure).Assembly);
+                }
 
                 if (targetFrame != null)
                 {
@@ -116,5 +116,9 @@ namespace NServiceBus
                 initialized = true;
             }
         }
+
+        Type entryType;
+        bool initialized;
+        StackTrace stackTraceToExamine;
     }
 }
