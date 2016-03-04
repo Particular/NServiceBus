@@ -1,21 +1,19 @@
 ﻿namespace NServiceBus.Features
 {
     using System;
-    using NServiceBus.ConsistencyGuarantees;
-    using NServiceBus.DelayedDelivery;
-    using NServiceBus.DeliveryConstraints;
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.Settings;
-    using NServiceBus.Timeout.Core;
-    using NServiceBus.Transports;
+    using ConsistencyGuarantees;
+    using DelayedDelivery;
+    using DeliveryConstraints;
+    using ObjectBuilder;
+    using Settings;
+    using Timeout.Core;
+    using Transports;
 
     /// <summary>
     /// Used to configure the timeout manager that provides message deferral.
     /// </summary>
     public class TimeoutManager : Feature
     {
-        TimeSpan TimeToWaitBeforeTriggeringCriticalError = TimeSpan.FromMinutes(2);
-
         internal TimeoutManager()
         {
             Defaults(s => s.SetDefault("TimeToWaitBeforeTriggeringCriticalErrorForTimeoutPersisterReceiver", TimeToWaitBeforeTriggeringCriticalError));
@@ -67,7 +65,7 @@
             dispatcherProcessorPipeline.Register("DispatchTimeoutRecoverability",
                 b => CreateTimeoutRecoverabilityBehavior(errorQueueAddress, dispatcherAddress, b),
                 "Handles failures when dispatching timeouts");
-      
+
             dispatcherProcessorPipeline.Register("TimeoutDispatcherProcessor", b => new DispatchTimeoutBehavior(
                 b.Build<IDispatchMessages>(),
                 b.Build<IPersistTimeouts>(),
@@ -103,5 +101,7 @@
         {
             return settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress != null;
         }
+
+        TimeSpan TimeToWaitBeforeTriggeringCriticalError = TimeSpan.FromMinutes(2);
     }
 }

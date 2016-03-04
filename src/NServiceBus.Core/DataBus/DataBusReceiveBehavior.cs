@@ -3,8 +3,8 @@
     using System;
     using System.Threading.Tasks;
     using System.Transactions;
-    using NServiceBus.DataBus;
-    using NServiceBus.Pipeline;
+    using DataBus;
+    using Pipeline;
 
     class DataBusReceiveBehavior : Behavior<IIncomingLogicalMessageContext>
     {

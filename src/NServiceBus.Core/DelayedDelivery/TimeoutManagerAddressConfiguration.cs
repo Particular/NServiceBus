@@ -9,6 +9,8 @@
             TransportAddress = defaultTimeoutManagerAddress;
         }
 
+        public string TransportAddress { get; private set; }
+
         public void Set(string newTimeoutManagerAddress)
         {
             Guard.AgainstNullAndEmpty(newTimeoutManagerAddress, "newTimeoutManagerAddress");
@@ -18,7 +20,5 @@
             }
             TransportAddress = newTimeoutManagerAddress;
         }
-
-        public string TransportAddress { get; private set; }
     }
 }

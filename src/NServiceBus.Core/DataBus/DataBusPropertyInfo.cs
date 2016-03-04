@@ -4,8 +4,8 @@ namespace NServiceBus
 
     class DataBusPropertyInfo
     {
-        public string Name;
         public Func<object, object> Getter;
+        public string Name;
         public Action<object, object> Setter;
     }
 }

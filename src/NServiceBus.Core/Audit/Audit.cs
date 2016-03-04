@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.Features
 {
-    using NServiceBus.Pipeline;
-    using NServiceBus.Transports;
+    using Pipeline;
+    using Transports;
 
     /// <summary>
     /// Enabled message auditing for this endpoint.

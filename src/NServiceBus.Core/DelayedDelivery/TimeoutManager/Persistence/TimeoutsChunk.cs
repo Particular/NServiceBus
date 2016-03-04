@@ -23,7 +23,7 @@ namespace NServiceBus.Timeout.Core
         /// timeouts that are due.
         /// </summary>
         public IEnumerable<Timeout> DueTimeouts { get; private set; }
-        
+
         /// <summary>
         /// the next time to query for due timeouts again.
         /// </summary>

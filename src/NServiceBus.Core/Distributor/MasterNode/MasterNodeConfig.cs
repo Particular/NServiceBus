@@ -13,14 +13,8 @@ namespace NServiceBus.Config
         [ConfigurationProperty("Node", IsRequired = true)]
         public string Node
         {
-            get
-            {
-                return this["Node"] as string;
-            }
-            set
-            {
-                this["Node"] = value;
-            }
+            get { return this["Node"] as string; }
+            set { this["Node"] = value; }
         }
     }
 }

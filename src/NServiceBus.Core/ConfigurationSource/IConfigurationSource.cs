@@ -4,7 +4,7 @@ namespace NServiceBus.Config.ConfigurationSource
     /// Abstraction of a source of configuration data.
     /// Implement this interface if you want to change the source of all configuration data.
     /// If you want to change the source of only a specific set of configuration data,
-    /// implement <see cref="IProvideConfiguration&lt;T&gt;"/> instead.
+    /// implement <see cref="IProvideConfiguration&lt;T&gt;" /> instead.
     /// </summary>
     public interface IConfigurationSource
     {
@@ -15,7 +15,7 @@ namespace NServiceBus.Config.ConfigurationSource
     }
 
     /// <summary>
-    /// Abstraction of a configuration source for a given piece of configuration data. 
+    /// Abstraction of a configuration source for a given piece of configuration data.
     /// </summary>
     public interface IProvideConfiguration<T>
     {

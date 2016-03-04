@@ -1,13 +1,13 @@
 namespace NServiceBus
 {
-    using NServiceBus.Logging;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Routing;
-    using NServiceBus.Transports;
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using JetBrains.Annotations;
+    using Logging;
+    using Pipeline;
+    using Routing;
+    using Transports;
 
     class TimeoutRecoverabilityBehavior : Behavior<ITransportReceiveContext>
     {
@@ -74,7 +74,7 @@ namespace NServiceBus
             try
             {
                 Logger.Error($"Moving timeout message '{message.MessageId}' from '{localAddress}' to '{errorQueueAddress}' because processing failed due to an exception:", failureInfo.Exception);
-                
+
                 message.SetExceptionHeaders(failureInfo.Exception, localAddress);
 
                 var outgoingMessage = new OutgoingMessage(message.MessageId, message.Headers, message.Body);
@@ -95,14 +95,14 @@ namespace NServiceBus
         }
 
         CriticalError criticalError;
-        BusNotifications notifications;
         IDispatchMessages dispatcher;
         string errorQueueAddress;
-        string localAddress;
-
-        const int MaxNumberOfFailedRetries = 4;
 
         FailureInfoStorage failures = new FailureInfoStorage();
+        string localAddress;
+        BusNotifications notifications;
+
+        const int MaxNumberOfFailedRetries = 4;
 
         static ILog Logger = LogManager.GetLogger<TimeoutRecoverabilityBehavior>();
     }

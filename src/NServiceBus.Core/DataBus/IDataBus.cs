@@ -13,7 +13,7 @@ namespace NServiceBus.DataBus
         /// Gets a data item from the bus.
         /// </summary>
         /// <param name="key">The key to look for.</param>
-        /// <returns>The data <see cref="Stream"/>.</returns>
+        /// <returns>The data <see cref="Stream" />.</returns>
         Task<Stream> Get(string key);
 
         /// <summary>

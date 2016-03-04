@@ -29,7 +29,7 @@ namespace NServiceBus
                 }
                 if (context.RoutingStrategies.Count > 1)
                 {
-                    var destinations = string.Join(", ",context.RoutingStrategies.Select(s => s.Apply(new Dictionary<string, string>())).Cast<UnicastAddressTag>().Select(l => l.Destination));
+                    var destinations = string.Join(", ", context.RoutingStrategies.Select(s => s.Apply(new Dictionary<string, string>())).Cast<UnicastAddressTag>().Select(l => l.Destination));
                     throw new Exception($"A deferred message cannot contain more than one destination: {destinations}. This is the case when publishing an event to multiple subscriber endpoints or sending a command with overriden distribution strategy.");
                 }
 
@@ -40,12 +40,12 @@ namespace NServiceBus
                 }
 
                 //Hack 133
-                var ultimateDestination = ((UnicastAddressTag)context.RoutingStrategies.First().Apply(new Dictionary<string, string>())).Destination;
+                var ultimateDestination = ((UnicastAddressTag) context.RoutingStrategies.First().Apply(new Dictionary<string, string>())).Destination;
                 context.Message.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo] = ultimateDestination;
                 context.RoutingStrategies = new[]
                 {
                     new UnicastRoutingStrategy(timeoutManagerAddress)
-                }; 
+                };
 
                 DateTime deliverAt;
                 var delayConstraint = constraint as DelayDeliveryWith;
@@ -56,7 +56,7 @@ namespace NServiceBus
                 }
                 else
                 {
-                    deliverAt = ((DoNotDeliverBefore)constraint).At;
+                    deliverAt = ((DoNotDeliverBefore) constraint).At;
                 }
 
                 context.Message.Headers[TimeoutManagerHeaders.Expire] = DateTimeExtensions.ToWireFormattedString(deliverAt);

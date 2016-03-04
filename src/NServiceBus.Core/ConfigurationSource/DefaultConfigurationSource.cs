@@ -11,7 +11,9 @@ namespace NServiceBus.Config.ConfigurationSource
         T IConfigurationSource.GetConfiguration<T>()
         {
             if (!typeof(ConfigurationSection).IsAssignableFrom(typeof(T)))
+            {
                 throw new ArgumentException("DefaultConfigurationSource only supports .Net ConfigurationSections");
+            }
 
             return ConfigurationManager.GetSection(typeof(T).Name) as T;
         }

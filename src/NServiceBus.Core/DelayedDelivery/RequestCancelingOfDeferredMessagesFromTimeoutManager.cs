@@ -1,10 +1,10 @@
 ﻿namespace NServiceBus
 {
     using System.Threading.Tasks;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Routing;
-    using NServiceBus.Transports;
-    using NServiceBus.Unicast.Transport;
+    using Pipeline;
+    using Routing;
+    using Transports;
+    using Unicast.Transport;
 
     class RequestCancelingOfDeferredMessagesFromTimeoutManager : ICancelDeferredMessages
     {

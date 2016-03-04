@@ -3,7 +3,7 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.Logging;
+    using Logging;
 
     /// <summary>
     /// A holder for that exposes access to the action defined by <see cref="ConfigureCriticalErrorAction.DefineCriticalErrorAction(EndpointConfiguration, Func{ICriticalErrorContext, Task})"/>.
@@ -13,20 +13,8 @@ namespace NServiceBus
     /// </returns>
     public class CriticalError
     {
-        Func<CriticalErrorContext, Task> criticalErrorAction;
-
-        class LatentCritical
-        {
-            public string Message { get; set; }
-            public Exception Exception { get; set; }
-        }
-
-        List<LatentCritical> criticalErrors = new List<LatentCritical>();
-        object endpointCriticalLock = new object();
-        IEndpointInstance endpoint;
-
         /// <summary>
-        /// Initializes a new instance of <see cref="CriticalError"/>.
+        /// Initializes a new instance of <see cref="CriticalError" />.
         /// </summary>
         /// <param name="onCriticalErrorAction">The action to execute when a critical error is triggered.</param>
         public CriticalError(Func<ICriticalErrorContext, Task> onCriticalErrorAction)
@@ -47,7 +35,10 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Trigger the action defined by <see cref="ConfigureCriticalErrorAction.DefineCriticalErrorAction(EndpointConfiguration, Func{ICriticalErrorContext, Task})"/>.
+        /// Trigger the action defined by
+        /// <see
+        ///     cref="ConfigureCriticalErrorAction.DefineCriticalErrorAction(EndpointConfiguration, Func{ICriticalErrorContext, Task})" />
+        /// .
         /// </summary>
         public virtual void Raise(string errorMessage, Exception exception)
         {
@@ -92,6 +83,18 @@ namespace NServiceBus
                 }
                 criticalErrors.Clear();
             }
+        }
+
+        Func<CriticalErrorContext, Task> criticalErrorAction;
+
+        List<LatentCritical> criticalErrors = new List<LatentCritical>();
+        IEndpointInstance endpoint;
+        object endpointCriticalLock = new object();
+
+        class LatentCritical
+        {
+            public string Message { get; set; }
+            public Exception Exception { get; set; }
         }
     }
 }

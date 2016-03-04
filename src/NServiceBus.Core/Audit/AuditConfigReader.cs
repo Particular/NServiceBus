@@ -4,15 +4,10 @@
     using System.Diagnostics;
     using Config;
     using Logging;
-    using NServiceBus.Settings;
+    using Settings;
 
-    class AuditConfigReader 
-    {   
-        public class Result
-        {
-            public string Address;
-            public TimeSpan? TimeToBeReceived;
-        }
+    class AuditConfigReader
+    {
         public static bool GetConfiguredAuditQueue(ReadOnlySettings settings, out Result result)
         {
             if (settings.TryGet(out result))
@@ -34,7 +29,6 @@
                 if (ttbrOverride > TimeSpan.Zero)
                 {
                     timeToBeReceived = ttbrOverride;
-                    
                 }
                 if (string.IsNullOrWhiteSpace(auditConfig.QueueName))
                 {
@@ -71,10 +65,16 @@
             if (Debugger.IsAttached)
             {
                 Logger.Warn("Endpoint auditing is configured using the registry on this machine, ensure that either the Set-NServiceBusLocalMachineSettings cmdlet has been run on the target deployment machine or specify the QueueName attribute in the AuditConfig section in the app.config file. To quickly add the AuditConfig section to the app.config, in Package Manager Console type: add-NServiceBusAuditConfig.");
-            }  
+            }
             return queue;
         }
 
-        static ILog Logger = LogManager.GetLogger<AuditConfigReader>();      
+        static ILog Logger = LogManager.GetLogger<AuditConfigReader>();
+
+        public class Result
+        {
+            public string Address;
+            public TimeSpan? TimeToBeReceived;
+        }
     }
 }

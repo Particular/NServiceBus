@@ -3,12 +3,12 @@ namespace NServiceBus
     using System;
     using System.Threading;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
-    using NServiceBus.Logging;
-    using NServiceBus.Routing;
-    using NServiceBus.Timeout.Core;
-    using NServiceBus.Transports;
-    using NServiceBus.Unicast.Transport;
+    using Extensibility;
+    using Logging;
+    using Routing;
+    using Timeout.Core;
+    using Transports;
+    using Unicast.Transport;
 
     class ExpiredTimeoutsPoller : IDisposable
     {

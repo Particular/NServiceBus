@@ -2,8 +2,8 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Transports;
     using Pipeline;
+    using Transports;
 
     class AttachCausationHeadersBehavior : Behavior<IOutgoingPhysicalMessageContext>
     {

@@ -1,9 +1,9 @@
 namespace NServiceBus
 {
-    using NServiceBus.DataBus;
+    using DataBus;
 
     /// <summary>
-    /// Contains extension methods to <see cref="EndpointConfiguration"/> for the file share data bus.
+    /// Contains extension methods to <see cref="EndpointConfiguration" /> for the file share data bus.
     /// </summary>
     public static class ConfigureFileShareDataBus
     {
@@ -22,5 +22,4 @@ namespace NServiceBus
             return config;
         }
     }
-
 }

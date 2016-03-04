@@ -2,7 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Pipeline;
+    using Pipeline;
     using Routing;
     using Timeout.Core;
     using Transports;
@@ -31,7 +31,9 @@ namespace NServiceBus
             if (message.Headers.ContainsKey(TimeoutManagerHeaders.ClearTimeouts))
             {
                 if (sagaId == Guid.Empty)
+                {
                     throw new InvalidOperationException("Invalid saga id specified, clear timeouts is only supported for saga instances");
+                }
 
                 await persister.RemoveTimeoutBy(sagaId, context.Extensions).ConfigureAwait(false);
             }
@@ -75,9 +77,10 @@ namespace NServiceBus
             }
         }
 
-        ExpiredTimeoutsPoller poller;
         IDispatchMessages dispatcher;
-        IPersistTimeouts persister;
         string owningTimeoutManager;
+        IPersistTimeouts persister;
+
+        ExpiredTimeoutsPoller poller;
     }
 }
