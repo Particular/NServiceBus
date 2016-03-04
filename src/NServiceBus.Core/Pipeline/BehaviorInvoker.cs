@@ -2,15 +2,15 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Pipeline;
+    using Pipeline;
 
-    class BehaviorInvoker<TIn, TOut> : IBehaviorInvoker 
+    class BehaviorInvoker<TIn, TOut> : IBehaviorInvoker
         where TOut : IBehaviorContext
         where TIn : IBehaviorContext
     {
         public Task Invoke(object behavior, IBehaviorContext context, Func<IBehaviorContext, Task> next)
         {
-            return ((IBehavior<TIn, TOut>)behavior).Invoke((TIn)context, next as Func<TOut, Task>);
+            return ((IBehavior<TIn, TOut>) behavior).Invoke((TIn) context, next as Func<TOut, Task>);
         }
     }
 }

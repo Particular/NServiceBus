@@ -4,10 +4,10 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.Unicast.Queuing;
     using Pipeline;
     using Routing;
     using Transports;
+    using Unicast.Queuing;
 
     class UnicastReplyRouterConnector : StageConnector<IOutgoingReplyContext, IOutgoingLogicalMessageContext>
     {

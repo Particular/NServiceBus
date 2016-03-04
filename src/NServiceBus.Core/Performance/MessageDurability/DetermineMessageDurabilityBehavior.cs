@@ -8,7 +8,7 @@ namespace NServiceBus
 
     class DetermineMessageDurabilityBehavior : Behavior<IOutgoingLogicalMessageContext>
     {
-        public DetermineMessageDurabilityBehavior(Dictionary<Type,bool> durabilitySettings)
+        public DetermineMessageDurabilityBehavior(Dictionary<Type, bool> durabilitySettings)
         {
             this.durabilitySettings = durabilitySettings;
         }

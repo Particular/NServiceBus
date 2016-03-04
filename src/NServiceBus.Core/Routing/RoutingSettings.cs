@@ -1,9 +1,9 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using NServiceBus.Configuration.AdvanceExtensibility;
-    using NServiceBus.Routing;
-    using NServiceBus.Settings;
+    using Configuration.AdvanceExtensibility;
+    using Routing;
+    using Settings;
 
     /// <summary>
     /// Exposes settings related to routing.
@@ -19,7 +19,7 @@
         /// Gets the routing table for the direct routing.
         /// </summary>
         public UnicastRoutingTable UnicastRoutingTable => GetOrCreate<UnicastRoutingTable>();
-        
+
         /// <summary>
         /// Gets the known endpoints collection.
         /// </summary>
@@ -34,7 +34,7 @@
         {
             GetOrCreate<DistributionPolicy>().SetDistributionStrategy(distributionStrategy, typeMatchingRule);
         }
-        
+
         T GetOrCreate<T>()
             where T : new()
         {

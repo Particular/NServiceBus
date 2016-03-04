@@ -1,18 +1,19 @@
 ﻿namespace NServiceBus.Features
 {
     using Config;
+    using ConsistencyGuarantees;
     using Logging;
-    using NServiceBus.ConsistencyGuarantees;
-    using NServiceBus.Transports;
+    using Transports;
 
     /// <summary>
     /// Provides subscription storage using a msmq queue as the backing store.
     /// </summary>
-    public class MsmqSubscriptionPersistence:Feature
+    public class MsmqSubscriptionPersistence : Feature
     {
         internal MsmqSubscriptionPersistence()
         {
         }
+
         /// <summary>
         /// Invoked if the feature is activated.
         /// </summary>
@@ -28,7 +29,7 @@
                 if (cfg == null)
                 {
                     Logger.Warn("Could not find configuration section for Msmq Subscription Storage and no name was specified for this endpoint. Going to default the subscription queue");
-                    queueName = "NServiceBus.Subscriptions"; 
+                    queueName = "NServiceBus.Subscriptions";
                 }
                 else
                 {

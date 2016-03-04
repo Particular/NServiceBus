@@ -2,16 +2,12 @@
 {
     using System;
     using System.Collections.Generic;
-    using NServiceBus.Logging;
-    using NServiceBus.Persistence;
-    using NServiceBus.Settings;
+    using Logging;
+    using Persistence;
+    using Settings;
 
     class PersistenceStartup : IWantToRunBeforeConfigurationIsFinalized
     {
-        const string errorMessage = "No persistence has been selected, select a persistence by calling endpointConfiguration.UsePersistence<T>() in the class that implements either IConfigureThisEndpoint or INeedInitialization, where T can be any of the supported persistence option. If previously using RavenDB, note that it has been moved to its own stand alone nuget 'NServiceBus.RavenDB'. This package will need to be installed and then enabled by calling endpointConfiguration.UsePersistence<RavenDBPersistence>().";
-
-        static ILog Logger = LogManager.GetLogger(typeof(PersistenceStartup));
-
         public void Run(SettingsHolder settings)
         {
             List<EnabledPersistence> definitions;
@@ -52,5 +48,9 @@
             return settings.Get<List<Type>>("ResultingSupportedStorages")
                 .Contains(typeof(T));
         }
+
+        const string errorMessage = "No persistence has been selected, select a persistence by calling endpointConfiguration.UsePersistence<T>() in the class that implements either IConfigureThisEndpoint or INeedInitialization, where T can be any of the supported persistence option. If previously using RavenDB, note that it has been moved to its own stand alone nuget 'NServiceBus.RavenDB'. This package will need to be installed and then enabled by calling endpointConfiguration.UsePersistence<RavenDBPersistence>().";
+
+        static ILog Logger = LogManager.GetLogger(typeof(PersistenceStartup));
     }
 }

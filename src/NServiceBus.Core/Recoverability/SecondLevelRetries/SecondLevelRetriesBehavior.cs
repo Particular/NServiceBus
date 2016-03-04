@@ -64,7 +64,6 @@ namespace NServiceBus
                 Logger.WarnFormat("Giving up Second Level Retries for message '{0}'.", message.MessageId);
                 throw;
             }
-
         }
 
         static int GetNumberOfRetries(Dictionary<string, string> headers)
@@ -81,13 +80,14 @@ namespace NServiceBus
             return 0;
         }
 
-        SecondLevelRetryPolicy retryPolicy;
-        BusNotifications notifications;
         string localAddress;
+        BusNotifications notifications;
 
-        static ILog Logger = LogManager.GetLogger<SecondLevelRetriesBehavior>();
+        SecondLevelRetryPolicy retryPolicy;
 
         public const string RetriesTimestamp = "NServiceBus.Retries.Timestamp";
+
+        static ILog Logger = LogManager.GetLogger<SecondLevelRetriesBehavior>();
 
         public class Registration : RegisterStep
         {
@@ -97,6 +97,5 @@ namespace NServiceBus
                 InsertBeforeIfExists("FirstLevelRetries");
             }
         }
-
     }
 }

@@ -3,22 +3,17 @@
     using System;
     using System.Threading.Tasks;
     using Janitor;
-    using NServiceBus.Outbox;
+    using Outbox;
 
     [SkipWeaving]
     class InMemoryOutboxTransaction : OutboxTransaction
     {
-        public InMemoryTransaction Transaction { get; private set; }
-
         public InMemoryOutboxTransaction()
         {
             Transaction = new InMemoryTransaction();
         }
-         
-        public void Enlist(Action action)
-        {
-            Transaction.Enlist(action);
-        }
+
+        public InMemoryTransaction Transaction { get; private set; }
 
         public void Dispose()
         {
@@ -29,6 +24,11 @@
         {
             Transaction.Commit();
             return TaskEx.CompletedTask;
+        }
+
+        public void Enlist(Action action)
+        {
+            Transaction.Enlist(action);
         }
     }
 }

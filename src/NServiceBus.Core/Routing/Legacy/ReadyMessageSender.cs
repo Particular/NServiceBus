@@ -3,10 +3,10 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Extensibility;
     using Features;
-    using NServiceBus.Extensibility;
-    using NServiceBus.Logging;
-    using NServiceBus.Routing;
+    using Logging;
+    using Routing;
     using Transports;
     using Unicast.Transport;
 
@@ -49,7 +49,7 @@
             var transportOperation = new TransportOperation(readyMessage, new UnicastAddressTag(distributorControlAddress));
             return dispatcher.Dispatch(new TransportOperations(transportOperation), new ContextBag());
         }
-        
+
         public Task MessageProcessed(Dictionary<string, string> headers)
         {
             //if there was a failure this "send" will be rolled back
@@ -70,9 +70,10 @@
             return SendReadyMessage(1, false);
         }
 
-        string distributorControlAddress;
-        IDispatchMessages dispatcher;
         readonly string receiveAddress;
+        IDispatchMessages dispatcher;
+
+        string distributorControlAddress;
         int initialCapacity;
         string workerSessionId = Guid.NewGuid().ToString();
         static readonly ILog Logger = LogManager.GetLogger(typeof(ReadyMessageSender));

@@ -2,9 +2,9 @@ namespace NServiceBus
 {
     using System;
     using System.Text;
-    using NServiceBus.MessageInterfaces;
-    using NServiceBus.Settings;
+    using MessageInterfaces;
     using Serialization;
+    using Settings;
 
     /// <summary>
     /// Defines the capabilities of the JSON serializer.

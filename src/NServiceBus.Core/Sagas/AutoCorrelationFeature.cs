@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
-    class AutoCorrelationFeature:Feature
+    class AutoCorrelationFeature : Feature
     {
         public AutoCorrelationFeature()
         {

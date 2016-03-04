@@ -10,8 +10,6 @@
     /// </summary>
     public class InMemoryOutboxPersistence : Feature
     {
-        internal const string TimeToKeepDeduplicationEntries = "Outbox.TimeToKeepDeduplicationEntries";
-
         internal InMemoryOutboxPersistence()
         {
             DependsOn<Outbox>();
@@ -19,7 +17,7 @@
         }
 
         /// <summary>
-        /// See <see cref="Feature.Setup"/>.
+        /// See <see cref="Feature.Setup" />.
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
@@ -30,6 +28,8 @@
 
             context.RegisterStartupTask(new OutboxCleaner(outboxStorage, timeSpan));
         }
+
+        internal const string TimeToKeepDeduplicationEntries = "Outbox.TimeToKeepDeduplicationEntries";
 
         class OutboxCleaner : FeatureStartupTask
         {
@@ -62,10 +62,11 @@
                 inMemoryOutboxStorage.RemoveEntriesOlderThan(DateTime.UtcNow - timeToKeepDeduplicationData);
             }
 
-// ReSharper disable once NotAccessedField.Local
-            Timer cleanupTimer;
             readonly InMemoryOutboxStorage inMemoryOutboxStorage;
             readonly TimeSpan timeToKeepDeduplicationData;
+
+// ReSharper disable once NotAccessedField.Local
+            Timer cleanupTimer;
         }
     }
 }

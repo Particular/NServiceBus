@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus
 {
-    using NServiceBus.Features;
-    using NServiceBus.Persistence;
+    using Features;
+    using Persistence;
 
     /// <summary>
     /// Used to enable InMemory persistence.

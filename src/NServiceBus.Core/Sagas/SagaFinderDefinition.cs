@@ -6,10 +6,10 @@ namespace NServiceBus.Sagas
     /// <summary>
     /// Defines a message finder.
     /// </summary>
-    public class SagaFinderDefinition   
+    public class SagaFinderDefinition
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="SagaFinderDefinition"/> class.
+        /// Initializes a new instance of the <see cref="SagaFinderDefinition" /> class.
         /// </summary>
         /// <param name="type">The type of the finder.</param>
         /// <param name="messageType">The type of message this finder is associated with.</param>

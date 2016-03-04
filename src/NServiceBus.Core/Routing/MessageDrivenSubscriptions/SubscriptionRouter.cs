@@ -3,9 +3,9 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.Routing;
-    using NServiceBus.Routing.MessageDrivenSubscriptions;
-    using NServiceBus.Transports;
+    using Routing;
+    using Routing.MessageDrivenSubscriptions;
+    using Transports;
 
     class SubscriptionRouter
     {
@@ -22,7 +22,7 @@
             foreach (var publisherAddress in publishers.GetPublisherFor(messageType))
             {
                 results.AddRange(await publisherAddress.Resolve(
-                    ResolveInstances, 
+                    ResolveInstances,
                     i => physicalAddresses.GetTransportAddress(new LogicalAddress(i))).ConfigureAwait(false));
             }
             return results;
@@ -33,8 +33,9 @@
             return endpointInstances.FindInstances(endpoint);
         }
 
-        Publishers publishers;
         EndpointInstances endpointInstances;
         TransportAddresses physicalAddresses;
+
+        Publishers publishers;
     }
 }

@@ -3,14 +3,13 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.Pipeline;
+    using Pipeline;
 
     abstract class IncomingContext : BehaviorContext, IIncomingContext
     {
         protected IncomingContext(string messageId, string replyToAddress, IReadOnlyDictionary<string, string> headers, IBehaviorContext parentContext)
             : base(parentContext)
         {
-
             MessageId = messageId;
             ReplyToAddress = replyToAddress;
             MessageHeaders = headers;
@@ -42,16 +41,6 @@ namespace NServiceBus
             return MessageOperations.Publish(this, messageConstructor, publishOptions);
         }
 
-        public Task Subscribe(Type eventType, SubscribeOptions options)
-        {
-            return MessageOperations.Subscribe(this, eventType, options);
-        }
-
-        public Task Unsubscribe(Type eventType, UnsubscribeOptions options)
-        {
-            return MessageOperations.Unsubscribe(this, eventType, options);
-        }
-
         public Task Reply(object message, ReplyOptions options)
         {
             return MessageOperations.Reply(this, message, options);
@@ -65,6 +54,16 @@ namespace NServiceBus
         public Task ForwardCurrentMessageTo(string destination)
         {
             return IncomingMessageOperations.ForwardCurrentMessageTo(this, destination);
+        }
+
+        public Task Subscribe(Type eventType, SubscribeOptions options)
+        {
+            return MessageOperations.Subscribe(this, eventType, options);
+        }
+
+        public Task Unsubscribe(Type eventType, UnsubscribeOptions options)
+        {
+            return MessageOperations.Unsubscribe(this, eventType, options);
         }
     }
 }

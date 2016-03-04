@@ -1,12 +1,12 @@
 ﻿namespace NServiceBus.Features
 {
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
+    using Extensibility;
     using NServiceBus.Outbox;
-    using NServiceBus.Persistence;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Transports;
-    using NServiceBus.Unicast;
+    using Persistence;
+    using Pipeline;
+    using Transports;
+    using Unicast;
 
     class ReceiveFeature : Feature
     {

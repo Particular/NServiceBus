@@ -1,18 +1,17 @@
 namespace NServiceBus
 {
     using System;
-    using NServiceBus.Settings;
+    using Settings;
 
     /// <summary>
-    ///     Configuration class for durable messaging.
+    /// Configuration class for durable messaging.
     /// </summary>
     public static class DurableMessagesConfig
     {
-
         /// <summary>
         /// Configures messages to be guaranteed to be delivered in the event of a computer failure or network problem.
         /// </summary>
-        /// <param name="config">The <see cref="EndpointConfiguration"/> instance to apply the settings to.</param>
+        /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
         public static void EnableDurableMessages(this EndpointConfiguration config)
         {
             Guard.AgainstNull(nameof(config), config);
@@ -22,7 +21,7 @@ namespace NServiceBus
         /// <summary>
         /// Configures messages that are not guaranteed to be delivered in the event of a computer failure or network problem.
         /// </summary>
-        /// <param name="config">The <see cref="EndpointConfiguration"/> instance to apply the settings to.</param>
+        /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
         public static void DisableDurableMessages(this EndpointConfiguration config)
         {
             Guard.AgainstNull(nameof(config), config);
@@ -47,8 +46,8 @@ namespace NServiceBus
         /// Returns whether durable messages are on or off.
         /// </summary>
         [ObsoleteEx(
-            TreatAsErrorFromVersion = "6", 
-            RemoveInVersion = "7", 
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
             ReplacementTypeOrMember = "DurableMessagesEnabled")]
         public static bool DurableMessagesEnabled(this Configure config)
         {

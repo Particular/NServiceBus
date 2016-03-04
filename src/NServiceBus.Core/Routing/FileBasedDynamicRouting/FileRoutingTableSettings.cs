@@ -1,9 +1,9 @@
 namespace NServiceBus
 {
     using System;
-    using NServiceBus.Configuration.AdvanceExtensibility;
-    using NServiceBus.Features;
-    using NServiceBus.Settings;
+    using Configuration.AdvanceExtensibility;
+    using Features;
+    using Settings;
 
     /// <summary>
     /// Allows configuring file-based direct routing table.
@@ -13,7 +13,7 @@ namespace NServiceBus
         /// <summary>
         /// Creates new instance.
         /// </summary>
-        public FileRoutingTableSettings(SettingsHolder settings) 
+        public FileRoutingTableSettings(SettingsHolder settings)
             : base(settings)
         {
         }
@@ -37,6 +37,5 @@ namespace NServiceBus
             Settings.Set(FileRoutingTableFeature.MaxLoadAttemptsSettingsKey, maxLoadAttempts);
             return this;
         }
-
     }
 }

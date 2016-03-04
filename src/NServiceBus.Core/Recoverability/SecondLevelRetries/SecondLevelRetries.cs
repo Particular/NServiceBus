@@ -1,9 +1,9 @@
 namespace NServiceBus.Features
 {
     using System;
-    using NServiceBus.Config;
-    using NServiceBus.Settings;
-    using NServiceBus.Transports;
+    using Config;
+    using Settings;
+    using Transports;
 
     /// <summary>
     /// Used to configure Second Level Retries.
@@ -22,7 +22,7 @@ namespace NServiceBus.Features
         }
 
         /// <summary>
-        /// See <see cref="Feature.Setup"/>.
+        /// See <see cref="Feature.Setup" />.
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
@@ -39,10 +39,14 @@ namespace NServiceBus.Features
             var retriesConfig = context.Settings.GetConfigSection<SecondLevelRetriesConfig>();
 
             if (retriesConfig == null)
+            {
                 return true;
+            }
 
             if (retriesConfig.NumberOfRetries == 0)
+            {
                 return false;
+            }
 
             return retriesConfig.Enabled;
         }

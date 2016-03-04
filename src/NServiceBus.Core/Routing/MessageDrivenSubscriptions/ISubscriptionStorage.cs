@@ -2,7 +2,7 @@ namespace NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
+    using Extensibility;
 
     /// <summary>
     /// Defines storage for subscriptions.

@@ -16,7 +16,7 @@ namespace NServiceBus.Pipeline
         /// Called when the behavior is executed.
         /// </summary>
         /// <param name="context">The current context.</param>
-        /// <param name="next">The next <see cref="IBehavior{TIn,TOut}"/> in the chain to execute.</param>
+        /// <param name="next">The next <see cref="IBehavior{TIn,TOut}" /> in the chain to execute.</param>
         Task Invoke(TInContext context, Func<TOutContext, Task> next);
     }
 

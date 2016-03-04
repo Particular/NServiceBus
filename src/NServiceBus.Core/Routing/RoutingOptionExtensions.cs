@@ -21,7 +21,8 @@
         }
 
         /// <summary>
-        /// Allows the target endpoint instance for this reply to set. If not used the reply will be sent to the `ReplyToAddress` of the incoming message.
+        /// Allows the target endpoint instance for this reply to set. If not used the reply will be sent to the `ReplyToAddress`
+        /// of the incoming message.
         /// </summary>
         /// <param name="options">Option being extended.</param>
         /// <param name="destination">The new target address.</param>
@@ -35,7 +36,7 @@
         }
 
         /// <summary>
-        /// Returns the destination configured by <see cref="SetDestination(ReplyOptions, string)"/>.
+        /// Returns the destination configured by <see cref="SetDestination(ReplyOptions, string)" />.
         /// </summary>
         /// <param name="options">Option being extended.</param>
         /// <returns>The specified destination address or <c>null</c> when no destination was specified.</returns>
@@ -49,17 +50,17 @@
         }
 
         /// <summary>
-        /// Returns the destination configured by <see cref="SetDestination(SendOptions, string)"/>.
+        /// Returns the destination configured by <see cref="SetDestination(SendOptions, string)" />.
         /// </summary>
         /// <param name="options">Option being extended.</param>
         /// <returns>The specified destination address or <c>null</c> when no destination was specified.</returns>
         public static string GetDestination(this SendOptions options)
         {
-          Guard.AgainstNull(nameof(options), options);
+            Guard.AgainstNull(nameof(options), options);
 
-          UnicastSendRouterConnector.State state;
-          options.Context.TryGet(out state);
-          return state?.ExplicitDestination;
+            UnicastSendRouterConnector.State state;
+            options.Context.TryGet(out state);
+            return state?.ExplicitDestination;
         }
 
         /// <summary>
@@ -78,7 +79,7 @@
         /// Returns whether the message should be routed to this endpoint.
         /// </summary>
         /// <param name="options">Option being extended.</param>
-        /// <returns><c>true</c> when <see cref="RouteToThisEndpoint"/> has been called, <c>false</c> otherwhise.</returns>
+        /// <returns><c>true</c> when <see cref="RouteToThisEndpoint" /> has been called, <c>false</c> otherwhise.</returns>
         public static bool IsRoutingToThisEndpoint(this SendOptions options)
         {
             Guard.AgainstNull(nameof(options), options);
@@ -108,7 +109,7 @@
         /// Returns whether the message should be routed to this endpoint instance.
         /// </summary>
         /// <param name="options">Option being extended.</param>
-        /// <returns><c>true</c> when <see cref="IsRoutingToThisInstance"/> has been called, <c>false</c> otherwhise.</returns>
+        /// <returns><c>true</c> when <see cref="IsRoutingToThisInstance" /> has been called, <c>false</c> otherwhise.</returns>
         public static bool IsRoutingToThisInstance(this SendOptions options)
         {
             Guard.AgainstNull(nameof(options), options);
@@ -138,7 +139,7 @@
         }
 
         /// <summary>
-        /// Returns the instance configured by <see cref="RouteToSpecificInstance"/> where the message should be routed to.
+        /// Returns the instance configured by <see cref="RouteToSpecificInstance" /> where the message should be routed to.
         /// </summary>
         /// <param name="options">Option being extended.</param>
         /// <returns>The configured instance ID or <c>null</c> when no instance was configured.</returns>
@@ -168,7 +169,7 @@
         }
 
         /// <summary>
-        /// Indicates whether <see cref="RouteReplyToThisInstance(NServiceBus.SendOptions)"/> has been called on this options.
+        /// Indicates whether <see cref="RouteReplyToThisInstance(NServiceBus.SendOptions)" /> has been called on this options.
         /// </summary>
         /// <param name="options">Option being extended.</param>
         public static bool IsRoutingReplyToThisInstance(this SendOptions options)
@@ -197,7 +198,7 @@
         }
 
         /// <summary>
-        /// Indicates whether <see cref="RouteReplyToAnyInstance(NServiceBus.SendOptions)"/> has been called on this options.
+        /// Indicates whether <see cref="RouteReplyToAnyInstance(NServiceBus.SendOptions)" /> has been called on this options.
         /// </summary>
         /// <param name="options">Option being extended.</param>
         public static bool IsRoutingReplyToAnyInstance(this SendOptions options)
@@ -226,7 +227,7 @@
         }
 
         /// <summary>
-        /// Indicates whether <see cref="RouteReplyToThisInstance(NServiceBus.ReplyOptions)"/> has been called on this options.
+        /// Indicates whether <see cref="RouteReplyToThisInstance(NServiceBus.ReplyOptions)" /> has been called on this options.
         /// </summary>
         /// <param name="options">Option being extended.</param>
         public static bool IsRoutingReplyToThisInstance(this ReplyOptions options)
@@ -255,7 +256,7 @@
         }
 
         /// <summary>
-        /// Indicates whether <see cref="RouteReplyToAnyInstance(NServiceBus.ReplyOptions)"/> has been called on this options.
+        /// Indicates whether <see cref="RouteReplyToAnyInstance(NServiceBus.ReplyOptions)" /> has been called on this options.
         /// </summary>
         /// <param name="options">Option being extended.</param>
         public static bool IsRoutingReplyToAnyInstance(this ReplyOptions options)
@@ -287,7 +288,7 @@
         }
 
         /// <summary>
-        /// Returns the configured route by <see cref="RouteReplyTo(NServiceBus.ReplyOptions,string)"/>.
+        /// Returns the configured route by <see cref="RouteReplyTo(NServiceBus.ReplyOptions,string)" />.
         /// </summary>
         /// <param name="options">Option being extended.</param>
         /// <returns>The configured reply to address or <c>null</c> when no address configured.</returns>
@@ -320,7 +321,7 @@
         }
 
         /// <summary>
-        /// Returns the configured route by <see cref="RouteReplyTo(NServiceBus.SendOptions,string)"/>.
+        /// Returns the configured route by <see cref="RouteReplyTo(NServiceBus.SendOptions,string)" />.
         /// </summary>
         /// <param name="options">Option being extended.</param>
         /// <returns>The configured reply to address or <c>null</c> when no address configured.</returns>

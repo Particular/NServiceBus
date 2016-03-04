@@ -3,15 +3,13 @@ namespace NServiceBus
     using System;
     using System.Threading.Tasks;
     using System.Transactions;
-    using NServiceBus.Extensibility;
-    using NServiceBus.Outbox;
-    using NServiceBus.Persistence;
-    using NServiceBus.Transports;
+    using Extensibility;
+    using Outbox;
+    using Persistence;
+    using Transports;
 
     class InMemoryTransactionalSynchronizedStorageAdapter : ISynchronizedStorageAdapter
     {
-        static readonly Task<CompletableSynchronizedStorageSession> EmptyTask = Task.FromResult<CompletableSynchronizedStorageSession>(null);
-
         public Task<CompletableSynchronizedStorageSession> TryAdapt(OutboxTransaction transaction, ContextBag context)
         {
             var inMemOutboxTransaction = transaction as InMemoryOutboxTransaction;
@@ -64,6 +62,8 @@ namespace NServiceBus
             return false;
         }
 
+        static readonly Task<CompletableSynchronizedStorageSession> EmptyTask = Task.FromResult<CompletableSynchronizedStorageSession>(null);
+
         class EnlistmentNotification : IEnlistmentNotification
         {
             public EnlistmentNotification(InMemoryTransaction transaction)
@@ -102,6 +102,5 @@ namespace NServiceBus
 
             InMemoryTransaction transaction;
         }
-
     }
 }

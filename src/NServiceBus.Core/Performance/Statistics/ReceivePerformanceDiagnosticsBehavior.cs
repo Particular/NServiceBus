@@ -16,13 +16,13 @@ namespace NServiceBus
         public void Warmup()
         {
             messagesPulledFromQueueCounter = PerformanceCounterHelper.TryToInstantiatePerformanceCounter(
-                "# of msgs pulled from the input queue /sec", 
+                "# of msgs pulled from the input queue /sec",
                 transportAddress);
             successRateCounter = PerformanceCounterHelper.TryToInstantiatePerformanceCounter(
                 "# of msgs successfully processed / sec",
                 transportAddress);
             failureRateCounter = PerformanceCounterHelper.TryToInstantiatePerformanceCounter(
-                "# of msgs failures / sec", 
+                "# of msgs failures / sec",
                 transportAddress);
         }
 
@@ -50,9 +50,10 @@ namespace NServiceBus
             failureRateCounter?.Dispose();
         }
 
-        string transportAddress;
+        IPerformanceCounterInstance failureRateCounter;
         IPerformanceCounterInstance messagesPulledFromQueueCounter;
         IPerformanceCounterInstance successRateCounter;
-        IPerformanceCounterInstance failureRateCounter;
+
+        string transportAddress;
     }
 }

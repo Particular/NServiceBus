@@ -2,7 +2,7 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Pipeline;
+    using Pipeline;
 
     class ProcessingStatisticsBehavior : Behavior<IIncomingPhysicalMessageContext>
     {

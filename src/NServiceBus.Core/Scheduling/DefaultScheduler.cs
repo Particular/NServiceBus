@@ -63,7 +63,8 @@ namespace NServiceBus
             }, options);
         }
 
-        static ILog logger = LogManager.GetLogger<DefaultScheduler>();
         internal ConcurrentDictionary<Guid, TaskDefinition> scheduledTasks = new ConcurrentDictionary<Guid, TaskDefinition>();
+
+        static ILog logger = LogManager.GetLogger<DefaultScheduler>();
     }
 }

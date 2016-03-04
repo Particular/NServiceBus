@@ -10,10 +10,6 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
     /// </summary>
     public class PublisherAddress
     {
-        EndpointName endpoint;
-        EndpointInstance[] instances;
-        string[] addresses;
-
         /// <summary>
         /// Creates a new publisher based on the endpoint name.
         /// </summary>
@@ -41,7 +37,7 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
         /// </summary>
         public PublisherAddress(params string[] addresses)
         {
-            Guard.AgainstNull(nameof(addresses),addresses);
+            Guard.AgainstNull(nameof(addresses), addresses);
             if (addresses.Length == 0)
             {
                 throw new ArgumentException("You need to provide at least one address.");
@@ -62,5 +58,9 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
             var result = await instanceResolver(endpoint).ConfigureAwait(false);
             return result.Select(addressResolver);
         }
+
+        string[] addresses;
+        EndpointName endpoint;
+        EndpointInstance[] instances;
     }
 }

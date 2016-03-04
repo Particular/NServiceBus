@@ -8,8 +8,8 @@ namespace NServiceBus
     public static class ImmediateDispatchOptionExtensions
     {
         /// <summary>
-        /// Requests the messsage to be dispatched to the transport immediately. 
-        /// This means that the message is ACKed by the transport as soon as the call to send returns. 
+        /// Requests the messsage to be dispatched to the transport immediately.
+        /// This means that the message is ACKed by the transport as soon as the call to send returns.
         /// The message will not be enlisted in any current receive transaction even if the transport support it.
         /// </summary>
         /// <param name="options">The options being extended.</param>
@@ -17,11 +17,14 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(options), options);
 
-            options.GetExtensions().Set(new RoutingToDispatchConnector.State {ImmediateDispatch = true});
+            options.GetExtensions().Set(new RoutingToDispatchConnector.State
+            {
+                ImmediateDispatch = true
+            });
         }
 
         /// <summary>
-        /// Returns whether immediate dispatch has been request by <see cref="RequireImmediateDispatch"/> or not.
+        /// Returns whether immediate dispatch has been request by <see cref="RequireImmediateDispatch" /> or not.
         /// </summary>
         /// <param name="options">The options being extended.</param>
         /// <returns><c>True</c> if immediate dispatch was requested, <c>False</c> otherwise.</returns>

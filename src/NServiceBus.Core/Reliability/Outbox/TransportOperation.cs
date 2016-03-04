@@ -3,12 +3,12 @@
     using System.Collections.Generic;
 
     /// <summary>
-    ///     Outgoing message operation.
+    /// Outgoing message operation.
     /// </summary>
     public class TransportOperation
     {
         /// <summary>
-        ///     Creates a new instance of a <see cref="TransportOperation" />.
+        /// Creates a new instance of a <see cref="TransportOperation" />.
         /// </summary>
         /// <param name="messageId">The identifier of the outgoing message.</param>
         /// <param name="options">The sending options.</param>
@@ -26,22 +26,22 @@
         }
 
         /// <summary>
-        ///     Gets the identifier of the outgoing message.
+        /// Gets the identifier of the outgoing message.
         /// </summary>
         public string MessageId { get; private set; }
 
         /// <summary>
-        ///     Sending options.
+        /// Sending options.
         /// </summary>
         public Dictionary<string, string> Options { get; private set; }
 
         /// <summary>
-        ///     Gets a byte array to the body content of the outgoing message.
+        /// Gets a byte array to the body content of the outgoing message.
         /// </summary>
         public byte[] Body { get; private set; }
 
         /// <summary>
-        ///     Gets outgoing message headers.
+        /// Gets outgoing message headers.
         /// </summary>
         public Dictionary<string, string> Headers { get; private set; }
     }

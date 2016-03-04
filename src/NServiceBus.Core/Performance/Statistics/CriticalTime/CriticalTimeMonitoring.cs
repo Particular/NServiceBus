@@ -1,6 +1,5 @@
 namespace NServiceBus.Features
 {
-
     /// <summary>
     /// Used to configure CriticalTimeMonitoring.
     /// </summary>
@@ -11,7 +10,7 @@ namespace NServiceBus.Features
         }
 
         /// <summary>
-        /// <see cref="Feature.Setup"/>.
+        /// <see cref="Feature.Setup" />.
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {

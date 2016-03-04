@@ -4,11 +4,11 @@
     using System.Diagnostics;
     using System.Threading.Tasks;
     using Logging;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Routing;
-    using NServiceBus.Transports;
-    using NServiceBus.Unicast.Subscriptions;
-    using NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions;
+    using Pipeline;
+    using Routing;
+    using Transports;
+    using Unicast.Subscriptions;
+    using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
     class SubscriptionReceiverBehavior : Behavior<IIncomingPhysicalMessageContext>
     {
@@ -95,12 +95,13 @@
             return value;
         }
 
-        ISubscriptionStorage subscriptionStorage;
         Func<IIncomingPhysicalMessageContext, bool> authorizer;
+
+        ISubscriptionStorage subscriptionStorage;
 
         static ILog Logger = LogManager.GetLogger<SubscriptionReceiverBehavior>();
 
-        public class Registration:RegisterStep
+        public class Registration : RegisterStep
         {
             public Registration()
                 : base("ProcessSubscriptionRequests", typeof(SubscriptionReceiverBehavior), "Check for subscription messages and execute the requested behavior to subscribe or unsubscribe.")

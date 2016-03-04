@@ -9,16 +9,6 @@
     public sealed class EndpointInstance
     {
         /// <summary>
-        /// Returns the name of the endpoint.
-        /// </summary>
-        public EndpointName Endpoint { get; }
-
-        /// <summary>
-        /// A specific discriminator for scale-out purposes.
-        /// </summary>
-        public string Discriminator { get; }
-
-        /// <summary>
         /// Creates a new endpoint name for a given discriminator.
         /// </summary>
         /// <param name="endpoint">The name of the endpoint.</param>
@@ -37,12 +27,22 @@
         /// <param name="properties">A bag of additional properties that differentiate this endpoint instance from other instances.</param>
         public EndpointInstance(EndpointName endpoint, string discriminator = null, IReadOnlyDictionary<string, string> properties = null)
         {
-            Guard.AgainstNull(nameof(endpoint),endpoint);
+            Guard.AgainstNull(nameof(endpoint), endpoint);
 
             Properties = properties ?? new Dictionary<string, string>();
             Endpoint = endpoint;
             Discriminator = discriminator;
         }
+
+        /// <summary>
+        /// Returns the name of the endpoint.
+        /// </summary>
+        public EndpointName Endpoint { get; }
+
+        /// <summary>
+        /// A specific discriminator for scale-out purposes.
+        /// </summary>
+        public string Discriminator { get; }
 
         /// <summary>
         /// Returns all the differentiating properties of this instance.
@@ -75,19 +75,22 @@
         public override string ToString()
         {
             var propsFormatted = Properties.Select(kvp => $"{kvp.Key}:{kvp.Value}");
-            var instanceId = Discriminator != null 
-                ? $"{Endpoint}-{Discriminator}" 
+            var instanceId = Discriminator != null
+                ? $"{Endpoint}-{Discriminator}"
                 : Endpoint.ToString();
 
-            var parts = new[] {instanceId}.Concat(propsFormatted);
+            var parts = new[]
+            {
+                instanceId
+            }.Concat(propsFormatted);
             return string.Join(";", parts);
         }
 
         bool Equals(EndpointInstance other)
         {
             return PropertiesEqual(Properties, other.Properties)
-                && Equals(Endpoint, other.Endpoint) 
-                && string.Equals(Discriminator, other.Discriminator);
+                   && Equals(Endpoint, other.Endpoint)
+                   && string.Equals(Discriminator, other.Discriminator);
         }
 
         static bool PropertiesEqual(IReadOnlyDictionary<string, string> left, IReadOnlyDictionary<string, string> right)
@@ -128,7 +131,7 @@
         }
 
         /// <summary>
-        /// Serves as the default hash function. 
+        /// Serves as the default hash function.
         /// </summary>
         /// <returns>
         /// A hash code for the current object.
@@ -174,12 +177,10 @@
                 var hashCode = obj.Key.GetHashCode();
                 if (obj.Value != null)
                 {
-                    hashCode ^= (397 * obj.Value.GetHashCode());
+                    hashCode ^= (397*obj.Value.GetHashCode());
                 }
                 return hashCode;
             }
         }
-
     }
-
 }

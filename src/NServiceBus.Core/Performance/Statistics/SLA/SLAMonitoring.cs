@@ -7,14 +7,12 @@ namespace NServiceBus.Features
     /// </summary>
     public class SLAMonitoring : Feature
     {
-        internal const string EndpointSLAKey = "EndpointSLA";
-
         internal SLAMonitoring()
         {
         }
 
         /// <summary>
-        /// <see cref="Feature.Setup"/>.
+        /// <see cref="Feature.Setup" />.
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
@@ -45,5 +43,6 @@ namespace NServiceBus.Features
             return false;
         }
 
+        internal const string EndpointSLAKey = "EndpointSLA";
     }
 }

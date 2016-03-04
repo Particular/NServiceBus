@@ -1,6 +1,6 @@
 namespace NServiceBus
 {
-    using NServiceBus.Pipeline;
+    using Pipeline;
 
     /// <summary>
     /// Allows users to control serialization.
@@ -12,7 +12,7 @@ namespace NServiceBus
         /// </summary>
         /// <remarks>
         /// This can be used by an extension point needs to take control of the serialization.
-        /// For example the Callbacks implementation that skips serialization and instead uses 
+        /// For example the Callbacks implementation that skips serialization and instead uses
         /// headers for passing the enum or int value.
         /// </remarks>
         public static void SkipSerialization(this IOutgoingLogicalMessageContext context)

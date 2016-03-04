@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
-    using NServiceBus.Pipeline;
+    using Pipeline;
 
     class OutgoingPipelineFeature : Feature
     {

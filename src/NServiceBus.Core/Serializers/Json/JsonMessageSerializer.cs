@@ -7,10 +7,10 @@ namespace NServiceBus
     using System.Linq;
     using System.Runtime.Serialization.Formatters;
     using System.Text;
+    using MessageInterfaces;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Converters;
-    using NServiceBus.MessageInterfaces;
-    using NServiceBus.Serialization;
+    using Serialization;
 
     class JsonMessageSerializer : IMessageSerializer
     {

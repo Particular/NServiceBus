@@ -2,10 +2,10 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.Persistence;
-    using NServiceBus.Sagas;
+    using Extensibility;
+    using ObjectBuilder;
+    using Persistence;
+    using Sagas;
 
     class CustomFinderAdapter<TSagaData, TMessage> : SagaFinder where TSagaData : IContainSagaData
     {

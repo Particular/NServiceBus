@@ -1,14 +1,12 @@
 namespace NServiceBus.AutomaticSubscriptions.Config
 {
-    using NServiceBus.Features;
+    using Features;
 
     /// <summary>
     /// Provides fine grained control over auto subscribe.
     /// </summary>
     public partial class AutoSubscribeSettings
     {
-        EndpointConfiguration config;
-
         internal AutoSubscribeSettings(EndpointConfiguration config)
         {
             this.config = config;
@@ -34,5 +32,6 @@ namespace NServiceBus.AutomaticSubscriptions.Config
             return settings;
         }
 
+        EndpointConfiguration config;
     }
 }

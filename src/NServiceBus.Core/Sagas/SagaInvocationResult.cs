@@ -1,9 +1,8 @@
 namespace NServiceBus
 {
-
     class SagaInvocationResult
     {
-        State state;
+        public bool WasFound => state != State.SagaNotFound;
 
         public void SagaFound()
         {
@@ -18,7 +17,7 @@ namespace NServiceBus
             }
         }
 
-        public bool WasFound => state != State.SagaNotFound;
+        State state;
 
         enum State
         {

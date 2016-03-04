@@ -1,6 +1,6 @@
 namespace NServiceBus.Features
 {
-    using NServiceBus.Transports;
+    using Transports;
 
     class StoreFaultsInErrorQueue : Feature
     {

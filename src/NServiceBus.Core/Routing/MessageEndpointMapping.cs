@@ -17,14 +17,8 @@ namespace NServiceBus.Config
         [ConfigurationProperty("Messages", IsRequired = false)]
         public string Messages
         {
-            get
-            {
-                return (string)this["Messages"];
-            }
-            set
-            {
-                this["Messages"] = value;
-            }
+            get { return (string) this["Messages"]; }
+            set { this["Messages"] = value; }
         }
 
         /// <summary>
@@ -33,14 +27,8 @@ namespace NServiceBus.Config
         [ConfigurationProperty("Endpoint", IsRequired = true)]
         public string Endpoint
         {
-            get
-            {
-                return (string)this["Endpoint"];
-            }
-            set
-            {
-                this["Endpoint"] = value;
-            }
+            get { return (string) this["Endpoint"]; }
+            set { this["Endpoint"] = value; }
         }
 
         /// <summary>
@@ -49,14 +37,8 @@ namespace NServiceBus.Config
         [ConfigurationProperty("Assembly", IsRequired = false)]
         public string AssemblyName
         {
-            get
-            {
-                return (string)this["Assembly"];
-            }
-            set
-            {
-                this["Assembly"] = value;
-            }
+            get { return (string) this["Assembly"]; }
+            set { this["Assembly"] = value; }
         }
 
         /// <summary>
@@ -66,14 +48,8 @@ namespace NServiceBus.Config
         [ConfigurationProperty("Type", IsRequired = false)]
         public string TypeFullName
         {
-            get
-            {
-                return (string)this["Type"];
-            }
-            set
-            {
-                this["Type"] = value;
-            }
+            get { return (string) this["Type"]; }
+            set { this["Type"] = value; }
         }
 
         /// <summary>
@@ -83,14 +59,56 @@ namespace NServiceBus.Config
         [ConfigurationProperty("Namespace", IsRequired = false)]
         public string Namespace
         {
-            get
+            get { return (string) this["Namespace"]; }
+            set { this["Namespace"] = value; }
+        }
+
+        /// <summary>
+        /// Comparison support.
+        /// </summary>
+        public int CompareTo(MessageEndpointMapping other)
+        {
+            if (!string.IsNullOrWhiteSpace(TypeFullName) || HaveMessagesMappingWithType(this))
             {
-                return (string)this["Namespace"];
+                if (!string.IsNullOrWhiteSpace(other.TypeFullName) || HaveMessagesMappingWithType(other))
+                {
+                    return 0;
+                }
+
+                return -1;
             }
-            set
+
+            if (!string.IsNullOrWhiteSpace(Namespace))
             {
-                this["Namespace"] = value;
+                if (!string.IsNullOrWhiteSpace(other.TypeFullName) || HaveMessagesMappingWithType(other))
+                {
+                    return 1;
+                }
+
+                if (!string.IsNullOrWhiteSpace(other.Namespace))
+                {
+                    return 0;
+                }
+
+                return -1;
             }
+
+            if (!string.IsNullOrWhiteSpace(other.TypeFullName) || HaveMessagesMappingWithType(other))
+            {
+                return 1;
+            }
+
+            if (!string.IsNullOrWhiteSpace(other.Namespace))
+            {
+                return 1;
+            }
+
+            if (!string.IsNullOrWhiteSpace(other.AssemblyName) || !string.IsNullOrWhiteSpace(other.Messages))
+            {
+                return 0;
+            }
+
+            return -1;
         }
 
         /// <summary>
@@ -111,7 +129,9 @@ namespace NServiceBus.Config
             var typeFullName = TypeFullName;
 
             if (string.IsNullOrWhiteSpace(assemblyName))
+            {
                 throw new ArgumentException("Could not process message endpoint mapping. The Assembly property is not defined. Either the Assembly or Messages property is required.");
+            }
 
             var a = GetMessageAssembly(assemblyName);
 
@@ -122,7 +142,9 @@ namespace NServiceBus.Config
                     var t = a.GetType(typeFullName, false);
 
                     if (t == null)
+                    {
                         throw new ArgumentException($"Could not process message endpoint mapping. Cannot find the type '{typeFullName}' in the assembly '{assemblyName}'. Ensure that you are using the full name for the type.");
+                    }
 
                     mapTypeToEndpoint(t, address);
 
@@ -141,10 +163,14 @@ namespace NServiceBus.Config
             var messageTypes = a.GetTypes().AsQueryable();
 
             if (!string.IsNullOrEmpty(ns))
+            {
                 messageTypes = messageTypes.Where(t => !string.IsNullOrWhiteSpace(t.Namespace) && t.Namespace.Equals(ns, StringComparison.InvariantCultureIgnoreCase));
+            }
 
             foreach (var t in messageTypes)
+            {
                 mapTypeToEndpoint(t, address);
+            }
         }
 
         void ConfigureEndpointMappingUsingMessagesProperty(Action<Type, string> mapTypeToEndpoint)
@@ -173,7 +199,9 @@ namespace NServiceBus.Config
             var messagesAssembly = GetMessageAssembly(messages);
 
             foreach (var t in messagesAssembly.GetTypes())
+            {
                 mapTypeToEndpoint(t, address);
+            }
         }
 
         static Assembly GetMessageAssembly(string assemblyName)
@@ -188,46 +216,12 @@ namespace NServiceBus.Config
             }
         }
 
-        /// <summary>
-        /// Comparison support.
-        /// </summary>
-        public int CompareTo(MessageEndpointMapping other)
-        {
-            if (!string.IsNullOrWhiteSpace(TypeFullName) || HaveMessagesMappingWithType(this))
-            {
-                if (!string.IsNullOrWhiteSpace(other.TypeFullName) || HaveMessagesMappingWithType(other))
-                    return 0;
-
-                return -1;
-            }
-
-            if (!string.IsNullOrWhiteSpace(Namespace))
-            {
-                if (!string.IsNullOrWhiteSpace(other.TypeFullName) || HaveMessagesMappingWithType(other))
-                    return 1;
-
-                if (!string.IsNullOrWhiteSpace(other.Namespace))
-                    return 0;
-                
-                return -1;
-            }
-
-            if (!string.IsNullOrWhiteSpace(other.TypeFullName) || HaveMessagesMappingWithType(other))
-                return 1;
-
-            if (!string.IsNullOrWhiteSpace(other.Namespace))
-                return 1;
-
-            if (!string.IsNullOrWhiteSpace(other.AssemblyName) || !string.IsNullOrWhiteSpace(other.Messages))
-                return 0; 
-
-            return -1;
-        }
-
         static bool HaveMessagesMappingWithType(MessageEndpointMapping mapping)
         {
             if (string.IsNullOrWhiteSpace(mapping.Messages))
+            {
                 return false;
+            }
 
             return Type.GetType(mapping.Messages, false) != null;
         }

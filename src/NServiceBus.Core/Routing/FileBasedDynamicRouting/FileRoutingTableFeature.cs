@@ -4,10 +4,6 @@ namespace NServiceBus.Features
 
     class FileRoutingTableFeature : Feature
     {
-        public const string CheckIntervalSettingsKey = "FileBasedRouting.CheckInterval";
-        public const string MaxLoadAttemptsSettingsKey = "FileBasedRouting.MaxLoadAttempts";
-        public const string FilePathSettingsKey = "FileBasedRouting.FilePath";
-
         public FileRoutingTableFeature()
         {
             Defaults(s =>
@@ -27,5 +23,9 @@ namespace NServiceBus.Features
             var fileRoutingTable = new FileRoutingTable(filePath, checkInterval, new AsyncTimer(), new RoutingFileAccess(), maxLoadAttempts, context.Settings);
             context.RegisterStartupTask(fileRoutingTable);
         }
+
+        public const string CheckIntervalSettingsKey = "FileBasedRouting.CheckInterval";
+        public const string MaxLoadAttemptsSettingsKey = "FileBasedRouting.MaxLoadAttempts";
+        public const string FilePathSettingsKey = "FileBasedRouting.FilePath";
     }
 }

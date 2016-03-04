@@ -2,16 +2,16 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
+    using Features;
     using Logging;
-    using NServiceBus.Features;
-    using NServiceBus.Settings;
     using Pipeline;
+    using Settings;
 
     class FirstLevelRetriesBehavior : Behavior<ITransportReceiveContext>
     {
         public FirstLevelRetriesBehavior(
-            FlrStatusStorage storage, 
-            FirstLevelRetryPolicy retryPolicy, 
+            FlrStatusStorage storage,
+            FirstLevelRetryPolicy retryPolicy,
             BusNotifications notifications,
             string uniqueKey)
         {
@@ -57,18 +57,19 @@ namespace NServiceBus
             }
         }
 
-        FlrStatusStorage storage;
-        FirstLevelRetryPolicy retryPolicy;
         BusNotifications notifications;
+        FirstLevelRetryPolicy retryPolicy;
+
+        FlrStatusStorage storage;
         string uniqueKey;
 
         static ILog Logger = LogManager.GetLogger<FirstLevelRetriesBehavior>();
 
         public class Registration : RegisterStep
         {
-            public Registration(string uniqueKey) 
-                : base("FirstLevelRetries", typeof(FirstLevelRetriesBehavior), "Performs first level retries", 
-                      b => new FirstLevelRetriesBehavior(b.Build<FlrStatusStorage>(), b.Build<FirstLevelRetryPolicy>(), b.Build<BusNotifications>(), uniqueKey))
+            public Registration(string uniqueKey)
+                : base("FirstLevelRetries", typeof(FirstLevelRetriesBehavior), "Performs first level retries",
+                    b => new FirstLevelRetriesBehavior(b.Build<FlrStatusStorage>(), b.Build<FirstLevelRetryPolicy>(), b.Build<BusNotifications>(), uniqueKey))
             {
             }
 

@@ -3,12 +3,10 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using NServiceBus.Routing;
+    using Routing;
 
     class DistributionPolicy
     {
-        List<Tuple<Func<Type, bool>, DistributionStrategy>> strategies = new List<Tuple<Func<Type, bool>, DistributionStrategy>>();
-
         public DistributionPolicy()
         {
             strategies.Add(new Tuple<Func<Type, bool>, DistributionStrategy>(_ => true, new SingleInstanceRoundRobinDistributionStrategy()));
@@ -23,5 +21,7 @@ namespace NServiceBus
         {
             return strategies.Where(s => s.Item1(messageType)).Select(s => s.Item2).FirstOrDefault();
         }
+
+        List<Tuple<Func<Type, bool>, DistributionStrategy>> strategies = new List<Tuple<Func<Type, bool>, DistributionStrategy>>();
     }
 }

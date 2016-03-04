@@ -2,9 +2,9 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Logging;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Transports;
+    using Logging;
+    using Pipeline;
+    using Transports;
 
     class MoveFaultsToErrorQueueBehavior : ForkConnector<ITransportReceiveContext, IFaultContext>
     {
@@ -41,8 +41,8 @@ namespace NServiceBus
                     var faultContext = this.CreateFaultContext(context, outgoingMessage, errorQueueAddress, exception);
 
                     await fork(faultContext).ConfigureAwait(false);
-                    
-                    notifications.Errors.InvokeMessageHasBeenSentToErrorQueue(message,exception);
+
+                    notifications.Errors.InvokeMessageHasBeenSentToErrorQueue(message, exception);
                 }
                 catch (Exception ex)
                 {
@@ -53,9 +53,9 @@ namespace NServiceBus
         }
 
         CriticalError criticalError;
-        BusNotifications notifications;
         string errorQueueAddress;
         string localAddress;
+        BusNotifications notifications;
         static ILog Logger = LogManager.GetLogger<MoveFaultsToErrorQueueBehavior>();
 
         public class Registration : RegisterStep

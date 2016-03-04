@@ -8,9 +8,6 @@ namespace NServiceBus
 
     class JsonMessageSerializationBinder : SerializationBinder
     {
-        IMessageMapper _messageMapper;
-        IList<Type> messageTypes;
-
         public JsonMessageSerializationBinder(IMessageMapper messageMapper, IList<Type> messageTypes = null)
         {
             _messageMapper = messageMapper;
@@ -39,10 +36,13 @@ namespace NServiceBus
             if (resolved == null) // if the type has not been used before, we need to find it brute force
             {
                 resolved = AppDomain.CurrentDomain.GetAssemblies()
-                             .Select(a => a.GetType(typeName))
-                             .FirstOrDefault(t => t != null); 
+                    .Select(a => a.GetType(typeName))
+                    .FirstOrDefault(t => t != null);
             }
             return resolved;
         }
+
+        IMessageMapper _messageMapper;
+        IList<Type> messageTypes;
     }
 }

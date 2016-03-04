@@ -6,12 +6,12 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using DelayedDelivery;
     using DeliveryConstraints;
-    using Performance.TimeToBeReceived;
-    using Routing;
     using Outbox;
+    using Performance.TimeToBeReceived;
     using Pipeline;
+    using Routing;
     using Transports;
-    using TransportOperation = Transports.TransportOperation;
+    using TransportOperation = Outbox.TransportOperation;
 
     class TransportReceiveToPhysicalMessageProcessingConnector : StageForkConnector<ITransportReceiveContext, IIncomingPhysicalMessageContext, IBatchDispatchContext>
     {
@@ -66,15 +66,15 @@ namespace NServiceBus
                 var message = new OutgoingMessage(operation.MessageId, operation.Headers, operation.Body);
 
                 pendingTransportOperations.Add(
-                    new TransportOperation(
-                        message, 
-                        DeserializeRoutingStrategy(operation.Options), 
-                        DispatchConsistency.Isolated, 
+                    new Transports.TransportOperation(
+                        message,
+                        DeserializeRoutingStrategy(operation.Options),
+                        DispatchConsistency.Isolated,
                         DeserializeConstraints(operation.Options)));
             }
         }
 
-        static IEnumerable<Outbox.TransportOperation> ConvertToOutboxOperations(IEnumerable<TransportOperation> operations)
+        static IEnumerable<TransportOperation> ConvertToOutboxOperations(IEnumerable<Transports.TransportOperation> operations)
         {
             foreach (var operation in operations)
             {
@@ -87,7 +87,7 @@ namespace NServiceBus
 
                 SerializeRoutingStrategy(operation.AddressTag, options);
 
-                yield return new Outbox.TransportOperation(operation.Message.MessageId,
+                yield return new TransportOperation(operation.Message.MessageId,
                     options, operation.Message.Body, operation.Message.Headers);
             }
         }

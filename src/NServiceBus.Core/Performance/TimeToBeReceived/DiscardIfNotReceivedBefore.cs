@@ -10,16 +10,16 @@
     public class DiscardIfNotReceivedBefore : DeliveryConstraint
     {
         /// <summary>
-        /// The max time to wait before discarding the message.
-        /// </summary>
-        public TimeSpan MaxTime { get; }
-
-        /// <summary>
         /// Initializes the constraint with a max time.
         /// </summary>
         public DiscardIfNotReceivedBefore(TimeSpan maxTime)
         {
             MaxTime = maxTime;
         }
+
+        /// <summary>
+        /// The max time to wait before discarding the message.
+        /// </summary>
+        public TimeSpan MaxTime { get; }
     }
 }

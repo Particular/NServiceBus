@@ -4,11 +4,11 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.Logging;
-    using NServiceBus.Unicast;
+    using Logging;
+    using Unicast;
 
     /// <summary>
-    ///     Used to configure auto subscriptions.
+    /// Used to configure auto subscriptions.
     /// </summary>
     public class AutoSubscribe : Feature
     {
@@ -19,7 +19,7 @@
         }
 
         /// <summary>
-        ///     See <see cref="Feature.Setup" />.
+        /// See <see cref="Feature.Setup" />.
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {

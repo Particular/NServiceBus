@@ -5,15 +5,12 @@ namespace NServiceBus
     using System.IO;
     using System.Security.Principal;
     using System.Threading.Tasks;
-    using NServiceBus.Installation;
-    using NServiceBus.Logging;
-    
+    using Installation;
+    using Logging;
+
     // Add the identity to the 'Performance Monitor Users' local group 
     class PerformanceMonitorUsersInstaller : INeedToInstallSomething
     {
-        static ILog logger = LogManager.GetLogger<PerformanceMonitorUsersInstaller>();
-        static string builtinPerformanceMonitoringUsersName;
-
         static PerformanceMonitorUsersInstaller()
         {
             builtinPerformanceMonitoringUsersName = new SecurityIdentifier(WellKnownSidType.BuiltinPerformanceMonitoringUsersSid, null).Translate(typeof(NTAccount)).ToString();
@@ -24,6 +21,7 @@ namespace NServiceBus
                 builtinPerformanceMonitoringUsersName = parts[1];
             }
         }
+
         public Task Install(string identity)
         {
             //did not use DirectoryEntry to avoid a ref to the DirectoryServices.dll
@@ -54,14 +52,14 @@ net localgroup ""{1}"" ""{0}"" /add", identity, builtinPerformanceMonitoringUser
         {
             //net localgroup "Performance Monitor Users" "{user account}" /add
             var startInfo = new ProcessStartInfo
-                            {
-                                CreateNoWindow = true,
-                                UseShellExecute = false,
-                                RedirectStandardError = true,
-                                Arguments = string.Format("localgroup \"{1}\" \"{0}\" /add", identity, builtinPerformanceMonitoringUsersName),
-                                FileName = "net",
-                                WorkingDirectory = Path.GetTempPath()
-                            };
+            {
+                CreateNoWindow = true,
+                UseShellExecute = false,
+                RedirectStandardError = true,
+                Arguments = string.Format("localgroup \"{1}\" \"{0}\" /add", identity, builtinPerformanceMonitoringUsersName),
+                FileName = "net",
+                WorkingDirectory = Path.GetTempPath()
+            };
             using (var process = Process.Start(startInfo))
             {
                 process.WaitForExit(5000);
@@ -101,5 +99,8 @@ net localgroup ""{2}"" ""{0}"" /add", identity, error, builtinPerformanceMonitor
             //required since 'Performance Monitor Users' does not exist on all windows OS.
             return error.Contains("1376");
         }
+
+        static ILog logger = LogManager.GetLogger<PerformanceMonitorUsersInstaller>();
+        static string builtinPerformanceMonitoringUsersName;
     }
 }

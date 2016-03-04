@@ -5,7 +5,7 @@ namespace NServiceBus.Settings
     using System.Collections.Generic;
     using System.Configuration;
     using System.Linq.Expressions;
-    using global::NServiceBus.ObjectBuilder;
+    using ObjectBuilder;
 
     /// <summary>
     /// Setting container.
@@ -20,7 +20,7 @@ namespace NServiceBus.Settings
         public T Get<T>(string key)
         {
             Guard.AgainstNullAndEmpty(nameof(key), key);
-            return (T)Get(key);
+            return (T) Get(key);
         }
 
         /// <summary>
@@ -33,6 +33,7 @@ namespace NServiceBus.Settings
         {
             return TryGet(typeof(T).FullName, out val);
         }
+
         /// <summary>
         /// Tries to get the given value by key.
         /// </summary>
@@ -55,9 +56,11 @@ namespace NServiceBus.Settings
             }
 
             if (!(tmp is T))
+            {
                 return false;
+            }
 
-            val = (T)tmp;
+            val = (T) tmp;
             return true;
         }
 
@@ -68,7 +71,7 @@ namespace NServiceBus.Settings
         /// <returns>The value if found, throws if not.</returns>
         public T Get<T>()
         {
-            return (T)Get(typeof(T).FullName);
+            return (T) Get(typeof(T).FullName);
         }
 
         /// <summary>
@@ -94,6 +97,112 @@ namespace NServiceBus.Settings
         }
 
         /// <summary>
+        /// Gets the setting or default based on the typename.
+        /// </summary>
+        /// <typeparam name="T">The setting to get.</typeparam>
+        /// <returns>The actual value.</returns>
+        public T GetOrDefault<T>()
+        {
+            return GetOrDefault<T>(typeof(T).FullName);
+        }
+
+        /// <summary>
+        /// Gets the value or its default.
+        /// </summary>
+        /// <typeparam name="T">The type.</typeparam>
+        /// <param name="key">The key.</param>
+        /// <returns>The value.</returns>
+        public T GetOrDefault<T>(string key)
+        {
+            Guard.AgainstNullAndEmpty(nameof(key), key);
+            object result;
+            if (Overrides.TryGetValue(key, out result))
+            {
+                return (T) result;
+            }
+
+            if (Defaults.TryGetValue(key, out result))
+            {
+                return (T) result;
+            }
+
+            return default(T);
+        }
+
+        /// <summary>
+        /// True if there is a default or explicit value for the given key.
+        /// </summary>
+        /// <param name="key">The Key.</param>
+        /// <returns>True if found.</returns>
+        public bool HasSetting(string key)
+        {
+            Guard.AgainstNullAndEmpty(nameof(key), key);
+            return Overrides.ContainsKey(key) || Defaults.ContainsKey(key);
+        }
+
+        /// <summary>
+        /// True if there is a setting for the given type.
+        /// </summary>
+        /// <typeparam name="T">The type.</typeparam>
+        /// <returns>True if found.</returns>
+        public bool HasSetting<T>()
+        {
+            var key = typeof(T).FullName;
+
+            return HasSetting(key);
+        }
+
+        /// <summary>
+        /// True if there is an explicit value for the given key.
+        /// </summary>
+        /// <param name="key">The Key.</param>
+        /// <returns>True if found.</returns>
+        public bool HasExplicitValue(string key)
+        {
+            Guard.AgainstNullAndEmpty(nameof(key), key);
+            return Overrides.ContainsKey(key);
+        }
+
+        /// <summary>
+        /// True if there is an explicit value for the given type.
+        /// </summary>
+        /// <typeparam name="T">The type.</typeparam>
+        /// <returns>True if found.</returns>
+        public bool HasExplicitValue<T>()
+        {
+            var key = typeof(T).FullName;
+
+            return HasExplicitValue(key);
+        }
+
+        /// <summary>
+        /// Applies property inject for the given type based on convention.
+        /// </summary>
+        public void ApplyTo<T>(IComponentConfig config)
+        {
+            ApplyTo(typeof(T), config);
+        }
+
+        /// <summary>
+        /// Setup property injection for the given type based on convention.
+        /// </summary>
+        public void ApplyTo(Type componentType, IComponentConfig config)
+        {
+            Guard.AgainstNull(nameof(config), config);
+            var targetType = componentType;
+
+            foreach (var property in targetType.GetProperties())
+            {
+                var settingsKey = targetType.FullName + "." + property.Name;
+
+                if (HasSetting(settingsKey))
+                {
+                    config.ConfigureProperty(property.Name, Get(settingsKey));
+                }
+            }
+        }
+
+        /// <summary>
         /// Sets the setting value.
         /// </summary>
         /// <param name="key">The key to use to store the setting.</param>
@@ -115,6 +224,7 @@ namespace NServiceBus.Settings
         {
             Set(typeof(T).FullName, value);
         }
+
         /// <summary>
         /// Sets the given value, key is type fullname.
         /// </summary>
@@ -181,85 +291,6 @@ namespace NServiceBus.Settings
         }
 
         /// <summary>
-        /// Gets the setting or default based on the typename.
-        /// </summary>
-        /// <typeparam name="T">The setting to get.</typeparam>
-        /// <returns>The actual value.</returns>
-        public T GetOrDefault<T>()
-        {
-            return GetOrDefault<T>(typeof(T).FullName);
-        }
-
-        /// <summary>
-        /// Gets the value or its default.
-        /// </summary>
-        /// <typeparam name="T">The type.</typeparam>
-        /// <param name="key">The key.</param>
-        /// <returns>The value.</returns>
-        public T GetOrDefault<T>(string key)
-        {
-            Guard.AgainstNullAndEmpty(nameof(key), key);
-            object result;
-            if (Overrides.TryGetValue(key, out result))
-            {
-                return (T)result;
-            }
-
-            if (Defaults.TryGetValue(key, out result))
-            {
-                return (T)result;
-            }
-
-            return default(T);
-        }
-
-        /// <summary>
-        /// True if there is a default or explicit value for the given key.
-        /// </summary>
-        /// <param name="key">The Key.</param>
-        /// <returns>True if found.</returns>
-        public bool HasSetting(string key)
-        {
-            Guard.AgainstNullAndEmpty(nameof(key), key);
-            return Overrides.ContainsKey(key) || Defaults.ContainsKey(key);
-        }
-
-        /// <summary>
-        /// True if there is a setting for the given type.
-        /// </summary>
-        /// <typeparam name="T">The type.</typeparam>
-        /// <returns>True if found.</returns>
-        public bool HasSetting<T>()
-        {
-            var key = typeof(T).FullName;
-
-            return HasSetting(key);
-        }
-
-        /// <summary>
-        /// True if there is an explicit value for the given key.
-        /// </summary>
-        /// <param name="key">The Key.</param>
-        /// <returns>True if found.</returns>
-        public bool HasExplicitValue(string key)
-        {
-            Guard.AgainstNullAndEmpty(nameof(key), key);
-            return Overrides.ContainsKey(key);
-        }
-
-        /// <summary>
-        /// True if there is an explicit value for the given type.
-        /// </summary>
-        /// <typeparam name="T">The type.</typeparam>
-        /// <returns>True if found.</returns>
-        public bool HasExplicitValue<T>()
-        {
-            var key = typeof(T).FullName;
-
-            return HasExplicitValue(key);
-        }
-
-        /// <summary>
         /// Locks the settings to prevent further modifications.
         /// </summary>
         internal void PreventChanges()
@@ -272,35 +303,6 @@ namespace NServiceBus.Settings
             if (locked)
             {
                 throw new ConfigurationErrorsException($"Unable to set the value for key: {key}. The settings has been locked for modifications. Move any configuration code earlier in the configuration pipeline");
-            }
-        }
-
-        bool locked;
-
-        /// <summary>
-        /// Applies property inject for the given type based on convention.
-        /// </summary>
-        public void ApplyTo<T>(IComponentConfig config)
-        {
-            ApplyTo(typeof(T), config);
-        }
-
-        /// <summary>
-        /// Setup property injection for the given type based on convention.
-        /// </summary>
-        public void ApplyTo(Type componentType, IComponentConfig config)
-        {
-            Guard.AgainstNull(nameof(config), config);
-            var targetType = componentType;
-
-            foreach (var property in targetType.GetProperties())
-            {
-                var settingsKey = targetType.FullName + "." + property.Name;
-
-                if (HasSetting(settingsKey))
-                {
-                    config.ConfigureProperty(property.Name, Get(settingsKey));
-                }
             }
         }
 
@@ -324,7 +326,10 @@ namespace NServiceBus.Settings
             Overrides.Clear();
         }
 
-        ConcurrentDictionary<string, object> Overrides = new ConcurrentDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
         ConcurrentDictionary<string, object> Defaults = new ConcurrentDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+
+        bool locked;
+
+        ConcurrentDictionary<string, object> Overrides = new ConcurrentDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
     }
 }

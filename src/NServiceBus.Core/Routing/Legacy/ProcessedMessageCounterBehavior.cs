@@ -2,12 +2,10 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Pipeline;
+    using Pipeline;
 
     class ProcessedMessageCounterBehavior : Behavior<IIncomingPhysicalMessageContext>
     {
-        ReadyMessageSender readyMessageSender;
-
         public ProcessedMessageCounterBehavior(ReadyMessageSender readyMessageSender)
         {
             this.readyMessageSender = readyMessageSender;
@@ -18,5 +16,7 @@
             await next().ConfigureAwait(false);
             await readyMessageSender.MessageProcessed(context.Message.Headers).ConfigureAwait(false);
         }
+
+        ReadyMessageSender readyMessageSender;
     }
 }

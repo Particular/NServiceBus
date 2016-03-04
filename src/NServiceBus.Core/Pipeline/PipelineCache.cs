@@ -3,14 +3,12 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Threading;
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Settings;
+    using ObjectBuilder;
+    using Pipeline;
+    using Settings;
 
     class PipelineCache : IPipelineCache
     {
-        Dictionary<Type, Lazy<IPipeline>> pipelines = new Dictionary<Type, Lazy<IPipeline>>();
-
         public PipelineCache(IBuilder builder, ReadOnlySettings settings)
         {
             FromMainPipeline<IAuditContext>(builder, settings);
@@ -32,7 +30,7 @@ namespace NServiceBus
             Lazy<IPipeline> lazyPipeline;
             if (pipelines.TryGetValue(typeof(TContext), out lazyPipeline))
             {
-                return (IPipeline<TContext>)lazyPipeline.Value;
+                return (IPipeline<TContext>) lazyPipeline.Value;
             }
             return default(IPipeline<TContext>);
         }
@@ -48,5 +46,7 @@ namespace NServiceBus
             }, LazyThreadSafetyMode.ExecutionAndPublication);
             pipelines.Add(typeof(TContext), lazyPipeline);
         }
+
+        Dictionary<Type, Lazy<IPipeline>> pipelines = new Dictionary<Type, Lazy<IPipeline>>();
     }
 }

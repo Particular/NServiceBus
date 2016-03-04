@@ -175,12 +175,12 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
 
 
             var propertyMappings = mapper.Mappings.Where(m => !m.HasCustomFinderMap)
-                .GroupBy(m=>m.SagaPropName)
+                .GroupBy(m => m.SagaPropName)
                 .ToList();
 
             if (propertyMappings.Count > 1)
             {
-                var messageTypes = string.Join(",", propertyMappings.SelectMany(g => g.Select(m=>m.MessageType.FullName)));
+                var messageTypes = string.Join(",", propertyMappings.SelectMany(g => g.Select(m => m.MessageType.FullName)));
                 throw new Exception($@"
 Sagas can only have mappings that correlate on a single saga property. Use custom finders to correlate {messageTypes} to saga {sagaType.Name}");
             }

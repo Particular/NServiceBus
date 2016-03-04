@@ -3,13 +3,11 @@ namespace NServiceBus
     using System;
     using System.Threading.Tasks;
     using Logging;
-    using NServiceBus.Pipeline;
+    using Pipeline;
     using Sagas;
 
     class InvokeSagaNotFoundBehavior : Behavior<IIncomingLogicalMessageContext>
     {
-        static ILog logger = LogManager.GetLogger<InvokeSagaNotFoundBehavior>();
-
         public override async Task Invoke(IIncomingLogicalMessageContext context, Func<Task> next)
         {
             var invocationResult = new SagaInvocationResult();
@@ -19,7 +17,7 @@ namespace NServiceBus
 
             if (invocationResult.WasFound)
             {
-                return;    
+                return;
             }
 
             logger.InfoFormat("Could not find a started saga for '{0}' message type. Going to invoke SagaNotFoundHandlers.", context.Message.MessageType.FullName);
@@ -30,5 +28,7 @@ namespace NServiceBus
                 await handler.Handle(context.Message.Instance, context).ConfigureAwait(false);
             }
         }
+
+        static ILog logger = LogManager.GetLogger<InvokeSagaNotFoundBehavior>();
     }
 }

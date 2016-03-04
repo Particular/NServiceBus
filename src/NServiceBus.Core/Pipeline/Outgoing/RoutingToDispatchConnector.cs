@@ -6,9 +6,9 @@
     using System.Text;
     using System.Threading.Tasks;
     using DeliveryConstraints;
-    using NServiceBus.Logging;
-    using NServiceBus.Routing;
+    using Logging;
     using Pipeline;
+    using Routing;
     using Transports;
 
     class RoutingToDispatchConnector : StageConnector<IRoutingContext, IDispatchContext>
@@ -54,11 +54,11 @@
             return stage(this.CreateDispatchContext(operations.ToArray(), context));
         }
 
+        static ILog log = LogManager.GetLogger<RoutingToDispatchConnector>();
+
         public class State
         {
             public bool ImmediateDispatch { get; set; }
         }
-
-        static ILog log = LogManager.GetLogger<RoutingToDispatchConnector>();
     }
 }

@@ -9,7 +9,10 @@
     {
         protected override async Task Terminate(IInvokeHandlerContext context)
         {
-            context.Extensions.Set(new State { ScopeWasPresent = Transaction.Current != null });
+            context.Extensions.Set(new State
+            {
+                ScopeWasPresent = Transaction.Current != null
+            });
 
             ActiveSagaInstance saga;
 

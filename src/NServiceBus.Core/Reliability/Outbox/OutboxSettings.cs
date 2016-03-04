@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus.Outbox
 {
-    using NServiceBus.Configuration.AdvanceExtensibility;
+    using Configuration.AdvanceExtensibility;
     using Settings;
 
     /// <summary>
@@ -11,6 +11,5 @@
         internal OutboxSettings(SettingsHolder settings) : base(settings)
         {
         }
-
     }
 }

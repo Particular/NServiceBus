@@ -4,17 +4,14 @@
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.Logging;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Serialization;
-    using NServiceBus.Unicast.Messages;
+    using Logging;
+    using Pipeline;
+    using Serialization;
+    using Unicast.Messages;
 
     //todo: rename to LogicalOutgoingContext
     class SerializeMessageConnector : StageConnector<IOutgoingLogicalMessageContext, IOutgoingPhysicalMessageContext>
     {
-        IMessageSerializer messageSerializer;
-        MessageMetadataRegistry messageMetadataRegistry;
-
         public SerializeMessageConnector(IMessageSerializer messageSerializer, MessageMetadataRegistry messageMetadataRegistry)
         {
             this.messageSerializer = messageSerializer;
@@ -59,7 +56,9 @@
             return string.Join(";", distinctTypes.Select(t => t.AssemblyQualifiedName));
         }
 
-        static ILog log = LogManager.GetLogger<SerializeMessageConnector>();
+        MessageMetadataRegistry messageMetadataRegistry;
+        IMessageSerializer messageSerializer;
 
+        static ILog log = LogManager.GetLogger<SerializeMessageConnector>();
     }
 }

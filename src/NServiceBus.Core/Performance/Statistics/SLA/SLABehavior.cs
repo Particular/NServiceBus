@@ -6,8 +6,6 @@
 
     class SLABehavior : Behavior<IIncomingPhysicalMessageContext>
     {
-        EstimatedTimeToSLABreachCalculator breachCalculator;
-
         public SLABehavior(EstimatedTimeToSLABreachCalculator breachCalculator)
         {
             this.breachCalculator = breachCalculator;
@@ -32,7 +30,9 @@
             breachCalculator.Update(state.TimeSent.Value, state.ProcessingStarted, state.ProcessingEnded);
         }
 
-        public class Registration:RegisterStep
+        EstimatedTimeToSLABreachCalculator breachCalculator;
+
+        public class Registration : RegisterStep
         {
             public Registration()
                 : base("SLA", typeof(SLABehavior), "Updates the SLA performance counter")

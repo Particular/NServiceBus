@@ -5,15 +5,15 @@ namespace NServiceBus
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
-    using NServiceBus.Persistence;
-    using NServiceBus.Sagas;
+    using Extensibility;
+    using Persistence;
+    using Sagas;
 
     class InMemorySagaPersister : ISagaPersister
     {
         public Task Complete(IContainSagaData sagaData, SynchronizedStorageSession session, ContextBag context)
         {
-            var inMemSession = (InMemorySynchronizedStorageSession)session;
+            var inMemSession = (InMemorySynchronizedStorageSession) session;
             inMemSession.Enlist(() =>
             {
                 VersionedSagaEntity value;
@@ -91,7 +91,7 @@ namespace NServiceBus
 
         public Task Update(IContainSagaData sagaData, SynchronizedStorageSession session, ContextBag context)
         {
-            var inMemSession = (InMemorySynchronizedStorageSession)session;
+            var inMemSession = (InMemorySynchronizedStorageSession) session;
             inMemSession.Enlist(() =>
             {
                 VersionedSagaEntity sagaEntity;

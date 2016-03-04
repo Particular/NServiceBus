@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.Pipeline
 {
     using System;
-    using NServiceBus.Transports;
+    using Transports;
 
     /// <summary>
     /// Provide context to behaviors on the error pipeline.

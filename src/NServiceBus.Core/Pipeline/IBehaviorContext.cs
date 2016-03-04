@@ -9,7 +9,7 @@
     public interface IBehaviorContext : IExtendable
     {
         /// <summary>
-        /// The current <see cref="IBuilder"/>.
+        /// The current <see cref="IBuilder" />.
         /// </summary>
         IBuilder Builder { get; }
     }

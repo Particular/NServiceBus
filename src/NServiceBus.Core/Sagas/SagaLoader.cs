@@ -1,9 +1,9 @@
 namespace NServiceBus
 {
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
-    using NServiceBus.Persistence;
-    using NServiceBus.Sagas;
+    using Extensibility;
+    using Persistence;
+    using Sagas;
 
     interface SagaLoader
     {

@@ -1,9 +1,9 @@
 namespace NServiceBus
 {
-    using NServiceBus.Pipeline;
+    using Pipeline;
 
     interface IForkConnector
-    {   
+    {
     }
 
     // ReSharper disable once UnusedTypeParameter

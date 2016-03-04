@@ -2,20 +2,13 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Pipeline;
+    using Pipeline;
 
     class ScheduleBehavior : Behavior<IOutgoingLogicalMessageContext>
     {
-        DefaultScheduler scheduler;
-
         public ScheduleBehavior(DefaultScheduler scheduler)
         {
             this.scheduler = scheduler;
-        }
-
-        public class State
-        { 
-            public TaskDefinition TaskDefinition { get; set; }
         }
 
         public override Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
@@ -26,6 +19,13 @@ namespace NServiceBus
                 scheduler.Schedule(state.TaskDefinition);
             }
             return next();
+        }
+
+        DefaultScheduler scheduler;
+
+        public class State
+        {
+            public TaskDefinition TaskDefinition { get; set; }
         }
     }
 }

@@ -13,14 +13,8 @@ namespace NServiceBus.Config
         [ConfigurationProperty("ErrorQueue", IsRequired = true)]
         public string ErrorQueue
         {
-            get
-            {
-                return this["ErrorQueue"] as string;
-            }
-            set
-            {
-                this["ErrorQueue"] = value;
-            }
+            get { return this["ErrorQueue"] as string; }
+            set { this["ErrorQueue"] = value; }
         }
     }
 }

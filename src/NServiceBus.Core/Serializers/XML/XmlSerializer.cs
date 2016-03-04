@@ -2,9 +2,9 @@
 {
     using System;
     using System.Linq;
-    using NServiceBus.MessageInterfaces;
-    using NServiceBus.Settings;
+    using MessageInterfaces;
     using Serialization;
+    using Settings;
 
     /// <summary>
     /// Defines the capabilities of the XML serializer.

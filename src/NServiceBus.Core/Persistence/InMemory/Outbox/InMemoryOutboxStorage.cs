@@ -5,8 +5,8 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
-    using NServiceBus.Outbox;
+    using Extensibility;
+    using Outbox;
 
     class InMemoryOutboxStorage : IOutboxStorage
     {
@@ -28,7 +28,7 @@
 
         public Task Store(OutboxMessage message, OutboxTransaction transaction, ContextBag context)
         {
-            var tx = (InMemoryOutboxTransaction)transaction;
+            var tx = (InMemoryOutboxTransaction) transaction;
             tx.Enlist(() =>
             {
                 if (!storage.TryAdd(message.MessageId, new StoredMessage(message.MessageId, message.TransportOperations.ToList())))
@@ -109,14 +109,14 @@
                 {
                     return false;
                 }
-                return Equals((StoredMessage)obj);
+                return Equals((StoredMessage) obj);
             }
 
             public override int GetHashCode()
             {
                 unchecked
                 {
-                    return ((Id?.GetHashCode() ?? 0) * 397) ^ Dispatched.GetHashCode();
+                    return ((Id?.GetHashCode() ?? 0)*397) ^ Dispatched.GetHashCode();
                 }
             }
         }

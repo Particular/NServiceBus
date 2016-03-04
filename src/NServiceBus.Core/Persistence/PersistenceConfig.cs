@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using NServiceBus.Persistence;
+    using Persistence;
 
     /// <summary>
     /// Enables users to select persistence by calling .UsePersistence().
@@ -11,23 +11,23 @@
         /// <summary>
         /// Configures the given persistence to be used.
         /// </summary>
-        /// <typeparam name="T">The persistence definition eg <see cref="InMemoryPersistence"/>, NHibernate etc.</typeparam>
-        /// <param name="config">The <see cref="EndpointConfiguration"/> instance to apply the settings to.</param>
+        /// <typeparam name="T">The persistence definition eg <see cref="InMemoryPersistence" />, NHibernate etc.</typeparam>
+        /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
         public static PersistenceExtentions<T> UsePersistence<T>(this EndpointConfiguration config) where T : PersistenceDefinition
         {
             Guard.AgainstNull(nameof(config), config);
             var type = typeof(PersistenceExtentions<>).MakeGenericType(typeof(T));
-            return (PersistenceExtentions<T>)Activator.CreateInstance(type, config.Settings);
+            return (PersistenceExtentions<T>) Activator.CreateInstance(type, config.Settings);
         }
 
         /// <summary>
         /// Configures the given persistence to be used for a specific storage type.
         /// </summary>
-        /// <typeparam name="T">The persistence definition eg <see cref="InMemoryPersistence"/>, NHibernate etc.</typeparam>
-        /// <typeparam name="S">The <see cref="StorageType"/>storage type.</typeparam>
-        /// <param name="config">The <see cref="EndpointConfiguration"/> instance to apply the settings to.</param>
+        /// <typeparam name="T">The persistence definition eg <see cref="InMemoryPersistence" />, NHibernate etc.</typeparam>
+        /// <typeparam name="S">The <see cref="StorageType" />storage type.</typeparam>
+        /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
         public static PersistenceExtentions<T, S> UsePersistence<T, S>(this EndpointConfiguration config) where T : PersistenceDefinition
-                                                                                                     where S : StorageType
+            where S : StorageType
         {
             Guard.AgainstNull(nameof(config), config);
             var type = typeof(PersistenceExtentions<,>).MakeGenericType(typeof(T), typeof(S));
@@ -35,10 +35,10 @@
         }
 
         /// <summary>
-        ///  Configures the given persistence to be used.
+        /// Configures the given persistence to be used.
         /// </summary>
-        /// <param name="config">The <see cref="EndpointConfiguration"/> instance to apply the settings to.</param>
-        /// <param name="definitionType">The persistence definition eg <see cref="InMemoryPersistence"/>, NHibernate etc.</param>
+        /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
+        /// <param name="definitionType">The persistence definition eg <see cref="InMemoryPersistence" />, NHibernate etc.</param>
         public static PersistenceExtentions UsePersistence(this EndpointConfiguration config, Type definitionType)
         {
             Guard.AgainstNull(nameof(config), config);

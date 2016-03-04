@@ -19,7 +19,7 @@ namespace NServiceBus.Unicast.Subscriptions
         }
 
         /// <summary>
-        /// Initializes the message type from the given string. 
+        /// Initializes the message type from the given string.
         /// </summary>
         public MessageType(string messageTypeString)
         {
@@ -30,7 +30,7 @@ namespace NServiceBus.Unicast.Subscriptions
         }
 
         /// <summary>
-        /// Initializes the message type from the given string. 
+        /// Initializes the message type from the given string.
         /// </summary>
         public MessageType(string typeName, string versionString)
         {
@@ -41,7 +41,7 @@ namespace NServiceBus.Unicast.Subscriptions
         }
 
         /// <summary>
-        /// Initializes the message type from the given string. 
+        /// Initializes the message type from the given string.
         /// </summary>
         public MessageType(string typeName, Version version)
         {
@@ -49,17 +49,6 @@ namespace NServiceBus.Unicast.Subscriptions
             Guard.AgainstNull(nameof(version), version);
             Version = version;
             TypeName = typeName;
-        }
-
-        Version ParseVersion(string versionString)
-        {
-            const string version = "Version=";
-            var index = versionString.IndexOf(version);
-
-            if (index >= 0)
-                versionString = versionString.Substring(index + version.Length)
-                    .Split(',').First();
-            return Version.Parse(versionString);
         }
 
 
@@ -72,6 +61,19 @@ namespace NServiceBus.Unicast.Subscriptions
         /// Version of the message.
         /// </summary>
         public Version Version { get; }
+
+        Version ParseVersion(string versionString)
+        {
+            const string version = "Version=";
+            var index = versionString.IndexOf(version);
+
+            if (index >= 0)
+            {
+                versionString = versionString.Substring(index + version.Length)
+                    .Split(',').First();
+            }
+            return Version.Parse(versionString);
+        }
 
         /// <summary>
         /// Overridden to append Version along with Type Name.
@@ -86,8 +88,14 @@ namespace NServiceBus.Unicast.Subscriptions
         /// </summary>
         public bool Equals(MessageType other)
         {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
+            if (ReferenceEquals(null, other))
+            {
+                return false;
+            }
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
             return Equals(other.TypeName, TypeName) && other.Version.Major == Version.Major;
         }
 
@@ -96,10 +104,19 @@ namespace NServiceBus.Unicast.Subscriptions
         /// </summary>
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != typeof(MessageType)) return false;
-            return Equals((MessageType)obj);
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+            if (obj.GetType() != typeof(MessageType))
+            {
+                return false;
+            }
+            return Equals((MessageType) obj);
         }
 
         /// <summary>
@@ -109,7 +126,7 @@ namespace NServiceBus.Unicast.Subscriptions
         {
             unchecked
             {
-                return (TypeName.GetHashCode() * 397) ^ Version.GetHashCode();
+                return (TypeName.GetHashCode()*397) ^ Version.GetHashCode();
             }
         }
 

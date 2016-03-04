@@ -3,22 +3,22 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using NServiceBus.Configuration.AdvanceExtensibility;
-    using NServiceBus.Persistence;
-    using NServiceBus.Settings;
+    using Configuration.AdvanceExtensibility;
+    using Persistence;
+    using Settings;
 
-    /// <summary> 
-    /// This class provides implementers of persisters with an extension mechanism for custom settings for specific storage type via extention methods.
+    /// <summary>
+    /// This class provides implementers of persisters with an extension mechanism for custom settings for specific storage
+    /// type via extention methods.
     /// </summary>
     /// <typeparam name="T">The persister definition eg <see cref="NServiceBus.InMemory" />, <see cref="MsmqTransport" />, etc.</typeparam>
-    /// <typeparam name="S">The <see cref="StorageType"/>storage type.</typeparam>
+    /// <typeparam name="S">The <see cref="StorageType" />storage type.</typeparam>
     public class PersistenceExtentions<T, S> : PersistenceExtentions<T>
         where T : PersistenceDefinition
         where S : StorageType
     {
-
         /// <summary>
-        /// Initializes a new insatnce of <see cref="PersistenceExtentions"/>.
+        /// Initializes a new insatnce of <see cref="PersistenceExtentions" />.
         /// </summary>
         public PersistenceExtentions(SettingsHolder settings) : base(settings, typeof(S))
         {
@@ -26,31 +26,31 @@
     }
 
     /// <summary>
-    ///     This class provides implementers of persisters with an extension mechanism for custom settings via extention
-    ///     methods.
+    /// This class provides implementers of persisters with an extension mechanism for custom settings via extention
+    /// methods.
     /// </summary>
     /// <typeparam name="T">The persister definition eg <see cref="NServiceBus.InMemory" />, <see cref="MsmqTransport" />, etc.</typeparam>
     public class PersistenceExtentions<T> : PersistenceExtentions where T : PersistenceDefinition
     {
         /// <summary>
-        ///     Default constructor.
+        /// Default constructor.
         /// </summary>
         public PersistenceExtentions(SettingsHolder settings) : base(typeof(T), settings, null)
         {
         }
 
         /// <summary>
-        /// Constructor for a specific <see cref="StorageType"/>.
+        /// Constructor for a specific <see cref="StorageType" />.
         /// </summary>
         protected PersistenceExtentions(SettingsHolder settings, Type storageType) : base(typeof(T), settings, storageType)
         {
         }
 
         /// <summary>
-        ///     Defines the list of specific storage needs this persistence should provide.
+        /// Defines the list of specific storage needs this persistence should provide.
         /// </summary>
         /// <param name="specificStorages">The list of storage needs.</param>
-         [ObsoleteEx(
+        [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
             ReplacementTypeOrMember = "UsePersistence<T, S>()")]
@@ -62,13 +62,13 @@
     }
 
     /// <summary>
-    ///     This class provides implementers of persisters with an extension mechanism for custom settings via extention
-    ///     methods.
+    /// This class provides implementers of persisters with an extension mechanism for custom settings via extention
+    /// methods.
     /// </summary>
     public class PersistenceExtentions : ExposeSettings
     {
         /// <summary>
-        ///     Initializes a new instance of <see cref="PersistenceExtentions"/>.
+        /// Initializes a new instance of <see cref="PersistenceExtentions" />.
         /// </summary>
         public PersistenceExtentions(Type definitionType, SettingsHolder settings, Type storageType)
             : base(settings)
@@ -83,10 +83,10 @@
             enabledPersistence = new EnabledPersistence
             {
                 DefinitionType = definitionType,
-                SelectedStorages = new List<Type>(),
+                SelectedStorages = new List<Type>()
             };
 
-            
+
             if (storageType != null)
             {
                 var definition = definitionType.Construct<PersistenceDefinition>();
@@ -103,7 +103,7 @@
 
 
         /// <summary>
-        ///     Defines the list of specific storage needs this persistence should provide.
+        /// Defines the list of specific storage needs this persistence should provide.
         /// </summary>
         /// <param name="specificStorages">The list of storage needs.</param>
         [ObsoleteEx(

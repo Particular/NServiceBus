@@ -5,16 +5,10 @@ namespace NServiceBus
     using System.Threading;
 
     /// <summary>
-    ///     Performance counter for the critical time
+    /// Performance counter for the critical time
     /// </summary>
     class CriticalTimeCalculator : IDisposable
     {
-        PerformanceCounter counter;
-        TimeSpan estimatedMaximumProcessingDuration = TimeSpan.FromSeconds(2);
-        DateTime lastMessageProcessedTime;
-// ReSharper disable once NotAccessedField.Local
-        Timer timer;
-
         public CriticalTimeCalculator(PerformanceCounter cnt)
         {
             counter = cnt;
@@ -50,5 +44,11 @@ namespace NServiceBus
             var timeFromLastMessageProcessed = DateTime.UtcNow - lastMessageProcessedTime;
             return timeFromLastMessageProcessed > estimatedMaximumProcessingDuration;
         }
+
+        PerformanceCounter counter;
+        TimeSpan estimatedMaximumProcessingDuration = TimeSpan.FromSeconds(2);
+        DateTime lastMessageProcessedTime;
+// ReSharper disable once NotAccessedField.Local
+        Timer timer;
     }
 }

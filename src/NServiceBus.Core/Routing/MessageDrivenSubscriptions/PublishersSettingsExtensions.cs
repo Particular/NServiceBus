@@ -1,6 +1,6 @@
 namespace NServiceBus
 {
-    using NServiceBus.Routing.MessageDrivenSubscriptions;
+    using Routing.MessageDrivenSubscriptions;
 
     /// <summary>
     /// Allows to configure publishers.

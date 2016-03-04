@@ -6,7 +6,7 @@ namespace NServiceBus.Routing
     using System.Threading.Tasks;
 
     /// <summary>
-    ///     Stores the information about instances of known endpoints.
+    /// Stores the information about instances of known endpoints.
     /// </summary>
     public class EndpointInstances
     {
@@ -23,7 +23,7 @@ namespace NServiceBus.Routing
 
 
         /// <summary>
-        ///     Adds a dynamic rule for determining endpoint instances.
+        /// Adds a dynamic rule for determining endpoint instances.
         /// </summary>
         /// <param name="dynamicRule">The rule.</param>
         public void AddDynamic(Func<EndpointName, Task<IEnumerable<EndpointInstance>>> dynamicRule)
@@ -32,7 +32,7 @@ namespace NServiceBus.Routing
         }
 
         /// <summary>
-        ///     Adds static information about an endpoint.
+        /// Adds static information about an endpoint.
         /// </summary>
         /// <param name="endpoint">Name of the endpoint.</param>
         /// <param name="instances">A static list of endpoint's instances.</param>

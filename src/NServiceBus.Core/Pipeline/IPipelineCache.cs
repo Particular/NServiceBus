@@ -1,6 +1,6 @@
 namespace NServiceBus
 {
-    using NServiceBus.Pipeline;
+    using Pipeline;
 
     interface IPipelineCache
     {

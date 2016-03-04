@@ -1,13 +1,13 @@
 namespace NServiceBus
 {
-    using NServiceBus.Features;
+    using Features;
 
-    class StaticHeaders:Feature
+    class StaticHeaders : Feature
     {
         public StaticHeaders()
         {
             EnableByDefault();
-            Prerequisite(c=>c.Settings.HasSetting<CurrentStaticHeaders>(),"No static outgoing headers registered");
+            Prerequisite(c => c.Settings.HasSetting<CurrentStaticHeaders>(), "No static outgoing headers registered");
         }
 
         protected internal override void Setup(FeatureConfigurationContext context)

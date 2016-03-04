@@ -4,11 +4,8 @@
     using System.Threading.Tasks;
     using Pipeline;
 
-
     class CriticalTimeBehavior : Behavior<IIncomingPhysicalMessageContext>
     {
-        CriticalTimeCalculator criticalTimeCounter;
-
         public CriticalTimeBehavior(CriticalTimeCalculator criticalTimeCounter)
         {
             this.criticalTimeCounter = criticalTimeCounter;
@@ -32,6 +29,8 @@
 
             criticalTimeCounter.Update(state.TimeSent.Value, state.ProcessingStarted, state.ProcessingEnded);
         }
+
+        CriticalTimeCalculator criticalTimeCounter;
 
         public class Registration : RegisterStep
         {

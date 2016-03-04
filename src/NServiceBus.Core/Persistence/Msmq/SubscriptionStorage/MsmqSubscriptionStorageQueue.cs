@@ -7,10 +7,6 @@ namespace NServiceBus
 
     class MsmqSubscriptionStorageQueue : IMsmqSubscriptionStorageQueue
     {
-        bool transactionsEnabled;
-        bool dontUseExternalTransaction;
-        MessageQueue q;
-
         public MsmqSubscriptionStorageQueue(MsmqAddress queueAddress, bool transactionsEnabled, bool dontUseExternalTransaction)
         {
             this.transactionsEnabled = transactionsEnabled;
@@ -43,7 +39,23 @@ namespace NServiceBus
                 typeof(string)
             });
 
-            q.MessageReadPropertyFilter = messageReadPropertyFilter;            
+            q.MessageReadPropertyFilter = messageReadPropertyFilter;
+        }
+
+        public IEnumerable<Message> GetAllMessages()
+        {
+            return q.GetAllMessages();
+        }
+
+        public void Send(Message toSend)
+        {
+            toSend.Formatter = q.Formatter;
+            q.Send(toSend, GetTransactionType(transactionsEnabled, dontUseExternalTransaction));
+        }
+
+        public void ReceiveById(string messageId)
+        {
+            q.ReceiveById(messageId, GetTransactionType(transactionsEnabled, dontUseExternalTransaction));
         }
 
         MessageQueueTransactionType GetTransactionType(bool transactionsEnabled, bool dontUseExternalTransaction)
@@ -73,20 +85,8 @@ The recommended solution to this problem is to include '.IsTransaction(true)' af
             return Transaction.Current == null && !DontUseExternalTransaction;
         }
 
-        public IEnumerable<Message> GetAllMessages()
-        {
-            return q.GetAllMessages();
-        }
-
-        public void Send(Message toSend)
-        {
-            toSend.Formatter = q.Formatter;
-            q.Send(toSend, GetTransactionType(transactionsEnabled, dontUseExternalTransaction));
-        }
-
-        public void ReceiveById(string messageId)
-        {
-            q.ReceiveById(messageId, GetTransactionType(transactionsEnabled, dontUseExternalTransaction));
-        }
+        bool dontUseExternalTransaction;
+        MessageQueue q;
+        bool transactionsEnabled;
     }
 }

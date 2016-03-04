@@ -13,44 +13,13 @@ namespace NServiceBus.Config
         public override ConfigurationElementCollectionType CollectionType => ConfigurationElementCollectionType.AddRemoveClearMap;
 
         /// <summary>
-        /// Creates a new MessageEndpointMapping.
-        /// </summary>
-        protected override ConfigurationElement CreateNewElement()
-        {
-            return new MessageEndpointMapping();
-        }
-
-        /// <summary>
-        /// Creates a new MessageEndpointMapping, setting its Message property to the given name.
-        /// </summary>
-        protected override ConfigurationElement CreateNewElement(string elementName)
-        {
-            var result = new MessageEndpointMapping {Messages = elementName};
-
-            return result;
-        }
-
-        /// <summary>
-        /// Returns the Messages property of the given MessageEndpointMapping element.
-        /// </summary>
-        protected override object GetElementKey(ConfigurationElement element)
-        {
-            var messageEndpointMapping = (MessageEndpointMapping) element;
-
-            return $"{messageEndpointMapping.Messages}{messageEndpointMapping.AssemblyName}{messageEndpointMapping.TypeFullName}{messageEndpointMapping.Namespace}";
-        }
-
-        /// <summary>
         /// Calls the base AddElementName.
         /// </summary>
         public new string AddElementName
         {
-            get
-            { return base.AddElementName; }
+            get { return base.AddElementName; }
 
-            set
-            { base.AddElementName = value; }
-
+            set { base.AddElementName = value; }
         }
 
         /// <summary>
@@ -58,12 +27,9 @@ namespace NServiceBus.Config
         /// </summary>
         public new string ClearElementName
         {
-            get
-            { return base.ClearElementName; }
+            get { return base.ClearElementName; }
 
-            set
-            { base.AddElementName = value; }
-
+            set { base.AddElementName = value; }
         }
 
         /// <summary>
@@ -81,10 +47,7 @@ namespace NServiceBus.Config
         /// </summary>
         public MessageEndpointMapping this[int index]
         {
-            get
-            {
-                return (MessageEndpointMapping)BaseGet(index);
-            }
+            get { return (MessageEndpointMapping) BaseGet(index); }
             set
             {
                 if (BaseGet(index) != null)
@@ -98,7 +61,38 @@ namespace NServiceBus.Config
         /// <summary>
         /// Gets the MessageEndpointMapping for the given name.
         /// </summary>
-        new public MessageEndpointMapping this[string Name] => (MessageEndpointMapping)BaseGet(Name);
+        new public MessageEndpointMapping this[string Name] => (MessageEndpointMapping) BaseGet(Name);
+
+        /// <summary>
+        /// Creates a new MessageEndpointMapping.
+        /// </summary>
+        protected override ConfigurationElement CreateNewElement()
+        {
+            return new MessageEndpointMapping();
+        }
+
+        /// <summary>
+        /// Creates a new MessageEndpointMapping, setting its Message property to the given name.
+        /// </summary>
+        protected override ConfigurationElement CreateNewElement(string elementName)
+        {
+            var result = new MessageEndpointMapping
+            {
+                Messages = elementName
+            };
+
+            return result;
+        }
+
+        /// <summary>
+        /// Returns the Messages property of the given MessageEndpointMapping element.
+        /// </summary>
+        protected override object GetElementKey(ConfigurationElement element)
+        {
+            var messageEndpointMapping = (MessageEndpointMapping) element;
+
+            return $"{messageEndpointMapping.Messages}{messageEndpointMapping.AssemblyName}{messageEndpointMapping.TypeFullName}{messageEndpointMapping.Namespace}";
+        }
 
         /// <summary>
         /// Calls BaseIndexOf on the given mapping.
@@ -130,7 +124,9 @@ namespace NServiceBus.Config
         public void Remove(MessageEndpointMapping mapping)
         {
             if (BaseIndexOf(mapping) >= 0)
+            {
                 BaseRemove(mapping.Messages);
+            }
         }
 
         /// <summary>

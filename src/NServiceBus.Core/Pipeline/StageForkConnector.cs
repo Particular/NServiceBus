@@ -15,9 +15,6 @@ namespace NServiceBus.Pipeline
         where TForkContext : IBehaviorContext
     {
         /// <inheritdoc />
-        public abstract Task Invoke(TFromContext context, Func<TToContext, Task> stage, Func<TForkContext, Task> fork);
-
-        /// <inheritdoc />
         public Task Invoke(TFromContext context, Func<TToContext, Task> next)
         {
             Guard.AgainstNull(nameof(context), context);
@@ -30,5 +27,8 @@ namespace NServiceBus.Pipeline
                 return pipeline.Invoke(ctx);
             });
         }
+
+        /// <inheritdoc />
+        public abstract Task Invoke(TFromContext context, Func<TToContext, Task> stage, Func<TForkContext, Task> fork);
     }
 }

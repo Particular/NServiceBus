@@ -2,12 +2,10 @@ namespace NServiceBus
 {
     using System;
     using System.Linq;
-    using NServiceBus.Pipeline;
+    using Pipeline;
 
     static class RegisterStepExtensions
     {
-        static Type BehaviorInterfaceType = typeof(IBehavior<,>);
-
         public static bool IsStageConnector(this RegisterStep step)
         {
             return typeof(IStageConnector).IsAssignableFrom(step.BehaviorType);
@@ -53,5 +51,6 @@ namespace NServiceBus
             return behaviorInterface.GetGenericArguments()[0];
         }
 
+        static Type BehaviorInterfaceType = typeof(IBehavior<,>);
     }
 }

@@ -1,8 +1,8 @@
 ﻿namespace NServiceBus
 {
     using System.Threading.Tasks;
-    using NServiceBus.Features;
-    using NServiceBus.Pipeline;
+    using Features;
+    using Pipeline;
 
     class ReceiveStatisticsFeature : Feature
     {
@@ -10,6 +10,7 @@
         {
             EnableByDefault();
         }
+
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             var performanceDiagnosticsBehavior = new ReceivePerformanceDiagnosticsBehavior(context.Settings.LocalAddress());
@@ -23,8 +24,6 @@
 
         class WarmupCooldownTask : FeatureStartupTask
         {
-            readonly ReceivePerformanceDiagnosticsBehavior behavior;
-
             public WarmupCooldownTask(ReceivePerformanceDiagnosticsBehavior behavior)
             {
                 this.behavior = behavior;
@@ -41,6 +40,8 @@
                 behavior.Cooldown();
                 return TaskEx.CompletedTask;
             }
+
+            readonly ReceivePerformanceDiagnosticsBehavior behavior;
         }
     }
 }

@@ -4,16 +4,16 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.Config;
-    using NServiceBus.Extensibility;
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Routing;
-    using NServiceBus.Routing.MessageDrivenSubscriptions;
-    using NServiceBus.Settings;
-    using NServiceBus.Transports;
-    using NServiceBus.Unicast.Subscriptions;
-    using NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions;
+    using Config;
+    using Extensibility;
+    using ObjectBuilder;
+    using Pipeline;
+    using Routing;
+    using Routing.MessageDrivenSubscriptions;
+    using Settings;
+    using Transports;
+    using Unicast.Subscriptions;
+    using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
     class RoutingFeature : Feature
     {
@@ -40,7 +40,7 @@
             context.Container.ConfigureComponent(b => context.Settings.Get<DistributionPolicy>(), DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent<UnicastRouter>(DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent(b => new UnicastSendRouterConnector(context.Settings.LocalAddress(), context.Settings.InstanceSpecificQueue(), b.Build<UnicastRouter>(), b.Build<DistributionPolicy>()), DependencyLifecycle.InstancePerCall);
-            
+
             var unicastBusConfig = context.Settings.GetConfigSection<UnicastBusConfig>();
             if (unicastBusConfig != null)
             {
@@ -77,7 +77,7 @@
             }
             else
             {
-                context.Pipeline.Register("MulticastPublishRouterBehavior", typeof(MulticastPublishRouterBehavior), "Determines how the published messages should be routed");                
+                context.Pipeline.Register("MulticastPublishRouterBehavior", typeof(MulticastPublishRouterBehavior), "Determines how the published messages should be routed");
             }
 
             if (canReceive)
@@ -111,9 +111,6 @@
 
         class SubscriptionStoreRouteInformationProvider : FeatureStartupTask
         {
-            ReadOnlySettings settings;
-            IBuilder builder;
-
             public SubscriptionStoreRouteInformationProvider(ReadOnlySettings settings, IBuilder builder)
             {
                 this.settings = settings;
@@ -151,10 +148,11 @@
                 return subscribers.Select(s => new SubscriberDestination(s));
             }
 
+            IBuilder builder;
+            ReadOnlySettings settings;
+
             class SubscriberDestination : IUnicastRoute
             {
-                UnicastRoutingTarget target;
-
                 public SubscriberDestination(Subscriber subscriber)
                 {
                     if (subscriber.Endpoint != null)
@@ -171,6 +169,8 @@
                 {
                     return Task.FromResult(EnumerableEx.Single(target));
                 }
+
+                UnicastRoutingTarget target;
             }
         }
     }

@@ -8,10 +8,6 @@ namespace NServiceBus.Routing
     /// </summary>
     public class SingleInstanceRoundRobinDistributionStrategy : DistributionStrategy
     {
-        volatile IList<UnicastRoutingTarget> allInstances;
-        long index;
-        object lockObject = new object();
-
         /// <summary>
         /// Selects destination instances from all known instances of a given endpoint.
         /// </summary>
@@ -33,9 +29,13 @@ namespace NServiceBus.Routing
                 }
             }
             var arrayIndex = index%localAllInstances.Count;
-            var destination = allInstances[(int)arrayIndex];
+            var destination = allInstances[(int) arrayIndex];
             index++;
             yield return destination;
         }
+
+        volatile IList<UnicastRoutingTarget> allInstances;
+        long index;
+        object lockObject = new object();
     }
 }

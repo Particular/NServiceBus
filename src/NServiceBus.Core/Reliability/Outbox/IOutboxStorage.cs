@@ -11,7 +11,10 @@
         /// <summary>
         /// Tries to find the given message in the outbox.
         /// </summary>
-        /// <returns>If there is no <see cref="OutboxMessage"/> present for the given <paramref name="messageId"/> then null is returned.</returns>
+        /// <returns>
+        /// If there is no <see cref="OutboxMessage" /> present for the given <paramref name="messageId" /> then null is
+        /// returned.
+        /// </returns>
         Task<OutboxMessage> Get(string messageId, ContextBag context);
 
         /// <summary>
@@ -25,7 +28,7 @@
         Task SetAsDispatched(string messageId, ContextBag context);
 
         /// <summary>
-        /// Creates the <see cref="OutboxTransaction"/>.
+        /// Creates the <see cref="OutboxTransaction" />.
         /// </summary>
         /// <param name="context">The current pipeline contex.</param>
         /// <returns>The created outbox transaction.</returns>

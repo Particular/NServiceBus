@@ -3,13 +3,13 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
-    using NServiceBus.Logging;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Routing;
-    using NServiceBus.Transports;
-    using NServiceBus.Unicast.Queuing;
-    using NServiceBus.Unicast.Transport;
+    using Extensibility;
+    using Logging;
+    using Pipeline;
+    using Routing;
+    using Transports;
+    using Unicast.Queuing;
+    using Unicast.Transport;
 
     class MessageDrivenUnsubscribeTerminator : PipelineTerminator<IUnsubscribeContext>
     {
@@ -69,6 +69,14 @@
             }
         }
 
+        readonly EndpointName endpoint;
+        IDispatchMessages dispatcher;
+        string replyToAddress;
+
+        SubscriptionRouter subscriptionRouter;
+
+        static ILog Logger = LogManager.GetLogger<MessageDrivenUnsubscribeTerminator>();
+
         public class Settings
         {
             public Settings()
@@ -80,12 +88,5 @@
             public TimeSpan RetryDelay { get; set; }
             public int MaxRetries { get; set; }
         }
-
-        SubscriptionRouter subscriptionRouter;
-        string replyToAddress;
-        readonly EndpointName endpoint;
-        IDispatchMessages dispatcher;
-
-        static ILog Logger = LogManager.GetLogger<MessageDrivenUnsubscribeTerminator>();
     }
 }

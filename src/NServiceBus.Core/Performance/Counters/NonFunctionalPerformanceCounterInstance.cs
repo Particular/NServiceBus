@@ -1,6 +1,5 @@
 namespace NServiceBus
 {
-
     class NonFunctionalPerformanceCounterInstance : IPerformanceCounterInstance
     {
         public void Increment()

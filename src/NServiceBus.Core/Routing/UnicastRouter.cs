@@ -4,21 +4,16 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
-    using NServiceBus.Routing;
-    using NServiceBus.Transports;
-    using NServiceBus.Unicast.Messages;
+    using Extensibility;
+    using Routing;
+    using Transports;
+    using Unicast.Messages;
 
     class UnicastRouter : IUnicastRouter
     {
-        EndpointInstances endpointInstances;
-        TransportAddresses physicalAddresses;
-        MessageMetadataRegistry messageMetadataRegistry;
-        UnicastRoutingTable unicastRoutingTable;
-
-        public UnicastRouter(MessageMetadataRegistry messageMetadataRegistry, 
-            UnicastRoutingTable unicastRoutingTable, 
-            EndpointInstances endpointInstances, 
+        public UnicastRouter(MessageMetadataRegistry messageMetadataRegistry,
+            UnicastRoutingTable unicastRoutingTable,
+            EndpointInstances endpointInstances,
             TransportAddresses physicalAddresses)
         {
             this.messageMetadataRegistry = messageMetadataRegistry;
@@ -33,7 +28,7 @@ namespace NServiceBus
                 .MessageHierarchy
                 .Distinct()
                 .ToList();
-            
+
             var routes = await unicastRoutingTable.GetDestinationsFor(typesToRoute, contextBag).ConfigureAwait(false);
             var destinations = new List<UnicastRoutingTarget>();
             foreach (var route in routes)
@@ -79,5 +74,10 @@ namespace NServiceBus
                 }
             }
         }
+
+        EndpointInstances endpointInstances;
+        MessageMetadataRegistry messageMetadataRegistry;
+        TransportAddresses physicalAddresses;
+        UnicastRoutingTable unicastRoutingTable;
     }
 }
