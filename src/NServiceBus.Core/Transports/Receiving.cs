@@ -3,8 +3,8 @@ namespace NServiceBus
     using System;
     using System.Threading.Tasks;
     using Features;
-    using NServiceBus.Routing;
-    using NServiceBus.Transports;
+    using Routing;
+    using Transports;
 
     class Receiving : Feature
     {
@@ -31,7 +31,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// <see cref="Feature.Setup"/>.
+        /// <see cref="Feature.Setup" />.
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
@@ -45,17 +45,15 @@ namespace NServiceBus
                 context.Settings.Get<QueueBindings>().BindReceiving(instanceSpecificQueue);
             }
 
-            var lazyReceiveConfigResult = new Lazy<TransportReceiveInfrastructure>(()=> inboundTransport.Configure(context.Settings));
+            var lazyReceiveConfigResult = new Lazy<TransportReceiveInfrastructure>(() => inboundTransport.Configure(context.Settings));
             context.Container.ConfigureComponent(b => lazyReceiveConfigResult.Value.MessagePumpFactory(), DependencyLifecycle.InstancePerCall);
             context.Container.ConfigureComponent(b => lazyReceiveConfigResult.Value.QueueCreatorFactory(), DependencyLifecycle.SingleInstance);
 
             context.RegisterStartupTask(new PrepareForReceiving(lazyReceiveConfigResult));
         }
-        
+
         class PrepareForReceiving : FeatureStartupTask
         {
-            readonly Lazy<TransportReceiveInfrastructure> lazy;
-
             public PrepareForReceiving(Lazy<TransportReceiveInfrastructure> lazy)
             {
                 this.lazy = lazy;
@@ -74,6 +72,8 @@ namespace NServiceBus
             {
                 return TaskEx.CompletedTask;
             }
+
+            readonly Lazy<TransportReceiveInfrastructure> lazy;
         }
     }
 }

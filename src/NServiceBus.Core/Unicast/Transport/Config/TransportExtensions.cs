@@ -1,19 +1,19 @@
 namespace NServiceBus
 {
     using System;
-    using NServiceBus.Configuration.AdvanceExtensibility;
-    using NServiceBus.Routing;
-    using NServiceBus.Settings;
-    using NServiceBus.Transports;
+    using Configuration.AdvanceExtensibility;
+    using Routing;
+    using Settings;
+    using Transports;
 
     /// <summary>
     /// This class provides implementers of persisters with an extension mechanism for custom settings via extension methods.
     /// </summary>
-    /// <typeparam name="T">The persister definition eg <see cref="InMemory"/>, <see cref="MsmqTransport"/>, etc.</typeparam>
+    /// <typeparam name="T">The persister definition eg <see cref="InMemory" />, <see cref="MsmqTransport" />, etc.</typeparam>
     public class TransportExtensions<T> : TransportExtensions where T : TransportDefinition
     {
         /// <summary>
-        /// Initializes a new instance of <see cref="TransportExtensions{T}"/>.
+        /// Initializes a new instance of <see cref="TransportExtensions{T}" />.
         /// </summary>
         public TransportExtensions(SettingsHolder settings)
             : base(settings)
@@ -63,12 +63,11 @@ namespace NServiceBus
     public class TransportExtensions : ExposeSettings
     {
         /// <summary>
-        /// Initializes a new instance of <see cref="TransportExtensions"/>.
+        /// Initializes a new instance of <see cref="TransportExtensions" />.
         /// </summary>
         public TransportExtensions(SettingsHolder settings)
             : base(settings)
         {
-            
             settings.SetDefault<TransportConnectionString>(TransportConnectionString.Default);
         }
 
@@ -169,12 +168,12 @@ namespace NServiceBus
         /// Gets the transport connectionstring.
         /// </summary>
         [ObsoleteEx(
-            TreatAsErrorFromVersion = "6", 
-            RemoveInVersion = "7", 
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
             Message = "Not available any more.")]
         public static string TransportConnectionString(this Configure config)
         {
-           throw new NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 }

@@ -1,20 +1,19 @@
 ﻿namespace NServiceBus
 {
-    using NServiceBus.Config;
     using System;
-    using NServiceBus.ConsistencyGuarantees;
-    using NServiceBus.Features;
-    using NServiceBus.Settings;
-    using NServiceBus.Transports;
+    using Config;
+    using ConsistencyGuarantees;
+    using Features;
+    using Settings;
+    using Transports;
 
     class MsmqTimeToBeReceivedOverrideCheck
     {
-        ReadOnlySettings settings;
-
         public MsmqTimeToBeReceivedOverrideCheck(ReadOnlySettings settings)
         {
             this.settings = settings;
         }
+
         public StartupCheckResult CheckTimeToBeReceivedOverrides()
         {
             var usingMsmq = settings.Get<TransportDefinition>() is MsmqTransport;
@@ -29,5 +28,7 @@
 
             return TimeToBeReceivedOverrideChecker.Check(usingMsmq, isTransactional, outBoxRunning, auditTTBROverridden, forwardTTBROverridden);
         }
+
+        ReadOnlySettings settings;
     }
 }

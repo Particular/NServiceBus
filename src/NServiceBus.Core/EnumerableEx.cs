@@ -11,14 +11,11 @@ namespace NServiceBus
         public static IEnumerable<T> Single<T>(T singleElement)
         {
             return Enumerable.Repeat(singleElement, 1);
-        } 
+        }
 
         public static IEnumerable<T> EnsureNonEmpty<T>(this IEnumerable<T> source, Func<string> exceptionMessage)
         {
-            return new NonEmptyEnumerable<T>(source, () =>
-            {
-                throw new Exception(exceptionMessage());
-            });
+            return new NonEmptyEnumerable<T>(source, () => { throw new Exception(exceptionMessage()); });
         }
 
         public static IEnumerable<T> EnsureNonEmpty<T>(this IEnumerable<T> source, Func<T> emptyElement)
@@ -28,9 +25,6 @@ namespace NServiceBus
 
         class NonEmptyEnumerable<T> : IEnumerable<T>
         {
-            IEnumerable<T> source;
-            Func<T> ifEmptyCallback;
-
             public NonEmptyEnumerable(IEnumerable<T> source, Func<T> ifEmptyCallback)
             {
                 this.source = source;
@@ -47,15 +41,12 @@ namespace NServiceBus
                 return GetEnumerator();
             }
 
+            Func<T> ifEmptyCallback;
+            IEnumerable<T> source;
+
             [SkipWeaving]
             class NonEmptyEnumerator : IEnumerator<T>
             {
-                IEnumerator<T> source;
-                T emptyValue;
-                bool isEmpty;
-                Func<T> ifEmptyCallback;
-                bool enumerationStarted;
-
                 public NonEmptyEnumerator(IEnumerator<T> source, Func<T> ifEmptyCallback)
                 {
                     this.source = source;
@@ -88,6 +79,11 @@ namespace NServiceBus
                 public T Current => isEmpty ? emptyValue : source.Current;
 
                 object IEnumerator.Current => Current;
+                T emptyValue;
+                bool enumerationStarted;
+                Func<T> ifEmptyCallback;
+                bool isEmpty;
+                IEnumerator<T> source;
             }
         }
     }

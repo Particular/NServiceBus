@@ -2,14 +2,13 @@ namespace NServiceBus
 {
     using System;
     using System.Net;
-    using NServiceBus.Support;
+    using Support;
 
-    ///<summary>
+    /// <summary>
     /// Abstraction for an address on the NServiceBus network.
-    ///</summary>
+    /// </summary>
     struct MsmqAddress
     {
-
         /// <summary>
         /// The (lowercase) name of the queue not including the name of the machine or location depending on the address mode.
         /// </summary>
@@ -24,7 +23,7 @@ namespace NServiceBus
         /// Parses a string and returns an Address.
         /// </summary>
         /// <param name="address">The full address to parse.</param>
-        /// <returns>A new instance of <see cref="Address"/>.</returns>
+        /// <returns>A new instance of <see cref="Address" />.</returns>
         public static MsmqAddress Parse(string address)
         {
             Guard.AgainstNullAndEmpty(nameof(address), address);
@@ -51,7 +50,7 @@ namespace NServiceBus
                 if (string.IsNullOrWhiteSpace(machineName))
                 {
                     var message = $"Empty machine part of address. Address supplied: '{address}'";
-                    throw new ArgumentException(message,nameof(address));
+                    throw new ArgumentException(message, nameof(address));
                 }
                 machineName = ApplyLocalMachineConventions(machineName);
             }
@@ -68,8 +67,8 @@ namespace NServiceBus
         static string ApplyLocalMachineConventions(string machineName)
         {
             if (
-                machineName == "." || 
-                machineName.ToLower() == "localhost" || 
+                machineName == "." ||
+                machineName.ToLower() == "localhost" ||
                 machineName == IPAddress.Loopback.ToString()
                 )
             {
@@ -81,8 +80,8 @@ namespace NServiceBus
         /// <summary>
         /// Instantiate a new Address for a known queue on a given machine.
         /// </summary>
-        ///<param name="queueName">The queue name.</param>
-        ///<param name="machineName">The machine name.</param>
+        /// <param name="queueName">The queue name.</param>
+        /// <param name="machineName">The machine name.</param>
         public MsmqAddress(string queueName, string machineName)
         {
             Queue = queueName;
@@ -90,7 +89,8 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Returns an equivalent address which is compatible with a given one with regards to how machine is specified. If a given address has machine specified via IP (as opposed
+        /// Returns an equivalent address which is compatible with a given one with regards to how machine is specified. If a given
+        /// address has machine specified via IP (as opposed
         /// to host name), the new address will also have machine specified via IP.
         /// </summary>
         /// <param name="other">The address to be compatible with.</param>
@@ -115,7 +115,7 @@ namespace NServiceBus
                 {
                     return PREFIX_TCP + PathWithoutPrefix;
                 }
-                return PREFIX + PathWithoutPrefix;                
+                return PREFIX + PathWithoutPrefix;
             }
         }
 

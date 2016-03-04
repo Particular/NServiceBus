@@ -5,26 +5,22 @@
     using System.Linq;
     using System.Linq.Expressions;
     using System.Threading.Tasks;
-    using NServiceBus.Logging;
-    using NServiceBus.Pipeline;
+    using Logging;
+    using Pipeline;
 
     /// <summary>
-    ///     Maintains the message handlers for this endpoint.
+    /// Maintains the message handlers for this endpoint.
     /// </summary>
     public partial class MessageHandlerRegistry
     {
-        static ILog Log = LogManager.GetLogger<MessageHandlerRegistry>();
-        readonly Conventions conventions;
-        readonly IDictionary<RuntimeTypeHandle, List<DelegateHolder>> handlerAndMessagesHandledByHandlerCache = new Dictionary<RuntimeTypeHandle, List<DelegateHolder>>();
-
         internal MessageHandlerRegistry(Conventions conventions)
         {
             this.conventions = conventions;
         }
 
         /// <summary>
-        ///     Gets the list of handlers <see cref="Type" />s for the given
-        ///     <paramref name="messageType" />.
+        /// Gets the list of handlers <see cref="Type" />s for the given
+        /// <paramref name="messageType" />.
         /// </summary>
         public IEnumerable<MessageHandler> GetHandlersFor(Type messageType)
         {
@@ -35,25 +31,25 @@
             }
 
             return from handlersAndMessages in handlerAndMessagesHandledByHandlerCache
-                   from messagesBeingHandled in handlersAndMessages.Value
-                   where Type.GetTypeFromHandle(messagesBeingHandled.MessageType).IsAssignableFrom(messageType)
-                   select new MessageHandler(messagesBeingHandled.MethodDelegate, Type.GetTypeFromHandle(handlersAndMessages.Key));
+                from messagesBeingHandled in handlersAndMessages.Value
+                where Type.GetTypeFromHandle(messagesBeingHandled.MessageType).IsAssignableFrom(messageType)
+                select new MessageHandler(messagesBeingHandled.MethodDelegate, Type.GetTypeFromHandle(handlersAndMessages.Key));
         }
 
         /// <summary>
-        ///     Lists all message type for which we have handlers.
+        /// Lists all message type for which we have handlers.
         /// </summary>
         public IEnumerable<Type> GetMessageTypes()
         {
             return (from messagesBeingHandled in handlerAndMessagesHandledByHandlerCache.Values
-                    from typeHandled in messagesBeingHandled
-                    let messageType = Type.GetTypeFromHandle(typeHandled.MessageType)
-                    where conventions.IsMessageType(messageType)
-                    select messageType).Distinct();
+                from typeHandled in messagesBeingHandled
+                let messageType = Type.GetTypeFromHandle(typeHandled.MessageType)
+                where conventions.IsMessageType(messageType)
+                select messageType).Distinct();
         }
 
         /// <summary>
-        ///     Registers the given potential handler type.
+        /// Registers the given potential handler type.
         /// </summary>
         public void RegisterHandler(Type handlerType)
         {
@@ -79,7 +75,7 @@
         }
 
         /// <summary>
-        ///     Clears the cache.
+        /// Clears the cache.
         /// </summary>
         public void Clear()
         {
@@ -141,15 +137,19 @@
         static IEnumerable<Type> GetMessageTypesBeingHandledBy(Type type)
         {
             return (from t in type.GetInterfaces()
-                    where t.IsGenericType
-                    let potentialMessageType = t.GetGenericArguments()[0]
-                    where
-                        typeof(IHandleMessages<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t) ||
-                        typeof(IHandleTimeouts<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t)
-                    select potentialMessageType)
-                   .Distinct()
-                   .ToList();
+                where t.IsGenericType
+                let potentialMessageType = t.GetGenericArguments()[0]
+                where
+                    typeof(IHandleMessages<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t) ||
+                    typeof(IHandleTimeouts<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t)
+                select potentialMessageType)
+                .Distinct()
+                .ToList();
         }
+
+        readonly Conventions conventions;
+        readonly IDictionary<RuntimeTypeHandle, List<DelegateHolder>> handlerAndMessagesHandledByHandlerCache = new Dictionary<RuntimeTypeHandle, List<DelegateHolder>>();
+        static ILog Log = LogManager.GetLogger<MessageHandlerRegistry>();
 
         class DelegateHolder
         {

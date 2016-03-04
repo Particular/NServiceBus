@@ -11,13 +11,15 @@ namespace NServiceBus
     {
         public static T Construct<T>(this Type type)
         {
-            var defaultConstructor = type.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null, new Type[] { }, null);
+            var defaultConstructor = type.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null, new Type[]
+            {
+            }, null);
             if (defaultConstructor != null)
             {
-                return (T)defaultConstructor.Invoke(null);
+                return (T) defaultConstructor.Invoke(null);
             }
 
-            return (T)Activator.CreateInstance(type);
+            return (T) Activator.CreateInstance(type);
         }
 
         /// <summary>
@@ -81,15 +83,11 @@ namespace NServiceBus
             });
         }
 
-        static byte[] MsPublicKeyToken = typeof(string).Assembly.GetName().GetPublicKeyToken();
-
         static bool IsClrType(byte[] a1)
         {
             IStructuralEquatable structuralEquatable = a1;
             return structuralEquatable.Equals(MsPublicKeyToken, StructuralComparisons.StructuralEqualityComparer);
         }
-
-        static ConcurrentDictionary<RuntimeTypeHandle, bool> IsSystemTypeCache = new ConcurrentDictionary<RuntimeTypeHandle, bool>();
 
         public static bool IsSystemType(this Type type)
         {
@@ -104,15 +102,19 @@ namespace NServiceBus
             return result;
         }
 
-        static ConcurrentDictionary<RuntimeTypeHandle, string> TypeToNameLookup = new ConcurrentDictionary<RuntimeTypeHandle, string>();
-
-        static byte[] nsbPublicKeyToken = typeof(TypeExtensionMethods).Assembly.GetName().GetPublicKeyToken();
-
         public static bool IsFromParticularAssembly(this Type type)
         {
             return type.Assembly.GetName()
                 .GetPublicKeyToken()
                 .SequenceEqual(nsbPublicKeyToken);
         }
+
+        static byte[] MsPublicKeyToken = typeof(string).Assembly.GetName().GetPublicKeyToken();
+
+        static ConcurrentDictionary<RuntimeTypeHandle, bool> IsSystemTypeCache = new ConcurrentDictionary<RuntimeTypeHandle, bool>();
+
+        static ConcurrentDictionary<RuntimeTypeHandle, string> TypeToNameLookup = new ConcurrentDictionary<RuntimeTypeHandle, string>();
+
+        static byte[] nsbPublicKeyToken = typeof(TypeExtensionMethods).Assembly.GetName().GetPublicKeyToken();
     }
 }

@@ -1,41 +1,41 @@
-﻿using System;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
+    using System;
     using System.Collections.Generic;
 
     class WeakReference<T> : WeakReference where T : class
     {
+        protected WeakReference(T target)
+            : base(target, false)
+        {
+        }
+
+        public new T Target => (T) base.Target;
+
         public static WeakReference<T> Create(T target)
         {
             if (target == null)
+            {
                 return WeakNullReference<T>.Singleton;
+            }
 
             return new WeakReference<T>(target);
         }
-
-        protected WeakReference(T target)
-            : base(target, false) { }
-
-        public new T Target => (T)base.Target;
     }
 
     class WeakNullReference<T> : WeakReference<T> where T : class
     {
-        public static readonly WeakNullReference<T> Singleton = new WeakNullReference<T>();
-
         WeakNullReference()
             : base(null)
         {
         }
 
         public override bool IsAlive => true;
+        public static readonly WeakNullReference<T> Singleton = new WeakNullReference<T>();
     }
 
     sealed class WeakKeyReference<T> : WeakReference<T> where T : class
     {
-        public readonly int HashCode;
-
         public WeakKeyReference(T key, WeakKeyComparer<T> comparer)
             : base(key)
         {
@@ -44,17 +44,19 @@ namespace NServiceBus
             // remove the dead weak reference.
             HashCode = comparer.GetHashCode(key);
         }
+
+        public readonly int HashCode;
     }
 
     sealed class WeakKeyComparer<T> : IEqualityComparer<object>
-    where T : class
+        where T : class
     {
-        IEqualityComparer<T> comparer;
-
         internal WeakKeyComparer(IEqualityComparer<T> comparer)
         {
             if (comparer == null)
+            {
                 comparer = EqualityComparer<T>.Default;
+            }
 
             this.comparer = comparer;
         }
@@ -62,8 +64,11 @@ namespace NServiceBus
         public int GetHashCode(object obj)
         {
             var weakKey = obj as WeakKeyReference<T>;
-            if (weakKey != null) return weakKey.HashCode;
-            return comparer.GetHashCode((T)obj);
+            if (weakKey != null)
+            {
+                return weakKey.HashCode;
+            }
+            return comparer.GetHashCode((T) obj);
         }
 
         // Note: There are actually 9 cases to handle here.
@@ -91,10 +96,14 @@ namespace NServiceBus
             var second = GetTarget(y, out yIsDead);
 
             if (xIsDead)
+            {
                 return yIsDead && x == y;
+            }
 
             if (yIsDead)
+            {
                 return false;
+            }
 
             return comparer.Equals(first, second);
         }
@@ -110,27 +119,32 @@ namespace NServiceBus
             }
             else
             {
-                target = (T)obj;
+                target = (T) obj;
                 isDead = false;
             }
             return target;
         }
+
+        IEqualityComparer<T> comparer;
     }
 
     sealed class WeakKeyDictionary<TKey, TValue> : BaseDictionary<TKey, TValue>
         where TKey : class
     {
-        Dictionary<object, TValue> dictionary;
-        WeakKeyComparer<TKey> comparer;
-
         public WeakKeyDictionary()
-            : this(0, null) { }
+            : this(0, null)
+        {
+        }
 
         public WeakKeyDictionary(int capacity)
-            : this(capacity, null) { }
+            : this(capacity, null)
+        {
+        }
 
         public WeakKeyDictionary(IEqualityComparer<TKey> comparer)
-            : this(0, comparer) { }
+            : this(0, comparer)
+        {
+        }
 
         public WeakKeyDictionary(int capacity, IEqualityComparer<TKey> comparer)
         {
@@ -146,7 +160,10 @@ namespace NServiceBus
 
         public override void Add(TKey key, TValue value)
         {
-            if (key == null) throw new ArgumentNullException(nameof(key));
+            if (key == null)
+            {
+                throw new ArgumentNullException(nameof(key));
+            }
             WeakReference<TKey> weakKey = new WeakKeyReference<TKey>(key, comparer);
             dictionary.Add(weakKey, value);
         }
@@ -181,11 +198,13 @@ namespace NServiceBus
         {
             foreach (var kvp in dictionary)
             {
-                var weakKey = (WeakReference<TKey>)kvp.Key;
+                var weakKey = (WeakReference<TKey>) kvp.Key;
                 var key = weakKey.Target;
                 var value = kvp.Value;
                 if (weakKey.IsAlive)
+                {
                     yield return new KeyValuePair<TKey, TValue>(key, value);
+                }
             }
         }
 
@@ -198,12 +217,14 @@ namespace NServiceBus
             List<object> toRemove = null;
             foreach (var pair in dictionary)
             {
-                var weakKey = (WeakReference<TKey>)pair.Key;
+                var weakKey = (WeakReference<TKey>) pair.Key;
 
                 if (!weakKey.IsAlive)
                 {
                     if (toRemove == null)
+                    {
                         toRemove = new List<object>();
+                    }
                     toRemove.Add(weakKey);
                 }
             }
@@ -211,8 +232,13 @@ namespace NServiceBus
             if (toRemove != null)
             {
                 foreach (var key in toRemove)
+                {
                     dictionary.Remove(key);
+                }
             }
         }
+
+        WeakKeyComparer<TKey> comparer;
+        Dictionary<object, TValue> dictionary;
     }
 }

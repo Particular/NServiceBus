@@ -1,8 +1,8 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using NServiceBus.Config;
-    using NServiceBus.Features;
+    using Config;
+    using Features;
 
     class DetectObsoleteConfigurationSettings : Feature
     {
@@ -31,6 +31,4 @@
             }
         }
     }
-
-    
 }

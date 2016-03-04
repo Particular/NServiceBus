@@ -2,7 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
+    using Extensibility;
 
     /// <summary>
     /// The context for the current message handling pipeline.
@@ -25,7 +25,7 @@ namespace NServiceBus
         Task Send<T>(Action<T> messageConstructor, SendOptions options);
 
         /// <summary>
-        ///  Publish the message to subscribers.
+        /// Publish the message to subscribers.
         /// </summary>
         /// <param name="message">The message to publish.</param>
         /// <param name="options">The options for the publish.</param>

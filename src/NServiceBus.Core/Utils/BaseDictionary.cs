@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-namespace NServiceBus
+﻿namespace NServiceBus
 {
+    using System;
     using System.Collections;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
 
@@ -10,12 +10,6 @@ namespace NServiceBus
     [DebuggerTypeProxy(PREFIX + "DictionaryDebugView`2" + SUFFIX)]
     abstract class BaseDictionary<TKey, TValue> : IDictionary<TKey, TValue>
     {
-        const string PREFIX = "System.Collections.Generic.Mscorlib_";
-        const string SUFFIX = ",mscorlib,Version=2.0.0.0,Culture=neutral,PublicKeyToken=b77a5c561934e089";
-
-        KeyCollection keys;
-        ValueCollection values;
-
         public abstract int Count { get; }
         public abstract void Clear();
         public abstract void Add(TKey key, TValue value);
@@ -23,7 +17,6 @@ namespace NServiceBus
         public abstract bool Remove(TKey key);
         public abstract bool TryGetValue(TKey key, out TValue value);
         public abstract IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator();
-        protected abstract void SetValue(TKey key, TValue value);
 
         public bool IsReadOnly => false;
 
@@ -32,7 +25,9 @@ namespace NServiceBus
             get
             {
                 if (keys == null)
+                {
                     keys = new KeyCollection(this);
+                }
 
                 return keys;
             }
@@ -43,7 +38,9 @@ namespace NServiceBus
             get
             {
                 if (values == null)
+                {
                     values = new ValueCollection(this);
+                }
 
                 return values;
             }
@@ -55,14 +52,13 @@ namespace NServiceBus
             {
                 TValue value;
                 if (!TryGetValue(key, out value))
+                {
                     throw new KeyNotFoundException();
+                }
 
                 return value;
             }
-            set
-            {
-                SetValue(key, value);
-            }
+            set { SetValue(key, value); }
         }
 
         public void Add(KeyValuePair<TKey, TValue> item)
@@ -74,7 +70,9 @@ namespace NServiceBus
         {
             TValue value;
             if (!TryGetValue(item.Key, out value))
+            {
                 return false;
+            }
 
             return EqualityComparer<TValue>.Default.Equals(value, item.Value);
         }
@@ -87,7 +85,9 @@ namespace NServiceBus
         public bool Remove(KeyValuePair<TKey, TValue> item)
         {
             if (!Contains(item))
+            {
                 return false;
+            }
 
             return Remove(item.Key);
         }
@@ -97,10 +97,35 @@ namespace NServiceBus
             return GetEnumerator();
         }
 
+        protected abstract void SetValue(TKey key, TValue value);
+
+        static void Copy<T>(ICollection<T> source, T[] array, int arrayIndex)
+        {
+            Guard.AgainstNull(nameof(array), array);
+
+            if (arrayIndex < 0 || arrayIndex > array.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(arrayIndex));
+            }
+
+            if (array.Length - arrayIndex < source.Count)
+            {
+                throw new ArgumentException("Destination array is not large enough. Check array.Length and arrayIndex.");
+            }
+
+            foreach (var item in source)
+            {
+                array[arrayIndex++] = item;
+            }
+        }
+
+        KeyCollection keys;
+        ValueCollection values;
+        const string PREFIX = "System.Collections.Generic.Mscorlib_";
+        const string SUFFIX = ",mscorlib,Version=2.0.0.0,Culture=neutral,PublicKeyToken=b77a5c561934e089";
+
         abstract class Collection<T> : ICollection<T>
         {
-            protected readonly IDictionary<TKey, TValue> dictionary;
-
             protected Collection(IDictionary<TKey, TValue> dictionary)
             {
                 this.dictionary = dictionary;
@@ -118,8 +143,12 @@ namespace NServiceBus
             public virtual bool Contains(T item)
             {
                 foreach (var element in this)
+                {
                     if (EqualityComparer<T>.Default.Equals(element, item))
+                    {
                         return true;
+                    }
+                }
                 return false;
             }
 
@@ -127,8 +156,6 @@ namespace NServiceBus
             {
                 return dictionary.Select(GetItem).GetEnumerator();
             }
-
-            protected abstract T GetItem(KeyValuePair<TKey, TValue> pair);
 
             public bool Remove(T item)
             {
@@ -149,6 +176,9 @@ namespace NServiceBus
             {
                 return GetEnumerator();
             }
+
+            protected abstract T GetItem(KeyValuePair<TKey, TValue> pair);
+            protected readonly IDictionary<TKey, TValue> dictionary;
         }
 
         [DebuggerDisplay("Count = {Count}")]
@@ -156,12 +186,15 @@ namespace NServiceBus
         class KeyCollection : Collection<TKey>
         {
             public KeyCollection(IDictionary<TKey, TValue> dictionary)
-                : base(dictionary) { }
+                : base(dictionary)
+            {
+            }
 
             protected override TKey GetItem(KeyValuePair<TKey, TValue> pair)
             {
                 return pair.Key;
             }
+
             public override bool Contains(TKey item)
             {
                 return dictionary.ContainsKey(item);
@@ -173,26 +206,14 @@ namespace NServiceBus
         class ValueCollection : Collection<TValue>
         {
             public ValueCollection(IDictionary<TKey, TValue> dictionary)
-                : base(dictionary) { }
+                : base(dictionary)
+            {
+            }
 
             protected override TValue GetItem(KeyValuePair<TKey, TValue> pair)
             {
                 return pair.Value;
             }
-        }
-
-        static void Copy<T>(ICollection<T> source, T[] array, int arrayIndex)
-        {
-            Guard.AgainstNull(nameof(array), array);
-
-            if (arrayIndex < 0 || arrayIndex > array.Length)
-                throw new ArgumentOutOfRangeException(nameof(arrayIndex));
-
-            if (array.Length - arrayIndex < source.Count)
-                throw new ArgumentException("Destination array is not large enough. Check array.Length and arrayIndex.");
-
-            foreach (var item in source)
-                array[arrayIndex++] = item;
         }
     }
 }

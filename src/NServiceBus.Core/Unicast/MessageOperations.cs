@@ -2,8 +2,8 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.MessageInterfaces;
-    using NServiceBus.Pipeline;
+    using MessageInterfaces;
+    using Pipeline;
 
     static class MessageOperations
     {

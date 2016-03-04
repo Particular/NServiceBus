@@ -2,7 +2,7 @@ namespace NServiceBus.Transports
 {
     using System;
     using System.Collections.Generic;
-    using NServiceBus.Routing;
+    using Routing;
 
     /// <summary>
     /// Represents a set of transport operations.
@@ -23,9 +23,9 @@ namespace NServiceBus.Transports
                 if (transportOperation.AddressTag is MulticastAddressTag)
                 {
                     multicastOperations.Add(new MulticastTransportOperation(
-                        transportOperation.Message, 
-                        ((MulticastAddressTag) transportOperation.AddressTag).MessageType, 
-                        transportOperation.RequiredDispatchConsistency, 
+                        transportOperation.Message,
+                        ((MulticastAddressTag) transportOperation.AddressTag).MessageType,
+                        transportOperation.RequiredDispatchConsistency,
                         transportOperation.DeliveryConstraints));
                 }
                 else if (transportOperation.AddressTag is UnicastAddressTag)
@@ -39,7 +39,7 @@ namespace NServiceBus.Transports
                 else
                 {
                     throw new ArgumentException(
-                        $"Transport operations contain an unsupported type of {typeof(AddressTag).Name}: {transportOperation.AddressTag.GetType().Name}. Supported types are {typeof(UnicastAddressTag).Name} and {typeof(MulticastAddressTag).Name}", 
+                        $"Transport operations contain an unsupported type of {typeof(AddressTag).Name}: {transportOperation.AddressTag.GetType().Name}. Supported types are {typeof(UnicastAddressTag).Name} and {typeof(MulticastAddressTag).Name}",
                         nameof(transportOperations));
                 }
             }

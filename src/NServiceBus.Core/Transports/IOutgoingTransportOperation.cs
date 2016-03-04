@@ -1,7 +1,7 @@
 namespace NServiceBus.Transports
 {
     using System.Collections.Generic;
-    using NServiceBus.DeliveryConstraints;
+    using DeliveryConstraints;
 
     /// <summary>
     /// Represents a transport operation.

@@ -5,21 +5,6 @@ namespace NServiceBus.Transports
     /// </summary>
     public class StartupCheckResult
     {
-        /// <summary>
-        /// Success.
-        /// </summary>
-        public static readonly StartupCheckResult Success = new StartupCheckResult(true, null);
-
-        /// <summary>
-        /// Failure.
-        /// </summary>
-        /// <param name="errorMessage">Mandatory error message.</param>
-        public static StartupCheckResult Failed(string errorMessage)
-        {
-            Guard.AgainstNull(nameof(errorMessage), errorMessage);
-            return new StartupCheckResult(false, errorMessage);
-        }
-
         StartupCheckResult(bool succeeded, string errorMessage)
         {
             Succeeded = succeeded;
@@ -36,6 +21,19 @@ namespace NServiceBus.Transports
         /// </summary>
         public string ErrorMessage { get; }
 
+        /// <summary>
+        /// Failure.
+        /// </summary>
+        /// <param name="errorMessage">Mandatory error message.</param>
+        public static StartupCheckResult Failed(string errorMessage)
+        {
+            Guard.AgainstNull(nameof(errorMessage), errorMessage);
+            return new StartupCheckResult(false, errorMessage);
+        }
 
+        /// <summary>
+        /// Success.
+        /// </summary>
+        public static readonly StartupCheckResult Success = new StartupCheckResult(true, null);
     }
 }

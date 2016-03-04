@@ -9,7 +9,7 @@
     public interface IPushMessages
     {
         /// <summary>
-        /// Initializes the <see cref="IPushMessages"/>.
+        /// Initializes the <see cref="IPushMessages" />.
         /// </summary>
         Task Init(Func<PushContext, Task> pipe, CriticalError criticalError, PushSettings settings);
 

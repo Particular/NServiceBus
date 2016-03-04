@@ -6,11 +6,11 @@
     public class PushSettings
     {
         /// <summary>
-        /// Creates an instance of <see cref="PushSettings"/>.
+        /// Creates an instance of <see cref="PushSettings" />.
         /// </summary>
         /// <param name="inputQueue">Input queue name.</param>
         /// <param name="errorQueue">Error queue name.</param>
-        /// <param name="purgeOnStartup"><code>true</code> to purge <paramref name="inputQueue"/> at startup.</param>
+        /// <param name="purgeOnStartup"><code>true</code> to purge <paramref name="inputQueue" /> at startup.</param>
         /// <param name="requiredTransactionMode">The transaction mode required for receive operations.</param>
         public PushSettings(string inputQueue, string errorQueue, bool purgeOnStartup, TransportTransactionMode requiredTransactionMode)
         {
@@ -27,7 +27,7 @@
         /// <summary>
         /// The native queue to consume messages from.
         /// </summary>
-        public string InputQueue{ get; private set; }
+        public string InputQueue { get; private set; }
 
         /// <summary>
         /// The native queue where to send corrupted messages to.

@@ -7,14 +7,14 @@ namespace NServiceBus
     using System.Messaging;
     using System.Text;
     using System.Xml;
-    using NServiceBus.DeliveryConstraints;
-    using NServiceBus.Logging;
-    using NServiceBus.Performance.TimeToBeReceived;
-    using NServiceBus.Transports;
-    using NServiceBus.Transports.Msmq;
+    using DeliveryConstraints;
+    using Logging;
+    using Performance.TimeToBeReceived;
+    using Transports;
+    using Transports.Msmq;
 
     /// <summary>
-    ///     MSMQ-related utility functions
+    /// MSMQ-related utility functions
     /// </summary>
     class MsmqUtilities
     {
@@ -49,7 +49,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        ///     Converts an MSMQ message to a TransportMessage.
+        /// Converts an MSMQ message to a TransportMessage.
         /// </summary>
         public static Dictionary<string, string> ExtractHeaders(Message msmqMessage)
         {
@@ -63,7 +63,7 @@ namespace NServiceBus
 
             if (Enum.IsDefined(typeof(MessageIntentEnum), msmqMessage.AppSpecific))
             {
-                headers[Headers.MessageIntent] = ((MessageIntentEnum)msmqMessage.AppSpecific).ToString();
+                headers[Headers.MessageIntent] = ((MessageIntentEnum) msmqMessage.AppSpecific).ToString();
             }
 
             headers[Headers.CorrelationId] = GetCorrelationId(msmqMessage, headers);
@@ -114,7 +114,7 @@ namespace NServiceBus
                 }
             }
 
-            foreach (var pair in (List<HeaderInfo>)o)
+            foreach (var pair in (List<HeaderInfo>) o)
             {
                 if (pair.Key != null)
                 {
@@ -126,8 +126,8 @@ namespace NServiceBus
         }
 
         /// <summary>
-        ///     Converts a TransportMessage to an Msmq message.
-        ///     Doesn't set the ResponseQueue of the result.
+        /// Converts a TransportMessage to an Msmq message.
+        /// Doesn't set the ResponseQueue of the result.
         /// </summary>
         public static Message Convert(OutgoingMessage message, IEnumerable<DeliveryConstraint> deliveryConstraints)
         {
@@ -161,7 +161,11 @@ namespace NServiceBus
 
                 if (addCorrIdHeader)
                 {
-                    headers.Add(new HeaderInfo { Key = "CorrId", Value = result.CorrelationId });
+                    headers.Add(new HeaderInfo
+                    {
+                        Key = "CorrId",
+                        Value = result.CorrelationId
+                    });
                 }
 
                 headerSerializer.Serialize(stream, headers);
@@ -174,11 +178,10 @@ namespace NServiceBus
 
             if (message.Headers.TryGetValue(Headers.MessageIntent, out messageIntentString))
             {
-
                 Enum.TryParse(messageIntentString, true, out messageIntent);
             }
 
-            result.AppSpecific = (int)messageIntent;
+            result.AppSpecific = (int) messageIntent;
 
 
             return result;

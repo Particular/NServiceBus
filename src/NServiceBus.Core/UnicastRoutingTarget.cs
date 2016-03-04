@@ -1,13 +1,35 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using NServiceBus.Routing;
+    using Routing;
 
     /// <summary>
     /// Represents a reference to an endpoint instance (which is either its name or a transport address).
     /// </summary>
     public sealed class UnicastRoutingTarget
     {
+        UnicastRoutingTarget(EndpointName endpoint, EndpointInstance instance, string transportAddress)
+        {
+            Endpoint = endpoint;
+            Instance = instance;
+            TransportAddress = transportAddress;
+        }
+
+        /// <summary>
+        /// Endpoint name, if specified.
+        /// </summary>
+        public EndpointName Endpoint { get; }
+
+        /// <summary>
+        /// Endpoint instance name, if specified.
+        /// </summary>
+        public EndpointInstance Instance { get; }
+
+        /// <summary>
+        /// Endpoint instance transport address, if specified.
+        /// </summary>
+        public string TransportAddress { get; }
+
         /// <summary>
         /// Creates a enw destination to a known endpoint.
         /// </summary>
@@ -40,32 +62,10 @@
             return new UnicastRoutingTarget(null, null, transportAddress);
         }
 
-        UnicastRoutingTarget(EndpointName endpoint, EndpointInstance instance, string transportAddress)
-        {
-            Endpoint = endpoint;
-            Instance = instance;
-            TransportAddress = transportAddress;
-        }
-
         internal string Resolve(Func<EndpointInstance, string> transportAddressResolver)
         {
             return TransportAddress ?? transportAddressResolver(Instance);
         }
-
-        /// <summary>
-        /// Endpoint name, if specified.
-        /// </summary>
-        public EndpointName Endpoint { get; }
-
-        /// <summary>
-        /// Endpoint instance name, if specified.
-        /// </summary>
-        public EndpointInstance Instance { get; }
-
-        /// <summary>
-        /// Endpoint instance transport address, if specified.
-        /// </summary>
-        public string TransportAddress { get; }
 
         bool Equals(UnicastRoutingTarget other)
         {
@@ -93,7 +93,7 @@
         }
 
         /// <summary>
-        /// Serves as a hash function for a particular type. 
+        /// Serves as a hash function for a particular type.
         /// </summary>
         /// <returns>
         /// A hash code for the current object.

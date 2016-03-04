@@ -1,7 +1,7 @@
-using System.Threading.Tasks;
-
 namespace NServiceBus
 {
+    using System.Threading.Tasks;
+
     /// <summary>
     /// Provides factory methods for creating and starting endpoint instances.
     /// </summary>

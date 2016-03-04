@@ -7,19 +7,19 @@ namespace NServiceBus
     using System.Reflection;
     using System.Transactions;
     using System.Web;
-    using NServiceBus.Config.ConfigurationSource;
-    using NServiceBus.Configuration.AdvanceExtensibility;
-    using NServiceBus.Container;
-    using NServiceBus.Hosting.Helpers;
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.ObjectBuilder.Common;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Routing;
-    using NServiceBus.Settings;
-    using NServiceBus.Transports;
+    using Config.ConfigurationSource;
+    using Configuration.AdvanceExtensibility;
+    using Container;
+    using Hosting.Helpers;
+    using ObjectBuilder;
+    using ObjectBuilder.Common;
+    using Pipeline;
+    using Routing;
+    using Settings;
+    using Transports;
 
     /// <summary>
-    ///     Configuration used to create an endpoint instance.
+    /// Configuration used to create an endpoint instance.
     /// </summary>
     public class EndpointConfiguration : ExposeSettings
     {
@@ -45,12 +45,12 @@ namespace NServiceBus
         }
 
         /// <summary>
-        ///     Access to the pipeline configuration.
+        /// Access to the pipeline configuration.
         /// </summary>
         public PipelineSettings Pipeline { get; }
 
         /// <summary>
-        ///     Used to configure components in the container.
+        /// Used to configure components in the container.
         /// </summary>
         public void RegisterComponents(Action<IConfigureComponents> registration)
         {
@@ -59,7 +59,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Append a list of <see cref="Assembly"/>s to the ignored list. The string is the file name of the assembly.
+        /// Append a list of <see cref="Assembly" />s to the ignored list. The string is the file name of the assembly.
         /// </summary>
         public void ExcludeAssemblies(params string[] assemblies)
         {
@@ -73,7 +73,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Append a list of <see cref="Type"/>s to the ignored list.
+        /// Append a list of <see cref="Type" />s to the ignored list.
         /// </summary>
         public void ExcludeTypes(params Type[] types)
         {
@@ -103,7 +103,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        ///     Overrides the default configuration source.
+        /// Overrides the default configuration source.
         /// </summary>
         public void CustomConfigurationSource(IConfigurationSource configurationSource)
         {
@@ -112,7 +112,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        ///     Defines the name to use for this endpoint.
+        /// Defines the name to use for this endpoint.
         /// </summary>
         public void EndpointName(string name)
         {
@@ -121,7 +121,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        ///     Defines the conventions to use for this endpoint.
+        /// Defines the conventions to use for this endpoint.
         /// </summary>
         public ConventionsBuilder Conventions()
         {
@@ -129,9 +129,9 @@ namespace NServiceBus
         }
 
         /// <summary>
-        ///     Defines a custom builder to use.
+        /// Defines a custom builder to use.
         /// </summary>
-        /// <typeparam name="T">The builder type of the <see cref="ContainerDefinition"/>.</typeparam>
+        /// <typeparam name="T">The builder type of the <see cref="ContainerDefinition" />.</typeparam>
         public void UseContainer<T>(Action<ContainerCustomizations> customizations = null) where T : ContainerDefinition, new()
         {
             customizations?.Invoke(new ContainerCustomizations(Settings));
@@ -140,9 +140,9 @@ namespace NServiceBus
         }
 
         /// <summary>
-        ///     Defines a custom builder to use.
+        /// Defines a custom builder to use.
         /// </summary>
-        /// <param name="definitionType">The type of the <see cref="ContainerDefinition"/>.</param>
+        /// <param name="definitionType">The type of the <see cref="ContainerDefinition" />.</param>
         public void UseContainer(Type definitionType)
         {
             Guard.AgainstNull(nameof(definitionType), definitionType);
@@ -152,7 +152,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        ///     Uses an already active instance of a builder.
+        /// Uses an already active instance of a builder.
         /// </summary>
         /// <param name="builder">The instance to use.</param>
         public void UseContainer(IContainer builder)
@@ -182,7 +182,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        ///     Specifies the range of types that NServiceBus scans for handlers etc.
+        /// Specifies the range of types that NServiceBus scans for handlers etc.
         /// </summary>
         internal void TypesToScanInternal(IEnumerable<Type> typesToScan)
         {
@@ -190,7 +190,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        ///     Creates the configuration object.
+        /// Creates the configuration object.
         /// </summary>
         internal InitializableEndpoint Build()
         {
@@ -251,7 +251,7 @@ namespace NServiceBus
                     throw new Exception($"Unable to create the type '{t.Name}'. Types implementing '{typeof(T).Name}' must have a public parameterless (default) constructor.");
                 }
 
-                var instanceToInvoke = (T)Activator.CreateInstance(t);
+                var instanceToInvoke = (T) Activator.CreateInstance(t);
                 action(instanceToInvoke);
             });
         }
@@ -261,11 +261,11 @@ namespace NServiceBus
         List<Type> GetAllowedTypes(string path)
         {
             var assemblyScanner = new AssemblyScanner(path)
-                                  {
-                                      AssembliesToSkip = excludedAssemblies,
-                                      TypesToSkip = excludedTypes,
-                                      ScanNestedDirectories = scanAssembliesInNestedDirectories
-                                  };
+            {
+                AssembliesToSkip = excludedAssemblies,
+                TypesToSkip = excludedTypes,
+                ScanNestedDirectories = scanAssembliesInNestedDirectories
+            };
             return assemblyScanner
                 .GetScannableAssemblies()
                 .Types;
@@ -285,16 +285,16 @@ namespace NServiceBus
 
         IConfigurationSource configurationSourceToUse;
         ConventionsBuilder conventionsBuilder;
-        List<Action<IConfigureComponents>> registrations = new List<Action<IConfigureComponents>>();
         IContainer customBuilder;
         EndpointName endpointName;
-        List<IWantToRunWhenBusStartsAndStops> startables = new List<IWantToRunWhenBusStartsAndStops>();
-        List<Type> scannedTypes;
-        List<Type> excludedTypes = new List<Type>();
         List<string> excludedAssemblies = new List<string>();
-        bool scanAssembliesInNestedDirectories;
-        string publicReturnAddress;
+        List<Type> excludedTypes = new List<Type>();
         PipelineConfiguration pipelineCollection;
+        string publicReturnAddress;
+        List<Action<IConfigureComponents>> registrations = new List<Action<IConfigureComponents>>();
+        bool scanAssembliesInNestedDirectories;
+        List<Type> scannedTypes;
         bool sendOnly;
+        List<IWantToRunWhenBusStartsAndStops> startables = new List<IWantToRunWhenBusStartsAndStops>();
     }
 }

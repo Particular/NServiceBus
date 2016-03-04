@@ -8,7 +8,7 @@ namespace NServiceBus.Transports
     public class OutgoingMessage
     {
         /// <summary>
-        /// Initializes a new insatnce of <see cref="OutgoingMessage"/>.
+        /// Initializes a new insatnce of <see cref="OutgoingMessage" />.
         /// </summary>
         /// <param name="messageId">The message id to use.</param>
         /// <param name="headers">The headers associated with this message.</param>

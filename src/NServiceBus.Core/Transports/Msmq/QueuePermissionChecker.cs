@@ -4,7 +4,7 @@
     using System.Diagnostics;
     using System.Messaging;
     using System.Security;
-    using NServiceBus.Logging;
+    using Logging;
 
     class QueuePermissionChecker
     {
@@ -50,9 +50,13 @@
                 var logMessage = $"Queue [{queue.QueueName}] is running with [{QueueCreator.LocalEveryoneGroupName}] and [{QueueCreator.LocalAnonymousLogonName}] permissions. Consider setting appropriate permissions, if required by the organization. For more information, consult the documentation.";
 
                 if (Debugger.IsAttached)
+                {
                     Logger.Info(logMessage);
+                }
                 else
+                {
                     Logger.Warn(logMessage);
+                }
             }
         }
 

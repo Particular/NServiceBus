@@ -1,7 +1,7 @@
 namespace NServiceBus
 {
     using JetBrains.Annotations;
-    using NServiceBus.Settings;
+    using Settings;
 
     /// <summary>
     /// Indicates that this class contains logic that needs to run just before

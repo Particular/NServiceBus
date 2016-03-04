@@ -8,7 +8,7 @@ namespace NServiceBus
     using System.Threading;
     using System.Threading.Tasks;
     using Logging;
-    using NServiceBus.Transports;
+    using Transports;
 
     class MessagePump : IPushMessages, IDisposable
     {
@@ -192,7 +192,7 @@ namespace NServiceBus
                         Task toBeRemoved;
                         runningReceiveTasks.TryRemove(t, out toBeRemoved);
                     }, TaskContinuationOptions.ExecuteSynchronously)
-                    .Ignore();
+                        .Ignore();
                 }
             }
         }

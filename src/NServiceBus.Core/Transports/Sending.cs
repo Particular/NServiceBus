@@ -3,8 +3,8 @@ namespace NServiceBus
     using System;
     using System.Threading;
     using System.Threading.Tasks;
-    using NServiceBus.Features;
-    using NServiceBus.Transports;
+    using Features;
+    using Transports;
 
     class Sending : Feature
     {
@@ -26,11 +26,9 @@ namespace NServiceBus
 
             context.RegisterStartupTask(new PrepareForSending(lazySendingConfigResult));
         }
-        
+
         class PrepareForSending : FeatureStartupTask
         {
-            readonly Lazy<TransportSendInfrastructure> lazy;
-
             public PrepareForSending(Lazy<TransportSendInfrastructure> lazy)
             {
                 this.lazy = lazy;
@@ -41,7 +39,7 @@ namespace NServiceBus
                 var result = await lazy.Value.PreStartupCheck().ConfigureAwait(false);
                 if (!result.Succeeded)
                 {
-                    throw new Exception("Pre start-up check failed: "+ result.ErrorMessage);
+                    throw new Exception("Pre start-up check failed: " + result.ErrorMessage);
                 }
             }
 
@@ -49,6 +47,8 @@ namespace NServiceBus
             {
                 return TaskEx.CompletedTask;
             }
+
+            readonly Lazy<TransportSendInfrastructure> lazy;
         }
     }
 }

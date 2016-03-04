@@ -22,14 +22,13 @@ namespace NServiceBus.Config
             {
                 var result = this["DistributorControlAddress"] as string;
                 if (string.IsNullOrWhiteSpace(result))
+                {
                     result = null;
+                }
 
                 return result;
             }
-            set
-            {
-                this["DistributorControlAddress"] = value;
-            }
+            set { this["DistributorControlAddress"] = value; }
         }
 
         /// <summary>
@@ -46,14 +45,13 @@ namespace NServiceBus.Config
             {
                 var result = this["DistributorDataAddress"] as string;
                 if (string.IsNullOrWhiteSpace(result))
+                {
                     result = null;
+                }
 
                 return result;
             }
-            set
-            {
-                this["DistributorDataAddress"] = value;
-            }
+            set { this["DistributorDataAddress"] = value; }
         }
 
         /// <summary>
@@ -70,14 +68,13 @@ namespace NServiceBus.Config
             {
                 var result = this["ForwardReceivedMessagesTo"] as string;
                 if (string.IsNullOrWhiteSpace(result))
+                {
                     result = null;
+                }
 
                 return result;
             }
-            set
-            {
-                this["ForwardReceivedMessagesTo"] = value;
-            }
+            set { this["ForwardReceivedMessagesTo"] = value; }
         }
 
 
@@ -87,14 +84,8 @@ namespace NServiceBus.Config
         [ConfigurationProperty("TimeToBeReceivedOnForwardedMessages", IsRequired = false)]
         public TimeSpan TimeToBeReceivedOnForwardedMessages
         {
-            get
-            {
-                return (TimeSpan)this["TimeToBeReceivedOnForwardedMessages"];
-            }
-            set
-            {
-                this["TimeToBeReceivedOnForwardedMessages"] = value;
-            }
+            get { return (TimeSpan) this["TimeToBeReceivedOnForwardedMessages"]; }
+            set { this["TimeToBeReceivedOnForwardedMessages"] = value; }
         }
 
         /// <summary>
@@ -107,14 +98,13 @@ namespace NServiceBus.Config
             {
                 var result = this["TimeoutManagerAddress"] as string;
                 if (string.IsNullOrWhiteSpace(result))
+                {
                     result = null;
+                }
 
                 return result;
             }
-            set
-            {
-                this["TimeoutManagerAddress"] = value;
-            }
+            set { this["TimeoutManagerAddress"] = value; }
         }
 
         /// <summary>
@@ -123,14 +113,8 @@ namespace NServiceBus.Config
         [ConfigurationProperty("MessageEndpointMappings", IsRequired = false)]
         public MessageEndpointMappingCollection MessageEndpointMappings
         {
-            get
-            {
-                return this["MessageEndpointMappings"] as MessageEndpointMappingCollection;
-            }
-            set
-            {
-                this["MessageEndpointMappings"] = value;
-            }
+            get { return this["MessageEndpointMappings"] as MessageEndpointMappingCollection; }
+            set { this["MessageEndpointMappings"] = value; }
         }
     }
 }

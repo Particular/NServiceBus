@@ -4,7 +4,7 @@ namespace NServiceBus
     using System.Messaging;
     using System.Threading;
     using System.Threading.Tasks;
-    using NServiceBus.Transports;
+    using Transports;
 
     abstract class ReceiveStrategy
     {

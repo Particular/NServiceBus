@@ -1,7 +1,7 @@
 namespace NServiceBus
 {
-    using NServiceBus.Features;
-    using NServiceBus.Transports;
+    using Features;
+    using Transports;
 
     class Transport : Feature
     {

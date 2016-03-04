@@ -1,6 +1,6 @@
 namespace NServiceBus
 {
-    using NServiceBus.Routing;
+    using Routing;
 
     /// <summary>
     /// Provides MSMQ-specific extensions to routing.

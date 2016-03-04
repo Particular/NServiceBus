@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus
 {
-    using NServiceBus.Transports;
+    using Transports;
 
     class TimeToBeReceivedOverrideChecker
     {

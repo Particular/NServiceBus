@@ -1,19 +1,18 @@
 ﻿namespace NServiceBus
 {
-    ///<summary>
+    /// <summary>
     /// Enumeration defining different kinds of message intent like Send and Publish.
-    ///</summary>
+    /// </summary>
     public enum MessageIntentEnum
     {
-        
-        ///<summary>
+        /// <summary>
         /// Regular point-to-point send.
-        ///</summary>
+        /// </summary>
         Send = 1,
 
-        ///<summary>
+        /// <summary>
         /// Publish, not a regular point-to-point send.
-        ///</summary>
+        /// </summary>
         Publish = 2,
 
         /// <summary>

@@ -1,13 +1,23 @@
 namespace NServiceBus
 {
-    using NServiceBus.Settings;
-    using NServiceBus.Transports;
+    using Settings;
+    using Transports;
 
     /// <summary>
     /// Transport definition for MSMQ.
     /// </summary>
     public class MsmqTransport : TransportDefinition
     {
+        /// <summary>
+        /// <see cref="TransportDefinition.ExampleConnectionStringForErrorMessage" />.
+        /// </summary>
+        public override string ExampleConnectionStringForErrorMessage => "cacheSendConnection=true;journal=false;deadLetter=true";
+
+        /// <summary>
+        /// <see cref="TransportDefinition.RequiresConnectionString" />.
+        /// </summary>
+        public override bool RequiresConnectionString => false;
+
         /// <summary>
         /// Initializes the transport infrastructure for msmq.
         /// </summary>
@@ -18,15 +28,5 @@ namespace NServiceBus
         {
             return new MsmqTransportInfrastructure(settings, connectionString);
         }
-
-        /// <summary>
-        /// <see cref="TransportDefinition.ExampleConnectionStringForErrorMessage"/>.
-        /// </summary>
-        public override string ExampleConnectionStringForErrorMessage => "cacheSendConnection=true;journal=false;deadLetter=true";
-
-        /// <summary>
-        /// <see cref="TransportDefinition.RequiresConnectionString"/>.
-        /// </summary>
-        public override bool RequiresConnectionString => false;
     }
 }
