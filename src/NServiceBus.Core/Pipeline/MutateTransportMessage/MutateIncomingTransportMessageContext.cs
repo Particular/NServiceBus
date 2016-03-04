@@ -10,7 +10,7 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// Initializes a new instance of <see cref="MutateOutgoingTransportMessageContext" />.
         /// </summary>
-        public MutateIncomingTransportMessageContext(byte[] body, IDictionary<string, string> headers)
+        public MutateIncomingTransportMessageContext(byte[] body, Dictionary<string, string> headers)
         {
             Guard.AgainstNull(nameof(headers), headers);
             Guard.AgainstNull(nameof(body), body);
@@ -35,7 +35,7 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// The current incoming headers.
         /// </summary>
-        public IDictionary<string, string> Headers { get; private set; }
+        public Dictionary<string, string> Headers { get; private set; }
 
         byte[] body;
 

@@ -189,7 +189,7 @@ namespace NServiceBus
             throw new NotSupportedException("Unsupported KeyFormat. Supported formats are: ASCII and Base64.");
         }
 
-        internal static IDictionary<string, byte[]> ExtractKeysFromConfigSection(RijndaelEncryptionServiceConfig section)
+        internal static Dictionary<string, byte[]> ExtractKeysFromConfigSection(RijndaelEncryptionServiceConfig section)
         {
             var result = new Dictionary<string, byte[]>();
 
