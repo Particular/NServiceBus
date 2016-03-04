@@ -89,8 +89,12 @@ namespace NServiceBus
 
         internal async Task SpinOnce()
         {
-            Logger.DebugFormat("Polling for timeouts at {0}.", currentTimeProvider());
+            if (NextRetrieval > currentTimeProvider())
+            {
+                return;
+            }
 
+            Logger.DebugFormat("Polling for timeouts at {0}.", currentTimeProvider());
             var timeoutChunk = await timeoutsFetcher.GetNextChunk(startSlice).ConfigureAwait(false);
 
             foreach (var timeoutData in timeoutChunk.DueTimeouts)
