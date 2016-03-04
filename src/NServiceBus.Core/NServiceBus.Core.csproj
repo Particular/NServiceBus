@@ -623,7 +623,6 @@
     <Compile Include="Sagas\SagaPersistenceBehavior.cs" />
     <Compile Include="Pipeline\Incoming\LogicalMessageFactory.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\StorageInitializer.cs" />
-    <Compile Include="Unicast\Transport\TransportMessageExtensions.cs" />
     <Compile Include="UnitOfWork\UnitOfWorkBehavior.cs" />
     <Compile Include="Pipeline\Behavior.cs" />
     <Compile Include="Pipeline\BehaviorChain.cs" />
