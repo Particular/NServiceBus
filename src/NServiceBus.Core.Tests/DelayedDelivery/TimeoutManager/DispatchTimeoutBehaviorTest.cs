@@ -17,7 +17,7 @@
         public async Task Invoke_when_message_dispatched_should_remove_timeout_from_timeout_storage()
         {
             var messageDispatcher = new FakeMessageDispatcher();
-            var timeoutPersister = new InMemoryTimeoutPersister();
+            var timeoutPersister = new InMemoryTimeoutPersister(() => DateTime.UtcNow);
             var behavior = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransportTransactionMode.TransactionScope);
             var timeoutData = CreateTimeout();
             await timeoutPersister.Add(timeoutData, null);
@@ -32,7 +32,7 @@
         public async Task Invoke_when_timeout_not_in_storage_should_process_successfully()
         {
             var messageDispatcher = new FakeMessageDispatcher();
-            var timeoutPersister = new InMemoryTimeoutPersister();
+            var timeoutPersister = new InMemoryTimeoutPersister(() => DateTime.UtcNow);
             var behavior = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransportTransactionMode.TransactionScope);
 
             await behavior.Invoke(CreateContext(Guid.NewGuid().ToString()), context => TaskEx.CompletedTask);
@@ -44,7 +44,7 @@
         public async Task Invoke_when_dispatching_message_fails_should_keep_timeout_in_storage()
         {
             var messageDispatcher = new FailingMessageDispatcher();
-            var timeoutPersister = new InMemoryTimeoutPersister();
+            var timeoutPersister = new InMemoryTimeoutPersister(() => DateTime.UtcNow);
             var behavior = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransportTransactionMode.TransactionScope);
             var timeoutData = CreateTimeout();
             await timeoutPersister.Add(timeoutData, null);
@@ -74,7 +74,7 @@
         public async Task Invoke_when_using_dtc_should_enlist_dispatch_in_transaction()
         {
             var messageDispatcher = new FakeMessageDispatcher();
-            var timeoutPersister = new InMemoryTimeoutPersister();
+            var timeoutPersister = new InMemoryTimeoutPersister(() => DateTime.UtcNow);
             var behavior = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransportTransactionMode.TransactionScope);
             var timeoutData = CreateTimeout();
             await timeoutPersister.Add(timeoutData, null);
@@ -91,7 +91,7 @@
         public async Task Invoke_when_not_using_dtc_transport_should_not_enlist_dispatch_in_transaction(TransportTransactionMode nonDtcTxSettings)
         {
             var messageDispatcher = new FakeMessageDispatcher();
-            var timeoutPersister = new InMemoryTimeoutPersister();
+            var timeoutPersister = new InMemoryTimeoutPersister(() => DateTime.UtcNow);
             var behavior = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, nonDtcTxSettings);
             var timeoutData = CreateTimeout();
             await timeoutPersister.Add(timeoutData, null);
