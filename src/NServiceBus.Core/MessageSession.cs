@@ -15,6 +15,11 @@ namespace NServiceBus
             return MessageOperations.Send(context, message, options);
         }
 
+        public Task Send(object message, params SendOption[] options)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task Send<T>(Action<T> messageConstructor, SendOptions options)
         {
             return MessageOperations.Send(context, messageConstructor, options);
