@@ -1,14 +1,11 @@
 namespace NServiceBus
 {
     using System;
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.ObjectBuilder.Common;
+    using ObjectBuilder;
+    using ObjectBuilder.Common;
 
     class ComponentConfig : IComponentConfig
     {
-        Type component;
-        IContainer container;
-
         public ComponentConfig(Type component, IContainer container)
         {
             this.component = component;
@@ -21,6 +18,8 @@ namespace NServiceBus
 
             return this;
         }
-    }
 
+        Type component;
+        IContainer container;
+    }
 }

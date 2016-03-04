@@ -7,47 +7,15 @@ namespace NServiceBus.Hosting.Helpers
     using System.Reflection;
     using System.Runtime.CompilerServices;
     using System.Text;
-    using NServiceBus.Logging;
+    using Logging;
 
     /// <summary>
-    ///     Helpers for assembly scanning operations.
+    /// Helpers for assembly scanning operations.
     /// </summary>
     public partial class AssemblyScanner
     {
-        //TODO: delete when we make message scanning lazy #1617
-        static string[] DefaultAssemblyExclusions =
-        {
-            // NSB Build-Dependencies
-            "nunit",
-
-            // NSB OSS Dependencies
-            "nlog",
-            "newtonsoft.json",
-            "common.logging",
-            "nhibernate",
-
-            // Raven
-            "raven.client",
-            "raven.abstractions",
-
-            // Azure host process, which is typically referenced for ease of deployment but should not be scanned
-            "NServiceBus.Hosting.Azure.HostProcess.exe",
-
-            // And other windows azure stuff
-            "Microsoft.WindowsAzure"
-        };
-
-        static Type IHandleMessagesType = typeof(IHandleMessages<>);
-        Assembly assemblyToScan;
-        internal List<string> AssembliesToSkip = new List<string>();
-        string baseDirectoryToScan;
-        internal bool IncludeAppDomainAssemblies;
-        internal bool IncludeExesInScan = true;
-        internal bool ScanNestedDirectories;
-        internal List<Type> TypesToSkip = new List<Type>();
-
         /// <summary>
-        ///     Creates a new scanner that will scan the base directory of the current appdomain.
+        /// Creates a new scanner that will scan the base directory of the current appdomain.
         /// </summary>
         public AssemblyScanner()
             : this(AppDomain.CurrentDomain.BaseDirectory)
@@ -55,7 +23,7 @@ namespace NServiceBus.Hosting.Helpers
         }
 
         /// <summary>
-        ///     Creates a scanner for the given directory.
+        /// Creates a scanner for the given directory.
         /// </summary>
         public AssemblyScanner(string baseDirectoryToScan)
         {
@@ -70,15 +38,15 @@ namespace NServiceBus.Hosting.Helpers
         }
 
         /// <summary>
-        ///     Determines if the scanner should throw exceptions or not.
+        /// Determines if the scanner should throw exceptions or not.
         /// </summary>
         public bool ThrowExceptions { get; set; }
 
         /// <summary>
-        ///     Traverses the specified base directory including all sub-directories, generating a list of assemblies that can be
-        ///     scanned for handlers, a list of skipped files, and a list of errors that occurred while scanning.
-        ///     Scanned files may be skipped when they're either not a .NET assembly, or if a reflection-only load of the .NET
-        ///     assembly reveals that it does not reference NServiceBus.
+        /// Traverses the specified base directory including all sub-directories, generating a list of assemblies that can be
+        /// scanned for handlers, a list of skipped files, and a list of errors that occurred while scanning.
+        /// Scanned files may be skipped when they're either not a .NET assembly, or if a reflection-only load of the .NET
+        /// assembly reveals that it does not reference NServiceBus.
         /// </summary>
         public AssemblyScannerResults GetScannableAssemblies()
         {
@@ -456,5 +424,37 @@ namespace NServiceBus.Hosting.Helpers
             }
             return lowerAssemblyName;
         }
+
+        internal List<string> AssembliesToSkip = new List<string>();
+        Assembly assemblyToScan;
+        string baseDirectoryToScan;
+        internal bool IncludeAppDomainAssemblies;
+        internal bool IncludeExesInScan = true;
+        internal bool ScanNestedDirectories;
+        internal List<Type> TypesToSkip = new List<Type>();
+        //TODO: delete when we make message scanning lazy #1617
+        static string[] DefaultAssemblyExclusions =
+        {
+            // NSB Build-Dependencies
+            "nunit",
+
+            // NSB OSS Dependencies
+            "nlog",
+            "newtonsoft.json",
+            "common.logging",
+            "nhibernate",
+
+            // Raven
+            "raven.client",
+            "raven.abstractions",
+
+            // Azure host process, which is typically referenced for ease of deployment but should not be scanned
+            "NServiceBus.Hosting.Azure.HostProcess.exe",
+
+            // And other windows azure stuff
+            "Microsoft.WindowsAzure"
+        };
+
+        static Type IHandleMessagesType = typeof(IHandleMessages<>);
     }
 }

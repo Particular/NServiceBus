@@ -42,8 +42,8 @@ namespace NServiceBus.Features
             }
         }
 
-        static ILog Logger = LogManager.GetLogger<LicenseReminder>();
-
         public const string LicenseTextSettingsKey = "LicenseText";
+
+        static ILog Logger = LogManager.GetLogger<LicenseReminder>();
     }
 }

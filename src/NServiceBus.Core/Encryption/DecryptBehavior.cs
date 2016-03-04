@@ -7,14 +7,12 @@ namespace NServiceBus
 
     class DecryptBehavior : Behavior<IIncomingLogicalMessageContext>
     {
-        EncryptionInspector messageInspector;
-        IEncryptionService encryptionService;
-
         public DecryptBehavior(EncryptionInspector messageInspector, IEncryptionService encryptionService)
         {
             this.messageInspector = messageInspector;
             this.encryptionService = encryptionService;
         }
+
         public override async Task Invoke(IIncomingLogicalMessageContext context, Func<Task> next)
         {
             var current = context.Message.Instance;
@@ -48,6 +46,9 @@ namespace NServiceBus
             }
         }
 
+        IEncryptionService encryptionService;
+        EncryptionInspector messageInspector;
+
         public class DecryptRegistration : RegisterStep
         {
             public DecryptRegistration(EncryptionInspector inspector, IEncryptionService encryptionService)
@@ -55,7 +56,6 @@ namespace NServiceBus
             {
                 InsertBefore(WellKnownStep.MutateIncomingMessages);
             }
-
         }
     }
 }

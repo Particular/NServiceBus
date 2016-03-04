@@ -6,12 +6,12 @@
     using Settings;
 
     /// <summary>
-    ///     Used to control the various features supported by the framework.
+    /// Used to control the various features supported by the framework.
     /// </summary>
     public abstract partial class Feature
     {
         /// <summary>
-        ///     Creates an instance of <see cref="Feature" />.
+        /// Creates an instance of <see cref="Feature" />.
         /// </summary>
         protected Feature()
         {
@@ -20,27 +20,27 @@
         }
 
         /// <summary>
-        ///     Feature name.
+        /// Feature name.
         /// </summary>
         public string Name { get; }
 
         /// <summary>
-        ///     The version for this feature.
+        /// The version for this feature.
         /// </summary>
         public string Version => FileVersionRetriever.GetFileVersion(GetType());
 
         /// <summary>
-        ///     The list of features that this feature is depending on.
+        /// The list of features that this feature is depending on.
         /// </summary>
         internal List<List<string>> Dependencies { get; }
 
         /// <summary>
-        ///     Tells if this feature is enabled by default.
+        /// Tells if this feature is enabled by default.
         /// </summary>
         public bool IsEnabledByDefault { get; private set; }
 
         /// <summary>
-        ///     Indicates that the feature is active.
+        /// Indicates that the feature is active.
         /// </summary>
         public bool IsActive { get; private set; }
 
@@ -54,13 +54,13 @@
         }
 
         /// <summary>
-        ///     Called when the features is activated.
+        /// Called when the features is activated.
         /// </summary>
         protected internal abstract void Setup(FeatureConfigurationContext context);
 
         /// <summary>
-        ///     Adds a setup prerequisite condition. If false this feature won't be setup.
-        ///     Prerequisites are only evaluated if the feature is enabled.
+        /// Adds a setup prerequisite condition. If false this feature won't be setup.
+        /// Prerequisites are only evaluated if the feature is enabled.
         /// </summary>
         /// <param name="condition">Condition that must be met in order for this feature to be activated.</param>
         /// <param name="description">Explanation of what this prerequisite checks.</param>
@@ -76,7 +76,7 @@
         }
 
         /// <summary>
-        ///     Marks this feature as enabled by default.
+        /// Marks this feature as enabled by default.
         /// </summary>
         protected void EnableByDefault()
         {
@@ -84,9 +84,9 @@
         }
 
         /// <summary>
-        ///     Registers this feature as depending on the given feature. This means that this feature won't be activated unless
-        ///     the dependant feature is active.
-        ///     This also causes this feature to be activated after the other feature.
+        /// Registers this feature as depending on the given feature. This means that this feature won't be activated unless
+        /// the dependant feature is active.
+        /// This also causes this feature to be activated after the other feature.
         /// </summary>
         /// <typeparam name="T">Feature that this feature depends on.</typeparam>
         protected void DependsOn<T>() where T : Feature
@@ -95,9 +95,9 @@
         }
 
         /// <summary>
-        ///     Registers this feature as depending on the given feature. This means that this feature won't be activated unless
-        ///     the dependant feature is active.
-        ///     This also causes this feature to be activated after the other feature.
+        /// Registers this feature as depending on the given feature. This means that this feature won't be activated unless
+        /// the dependant feature is active.
+        /// This also causes this feature to be activated after the other feature.
         /// </summary>
         /// <param name="featureName">The name of the feature that this feature depends on.</param>
         protected void DependsOn(string featureName)
@@ -109,9 +109,9 @@
         }
 
         /// <summary>
-        ///     Register this feature as depending on at least on of the given features. This means that this feature won't be
-        ///     activated unless at least one of the provided features in the list is active.
-        ///     This also causes this feature to be activated after the other features.
+        /// Register this feature as depending on at least on of the given features. This means that this feature won't be
+        /// activated unless at least one of the provided features in the list is active.
+        /// This also causes this feature to be activated after the other features.
         /// </summary>
         /// <param name="features">Features list that this feature require at least one of to be activated.</param>
         protected void DependsOnAtLeastOne(params Type[] features)
@@ -130,8 +130,9 @@
         }
 
         /// <summary>
-        /// Registers this feature as optionally depending on the given feature. It means that the declaring feature's <see cref="Setup"/> method will be called
-        /// after the dependent feature's <see cref="Setup"/> if that dependent feature is enabled.
+        /// Registers this feature as optionally depending on the given feature. It means that the declaring feature's
+        /// <see cref="Setup" /> method will be called
+        /// after the dependent feature's <see cref="Setup" /> if that dependent feature is enabled.
         /// </summary>
         /// <param name="featureName">The name of the feature that this feature depends on.</param>
         protected void DependsOnOptionally(string featureName)
@@ -140,8 +141,9 @@
         }
 
         /// <summary>
-        /// Registers this feature as optionally depending on the given feature. It means that the declaring feature's <see cref="Setup"/> method will be called
-        /// after the dependent feature's <see cref="Setup"/> if that dependent feature is enabled.
+        /// Registers this feature as optionally depending on the given feature. It means that the declaring feature's
+        /// <see cref="Setup" /> method will be called
+        /// after the dependent feature's <see cref="Setup" /> if that dependent feature is enabled.
         /// </summary>
         /// <param name="featureType">The type of the feature that this feature depends on.</param>
         protected void DependsOnOptionally(Type featureType)
@@ -152,8 +154,9 @@
         }
 
         /// <summary>
-        /// Registers this feature as optionally depending on the given feature. It means that the declaring feature's <see cref="Setup"/> method will be called
-        /// after the dependent feature's <see cref="Setup"/> if that dependent feature is enabled.
+        /// Registers this feature as optionally depending on the given feature. It means that the declaring feature's
+        /// <see cref="Setup" /> method will be called
+        /// after the dependent feature's <see cref="Setup" /> if that dependent feature is enabled.
         /// </summary>
         /// <typeparam name="T">The type of the feature that this feature depends on.</typeparam>
         protected void DependsOnOptionally<T>() where T : Feature
@@ -162,9 +165,9 @@
         }
 
         /// <summary>
-        ///     Register this feature as depending on at least on of the given features. This means that this feature won't be
-        ///     activated unless at least one of the provided features in the list is active.
-        ///     This also causes this feature to be activated after the other features.
+        /// Register this feature as depending on at least on of the given features. This means that this feature won't be
+        /// activated unless at least one of the provided features in the list is active.
+        /// This also causes this feature to be activated after the other features.
         /// </summary>
         /// <param name="featureNames">The name of the features that this feature depends on.</param>
         protected void DependsOnAtLeastOne(params string[] featureNames)
@@ -175,7 +178,7 @@
         }
 
         /// <summary>
-        ///     Returns a string that represents the current object.
+        /// Returns a string that represents the current object.
         /// </summary>
         public override string ToString()
         {
@@ -227,15 +230,16 @@
             return name;
         }
 
+        readonly List<Action<SettingsHolder>> registeredDefaults = new List<Action<SettingsHolder>>();
+        readonly List<SetupPrerequisite> setupPrerequisites = new List<SetupPrerequisite>();
+
         static Type baseFeatureType = typeof(Feature);
         static int featureStringLength = "Feature".Length;
-        readonly List<SetupPrerequisite> setupPrerequisites = new List<SetupPrerequisite>();
-        readonly List<Action<SettingsHolder>> registeredDefaults = new List<Action<SettingsHolder>>();
 
         class SetupPrerequisite
         {
-            public string Description;
             public Func<FeatureConfigurationContext, bool> Condition;
+            public string Description;
         }
     }
 }

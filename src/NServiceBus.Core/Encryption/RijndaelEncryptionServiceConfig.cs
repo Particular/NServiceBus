@@ -13,14 +13,8 @@ namespace NServiceBus.Config
         [ConfigurationProperty("Key", IsRequired = true)]
         public string Key
         {
-            get
-            {
-                return this["Key"] as string;
-            }
-            set
-            {
-                this["Key"] = value;
-            }
+            get { return this["Key"] as string; }
+            set { this["Key"] = value; }
         }
 
         /// <summary>
@@ -29,14 +23,8 @@ namespace NServiceBus.Config
         [ConfigurationProperty("KeyIdentifier", IsRequired = false)]
         public string KeyIdentifier
         {
-            get
-            {
-                return (string)this["KeyIdentifier"];
-            }
-            set
-            {
-                this["KeyIdentifier"] = value;
-            }
+            get { return (string) this["KeyIdentifier"]; }
+            set { this["KeyIdentifier"] = value; }
         }
 
         /// <summary>
@@ -45,14 +33,8 @@ namespace NServiceBus.Config
         [ConfigurationProperty("ExpiredKeys", IsRequired = false)]
         public RijndaelExpiredKeyCollection ExpiredKeys
         {
-            get
-            {
-                return this["ExpiredKeys"] as RijndaelExpiredKeyCollection;
-            }
-            set
-            {
-                this["ExpiredKeys"] = value;
-            }
+            get { return this["ExpiredKeys"] as RijndaelExpiredKeyCollection; }
+            set { this["ExpiredKeys"] = value; }
         }
 
 
@@ -62,15 +44,8 @@ namespace NServiceBus.Config
         [ConfigurationProperty("KeyFormat", IsRequired = false)]
         public KeyFormat KeyFormat
         {
-            get
-            {
-                return (KeyFormat)this["KeyFormat"];
-            }
-            set
-            {
-                this["KeyFormat"] = value;
-            }
+            get { return (KeyFormat) this["KeyFormat"]; }
+            set { this["KeyFormat"] = value; }
         }
-
     }
 }

@@ -5,15 +5,13 @@
     using System.Linq;
     using System.Reflection;
     using System.Text;
-    using NServiceBus.Logging;
+    using Logging;
 
     /// <summary>
     /// Used to configure encryption.
     /// </summary>
     public class Encryptor : Feature
     {
-        Func<IEncryptionService> serviceConstructor;
-
         internal Encryptor()
         {
             EnableByDefault();
@@ -42,7 +40,7 @@
                 if (encryptionServiceConstructorDefined)
                 {
                     var message =
-@"Encryption service has been configured via either endpointConfiguration.RijndaelEncryptionService or endpointConfiguration.RegisterEncryptionService however no properties were found on type that require encryption. 
+                        @"Encryption service has been configured via either endpointConfiguration.RijndaelEncryptionService or endpointConfiguration.RegisterEncryptionService however no properties were found on type that require encryption. 
 Ensure that either encryption message conventions are defined or to define message properties using as WireEncryptedString.";
                     log.Warn(message);
                 }
@@ -60,7 +58,7 @@ Ensure that either encryption message conventions are defined or to define messa
         }
 
         /// <summary>
-        /// <see cref="Feature.Setup"/>.
+        /// <see cref="Feature.Setup" />.
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
@@ -70,7 +68,8 @@ Ensure that either encryption message conventions are defined or to define messa
             context.Pipeline.Register(new EncryptBehavior.EncryptRegistration(inspector, service));
             context.Pipeline.Register(new DecryptBehavior.DecryptRegistration(inspector, service));
         }
+
+        Func<IEncryptionService> serviceConstructor;
         static ILog log = LogManager.GetLogger<Encryptor>();
     }
 }
-

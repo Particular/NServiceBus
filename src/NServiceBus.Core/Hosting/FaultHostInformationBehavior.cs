@@ -2,10 +2,10 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Hosting;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Routing;
-    using NServiceBus.Support;
+    using Hosting;
+    using Pipeline;
+    using Routing;
+    using Support;
 
     class FaultHostInformationBehavior : Behavior<IFaultContext>
     {
@@ -26,7 +26,8 @@
             return next();
         }
 
-        HostInformation hostInfo;
         EndpointName endpointName;
+
+        HostInformation hostInfo;
     }
 }

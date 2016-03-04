@@ -7,7 +7,7 @@ namespace NServiceBus
     using Autofac;
     using Autofac.Builder;
     using Autofac.Core;
-    using IContainer = NServiceBus.ObjectBuilder.Common.IContainer;
+    using IContainer = ObjectBuilder.Common.IContainer;
 
     class AutofacObjectBuilder : IContainer
     {

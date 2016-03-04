@@ -1,7 +1,7 @@
 namespace NServiceBus
 {
     using System;
-    using NServiceBus.Pipeline;
+    using Pipeline;
 
     static class WireEncryptedStringConversions
     {

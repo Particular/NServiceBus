@@ -9,10 +9,7 @@
         {
             var result = default(T);
 
-            var thread = new Thread(() =>
-            {
-                result = func();
-            });
+            var thread = new Thread(() => { result = func(); });
 
             thread.SetApartmentState(ApartmentState.STA);
             thread.Start();

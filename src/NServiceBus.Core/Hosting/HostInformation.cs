@@ -19,9 +19,10 @@ namespace NServiceBus.Hosting
             {
                 {"Machine", Environment.MachineName},
                 {"ProcessID", Process.GetCurrentProcess().Id.ToString()},
-                {"UserName", Environment.UserName},
+                {"UserName", Environment.UserName}
             })
-        { }
+        {
+        }
 
         /// <summary>
         /// Creates a new instance.
@@ -45,7 +46,7 @@ namespace NServiceBus.Hosting
         /// The display name of this host.
         /// </summary>
         public string DisplayName { get; private set; }
-        
+
         /// <summary>
         /// A set of properties for the host. This might vary from host to host.
         /// </summary>

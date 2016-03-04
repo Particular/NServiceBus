@@ -1,13 +1,10 @@
 namespace NServiceBus
 {
     using System;
-    using NServiceBus.Logging;
+    using Logging;
 
     class NamedLogger : ILog
     {
-        string name;
-        DefaultLoggerFactory defaultLoggerFactory;
-
         public NamedLogger(string name, DefaultLoggerFactory defaultLoggerFactory)
         {
             this.name = name;
@@ -32,7 +29,7 @@ namespace NServiceBus
 
         public void DebugFormat(string format, params object[] args)
         {
-            defaultLoggerFactory.Write(name, LogLevel.Debug, string.Format(format,args));
+            defaultLoggerFactory.Write(name, LogLevel.Debug, string.Format(format, args));
         }
 
         public void Info(string message)
@@ -94,5 +91,8 @@ namespace NServiceBus
         {
             defaultLoggerFactory.Write(name, LogLevel.Fatal, string.Format(format, args));
         }
+
+        DefaultLoggerFactory defaultLoggerFactory;
+        string name;
     }
 }

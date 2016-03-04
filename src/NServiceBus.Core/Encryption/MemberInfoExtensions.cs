@@ -16,7 +16,7 @@ namespace NServiceBus
             }
 
             var propertyInfo = (PropertyInfo) member;
-            
+
             if (!propertyInfo.CanRead)
             {
                 if (propertyInfo.PropertyType.IsValueType)

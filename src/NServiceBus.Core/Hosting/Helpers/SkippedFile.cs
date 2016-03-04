@@ -16,7 +16,7 @@
         /// The full path to the file that was skipped.
         /// </summary>
         public string FilePath { get; private set; }
-        
+
         /// <summary>
         /// Description of the reason why this file was skipped.
         /// </summary>

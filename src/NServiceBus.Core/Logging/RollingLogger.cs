@@ -10,15 +10,6 @@ namespace NServiceBus
 
     class RollingLogger
     {
-        string targetDirectory;
-        int numberOfArchiveFilesToKeep;
-        long maxFileSize;
-        const long fileLimitInBytes = 10L * 1024 * 1024; //10MB
-        internal Func<DateTime> GetDate = () => DateTime.Now.Date;
-        DateTime lastWriteDate;
-        long currentFileSize;
-        protected string currentfilePath;
-
         public RollingLogger(string targetDirectory, int numberOfArchiveFilesToKeep = 10, long maxFileSize = fileLimitInBytes)
         {
             this.targetDirectory = targetDirectory;
@@ -172,11 +163,20 @@ namespace NServiceBus
             currentfilePath = Path.Combine(targetDirectory, fileName);
         }
 
+        protected string currentfilePath;
+        long currentFileSize;
+        internal Func<DateTime> GetDate = () => DateTime.Now.Date;
+        DateTime lastWriteDate;
+        long maxFileSize;
+        int numberOfArchiveFilesToKeep;
+        string targetDirectory;
+        const long fileLimitInBytes = 10L*1024*1024; //10MB
+
         internal class LogFile
         {
             public DateTime DatePart;
-            public int SequenceNumber;
             public string Path;
+            public int SequenceNumber;
         }
     }
 }

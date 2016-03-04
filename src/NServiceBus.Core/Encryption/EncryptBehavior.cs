@@ -7,9 +7,6 @@
 
     class EncryptBehavior : Behavior<IOutgoingLogicalMessageContext>
     {
-        EncryptionInspector messageInspector;
-        IEncryptionService encryptionService;
-
         public EncryptBehavior(EncryptionInspector messageInspector, IEncryptionService encryptionService)
         {
             this.messageInspector = messageInspector;
@@ -53,14 +50,16 @@
             throw new Exception("Only string properties is supported for convention based encryption, check the configured conventions.");
         }
 
+        IEncryptionService encryptionService;
+        EncryptionInspector messageInspector;
+
         public class EncryptRegistration : RegisterStep
         {
             public EncryptRegistration(EncryptionInspector inspector, IEncryptionService encryptionService)
                 : base("InvokeEncryption", typeof(EncryptBehavior), "Invokes the encryption logic", b => new EncryptBehavior(inspector, encryptionService))
             {
-                InsertAfter(WellKnownStep.MutateOutgoingMessages);  
+                InsertAfter(WellKnownStep.MutateOutgoingMessages);
             }
-
         }
     }
 }

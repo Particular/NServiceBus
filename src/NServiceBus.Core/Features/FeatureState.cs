@@ -9,17 +9,20 @@ namespace NServiceBus.Features
         /// Not selected for activation.
         /// </summary>
         Disabled,
+
         /// <summary>
         /// Selected for activation.
         /// </summary>
         Enabled,
+
         /// <summary>
         /// Activated.
         /// </summary>
         Active,
+
         /// <summary>
         /// Activation not possible.
         /// </summary>
-        Deactivated,
+        Deactivated
     }
 }

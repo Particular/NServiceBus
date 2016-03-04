@@ -9,9 +9,6 @@ namespace NServiceBus
 
     class ConcreteProxyCreator
     {
-        internal const string SUFFIX = "__impl";
-        ModuleBuilder moduleBuilder;
-
         public ConcreteProxyCreator()
         {
             var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(
@@ -75,7 +72,10 @@ namespace NServiceBus
                     "set_" + prop.Name,
                     getMethodBuilder.Attributes,
                     null,
-                    new[] { propertyType });
+                    new[]
+                    {
+                        propertyType
+                    });
 
                 var setIL = setMethodBuilder.GetILGenerator();
                 // Load the instance and then the numeric argument, then store the
@@ -115,7 +115,9 @@ namespace NServiceBus
             // Get constructor with the largest number of parameters
             foreach (var cInfo in customAttribute.GetType().GetConstructors().
                 Where(cInfo => longestCtor == null || longestCtor.GetParameters().Length < cInfo.GetParameters().Length))
+            {
                 longestCtor = cInfo;
+            }
 
             if (longestCtor == null)
             {
@@ -163,7 +165,7 @@ namespace NServiceBus
                 var defaultAttributes = attrPropInfo.GetCustomAttributes(typeof(DefaultValueAttribute), true);
                 if (defaultAttributes.Length > 0)
                 {
-                    defaultValue = ((DefaultValueAttribute)defaultAttributes[0]).Value;
+                    defaultValue = ((DefaultValueAttribute) defaultAttributes[0]).Value;
                 }
                 var value = attrPropInfo.GetValue(customAttribute, null);
                 if (value == defaultValue)
@@ -179,7 +181,7 @@ namespace NServiceBus
         /// <summary>
         /// Returns all properties on the given type, going up the inheritance hierarchy.
         /// </summary>
-       static IEnumerable<PropertyInfo> GetAllProperties(Type type)
+        static IEnumerable<PropertyInfo> GetAllProperties(Type type)
         {
             var props = new List<PropertyInfo>(type.GetProperties());
             foreach (var interfaceType in type.GetInterfaces())
@@ -209,5 +211,8 @@ namespace NServiceBus
 
             return props;
         }
+
+        ModuleBuilder moduleBuilder;
+        internal const string SUFFIX = "__impl";
     }
 }

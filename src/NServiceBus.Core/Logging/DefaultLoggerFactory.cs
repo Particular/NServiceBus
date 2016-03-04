@@ -2,19 +2,10 @@ namespace NServiceBus
 {
     using System;
     using System.Diagnostics;
-    using NServiceBus.Logging;
+    using Logging;
 
     class DefaultLoggerFactory : ILoggerFactory
     {
-        LogLevel filterLevel;
-        bool isDebugEnabled;
-        bool isInfoEnabled;
-        bool isWarnEnabled;
-        bool isErrorEnabled;
-        bool isFatalEnabled;
-        RollingLogger rollingLogger;
-
-        object locker = new object();
         public DefaultLoggerFactory(LogLevel filterLevel, string loggingDirectory)
         {
             this.filterLevel = filterLevel;
@@ -39,7 +30,7 @@ namespace NServiceBus
                 IsInfoEnabled = isInfoEnabled,
                 IsWarnEnabled = isWarnEnabled,
                 IsErrorEnabled = isErrorEnabled,
-                IsFatalEnabled = isFatalEnabled,
+                IsFatalEnabled = isFatalEnabled
             };
         }
 
@@ -59,5 +50,15 @@ namespace NServiceBus
                 Trace.WriteLine(fullMessage);
             }
         }
+
+        LogLevel filterLevel;
+        bool isDebugEnabled;
+        bool isErrorEnabled;
+        bool isFatalEnabled;
+        bool isInfoEnabled;
+        bool isWarnEnabled;
+
+        object locker = new object();
+        RollingLogger rollingLogger;
     }
 }

@@ -2,16 +2,13 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Hosting;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Routing;
-    using NServiceBus.Support;
+    using Hosting;
+    using Pipeline;
+    using Routing;
+    using Support;
 
     class AddHostInfoHeadersBehavior : Behavior<IOutgoingLogicalMessageContext>
     {
-        HostInformation hostInformation;
-        EndpointName endpoint;
-
         public AddHostInfoHeadersBehavior(HostInformation hostInformation, EndpointName endpoint)
         {
             this.hostInformation = hostInformation;
@@ -26,5 +23,8 @@
 
             return next();
         }
+
+        EndpointName endpoint;
+        HostInformation hostInformation;
     }
 }

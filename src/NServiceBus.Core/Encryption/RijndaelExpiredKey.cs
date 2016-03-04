@@ -7,21 +7,14 @@ namespace NServiceBus.Config
     /// </summary>
     public class RijndaelExpiredKey : ConfigurationElement
     {
-
         /// <summary>
         /// The keys value.
         /// </summary>
         [ConfigurationProperty("Key", IsRequired = true)]
         public string Key
         {
-            get
-            {
-                return (string)this["Key"];
-            }
-            set
-            {
-                this["Key"] = value;
-            }
+            get { return (string) this["Key"]; }
+            set { this["Key"] = value; }
         }
 
 
@@ -29,15 +22,10 @@ namespace NServiceBus.Config
         /// Identifies this key for it to be used for decryption.
         /// </summary>
         [ConfigurationProperty("KeyIdentifier", IsRequired = false)]
-        public string KeyIdentifier {
-            get
-            {
-                return (string) this["KeyIdentifier"];
-            }
-            set
-            {
-                this["KeyIdentifier"] = value;
-            } 
+        public string KeyIdentifier
+        {
+            get { return (string) this["KeyIdentifier"]; }
+            set { this["KeyIdentifier"] = value; }
         }
 
 
@@ -47,15 +35,8 @@ namespace NServiceBus.Config
         [ConfigurationProperty("KeyFormat", IsRequired = false)]
         public KeyFormat KeyFormat
         {
-            get
-            {
-                return (KeyFormat)this["KeyFormat"];
-            }
-            set
-            {
-                this["KeyFormat"] = value;
-            }
+            get { return (KeyFormat) this["KeyFormat"]; }
+            set { this["KeyFormat"] = value; }
         }
-
     }
 }

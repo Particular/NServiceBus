@@ -118,8 +118,8 @@ namespace NServiceBus
             }
         }
 
-        static ILog Logger = LogManager.GetLogger(typeof(LicenseManager));
-
         License license;
+
+        static ILog Logger = LogManager.GetLogger(typeof(LicenseManager));
     }
 }

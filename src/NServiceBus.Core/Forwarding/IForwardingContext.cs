@@ -1,6 +1,6 @@
 namespace NServiceBus.Pipeline
 {
-    using NServiceBus.Transports;
+    using Transports;
 
     /// <summary>
     /// Provide context to behaviors on the forwarding pipeline.

@@ -5,16 +5,14 @@ namespace NServiceBus
     using System.Linq;
     using System.Text;
     using Config;
-    using NServiceBus.Logging;
-    using NServiceBus.Settings;
+    using Logging;
+    using Settings;
 
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure.
     /// </summary>
     public static partial class ConfigureRijndaelEncryptionService
     {
-        static readonly ILog Log = LogManager.GetLogger(typeof(ConfigureRijndaelEncryptionService));
-
         /// <summary>
         /// Use 256 bit AES encryption based on the Rijndael cipher.
         /// </summary>
@@ -77,7 +75,6 @@ namespace NServiceBus
             {
                 throw new Exception("The RijndaelEncryptionServiceConfig has duplicate KeyIdentifiers defined with the same key identifier. Key identifiers must be unique in the complete configuration section.");
             }
-
         }
 
         internal static List<byte[]> ExtractDecryptionKeysFromConfigSection(RijndaelEncryptionServiceConfig section)
@@ -94,7 +91,7 @@ namespace NServiceBus
         /// <summary>
         /// Use 256 bit AES encryption based on the Rijndael cipher.
         /// </summary>
-        /// <param name="config">The <see cref="EndpointConfiguration"/> instance to apply the settings to.</param>
+        /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
         /// <param name="encryptionKeyIdentifier">Encryption key identifier.</param>
         /// <param name="encryptionKey">Encryption Key.</param>
         /// <param name="decryptionKeys">A list of decryption keys.</param>
@@ -108,12 +105,15 @@ namespace NServiceBus
 
             RegisterEncryptionService(config, () => BuildRijndaelEncryptionService(
                 encryptionKeyIdentifier,
-                new Dictionary<string, byte[]> { { encryptionKeyIdentifier, encryptionKey } },
+                new Dictionary<string, byte[]>
+                {
+                    {encryptionKeyIdentifier, encryptionKey}
+                },
                 decryptionKeys));
         }
 
         /// <summary>
-        /// Use 256 bit AES encryption based on the Rijndael cipher. 
+        /// Use 256 bit AES encryption based on the Rijndael cipher.
         /// </summary>
         public static void RijndaelEncryptionService(this EndpointConfiguration config, string encryptionKeyIdentifier, IDictionary<string, byte[]> keys, IList<byte[]> decryptionKeys = null)
         {
@@ -149,7 +149,8 @@ namespace NServiceBus
             string encryptionKeyIdentifier,
             IDictionary<string, byte[]> keys,
             IList<byte[]> expiredKeys
-            )                {
+            )
+        {
             return new RijndaelEncryptionService(
                 encryptionKeyIdentifier,
                 keys,
@@ -210,5 +211,7 @@ namespace NServiceBus
                 result.Add(item.KeyIdentifier, key);
             }
         }
+
+        static readonly ILog Log = LogManager.GetLogger(typeof(ConfigureRijndaelEncryptionService));
     }
 }
