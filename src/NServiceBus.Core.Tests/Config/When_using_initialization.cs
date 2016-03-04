@@ -23,7 +23,7 @@
             public FeatureWithInitialization(string arg)
             {
                 // Note: this ctor will cause the builder to throw an exception.
-                // If you are using assembly scanning in your tests, make sure to exclude this type by using:
+                // If  using assembly scanning in tests, ensure to exclude this type by using:
                 // endpointConfiguration.ExcludeTypes(typeof(When_using_initialization_with_non_default_ctor.FeatureWithInitialization));
             }
 

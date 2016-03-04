@@ -52,7 +52,7 @@
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6", 
             RemoveInVersion = "7", 
-            Message = "Message throughput throttling has been removed. Please consult the documentation for further information.")]
+            Message = "Message throughput throttling has been removed. Consult the documentation for further information.")]
         public int MaximumMessageThroughputPerSecond
         {
             get

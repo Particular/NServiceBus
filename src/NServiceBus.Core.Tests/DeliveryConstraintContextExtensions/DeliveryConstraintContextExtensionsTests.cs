@@ -33,7 +33,7 @@
                 return new FakeTransportInfrastructure();
             }
 
-            public override string ExampleConnectionStringForErrorMessage { get; } = String.Empty;
+            public override string ExampleConnectionStringForErrorMessage { get; } = string.Empty;
         }
 
         class FakeTransportInfrastructure : TransportInfrastructure

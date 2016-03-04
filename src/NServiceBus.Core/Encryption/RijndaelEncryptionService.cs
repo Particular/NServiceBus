@@ -55,7 +55,7 @@ namespace NServiceBus
 
             if (string.IsNullOrEmpty(encryptionKeyIdentifier))
             {
-                Log.Error("No encryption key identifier configured. Messages with encrypted properties will fail to send. Please add an encryption key identifier to the rijndael encryption service configuration.");
+                Log.Error("No encryption key identifier configured. Messages with encrypted properties will fail to send. Add an encryption key identifier to the rijndael encryption service configuration.");
             }
             else if (!keys.TryGetValue(encryptionKeyIdentifier, out encryptionKey))
             {
@@ -77,7 +77,7 @@ namespace NServiceBus
             {
                 return DecryptUsingKeyIdentifier(encryptedValue, keyIdentifier);
             }
-            Log.Warn($"Encrypted message has no '{Headers.RijndaelKeyIdentifier}' header. Possibility of data corruption. Please upgrade endpoints that send message with encrypted properties.");
+            Log.Warn($"Encrypted message has no '{Headers.RijndaelKeyIdentifier}' header. Possibility of data corruption. Upgrade endpoints that send message with encrypted properties.");
             return DecryptUsingAllKeys(encryptedValue);
         }
 
@@ -87,7 +87,7 @@ namespace NServiceBus
 
             if (!keys.TryGetValue(keyIdentifier, out decryptionKey))
             {
-                throw new InvalidOperationException($"Decryption key not available for key identifier '{keyIdentifier}'. Please add this key to the rijndael encryption service configuration. Key identifiers are case sensitive.");
+                throw new InvalidOperationException($"Decryption key not available for key identifier '{keyIdentifier}'. Add this key to the rijndael encryption service configuration. Key identifiers are case sensitive.");
             }
 
             try

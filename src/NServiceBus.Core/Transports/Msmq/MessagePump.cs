@@ -45,7 +45,7 @@ namespace NServiceBus
 
             if (settings.RequiredTransactionMode != TransportTransactionMode.None && !QueueIsTransactional())
             {
-                throw new ArgumentException("Queue must be transactional if you configure your endpoint to be transactional (" + settings.InputQueue + ").");
+                throw new ArgumentException("Queue must be transactional if you configure the endpoint to be transactional (" + settings.InputQueue + ").");
             }
 
             inputQueue.MessageReadPropertyFilter = DefaultReadPropertyFilter;

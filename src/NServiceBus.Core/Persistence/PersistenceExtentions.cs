@@ -114,7 +114,7 @@
         {
             if (specificStorages == null || specificStorages.Length == 0)
             {
-                throw new ArgumentException("Please make sure you specify at least one Storage.");
+                throw new ArgumentException("Ensure at least one Storage is specified.");
             }
 
             var list = specificStorages.Select(StorageType.FromEnum).ToArray();

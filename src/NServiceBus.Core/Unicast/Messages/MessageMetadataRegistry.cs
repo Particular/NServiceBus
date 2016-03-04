@@ -34,7 +34,7 @@
                 return RegisterMessageType(messageType);
             }
 
-            var message = string.Format("Could not find metadata for '{0}'.{1}Please ensure the following:{1}1. '{0}' is included in initial scanning. {1}2. '{0}' implements either 'IMessage', 'IEvent' or 'ICommand' or alternatively, if you don't want to implement an interface, you can use 'Unobtrusive Mode'.", messageType.FullName, Environment.NewLine);
+            var message = $"Could not find metadata for '{messageType.FullName}'.{Environment.NewLine}Ensure the following:{Environment.NewLine}1. '{messageType.FullName}' is included in initial scanning. {Environment.NewLine}2. '{messageType.FullName}' implements either 'IMessage', 'IEvent' or 'ICommand' or alternatively, if you don't want to implement an interface, you can use 'Unobtrusive Mode'.";
             throw new Exception(message);
         }
 
@@ -60,7 +60,7 @@
                 return metadata;
             }
 
-            Logger.WarnFormat("Message header '{0}' was mapped to type '{1}' but that type was not found in the message registry, please make sure the same message registration conventions are used in all endpoints, specially if you are using unobtrusive mode. ", messageType, messageType.FullName);
+            Logger.WarnFormat("Message header '{0}' was mapped to type '{1}' but that type was not found in the message registry, ensure the same message registration conventions are used in all endpoints, especially if using unobtrusive mode. ", messageType, messageType.FullName);
             return null;
         }
 

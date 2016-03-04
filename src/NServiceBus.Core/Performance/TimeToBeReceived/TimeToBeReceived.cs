@@ -17,7 +17,7 @@
 
             if (mappings.HasEntries && !context.DoesTransportSupportConstraint<DiscardIfNotReceivedBefore>())
             {
-                throw new Exception("Messages with TimeToBeReceived found but the selected transport does not support this type of restriction. Please remove TTBR from your messages, disable this feature or select a transport that does support TTBR");
+                throw new Exception("Messages with TimeToBeReceived found but the selected transport does not support this type of restriction. Remove TTBR from messages, disable this feature or select a transport that does support TTBR");
             }
 
             context.Pipeline.Register("ApplyTimeToBeReceived", typeof(ApplyTimeToBeReceivedBehavior), "Adds the `DiscardIfNotReceivedBefore` constraint to relevant messages");

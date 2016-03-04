@@ -271,7 +271,7 @@ namespace NServiceBus.Settings
         {
             if (locked)
             {
-                throw new ConfigurationErrorsException($"Unable to set the value for key: {key}. The settings has been locked for modifications. Please move any configuration code earlier in the configuration pipeline");
+                throw new ConfigurationErrorsException($"Unable to set the value for key: {key}. The settings has been locked for modifications. Move any configuration code earlier in the configuration pipeline");
             }
         }
 

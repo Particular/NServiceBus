@@ -14,7 +14,7 @@
 
             if (attribute == null)
             {
-                throw new Exception("No ReleaseDateAttribute could be found in assembly, please make sure GitVersion is enabled");
+                throw new Exception("No ReleaseDateAttribute could be found in assembly, ensure GitVersion is enabled");
             }
 
             return UniversalDateParser.Parse((string)attribute.OriginalDate);

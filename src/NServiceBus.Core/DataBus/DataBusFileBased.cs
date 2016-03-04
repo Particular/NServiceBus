@@ -18,7 +18,7 @@ namespace NServiceBus.Features
             string basePath;
             if (!context.Settings.TryGet("FileShareDataBusPath", out basePath))
             {
-                throw new InvalidOperationException("Please specify the basepath for FileShareDataBus, eg config.UseDataBus<FileShareDataBus>().BasePath(\"c:\\databus\")");
+                throw new InvalidOperationException("Specify the basepath for FileShareDataBus, eg endpointConfiguration.UseDataBus<FileShareDataBus>().BasePath(\"c:\\databus\")");
             }
             var dataBus = new FileShareDataBusImplementation(basePath);
 

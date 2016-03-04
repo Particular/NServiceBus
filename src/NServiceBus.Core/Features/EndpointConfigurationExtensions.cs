@@ -6,7 +6,7 @@
     /// <summary>
     /// Extension methods declarations.
     /// </summary>
-    public static class ConfigurationBuilderExtensions
+    public static class EndpointConfigurationExtensions
     {
         /// <summary>
         /// Enables the given feature.

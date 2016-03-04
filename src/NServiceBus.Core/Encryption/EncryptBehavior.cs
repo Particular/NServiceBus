@@ -50,7 +50,7 @@
                 return;
             }
 
-            throw new Exception("Only string properties is supported for convention based encryption, please check your convention");
+            throw new Exception("Only string properties is supported for convention based encryption, check the configured conventions.");
         }
 
         public class EncryptRegistration : RegisterStep

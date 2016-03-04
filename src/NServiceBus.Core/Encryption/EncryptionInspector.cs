@@ -78,7 +78,7 @@ namespace NServiceBus
                     }
                     else
                     {
-                        throw new Exception("Only string properties are supported for convention based encryption, please check your convention");
+                        throw new Exception("Only string properties are supported for convention based encryption. Check the configured conventions.");
                     }
                 }
 

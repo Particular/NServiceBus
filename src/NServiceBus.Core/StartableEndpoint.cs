@@ -119,7 +119,7 @@ namespace NServiceBus
             var throughputConfiguration = settings.GetConfigSection<TransportConfig>()?.MaximumMessageThroughputPerSecond;
             if (throughputConfiguration.HasValue && throughputConfiguration != -1)
             {
-                throw new NotSupportedException($"Message throughput throttling has been removed. Please remove the '{nameof(TransportConfig.MaximumMessageThroughputPerSecond)}' attribute from the '{nameof(TransportConfig)}' configuration section and consult the documentation for further information.");
+                throw new NotSupportedException($"Message throughput throttling has been removed. Remove the '{nameof(TransportConfig.MaximumMessageThroughputPerSecond)}' attribute from the '{nameof(TransportConfig)}' configuration section and consult the documentation for further information.");
             }
         }
 
@@ -163,7 +163,7 @@ namespace NServiceBus
 
             if (transportConfig != null && transportConfig.MaximumConcurrencyLevel != 0)
             {
-                throw new NotSupportedException($"The TransportConfig.MaximumConcurrencyLevel has been removed. Please remove the '{nameof(TransportConfig.MaximumMessageThroughputPerSecond)}' attribute from the '{nameof(TransportConfig)}' configuration section and use 'EndpointConfiguration.LimitMessageProcessingConcurrencyTo' instead.");
+                throw new NotSupportedException($"The TransportConfig.MaximumConcurrencyLevel has been removed. Remove the '{nameof(TransportConfig.MaximumMessageThroughputPerSecond)}' attribute from the '{nameof(TransportConfig)}' configuration section and use 'EndpointConfiguration.LimitMessageProcessingConcurrencyTo' instead.");
             }
 
             MessageProcessingOptimizationExtensions.ConcurrencyLimit concurrencyLimit;

@@ -21,7 +21,7 @@
         }
 
         const string Message =
-            @"Transport connection string has not been explicitly configured via ConnectionString method and no default connection has been was found in your app.config or web.config file for the {0} Transport.
+            @"Transport connection string has not been explicitly configured via ConnectionString method and no default connection has been was found in the app.config or web.config file for the {0} Transport.
 
 To run NServiceBus with {0} Transport you need to specify the database connectionstring.
 Here are examples of what is required:

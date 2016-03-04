@@ -34,7 +34,7 @@ namespace NServiceBus.Sagas
             if (!messages.Any(m => m.IsAllowedToStartSaga))
             {
                 throw new Exception($@"
-Sagas must have at least one message that is allowed to start the saga. Please add at least one `IAmStartedByMessages` to your {name} saga.");
+Sagas must have at least one message that is allowed to start the saga. Add at least one `IAmStartedByMessages` to the {name} saga.");
             }
 
             if (correlationProperty != null)
@@ -44,7 +44,7 @@ Sagas must have at least one message that is allowed to start the saga. Please a
                     var supportedTypes = string.Join(",", AllowedCorrelationPropertyTypes.Select(t => t.Name));
 
                     throw new Exception($@"
-{correlationProperty.Type.Name} is not supported for correlated properties. Please change the correlation property {correlationProperty.Name} on saga {name} to any of the supported types, {supportedTypes}, or use a custom saga finder.");
+{correlationProperty.Type.Name} is not supported for correlated properties. Change the correlation property {correlationProperty.Name} on saga {name} to any of the supported types, {supportedTypes}, or use a custom saga finder.");
                 }
             }
 
@@ -182,7 +182,7 @@ Sagas must have at least one message that is allowed to start the saga. Please a
             {
                 var messageTypes = string.Join(",", propertyMappings.SelectMany(g => g.Select(m=>m.MessageType.FullName)));
                 throw new Exception($@"
-Sagas can only have mappings that correlate on a single saga property. Please use custom finders to correlate {messageTypes} to saga {sagaType.Name}");
+Sagas can only have mappings that correlate on a single saga property. Use custom finders to correlate {messageTypes} to saga {sagaType.Name}");
             }
 
             CorrelationPropertyMetadata correlationProperty = null;
@@ -229,14 +229,14 @@ Sagas can only have mappings that correlate on a single saga property. Please us
                     var messageType = args[1];
                     if (!conventions.IsMessageType(messageType))
                     {
-                        var error = $"A custom IFindSagas must target a valid message type as defined by the message conventions. Please change '{messageType.FullName}' to a valid message type or add it to the message conventions. Finder name '{finderType.FullName}'.";
+                        var error = $"A custom IFindSagas must target a valid message type as defined by the message conventions. Change '{messageType.FullName}' to a valid message type or add it to the message conventions. Finder name '{finderType.FullName}'.";
                         throw new Exception(error);
                     }
 
                     var existingMapping = mapper.Mappings.SingleOrDefault(m => m.MessageType == messageType);
                     if (existingMapping != null)
                     {
-                        var bothMappingAndFinder = $"A custom IFindSagas and an existing mapping where found for message '{messageType.FullName}'. Please either remove the message mapping for remove the finder. Finder name '{finderType.FullName}'.";
+                        var bothMappingAndFinder = $"A custom IFindSagas and an existing mapping where found for message '{messageType.FullName}'. Either remove the message mapping for remove the finder. Finder name '{finderType.FullName}'.";
                         throw new Exception(bothMappingAndFinder);
                     }
                     mapper.ConfigureCustomFinder(finderType, messageType);
@@ -349,7 +349,7 @@ Sagas can only have mappings that correlate on a single saga property. Please us
                 var sagaProp = sagaMember as PropertyInfo;
                 if (sagaProp == null)
                 {
-                    throw new InvalidOperationException($"Mapping expressions for saga members must point to properties. Please change member {sagaMember.Name} on {typeof(TSagaEntity).Name} to a property.");
+                    throw new InvalidOperationException($"Mapping expressions for saga members must point to properties. Change member {sagaMember.Name} on {typeof(TSagaEntity).Name} to a property.");
                 }
 
                 ValidateMapping(messageExpression, sagaProp);

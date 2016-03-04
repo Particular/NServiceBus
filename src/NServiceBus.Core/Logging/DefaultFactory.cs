@@ -81,7 +81,7 @@ namespace NServiceBus.Logging
                 return appDataPath;
             }
             
-            throw new Exception(GetMapPathError($"Failed since path returned ({appDataPath}) does not exist, please create it."));
+            throw new Exception(GetMapPathError($"Failed since path returned ({appDataPath}) does not exist. Ensure this directory is created and restart the endpoint."));
         }
 
         static string TryMapPath()
@@ -98,7 +98,7 @@ namespace NServiceBus.Logging
 
         static string GetMapPathError(string reason)
         {
-            return "Detected running in a website and attempted to use HostingEnvironment.MapPath(\"~/App_Data/\") to derive the logging path. " + reason + ". To avoid using HostingEnvironment.MapPath to derive the logging directory you can instead configure it to a specific path using LogManager.Use<DefaultFactory>().Directory(\"pathToLoggingDirectory\");";
+            return $"Detected running in a website and attempted to use HostingEnvironment.MapPath(\"~/App_Data/\") to derive the logging path. {reason}. To avoid using HostingEnvironment.MapPath to derive the logging directory you can instead configure it to a specific path using LogManager.Use<DefaultFactory>().Directory(\"pathToLoggingDirectory\");";
         }
     }
 }

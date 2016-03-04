@@ -114,7 +114,7 @@ namespace NServiceBus
                 if (stageConnectors.Count > 1)
                 {
                     var connectors = $"'{string.Join("', '", stageConnectors.Select(sc => sc.BehaviorType.FullName))}'";
-                    throw new Exception($"Multiple stage connectors found for stage '{currentStage.Key.FullName}'. Please remove one of: {connectors}");
+                    throw new Exception($"Multiple stage connectors found for stage '{currentStage.Key.FullName}'. Remove one of: {connectors}");
                 }
 
                 var stageConnector = stageConnectors.FirstOrDefault();
