@@ -10,7 +10,6 @@
     [SkipWeaving]
     partial class LicenseExpiredForm : Form
     {
-        static ILog Logger = LogManager.GetLogger<LicenseExpiredForm>();
         public LicenseExpiredForm()
         {
             InitializeComponent();
@@ -79,8 +78,6 @@
             }
         }
 
-        public string ResultingLicenseText;
-
         void PurchaseButton_Click(object sender, EventArgs e)
         {
             Process.Start("http://particular.net/licensing");
@@ -97,5 +94,8 @@
                 Process.Start("http://particular.net/extend-your-trial-45");
             }
         }
+
+        public string ResultingLicenseText;
+        static ILog Logger = LogManager.GetLogger<LicenseExpiredForm>();
     }
 }

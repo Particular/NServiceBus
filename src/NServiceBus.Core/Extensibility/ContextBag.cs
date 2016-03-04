@@ -8,7 +8,7 @@ namespace NServiceBus.Extensibility
     public class ContextBag : ReadOnlyContextBag
     {
         /// <summary>
-        /// Initialized a new instance of <see cref="ContextBag"/>.
+        /// Initialized a new instance of <see cref="ContextBag" />.
         /// </summary>
         public ContextBag(ContextBag parentBag = null)
         {
@@ -23,6 +23,49 @@ namespace NServiceBus.Extensibility
         public T Get<T>()
         {
             return Get<T>(typeof(T).FullName);
+        }
+
+        /// <summary>
+        /// Tries to retrieves the specified type from the context.
+        /// </summary>
+        /// <typeparam name="T">The type to retrieve.</typeparam>
+        /// <param name="result">The type instance.</param>
+        /// <returns><code>true</code> if found, otherwise <code>false</code>.</returns>
+        public bool TryGet<T>(out T result)
+        {
+            return TryGet(typeof(T).FullName, out result);
+        }
+
+        /// <summary>
+        /// Tries to retrieves the specified type from the context.
+        /// </summary>
+        /// <typeparam name="T">The type to retrieve.</typeparam>
+        /// <param name="key">The key of the value being looked up.</param>
+        /// <param name="result">The type instance.</param>
+        /// <returns><code>true</code> if found, otherwise <code>false</code>.</returns>
+        public bool TryGet<T>(string key, out T result)
+        {
+            Guard.AgainstNullAndEmpty(nameof(key), key);
+            object value;
+            if (stash.TryGetValue(key, out value))
+            {
+                result = (T) value;
+                return true;
+            }
+
+            if (parentBag != null)
+            {
+                return parentBag.TryGet(key, out result);
+            }
+
+            if (typeof(T).IsValueType)
+            {
+                result = default(T);
+                return false;
+            }
+
+            result = default(T);
+            return false;
         }
 
         /// <summary>
@@ -42,17 +85,6 @@ namespace NServiceBus.Extensibility
             Set(newInstance);
 
             return newInstance;
-        }
-
-        /// <summary>
-        /// Tries to retrieves the specified type from the context.
-        /// </summary>
-        /// <typeparam name="T">The type to retrieve.</typeparam>
-        /// <param name="result">The type instance.</param>
-        /// <returns><code>true</code> if found, otherwise <code>false</code>.</returns>
-        public bool TryGet<T>(out T result)
-        {
-            return TryGet(typeof(T).FullName, out result);
         }
 
 
@@ -96,38 +128,6 @@ namespace NServiceBus.Extensibility
         }
 
         /// <summary>
-        /// Tries to retrieves the specified type from the context.
-        /// </summary>
-        /// <typeparam name="T">The type to retrieve.</typeparam>
-        /// <param name="key">The key of the value being looked up.</param>
-        /// <param name="result">The type instance.</param>
-        /// <returns><code>true</code> if found, otherwise <code>false</code>.</returns>
-        public bool TryGet<T>(string key, out T result)
-        {
-            Guard.AgainstNullAndEmpty(nameof(key), key);
-            object value;
-            if (stash.TryGetValue(key, out value))
-            {
-                result = (T)value;
-                return true;
-            }
-
-            if (parentBag != null)
-            {
-                return parentBag.TryGet(key, out result);
-            }
-
-            if (typeof(T).IsValueType)
-            {
-                result = default(T);
-                return false;
-            }
-
-            result = default(T);
-            return false;
-        }
-
-        /// <summary>
         /// Merges the passed context into this one.
         /// </summary>
         /// <param name="context">The source context.</param>
@@ -152,7 +152,8 @@ namespace NServiceBus.Extensibility
             return result;
         }
 
-        Dictionary<string, object> stash = new Dictionary<string, object>();
         ContextBag parentBag;
+
+        Dictionary<string, object> stash = new Dictionary<string, object>();
     }
 }

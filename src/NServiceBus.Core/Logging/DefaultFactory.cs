@@ -4,16 +4,15 @@ namespace NServiceBus.Logging
     using System.IO;
     using System.Web;
     using System.Web.Hosting;
-    using IODirectory=System.IO.Directory;
+    using IODirectory = System.IO.Directory;
 
     /// <summary>
-    /// The default <see cref="LoggingFactoryDefinition"/>.
+    /// The default <see cref="LoggingFactoryDefinition" />.
     /// </summary>
     public class DefaultFactory : LoggingFactoryDefinition
     {
-
         /// <summary>
-        /// Initializes a new instance of <see cref="DefaultFactory"/>.
+        /// Initializes a new instance of <see cref="DefaultFactory" />.
         /// </summary>
         public DefaultFactory()
         {
@@ -22,27 +21,23 @@ namespace NServiceBus.Logging
         }
 
         /// <summary>
-        /// <see cref="LoggingFactoryDefinition.GetLoggingFactory"/>.
+        /// <see cref="LoggingFactoryDefinition.GetLoggingFactory" />.
         /// </summary>
         protected internal override ILoggerFactory GetLoggingFactory()
         {
             var loggerFactory = new DefaultLoggerFactory(level.Value, directory.Value);
             var message = $"Logging to '{directory}' with level {level}";
-            loggerFactory.Write(GetType().Name,LogLevel.Info,message);
+            loggerFactory.Write(GetType().Name, LogLevel.Info, message);
             return loggerFactory;
         }
 
-        Lazy<LogLevel> level;
-
         /// <summary>
-        /// Controls the <see cref="LogLevel"/>.
+        /// Controls the <see cref="LogLevel" />.
         /// </summary>
         public void Level(LogLevel level)
         {
             this.level = new Lazy<LogLevel>(() => level);
         }
-
-        Lazy<string> directory;
 
         /// <summary>
         /// The directory to log files to.
@@ -80,7 +75,7 @@ namespace NServiceBus.Logging
             {
                 return appDataPath;
             }
-            
+
             throw new Exception(GetMapPathError($"Failed since path returned ({appDataPath}) does not exist. Ensure this directory is created and restart the endpoint."));
         }
 
@@ -100,5 +95,9 @@ namespace NServiceBus.Logging
         {
             return $"Detected running in a website and attempted to use HostingEnvironment.MapPath(\"~/App_Data/\") to derive the logging path. {reason}. To avoid using HostingEnvironment.MapPath to derive the logging directory you can instead configure it to a specific path using LogManager.Use<DefaultFactory>().Directory(\"pathToLoggingDirectory\");";
         }
+
+        Lazy<string> directory;
+
+        Lazy<LogLevel> level;
     }
 }

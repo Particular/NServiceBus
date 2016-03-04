@@ -25,7 +25,6 @@ namespace NServiceBus
 
                     return LicenseDeserializer.Deserialize(form.ResultingLicenseText);
                 }
-
             }
             finally
             {

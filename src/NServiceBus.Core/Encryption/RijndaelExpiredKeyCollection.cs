@@ -3,7 +3,7 @@ namespace NServiceBus.Config
     using System.Configuration;
 
     /// <summary>
-    /// A configuration element collection of <see cref="RijndaelExpiredKey"/>s.
+    /// A configuration element collection of <see cref="RijndaelExpiredKey" />s.
     /// </summary>
     public class RijndaelExpiredKeyCollection : ConfigurationElementCollection
     {
@@ -13,43 +13,11 @@ namespace NServiceBus.Config
         public override ConfigurationElementCollectionType CollectionType => ConfigurationElementCollectionType.AddRemoveClearMap;
 
         /// <summary>
-        /// Creates a new <see cref="RijndaelExpiredKey"/>.
-        /// </summary>
-        protected override ConfigurationElement CreateNewElement()
-        {
-            return new RijndaelExpiredKey();
-        }
-
-        /// <summary>
-        /// Creates a new <see cref="RijndaelExpiredKey"/>, setting its <see cref="RijndaelExpiredKey.Key"/> property to the given value.
-        /// </summary>
-        protected override ConfigurationElement CreateNewElement(string elementName)
-        {
-            return new RijndaelExpiredKey
-            {
-                Key = elementName
-            };
-        }
-
-        /// <summary>
-        /// Returns the Messages property of the given <see cref="RijndaelExpiredKey"/> element.
-        /// </summary>
-        protected override object GetElementKey(ConfigurationElement element)
-        {
-            var encryptionKey = (RijndaelExpiredKey)element;
-
-            return encryptionKey.Key;
-        }
-
-        /// <summary>
-        /// Gets/sets the <see cref="RijndaelExpiredKey"/> at the given index.
+        /// Gets/sets the <see cref="RijndaelExpiredKey" /> at the given index.
         /// </summary>
         public RijndaelExpiredKey this[int index]
         {
-            get
-            {
-                return (RijndaelExpiredKey)BaseGet(index);
-            }
+            get { return (RijndaelExpiredKey) BaseGet(index); }
             set
             {
                 if (BaseGet(index) != null)
@@ -61,12 +29,42 @@ namespace NServiceBus.Config
         }
 
         /// <summary>
-        /// Gets the <see cref="RijndaelExpiredKey"/> for the given key.
+        /// Gets the <see cref="RijndaelExpiredKey" /> for the given key.
         /// </summary>
-        new public RijndaelExpiredKey this[string key] => (RijndaelExpiredKey)BaseGet(key);
+        new public RijndaelExpiredKey this[string key] => (RijndaelExpiredKey) BaseGet(key);
 
         /// <summary>
-        /// Calls BaseIndexOf on the given <see cref="RijndaelExpiredKey"/>.
+        /// Creates a new <see cref="RijndaelExpiredKey" />.
+        /// </summary>
+        protected override ConfigurationElement CreateNewElement()
+        {
+            return new RijndaelExpiredKey();
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="RijndaelExpiredKey" />, setting its <see cref="RijndaelExpiredKey.Key" /> property to the
+        /// given value.
+        /// </summary>
+        protected override ConfigurationElement CreateNewElement(string elementName)
+        {
+            return new RijndaelExpiredKey
+            {
+                Key = elementName
+            };
+        }
+
+        /// <summary>
+        /// Returns the Messages property of the given <see cref="RijndaelExpiredKey" /> element.
+        /// </summary>
+        protected override object GetElementKey(ConfigurationElement element)
+        {
+            var encryptionKey = (RijndaelExpiredKey) element;
+
+            return encryptionKey.Key;
+        }
+
+        /// <summary>
+        /// Calls BaseIndexOf on the given <see cref="RijndaelExpiredKey" />.
         /// </summary>
         public int IndexOf(RijndaelExpiredKey encryptionKey)
         {

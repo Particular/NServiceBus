@@ -1,7 +1,7 @@
 namespace NServiceBus
 {
     using System;
-    using NServiceBus.Pipeline;
+    using Pipeline;
 
     static class StringConversions
     {
@@ -19,7 +19,10 @@ namespace NServiceBus
 
         public static void DecryptValue(this IEncryptionService encryptionService, ref string stringToDecrypt, IIncomingLogicalMessageContext context)
         {
-            var parts = stringToDecrypt.Split(new[] { '@' }, StringSplitOptions.None);
+            var parts = stringToDecrypt.Split(new[]
+            {
+                '@'
+            }, StringSplitOptions.None);
 
             stringToDecrypt = encryptionService.Decrypt(
                 new EncryptedValue

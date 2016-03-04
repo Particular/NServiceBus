@@ -36,7 +36,7 @@
         {
             return settings.GetOrDefault<FeatureState>(featureType.FullName) == FeatureState.Active;
         }
-        
+
         /// <summary>
         /// Returns if a given feature has been enabled in this endpoint.
         /// </summary>
@@ -49,7 +49,7 @@
         {
             settings.Set(featureType.FullName, FeatureState.Enabled);
         }
-        
+
         internal static void DisableFeature(this SettingsHolder settings, Type featureType)
         {
             settings.Set(featureType.FullName, FeatureState.Disabled);
@@ -59,11 +59,10 @@
         {
             settings.Set(featureType.FullName, FeatureState.Active);
         }
-        
+
         internal static void MarkFeatureAsDeactivated(this SettingsHolder settings, Type featureType)
         {
             settings.Set(featureType.FullName, FeatureState.Deactivated);
         }
-
     }
 }

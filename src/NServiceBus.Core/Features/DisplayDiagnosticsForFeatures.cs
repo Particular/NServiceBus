@@ -2,7 +2,7 @@ namespace NServiceBus.Features
 {
     using System.Linq;
     using System.Text;
-    using NServiceBus.Logging;
+    using Logging;
 
     class DisplayDiagnosticsForFeatures
     {
@@ -27,17 +27,16 @@ namespace NServiceBus.Features
 
                         foreach (var reason in diagnosticData.PrerequisiteStatus.Reasons)
                         {
-                            statusText.AppendLine("   -"+ reason);
-                            
+                            statusText.AppendLine("   -" + reason);
                         }
-                    } 
+                    }
                     else if (!diagnosticData.DependenciesAreMeet)
                     {
                         statusText.AppendLine($"Did not meet one of the dependencies: {string.Join(",", diagnosticData.Dependencies.Select(t => "[" + string.Join(",", t.Select(t1 => t1)) + "]"))}");
                     }
                     else
                     {
-                        statusText.AppendLine("Not explicitly enabled");            
+                        statusText.AppendLine("Not explicitly enabled");
                     }
                 }
                 else

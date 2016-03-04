@@ -243,12 +243,12 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
             return t.FullName;
         }
 
+        readonly object messageInitializationLock = new object();
+
         ConcreteProxyCreator concreteProxyCreator;
         ConcurrentDictionary<RuntimeTypeHandle, RuntimeTypeHandle> concreteToInterfaceTypeMapping = new ConcurrentDictionary<RuntimeTypeHandle, RuntimeTypeHandle>();
         ConcurrentDictionary<RuntimeTypeHandle, RuntimeTypeHandle> interfaceToConcreteTypeMapping = new ConcurrentDictionary<RuntimeTypeHandle, RuntimeTypeHandle>();
         ConcurrentDictionary<string, RuntimeTypeHandle> nameToType = new ConcurrentDictionary<string, RuntimeTypeHandle>();
         ConcurrentDictionary<RuntimeTypeHandle, RuntimeMethodHandle> typeToConstructor = new ConcurrentDictionary<RuntimeTypeHandle, RuntimeMethodHandle>();
-
-        readonly object messageInitializationLock = new object();
     }
 }

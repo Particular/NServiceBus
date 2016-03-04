@@ -2,7 +2,7 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.ObjectBuilder;
+    using ObjectBuilder;
 
     class FeatureStartupTaskController
     {
@@ -13,8 +13,6 @@
         }
 
         public string Name { get; }
-        Func<IBuilder, FeatureStartupTask> factory;
-        FeatureStartupTask instance;
 
         public Task Start(IBuilder builder, IMessageSession messageSession)
         {
@@ -33,5 +31,8 @@
             var disposableTask = task as IDisposable;
             disposableTask?.Dispose();
         }
+
+        Func<IBuilder, FeatureStartupTask> factory;
+        FeatureStartupTask instance;
     }
 }

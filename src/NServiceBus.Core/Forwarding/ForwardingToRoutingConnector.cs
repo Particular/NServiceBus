@@ -2,8 +2,8 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Routing;
     using Pipeline;
+    using Routing;
 
     class ForwardingToRoutingConnector : StageConnector<IForwardingContext, IRoutingContext>
     {

@@ -8,8 +8,6 @@ namespace NServiceBus
 
     static class LicenseLocationConventions
     {
-        static ILog Logger = LogManager.GetLogger(typeof(LicenseLocationConventions));
-
         public static string TryFindLicenseText()
         {
             var appConfigLicenseString = ConfigurationManager.AppSettings["NServiceBus/License"];
@@ -81,7 +79,7 @@ namespace NServiceBus
         static string LoadLicenseFromRegistry()
         {
             var hkcuLicense = GetHKCULicense(@"ParticularSoftware\NServiceBus");
-            
+
             if (!string.IsNullOrEmpty(hkcuLicense))
             {
                 Logger.Info(@"Using embedded license found in registry [HKEY_CURRENT_USER\Software\ParticularSoftware\NServiceBus\License].");
@@ -125,7 +123,7 @@ namespace NServiceBus
         static string GetHKCULicense(string softwareKey = "NServiceBus", string subKey = null)
         {
             var keyPath = @"SOFTWARE\" + softwareKey;
-            
+
             if (subKey != null)
             {
                 keyPath += @"\" + subKey;
@@ -156,12 +154,14 @@ namespace NServiceBus
                     }
                 }
             }
-            // ReSharper disable once EmptyGeneralCatchClause
+                // ReSharper disable once EmptyGeneralCatchClause
             catch (Exception)
             {
                 //Swallow exception if we can't read HKLM
             }
             return null;
         }
+
+        static ILog Logger = LogManager.GetLogger(typeof(LicenseLocationConventions));
     }
 }

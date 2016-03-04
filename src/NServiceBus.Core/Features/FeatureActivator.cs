@@ -4,9 +4,9 @@ namespace NServiceBus.Features
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Settings;
+    using ObjectBuilder;
+    using Pipeline;
+    using Settings;
 
     class FeatureActivator
     {
@@ -124,7 +124,9 @@ namespace NServiceBus.Features
             // Step 4: DFS to check if we have an directed acyclic graph
             foreach (var node in allNodes)
             {
-                if (DirectedCycleExistsFrom(node, new Node [] { }))
+                if (DirectedCycleExistsFrom(node, new Node[]
+                {
+                }))
                 {
                     throw new ArgumentException("Cycle in dependency graph detected");
                 }
@@ -142,7 +144,10 @@ namespace NServiceBus.Features
                     return true;
                 }
 
-                var newVisitedNodes = visitedNodes.Union(new[] { node });
+                var newVisitedNodes = visitedNodes.Union(new[]
+                {
+                    node
+                });
 
                 foreach (var subNode in node.previous)
                 {

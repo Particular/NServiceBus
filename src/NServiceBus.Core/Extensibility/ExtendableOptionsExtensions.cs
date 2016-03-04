@@ -6,7 +6,7 @@ namespace NServiceBus.Extensibility
     public static class ExtendableOptionsExtensions
     {
         /// <summary>
-        /// Gets access to a "bucket", this allows the developer to pass information from extension methods down to behaviors. 
+        /// Gets access to a "bucket", this allows the developer to pass information from extension methods down to behaviors.
         /// </summary>
         /// <param name="options">Extendable options instance.</param>
         /// <returns>A big bucket.</returns>

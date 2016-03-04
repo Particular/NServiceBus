@@ -7,7 +7,7 @@ namespace NServiceBus
     static class CombGuid
     {
         /// <summary>
-        /// Generate a new <see cref="Guid"/> using the comb algorithm.
+        /// Generate a new <see cref="Guid" /> using the comb algorithm.
         /// </summary>
         public static Guid Generate()
         {
@@ -23,7 +23,7 @@ namespace NServiceBus
             // Convert to a byte array 
             // Note that SQL Server is accurate to 1/300th of a millisecond so we divide by 3.333333 
             var daysArray = BitConverter.GetBytes(days.Days);
-            var millisecondArray = BitConverter.GetBytes((long)(timeOfDay.TotalMilliseconds / 3.333333));
+            var millisecondArray = BitConverter.GetBytes((long) (timeOfDay.TotalMilliseconds/3.333333));
 
             // Reverse the bytes to match SQL Servers ordering 
             Array.Reverse(daysArray);
@@ -37,4 +37,3 @@ namespace NServiceBus
         }
     }
 }
-

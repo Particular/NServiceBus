@@ -1,7 +1,7 @@
 namespace NServiceBus
 {
     using System.Linq;
-    using NServiceBus.Config;
+    using Config;
 
     static class RijndaelEncryptionServiceConfigValidations
     {
@@ -12,7 +12,10 @@ namespace NServiceBus
                 .ExpiredKeys
                 .Cast<RijndaelExpiredKey>()
                 .Select(x => x.KeyIdentifier)
-                .Union(new[] { section.KeyIdentifier })
+                .Union(new[]
+                {
+                    section.KeyIdentifier
+                })
                 .Where(x => !string.IsNullOrEmpty(x))
                 .Select(x => x.Split(';'))
                 .SelectMany(x => x)

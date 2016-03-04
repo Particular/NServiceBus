@@ -1,7 +1,7 @@
 namespace NServiceBus
 {
-    using NServiceBus.Pipeline;
-    using NServiceBus.Transports;
+    using Pipeline;
+    using Transports;
 
     class ForwardingContext : BehaviorContext, IForwardingContext
     {

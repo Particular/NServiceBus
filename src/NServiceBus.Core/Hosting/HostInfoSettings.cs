@@ -1,16 +1,14 @@
 namespace NServiceBus
 {
     using System;
-    using NServiceBus.Features;
-    using NServiceBus.Hosting;
+    using Features;
+    using Hosting;
 
     /// <summary>
-    ///     Configuration class for <see cref="HostInformation"/> settings.
+    /// Configuration class for <see cref="HostInformation" /> settings.
     /// </summary>
     public class HostInfoSettings
     {
-        EndpointConfiguration config;
-
         internal HostInfoSettings(EndpointConfiguration config)
         {
             this.config = config;
@@ -21,7 +19,8 @@ namespace NServiceBus
         /// </summary>
         /// <remarks>
         /// This mode is only recommended if upgrades are deployed always to the same path.
-        /// When using <a href="https://octopusdeploy.com/">Octopus Deploy</a> do not use this mode, instead use <see cref="UsingNames"/>.
+        /// When using <a href="https://octopusdeploy.com/">Octopus Deploy</a> do not use this mode, instead use
+        /// <see cref="UsingNames" />.
         /// </remarks>
         public HostInfoSettings UsingInstalledFilePath()
         {
@@ -44,10 +43,10 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// In this mode, a host id will be generated from <paramref name="instanceName"/> and <paramref name="hostName"/>.
+        /// In this mode, a host id will be generated from <paramref name="instanceName" /> and <paramref name="hostName" />.
         /// </summary>
         /// <remarks>
-        /// This mode is recommended when deploying in Azure roles or <see cref="UsingInstalledFilePath"/> is not appropriate.
+        /// This mode is recommended when deploying in Azure roles or <see cref="UsingInstalledFilePath" /> is not appropriate.
         /// </remarks>
         public HostInfoSettings UsingNames(string instanceName, string hostName)
         {
@@ -67,5 +66,7 @@ namespace NServiceBus
             config.Settings.Set("NServiceBus.HostInformation.DisplayName", displayName);
             return this;
         }
+
+        EndpointConfiguration config;
     }
 }

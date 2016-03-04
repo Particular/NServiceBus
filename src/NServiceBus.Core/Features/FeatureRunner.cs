@@ -1,12 +1,10 @@
 namespace NServiceBus.Features
 {
     using System.Threading.Tasks;
-    using NServiceBus.ObjectBuilder;
+    using ObjectBuilder;
 
     class FeatureRunner
     {
-        FeatureActivator featureActivator;
-
         public FeatureRunner(FeatureActivator featureActivator)
         {
             this.featureActivator = featureActivator;
@@ -21,5 +19,7 @@ namespace NServiceBus.Features
         {
             return featureActivator.StopFeatures(messageSession);
         }
+
+        FeatureActivator featureActivator;
     }
 }

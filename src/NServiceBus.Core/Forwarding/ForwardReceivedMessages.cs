@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
-    using NServiceBus.Transports;
+    using Transports;
 
     /// <summary>
     /// Provides message forwarding capabilities.

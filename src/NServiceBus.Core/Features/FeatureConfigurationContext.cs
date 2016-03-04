@@ -2,10 +2,10 @@
 {
     using System;
     using System.Collections.Generic;
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Settings;
-    using NServiceBus.Transports;
+    using ObjectBuilder;
+    using Pipeline;
+    using Settings;
+    using Transports;
 
     /// <summary>
     /// The context available to features when they are activated.

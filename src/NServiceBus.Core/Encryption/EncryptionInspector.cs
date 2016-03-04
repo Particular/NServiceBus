@@ -9,8 +9,6 @@ namespace NServiceBus
 
     class EncryptionInspector
     {
-        Conventions conventions;
-
         public EncryptionInspector(Conventions conventions)
         {
             this.conventions = conventions;
@@ -98,7 +96,7 @@ namespace NServiceBus
                 {
                     continue;
                 }
-                
+
                 var child = member.GetValue(root);
 
                 var items = child as IEnumerable;
@@ -117,16 +115,22 @@ namespace NServiceBus
                             break;
                         }
 
-                        foreach (var i in ScanObject(item, visitedMembers)) yield return i;
+                        foreach (var i in ScanObject(item, visitedMembers))
+                        {
+                            yield return i;
+                        }
                     }
                 }
                 else
                 {
-                    foreach (var i in ScanObject(child, visitedMembers)) yield return i;
+                    foreach (var i in ScanObject(child, visitedMembers))
+                    {
+                        yield return i;
+                    }
                 }
             }
         }
-        
+
         static IEnumerable<MemberInfo> GetFieldsAndProperties(object target)
         {
             if (target == null)
@@ -161,6 +165,8 @@ namespace NServiceBus
 
             return members;
         }
+
+        Conventions conventions;
 
         static ConcurrentDictionary<RuntimeTypeHandle, IEnumerable<MemberInfo>> cache = new ConcurrentDictionary<RuntimeTypeHandle, IEnumerable<MemberInfo>>();
     }

@@ -2,7 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Configuration;
-    using NServiceBus.Logging;
+    using Logging;
 
     static class LogLevelReader
     {

@@ -9,8 +9,8 @@ namespace NServiceBus.Extensibility
     {
         internal ContextBag Context = new ContextBag();
 
-        internal Dictionary<string, string> OutgoingHeaders = new Dictionary<string, string>();
-
         internal string MessageId = CombGuid.Generate().ToString();
+
+        internal Dictionary<string, string> OutgoingHeaders = new Dictionary<string, string>();
     }
 }
