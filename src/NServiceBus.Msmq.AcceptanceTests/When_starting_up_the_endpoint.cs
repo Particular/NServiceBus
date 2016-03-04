@@ -21,7 +21,7 @@
 
             var logItem = context.Logs.FirstOrDefault(item => item.Message.Contains($"[{everyone}] and [{anonymous}]"));
             Assert.IsNotNull(logItem);
-            StringAssert.Contains($"is running with [{everyone}] and [{anonymous}] permissions. Consider setting appropriate permissions, if required by your organization", logItem.Message);
+            StringAssert.Contains($"is running with [{everyone}] and [{anonymous}] permissions. Consider setting appropriate permissions, if required by the organization", logItem.Message);
         }
 
         class Context : ScenarioContext

@@ -86,7 +86,7 @@
                 "key1"
             };
             var exception = Assert.Throws<ArgumentException>(() => ConfigureRijndaelEncryptionService.VerifyKeys(keys));
-            StringAssert.StartsWith("Overlapping keys defined. Please ensure that no keys overlap.", exception.Message);
+            StringAssert.StartsWith("Overlapping keys defined. Ensure that no keys overlap.", exception.Message);
             Assert.AreEqual("expiredKeys", exception.ParamName);
         }
 

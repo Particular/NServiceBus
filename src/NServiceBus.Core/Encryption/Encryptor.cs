@@ -29,7 +29,7 @@
             {
                 if (!encryptionServiceConstructorDefined)
                 {
-                    var stringBuilder = new StringBuilder("Encrypted properties were found but no encryption service has been defined. Please call ConfigurationBuilder.RijndaelEncryptionService or ConfigurationBuilder.RegisterEncryptionService. Encrypted properties: ");
+                    var stringBuilder = new StringBuilder("Encrypted properties were found but no encryption service has been defined. Call endpointConfiguration.RijndaelEncryptionService or endpointConfiguration.RegisterEncryptionService. Encrypted properties: ");
                     foreach (var encryptedProperty in encryptedProperties)
                     {
                         stringBuilder.AppendFormat("{0}.{1}\r\n", encryptedProperty.DeclaringType, encryptedProperty.Name);
@@ -41,9 +41,9 @@
             {
                 if (encryptionServiceConstructorDefined)
                 {
-                    var message = 
-@"You have configured a encryption service via either ConfigurationBuilder.RijndaelEncryptionService or ConfigurationBuilder.RegisterEncryptionService however no properties were found on type that require encryption. 
-Perhaps you forgot to define your encryption message conventions or to define message properties using as WireEncryptedString.";
+                    var message =
+@"Encryption service has been configured via either endpointConfiguration.RijndaelEncryptionService or endpointConfiguration.RegisterEncryptionService however no properties were found on type that require encryption. 
+Ensure that either encryption message conventions are defined or to define message properties using as WireEncryptedString.";
                     log.Warn(message);
                 }
             }

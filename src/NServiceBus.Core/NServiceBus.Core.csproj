@@ -467,7 +467,7 @@
     <Compile Include="ExceptionExtensions.cs" />
     <Compile Include="Performance\MessageDurability\ExpressAttribute.cs" />
     <Compile Include="Features\FeatureConfigurationContext.cs" />
-    <Compile Include="Features\ConfigurationBuilderExtensions.cs" />
+    <Compile Include="Features\EndpointConfigurationExtensions.cs" />
     <Compile Include="Features\FeatureStartupTask.cs" />
     <Compile Include="Features\SettingsExtentions.cs" />
     <Compile Include="GitFlowVersion.cs" />

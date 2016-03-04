@@ -33,7 +33,7 @@ namespace NServiceBus
             }
             catch (QueueNotFoundException ex)
             {
-                throw new Exception($"The destination queue '{ex.Queue}' could not be found. It may be the case that the given queue just hasn't been created yet, or has been deleted.", ex);
+                throw new Exception($"The destination queue '{ex.Queue}' could not be found. It may be the case that the given queue hasn't been created yet, or has been deleted.", ex);
             }
         }
 

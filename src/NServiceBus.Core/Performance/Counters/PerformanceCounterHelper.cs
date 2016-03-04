@@ -32,7 +32,7 @@ namespace NServiceBus
         {
             if (instanceName.Length > 128)
             {
-                throw new Exception($"The endpoint name ('{instanceName}') is too long (longer then {(int) sbyte.MaxValue}) to register as a performance counter instance name. Please reduce the endpoint name.");
+                throw new Exception($"The endpoint name ('{instanceName}') is too long (longer then {(int) sbyte.MaxValue}) to register as a performance counter instance name. Reduce the endpoint name.");
             }
 
             var message = $"NServiceBus performance counter for '{counterName}' is not set up correctly. To rectify this problem download the latest powershell commandlets from http://www.particular.net downloads page.";

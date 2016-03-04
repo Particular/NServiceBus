@@ -55,7 +55,8 @@ namespace NServiceBus
 
             if (ConfigurationIsWrong(dontUseExternalTransaction))
             {
-                throw new InvalidOperationException("This endpoint is not configured to be transactional. Processing subscriptions on a non-transactional endpoint is not supported by default. If you still wish to do so, please set the 'DontUseExternalTransaction' property of MsmqSubscriptionStorage to 'true'.\n\nThe recommended solution to this problem is to include '.IsTransaction(true)' after '.MsmqTransport()' in your fluent initialization code, or if you're using NServiceBus.Host.exe to have the class which implements IConfigureThisEndpoint to also inherit AsA_Server or AsA_Publisher.");
+                throw new InvalidOperationException(@"This endpoint is not configured to be transactional. Processing subscriptions on a non-transactional endpoint is not supported by default. If this is still required, set the 'DontUseExternalTransaction' property of MsmqSubscriptionStorage to 'true'.
+The recommended solution to this problem is to include '.IsTransaction(true)' after '.MsmqTransport()' in the initialization code, or if using NServiceBus.Host.exe to have the class which implements IConfigureThisEndpoint to also inherit AsA_Server or AsA_Publisher.");
             }
 
             var t = MessageQueueTransactionType.Automatic;

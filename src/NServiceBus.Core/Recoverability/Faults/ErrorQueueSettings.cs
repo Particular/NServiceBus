@@ -28,9 +28,9 @@ namespace NServiceBus
 
                 throw new Exception(
                     @"'MessageForwardingInCaseOfFaultConfig' configuration section is found but 'ErrorQueue' value is empty. 
-Please take on of the following actions: 
+Ttake on of the following actions: 
 - set the error queue at configuration time using 'EndpointConfiguration.SendFailedMessagesTo()'
-- Add a valid value to to your app config. For example: 
+- Add a valid value to to the app.config. For example: 
  <MessageForwardingInCaseOfFaultConfig ErrorQueue=""error""/>");
             }
 
@@ -44,17 +44,17 @@ Please take on of the following actions:
                 }
                 throw new Exception(
                     @"'ErrorQueue' read from registry but the value is empty. 
-Please take on of the following actions: 
+Take on of the following actions: 
 - set the error queue at configuration time using 'EndpointConfiguration.SendFailedMessagesTo()'
-- add a 'MessageForwardingInCaseOfFaultConfig' section to your app.config
-- give 'HKEY_LOCAL_MACHINE\SOFTWARE\ParticularSoftware\ServiceBus\ErrorQueue' a valid value for your error queue");
+- add a 'MessageForwardingInCaseOfFaultConfig' section to the app.config
+- give 'HKEY_LOCAL_MACHINE\SOFTWARE\ParticularSoftware\ServiceBus\ErrorQueue' a valid value for the error queue");
             }
 
             throw new Exception(
 @"Faults forwarding requires an error queue to be specified. 
-Please take on of the following actions: 
+Take on of the following actions: 
 - set the error queue at configuration time using 'EndpointConfiguration.SendFailedMessagesTo()'
-- add a 'MessageForwardingInCaseOfFaultConfig' section to your app.config
+- add a 'MessageForwardingInCaseOfFaultConfig' section to the app.config
 - configure a global error queue in the registry using the powershell command: Set-NServiceBusLocalMachineSettings -ErrorQueue {address of error queue}");
         }
 

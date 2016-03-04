@@ -47,7 +47,7 @@ namespace NServiceBus
         {
             if (section == null)
             {
-                throw new Exception("No RijndaelEncryptionServiceConfig defined. Please specify a valid 'RijndaelEncryptionServiceConfig' in your application's configuration file.");
+                throw new Exception("No RijndaelEncryptionServiceConfig defined. Specify a valid 'RijndaelEncryptionServiceConfig' in the application's configuration file.");
             }
             if (section.ExpiredKeys == null)
             {
@@ -63,7 +63,7 @@ namespace NServiceBus
             }
             if (RijndaelEncryptionServiceConfigValidations.OneOrMoreExpiredKeysHaveNoKeyIdentifier(section))
             {
-                Log.Warn("The RijndaelEncryptionServiceConfig has a 'ExpiredKeys' property defined however some keys have no 'KeyIdentifier' property value. Please verify if this is intentional.");
+                Log.Warn("The RijndaelEncryptionServiceConfig has a 'ExpiredKeys' property defined however some keys have no 'KeyIdentifier' property value. Verify if this is intentional.");
             }
             if (RijndaelEncryptionServiceConfigValidations.EncryptionKeyListedInExpiredKeys(section))
             {
@@ -71,7 +71,7 @@ namespace NServiceBus
             }
             if (RijndaelEncryptionServiceConfigValidations.ExpiredKeysHaveDuplicateKeys(section))
             {
-                throw new Exception("The RijndaelEncryptionServiceConfig has overlapping ExpiredKeys defined. Please ensure that no keys overlap in the 'ExpiredKeys' property.");
+                throw new Exception("The RijndaelEncryptionServiceConfig has overlapping ExpiredKeys defined. Ensure that no keys overlap in the 'ExpiredKeys' property.");
             }
             if (RijndaelEncryptionServiceConfigValidations.ConfigurationHasDuplicateKeyIdentifiers(section))
             {
@@ -133,7 +133,7 @@ namespace NServiceBus
         {
             if (expiredKeys.Count != expiredKeys.Distinct().Count())
             {
-                throw new ArgumentException("Overlapping keys defined. Please ensure that no keys overlap.", nameof(expiredKeys));
+                throw new ArgumentException("Overlapping keys defined. Ensure that no keys overlap.", nameof(expiredKeys));
             }
             for (var index = 0; index < expiredKeys.Count; index++)
             {

@@ -35,7 +35,7 @@ namespace NServiceBus
             if (endpointName == null)
             {
                 throw new InvalidOperationException(
-                    "No endpoint name could be generated, please specify your own convention using Configure.DefineEndpointName()");
+                    "No endpoint name could be generated, specify a convention using Configure.DefineEndpointName()");
             }
 
             return endpointName;
@@ -55,7 +55,7 @@ namespace NServiceBus
             }
 
             throw new InvalidOperationException(
-                    "No version of the endpoint could not be retrieved using the default convention, please specify your own version using config.EndpointVersion(version).");
+                    "No version of the endpoint could not be retrieved using the default convention, specify a custom version using endpointConfiguration.EndpointVersion(version).");
         }
 
         void Initialize()

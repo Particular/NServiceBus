@@ -130,7 +130,7 @@
             Assert.Catch<InvalidOperationException>(() =>
             {
                 service2.Decrypt(encryptedValue, null);
-            }, "Decryption key not available for key identifier 'missingKey'. Please add this key to the rijndael encryption service configuration. Key identifiers are case sensitive.");
+            }, "Decryption key not available for key identifier 'missingKey'. Add this key to the rijndael encryption service configuration. Key identifiers are case sensitive.");
         }
 
         [Test]

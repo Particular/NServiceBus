@@ -20,7 +20,7 @@ namespace NServiceBus
                 if (requestedTimeout.Value > maxTimeout)
                 {
                     throw new ConfigurationErrorsException(
-                        "Timeout requested is longer than the maximum value for this machine. Please override using the maxTimeout setting of the system.transactions section in machine.config");
+                        "Timeout requested is longer than the maximum value for this machine. Override using the maxTimeout setting of the system.transactions section in machine.config");
                 }
 
                 timeout = requestedTimeout.Value;

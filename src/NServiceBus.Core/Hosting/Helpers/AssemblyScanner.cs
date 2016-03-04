@@ -324,7 +324,7 @@ namespace NServiceBus.Hosting.Helpers
 
             if (sbFileLoadException.ToString().Length > 0)
             {
-                sb.AppendLine("It looks like you may be missing binding redirects in your config file for the following assemblies:");
+                sb.AppendLine("It looks like you may be missing binding redirects in the config file for the following assemblies:");
                 sb.Append(sbFileLoadException);
                 sb.AppendLine("For more information see http://msdn.microsoft.com/en-us/library/7wd6ex19(v=vs.100).aspx");
             }
@@ -332,7 +332,7 @@ namespace NServiceBus.Hosting.Helpers
             if (displayBindingRedirects)
             {
                 sb.AppendLine();
-                sb.AppendLine("Try to add the following binding redirects to your config file:");
+                sb.AppendLine("Try to add the following binding redirects to the config file:");
 
                 const string bindingRedirects = @"<runtime>
     <assemblyBinding xmlns=""urn:schemas-microsoft-com:asm.v1"">

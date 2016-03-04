@@ -62,7 +62,7 @@
                     {
                         if (!routingTable.ContainsKey(configuration.AuditEndpoint))
                         {
-                            throw new ConfigurationErrorsException(string.Format("{0} was not found in routingTable. Make sure that you call WithEndpoint<{0}>() method in your test.", configuration.AuditEndpoint));
+                            throw new ConfigurationErrorsException($"{configuration.AuditEndpoint} was not found in routingTable. Ensure that WithEndpoint<{configuration.AuditEndpoint}>() method is called in the test.");
                         }
 
                         return new AuditConfig { QueueName = routingTable[configuration.AuditEndpoint] } as T;

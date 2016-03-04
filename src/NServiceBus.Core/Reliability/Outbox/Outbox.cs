@@ -41,20 +41,20 @@
 
             if (configValue == null)
             {
-                throw new Exception(@"To use the Outbox feature with MSMQ or SQLServer transports you need to enable it in your config file.
+                throw new Exception(@"To use the Outbox feature with MSMQ or SQLServer transports it must be enabled in the config file.
 To do that add the following:
 <appSettings>
     <add key=""NServiceBus/Outbox"" value=""true""/>
 </appSettings>
 
-The reason you need to do this is because we need to ensure that you have read all the documentation regarding this feature and know the limitations when running it under MSMQ or SQLServer transports.");
+The reason this is required is to ensure that all the guidelines regarding this feature have been understood and know the limitations when running under MSMQ or SQLServer transports.");
             }
 
             bool result;
 
             if (!bool.TryParse(configValue, out result))
             {
-                throw new Exception("Invalid value in \"NServiceBus/Outbox\" AppSetting. Please ensure it is either \"true\" or \"false\".");
+                throw new Exception("Invalid value in \"NServiceBus/Outbox\" AppSetting. Ensure it is either \"true\" or \"false\".");
             }
 
             return result;
@@ -69,7 +69,7 @@ The reason you need to do this is because we need to ensure that you have read a
         {
             if (!PersistenceStartup.HasSupportFor<StorageType.Outbox>(context.Settings))
             {
-                throw new Exception("Selected persister doesn't have support for outbox storage. Please select another storage or disable the outbox feature using config.Features(f=>f.Disable<Outbox>())");
+                throw new Exception("Selected persister doesn't have support for outbox storage. Select another storage or disable the outbox feature using endpointConfiguration.Features(f=>f.Disable<Outbox>())");
             }
 
             //note: in the future we should change the persister api to give us a "outbox factory" so that we can register it in DI here instead of relying on the persister to do it
@@ -94,8 +94,8 @@ The reason you need to do this is because we need to ensure that you have read a
 
                 if (sc.Status == ServiceControllerStatus.Running)
                 {
-                    log.Warn(@"We have detected that MSDTC service is running on your machine.
-Because you have configured this endpoint to run with Outbox enabled we recommend turning MSDTC off to ensure that the Outbox behavior is working as expected and no other resources are enlisting in distributed transactions.");
+                    log.Warn(@"The MSDTC service is running on this machine.
+Because Outbox is enabled disabling MSDTC is recommended. This ensures that the Outbox behavior is working as expected and no other resources are enlisting in distributed transactions.");
                 }
             }
             // ReSharper disable once EmptyGeneralCatchClause

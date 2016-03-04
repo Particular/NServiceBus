@@ -48,7 +48,7 @@ namespace NServiceBus
     }
 
     [ObsoleteEx(
-        Message = "Please use `IMessageHandlerContext` provided to message handlers instead.",
+        Message = "Use `IMessageHandlerContext` provided to message handlers instead.",
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0")]
     public interface IMessageContext
@@ -85,7 +85,7 @@ namespace NServiceBus
     public static class ConfigureInMemoryFaultManagement
     {
         [ObsoleteEx(
-            Message = "This is no longer supported. If you want full control over what happens when a message fails (including retries) please override the MoveFaultsToErrorQueue behavior.",
+            Message = "This is no longer supported. If you want full control over what happens when a message fails (including retries) override the MoveFaultsToErrorQueue behavior.",
             RemoveInVersion = "7",
             TreatAsErrorFromVersion = "6")]
         public static void DiscardFailedMessagesInsteadOfSendingToErrorQueue(this EndpointConfiguration config)
@@ -315,7 +315,11 @@ namespace NServiceBus
 
     public static partial class ConfigureRijndaelEncryptionService
     {
-        [ObsoleteEx(ReplacementTypeOrMember = "RegisterEncryptionService(this EndpointConfiguration config, Func<IEncryptionService> func)", RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0", Message = "It is no longer possible to access the builder to create an encryption service. If you require container access use your container directly in the factory.")]
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "RegisterEncryptionService(this EndpointConfiguration config, Func<IEncryptionService> func)", 
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "It is no longer possible to access the builder to create an encryption service. If container access is required use the container directly in the factory.")]
         public static void RegisterEncryptionService(this EndpointConfiguration config, Func<IBuilder, IEncryptionService> func)
         {
             throw new NotImplementedException();
@@ -472,7 +476,7 @@ namespace NServiceBus.Unicast
 namespace NServiceBus.MessageMutator
 {
     [ObsoleteEx(
-        Message = "Just have your mutator implement both IMutateOutgoingMessages and IMutateIncomingMessages ",
+        Message = "Have the mutator implement both IMutateOutgoingMessages and IMutateIncomingMessages ",
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0")]
     public interface IMessageMutator
@@ -480,7 +484,7 @@ namespace NServiceBus.MessageMutator
     }
 
     [ObsoleteEx(
-        Message = "Just have your mutator implement both IMutateIncomingTransportMessages and IMutateOutgoingTransportMessages",
+        Message = "Have the mutator implement both IMutateIncomingTransportMessages and IMutateOutgoingTransportMessages",
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0")]
     public interface IMutateTransportMessages : IMutateIncomingTransportMessages, IMutateOutgoingTransportMessages
@@ -652,7 +656,7 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
-            Message = "Headers can be set using the ``.SetHeader` method on the context object passed into your behavior or mutator")]
+            Message = "Headers can be set using the ``.SetHeader` method on the context object passed into the behavior or mutator")]
         public static void SetMessageHeader(this IBus bus, object msg, string key, string value)
         {
             throw new NotImplementedException();
@@ -878,7 +882,7 @@ namespace NServiceBus.Config
 namespace NServiceBus.Faults
 {
     [ObsoleteEx(
-        Message = "IManageMessageFailures is no longer an extension point. If you want full control over what happens when a message fails (including retries) please override the MoveFaultsToErrorQueue behavior. If you just want to get notified when messages are being moved please use BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e=>{}) ",
+        Message = "IManageMessageFailures is no longer an extension point. If full control over what happens when a message fails (including retries) is required then override the MoveFaultsToErrorQueue behavior. To get notified when messages are being moved use BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e=>{}) ",
         RemoveInVersion = "7",
         TreatAsErrorFromVersion = "6")]
     public interface IManageMessageFailures
@@ -996,7 +1000,7 @@ namespace NServiceBus.Unicast.Transport
     using System;
     using System.Transactions;
     [ObsoleteEx(
-          Message = "Transaction settings is no longer available via this class. Please see obsoletes on individual members for further details",
+          Message = "Transaction settings is no longer available via this class. See obsoletes on individual members for further details",
           RemoveInVersion = "7.0",
           TreatAsErrorFromVersion = "6.0")]
     public class TransactionSettings
@@ -1022,19 +1026,19 @@ namespace NServiceBus.Unicast.Transport
         }
 
         [ObsoleteEx(
-            Message = "DoNotWrapHandlersExecutionInATransactionScope is no longer used here. Please use settings.GetOrDefault<bool>('Transactions.DoNotWrapHandlersExecutionInATransactionScope') instead",
+            Message = "DoNotWrapHandlersExecutionInATransactionScope is no longer used here. Use settings.GetOrDefault<bool>('Transactions.DoNotWrapHandlersExecutionInATransactionScope') instead",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public bool DoNotWrapHandlersExecutionInATransactionScope { get; set; }
 
         [ObsoleteEx(
-         Message = "SuppressDistributedTransactions is no longer used here. Please use `context.Settings.GetRequiredTransactionModeForReceives() != Transactions.TransactionScope` instead.",
+         Message = "SuppressDistributedTransactions is no longer used here. Uuse `context.Settings.GetRequiredTransactionModeForReceives() != Transactions.TransactionScope` instead.",
          RemoveInVersion = "7.0",
          TreatAsErrorFromVersion = "6.0")]
         public bool SuppressDistributedTransactions { get; set; }
 
         [ObsoleteEx(
-            Message = "IsTransactional is no longer used here. Please use `context.Settings.GetRequiredTransactionModeForReceives() != Transactions.None` instead.",
+            Message = "IsTransactional is no longer used here. Use `context.Settings.GetRequiredTransactionModeForReceives() != Transactions.None` instead.",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public bool IsTransactional { get; set; }
@@ -1121,7 +1125,7 @@ namespace NServiceBus
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
-        Message = "No longer used, please use the new callbacks api described in the v6 upgrade guide")]
+        Message = "No longer used, use the new callbacks api described in the version 6 upgrade guide")]
     public class BusAsyncResultEventArgs
     {
     }
@@ -1132,7 +1136,7 @@ namespace NServiceBus.Unicast
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
-        Message = "No longer used, please use the new callbacks api described in the v6 upgrade guide")]
+        Message = "No longer used, use the new callbacks api described in the version 6 upgrade guide")]
     public class BusAsyncResult
     {
     }
@@ -1176,7 +1180,7 @@ namespace NServiceBus.Pipeline
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
-        Message = "You can no longer get access to the pipeline context via DI. Please use a behavior to get access instead")]
+        Message = "The pipeline context is no longer avaliable via dependency injection. Use a behavior to get access instead")]
     public class PipelineExecutor
     {
     }
@@ -1356,7 +1360,7 @@ namespace NServiceBus
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
-        Message = "IHandleMessages<T> now exposes the IMessageHandlerContext parameter. You can use this to access what used to be available in the IBus interface. Please use the provided context in extension points like message handlers or IEndpointInstance when outside the message processing pipeline.")]
+        Message = "IHandleMessages<T> now exposes the IMessageHandlerContext parameter. Use this to access what used to be available in the IBus interface. Use the provided context in extension points like message handlers or IEndpointInstance when outside the message processing pipeline.")]
     public interface IBus
     {
     }
@@ -1456,7 +1460,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Message = "Construct your message and pass it to the non Action overload.",
+            Message = "Construct the message and pass it to the non Action overload.",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
             ReplacementTypeOrMember = "RequestTimeout<TTimeoutMessageType>(IMessageHandlerContext DateTime, TTimeoutMessageType)")]
@@ -1485,7 +1489,7 @@ namespace NServiceBus
 
 
         [ObsoleteEx(
-            Message = "Construct your message and pass it to the non Action overload.",
+            Message = "Construct the message and pass it to the non Action overload.",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
             ReplacementTypeOrMember = "Saga.RequestTimeout<TTimeoutMessageType>(IMessageHandlerContext, TimeSpan, TTimeoutMessageType)")]
@@ -1513,7 +1517,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Message = "Construct your message and pass it to the non Action overload.",
+            Message = "Construct the message and pass it to the non Action overload.",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
             ReplacementTypeOrMember = "ReplyToOriginator(IMessageHandlerContext, object)")]
@@ -1531,7 +1535,7 @@ namespace NServiceBus
     public static class IBusExtensions
     {
         [ObsoleteEx(
-            Message = "Please use `IMessageHandlerContext.Reply(object message)` provided to message handlers instead.",
+            Message = "Use `IMessageHandlerContext.Reply(object message)` provided to message handlers instead.",
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7")]
         public static void Reply(this IBus bus, object message)
@@ -1540,7 +1544,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Message = "Please use `IMessageHandlerContext.Reply<T>(Action<T> messageConstructor)` provided to message handlers instead.",
+            Message = "Use `IMessageHandlerContext.Reply<T>(Action<T> messageConstructor)` provided to message handlers instead.",
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7")]
         public static void Reply<T>(this IBus bus, Action<T> messageConstructor)
@@ -1549,7 +1553,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Message = "Please use `IMessageHandlerContext.SendLocal(object message)` provided to message handlers instead.",
+            Message = "Use `IMessageHandlerContext.SendLocal(object message)` provided to message handlers instead.",
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7")]
         public static void SendLocal(this IBus bus, object message)
@@ -1558,7 +1562,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Message = "Please use `IMessageHandlerContext.SendLocal<T>(Action<T> messageConstructor)` provided to message handlers instead.",
+            Message = "Use `IMessageHandlerContext.SendLocal<T>(Action<T> messageConstructor)` provided to message handlers instead.",
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7")]
         public static void SendLocal<T>(this IBus bus, Action<T> messageConstructor)
@@ -1567,7 +1571,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Message = "Please use `IMessageHandlerContext.HandleCurrentMessageLater()` provided to message handlers instead.",
+            Message = "Use `IMessageHandlerContext.HandleCurrentMessageLater()` provided to message handlers instead.",
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7")]
         public static void HandleCurrentMessageLater(this IBus bus)
@@ -1576,7 +1580,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Message = "Please use `IMessageHandlerContext.ForwardCurrentMessageTo(string destination)` provided to message handlers instead.",
+            Message = "Use `IMessageHandlerContext.ForwardCurrentMessageTo(string destination)` provided to message handlers instead.",
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7")]
         public static void ForwardCurrentMessageTo(this IBus bus, string destination)
@@ -1585,7 +1589,7 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            Message = "Please use `IMessageHandlerContext.DoNotContinueDispatchingCurrentMessageToHandlers()` provided to message handlers instead.",
+            Message = "Use `IMessageHandlerContext.DoNotContinueDispatchingCurrentMessageToHandlers()` provided to message handlers instead.",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public static void DoNotContinueDispatchingCurrentMessageToHandlers(this IBus bus)
@@ -1780,7 +1784,7 @@ namespace NServiceBus.Serializers.Json
     [ObsoleteEx(
            RemoveInVersion = "7.0",
            TreatAsErrorFromVersion = "6.0",
-           Message = "Built-in serializers are internal. Please consider switching to alternative (e.g. Json.net) or copy the serializer code.")]
+           Message = "Built-in serializers are internal. Switch to an alternative (e.g. Json.net) or copy the serializer code.")]
     public class JsonMessageSerializer
     {
     }
@@ -1792,7 +1796,7 @@ namespace NServiceBus.Serializers.XML
     [ObsoleteEx(
            RemoveInVersion = "7.0",
            TreatAsErrorFromVersion = "6.0",
-           Message = "Built-in serializers are internal. Please consider switching to alternative (e.g. XmlSerializer) or copy the serializer code.")]
+           Message = "Built-in serializers are internal. Switch to an  alternative (e.g. XmlSerializer) or copy the serializer code.")]
     public class XmlMessageSerializer
     {
     }
@@ -1804,7 +1808,7 @@ namespace NServiceBus.Transports.Msmq
     [ObsoleteEx(
            RemoveInVersion = "7.0",
            TreatAsErrorFromVersion = "6.0",
-           Message = "No longer available, please see our documentation for native sends for alternative solutions.")]
+           Message = "No longer available, see the documentation for native sends for alternative solutions.")]
     public class MsmqMessageSender
     {
     }
@@ -1815,7 +1819,7 @@ namespace NServiceBus.Transports.Msmq.Config
     [ObsoleteEx(
          RemoveInVersion = "7.0",
          TreatAsErrorFromVersion = "6.0",
-         Message = "No longer available, please see our documentation for native sends for alternative solutions.")]
+         Message = "No longer available, see the documentation for native sends for alternative solutions.")]
     public class MsmqSettings
     {
     }

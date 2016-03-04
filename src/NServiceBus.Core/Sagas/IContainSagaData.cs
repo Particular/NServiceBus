@@ -8,7 +8,7 @@ namespace NServiceBus
     public interface IContainSagaData
     {
         /// <summary>
-        /// Gets/sets the Id of the process. Do NOT generate this value in your code.
+        /// Gets/sets the Id of the process. Do NOT generate this value in saga code.
         /// The value of the Id will be generated automatically to provide the
         /// best performance for saving in a database.
         /// </summary>

@@ -27,7 +27,7 @@
             if (CurrentLicense != null && CurrentLicense.IsTrialLicense)
             {
                 Text = "NServiceBus - Initial Trial Expired";
-                instructionsText.Text = "To extend your free trial, click 'Extend trial' and register online. When you receive your license file, save it to disk and then click the 'Browse' button below to select it.";
+                instructionsText.Text = "To extend the free trial, click 'Extend trial' and register online. When the license file is received, save it to disk and then click the 'Browse' button below to select it.";
                 getTrialLicenseButton.Text = "Extend Trial";
                 purchaseButton.Visible = false;
                 getTrialLicenseButton.Left = purchaseButton.Left;
@@ -35,7 +35,7 @@
             else
             {
                 Text = "NServiceBus - Extended Trial Expired";
-                instructionsText.Text = "Please click 'Contact Sales' to request an extension to your free trial, or click 'Buy Now' to purchase a license online. When you receive your license file, save it to disk and then click the 'Browse' button below to select it.";
+                instructionsText.Text = "Click 'Contact Sales' to request an extension to the free trial, or click 'Buy Now' to purchase a license online. When the license file is received, save it to disk and then click the 'Browse' button below to select it.";
                 getTrialLicenseButton.Text = "Contact Sales";
             }
 
@@ -61,7 +61,7 @@
 
                         if (LicenseExpirationChecker.HasLicenseExpired(license))
                         {
-                            var message = "The license you provided has expired, please select another file.";
+                            var message = "The license you provided has expired, select another file.";
                             Logger.Warn(message);
                             MessageBox.Show(this, message, "License expired", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                             return;
@@ -71,7 +71,7 @@
                     }
                     catch (Exception exception)
                     {
-                        var message = $"An error occurred when parsing the license.\r\nMessage: {exception.Message}\r\nThe exception details have been appended to your log.";
+                        var message = $"An error occurred when parsing the license.\r\nMessage: {exception.Message}\r\nThe exception details have been appended to the log.";
                         Logger.Warn("Error parsing license", exception);
                         MessageBox.Show(this, message, "Error parsing license", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }

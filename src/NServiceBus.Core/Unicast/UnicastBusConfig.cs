@@ -15,7 +15,7 @@ namespace NServiceBus.Config
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            Message = "Please switch to the code first API by using 'EndpointConfiguration.EnlistWithLegacyMSMQDistributor' instead.")]
+            Message = "Switch to the code API by using 'EndpointConfiguration.EnlistWithLegacyMSMQDistributor' instead.")]
         public string DistributorControlAddress
         {
             get
@@ -39,7 +39,7 @@ namespace NServiceBus.Config
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            Message = "Please switch to the code first API by using 'EndpointConfiguration.EnlistWithLegacyMSMQDistributor' instead.")]
+            Message = "Switch to the code API by using 'EndpointConfiguration.EnlistWithLegacyMSMQDistributor' instead.")]
         public string DistributorDataAddress
         {
             get
@@ -63,7 +63,7 @@ namespace NServiceBus.Config
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            Message = "Please use 'EndpointConfiguration.ForwardReceivedMessagesTo' to configure the forwarding address.")]
+            Message = "Use 'EndpointConfiguration.ForwardReceivedMessagesTo' to configure the forwarding address.")]
         public string ForwardReceivedMessagesTo
         {
             get

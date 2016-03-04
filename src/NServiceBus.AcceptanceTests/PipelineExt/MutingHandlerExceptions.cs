@@ -55,7 +55,7 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
                     //catch specifix exceptions or
                     catch (Exception ex)
                     {
-                        //modify this to your liking
+                        //modify this if necessary
                         if (ex.Message == "Lets filter on this text")
                         {
                             return;
