@@ -3,9 +3,9 @@
     using System;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.DelayedDelivery;
-    using NServiceBus.DeliveryConstraints;
-    using NServiceBus.Pipeline;
+    using DelayedDelivery;
+    using DeliveryConstraints;
+    using Pipeline;
 
     class ThrowIfCannotDeferMessageBehavior : Behavior<IRoutingContext>
     {

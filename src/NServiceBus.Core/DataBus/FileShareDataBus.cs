@@ -1,7 +1,8 @@
 namespace NServiceBus
 {
     using System;
-    using NServiceBus.DataBus;
+    using DataBus;
+    using Features;
 
     /// <summary>
     /// Base class for data bus definitions.
@@ -13,7 +14,7 @@ namespace NServiceBus
         /// </summary>
         protected internal override Type ProvidedByFeature()
         {
-            return typeof(Features.DataBusFileBased);
+            return typeof(DataBusFileBased);
         }
     }
 }

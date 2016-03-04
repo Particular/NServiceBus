@@ -5,16 +5,15 @@ namespace NServiceBus
 
     class CircuitBreaker : IDisposable
     {
-        int threshold;
-        int firedTimes;
-        // ReSharper disable once NotAccessedField.Local
-        Timer timer;
-        int failureCount;
-
         public CircuitBreaker(int threshold, TimeSpan resetEvery)
         {
             this.threshold = threshold;
             timer = new Timer(state => failureCount = 0, null, resetEvery, resetEvery);
+        }
+
+        public void Dispose()
+        {
+            //Injected
         }
 
         public void Execute(Action trigger)
@@ -28,9 +27,10 @@ namespace NServiceBus
             }
         }
 
-        public void Dispose()
-        {
-            //Injected
-        }
+        int failureCount;
+        int firedTimes;
+        int threshold;
+        // ReSharper disable once NotAccessedField.Local
+        Timer timer;
     }
 }

@@ -1,8 +1,8 @@
 ﻿namespace NServiceBus
 {
     using System.Threading.Tasks;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Transports;
+    using Pipeline;
+    using Transports;
 
     class NoOpCanceling : ICancelDeferredMessages
     {

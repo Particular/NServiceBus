@@ -2,7 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Pipeline;
+    using Pipeline;
     using Routing;
     using Timeout.Core;
     using Transports;
@@ -51,8 +51,9 @@ namespace NServiceBus
                 : DispatchConsistency.Isolated;
         }
 
+        readonly DispatchConsistency dispatchConsistency;
+
         IDispatchMessages dispatcher;
         IPersistTimeouts persister;
-        readonly DispatchConsistency dispatchConsistency;
     }
 }

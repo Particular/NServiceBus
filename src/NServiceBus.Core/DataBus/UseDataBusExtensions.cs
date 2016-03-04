@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using NServiceBus.DataBus;
+    using DataBus;
 
     /// <summary>
     /// Extension methods to configure data bus.
@@ -11,13 +11,13 @@
         /// <summary>
         /// Configures NServiceBus to use the given data bus definition.
         /// </summary>
-        /// <param name="config">The <see cref="EndpointConfiguration"/> instance to apply the settings to.</param>
+        /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
         public static DataBusExtentions<T> UseDataBus<T>(this EndpointConfiguration config) where T : DataBusDefinition, new()
         {
             Guard.AgainstNull(nameof(config), config);
             var type = typeof(DataBusExtentions<>).MakeGenericType(typeof(T));
-            var extension = (DataBusExtentions<T>)Activator.CreateInstance(type, config.Settings);
-            var definition = (DataBusDefinition)Activator.CreateInstance(typeof(T));
+            var extension = (DataBusExtentions<T>) Activator.CreateInstance(type, config.Settings);
+            var definition = (DataBusDefinition) Activator.CreateInstance(typeof(T));
 
             config.Settings.Set("SelectedDataBus", definition);
 
@@ -27,10 +27,10 @@
         }
 
         /// <summary>
-        /// Configures NServiceBus to use a custom <see cref="IDataBus"/> implementation.
+        /// Configures NServiceBus to use a custom <see cref="IDataBus" /> implementation.
         /// </summary>
-        /// <param name="config">The <see cref="EndpointConfiguration"/> instance to apply the settings to.</param>
-        /// <param name="dataBusType">The <see cref="IDataBus"/> <see cref="Type"/> to use.</param>
+        /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
+        /// <param name="dataBusType">The <see cref="IDataBus" /> <see cref="Type" /> to use.</param>
         public static DataBusExtentions UseDataBus(this EndpointConfiguration config, Type dataBusType)
         {
             Guard.AgainstNull(nameof(config), config);

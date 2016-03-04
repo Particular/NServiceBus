@@ -4,14 +4,12 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using DeliveryConstraints;
-    using NServiceBus.Routing;
     using Performance.TimeToBeReceived;
     using Pipeline;
+    using Routing;
 
     class AuditToDispatchConnector : StageConnector<IAuditContext, IRoutingContext>
     {
-        TimeSpan? timeToBeReceived;
-
         public AuditToDispatchConnector(TimeSpan? timeToBeReceived)
         {
             this.timeToBeReceived = timeToBeReceived;
@@ -45,6 +43,8 @@ namespace NServiceBus
 
             return stage(dispatchContext);
         }
+
+        TimeSpan? timeToBeReceived;
 
         public class State
         {

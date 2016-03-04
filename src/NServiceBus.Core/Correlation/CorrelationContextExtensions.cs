@@ -34,7 +34,8 @@
         }
 
         /// <summary>
-        /// Retrieves the correlation id specified by the user by using <see cref="SetCorrelationId(NServiceBus.SendOptions,string)"/>.
+        /// Retrieves the correlation id specified by the user by using
+        /// <see cref="SetCorrelationId(NServiceBus.SendOptions,string)" />.
         /// </summary>
         /// <param name="options">Options being extended.</param>
         /// <returns>The configured correlation id or <c>null</c> when no correlation id was configured.</returns>
@@ -49,7 +50,8 @@
         }
 
         /// <summary>
-        /// Retrieves the correlation id specified by the user by using <see cref="SetCorrelationId(NServiceBus.ReplyOptions,string)"/>.
+        /// Retrieves the correlation id specified by the user by using
+        /// <see cref="SetCorrelationId(NServiceBus.ReplyOptions,string)" />.
         /// </summary>
         /// <param name="options">Options being extended.</param>
         /// <returns>The configured correlation id or <c>null</c> when no correlation id was configured.</returns>

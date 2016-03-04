@@ -6,7 +6,7 @@ namespace NServiceBus.Timeout.Core
     /// <summary>
     /// Holds timeout information.
     /// </summary>
-    public partial class TimeoutData 
+    public partial class TimeoutData
     {
         /// <summary>
         /// Id of this timeout.
@@ -32,7 +32,7 @@ namespace NServiceBus.Timeout.Core
         /// The time at which the timeout expires.
         /// </summary>
         public DateTime Time { get; set; }
-        
+
         /// <summary>
         /// The timeout manager that owns this particular timeout.
         /// </summary>
@@ -44,10 +44,10 @@ namespace NServiceBus.Timeout.Core
         public Dictionary<string, string> Headers { get; set; }
 
         /// <summary>
-        /// Returns a <see cref="String"/> that represents the current <see cref="Object"/>.
+        /// Returns a <see cref="String" /> that represents the current <see cref="Object" />.
         /// </summary>
         /// <returns>
-        /// A <see cref="String"/> that represents the current <see cref="Object"/>.
+        /// A <see cref="String" /> that represents the current <see cref="Object" />.
         /// </returns>
         public override string ToString()
         {

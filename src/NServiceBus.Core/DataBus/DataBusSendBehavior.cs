@@ -4,10 +4,10 @@
     using System.IO;
     using System.Threading.Tasks;
     using System.Transactions;
-    using NServiceBus.DataBus;
-    using NServiceBus.DeliveryConstraints;
-    using NServiceBus.Performance.TimeToBeReceived;
-    using NServiceBus.Pipeline;
+    using DataBus;
+    using DeliveryConstraints;
+    using Performance.TimeToBeReceived;
+    using Pipeline;
 
     class DataBusSendBehavior : Behavior<IOutgoingLogicalMessageContext>
     {

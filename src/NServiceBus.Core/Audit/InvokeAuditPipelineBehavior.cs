@@ -21,7 +21,7 @@
             var processedMessage = new OutgoingMessage(context.Message.MessageId, context.Message.Headers, context.Message.Body);
 
             var auditContext = this.CreateAuditContext(processedMessage, auditAddress, context);
-            
+
             await fork(auditContext).ConfigureAwait(false);
         }
 

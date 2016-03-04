@@ -1,9 +1,9 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using NServiceBus.DelayedDelivery;
-    using NServiceBus.DeliveryConstraints;
-    using NServiceBus.Extensibility;
+    using DelayedDelivery;
+    using DeliveryConstraints;
+    using Extensibility;
 
     /// <summary>
     /// Provides ways for the end user to request delayed delivery of their messages.
@@ -24,10 +24,10 @@
         }
 
         /// <summary>
-        /// Returns the configured delivery delay by using <see cref="DelayDeliveryWith"/>.
+        /// Returns the configured delivery delay by using <see cref="DelayDeliveryWith" />.
         /// </summary>
         /// <param name="options">The options being extended.</param>
-        /// <returns>The configured <see cref="TimeSpan"/> or <c>null</c>.</returns>
+        /// <returns>The configured <see cref="TimeSpan" /> or <c>null</c>.</returns>
         public static TimeSpan? GetDeliveryDelay(this SendOptions options)
         {
             DelayDeliveryWith delay;
@@ -49,10 +49,10 @@
         }
 
         /// <summary>
-        /// Returns the delivery date configured by using <see cref="DoNotDeliverBefore"/>.
+        /// Returns the delivery date configured by using <see cref="DoNotDeliverBefore" />.
         /// </summary>
         /// <param name="options">The options being extended.</param>
-        /// <returns>The configured <see cref="DateTimeOffset"/> or <c>null</c>.</returns>
+        /// <returns>The configured <see cref="DateTimeOffset" /> or <c>null</c>.</returns>
         public static DateTimeOffset? GetDeliveryDate(this SendOptions options)
         {
             DoNotDeliverBefore deliveryDate;

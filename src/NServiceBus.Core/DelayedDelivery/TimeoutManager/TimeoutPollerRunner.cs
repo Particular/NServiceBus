@@ -4,8 +4,6 @@ namespace NServiceBus.Features
 
     class TimeoutPollerRunner : FeatureStartupTask
     {
-        ExpiredTimeoutsPoller poller;
-
         public TimeoutPollerRunner(ExpiredTimeoutsPoller poller)
         {
             this.poller = poller;
@@ -21,5 +19,7 @@ namespace NServiceBus.Features
         {
             return poller.Stop();
         }
+
+        ExpiredTimeoutsPoller poller;
     }
 }

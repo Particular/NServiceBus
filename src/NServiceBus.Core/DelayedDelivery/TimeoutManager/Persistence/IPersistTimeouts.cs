@@ -2,7 +2,7 @@ namespace NServiceBus.Timeout.Core
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
+    using Extensibility;
 
     /// <summary>
     /// Timeout persister contract.
@@ -29,7 +29,7 @@ namespace NServiceBus.Timeout.Core
         /// </summary>
         /// <param name="timeoutId">The id of the timeout to fetch.</param>
         /// <param name="context">The current pipeline context.</param>
-        /// <returns><see cref="TimeoutData"/> with the given id if present in the storage or <c>null</c> otherwise.</returns>
+        /// <returns><see cref="TimeoutData" /> with the given id if present in the storage or <c>null</c> otherwise.</returns>
         Task<TimeoutData> Peek(string timeoutId, ContextBag context);
 
         /// <summary>

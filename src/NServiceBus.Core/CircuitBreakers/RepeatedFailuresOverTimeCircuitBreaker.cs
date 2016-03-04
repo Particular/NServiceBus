@@ -57,14 +57,15 @@ namespace NServiceBus
             }
         }
 
-        static TimeSpan NoPeriodicTriggering = TimeSpan.FromMilliseconds(-1);
-        static ILog Logger = LogManager.GetLogger<RepeatedFailuresOverTimeCircuitBreaker>();
-
-        string name;
-        TimeSpan timeToWaitBeforeTriggering;
-        Timer timer;
-        Action<Exception> triggerAction;
         long failureCount;
         Exception lastException;
+
+        string name;
+        Timer timer;
+        TimeSpan timeToWaitBeforeTriggering;
+        Action<Exception> triggerAction;
+
+        static TimeSpan NoPeriodicTriggering = TimeSpan.FromMilliseconds(-1);
+        static ILog Logger = LogManager.GetLogger<RepeatedFailuresOverTimeCircuitBreaker>();
     }
 }

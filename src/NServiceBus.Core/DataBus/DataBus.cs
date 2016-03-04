@@ -3,10 +3,10 @@ namespace NServiceBus.Features
     using System;
     using System.Threading.Tasks;
     using NServiceBus.DataBus;
-    using NServiceBus.Settings;
+    using Settings;
 
     /// <summary>
-    /// Used to configure the databus. 
+    /// Used to configure the databus.
     /// </summary>
     public class DataBus : Feature
     {
@@ -28,7 +28,7 @@ namespace NServiceBus.Features
         }
 
         /// <summary>
-        ///     Called when the features is activated.
+        /// Called when the features is activated.
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {

@@ -24,10 +24,7 @@
 
                 return result;
             }
-            set
-            {
-                this["QueueName"] = value;
-            }
+            set { this["QueueName"] = value; }
         }
 
         /// <summary>
@@ -36,10 +33,7 @@
         [ConfigurationProperty("OverrideTimeToBeReceived", IsRequired = false)]
         public TimeSpan OverrideTimeToBeReceived
         {
-            get
-            {
-                return (TimeSpan)this["OverrideTimeToBeReceived"];
-            }
+            get { return (TimeSpan) this["OverrideTimeToBeReceived"]; }
             set
             {
                 if (value < TimeSpan.Zero)

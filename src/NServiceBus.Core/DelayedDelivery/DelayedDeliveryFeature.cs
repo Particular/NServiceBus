@@ -1,8 +1,8 @@
 ﻿namespace NServiceBus.Features
 {
-    using NServiceBus.Config;
-    using NServiceBus.DelayedDelivery;
-    using NServiceBus.DeliveryConstraints;
+    using Config;
+    using DelayedDelivery;
+    using DeliveryConstraints;
 
     class DelayedDeliveryFeature : Feature
     {
