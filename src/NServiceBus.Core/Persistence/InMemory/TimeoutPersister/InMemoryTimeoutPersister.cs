@@ -5,8 +5,8 @@ namespace NServiceBus
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
-    using NServiceBus.Timeout.Core;
+    using Extensibility;
+    using Timeout.Core;
 
     class InMemoryTimeoutPersister : IPersistTimeouts, IQueryTimeouts, IDisposable
     {

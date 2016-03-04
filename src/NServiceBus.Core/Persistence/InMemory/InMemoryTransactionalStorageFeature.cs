@@ -1,11 +1,11 @@
 ﻿namespace NServiceBus
 {
-    using NServiceBus.Features;
+    using Features;
 
     class InMemoryTransactionalStorageFeature : Feature
     {
         /// <summary>
-        ///     Called when the features is activated.
+        /// Called when the features is activated.
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {

@@ -1,8 +1,8 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Transports;
+    using Pipeline;
+    using Transports;
 
     class FaultContext : BehaviorContext, IFaultContext
     {

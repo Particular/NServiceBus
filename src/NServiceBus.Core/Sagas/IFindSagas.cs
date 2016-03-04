@@ -2,7 +2,7 @@ namespace NServiceBus.Sagas
 {
     using System.Threading.Tasks;
     using Extensibility;
-    using NServiceBus.Persistence;
+    using Persistence;
 
     /// <summary>
     /// Interface indicating that implementers can find sagas of the given type.

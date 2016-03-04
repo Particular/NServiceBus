@@ -1,14 +1,17 @@
 namespace NServiceBus
 {
     using System.Collections.Generic;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Routing;
-    using NServiceBus.Transports;
+    using Pipeline;
+    using Routing;
+    using Transports;
 
     class RoutingContext : OutgoingContext, IRoutingContext
     {
         public RoutingContext(OutgoingMessage messageToDispatch, RoutingStrategy routingStrategy, IBehaviorContext parentContext)
-            : this(messageToDispatch, new[] { routingStrategy }, parentContext)
+            : this(messageToDispatch, new[]
+            {
+                routingStrategy
+            }, parentContext)
         {
         }
 

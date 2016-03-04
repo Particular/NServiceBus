@@ -3,10 +3,10 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.Persistence;
-    using NServiceBus.Sagas;
+    using Extensibility;
+    using ObjectBuilder;
+    using Persistence;
+    using Sagas;
 
     class PropertySagaFinder<TSagaData> : SagaFinder where TSagaData : class, IContainSagaData
     {
@@ -29,7 +29,7 @@ namespace NServiceBus
 
             var lookupValues = context.GetOrCreate<SagaLookupValues>();
 
-            lookupValues.Add<TSagaData>(sagaPropertyName,propertyValue);
+            lookupValues.Add<TSagaData>(sagaPropertyName, propertyValue);
 
             return await sagaPersister.Get<TSagaData>(sagaPropertyName, propertyValue, storageSession, context).ConfigureAwait(false);
         }
@@ -54,15 +54,12 @@ namespace NServiceBus
             return entries.TryGetValue(sagaType, out value);
         }
 
-        Dictionary<Type, LookupValue>  entries = new Dictionary<Type, LookupValue>();
+        Dictionary<Type, LookupValue> entries = new Dictionary<Type, LookupValue>();
 
         public class LookupValue
         {
             public string PropertyName { get; set; }
             public object PropertyValue { get; set; }
-
         }
-
-
     }
 }

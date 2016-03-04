@@ -8,8 +8,6 @@
     /// </summary>
     public class MulticastRoutingStrategy : RoutingStrategy
     {
-        Type messageType;
-
         /// <summary>
         /// Creates new routing strategy.
         /// </summary>
@@ -26,5 +24,7 @@
         {
             return new MulticastAddressTag(messageType);
         }
+
+        Type messageType;
     }
 }

@@ -4,21 +4,25 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Routing;
-    using NServiceBus.Unicast.Queuing;
+    using Pipeline;
+    using Routing;
+    using Unicast.Queuing;
 
     class UnicastSendRouterConnector : StageConnector<IOutgoingSendContext, IOutgoingLogicalMessageContext>
     {
-        IUnicastRouter unicastRouter;
-        DistributionPolicy distributionPolicy;
-        string sharedQueue;
-        string instanceSpecificQueue;
+        public enum RouteOption
+        {
+            None,
+            ExplicitDestination,
+            RouteToThisInstance,
+            RouteToAnyInstanceOfThisEndpoint,
+            RouteToSpecificInstance
+        }
 
         public UnicastSendRouterConnector(
-            string sharedQueue, 
+            string sharedQueue,
             string instanceSpecificQueue,
-            IUnicastRouter unicastRouter, 
+            IUnicastRouter unicastRouter,
             DistributionPolicy distributionPolicy)
         {
             this.sharedQueue = sharedQueue;
@@ -32,7 +36,7 @@ namespace NServiceBus
             var messageType = context.Message.MessageType;
 
             var state = context.Extensions.GetOrCreate<State>();
-            
+
             if (state.Option == RouteOption.RouteToThisInstance && instanceSpecificQueue == null)
             {
                 throw new InvalidOperationException("Cannot route to this specific instance because endpoint instance ID was not provided by either host, a plugin or user. You can specify it via BusConfiguration.EndpointInstanceId, use a specific host or plugin.");
@@ -53,15 +57,15 @@ namespace NServiceBus
                 distributionStrategy = distributionPolicy.GetDistributionStrategy(messageType);
             }
 
-            var routingStrategies = string.IsNullOrEmpty(destination) 
-                ? await unicastRouter.Route(messageType, distributionStrategy, context.Extensions).ConfigureAwait(false) 
+            var routingStrategies = string.IsNullOrEmpty(destination)
+                ? await unicastRouter.Route(messageType, distributionStrategy, context.Extensions).ConfigureAwait(false)
                 : RouteToDestination(destination);
 
             context.Headers[Headers.MessageIntent] = MessageIntentEnum.Send.ToString();
 
             var logicalMessageContext = this.CreateOutgoingLogicalMessageContext(
-                context.Message, 
-                routingStrategies.EnsureNonEmpty(() => "No destination specified for message: " + messageType).ToArray(), 
+                context.Message,
+                routingStrategies.EnsureNonEmpty(() => "No destination specified for message: " + messageType).ToArray(),
                 context);
 
             try
@@ -78,10 +82,14 @@ namespace NServiceBus
         {
             yield return new UnicastRoutingStrategy(physicalAddress);
         }
+
+        DistributionPolicy distributionPolicy;
+        string instanceSpecificQueue;
+        string sharedQueue;
+        IUnicastRouter unicastRouter;
+
         class SpecificInstanceDistributionStrategy : DistributionStrategy
         {
-            string specificInstance;
-
             public SpecificInstanceDistributionStrategy(string specificInstance)
             {
                 this.specificInstance = specificInstance;
@@ -96,11 +104,12 @@ namespace NServiceBus
                 }
                 yield return target;
             }
+
+            string specificInstance;
         }
 
         public class State
         {
-            RouteOption option;
             public string ExplicitDestination { get; set; }
             public string SpecificInstance { get; set; }
 
@@ -116,14 +125,8 @@ namespace NServiceBus
                     option = value;
                 }
             }
-        }
-        public enum RouteOption
-        {
-            None,
-            ExplicitDestination,
-            RouteToThisInstance,
-            RouteToAnyInstanceOfThisEndpoint,
-            RouteToSpecificInstance
+
+            RouteOption option;
         }
     }
 }

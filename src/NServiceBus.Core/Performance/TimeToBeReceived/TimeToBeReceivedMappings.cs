@@ -9,7 +9,7 @@
         public TimeToBeReceivedMappings(IEnumerable<Type> knownMessages, Func<Type, TimeSpan> convention)
         {
             mappings = new Dictionary<Type, TimeSpan>();
-   
+
             foreach (var messageType in knownMessages)
             {
                 var timeToBeReceived = convention(messageType);
@@ -33,6 +33,8 @@
             return mappings.TryGetValue(messageType, out timeToBeReceived);
         }
 
+        Dictionary<Type, TimeSpan> mappings;
+
         public static Func<Type, TimeSpan> DefaultConvention = t =>
         {
             var attributes = t.GetCustomAttributes(typeof(TimeToBeReceivedAttribute), true)
@@ -41,7 +43,5 @@
 
             return attributes.Count > 0 ? attributes.Last().TimeToBeReceived : TimeSpan.MaxValue;
         };
-      
-        Dictionary<Type, TimeSpan> mappings;
     }
 }

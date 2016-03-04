@@ -3,12 +3,12 @@
     using System;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
-    using NServiceBus.Outbox;
-    using NServiceBus.Persistence;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Transports;
-    using NServiceBus.Unicast;
+    using Extensibility;
+    using Outbox;
+    using Persistence;
+    using Pipeline;
+    using Transports;
+    using Unicast;
 
     class LoadHandlersConnector : StageConnector<IIncomingLogicalMessageContext, IInvokeHandlerContext>
     {
@@ -53,14 +53,15 @@
 
         async Task<CompletableSynchronizedStorageSession> AdaptOrOpenNewSynchronizedStorageSession(TransportTransaction transportTransaction, OutboxTransaction outboxTransaction, ContextBag contextBag)
         {
-            return await adapter.TryAdapt(outboxTransaction, contextBag).ConfigureAwait(false) 
-                ?? await adapter.TryAdapt(transportTransaction, contextBag).ConfigureAwait(false)
-                ?? await synchronizedStorage.OpenSession(contextBag).ConfigureAwait(false);
+            return await adapter.TryAdapt(outboxTransaction, contextBag).ConfigureAwait(false)
+                   ?? await adapter.TryAdapt(transportTransaction, contextBag).ConfigureAwait(false)
+                   ?? await synchronizedStorage.OpenSession(contextBag).ConfigureAwait(false);
         }
+
+        readonly ISynchronizedStorageAdapter adapter;
+        readonly ISynchronizedStorage synchronizedStorage;
 
 
         MessageHandlerRegistry messageHandlerRegistry;
-        readonly ISynchronizedStorage synchronizedStorage;
-        readonly ISynchronizedStorageAdapter adapter;
     }
 }

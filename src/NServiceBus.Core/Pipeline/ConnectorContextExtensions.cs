@@ -2,10 +2,10 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
-    using NServiceBus.Persistence;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Routing;
-    using NServiceBus.Transports;
+    using Persistence;
+    using Pipeline;
+    using Routing;
+    using Transports;
 
     /// <summary>
     /// Contains extensions methods to map behavior contexts.
@@ -13,7 +13,7 @@ namespace NServiceBus
     public static class ConnectorContextExtensions
     {
         /// <summary>
-        /// Creates a <see cref="IRoutingContext"/> based on the current context.
+        /// Creates a <see cref="IRoutingContext" /> based on the current context.
         /// </summary>
         public static IRoutingContext CreateRoutingContext(this ForkConnector<ITransportReceiveContext, IRoutingContext> forkConnector, OutgoingMessage outgoingMessage, string localAddress, ITransportReceiveContext sourceContext)
         {
@@ -21,7 +21,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Creates a <see cref="IRoutingContext"/> based on the current context.
+        /// Creates a <see cref="IRoutingContext" /> based on the current context.
         /// </summary>
         public static IRoutingContext CreateRoutingContext(this StageConnector<IForwardingContext, IRoutingContext> stageConnector, OutgoingMessage outgoingMessage, RoutingStrategy routingStrategy, IForwardingContext sourceContext)
         {
@@ -29,7 +29,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Creates a <see cref="IRoutingContext"/> based on the current context.
+        /// Creates a <see cref="IRoutingContext" /> based on the current context.
         /// </summary>
         public static IRoutingContext CreateRoutingContext(this StageConnector<IAuditContext, IRoutingContext> stageConnector, OutgoingMessage outgoingMessage, RoutingStrategy routingStrategy, IAuditContext sourceContext)
         {
@@ -37,15 +37,15 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Creates a <see cref="IRoutingContext"/> based on the current context.
+        /// Creates a <see cref="IRoutingContext" /> based on the current context.
         /// </summary>
         public static IRoutingContext CreateRoutingContext(this StageConnector<IFaultContext, IRoutingContext> stageConnector, OutgoingMessage outgoingMessage, RoutingStrategy routingStrategy, IFaultContext sourceContext)
         {
-            return new RoutingContext(outgoingMessage, routingStrategy, sourceContext);    
+            return new RoutingContext(outgoingMessage, routingStrategy, sourceContext);
         }
 
         /// <summary>
-        /// Creates a <see cref="IRoutingContext"/> based on the current context.
+        /// Creates a <see cref="IRoutingContext" /> based on the current context.
         /// </summary>
         public static IRoutingContext CreateRoutingContext(this StageConnector<IOutgoingPhysicalMessageContext, IRoutingContext> stageConnector, OutgoingMessage outgoingMessage, IReadOnlyCollection<RoutingStrategy> routingStrategies, IOutgoingPhysicalMessageContext sourceContext)
         {
@@ -53,7 +53,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Creates a <see cref="IIncomingPhysicalMessageContext"/> based on the current context.
+        /// Creates a <see cref="IIncomingPhysicalMessageContext" /> based on the current context.
         /// </summary>
         public static IIncomingPhysicalMessageContext CreateIncomingPhysicalMessageContext(this StageForkConnector<ITransportReceiveContext, IIncomingPhysicalMessageContext, IBatchDispatchContext> stageForkConnector, IncomingMessage incomingMessage, ITransportReceiveContext sourceContext)
         {
@@ -61,7 +61,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Creates a <see cref="IIncomingPhysicalMessageContext"/> based on the current context.
+        /// Creates a <see cref="IIncomingPhysicalMessageContext" /> based on the current context.
         /// </summary>
         public static IIncomingPhysicalMessageContext CreateIncomingPhysicalMessageContext(this StageConnector<ITransportReceiveContext, IIncomingPhysicalMessageContext> stageConnector, IncomingMessage incomingMessage, ITransportReceiveContext sourceContext)
         {
@@ -69,7 +69,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Creates a <see cref="IIncomingLogicalMessageContext"/> based on the current context.
+        /// Creates a <see cref="IIncomingLogicalMessageContext" /> based on the current context.
         /// </summary>
         public static IIncomingLogicalMessageContext CreateIncomingLogicalMessageContext(this StageConnector<IIncomingPhysicalMessageContext, IIncomingLogicalMessageContext> stageConnector, LogicalMessage logicalMessage, IIncomingPhysicalMessageContext sourceContext)
         {
@@ -77,7 +77,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Creates a <see cref="IInvokeHandlerContext"/> based on the current context.
+        /// Creates a <see cref="IInvokeHandlerContext" /> based on the current context.
         /// </summary>
         public static IInvokeHandlerContext CreateInvokeHandlerContext(this StageConnector<IIncomingLogicalMessageContext, IInvokeHandlerContext> stageConnector, MessageHandler messageHandler, CompletableSynchronizedStorageSession storageSession, IIncomingLogicalMessageContext sourceContext)
         {
@@ -85,7 +85,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Creates a <see cref="IBatchDispatchContext"/> based on the current context.
+        /// Creates a <see cref="IBatchDispatchContext" /> based on the current context.
         /// </summary>
         public static IBatchDispatchContext CreateBatchDispatchContext(this StageForkConnector<ITransportReceiveContext, IIncomingPhysicalMessageContext, IBatchDispatchContext> stageForkConnector, IReadOnlyCollection<TransportOperation> transportOperations, IIncomingPhysicalMessageContext sourceContext)
         {
@@ -93,7 +93,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Creates a <see cref="IDispatchContext"/> based on the current context.
+        /// Creates a <see cref="IDispatchContext" /> based on the current context.
         /// </summary>
         public static IDispatchContext CreateDispatchContext(this StageConnector<IBatchDispatchContext, IDispatchContext> stageConnector, IReadOnlyCollection<TransportOperation> transportOperations, IBatchDispatchContext sourceContext)
         {
@@ -101,7 +101,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Creates a <see cref="IDispatchContext"/> based on the current context.
+        /// Creates a <see cref="IDispatchContext" /> based on the current context.
         /// </summary>
         public static IDispatchContext CreateDispatchContext(this StageConnector<IRoutingContext, IDispatchContext> stageConnector, IReadOnlyCollection<TransportOperation> transportOperations, IRoutingContext sourceContext)
         {
@@ -109,7 +109,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Creates a <see cref="IOutgoingLogicalMessageContext"/> based on the current context.
+        /// Creates a <see cref="IOutgoingLogicalMessageContext" /> based on the current context.
         /// </summary>
         public static IOutgoingLogicalMessageContext CreateOutgoingLogicalMessageContext(this StageConnector<IOutgoingPublishContext, IOutgoingLogicalMessageContext> stageConnector, OutgoingLogicalMessage outgoingMessage, IReadOnlyCollection<RoutingStrategy> routingStrategies, IOutgoingPublishContext sourceContext)
         {
@@ -122,7 +122,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Creates a <see cref="IOutgoingLogicalMessageContext"/> based on the current context.
+        /// Creates a <see cref="IOutgoingLogicalMessageContext" /> based on the current context.
         /// </summary>
         public static IOutgoingLogicalMessageContext CreateOutgoingLogicalMessageContext(this StageConnector<IOutgoingReplyContext, IOutgoingLogicalMessageContext> stageConnector, OutgoingLogicalMessage outgoingMessage, IReadOnlyCollection<RoutingStrategy> routingStrategies, IOutgoingReplyContext sourceContext)
         {
@@ -135,7 +135,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Creates a <see cref="IOutgoingLogicalMessageContext"/> based on the current context.
+        /// Creates a <see cref="IOutgoingLogicalMessageContext" /> based on the current context.
         /// </summary>
         public static IOutgoingLogicalMessageContext CreateOutgoingLogicalMessageContext(this StageConnector<IOutgoingSendContext, IOutgoingLogicalMessageContext> stageConnector, OutgoingLogicalMessage outgoingMessage, IReadOnlyCollection<RoutingStrategy> routingStrategies, IOutgoingSendContext sourceContext)
         {
@@ -148,7 +148,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Creates a <see cref="IOutgoingPhysicalMessageContext"/> based on the current context.
+        /// Creates a <see cref="IOutgoingPhysicalMessageContext" /> based on the current context.
         /// </summary>
         public static IOutgoingPhysicalMessageContext CreateOutgoingPhysicalMessageContext(this StageConnector<IOutgoingLogicalMessageContext, IOutgoingPhysicalMessageContext> stageConnector, byte[] messageBody, IReadOnlyCollection<RoutingStrategy> routingStrategies, IOutgoingLogicalMessageContext sourceContext)
         {
@@ -156,7 +156,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Creates a <see cref="IFaultContext"/> based on the current context.
+        /// Creates a <see cref="IFaultContext" /> based on the current context.
         /// </summary>
         public static IFaultContext CreateFaultContext(this ForkConnector<ITransportReceiveContext, IFaultContext> forkConnector, ITransportReceiveContext sourceContext, OutgoingMessage outgoingMessage, string errorQueueAddress, Exception exception)
         {
@@ -164,7 +164,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Creates a <see cref="IAuditContext"/> based on the current context.
+        /// Creates a <see cref="IAuditContext" /> based on the current context.
         /// </summary>
         public static IAuditContext CreateAuditContext(this ForkConnector<IIncomingPhysicalMessageContext, IAuditContext> forkConnector, OutgoingMessage message, string auditAddress, IIncomingPhysicalMessageContext sourceContext)
         {
@@ -172,7 +172,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Creates a <see cref="IForwardingContext"/> based on the current context.
+        /// Creates a <see cref="IForwardingContext" /> based on the current context.
         /// </summary>
         public static IForwardingContext CreateForwardingContext(this ForkConnector<IIncomingPhysicalMessageContext, IForwardingContext> forwardingContext, OutgoingMessage message, string forwardingAddress, IIncomingPhysicalMessageContext sourceContext)
         {

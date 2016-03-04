@@ -4,8 +4,8 @@
     using System.Configuration;
     using System.ServiceProcess;
     using System.Threading.Tasks;
+    using ConsistencyGuarantees;
     using Logging;
-    using NServiceBus.ConsistencyGuarantees;
     using Persistence;
     using Transports;
 
@@ -60,10 +60,9 @@ The reason this is required is to ensure that all the guidelines regarding this 
             return result;
         }
 
-       
 
         /// <summary>
-        /// See <see cref="Feature.Setup"/>.
+        /// See <see cref="Feature.Setup" />.
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
@@ -77,7 +76,6 @@ The reason this is required is to ensure that all the guidelines regarding this 
             context.RegisterStartupTask(new DtcRunningWarning());
             context.Pipeline.Register("ForceBatchDispatchToBeIsolated", typeof(ForceBatchDispatchToBeIsolatedBehavior), "Makes sure that we dispatch straight to the transport so that we can safely set the outbox record to dispatched one the dispatch pipeline returns.");
         }
-
     }
 
     class DtcRunningWarning : FeatureStartupTask
@@ -98,7 +96,7 @@ The reason this is required is to ensure that all the guidelines regarding this 
 Because Outbox is enabled disabling MSDTC is recommended. This ensures that the Outbox behavior is working as expected and no other resources are enlisting in distributed transactions.");
                 }
             }
-            // ReSharper disable once EmptyGeneralCatchClause
+                // ReSharper disable once EmptyGeneralCatchClause
             catch (Exception)
             {
                 // Ignore if we can't check it.

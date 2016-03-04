@@ -8,8 +8,6 @@
     /// </summary>
     public class MessageHandler
     {
-        Func<object, object, IMessageHandlerContext, Task> invocation;
-
         /// <summary>
         /// Creates a new instance of the message handler with predefined invocation delegate and handler type.
         /// </summary>
@@ -40,5 +38,7 @@
         {
             return invocation(Instance, message, handlerContext);
         }
+
+        Func<object, object, IMessageHandlerContext, Task> invocation;
     }
 }

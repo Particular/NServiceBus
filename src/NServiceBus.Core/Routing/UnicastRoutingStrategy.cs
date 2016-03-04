@@ -7,8 +7,6 @@
     /// </summary>
     public class UnicastRoutingStrategy : RoutingStrategy
     {
-        string destination;
-
         /// <summary>
         /// Creates new routing strategy.
         /// </summary>
@@ -25,5 +23,7 @@
         {
             return new UnicastAddressTag(destination);
         }
+
+        string destination;
     }
 }

@@ -1969,8 +1969,8 @@ namespace NServiceBus.Pipeline
         where TContext : NServiceBus.Pipeline.IBehaviorContext
     {
         protected Behavior() { }
-        public abstract System.Threading.Tasks.Task Invoke(TContext context, System.Func<System.Threading.Tasks.Task> next);
         public System.Threading.Tasks.Task Invoke(TContext context, System.Func<TContext, System.Threading.Tasks.Task> next) { }
+        public abstract System.Threading.Tasks.Task Invoke(TContext context, System.Func<System.Threading.Tasks.Task> next);
     }
     public abstract class ForkConnector<TFromContext, TForkContext> : NServiceBus.Pipeline.Behavior<TFromContext>, NServiceBus.IForkConnector, NServiceBus.IForkConnector<TForkContext>
         where TFromContext : NServiceBus.Pipeline.IBehaviorContext
@@ -2177,8 +2177,8 @@ namespace NServiceBus.Pipeline
         where TForkContext : NServiceBus.Pipeline.IBehaviorContext
     {
         protected StageForkConnector() { }
-        public abstract System.Threading.Tasks.Task Invoke(TFromContext context, System.Func<TToContext, System.Threading.Tasks.Task> stage, System.Func<TForkContext, System.Threading.Tasks.Task> fork);
         public System.Threading.Tasks.Task Invoke(TFromContext context, System.Func<TToContext, System.Threading.Tasks.Task> next) { }
+        public abstract System.Threading.Tasks.Task Invoke(TFromContext context, System.Func<TToContext, System.Threading.Tasks.Task> stage, System.Func<TForkContext, System.Threading.Tasks.Task> fork);
     }
     public class StepRegistrationSequence
     {
@@ -2287,7 +2287,7 @@ namespace NServiceBus.Routing
     public class SingleInstanceRoundRobinDistributionStrategy : NServiceBus.Routing.DistributionStrategy
     {
         public SingleInstanceRoundRobinDistributionStrategy() { }
-        [System.Runtime.CompilerServices.IteratorStateMachineAttribute(typeof(NServiceBus.Routing.SingleInstanceRoundRobinDistributionStrategy.<SelectDestination>d__3))]
+        [System.Runtime.CompilerServices.IteratorStateMachineAttribute(typeof(NServiceBus.Routing.SingleInstanceRoundRobinDistributionStrategy.<SelectDestination>d__0))]
         public override System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> SelectDestination(System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> currentAllInstances) { }
     }
     public class UnicastAddressTag : NServiceBus.Routing.AddressTag

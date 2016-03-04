@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using NServiceBus.Settings;
+    using Settings;
 
     /// <summary>
     /// Base class for persistence definitions.
@@ -27,9 +27,9 @@
         /// Used be the storage definitions to declare what they support.
         /// </summary>
         [ObsoleteEx(
-           RemoveInVersion = "7.0",
-           TreatAsErrorFromVersion = "6.0",
-           ReplacementTypeOrMember = "Supports<T>()")]
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            ReplacementTypeOrMember = "Supports<T>()")]
         protected void Supports(Storage storage, Action<SettingsHolder> action)
         {
             throw new NotImplementedException();

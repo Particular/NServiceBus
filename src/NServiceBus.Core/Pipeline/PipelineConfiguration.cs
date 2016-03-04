@@ -1,14 +1,11 @@
 ﻿namespace NServiceBus
 {
     using System.Collections.Generic;
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.Settings;
+    using ObjectBuilder;
+    using Settings;
 
     class PipelineConfiguration
     {
-        public readonly PipelineModifications MainPipeline = new PipelineModifications();
-        public readonly List<SatellitePipelineModifications> SatellitePipelines = new List<SatellitePipelineModifications>();
-
         public void RegisterBehaviorsInContainer(SettingsHolder settings, IConfigureComponents container)
         {
             RegisterBehaviorsInContainer(MainPipeline, settings, container);
@@ -30,5 +27,8 @@
                 step.ApplyContainerRegistration(settings, container);
             }
         }
+
+        public readonly PipelineModifications MainPipeline = new PipelineModifications();
+        public readonly List<SatellitePipelineModifications> SatellitePipelines = new List<SatellitePipelineModifications>();
     }
 }

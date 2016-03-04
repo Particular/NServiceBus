@@ -4,17 +4,13 @@ namespace NServiceBus.Routing
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
+    using Extensibility;
 
     /// <summary>
     /// Manages the unicast routing table.
     /// </summary>
     public class UnicastRoutingTable
     {
-        List<Func<Type, ContextBag, IUnicastRoute>> staticRules = new List<Func<Type, ContextBag, IUnicastRoute>>();
-        List<Func<List<Type>, ContextBag, Task<IEnumerable<IUnicastRoute>>>> asyncDynamicRules = new List<Func<List<Type>, ContextBag, Task<IEnumerable<IUnicastRoute>>>>();
-        List<Func<List<Type>, ContextBag, IEnumerable<IUnicastRoute>>> dynamicRules = new List<Func<List<Type>, ContextBag, IEnumerable<IUnicastRoute>>>();
-
         internal async Task<IEnumerable<IUnicastRoute>> GetDestinationsFor(List<Type> messageTypes, ContextBag contextBag)
         {
             var routes = new List<IUnicastRoute>();
@@ -46,7 +42,7 @@ namespace NServiceBus.Routing
         {
             staticRules.Add((t, c) => StaticRule(t, messageType, new UnicastRoute(destination)));
         }
-        
+
         /// <summary>
         /// Adds a static unicast route.
         /// </summary>
@@ -70,7 +66,10 @@ namespace NServiceBus.Routing
         /// <summary>
         /// Adds a rule for generating unicast routes.
         /// </summary>
-        /// <remarks>For dynamic routes that do not require async use <see cref="AddDynamic(Func{List{Type},ContextBag,IEnumerable{IUnicastRoute}})"/>.</remarks>
+        /// <remarks>
+        /// For dynamic routes that do not require async use
+        /// <see cref="AddDynamic(Func{List{Type},ContextBag,IEnumerable{IUnicastRoute}})" />.
+        /// </remarks>
         /// <param name="dynamicRule">The rule.</param>
         public void AddDynamic(Func<List<Type>, ContextBag, Task<IEnumerable<IUnicastRoute>>> dynamicRule)
         {
@@ -80,7 +79,10 @@ namespace NServiceBus.Routing
         /// <summary>
         /// Adds a rule for generating unicast routes.
         /// </summary>
-        /// <remarks>For dynamic routes that require async use <see cref="AddDynamic(Func{List{Type},ContextBag,Task{IEnumerable{IUnicastRoute}}})"/>.</remarks>
+        /// <remarks>
+        /// For dynamic routes that require async use
+        /// <see cref="AddDynamic(Func{List{Type},ContextBag,Task{IEnumerable{IUnicastRoute}}})" />.
+        /// </remarks>
         /// <param name="dynamicRule">The rule.</param>
         public void AddDynamic(Func<List<Type>, ContextBag, IEnumerable<IUnicastRoute>> dynamicRule)
         {
@@ -91,5 +93,9 @@ namespace NServiceBus.Routing
         {
             return messageBeingRouted == configuredMessage ? configuredDestination : null;
         }
+
+        List<Func<List<Type>, ContextBag, Task<IEnumerable<IUnicastRoute>>>> asyncDynamicRules = new List<Func<List<Type>, ContextBag, Task<IEnumerable<IUnicastRoute>>>>();
+        List<Func<List<Type>, ContextBag, IEnumerable<IUnicastRoute>>> dynamicRules = new List<Func<List<Type>, ContextBag, IEnumerable<IUnicastRoute>>>();
+        List<Func<Type, ContextBag, IUnicastRoute>> staticRules = new List<Func<Type, ContextBag, IUnicastRoute>>();
     }
 }

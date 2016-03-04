@@ -121,12 +121,13 @@ namespace NServiceBus
             UpdateTimeToSLABreach();
         }
 
-        const int MaxDataPoints = 10;
-        List<DataPoint> dataPoints = new List<DataPoint>();
         PerformanceCounter counter;
+        List<DataPoint> dataPoints = new List<DataPoint>();
         TimeSpan endpointSLA;
 // ReSharper disable once NotAccessedField.Local
         Timer timer;
+
+        const int MaxDataPoints = 10;
 
         class DataPoint
         {

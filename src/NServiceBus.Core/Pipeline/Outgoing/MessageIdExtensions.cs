@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus
 {
-    using NServiceBus.Extensibility;
+    using Extensibility;
 
     /// <summary>
     /// Extensions to the outgoing pipeline.

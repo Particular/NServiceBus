@@ -5,13 +5,11 @@ namespace NServiceBus.Settings
     /// </summary>
     public partial class ScaleOutSettings
     {
-        EndpointConfiguration config;
-
         internal ScaleOutSettings(EndpointConfiguration config)
         {
             this.config = config;
         }
-        
+
         /// <summary>
         /// Makes sure that each instance of this endpoint gets a unique queue based on the user-provided discriminator.
         /// </summary>
@@ -22,5 +20,7 @@ namespace NServiceBus.Settings
 
             config.Settings.Set("EndpointInstanceDiscriminator", discriminator);
         }
+
+        EndpointConfiguration config;
     }
 }

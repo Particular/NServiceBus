@@ -1,12 +1,10 @@
 namespace NServiceBus
 {
     using System;
-    using NServiceBus.Logging;
+    using Logging;
 
     class Validations
     {
-        Conventions conventions;
-
         public Validations(Conventions conventions)
         {
             this.conventions = conventions;
@@ -51,7 +49,9 @@ namespace NServiceBus
             }
         }
 
-        
+        Conventions conventions;
+
+
         static ILog Log = LogManager.GetLogger<Validations>();
     }
 }

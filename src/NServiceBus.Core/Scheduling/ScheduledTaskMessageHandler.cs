@@ -4,8 +4,6 @@ namespace NServiceBus
 
     class ScheduledTaskMessageHandler : IHandleMessages<ScheduledTask>
     {
-        DefaultScheduler scheduler;
-
         public ScheduledTaskMessageHandler(DefaultScheduler scheduler)
         {
             this.scheduler = scheduler;
@@ -15,5 +13,7 @@ namespace NServiceBus
         {
             return scheduler.Start(message.TaskId, context);
         }
+
+        DefaultScheduler scheduler;
     }
 }

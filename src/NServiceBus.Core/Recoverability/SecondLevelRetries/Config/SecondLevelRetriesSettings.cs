@@ -1,15 +1,13 @@
 namespace NServiceBus.SecondLevelRetries.Config
 {
     using System;
-    using NServiceBus.Transports;
+    using Transports;
 
     /// <summary>
     /// Configuration settings for second level retries.
     /// </summary>
     public class SecondLevelRetriesSettings
     {
-        EndpointConfiguration config;
-
         internal SecondLevelRetriesSettings(EndpointConfiguration config)
         {
             this.config = config;
@@ -19,8 +17,8 @@ namespace NServiceBus.SecondLevelRetries.Config
         /// Register a custom retry policy.
         /// </summary>
         [ObsoleteEx(
-            RemoveInVersion = "7.0", 
-            TreatAsErrorFromVersion = "6.0", 
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
             ReplacementTypeOrMember = "CustomRetryPolicy(Func<IncomingMessage, TimeSpan> customPolicy)")]
         public void CustomRetryPolicy(Func<TransportMessage, TimeSpan> customPolicy)
         {
@@ -35,5 +33,7 @@ namespace NServiceBus.SecondLevelRetries.Config
             Guard.AgainstNull(nameof(customPolicy), customPolicy);
             config.Settings.Set("SecondLevelRetries.RetryPolicy", customPolicy);
         }
+
+        EndpointConfiguration config;
     }
 }

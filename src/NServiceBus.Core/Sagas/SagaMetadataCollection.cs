@@ -11,6 +11,19 @@ namespace NServiceBus.Sagas
     public class SagaMetadataCollection : IEnumerable<SagaMetadata>
     {
         /// <summary>
+        /// Returns an enumerator that iterates through the collection.
+        /// </summary>
+        public IEnumerator<SagaMetadata> GetEnumerator()
+        {
+            return byEntity.Values.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        /// <summary>
         /// Populates the model with saga metadata from the provided collection of types.
         /// </summary>
         /// <param name="availableTypes">A collection of types to scan for sagas.</param>
@@ -40,36 +53,23 @@ namespace NServiceBus.Sagas
         }
 
         /// <summary>
-        /// Returns a <see cref="SagaMetadata"/> for an entity by entity name.
+        /// Returns a <see cref="SagaMetadata" /> for an entity by entity name.
         /// </summary>
         /// <param name="entityType">Type of the entity (saga data).</param>
-        /// <returns>An instance of <see cref="SagaMetadata"/>.</returns>
+        /// <returns>An instance of <see cref="SagaMetadata" />.</returns>
         public SagaMetadata FindByEntity(Type entityType)
         {
             return byEntity[entityType];
         }
 
         /// <summary>
-        /// Returns an enumerator that iterates through the collection.
-        /// </summary>
-        public IEnumerator<SagaMetadata> GetEnumerator()
-        {
-            return byEntity.Values.GetEnumerator();
-        }
-
-        /// <summary>
-        /// Returns a <see cref="SagaMetadata"/> for an entity by name.
+        /// Returns a <see cref="SagaMetadata" /> for an entity by name.
         /// </summary>
         /// <param name="sagaType">Saga type.</param>
-        /// <returns>An instance of <see cref="SagaMetadata"/>.</returns>
+        /// <returns>An instance of <see cref="SagaMetadata" />.</returns>
         public SagaMetadata Find(Type sagaType)
         {
             return byType[sagaType];
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
         }
 
         Dictionary<Type, SagaMetadata> byEntity = new Dictionary<Type, SagaMetadata>();

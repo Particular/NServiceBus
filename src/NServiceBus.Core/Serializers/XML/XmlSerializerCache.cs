@@ -8,7 +8,7 @@ namespace NServiceBus
     using System.Reflection;
     using System.Xml.Linq;
     using System.Xml.Serialization;
-    using NServiceBus.Logging;
+    using Logging;
 
     class XmlSerializerCache
     {
@@ -197,11 +197,12 @@ namespace NServiceBus
             return t.GetFields(BindingFlags.FlattenHierarchy | BindingFlags.Instance | BindingFlags.Public);
         }
 
-        public ConcurrentDictionary<Type, IEnumerable<FieldInfo>> typeToFields = new ConcurrentDictionary<Type, IEnumerable<FieldInfo>>();
-        public ConcurrentDictionary<Type, IEnumerable<PropertyInfo>> typeToProperties = new ConcurrentDictionary<Type, IEnumerable<PropertyInfo>>();
         List<Type> typesBeingInitialized = new List<Type>();
         public ConcurrentDictionary<Type, Type> typesToCreateForArrays = new ConcurrentDictionary<Type, Type>();
         public ConcurrentDictionary<Type, Type> typesToCreateForEnumerables = new ConcurrentDictionary<Type, Type>();
+
+        public ConcurrentDictionary<Type, IEnumerable<FieldInfo>> typeToFields = new ConcurrentDictionary<Type, IEnumerable<FieldInfo>>();
+        public ConcurrentDictionary<Type, IEnumerable<PropertyInfo>> typeToProperties = new ConcurrentDictionary<Type, IEnumerable<PropertyInfo>>();
 
         static ILog logger = LogManager.GetLogger<XmlSerializerCache>();
     }

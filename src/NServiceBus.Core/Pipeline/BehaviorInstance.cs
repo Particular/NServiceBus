@@ -4,20 +4,19 @@
     using System.Diagnostics;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.Pipeline;
+    using Pipeline;
 
     [DebuggerDisplay("{Type.Name}")]
     class BehaviorInstance
     {
-        IBehavior instance;
-        IBehaviorInvoker invoker;
-
         public BehaviorInstance(Type behaviorType, IBehavior instance)
         {
             this.instance = instance;
             Type = behaviorType;
             invoker = CreateInvoker(Type);
         }
+
+        public Type Type { get; }
 
         static IBehaviorInvoker CreateInvoker(Type type)
         {
@@ -26,11 +25,12 @@
             return (IBehaviorInvoker) Activator.CreateInstance(invokerType);
         }
 
-        public Type Type { get; }
-
         public Task Invoke(IBehaviorContext context, Func<IBehaviorContext, Task> next)
         {
             return invoker.Invoke(instance, context, next);
         }
+
+        IBehavior instance;
+        IBehaviorInvoker invoker;
     }
 }

@@ -4,7 +4,7 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Linq;
     using Logging;
-    using NServiceBus.Pipeline;
+    using Pipeline;
 
     class PipelineModelBuilder
     {
@@ -145,7 +145,6 @@ namespace NServiceBus
                 }
 
                 stageNumber++;
-
             }
 
             return finalOrder;
@@ -252,15 +251,28 @@ namespace NServiceBus
             return $"'{string.Join("', '", nameToNodeDict.Keys)}'";
         }
 
-        Type rootContextType;
         List<RegisterStep> additions;
         List<RemoveStep> removals;
         List<ReplaceStep> replacements;
+
+        Type rootContextType;
         static ILog Logger = LogManager.GetLogger<PipelineModelBuilder>();
 
 
         class Node
         {
+            public Node(RegisterStep registerStep)
+            {
+                rego = registerStep;
+                Befores = registerStep.Befores;
+                Afters = registerStep.Afters;
+                StepId = registerStep.StepId;
+
+                OutputContext = registerStep.GetOutputContext();
+            }
+
+            public Type OutputContext { get; private set; }
+
             internal void Visit(ICollection<RegisterStep> output)
             {
                 if (visited)
@@ -278,23 +290,13 @@ namespace NServiceBus
                 }
             }
 
-            public Node(RegisterStep registerStep)
-            {
-                rego = registerStep;
-                Befores = registerStep.Befores;
-                Afters = registerStep.Afters;
-                StepId = registerStep.StepId;
-
-                OutputContext = registerStep.GetOutputContext();
-            }
+            public IList<Dependency> Afters;
+            public IList<Dependency> Befores;
+            internal List<Node> previous = new List<Node>();
+            RegisterStep rego;
 
             public string StepId;
-            RegisterStep rego;
-            public IList<Dependency> Befores;
-            public IList<Dependency> Afters;
-            internal List<Node> previous = new List<Node>();
             bool visited;
-            public Type OutputContext { get; private set; }
         }
 
         class CaseInsensitiveIdComparer : IEqualityComparer<RemoveStep>

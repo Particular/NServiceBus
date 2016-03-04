@@ -4,12 +4,12 @@ namespace NServiceBus
     using Transports;
 
     class PendingTransportOperations
-    {  
+    {
         public IReadOnlyCollection<TransportOperation> Operations => operations;
 
         public void Add(TransportOperation transportOperation)
         {
-           operations.Add(transportOperation);
+            operations.Add(transportOperation);
         }
 
         public void AddRange(IEnumerable<TransportOperation> transportOperations)
@@ -17,6 +17,6 @@ namespace NServiceBus
             operations.AddRange(transportOperations);
         }
 
-        List<TransportOperation>  operations = new List<TransportOperation>();   
+        List<TransportOperation> operations = new List<TransportOperation>();
     }
 }

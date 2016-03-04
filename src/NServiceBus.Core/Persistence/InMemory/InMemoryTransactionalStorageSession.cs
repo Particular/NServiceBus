@@ -3,15 +3,11 @@ namespace NServiceBus
     using System;
     using System.Threading.Tasks;
     using Janitor;
-    using NServiceBus.Persistence;
+    using Persistence;
 
     [SkipWeaving]
     class InMemorySynchronizedStorageSession : CompletableSynchronizedStorageSession
     {
-        bool ownsTransaction;
-
-        public InMemoryTransaction Transaction { get; private set; }
-
         public InMemorySynchronizedStorageSession(InMemoryTransaction transaction)
         {
             Transaction = transaction;
@@ -23,10 +19,7 @@ namespace NServiceBus
             ownsTransaction = true;
         }
 
-        public void Enlist(Action action)
-        {
-            Transaction.Enlist(action);
-        }
+        public InMemoryTransaction Transaction { get; private set; }
 
         public void Dispose()
         {
@@ -41,5 +34,12 @@ namespace NServiceBus
             }
             return TaskEx.CompletedTask;
         }
+
+        public void Enlist(Action action)
+        {
+            Transaction.Enlist(action);
+        }
+
+        bool ownsTransaction;
     }
 }

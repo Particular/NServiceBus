@@ -2,9 +2,9 @@ namespace NServiceBus
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.Persistence;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Unicast.Messages;
+    using Persistence;
+    using Pipeline;
+    using Unicast.Messages;
 
     class InvokeHandlerContext : IncomingContext, IInvokeHandlerContext
     {

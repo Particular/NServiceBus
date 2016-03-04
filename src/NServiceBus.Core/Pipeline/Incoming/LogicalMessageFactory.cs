@@ -1,19 +1,16 @@
 namespace NServiceBus.Pipeline
 {
     using System;
-    using NServiceBus.MessageInterfaces;
-    using NServiceBus.Unicast.Messages;
+    using MessageInterfaces;
+    using Unicast.Messages;
 
     /// <summary>
-    /// Factory to create <see cref="LogicalMessage"/>s.
+    /// Factory to create <see cref="LogicalMessage" />s.
     /// </summary>
     public class LogicalMessageFactory
     {
-        MessageMetadataRegistry messageMetadataRegistry;
-        IMessageMapper messageMapper;
-        
         /// <summary>
-        /// Initializes a new instance of <see cref="LogicalMessageFactory"/>.
+        /// Initializes a new instance of <see cref="LogicalMessageFactory" />.
         /// </summary>
         public LogicalMessageFactory(MessageMetadataRegistry messageMetadataRegistry, IMessageMapper messageMapper)
         {
@@ -22,10 +19,10 @@ namespace NServiceBus.Pipeline
         }
 
         /// <summary>
-        /// Creates a new <see cref="LogicalMessage"/> using the specified message instance.
+        /// Creates a new <see cref="LogicalMessage" /> using the specified message instance.
         /// </summary>
         /// <param name="message">The message instance.</param>
-        /// <returns>A new <see cref="LogicalMessage"/>.</returns>
+        /// <returns>A new <see cref="LogicalMessage" />.</returns>
         public LogicalMessage Create(object message)
         {
             Guard.AgainstNull(nameof(message), message);
@@ -34,11 +31,11 @@ namespace NServiceBus.Pipeline
         }
 
         /// <summary>
-        /// Creates a new <see cref="LogicalMessage"/> using the specified messageType, message instance and headers.
+        /// Creates a new <see cref="LogicalMessage" /> using the specified messageType, message instance and headers.
         /// </summary>
         /// <param name="messageType">The message type.</param>
         /// <param name="message">The message instance.</param>
-        /// <returns>A new <see cref="LogicalMessage"/>.</returns>
+        /// <returns>A new <see cref="LogicalMessage" />.</returns>
         public LogicalMessage Create(Type messageType, object message)
         {
             Guard.AgainstNull(nameof(messageType), messageType);
@@ -53,5 +50,8 @@ namespace NServiceBus.Pipeline
 
             return new LogicalMessage(messageMetadataRegistry.GetMessageMetadata(realMessageType), message, this);
         }
+
+        IMessageMapper messageMapper;
+        MessageMetadataRegistry messageMetadataRegistry;
     }
 }

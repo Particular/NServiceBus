@@ -2,12 +2,10 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Pipeline;
+    using Pipeline;
 
-    class ApplyStaticHeadersBehavior:Behavior<IOutgoingLogicalMessageContext>
+    class ApplyStaticHeadersBehavior : Behavior<IOutgoingLogicalMessageContext>
     {
-        CurrentStaticHeaders currentStaticHeaders;
-
         public ApplyStaticHeadersBehavior(CurrentStaticHeaders currentStaticHeaders)
         {
             this.currentStaticHeaders = currentStaticHeaders;
@@ -22,5 +20,7 @@ namespace NServiceBus
 
             return next();
         }
+
+        CurrentStaticHeaders currentStaticHeaders;
     }
 }

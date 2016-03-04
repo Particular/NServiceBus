@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus.Pipeline
 {
-    using NServiceBus.Transports;
+    using Transports;
 
     /// <summary>
     /// A context of behavior execution in physical message processing stage.

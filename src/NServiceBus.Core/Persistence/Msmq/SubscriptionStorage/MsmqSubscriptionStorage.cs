@@ -7,12 +7,16 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using Extensibility;
     using Logging;
-    using NServiceBus.Routing;
+    using Routing;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
     using MessageType = Unicast.Subscriptions.MessageType;
 
     class MsmqSubscriptionStorage : IInitializableSubscriptionStorage, IDisposable
     {
+        public MsmqSubscriptionStorage(IMsmqSubscriptionStorageQueue storageQueue)
+        {
+            this.storageQueue = storageQueue;
+        }
 
         public void Dispose()
         {
@@ -49,7 +53,7 @@ namespace NServiceBus
                     .Select(e => e.Subscriber)
                     .ToArray();
 
-                return Task.FromResult((IEnumerable<Subscriber>)result);
+                return Task.FromResult((IEnumerable<Subscriber>) result);
             }
         }
 
@@ -92,7 +96,7 @@ namespace NServiceBus
                     Remove(subscriber.TransportAddress, entry.MessageType);
                     entries.Remove(entry);
                     log.Debug($"Subscriber {subscriber} removed for message {entry.MessageType}.");
-                }    
+                }
             }
             return TaskEx.CompletedTask;
         }
@@ -124,8 +128,8 @@ namespace NServiceBus
                 log.Error($"Invalid format of subscription entry: {serializedForm}.");
                 return null;
             }
-            var endpointName = parts.Length > 1 
-                ? new EndpointName(parts[1]) 
+            var endpointName = parts.Length > 1
+                ? new EndpointName(parts[1])
                 : null;
 
             return new Subscriber(parts[0], endpointName);
@@ -143,7 +147,7 @@ namespace NServiceBus
             storageQueue.ReceiveById(messageId);
         }
 
-       
+
         void AddToLookup(string subscriber, MessageType typeName, string messageId)
         {
             lock (lookup)
@@ -182,18 +186,17 @@ namespace NServiceBus
             return messageId;
         }
 
-        public MsmqSubscriptionStorage(IMsmqSubscriptionStorageQueue storageQueue)
-        {
-            this.storageQueue = storageQueue;
-        }
-
         List<Entry> entries = new List<Entry>();
         object locker = new object();
-        IMsmqSubscriptionStorageQueue storageQueue;
         Dictionary<string, Dictionary<MessageType, string>> lookup = new Dictionary<string, Dictionary<MessageType, string>>(StringComparer.OrdinalIgnoreCase);
+        IMsmqSubscriptionStorageQueue storageQueue;
         static ILog log = LogManager.GetLogger(typeof(ISubscriptionStorage));
         static readonly EntryBySubscriberAddressComparer EntryComparer = new EntryBySubscriberAddressComparer();
-        static readonly char[] EntrySeparator = {'|'};
+
+        static readonly char[] EntrySeparator =
+        {
+            '|'
+        };
 
         class EntryBySubscriberAddressComparer : IEqualityComparer<Entry>
         {

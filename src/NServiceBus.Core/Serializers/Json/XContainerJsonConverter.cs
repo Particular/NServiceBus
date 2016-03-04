@@ -10,12 +10,12 @@ namespace NServiceBus
     {
         public override void WriteJson(JsonWriter writer, object value, Newtonsoft.Json.JsonSerializer serializer)
         {
-            if(value == null)
+            if (value == null)
             {
                 writer.WriteNull();
             }
 
-            var container = (XContainer)value;
+            var container = (XContainer) value;
 
             writer.WriteValue(container.ToString(SaveOptions.DisableFormatting));
         }
@@ -38,7 +38,7 @@ namespace NServiceBus
                         reader.Value));
             }
 
-            var value = (string)reader.Value;
+            var value = (string) reader.Value;
             if (objectType == typeof(XDocument))
             {
                 try

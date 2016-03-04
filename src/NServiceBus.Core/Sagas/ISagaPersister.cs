@@ -2,12 +2,12 @@ namespace NServiceBus.Sagas
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
-    using NServiceBus.Persistence;
+    using Extensibility;
+    using Persistence;
 
     /// <summary>
-    /// Defines the basic functionality of a persister for storing 
-	/// and retrieving a sagaData.
+    /// Defines the basic functionality of a persister for storing
+    /// and retrieving a sagaData.
     /// </summary>
     public interface ISagaPersister
     {

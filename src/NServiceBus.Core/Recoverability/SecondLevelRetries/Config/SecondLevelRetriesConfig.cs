@@ -9,7 +9,7 @@ namespace NServiceBus.Config
     public class SecondLevelRetriesConfig : ConfigurationSection
     {
         /// <summary>
-        /// Creates an instance of <see cref="SecondLevelRetriesConfig"/>.
+        /// Creates an instance of <see cref="SecondLevelRetriesConfig" />.
         /// </summary>
         public SecondLevelRetriesConfig()
         {
@@ -23,7 +23,7 @@ namespace NServiceBus.Config
         /// </summary>
         public bool Enabled
         {
-            get { return (bool)this["Enabled"]; }
+            get { return (bool) this["Enabled"]; }
             set { this["Enabled"] = value; }
         }
 
@@ -41,7 +41,7 @@ namespace NServiceBus.Config
         /// </summary>
         public int NumberOfRetries
         {
-            get { return (int)this["NumberOfRetries"]; }
+            get { return (int) this["NumberOfRetries"]; }
             set { this["NumberOfRetries"] = value; }
         }
     }

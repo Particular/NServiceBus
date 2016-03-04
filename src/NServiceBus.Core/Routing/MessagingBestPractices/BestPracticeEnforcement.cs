@@ -1,6 +1,6 @@
 namespace NServiceBus.Features
 {
-    using NServiceBus.Pipeline;
+    using Pipeline;
 
     /// <summary>
     /// Makes sure that messaging best practices are followed.

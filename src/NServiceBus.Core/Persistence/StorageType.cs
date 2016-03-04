@@ -9,51 +9,9 @@
     /// </summary>
     public abstract class StorageType
     {
-        Storage storage;
-
         StorageType(Storage storage)
         {
             this.storage = storage;
-        }
-
-        /// <summary>
-        /// Storage for timeouts.
-        /// </summary>
-        public sealed class Timeouts : StorageType
-        {
-            internal Timeouts() : base(Storage.Timeouts) {}
-        }
-
-        /// <summary>
-        /// Storage for subscriptions.
-        /// </summary>
-        public sealed class Subscriptions : StorageType
-        {
-            internal Subscriptions() : base(Storage.Subscriptions) { }
-        }
-
-        /// <summary>
-        /// Storage for sagas.
-        /// </summary>
-        public sealed class Sagas : StorageType
-        {
-            internal Sagas() : base(Storage.Sagas) { }
-        }
-
-        /// <summary>
-        /// Storage for gateway de-duplication.
-        /// </summary>
-        public sealed class GatewayDeduplication : StorageType
-        {
-            internal GatewayDeduplication() : base(Storage.GatewayDeduplication) {}
-        }
-
-        /// <summary>
-        /// Storage for outbox.
-        /// </summary>
-        public sealed class Outbox : StorageType
-        {
-            internal Outbox() : base(Storage.Outbox) { }
         }
 
         /// <inheritdoc />
@@ -84,6 +42,58 @@
         internal static List<Type> GetAvailableStorageTypes()
         {
             return typeof(StorageType).GetNestedTypes().ToList();
+        }
+
+        Storage storage;
+
+        /// <summary>
+        /// Storage for timeouts.
+        /// </summary>
+        public sealed class Timeouts : StorageType
+        {
+            internal Timeouts() : base(Storage.Timeouts)
+            {
+            }
+        }
+
+        /// <summary>
+        /// Storage for subscriptions.
+        /// </summary>
+        public sealed class Subscriptions : StorageType
+        {
+            internal Subscriptions() : base(Storage.Subscriptions)
+            {
+            }
+        }
+
+        /// <summary>
+        /// Storage for sagas.
+        /// </summary>
+        public sealed class Sagas : StorageType
+        {
+            internal Sagas() : base(Storage.Sagas)
+            {
+            }
+        }
+
+        /// <summary>
+        /// Storage for gateway de-duplication.
+        /// </summary>
+        public sealed class GatewayDeduplication : StorageType
+        {
+            internal GatewayDeduplication() : base(Storage.GatewayDeduplication)
+            {
+            }
+        }
+
+        /// <summary>
+        /// Storage for outbox.
+        /// </summary>
+        public sealed class Outbox : StorageType
+        {
+            internal Outbox() : base(Storage.Outbox)
+            {
+            }
         }
     }
 }

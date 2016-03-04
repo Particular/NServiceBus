@@ -2,13 +2,13 @@
 {
     using System.Collections.Generic;
     using System.Linq;
-    using NServiceBus.Features;
-    using NServiceBus.Logging;
-    using NServiceBus.MessageInterfaces;
-    using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Serialization;
-    using NServiceBus.Unicast.Messages;
+    using Features;
+    using Logging;
+    using MessageInterfaces;
+    using MessageInterfaces.MessageMapper.Reflection;
+    using Pipeline;
+    using Serialization;
+    using Unicast.Messages;
 
     class SerializationFeature : Feature
     {

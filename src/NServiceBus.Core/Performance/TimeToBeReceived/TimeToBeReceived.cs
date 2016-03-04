@@ -2,15 +2,16 @@
 {
     using System;
     using System.Linq;
-    using NServiceBus.DeliveryConstraints;
-    using NServiceBus.Performance.TimeToBeReceived;
+    using DeliveryConstraints;
+    using Performance.TimeToBeReceived;
 
-    class TimeToBeReceived:Feature
+    class TimeToBeReceived : Feature
     {
         public TimeToBeReceived()
         {
             EnableByDefault();
         }
+
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             var mappings = GetMappings(context);
@@ -22,11 +23,11 @@
 
             context.Pipeline.Register("ApplyTimeToBeReceived", typeof(ApplyTimeToBeReceivedBehavior), "Adds the `DiscardIfNotReceivedBefore` constraint to relevant messages");
 
-            context.Container.ConfigureComponent(b=>new ApplyTimeToBeReceivedBehavior(mappings), DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent(b => new ApplyTimeToBeReceivedBehavior(mappings), DependencyLifecycle.SingleInstance);
         }
 
         TimeToBeReceivedMappings GetMappings(FeatureConfigurationContext context)
-        {   
+        {
             var knownMessages = context.Settings.GetAvailableTypes()
                 .Where(context.Settings.Get<Conventions>().IsMessageType)
                 .ToList();
@@ -39,7 +40,7 @@
                 convention = userDefinedConvention.GetTimeToBeReceivedForMessage;
             }
 
-            return new TimeToBeReceivedMappings(knownMessages,convention);
+            return new TimeToBeReceivedMappings(knownMessages, convention);
         }
     }
 }

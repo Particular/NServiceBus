@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using NServiceBus.Extensibility;
+    using Extensibility;
 
     /// <summary>
     /// Extensions to the options to provide ways to set message headers.
@@ -24,7 +24,7 @@
         }
 
         /// <summary>
-        /// Returns all headers set by <see cref="SetHeader"/> on the outgoing message.
+        /// Returns all headers set by <see cref="SetHeader" /> on the outgoing message.
         /// </summary>
         public static IReadOnlyDictionary<string, string> GetHeaders(this ExtendableOptions options)
         {

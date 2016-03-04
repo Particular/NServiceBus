@@ -7,8 +7,6 @@ namespace NServiceBus.Pipeline
     /// </summary>
     public class StepRegistrationSequence
     {
-        Action<RegisterStep> addStep;
-
         internal StepRegistrationSequence(Action<RegisterStep> addStep)
         {
             this.addStep = addStep;
@@ -18,7 +16,7 @@ namespace NServiceBus.Pipeline
         /// Register a new step into the pipeline.
         /// </summary>
         /// <param name="stepId">The identifier of the new step to add.</param>
-        /// <param name="behavior">The <see cref="Behavior{TContext}"/> to execute.</param>
+        /// <param name="behavior">The <see cref="Behavior{TContext}" /> to execute.</param>
         /// <param name="description">The description of the behavior.</param>
         public StepRegistrationSequence Register(string stepId, Type behavior, string description)
         {
@@ -34,17 +32,19 @@ namespace NServiceBus.Pipeline
 
 
         /// <summary>
-        /// <see cref="Register(string,System.Type,string)"/>.
+        /// <see cref="Register(string,System.Type,string)" />.
         /// </summary>
         /// <param name="wellKnownStep">The identifier of the step to add.</param>
-        /// <param name="behavior">The <see cref="Behavior{TContext}"/> to execute.</param>
+        /// <param name="behavior">The <see cref="Behavior{TContext}" /> to execute.</param>
         /// <param name="description">The description of the behavior.</param>
         public StepRegistrationSequence Register(WellKnownStep wellKnownStep, Type behavior, string description)
         {
             Guard.AgainstNull(nameof(wellKnownStep), wellKnownStep);
 
-            Register((string)wellKnownStep, behavior, description);
+            Register((string) wellKnownStep, behavior, description);
             return this;
         }
+
+        Action<RegisterStep> addStep;
     }
 }

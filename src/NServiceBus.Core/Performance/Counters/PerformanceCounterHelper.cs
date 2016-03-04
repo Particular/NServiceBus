@@ -2,18 +2,16 @@ namespace NServiceBus
 {
     using System;
     using System.Diagnostics;
-    using NServiceBus.Logging;
+    using Logging;
 
     static class PerformanceCounterHelper
     {
-        static ILog logger = LogManager.GetLogger(typeof(PerformanceCounterHelper));
-
         public static PerformanceCounter InstantiatePerformanceCounter(string counterName, string instanceName)
         {
             PerformanceCounter counter;
-            
+
             TryToInstantiatePerformanceCounter(counterName, instanceName, out counter, true);
-            
+
             return counter;
         }
 
@@ -56,5 +54,7 @@ namespace NServiceBus
             logger.DebugFormat("'{0}' counter initialized for '{1}'", counterName, instanceName);
             return true;
         }
+
+        static ILog logger = LogManager.GetLogger(typeof(PerformanceCounterHelper));
     }
 }

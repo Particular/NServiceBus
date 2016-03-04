@@ -5,10 +5,10 @@
     using System.ComponentModel;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.Logging;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Sagas;
-    using NServiceBus.Transports;
+    using Logging;
+    using Pipeline;
+    using Sagas;
+    using Transports;
 
     class SagaPersistenceBehavior : Behavior<IInvokeHandlerContext>
     {
@@ -103,7 +103,7 @@
 
                     if (sagaInstanceState.TryGetCorrelationProperty(out correlationProperty))
                     {
-                        sagaCorrelationProperty = new SagaCorrelationProperty(correlationProperty.PropertyInfo.Name,correlationProperty.Value);
+                        sagaCorrelationProperty = new SagaCorrelationProperty(correlationProperty.PropertyInfo.Name, correlationProperty.Value);
                     }
 
                     await sagaPersister.Save(saga.Entity, sagaCorrelationProperty, context.SynchronizedStorageSession, context.Extensions).ConfigureAwait(false);

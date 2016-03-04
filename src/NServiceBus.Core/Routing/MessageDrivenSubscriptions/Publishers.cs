@@ -10,8 +10,6 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
     /// </summary>
     public class Publishers
     {
-        List<Rule> rules = new List<Rule>();
-
         /// <summary>
         /// Registers a publisher for a given endpoint type.
         /// </summary>
@@ -21,7 +19,7 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
         {
             rules.Add(new Rule(type => StaticTypeRule(type, eventType, new PublisherAddress(publisher)), $"{eventType.FullName} -> {publisher}"));
         }
-        
+
         /// <summary>
         /// Registers a publisher for a given endpoint type.
         /// </summary>
@@ -73,11 +71,10 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
             rules.Add(new Rule(dynamicRule, description ?? "dynamic"));
         }
 
+        List<Rule> rules = new List<Rule>();
+
         class Rule
         {
-            Func<Type, PublisherAddress> rule;
-            string description;
-
             public Rule(Func<Type, PublisherAddress> rule, string description)
             {
                 this.rule = rule;
@@ -93,6 +90,9 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
             {
                 return description;
             }
+
+            string description;
+            Func<Type, PublisherAddress> rule;
         }
     }
 }

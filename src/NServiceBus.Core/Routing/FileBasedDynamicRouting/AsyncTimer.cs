@@ -6,9 +6,6 @@ namespace NServiceBus
 
     class AsyncTimer : IAsyncTimer
     {
-        Task task;
-        CancellationTokenSource tokenSource;
-
         public void Start(Func<Task> callback, TimeSpan interval, Action<Exception> errorCallback)
         {
             tokenSource = new CancellationTokenSource();
@@ -41,5 +38,8 @@ namespace NServiceBus
             tokenSource.Dispose();
             return task;
         }
+
+        Task task;
+        CancellationTokenSource tokenSource;
     }
 }

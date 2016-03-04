@@ -1,4 +1,6 @@
-﻿#pragma warning disable 1591
+﻿
+#pragma warning disable 1591
+
 namespace NServiceBus.Pipeline
 {
     using System;
@@ -8,8 +10,6 @@ namespace NServiceBus.Pipeline
     /// </summary>
     public class WellKnownStep
     {
-        string stepId;
-
         WellKnownStep(string stepId)
         {
             if (string.IsNullOrWhiteSpace(stepId))
@@ -30,6 +30,8 @@ namespace NServiceBus.Pipeline
             Guard.AgainstNull(nameof(step), step);
             return step.stepId;
         }
+
+        string stepId;
 
         /// <summary>
         /// Host information.
@@ -52,8 +54,7 @@ namespace NServiceBus.Pipeline
         [ObsoleteEx(
             Message = "The child container creation is now an integral part of the pipeline invocation and no longer a separate behavior.",
             RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0")]
-        public static readonly WellKnownStep CreateChildContainer = new WellKnownStep("CreateChildContainer");
+            TreatAsErrorFromVersion = "6.0")] public static readonly WellKnownStep CreateChildContainer = new WellKnownStep("CreateChildContainer");
 
         /// <summary>
         /// Executes UoWs.
@@ -61,15 +62,14 @@ namespace NServiceBus.Pipeline
         public static readonly WellKnownStep ExecuteUnitOfWork = new WellKnownStep("ExecuteUnitOfWork");
 
         /// <summary>
-        /// Runs incoming mutation for <see cref="TransportMessage"/>.
+        /// Runs incoming mutation for <see cref="TransportMessage" />.
         /// </summary>
         public static readonly WellKnownStep MutateIncomingTransportMessage = new WellKnownStep("MutateIncomingTransportMessage");
 
         [ObsoleteEx(
             Message = "The dispatch step is the terminating step in v6 so any dependency on it can safely be removed",
             RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0")]
-        public static readonly WellKnownStep DispatchMessageToTransport = new WellKnownStep("DispatchMessageToTransport");
+            TreatAsErrorFromVersion = "6.0")] public static readonly WellKnownStep DispatchMessageToTransport = new WellKnownStep("DispatchMessageToTransport");
 
         /// <summary>
         /// Invokes IHandleMessages{T}.Handle(T).
@@ -92,7 +92,7 @@ namespace NServiceBus.Pipeline
         public static readonly WellKnownStep MutateOutgoingMessages = new WellKnownStep("MutateOutgoingMessages");
 
         /// <summary>
-        /// Runs outgoing mutation for <see cref="TransportMessage"/>.
+        /// Runs outgoing mutation for <see cref="TransportMessage" />.
         /// </summary>
         public static readonly WellKnownStep MutateOutgoingTransportMessage = new WellKnownStep("MutateOutgoingTransportMessage");
 

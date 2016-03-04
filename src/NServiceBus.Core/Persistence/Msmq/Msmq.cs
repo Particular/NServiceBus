@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus.Persistence.Legacy
 {
-    using NServiceBus.Features;
+    using Features;
 
     /// <summary>
     /// Used to enable Msmq persistence.

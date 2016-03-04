@@ -11,8 +11,8 @@ namespace NServiceBus
     public interface IConfigureHowToFindSagaWithMessage
     {
         /// <summary>
-        /// Specify that when the infrastructure is handling a message 
-        /// of the given type, which message property should be matched to 
+        /// Specify that when the infrastructure is handling a message
+        /// of the given type, which message property should be matched to
         /// which saga entity property in the persistent saga store.
         /// </summary>
         void ConfigureMapping<TSagaEntity, TMessage>(Expression<Func<TSagaEntity, object>> sagaEntityProperty, Expression<Func<TMessage, object>> messageProperty) where TSagaEntity : IContainSagaData;

@@ -2,11 +2,19 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Transports;
+    using Pipeline;
+    using Transports;
 
     class ApplyReplyToAddressBehavior : Behavior<IOutgoingLogicalMessageContext>
     {
+        public enum RouteOption
+        {
+            None,
+            ExplicitReplyDestination,
+            RouteReplyToThisInstance,
+            RouteReplyToAnyInstanceOfThisEndpoint
+        }
+
         public ApplyReplyToAddressBehavior(string sharedQueue, string instanceSpecificQueue, string publicReturnAddress, string distributorAddress)
         {
             this.sharedQueue = sharedQueue;
@@ -17,7 +25,7 @@
 
         public override Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
         {
-            var state = context.Extensions.GetOrCreate<State>();            
+            var state = context.Extensions.GetOrCreate<State>();
             if (state.Option == RouteOption.RouteReplyToThisInstance && instanceSpecificQueue == null)
             {
                 throw new InvalidOperationException("Cannot route a reply to this specific instance because endpoint instance ID was not provided by either host, a plugin or user. You can specify it via BusConfiguration.EndpointInstanceId, use a specific host or plugin.");
@@ -32,7 +40,7 @@
             }
             return next();
         }
-        
+
 
         string ApplyUserOverride(string replyTo, State state)
         {
@@ -49,17 +57,16 @@
                 replyTo = state.ExplicitDestination;
             }
             return replyTo;
-        }        
+        }
 
-        string sharedQueue;
+        string distributorAddress;
         string instanceSpecificQueue;
         string publicReturnAddress;
-        string distributorAddress;
+
+        string sharedQueue;
 
         public class State
         {
-            RouteOption option;
-
             public RouteOption Option
             {
                 get { return option; }
@@ -74,14 +81,7 @@
             }
 
             public string ExplicitDestination { get; set; }
-        }
-
-        public enum RouteOption
-        {
-            None,
-            ExplicitReplyDestination,
-            RouteReplyToThisInstance,
-            RouteReplyToAnyInstanceOfThisEndpoint,
+            RouteOption option;
         }
     }
 }

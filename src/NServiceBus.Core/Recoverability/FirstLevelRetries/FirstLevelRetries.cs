@@ -4,8 +4,8 @@ namespace NServiceBus.Features
     using System.Threading;
     using System.Threading.Tasks;
     using Config;
-    using NServiceBus.ConsistencyGuarantees;
-    using NServiceBus.Settings;
+    using ConsistencyGuarantees;
+    using Settings;
 
     /// <summary>
     /// Used to configure Second Level Retries.
@@ -23,7 +23,7 @@ namespace NServiceBus.Features
         }
 
         /// <summary>
-        /// See <see cref="Feature.Setup"/>.
+        /// See <see cref="Feature.Setup" />.
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
@@ -39,17 +39,18 @@ namespace NServiceBus.Features
 
             context.Pipeline.Register(new FirstLevelRetriesBehavior.Registration("Main"));
         }
-       
+
 
         int GetMaxRetries(ReadOnlySettings settings)
         {
             var retriesConfig = settings.GetConfigSection<TransportConfig>();
 
             if (retriesConfig == null)
+            {
                 return 5;
+            }
 
             return retriesConfig.MaxRetries;
-
         }
 
         class FlrStatusStorageCleaner : FeatureStartupTask
@@ -76,10 +77,10 @@ namespace NServiceBus.Features
                 statusStorage.ClearAllFailures();
             }
 
-            static readonly TimeSpan ClearingInterval = TimeSpan.FromMinutes(5);
             FlrStatusStorage statusStorage;
             Timer timer;
-        }
 
+            static readonly TimeSpan ClearingInterval = TimeSpan.FromMinutes(5);
+        }
     }
 }

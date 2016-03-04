@@ -3,12 +3,12 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.Pipeline;
     using NServiceBus.Sagas;
+    using ObjectBuilder;
+    using Pipeline;
 
     /// <summary>
-    ///     Used to configure saga.
+    /// Used to configure saga.
     /// </summary>
     public class Sagas : Feature
     {
@@ -33,7 +33,7 @@
         }
 
         /// <summary>
-        ///     See <see cref="Feature.Setup" />.
+        /// See <see cref="Feature.Setup" />.
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
@@ -68,7 +68,7 @@
 
                 if (finder.Properties.TryGetValue("custom-finder-clr-type", out customFinderType))
                 {
-                    container.ConfigureComponent((Type)customFinderType, DependencyLifecycle.InstancePerCall);
+                    container.ConfigureComponent((Type) customFinderType, DependencyLifecycle.InstancePerCall);
                 }
             }
         }

@@ -5,10 +5,10 @@ namespace NServiceBus
     using System.Linq;
     using System.Threading.Tasks;
     using System.Xml.Linq;
-    using NServiceBus.Features;
-    using NServiceBus.Logging;
-    using NServiceBus.Routing;
-    using NServiceBus.Settings;
+    using Features;
+    using Logging;
+    using Routing;
+    using Settings;
 
     class FileRoutingTable : FeatureStartupTask
     {

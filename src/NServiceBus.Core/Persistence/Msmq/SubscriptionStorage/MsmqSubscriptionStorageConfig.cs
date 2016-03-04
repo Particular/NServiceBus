@@ -14,14 +14,8 @@ namespace NServiceBus.Config
         [ConfigurationProperty("Queue", IsRequired = true)]
         public string Queue
         {
-            get
-            {
-                return this["Queue"] as string;
-            }
-            set
-            {
-                this["Queue"] = value;
-            }
+            get { return this["Queue"] as string; }
+            set { this["Queue"] = value; }
         }
     }
 }

@@ -2,8 +2,6 @@ namespace NServiceBus
 {
     class FirstLevelRetryPolicy
     {
-        int maxRetries;
-
         public FirstLevelRetryPolicy(int maxRetries)
         {
             this.maxRetries = maxRetries;
@@ -13,5 +11,7 @@ namespace NServiceBus
         {
             return numberOfRetries >= maxRetries;
         }
+
+        int maxRetries;
     }
 }

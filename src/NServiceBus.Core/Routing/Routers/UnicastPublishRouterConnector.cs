@@ -4,14 +4,12 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Routing;
-    using NServiceBus.Unicast.Queuing;
+    using Pipeline;
+    using Routing;
+    using Unicast.Queuing;
 
     class UnicastPublishRouterConnector : StageConnector<IOutgoingPublishContext, IOutgoingLogicalMessageContext>
     {
-        IUnicastRouter unicastRouter;
-        DistributionPolicy distributionPolicy;
         public UnicastPublishRouterConnector(IUnicastRouter unicastRouter, DistributionPolicy distributionPolicy)
         {
             this.unicastRouter = unicastRouter;
@@ -46,5 +44,8 @@ namespace NServiceBus
             var addressLabels = await unicastRouter.Route(eventType, distributionStrategy, context.Extensions).ConfigureAwait(false);
             return addressLabels.ToList();
         }
+
+        DistributionPolicy distributionPolicy;
+        IUnicastRouter unicastRouter;
     }
 }

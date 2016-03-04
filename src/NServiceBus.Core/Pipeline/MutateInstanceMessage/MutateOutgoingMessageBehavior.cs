@@ -2,9 +2,9 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.MessageMutator;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Transports;
+    using MessageMutator;
+    using Pipeline;
+    using Transports;
 
     class MutateOutgoingMessageBehavior : Behavior<IOutgoingLogicalMessageContext>
     {

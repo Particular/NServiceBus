@@ -2,13 +2,10 @@
 {
     using System.Collections.Generic;
     using System.Linq;
-    using NServiceBus.Serialization;
+    using Serialization;
 
     class MessageDeserializerResolver
     {
-        Dictionary<string, IMessageSerializer> serializersMap;
-        IMessageSerializer defaultSerializer;
-
         public MessageDeserializerResolver(IMessageSerializer defaultSerializer, IEnumerable<IMessageSerializer> additionalDeserializers)
         {
             this.defaultSerializer = defaultSerializer;
@@ -28,5 +25,8 @@
             }
             return defaultSerializer;
         }
+
+        IMessageSerializer defaultSerializer;
+        Dictionary<string, IMessageSerializer> serializersMap;
     }
 }

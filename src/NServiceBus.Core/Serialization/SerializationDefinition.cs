@@ -1,8 +1,8 @@
 ﻿namespace NServiceBus.Serialization
 {
     using System;
-    using NServiceBus.MessageInterfaces;
-    using NServiceBus.Settings;
+    using MessageInterfaces;
+    using Settings;
 
     /// <summary>
     /// Implemented by serializers to provide their capabilities.

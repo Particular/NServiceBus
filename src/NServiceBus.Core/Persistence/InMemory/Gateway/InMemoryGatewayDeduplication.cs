@@ -5,7 +5,7 @@
     using System.Linq;
     using System.Threading.Tasks;
     using Extensibility;
-    using NServiceBus.Gateway.Deduplication;
+    using Gateway.Deduplication;
 
     class InMemoryGatewayDeduplication : IDeduplicateMessages
     {

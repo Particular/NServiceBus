@@ -5,7 +5,7 @@
     using System.Linq;
     using System.Threading.Tasks;
     using Janitor;
-    using NServiceBus.Pipeline;
+    using Pipeline;
 
     class BehaviorChain : IDisposable
     {
@@ -14,16 +14,15 @@
             itemDescriptors = behaviorList.ToArray();
         }
 
+        public void Dispose()
+        {
+        }
+
         public Task Invoke(IBehaviorContext context)
         {
             Guard.AgainstNull(nameof(context), context);
 
             return InvokeNext(context, 0);
-        }
-
-        public void Dispose()
-        {
-
         }
 
         Task InvokeNext(IBehaviorContext context, int currentIndex)
@@ -38,7 +37,6 @@
             return behavior.Invoke(context, newContext => InvokeNext(newContext, currentIndex + 1));
         }
 
-        [SkipWeaving]
-        BehaviorInstance[] itemDescriptors;
+        [SkipWeaving] BehaviorInstance[] itemDescriptors;
     }
 }

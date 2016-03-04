@@ -1,7 +1,7 @@
 namespace NServiceBus.Pipeline
 {
     using System.Collections.Generic;
-    using NServiceBus.Unicast.Messages;
+    using Unicast.Messages;
 
     /// <summary>
     /// A context of handling a logical message by a handler.
@@ -24,12 +24,13 @@ namespace NServiceBus.Pipeline
         object MessageBeingHandled { get; }
 
         /// <summary>
-        /// Indicates whether <see cref="IMessageHandlerContext.HandleCurrentMessageLater"/> has been called.
+        /// Indicates whether <see cref="IMessageHandlerContext.HandleCurrentMessageLater" /> has been called.
         /// </summary>
         bool HandleCurrentMessageLaterWasCalled { get; }
 
         /// <summary>
-        /// <code>true</code> if <see cref="IMessageHandlerContext.DoNotContinueDispatchingCurrentMessageToHandlers" /> or <see cref="IMessageHandlerContext.HandleCurrentMessageLater"/> has been called.
+        /// <code>true</code> if <see cref="IMessageHandlerContext.DoNotContinueDispatchingCurrentMessageToHandlers" /> or
+        /// <see cref="IMessageHandlerContext.HandleCurrentMessageLater" /> has been called.
         /// </summary>
         bool HandlerInvocationAborted { get; }
 

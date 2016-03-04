@@ -1,16 +1,14 @@
 ﻿namespace NServiceBus.Pipeline
 {
     using System;
-    using NServiceBus.Unicast.Messages;
+    using Unicast.Messages;
 
     /// <summary>
     /// The logical message.
     /// </summary>
     public class LogicalMessage
     {
-        LogicalMessageFactory factory;
-
-        internal LogicalMessage(MessageMetadata metadata, object message,LogicalMessageFactory factory)
+        internal LogicalMessage(MessageMetadata metadata, object message, LogicalMessageFactory factory)
         {
             this.factory = factory;
             Instance = message;
@@ -18,28 +16,7 @@
         }
 
         /// <summary>
-        /// Updates the message instance.
-        /// </summary>
-        /// <param name="newInstance">The new instance.</param>
-        public void UpdateMessageInstance(object newInstance)
-        {
-            Guard.AgainstNull(nameof(newInstance), newInstance);
-            var sameInstance = ReferenceEquals(Instance, newInstance);
-            
-            Instance = newInstance;
-
-            if (sameInstance)
-            {
-                return;
-            }
-
-            var newLogicalMessage = factory.Create(newInstance);
-
-            Metadata = newLogicalMessage.Metadata;
-        }
-
-        /// <summary>
-        /// The <see cref="Type"/> of the message instance.
+        /// The <see cref="Type" /> of the message instance.
         /// </summary>
         public Type MessageType => Metadata.MessageType;
 
@@ -53,5 +30,28 @@
         /// The message instance.
         /// </summary>
         public object Instance { get; private set; }
+
+        /// <summary>
+        /// Updates the message instance.
+        /// </summary>
+        /// <param name="newInstance">The new instance.</param>
+        public void UpdateMessageInstance(object newInstance)
+        {
+            Guard.AgainstNull(nameof(newInstance), newInstance);
+            var sameInstance = ReferenceEquals(Instance, newInstance);
+
+            Instance = newInstance;
+
+            if (sameInstance)
+            {
+                return;
+            }
+
+            var newLogicalMessage = factory.Create(newInstance);
+
+            Metadata = newLogicalMessage.Metadata;
+        }
+
+        LogicalMessageFactory factory;
     }
 }

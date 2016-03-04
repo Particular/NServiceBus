@@ -9,7 +9,7 @@ namespace NServiceBus.Faults
     public struct FailedMessage
     {
         /// <summary>
-        /// Creates a new instance of <see cref="FailedMessage"/>.
+        /// Creates a new instance of <see cref="FailedMessage" />.
         /// </summary>
         /// <param name="messageId">The id of the failed message.</param>
         /// <param name="headers">Message headers.</param>
@@ -24,17 +24,17 @@ namespace NServiceBus.Faults
         }
 
         /// <summary>
-        ///     Gets the message headers.
+        /// Gets the message headers.
         /// </summary>
         public Dictionary<string, string> Headers { get; }
 
         /// <summary>
-        ///     Gets a byte array to the body content of the message.
+        /// Gets a byte array to the body content of the message.
         /// </summary>
         public byte[] Body { get; }
 
         /// <summary>
-        ///     The exception that caused this message to fail.
+        /// The exception that caused this message to fail.
         /// </summary>
         public Exception Exception { get; }
 

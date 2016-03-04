@@ -5,10 +5,10 @@
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.Logging;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Transports;
-    using NServiceBus.Unicast.Messages;
+    using Logging;
+    using Pipeline;
+    using Transports;
+    using Unicast.Messages;
 
     class DeserializeLogicalMessagesConnector : StageConnector<IIncomingPhysicalMessageContext, IIncomingLogicalMessageContext>
     {

@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System.Collections.Generic;
-    using NServiceBus.Pipeline;
+    using Pipeline;
 
     class OutgoingPublishContext : OutgoingContext, IOutgoingPublishContext
     {

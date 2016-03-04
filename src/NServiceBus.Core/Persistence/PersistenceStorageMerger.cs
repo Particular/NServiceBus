@@ -3,8 +3,8 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using NServiceBus.Persistence;
-    using NServiceBus.Settings;
+    using Persistence;
+    using Settings;
 
     class PersistenceStorageMerger
     {

@@ -1,10 +1,11 @@
 ﻿namespace NServiceBus.Persistence
 {
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
+    using Extensibility;
 
     /// <summary>
-    /// Represents a storage to which the writes are synchronized with message receiving i.e. message receive is acknowledged only if data has been successfully saved.
+    /// Represents a storage to which the writes are synchronized with message receiving i.e. message receive is acknowledged
+    /// only if data has been successfully saved.
     /// </summary>
     public interface ISynchronizedStorage
     {

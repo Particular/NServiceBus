@@ -1,7 +1,7 @@
 namespace NServiceBus
 {
-    using NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions;
     using Unicast.Subscriptions;
+    using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
     /// <summary>
     /// Describes an entry in the list of subscriptions.

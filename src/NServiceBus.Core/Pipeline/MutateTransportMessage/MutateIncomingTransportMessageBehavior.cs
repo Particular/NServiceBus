@@ -2,8 +2,8 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.MessageMutator;
-    using NServiceBus.Pipeline;
+    using MessageMutator;
+    using Pipeline;
 
     class MutateIncomingTransportMessageBehavior : Behavior<IIncomingPhysicalMessageContext>
     {

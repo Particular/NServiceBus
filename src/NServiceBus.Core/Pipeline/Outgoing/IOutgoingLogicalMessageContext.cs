@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.Pipeline
 {
     using System.Collections.Generic;
-    using NServiceBus.Routing;
+    using Routing;
 
     /// <summary>
     /// Outgoing pipeline context.

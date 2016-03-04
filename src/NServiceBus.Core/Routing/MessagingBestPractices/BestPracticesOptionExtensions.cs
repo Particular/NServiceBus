@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus
 {
-    using NServiceBus.Extensibility;
-    using NServiceBus.Pipeline;
+    using Extensibility;
+    using Pipeline;
 
     /// <summary>
     /// Provides options for disabling the best practice enforcement.
@@ -17,7 +17,8 @@
         }
 
         /// <summary>
-        /// Returns whether <see cref="DoNotEnforceBestPractices(NServiceBus.Extensibility.ExtendableOptions)"/> has ben called or not.
+        /// Returns whether <see cref="DoNotEnforceBestPractices(NServiceBus.Extensibility.ExtendableOptions)" /> has ben called or
+        /// not.
         /// </summary>
         /// <returns><c>true</c> if best practice enforcment has ben disabled, <c>false</c> otherwhise.</returns>
         public static bool IgnoredBestPractices(this ExtendableOptions options)

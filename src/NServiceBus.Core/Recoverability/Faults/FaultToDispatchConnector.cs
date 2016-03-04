@@ -3,8 +3,8 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.Routing;
     using Pipeline;
+    using Routing;
 
     class FaultToDispatchConnector : StageConnector<IFaultContext, IRoutingContext>
     {
@@ -24,7 +24,7 @@ namespace NServiceBus
             }
 
             var dispatchContext = this.CreateRoutingContext(context.Message, new UnicastRoutingStrategy(context.ErrorQueueAddress), context);
-            
+
             return stage(dispatchContext);
         }
 

@@ -1,13 +1,10 @@
 ﻿namespace NServiceBus.Routing
 {
-    
     /// <summary>
     /// Represents a name of a logical endpoint.
     /// </summary>
     public sealed class EndpointName
     {
-        string name;
-
         /// <summary>
         /// Creates a new logical endpoint name.
         /// </summary>
@@ -46,11 +43,11 @@
             {
                 return true;
             }
-            return obj is EndpointName && Equals((EndpointName)obj);
+            return obj is EndpointName && Equals((EndpointName) obj);
         }
 
         /// <summary>
-        /// Serves as a hash function for a particular type. 
+        /// Serves as a hash function for a particular type.
         /// </summary>
         /// <returns>
         /// A hash code for the current object.
@@ -76,5 +73,6 @@
             return !Equals(left, right);
         }
 
+        string name;
     }
 }

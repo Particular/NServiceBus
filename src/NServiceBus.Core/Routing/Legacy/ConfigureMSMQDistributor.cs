@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.Routing.Legacy
 {
     using System;
-    using NServiceBus.Configuration.AdvanceExtensibility;
+    using Configuration.AdvanceExtensibility;
 
     /// <summary>
     /// Extension methods to configure Distributor.
@@ -9,7 +9,7 @@
     public static class ConfigureMSMQDistributor
     {
         /// <summary>
-        ///     Enlist Worker with Master node defined in the config.
+        /// Enlist Worker with Master node defined in the config.
         /// </summary>
         public static void EnlistWithLegacyMSMQDistributor(this EndpointConfiguration config, string masterNodeAddress, string masterNodeControlAddress, int capacity)
         {

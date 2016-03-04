@@ -11,20 +11,6 @@
 
     class XmlSerialization : IDisposable
     {
-        const string BaseType = "baseType";
-
-        const string DefaultNamespace = "http://tempuri.net";
-        static XNamespace xsiNamespace = "http://www.w3.org/2001/XMLSchema-instance";
-        static XNamespace xsdNamespace = "http://www.w3.org/2001/XMLSchema";
-
-        Type messageType;
-        XmlWriter writer;
-        object message;
-        Conventions conventions;
-        XmlSerializerCache cache;
-        bool skipWrappingRawXml;
-        string @namespace;
-
         public XmlSerialization(Type messageType, Stream stream, object message, Conventions conventions, XmlSerializerCache cache, bool skipWrappingRawXml, string @namespace = DefaultNamespace)
         {
             this.messageType = messageType;
@@ -33,13 +19,21 @@
             this.cache = cache;
             this.skipWrappingRawXml = skipWrappingRawXml;
             this.@namespace = @namespace;
-            writer = new RawXmlTextWriter(stream, new XmlWriterSettings { CloseOutput = false });
+            writer = new RawXmlTextWriter(stream, new XmlWriterSettings
+            {
+                CloseOutput = false
+            });
+        }
+
+        public void Dispose()
+        {
+            //Injected at compile time
         }
 
         public void Serialize()
         {
             var doc = new XDocument(new XDeclaration("1.0", null, null));
-            
+
             var elementName = messageType.SerializationFriendlyName();
             doc.Add(new XElement(elementName));
             WriteObject(doc.Root, elementName, messageType, message, true);
@@ -69,7 +63,9 @@
         {
             var currentXmlns = element.GetDefaultNamespace();
             if (currentXmlns == newXmlns)
+            {
                 return;
+            }
 
             foreach (var descendant in element.DescendantsAndSelf()
                 .Where(e => e.Name.Namespace == currentXmlns))
@@ -114,7 +110,7 @@
             if (type == typeof(object) && value.GetType().IsSimpleType())
             {
                 var typeOfValue = value.GetType();
-                var ns = (XNamespace)typeOfValue.Name;
+                var ns = (XNamespace) typeOfValue.Name;
                 var prefix = typeOfValue.Name.ToLower();
                 if (!elem.Attributes().Any(a => a.IsNamespaceDeclaration && a.Name.LocalName == prefix))
                 {
@@ -148,7 +144,9 @@
                 // For null entries in a nullable array
                 // See https://github.com/Particular/NServiceBus/issues/2706
                 if (t.IsNullableType())
+                {
                     elem.Value = "null";
+                }
 
                 return;
             }
@@ -201,7 +199,7 @@
 
             if (typeof(XContainer).IsAssignableFrom(type))
             {
-                var container = (XContainer)value;
+                var container = (XContainer) value;
                 if (skipWrappingRawXml)
                 {
                     elem.Add(XElement.Parse(container.ToString()));
@@ -223,10 +221,10 @@
             if (typeof(IEnumerable).IsAssignableFrom(type))
             {
                 var xe = new XElement(name);
-                
+
                 if (type == typeof(byte[]))
                 {
-                    var base64String = Convert.ToBase64String((byte[])value);
+                    var base64String = Convert.ToBase64String((byte[]) value);
                     xe.Value = base64String;
                 }
                 else
@@ -258,7 +256,7 @@
                         }
                     }
 
-                    foreach (var obj in (IEnumerable)value)
+                    foreach (var obj in (IEnumerable) value)
                     {
                         if (obj != null && obj.GetType().IsSimpleType())
                         {
@@ -286,7 +284,7 @@
         void WriteElementNamespaces(XElement elem, IReadOnlyList<string> baseTypes)
         {
             elem.Add(new XAttribute(XNamespace.Xmlns + "xsi", xsiNamespace),
-                     new XAttribute(XNamespace.Xmlns + "xsd", xsdNamespace));
+                new XAttribute(XNamespace.Xmlns + "xsd", xsdNamespace));
 
             for (var i = 0; i < baseTypes.Count; i++)
             {
@@ -300,15 +298,22 @@
             }
         }
 
-        public void Dispose()
-        {
-            //Injected at compile time
-        }
+        XmlSerializerCache cache;
+        Conventions conventions;
+        object message;
+
+        Type messageType;
+        string @namespace;
+        bool skipWrappingRawXml;
+        XmlWriter writer;
+        const string BaseType = "baseType";
+
+        const string DefaultNamespace = "http://tempuri.net";
+        static XNamespace xsiNamespace = "http://www.w3.org/2001/XMLSchema-instance";
+        static XNamespace xsdNamespace = "http://www.w3.org/2001/XMLSchema";
 
         class RawXmlTextWriter : XmlTextWriter
         {
-            readonly XmlWriterSettings settings;
-
             public RawXmlTextWriter(Stream w, XmlWriterSettings settings) : base(w, null /*writes UTF-8 and omits the 'encoding' attribute in XML declaration*/)
             {
                 this.settings = settings;
@@ -326,6 +331,8 @@
                     base.Close();
                 }
             }
+
+            readonly XmlWriterSettings settings;
         }
     }
 }

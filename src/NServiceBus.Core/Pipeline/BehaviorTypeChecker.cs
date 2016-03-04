@@ -2,17 +2,10 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
-    using NServiceBus.Pipeline;
+    using Pipeline;
 
     static class BehaviorTypeChecker
     {
-        static HashSet<Type> NotAllowedInterfaces = new HashSet<Type>
-        {
-            typeof(IBehaviorContext),
-            typeof(IIncomingContext),
-            typeof(IOutgoingContext),
-        };
-
         public static void ThrowIfInvalid(Type behavior, string paramName)
         {
             Guard.AgainstNull(nameof(behavior), behavior);
@@ -41,5 +34,12 @@ namespace NServiceBus
                 throw new ArgumentException($@"The behavior '{behavior.Name}' is invalid since the TTo {outputContextType} context of IBehavior<TFrom, TTo> is not intended to be used.", paramName);
             }
         }
+
+        static HashSet<Type> NotAllowedInterfaces = new HashSet<Type>
+        {
+            typeof(IBehaviorContext),
+            typeof(IIncomingContext),
+            typeof(IOutgoingContext)
+        };
     }
 }

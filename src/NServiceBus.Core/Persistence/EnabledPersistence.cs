@@ -5,7 +5,7 @@
 
     class EnabledPersistence
     {
-        public Type DefinitionType;
         public List<Type> SelectedStorages { get; set; }
+        public Type DefinitionType;
     }
 }

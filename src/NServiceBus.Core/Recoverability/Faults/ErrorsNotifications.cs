@@ -2,7 +2,7 @@ namespace NServiceBus.Faults
 {
     using System;
     using System.Collections.Generic;
-    using NServiceBus.Transports;
+    using Transports;
 
     /// <summary>
     /// Errors notifications.

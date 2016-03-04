@@ -4,8 +4,6 @@ namespace NServiceBus
 
     class PerformanceCounterInstance : IPerformanceCounterInstance
     {
-        PerformanceCounter counter;
-
         public PerformanceCounterInstance(PerformanceCounter counter)
         {
             this.counter = counter;
@@ -20,5 +18,7 @@ namespace NServiceBus
         {
             //Injected via Fody
         }
+
+        PerformanceCounter counter;
     }
 }

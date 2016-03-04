@@ -6,8 +6,6 @@
 
     class EnforcePublishBestPracticesBehavior : Behavior<IOutgoingPublishContext>
     {
-        Validations validations;
-
         public EnforcePublishBestPracticesBehavior(Validations validations)
         {
             this.validations = validations;
@@ -24,5 +22,7 @@
 
             return next();
         }
+
+        Validations validations;
     }
 }

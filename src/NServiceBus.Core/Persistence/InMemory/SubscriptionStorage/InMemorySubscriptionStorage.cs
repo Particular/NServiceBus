@@ -4,9 +4,9 @@ namespace NServiceBus
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
-    using NServiceBus.Unicast.Subscriptions;
-    using NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions;
+    using Extensibility;
+    using Unicast.Subscriptions;
+    using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
     class InMemorySubscriptionStorage : ISubscriptionStorage
     {

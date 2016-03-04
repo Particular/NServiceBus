@@ -12,7 +12,7 @@
         {
             this.timeToBeReceivedMappings = timeToBeReceivedMappings;
         }
-        
+
         public override Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
         {
             TimeSpan timeToBeReceived;

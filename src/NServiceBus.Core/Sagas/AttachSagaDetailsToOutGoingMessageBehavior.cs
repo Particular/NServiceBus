@@ -2,8 +2,8 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Sagas;
+    using Pipeline;
+    using Sagas;
 
     class AttachSagaDetailsToOutGoingMessageBehavior : Behavior<IOutgoingLogicalMessageContext>
     {

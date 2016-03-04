@@ -9,8 +9,8 @@
     using System.Runtime.Serialization;
     using System.Xml;
     using System.Xml.Linq;
-    using NServiceBus.Logging;
-    using NServiceBus.MessageInterfaces;
+    using Logging;
+    using MessageInterfaces;
 
     class XmlDeserialization
     {
@@ -277,7 +277,7 @@
                     logger.Debug("Trying to deserialize message to " + baseType.FullName);
                     return baseType;
                 }
-                // ReSharper disable once EmptyGeneralCatchClause
+                    // ReSharper disable once EmptyGeneralCatchClause
                 catch
                 {
                     // intentionally swallow exception
@@ -661,14 +661,15 @@
             return n;
         }
 
-        const string BASETYPE = "baseType";
-        static ILog logger = LogManager.GetLogger<XmlDeserialization>();
         XmlSerializerCache cache;
-        bool skipWrappingRawXml;
-        bool sanitizeInput;
-        IMessageMapper mapper;
         string defaultNameSpace;
+        IMessageMapper mapper;
         List<Type> messageBaseTypes = new List<Type>();
         IDictionary<string, string> prefixesToNamespaces = new Dictionary<string, string>();
+        bool sanitizeInput;
+        bool skipWrappingRawXml;
+
+        const string BASETYPE = "baseType";
+        static ILog logger = LogManager.GetLogger<XmlDeserialization>();
     }
 }
