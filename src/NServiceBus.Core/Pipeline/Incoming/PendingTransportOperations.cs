@@ -1,22 +1,27 @@
 namespace NServiceBus
 {
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Linq;
     using Transports;
 
     class PendingTransportOperations
     {
-        public IReadOnlyCollection<TransportOperation> Operations => operations;
+        public IReadOnlyCollection<TransportOperation> Operations => new List<TransportOperation>(operations);
+
+        public bool HasOperations => !operations.IsEmpty;
 
         public void Add(TransportOperation transportOperation)
         {
-            operations.Add(transportOperation);
+            operations.Push(transportOperation);
         }
 
         public void AddRange(IEnumerable<TransportOperation> transportOperations)
         {
-            operations.AddRange(transportOperations);
+
+            operations.PushRange(transportOperations.ToArray());
         }
 
-        List<TransportOperation> operations = new List<TransportOperation>();
+        ConcurrentStack<TransportOperation> operations = new ConcurrentStack<TransportOperation>();
     }
 }
