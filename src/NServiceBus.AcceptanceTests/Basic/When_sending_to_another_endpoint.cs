@@ -6,6 +6,7 @@
     using NServiceBus.AcceptanceTesting;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
+    using MessageId = NServiceBus.MessageId;
 
     public class When_sending_to_another_endpoint : NServiceBusAcceptanceTest
     {
@@ -15,12 +16,7 @@
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                     .WithEndpoint<Sender>(b => b.When((session, c) =>
                     {
-                        var sendOptions = new SendOptions();
-
-                        sendOptions.SetHeader("MyHeader", "MyHeaderValue");
-                        sendOptions.SetMessageId("MyMessageId");
-
-                        return session.Send(new MyMessage { Id = c.Id }, sendOptions);
+                        return session.Send(new MyMessage { Id = c.Id }, Header.Set("MyHeader", "MyHeaderValue"), MessageId.Set("MyMessageId"));
                     }))
                     .WithEndpoint<Receiver>()
                     .Done(c => c.WasCalled)

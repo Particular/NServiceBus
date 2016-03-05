@@ -31,32 +31,72 @@ namespace NServiceBus
         }
     }
 
-    public class SendOption
+    public abstract class SendOption
     {
         // require implementations to provide a key which is used to check for "duplicates" (e.g. Defer.To & Defer.By)
+
+        internal abstract void Apply(SendOptions options);
     }
 
     public class Header : SendOption
     {
+        readonly string key;
+        readonly string value;
+
+        Header(string key, string value)
+        {
+            this.key = key;
+            this.value = value;
+        }
+
         public static Header Set(string key, string value)
         {
-            return new Header();
+            return new Header(key, value);
+        }
+
+        internal override void Apply(SendOptions options)
+        {
+            options.SetHeader(key, value);
         }
     }
 
     public class MessageId : SendOption
     {
+        readonly string messageId;
+
+        MessageId(string messageId)
+        {
+            this.messageId = messageId;
+        }
+
         public static MessageId Set(string messageId)
         {
-            return new MessageId();
+            return new MessageId(messageId);
+        }
+
+        internal override void Apply(SendOptions options)
+        {
+            options.SetMessageId(messageId);
         }
     }
 
     public class CorrelationId : SendOption
     {
+        readonly string correlationId;
+
+        CorrelationId(string correlationId)
+        {
+            this.correlationId = correlationId;
+        }
+
         public static CorrelationId Set(string correlationId)
         {
-            return new CorrelationId();
+            return new CorrelationId(correlationId);
+        }
+
+        internal override void Apply(SendOptions options)
+        {
+            options.SetCorrelationId(correlationId);
         }
     }
 
@@ -65,6 +105,11 @@ namespace NServiceBus
         public static Reply ToThisInstance()
         {
             return new Reply();
+        }
+
+        internal override void Apply(SendOptions options)
+        {
+            options.RouteReplyToThisInstance();
         }
     }
 
@@ -79,16 +124,16 @@ namespace NServiceBus
             return new Route();
         }
 
-        public static Route ToAddress(string address)
+        internal override void Apply(SendOptions options)
         {
-            return new Route();
+            options.RouteToThisEndpoint();
         }
     }
 
     public class Defer : SendOption
     {
-        readonly TimeSpan timespan;
-        readonly DateTimeOffset deliveryDate;
+        readonly TimeSpan? timespan;
+        readonly DateTimeOffset? deliveryDate;
 
         private Defer(DateTimeOffset deliveryDate)
         {
@@ -108,6 +153,18 @@ namespace NServiceBus
         public static Defer By(TimeSpan timespan)
         {
             return new Defer(timespan);
+        }
+
+        internal override void Apply(SendOptions options)
+        {
+            if (timespan != null)
+            {
+                options.DelayDeliveryWith(timespan.Value);
+            }
+            else
+            {
+                options.DoNotDeliverBefore(deliveryDate ?? DateTimeOffset.Now);
+            }
         }
     }
 
