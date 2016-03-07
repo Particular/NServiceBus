@@ -132,7 +132,7 @@
     <Compile Include="Encryption\When_using_Rijndael_without_incoming_key_identifier.cs" />
     <Compile Include="PerfMon\CriticalTime\When_deferring_a_message.cs" />
     <Compile Include="Audit\When_audit_is_overridden_in_code.cs" />
-    <Compile Include="Reliability\Outbox\When_receiving_messages_already_dispatched.cs" />
+    <Compile Include="Reliability\Outbox\When_a_duplicate_message_arrives.cs" />
     <Compile Include="Routing\AutomaticSubscriptions\When_starting_an_endpoint_with_a_saga.cs" />
     <Compile Include="Routing\AutomaticSubscriptions\When_starting_an_endpoint_with_a_saga_autosubscribe_disabled.cs" />
     <Compile Include="Routing\AutomaticSubscriptions\When_starting_an_endpoint_with_autoSubscribe.cs">
