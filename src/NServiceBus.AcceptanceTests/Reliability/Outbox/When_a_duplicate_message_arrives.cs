@@ -6,7 +6,6 @@
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
     using NServiceBus.Configuration.AdvanceExtensibility;
-    using NServiceBus.Pipeline;
     using NUnit.Framework;
 
     public class When_a_duplicate_message_arrives : NServiceBusAcceptanceTest
@@ -51,9 +50,6 @@
                 EndpointSetup<DefaultServer>(b =>
                 {
                     b.LimitMessageProcessingConcurrencyTo(1);
-                    b.GetSettings().Set("DisableOutboxTransportCheck", true);
-                    b.EnableOutbox();
-                    b.Pipeline.Register("Counter", c => new MessageCounter(c.Build<Context>()), "Counts received messages");
                 });
             }
 
@@ -63,28 +59,13 @@
 
                 public Task Handle(SendOrderAcknowledgement message, IMessageHandlerContext context)
                 {
+                    Context.MessagesReceivedByDownstreamEndpoint++;
                     if (message.Terminator)
                     {
                         Context.Done = true;
                     }
                     return Task.FromResult(0);
                 }
-            }
-
-            class MessageCounter : Behavior<ITransportReceiveContext>
-            {
-                public MessageCounter(Context scenarioContext)
-                {
-                    this.scenarioContext = scenarioContext;
-                }
-
-                public override Task Invoke(ITransportReceiveContext context, Func<Task> next)
-                {
-                    scenarioContext.MessagesReceivedByDownstreamEndpoint++;
-                    return next();
-                }
-
-                readonly Context scenarioContext;
             }
         }
 
