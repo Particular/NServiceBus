@@ -8,7 +8,6 @@ namespace NServiceBus
         public Transport()
         {
             EnableByDefault();
-            DependsOn<UnicastBus>();
             Defaults(s =>
             {
                 var transportInfrastructure = s.Get<TransportInfrastructure>();

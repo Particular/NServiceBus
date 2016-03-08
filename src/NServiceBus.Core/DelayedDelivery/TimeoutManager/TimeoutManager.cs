@@ -94,7 +94,7 @@
 
         static TimeoutRecoverabilityBehavior CreateTimeoutRecoverabilityBehavior(string errorQueueAddress, string processorAddress, IBuilder b)
         {
-            return new TimeoutRecoverabilityBehavior(errorQueueAddress, processorAddress, b.Build<IDispatchMessages>(), b.Build<BusNotifications>(), b.Build<CriticalError>());
+            return new TimeoutRecoverabilityBehavior(errorQueueAddress, processorAddress, b.Build<IDispatchMessages>(), b.Build<CriticalError>());
         }
 
         bool HasAlternateTimeoutManagerBeenConfigured(ReadOnlySettings settings)

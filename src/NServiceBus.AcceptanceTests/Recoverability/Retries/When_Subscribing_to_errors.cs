@@ -25,14 +25,14 @@
 
             //FLR max retries = 3 means we will be processing 4 times. SLR max retries = 2 means we will do 3*FLR
             Assert.AreEqual(4*3, context.TotalNumberOfFLRTimesInvokedInHandler);
-            Assert.AreEqual(4*3, context.TotalNumberOfFLRTimesInvoked);
+            Assert.AreEqual(3*3, context.TotalNumberOfFLREventInvocations);
             Assert.AreEqual(2, context.NumberOfSLRRetriesPerformed);
         }
 
         public class Context : ScenarioContext
         {
             public Guid Id { get; set; }
-            public int TotalNumberOfFLRTimesInvoked { get; set; }
+            public int TotalNumberOfFLREventInvocations { get; set; }
             public int TotalNumberOfFLRTimesInvokedInHandler { get; set; }
             public int NumberOfSLRRetriesPerformed { get; set; }
             public bool MessageSentToError { get; set; }
@@ -96,7 +96,7 @@
                     Context.MessageSentToError = true;
                 };
 
-                Notifications.Errors.MessageHasFailedAFirstLevelRetryAttempt += (sender, retry) => Context.TotalNumberOfFLRTimesInvoked++;
+                Notifications.Errors.MessageHasFailedAFirstLevelRetryAttempt += (sender, retry) => Context.TotalNumberOfFLREventInvocations++;
                 Notifications.Errors.MessageHasBeenSentToSecondLevelRetries += (sender, retry) => Context.NumberOfSLRRetriesPerformed++;
 
                 return session.SendLocal(new MessageToBeRetried

@@ -170,7 +170,7 @@
                 null,
                 null,
                 null,
-                new RootContext(null, null));
+                new RootContext(null, null, null));
 
             return behaviorContext;
         }

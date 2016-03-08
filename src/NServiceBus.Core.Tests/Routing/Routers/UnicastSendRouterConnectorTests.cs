@@ -213,7 +213,7 @@
                 message = new MyMessage();
             }
 
-            var context = new OutgoingSendContext(new OutgoingLogicalMessage(message.GetType(), message), options, new RootContext(null, null));
+            var context = new OutgoingSendContext(new OutgoingLogicalMessage(message.GetType(), message), options, new RootContext(null, null, null));
             return context;
         }
 

@@ -123,7 +123,7 @@
     <Compile Include="DelayedDelivery\TimeoutManager\ExpiredTimeoutsPollerTests.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\FailureInfoStorageTests.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\RecordingFakeDispatcher.cs" />
-    <Compile Include="DelayedDelivery\TimeoutManager\TimeoutRecoverabilityBehaviourTest.cs" />
+    <Compile Include="DelayedDelivery\TimeoutManager\TimeoutRecoverabilityBehaviorTest.cs" />
     <Compile Include="DeliveryConstraintContextExtensions\DeliveryConstraintContextExtensionsTests.cs" />
     <Compile Include="MessageMapper\MessageMapperTests.cs" />
     <Compile Include="Msmq\TimeToBeReceivedOverrideCheckerTest.cs" />
@@ -143,6 +143,7 @@
     <Compile Include="Pipeline\Outgoing\OutgoingPublishContextTests.cs" />
     <Compile Include="Pipeline\Outgoing\OutgoingReplyContextTests.cs" />
     <Compile Include="Pipeline\Outgoing\OutgoingSendContextTests.cs" />
+    <Compile Include="FakeBehaviorContext.cs" />
     <Compile Include="Routing\ApplyReplyToAddressBehaviorTests.cs" />
     <Compile Include="Routing\BestPracticesOptionExtensionsTests.cs" />
     <Compile Include="Routing\DetermineRouteForPublishBehaviorTests.cs" />
@@ -180,7 +181,7 @@
     <Compile Include="Encryption\When_message_contains_props_and_fields_that_cannot_be_set.cs" />
     <Compile Include="Features\FeatureDefaultsTests.cs" />
     <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetriesTests.cs" />
-    <Compile Include="Faults\ForwardFaultsToErrorQueueTests.cs" />
+    <Compile Include="Faults\MoveFaultsToErrorQueueTests.cs" />
     <Compile Include="Hosting\HostInfoSettingsTests.cs" />
     <Compile Include="Logging\DefaultFactoryTests.cs" />
     <Compile Include="Msmq\MsmqMessageDispatcherTests.cs" />

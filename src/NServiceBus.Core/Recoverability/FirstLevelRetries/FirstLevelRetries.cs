@@ -37,9 +37,8 @@ namespace NServiceBus.Features
 
             context.RegisterStartupTask(new FlrStatusStorageCleaner(flrStatusStorage));
 
-            context.Pipeline.Register(new FirstLevelRetriesBehavior.Registration("Main"));
+            context.Pipeline.Register("FirstLevelRetries", b => new FirstLevelRetriesBehavior(b.Build<FlrStatusStorage>(), b.Build<FirstLevelRetryPolicy>()), "Performs first level retries");
         }
-
 
         int GetMaxRetries(ReadOnlySettings settings)
         {

@@ -10,14 +10,7 @@ namespace NServiceBus
         {
         }
 
-        public IBuilder Builder
-        {
-            get
-            {
-                var rawBuilder = Get<IBuilder>();
-                return rawBuilder;
-            }
-        }
+        public IBuilder Builder => Get<IBuilder>();
 
         public ContextBag Extensions => this;
     }

@@ -3,15 +3,14 @@ namespace NServiceBus.Core.Tests
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Threading;
     using System.Threading.Tasks;
-    using NServiceBus.Faults;
+    using Faults;
     using NServiceBus.Pipeline;
     using NServiceBus.Transports;
     using NUnit.Framework;
 
     [TestFixture]
-    public class ForwardFaultsToErrorQueueTests
+    public class MoveFaultsToErrorQueueTests
     {
         [Test]
         public async Task ShouldForwardToErrorQueueForAllExceptions()
@@ -20,7 +19,6 @@ namespace NServiceBus.Core.Tests
             var errorQueueAddress = "error";
             var behavior = new MoveFaultsToErrorQueueBehavior(
                 new FakeCriticalError(),
-                new BusNotifications(),
                 errorQueueAddress,
                 "public-receive-address");
 
@@ -41,7 +39,6 @@ namespace NServiceBus.Core.Tests
 
             var behavior = new MoveFaultsToErrorQueueBehavior(
                 criticalError,
-                new BusNotifications(),
                 "error",
                 "public-receive-address");
 
@@ -58,7 +55,6 @@ namespace NServiceBus.Core.Tests
 
             var behavior = new MoveFaultsToErrorQueueBehavior(
                 new FakeCriticalError(),
-                new BusNotifications(),
                 "error",
                 "public-receive-address");
 
@@ -70,33 +66,55 @@ namespace NServiceBus.Core.Tests
         }
 
         [Test]
-        public async Task ShouldRaiseNotificationWhenMessageIsForwarded()
+        public async Task ShouldRegisterFailureInfoWhenMessageIsForwarded()
         {
-            var notifications = new BusNotifications();
             var fakeFaultPipeline = new FakeFaultPipeline();
 
             var behavior = new MoveFaultsToErrorQueueBehavior(
                 new FakeCriticalError(),
-                notifications,
                 "error",
                 "public-receive-address");
-            var failedMessageNotification = new FailedMessage();
 
-            notifications.Errors.MessageSentToErrorQueue += (sender, message) => failedMessageNotification = message;
 
-            await behavior.Invoke(CreateContext("someid", fakeFaultPipeline), () =>
+            var context = CreateContext("someid", fakeFaultPipeline);
+
+
+            await behavior.Invoke(context, () =>
             {
                 throw new Exception("testex");
             });
 
-            Assert.AreEqual("someid", failedMessageNotification.MessageId);
+            var notification = context.GetNotification<MessageFaulted>();
 
-            Assert.AreEqual("testex", failedMessageNotification.Exception.Message);
+            Assert.AreEqual("someid", notification.Message.MessageId);
+            Assert.AreEqual("testex", notification.Exception.Message);
         }
 
-        static ITransportReceiveContext CreateContext(string messageId, FakeFaultPipeline pipeline)
+        static FakeTransportReceiveContext CreateContext(string messageId, FakeFaultPipeline pipeline)
         {
-            return new TransportReceiveContext(new IncomingMessage(messageId, new Dictionary<string, string>(), new MemoryStream()), null, new CancellationTokenSource(), new RootContext(null, new FakePipelineCache(pipeline)));
+            var context = new FakeTransportReceiveContext(messageId);
+
+            context.Extensions.Set<IPipelineCache>(new FakePipelineCache(pipeline));
+
+            return context;
+        }
+
+        class FakeTransportReceiveContext : FakeBehaviorContext, ITransportReceiveContext
+        {
+            public FakeTransportReceiveContext(string messageId)
+            {
+
+                Message = new IncomingMessage(messageId, new Dictionary<string, string>(), new MemoryStream());
+            }
+
+            public bool ReceiveOperationWasAborted { get; private set; }
+            
+            public IncomingMessage Message { get; }
+
+            public void AbortReceiveOperation()
+            {
+                ReceiveOperationWasAborted = true;
+            }
         }
 
         class FakePipelineCache : IPipelineCache

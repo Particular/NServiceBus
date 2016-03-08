@@ -16,12 +16,14 @@ namespace NServiceBus
             PushSettings pushSettings,
             IPipeline<ITransportReceiveContext> pipeline,
             IPipelineCache pipelineCache,
-            PushRuntimeSettings pushRuntimeSettings)
+            PushRuntimeSettings pushRuntimeSettings, 
+            IEventAggregator eventAggregator)
         {
             Id = id;
             this.pipeline = pipeline;
             this.pipelineCache = pipelineCache;
             this.pushRuntimeSettings = pushRuntimeSettings;
+            this.eventAggregator = eventAggregator;
             this.pushSettings = pushSettings;
             this.receiver = receiver;
             this.builder = builder;
@@ -61,9 +63,12 @@ namespace NServiceBus
         {
             using (var childBuilder = builder.CreateChildBuilder())
             {
-                var context = new TransportReceiveContext(new IncomingMessage(pushContext.MessageId, pushContext.Headers, pushContext.BodyStream), pushContext.TransportTransaction, pushContext.ReceiveCancellationTokenSource, new RootContext(childBuilder, pipelineCache));
+                var rootContext = new RootContext(childBuilder, pipelineCache, eventAggregator);
+                var context = new TransportReceiveContext(new IncomingMessage(pushContext.MessageId, pushContext.Headers, pushContext.BodyStream), pushContext.TransportTransaction, pushContext.ReceiveCancellationTokenSource, rootContext);
                 context.Extensions.Merge(pushContext.Context);
                 await pipeline.Invoke(context).ConfigureAwait(false);
+
+                await context.RaiseNotification(new ReceivePipelineCompleted()).ConfigureAwait(false);
             }
         }
 
@@ -75,6 +80,7 @@ namespace NServiceBus
         PushRuntimeSettings pushRuntimeSettings;
         PushSettings pushSettings;
         IPushMessages receiver;
+        IEventAggregator eventAggregator;
 
         static ILog Logger = LogManager.GetLogger<TransportReceiver>();
     }

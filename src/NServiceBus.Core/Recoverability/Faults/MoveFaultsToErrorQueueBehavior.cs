@@ -8,11 +8,9 @@ namespace NServiceBus
 
     class MoveFaultsToErrorQueueBehavior : ForkConnector<ITransportReceiveContext, IFaultContext>
     {
-        public MoveFaultsToErrorQueueBehavior(CriticalError criticalError, BusNotifications notifications, string errorQueueAddress, string localAddress)
-
+        public MoveFaultsToErrorQueueBehavior(CriticalError criticalError, string errorQueueAddress, string localAddress)
         {
             this.criticalError = criticalError;
-            this.notifications = notifications;
             this.errorQueueAddress = errorQueueAddress;
             this.localAddress = localAddress;
         }
@@ -42,7 +40,7 @@ namespace NServiceBus
 
                     await fork(faultContext).ConfigureAwait(false);
 
-                    notifications.Errors.InvokeMessageHasBeenSentToErrorQueue(message, exception);
+                    await context.RaiseNotification(new MessageFaulted(message, exception)).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -55,20 +53,15 @@ namespace NServiceBus
         CriticalError criticalError;
         string errorQueueAddress;
         string localAddress;
-        BusNotifications notifications;
         static ILog Logger = LogManager.GetLogger<MoveFaultsToErrorQueueBehavior>();
 
         public class Registration : RegisterStep
         {
             public Registration(string errorQueueAddress, string localAddress)
-                : base("MoveFaultsToErrorQueue", typeof(MoveFaultsToErrorQueueBehavior), "Moved failing messages to the configured error queue", b =>
-                {
-                    return new MoveFaultsToErrorQueueBehavior(
-                        b.Build<CriticalError>(),
-                        b.Build<BusNotifications>(),
-                        errorQueueAddress,
-                        localAddress);
-                })
+                : base("MoveFaultsToErrorQueue", typeof(MoveFaultsToErrorQueueBehavior), "Moved failing messages to the configured error queue", b => new MoveFaultsToErrorQueueBehavior(
+                    b.Build<CriticalError>(),
+                    errorQueueAddress,
+                    localAddress))
             {
                 InsertBeforeIfExists("FirstLevelRetries");
                 InsertBeforeIfExists("SecondLevelRetries");

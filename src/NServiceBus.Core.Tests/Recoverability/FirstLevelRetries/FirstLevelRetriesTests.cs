@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.IO;
     using NServiceBus.Pipeline;
-    using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus.Transports;
     using NUnit.Framework;
@@ -17,26 +16,25 @@
         {
             var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(0));
 
-            Assert.That(async () => await behavior.Invoke(null, () => { throw new MessageDeserializationException("test"); }), Throws.InstanceOf< MessageDeserializationException>());
+            Assert.That(async () => await behavior.Invoke(null, () => { throw new MessageDeserializationException("test"); }), Throws.InstanceOf<MessageDeserializationException>());
         }
 
         [Test]
         public async Task ShouldPerformFLRIfThereAreRetriesLeftToDo()
         {
-            var cancellationTokenSource = new CancellationTokenSource();
             var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1));
-            var context = CreateContext("someid", cancellationTokenSource);
+            var context = new FakeTransportReceiveContext("someid");
 
             await behavior.Invoke(context, () => { throw new Exception("test"); });
 
-            Assert.True(cancellationTokenSource.IsCancellationRequested, "Should request the transport to abort");
+            Assert.True(context.ReceiveOperationWasAborted, "Should request the transport to abort");
         }
 
         [Test]
         public void ShouldBubbleTheExceptionUpIfThereAreNoMoreRetriesLeft()
         {
             var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(0));
-            var context = CreateContext("someid");
+            var context = new FakeTransportReceiveContext("someid");
 
             Assert.That(async () => await behavior.Invoke(context, () => { throw new Exception("test"); }), Throws.InstanceOf<Exception>());
 
@@ -53,7 +51,7 @@
 
             storage.IncrementFailuresForMessage(messageId);
 
-            Assert.That(async () => await behavior.Invoke(CreateContext(messageId), () => { throw new Exception("test"); }), Throws.InstanceOf<Exception>());
+            Assert.That(async () => await behavior.Invoke(new FakeTransportReceiveContext(messageId), () => { throw new Exception("test"); }), Throws.InstanceOf<Exception>());
 
             Assert.AreEqual(0, storage.GetFailuresForMessage(messageId));
         }
@@ -65,7 +63,7 @@
             var storage = new FlrStatusStorage();
             var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1), storage);
 
-            await behavior.Invoke(CreateContext(messageId), () => { throw new Exception("test"); });
+            await behavior.Invoke(new FakeTransportReceiveContext(messageId), () => { throw new Exception("test"); });
 
             Assert.AreEqual(1, storage.GetFailuresForMessage(messageId));
         }
@@ -73,23 +71,17 @@
         [Test]
         public async Task ShouldRaiseBusNotificationsForFLR()
         {
-            var notifications = new BusNotifications();
-            var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1), busNotifications: notifications);
+            var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1));
 
-            var notificationFired = false;
+            var context = new FakeTransportReceiveContext("someid");
 
-            notifications.Errors.MessageHasFailedAFirstLevelRetryAttempt += (sender, retry) =>
-            {
-                Assert.AreEqual(0, retry.RetryAttempt);
-                Assert.AreEqual("test", retry.Exception.Message);
-                Assert.AreEqual("someid", retry.MessageId);
+            await behavior.Invoke(context, () => { throw new Exception("test"); });
 
-                notificationFired = true;
-            };
+            var failure = context.GetNotification<MessageToBeRetried>();
 
-            await behavior.Invoke(CreateContext("someid"), () => { throw new Exception("test"); });
-
-            Assert.True(notificationFired);
+            Assert.AreEqual(0, failure.Attempt);
+            Assert.AreEqual("test", failure.Exception.Message);
+            Assert.AreEqual("someid", failure.Message.MessageId);
         }
 
         [Test]
@@ -99,44 +91,37 @@
             var storage = new FlrStatusStorage();
             var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1), storage);
 
-            await behavior.Invoke(CreateContext(messageId), () => { throw new Exception("test"); });
+            await behavior.Invoke(new FakeTransportReceiveContext(messageId), () => { throw new Exception("test"); });
 
             storage.ClearAllFailures();
 
-            await behavior.Invoke(CreateContext(messageId), () => { throw new Exception("test"); });
+            await behavior.Invoke(new FakeTransportReceiveContext(messageId), () => { throw new Exception("test"); });
         }
-
-        [Test]
-        public async Task ShouldTrackRetriesForEachPipelineIndependently()
-        {
-            const string messageId = "someId";
-            var storage = new FlrStatusStorage();
-            var behavior1 = CreateFlrBehavior(new FirstLevelRetryPolicy(2), storage, pipeline: "1");
-            var behavior2 = CreateFlrBehavior(new FirstLevelRetryPolicy(1), storage, pipeline: "2");
-
-            await behavior1.Invoke(CreateContext(messageId), () => { throw new Exception("test"); });
-
-            await behavior2.Invoke(CreateContext(messageId), () => { throw new Exception("test"); });
-
-            await behavior1.Invoke(CreateContext(messageId), () => { throw new Exception("test"); });
-
-            Assert.That(async () => await behavior2.Invoke(CreateContext(messageId), () => { throw new Exception("test"); }), Throws.InstanceOf<Exception>());
-        }
-
-        static FirstLevelRetriesBehavior CreateFlrBehavior(FirstLevelRetryPolicy retryPolicy, FlrStatusStorage storage = null, BusNotifications busNotifications = null, string pipeline = "")
+        
+        static FirstLevelRetriesBehavior CreateFlrBehavior(FirstLevelRetryPolicy retryPolicy, FlrStatusStorage storage = null)
         {
             var flrBehavior = new FirstLevelRetriesBehavior(
                 storage ?? new FlrStatusStorage(),
-                retryPolicy,
-                busNotifications ?? new BusNotifications(),
-                pipeline);
+                retryPolicy);
 
             return flrBehavior;
         }
 
-        ITransportReceiveContext CreateContext(string messageId, CancellationTokenSource cancellationTokenSource = null)
+        class FakeTransportReceiveContext : FakeBehaviorContext, ITransportReceiveContext
         {
-            return new TransportReceiveContext(new IncomingMessage(messageId, new Dictionary<string, string>(), new MemoryStream()), null, cancellationTokenSource ?? new CancellationTokenSource(), new RootContext(null, null));
+            public FakeTransportReceiveContext(string messageId)
+            {
+                Message = new IncomingMessage(messageId, new Dictionary<string, string>(), new MemoryStream());
+            }
+
+            public bool ReceiveOperationWasAborted { get; private set; }
+
+            public IncomingMessage Message { get; }
+
+            public void AbortReceiveOperation()
+            {
+                ReceiveOperationWasAborted = true;
+            }
         }
     }
 }

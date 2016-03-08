@@ -13,7 +13,7 @@
             var options = new PublishOptions();
             options.SetHeader("someHeader", "someValue");
 
-            var testee = new OutgoingPublishContext(message, options, new RootContext(null, null));
+            var testee = new OutgoingPublishContext(message, options, new RootContext(null, null, null));
             testee.Headers["someHeader"] = "updatedValue";
             testee.Headers["anotherHeader"] = "anotherValue";
 
@@ -30,7 +30,7 @@
             var options = new PublishOptions();
             options.Context.Set("someKey", "someValue");
 
-            var testee = new OutgoingPublishContext(message, options, new RootContext(null, null));
+            var testee = new OutgoingPublishContext(message, options, new RootContext(null, null, null));
             testee.Extensions.Set("someKey", "updatedValue");
             testee.Extensions.Set("anotherKey", "anotherValue");
 

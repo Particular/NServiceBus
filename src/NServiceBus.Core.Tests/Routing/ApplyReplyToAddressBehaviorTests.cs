@@ -34,7 +34,7 @@
                 new RoutingStrategy[]
                 {
                 },
-                new RootContext(null, null));
+                new RootContext(null, null, null));
             context.Merge(options.Context);
             return context;
         }

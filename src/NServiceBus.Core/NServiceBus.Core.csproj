@@ -96,6 +96,7 @@
     <Compile Include="Audit\ConfigureAudit.cs" />
     <Compile Include="Audit\AuditToDispatchConnector.cs" />
     <Compile Include="Audit\InvokeAuditPipelineBehavior.cs" />
+    <Compile Include="Notifications\EventAggregator.cs" />
     <Compile Include="Encryption\WireEncryptedStringConversions.cs" />
     <Compile Include="CircuitBreakers\ICircuitBreaker.cs" />
     <Compile Include="CriticalError\ICriticalErrorContext.cs" />
@@ -106,6 +107,9 @@
     <Compile Include="EndpointHelper.cs" />
     <Compile Include="Endpoint.cs" />
     <Compile Include="Forwarding\ConfigureForwarding.cs" />
+    <Compile Include="Notifications\IEventAggregator.cs" />
+    <Compile Include="Notifications\NotificationSubscriptions.cs" />
+    <Compile Include="Notifications\EventAggregatorExtensions.cs" />
     <Compile Include="Pipeline\ForkConnector.cs" />
     <Compile Include="Pipeline\Incoming\ISatelliteProcessingContext.cs" />
     <Compile Include="Pipeline\Incoming\SatelliteProcessingContext.cs" />
@@ -115,6 +119,9 @@
     <Compile Include="Pipeline\PipelineCache.cs" />
     <Compile Include="Pipeline\StageForkConnector.cs" />
     <Compile Include="Pipeline\ConnectorContextExtensions.cs" />
+    <Compile Include="Recoverability\Faults\MessageProcessingFailed.cs" />
+    <Compile Include="Recoverability\Faults\MessageToBeRetried.cs" />
+    <Compile Include="Recoverability\Faults\MessageFaulted.cs" />
     <Compile Include="Serialization\SerializationFeature.cs" />
     <Compile Include="Serializers\XML\XmlSerialization.cs" />
     <Compile Include="Settings\ScaleOutSettings.cs" />
@@ -122,6 +129,7 @@
     <Compile Include="Transports\Msmq\MsmqScopeOptions.cs" />
     <Compile Include="Transports\Msmq\MsmqTransportInfrastructure.cs" />
     <Compile Include="Transports\MulticastTransportOperation.cs" />
+    <Compile Include="Transports\ReceivePipelineCompleted.cs" />
     <Compile Include="Transports\TransportInfrastructure.cs" />
     <Compile Include="Transports\TransportOperations.cs" />
     <Compile Include="Transports\TransportSubscriptionInfrastructure.cs" />
@@ -315,7 +323,6 @@
     <Compile Include="Routing\EndpointName.cs" />
     <Compile Include="Recoverability\Faults\FailedMessage.cs" />
     <Compile Include="Recoverability\Faults\ErrorsNotifications.cs" />
-    <Compile Include="Recoverability\Faults\ErrorSubscribers.cs" />
     <Compile Include="Features\FeatureRunner.cs" />
     <Compile Include="Features\FeatureState.cs" />
     <Compile Include="Performance\MessageProcessingOptimizations\MessageProcessingOptimizationExtensions.cs" />
@@ -607,7 +614,6 @@
     <Compile Include="Transports\Msmq\CheckMachineNameForComplianceWithDtcLimitation.cs" />
     <Compile Include="Pipeline\Incoming\InvokeHandlerTerminator.cs" />
     <Compile Include="Pipeline\Incoming\LoadHandlersConnector.cs" />
-    <Compile Include="Unicast\Config\UnicastBus.cs" />
     <Compile Include="Pipeline\Incoming\LogicalMessage.cs" />
     <Compile Include="Pipeline\Incoming\MessageHandler.cs" />
     <Compile Include="Serialization\SerializeMessageConnector.cs" />

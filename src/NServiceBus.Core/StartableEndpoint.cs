@@ -17,13 +17,19 @@ namespace NServiceBus
 
     class StartableEndpoint : IStartableEndpoint
     {
-        public StartableEndpoint(SettingsHolder settings, IBuilder builder, FeatureActivator featureActivator, PipelineConfiguration pipelineConfiguration, IReadOnlyCollection<IWantToRunWhenBusStartsAndStops> startables)
+        public StartableEndpoint(SettingsHolder settings,
+            IBuilder builder, 
+            FeatureActivator featureActivator, 
+            PipelineConfiguration pipelineConfiguration, 
+            IReadOnlyCollection<IWantToRunWhenBusStartsAndStops> startables,
+            IEventAggregator eventAggregator)
         {
             this.settings = settings;
             this.builder = builder;
             this.featureActivator = featureActivator;
             this.pipelineConfiguration = pipelineConfiguration;
             this.startables = startables;
+            this.eventAggregator = eventAggregator;
         }
 
         public async Task<IEndpointInstance> Start()
@@ -31,7 +37,7 @@ namespace NServiceBus
             DetectThrottlingConfig();
 
             var pipelineCache = new PipelineCache(builder, settings);
-            var messageSession = CreateMessageSession(builder, pipelineCache);
+            var messageSession = CreateMessageSession(pipelineCache);
 
             await RunInstallers().ConfigureAwait(false);
             var featureRunner = await StartFeatures(messageSession).ConfigureAwait(false);
@@ -117,9 +123,9 @@ namespace NServiceBus
             }
         }
 
-        static IMessageSession CreateMessageSession(IBuilder builder, IPipelineCache cache)
+        IMessageSession CreateMessageSession(IPipelineCache cache)
         {
-            var rootContext = new RootContext(builder, cache);
+            var rootContext = new RootContext(builder, cache, eventAggregator);
             return new MessageSession(rootContext);
         }
 
@@ -179,7 +185,8 @@ namespace NServiceBus
                 pushSettings,
                 pipelineInstance,
                 cache,
-                runtimeSettings);
+                runtimeSettings,
+                eventAggregator);
 
             return receiver;
         }
@@ -189,5 +196,6 @@ namespace NServiceBus
         PipelineConfiguration pipelineConfiguration;
         SettingsHolder settings;
         IReadOnlyCollection<IWantToRunWhenBusStartsAndStops> startables;
+        IEventAggregator eventAggregator;
     }
 }
