@@ -2535,6 +2535,8 @@ namespace NServiceBus.Settings
         T Get<T>();
         T Get<T>(string key);
         object Get(string key);
+        T GetConditional<T>(string key, System.Func<bool> condition);
+        T GetDefault<T>(string key);
         T GetOrDefault<T>();
         T GetOrDefault<T>(string key);
         bool HasExplicitValue(string key);
@@ -2570,6 +2572,8 @@ namespace NServiceBus.Settings
         public T Get<T>(string key) { }
         public T Get<T>() { }
         public object Get(string key) { }
+        public T GetConditional<T>(string key, System.Func<bool> condition) { }
+        public T GetDefault<T>(string key) { }
         public T GetOrDefault<T>() { }
         public T GetOrDefault<T>(string key) { }
         public bool HasExplicitValue(string key) { }
