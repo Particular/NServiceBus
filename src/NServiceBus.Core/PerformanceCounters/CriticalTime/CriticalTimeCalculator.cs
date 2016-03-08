@@ -4,9 +4,6 @@ namespace NServiceBus
     using System.Diagnostics;
     using System.Threading;
 
-    /// <summary>
-    /// Performance counter for the critical time
-    /// </summary>
     class CriticalTimeCalculator : IDisposable
     {
         public CriticalTimeCalculator(PerformanceCounter cnt)
@@ -48,7 +45,7 @@ namespace NServiceBus
         PerformanceCounter counter;
         TimeSpan estimatedMaximumProcessingDuration = TimeSpan.FromSeconds(2);
         DateTime lastMessageProcessedTime;
-// ReSharper disable once NotAccessedField.Local
+        // ReSharper disable once NotAccessedField.Local
         Timer timer;
     }
 }
