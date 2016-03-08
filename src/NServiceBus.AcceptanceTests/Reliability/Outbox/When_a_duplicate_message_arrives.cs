@@ -11,7 +11,7 @@
     public class When_a_duplicate_message_arrives : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task It_does_not_dispatch_messages_aready_dispatched()
+        public async Task Should_not_dispatch_messages_already_dispatched()
         {
             await Scenario.Define<Context>()
                 .WithEndpoint<OutboxEndpoint>(b => b.When(async session =>
