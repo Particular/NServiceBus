@@ -64,7 +64,7 @@
             // production machine will need to have the required registry setting.
             if (Debugger.IsAttached)
             {
-                Logger.Warn("Endpoint auditing is configured using the registry on this machine, ensure that either the Set-NServiceBusLocalMachineSettings cmdlet has been run on the target deployment machine or specify the QueueName attribute in the AuditConfig section in the app.config file. To quickly add the AuditConfig section to the app.config, in Package Manager Console type: add-NServiceBusAuditConfig.");
+                Logger.Warn("Endpoint auditing is configured using the registry on this machine, see Particular Documentation for details on how to address this with your version of NServiceBus.");
             }
             return queue;
         }
