@@ -110,6 +110,7 @@
     <Compile Include="Notifications\IEventAggregator.cs" />
     <Compile Include="Notifications\NotificationSubscriptions.cs" />
     <Compile Include="Notifications\EventAggregatorExtensions.cs" />
+    <Compile Include="PerformanceCounters\PerformanceCountersFeature.cs" />
     <Compile Include="Pipeline\ForkConnector.cs" />
     <Compile Include="Pipeline\Incoming\ISatelliteProcessingContext.cs" />
     <Compile Include="Pipeline\Incoming\SatelliteProcessingContext.cs" />
@@ -161,8 +162,6 @@
     <Compile Include="Causation\MessageCausation.cs" />
     <Compile Include="ConfigureHandlerSettings.cs" />
     <Compile Include="ObjectBuilder\Common\GenericComponentConfig.cs" />
-    <Compile Include="PerformanceCounters\IPerformanceCounterInstance.cs" />
-    <Compile Include="PerformanceCounters\NonFunctionalPerformanceCounterInstance.cs" />
     <Compile Include="Transports\TransactionModeSettingsExtensions.cs" />
     <Compile Include="Performance\AuditProcessingStatisticsBehavior.cs" />
     <Compile Include="UnitOfWork\TransactionScopes\TransactionScopeUnitOfWork.cs" />
@@ -343,8 +342,6 @@
     <Compile Include="Pipeline\Outgoing\OutgoingPipelineFeature.cs" />
     <Compile Include="Pipeline\Outgoing\IOutgoingSendContext.cs" />
     <Compile Include="Pipeline\Outgoing\IOutgoingReplyContext.cs" />
-    <Compile Include="PerformanceCounters\PerformanceCounterHelper.cs" />
-    <Compile Include="PerformanceCounters\PerformanceCounterInstance.cs" />
     <Compile Include="PerformanceCounters\PerformanceMonitorUsersInstaller.cs" />
     <Compile Include="Performance\MessageDurability\DetermineMessageDurabilityBehavior.cs" />
     <Compile Include="Performance\MessageDurability\DurableMessagesConventionExtensions.cs" />
@@ -454,9 +451,6 @@
     <Compile Include="Logging\DefaultFactory.cs" />
     <Compile Include="Logging\LoggingDefinition.cs" />
     <Compile Include="MessageInterfaces\MessageMapper\Reflection\ConcreteProxyCreator.cs" />
-    <Compile Include="PerformanceCounters\CriticalTime\CriticalTimeMonitoringConfig.cs" />
-    <Compile Include="PerformanceCounters\CriticalTime\CriticalTimeMonitoring.cs" />
-    <Compile Include="PerformanceCounters\SLA\SLAMonitoringConfig.cs" />
     <Compile Include="AddressMode.cs" />
     <Compile Include="Audit\Audit.cs" />
     <Compile Include="Routing\AutomaticSubscriptions\AutoSubscribe.cs" />
@@ -525,9 +519,6 @@
     <Compile Include="Forwarding\ForwardReceivedMessages.cs" />
     <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetriesBehavior.cs" />
     <Compile Include="Unicast\Config\RegisterHandlersInOrder.cs" />
-    <Compile Include="PerformanceCounters\SLA\SLABehavior.cs" />
-    <Compile Include="PerformanceCounters\CriticalTime\CriticalTimeBehavior.cs" />
-    <Compile Include="PerformanceCounters\SLA\SLAMonitoring.cs" />
     <Compile Include="Performance\ProcessingStatisticsBehavior.cs" />
     <Compile Include="MessageDeserializationException.cs" />
     <Compile Include="Hosting\AuditHostInformationBehavior.cs" />
@@ -538,7 +529,6 @@
     <Compile Include="Routing\FileBasedDynamicRouting\FileRoutingTable.cs" />
     <Compile Include="Routing\FileBasedDynamicRouting\FileRoutingTableFeature.cs" />
     <Compile Include="Unicast\Transport\Config\TransportExtensions.cs" />
-    <Compile Include="PerformanceCounters\ReceivePerformanceDiagnosticsBehavior.cs" />
     <Compile Include="Utils\Guard.cs" />
     <Compile Include="Utils\ExceptionHeaderHelper.cs" />
     <Compile Include="Utils\ElevateChecker.cs" />
@@ -732,8 +722,8 @@
     <Compile Include="Unicast\Messages\MessageMetadataRegistry.cs" />
     <Compile Include="Unicast\Messages\MessageMetadata.cs" />
     <Compile Include="Routing\MessagingBestPractices\Validations.cs" />
-    <Compile Include="PerformanceCounters\CriticalTime\CriticalTimeCalculator.cs" />
-    <Compile Include="PerformanceCounters\SLA\EstimatedTimeToSLABreachCalculator.cs" />
+    <Compile Include="PerformanceCounters\CriticalTimeCalculator.cs" />
+    <Compile Include="PerformanceCounters\EstimatedTimeToSLABreachCalculator.cs" />
     <Compile Include="Causation\AttachCausationHeadersBehavior.cs" />
     <Compile Include="Unicast\Queuing\QueueNotFoundException.cs" />
     <Compile Include="Unicast\Queuing\QueuesCreator.cs" />
