@@ -1437,7 +1437,9 @@ namespace NServiceBus.Faults
         public string MessageId { get; }
         public int RetryAttempt { get; }
     }
-    [System.ObsoleteAttribute(@"IManageMessageFailures is no longer an extension point. If full control over what happens when a message fails (including retries) is required then override the MoveFaultsToErrorQueue behavior. To get notified when messages are being moved use BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e=>{}). Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("IManageMessageFailures is no longer an extension point. To take control of the er" +
+        "ror handling part of the message processing pipeline, review the Version 5 to 6 " +
+        "upgrade guide for details. Will be removed in version 7.0.0.", true)]
     public interface IManageMessageFailures { }
     public struct SecondLevelRetry
     {
