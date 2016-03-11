@@ -881,7 +881,7 @@ namespace NServiceBus.Config
 namespace NServiceBus.Faults
 {
     [ObsoleteEx(
-        Message = "IManageMessageFailures is no longer an extension point. If full control over what happens when a message fails (including retries) is required then override the MoveFaultsToErrorQueue behavior. To get notified when messages are being moved use BusNotifications.Errors.MessageSentToErrorQueue.Subscribe(e=>{}) ",
+        Message = "IManageMessageFailures is no longer an extension point. To take control of the error handling part of the message processing pipeline, review the Version 5 to 6 upgrade guide for details.",
         RemoveInVersion = "7",
         TreatAsErrorFromVersion = "6")]
     public interface IManageMessageFailures
