@@ -31,7 +31,12 @@
             }
         }
 
-        List<LogicalMessage> ExtractWithExceptionHandling(IncomingMessage message)
+        static bool IsControlMessage(IncomingMessage incomingMessage)
+        {
+            return incomingMessage.Headers.ContainsKey(Headers.ControlMessageHeader) && incomingMessage.Headers[Headers.ControlMessageHeader] == true.ToString();
+        }
+
+        IEnumerable<LogicalMessage> ExtractWithExceptionHandling(IncomingMessage message)
         {
             try
             {
@@ -43,11 +48,19 @@
             }
         }
 
-        List<LogicalMessage> Extract(IncomingMessage physicalMessage)
+        IEnumerable<LogicalMessage> Extract(IncomingMessage physicalMessage)
         {
+            // We need this check to be compatible with v3.3 endpoints, v3.3 control messages also include a body
+            if (IsControlMessage(physicalMessage))
+            {
+                log.Debug("Received a control message. Skipping deserialization as control message data is contained in the header.");
+                return Enumerable.Empty<LogicalMessage>();
+            }
+
             if (physicalMessage.Body == null || physicalMessage.Body.Length == 0)
             {
-                return new List<LogicalMessage>();
+                log.Debug("Received a message without body. Skipping deserialization.");
+                return Enumerable.Empty<LogicalMessage>();
             }
 
             string messageTypeIdentifier;
@@ -99,8 +112,7 @@
             using (var stream = new MemoryStream(physicalMessage.Body))
             {
                 return messageSerializer.Deserialize(stream, messageTypes)
-                    .Select(x => logicalMessageFactory.Create(x.GetType(), x))
-                    .ToList();
+                    .Select(x => logicalMessageFactory.Create(x.GetType(), x));
             }
         }
 
