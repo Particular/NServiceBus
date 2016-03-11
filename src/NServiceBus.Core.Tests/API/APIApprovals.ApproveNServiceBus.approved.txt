@@ -2849,6 +2849,8 @@ namespace NServiceBus.Transports
         public abstract NServiceBus.Transports.TransportSendInfrastructure ConfigureSendInfrastructure();
         public abstract NServiceBus.Transports.TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure();
         public virtual string MakeCanonicalForm(string transportAddress) { }
+        public virtual System.Threading.Tasks.Task Start() { }
+        public virtual System.Threading.Tasks.Task Stop() { }
         public abstract string ToTransportAddress(NServiceBus.LogicalAddress logicalAddress);
     }
     public class TransportOperation

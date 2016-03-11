@@ -2,6 +2,7 @@ namespace NServiceBus.Transports
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using Routing;
 
     /// <summary>
@@ -64,6 +65,22 @@ namespace NServiceBus.Transports
         public virtual string MakeCanonicalForm(string transportAddress)
         {
             return transportAddress;
+        }
+
+        /// <summary>
+        /// Performs any action required to warm up the transport infrastructure before starting the endpoint.
+        /// </summary>
+        public virtual Task Start()
+        {
+            return TaskEx.CompletedTask;
+        }
+
+        /// <summary>
+        /// Performs any action required to cool down the transport infrastructure when the endpoint is stopping.
+        /// </summary>
+        public virtual Task Stop()
+        {
+            return TaskEx.CompletedTask;
         }
     }
 }

@@ -7,11 +7,12 @@ namespace NServiceBus
     using Logging;
     using ObjectBuilder;
     using Settings;
+    using Transports;
     using UnicastBus = Unicast.UnicastBus;
 
     class RunningEndpointInstance : IEndpointInstance
     {
-        public RunningEndpointInstance(SettingsHolder settings, IBuilder builder, PipelineCollection pipelineCollection, StartAndStoppablesRunner startAndStoppablesRunner, FeatureRunner featureRunner, IMessageSession messageSession)
+        public RunningEndpointInstance(SettingsHolder settings, IBuilder builder, PipelineCollection pipelineCollection, StartAndStoppablesRunner startAndStoppablesRunner, FeatureRunner featureRunner, IMessageSession messageSession, TransportInfrastructure transportInfrastructure)
         {
             this.settings = settings;
             this.builder = builder;
@@ -19,6 +20,7 @@ namespace NServiceBus
             this.startAndStoppablesRunner = startAndStoppablesRunner;
             this.featureRunner = featureRunner;
             this.messageSession = messageSession;
+            this.transportInfrastructure = transportInfrastructure;
         }
 
         public async Task Stop()
@@ -42,6 +44,7 @@ namespace NServiceBus
                 await pipelineCollection.Stop().ConfigureAwait(false);
                 await featureRunner.Stop(messageSession).ConfigureAwait(false);
                 await startAndStoppablesRunner.Stop(messageSession).ConfigureAwait(false);
+                await transportInfrastructure.Stop().ConfigureAwait(false);
                 settings.Clear();
                 builder.Dispose();
 
@@ -87,6 +90,7 @@ namespace NServiceBus
         IBuilder builder;
         FeatureRunner featureRunner;
         IMessageSession messageSession;
+        TransportInfrastructure transportInfrastructure;
 
         PipelineCollection pipelineCollection;
         SettingsHolder settings;
