@@ -62,20 +62,6 @@ namespace NServiceBus.ContainerTests
         }
 
         [Test]
-        public void Should_not_allow_reconfiguration_of_child_container()
-        {
-            using (var builder = TestContainerBuilder.ConstructBuilder())
-            {
-                builder.Configure(typeof(InstanceToReplaceInNested_Parent), DependencyLifecycle.SingleInstance);
-                builder.Build(typeof(IInstanceToReplaceInNested));
-                using (var nestedContainer = builder.BuildChildContainer())
-                {
-                    Assert.That(() => nestedContainer.Configure(typeof(InstanceToReplaceInNested_Child), DependencyLifecycle.SingleInstance), Throws.InvalidOperationException);
-                }
-            }
-        }
-
-        [Test]
         public void Instance_per_call_components_should_not_be_shared_across_child_containers()
         {
             using (var builder = TestContainerBuilder.ConstructBuilder())
