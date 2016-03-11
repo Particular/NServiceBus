@@ -19,6 +19,7 @@
                 {
                     unitsOfWork.Push(uow);
                     await uow.Begin()
+                        .ThrowIfNull()
                         .ConfigureAwait(false);
                 }
 
@@ -26,8 +27,10 @@
 
                 while (unitsOfWork.Count > 0)
                 {
-                    await unitsOfWork.Pop()
-                        .End().ConfigureAwait(false);
+                    var popped = unitsOfWork.Pop();
+                    await popped.End()
+                        .ThrowIfNull()
+                        .ConfigureAwait(false);
                 }
             }
             catch (MessageDeserializationException)
@@ -55,6 +58,7 @@
                 try
                 {
                     await uow.End(initialException)
+                        .ThrowIfNull()
                         .ConfigureAwait(false);
                 }
                 catch (Exception endException)

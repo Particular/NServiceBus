@@ -117,6 +117,16 @@
             Assert.IsTrue(behaviorContext.Extensions.Get<InvokeHandlerTerminator.State>().ScopeWasPresent);
         }
 
+        [Test]
+        public void Should_throw_friendly_exception_if_handler_returns_null()
+        {
+            var terminator = new InvokeHandlerTerminator();
+            var messageHandler = CreateMessageHandlerThatReturnsNull((i, m, ctx) => { }, new FakeSaga());
+            var behaviorContext = CreateBehaviorContext(messageHandler);
+
+            Assert.That(async () => await terminator.Invoke(behaviorContext, _ => TaskEx.CompletedTask), Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
+        }
+
         static ActiveSagaInstance AssociateSagaWithMessage(FakeSaga saga, IInvokeHandlerContext behaviorContext)
         {
             var sagaInstance = new ActiveSagaInstance(saga, SagaMetadata.Create(typeof(FakeSaga), new List<Type>(), new Conventions()));
@@ -124,12 +134,25 @@
             return sagaInstance;
         }
 
-        MessageHandler CreateMessageHandler(Action<object, object, IMessageHandlerContext> invocationAction, object handlerInstance)
+        static MessageHandler CreateMessageHandler(Action<object, object, IMessageHandlerContext> invocationAction, object handlerInstance)
         {
             var messageHandler = new MessageHandler((instance, message, handlerContext) =>
             {
                 invocationAction(instance, message, handlerContext);
                 return TaskEx.CompletedTask;
+            }, handlerInstance.GetType())
+            {
+                Instance = handlerInstance
+            };
+            return messageHandler;
+        }
+
+        static MessageHandler CreateMessageHandlerThatReturnsNull(Action<object, object, IMessageHandlerContext> invocationAction, object handlerInstance)
+        {
+            var messageHandler = new MessageHandler((instance, message, handlerContext) =>
+            {
+                invocationAction(instance, message, handlerContext);
+                return null;
             }, handlerInstance.GetType())
             {
                 Instance = handlerInstance

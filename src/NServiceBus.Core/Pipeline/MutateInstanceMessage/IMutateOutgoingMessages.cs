@@ -12,6 +12,7 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// Mutates the given message just before it's serialized.
         /// </summary>
+        /// <exception cref="System.Exception">This exception will be thrown if <code>null</code> is returned. Return a Task or mark the method as <code>async</code>.</exception>
         Task MutateOutgoing(MutateOutgoingMessageContext context);
     }
 }

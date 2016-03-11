@@ -13,6 +13,7 @@ namespace NServiceBus.Sagas
         /// Implementors will implement this method, likely using an injected IBus
         /// to send responses to the client who sent the message.
         /// </summary>
+        /// <exception cref="System.Exception">This exception will be thrown if <code>null</code> is returned. Return a Task or mark the method as <code>async</code>.</exception>
         Task Handle(object message, IMessageProcessingContext context);
     }
 }

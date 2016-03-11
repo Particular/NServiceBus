@@ -141,6 +141,17 @@
             Assert.True(startable2.Stopped);
         }
 
+        [Test]
+        public void Should_throw_friendly_exception_when_IWantToRunWhenBusStartsAndStops_Start_returns_null()
+        {
+            var startable = new StartableStartReturnsNull();
+            var thingsToBeStarted = new IWantToRunWhenBusStartsAndStops[] { startable };
+
+            var runner = new StartAndStoppablesRunner(thingsToBeStarted);
+
+            Assert.That(async () => await runner.Start(null), Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
+        }
+
         class Startable1 : IWantToRunWhenBusStartsAndStops
         {
             public bool Started { get; set; }
@@ -174,6 +185,32 @@
             {
                 Stopped = true;
                 return TaskEx.CompletedTask;
+            }
+        }
+
+        class StartableStartReturnsNull : IWantToRunWhenBusStartsAndStops
+        {
+            public Task Start(IMessageSession session)
+            {
+                return null;
+            }
+
+            public Task Stop(IMessageSession session)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        class StartableStopReturnsNull : IWantToRunWhenBusStartsAndStops
+        {
+            public Task Start(IMessageSession session)
+            {
+                throw new NotImplementedException();
+            }
+
+            public Task Stop(IMessageSession session)
+            {
+                return null;
             }
         }
 

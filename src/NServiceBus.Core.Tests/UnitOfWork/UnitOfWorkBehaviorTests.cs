@@ -25,7 +25,7 @@
             builder.Register<IManageUnitsOfWork>(() => unitOfWorkThatThrowsFromEnd);
             builder.Register<IManageUnitsOfWork>(() => unitOfWork);
 
-            //since it is a single exception then it will not be an AggregateException 
+            //since it is a single exception then it will not be an AggregateException
             Assert.That(async () => await InvokeBehavior(builder), Throws.InvalidOperationException);
             Assert.IsTrue(unitOfWorkThatThrowsFromEnd.BeginCalled);
             Assert.IsTrue(unitOfWorkThatThrowsFromEnd.EndCalled);
@@ -42,7 +42,7 @@
 
             builder.Register<IManageUnitsOfWork>(() => unitOfWork);
 
-            //since it is a single exception then it will not be an AggregateException 
+            //since it is a single exception then it will not be an AggregateException
             Assert.That(async () => await InvokeBehavior(builder), Throws.InvalidOperationException.And.SameAs(unitOfWork.ExceptionThrownFromEnd));
         }
 
@@ -57,7 +57,7 @@
             builder.Register<IManageUnitsOfWork>(() => unitOfWorkThatThrowsFromBegin);
             builder.Register<IManageUnitsOfWork>(() => unitOfWork);
 
-            //since it is a single exception then it will not be an AggregateException 
+            //since it is a single exception then it will not be an AggregateException
             Assert.That(async () => await InvokeBehavior(builder), Throws.InvalidOperationException);
             Assert.False(unitOfWork.EndCalled);
 
@@ -74,7 +74,7 @@
             builder.Register<IManageUnitsOfWork>(() => unitOfWork);
 
             var ex = new Exception("Handler failed");
-            //since it is a single exception then it will not be an AggregateException 
+            //since it is a single exception then it will not be an AggregateException
             Assert.That(async () => await InvokeBehavior(builder, ex), Throws.InstanceOf<Exception>().And.SameAs(ex));
             Assert.AreSame(ex, unitOfWork.ExceptionPassedToEnd);
         }
@@ -133,6 +133,26 @@
             Assert.True(normalUnitOfWork.EndCalled);
             Assert.True(unitOfWorkThatThrows.EndCalled);
             Assert.False(unitOfWorkThatIsNeverCalled.EndCalled);
+        }
+
+        [Test]
+        public void Should_throw_friendly_exception_if_IManageUnitsOfWork_Begin_returns_null()
+        {
+            var builder = new FuncBuilder();
+
+            builder.Register<IManageUnitsOfWork>(() => new UnitOfWorkThatReturnsNullForBegin());
+            Assert.That(async () => await InvokeBehavior(builder),
+                Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
+        }
+
+        [Test]
+        public void Should_throw_friendly_exception_if_IManageUnitsOfWork_End_returns_null()
+        {
+            var builder = new FuncBuilder();
+
+            builder.Register<IManageUnitsOfWork>(() => new UnitOfWorkThatReturnsNullForEnd());
+            Assert.That(async () => await InvokeBehavior(builder),
+                Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
         }
 
         static Task InvokeBehavior(IBuilder builder, Exception toThrow = null)
@@ -209,6 +229,32 @@
             }
         }
 
+        class UnitOfWorkThatReturnsNullForBegin : IManageUnitsOfWork
+        {
+            public Task Begin()
+            {
+                return null;
+            }
+
+            public Task End(Exception ex = null)
+            {
+                return TaskEx.CompletedTask;
+            }
+        }
+
+        class UnitOfWorkThatReturnsNullForEnd : IManageUnitsOfWork
+        {
+            public Task Begin()
+            {
+                return TaskEx.CompletedTask;
+            }
+
+            public Task End(Exception ex = null)
+            {
+                return null;
+            }
+        }
+
         [Test]
         public async Task Verify_order()
         {
@@ -264,7 +310,7 @@
             builder.Register<IManageUnitsOfWork>(() => unitOfWork);
             builder.Register<IManageUnitsOfWork>(() => throwingUoW);
 
-            //since it is a single exception then it will not be an AggregateException 
+            //since it is a single exception then it will not be an AggregateException
             Assert.That(async () => await InvokeBehavior(builder), Throws.InstanceOf<InvalidOperationException>().And.SameAs(throwingUoW.ExceptionThrownFromEnd));
             Assert.AreSame(throwingUoW.ExceptionThrownFromEnd, unitOfWork.Exception);
         }

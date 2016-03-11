@@ -14,7 +14,9 @@
             var mutatorContext = new MutateIncomingTransportMessageContext(transportMessage.Body, transportMessage.Headers);
             foreach (var mutator in mutators)
             {
-                await mutator.MutateIncoming(mutatorContext).ConfigureAwait(false);
+                await mutator.MutateIncoming(mutatorContext)
+                    .ThrowIfNull()
+                    .ConfigureAwait(false);
             }
 
             if (mutatorContext.MessageBodyChanged)

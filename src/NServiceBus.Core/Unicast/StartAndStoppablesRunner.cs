@@ -20,7 +20,7 @@
             var startableTasks = new List<Task>();
             foreach (var startable in wantToRunWhenBusStartsAndStopses)
             {
-                var task = startable.Start(session);
+                var task = startable.Start(session).ThrowIfNull();
 
                 var startable1 = startable;
                 task.ContinueWith(t =>
@@ -49,7 +49,7 @@
             {
                 try
                 {
-                    var task = stoppable.Stop(session);
+                    var task = stoppable.Stop(session).ThrowIfNull();
 
                     var stoppable1 = stoppable;
                     task.ContinueWith(t =>

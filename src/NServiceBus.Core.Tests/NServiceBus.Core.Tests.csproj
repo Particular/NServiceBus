@@ -134,6 +134,10 @@
     <Compile Include="Persistence\InMemory\When_persisting_a_saga_with_InMemory_and_an_escalated_DTC_transaction.cs" />
     <Compile Include="Pipeline\HeaderOptionExtensionsTests.cs" />
     <Compile Include="Pipeline\Incoming\InvokeHandlerTerminatorTest.cs" />
+    <Compile Include="Pipeline\MutateInstanceMessage\MutateIncomingMessageBehaviorTests.cs" />
+    <Compile Include="Pipeline\MutateInstanceMessage\MutateOutgoingMessageBehaviorTests.cs" />
+    <Compile Include="Pipeline\MutateTransportMessage\MutateIncomingTransportMessageBehaviorTests.cs" />
+    <Compile Include="Pipeline\MutateTransportMessage\MutateOutgoingTransportMessageBehaviorTests.cs" />
     <Compile Include="Pipeline\Outgoing\ImmediateDispatchOptionExtensionsTests.cs" />
     <Compile Include="Pipeline\Outgoing\MessageIdExtensionsTests.cs" />
     <Compile Include="Pipeline\Outgoing\OutgoingPublishContextTests.cs" />
@@ -154,6 +158,8 @@
     <Compile Include="Routing\Routers\UnicastPublishRouterConnectorTests.cs" />
     <Compile Include="Routing\RoutingOptionExtensionsTests.cs" />
     <Compile Include="Routing\SubscriptionRouterTests.cs" />
+    <Compile Include="Sagas\CustomFinderAdapterTests.cs" />
+    <Compile Include="Sagas\InvokeSagaNotFoundBehaviorTests.cs" />
     <Compile Include="Sagas\When_saga_has_multiple_correlated_properties.cs" />
     <Compile Include="Sagas\When_saga_is_correlated_on_a_unsupported_property_type.cs" />
     <Compile Include="Sagas\When_saga_has_no_start_message.cs" />

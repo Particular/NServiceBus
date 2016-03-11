@@ -18,6 +18,7 @@ namespace NServiceBus.Sagas
             /// <summary>
             /// Finds a saga entity of the type T using a message of type M.
             /// </summary>
+            /// <exception cref="System.Exception">This exception will be thrown if <code>null</code> is returned. Return a Task&lt;T&gt; or mark the method as <code>async</code>.</exception>
             Task<T> FindBy(M message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context);
         }
     }

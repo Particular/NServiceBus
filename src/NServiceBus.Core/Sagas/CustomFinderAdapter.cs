@@ -15,7 +15,10 @@ namespace NServiceBus
 
             var finder = (IFindSagas<TSagaData>.Using<TMessage>) builder.Build(customFinderType);
 
-            return await finder.FindBy((TMessage) message, storageSession, context).ConfigureAwait(false);
+            return await finder
+                .FindBy((TMessage) message, storageSession, context)
+                .ThrowIfNull()
+                .ConfigureAwait(false);
         }
     }
 }
