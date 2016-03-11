@@ -2,7 +2,7 @@
 <package xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <id>NServiceBus.AcceptanceTesting</id>
-    <title>NServiceBus Acceptance Tests</title>
+    <title>NServiceBus Acceptance Testing Framework</title>
     <version>$version$</version>
     <authors>$authors$</authors>
     <owners>$owners$</owners>
@@ -10,7 +10,7 @@
     <projectUrl>$projectUrl$</projectUrl>
     <iconUrl>$iconUrl$</iconUrl>
     <requireLicenseAcceptance>$requireLicenseAcceptance$</requireLicenseAcceptance>
-    <description>Acceptance tests for nservicebus core functionality</description>
+    <description>Acceptance testing framework for NServiceBus endpoints. This is an unsupported package.</description>
     <releaseNotes></releaseNotes>
     <copyright>$copyright$</copyright>
     <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
