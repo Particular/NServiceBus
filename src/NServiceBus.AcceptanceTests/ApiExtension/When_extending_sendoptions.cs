@@ -5,7 +5,7 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using Extensibility;
-    using Pipeline;
+    using NServiceBus.Pipeline;
     using NUnit.Framework;
 
     public class When_extending_sendoptions : NServiceBusAcceptanceTest
@@ -14,17 +14,20 @@
         public async Task Should_be_able_to_set_context_items_and_retrieve_it_via_a_behavior()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<SendOptionsExtensions>(b => b.When((session, c) =>
+                .WithEndpoint<SendOptionsExtensions>(b => b.When((session, c) =>
+                {
+                    var options = new SendOptions();
+
+                    options.GetExtensions().Set(new SendOptionsExtensions.TestingSendOptionsExtensionBehavior.Context
                     {
-                        var options = new SendOptions();
+                        SomeValue = "I did it"
+                    });
+                    options.RouteToThisEndpoint();
 
-                        options.GetExtensions().Set(new SendOptionsExtensions.TestingSendOptionsExtensionBehavior.Context { SomeValue = "I did it" });
-                        options.RouteToThisEndpoint();
-
-                        return session.Send(new SendMessage(), options);
-                    }))
-                    .Done(c => c.WasCalled)
-                    .Run();
+                    return session.Send(new SendMessage(), options);
+                }))
+                .Done(c => c.WasCalled)
+                .Run();
 
             Assert.AreEqual("I did it", context.Secret);
         }
@@ -61,7 +64,10 @@
                     Context data;
                     if (context.Extensions.TryGet(out data))
                     {
-                        context.UpdateMessage(new SendMessage { Secret = data.SomeValue });
+                        context.UpdateMessage(new SendMessage
+                        {
+                            Secret = data.SomeValue
+                        });
                     }
 
                     return next();

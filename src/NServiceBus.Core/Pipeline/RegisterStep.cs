@@ -3,8 +3,8 @@ namespace NServiceBus.Pipeline
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using ObjectBuilder;
-    using Settings;
+    using NServiceBus.ObjectBuilder;
+    using NServiceBus.Settings;
 
     /// <summary>
     /// Base class to do an advance registration of a step.
@@ -39,7 +39,7 @@ namespace NServiceBus.Pipeline
         /// <summary>
         /// Gets the description for this registration.
         /// </summary>
-        public string Description { get; internal set; }
+        public string Description { get; private set; }
 
         internal IList<Dependency> Befores { get; private set; }
         internal IList<Dependency> Afters { get; private set; }
@@ -47,7 +47,7 @@ namespace NServiceBus.Pipeline
         /// <summary>
         /// Gets the type of <see cref="Behavior{TContext}" /> that is being registered.
         /// </summary>
-        public Type BehaviorType { get; internal set; }
+        public Type BehaviorType { get; private set; }
 
         internal void ApplyContainerRegistration(ReadOnlySettings settings, IConfigureComponents container)
         {
@@ -175,6 +175,22 @@ namespace NServiceBus.Pipeline
             Afters.Add(new Dependency(StepId, id, Dependency.DependencyDirection.After, true));
         }
 
+        internal void Replace(ReplaceStep replacement)
+        {
+            if (StepId != replacement.ReplaceId)
+            {
+                throw new InvalidOperationException($"Cannot replace step '{StepId}' with '{replacement.ReplaceId}'. The ID of the replacement must match the replaced step.");
+            }
+
+            BehaviorType = replacement.BehaviorType;
+            factoryMethod = replacement.FactoryMethod;
+
+            if (!string.IsNullOrWhiteSpace(replacement.Description))
+            {
+                Description = replacement.Description;
+            }
+        }
+
         internal BehaviorInstance CreateBehavior(IBuilder defaultBuilder)
         {
             var behavior = factoryMethod != null
@@ -194,7 +210,7 @@ namespace NServiceBus.Pipeline
             return new DefaultRegisterStep(behavior, pipelineStep, description, factoryMethod);
         }
 
-        readonly Func<IBuilder, IBehavior> factoryMethod;
+        Func<IBuilder, IBehavior> factoryMethod;
 
         class DefaultRegisterStep : RegisterStep
         {

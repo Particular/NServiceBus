@@ -1,7 +1,6 @@
 namespace NServiceBus.Pipeline
 {
     using System;
-    using System.Collections.Generic;
     using ObjectBuilder;
 
     /// <summary>
@@ -49,11 +48,40 @@ namespace NServiceBus.Pipeline
         /// <param name="description">The description of the new behavior.</param>
         public void Replace(string stepId, Type newBehavior, string description = null)
         {
-            BehaviorTypeChecker.ThrowIfInvalid(newBehavior, "newBehavior");
+            BehaviorTypeChecker.ThrowIfInvalid(newBehavior, nameof(newBehavior));
             Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
 
-            registeredBehaviors.Add(newBehavior);
             modifications.Replacements.Add(new ReplaceStep(stepId, newBehavior, description));
+        }
+
+        /// <summary>
+        /// Replaces an existing step behavior with a new one.
+        /// </summary>
+        /// <param name="stepId">The identifier of the step to replace its implementation.</param>
+        /// <param name="newBehavior">The new <see cref="Behavior{TContext}" /> to use.</param>
+        /// <param name="description">The description of the new behavior.</param>
+        public void Replace<T>(string stepId, T newBehavior, string description = null)
+            where T : IBehavior
+        {
+            BehaviorTypeChecker.ThrowIfInvalid(typeof(T), nameof(newBehavior));
+            Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
+
+            modifications.Replacements.Add(new ReplaceStep(stepId, typeof(T), description, builder => newBehavior));
+        }
+
+        /// <summary>
+        /// Replaces an existing step behavior with a new one.
+        /// </summary>
+        /// <param name="stepId">The identifier of the step to replace its implementation.</param>
+        /// <param name="factoryMethod">The factory method to create new instances of the behavior.</param>
+        /// <param name="description">The description of the new behavior.</param>
+        public void Replace<T>(string stepId, Func<IBuilder, T> factoryMethod, string description = null)
+            where T : IBehavior
+        {
+            BehaviorTypeChecker.ThrowIfInvalid(typeof(T), "newBehavior");
+            Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
+
+            modifications.Replacements.Add(new ReplaceStep(stepId, typeof(T), description, b => factoryMethod(b)));
         }
 
         /// <summary>
@@ -64,6 +92,8 @@ namespace NServiceBus.Pipeline
         /// <param name="description">The description of the new behavior.</param>
         public void Replace(WellKnownStep wellKnownStep, Type newBehavior, string description = null)
         {
+            BehaviorTypeChecker.ThrowIfInvalid(newBehavior, nameof(newBehavior));
+
             Guard.AgainstNull(nameof(wellKnownStep), wellKnownStep);
 
             Replace((string) wellKnownStep, newBehavior, description);
@@ -77,7 +107,7 @@ namespace NServiceBus.Pipeline
         /// <param name="description">The description of the behavior.</param>
         public StepRegistrationSequence Register(string stepId, Type behavior, string description)
         {
-            BehaviorTypeChecker.ThrowIfInvalid(behavior, "behavior");
+            BehaviorTypeChecker.ThrowIfInvalid(behavior, nameof(behavior));
 
             Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
             Guard.AgainstNullAndEmpty(nameof(description), description);
@@ -113,7 +143,7 @@ namespace NServiceBus.Pipeline
         public StepRegistrationSequence Register<T>(string stepId, T behavior, string description)
             where T : IBehavior
         {
-            BehaviorTypeChecker.ThrowIfInvalid(typeof(T), "behavior");
+            BehaviorTypeChecker.ThrowIfInvalid(typeof(T), nameof(behavior));
 
             Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
             Guard.AgainstNullAndEmpty(nameof(description), description);
@@ -156,14 +186,9 @@ namespace NServiceBus.Pipeline
 
         void AddStep(RegisterStep step)
         {
-            registeredSteps.Add(step);
-
             modifications.Additions.Add(step);
         }
 
         PipelineModifications modifications;
-        List<Type> registeredBehaviors = new List<Type>();
-
-        List<RegisterStep> registeredSteps = new List<RegisterStep>();
     }
 }

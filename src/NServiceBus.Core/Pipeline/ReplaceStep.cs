@@ -1,18 +1,22 @@
 namespace NServiceBus
 {
     using System;
+    using NServiceBus.ObjectBuilder;
+    using NServiceBus.Pipeline;
 
     class ReplaceStep
     {
-        public ReplaceStep(string idToReplace, Type behavior, string description = null)
+        public ReplaceStep(string idToReplace, Type behavior, string description = null, Func<IBuilder, IBehavior> factoryMethod = null)
         {
             ReplaceId = idToReplace;
             Description = description;
             BehaviorType = behavior;
+            FactoryMethod = factoryMethod;
         }
 
-        public string ReplaceId { get; private set; }
-        public string Description { get; private set; }
-        public Type BehaviorType { get; private set; }
+        public string ReplaceId { get; }
+        public string Description { get; }
+        public Type BehaviorType { get; }
+        public Func<IBuilder, IBehavior> FactoryMethod { get; }
     }
 }

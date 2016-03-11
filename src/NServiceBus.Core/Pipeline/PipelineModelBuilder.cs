@@ -55,11 +55,7 @@ namespace NServiceBus
                 }
 
                 var registerStep = registrations[metadata.ReplaceId];
-                registerStep.BehaviorType = metadata.BehaviorType;
-                if (!string.IsNullOrEmpty(metadata.Description))
-                {
-                    registerStep.Description = metadata.Description;
-                }
+                registerStep.Replace(metadata);
             }
 
             // Step 3: validate the removals
