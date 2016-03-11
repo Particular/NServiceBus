@@ -528,10 +528,8 @@
     <Compile Include="Hosting\AuditHostInformationBehavior.cs" />
     <Compile Include="UnitOfWork\UnitOfWorkSettings.cs" />
     <Compile Include="UnitOfWork\UnitOfWorkSettingsExtensions.cs" />
-    <Compile Include="Utils\BaseDictionary.cs" />
     <Compile Include="Utils\MessageQueueExtensions.cs" />
     <Compile Include="Utils\PathUtilities.cs" />
-    <Compile Include="Utils\WeakKeyDictionary.cs" />
     <Compile Include="Routing\FileBasedDynamicRouting\FileRoutingTable.cs" />
     <Compile Include="Routing\FileBasedDynamicRouting\FileRoutingTableFeature.cs" />
     <Compile Include="Unicast\Transport\Config\TransportExtensions.cs" />
