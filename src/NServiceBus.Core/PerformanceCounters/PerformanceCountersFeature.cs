@@ -47,11 +47,18 @@
             context.Settings.Get<NotificationSubscriptions>()
                 .Subscribe<ReceivePipelineCompleted>(e =>
                 {
-                    var timeSent = DateTime.UtcNow;
-                    var processingStarted = DateTime.UtcNow;
-                    var processingCompleted = DateTime.UtcNow;
-
+                    //todo: need to check if the message failed or not
                     successRateCounter.Increment();
+
+                    string timeSentHeader;
+                    if (!e.ProcessedMessage.Headers.TryGetValue(Headers.TimeSent, out timeSentHeader))
+                    {
+                        return TaskEx.CompletedTask;
+                    }
+
+                    var timeSent = DateTimeExtensions.ToUtcDateTime(timeSentHeader);
+                    var processingStarted = e.StartedAt;
+                    var processingCompleted = e.CompletedAt;
 
                     timeToSLABreachCalculator?.Update(timeSent, processingStarted, processingCompleted);
                     criticalTimeCalculator.Update(timeSent, processingStarted, processingCompleted);
