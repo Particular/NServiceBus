@@ -514,7 +514,7 @@
     <Compile Include="Serializers\XML\XmlDeserialization.cs" />
     <Compile Include="Serializers\XML\XmlSerializerCache.cs" />
     <Compile Include="Performance\MessageDurability\DurableMessagesConfig.cs" />
-    <Compile Include="DelayedDelivery\TimeoutManager\ConfigurationBuilderExtensions.cs" />
+    <Compile Include="DelayedDelivery\TimeoutManager\ConfigurationTimeoutExtensions.cs" />
     <Compile Include="Sagas\InvokeSagaNotFoundBehavior.cs" />
     <Compile Include="Transports\Msmq\ReceiveWithTransactionScope.cs" />
     <Compile Include="Forwarding\ForwardReceivedMessages.cs" />
