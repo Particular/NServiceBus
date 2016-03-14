@@ -12,7 +12,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
         [Test]
         public void Should_not_scan_nested_directories_by_default()
         {
-            var endpointConfiguration = new EndpointConfiguration();
+            var endpointConfiguration = new EndpointConfiguration("myendpoint");
             endpointConfiguration.ExcludeTypes(typeof(When_using_initialization_with_non_default_ctor.FeatureWithInitialization));
             endpointConfiguration.Build();
 
@@ -25,7 +25,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
         [Test]
         public void Should_scan_nested_directories_if_requested()
         {
-            var endpointConfiguration = new EndpointConfiguration();
+            var endpointConfiguration = new EndpointConfiguration("myendpoint");
             endpointConfiguration.ScanAssembliesInNestedDirectories();
             endpointConfiguration.ExcludeTypes(typeof(When_using_initialization_with_non_default_ctor.FeatureWithInitialization));
             endpointConfiguration.Build();

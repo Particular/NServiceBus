@@ -75,7 +75,8 @@
         {
             public ForwardingSpyEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.EndpointName("forward_receiver_outbox"));
+                EndpointSetup<DefaultServer>()
+                    .CustomEndpointName("forward_receiver_outbox");
             }
 
             public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeForwarded>

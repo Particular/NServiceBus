@@ -41,7 +41,8 @@
         {
             public AuditSpy()
             {
-                EndpointSetup<DefaultServer>(c => c.EndpointName("audit_with_code_target"));
+                EndpointSetup<DefaultServer>()
+                    .CustomEndpointName("audit_with_code_target");
             }
 
             class AuditMessageHandler : IHandleMessages<MessageToBeAudited>

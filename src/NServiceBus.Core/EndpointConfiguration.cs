@@ -2,7 +2,6 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Linq;
     using System.Reflection;
     using System.Transactions;
@@ -24,11 +23,16 @@ namespace NServiceBus
     public class EndpointConfiguration : ExposeSettings
     {
         /// <summary>
-        /// Initializes a fresh instance of the builder.
+        /// Initializes the endpoint configuration builder.
         /// </summary>
-        public EndpointConfiguration()
+        /// <param name="endpointName">The name of the endpoint being configured.</param>
+        public EndpointConfiguration(string endpointName)
             : base(new SettingsHolder())
         {
+            Guard.AgainstNullAndEmpty(nameof(endpointName), endpointName);
+
+            Settings.Set<EndpointName>(new EndpointName(endpointName));
+
             configurationSourceToUse = new DefaultConfigurationSource();
 
             pipelineCollection = new PipelineConfiguration();
@@ -109,15 +113,6 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(configurationSource), configurationSource);
             configurationSourceToUse = configurationSource;
-        }
-
-        /// <summary>
-        /// Defines the name to use for this endpoint.
-        /// </summary>
-        public void EndpointName(string name)
-        {
-            Guard.AgainstNullAndEmpty(nameof(name), name);
-            endpointName = new EndpointName(name);
         }
 
         /// <summary>
@@ -218,10 +213,6 @@ namespace NServiceBus
 
             Settings.SetDefault<IConfigurationSource>(configurationSourceToUse);
 
-            var endpointHelper = new EndpointHelper(new StackTrace());
-
-            Settings.SetDefault("EndpointVersion", endpointHelper.GetEndpointVersion());
-            Settings.SetDefault<EndpointName>(endpointName ?? new EndpointName(endpointHelper.GetDefaultEndpointName()));
             if (publicReturnAddress != null)
             {
                 Settings.SetDefault("PublicReturnAddress", publicReturnAddress);
@@ -286,7 +277,6 @@ namespace NServiceBus
         IConfigurationSource configurationSourceToUse;
         ConventionsBuilder conventionsBuilder;
         IContainer customBuilder;
-        EndpointName endpointName;
         List<string> excludedAssemblies = new List<string>();
         List<Type> excludedTypes = new List<Type>();
         PipelineConfiguration pipelineCollection;

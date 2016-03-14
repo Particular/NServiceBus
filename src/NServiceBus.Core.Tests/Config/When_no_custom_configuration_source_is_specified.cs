@@ -11,7 +11,7 @@ namespace NServiceBus.Core.Tests.Config
         [Test]
         public async Task The_default_configuration_source_should_be_default()
         {
-            var config = new EndpointConfiguration();
+            var config = new EndpointConfiguration("myendpoint");
 
             config.SendOnly();
             config.TypesToScanInternal(new[] { typeof(ConfigSectionValidatorFeature) });

@@ -9,7 +9,7 @@
         [Test]
         public void Should_throw_meaningful_exception()
         {
-            var builder = new EndpointConfiguration();
+            var builder = new EndpointConfiguration("myendpoint");
 
             builder.TypesToScanInternal(new[] { typeof(FeatureWithInitialization) });
 

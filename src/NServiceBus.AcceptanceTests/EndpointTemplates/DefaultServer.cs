@@ -34,9 +34,8 @@
 
             typesToInclude.AddRange(types);
 
-            var builder = new EndpointConfiguration();
+            var builder = new EndpointConfiguration(endpointConfiguration.EndpointName);
 
-            builder.EndpointName(endpointConfiguration.EndpointName);
             builder.TypesToIncludeInScan(typesToInclude);
             builder.CustomConfigurationSource(configSource);
             builder.EnableInstallers();

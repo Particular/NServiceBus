@@ -11,7 +11,7 @@
         public void It_overrides_the_host_id()
         {
             var requestedId = Guid.NewGuid();
-            var busConfig = new EndpointConfiguration();
+            var busConfig = new EndpointConfiguration("myendpoint");
 
             busConfig.UniquelyIdentifyRunningInstance().UsingCustomIdentifier(requestedId);
 
@@ -22,7 +22,7 @@
         [Test]
         public void It_allows_to_generate_a_deterministic_id_using_instance_and_host_names()
         {
-            var busConfig = new EndpointConfiguration();
+            var busConfig = new EndpointConfiguration("myendpoint");
 
             Assert.IsFalse(busConfig.Settings.HasSetting(HostInformationFeature.HostIdSettingsKey));
 

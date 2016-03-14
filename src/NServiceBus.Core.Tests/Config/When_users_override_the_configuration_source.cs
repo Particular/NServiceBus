@@ -12,7 +12,7 @@ namespace NServiceBus.Core.Tests.Config
         [Test]
         public async Task NService_bus_should_resolve_configuration_from_that_source()
         {
-            var builder = new EndpointConfiguration();
+            var builder = new EndpointConfiguration("myendpoint");
 
             builder.SendOnly();
             builder.TypesToScanInternal(new[] { typeof(ConfigSectionValidatorFeature) });
