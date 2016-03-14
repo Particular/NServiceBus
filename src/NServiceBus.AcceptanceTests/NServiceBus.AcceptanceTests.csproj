@@ -57,6 +57,7 @@
     <Compile Include="Basic\When_extending_behavior_context.cs" />
     <Compile Include="Basic\When_registering_additional_deserializers.cs" />
     <Compile Include="Basic\When_no_content_type.cs" />
+    <Compile Include="Basic\When_registering_handlers_explicitly.cs" />
     <Compile Include="Causation\When_a_message_is_faulted.cs" />
     <Compile Include="Causation\When_a_message_is_audited.cs" />
     <Compile Include="ConfigureEndpointInMemoryPersistence.cs" />

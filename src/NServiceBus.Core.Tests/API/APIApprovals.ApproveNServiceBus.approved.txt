@@ -8,7 +8,9 @@
 [assembly: System.Runtime.Versioning.TargetFrameworkAttribute(".NETFramework,Version=v4.5.2", FrameworkDisplayName=".NET Framework 4.5.2")]
 public class static ConfigureHandlerSettings
 {
-    [System.ObsoleteAttribute(@"Setting property values explicitly is no longer supported via the builtin container in NServiceBus. Property injection is still enabled by default. Use the `.ConfigureComponent(b=> new MyMessageHandler(){ MyProperty = X})` if you want full controll over property values. Other option is to use one of the supported containers and configure property injection using their native configuration API's. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Setting property values explicitly is no longer supported via this API. Use `.Con" +
+        "figureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full contro" +
+        "l over handler creation. Will be removed in version 7.0.0.", true)]
     public static void InitializeHandlerProperty<THandler>(this NServiceBus.EndpointConfiguration config, string property, object value) { }
 }
 namespace NServiceBus
@@ -1840,9 +1842,13 @@ namespace NServiceBus.ObjectBuilder
         NServiceBus.ObjectBuilder.IBuilder CreateChildBuilder();
         void Release(object instance);
     }
-    [System.ObsoleteAttribute(@"Setting property values explicitly is no longer supported via the builtin container in NServiceBus. Property injection is still enabled by default. Use the `.ConfigureComponent(b=> new MyClass(){ MyProperty = X})` if you want full controll over property values. Other option is to use one of the supported containers and configure property injection using their native configuration API's. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Setting property values explicitly is no longer supported via this API. Use `.Con" +
+        "figureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full contro" +
+        "l over handler creation. Will be removed in version 7.0.0.", true)]
     public interface IComponentConfig { }
-    [System.ObsoleteAttribute(@"Setting property values explicitly is no longer supported via the builtin container in NServiceBus. Property injection is still enabled by default. Use the `.ConfigureComponent(b=> new MyClass(){ MyProperty = X})` if you want full controll over property values. Other option is to use one of the supported containers and configure property injection using their native configuration API's. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Setting property values explicitly is no longer supported via this API. Use `.Con" +
+        "figureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full contro" +
+        "l over handler creation. Will be removed in version 7.0.0.", true)]
     public interface IComponentConfig<T> { }
     public interface IConfigureComponents
     {

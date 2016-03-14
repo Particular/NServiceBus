@@ -1867,7 +1867,7 @@ public static class ConfigureHandlerSettings
     [ObsoleteEx(
          RemoveInVersion = "7.0",
          TreatAsErrorFromVersion = "6.0",
-         Message = "Setting property values explicitly is no longer supported via the builtin container in NServiceBus. Property injection is still enabled by default. Use the `.ConfigureComponent(b=> new MyMessageHandler(){ MyProperty = X})` if you want full controll over property values. Other option is to use one of the supported containers and configure property injection using their native configuration API's.")]
+         Message = "Setting property values explicitly is no longer supported via this API. Use `.ConfigureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full control over handler creation.")]
     public static void InitializeHandlerProperty<THandler>(this EndpointConfiguration config, string property, object value)
     {
     }
@@ -1879,7 +1879,7 @@ namespace NServiceBus.ObjectBuilder
     [ObsoleteEx(
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0",
-        Message = "Setting property values explicitly is no longer supported via the builtin container in NServiceBus. Property injection is still enabled by default. Use the `.ConfigureComponent(b=> new MyClass(){ MyProperty = X})` if you want full controll over property values. Other option is to use one of the supported containers and configure property injection using their native configuration API's.")]
+        Message = "Setting property values explicitly is no longer supported via this API. Use `.ConfigureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full control over handler creation.")]
     public interface IComponentConfig
     {
     }
@@ -1887,7 +1887,7 @@ namespace NServiceBus.ObjectBuilder
     [ObsoleteEx(
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0",
-        Message = "Setting property values explicitly is no longer supported via the builtin container in NServiceBus. Property injection is still enabled by default. Use the `.ConfigureComponent(b=> new MyClass(){ MyProperty = X})` if you want full controll over property values. Other option is to use one of the supported containers and configure property injection using their native configuration API's.")]
+        Message = "Setting property values explicitly is no longer supported via this API. Use `.ConfigureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full control over handler creation.")]
     public interface IComponentConfig<T>
     {
     }
