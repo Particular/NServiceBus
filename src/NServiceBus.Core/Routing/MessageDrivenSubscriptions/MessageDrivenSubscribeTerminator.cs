@@ -39,9 +39,10 @@
                 subscriptionMessage.Headers[Headers.ReplyToAddress] = subscriberAddress;
                 subscriptionMessage.Headers[Headers.SubscriberTransportAddress] = subscriberAddress;
                 subscriptionMessage.Headers[Headers.SubscriberEndpoint] = subscriberEndpoint.ToString();
-                var address = publisherAddress;
+                subscriptionMessage.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
+                subscriptionMessage.Headers[Headers.NServiceBusVersion] = GitFlowVersion.MajorMinorPatch;
 
-                subscribeTasks.Add(SendSubscribeMessageWithRetries(address, subscriptionMessage, eventType.AssemblyQualifiedName, context.Extensions));
+                subscribeTasks.Add(SendSubscribeMessageWithRetries(publisherAddress, subscriptionMessage, eventType.AssemblyQualifiedName, context.Extensions));
             }
             await Task.WhenAll(subscribeTasks.ToArray()).ConfigureAwait(false);
         }
