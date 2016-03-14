@@ -6,9 +6,9 @@ namespace NServiceBus
     using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
-    using NServiceBus.Persistence;
-    using NServiceBus.Sagas;
+    using Extensibility;
+    using Persistence;
+    using Sagas;
 
     class InMemorySagaPersister : ISagaPersister
     {
@@ -141,8 +141,6 @@ namespace NServiceBus
                 versionCache = original?.versionCache ?? new ConditionalWeakTable<IContainSagaData, SagaVersion>();
             }
 
-            public IContainSagaData SagaData { get; }
-
             public TSagaData Read<TSagaData>(long currentVersion)
                 where TSagaData : IContainSagaData
             {
@@ -170,6 +168,8 @@ namespace NServiceBus
                 var json = serializer.SerializeObject(source);
                 return (IContainSagaData) serializer.DeserializeObject(json, source.GetType());
             }
+
+            public IContainSagaData SagaData;
 
             ConditionalWeakTable<IContainSagaData, SagaVersion> versionCache;
 
