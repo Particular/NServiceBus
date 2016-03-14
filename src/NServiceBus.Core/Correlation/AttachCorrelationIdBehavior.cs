@@ -25,6 +25,11 @@
                     {
                         correlationId = incomingCorrelationId;
                     }
+
+                    if (string.IsNullOrEmpty(correlationId) && current.Headers.TryGetValue(Headers.MessageId, out incomingCorrelationId))
+                    {
+                        correlationId = incomingCorrelationId;
+                    }
                 }
             }
 
