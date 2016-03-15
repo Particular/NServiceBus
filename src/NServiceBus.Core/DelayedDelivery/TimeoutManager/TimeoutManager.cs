@@ -5,6 +5,7 @@
     using DelayedDelivery;
     using DeliveryConstraints;
     using ObjectBuilder;
+    using Persistence;
     using Settings;
     using Timeout.Core;
     using Transports;
@@ -29,6 +30,11 @@
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
+            if (!PersistenceStartup.HasSupportFor<StorageType.Timeouts>(context.Settings))
+            {
+                throw new Exception("Selected persister doesn't have support for timeout storage. Select another storage or disable the timeout feature using endpointConfiguration.DisableFeature<TimeoutManager>()");
+            }
+
             var errorQueueAddress = ErrorQueueSettings.GetConfiguredErrorQueue(context.Settings);
             var requiredTransactionSupport = context.Settings.GetRequiredTransactionModeForReceives();
 

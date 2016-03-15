@@ -1,5 +1,7 @@
 namespace NServiceBus.Features
 {
+    using System;
+    using Persistence;
     using Transports;
 
     /// <summary>
@@ -18,6 +20,11 @@ namespace NServiceBus.Features
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
+            if (!PersistenceStartup.HasSupportFor<StorageType.Subscriptions>(context.Settings))
+            {
+                throw new Exception("Selected persister doesn't have support for subscription storage. Select another storage or disable the saga feature using endpointConfiguration.DisableFeature<MessageDrivenSubscriptions>()");
+            }
+
             context.Pipeline.Register<SubscriptionReceiverBehavior.Registration>();
             var authorizer = context.Settings.GetSubscriptionAuthorizer();
             if (authorizer == null)

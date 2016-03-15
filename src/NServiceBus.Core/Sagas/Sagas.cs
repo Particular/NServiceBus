@@ -5,6 +5,7 @@
     using System.Linq;
     using NServiceBus.Sagas;
     using ObjectBuilder;
+    using Persistence;
     using Pipeline;
 
     /// <summary>
@@ -37,6 +38,11 @@
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
+            if (!PersistenceStartup.HasSupportFor<StorageType.Sagas>(context.Settings))
+            {
+                throw new Exception("Selected persister doesn't have support for saga storage. Select another storage or disable the saga feature using endpointConfiguration.DisableFeature<Sagas>()");
+            }
+
             // Register the Saga related behaviors for incoming messages
             context.Pipeline.Register(WellKnownStep.InvokeSaga, typeof(SagaPersistenceBehavior), "Invokes the saga logic");
             context.Pipeline.Register("InvokeSagaNotFound", typeof(InvokeSagaNotFoundBehavior), "Invokes saga not found logic");

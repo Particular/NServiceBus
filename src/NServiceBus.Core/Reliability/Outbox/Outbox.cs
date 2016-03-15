@@ -68,7 +68,7 @@ The reason this is required is to ensure that all the guidelines regarding this 
         {
             if (!PersistenceStartup.HasSupportFor<StorageType.Outbox>(context.Settings))
             {
-                throw new Exception("Selected persister doesn't have support for outbox storage. Select another storage or disable the outbox feature using endpointConfiguration.Features(f=>f.Disable<Outbox>())");
+                throw new Exception("Selected persister doesn't have support for outbox storage. Select another storage or disable the outbox feature using endpointConfiguration.DisableFeature<Outbox>()");
             }
 
             //note: in the future we should change the persister api to give us a "outbox factory" so that we can register it in DI here instead of relying on the persister to do it
