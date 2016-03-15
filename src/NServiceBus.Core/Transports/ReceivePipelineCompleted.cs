@@ -1,0 +1,6 @@
+namespace NServiceBus
+{
+    class ReceivePipelineCompleted
+    {
+    }
+}

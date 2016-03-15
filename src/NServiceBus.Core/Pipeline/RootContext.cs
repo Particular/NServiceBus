@@ -2,15 +2,13 @@ namespace NServiceBus
 {
     using ObjectBuilder;
 
-    /// <summary>
-    /// The root context.
-    /// </summary>
     class RootContext : BehaviorContext
     {
-        public RootContext(IBuilder builder, IPipelineCache pipelineCache) : base(null)
+        public RootContext(IBuilder builder, IPipelineCache pipelineCache, IEventAggregator eventAggregator) : base(null)
         {
             Set(builder);
             Set(pipelineCache);
+            Set(eventAggregator);
         }
     }
 }

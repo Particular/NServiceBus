@@ -2,23 +2,15 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using Features;
     using Logging;
     using Pipeline;
-    using Settings;
 
     class FirstLevelRetriesBehavior : Behavior<ITransportReceiveContext>
     {
-        public FirstLevelRetriesBehavior(
-            FlrStatusStorage storage,
-            FirstLevelRetryPolicy retryPolicy,
-            BusNotifications notifications,
-            string uniqueKey)
+        public FirstLevelRetriesBehavior(FlrStatusStorage storage, FirstLevelRetryPolicy retryPolicy)
         {
             this.storage = storage;
             this.retryPolicy = retryPolicy;
-            this.notifications = notifications;
-            this.uniqueKey = uniqueKey;
         }
 
         public override async Task Invoke(ITransportReceiveContext context, Func<Task> next)
@@ -34,7 +26,7 @@ namespace NServiceBus
             catch (Exception ex)
             {
                 var messageId = context.Message.MessageId;
-                var pipelineUniqueMessageId = uniqueKey + messageId;
+                var pipelineUniqueMessageId = messageId;
 
                 var numberOfFailures = storage.GetFailuresForMessage(pipelineUniqueMessageId);
 
@@ -42,7 +34,6 @@ namespace NServiceBus
                 {
                     storage.ClearFailuresForMessage(pipelineUniqueMessageId);
                     context.Message.Headers[Headers.FLRetries] = numberOfFailures.ToString();
-                    notifications.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(numberOfFailures, context.Message, ex);
                     Logger.InfoFormat("Giving up First Level Retries for message '{0}'.", messageId);
                     throw;
                 }
@@ -50,33 +41,16 @@ namespace NServiceBus
                 storage.IncrementFailuresForMessage(pipelineUniqueMessageId);
 
                 Logger.Info($"First Level Retry is going to retry message '{messageId}' because of an exception:", ex);
-                //question: should we invoke this the first time around? feels like the naming is off?
-                notifications.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(numberOfFailures, context.Message, ex);
+
+                await context.RaiseNotification(new MessageToBeRetried(numberOfFailures, TimeSpan.Zero, context.Message, ex)).ConfigureAwait(false);
 
                 context.AbortReceiveOperation();
             }
         }
 
-        BusNotifications notifications;
         FirstLevelRetryPolicy retryPolicy;
-
         FlrStatusStorage storage;
-        string uniqueKey;
 
         static ILog Logger = LogManager.GetLogger<FirstLevelRetriesBehavior>();
-
-        public class Registration : RegisterStep
-        {
-            public Registration(string uniqueKey)
-                : base("FirstLevelRetries", typeof(FirstLevelRetriesBehavior), "Performs first level retries",
-                    b => new FirstLevelRetriesBehavior(b.Build<FlrStatusStorage>(), b.Build<FirstLevelRetryPolicy>(), b.Build<BusNotifications>(), uniqueKey))
-            {
-            }
-
-            public override bool IsEnabled(ReadOnlySettings settings)
-            {
-                return settings.IsFeatureActive(typeof(FirstLevelRetries));
-            }
-        }
     }
 }

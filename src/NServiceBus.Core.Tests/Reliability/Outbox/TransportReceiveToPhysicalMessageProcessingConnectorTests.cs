@@ -110,7 +110,7 @@
 
         static ITransportReceiveContext CreateContext(FakeBatchPipeline pipeline)
         {
-            var context = new TransportReceiveContext(new IncomingMessage("id", new Dictionary<string, string>(), new MemoryStream()), null, new CancellationTokenSource(), new RootContext(null, new FakePipelineCache(pipeline)));
+            var context = new TransportReceiveContext(new IncomingMessage("id", new Dictionary<string, string>(), new MemoryStream()), null, new CancellationTokenSource(), new RootContext(null, new FakePipelineCache(pipeline), null));
             return context;
         }
 

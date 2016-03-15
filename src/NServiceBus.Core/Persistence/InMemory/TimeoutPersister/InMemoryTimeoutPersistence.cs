@@ -17,7 +17,7 @@
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.Container.ConfigureComponent(_ => new InMemoryTimeoutPersister(() => DateTime.UtcNow),  DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent(_ => new InMemoryTimeoutPersister(() => DateTime.UtcNow), DependencyLifecycle.SingleInstance);
         }
     }
 }

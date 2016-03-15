@@ -35,6 +35,10 @@
 
             public ContextBag Extensions { get; }
             public IBuilder Builder { get; }
+            public Task RaiseNotification<T>(T notification)
+            {
+                throw new NotImplementedException();
+            }
 
             public Task Send(object message, SendOptions options)
             {

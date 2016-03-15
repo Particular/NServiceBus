@@ -159,7 +159,7 @@
         {
             var runner = new UnitOfWorkBehavior();
 
-            var receiveContext = new TransportReceiveContext(new IncomingMessage("fakeId", new Dictionary<string, string>(), new MemoryStream()), null, new CancellationTokenSource(), new RootContext(builder, null));
+            var receiveContext = new TransportReceiveContext(new IncomingMessage("fakeId", new Dictionary<string, string>(), new MemoryStream()), null, new CancellationTokenSource(), new RootContext(builder, null, null));
 
             var context = new IncomingPhysicalMessageContext(receiveContext.Message, receiveContext);
 

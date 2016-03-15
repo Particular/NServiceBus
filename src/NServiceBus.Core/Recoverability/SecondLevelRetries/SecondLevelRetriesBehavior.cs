@@ -11,10 +11,9 @@ namespace NServiceBus
 
     class SecondLevelRetriesBehavior : ForkConnector<ITransportReceiveContext, IRoutingContext>
     {
-        public SecondLevelRetriesBehavior(SecondLevelRetryPolicy retryPolicy, BusNotifications notifications, string localAddress)
+        public SecondLevelRetriesBehavior(SecondLevelRetryPolicy retryPolicy, string localAddress)
         {
             this.retryPolicy = retryPolicy;
-            this.notifications = notifications;
             this.localAddress = localAddress;
         }
 
@@ -55,7 +54,7 @@ namespace NServiceBus
 
                     await fork(dispatchContext).ConfigureAwait(false);
 
-                    notifications.Errors.InvokeMessageHasBeenSentToSecondLevelRetries(currentRetry, message, ex);
+                    await context.RaiseNotification(new MessageToBeRetried(currentRetry, delay, context.Message, ex)).ConfigureAwait(false);
 
                     return;
                 }
@@ -81,8 +80,6 @@ namespace NServiceBus
         }
 
         string localAddress;
-        BusNotifications notifications;
-
         SecondLevelRetryPolicy retryPolicy;
 
         public const string RetriesTimestamp = "NServiceBus.Retries.Timestamp";

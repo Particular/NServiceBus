@@ -2,18 +2,16 @@
 {
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.Faults;
-    using NServiceBus.Features;
-    using NServiceBus.Routing;
-    using NServiceBus.Settings;
+    using Faults;
+    using Features;
+    using Routing;
+    using Settings;
 
     public class FailTestOnErrorMessageFeature : Feature
     {
         public FailTestOnErrorMessageFeature()
         {
             EnableByDefault();
-
-            DependsOn<UnicastBus>();
         }
 
         protected internal override void Setup(FeatureConfigurationContext context)
@@ -60,9 +58,9 @@
                     });
             }
 
+            EndpointName endpoint;
             BusNotifications notifications;
             ScenarioContext scenarioContext;
-            EndpointName endpoint;
         }
     }
 }
