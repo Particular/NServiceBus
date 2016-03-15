@@ -6,18 +6,16 @@
     using NServiceBus.AcceptanceTesting.Customization;
     using NServiceBus.AcceptanceTesting.Support;
     using NServiceBus.Config.ConfigurationSource;
-    using NServiceBus.Configuration.AdvanceExtensibility;
     using NServiceBus.Features;
-    using NServiceBus.Serialization;
 
-    public class DefaultServer : IEndpointSetupTemplate
+    public class ServerWithNoDefaultPersistenceDefinitions : IEndpointSetupTemplate
     {
-        public DefaultServer()
+        public ServerWithNoDefaultPersistenceDefinitions()
         {
             typesToInclude = new List<Type>();
         }
 
-        public DefaultServer(List<Type> typesToInclude)
+        public ServerWithNoDefaultPersistenceDefinitions(List<Type> typesToInclude)
         {
             this.typesToInclude = typesToInclude;
         }
@@ -43,17 +41,8 @@
 
             await builder.DefineTransport(settings, endpointConfiguration.EndpointName).ConfigureAwait(false);
 
-            builder.DefineBuilder(settings);
             builder.RegisterComponentsAndInheritanceHierarchy(runDescriptor);
 
-            Type serializerType;
-            if (settings.TryGet("Serializer", out serializerType))
-            {
-                builder.UseSerialization((SerializationDefinition) Activator.CreateInstance(serializerType));
-            }
-            await builder.DefinePersistence(settings, endpointConfiguration.EndpointName).ConfigureAwait(false);
-
-            builder.GetSettings().SetDefault("ScaleOut.UseSingleBrokerQueue", true);
             configurationBuilderCustomization(builder);
 
             return builder;

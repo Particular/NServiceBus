@@ -1,20 +1,29 @@
-﻿using NServiceBus.AcceptanceTesting;
-using NServiceBus.AcceptanceTests.EndpointTemplates;
-using NServiceBus.Persistence;
-using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace NServiceBus.AcceptanceTests.Persistence
+﻿namespace NServiceBus.AcceptanceTests.Persistence
 {
+    using System.Collections.Generic;
+    using NServiceBus.AcceptanceTesting;
+    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using NServiceBus.Persistence;
+    using NUnit.Framework;
+    using System.Threading.Tasks;
+    using Extensibility;
+    using Unicast.Subscriptions;
+    using Unicast.Subscriptions.MessageDrivenSubscriptions;
+
     public class When_a_persistence_does_not_provide_ISynchronizationContext
     {
-        public class InMemoryNoSyncContextPersistence : PersistenceDefinition
+        [Test]
+        public async Task ReceiveFeature_should_work_without_ISynchronizedStorage()
         {
-            internal InMemoryNoSyncContextPersistence()
+            await Scenario.Define<Context>()
+                .WithEndpoint<NoSyncEndpoint>(e => e.When(b => b.SendLocal(new MyMessage())))
+                .Done(c => c.MessageRecieved)
+                .Run();
+        }
+
+        class InMemoryNoSyncContextPersistence : PersistenceDefinition
+        {
+            public InMemoryNoSyncContextPersistence()
             {
                 Supports<StorageType.Timeouts>(s => { });
                 Supports<StorageType.Sagas>(s => { });
@@ -22,21 +31,31 @@ namespace NServiceBus.AcceptanceTests.Persistence
             }
         }
 
-        [Test]
-        public async Task ReceiveFeature_should_work_without_ISynchronizedStorage()
+        class NoOpISubscriptionStorage : ISubscriptionStorage
         {
-            var context = await Scenario.Define<Context>()
-                .WithEndpoint<NoSyncEndpoint>(e => e.When(b => b.SendLocal(new MyMessage())))
-                .Done(c => c.Done)
-                .Run();
+            public Task<IEnumerable<Subscriber>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes, ContextBag context)
+            {
+                return Task.FromResult<IEnumerable<Subscriber>>(null);
+            }
+
+            public Task Subscribe(Subscriber subscriber, MessageType messageType, ContextBag context)
+            {
+                return Task.FromResult(0);
+            }
+
+            public Task Unsubscribe(Subscriber subscriber, MessageType messageType, ContextBag context)
+            {
+                return Task.FromResult(0);
+            }
         }
 
-        public class NoSyncEndpoint : EndpointConfigurationBuilder
+        class NoSyncEndpoint : EndpointConfigurationBuilder
         {
             public NoSyncEndpoint()
             {
-                EndpointSetup<PersistencelessServer>(c =>
+                EndpointSetup<ServerWithNoDefaultPersistenceDefinitions>(c =>
                 {
+                    c.RegisterComponents(container => container.ConfigureComponent<NoOpISubscriptionStorage>(DependencyLifecycle.SingleInstance));
                     c.UsePersistence<InMemoryNoSyncContextPersistence>();
                 });
             }
@@ -48,7 +67,7 @@ namespace NServiceBus.AcceptanceTests.Persistence
 
             public Task Handle(MyMessage message, IMessageHandlerContext context)
             {
-                Context.Done = true;
+                Context.MessageRecieved = true;
 
                 return Task.FromResult(0);
             }
@@ -57,10 +76,9 @@ namespace NServiceBus.AcceptanceTests.Persistence
         public class Context : ScenarioContext
         {
             public bool NotSet { get; set; }
-            public bool Done { get; set; }
+            public bool MessageRecieved { get; set; }
         }
 
-        [Serializable]
         public class MyMessage : ICommand
         {
         }
