@@ -33,7 +33,7 @@
 
         static bool IsControlMessage(IncomingMessage incomingMessage)
         {
-            return incomingMessage.Headers.ContainsKey(Headers.ControlMessageHeader) && incomingMessage.Headers[Headers.ControlMessageHeader] == true.ToString();
+            return incomingMessage.Headers.ContainsKey(Headers.ControlMessageHeader) && incomingMessage.Headers[Headers.ControlMessageHeader] == Boolean.TrueString;
         }
 
         IEnumerable<LogicalMessage> ExtractWithExceptionHandling(IncomingMessage message)

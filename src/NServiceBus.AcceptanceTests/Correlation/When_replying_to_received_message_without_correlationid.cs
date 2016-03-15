@@ -1,13 +1,12 @@
 ﻿namespace NServiceBus.AcceptanceTests.Correlation
 {
-    using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
     using MessageMutator;
     using NUnit.Framework;
 
-    public class When_repling_to_received_message_without_correlationid : NServiceBusAcceptanceTest
+    public class When_replying_to_received_message_without_correlationid : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_use_the_incoming_message_id_as_the_correlation_id()
@@ -82,13 +81,10 @@
             }
         }
 
-
-        [Serializable]
         public class MyRequest : IMessage
         {
         }
 
-        [Serializable]
         public class MyResponse : IMessage
         {
         }
