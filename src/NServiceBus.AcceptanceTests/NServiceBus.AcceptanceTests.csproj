@@ -65,6 +65,7 @@
     <Compile Include="DelayedDelivery\TimeoutManager\When_timeout_dispatch_fails.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\When_timeout_dispatch_fails_on_timeout_data_removal.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\When_timeout_storage_fails.cs" />
+    <Compile Include="EndpointTemplates\PersistencelessServer.cs" />
     <Compile Include="FakeTransport\CriticalError\When_registering_custom_critical_error_handler.cs" />
     <Compile Include="FakeTransport\FakeDispatcher.cs" />
     <Compile Include="FakeTransport\FakeQueueCreator.cs" />
@@ -91,6 +92,7 @@
     <Compile Include="Mutators\When_using_outgoing_tm_mutator.cs" />
     <Compile Include="Performance\When_message_is_faulted.cs" />
     <Compile Include="Pipeline\When_replacing_behavior.cs" />
+    <Compile Include="Persistence\When_a_persistence_does_not_provide_ISynchronizationContext.cs" />
     <Compile Include="Recoverability\Retries\When_message_fails_retries.cs" />
     <Compile Include="Recoverability\Retries\When_performing_slr_and_counting.cs" />
     <Compile Include="Recoverability\Retries\When_performing_slr_with_non_min_policy.cs" />
