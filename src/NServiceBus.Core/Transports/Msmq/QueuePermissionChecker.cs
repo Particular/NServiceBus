@@ -18,15 +18,16 @@
 
         static void CheckQueue(string address)
         {
-            var msmqAddress = MsmqAddress.Parse(address);
-            var queuePath = msmqAddress.PathWithoutPrefix;
-
-            if (MessageQueue.Exists(queuePath))
+            MessageQueue messageQueue;
+            if (!MsmqUtilities.TryOpenQueue(address, out messageQueue))
             {
-                using (var messageQueue = new MessageQueue(queuePath))
-                {
-                    WarnIfPublicAccess(messageQueue);
-                }
+                Logger.Warn($"Unable to open the queue at address '{address}'. Make sure the queue exists locally, and the address is correct.");
+                return;
+            }
+
+            using (messageQueue)
+            {
+                WarnIfPublicAccess(messageQueue);
             }
         }
 

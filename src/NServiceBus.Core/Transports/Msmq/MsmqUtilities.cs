@@ -65,6 +65,34 @@ namespace NServiceBus
             return headers;
         }
 
+        public static bool TryOpenQueue(string address, out MessageQueue messageQueue)
+        {
+            messageQueue = null;
+            var msmqAddress = MsmqAddress.Parse(address);
+            var path = msmqAddress.PathWithoutPrefix;
+            try
+            {
+                if (MessageQueue.Exists(path))
+                {
+                    messageQueue = new MessageQueue(path);
+                    return true;
+                }
+            }
+            catch (MessageQueueException mex)
+            {
+                if (msmqAddress.IsRemote && (mex.MessageQueueErrorCode == MessageQueueErrorCode.IllegalQueuePathName))
+                {
+                    return false;
+                }
+                if (mex.MessageQueueErrorCode == MessageQueueErrorCode.QueueExists)
+                {
+                    return false;
+                }
+            }
+
+            return false;
+        }
+
         static string GetCorrelationId(Message message, Dictionary<string, string> headers)
         {
             string correlationId;
