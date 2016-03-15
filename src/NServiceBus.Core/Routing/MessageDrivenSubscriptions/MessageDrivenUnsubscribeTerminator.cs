@@ -39,6 +39,8 @@
                 unsubscribeMessage.Headers[Headers.ReplyToAddress] = replyToAddress;
                 unsubscribeMessage.Headers[Headers.SubscriberTransportAddress] = replyToAddress;
                 unsubscribeMessage.Headers[Headers.SubscriberEndpoint] = endpoint.ToString();
+                unsubscribeMessage.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
+                unsubscribeMessage.Headers[Headers.NServiceBusVersion] = GitFlowVersion.MajorMinorPatch;
 
                 unsubscribeTasks.Add(SendUnsubscribeMessageWithRetries(publisherAddress, unsubscribeMessage, eventType.AssemblyQualifiedName, context.Extensions));
             }
@@ -62,7 +64,7 @@
                 }
                 else
                 {
-                    string message = $"Failed to unsubsribe for {messageType} at publisher queue {destination}, reason {ex.Message}";
+                    string message = $"Failed to unsubscribe for {messageType} at publisher queue {destination}, reason {ex.Message}";
                     Logger.Error(message, ex);
                     throw new QueueNotFoundException(destination, message, ex);
                 }
