@@ -65,34 +65,6 @@ namespace NServiceBus
             return headers;
         }
 
-        public static bool TryOpenQueue(string address, out MessageQueue messageQueue)
-        {
-            messageQueue = null;
-            var msmqAddress = MsmqAddress.Parse(address);
-            var path = msmqAddress.PathWithoutPrefix;
-            try
-            {
-                if (MessageQueue.Exists(path))
-                {
-                    messageQueue = new MessageQueue(path);
-                    return true;
-                }
-            }
-            catch (MessageQueueException mex)
-            {
-                if (msmqAddress.IsRemote && (mex.MessageQueueErrorCode == MessageQueueErrorCode.IllegalQueuePathName))
-                {
-                    return false;
-                }
-                if (mex.MessageQueueErrorCode == MessageQueueErrorCode.QueueExists)
-                {
-                    return false;
-                }
-            }
-
-            return false;
-        }
-
         static string GetCorrelationId(Message message, Dictionary<string, string> headers)
         {
             string correlationId;
@@ -223,7 +195,7 @@ namespace NServiceBus
 
             if (Guid.TryParse(correlationIdHeader, out correlationId))
             {
-                //msmq required the id's to be in the {guid}\{incrementing number} format so we need to fake a \0 at the end to make it compatible                
+                //msmq required the id's to be in the {guid}\{incrementing number} format so we need to fake a \0 at the end to make it compatible
                 result.CorrelationId = correlationIdHeader + "\\0";
                 return;
             }
@@ -249,9 +221,81 @@ namespace NServiceBus
             }
         }
 
+        public static bool TryOpenQueue(MsmqAddress msmqAddress, out MessageQueue messageQueue)
+        {
+            messageQueue = null;
+
+            var queuePath = msmqAddress.PathWithoutPrefix;
+
+            Logger.Debug($"Checking if queue exists: {queuePath}.");
+
+            if (msmqAddress.IsRemote)
+            {
+                Logger.Debug("Queue is on remote machine.");
+                Logger.Debug("If this does not succeed (like if the remote machine is disconnected), processing will continue.");
+            }
+
+            var path = msmqAddress.PathWithoutPrefix;
+            try
+            {
+                if (MessageQueue.Exists(path))
+                {
+                    messageQueue = new MessageQueue(path);
+
+                    Logger.DebugFormat("Verified that the queue: [{0}] existed", queuePath);
+
+                    return true;
+                }
+            }
+            catch (MessageQueueException)
+            {
+                // Can happen because of an invalid queue path or trying to access a remote private queue.
+                // Either way, this results in a failed attempt, therefore returning false.
+
+                return false;
+            }
+
+            return false;
+        }
+
+        public static bool TryCreateQueue(MsmqAddress msmqAddress, string account, bool transactional, out MessageQueue messageQueue)
+        {
+            messageQueue = null;
+
+            var queuePath = msmqAddress.PathWithoutPrefix;
+            var created = false;
+
+            try
+            {
+                messageQueue = MessageQueue.Create(queuePath, transactional);
+
+                Logger.DebugFormat($"Created queue, path: [{queuePath}], identity: [{account}], transactional: [{transactional}]");
+
+                created = true;
+            }
+            catch (MessageQueueException ex)
+            {
+                var logError = !(msmqAddress.IsRemote && (ex.MessageQueueErrorCode == MessageQueueErrorCode.IllegalQueuePathName));
+
+                if (ex.MessageQueueErrorCode == MessageQueueErrorCode.QueueExists)
+                {
+                    //Solve the race condition problem when multiple endpoints try to create same queue (e.g. error queue).
+                    logError = false;
+                }
+
+                if (logError)
+                {
+                    Logger.Error($"Could not create queue {msmqAddress}. Processing will still continue.", ex);
+                }
+            }
+
+            return created;
+        }
+
         const string DIRECTPREFIX = "DIRECT=OS:";
         const string DIRECTPREFIX_TCP = "DIRECT=TCP:";
         internal const string PRIVATE = "\\private$\\";
+
         static System.Xml.Serialization.XmlSerializer headerSerializer = new System.Xml.Serialization.XmlSerializer(typeof(List<HeaderInfo>));
         static ILog Logger = LogManager.GetLogger<MsmqUtilities>();
     }
