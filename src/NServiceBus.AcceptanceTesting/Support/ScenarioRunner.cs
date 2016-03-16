@@ -265,6 +265,7 @@
             {
                 throw new Exception("Starting endpoints took longer than 2 minutes");
             }
+            await completedTask.ConfigureAwait(false);
         }
 
         static async Task StartEndpoint(EndpointRunner endpoint, Func<Exception, bool> allowedExceptions, CancellationTokenSource cts)
