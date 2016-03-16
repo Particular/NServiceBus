@@ -3,35 +3,30 @@
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Diagnostics;
+    using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using Logging;
     using Shutdown;
 
     class ShutdownDelegateRegistry : IRegisterShutdownDelegates, IContainShutdownDelegates
     {
-        public void Register(Action action)
+        public void Register(Action action, [CallerMemberName]string caller = null)
         {
             AddToDelegateDictionary(() =>
             {
                 action();
                 return completed;
-            });
+            }, caller);
         }
 
-        public void Register(Func<Task> func)
+        public void Register(Func<Task> func, [CallerMemberName]string caller = null)
         {
-            AddToDelegateDictionary(func);
+            AddToDelegateDictionary(func, caller);
         }
 
-        void AddToDelegateDictionary(Func<Task> func)
+        void AddToDelegateDictionary(Func<Task> func, string caller)
         {
-            var frame = new StackFrame(1);
-            var method = frame.GetMethod();
-            var type = method.DeclaringType;
-            var methodName = method.Name;
-
-            shutdownDelegates.TryAdd($"{type}.{methodName}", func);
+            shutdownDelegates.Enqueue(new CallerDelegateAssociation() { Caller = caller, Delegate = func });
         }
 
         public async Task Execute()
@@ -42,11 +37,13 @@
             }
 
             var shutdownDelegateTasks = new List<Task>();
-            foreach (var callingMethod in shutdownDelegates.Keys)
+            foreach (var association in shutdownDelegates)
             {
+                var callingMethod = association.Caller;
+                var shutdownDelegate = association.Delegate;
+
                 try
                 {
-                    var shutdownDelegate = shutdownDelegates[callingMethod];
                     var task = shutdownDelegate.Invoke();
 
                     task.ContinueWith(t =>
@@ -71,8 +68,14 @@
             await Task.WhenAll(shutdownDelegateTasks.ToArray()).ConfigureAwait(false);
         }
 
+        class CallerDelegateAssociation
+        {
+            public string Caller { get; set; }
+            public Func<Task> Delegate { get; set; }
+        }
+
         Task completed = Task.FromResult(0);
-        ConcurrentDictionary<string, Func<Task>> shutdownDelegates = new ConcurrentDictionary<string, Func<Task>>();
+        ConcurrentQueue<CallerDelegateAssociation> shutdownDelegates = new ConcurrentQueue<CallerDelegateAssociation>();
         static ILog Log = LogManager.GetLogger<ShutdownDelegateRegistry>();
     }
 }

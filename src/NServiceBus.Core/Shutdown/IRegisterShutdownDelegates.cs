@@ -11,11 +11,11 @@
         /// <summary>
         /// Register an action.
         /// </summary>
-        void Register(Action action);
+        void Register(Action action, string caller = null);
 
         /// <summary>
         /// Register an async delegate.
         /// </summary>
-        void Register(Func<Task> func);
+        void Register(Func<Task> func, string caller = null);
     }
 }
