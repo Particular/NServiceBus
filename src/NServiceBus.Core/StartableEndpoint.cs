@@ -22,7 +22,8 @@ namespace NServiceBus
             FeatureActivator featureActivator, 
             PipelineConfiguration pipelineConfiguration, 
             IReadOnlyCollection<IWantToRunWhenBusStartsAndStops> startables,
-            IEventAggregator eventAggregator)
+            IEventAggregator eventAggregator,
+            IContainShutdownDelegates shutdownDelegateRegistry)
         {
             this.settings = settings;
             this.builder = builder;
@@ -30,6 +31,7 @@ namespace NServiceBus
             this.pipelineConfiguration = pipelineConfiguration;
             this.startables = startables;
             this.eventAggregator = eventAggregator;
+            this.shutdownDelegateRegistry = shutdownDelegateRegistry;
         }
 
         public async Task<IEndpointInstance> Start()
@@ -47,7 +49,7 @@ namespace NServiceBus
 
             var pipelineCollection = CreateIncomingPipelines(pipelineCache);
 
-            var runningInstance = new RunningEndpointInstance(settings, builder, pipelineCollection, runner, featureRunner, messageSession);
+            var runningInstance = new RunningEndpointInstance(settings, builder, pipelineCollection, runner, featureRunner, messageSession, shutdownDelegateRegistry);
 
             // set the started endpoint on CriticalError to pass the endpoint to the critical error action
             builder.Build<CriticalError>().SetEndpoint(runningInstance);
@@ -197,5 +199,6 @@ namespace NServiceBus
         SettingsHolder settings;
         IReadOnlyCollection<IWantToRunWhenBusStartsAndStops> startables;
         IEventAggregator eventAggregator;
+        IContainShutdownDelegates shutdownDelegateRegistry;
     }
 }

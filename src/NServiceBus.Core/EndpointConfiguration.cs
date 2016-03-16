@@ -16,6 +16,7 @@ namespace NServiceBus
     using Pipeline;
     using Routing;
     using Settings;
+    using NServiceBus;
     using Transports;
 
     /// <summary>
@@ -229,7 +230,11 @@ namespace NServiceBus
 
             Settings.SetDefault<Conventions>(conventionsBuilder.Conventions);
 
-            return new InitializableEndpoint(Settings, container, registrations, Pipeline, pipelineCollection, startables);
+            var shutdownDelegateRegistry = new ShutdownDelegateRegistry();
+
+            container.Configure(() => shutdownDelegateRegistry, DependencyLifecycle.SingleInstance);
+
+            return new InitializableEndpoint(Settings, container, registrations, Pipeline, pipelineCollection, startables, shutdownDelegateRegistry);
         }
 
         static void ForAllTypes<T>(IEnumerable<Type> types, Action<Type> action) where T : class
