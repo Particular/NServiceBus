@@ -27,7 +27,7 @@
             {
                 var handlersToInvoke = messageHandlerRegistry.GetHandlersFor(context.Message.MessageType).ToList();
 
-                if (!context.MessageHandled && !handlersToInvoke.Any())
+                if (!handlersToInvoke.Any())
                 {
                     var error = $"No handlers could be found for message type: {context.Message.MessageType}";
                     throw new InvalidOperationException(error);
@@ -46,7 +46,6 @@
                         break;
                     }
                 }
-                context.MessageHandled = true;
                 await storageSession.CompleteAsync().ConfigureAwait(false);
             }
         }

@@ -21,7 +21,5 @@
         public LogicalMessage Message { get; }
 
         public Dictionary<string, string> Headers { get; }
-
-        public bool MessageHandled { get; set; }
     }
 }
