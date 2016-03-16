@@ -2138,6 +2138,10 @@ namespace NServiceBus.Pipeline
         public void Remove(string stepId) { }
         public void Remove(NServiceBus.Pipeline.WellKnownStep wellKnownStep) { }
         public void Replace(string stepId, System.Type newBehavior, string description = null) { }
+        public void Replace<T>(string stepId, T newBehavior, string description = null)
+            where T : NServiceBus.Pipeline.IBehavior { }
+        public void Replace<T>(string stepId, System.Func<NServiceBus.ObjectBuilder.IBuilder, T> factoryMethod, string description = null)
+            where T : NServiceBus.Pipeline.IBehavior { }
         public void Replace(NServiceBus.Pipeline.WellKnownStep wellKnownStep, System.Type newBehavior, string description = null) { }
     }
     public abstract class PipelineTerminator<T> : NServiceBus.Pipeline.StageConnector<T, NServiceBus.Pipeline.PipelineTerminator<T>.ITerminatingContext>, NServiceBus.IPipelineTerminator

@@ -6,7 +6,7 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Pipeline;
+    using NServiceBus.Pipeline;
     using NUnit.Framework;
 
     public class When_message_has_empty_id_header : NServiceBusAcceptanceTest
@@ -15,9 +15,9 @@
         public async Task A_message_id_is_generated_by_the_transport_layer()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(g => g.When(async b => await b.SendLocal(new Message())))
-                    .Done(c => c.MessageReceived)
-                    .Run();
+                .WithEndpoint<Endpoint>(g => g.When(b => b.SendLocal(new Message())))
+                .Done(c => c.MessageReceived)
+                .Run();
 
             Assert.IsFalse(string.IsNullOrWhiteSpace(context.MessageId));
             Assert.AreEqual(context.MessageId, context.Headers[Headers.MessageId], "Should populate the NServiceBus.MessageId header with the new value");
@@ -69,5 +69,4 @@
         {
         }
     }
-
 }

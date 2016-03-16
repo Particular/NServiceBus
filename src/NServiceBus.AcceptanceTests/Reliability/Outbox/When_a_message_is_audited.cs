@@ -6,7 +6,7 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using Configuration.AdvanceExtensibility;
-    using Pipeline;
+    using NServiceBus.Pipeline;
     using NUnit.Framework;
 
     public class When_a_message_is_audited : NServiceBusAcceptanceTest
