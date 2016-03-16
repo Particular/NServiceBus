@@ -38,7 +38,6 @@ namespace NServiceBus
                     Logger.Debug($"Going to retry message '{message.MessageId}' from satellite '{localAddress}' because of an exception:", exception);
 
                     context.AbortReceiveOperation();
-                    await context.RaiseNotification(new MessageToBeRetried(failureInfo.NumberOfFailedAttempts, TimeSpan.Zero, context.Message, exception)).ConfigureAwait(false);
                     return;
                 }
             }
@@ -48,8 +47,6 @@ namespace NServiceBus
             Logger.Debug($"Giving up Retries for message '{message.MessageId}' from satellite '{localAddress}' after {failureInfo.NumberOfFailedAttempts} attempts.");
 
             await MoveToErrorQueue(context, message, failureInfo).ConfigureAwait(false);
-
-            await context.RaiseNotification(new MessageFaulted(message, failureInfo.Exception)).ConfigureAwait(false);
         }
 
         bool ShouldAttemptAnotherRetry([NotNull] ProcessingFailureInfo failureInfo)

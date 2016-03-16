@@ -123,7 +123,6 @@
     <Compile Include="DelayedDelivery\TimeoutManager\ExpiredTimeoutsPollerTests.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\FailureInfoStorageTests.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\RecordingFakeDispatcher.cs" />
-    <Compile Include="DelayedDelivery\TimeoutManager\TimeoutRecoverabilityBehaviorTest.cs" />
     <Compile Include="DeliveryConstraintContextExtensions\DeliveryConstraintContextExtensionsTests.cs" />
     <Compile Include="MessageMapper\MessageMapperTests.cs" />
     <Compile Include="Msmq\TimeToBeReceivedOverrideCheckerTest.cs" />
