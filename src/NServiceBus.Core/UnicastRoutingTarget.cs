@@ -47,7 +47,7 @@
         /// <param name="transportAddress">Instance transport address.</param>
         public static UnicastRoutingTarget ToAnonymousInstance(EndpointName endpoint, string transportAddress)
         {
-            Guard.AgainstNull(nameof(endpoint), transportAddress);
+            Guard.AgainstNull(nameof(endpoint), endpoint);
             Guard.AgainstNull(nameof(transportAddress), transportAddress);
             return new UnicastRoutingTarget(endpoint, null, transportAddress);
         }
