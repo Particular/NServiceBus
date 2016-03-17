@@ -2,18 +2,34 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.Runtime.ExceptionServices;
     using JetBrains.Annotations;
 
     // The data structure has fixed maximum size. When the data structure reaches its maximum size,
     // the least recently used (LRU) message processing failure is removed from the storage.
     class FailureInfoStorage
     {
-        public FailureInfoStorage(int maxElements = 1000)
+        public FailureInfoStorage(int maxElements)
         {
             this.maxElements = maxElements;
         }
 
-        public void RecordFailureInfoForMessage(string messageId, Exception exception)
+        public void RecordFirstLevelRetryAttempt(string messageId, ExceptionDispatchInfo exceptionDispatchInfo)
+        {
+            UpdateFailureInfo(messageId, fi => new ProcessingFailureInfo(exceptionDispatchInfo, fi.FLRetries + 1));
+        }
+
+        public void MarkForMovingToErrorQueue(string messageId, ExceptionDispatchInfo exceptionDispatchInfo)
+        {
+            UpdateFailureInfo(messageId, fi => new ProcessingFailureInfo(exceptionDispatchInfo, fi.FLRetries, true)); 
+        }
+
+        public void MarkForDeferralForSecondLevelRetry(string messageId, ExceptionDispatchInfo exceptionDispatchInfo)
+        {
+            UpdateFailureInfo(messageId, fi => new ProcessingFailureInfo(exceptionDispatchInfo, fi.FLRetries, false, true));
+        }
+
+        void UpdateFailureInfo(string messageId, Func<ProcessingFailureInfo, ProcessingFailureInfo> updateFailure)
         {
             lock (lockObject)
             {
@@ -21,7 +37,7 @@ namespace NServiceBus
                 if (failureInfoPerMessage.TryGetValue(messageId, out node))
                 {
                     // We have seen this message before, just update the counter and store exception.
-                    node.FailureInfo = new ProcessingFailureInfo(node.FailureInfo.NumberOfFailedAttempts + 1, exception);
+                    node.FailureInfo = updateFailure(node.FailureInfo);
 
                     // Maintain invariant: leastRecentlyUsedMessages.First contains the LRU item.
                     leastRecentlyUsedMessages.Remove(node.LeastRecentlyUsedEntry);
@@ -37,9 +53,9 @@ namespace NServiceBus
                         leastRecentlyUsedMessages.RemoveFirst();
                     }
 
-                    var newNode = new FailureInfoNode(
-                        messageId,
-                        new ProcessingFailureInfo(1, exception));
+                    var failureInfo = updateFailure(ProcessingFailureInfo.NullFailureInfo);
+
+                    var newNode = new FailureInfoNode(messageId, failureInfo);
 
                     failureInfoPerMessage[messageId] = newNode;
 
@@ -55,10 +71,12 @@ namespace NServiceBus
             lock (lockObject)
             {
                 FailureInfoNode node;
+
                 if (failureInfoPerMessage.TryGetValue(messageId, out node))
                 {
                     return node.FailureInfo;
                 }
+
                 return ProcessingFailureInfo.NullFailureInfo;
             }
         }

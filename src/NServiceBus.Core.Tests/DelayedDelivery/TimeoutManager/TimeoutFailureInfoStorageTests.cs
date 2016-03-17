@@ -3,7 +3,7 @@ namespace NServiceBus.Core.Tests.Timeout.TimeoutManager
     using System;
     using NUnit.Framework;
 
-    public class FailureInfoStorageTests
+    public class TimeoutFailureInfoStorageTests
     {
         [Test]
         public void When_recording_failure_initially_should_store_one_failed_attempt_and_exception()
@@ -11,7 +11,7 @@ namespace NServiceBus.Core.Tests.Timeout.TimeoutManager
             var messageId = Guid.NewGuid().ToString("D");
             var exception = new Exception();
 
-            var storage = new FailureInfoStorage();
+            var storage = new TimeoutFailureInfoStorage();
 
             storage.RecordFailureInfoForMessage(messageId, exception);
             
@@ -28,7 +28,7 @@ namespace NServiceBus.Core.Tests.Timeout.TimeoutManager
             var messageId = Guid.NewGuid().ToString("D");
             var secondException = new Exception();
 
-            var storage = new FailureInfoStorage();
+            var storage = new TimeoutFailureInfoStorage();
 
             storage.RecordFailureInfoForMessage(messageId, new Exception());
             storage.RecordFailureInfoForMessage(messageId, secondException);
@@ -45,7 +45,7 @@ namespace NServiceBus.Core.Tests.Timeout.TimeoutManager
         {
             var messageId = Guid.NewGuid().ToString("D");
 
-            var storage = new FailureInfoStorage();
+            var storage = new TimeoutFailureInfoStorage();
 
             storage.RecordFailureInfoForMessage(messageId, new Exception());
             
@@ -55,14 +55,14 @@ namespace NServiceBus.Core.Tests.Timeout.TimeoutManager
             storage.ClearFailureInfoForMessage(messageId);
 
             failureInfo = storage.GetFailureInfoForMessage(messageId);
-            Assert.AreSame(ProcessingFailureInfo.NullFailureInfo, failureInfo);
+            Assert.AreSame(TimeoutProcessingFailureInfo.NullFailureInfo, failureInfo);
         }
 
         [Test]
         public void When_recording_more_than_max_number_of_failures_should_remove_least_recently_used_entry()
         {
             const int MaxElements = 50;
-            var storage = new FailureInfoStorage(maxElements: MaxElements);
+            var storage = new TimeoutFailureInfoStorage(maxElements: MaxElements);
 
             var lruMessageId = Guid.NewGuid().ToString("D");
 
@@ -78,7 +78,7 @@ namespace NServiceBus.Core.Tests.Timeout.TimeoutManager
             }
 
             var lruFailureInfo = storage.GetFailureInfoForMessage(lruMessageId);
-            Assert.AreSame(ProcessingFailureInfo.NullFailureInfo, lruFailureInfo);
+            Assert.AreSame(TimeoutProcessingFailureInfo.NullFailureInfo, lruFailureInfo);
         }
     }
 }

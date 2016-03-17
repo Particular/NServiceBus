@@ -12,126 +12,190 @@
     using NServiceBus.Routing;
     using NServiceBus.Transports;
     using NUnit.Framework;
-    using Testing;
 
     [TestFixture]
     public class SecondLevelRetriesTests
     {
+        FakeDispatchPipeline dispatchPipline;
+        FailureInfoStorage failureInfoStorage;
+
+        [SetUp]
+        public void SetUp()
+        {
+            dispatchPipline = new FakeDispatchPipeline();
+            failureInfoStorage = new FailureInfoStorage(10);
+        }
+
         [Test]
         public async Task ShouldRetryIfPolicyReturnsADelay()
         {
+            var message = CreateMessage(id: "message-id", slrRetryHeader: "1");
+            var context = CreateContext(message);
+
             var delay = TimeSpan.FromSeconds(5);
-            var fakeDispatchPipeline = new FakeDispatchPipeline();
-            var eventAggregator = new FakeEventAggregator();
-            var behavior = new SecondLevelRetriesBehavior(new FakePolicy(delay), "test-address-for-this-pipeline");
+            var behavior = new SecondLevelRetriesBehavior(new FakePolicy(delay), "deferral-address", failureInfoStorage);
 
-            var context = CreateContext("someid", 1, fakeDispatchPipeline, eventAggregator: eventAggregator);
+            await behavior.Invoke(context, () => { throw new Exception("exception-message"); });
+            await behavior.Invoke(context, () => Task.FromResult(0));
 
-            await behavior.Invoke(context, () => { throw new Exception("testex"); });
-
-            Assert.AreEqual("someid", fakeDispatchPipeline.RoutingContext.Message.MessageId);
-            Assert.AreEqual(delay, ((DelayDeliveryWith) fakeDispatchPipeline.RoutingContext.Extensions.GetDeliveryConstraints().Single(c => c is DelayDeliveryWith)).Delay);
-            Assert.AreEqual("test-address-for-this-pipeline", ((UnicastAddressTag) fakeDispatchPipeline.RoutingContext.RoutingStrategies.First().Apply(new Dictionary<string, string>())).Destination);
-            Assert.AreEqual("testex", eventAggregator.GetNotification<MessageToBeRetried>().Exception.Message);
+            Assert.AreEqual("message-id", dispatchPipline.MessageId);
+            Assert.AreEqual(delay, dispatchPipline.MessageDeliveryDelay);
+            Assert.AreEqual("deferral-address", dispatchPipline.MessageDestination);
+            Assert.AreEqual("exception-message", context.GetNotification<MessageToBeRetried>().Exception.Message);
         }
 
         [Test]
         public async Task ShouldSetTimestampHeaderForFirstRetry()
         {
+            var message = CreateMessage();
+            var context = CreateContext(message);
+
             var delay = TimeSpan.FromSeconds(5);
-            var fakeDispatchPipeline = new FakeDispatchPipeline();
-            var behavior = new SecondLevelRetriesBehavior(new FakePolicy(delay), "MyAddress");
+            var behavior = new SecondLevelRetriesBehavior(new FakePolicy(delay), string.Empty, failureInfoStorage);
 
-            await behavior.Invoke(CreateContext("someid", 0, fakeDispatchPipeline), () => { throw new Exception("testex"); });
+            await behavior.Invoke(context, () => { throw new Exception(); });
+            await behavior.Invoke(context, () => Task.FromResult(0) );
 
-            Assert.True(fakeDispatchPipeline.RoutingContext.Message.Headers.ContainsKey(SecondLevelRetriesBehavior.RetriesTimestamp));
+            var retryTimestampHeader = dispatchPipline.MessageHeaders.ContainsKey(Headers.RetriesTimestamp)
+                ? dispatchPipline.MessageHeaders[Headers.RetriesTimestamp]
+                : null;
+
+            Assert.NotNull(retryTimestampHeader, "Message should have retry timestamp set.");
+            Assert.DoesNotThrow(() => DateTimeExtensions.ToUtcDateTime(retryTimestampHeader), "Timestamp should be a proper format.");
         }
 
         [Test]
-        public void ShouldSkipRetryIfNoDelayIsReturned()
+        public async Task ShouldSkipRetryIfNoDelayIsReturned()
         {
-            var behavior = new SecondLevelRetriesBehavior(new FakePolicy(), "MyAddress");
-            var context = CreateContext("someid", 1);
+            var context = CreateContext();
+            var behavior = new SecondLevelRetriesBehavior(new FakePolicy(), string.Empty, failureInfoStorage);
 
-            Assert.That(async () => await behavior.Invoke(context, () => { throw new Exception("testex"); }, routingContext => TaskEx.CompletedTask), Throws.InstanceOf<Exception>());
+            await behavior.Invoke(context, () => { throw new Exception(); });
 
-            Assert.False(context.Message.Headers.ContainsKey(Headers.Retries));
+            Assert.That(async () => await behavior.Invoke(context, () => Task.FromResult(0)), Throws.InstanceOf<Exception>());
+            Assert.That(context.Message.Headers.ContainsKey(Headers.Retries) == false);
         }
 
         [Test]
         public void ShouldSkipRetryForDeserializationErrors()
         {
-            var behavior = new SecondLevelRetriesBehavior(new FakePolicy(TimeSpan.FromSeconds(5)), "MyAddress");
-            var context = CreateContext("someid", 1);
+            var message = CreateMessage(slrRetryHeader: "1");
+            var context = CreateContext(message);
+            var behavior = new SecondLevelRetriesBehavior(new FakePolicy(TimeSpan.FromSeconds(5)), string.Empty, failureInfoStorage);
 
-            Assert.That(async () => await behavior.Invoke(context, () => { throw new MessageDeserializationException("testex"); }, routingContext => TaskEx.CompletedTask), Throws.InstanceOf<MessageDeserializationException>());
-            Assert.False(context.Message.Headers.ContainsKey(Headers.Retries));
+            var behaviorInvocation = new TestDelegate(async () => await behavior.Invoke(context, () => { throw new MessageDeserializationException(string.Empty); }));
+
+            Assert.That(behaviorInvocation, Throws.InstanceOf<MessageDeserializationException>());
+            Assert.That(context.Message.Headers.ContainsKey(Headers.Retries) == false);
         }
 
         [Test]
         public async Task ShouldPullCurrentRetryCountFromHeaders()
         {
-            var retryPolicy = new FakePolicy(TimeSpan.FromSeconds(5));
-
-            var behavior = new SecondLevelRetriesBehavior(retryPolicy, "MyAddress");
-
             var currentRetry = 3;
+            var message = CreateMessage(slrRetryHeader: currentRetry.ToString());
+            var context = CreateContext(message);
 
-            await behavior.Invoke(CreateContext("someid", currentRetry), () => { throw new Exception("testex"); }, routingContext => TaskEx.CompletedTask);
+            var retryPolicy = new FakePolicy(TimeSpan.FromSeconds(5));
+            var behavior = new SecondLevelRetriesBehavior(retryPolicy, string.Empty, failureInfoStorage);
+            
+            await behavior.Invoke(context, () => { throw new Exception("testex"); });
+            await behavior.Invoke(context, () => Task.FromResult(0));
 
             Assert.AreEqual(currentRetry + 1, retryPolicy.InvokedWithCurrentRetry);
         }
 
         [Test]
-        public async Task ShouldDefaultRetryCountToZeroIfNoHeaderIsFound()
+        public async Task ShouldRevertMessageBodyWhenDispatchingMessage()
         {
-            var retryPolicy = new FakePolicy(TimeSpan.FromSeconds(5));
-            var fakeDispatchPipeline = new FakeDispatchPipeline();
-            var context = CreateContext("someid", 2, fakeDispatchPipeline);
+            var originalContent = Encoding.UTF8.GetBytes("original");
+            var message = CreateMessage(slrRetryHeader: "1", body: originalContent);
+            var context = CreateContext(message);
 
-            context.Message.Headers.Clear();
+            var behavior = new SecondLevelRetriesBehavior(new FakePolicy(TimeSpan.FromSeconds(0)), string.Empty, failureInfoStorage);
 
-            var behavior = new SecondLevelRetriesBehavior(retryPolicy, "MyAddress");
-
-            await behavior.Invoke(context, () => { throw new Exception("testex"); });
-
-            Assert.AreEqual(1, retryPolicy.InvokedWithCurrentRetry);
-            Assert.AreEqual("1", fakeDispatchPipeline.RoutingContext.Message.Headers[Headers.Retries]);
+            await behavior.Invoke(context, c =>
+            {
+                c.Message.Body = Encoding.UTF8.GetBytes("modified");
+                throw new Exception();
+            });
+      
+            await behavior.Invoke(context, () => Task.FromResult(0));
+            
+            CollectionAssert.AreEqual(originalContent, context.Message.Body);
         }
 
         [Test]
-        public async Task ShouldRevertMessageBodyWhenDispatchingMessage()
+        public async Task ShouldNotInvokeContinuationAfterMessageFailure()
         {
-            const string originalContent = "original content";
-            var fakeDispatchPipeline = new FakeDispatchPipeline();
-            var context = CreateContext("someId", 1, fakeDispatchPipeline, Encoding.UTF8.GetBytes(originalContent));
-            var retryPolicy = new FakePolicy(TimeSpan.FromSeconds(0));
-            var behavior = new SecondLevelRetriesBehavior(retryPolicy, "test-address-for-this-pipeline");
+            var message = CreateMessage(slrRetryHeader: "1");
+            var context = CreateContext(message);
+            
+            var behavior = new SecondLevelRetriesBehavior(new FakePolicy(TimeSpan.FromSeconds(5)), string.Empty, failureInfoStorage);
+            var calledTwice = false;
 
-            var message = context.Message;
-            message.Body = Encoding.UTF8.GetBytes("modified content");
 
-            await behavior.Invoke(context, () => { throw new Exception("test"); });
+            await behavior.Invoke(context, () => { throw new Exception(); });
+            await behavior.Invoke(context, () =>
+            {
+                calledTwice = true;
+                return Task.FromResult(0);
+            });
 
-            var dispatchedMessage = fakeDispatchPipeline.RoutingContext.Message;
-            Assert.AreEqual(originalContent, Encoding.UTF8.GetString(dispatchedMessage.Body));
-            Assert.AreEqual(originalContent, Encoding.UTF8.GetString(message.Body));
+            Assert.IsFalse(calledTwice, "SLR should not call pipline continuation when processing a message marked for defferal.");
         }
 
-        TestableTransportReceiveContext CreateContext(string messageId, int currentRetryCount, FakeDispatchPipeline pipeline = null, byte[] messageBody = null, FakeEventAggregator eventAggregator = null)
+        [Test]
+        public async Task ShouldAbortMessageReceiveWhenMarkingForDeferal()
         {
-            var context = new TestableTransportReceiveContext
-            {
-                Message = new IncomingMessage(messageId, new Dictionary<string, string>
-                {
-                    {Headers.Retries, currentRetryCount.ToString()}
-                }, new MemoryStream(messageBody ?? new byte[0]))
-            };
+            var message = CreateMessage();
+            var context = CreateContext(message);
 
-            context.Extensions.Set<IEventAggregator>(eventAggregator ?? new FakeEventAggregator());
-            context.Extensions.Set<IPipelineCache>(new FakePipelineCache(pipeline));
+            var behavior = new SecondLevelRetriesBehavior(new FakePolicy(TimeSpan.FromSeconds(5)), string.Empty, failureInfoStorage);
+
+            await behavior.Invoke(context, () => { throw new Exception(); });
+
+            Assert.IsTrue(context.ReceiveOperationWasAborted, "SLR should request recive operation abort when marking message for deferal.");
+        }
+
+        IncomingMessage CreateMessage(string id = "id", string slrRetryHeader = null, byte[] body = null)
+        {
+            var headers = string.IsNullOrEmpty(slrRetryHeader)
+                ? new Dictionary<string, string>()
+                : new Dictionary<string, string> { { Headers.Retries, slrRetryHeader }};
+
+            return new IncomingMessage(id, headers, new MemoryStream(body ?? new byte[0]));
+        }
+
+        FakeTransportReceiveContext CreateContext()
+        {
+            return CreateContext(CreateMessage());
+        }
+
+        FakeTransportReceiveContext CreateContext(IncomingMessage message)
+        {
+            var context = new FakeTransportReceiveContext(message);
+
+            context.Extensions.Set<IPipelineCache>(new FakePipelineCache(dispatchPipline));
 
             return context;
+        }
+
+        class FakeTransportReceiveContext : FakeBehaviorContext, ITransportReceiveContext
+        {
+            public FakeTransportReceiveContext(IncomingMessage message)
+            {
+                Message = message;
+            }
+
+            public bool ReceiveOperationWasAborted { get; private set; }
+
+            public IncomingMessage Message { get; }
+
+            public void AbortReceiveOperation()
+            {
+                ReceiveOperationWasAborted = true;
+            }
         }
     }
 
@@ -155,6 +219,16 @@
     class FakeDispatchPipeline : IPipeline<IRoutingContext>
     {
         public IRoutingContext RoutingContext { get; set; }
+
+        public string MessageId => RoutingContext.Message.MessageId;
+
+        public TimeSpan MessageDeliveryDelay => ((DelayDeliveryWith) RoutingContext.Extensions.GetDeliveryConstraints().Single(c => c is DelayDeliveryWith)).Delay;
+
+        public string MessageDestination => ((UnicastAddressTag)RoutingContext.RoutingStrategies.First().Apply(new Dictionary<string, string>())).Destination;
+
+        public Dictionary<string, string> MessageHeaders => RoutingContext.Message.Headers;
+
+        public byte[] MessageBody => RoutingContext.Message.Body;
 
         public Task Invoke(IRoutingContext context)
         {

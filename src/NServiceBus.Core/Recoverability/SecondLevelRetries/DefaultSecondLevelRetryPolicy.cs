@@ -42,7 +42,7 @@ namespace NServiceBus
         {
             string timestampHeader;
 
-            if (!message.Headers.TryGetValue(SecondLevelRetriesBehavior.RetriesTimestamp, out timestampHeader))
+            if (!message.Headers.TryGetValue(Headers.RetriesTimestamp, out timestampHeader))
             {
                 return false;
             }

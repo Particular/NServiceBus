@@ -96,6 +96,11 @@
         public const string Retries = "NServiceBus.Retries";
 
         /// <summary>
+        /// The time the last second-level retry has been performed for this message.
+        /// </summary>
+        public const string RetriesTimestamp = "NServiceBus.Retries.Timestamp";
+
+        /// <summary>
         /// The number of first-level retries that has been performed for this message.
         /// </summary>
         public const string FLRetries = "NServiceBus.FLRetries";

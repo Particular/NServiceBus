@@ -121,7 +121,7 @@
     <Compile Include="Encryption\When_sending_a_message_with_2x_compatibility_disabled.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\DispatchTimeoutBehaviorTest.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\ExpiredTimeoutsPollerTests.cs" />
-    <Compile Include="DelayedDelivery\TimeoutManager\FailureInfoStorageTests.cs" />
+    <Compile Include="DelayedDelivery\TimeoutManager\TimeoutFailureInfoStorageTests.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\RecordingFakeDispatcher.cs" />
     <Compile Include="DeliveryConstraintContextExtensions\DeliveryConstraintContextExtensionsTests.cs" />
     <Compile Include="FakeEventAggregator.cs" />
@@ -144,6 +144,7 @@
     <Compile Include="Pipeline\Outgoing\OutgoingReplyContextTests.cs" />
     <Compile Include="Pipeline\Outgoing\OutgoingSendContextTests.cs" />
     <Compile Include="Pipeline\RegisterStepTests.cs" />
+    <Compile Include="Recoverability\FailureInfoStorageTests.cs" />
     <Compile Include="Routing\ApplyReplyToAddressBehaviorTests.cs" />
     <Compile Include="Routing\BestPracticesOptionExtensionsTests.cs" />
     <Compile Include="Routing\DetermineRouteForPublishBehaviorTests.cs" />
