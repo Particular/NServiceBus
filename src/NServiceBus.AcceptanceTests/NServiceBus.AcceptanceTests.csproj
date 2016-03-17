@@ -80,6 +80,7 @@
     <Compile Include="CriticalError\When_raising_critical_error.cs" />
     <Compile Include="Basic\When_deferring_to_non_local.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\When_TimeoutManager_is_disabled.cs" />
+    <Compile Include="Mutators\When_incoming_mutator_changes_message_type.cs" />
     <Compile Include="Mutators\When_mutating.cs" />
     <Compile Include="BestPractices\When_publishing_command_bestpractices_disabled_on_endpoint.cs" />
     <Compile Include="BestPractices\When_sending_events_bestpractices_disabled_on_endpoint.cs" />
