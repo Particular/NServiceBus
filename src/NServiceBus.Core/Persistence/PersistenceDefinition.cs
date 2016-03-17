@@ -11,7 +11,7 @@
     public abstract class PersistenceDefinition
     {
         /// <summary>
-        /// Used be the storage definitions to declare what they support.
+        /// Used by the storage definitions to declare what they support.
         /// </summary>
         protected void Supports<T>(Action<SettingsHolder> action) where T : StorageType
         {
@@ -24,7 +24,7 @@
         }
 
         /// <summary>
-        /// Used be the storage definitions to declare what they support.
+        /// Used by the storage definitions to declare what they support.
         /// </summary>
         [ObsoleteEx(
             RemoveInVersion = "7.0",
@@ -36,7 +36,7 @@
         }
 
         /// <summary>
-        /// Used be the storage definitions to declare what they support.
+        /// Used by the storage definitions to declare what they support.
         /// </summary>
         protected void Defaults(Action<SettingsHolder> action)
         {

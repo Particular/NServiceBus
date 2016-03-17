@@ -2,8 +2,9 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Features;
     using NUnit.Framework;
 
     public class When_TimeToBeReceived_has_expired : NServiceBusAcceptanceTest
@@ -12,8 +13,8 @@
         public async Task Message_should_not_be_received()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>()
-                    .Run(TimeSpan.FromSeconds(10));
+                .WithEndpoint<Endpoint>()
+                .Run(TimeSpan.FromSeconds(10));
 
             Assert.IsFalse(context.WasCalled);
         }
@@ -22,11 +23,34 @@
         {
             public bool WasCalled { get; set; }
         }
+
+        class DelayReceiverFromStarting : Feature
+        {
+            protected override void Setup(FeatureConfigurationContext context)
+            {
+                context.RegisterStartupTask(b => new DelayReceiverFromStartingTask());
+            }
+        }
+
+        class DelayReceiverFromStartingTask : FeatureStartupTask
+        {
+            protected override async Task OnStart(IMessageSession session)
+            {
+                await session.SendLocal(new MyMessage());
+                await Task.Delay(TimeSpan.FromSeconds(5));
+            }
+
+            protected override Task OnStop(IMessageSession session)
+            {
+                return Task.FromResult(0);
+            }
+        }
+
         public class Endpoint : EndpointConfigurationBuilder
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>(c => c.EnableFeature<DelayReceiverFromStarting>());
             }
 
             public class MyMessageHandler : IHandleMessages<MyMessage>
@@ -39,29 +63,8 @@
                     return Task.FromResult(0);
                 }
             }
-
-            class DelayReceiverFromStarting: IWantToRunWhenBusStartsAndStops
-            {
-                /// <summary>
-                /// Method called at startup.
-                /// </summary>
-                public async Task Start(IMessageSession session)
-                {
-                    await session.SendLocal(new MyMessage());
-                    await Task.Delay(TimeSpan.FromSeconds(5));
-                }
-
-                /// <summary>
-                /// Method called on shutdown.
-                /// </summary>
-                public Task Stop(IMessageSession session)
-                {
-                    return Task.FromResult(0);
-                }
-            }
         }
 
-        [Serializable]
         [TimeToBeReceived("00:00:02")]
         public class MyMessage : IMessage
         {

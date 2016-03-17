@@ -3,10 +3,11 @@
     using System;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTesting.Support;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.Features;
+    using AcceptanceTesting;
+    using AcceptanceTesting.Support;
+    using Configuration.AdvanceExtensibility;
+    using EndpointTemplates;
+    using Features;
     using NUnit.Framework;
 
     public class When_message_fails_retries : NServiceBusAcceptanceTest
@@ -18,10 +19,10 @@
             try
             {
                 await Scenario.Define<Context>()
-                        .WithEndpoint<RetryEndpoint>(b => b
+                    .WithEndpoint<RetryEndpoint>(b => b
                         .When((session, c) => session.SendLocal(new MessageWhichFailsRetries())))
-                        .Done(c => c.ForwardedToErrorQueue)
-                        .Run();
+                    .Done(c => c.ForwardedToErrorQueue)
+                    .Run();
             }
             catch (AggregateException ex)
             {
@@ -31,7 +32,7 @@
             Assert.AreEqual(1, exception.FailedMessages.Count);
             var failedMessage = exception.FailedMessages.Single();
 
-            var testContext = (Context)exception.ScenarioContext;
+            var testContext = (Context) exception.ScenarioContext;
             Assert.AreEqual(typeof(MessageWhichFailsRetries).AssemblyQualifiedName, failedMessage.Headers[Headers.EnclosedMessageTypes]);
             Assert.AreEqual(testContext.PhysicalMessageId, failedMessage.MessageId);
             Assert.IsAssignableFrom(typeof(SimulatedException), failedMessage.Exception);
@@ -44,35 +45,19 @@
         {
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServer>(configure =>
+                EndpointSetup<DefaultServer>((configure, context) =>
                 {
+                    var scenarioContext = (Context) context.ScenarioContext;
                     configure.DisableFeature<FirstLevelRetries>();
                     configure.DisableFeature<SecondLevelRetries>();
+                    configure.GetSettings().Get<Notifications>().Errors.MessageSentToErrorQueue += (sender, message) => scenarioContext.ForwardedToErrorQueue = true;
                 });
             }
 
             public static byte Checksum(byte[] data)
             {
-                var longSum = data.Sum(x => (long)x);
-                return unchecked((byte)longSum);
-            }
-
-            class ErrorNotificationSpy : IWantToRunWhenBusStartsAndStops
-            {
-                public Context Context { get; set; }
-
-                public Notifications Notifications { get; set; }
-
-                public Task Start(IMessageSession session)
-                {
-                    Notifications.Errors.MessageSentToErrorQueue += (sender, message) => Context.ForwardedToErrorQueue = true;
-                    return Task.FromResult(0);
-                }
-
-                public Task Stop(IMessageSession session)
-                {
-                    return Task.FromResult(0);
-                }
+                var longSum = data.Sum(x => (long) x);
+                return unchecked((byte) longSum);
             }
 
             class MessageHandler : IHandleMessages<MessageWhichFailsRetries>
@@ -87,7 +72,7 @@
             }
         }
 
-        public class Context : ScenarioContext
+        class Context : ScenarioContext
         {
             public bool ForwardedToErrorQueue { get; set; }
 

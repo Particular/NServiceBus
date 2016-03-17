@@ -15,12 +15,11 @@ namespace NServiceBus
 
     class InitializableEndpoint
     {
-        public InitializableEndpoint(SettingsHolder settings, IContainer container, List<Action<IConfigureComponents>> registrations, PipelineSettings pipelineSettings, PipelineConfiguration pipelineConfiguration, IReadOnlyCollection<IWantToRunWhenBusStartsAndStops> startables)
+        public InitializableEndpoint(SettingsHolder settings, IContainer container, List<Action<IConfigureComponents>> registrations, PipelineSettings pipelineSettings, PipelineConfiguration pipelineConfiguration)
         {
             this.settings = settings;
             this.pipelineSettings = pipelineSettings;
             this.pipelineConfiguration = pipelineConfiguration;
-            this.startables = startables;
 
             RegisterContainerAdapter(container);
             RunUserRegistrations(registrations);
@@ -39,8 +38,6 @@ namespace NServiceBus
 
             var featureActivator = BuildFeatureActivator(concreteTypes);
 
-            ConfigureStartsAndStops(concreteTypes);
-
             ConfigRunBeforeIsFinalized(concreteTypes);
 
             var transportDefinition = settings.Get<TransportDefinition>();
@@ -57,7 +54,7 @@ namespace NServiceBus
 
             container.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
 
-            var startableEndpoint = new StartableEndpoint(settings, builder, featureActivator, pipelineConfiguration, startables, new EventAggregator(settings.Get<NotificationSubscriptions>()), transportInfrastructure);
+            var startableEndpoint = new StartableEndpoint(settings, builder, featureActivator, pipelineConfiguration, new EventAggregator(settings.Get<NotificationSubscriptions>()), transportInfrastructure);
             return Task.FromResult<IStartableEndpoint>(startableEndpoint);
         }
 
@@ -78,19 +75,6 @@ namespace NServiceBus
         static bool IsIWantToRunBeforeConfigurationIsFinalized(Type type)
         {
             return typeof(IWantToRunBeforeConfigurationIsFinalized).IsAssignableFrom(type);
-        }
-
-        void ConfigureStartsAndStops(IEnumerable<Type> concreteTypes)
-        {
-            foreach (var type in concreteTypes.Where(IsIWantToRunWhenBusStartsAndStops))
-            {
-                container.ConfigureComponent(type, DependencyLifecycle.InstancePerCall);
-            }
-        }
-
-        static bool IsIWantToRunWhenBusStartsAndStops(Type type)
-        {
-            return typeof(IWantToRunWhenBusStartsAndStops).IsAssignableFrom(type);
         }
 
         FeatureActivator BuildFeatureActivator(IEnumerable<Type> concreteTypes)
@@ -185,6 +169,5 @@ namespace NServiceBus
         PipelineConfiguration pipelineConfiguration;
         PipelineSettings pipelineSettings;
         SettingsHolder settings;
-        IReadOnlyCollection<IWantToRunWhenBusStartsAndStops> startables;
     }
 }

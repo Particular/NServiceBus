@@ -347,6 +347,14 @@ namespace NServiceBus
             throw new NotImplementedException();
         }
     }
+
+    [ObsoleteEx(
+        Message = "`IWantToRunWhenBusStartsAndStops` has been moved to the host implementations and renamed. If you're self-hosting, instead of using this interface, you can call any startup code right before `Endpoint.Create` or any cleanup code right after `Endpoint.Stop`. When using either NServiceBus.Host or NServiceBus.Host.AzureCloudService, use the host's interface `IWantToRunWhenEndpointStartsAndStops` instead.",
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0")]
+    public interface IWantToRunWhenBusStartsAndStops
+    {
+    }
 }
 
 namespace NServiceBus.Unicast
@@ -479,8 +487,7 @@ namespace NServiceBus.Timeout.Core
         [ObsoleteEx(
             Message = "Not used anymore",
             RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0")]
-        public const string OriginalReplyToAddress = "NServiceBus.Timeout.ReplyToAddress";
+            TreatAsErrorFromVersion = "6.0")] public const string OriginalReplyToAddress = "NServiceBus.Timeout.ReplyToAddress";
     }
 }
 
@@ -1372,8 +1379,7 @@ namespace NServiceBus
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            Message = "The WinIdName header is no longer attached to outgoing message to avoid passing security related information on the wire. Should you rely on the header being present you can add a message mutator that sets it.")]
-        public const string WindowsIdentityName = "WinIdName";
+            Message = "The WinIdName header is no longer attached to outgoing message to avoid passing security related information on the wire. Should you rely on the header being present you can add a message mutator that sets it.")] public const string WindowsIdentityName = "WinIdName";
     }
 }
 

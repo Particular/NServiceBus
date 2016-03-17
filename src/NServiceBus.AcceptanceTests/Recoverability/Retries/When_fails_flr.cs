@@ -30,7 +30,7 @@
                     .Run();
         }
 
-        public class Context : ScenarioContext
+        class Context : ScenarioContext
         {
             public Guid Id { get; set; }
 
