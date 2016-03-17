@@ -2108,6 +2108,7 @@ namespace NServiceBus.Pipeline
     }
     public class MessageHandler
     {
+        public MessageHandler(System.Func<object, object, NServiceBus.IMessageHandlerContext, System.Threading.Tasks.Task> invocation, System.Type handlerType) { }
         public System.Type HandlerType { get; }
         public object Instance { get; set; }
         public System.Threading.Tasks.Task Invoke(object message, NServiceBus.IMessageHandlerContext handlerContext) { }

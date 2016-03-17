@@ -13,7 +13,7 @@
         /// </summary>
         /// <param name="invocation">The invocation with context delegate.</param>
         /// <param name="handlerType">The handler type.</param>
-        internal MessageHandler(Func<object, object, IMessageHandlerContext, Task> invocation, Type handlerType)
+        public MessageHandler(Func<object, object, IMessageHandlerContext, Task> invocation, Type handlerType)
         {
             HandlerType = handlerType;
             this.invocation = invocation;
