@@ -8,9 +8,11 @@
     /// </summary>
     public class LogicalMessage
     {
-        internal LogicalMessage(MessageMetadata metadata, object message, LogicalMessageFactory factory)
+        /// <summary>
+        /// Create a new <see cref="LogicalMessage"/> instance containg a message object and it's corresponding <see cref="MessageMetadata"/>.
+        /// </summary>
+        public LogicalMessage(MessageMetadata metadata, object message)
         {
-            this.factory = factory;
             Instance = message;
             Metadata = metadata;
         }
@@ -24,34 +26,24 @@
         /// <summary>
         /// Message metadata.
         /// </summary>
-        public MessageMetadata Metadata { get; private set; }
+        public MessageMetadata Metadata { get; internal set; }
 
         /// <summary>
         /// The message instance.
         /// </summary>
-        public object Instance { get; private set; }
+        public object Instance { get; internal set; }
 
         /// <summary>
         /// Updates the message instance.
         /// </summary>
         /// <param name="newInstance">The new instance.</param>
+        [ObsoleteEx(
+            RemoveInVersion = "7", 
+            TreatAsErrorFromVersion = "6", 
+            ReplacementTypeOrMember = "IIncomingLogicalMessageContext.UpdateMessageInstance(object newInstance)")]
         public void UpdateMessageInstance(object newInstance)
         {
-            Guard.AgainstNull(nameof(newInstance), newInstance);
-            var sameInstance = ReferenceEquals(Instance, newInstance);
-
-            Instance = newInstance;
-
-            if (sameInstance)
-            {
-                return;
-            }
-
-            var newLogicalMessage = factory.Create(newInstance);
-
-            Metadata = newLogicalMessage.Metadata;
+            throw new NotImplementedException();
         }
-
-        LogicalMessageFactory factory;
     }
 }

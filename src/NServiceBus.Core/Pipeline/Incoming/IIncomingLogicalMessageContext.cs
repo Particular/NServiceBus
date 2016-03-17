@@ -21,5 +21,11 @@
         /// Tells if the message has been handled.
         /// </summary>
         bool MessageHandled { get; set; }
+
+        /// <summary>
+        /// Updates the message instance contained in <see cref="LogicalMessage"/>.
+        /// </summary>
+        /// <param name="newInstance">The new instance.</param>
+        void UpdateMessageInstance(object newInstance);
     }
 }

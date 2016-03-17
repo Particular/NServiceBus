@@ -16,7 +16,7 @@
         {
             var behavior = new MutateIncomingMessageBehavior();
 
-            var logicalMessage = new LogicalMessage(new MessageMetadata(typeof(TestMessage)), new TestMessage(), null);
+            var logicalMessage = new LogicalMessage(new MessageMetadata(typeof(TestMessage)), new TestMessage());
 
             var context = new IncomingLogicalMessageContext(logicalMessage, "messageId", "replyToAddress", new Dictionary<string, string>(), null);
 

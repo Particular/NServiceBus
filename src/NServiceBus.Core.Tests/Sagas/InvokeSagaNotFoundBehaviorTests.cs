@@ -14,7 +14,7 @@
         [SetUp]
         public void SetupTests()
         {
-            message = new LogicalMessage(new MessageMetadata(typeof(TestMessage)), new TestMessage(), null);
+            message = new LogicalMessage(new MessageMetadata(typeof(TestMessage)), new TestMessage());
 
             behavior = new InvokeSagaNotFoundBehavior();
 

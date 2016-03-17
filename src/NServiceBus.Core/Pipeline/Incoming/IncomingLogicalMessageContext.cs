@@ -23,5 +23,23 @@
         public Dictionary<string, string> Headers { get; }
 
         public bool MessageHandled { get; set; }
+
+        public void UpdateMessageInstance(object newInstance)
+        {
+            Guard.AgainstNull(nameof(newInstance), newInstance);
+            var sameInstance = ReferenceEquals(Message.Instance, newInstance);
+
+            Message.Instance = newInstance;
+
+            if (sameInstance)
+            {
+                return;
+            }
+
+            var factory = this.Builder.Build<LogicalMessageFactory>();
+            var newLogicalMessage = factory.Create(newInstance);
+
+            Message.Metadata = newLogicalMessage.Metadata;
+        }
     }
 }

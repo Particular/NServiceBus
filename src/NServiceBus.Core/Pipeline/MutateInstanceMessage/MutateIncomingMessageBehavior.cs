@@ -22,7 +22,7 @@
 
             if (mutatorContext.MessageInstanceChanged)
             {
-                logicalMessage.UpdateMessageInstance(mutatorContext.Message);
+                context.UpdateMessageInstance(mutatorContext.Message);
             }
 
             await next().ConfigureAwait(false);
