@@ -646,7 +646,6 @@
     <Compile Include="ConfigurationSource\DefaultConfigurationSource.cs" />
     <Compile Include="ConfigurationSource\IConfigurationSource.cs" />
     <Compile Include="Logging\Logging.cs" />
-    <Compile Include="Distributor\MasterNode\MasterNodeConfig.cs" />
     <Compile Include="Routing\MessageEndpointMapping.cs" />
     <Compile Include="Routing\MessageEndpointMappingCollection.cs" />
     <Compile Include="Recoverability\Faults\MessageForwardingInCaseOfFaultConfig.cs" />

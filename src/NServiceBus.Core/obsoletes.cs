@@ -869,11 +869,21 @@ namespace NServiceBus.AutomaticSubscriptions.Config
 
 namespace NServiceBus.Config
 {
+    using System.Configuration;
+
     [ObsoleteEx(
         Message = "Use the feature concept instead via A class which inherits from `NServiceBus.Features.Feature` and use `configuration.EnableFeature<YourClass>()`",
         RemoveInVersion = "7",
         TreatAsErrorFromVersion = "6")]
     public interface IWantToRunWhenConfigurationIsComplete
+    {
+    }
+
+    [ObsoleteEx(
+        TreatAsErrorFromVersion = "6",
+        RemoveInVersion = "7",
+        ReplacementTypeOrMember = "EndpointConfiguration.EnlistWithLegacyMSMQDistributor")]
+    public class MasterNodeConfig : ConfigurationSection
     {
     }
 }
