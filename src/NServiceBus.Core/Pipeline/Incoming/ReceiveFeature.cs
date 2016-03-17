@@ -36,8 +36,18 @@
             context.Container.ConfigureComponent(b =>
             {
                 var adapter = context.Container.HasComponent<ISynchronizedStorageAdapter>() ? b.Build<ISynchronizedStorageAdapter>() : new NoOpAdaper();
-                return new LoadHandlersConnector(b.Build<MessageHandlerRegistry>(), b.Build<ISynchronizedStorage>(), adapter);
+                var syncStorage = context.Container.HasComponent<ISynchronizedStorage>() ? b.Build<ISynchronizedStorage>() : new NoOpSynchronizedStorage();
+
+                return new LoadHandlersConnector(b.Build<MessageHandlerRegistry>(), syncStorage, adapter);
             }, DependencyLifecycle.InstancePerCall);
+        }
+
+        class NoOpSynchronizedStorage : ISynchronizedStorage
+        {
+            public Task<CompletableSynchronizedStorageSession> OpenSession(ContextBag contextBag)
+            {
+                return NoOpAdaper.EmptyResult;
+            }
         }
 
         class NoOpAdaper : ISynchronizedStorageAdapter
@@ -52,7 +62,19 @@
                 return EmptyResult;
             }
 
-            static readonly Task<CompletableSynchronizedStorageSession> EmptyResult = Task.FromResult<CompletableSynchronizedStorageSession>(null);
+            internal static readonly Task<CompletableSynchronizedStorageSession> EmptyResult = Task.FromResult<CompletableSynchronizedStorageSession>(new NoOpCompletableSynchronizedStorageSession());
+        }
+
+        class NoOpCompletableSynchronizedStorageSession : CompletableSynchronizedStorageSession
+        {
+            public Task CompleteAsync()
+            {
+                return TaskEx.CompletedTask;
+            }
+
+            public void Dispose()
+            {
+            }
         }
 
         class NoOpOutbox : IOutboxStorage
