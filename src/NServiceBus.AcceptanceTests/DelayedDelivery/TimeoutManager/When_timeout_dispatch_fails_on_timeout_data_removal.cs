@@ -36,9 +36,6 @@
                 .Done(c => c.FailedTimeoutMovedToError)
                 .Repeat(r => r.For<AllTransportsWithoutNativeDeferralAndWithAtomicSendAndReceive>())
                 .Should(c => Assert.IsFalse(c.DelayedMessageDeliveredToHandler, "Message was unexpectedly delivered to the handler"))
-                .Should(c => Assert.IsTrue(c.ObserversWereNotifiedOfFlr))
-                .Should(c => Assert.IsFalse(c.ObserversWereNotifiedOfSlr))
-                .Should(c => Assert.IsTrue(c.ObserversWereNotifiedOfFault))
                 .Run();
         }
 
@@ -46,9 +43,6 @@
         {
             public bool FailedTimeoutMovedToError { get; set; }
             public bool DelayedMessageDeliveredToHandler { get; set; }
-            public bool ObserversWereNotifiedOfFlr { get; set; }
-            public bool ObserversWereNotifiedOfSlr { get; set; }
-            public bool ObserversWereNotifiedOfFault { get; set; }
         }
 
         public class Endpoint : EndpointConfigurationBuilder
@@ -64,25 +58,6 @@
                     config.Pipeline.Register<BehaviorThatLogsControlMessageDelivery.Registration>();
                     config.LimitMessageProcessingConcurrencyTo(1);
                 });
-            }
-
-            class ErrorNotificationSpy : IWantToRunWhenBusStartsAndStops
-            {
-                public Context TestContext { get; set; }
-                public BusNotifications Notifications { get; set; }
-
-                public Task Start(IMessageSession session)
-                {
-                    Notifications.Errors.MessageHasFailedAFirstLevelRetryAttempt += (sender, retry) => TestContext.ObserversWereNotifiedOfFlr = true;
-                    Notifications.Errors.MessageHasBeenSentToSecondLevelRetries += (sender, retry) => TestContext.ObserversWereNotifiedOfSlr = true;
-                    Notifications.Errors.MessageSentToErrorQueue += (sender, retry) => TestContext.ObserversWereNotifiedOfFault = true;
-                    return Task.FromResult(0);
-                }
-
-                public Task Stop(IMessageSession session)
-                {
-                    return Task.FromResult(0);
-                }
             }
 
             class Handler : IHandleMessages<MyMessage>

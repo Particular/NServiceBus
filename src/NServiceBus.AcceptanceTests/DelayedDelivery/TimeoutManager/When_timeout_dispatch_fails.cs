@@ -31,9 +31,6 @@
                 .Done(c => c.FailedTimeoutMovedToError)
                 .Repeat(r => r.For<AllTransportsWithoutNativeDeferral>())
                 .Should(c => Assert.AreEqual(5, c.NumTimesStorageCalled))
-                .Should(c => Assert.IsTrue(c.ObserversWereNotifiedOfFlr))
-                .Should(c => Assert.IsFalse(c.ObserversWereNotifiedOfSlr))
-                .Should(c => Assert.IsTrue(c.ObserversWereNotifiedOfFault))
                 .Run();
         }
 
@@ -41,9 +38,6 @@
         {
             public bool FailedTimeoutMovedToError { get; set; }
             public int NumTimesStorageCalled { get; set; }
-            public bool ObserversWereNotifiedOfFlr { get; set; }
-            public bool ObserversWereNotifiedOfSlr { get; set; }
-            public bool ObserversWereNotifiedOfFault { get; set; }
         }
 
         public class Endpoint : EndpointConfigurationBuilder
@@ -57,25 +51,6 @@
                     config.SendFailedMessagesTo(ErrorQueueForTimeoutErrors);
                     config.RegisterComponents(c => c.ConfigureComponent<FakeTimeoutStorage>(DependencyLifecycle.SingleInstance));
                 });
-            }
-
-            class ErrorNotificationSpy : IWantToRunWhenBusStartsAndStops
-            {
-                public Context TestContext { get; set; }
-                public BusNotifications Notifications { get; set; }
-
-                public Task Start(IMessageSession session)
-                {
-                    Notifications.Errors.MessageHasFailedAFirstLevelRetryAttempt += (sender, retry) => TestContext.ObserversWereNotifiedOfFlr = true;
-                    Notifications.Errors.MessageHasBeenSentToSecondLevelRetries += (sender, retry) => TestContext.ObserversWereNotifiedOfSlr = true;
-                    Notifications.Errors.MessageSentToErrorQueue += (sender, retry) => TestContext.ObserversWereNotifiedOfFault = true;
-                    return Task.FromResult(0);
-                }
-
-                public Task Stop(IMessageSession session)
-                {
-                    return Task.FromResult(0);
-                }
             }
 
             class FakeTimeoutPersistence : PersistenceDefinition
