@@ -19,7 +19,8 @@
                 new PipelineCollection(Enumerable.Empty<TransportReceiver>()), 
                 new StartAndStoppablesRunner(Enumerable.Empty<IWantToRunWhenBusStartsAndStops>()), 
                 new FeatureRunner(new FeatureActivator(new SettingsHolder())),
-                new MessageSession(new RootContext(null, null, null)));
+                new MessageSession(new RootContext(null, null, null)),
+                new ShutdownDelegateRegistry());
 
             await testee.Stop();
 

@@ -125,6 +125,10 @@
     <Compile Include="Serialization\SerializationFeature.cs" />
     <Compile Include="Serializers\XML\XmlSerialization.cs" />
     <Compile Include="Settings\ScaleOutSettings.cs" />
+    <Compile Include="Shutdown\IContainShutdownDelegates.cs" />
+    <Compile Include="Shutdown\IRegisterShutdownDelegates.cs" />
+    <Compile Include="Shutdown\ShutdownDelegateRegistry.cs" />
+    <Compile Include="Shutdown\ShutdownHook.cs" />
     <Compile Include="Transports\IOutgoingTransportOperation.cs" />
     <Compile Include="Transports\Msmq\MsmqScopeOptions.cs" />
     <Compile Include="Transports\Msmq\MsmqTransportInfrastructure.cs" />

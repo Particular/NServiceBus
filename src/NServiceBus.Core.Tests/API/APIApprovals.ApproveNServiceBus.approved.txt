@@ -2623,6 +2623,14 @@ namespace NServiceBus.Settings
         public NServiceBus.Settings.TransactionSettings WrapHandlersExecutionInATransactionScope() { }
     }
 }
+namespace NServiceBus.Shutdown
+{
+    public interface IRegisterShutdownDelegates
+    {
+        void Register(System.Action action);
+        void Register(System.Func<System.Threading.Tasks.Task> func);
+    }
+}
 namespace NServiceBus.Support
 {
     public class static RuntimeEnvironment

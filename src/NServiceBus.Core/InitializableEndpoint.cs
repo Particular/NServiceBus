@@ -15,7 +15,12 @@ namespace NServiceBus
 
     class InitializableEndpoint : IInitializableEndpoint
     {
-        public InitializableEndpoint(SettingsHolder settings, IContainer container, List<Action<IConfigureComponents>> registrations, PipelineSettings pipelineSettings, PipelineConfiguration pipelineConfiguration, IReadOnlyCollection<IWantToRunWhenBusStartsAndStops> startables)
+        public InitializableEndpoint(SettingsHolder settings, 
+            IContainer container, List<Action<IConfigureComponents>> registrations, 
+            PipelineSettings pipelineSettings, 
+            PipelineConfiguration pipelineConfiguration, 
+            IReadOnlyCollection<IWantToRunWhenBusStartsAndStops> startables,
+            IContainShutdownDelegates shutdownDelegateRegistry)
         {
             settings.Set<BusNotifications>(new BusNotifications());
             settings.Set<NotificationSubscriptions>(new NotificationSubscriptions());
@@ -29,6 +34,7 @@ namespace NServiceBus
 
             this.container.RegisterSingleton(this);
             this.container.RegisterSingleton<ReadOnlySettings>(settings);
+            this.shutdownDelegateRegistry = shutdownDelegateRegistry;
         }
 
         public Task<IStartableEndpoint> Initialize()
@@ -58,7 +64,7 @@ namespace NServiceBus
 
             container.ConfigureComponent(b => settings.Get<BusNotifications>(), DependencyLifecycle.SingleInstance);
 
-            var startableEndpoint = new StartableEndpoint(settings, builder, featureActivator, pipelineConfiguration, startables, new EventAggregator(settings.Get<NotificationSubscriptions>()));
+            var startableEndpoint = new StartableEndpoint(settings, builder, featureActivator, pipelineConfiguration, startables, new EventAggregator(settings.Get<NotificationSubscriptions>()), shutdownDelegateRegistry);
             return Task.FromResult<IStartableEndpoint>(startableEndpoint);
         }
 
@@ -187,5 +193,6 @@ namespace NServiceBus
         PipelineSettings pipelineSettings;
         SettingsHolder settings;
         IReadOnlyCollection<IWantToRunWhenBusStartsAndStops> startables;
+        IContainShutdownDelegates shutdownDelegateRegistry;
     }
 }
