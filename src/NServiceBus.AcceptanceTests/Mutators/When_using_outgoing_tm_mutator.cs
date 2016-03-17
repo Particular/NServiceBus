@@ -12,18 +12,23 @@
         [Test]
         public async Task Should_be_able_to_update_message()
         {
-            var context = await Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                     .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new MessageToBeMutated())))
                     .Done(c => c.MessageProcessed)
+                    .Repeat(r => r.For(NServiceBus.AcceptanceTests.ScenarioDescriptors.Serializers.Xml))
+                    .Should(c =>
+                    {
+                        Assert.True(c.CanAddHeaders);
+                        Assert.AreEqual("SomeValue", c.MutatedPropertyValue, "Mutator should be able to mutate body.");
+                    })
                     .Run();
-
-            Assert.True(context.CanAddHeaders);
         }
 
         public class Context : ScenarioContext
         {
             public bool MessageProcessed { get; set; }
             public bool CanAddHeaders { get; set; }
+            public string MutatedPropertyValue { get; set; }
         }
 
         public class Endpoint : EndpointConfigurationBuilder
@@ -39,7 +44,7 @@
                 {
                     context.OutgoingHeaders["HeaderSetByMutator"] = "some value";
                     context.OutgoingHeaders[Headers.EnclosedMessageTypes] = typeof(MessageThatMutatorChangesTo).FullName;
-                    context.OutgoingBody = Encoding.UTF8.GetBytes("<MessageThatMutatorChangesTo/>");
+                    context.OutgoingBody = Encoding.UTF8.GetBytes("<MessageThatMutatorChangesTo><SomeProperty>SomeValue</SomeProperty></MessageThatMutatorChangesTo>");
                     return Task.FromResult(0);
                 }
 
@@ -61,6 +66,7 @@
                 public Task Handle(MessageThatMutatorChangesTo message, IMessageHandlerContext context)
                 {
                     testContext.CanAddHeaders = context.MessageHeaders.ContainsKey("HeaderSetByMutator");
+                    testContext.MutatedPropertyValue = message.SomeProperty;
                     testContext.MessageProcessed = true;
                     return Task.FromResult(0);
                 }
@@ -74,6 +80,7 @@
 
         public class MessageThatMutatorChangesTo : ICommand
         {
+            public string SomeProperty { get; set; }
         }
     }
 }
