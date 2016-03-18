@@ -102,7 +102,8 @@
         {
             public ErrorSpy()
             {
-                EndpointSetup<DefaultServer>(c => c.EndpointName(ErrorQueueForTimeoutErrors));
+                EndpointSetup<DefaultServer>()
+                    .CustomEndpointName(ErrorQueueForTimeoutErrors);
             }
 
             class Handler : IHandleMessages<MyMessage>

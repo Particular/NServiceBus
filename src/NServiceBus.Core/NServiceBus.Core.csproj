@@ -104,7 +104,6 @@
     <Compile Include="DelayedDelivery\TimeoutManager\ProcessingFailureInfo.cs" />
     <Compile Include="DetectObsoleteConfigurationSettings.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\TimeoutRecoverabilityBehavior.cs" />
-    <Compile Include="EndpointHelper.cs" />
     <Compile Include="Endpoint.cs" />
     <Compile Include="Forwarding\ConfigureForwarding.cs" />
     <Compile Include="Notifications\IEventAggregator.cs" />

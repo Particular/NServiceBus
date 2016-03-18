@@ -29,7 +29,8 @@
         {
             public ForwardReceiver()
             {
-                EndpointSetup<DefaultServer>(c => c.EndpointName("forward_receiver"));
+                EndpointSetup<DefaultServer>()
+                    .CustomEndpointName("forward_receiver");
             }
 
             public class MessageToForwardHandler : IHandleMessages<MessageToForward>

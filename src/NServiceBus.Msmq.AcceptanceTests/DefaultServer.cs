@@ -32,9 +32,8 @@
 
             typesToInclude.AddRange(types);
 
-            var builder = new EndpointConfiguration();
+            var builder = new EndpointConfiguration(endpointConfiguration.EndpointName);
 
-            builder.EndpointName(endpointConfiguration.EndpointName);
             builder.TypesToIncludeInScan(typesToInclude);
             builder.CustomConfigurationSource(configSource);
             builder.EnableInstallers();
@@ -67,7 +66,7 @@
             var assemblies = new AssemblyScanner().GetScannableAssemblies();
 
             var types = assemblies.Assemblies
-                //exclude all test types by default
+                                  //exclude all test types by default
                                   .Where(a =>
                                   {
                                       var references = a.GetReferencedAssemblies();
@@ -88,7 +87,7 @@
         {
             if (rootType == null)
             {
-                throw new InvalidOperationException("Make sure you nest the endpoint infrastructure inside the TestFixture as nested classes");    
+                throw new InvalidOperationException("Make sure you nest the endpoint infrastructure inside the TestFixture as nested classes");
             }
 
             yield return rootType;

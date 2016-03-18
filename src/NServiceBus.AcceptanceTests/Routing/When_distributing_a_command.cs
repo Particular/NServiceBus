@@ -42,7 +42,7 @@
     </endpoint>
 </endpoints>
 ");
-                
+
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.Routing().UseFileBasedEndpointInstanceMapping(filePath);
@@ -77,9 +77,9 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.EndpointName("DistributingACommand.Receiver");
                     c.ScaleOut().InstanceDiscriminator("1");
-                });
+                })
+                .CustomEndpointName("DistributingACommand.Receiver");
             }
 
             public class MyMessageHandler : IHandleMessages<Request>
@@ -100,9 +100,9 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.EndpointName("DistributingACommand.Receiver");
                     c.ScaleOut().InstanceDiscriminator("2");
-                });
+                })
+                .CustomEndpointName("DistributingACommand.Receiver");
             }
 
             public class MyMessageHandler : IHandleMessages<Request>

@@ -52,7 +52,8 @@
         {
             public ErrorSpy()
             {
-                EndpointSetup<DefaultServer>(c => c.EndpointName("error_with_code_source"));
+                EndpointSetup<DefaultServer>()
+                    .CustomEndpointName("error_with_code_source");
             }
 
             class Handler : IHandleMessages<Message>

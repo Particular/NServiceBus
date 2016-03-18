@@ -65,6 +65,9 @@ namespace NServiceBus
         [System.ObsoleteAttribute("Please use `EndpointConfiguration.ExcludeAssemblies` instead. Will be removed in " +
             "version 7.0.0.", true)]
         public void AssembliesToScan(params System.Reflection.Assembly[] assemblies) { }
+        [System.ObsoleteAttribute("Endpoint name is now a mandatory constructor argument on EndpointConfiguration. W" +
+            "ill be removed in version 7.0.0.", true)]
+        public void EndpointName(string name) { }
         [System.ObsoleteAttribute("Please use `EndpointConfiguration.UseTransport<T>().AddAddressTranslationRule(Fun" +
             "c<LogicalAddress, string> rule)` instead. Will be removed in version 7.0.0.", true)]
         public void OverrideLocalAddress(string queue) { }
@@ -304,11 +307,10 @@ namespace NServiceBus
     }
     public class EndpointConfiguration : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
-        public EndpointConfiguration() { }
+        public EndpointConfiguration(string endpointName) { }
         public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
         public NServiceBus.ConventionsBuilder Conventions() { }
         public void CustomConfigurationSource(NServiceBus.Config.ConfigurationSource.IConfigurationSource configurationSource) { }
-        public void EndpointName(string name) { }
         public void ExcludeAssemblies(params string[] assemblies) { }
         public void ExcludeTypes(params System.Type[] types) { }
         public void OverridePublicReturnAddress(string address) { }
