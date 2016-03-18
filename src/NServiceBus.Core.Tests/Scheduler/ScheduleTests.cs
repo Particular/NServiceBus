@@ -55,6 +55,11 @@
                 return TaskEx.CompletedTask;
             }
 
+            public Task Send(object message, params SendOption[] options)
+            {
+                throw new NotImplementedException();
+            }
+
             public Task Send<T>(Action<T> messageConstructor, SendOptions options)
             {
                 throw new NotImplementedException();

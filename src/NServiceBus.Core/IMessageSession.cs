@@ -1,7 +1,172 @@
+// ReSharper disable NotAccessedField.Local
+#pragma warning disable 1591
 namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
+
+    public class Usage
+    {
+        public void Test(IMessageSession session)
+        {
+            var options = new SendOptions();
+            options.DelayDeliveryWith(TimeSpan.FromMinutes(15));
+            options.RouteToThisEndpoint();
+            options.SetCorrelationId("correlationId");
+            options.SetMessageId("messageId");
+            options.SetHeader("header1", "value1");
+            options.SetHeader("header2", "value2");
+            options.RouteReplyToThisInstance();
+            session.Send(new object(), options);
+
+            //messageid, headers, correlationid
+            session.Send(new object(), 
+                Defer.By(TimeSpan.FromMinutes(15)), 
+                Route.ToThisEndpoint(), 
+                CorrelationId.Set("correlationId"), 
+                MessageId.Set("messageId"),
+                Header.Set("header1", "value1"),
+                Header.Set("header2", "value2"),
+                Reply.ToThisInstance());
+        }
+    }
+
+    public abstract class SendOption
+    {
+        // require implementations to provide a key which is used to check for "duplicates" (e.g. Defer.To & Defer.By)
+
+        internal abstract void Apply(SendOptions options);
+    }
+
+    public class Header : SendOption
+    {
+        readonly string key;
+        readonly string value;
+
+        Header(string key, string value)
+        {
+            this.key = key;
+            this.value = value;
+        }
+
+        public static Header Set(string key, string value)
+        {
+            return new Header(key, value);
+        }
+
+        internal override void Apply(SendOptions options)
+        {
+            options.SetHeader(key, value);
+        }
+    }
+
+    public class MessageId : SendOption
+    {
+        readonly string messageId;
+
+        MessageId(string messageId)
+        {
+            this.messageId = messageId;
+        }
+
+        public static MessageId Set(string messageId)
+        {
+            return new MessageId(messageId);
+        }
+
+        internal override void Apply(SendOptions options)
+        {
+            options.SetMessageId(messageId);
+        }
+    }
+
+    public class CorrelationId : SendOption
+    {
+        readonly string correlationId;
+
+        CorrelationId(string correlationId)
+        {
+            this.correlationId = correlationId;
+        }
+
+        public static CorrelationId Set(string correlationId)
+        {
+            return new CorrelationId(correlationId);
+        }
+
+        internal override void Apply(SendOptions options)
+        {
+            options.SetCorrelationId(correlationId);
+        }
+    }
+
+    public class Reply : SendOption
+    {
+        public static Reply ToThisInstance()
+        {
+            return new Reply();
+        }
+
+        internal override void Apply(SendOptions options)
+        {
+            options.RouteReplyToThisInstance();
+        }
+    }
+
+    public class Route : SendOption
+    {
+        private Route()
+        {
+        }
+
+        public static Route ToThisEndpoint()
+        {
+            return new Route();
+        }
+
+        internal override void Apply(SendOptions options)
+        {
+            options.RouteToThisEndpoint();
+        }
+    }
+
+    public class Defer : SendOption
+    {
+        readonly TimeSpan? timespan;
+        readonly DateTimeOffset? deliveryDate;
+
+        private Defer(DateTimeOffset deliveryDate)
+        {
+            this.deliveryDate = deliveryDate;
+        }
+
+        private Defer(TimeSpan timespan)
+        {
+            this.timespan = timespan;
+        }
+
+        public static Defer To(DateTimeOffset deliveryDate)
+        {
+            return new Defer(deliveryDate);
+        }
+
+        public static Defer By(TimeSpan timespan)
+        {
+            return new Defer(timespan);
+        }
+
+        internal override void Apply(SendOptions options)
+        {
+            if (timespan != null)
+            {
+                options.DelayDeliveryWith(timespan.Value);
+            }
+            else
+            {
+                options.DoNotDeliverBefore(deliveryDate ?? DateTimeOffset.Now);
+            }
+        }
+    }
 
     /// <summary>
     /// A session which provides basic message operations.
@@ -14,6 +179,8 @@ namespace NServiceBus
         /// <param name="message">The message to send.</param>
         /// <param name="options">The options for the send.</param>
         Task Send(object message, SendOptions options);
+
+        Task Send(object message, params SendOption[] options);
 
         /// <summary>
         /// Instantiates a message of type T and sends it.

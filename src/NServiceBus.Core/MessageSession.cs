@@ -15,6 +15,16 @@ namespace NServiceBus
             return MessageOperations.Send(context, message, options);
         }
 
+        public Task Send(object message, params SendOption[] options)
+        {
+            var o = new SendOptions();
+            foreach (var opt in options)
+            {
+                opt.Apply(o);
+            }
+            return MessageOperations.Send(context, message, o);
+        }
+
         public Task Send<T>(Action<T> messageConstructor, SendOptions options)
         {
             return MessageOperations.Send(context, messageConstructor, options);
