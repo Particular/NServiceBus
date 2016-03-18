@@ -34,7 +34,7 @@
             }
 
             var sagaMetadata = sagaMetadataCollection.Find(context.MessageHandler.Instance.GetType());
-            var sagaInstanceState = new ActiveSagaInstance(saga, sagaMetadata);
+            var sagaInstanceState = new ActiveSagaInstance(saga, sagaMetadata, () => DateTime.UtcNow);
 
             //so that other behaviors can access the saga
             context.Extensions.Set(sagaInstanceState);
@@ -91,6 +91,8 @@
                 }
 
                 logger.DebugFormat("Saga: '{0}' with Id: '{1}' has completed.", sagaInstanceState.Metadata.Name, saga.Entity.Id);
+
+                sagaInstanceState.Completed();
             }
             else
             {
@@ -112,6 +114,8 @@
                 {
                     await sagaPersister.Update(saga.Entity, context.SynchronizedStorageSession, context.Extensions).ConfigureAwait(false);
                 }
+
+                sagaInstanceState.Updated();
             }
         }
 

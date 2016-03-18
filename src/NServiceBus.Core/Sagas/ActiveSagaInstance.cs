@@ -9,10 +9,16 @@ namespace NServiceBus.Sagas
     /// </summary>
     public class ActiveSagaInstance
     {
-        internal ActiveSagaInstance(Saga saga, SagaMetadata metadata)
+        readonly Func<DateTime> currentUtcDateTimeProvider;
+
+        internal ActiveSagaInstance(Saga saga, SagaMetadata metadata, Func<DateTime> currentUtcDateTimeProvider)
         {
+            this.currentUtcDateTimeProvider = currentUtcDateTimeProvider;
             Instance = saga;
             Metadata = metadata;
+
+            Created = currentUtcDateTimeProvider();
+            Modified = Created;
         }
 
         /// <summary>
@@ -40,10 +46,6 @@ namespace NServiceBus.Sagas
         /// <summary>
         /// The actual saga instance.
         /// </summary>
-        [ObsoleteEx(
-            TreatAsErrorFromVersion = "6",
-            RemoveInVersion = "7",
-            ReplacementTypeOrMember = "context.MessageHandler.Instance")]
         public Saga Instance { get; }
 
         /// <summary>
@@ -55,6 +57,17 @@ namespace NServiceBus.Sagas
         /// True if no saga instance could be found for this message.
         /// </summary>
         public bool NotFound { get; private set; }
+
+        /// <summary>
+        /// UTC timestamp of when the active saga instance was created.
+        /// </summary>
+        public DateTime Created { get; }
+
+        /// <summary>
+        /// UTC timestamp of when the active saga instance was last modified.
+        /// </summary>
+        public DateTime Modified { get; private set; }
+
 
         internal bool TryGetCorrelationProperty(out CorrelationPropertyInfo sagaCorrelationProperty)
         {
@@ -83,6 +96,7 @@ namespace NServiceBus.Sagas
         void AttachEntity(IContainSagaData sagaEntity)
         {
             sagaId = sagaEntity.Id;
+            UpdateModified();
             Instance.Entity = sagaEntity;
             SagaId = sagaEntity.Id.ToString();
 
@@ -107,11 +121,26 @@ namespace NServiceBus.Sagas
             }
         }
 
+        void UpdateModified()
+        {
+            Modified = currentUtcDateTimeProvider();
+        }
+
         internal void MarkAsNotFound()
         {
             NotFound = true;
+            UpdateModified();
         }
 
+        internal void Completed()
+        {
+            UpdateModified();
+        }
+
+        internal void Updated()
+        {
+            UpdateModified();
+        }
 
         internal void ValidateChanges()
         {
@@ -140,7 +169,7 @@ namespace NServiceBus.Sagas
             }
 
             throw new Exception(
-                $@"We detected that the correlated property '{correlationProperty.PropertyInfo.Name}' on saga '{Metadata.SagaType.Name}' does not have a value'. 
+                $@"We detected that the correlated property '{correlationProperty.PropertyInfo.Name}' on saga '{Metadata.SagaType.Name}' does not have a value'.
 All correlated properties must have a non null or empty value assigned to them when a new saga instance is created.");
         }
 
@@ -164,7 +193,7 @@ All correlated properties must have a non null or empty value assigned to them w
             }
 
             throw new Exception(
-                $@"We detected that the value of the correlated property '{correlationProperty.PropertyInfo.Name}' on saga '{Metadata.SagaType.Name}' has changed from '{correlationProperty.Value}' to '{currentValue}'. 
+                $@"We detected that the value of the correlated property '{correlationProperty.PropertyInfo.Name}' on saga '{Metadata.SagaType.Name}' has changed from '{correlationProperty.Value}' to '{currentValue}'.
 Changing the value of correlated properties at runtime is currently not supported.");
         }
 

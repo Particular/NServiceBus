@@ -2364,10 +2364,10 @@ namespace NServiceBus.Sagas
 {
     public class ActiveSagaInstance
     {
-        [System.ObsoleteAttribute("Please use `context.MessageHandler.Instance` instead. Will be removed in version " +
-            "7.0.0.", true)]
+        public System.DateTime Created { get; }
         public NServiceBus.Saga Instance { get; }
         public bool IsNew { get; }
+        public System.DateTime Modified { get; }
         public bool NotFound { get; }
         public string SagaId { get; }
         [System.ObsoleteAttribute("Please use `.Metadata.SagaType` instead. Will be removed in version 7.0.0.", true)]
