@@ -5,6 +5,8 @@
     using System.Linq;
     using System.Threading.Tasks;
     using Logging;
+    using Routing.MessageDrivenSubscriptions;
+    using Transports;
     using Unicast;
 
     /// <summary>
@@ -31,14 +33,16 @@
             }
 
             var conventions = context.Settings.Get<Conventions>();
+            var transportInfrastructure = context.Settings.Get<TransportInfrastructure>();
+            var requireExplicitRouting = transportInfrastructure.OutboundRoutingPolicy.Publishes == OutboundRoutingType.Unicast;
+            var publishers = context.Settings.Get<Publishers>();
 
             context.RegisterStartupTask(b =>
             {
                 var handlerRegistry = b.Build<MessageHandlerRegistry>();
-
                 var messageTypesHandled = GetMessageTypesHandledByThisEndpoint(handlerRegistry, conventions, settings);
-
-                return new ApplySubscriptions(messageTypesHandled, type => TaskEx.TrueTask);
+                var typesToSubscribe = messageTypesHandled.Where(eventType => !requireExplicitRouting || publishers.GetPublisherFor(eventType).Any());
+                return new ApplySubscriptions(typesToSubscribe);
             });
         }
 
@@ -56,21 +60,17 @@
 
         class ApplySubscriptions : FeatureStartupTask
         {
-            public ApplySubscriptions(IEnumerable<Type> messagesHandledByThisEndpoint, Func<Type, Task<bool>> asyncPredicate)
+            public ApplySubscriptions(IEnumerable<Type> messagesHandledByThisEndpoint)
             {
                 this.messagesHandledByThisEndpoint = messagesHandledByThisEndpoint;
-                this.asyncPredicate = asyncPredicate;
             }
 
             protected override async Task OnStart(IMessageSession session)
             {
                 foreach (var eventType in messagesHandledByThisEndpoint)
                 {
-                    if (await asyncPredicate(eventType).ConfigureAwait(false))
-                    {
-                        await session.Subscribe(eventType).ConfigureAwait(false);
-                        Logger.DebugFormat("Auto subscribed to event {0}", eventType);
-                    }
+                    await session.Subscribe(eventType).ConfigureAwait(false);
+                    Logger.DebugFormat("Auto subscribed to event {0}", eventType);
                 }
             }
 
@@ -79,10 +79,7 @@
                 return TaskEx.CompletedTask;
             }
 
-            Func<Type, Task<bool>> asyncPredicate;
-
             IEnumerable<Type> messagesHandledByThisEndpoint;
-
             static ILog Logger = LogManager.GetLogger<ApplySubscriptions>();
         }
 
