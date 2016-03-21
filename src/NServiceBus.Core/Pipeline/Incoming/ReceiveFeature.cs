@@ -2,6 +2,7 @@
 {
     using System.Threading.Tasks;
     using Extensibility;
+    using Janitor;
     using NServiceBus.Outbox;
     using Persistence;
     using Pipeline;
@@ -65,6 +66,9 @@
             internal static readonly Task<CompletableSynchronizedStorageSession> EmptyResult = Task.FromResult<CompletableSynchronizedStorageSession>(new NoOpCompletableSynchronizedStorageSession());
         }
 
+        // Do not allow Fody to weave the IDisposable for us so that other threads can still access the instance of this class
+        // even after it has been disposed.
+        [SkipWeaving]
         class NoOpCompletableSynchronizedStorageSession : CompletableSynchronizedStorageSession
         {
             public Task CompleteAsync()
