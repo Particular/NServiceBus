@@ -12,19 +12,15 @@
 
     class SerializationFeature : Feature
     {
-        internal SerializationFeature()
+        public SerializationFeature()
         {
             EnableByDefault();
             Defaults(s =>
             {
                 s.SetDefault("AdditionalDeserializers", new List<SerializationDefinition>());
-                s.SetDefault<SerializationDefinition>(new XmlSerializer());
             });
         }
 
-        /// <summary>
-        /// Called when the features is activated.
-        /// </summary>
         protected internal sealed override void Setup(FeatureConfigurationContext context)
         {
             var mapper = new MessageMapper();
@@ -33,7 +29,13 @@
             var messageTypes = settings.GetAvailableTypes().Where(conventions.IsMessageType);
             mapper.Initialize(messageTypes);
 
-            var defaultSerializerDefinition = context.Settings.GetOrDefault<SerializationDefinition>();
+            SerializationDefinition defaultSerializerDefinition;
+
+            if (!context.Settings.TryGet(out defaultSerializerDefinition))
+            {
+                defaultSerializerDefinition = new XmlSerializer();
+            }
+
             var defaultSerializer = CreateMessageSerializer(defaultSerializerDefinition, mapper, context);
 
             var additionalDeserializerDefinitions = context.Settings.Get<List<SerializationDefinition>>("AdditionalDeserializers");
