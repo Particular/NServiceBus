@@ -69,7 +69,7 @@
         }
 
         [Test]
-        public async Task ShouldRaiseBusNotificationsForFLR()
+        public async Task ShouldRaiseNotificationsForFLR()
         {
             var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1));
 

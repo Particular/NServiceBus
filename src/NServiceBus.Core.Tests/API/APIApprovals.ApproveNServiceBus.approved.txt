@@ -81,13 +81,10 @@ namespace NServiceBus
             "on 7.0.0.", true)]
         public void TypesToScan(System.Collections.Generic.IEnumerable<System.Type> typesToScan) { }
     }
+    [System.ObsoleteAttribute("Please use `Notifications` instead. Will be removed in version 7.0.0.", true)]
     public class BusNotifications
     {
         public BusNotifications() { }
-        public NServiceBus.Faults.ErrorsNotifications Errors { get; }
-        [System.ObsoleteAttribute("For performance reasons it is no longer possible to instrument the pipeline execu" +
-            "tion. Will be removed in version 7.0.0.", true)]
-        public NServiceBus.PipelineNotifications Pipeline { get; }
     }
     [System.ObsoleteAttribute("Replaced by NServiceBus.Callbacks package. Will be removed in version 7.0.0.", true)]
     public class CompletionResult
@@ -742,6 +739,14 @@ namespace NServiceBus
     public class NonDurableDelivery : NServiceBus.DeliveryConstraints.DeliveryConstraint
     {
         public NonDurableDelivery() { }
+    }
+    public class Notifications
+    {
+        public Notifications() { }
+        public NServiceBus.Faults.ErrorsNotifications Errors { get; }
+        [System.ObsoleteAttribute("For performance reasons it is no longer possible to instrument the pipeline execu" +
+            "tion. Will be removed in version 7.0.0.", true)]
+        public NServiceBus.PipelineNotifications Pipeline { get; }
     }
     [System.ObsoleteAttribute("Please use `EndpointConfiguration.ExecuteTheseHandlersFirst` instead. Will be rem" +
         "oved in version 7.0.0.", true)]

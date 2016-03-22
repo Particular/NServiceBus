@@ -310,7 +310,15 @@ namespace NServiceBus
         public Dictionary<string, string> Headers { get; } = new Dictionary<string, string>();
     }
 
-    public partial class BusNotifications
+    [ObsoleteEx(
+        RemoveInVersion = "7",
+        TreatAsErrorFromVersion = "6",
+        ReplacementTypeOrMember = "Notifications")]
+    public class BusNotifications
+    {
+    }
+
+    public partial class Notifications
     {
         [ObsoleteEx(Message = "For performance reasons it is no longer possible to instrument the pipeline execution", RemoveInVersion = "7.0", TreatAsErrorFromVersion = "6.0")]
         public PipelineNotifications Pipeline

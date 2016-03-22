@@ -6,12 +6,12 @@ namespace NServiceBus
     using Faults;
 
     /// <summary>
-    /// Bus notifications.
+    /// Notifications.
     /// </summary>
-    public partial class BusNotifications
+    public partial class Notifications
     {
         /// <summary>
-        /// Errors push-based notifications.
+        /// Push-based error notifications.
         /// </summary>
         public ErrorsNotifications Errors => errorNotifications;
 
