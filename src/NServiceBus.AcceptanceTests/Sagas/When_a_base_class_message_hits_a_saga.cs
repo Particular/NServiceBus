@@ -8,7 +8,7 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class When_a_base_class_message_hits_a_saga
+    public class When_a_base_class_message_hits_a_saga : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_find_existing_instance()
