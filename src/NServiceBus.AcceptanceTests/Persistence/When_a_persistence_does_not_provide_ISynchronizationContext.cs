@@ -12,7 +12,9 @@
 
     public class When_a_persistence_does_not_provide_ISynchronizationContext
     {
-        [Test]
+        // Run this test twice to ensure that the NoOpCompletableSynchronizedStorageSession's IDisposable method
+        // is not altered by Fody to throw an ObjectDisposedException if it was disposed
+        [Test, Repeat(2)]
         public async Task ReceiveFeature_should_work_without_ISynchronizedStorage()
         {
             await Scenario.Define<Context>()
