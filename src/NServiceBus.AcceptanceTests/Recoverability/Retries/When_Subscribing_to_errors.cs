@@ -86,7 +86,7 @@
         {
             public Context Context { get; set; }
 
-            public BusNotifications Notifications { get; set; }
+            public Notifications Notifications { get; set; }
 
             public Task Start(IMessageSession session)
             {

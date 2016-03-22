@@ -23,7 +23,7 @@
 
         class FailTestOnErrorMessageFeatureStartupTask : FeatureStartupTask
         {
-            public FailTestOnErrorMessageFeatureStartupTask(ScenarioContext context, ReadOnlySettings settings, BusNotifications notifications)
+            public FailTestOnErrorMessageFeatureStartupTask(ScenarioContext context, ReadOnlySettings settings, Notifications notifications)
             {
                 scenarioContext = context;
                 this.notifications = notifications;
@@ -59,7 +59,7 @@
             }
 
             EndpointName endpoint;
-            BusNotifications notifications;
+            Notifications notifications;
             ScenarioContext scenarioContext;
         }
     }

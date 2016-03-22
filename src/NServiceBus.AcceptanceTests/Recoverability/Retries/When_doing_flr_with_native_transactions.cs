@@ -58,11 +58,11 @@
             {
                 public Context Context { get; set; }
 
-                public BusNotifications BusNotifications { get; set; }
+                public Notifications Notifications { get; set; }
 
                 public Task Start(IMessageSession session)
                 {
-                    BusNotifications.Errors.MessageSentToErrorQueue += (sender, message) => Context.ForwardedToErrorQueue = true;
+                    Notifications.Errors.MessageSentToErrorQueue += (sender, message) => Context.ForwardedToErrorQueue = true;
                     return Task.FromResult(0);
                 }
 

@@ -17,7 +17,7 @@ namespace NServiceBus
     {
         public InitializableEndpoint(SettingsHolder settings, IContainer container, List<Action<IConfigureComponents>> registrations, PipelineSettings pipelineSettings, PipelineConfiguration pipelineConfiguration, IReadOnlyCollection<IWantToRunWhenBusStartsAndStops> startables)
         {
-            settings.Set<BusNotifications>(new BusNotifications());
+            settings.Set<Notifications>(new Notifications());
             settings.Set<NotificationSubscriptions>(new NotificationSubscriptions());
             this.settings = settings;
             this.pipelineSettings = pipelineSettings;
@@ -56,7 +56,7 @@ namespace NServiceBus
             DisplayDiagnosticsForFeatures.Run(featureStats);
             WireUpInstallers(concreteTypes);
 
-            container.ConfigureComponent(b => settings.Get<BusNotifications>(), DependencyLifecycle.SingleInstance);
+            container.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
 
             var startableEndpoint = new StartableEndpoint(settings, builder, featureActivator, pipelineConfiguration, startables, new EventAggregator(settings.Get<NotificationSubscriptions>()));
             return Task.FromResult<IStartableEndpoint>(startableEndpoint);

@@ -21,24 +21,24 @@ namespace NServiceBus.Features
             context.Pipeline.Register(new MoveFaultsToErrorQueueBehavior.Registration(errorQueue, context.Settings.LocalAddress()));
             context.Pipeline.Register("FaultToDispatchConnector", new FaultToDispatchConnector(), "Connector to dispatch faulted messages");
 
-            RaiseLegacyBusNotifications(context);
+            RaiseLegacyNotifications(context);
         }
 
-        //note: will soon be removed since we're deprecating BusNotifications in favor of the new notifications
-        static void RaiseLegacyBusNotifications(FeatureConfigurationContext context)
+        //note: will soon be removed since we're deprecating Notifications in favor of the new notifications
+        static void RaiseLegacyNotifications(FeatureConfigurationContext context)
         {
-            var busNotifications = context.Settings.Get<BusNotifications>();
+            var legacyNotifications = context.Settings.Get<Notifications>();
             var notifications = context.Settings.Get<NotificationSubscriptions>();
 
             notifications.Subscribe<MessageToBeRetried>(e =>
             {
                 if (e.IsImmediateRetry)
                 {
-                    busNotifications.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(e.Attempt, e.Message, e.Exception);
+                    legacyNotifications.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(e.Attempt, e.Message, e.Exception);
                 }
                 else
                 {
-                    busNotifications.Errors.InvokeMessageHasBeenSentToSecondLevelRetries(e.Attempt, e.Message, e.Exception);
+                    legacyNotifications.Errors.InvokeMessageHasBeenSentToSecondLevelRetries(e.Attempt, e.Message, e.Exception);
                 }
 
                 return TaskEx.CompletedTask;
@@ -46,7 +46,7 @@ namespace NServiceBus.Features
 
             notifications.Subscribe<MessageFaulted>(e =>
             {
-                busNotifications.Errors.InvokeMessageHasBeenSentToErrorQueue(e.Message, e.Exception);
+                legacyNotifications.Errors.InvokeMessageHasBeenSentToErrorQueue(e.Message, e.Exception);
                 return TaskEx.CompletedTask;
             });
         }

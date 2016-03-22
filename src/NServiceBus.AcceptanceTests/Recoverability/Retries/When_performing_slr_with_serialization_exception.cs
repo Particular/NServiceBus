@@ -81,9 +81,9 @@
             class ErrorNotificationSpy : IWantToRunWhenBusStartsAndStops
             {
                 Context testContext;
-                BusNotifications notifications;
+                Notifications notifications;
 
-                public ErrorNotificationSpy(Context testContext, BusNotifications notifications)
+                public ErrorNotificationSpy(Context testContext, Notifications notifications)
                 {
                     this.testContext = testContext;
                     this.notifications = notifications;

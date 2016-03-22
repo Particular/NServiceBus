@@ -52,10 +52,10 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
 
             class ErrorNotificationSpy : IWantToRunWhenBusStartsAndStops
             {
-                BusNotifications notifications;
+                Notifications notifications;
                 Context context;
 
-                public ErrorNotificationSpy(Context context, BusNotifications notifications)
+                public ErrorNotificationSpy(Context context, Notifications notifications)
                 {
                     this.notifications = notifications;
                     this.context = context;
