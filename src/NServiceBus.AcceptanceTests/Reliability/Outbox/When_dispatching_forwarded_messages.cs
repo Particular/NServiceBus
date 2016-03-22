@@ -3,27 +3,27 @@
     using System;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.Configuration.AdvanceExtensibility;
+    using AcceptanceTesting;
+    using Configuration.AdvanceExtensibility;
+    using EndpointTemplates;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
+    using ScenarioDescriptors;
 
     public class When_dispatching_forwarded_messages : NServiceBusAcceptanceTest
     {
-
         [Test]
         public async Task Should_be_dispatched_immediately()
         {
-            var context = await Scenario.Define<Context>()
-                    .WithEndpoint<EndpointWithAuditOn>(b => b
-                        .When(session => session.SendLocal(new MessageToBeForwarded()))
-                        .DoNotFailOnErrorMessages())
-                    .WithEndpoint<ForwardingSpyEndpoint>()
-                    .Done(c => c.Done)
-                    .Run();
-
-            Assert.True(context.Done);
+            await Scenario.Define<Context>()
+                .WithEndpoint<EndpointWithAuditOn>(b => b
+                    .When(session => session.SendLocal(new MessageToBeForwarded()))
+                    .DoNotFailOnErrorMessages())
+                .WithEndpoint<ForwardingSpyEndpoint>()
+                .Done(c => c.Done)
+                .Repeat(r => r.For<AllOutboxCapableStorages>())
+                .Should(c => Assert.IsTrue(c.Done))
+                .Run();
         }
 
         public class Context : ScenarioContext
@@ -47,7 +47,7 @@
 
             class BlowUpAfterDispatchBehavior : Behavior<IBatchDispatchContext>
             {
-                public async override Task Invoke(IBatchDispatchContext context, Func<Task> next)
+                public override async Task Invoke(IBatchDispatchContext context, Func<Task> next)
                 {
                     if (!context.Operations.Any(op => op.Message.Headers[Headers.EnclosedMessageTypes].Contains(typeof(MessageToBeForwarded).Name)))
                     {

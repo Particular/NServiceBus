@@ -8,21 +8,22 @@
     using Configuration.AdvanceExtensibility;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
+    using ScenarioDescriptors;
 
     public class When_a_message_is_audited : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_be_dispatched_immediately()
         {
-            var context = await Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithAuditOn>(b => b
                     .When(session => session.SendLocal(new MessageToBeAudited()))
                     .DoNotFailOnErrorMessages())
                 .WithEndpoint<AuditSpyEndpoint>()
                 .Done(c => c.MessageAudited)
+                .Repeat(r => r.For<AllOutboxCapableStorages>())
+                .Should(c => Assert.True(c.MessageAudited))
                 .Run();
-
-            Assert.True(context.MessageAudited);
         }
 
         public class Context : ScenarioContext
