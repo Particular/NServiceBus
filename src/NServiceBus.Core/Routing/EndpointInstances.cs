@@ -36,7 +36,7 @@ namespace NServiceBus.Routing
         /// </summary>
         /// <param name="endpoint">Name of the endpoint.</param>
         /// <param name="instances">A static list of endpoint's instances.</param>
-        public void AddStatic(EndpointName endpoint, params EndpointInstance[] instances)
+        public void Add(EndpointName endpoint, params EndpointInstance[] instances)
         {
             Guard.AgainstNull(nameof(endpoint), endpoint);
             if (instances.Length == 0)

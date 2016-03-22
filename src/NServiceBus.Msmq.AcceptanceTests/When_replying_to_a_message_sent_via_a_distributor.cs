@@ -9,6 +9,8 @@
 
     public class When_replying_to_a_message_sent_via_a_distributor : NServiceBusAcceptanceTest
     {
+        static string ReceiverEndpoint => Conventions.EndpointNamingConvention(typeof(Receiver));
+
         [Test]
         public async Task Reply_address_should_be_set_to_that_specific_instance()
         {
@@ -21,8 +23,6 @@
             StringAssert.Contains("Distributor", context.ReplyToAddress);
         }
 
-        static string ReceiverEndpoint => Conventions.EndpointNamingConvention(typeof(Receiver));
-
         public class Context : ScenarioContext
         {
             public string ReplyToAddress { get; set; }
@@ -34,8 +34,8 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.Routing().UnicastRoutingTable.RouteToEndpoint(typeof(MyRequest), ReceiverEndpoint);
-                    c.Routing().EndpointInstances.AddStatic(new EndpointName(ReceiverEndpoint), new EndpointInstance(ReceiverEndpoint, "XYZ"));
+                    c.UnicastRouting().RouteToEndpoint(typeof(MyRequest), ReceiverEndpoint);
+                    c.UnicastRouting().Mapping.Physical.Add(new EndpointName(ReceiverEndpoint), new EndpointInstance(ReceiverEndpoint, "XYZ"));
                     c.AddHeaderToAllOutgoingMessages("NServiceBus.Distributor.WorkerSessionId", "SomeID");
                 });
             }

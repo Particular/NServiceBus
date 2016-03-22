@@ -6,11 +6,12 @@
     using NServiceBus.AcceptanceTesting.Customization;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
-    using NServiceBus.Routing;
     using NUnit.Framework;
 
     public class When_publishing_to_scaled_out_subscribers_on_unicast_transports : NServiceBusAcceptanceTest
     {
+        static string PublisherEndpoint => Conventions.EndpointNamingConvention(typeof(Publisher));
+
         [Test]
         public async Task Each_event_should_be_delivered_to_single_instance_of_each_subscriber()
         {
@@ -81,9 +82,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    var publisher = new EndpointName(Conventions.EndpointNamingConvention(typeof(Publisher)));
-                    c.Publishers().AddStatic(publisher, typeof(MyEvent));
-                    c.Routing().EndpointInstances.AddStatic(publisher, new EndpointInstance(publisher));
+                    c.UnicastRouting().AddPublisher(PublisherEndpoint, typeof(MyEvent));
                 });
             }
 
@@ -105,9 +104,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    var publisher = new EndpointName(Conventions.EndpointNamingConvention(typeof(Publisher)));
-                    c.Publishers().AddStatic(publisher, typeof(MyEvent));
-                    c.Routing().EndpointInstances.AddStatic(publisher, new EndpointInstance(publisher));
+                    c.UnicastRouting().AddPublisher(PublisherEndpoint, typeof(MyEvent));
                 });
             }
 

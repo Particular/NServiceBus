@@ -34,8 +34,8 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.Routing().UnicastRoutingTable.RouteToEndpoint(typeof(MyRequest), ReceiverEndpoint);
-                    c.Routing().EndpointInstances.AddStatic(new EndpointName(ReceiverEndpoint), new EndpointInstance(ReceiverEndpoint, "XYZ"));
+                    c.UnicastRouting().RouteToEndpoint(typeof(MyRequest), ReceiverEndpoint);
+                    c.UnicastRouting().Mapping.Physical.Add(new EndpointName(ReceiverEndpoint), new EndpointInstance(ReceiverEndpoint, "XYZ"));
                 });
             }
 

@@ -1,16 +1,17 @@
-﻿namespace NServiceBus
+namespace NServiceBus
 {
     using System;
     using Configuration.AdvanceExtensibility;
     using Routing;
+    using Routing.MessageDrivenSubscriptions;
     using Settings;
 
     /// <summary>
-    /// Exposes settings related to routing.
+    /// Exposes advanced routing settings.
     /// </summary>
-    public class RoutingSettings : ExposeSettings
+    public class RoutingMappingSettings : ExposeSettings
     {
-        internal RoutingSettings(SettingsHolder settings)
+        internal RoutingMappingSettings(SettingsHolder settings)
             : base(settings)
         {
         }
@@ -18,12 +19,17 @@
         /// <summary>
         /// Gets the routing table for the direct routing.
         /// </summary>
-        public UnicastRoutingTable UnicastRoutingTable => GetOrCreate<UnicastRoutingTable>();
+        public UnicastRoutingTable Logical => GetOrCreate<UnicastRoutingTable>();
 
         /// <summary>
         /// Gets the known endpoints collection.
         /// </summary>
-        public EndpointInstances EndpointInstances => GetOrCreate<EndpointInstances>();
+        public EndpointInstances Physical => GetOrCreate<EndpointInstances>();
+
+        /// <summary>
+        /// Gets the publisher settings.
+        /// </summary>
+        public Publishers Publishers => GetOrCreate<Publishers>();
 
         /// <summary>
         /// Sets a distribution strategy for a given subset of message types.

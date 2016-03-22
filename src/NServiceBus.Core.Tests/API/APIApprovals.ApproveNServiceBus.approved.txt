@@ -357,7 +357,7 @@ namespace NServiceBus
     }
     public class static FileBasedRoutingConfigurationExtensions
     {
-        public static NServiceBus.FileRoutingTableSettings UseFileBasedEndpointInstanceMapping(this NServiceBus.RoutingSettings config, string filePath) { }
+        public static NServiceBus.FileRoutingTableSettings DistributeMessagesUsingFileBasedEndpointInstanceMapping(this NServiceBus.RoutingMappingSettings config, string filePath) { }
     }
     public class FileRoutingTableSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
@@ -718,6 +718,7 @@ namespace NServiceBus
     public class static MsmqConfigurationExtensions
     {
         public static NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> ApplyLabelToMessages(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> transportExtensions, System.Func<System.Collections.Generic.IReadOnlyDictionary<string, string>, string> labelGenerator) { }
+        public static NServiceBus.FileRoutingTableSettings DistributeMessagesUsingFileBasedEndpointInstanceMapping(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> config, string filePath) { }
         public static NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> TransactionScopeOptions(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> transportExtensions, System.Nullable<System.TimeSpan> timeout = null, System.Nullable<System.Transactions.IsolationLevel> isolationLevel = null) { }
     }
     public class MsmqTransport : NServiceBus.Transports.TransportDefinition
@@ -788,10 +789,6 @@ namespace NServiceBus
     {
         public PipelineNotifications() { }
     }
-    public class static PublishersSettingsExtensions
-    {
-        public static NServiceBus.Routing.MessageDrivenSubscriptions.Publishers Publishers(this NServiceBus.EndpointConfiguration config) { }
-    }
     public class PublishOptions : NServiceBus.Extensibility.ExtendableOptions
     {
         public PublishOptions() { }
@@ -799,6 +796,13 @@ namespace NServiceBus
     public class ReplyOptions : NServiceBus.Extensibility.ExtendableOptions
     {
         public ReplyOptions() { }
+    }
+    public class RoutingMappingSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
+    {
+        public NServiceBus.Routing.UnicastRoutingTable Logical { get; }
+        public NServiceBus.Routing.EndpointInstances Physical { get; }
+        public NServiceBus.Routing.MessageDrivenSubscriptions.Publishers Publishers { get; }
+        public void SetMessageDistributionStrategy(NServiceBus.Routing.DistributionStrategy distributionStrategy, System.Func<System.Type, bool> typeMatchingRule) { }
     }
     public class static RoutingOptionExtensions
     {
@@ -825,15 +829,9 @@ namespace NServiceBus
         public static void SetDestination(this NServiceBus.SendOptions options, string destination) { }
         public static void SetDestination(this NServiceBus.ReplyOptions options, string destination) { }
     }
-    public class RoutingSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
-    {
-        public NServiceBus.Routing.EndpointInstances EndpointInstances { get; }
-        public NServiceBus.Routing.UnicastRoutingTable UnicastRoutingTable { get; }
-        public void SetMessageDistributionStrategy(NServiceBus.Routing.DistributionStrategy distributionStrategy, System.Func<System.Type, bool> typeMatchingRule) { }
-    }
     public class static RoutingSettingsExtensions
     {
-        public static NServiceBus.RoutingSettings Routing(this NServiceBus.EndpointConfiguration config) { }
+        public static NServiceBus.UnicastRoutingSettings UnicastRouting(this NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings config) { }
     }
     public abstract class Saga
     {
@@ -1031,6 +1029,13 @@ namespace NServiceBus
         ReceiveOnly = 1,
         SendsAtomicWithReceive = 2,
         TransactionScope = 3,
+    }
+    public class UnicastRoutingSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
+    {
+        public NServiceBus.RoutingMappingSettings Mapping { get; }
+        public void AddPublisher(string publisherEndpoint, System.Type eventType) { }
+        public void AddPublisher(string publisherEndpoint, System.Reflection.Assembly eventAssembly, string eventNamespace = null) { }
+        public void RouteToEndpoint(System.Type messageType, string destination) { }
     }
     public sealed class UnicastRoutingTarget
     {
@@ -2268,8 +2273,8 @@ namespace NServiceBus.Routing
     public class EndpointInstances
     {
         public EndpointInstances() { }
+        public void Add(NServiceBus.Routing.EndpointName endpoint, params NServiceBus.Routing.EndpointInstance[] instances) { }
         public void AddDynamic(System.Func<NServiceBus.Routing.EndpointName, System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<NServiceBus.Routing.EndpointInstance>>> dynamicRule) { }
-        public void AddStatic(NServiceBus.Routing.EndpointName endpoint, params NServiceBus.Routing.EndpointInstance[] instances) { }
     }
     public sealed class EndpointName
     {
@@ -2347,10 +2352,10 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
     public class Publishers
     {
         public Publishers() { }
+        public void Add(string publisher, System.Type eventType) { }
+        public void Add(string publisher, System.Reflection.Assembly eventAssembly, string eventNamespace = null) { }
+        public void AddByAddress(string publisherAddress, System.Type eventType) { }
         public void AddDynamic(System.Func<System.Type, NServiceBus.Routing.MessageDrivenSubscriptions.PublisherAddress> dynamicRule, string description = null) { }
-        public void AddStatic(NServiceBus.Routing.EndpointName publisher, System.Type eventType) { }
-        public void AddStatic(string publisherAddress, System.Type eventType) { }
-        public void AddStatic(NServiceBus.Routing.EndpointName publisher, System.Reflection.Assembly eventAssembly, string eventNamespace = null) { }
     }
 }
 namespace NServiceBus.Routing.StorageDrivenPublishing

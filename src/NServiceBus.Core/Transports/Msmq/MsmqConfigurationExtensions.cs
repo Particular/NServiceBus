@@ -40,5 +40,13 @@ namespace NServiceBus
             transportExtensions.Settings.Set<MsmqScopeOptions>(new MsmqScopeOptions(timeout, isolationLevel));
             return transportExtensions;
         }
+
+        /// <summary>
+        /// Enables file-based route table source that is automatically refreshed whenever files get updated.
+        /// </summary>
+        public static FileRoutingTableSettings DistributeMessagesUsingFileBasedEndpointInstanceMapping(this TransportExtensions<MsmqTransport> config, string filePath)
+        {
+            return config.UnicastRouting().Mapping.DistributeMessagesUsingFileBasedEndpointInstanceMapping(filePath);
+        }
     }
 }

@@ -13,7 +13,7 @@
         public void Should_throw_when_trying_to_configure_instances_that_do_not_match_endpoint_name()
         {
             var instances = new EndpointInstances();
-            TestDelegate action = () => instances.AddStatic(new EndpointName("Sales"), new EndpointInstance(new EndpointName("A")));
+            TestDelegate action = () => instances.Add(new EndpointName("Sales"), new EndpointInstance(new EndpointName("A")));
             Assert.Throws<ArgumentException>(action);
         }
 
@@ -22,7 +22,7 @@
         {
             var instances = new EndpointInstances();
             var sales = new EndpointName("Sales");
-            instances.AddStatic(sales, new EndpointInstance(sales, "1"), new EndpointInstance(sales, "2"));
+            instances.Add(sales, new EndpointInstance(sales, "1"), new EndpointInstance(sales, "2"));
 
             var salesInstances = await instances.FindInstances(sales);
             Assert.AreEqual(2, salesInstances.Count());
@@ -33,7 +33,7 @@
         {
             var instances = new EndpointInstances();
             var sales = new EndpointName("Sales");
-            instances.AddStatic(sales, new EndpointInstance(sales, "dup"), new EndpointInstance(sales, "dup"));
+            instances.Add(sales, new EndpointInstance(sales, "dup"), new EndpointInstance(sales, "dup"));
 
             var salesInstances = await instances.FindInstances(sales);
             Assert.AreEqual(1, salesInstances.Count());
