@@ -56,8 +56,7 @@
                     endpointConfiguration.SendOnly();
                 }
 
-                var initializable = Endpoint.Prepare(endpointConfiguration);
-                startable = await initializable.Initialize().ConfigureAwait(false);
+                startable = await Endpoint.Create(endpointConfiguration).ConfigureAwait(false);
 
                 if (!configuration.SendOnly)
                 {

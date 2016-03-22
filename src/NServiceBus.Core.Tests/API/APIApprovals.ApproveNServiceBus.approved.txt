@@ -302,7 +302,6 @@ namespace NServiceBus
     public class static Endpoint
     {
         public static System.Threading.Tasks.Task<NServiceBus.IStartableEndpoint> Create(NServiceBus.EndpointConfiguration configuration) { }
-        public static NServiceBus.IInitializableEndpoint Prepare(NServiceBus.EndpointConfiguration configuration) { }
         public static async System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(NServiceBus.EndpointConfiguration configuration) { }
     }
     public class EndpointConfiguration : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
@@ -535,10 +534,6 @@ namespace NServiceBus
     }
     [System.ObsoleteAttribute("Will be removed in version 7.0.0.", true)]
     public interface IIncludesBuilder { }
-    public interface IInitializableEndpoint
-    {
-        System.Threading.Tasks.Task<NServiceBus.IStartableEndpoint> Initialize();
-    }
     [System.ObsoleteAttribute("No longer used, can safely be removed. Will be removed in version 7.0.0.", true)]
     public interface IManageMessageHeaders { }
     [JetBrains.Annotations.UsedImplicitlyAttribute(JetBrains.Annotations.ImplicitUseTargetFlags.Default | JetBrains.Annotations.ImplicitUseTargetFlags.Itself | JetBrains.Annotations.ImplicitUseTargetFlags.Members | JetBrains.Annotations.ImplicitUseTargetFlags.WithMembers)]

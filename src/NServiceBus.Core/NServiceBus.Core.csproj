@@ -217,7 +217,6 @@
     <Compile Include="EnumerableEx.cs" />
     <Compile Include="IMessageHandlerContext.cs" />
     <Compile Include="IHandleMessages.cs" />
-    <Compile Include="IInitializableEndpoint.cs" />
     <Compile Include="IEndpointInstance.cs" />
     <Compile Include="Persistence\InMemory\InMemoryTransaction.cs" />
     <Compile Include="Persistence\InMemory\InMemoryTransactionalStorageSession.cs" />
