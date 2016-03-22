@@ -22,7 +22,7 @@ namespace NServiceBus
                 DecryptMember(item.Item1, item.Item2, context);
             }
 
-            context.Message.UpdateMessageInstance(current);
+            context.UpdateMessageInstance(current);
 
             await next().ConfigureAwait(false);
         }

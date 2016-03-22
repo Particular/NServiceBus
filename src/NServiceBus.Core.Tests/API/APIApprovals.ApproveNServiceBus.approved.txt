@@ -2029,6 +2029,7 @@ namespace NServiceBus.Pipeline
         System.Collections.Generic.Dictionary<string, string> Headers { get; }
         NServiceBus.Pipeline.LogicalMessage Message { get; }
         bool MessageHandled { get; set; }
+        void UpdateMessageInstance(object newInstance);
     }
     public interface IIncomingPhysicalMessageContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IMessageProcessingContext, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IIncomingContext
     {
@@ -2097,9 +2098,12 @@ namespace NServiceBus.Pipeline
     }
     public class LogicalMessage
     {
+        public LogicalMessage(NServiceBus.Unicast.Messages.MessageMetadata metadata, object message) { }
         public object Instance { get; }
         public System.Type MessageType { get; }
         public NServiceBus.Unicast.Messages.MessageMetadata Metadata { get; }
+        [System.ObsoleteAttribute("Please use `IIncomingLogicalMessageContext.UpdateMessageInstance(object newInstan" +
+            "ce)` instead. Will be removed in version 7.0.0.", true)]
         public void UpdateMessageInstance(object newInstance) { }
     }
     public class LogicalMessageFactory
@@ -3055,6 +3059,7 @@ namespace NServiceBus.Unicast.Messages
 {
     public class MessageMetadata
     {
+        public MessageMetadata(System.Type messageType, System.Collections.Generic.IEnumerable<System.Type> messageHierarchy = null) { }
         public System.Collections.Generic.IEnumerable<System.Type> MessageHierarchy { get; }
         public System.Type MessageType { get; }
         [System.ObsoleteAttribute("You can access Recoverable via the DeliveryConstraints collection on the outgoing" +

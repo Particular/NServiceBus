@@ -9,7 +9,6 @@ namespace NServiceBus.Core.Tests.DataBus
     using NServiceBus.Pipeline;
     using Unicast.Messages;
     using NUnit.Framework;
-    using Conventions = NServiceBus.Conventions;
 
     [TestFixture]
     class When_applying_the_databus_message_mutator_to_incoming_messages
@@ -26,7 +25,7 @@ namespace NServiceBus.Core.Tests.DataBus
                                   {
                                       Key = propertyKey
                                   }
-                              }, null);
+                              });
 
             var fakeDatabus = new FakeDataBus();
             var receiveBehavior = new DataBusReceiveBehavior(fakeDatabus, new DefaultDataBusSerializer(), new Conventions());

@@ -48,7 +48,7 @@ namespace NServiceBus.Pipeline
 
             var realMessageType = messageMapper.GetMappedTypeFor(messageType);
 
-            return new LogicalMessage(messageMetadataRegistry.GetMessageMetadata(realMessageType), message, this);
+            return new LogicalMessage(messageMetadataRegistry.GetMessageMetadata(realMessageType), message);
         }
 
         IMessageMapper messageMapper;

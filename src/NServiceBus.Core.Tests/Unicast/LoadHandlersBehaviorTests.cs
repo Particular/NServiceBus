@@ -1,9 +1,9 @@
 ﻿namespace NServiceBus.Unicast.Tests
 {
     using System.Collections.Generic;
-    using NServiceBus.Outbox;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Transports;
+    using Outbox;
+    using Pipeline;
+    using Transports;
     using Unicast.Messages;
     using NUnit.Framework;
 
@@ -16,7 +16,7 @@
             var behavior = new LoadHandlersConnector(new MessageHandlerRegistry(new Conventions()), new InMemorySynchronizedStorage(), new InMemoryTransactionalSynchronizedStorageAdapter());
 
             var context = new IncomingLogicalMessageContext(
-                new LogicalMessage(new MessageMetadata(typeof(string)), null, null), 
+                new LogicalMessage(new MessageMetadata(typeof(string)), null), 
                 "messageId",
                 "replyToAddress",
                 new Dictionary<string, string>(), 
