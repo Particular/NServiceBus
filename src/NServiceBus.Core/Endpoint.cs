@@ -8,24 +8,13 @@ namespace NServiceBus
     public static class Endpoint
     {
         /// <summary>
-        /// Creates a new initializable endpoint based on the provided configuration.
-        /// </summary>
-        /// <param name="configuration">Configuration.</param>
-        public static IInitializableEndpoint Prepare(EndpointConfiguration configuration)
-        {
-            Guard.AgainstNull(nameof(configuration), configuration);
-            var endpoint = configuration.Build();
-            return endpoint;
-        }
-
-        /// <summary>
         /// Creates a new startable endpoint based on the provided configuration.
         /// </summary>
         /// <param name="configuration">Configuration.</param>
         public static Task<IStartableEndpoint> Create(EndpointConfiguration configuration)
         {
             Guard.AgainstNull(nameof(configuration), configuration);
-            var initializable = Prepare(configuration);
+            var initializable = configuration.Build();
             return initializable.Initialize();
         }
 

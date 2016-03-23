@@ -13,7 +13,7 @@ namespace NServiceBus
     using Settings;
     using Transports;
 
-    class InitializableEndpoint : IInitializableEndpoint
+    class InitializableEndpoint
     {
         public InitializableEndpoint(SettingsHolder settings, IContainer container, List<Action<IConfigureComponents>> registrations, PipelineSettings pipelineSettings, PipelineConfiguration pipelineConfiguration, IReadOnlyCollection<IWantToRunWhenBusStartsAndStops> startables)
         {
