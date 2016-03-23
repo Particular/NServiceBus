@@ -17,8 +17,6 @@ namespace NServiceBus
     {
         public InitializableEndpoint(SettingsHolder settings, IContainer container, List<Action<IConfigureComponents>> registrations, PipelineSettings pipelineSettings, PipelineConfiguration pipelineConfiguration, IReadOnlyCollection<IWantToRunWhenBusStartsAndStops> startables)
         {
-            settings.Set<Notifications>(new Notifications());
-            settings.Set<NotificationSubscriptions>(new NotificationSubscriptions());
             this.settings = settings;
             this.pipelineSettings = pipelineSettings;
             this.pipelineConfiguration = pipelineConfiguration;

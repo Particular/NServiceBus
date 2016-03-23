@@ -45,6 +45,9 @@ namespace NServiceBus
             Settings.SetDefault("Transactions.IsolationLevel", IsolationLevel.ReadCommitted);
             Settings.SetDefault("Transactions.DefaultTimeout", TransactionManager.DefaultTimeout);
 
+            Settings.Set<Notifications>(new Notifications());
+            Settings.Set<NotificationSubscriptions>(new NotificationSubscriptions());
+
             conventionsBuilder = new ConventionsBuilder(Settings);
         }
 
