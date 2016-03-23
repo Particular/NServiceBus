@@ -720,18 +720,6 @@ namespace NServiceBus
         public override bool RequiresConnectionString { get; }
         protected internal override NServiceBus.Transports.TransportInfrastructure Initialize(NServiceBus.Settings.SettingsHolder settings, string connectionString) { }
     }
-    public class MsmqTransportInfrastructure : NServiceBus.Transports.TransportInfrastructure
-    {
-        public override System.Collections.Generic.IEnumerable<System.Type> DeliveryConstraints { get; }
-        public override NServiceBus.Transports.OutboundRoutingPolicy OutboundRoutingPolicy { get; }
-        public override NServiceBus.TransportTransactionMode TransactionMode { get; }
-        public override NServiceBus.Routing.EndpointInstance BindToLocalEndpoint(NServiceBus.Routing.EndpointInstance instance) { }
-        public override NServiceBus.Transports.TransportReceiveInfrastructure ConfigureReceiveInfrastructure() { }
-        public override NServiceBus.Transports.TransportSendInfrastructure ConfigureSendInfrastructure() { }
-        public override NServiceBus.Transports.TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure() { }
-        public override string MakeCanonicalForm(string transportAddress) { }
-        public override string ToTransportAddress(NServiceBus.LogicalAddress logicalAddress) { }
-    }
     public class NonDurableDelivery : NServiceBus.DeliveryConstraints.DeliveryConstraint
     {
         public NonDurableDelivery() { }
