@@ -1850,6 +1850,20 @@ namespace NServiceBus.ObjectBuilder
         "figureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full contro" +
         "l over handler creation. Will be removed in version 7.0.0.", true)]
     public interface IComponentConfig<T> { }
+    [System.ObsoleteAttribute("Setting property values explicitly is no longer supported via this API. Use `.Con" +
+        "figureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full contro" +
+        "l over handler creation. Will be removed in version 7.0.0.", true)]
+    public class static IConfigureComponentObsoleteExtensions
+    {
+        [System.ObsoleteAttribute("Setting property values explicitly is no longer supported via this API. Use `.Con" +
+            "figureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full contro" +
+            "l over handler creation. Will be removed in version 7.0.0.", true)]
+        public static NServiceBus.ObjectBuilder.IConfigureComponents ConfigureProperty<T>(this NServiceBus.ObjectBuilder.IConfigureComponents config, System.Linq.Expressions.Expression<System.Func<T, object>> property, object value) { }
+        [System.ObsoleteAttribute("Setting property values explicitly is no longer supported via this API. Use `.Con" +
+            "figureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full contro" +
+            "l over handler creation. Will be removed in version 7.0.0.", true)]
+        public static NServiceBus.ObjectBuilder.IConfigureComponents ConfigureProperty<T>(this NServiceBus.ObjectBuilder.IConfigureComponents config, string propertyName, object value) { }
+    }
     public interface IConfigureComponents
     {
         void ConfigureComponent(System.Type concreteComponent, NServiceBus.DependencyLifecycle dependencyLifecycle);
@@ -2535,8 +2549,6 @@ namespace NServiceBus.Settings
 {
     public interface ReadOnlySettings
     {
-        void ApplyTo<T>(NServiceBus.ObjectBuilder.IComponentConfig config);
-        void ApplyTo(System.Type componentType, NServiceBus.ObjectBuilder.IComponentConfig config);
         T Get<T>();
         T Get<T>(string key);
         object Get(string key);
@@ -2548,6 +2560,17 @@ namespace NServiceBus.Settings
         bool HasSetting<T>();
         bool TryGet<T>(out T val);
         bool TryGet<T>(string key, out T val);
+    }
+    public class static ReadOnlySettingsExtensions
+    {
+        [System.ObsoleteAttribute("Setting property values explicitly is no longer supported via this API. Use `.Con" +
+            "figureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full contro" +
+            "l over handler creation. Will be removed in version 7.0.0.", true)]
+        public static void ApplyTo<T>(NServiceBus.ObjectBuilder.IComponentConfig config) { }
+        [System.ObsoleteAttribute("Setting property values explicitly is no longer supported via this API. Use `.Con" +
+            "figureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full contro" +
+            "l over handler creation. Will be removed in version 7.0.0.", true)]
+        public static void ApplyTo(System.Type componentType, NServiceBus.ObjectBuilder.IComponentConfig config) { }
     }
     public class ScaleOutSettings
     {
@@ -2569,11 +2592,13 @@ namespace NServiceBus.Settings
     public class SettingsHolder : NServiceBus.Settings.ReadOnlySettings
     {
         public SettingsHolder() { }
-        [System.ObsoleteAttribute("Property injection is no longer supported, please use constructor injection inste" +
-            "ad. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Setting property values explicitly is no longer supported via this API. Use `.Con" +
+            "figureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full contro" +
+            "l over handler creation. Will be removed in version 7.0.0.", true)]
         public void ApplyTo<T>(NServiceBus.ObjectBuilder.IComponentConfig config) { }
-        [System.ObsoleteAttribute("Property injection is no longer supported, please use constructor injection inste" +
-            "ad. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Setting property values explicitly is no longer supported via this API. Use `.Con" +
+            "figureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full contro" +
+            "l over handler creation. Will be removed in version 7.0.0.", true)]
         public void ApplyTo(System.Type componentType, NServiceBus.ObjectBuilder.IComponentConfig config) { }
         public void Clear() { }
         public T Get<T>(string key) { }

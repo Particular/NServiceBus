@@ -75,9 +75,7 @@
                 protected override void Setup(FeatureConfigurationContext context)
                 {
                     var testContext = context.Settings.Get<TimeoutTestContext>();
-                    context.Container
-                        .ConfigureComponent<CyclingOutageTimeoutPersister>(DependencyLifecycle.SingleInstance)
-                        .ConfigureProperty(tp => tp.SecondsToWait, testContext.SecondsToWait);
+                    context.Container.ConfigureComponent(b => new CyclingOutageTimeoutPersister(testContext.SecondsToWait), DependencyLifecycle.SingleInstance);
                 }
             }
         }

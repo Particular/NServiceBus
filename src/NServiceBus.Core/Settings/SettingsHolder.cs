@@ -5,12 +5,11 @@ namespace NServiceBus.Settings
     using System.Collections.Generic;
     using System.Configuration;
     using System.Linq.Expressions;
-    using ObjectBuilder;
 
     /// <summary>
     /// Setting container.
     /// </summary>
-    public class SettingsHolder : ReadOnlySettings
+    public partial class SettingsHolder : ReadOnlySettings
     {
         /// <summary>
         /// Gets the given setting by key.
@@ -20,7 +19,7 @@ namespace NServiceBus.Settings
         public T Get<T>(string key)
         {
             Guard.AgainstNullAndEmpty(nameof(key), key);
-            return (T) Get(key);
+            return (T)Get(key);
         }
 
         /// <summary>
@@ -60,7 +59,7 @@ namespace NServiceBus.Settings
                 return false;
             }
 
-            val = (T) tmp;
+            val = (T)tmp;
             return true;
         }
 
@@ -71,7 +70,7 @@ namespace NServiceBus.Settings
         /// <returns>The value if found, throws if not.</returns>
         public T Get<T>()
         {
-            return (T) Get(typeof(T).FullName);
+            return (T)Get(typeof(T).FullName);
         }
 
         /// <summary>
@@ -118,12 +117,12 @@ namespace NServiceBus.Settings
             object result;
             if (Overrides.TryGetValue(key, out result))
             {
-                return (T) result;
+                return (T)result;
             }
 
             if (Defaults.TryGetValue(key, out result))
             {
-                return (T) result;
+                return (T)result;
             }
 
             return default(T);
@@ -173,27 +172,6 @@ namespace NServiceBus.Settings
             var key = typeof(T).FullName;
 
             return HasExplicitValue(key);
-        }
-
-        [ObsoleteEx(
-            RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0",
-            Message = "Property injection is no longer supported, please use constructor injection instead.")]
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-        public void ApplyTo<T>(IComponentConfig config)
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-        {
-        }
-
-
-        [ObsoleteEx(
-            RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0",
-            Message = "Property injection is no longer supported, please use constructor injection instead.")]
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-        public void ApplyTo(Type componentType, IComponentConfig config)
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-        {
         }
 
         /// <summary>
@@ -321,9 +299,7 @@ namespace NServiceBus.Settings
         }
 
         ConcurrentDictionary<string, object> Defaults = new ConcurrentDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
-
         bool locked;
-
         ConcurrentDictionary<string, object> Overrides = new ConcurrentDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
     }
 }

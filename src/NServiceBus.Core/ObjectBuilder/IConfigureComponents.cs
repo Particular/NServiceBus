@@ -32,7 +32,7 @@ namespace NServiceBus.ObjectBuilder
         /// <summary>
         /// Configures the given type, allowing to fluently configure properties.
         /// </summary>
-        void ConfigureComponent<T>(Func<IBuilder,T> componentFactory, DependencyLifecycle dependencyLifecycle);
+        void ConfigureComponent<T>(Func<IBuilder, T> componentFactory, DependencyLifecycle dependencyLifecycle);
 
         /// <summary>
         /// Registers the given instance as the singleton that will be returned
