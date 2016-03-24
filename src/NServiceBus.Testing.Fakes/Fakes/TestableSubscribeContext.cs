@@ -3,7 +3,7 @@
     using System;
     using NServiceBus.Pipeline;
     /// <summary>
-    /// A testable implementation of <see cref="ISubscribeContext"/>.
+    /// A testable implementation of <see cref="ISubscribeContext" />.
     /// </summary>
     public class TestableSubscribeContext : TestableBehaviorContext, ISubscribeContext
     {

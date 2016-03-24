@@ -4,7 +4,7 @@
     using NServiceBus.Pipeline;
 
     /// <summary>
-    /// A testable implementation of <see cref="IUnsubscribeContext"/>.
+    /// A testable implementation of <see cref="IUnsubscribeContext" />.
     /// </summary>
     public class TestableUnsubscribeContext : TestableBehaviorContext, IUnsubscribeContext
     {

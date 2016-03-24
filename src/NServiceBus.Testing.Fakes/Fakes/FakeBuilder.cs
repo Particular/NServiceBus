@@ -6,44 +6,14 @@
     using NServiceBus.ObjectBuilder;
 
     /// <summary>
-    /// A fake implementation of <see cref="IBuilder"/> for testing purposes.
+    /// A fake implementation of <see cref="IBuilder" /> for testing purposes.
     /// </summary>
     public class FakeBuilder : IBuilder
     {
-        IDictionary<Type, object[]> instances = new Dictionary<Type, object[]>();
-        IDictionary<Type, Func<object[]>> factories = new Dictionary<Type, Func<object[]>>();
-
-        /// <summary>
-        /// Registers an instance which will be returned every time an instance of <typeparamref name="T"/> is resolved.
-        /// </summary>
-        public void Register<T>(params T[] instance) where T: class
-        {
-            instances.Add(typeof(T), instance);
-        }
-
-        /// <summary>
-        /// Registers a factory method which will be invoked every time an instance of <typeparamref name="T"/> is resolved.
-        /// </summary>
-        public void Register<T>(Func<T> factory)
-        {
-            factories.Add(typeof(T), () => new object[]
-            {
-                factory()
-            });
-        }
-
-        /// <summary>
-        /// Registers a factory method which will be invoked every time an instance of <typeparamref name="T"/> is resolved.
-        /// </summary>
-        public void Register<T>(Func<T[]> factory) where T: class
-        {
-            factories.Add(typeof(T), factory);
-        }
-
         /// <summary>
         /// Returns an instantiation of the given type.
         /// </summary>
-        /// <param name="typeToBuild">The <see cref="T:System.Type"/> to build.</param>
+        /// <param name="typeToBuild">The <see cref="T:System.Type" /> to build.</param>
         /// <returns>
         /// The component instance.
         /// </returns>
@@ -57,7 +27,7 @@
         /// </summary>
         /// <typeparam name="T">Type to be resolved.</typeparam>
         /// <returns>
-        /// Instance of <typeparamref name="T"/>.
+        /// Instance of <typeparamref name="T" />.
         /// </returns>
         public virtual T Build<T>()
         {
@@ -67,7 +37,7 @@
         /// <summary>
         /// For each type that is compatible with the given type, an instance is created with all dependencies injected.
         /// </summary>
-        /// <param name="typeToBuild">The <see cref="T:System.Type"/> to build.</param>
+        /// <param name="typeToBuild">The <see cref="T:System.Type" /> to build.</param>
         /// <returns>
         /// The component instances.
         /// </returns>
@@ -92,7 +62,7 @@
         /// </summary>
         /// <typeparam name="T">Type to be resolved.</typeparam>
         /// <returns>
-        /// Instances of <typeparamref name="T"/>.
+        /// Instances of <typeparamref name="T" />.
         /// </returns>
         public virtual IEnumerable<T> BuildAll<T>()
         {
@@ -115,7 +85,8 @@
         /// Builds an instance of the defined type injecting it with all defined dependencies
         /// and invokes the given action on the instance.
         /// </summary>
-        /// <param name="typeToBuild">The <see cref="T:System.Type"/> to build.</param><param name="action">The callback to call.</param>
+        /// <param name="typeToBuild">The <see cref="T:System.Type" /> to build.</param>
+        /// <param name="action">The callback to call.</param>
         public virtual void BuildAndDispatch(Type typeToBuild, Action<object> action)
         {
             throw new NotImplementedException();
@@ -148,5 +119,35 @@
         public virtual void Release(object instance)
         {
         }
+
+        /// <summary>
+        /// Registers an instance which will be returned every time an instance of <typeparamref name="T" /> is resolved.
+        /// </summary>
+        public void Register<T>(params T[] instance) where T : class
+        {
+            instances.Add(typeof(T), instance);
+        }
+
+        /// <summary>
+        /// Registers a factory method which will be invoked every time an instance of <typeparamref name="T" /> is resolved.
+        /// </summary>
+        public void Register<T>(Func<T> factory)
+        {
+            factories.Add(typeof(T), () => new object[]
+            {
+                factory()
+            });
+        }
+
+        /// <summary>
+        /// Registers a factory method which will be invoked every time an instance of <typeparamref name="T" /> is resolved.
+        /// </summary>
+        public void Register<T>(Func<T[]> factory) where T : class
+        {
+            factories.Add(typeof(T), factory);
+        }
+
+        IDictionary<Type, Func<object[]>> factories = new Dictionary<Type, Func<object[]>>();
+        IDictionary<Type, object[]> instances = new Dictionary<Type, object[]>();
     }
 }

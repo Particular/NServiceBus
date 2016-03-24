@@ -20,7 +20,7 @@
   </metadata>
   <files>
     <file
-      src="..\..\src\NServiceBus.Core.Tests\Testing\Fakes\*.cs"
+      src="..\..\src\NServiceBus.Testing.Fakes\Fakes\*.cs"
       target="content\Testing\Fakes"
       exclude="**\bin\**\*.*;**\obj\**\*.*;" />
   </files>

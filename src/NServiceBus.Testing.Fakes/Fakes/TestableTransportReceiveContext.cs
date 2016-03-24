@@ -12,7 +12,7 @@
     public class TestableTransportReceiveContext : TestableBehaviorContext, ITransportReceiveContext
     {
         /// <summary>
-        /// Indicated whether <see cref="AbortReceiveOperation" /> has ben called or not.
+        /// Indicated whether <see cref="AbortReceiveOperation" /> has been called or not.
         /// </summary>
         public bool ReceiveOperationAborted { get; set; }
 

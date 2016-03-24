@@ -3,7 +3,7 @@ namespace NServiceBus.Testing
     using NServiceBus.Extensibility;
 
     /// <summary>
-    /// Represents an outgoing message. Contains the message itself and it's associated options.
+    /// Represents an outgoing message. Contains the message itself and its associated options.
     /// </summary>
     /// <typeparam name="TMessage">The message type.</typeparam>
     /// <typeparam name="TOptions">The options type of the message.</typeparam>

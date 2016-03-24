@@ -3,7 +3,8 @@
     using System;
 
     /// <summary>
-    /// Represents a message that is time out if not processed within a given timespan. Contains the message itself and it's associated options.
+    /// Represents a message that is timed out, if not processed within a given timespan. Contains the message itself and its
+    /// associated options.
     /// </summary>
     /// <typeparam name="TMessage">The message type</typeparam>
     public class TimeoutMessage<TMessage> : OutgoingMessage<TMessage, SendOptions>
@@ -17,7 +18,7 @@
         }
 
         /// <summary>
-        /// Specifies a <see cref="TimeSpan"/> for the message to be processed, before timeout.
+        /// Specifies a <see cref="TimeSpan" /> for the message to be processed, before timeout.
         /// </summary>
         public TimeSpan Within { get; private set; }
     }

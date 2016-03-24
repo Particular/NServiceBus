@@ -6,7 +6,7 @@
     using NServiceBus.Transports;
 
     /// <summary>
-    /// A testable implementation for <see cref="IForwardingContext"/>.
+    /// A testable implementation for <see cref="IForwardingContext" />.
     /// </summary>
     public class TestableForwardingContext : TestableBehaviorContext, IForwardingContext
     {

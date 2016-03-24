@@ -5,7 +5,7 @@
     using NServiceBus.Pipeline;
 
     /// <summary>
-    /// A base implementation for contexts implementing <see cref="IBehaviorContext"/>.
+    /// A base implementation for contexts implementing <see cref="IBehaviorContext" />.
     /// </summary>
     public abstract class TestableBehaviorContext : IBehaviorContext
     {

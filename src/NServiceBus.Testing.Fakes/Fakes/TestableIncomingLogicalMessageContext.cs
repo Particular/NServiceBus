@@ -9,7 +9,7 @@
     public class TestableIncomingLogicalMessageContext : TestableIncomingContext, IIncomingLogicalMessageContext
     {
         /// <summary>
-        /// Creates a new instance of <see cref="TestableIncomingLogicalMessageContext"/>.
+        /// Creates a new instance of <see cref="TestableIncomingLogicalMessageContext" />.
         /// </summary>
         public TestableIncomingLogicalMessageContext(IMessageCreator messageCreator = null) : base(messageCreator)
         {
@@ -31,7 +31,7 @@
         public bool MessageHandled { get; set; }
 
         /// <summary>
-        /// Updates the message instance contained in <see cref="LogicalMessage"/>.
+        /// Updates the message instance contained in <see cref="LogicalMessage" />.
         /// </summary>
         /// <param name="newInstance">The new instance.</param>
         public virtual void UpdateMessageInstance(object newInstance)
