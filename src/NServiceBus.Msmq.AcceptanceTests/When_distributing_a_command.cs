@@ -1,21 +1,33 @@
-﻿namespace NServiceBus.AcceptanceTests.Routing
+﻿namespace NServiceBus.AcceptanceTests
 {
     using System;
     using System.IO;
     using System.Threading.Tasks;
+    using AcceptanceTesting.Customization;
+    using Configuration.AdvanceExtensibility;
     using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
+    using Settings;
 
     public class When_distributing_a_command : NServiceBusAcceptanceTest
     {
-        [Test, Explicit("Flaky on the buildserver - https://github.com/Particular/NServiceBus/issues/3003")]
+        static string ReceiverEdndpoint => Conventions.EndpointNamingConvention(typeof(Receiver));
+
+        [Test]
         public async Task Should_round_robin()
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Sender>(b => b.When((session, c) => session.Send(new Request())))
-                .WithEndpoint<Receiver1>()
-                .WithEndpoint<Receiver2>()
+                .WithEndpoint<Receiver>(b => b.CustomConfig(c =>
+                {
+                    c.ScaleOut().InstanceDiscriminator("1");
+                    c.GetSettings().Set("Name", "Receiver1");
+                }))
+                .WithEndpoint<Receiver>(b => b.CustomConfig(c =>
+                {
+                    c.ScaleOut().InstanceDiscriminator("2");
+                    c.GetSettings().Set("Name", "Receiver2");
+                }))
                 .Done(c => c.Receiver1TimesCalled > 4 && c.Receiver2TimesCalled > 4)
                 .Run();
 
@@ -36,12 +48,16 @@
                 var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "routes.xml");
                 File.WriteAllText(filePath, @"<endpoints>
     <endpoint name=""DistributingACommand.Receiver"">
-        <instance schema=""mySchema""/>
+        <instance discriminator=""1""/>
+        <instance discriminator=""2""/>
     </endpoint>
 </endpoints>
 ");
+
                 EndpointSetup<DefaultServer>(c =>
                 {
+                    c.UseTransport<MsmqTransport>().DistributeMessagesUsingFileBasedEndpointInstanceMapping(filePath);
+                    c.UnicastRouting().RouteToEndpoint(typeof(Request), ReceiverEdndpoint);
                 });
             }
 
@@ -66,58 +82,31 @@
             }
         }
 
-        public class Receiver1 : EndpointConfigurationBuilder
+        public class Receiver : EndpointConfigurationBuilder
         {
-            public Receiver1()
+            public Receiver()
             {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.ScaleOut().InstanceDiscriminator("1");
-                })
-                .CustomEndpointName("DistributingACommand.Receiver");
+                EndpointSetup<DefaultServer>();
             }
 
             public class MyMessageHandler : IHandleMessages<Request>
             {
+                public ReadOnlySettings Settings { get; set; }
+
                 public Task Handle(Request message, IMessageHandlerContext context)
                 {
                     return context.Reply(new Response
                     {
-                        EndpointName = "Receiver1"
+                        EndpointName = Settings.Get<string>("Name")
                     });
                 }
             }
         }
 
-        public class Receiver2 : EndpointConfigurationBuilder
-        {
-            public Receiver2()
-            {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.ScaleOut().InstanceDiscriminator("2");
-                })
-                .CustomEndpointName("DistributingACommand.Receiver");
-            }
-
-            public class MyMessageHandler : IHandleMessages<Request>
-            {
-                public Task Handle(Request message, IMessageHandlerContext context)
-                {
-                    return context.Reply(new Response
-                    {
-                        EndpointName = "Receiver2"
-                    });
-                }
-            }
-        }
-
-        [Serializable]
         public class Request : ICommand
         {
         }
 
-        [Serializable]
         public class Response : IMessage
         {
             public string EndpointName { get; set; }
