@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <id>NServiceBus.Testing.Fakes</id>
+    <title>Source only package containing fake implementations of various NServiceBus components for unit tests</title>
+    <version>$version$</version>
+    <authors>$authors$</authors>
+    <owners>$owners$</owners>
+    <licenseUrl>$licenseUrl$</licenseUrl>
+    <projectUrl>$projectUrl$</projectUrl>
+    <iconUrl>$iconUrl$</iconUrl>
+    <requireLicenseAcceptance>$requireLicenseAcceptance$</requireLicenseAcceptance>
+    <description>Unit testing fakes and helpers for NServiceBus core functionality</description>
+    <releaseNotes></releaseNotes>
+    <copyright>$copyright$</copyright>
+    <tags>nservicebus servicebus msmq cqrs publish subscribe unit testing nunit</tags>
+    <dependencies>
+      <dependency id="NServiceBus" version="$version$" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file
+      src="..\..\src\NServiceBus.Core.Tests\Testing\Fakes\*.cs"
+      target="content\Testing\Fakes"
+      exclude="**\bin\**\*.*;**\obj\**\*.*;" />
+  </files>
+</package>

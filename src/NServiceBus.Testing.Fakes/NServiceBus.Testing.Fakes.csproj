@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{80105366-8EF9-494D-A296-E100E82224CF}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>NServiceBus.Testing.Fakes</RootNamespace>
+    <AssemblyName>NServiceBus.Testing.Fakes</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Fakes\FakeBuilder.cs" />
+    <Compile Include="Fakes\OutgoingMessage.cs" />
+    <Compile Include="Fakes\OutgoingMessageExtensions.cs" />
+    <Compile Include="Fakes\PublishedMessage.cs" />
+    <Compile Include="Fakes\RepliedMessage.cs" />
+    <Compile Include="Fakes\SentMessage.cs" />
+    <Compile Include="Fakes\TestableAuditContext.cs" />
+    <Compile Include="Fakes\TestableBatchDispatchContext.cs" />
+    <Compile Include="Fakes\TestableBehaviorContext.cs" />
+    <Compile Include="Fakes\TestableDispatchContext.cs" />
+    <Compile Include="Fakes\TestableFaultContext.cs" />
+    <Compile Include="Fakes\TestableForwardingContext.cs" />
+    <Compile Include="Fakes\TestableIncomingContext.cs" />
+    <Compile Include="Fakes\TestableIncomingLogicalMessageContext.cs" />
+    <Compile Include="Fakes\TestableIncomingPhysicalMessageContext.cs" />
+    <Compile Include="Fakes\TestableInvokeHandlerContext.cs" />
+    <Compile Include="Fakes\TestableMessageHandlerContext.cs" />
+    <Compile Include="Fakes\TestableMessageProcessingContext.cs" />
+    <Compile Include="Fakes\TestableOutgoingContext.cs" />
+    <Compile Include="Fakes\TestableOutgoingLogicalMessageContext.cs" />
+    <Compile Include="Fakes\TestableOutgoingPhysicalMessageContext.cs" />
+    <Compile Include="Fakes\TestableOutgoingPublishContext.cs" />
+    <Compile Include="Fakes\TestableOutgoingReplyContext.cs" />
+    <Compile Include="Fakes\TestableOutgoingSendContext.cs" />
+    <Compile Include="Fakes\TestablePipelineContext.cs" />
+    <Compile Include="Fakes\TestableRoutingContext.cs" />
+    <Compile Include="Fakes\TestableSatelliteProcessingContext.cs" />
+    <Compile Include="Fakes\TestableSubscribeContext.cs" />
+    <Compile Include="Fakes\TestableTransportReceiveContext.cs" />
+    <Compile Include="Fakes\TestableUnsubscribeContext.cs" />
+    <Compile Include="Fakes\TimeoutMessage.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj">
+      <Project>{dd48b2d0-e996-412d-9157-821ed8b17a9d}</Project>
+      <Name>NServiceBus.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

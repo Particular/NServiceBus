@@ -23,6 +23,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{ACCDE2
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Msmq.AcceptanceTests", "NServiceBus.Msmq.AcceptanceTests\NServiceBus.Msmq.AcceptanceTests.csproj", "{B83EB057-56C7-4296-B0C7-E41F4F70CB02}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Testing.Fakes", "NServiceBus.Testing.Fakes\NServiceBus.Testing.Fakes.csproj", "{80105366-8EF9-494D-A296-E100E82224CF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -107,6 +109,18 @@ Global
 		{B83EB057-56C7-4296-B0C7-E41F4F70CB02}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{B83EB057-56C7-4296-B0C7-E41F4F70CB02}.Release|x86.ActiveCfg = Release|Any CPU
 		{B83EB057-56C7-4296-B0C7-E41F4F70CB02}.Release|x86.Build.0 = Release|Any CPU
+		{80105366-8EF9-494D-A296-E100E82224CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80105366-8EF9-494D-A296-E100E82224CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80105366-8EF9-494D-A296-E100E82224CF}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{80105366-8EF9-494D-A296-E100E82224CF}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{80105366-8EF9-494D-A296-E100E82224CF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{80105366-8EF9-494D-A296-E100E82224CF}.Debug|x86.Build.0 = Debug|Any CPU
+		{80105366-8EF9-494D-A296-E100E82224CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80105366-8EF9-494D-A296-E100E82224CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{80105366-8EF9-494D-A296-E100E82224CF}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{80105366-8EF9-494D-A296-E100E82224CF}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{80105366-8EF9-494D-A296-E100E82224CF}.Release|x86.ActiveCfg = Release|Any CPU
+		{80105366-8EF9-494D-A296-E100E82224CF}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -114,5 +128,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{0A282BF4-0957-4074-8D5E-C2FB8634A3AA} = {2904B75F-8F07-4C07-BABC-BC42533B3E75}
 		{758357F6-CD31-4337-80C4-BA377FC257AF} = {2904B75F-8F07-4C07-BABC-BC42533B3E75}
+		{80105366-8EF9-494D-A296-E100E82224CF} = {2904B75F-8F07-4C07-BABC-BC42533B3E75}
 	EndGlobalSection
 EndGlobal
