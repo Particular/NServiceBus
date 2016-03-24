@@ -10,7 +10,7 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class When_a_finder_exists
+    public class When_a_finder_exists : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_use_it_to_find_saga()

@@ -12,7 +12,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
     using NUnit.Framework;
 
     [TestFixture]
-    public class When_a_finder_exists_and_context_information_added
+    public class When_a_finder_exists_and_context_information_added : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_make_context_information_available()

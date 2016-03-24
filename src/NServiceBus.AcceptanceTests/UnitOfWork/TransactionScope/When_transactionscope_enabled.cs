@@ -6,7 +6,7 @@
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
-    public class When_transactionscope_enabled
+    public class When_transactionscope_enabled : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_wrap_the_handlers_in_a_scope()

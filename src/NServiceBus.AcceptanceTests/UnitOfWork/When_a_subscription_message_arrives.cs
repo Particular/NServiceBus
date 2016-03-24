@@ -8,7 +8,7 @@
     using NServiceBus.UnitOfWork;
     using NUnit.Framework;
 
-    public class When_a_subscription_message_arrives
+    public class When_a_subscription_message_arrives : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_invoke_uow()

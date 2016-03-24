@@ -10,7 +10,7 @@
     using Unicast.Subscriptions;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
-    public class When_a_persistence_does_not_provide_ISynchronizationContext
+    public class When_a_persistence_does_not_provide_ISynchronizationContext : NServiceBusAcceptanceTest
     {
         // Run this test twice to ensure that the NoOpCompletableSynchronizedStorageSession's IDisposable method
         // is not altered by Fody to throw an ObjectDisposedException if it was disposed
