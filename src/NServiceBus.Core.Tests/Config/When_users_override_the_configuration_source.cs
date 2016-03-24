@@ -16,6 +16,7 @@ namespace NServiceBus.Core.Tests.Config
 
             builder.SendOnly();
             builder.TypesToScanInternal(new[] { typeof(ConfigSectionValidatorFeature) });
+            builder.DisableFeature<MessageDrivenSubscriptions>();
             builder.EnableFeature<ConfigSectionValidatorFeature>();
             builder.CustomConfigurationSource(new UserConfigurationSource());
 

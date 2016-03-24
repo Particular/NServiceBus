@@ -15,6 +15,7 @@ namespace NServiceBus.Core.Tests.Config
 
             config.SendOnly();
             config.TypesToScanInternal(new[] { typeof(ConfigSectionValidatorFeature) });
+            config.DisableFeature<MessageDrivenSubscriptions>();
             config.EnableFeature<ConfigSectionValidatorFeature>();
 
             var endpoint = await Endpoint.Start(config);
