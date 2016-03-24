@@ -11,12 +11,9 @@ namespace NServiceBus
     using Settings;
     using Transports;
 
-    /// <summary>
-    /// Transport infrastructure for MSMQ.
-    /// </summary>
-    public class MsmqTransportInfrastructure : TransportInfrastructure
+    class MsmqTransportInfrastructure : TransportInfrastructure
     {
-        internal MsmqTransportInfrastructure(ReadOnlySettings settings, string connectionString)
+        public MsmqTransportInfrastructure(ReadOnlySettings settings, string connectionString)
         {
             RequireOutboxConsent = true;
 
@@ -24,22 +21,12 @@ namespace NServiceBus
             this.connectionString = connectionString;
         }
 
-        /// <summary>
-        /// <see cref="TransportInfrastructure.DeliveryConstraints" />.
-        /// </summary>
         public override IEnumerable<Type> DeliveryConstraints { get; } = new[]
         {
             typeof(DiscardIfNotReceivedBefore)
         };
 
-        /// <summary>
-        /// <see cref="TransportInfrastructure.TransactionMode" />.
-        /// </summary>
         public override TransportTransactionMode TransactionMode { get; } = TransportTransactionMode.TransactionScope;
-
-        /// <summary>
-        /// <see cref="TransportInfrastructure.OutboundRoutingPolicy" />.
-        /// </summary>
         public override OutboundRoutingPolicy OutboundRoutingPolicy { get; } = new OutboundRoutingPolicy(OutboundRoutingType.Unicast, OutboundRoutingType.Unicast, OutboundRoutingType.Unicast);
 
         ReceiveStrategy SelectReceiveStrategy(TransportTransactionMode minimumConsistencyGuarantee, TransactionOptions transactionOptions)
@@ -57,16 +44,8 @@ namespace NServiceBus
             return new ReceiveWithNativeTransaction();
         }
 
-        /// <summary>
-        /// Returns the discriminator for this endpoint instance.
-        /// </summary>
         public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance) => instance.AtMachine(Environment.MachineName);
 
-        /// <summary>
-        /// <see cref="TransportInfrastructure.ToTransportAddress" />.
-        /// </summary>
-        /// <param name="logicalAddress">The logical address.</param>
-        /// <returns>The transport address.</returns>
         public override string ToTransportAddress(LogicalAddress logicalAddress)
         {
             string machine;
@@ -87,19 +66,11 @@ namespace NServiceBus
             return queue + "@" + machine;
         }
 
-        /// <summary>
-        /// <see cref="TransportInfrastructure.MakeCanonicalForm" />.
-        /// </summary>
-        /// <param name="transportAddress">A transport address.</param>
         public override string MakeCanonicalForm(string transportAddress)
         {
             return MsmqAddress.Parse(transportAddress).ToString();
         }
 
-        /// <summary>
-        /// <see cref="TransportInfrastructure.ConfigureReceiveInfrastructure" />.
-        /// </summary>
-        /// <returns>Transport receive infrastructure.</returns>
         public override TransportReceiveInfrastructure ConfigureReceiveInfrastructure()
         {
             new CheckMachineNameForComplianceWithDtcLimitation().Check();
@@ -126,10 +97,6 @@ namespace NServiceBus
                 });
         }
 
-        /// <summary>
-        /// <see cref="TransportInfrastructure.ConfigureSendInfrastructure" />.
-        /// </summary>
-        /// <returns>Transport send infrastructure.</returns>
         public override TransportSendInfrastructure ConfigureSendInfrastructure()
         {
             new CheckMachineNameForComplianceWithDtcLimitation().Check();
@@ -156,17 +123,12 @@ namespace NServiceBus
                 });
         }
 
-        /// <summary>
-        /// <see cref="TransportInfrastructure.ConfigureSubscriptionInfrastructure" />.
-        /// </summary>
-        /// <returns>Transport subscription infrastructure.</returns>
         public override TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure()
         {
             throw new NotImplementedException("MSMQ does not support native pub/sub.");
         }
 
-        readonly string connectionString;
-
-        readonly ReadOnlySettings settings;
+        string connectionString;
+        ReadOnlySettings settings;
     }
 }
