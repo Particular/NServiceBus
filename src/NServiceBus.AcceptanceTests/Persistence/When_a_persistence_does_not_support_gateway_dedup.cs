@@ -7,7 +7,7 @@ namespace NServiceBus.AcceptanceTests.Persistence
     using NServiceBus.Persistence;
     using NUnit.Framework;
 
-    public class When_a_persistence_does_not_support_gateway_dedup
+    public class When_a_persistence_does_not_support_gateway_dedup : NServiceBusAcceptanceTest
     {
         [Test]
         public void should_throw_exception()

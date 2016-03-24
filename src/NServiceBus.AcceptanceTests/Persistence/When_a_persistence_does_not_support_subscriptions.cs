@@ -6,7 +6,7 @@ namespace NServiceBus.AcceptanceTests.Persistence
     using NUnit.Framework;
     using ScenarioDescriptors;
 
-    public class When_a_persistence_does_not_support_subscriptions
+    public class When_a_persistence_does_not_support_subscriptions : NServiceBusAcceptanceTest
     {
         [Test]
         public void should_throw_exception()

@@ -15,9 +15,11 @@
                 .Where(HasTestMethod);
 
             var missingBaseClass = testTypes
-                .Where(t => t.BaseType == null || !typeof(NServiceBusAcceptanceTest).IsAssignableFrom(t));
+                .Where(t => t.BaseType == null || !typeof(NServiceBusAcceptanceTest).IsAssignableFrom(t))
+                .ToList();
 
-            CollectionAssert.IsEmpty(missingBaseClass);
+
+            CollectionAssert.IsEmpty(missingBaseClass, string.Join(",", missingBaseClass));
         }
 
         static bool HasTestMethod(Type t)

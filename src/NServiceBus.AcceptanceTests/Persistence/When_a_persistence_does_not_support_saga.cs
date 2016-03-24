@@ -7,7 +7,7 @@
     using NServiceBus.Persistence;
     using NUnit.Framework;
 
-    public class When_a_persistence_does_not_support_saga
+    public class When_a_persistence_does_not_support_saga : NServiceBusAcceptanceTest
     {
         [Test]
         public void should_throw_exception()
