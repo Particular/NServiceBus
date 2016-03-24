@@ -40,7 +40,7 @@
         {
             if (!PersistenceStartup.HasSupportFor<StorageType.Sagas>(context.Settings))
             {
-                throw new Exception("Selected persister doesn't have support for saga storage. Select another storage or disable the saga feature using endpointConfiguration.DisableFeature<Sagas>()");
+                throw new Exception("The selected persistence doesn't have support for saga storage. Select another persistence or disable the sagas feature using endpointConfiguration.DisableFeature<Sagas>()");
             }
 
             // Register the Saga related behaviors for incoming messages

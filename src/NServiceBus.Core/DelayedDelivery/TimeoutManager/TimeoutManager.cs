@@ -32,7 +32,7 @@
         {
             if (!PersistenceStartup.HasSupportFor<StorageType.Timeouts>(context.Settings))
             {
-                throw new Exception("Selected persister doesn't have support for timeout storage. Select another storage or disable the timeout feature using endpointConfiguration.DisableFeature<TimeoutManager>()");
+                throw new Exception("The selected persistence doesn't have support for timeout storage. Select another persistence or disable the timeout manager feature using endpointConfiguration.DisableFeature<TimeoutManager>()");
             }
 
             var errorQueueAddress = ErrorQueueSettings.GetConfiguredErrorQueue(context.Settings);

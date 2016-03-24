@@ -22,7 +22,7 @@ namespace NServiceBus.Features
         {
             if (!PersistenceStartup.HasSupportFor<StorageType.Subscriptions>(context.Settings))
             {
-                throw new Exception("Selected persister doesn't have support for subscription storage. Select another storage or disable the saga feature using endpointConfiguration.DisableFeature<MessageDrivenSubscriptions>()");
+                throw new Exception("The selected persistence doesn't have support for subscription storage. Select another persistence or disable the message-driven subscriptions feature using endpointConfiguration.DisableFeature<MessageDrivenSubscriptions>()");
             }
 
             context.Pipeline.Register<SubscriptionReceiverBehavior.Registration>();
