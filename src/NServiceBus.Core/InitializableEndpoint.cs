@@ -45,7 +45,8 @@ namespace NServiceBus
 
             var transportDefinition = settings.Get<TransportDefinition>();
             var connectionString = settings.Get<TransportConnectionString>().GetConnectionStringOrRaiseError(transportDefinition);
-            settings.Set<TransportInfrastructure>(transportDefinition.Initialize(settings, connectionString));
+            var transportInfrastructure = transportDefinition.Initialize(settings, connectionString);
+            settings.Set<TransportInfrastructure>(transportInfrastructure);
 
             var featureStats = featureActivator.SetupFeatures(container, pipelineSettings);
 
@@ -56,7 +57,7 @@ namespace NServiceBus
 
             container.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
 
-            var startableEndpoint = new StartableEndpoint(settings, builder, featureActivator, pipelineConfiguration, startables, new EventAggregator(settings.Get<NotificationSubscriptions>()));
+            var startableEndpoint = new StartableEndpoint(settings, builder, featureActivator, pipelineConfiguration, startables, new EventAggregator(settings.Get<NotificationSubscriptions>()), transportInfrastructure);
             return Task.FromResult<IStartableEndpoint>(startableEndpoint);
         }
 
