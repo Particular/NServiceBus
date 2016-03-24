@@ -27,6 +27,6 @@
     <file
       src="..\..\src\NServiceBus.AcceptanceTests\**\*.cs"
       target="content\App_Packages\NSB.AcceptanceTests.$version$"
-      exclude="**\bin\**\*.*;**\obj\**\*.*;..\..\src\NServiceBus.AcceptanceTests\Exceptions\**\*.cs;..\..\src\NServiceBus.AcceptanceTests\FakeTransport\**\*.cs;..\..\src\NServiceBus.AcceptanceTests\UnitOfWork\**\*.cs" />
+      exclude="**\bin\**\*.*;**\obj\**\*.*;..\..\src\NServiceBus.AcceptanceTests\Exceptions\**\*.cs;..\..\src\NServiceBus.AcceptanceTests\FakeTransport\**\*.cs;..\..\src\NServiceBus.AcceptanceTests\Persistence\**\*.cs;..\..\src\NServiceBus.AcceptanceTests\UnitOfWork\**\*.cs" />
   </files>
 </package>
