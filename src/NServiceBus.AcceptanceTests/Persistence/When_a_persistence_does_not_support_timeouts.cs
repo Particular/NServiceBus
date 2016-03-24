@@ -8,7 +8,7 @@
     using NUnit.Framework;
     using ScenarioDescriptors;
 
-    public class When_a_persistence_does_not_support_timeouts
+    public class When_a_persistence_does_not_support_timeouts : NServiceBusAcceptanceTest
     {
         [Test]
         public void should_throw_exception()

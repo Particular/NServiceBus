@@ -7,7 +7,7 @@ namespace NServiceBus.AcceptanceTests.Persistence
     using NServiceBus.Persistence;
     using NUnit.Framework;
 
-    public class When_a_persistence_does_not_support_outbox
+    public class When_a_persistence_does_not_support_outbox : NServiceBusAcceptanceTest
     {
         [Test]
         public void should_throw_exception()
