@@ -60,6 +60,7 @@
     <Compile Include="Causation\When_a_message_is_faulted.cs" />
     <Compile Include="Causation\When_a_message_is_audited.cs" />
     <Compile Include="ConfigureEndpointInMemoryPersistence.cs" />
+    <Compile Include="ConventionEnforcementTests.cs" />
     <Compile Include="Correlation\When_replying_to_received_message_without_correlationid.cs" />
     <Compile Include="DelayedDelivery\When_deferring_a_message_to_the_past.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\When_timeout_dispatch_fails.cs" />
