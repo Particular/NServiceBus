@@ -16,7 +16,7 @@
             {
                 await Scenario.Define<Context>()
                     .WithEndpoint<Endpoint>(e => e.When(b => b.SendLocal(new StartSaga())))
-                    .Done(c => c.MessageRecieved)
+                    .Done(c => c.MessageReceived)
                     .Run();
             }, Throws.Exception.InnerException.InnerException.With.Message.Contains("DisableFeature<Sagas>()"));
         }
@@ -42,7 +42,7 @@
 
             public Task Handle(StartSaga message, IMessageHandlerContext context)
             {
-                TestContext.MessageRecieved = true;
+                TestContext.MessageReceived = true;
                 MarkAsComplete();
                 return Task.FromResult(0);
             }
@@ -59,7 +59,7 @@
 
         public class Context : ScenarioContext
         {
-            public bool MessageRecieved { get; set; }
+            public bool MessageReceived { get; set; }
         }
 
         public class StartSaga : ICommand

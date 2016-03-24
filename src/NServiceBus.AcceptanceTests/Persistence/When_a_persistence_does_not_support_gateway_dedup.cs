@@ -46,7 +46,7 @@ namespace NServiceBus.AcceptanceTests.Persistence
 
         public class Context : ScenarioContext
         {
-            public bool MessageRecieved { get; set; }
+            public bool MessageReceived { get; set; }
         }
     }
 }
