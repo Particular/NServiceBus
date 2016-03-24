@@ -4,26 +4,12 @@ namespace NServiceBus
     using System.Net;
     using Support;
 
-    /// <summary>
-    /// Abstraction for an address on the NServiceBus network.
-    /// </summary>
     struct MsmqAddress
     {
-        /// <summary>
-        /// The (lowercase) name of the queue not including the name of the machine or location depending on the address mode.
-        /// </summary>
         public readonly string Queue;
 
-        /// <summary>
-        /// The (lowercase) name of the machine or the (normal) name of the location depending on the address mode.
-        /// </summary>
         public readonly string Machine;
 
-        /// <summary>
-        /// Parses a string and returns an Address.
-        /// </summary>
-        /// <param name="address">The full address to parse.</param>
-        /// <returns>A new instance of <see cref="Address" />.</returns>
         public static MsmqAddress Parse(string address)
         {
             Guard.AgainstNullAndEmpty(nameof(address), address);
@@ -77,25 +63,12 @@ namespace NServiceBus
             return machineName;
         }
 
-        /// <summary>
-        /// Instantiate a new Address for a known queue on a given machine.
-        /// </summary>
-        /// <param name="queueName">The queue name.</param>
-        /// <param name="machineName">The machine name.</param>
         public MsmqAddress(string queueName, string machineName)
         {
             Queue = queueName;
             Machine = machineName;
         }
 
-        /// <summary>
-        /// Returns an equivalent address which is compatible with a given one with regards to how machine is specified. If a given
-        /// address has machine specified via IP (as opposed
-        /// to host name), the new address will also have machine specified via IP.
-        /// </summary>
-        /// <param name="other">The address to be compatible with.</param>
-        /// <param name="ipLookup">The IP address lookup method.</param>
-        /// <returns></returns>
         public MsmqAddress MakeCompatibleWith(MsmqAddress other, Func<string, string> ipLookup)
         {
             IPAddress _;
@@ -121,9 +94,6 @@ namespace NServiceBus
 
         public string PathWithoutPrefix => Machine + PRIVATE + Queue;
 
-        /// <summary>
-        /// Returns a string representation of the address.
-        /// </summary>
         public override string ToString()
         {
             return Queue + "@" + Machine;
@@ -131,10 +101,8 @@ namespace NServiceBus
 
         const string DIRECTPREFIX_TCP = "DIRECT=TCP:";
         const string PREFIX_TCP = "FormatName:" + DIRECTPREFIX_TCP;
-
         const string PREFIX = "FormatName:" + DIRECTPREFIX;
         const string DIRECTPREFIX = "DIRECT=OS:";
-
         const string PRIVATE = "\\private$\\";
     }
 }

@@ -5,7 +5,7 @@ namespace NServiceBus
     using System.Transactions;
     using System.Transactions.Configuration;
 
-    internal class MsmqScopeOptions
+    class MsmqScopeOptions
     {
         public MsmqScopeOptions(TimeSpan? requestedTimeout = null, IsolationLevel? requestedIsolationLevel = null)
         {

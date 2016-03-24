@@ -13,9 +13,6 @@ namespace NServiceBus
     using Transports;
     using Transports.Msmq;
 
-    /// <summary>
-    /// MSMQ-related utility functions
-    /// </summary>
     class MsmqUtilities
     {
         static MsmqAddress GetIndependentAddressForQueue(MessageQueue q)
@@ -48,9 +45,6 @@ namespace NServiceBus
             }
         }
 
-        /// <summary>
-        /// Converts an MSMQ message to a TransportMessage.
-        /// </summary>
         public static Dictionary<string, string> ExtractHeaders(Message msmqMessage)
         {
             var headers = DeserializeMessageHeaders(msmqMessage);
@@ -125,10 +119,6 @@ namespace NServiceBus
             return result;
         }
 
-        /// <summary>
-        /// Converts a TransportMessage to an Msmq message.
-        /// Doesn't set the ResponseQueue of the result.
-        /// </summary>
         public static Message Convert(OutgoingMessage message, IEnumerable<DeliveryConstraint> deliveryConstraints)
         {
             var result = new Message();
