@@ -56,30 +56,6 @@ namespace NServiceBus
     public class BusConfiguration
     {
         public BusConfiguration() { }
-        [System.ObsoleteAttribute("Please use `EndpointConfiguration.AddHeaderToAllOutgoingMessages(string key,strin" +
-            "g value)` instead. Will be removed in version 7.0.0.", true)]
-        public System.Collections.Generic.IDictionary<string, string> OutgoingHeaders { get; }
-        [System.ObsoleteAttribute("Please use `EndpointConfiguration.ExcludeAssemblies` instead. Will be removed in " +
-            "version 7.0.0.", true)]
-        public void AssembliesToScan(System.Collections.Generic.IEnumerable<System.Reflection.Assembly> assemblies) { }
-        [System.ObsoleteAttribute("Please use `EndpointConfiguration.ExcludeAssemblies` instead. Will be removed in " +
-            "version 7.0.0.", true)]
-        public void AssembliesToScan(params System.Reflection.Assembly[] assemblies) { }
-        [System.ObsoleteAttribute("Endpoint name is now a mandatory constructor argument on EndpointConfiguration. W" +
-            "ill be removed in version 7.0.0.", true)]
-        public void EndpointName(string name) { }
-        [System.ObsoleteAttribute("Please use `EndpointConfiguration.UseTransport<T>().AddAddressTranslationRule(Fun" +
-            "c<LogicalAddress, string> rule)` instead. Will be removed in version 7.0.0.", true)]
-        public void OverrideLocalAddress(string queue) { }
-        [System.ObsoleteAttribute("Please use `EndpointConfiguration.OverridePublicReturnAddress(string address)` in" +
-            "stead. Will be removed in version 7.0.0.", true)]
-        public void OverridePublicReturnAddress(NServiceBus.Address address) { }
-        [System.ObsoleteAttribute("Please use `EndpointConfiguration.ExcludeAssemblies` instead. Will be removed in " +
-            "version 7.0.0.", true)]
-        public void ScanAssembliesInDirectory(string probeDirectory) { }
-        [System.ObsoleteAttribute("Please use `EndpointConfiguration.ExcludeTypes` instead. Will be removed in versi" +
-            "on 7.0.0.", true)]
-        public void TypesToScan(System.Collections.Generic.IEnumerable<System.Type> typesToScan) { }
     }
     [System.ObsoleteAttribute("Please use `Notifications` instead. Will be removed in version 7.0.0.", true)]
     public class BusNotifications
@@ -304,16 +280,40 @@ namespace NServiceBus
     public class EndpointConfiguration : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
         public EndpointConfiguration(string endpointName) { }
+        [System.ObsoleteAttribute("Please use `EndpointConfiguration.AddHeaderToAllOutgoingMessages(string key,strin" +
+            "g value)` instead. Will be removed in version 7.0.0.", true)]
+        public System.Collections.Generic.IDictionary<string, string> OutgoingHeaders { get; }
         public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
+        [System.ObsoleteAttribute("Please use `EndpointConfiguration.ExcludeAssemblies` instead. Will be removed in " +
+            "version 7.0.0.", true)]
+        public void AssembliesToScan(System.Collections.Generic.IEnumerable<System.Reflection.Assembly> assemblies) { }
+        [System.ObsoleteAttribute("Please use `EndpointConfiguration.ExcludeAssemblies` instead. Will be removed in " +
+            "version 7.0.0.", true)]
+        public void AssembliesToScan(params System.Reflection.Assembly[] assemblies) { }
         public NServiceBus.ConventionsBuilder Conventions() { }
         public void CustomConfigurationSource(NServiceBus.Config.ConfigurationSource.IConfigurationSource configurationSource) { }
+        [System.ObsoleteAttribute("Endpoint name is now a mandatory constructor argument on EndpointConfiguration. W" +
+            "ill be removed in version 7.0.0.", true)]
+        public void EndpointName(string name) { }
         public void ExcludeAssemblies(params string[] assemblies) { }
         public void ExcludeTypes(params System.Type[] types) { }
+        [System.ObsoleteAttribute("Please use `EndpointConfiguration.UseTransport<T>().AddAddressTranslationRule(Fun" +
+            "c<LogicalAddress, string> rule)` instead. Will be removed in version 7.0.0.", true)]
+        public void OverrideLocalAddress(string queue) { }
         public void OverridePublicReturnAddress(string address) { }
+        [System.ObsoleteAttribute("Please use `EndpointConfiguration.OverridePublicReturnAddress(string address)` in" +
+            "stead. Will be removed in version 7.0.0.", true)]
+        public void OverridePublicReturnAddress(NServiceBus.Address address) { }
         public void RegisterComponents(System.Action<NServiceBus.ObjectBuilder.IConfigureComponents> registration) { }
         public void RunWhenEndpointStartsAndStops(NServiceBus.IWantToRunWhenBusStartsAndStops callbackObject) { }
+        [System.ObsoleteAttribute("Please use `EndpointConfiguration.ExcludeAssemblies` instead. Will be removed in " +
+            "version 7.0.0.", true)]
+        public void ScanAssembliesInDirectory(string probeDirectory) { }
         public void ScanAssembliesInNestedDirectories() { }
         public void SendOnly() { }
+        [System.ObsoleteAttribute("Please use `EndpointConfiguration.ExcludeTypes` instead. Will be removed in versi" +
+            "on 7.0.0.", true)]
+        public void TypesToScan(System.Collections.Generic.IEnumerable<System.Type> typesToScan) { }
         public void UseContainer<T>(System.Action<NServiceBus.Container.ContainerCustomizations> customizations = null)
             where T : NServiceBus.Container.ContainerDefinition, new () { }
         public void UseContainer(System.Type definitionType) { }

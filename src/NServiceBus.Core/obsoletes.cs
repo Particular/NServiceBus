@@ -124,6 +124,10 @@ namespace NServiceBus
         TreatAsErrorFromVersion = "6.0")]
     public class BusConfiguration
     {
+    }
+
+    public partial class EndpointConfiguration
+    {
         [ObsoleteEx(
             ReplacementTypeOrMember = "EndpointConfiguration.AddHeaderToAllOutgoingMessages(string key,string value)",
             RemoveInVersion = "7.0",
@@ -196,7 +200,6 @@ namespace NServiceBus
         {
             throw new NotImplementedException();
         }
-
     }
 
     [ObsoleteEx(
