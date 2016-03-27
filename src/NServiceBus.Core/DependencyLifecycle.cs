@@ -17,7 +17,7 @@ namespace NServiceBus
         InstancePerUnitOfWork,
 
         /// <summary>
-        /// A new instance will be returned fro each call.
+        /// A new instance will be returned for each call.
         /// </summary>
         InstancePerCall
     }
