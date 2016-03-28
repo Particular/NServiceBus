@@ -65,10 +65,15 @@ namespace NServiceBus
             {
                 var rootContext = new RootContext(childBuilder, pipelineCache, eventAggregator);
                 var context = new TransportReceiveContext(new IncomingMessage(pushContext.MessageId, pushContext.Headers, pushContext.BodyStream), pushContext.TransportTransaction, pushContext.ReceiveCancellationTokenSource, rootContext);
+                var startedAt = DateTime.UtcNow;
+
+                var incomingMessage = new IncomingMessage(pushContext.MessageId, pushContext.Headers, pushContext.BodyStream);
+
                 context.Extensions.Merge(pushContext.Context);
+
                 await pipeline.Invoke(context).ConfigureAwait(false);
 
-                await context.RaiseNotification(new ReceivePipelineCompleted()).ConfigureAwait(false);
+                await context.RaiseNotification(new ReceivePipelineCompleted(startedAt, DateTime.UtcNow, incomingMessage)).ConfigureAwait(false);
             }
         }
 

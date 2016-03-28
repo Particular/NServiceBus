@@ -10,7 +10,7 @@
         [Explicit]
         public async Task Integration()
         {
-            var installer = new PerformanceMonitorUsersInstaller();
+            var installer = new PerformanceMonitorUsersInstaller.Installer();
             await installer.Install(@"location\username");
         }
     }
