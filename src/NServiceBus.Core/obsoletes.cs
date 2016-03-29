@@ -1212,7 +1212,7 @@ namespace NServiceBus.Pipeline
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
-        Message = "The pipeline context is no longer avaliable via dependency injection. Use a behavior to get access instead")]
+        Message = "The pipeline context is no longer avaliable via dependency injection. Use a custom behavior as described in the version 6 upgrade guide")]
     public class PipelineExecutor
     {
     }
