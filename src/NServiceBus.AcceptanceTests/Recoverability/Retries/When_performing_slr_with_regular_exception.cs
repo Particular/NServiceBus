@@ -3,21 +3,16 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
     using System;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using AcceptanceTesting;
+    using Configuration.AdvanceExtensibility;
+    using EndpointTemplates;
+    using Features;
+    using MessageMutator;
     using NServiceBus.Config;
-    using NServiceBus.Features;
-    using NServiceBus.MessageMutator;
     using NUnit.Framework;
 
     public class When_performing_slr_with_regular_exception : NServiceBusAcceptanceTest
     {
-        public class Context : ScenarioContext
-        {
-            public byte OriginalBodyChecksum { get; set; }
-            public byte SlrChecksum { get; set; }
-        }
-
         [Test]
         public async Task Should_preserve_the_original_body_for_regular_exceptions()
         {
@@ -31,31 +26,36 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
             Assert.AreEqual(context.OriginalBodyChecksum, context.SlrChecksum, "The body of the message sent to slr should be the same as the original message coming off the queue");
         }
 
+        class Context : ScenarioContext
+        {
+            public byte OriginalBodyChecksum { get; set; }
+            public byte SlrChecksum { get; set; }
+        }
 
         public class RetryEndpoint : EndpointConfigurationBuilder
         {
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServer>(configure =>
+                EndpointSetup<DefaultServer>((configure, context) =>
                 {
+                    var scenarioContext = (Context) context.ScenarioContext;
                     configure.DisableFeature<FirstLevelRetries>();
                     configure.EnableFeature<SecondLevelRetries>();
                     configure.EnableFeature<TimeoutManager>();
+                    configure.GetSettings().Get<Notifications>().Errors.MessageSentToErrorQueue += (sender, message) => { scenarioContext.SlrChecksum = Checksum(message.Body); };
                     configure.RegisterComponents(c => c.ConfigureComponent<BodyMutator>(DependencyLifecycle.InstancePerCall));
                 })
-                .WithConfig<SecondLevelRetriesConfig>(c => c.TimeIncrease = TimeSpan.FromMilliseconds(1));
+                    .WithConfig<SecondLevelRetriesConfig>(c => c.TimeIncrease = TimeSpan.FromMilliseconds(1));
             }
 
             public static byte Checksum(byte[] data)
             {
-                var longSum = data.Sum(x => (long)x);
-                return unchecked((byte)longSum);
+                var longSum = data.Sum(x => (long) x);
+                return unchecked((byte) longSum);
             }
 
             class BodyMutator : IMutateOutgoingTransportMessages, IMutateIncomingTransportMessages
             {
-                Context testContext;
-
                 public BodyMutator(Context testContext)
                 {
                     this.testContext = testContext;
@@ -83,32 +83,8 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
                     context.OutgoingBody[0]--;
                     return Task.FromResult(0);
                 }
-            }
 
-            class ErrorNotificationSpy : IWantToRunWhenBusStartsAndStops
-            {
-                Notifications notifications;
-                Context context;
-
-                public ErrorNotificationSpy(Context context, Notifications notifications)
-                {
-                    this.notifications = notifications;
-                    this.context = context;
-                }
-
-                public Task Start(IMessageSession session)
-                {
-                    notifications.Errors.MessageSentToErrorQueue += (sender, message) =>
-                    {
-                        context.SlrChecksum = Checksum(message.Body);
-                    };
-                    return Task.FromResult(0);
-                }
-
-                public Task Stop(IMessageSession session)
-                {
-                    return Task.FromResult(0);
-                }
+                Context testContext;
             }
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>

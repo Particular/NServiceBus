@@ -7,6 +7,7 @@
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using Extensibility;
+    using Features;
     using NServiceBus.Routing;
     using NUnit.Framework;
     using Pipeline;
@@ -31,6 +32,49 @@
             public bool ControlMessageFailed { get; set; }
         }
 
+        class V33ControlMessageSimulator : Feature
+        {
+            protected override void Setup(FeatureConfigurationContext context)
+            {
+                context.RegisterStartupTask(b => new V33ControlMessageSimulatorTask(b.Build<IDispatchMessages>()));
+            }
+
+            class V33ControlMessageSimulatorTask : FeatureStartupTask
+            {
+                readonly IDispatchMessages dispatcher;
+
+                public V33ControlMessageSimulatorTask(IDispatchMessages dispatcher)
+                {
+                    this.dispatcher = dispatcher;
+                }
+
+                protected override Task OnStart(IMessageSession session)
+                {
+                    // Simulating a v3.3 control message
+                    var body = Encoding.UTF8.GetBytes(@"<?xml version=""1.0""?>
+<Messages xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://tempuri.net/NServiceBus.Unicast.Transport"">
+    <CompletionMessage>
+        <ErrorCode>5</ErrorCode>
+    </CompletionMessage>
+</Messages>");
+                    var outgoingMessage = new OutgoingMessage("0dac4ec2-a0ed-42ee-a306-ff191322d59d\\47283703", new Dictionary<string, string>
+                    {
+                        {"NServiceBus.ControlMessage", "True"},
+                        {"NServiceBus.ReturnMessage.ErrorCode", "5"},
+                        {"NServiceBus.ContentType", "text/xml"}
+                    }, body);
+
+                    var endpoint = Conventions.EndpointNamingConvention(typeof(TestingEndpoint));
+                    return dispatcher.Dispatch(new TransportOperations(new TransportOperation(outgoingMessage, new UnicastAddressTag(endpoint))), new ContextBag());
+                }
+
+                protected override Task OnStop(IMessageSession session)
+                {
+                    return Task.FromResult(0);
+                }
+            }
+        }
+
         public class TestingEndpoint : EndpointConfigurationBuilder
         {
             public TestingEndpoint()
@@ -39,6 +83,7 @@
                 {
                     config.UseTransport<MsmqTransport>();
                     config.Pipeline.Register("AssertBehavior", typeof(AssertBehavior), "Asserts message was processed without any failures");
+                    config.EnableFeature<V33ControlMessageSimulator>();
                 });
             }
 
@@ -65,41 +110,6 @@
                 }
 
                 readonly Context context;
-            }
-
-            public class Starter : IWantToRunWhenBusStartsAndStops
-            {
-                public Starter(IDispatchMessages dispatcher)
-                {
-                    this.dispatcher = dispatcher;
-                }
-
-                public Task Start(IMessageSession session)
-                {
-                    // Simulating a v3.3 control message
-                    var body = Encoding.UTF8.GetBytes(@"<?xml version=""1.0""?>
-<Messages xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://tempuri.net/NServiceBus.Unicast.Transport"">
-    <CompletionMessage>
-        <ErrorCode>5</ErrorCode>
-    </CompletionMessage>
-</Messages>");
-                    var outgoingMessage = new OutgoingMessage("0dac4ec2-a0ed-42ee-a306-ff191322d59d\\47283703", new Dictionary<string, string>
-                    {
-                        {"NServiceBus.ControlMessage", "True"},
-                        {"NServiceBus.ReturnMessage.ErrorCode", "5"},
-                        {"NServiceBus.ContentType", "text/xml"}
-                    }, body);
-
-                    var endpoint = Conventions.EndpointNamingConvention(typeof(TestingEndpoint));
-                    return dispatcher.Dispatch(new TransportOperations(new TransportOperation(outgoingMessage, new UnicastAddressTag(endpoint))), new ContextBag());
-                }
-
-                public Task Stop(IMessageSession session)
-                {
-                    return Task.CompletedTask;
-                }
-
-                readonly IDispatchMessages dispatcher;
             }
         }
     }

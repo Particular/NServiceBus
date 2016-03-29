@@ -160,16 +160,6 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Register specific instance to run when endpoint starts and stops.
-        /// </summary>
-        /// <param name="callbackObject">Callback object.</param>
-        public void RunWhenEndpointStartsAndStops(IWantToRunWhenBusStartsAndStops callbackObject)
-        {
-            Guard.AgainstNull(nameof(callbackObject), callbackObject);
-            startables.Add(callbackObject);
-        }
-
-        /// <summary>
         /// Sets the public return address of this endpoint.
         /// </summary>
         /// <param name="address">The public address.</param>
@@ -223,7 +213,7 @@ namespace NServiceBus
 
             Settings.SetDefault<Conventions>(conventionsBuilder.Conventions);
 
-            return new InitializableEndpoint(Settings, container, registrations, Pipeline, pipelineCollection, startables);
+            return new InitializableEndpoint(Settings, container, registrations, Pipeline, pipelineCollection);
         }
 
         static void ForAllTypes<T>(IEnumerable<Type> types, Action<Type> action) where T : class
@@ -288,6 +278,5 @@ namespace NServiceBus
         bool scanAssembliesInNestedDirectories;
         List<Type> scannedTypes;
         bool sendOnly;
-        List<IWantToRunWhenBusStartsAndStops> startables = new List<IWantToRunWhenBusStartsAndStops>();
     }
 }

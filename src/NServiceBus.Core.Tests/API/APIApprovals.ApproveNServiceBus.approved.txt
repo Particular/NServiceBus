@@ -307,7 +307,6 @@ namespace NServiceBus
             "stead. Will be removed in version 7.0.0.", true)]
         public void OverridePublicReturnAddress(NServiceBus.Address address) { }
         public void RegisterComponents(System.Action<NServiceBus.ObjectBuilder.IConfigureComponents> registration) { }
-        public void RunWhenEndpointStartsAndStops(NServiceBus.IWantToRunWhenBusStartsAndStops callbackObject) { }
         [System.ObsoleteAttribute("Please use `EndpointConfiguration.ExcludeAssemblies` instead. Will be removed in " +
             "version 7.0.0.", true)]
         public void ScanAssembliesInDirectory(string probeDirectory) { }
@@ -646,12 +645,8 @@ namespace NServiceBus
     {
         void Run(NServiceBus.Settings.SettingsHolder settings);
     }
-    [JetBrains.Annotations.UsedImplicitlyAttribute(JetBrains.Annotations.ImplicitUseTargetFlags.Default | JetBrains.Annotations.ImplicitUseTargetFlags.Itself | JetBrains.Annotations.ImplicitUseTargetFlags.Members | JetBrains.Annotations.ImplicitUseTargetFlags.WithMembers)]
-    public interface IWantToRunWhenBusStartsAndStops
-    {
-        System.Threading.Tasks.Task Start(NServiceBus.IMessageSession session);
-        System.Threading.Tasks.Task Stop(NServiceBus.IMessageSession session);
-    }
+    [System.ObsoleteAttribute(@"`IWantToRunWhenBusStartsAndStops` has been moved to the host implementations and renamed. If you're self-hosting, instead of using this interface, you can call any startup code right before `Endpoint.Create` or any cleanup code right after `Endpoint.Stop`. When using either NServiceBus.Host or NServiceBus.Host.AzureCloudService, use the host's interface `IWantToRunWhenEndpointStartsAndStops` instead. Will be removed in version 7.0.0.", true)]
+    public interface IWantToRunWhenBusStartsAndStops { }
     public class JsonSerializer : NServiceBus.Serialization.SerializationDefinition
     {
         public JsonSerializer() { }

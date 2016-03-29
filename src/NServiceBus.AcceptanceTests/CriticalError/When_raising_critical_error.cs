@@ -3,8 +3,9 @@
     using System;
     using System.Collections.Concurrent;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Features;
     using NUnit.Framework;
     using CriticalError = NServiceBus.CriticalError;
 
@@ -24,10 +25,7 @@
             await Scenario.Define<TestContext>()
                 .WithEndpoint<EndpointWithCriticalError>(b =>
                 {
-                    b.CustomConfig(config =>
-                    {
-                        config.DefineCriticalErrorAction(addCritical);
-                    });
+                    b.CustomConfig(config => { config.DefineCriticalErrorAction(addCritical); });
 
                     b.When((session, c) =>
                     {
@@ -41,7 +39,7 @@
                 .Done(c => c.CriticalErrorsRaised > 0)
                 .Run();
 
-            Assert.IsTrue(exceptions.Keys.Count == 1);
+            Assert.AreEqual(1, exceptions.Keys.Count);
         }
 
         [Test]
@@ -56,18 +54,12 @@
             };
 
             var context = await Scenario.Define<TestContext>()
-                .WithEndpoint<EndpointWithCriticalErrorStartup>(b =>
-                {
-                    b.CustomConfig(config =>
-                    {
-                        config.DefineCriticalErrorAction(addCritical);
-                    });
-                })
+                .WithEndpoint<EndpointWithCriticalErrorStartup>(b => { b.CustomConfig(config => { config.DefineCriticalErrorAction(addCritical); }); })
                 .Done(c => c.EndpointsStarted)
                 .Run();
 
-            Assert.IsTrue(context.CriticalErrorsRaised == 2);
-            Assert.IsTrue(exceptions.Keys.Count == context.CriticalErrorsRaised);
+            Assert.AreEqual(2, context.CriticalErrorsRaised);
+            Assert.AreEqual(exceptions.Keys.Count, context.CriticalErrorsRaised);
         }
 
         public class TestContext : ScenarioContext
@@ -85,9 +77,6 @@
 
             public class CriticalHandler : IHandleMessages<Message>
             {
-                CriticalError criticalError;
-                TestContext testContext;
-
                 public CriticalHandler(CriticalError criticalError, TestContext testContext)
                 {
                     this.criticalError = criticalError;
@@ -104,28 +93,28 @@
 
                     return Task.FromResult(0);
                 }
+
+                CriticalError criticalError;
+                TestContext testContext;
             }
         }
 
-        public class EndpointWithCriticalErrorStartup : EndpointConfigurationBuilder
+        class CriticalErrorStartup : Feature
         {
-            public EndpointWithCriticalErrorStartup()
+            protected override void Setup(FeatureConfigurationContext context)
             {
-                EndpointSetup<DefaultServer>();
+                context.RegisterStartupTask(b => new CriticalErrorStartupFeatureTask(b.Build<CriticalError>(), b.Build<TestContext>()));
             }
 
-            public class CriticalErrorStartup : IWantToRunWhenBusStartsAndStops
+            class CriticalErrorStartupFeatureTask : FeatureStartupTask
             {
-                CriticalError criticalError;
-                TestContext testContext;
-
-                public CriticalErrorStartup(CriticalError criticalError, TestContext testContext)
+                public CriticalErrorStartupFeatureTask(CriticalError criticalError, TestContext testContext)
                 {
                     this.criticalError = criticalError;
                     this.testContext = testContext;
                 }
 
-                public Task Start(IMessageSession session)
+                protected override Task OnStart(IMessageSession session)
                 {
                     criticalError.Raise("critical error 1", new SimulatedException());
                     testContext.CriticalErrorsRaised++;
@@ -136,10 +125,21 @@
                     return Task.FromResult(0);
                 }
 
-                public Task Stop(IMessageSession session)
+                protected override Task OnStop(IMessageSession session)
                 {
                     return Task.FromResult(0);
                 }
+
+                CriticalError criticalError;
+                readonly TestContext testContext;
+            }
+        }
+
+        public class EndpointWithCriticalErrorStartup : EndpointConfigurationBuilder
+        {
+            public EndpointWithCriticalErrorStartup()
+            {
+                EndpointSetup<DefaultServer>(c => c.EnableFeature<CriticalErrorStartup>());
             }
         }
 

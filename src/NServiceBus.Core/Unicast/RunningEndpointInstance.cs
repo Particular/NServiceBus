@@ -12,12 +12,11 @@ namespace NServiceBus
 
     class RunningEndpointInstance : IEndpointInstance
     {
-        public RunningEndpointInstance(SettingsHolder settings, IBuilder builder, PipelineCollection pipelineCollection, StartAndStoppablesRunner startAndStoppablesRunner, FeatureRunner featureRunner, IMessageSession messageSession, TransportInfrastructure transportInfrastructure)
+        public RunningEndpointInstance(SettingsHolder settings, IBuilder builder, PipelineCollection pipelineCollection, FeatureRunner featureRunner, IMessageSession messageSession, TransportInfrastructure transportInfrastructure)
         {
             this.settings = settings;
             this.builder = builder;
             this.pipelineCollection = pipelineCollection;
-            this.startAndStoppablesRunner = startAndStoppablesRunner;
             this.featureRunner = featureRunner;
             this.messageSession = messageSession;
             this.transportInfrastructure = transportInfrastructure;
@@ -43,7 +42,6 @@ namespace NServiceBus
 
                 await pipelineCollection.Stop().ConfigureAwait(false);
                 await featureRunner.Stop(messageSession).ConfigureAwait(false);
-                await startAndStoppablesRunner.Stop(messageSession).ConfigureAwait(false);
                 await transportInfrastructure.Stop().ConfigureAwait(false);
                 settings.Clear();
                 builder.Dispose();
@@ -94,7 +92,6 @@ namespace NServiceBus
 
         PipelineCollection pipelineCollection;
         SettingsHolder settings;
-        StartAndStoppablesRunner startAndStoppablesRunner;
 
         volatile bool stopped;
         SemaphoreSlim stopSemaphore = new SemaphoreSlim(1);
