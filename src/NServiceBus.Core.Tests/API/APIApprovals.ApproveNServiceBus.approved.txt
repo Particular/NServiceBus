@@ -195,6 +195,8 @@ namespace NServiceBus
     }
     public class ConventionsBuilder : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
+        public ConventionsBuilder(NServiceBus.Settings.SettingsHolder settings) { }
+        public NServiceBus.Conventions Conventions { get; }
         public NServiceBus.ConventionsBuilder DefiningCommandsAs(System.Func<System.Type, bool> definesCommandType) { }
         public NServiceBus.ConventionsBuilder DefiningDataBusPropertiesAs(System.Func<System.Reflection.PropertyInfo, bool> definesDataBusProperty) { }
         public NServiceBus.ConventionsBuilder DefiningEncryptedPropertiesAs(System.Func<System.Reflection.PropertyInfo, bool> definesEncryptedProperty) { }

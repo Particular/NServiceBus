@@ -6,11 +6,15 @@ namespace NServiceBus
     using Settings;
 
     /// <summary>
-    /// Conventions builder class.
+    /// Defines custom message conventions instead of using the <see cref="IMessage"/>, <see cref="IEvent"/> or <see cref="ICommand"/> interfaces, and other conventions.
     /// </summary>
     public class ConventionsBuilder : ExposeSettings
     {
-        internal ConventionsBuilder(SettingsHolder settings) : base(settings)
+        /// <summary>
+        /// Creates a new instance of ConventionsBuilder class.
+        /// </summary>
+        /// <param name="settings">An instance of the current settings.</param>
+        public ConventionsBuilder(SettingsHolder settings) : base(settings)
         {
         }
 
@@ -65,6 +69,9 @@ namespace NServiceBus
         }
 
 
-        internal Conventions Conventions = new Conventions();
+        /// <summary>
+        /// The defined <see cref="Conventions"/>.
+        /// </summary>
+        public Conventions Conventions { get; } = new Conventions();
     }
 }
