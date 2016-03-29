@@ -12,6 +12,7 @@ namespace NServiceBus
         public PipelineCache(IBuilder builder, ReadOnlySettings settings)
         {
             FromMainPipeline<IAuditContext>(builder, settings);
+            FromMainPipeline<IDispatchContext>(builder, settings);
             FromMainPipeline<IOutgoingPublishContext>(builder, settings);
             FromMainPipeline<ISubscribeContext>(builder, settings);
             FromMainPipeline<IUnsubscribeContext>(builder, settings);
