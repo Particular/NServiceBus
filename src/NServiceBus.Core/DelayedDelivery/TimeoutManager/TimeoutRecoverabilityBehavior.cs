@@ -1,7 +1,6 @@
 namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
     using JetBrains.Annotations;
     using Logging;
@@ -63,8 +62,7 @@ namespace NServiceBus
                 message.SetExceptionHeaders(failureInfo.Exception, localAddress);
 
                 var outgoingMessage = new OutgoingMessage(message.MessageId, message.Headers, message.Body);
-                var routingStrategy = new UnicastRoutingStrategy(errorQueueAddress);
-                var addressTag = routingStrategy.Apply(new Dictionary<string, string>());
+                var addressTag = new UnicastAddressTag(errorQueueAddress);
 
                 var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, addressTag));
 
