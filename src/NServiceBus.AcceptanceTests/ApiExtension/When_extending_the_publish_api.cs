@@ -2,14 +2,14 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.Routing;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
-    using NServiceBus.Extensibility;
-    using NServiceBus.Features;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Extensibility;
+    using Features;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
+    using Routing;
+    using ScenarioDescriptors;
 
     public class When_extending_the_publish_api : NServiceBusAcceptanceTest
     {
@@ -17,27 +17,32 @@
         public async Task Should_make_the_context_available_to_behaviors()
         {
             await Scenario.Define<Context>()
-                    .WithEndpoint<Publisher>(b =>
-                        b.When(c => c.Subscriber1Subscribed, session =>
+                .WithEndpoint<Publisher>(b =>
+                    b.When(c => c.Subscriber1Subscribed, session =>
+                    {
+                        var options = new PublishOptions();
+
+                        options.GetExtensions().Set(new Publisher.PublishExtensionBehavior.Context
                         {
-                            var options = new PublishOptions();
+                            SomeProperty = "ItWorks"
+                        });
 
-                            options.GetExtensions().Set(new Publisher.PublishExtensionBehavior.Context { SomeProperty = "ItWorks" });
+                        return session.Publish(new MyEvent(), options);
+                    })
+                )
+                .WithEndpoint<Subscriber1>(b => b.When(async (session, context) =>
+                {
+                    await session.Subscribe<MyEvent>();
 
-                            return session.Publish(new MyEvent(), options);
-                        })
-                     )
-                    .WithEndpoint<Subscriber1>(b => b.When(async (session, context) =>
-                        {
-                            await session.Subscribe<MyEvent>();
-
-                            if (context.HasNativePubSubSupport)
-                                context.Subscriber1Subscribed = true;
-                        }))
-                    .Done(c => c.Subscriber1GotTheEvent)
-                    .Repeat(r => r.For(Transports.Default))
-                    .Should(c => Assert.True(c.Subscriber1GotTheEvent))
-                    .Run();
+                    if (context.HasNativePubSubSupport)
+                    {
+                        context.Subscriber1Subscribed = true;
+                    }
+                }))
+                .Done(c => c.Subscriber1GotTheEvent)
+                .Repeat(r => r.For(Transports.Default))
+                .Should(c => Assert.True(c.Subscriber1GotTheEvent))
+                .Run();
         }
 
         public class Context : ScenarioContext
@@ -52,10 +57,7 @@
             {
                 EndpointSetup<DefaultPublisher>(b =>
                 {
-                    b.OnEndpointSubscribed<Context>((s, context) =>
-                    {
-                        context.Subscriber1Subscribed = true;
-                    });
+                    b.OnEndpointSubscribed<Context>((s, context) => { context.Subscriber1Subscribed = true; });
 
                     b.Pipeline.Register("PublishExtensionBehavior", typeof(PublishExtensionBehavior), "Testing publish extensions");
                 });
@@ -79,25 +81,18 @@
                     return next();
                 }
 
-               public  class Context
+                public class Context
                 {
                     public string SomeProperty { get; set; }
                 }
             }
-
-         
         }
-
-     
 
         public class Subscriber1 : EndpointConfigurationBuilder
         {
             public Subscriber1()
             {
-                EndpointSetup<DefaultServer>(builder =>
-                {
-                    builder.DisableFeature<AutoSubscribe>();
-                })
+                EndpointSetup<DefaultServer>(builder => { builder.DisableFeature<AutoSubscribe>(); })
                     .AddMapping<MyEvent>(typeof(Publisher));
             }
 
@@ -118,5 +113,4 @@
         {
         }
     }
-
 }

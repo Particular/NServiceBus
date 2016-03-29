@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using NServiceBus.AcceptanceTesting.Support;
+    using AcceptanceTesting.Support;
     using NServiceBus.Transports;
 
     public static class Transports
@@ -26,7 +26,6 @@
                         connectionString = DefaultConnectionStrings[key];
                     }
 
-
                     if (!string.IsNullOrEmpty(connectionString))
                     {
                         runDescriptor.Settings.Set("Transport.ConnectionString", connectionString);
@@ -34,7 +33,7 @@
                     }
                     else
                     {
-                        var transportDefinition = (TransportDefinition)Activator.CreateInstance(transportDefinitionType);
+                        var transportDefinition = (TransportDefinition) Activator.CreateInstance(transportDefinitionType);
 
                         if (!transportDefinition.RequiresConnectionString)
                         {
@@ -67,7 +66,6 @@
                 return runDescriptors.Single(t => t.Key == MsmqDescriptorKey);
             }
         }
-
 
         static string MsmqDescriptorKey = "MsmqTransport";
         static Lazy<List<Type>> foundDefinitions = new Lazy<List<Type>>(() => TypeScanner.GetAllTypesAssignableTo<TransportDefinition>().ToList());

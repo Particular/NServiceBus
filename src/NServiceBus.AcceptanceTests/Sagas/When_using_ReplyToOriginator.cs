@@ -2,9 +2,9 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.Features;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Features;
     using NUnit.Framework;
 
     public class When_using_ReplyToOriginator : NServiceBusAcceptanceTest
@@ -13,7 +13,10 @@
         public async Task Should_set_Reply_as_messageintent()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new InitiateRequestingSaga { SomeCorrelationId = Guid.NewGuid() })))
+                .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new InitiateRequestingSaga
+                {
+                    SomeCorrelationId = Guid.NewGuid()
+                })))
                 .Done(c => c.Done)
                 .Run();
 
@@ -73,7 +76,7 @@
 
                 public Task Handle(MyReplyToOriginator message, IMessageHandlerContext context)
                 {
-                    TestContext.Intent = (MessageIntentEnum)Enum.Parse(typeof(MessageIntentEnum), context.MessageHeaders[Headers.MessageIntent]);
+                    TestContext.Intent = (MessageIntentEnum) Enum.Parse(typeof(MessageIntentEnum), context.MessageHeaders[Headers.MessageIntent]);
                     TestContext.Done = true;
                     return Task.FromResult(0);
                 }

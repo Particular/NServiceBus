@@ -2,11 +2,11 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
-    using NServiceBus.Features;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Features;
     using NUnit.Framework;
+    using ScenarioDescriptors;
 
     public class When_publishing_using_root_type : NServiceBusAcceptanceTest
     {
@@ -14,26 +14,26 @@
         public async Task Event_should_be_published_using_instance_type()
         {
             await Scenario.Define<Context>()
-                    .WithEndpoint<Publisher>(b =>
-                        b.When(c => c.Subscriber1Subscribed, session =>
-                        {
-                            IMyEvent message = new EventMessage();
-
-                            return session.Publish(message);
-                        }))
-                    .WithEndpoint<Subscriber1>(b => b.When(async (session, context) =>
+                .WithEndpoint<Publisher>(b =>
+                    b.When(c => c.Subscriber1Subscribed, session =>
                     {
-                        await session.Subscribe<EventMessage>();
+                        IMyEvent message = new EventMessage();
 
-                        if (context.HasNativePubSubSupport)
-                        {
-                            context.Subscriber1Subscribed = true;
-                        }
+                        return session.Publish(message);
                     }))
-                    .Done(c => c.Subscriber1GotTheEvent)
-                    .Repeat(r => r.For(Transports.Default))
-                    .Should(c => Assert.True(c.Subscriber1GotTheEvent))
-                    .Run(TimeSpan.FromSeconds(20));
+                .WithEndpoint<Subscriber1>(b => b.When(async (session, context) =>
+                {
+                    await session.Subscribe<EventMessage>();
+
+                    if (context.HasNativePubSubSupport)
+                    {
+                        context.Subscriber1Subscribed = true;
+                    }
+                }))
+                .Done(c => c.Subscriber1GotTheEvent)
+                .Repeat(r => r.For(Transports.Default))
+                .Should(c => Assert.True(c.Subscriber1GotTheEvent))
+                .Run(TimeSpan.FromSeconds(20));
         }
 
         public class Context : ScenarioContext

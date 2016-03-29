@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.FakeTransport
 {
     using System;
-    using NServiceBus.Configuration.AdvanceExtensibility;
+    using Configuration.AdvanceExtensibility;
 
     public static class FakeTransportSetingsExtensions
     {

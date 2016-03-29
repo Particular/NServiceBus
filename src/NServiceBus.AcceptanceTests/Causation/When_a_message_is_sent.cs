@@ -1,8 +1,8 @@
 ﻿namespace NServiceBus.AcceptanceTests.Causation
 {
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
 
     public class When_a_message_is_sent : NServiceBusAcceptanceTest
@@ -11,14 +11,13 @@
         public async Task Should_flow_causation_headers()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<CausationEndpoint>(b => b.When(session => session.SendLocal(new MessageSentOutsideOfHandler())))
-                    .Done(c => c.Done)
-                    .Run();
+                .WithEndpoint<CausationEndpoint>(b => b.When(session => session.SendLocal(new MessageSentOutsideOfHandler())))
+                .Done(c => c.Done)
+                .Run();
 
             Assert.AreEqual(context.FirstConversationId, context.ConversationIdReceived, "Conversation id should flow to outgoing messages");
             Assert.AreEqual(context.MessageIdOfFirstMessage, context.RelatedToReceived, "RelatedToId on outgoing messages should be set to the message id of the message causing it to be sent");
         }
-
 
         public class Context : ScenarioContext
         {
@@ -37,7 +36,6 @@
             }
 
             public Context Context { get; set; }
-
 
             public class MessageSentOutsideHandlersHandler : IHandleMessages<MessageSentOutsideOfHandler>
             {

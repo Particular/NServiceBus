@@ -2,8 +2,9 @@
 {
     using System.Threading;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
+    using EndpointTemplates;
     using NServiceBus.Routing;
     using NUnit.Framework;
 
@@ -11,7 +12,7 @@
     {
         public static string GetReceiverEndpoint()
         {
-            return AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(Receiver));
+            return Conventions.EndpointNamingConvention(typeof(Receiver));
         }
 
         [Test]

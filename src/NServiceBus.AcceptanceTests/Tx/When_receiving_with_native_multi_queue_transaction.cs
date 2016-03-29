@@ -2,11 +2,11 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
-    using NServiceBus.Features;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Features;
     using NUnit.Framework;
+    using ScenarioDescriptors;
 
     public class When_receiving_with_native_multi_queue_transaction : NServiceBusAcceptanceTest
     {
@@ -14,15 +14,15 @@
         public async Task Should_not_send_outgoing_messages_if_receiving_transaction_is_rolled_back()
         {
             await Scenario.Define<Context>(c => { c.FirstAttempt = true; })
-                 .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new MyMessage())))
-                 .Done(c => c.MessageHandled)
-                 .Repeat(r => r.For<AllNativeMultiQueueTransactionTransports>())
-                 .Should(c =>
-                 {
-                     Assert.IsFalse(c.HasFailed);
-                     Assert.IsTrue(c.MessageHandled);
-                 })
-                 .Run();
+                .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new MyMessage())))
+                .Done(c => c.MessageHandled)
+                .Repeat(r => r.For<AllNativeMultiQueueTransactionTransports>())
+                .Should(c =>
+                {
+                    Assert.IsFalse(c.HasFailed);
+                    Assert.IsTrue(c.MessageHandled);
+                })
+                .Run();
         }
 
         public class Context : ScenarioContext
@@ -40,7 +40,7 @@
                 {
                     config.EnableFeature<FirstLevelRetries>();
                     config.UseTransport(context.GetTransportType())
-                            .Transactions(TransportTransactionMode.ReceiveOnly);
+                        .Transactions(TransportTransactionMode.ReceiveOnly);
                 });
             }
 

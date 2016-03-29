@@ -2,10 +2,10 @@
 {
     using System.Threading;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
+    using ScenarioDescriptors;
 
     public class When_publishing_to_scaled_out_subscribers_on_multicast_transports : NServiceBusAcceptanceTest
     {
@@ -30,9 +30,6 @@
 
         public class Context : ScenarioContext
         {
-            int subscriberACounter;
-            int subscriberBCounter;
-
             public int SubscriberACounter => subscriberACounter;
 
             public int SubscriberBCounter => subscriberBCounter;
@@ -46,6 +43,9 @@
             {
                 Interlocked.Increment(ref subscriberBCounter);
             }
+
+            int subscriberACounter;
+            int subscriberBCounter;
         }
 
         public class Publisher : EndpointConfigurationBuilder
@@ -93,7 +93,7 @@
                 }
             }
         }
-        
+
         public class MyEvent : IEvent
         {
         }

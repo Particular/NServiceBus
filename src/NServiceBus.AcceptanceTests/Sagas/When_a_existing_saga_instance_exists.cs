@@ -2,8 +2,8 @@
 {
     using System;
     using System.Threading.Tasks;
-    using EndpointTemplates;
     using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
 
     public class When_a_existing_saga_instance_exists : NServiceBusAcceptanceTest
@@ -12,7 +12,10 @@
         public async Task Should_hydrate_and_invoke_the_existing_instance()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<ExistingSagaInstanceEndpt>(b => b.When(session => session.SendLocal(new StartSagaMessage { SomeId = Guid.NewGuid() })))
+                .WithEndpoint<ExistingSagaInstanceEndpt>(b => b.When(session => session.SendLocal(new StartSagaMessage
+                {
+                    SomeId = Guid.NewGuid()
+                })))
                 .Done(c => c.SecondMessageReceived)
                 .Run();
 
@@ -50,7 +53,11 @@
                     else
                     {
                         TestContext.FirstSagaId = Data.Id;
-                        return context.SendLocal(new StartSagaMessage { SomeId = message.SomeId, SecondMessage = true });
+                        return context.SendLocal(new StartSagaMessage
+                        {
+                            SomeId = message.SomeId,
+                            SecondMessage = true
+                        });
                     }
 
                     return Task.FromResult(0);
@@ -65,10 +72,10 @@
 
             public class TestSagaData05 : IContainSagaData
             {
+                public virtual Guid SomeId { get; set; }
                 public virtual Guid Id { get; set; }
                 public virtual string Originator { get; set; }
                 public virtual string OriginalMessageId { get; set; }
-                public virtual Guid SomeId { get; set; }
             }
         }
 

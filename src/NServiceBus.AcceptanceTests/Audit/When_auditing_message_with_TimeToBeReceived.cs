@@ -2,21 +2,20 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
 
     public class When_auditing_message_with_TimeToBeReceived : NServiceBusAcceptanceTest
     {
-
         [Test]
         public async Task Should_not_honor_TimeToBeReceived_for_audit_message()
         {
             var context = await Scenario.Define<Context>()
-            .WithEndpoint<EndpointWithAuditOn>(b => b.When(session => session.SendLocal(new MessageToBeAudited())))
-            .WithEndpoint<EndpointThatHandlesAuditMessages>()
-            .Done(c => c.IsMessageHandlingComplete && c.TTBRHasExpiredAndMessageIsStillInAuditQueue)
-            .Run();
+                .WithEndpoint<EndpointWithAuditOn>(b => b.When(session => session.SendLocal(new MessageToBeAudited())))
+                .WithEndpoint<EndpointThatHandlesAuditMessages>()
+                .Done(c => c.IsMessageHandlingComplete && c.TTBRHasExpiredAndMessageIsStillInAuditQueue)
+                .Run();
 
             Assert.IsTrue(context.IsMessageHandlingComplete);
         }
@@ -30,7 +29,6 @@
 
         class EndpointWithAuditOn : EndpointConfigurationBuilder
         {
-
             public EndpointWithAuditOn()
             {
                 EndpointSetup<DefaultServer>()
@@ -39,8 +37,6 @@
 
             class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
             {
-                Context testContext;
-
                 public MessageToBeAuditedHandler(Context testContext)
                 {
                     this.testContext = testContext;
@@ -51,12 +47,13 @@
                     testContext.IsMessageHandlingComplete = true;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 
         class EndpointThatHandlesAuditMessages : EndpointConfigurationBuilder
         {
-
             public EndpointThatHandlesAuditMessages()
             {
                 EndpointSetup<DefaultServer>();
@@ -64,8 +61,6 @@
 
             class AuditMessageHandler : IHandleMessages<MessageToBeAudited>
             {
-                Context textContext;
-
                 public AuditMessageHandler(Context textContext)
                 {
                     this.textContext = textContext;
@@ -94,6 +89,8 @@
 
                     return Task.FromResult(0);
                 }
+
+                Context textContext;
             }
         }
 

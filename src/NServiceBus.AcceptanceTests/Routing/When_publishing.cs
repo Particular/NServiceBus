@@ -2,11 +2,11 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
-    using NServiceBus.Features;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Features;
     using NUnit.Framework;
+    using ScenarioDescriptors;
 
     public class When_publishing : NServiceBusAcceptanceTest
     {
@@ -16,7 +16,7 @@
             await Scenario.Define<Context>()
                 .WithEndpoint<Publisher3>(b =>
                     b.When(c => c.Subscriber3Subscribed, session => session.Publish<IFoo>())
-                    )
+                )
                 .WithEndpoint<Subscriber3>(b => b.When(async (session, context) =>
                 {
                     await session.Subscribe<IFoo>();
@@ -26,7 +26,6 @@
                         context.Subscriber3Subscribed = true;
                     }
                 }))
-
                 .Done(c => c.Subscriber3GotTheEvent)
                 .Repeat(r => r.For(Transports.Default))
                 .Should(c => Assert.True(c.Subscriber3GotTheEvent))
@@ -37,52 +36,52 @@
         public async Task Should_be_delivered_to_all_subscribers()
         {
             await Scenario.Define<Context>()
-                    .WithEndpoint<Publisher>(b =>
-                        b.When(c => c.Subscriber1Subscribed && c.Subscriber2Subscribed, (session, c) =>
-                        {
-                            c.AddTrace("Both subscribers is subscribed, going to publish MyEvent");
-
-                            var options = new PublishOptions();
-
-                            options.SetHeader("MyHeader", "SomeValue");
-                            return session.Publish(new MyEvent(), options);
-                        })
-                     )
-                    .WithEndpoint<Subscriber1>(b => b.When(async (session, context) =>
-                        {
-                            await session.Subscribe<MyEvent>();
-                            if (context.HasNativePubSubSupport)
-                            {
-                                context.Subscriber1Subscribed = true;
-                                context.AddTrace("Subscriber1 is now subscribed (at least we have asked the broker to be subscribed)");
-                            }
-                            else
-                            {
-                                context.AddTrace("Subscriber1 has now asked to be subscribed to MyEvent");
-                            }
-                        }))
-                      .WithEndpoint<Subscriber2>(b => b.When(async (session, context) =>
-                      {
-                          await session.Subscribe<MyEvent>();
-
-                          if (context.HasNativePubSubSupport)
-                          {
-                              context.Subscriber2Subscribed = true;
-                              context.AddTrace("Subscriber2 is now subscribed (at least we have asked the broker to be subscribed)");
-                          }
-                          else
-                          {
-                              context.AddTrace("Subscriber2 has now asked to be subscribed to MyEvent");
-                          }
-                      }))
-                    .Done(c => c.Subscriber1GotTheEvent && c.Subscriber2GotTheEvent)
-                    .Repeat(r => r.For(Transports.Default))
-                    .Should(c =>
+                .WithEndpoint<Publisher>(b =>
+                    b.When(c => c.Subscriber1Subscribed && c.Subscriber2Subscribed, (session, c) =>
                     {
-                        Assert.True(c.Subscriber1GotTheEvent);
-                        Assert.True(c.Subscriber2GotTheEvent);
+                        c.AddTrace("Both subscribers is subscribed, going to publish MyEvent");
+
+                        var options = new PublishOptions();
+
+                        options.SetHeader("MyHeader", "SomeValue");
+                        return session.Publish(new MyEvent(), options);
                     })
-                    .Run(TimeSpan.FromSeconds(10));
+                )
+                .WithEndpoint<Subscriber1>(b => b.When(async (session, context) =>
+                {
+                    await session.Subscribe<MyEvent>();
+                    if (context.HasNativePubSubSupport)
+                    {
+                        context.Subscriber1Subscribed = true;
+                        context.AddTrace("Subscriber1 is now subscribed (at least we have asked the broker to be subscribed)");
+                    }
+                    else
+                    {
+                        context.AddTrace("Subscriber1 has now asked to be subscribed to MyEvent");
+                    }
+                }))
+                .WithEndpoint<Subscriber2>(b => b.When(async (session, context) =>
+                {
+                    await session.Subscribe<MyEvent>();
+
+                    if (context.HasNativePubSubSupport)
+                    {
+                        context.Subscriber2Subscribed = true;
+                        context.AddTrace("Subscriber2 is now subscribed (at least we have asked the broker to be subscribed)");
+                    }
+                    else
+                    {
+                        context.AddTrace("Subscriber2 has now asked to be subscribed to MyEvent");
+                    }
+                }))
+                .Done(c => c.Subscriber1GotTheEvent && c.Subscriber2GotTheEvent)
+                .Repeat(r => r.For(Transports.Default))
+                .Should(c =>
+                {
+                    Assert.True(c.Subscriber1GotTheEvent);
+                    Assert.True(c.Subscriber2GotTheEvent);
+                })
+                .Run(TimeSpan.FromSeconds(10));
         }
 
         public class Context : ScenarioContext
@@ -108,7 +107,6 @@
                             context.Subscriber1Subscribed = true;
                             context.AddTrace("Subscriber1 is now subscribed");
                         }
-
 
                         if (s.SubscriberReturnAddress.Contains("Subscriber2"))
                         {
@@ -153,7 +151,6 @@
                     return Task.FromResult(0);
                 }
             }
-
         }
 
         public class Subscriber1 : EndpointConfigurationBuilder
@@ -182,7 +179,7 @@
             public Subscriber2()
             {
                 EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>())
-                        .AddMapping<MyEvent>(typeof(Publisher));
+                    .AddMapping<MyEvent>(typeof(Publisher));
             }
 
             public class MyEventHandler : IHandleMessages<MyEvent>

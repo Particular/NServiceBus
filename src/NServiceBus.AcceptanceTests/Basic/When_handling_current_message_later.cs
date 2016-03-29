@@ -2,10 +2,10 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Features;
     using NServiceBus.Config;
-    using NServiceBus.Features;
     using NServiceBus.UnitOfWork;
     using NUnit.Framework;
 
@@ -15,7 +15,10 @@
         public async Task Should_commit_unit_of_work_and_execute_subsequent_handlers()
         {
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                .WithEndpoint<MyEndpoint>(b => b.When((session, c) => session.SendLocal(new SomeMessage { Id = c.Id })))
+                .WithEndpoint<MyEndpoint>(b => b.When((session, c) => session.SendLocal(new SomeMessage
+                {
+                    Id = c.Id
+                })))
                 .Done(c => c.Done)
                 .Run();
 
@@ -44,10 +47,7 @@
                     b.DisableFeature<SecondLevelRetries>();
                     b.ExecuteTheseHandlersFirst(typeof(FirstHandler), typeof(SecondHandler));
                 })
-                    .WithConfig<TransportConfig>(c =>
-                    {
-                        c.MaxRetries = 0;
-                    });
+                    .WithConfig<TransportConfig>(c => { c.MaxRetries = 0; });
             }
 
             class CheckUnitOfWorkOutcome : IManageUnitsOfWork
@@ -90,6 +90,7 @@
             class SecondHandler : IHandleMessages<SomeMessage>
             {
                 public Context Context { get; set; }
+
                 public Task Handle(SomeMessage message, IMessageHandlerContext context)
                 {
                     if (message.Id != Context.Id)
@@ -104,12 +105,11 @@
                 }
             }
         }
+
         [Serializable]
         public class SomeMessage : IMessage
         {
             public Guid Id { get; set; }
         }
-
     }
-
 }

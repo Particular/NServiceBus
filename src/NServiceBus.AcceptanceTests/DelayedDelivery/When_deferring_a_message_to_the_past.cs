@@ -2,9 +2,9 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.Features;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Features;
     using NUnit.Framework;
 
     public class When_deferring_a_message_to_the_past : NServiceBusAcceptanceTest
@@ -13,17 +13,17 @@
         public async Task Should_deliver_message()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(b => b.When((bus, c) =>
-                    {
-                        var options = new SendOptions();
+                .WithEndpoint<Endpoint>(b => b.When((bus, c) =>
+                {
+                    var options = new SendOptions();
 
-                        options.DoNotDeliverBefore(DateTime.Now.AddHours(-1));
-                        options.RouteToThisEndpoint();
+                    options.DoNotDeliverBefore(DateTime.Now.AddHours(-1));
+                    options.RouteToThisEndpoint();
 
-                        return bus.Send(new MyMessage(), options);
-                    }))
-                    .Done(c => c.MessageReceived)
-                    .Run();
+                    return bus.Send(new MyMessage(), options);
+                }))
+                .Done(c => c.MessageReceived)
+                .Run();
 
             Assert.IsTrue(context.MessageReceived);
         }

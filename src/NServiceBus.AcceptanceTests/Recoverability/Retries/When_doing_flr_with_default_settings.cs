@@ -2,10 +2,10 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
+    using ScenarioDescriptors;
 
     public class When_doing_flr_with_default_settings : NServiceBusAcceptanceTest
     {
@@ -16,8 +16,15 @@
                 .WithEndpoint<RetryEndpoint>(b => b
                     .When(async (session, context) =>
                     {
-                        await session.SendLocal(new MessageToBeRetried { Id = context.Id });
-                        await session.SendLocal(new MessageToBeRetried { Id = context.Id, SecondMessage = true });
+                        await session.SendLocal(new MessageToBeRetried
+                        {
+                            Id = context.Id
+                        });
+                        await session.SendLocal(new MessageToBeRetried
+                        {
+                            Id = context.Id,
+                            SecondMessage = true
+                        });
                     })
                     .DoNotFailOnErrorMessages())
                 .Done(c => c.SecondMessageReceived || c.NumberOfTimesInvoked > 1)
@@ -39,10 +46,7 @@
         {
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServer>((config, context) =>
-                {
-                    config.UseTransport(context.GetTransportType()).Transactions(TransportTransactionMode.None);
-                });
+                EndpointSetup<DefaultServer>((config, context) => { config.UseTransport(context.GetTransportType()).Transactions(TransportTransactionMode.None); });
             }
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>

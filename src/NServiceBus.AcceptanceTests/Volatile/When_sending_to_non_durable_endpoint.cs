@@ -1,11 +1,11 @@
 ﻿namespace NServiceBus.AcceptanceTests.Volatile
 {
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NServiceBus.Config;
     using NUnit.Framework;
+    using ScenarioDescriptors;
 
     public class When_sending_to_non_durable_endpoint : NServiceBusAcceptanceTest
     {
@@ -13,12 +13,12 @@
         public async Task Should_receive_the_message()
         {
             await Scenario.Define<Context>()
-                    .WithEndpoint<Sender>(b => b.When((session, c) => session.Send(new MyMessage())))
-                    .WithEndpoint<Receiver>()
-                    .Done(c => c.WasCalled)
-                    .Repeat(r => r.For(Transports.Default))
-                    .Should(c => Assert.True(c.WasCalled, "The message handler should be called"))
-                    .Run();
+                .WithEndpoint<Sender>(b => b.When((session, c) => session.Send(new MyMessage())))
+                .WithEndpoint<Receiver>()
+                .Done(c => c.WasCalled)
+                .Repeat(r => r.For(Transports.Default))
+                .Should(c => Assert.True(c.WasCalled, "The message handler should be called"))
+                .Run();
         }
 
         public class Context : ScenarioContext
@@ -32,10 +32,7 @@
             {
                 EndpointSetup<DefaultServer>(builder => builder.DisableDurableMessages())
                     .AddMapping<MyMessage>(typeof(Receiver))
-                    .WithConfig<MessageForwardingInCaseOfFaultConfig>(c =>
-                    {
-                        c.ErrorQueue = "NonDurableError";
-                    });
+                    .WithConfig<MessageForwardingInCaseOfFaultConfig>(c => { c.ErrorQueue = "NonDurableError"; });
             }
         }
 
@@ -44,10 +41,7 @@
             public Receiver()
             {
                 EndpointSetup<DefaultServer>(builder => builder.DisableDurableMessages())
-                    .WithConfig<MessageForwardingInCaseOfFaultConfig>(c =>
-                    {
-                        c.ErrorQueue = "NonDurableError";
-                    });
+                    .WithConfig<MessageForwardingInCaseOfFaultConfig>(c => { c.ErrorQueue = "NonDurableError"; });
             }
         }
 

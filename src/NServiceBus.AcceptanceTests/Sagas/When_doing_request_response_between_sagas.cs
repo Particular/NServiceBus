@@ -2,9 +2,9 @@
 {
     using System;
     using System.Threading.Tasks;
-    using EndpointTemplates;
     using AcceptanceTesting;
-    using NServiceBus.Features;
+    using EndpointTemplates;
+    using Features;
 
     public class When_doing_request_response_between_sagas : NServiceBusAcceptanceTest
     {
@@ -17,7 +17,6 @@
 
         public class Endpoint : EndpointConfigurationBuilder
         {
-
             public Endpoint()
             {
                 EndpointSetup<DefaultServer>(config => config.EnableFeature<TimeoutManager>());
@@ -69,7 +68,10 @@
                 {
                     if (TestContext.ReplyFromNonInitiatingHandler)
                     {
-                        await context.SendLocal(new SendReplyFromNonInitiatingHandler { SagaIdSoWeCanCorrelate = Data.Id });
+                        await context.SendLocal(new SendReplyFromNonInitiatingHandler
+                        {
+                            SagaIdSoWeCanCorrelate = Data.Id
+                        });
                     }
 
                     if (TestContext.ReplyFromTimeout)
@@ -83,28 +85,21 @@
                     await context.Reply(new ResponseFromOtherSaga());
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestResponseRespondingSagaData> mapper)
+                public Task Handle(SendReplyFromNonInitiatingHandler message, IMessageHandlerContext context)
                 {
-                    mapper.ConfigureMapping<RequestToRespondingSaga>(m => m.SomeIdThatTheResponseSagaCanCorrelateBackToUs).ToSaga(s => s.CorrIdForRequest);
-                    //this line is just needed so we can test the non initiating handler case
-                    mapper.ConfigureMapping<SendReplyFromNonInitiatingHandler>(m => m.SagaIdSoWeCanCorrelate).ToSaga(s => s.CorrIdForRequest);
+                    return SendReply(context);
                 }
-
-                public class RequestResponseRespondingSagaData : ContainSagaData
-                {
-                    public virtual Guid CorrIdForRequest { get; set; }
-                }
-
-                public class DelayReply { }
 
                 public Task Timeout(DelayReply state, IMessageHandlerContext context)
                 {
                     return SendReply(context);
                 }
 
-                public Task Handle(SendReplyFromNonInitiatingHandler message, IMessageHandlerContext context)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestResponseRespondingSagaData> mapper)
                 {
-                    return SendReply(context);
+                    mapper.ConfigureMapping<RequestToRespondingSaga>(m => m.SomeIdThatTheResponseSagaCanCorrelateBackToUs).ToSaga(s => s.CorrIdForRequest);
+                    //this line is just needed so we can test the non initiating handler case
+                    mapper.ConfigureMapping<SendReplyFromNonInitiatingHandler>(m => m.SagaIdSoWeCanCorrelate).ToSaga(s => s.CorrIdForRequest);
                 }
 
                 Task SendReply(IMessageHandlerContext context)
@@ -114,6 +109,15 @@
                     {
                         SomeCorrelationId = Data.CorrIdForRequest //wont be needed in the future
                     });
+                }
+
+                public class RequestResponseRespondingSagaData : ContainSagaData
+                {
+                    public virtual Guid CorrIdForRequest { get; set; }
+                }
+
+                public class DelayReply
+                {
                 }
             }
         }

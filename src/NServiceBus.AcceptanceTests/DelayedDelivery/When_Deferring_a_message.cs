@@ -2,9 +2,9 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.Features;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Features;
     using NUnit.Framework;
 
     public class When_deferring_a_message : NServiceBusAcceptanceTest
@@ -15,19 +15,19 @@
             var delay = TimeSpan.FromMilliseconds(1);
 
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(b => b.When((session, c) =>
-                    {
-                        var options = new SendOptions();
+                .WithEndpoint<Endpoint>(b => b.When((session, c) =>
+                {
+                    var options = new SendOptions();
 
-                        options.DelayDeliveryWith(delay);
-                        options.RouteToThisEndpoint();
+                    options.DelayDeliveryWith(delay);
+                    options.RouteToThisEndpoint();
 
-                        c.SentAt = DateTime.UtcNow;
+                    c.SentAt = DateTime.UtcNow;
 
-                        return session.Send(new MyMessage(), options);
-                    }))
-                    .Done(c => c.WasCalled)
-                    .Run();
+                    return session.Send(new MyMessage(), options);
+                }))
+                .Done(c => c.WasCalled)
+                .Run();
 
             Assert.GreaterOrEqual(context.ReceivedAt - context.SentAt, delay);
         }
@@ -45,6 +45,7 @@
             {
                 EndpointSetup<DefaultServer>(config => config.EnableFeature<TimeoutManager>());
             }
+
             public class MyMessageHandler : IHandleMessages<MyMessage>
             {
                 public Context Context { get; set; }

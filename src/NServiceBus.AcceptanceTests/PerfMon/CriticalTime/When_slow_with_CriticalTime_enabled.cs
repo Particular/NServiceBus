@@ -3,28 +3,28 @@
     using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
+    using ScenarioDescriptors;
 
     public class When_slow_with_CriticalTime_enabled : NServiceBusAcceptanceTest
     {
-        float counterValue;
-
         [Test]
         [Explicit("Since perf counters need to be enabled with powershell")]
         public async Task Should_have_perf_counter_set()
         {
             using (var counter = new PerformanceCounter("NServiceBus", "Critical Time", "SlowWithCriticaltimeEnabled.Endpoint", true))
-            using (new Timer(state => CheckPerfCounter(counter), null, 0, 100))
             {
-                await Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(b => b.When((session, c) => session.SendLocal(new MyMessage())))
-                    .Done(c => c.WasCalled)
-                    .Repeat(r => r.For(Transports.Default))
-                    .Should(c => Assert.True(c.WasCalled, "The message handler should be called"))
-                    .Run();
+                using (new Timer(state => CheckPerfCounter(counter), null, 0, 100))
+                {
+                    await Scenario.Define<Context>()
+                        .WithEndpoint<Endpoint>(b => b.When((session, c) => session.SendLocal(new MyMessage())))
+                        .Done(c => c.WasCalled)
+                        .Repeat(r => r.For(Transports.Default))
+                        .Should(c => Assert.True(c.WasCalled, "The message handler should be called"))
+                        .Run();
+                }
             }
             Assert.Greater(counterValue, 2);
         }
@@ -37,6 +37,8 @@
                 counterValue = rawValue;
             }
         }
+
+        float counterValue;
 
         public class Context : ScenarioContext
         {
@@ -58,6 +60,7 @@
         public class MyMessageHandler : IHandleMessages<MyMessage>
         {
             public Context Context { get; set; }
+
             public async Task Handle(MyMessage message, IMessageHandlerContext context)
             {
                 await Task.Delay(2000);

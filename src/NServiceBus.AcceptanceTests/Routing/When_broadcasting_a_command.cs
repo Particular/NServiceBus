@@ -1,9 +1,9 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing
 {
     using System.Threading.Tasks;
+    using AcceptanceTesting;
     using AcceptanceTesting.Customization;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using EndpointTemplates;
     using NServiceBus.Routing;
     using NUnit.Framework;
 
@@ -16,14 +16,8 @@
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Sender>(b => b.When(c => c.EndpointsStarted, (session, c) => session.Send(new Request())))
-                .WithEndpoint<Receiver>(b =>
-                {
-                    b.CustomConfig(c => c.ScaleOut().InstanceDiscriminator("1"));
-                })
-                .WithEndpoint<Receiver>(b =>
-                {
-                    b.CustomConfig(c => c.ScaleOut().InstanceDiscriminator("2"));
-                })
+                .WithEndpoint<Receiver>(b => { b.CustomConfig(c => c.ScaleOut().InstanceDiscriminator("1")); })
+                .WithEndpoint<Receiver>(b => { b.CustomConfig(c => c.ScaleOut().InstanceDiscriminator("2")); })
                 .Done(c => c.Receiver1TimesCalled > 0 && c.Receiver2TimesCalled > 0)
                 .Run();
 

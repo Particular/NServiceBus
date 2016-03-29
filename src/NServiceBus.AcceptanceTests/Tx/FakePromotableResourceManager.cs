@@ -5,8 +5,6 @@
 
     public class FakePromotableResourceManager : IPromotableSinglePhaseNotification, IEnlistmentNotification
     {
-        public static Guid ResourceManagerId = Guid.Parse("6f057e24-a0d8-4c95-b091-b8dc9a916fa4");
-
         public void Prepare(PreparingEnlistment preparingEnlistment)
         {
             preparingEnlistment.Prepared();
@@ -27,7 +25,6 @@
             enlistment.Done();
         }
 
-
         public void Initialize()
         {
         }
@@ -45,10 +42,8 @@
         public byte[] Promote()
         {
             return TransactionInterop.GetTransmitterPropagationToken(new CommittableTransaction());
-
         }
 
-
+        public static Guid ResourceManagerId = Guid.Parse("6f057e24-a0d8-4c95-b091-b8dc9a916fa4");
     }
-
 }

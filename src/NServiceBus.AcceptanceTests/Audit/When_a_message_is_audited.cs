@@ -3,24 +3,32 @@
     using System;
     using System.Linq;
     using System.Threading.Tasks;
-    using EndpointTemplates;
     using AcceptanceTesting;
+    using EndpointTemplates;
     using MessageMutator;
     using NUnit.Framework;
 
     public class When_a_message_is_audited : NServiceBusAcceptanceTest
     {
-
         [Test]
         public async Task Should_preserve_the_original_body()
         {
             var context = await Scenario.Define<Context>(c => { c.RunId = Guid.NewGuid(); })
-                    .WithEndpoint<EndpointWithAuditOn>(b => b.When((session, c) => session.SendLocal(new MessageToBeAudited { RunId = c.RunId })))
-                    .WithEndpoint<AuditSpyEndpoint>()
-                    .Done(c => c.Done)
-                    .Run();
+                .WithEndpoint<EndpointWithAuditOn>(b => b.When((session, c) => session.SendLocal(new MessageToBeAudited
+                {
+                    RunId = c.RunId
+                })))
+                .WithEndpoint<AuditSpyEndpoint>()
+                .Done(c => c.Done)
+                .Run();
 
             Assert.AreEqual(context.OriginalBodyChecksum, context.AuditChecksum, "The body of the message sent to audit should be the same as the original message coming off the queue");
+        }
+
+        public static byte Checksum(byte[] data)
+        {
+            var longSum = data.Sum(x => (long) x);
+            return unchecked((byte) longSum);
         }
 
         public class Context : ScenarioContext
@@ -114,12 +122,6 @@
                     return Task.FromResult(0);
                 }
             }
-        }
-
-        public static byte Checksum(byte[] data)
-        {
-            var longSum = data.Sum(x => (long)x);
-            return unchecked((byte)longSum);
         }
 
         [Serializable]

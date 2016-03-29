@@ -3,16 +3,16 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTesting.Customization;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
-    using NServiceBus.Extensibility;
-    using NServiceBus.Features;
+    using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
+    using EndpointTemplates;
+    using Extensibility;
+    using Features;
     using NServiceBus.Persistence;
     using NServiceBus.Pipeline;
-    using NServiceBus.Timeout.Core;
     using NUnit.Framework;
+    using ScenarioDescriptors;
+    using Timeout.Core;
 
     public class When_timeout_dispatch_fails_on_timeout_data_removal : NServiceBusAcceptanceTest
     {
@@ -87,20 +87,6 @@
             {
                 public Context TestContext { get; set; }
 
-                TimeoutData timeoutData;
-
-                public Task<TimeoutsChunk> GetNextChunk(DateTime startSlice)
-                {
-                    var timeouts = timeoutData != null
-                        ? new List<TimeoutsChunk.Timeout>
-                        {
-                            new TimeoutsChunk.Timeout(timeoutData.Id, timeoutData.Time)
-                        }
-                        : new List<TimeoutsChunk.Timeout>();
-
-                    return Task.FromResult(new TimeoutsChunk(timeouts, DateTime.UtcNow + TimeSpan.FromSeconds(10)));
-                }
-
                 public Task Add(TimeoutData timeout, ContextBag context)
                 {
                     if (TestContext.TestRunId.ToString() == timeout.Headers[Headers.MessageId])
@@ -133,6 +119,20 @@
                 {
                     throw new NotImplementedException();
                 }
+
+                public Task<TimeoutsChunk> GetNextChunk(DateTime startSlice)
+                {
+                    var timeouts = timeoutData != null
+                        ? new List<TimeoutsChunk.Timeout>
+                        {
+                            new TimeoutsChunk.Timeout(timeoutData.Id, timeoutData.Time)
+                        }
+                        : new List<TimeoutsChunk.Timeout>();
+
+                    return Task.FromResult(new TimeoutsChunk(timeouts, DateTime.UtcNow + TimeSpan.FromSeconds(10)));
+                }
+
+                TimeoutData timeoutData;
             }
 
             class BehaviorThatLogsControlMessageDelivery : Behavior<ITransportReceiveContext>

@@ -5,8 +5,8 @@
     using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.Routing;
-    using NServiceBus.Settings;
-    using NServiceBus.Transports;
+    using Settings;
+    using Transports;
 
     public class FakeTransportInfrastructure : TransportInfrastructure
     {

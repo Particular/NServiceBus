@@ -2,8 +2,8 @@
 {
     using System;
     using System.Threading.Tasks;
-    using EndpointTemplates;
     using AcceptanceTesting;
+    using EndpointTemplates;
 
     public class When_receiving_that_should_start_a_saga : NServiceBusAcceptanceTest
     {
@@ -46,7 +46,6 @@
                 }
             }
 
-
             public class InterceptingHandler : IHandleMessages<StartSagaMessage>
             {
                 public SagaEndpointContext TestContext { get; set; }
@@ -56,7 +55,9 @@
                     TestContext.InterceptingHandlerCalled = true;
 
                     if (TestContext.InterceptSaga)
+                    {
                         context.DoNotContinueDispatchingCurrentMessageToHandlers();
+                    }
 
                     return Task.FromResult(0);
                 }

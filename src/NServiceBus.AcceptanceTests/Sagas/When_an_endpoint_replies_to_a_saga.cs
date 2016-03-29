@@ -2,9 +2,9 @@
 {
     using System;
     using System.Threading.Tasks;
-    using EndpointTemplates;
     using AcceptanceTesting;
-    using NServiceBus.Features;
+    using EndpointTemplates;
+    using Features;
     using NServiceBus.Sagas;
     using NUnit.Framework;
 
@@ -16,10 +16,13 @@
         public async Task Should_correlate_all_saga_messages_properly()
         {
             var context = await Scenario.Define<Context>(c => { c.RunId = Guid.NewGuid(); })
-                    .WithEndpoint<EndpointThatHostsASaga>(b => b.When((session, ctx) => session.SendLocal(new StartSaga { RunId = ctx.RunId })))
-                    .WithEndpoint<EndpointThatRepliesToSagaMessage>()
-                    .Done(c => c.Done)
-                    .Run();
+                .WithEndpoint<EndpointThatHostsASaga>(b => b.When((session, ctx) => session.SendLocal(new StartSaga
+                {
+                    RunId = ctx.RunId
+                })))
+                .WithEndpoint<EndpointThatRepliesToSagaMessage>()
+                .Done(c => c.Done)
+                .Run();
 
             Assert.IsTrue(context.DidSagaReplyMessageGetCorrelated);
         }
@@ -42,7 +45,10 @@
             {
                 public Task Handle(DoSomething message, IMessageHandlerContext context)
                 {
-                    return context.Reply(new DoSomethingResponse { RunId = message.RunId });
+                    return context.Reply(new DoSomethingResponse
+                    {
+                        RunId = message.RunId
+                    });
                 }
             }
         }
@@ -53,7 +59,6 @@
             {
                 EndpointSetup<DefaultServer>(c => c.EnableFeature<TimeoutManager>())
                     .AddMapping<DoSomething>(typeof(EndpointThatRepliesToSagaMessage));
-
             }
 
             public class SagaNotFound : IHandleSagaNotFound
@@ -71,16 +76,18 @@
                 }
             }
 
-
-            public class CorrelationTestSaga : Saga<CorrelationTestSaga.CorrelationTestSagaData>, 
-                IAmStartedByMessages<StartSaga>, 
+            public class CorrelationTestSaga : Saga<CorrelationTestSaga.CorrelationTestSagaData>,
+                IAmStartedByMessages<StartSaga>,
                 IHandleMessages<DoSomethingResponse>
             {
                 public Context TestContext { get; set; }
 
                 public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
-                    return context.Send(new DoSomething { RunId = message.RunId });
+                    return context.Send(new DoSomething
+                    {
+                        RunId = message.RunId
+                    });
                 }
 
                 public Task Handle(DoSomethingResponse message, IMessageHandlerContext context)
@@ -103,7 +110,6 @@
                 }
             }
         }
-
 
         public class StartSaga : ICommand
         {

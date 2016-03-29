@@ -2,9 +2,9 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.Features;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Features;
     using NUnit.Framework;
 
     public class When_using_contain_saga_data : NServiceBusAcceptanceTest
@@ -13,10 +13,13 @@
         public async Task Should_handle_timeouts_properly()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<EndpointThatHostsASaga>(
-                        b => b.When(session => session.SendLocal(new StartSaga {DataId = Guid.NewGuid()})))
-                    .Done(c => c.TimeoutReceived)
-                    .Run();
+                .WithEndpoint<EndpointThatHostsASaga>(
+                    b => b.When(session => session.SendLocal(new StartSaga
+                    {
+                        DataId = Guid.NewGuid()
+                    })))
+                .Done(c => c.TimeoutReceived)
+                .Run();
 
             Assert.True(context.TimeoutReceived);
         }
@@ -34,8 +37,8 @@
             }
 
             public class MySaga : Saga<MySaga.MySagaData>,
-                                        IAmStartedByMessages<StartSaga>,
-                                        IHandleTimeouts<MySaga.TimeHasPassed>
+                IAmStartedByMessages<StartSaga>,
+                IHandleTimeouts<MySaga.TimeHasPassed>
             {
                 public Context TestContext { get; set; }
 

@@ -2,11 +2,11 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
-    using NServiceBus.Configuration.AdvanceExtensibility;
+    using AcceptanceTesting;
+    using Configuration.AdvanceExtensibility;
+    using EndpointTemplates;
     using NUnit.Framework;
+    using ScenarioDescriptors;
 
     public class When_sending_from_a_non_dtc_endpoint : NServiceBusAcceptanceTest
     {
@@ -59,9 +59,13 @@
         }
 
         [Serializable]
-        class PlaceOrder : ICommand { }
+        class PlaceOrder : ICommand
+        {
+        }
 
         [Serializable]
-        class SendOrderAcknowledgement : IMessage { }
+        class SendOrderAcknowledgement : IMessage
+        {
+        }
     }
 }

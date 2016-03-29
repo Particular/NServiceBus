@@ -2,10 +2,10 @@
 {
     using System;
     using System.Threading.Tasks;
-    using EndpointTemplates;
     using AcceptanceTesting;
+    using EndpointTemplates;
+    using Features;
     using NServiceBus.Config;
-    using NServiceBus.Features;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
@@ -48,7 +48,7 @@
                 });
             }
 
-            public class TestSaga09 : Saga<TestSagaData09>, 
+            public class TestSaga09 : Saga<TestSagaData09>,
                 IAmStartedByMessages<StartSagaMessage>,
                 IHandleMessages<SecondSagaMessage>
             {
@@ -64,33 +64,35 @@
                     });
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData09> mapper)
-                {
-                    mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
-                        .ToSaga(s=>s.SomeId);
-                    mapper.ConfigureMapping<SecondSagaMessage>(m => m.SomeId)
-                      .ToSaga(s => s.SomeId);
-                }
-
                 public Task Handle(SecondSagaMessage message, IMessageHandlerContext context)
                 {
                     TestContext.NumberOfTimesInvoked++;
 
-                    if(TestContext.NumberOfTimesInvoked < 2)
+                    if (TestContext.NumberOfTimesInvoked < 2)
+                    {
                         throw new SimulatedException();
+                    }
 
                     TestContext.SecondMessageProcessed = true;
 
                     return Task.FromResult(0);
                 }
+
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData09> mapper)
+                {
+                    mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
+                        .ToSaga(s => s.SomeId);
+                    mapper.ConfigureMapping<SecondSagaMessage>(m => m.SomeId)
+                        .ToSaga(s => s.SomeId);
+                }
             }
 
             public class TestSagaData09 : IContainSagaData
             {
+                public virtual Guid SomeId { get; set; }
                 public virtual Guid Id { get; set; }
                 public virtual string Originator { get; set; }
                 public virtual string OriginalMessageId { get; set; }
-                public virtual Guid SomeId { get; set; }
             }
         }
 
@@ -99,15 +101,14 @@
         {
             public Guid SomeId { get; set; }
         }
+
         public class SecondSagaMessage : ICommand
         {
             public Guid SomeId { get; set; }
         }
-        
+
         public class SomeTimeout
         {
         }
     }
-
-
 }

@@ -2,8 +2,8 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
 
     public class When_aborting_the_behavior_chain : NServiceBusAcceptanceTest
@@ -27,7 +27,9 @@
         }
 
         [Serializable]
-        public class SomeMessage : IMessage { }
+        public class SomeMessage : IMessage
+        {
+        }
 
         public class MyEndpoint : EndpointConfigurationBuilder
         {

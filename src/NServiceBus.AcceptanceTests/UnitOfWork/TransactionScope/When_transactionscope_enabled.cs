@@ -2,8 +2,8 @@
 {
     using System.Threading.Tasks;
     using System.Transactions;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
 
     public class When_transactionscope_enabled : NServiceBusAcceptanceTest
@@ -12,12 +12,12 @@
         public async Task Should_wrap_the_handlers_in_a_scope()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<ScopeEndpoint>(g => g.When(b => b.SendLocal(new MyMessage())))
-                    .Done(c => c.Done)
-                    .Run();
+                .WithEndpoint<ScopeEndpoint>(g => g.When(b => b.SendLocal(new MyMessage())))
+                .Done(c => c.Done)
+                .Run();
 
             Assert.True(context.AmbientTransactionPresent, "There should be a ambient transaction present");
-            Assert.AreEqual(context.IsolationLevel,IsolationLevel.RepeatableRead, "There should be a ambient transaction present");
+            Assert.AreEqual(context.IsolationLevel, IsolationLevel.RepeatableRead, "There should be a ambient transaction present");
         }
 
         public class Context : ScenarioContext
@@ -37,7 +37,7 @@
                         .Transactions(TransportTransactionMode.ReceiveOnly);
                     c.UnitOfWork()
                         .WrapHandlersInATransactionScope(
-                                isolationLevel: IsolationLevel.RepeatableRead);
+                            isolationLevel: IsolationLevel.RepeatableRead);
                 });
             }
 
@@ -60,6 +60,7 @@
         }
 
         class MyMessage : IMessage
-        { }
+        {
+        }
     }
 }

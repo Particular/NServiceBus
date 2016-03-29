@@ -2,9 +2,9 @@
 {
     using System;
     using System.Threading.Tasks;
-    using EndpointTemplates;
     using AcceptanceTesting;
-    using NServiceBus.Features;
+    using EndpointTemplates;
+    using Features;
     using NServiceBus.Sagas;
     using NUnit.Framework;
 
@@ -15,9 +15,12 @@
         public async Task It_should_not_invoke_SagaNotFound_handler()
         {
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                    .WithEndpoint<Endpoint>(b => b.When((session, c) => session.SendLocal(new StartSaga1 { ContextId = c.Id })))
-                    .Done(c => (c.Saga1TimeoutFired && c.Saga2TimeoutFired) || c.SagaNotFound)
-                    .Run(TimeSpan.FromSeconds(60));
+                .WithEndpoint<Endpoint>(b => b.When((session, c) => session.SendLocal(new StartSaga1
+                {
+                    ContextId = c.Id
+                })))
+                .Done(c => (c.Saga1TimeoutFired && c.Saga2TimeoutFired) || c.SagaNotFound)
+                .Run(TimeSpan.FromSeconds(60));
 
             Assert.IsFalse(context.SagaNotFound);
             Assert.IsTrue(context.Saga1TimeoutFired);
@@ -44,9 +47,9 @@
                 });
             }
 
-            public class MultiTimeoutsSaga1 : Saga<MultiTimeoutsSaga1.MultiTimeoutsSaga1Data>, 
-                IAmStartedByMessages<StartSaga1>, 
-                IHandleTimeouts<Saga1Timeout>, 
+            public class MultiTimeoutsSaga1 : Saga<MultiTimeoutsSaga1.MultiTimeoutsSaga1Data>,
+                IAmStartedByMessages<StartSaga1>,
+                IHandleTimeouts<Saga1Timeout>,
                 IHandleTimeouts<Saga2Timeout>
             {
                 public Context TestContext { get; set; }
@@ -60,8 +63,14 @@
 
                     Data.ContextId = message.ContextId;
 
-                    await RequestTimeout(context, TimeSpan.FromMilliseconds(1), new Saga1Timeout { ContextId = TestContext.Id });
-                    await RequestTimeout(context, TimeSpan.FromMilliseconds(1), new Saga2Timeout { ContextId = TestContext.Id });
+                    await RequestTimeout(context, TimeSpan.FromMilliseconds(1), new Saga1Timeout
+                    {
+                        ContextId = TestContext.Id
+                    });
+                    await RequestTimeout(context, TimeSpan.FromMilliseconds(1), new Saga2Timeout
+                    {
+                        ContextId = TestContext.Id
+                    });
                 }
 
                 public Task Timeout(Saga1Timeout state, IMessageHandlerContext context)
@@ -92,15 +101,15 @@
                     return Task.FromResult(0);
                 }
 
-                public class MultiTimeoutsSaga1Data : ContainSagaData
-                {
-                    public virtual Guid ContextId { get; set; }
-                }
-
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MultiTimeoutsSaga1Data> mapper)
                 {
                     mapper.ConfigureMapping<StartSaga1>(m => m.ContextId)
                         .ToSaga(s => s.Id);
+                }
+
+                public class MultiTimeoutsSaga1Data : ContainSagaData
+                {
+                    public virtual Guid ContextId { get; set; }
                 }
             }
 
@@ -110,7 +119,10 @@
 
                 public Task Handle(object message, IMessageProcessingContext context)
                 {
-                    if (((dynamic)message).ContextId != TestContext.Id) return Task.FromResult(0);
+                    if (((dynamic) message).ContextId != TestContext.Id)
+                    {
+                        return Task.FromResult(0);
+                    }
 
                     TestContext.SagaNotFound = true;
 

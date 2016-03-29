@@ -1,8 +1,8 @@
 ﻿namespace NServiceBus.AcceptanceTests.UnitOfWork
 {
     using System;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
 
     public class When_using_timeout_greater_than_machine_max : NServiceBusAcceptanceTest
@@ -13,8 +13,8 @@
             var aex = Assert.Throws<AggregateException>(async () =>
             {
                 await Scenario.Define<Context>()
-                        .WithEndpoint<ScopeEndpoint>()
-                        .Run();
+                    .WithEndpoint<ScopeEndpoint>()
+                    .Run();
             });
 
             Assert.True(aex.InnerException.InnerException.Message.Contains("Timeout requested is longer than the maximum value for this machine"));
@@ -33,7 +33,7 @@
                     c.UseTransport(r.GetTransportType())
                         .Transactions(TransportTransactionMode.ReceiveOnly);
                     c.UnitOfWork()
-                        .WrapHandlersInATransactionScope(timeout: TimeSpan.FromHours(1));
+                        .WrapHandlersInATransactionScope(TimeSpan.FromHours(1));
                 });
             }
         }

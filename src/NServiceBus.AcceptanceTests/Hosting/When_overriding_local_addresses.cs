@@ -1,9 +1,9 @@
 namespace NServiceBus.AcceptanceTests.Hosting
 {
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.Features;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Features;
     using NUnit.Framework;
 
     public class When_overriding_local_addresses : NServiceBusAcceptanceTest
@@ -55,6 +55,5 @@ namespace NServiceBus.AcceptanceTests.Hosting
         public class MyMessage : ICommand
         {
         }
-        
     }
 }

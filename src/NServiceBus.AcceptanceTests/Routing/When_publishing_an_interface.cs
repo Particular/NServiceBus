@@ -2,12 +2,12 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
-    using NServiceBus.Features;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Features;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
+    using ScenarioDescriptors;
 
     public class When_publishing_an_interface : NServiceBusAcceptanceTest
     {

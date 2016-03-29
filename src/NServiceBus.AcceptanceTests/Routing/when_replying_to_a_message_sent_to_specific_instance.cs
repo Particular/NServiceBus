@@ -1,9 +1,9 @@
 ﻿namespace NServiceBus.AcceptanceTests.ScaleOut
 {
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTesting.Customization;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
+    using EndpointTemplates;
     using NServiceBus.Routing;
     using NUnit.Framework;
 

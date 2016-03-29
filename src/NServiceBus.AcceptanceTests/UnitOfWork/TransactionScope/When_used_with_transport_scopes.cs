@@ -1,9 +1,9 @@
 ﻿namespace NServiceBus.AcceptanceTests.UnitOfWork
 {
     using System;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.FakeTransport;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using FakeTransport;
     using NUnit.Framework;
 
     public class When_used_with_transport_scopes : NServiceBusAcceptanceTest
@@ -14,14 +14,14 @@
             var aex = Assert.Throws<AggregateException>(async () =>
             {
                 await Scenario.Define<Context>()
-                        .WithEndpoint<ScopeEndpoint>(b => b.CustomConfig(c =>
-                          {
-                              c.UseTransport<FakeTransport>()
-                                    .Transactions(TransportTransactionMode.TransactionScope);
-                              c.UnitOfWork()
-                                    .WrapHandlersInATransactionScope();
-                          }))
-                        .Run();
+                    .WithEndpoint<ScopeEndpoint>(b => b.CustomConfig(c =>
+                    {
+                        c.UseTransport<FakeTransport>()
+                            .Transactions(TransportTransactionMode.TransactionScope);
+                        c.UnitOfWork()
+                            .WrapHandlersInATransactionScope();
+                    }))
+                    .Run();
             });
 
             Assert.True(aex.InnerException.InnerException.Message.Contains("A Transaction scope unit of work can't be used when the transport already uses a scope"));

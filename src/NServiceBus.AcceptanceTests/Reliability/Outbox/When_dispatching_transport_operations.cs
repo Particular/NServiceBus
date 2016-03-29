@@ -3,11 +3,11 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
-    using NServiceBus.Configuration.AdvanceExtensibility;
+    using AcceptanceTesting;
+    using Configuration.AdvanceExtensibility;
+    using EndpointTemplates;
     using NUnit.Framework;
+    using ScenarioDescriptors;
 
     public class When_dispatching_transport_operations : NServiceBusAcceptanceTest
     {
@@ -17,7 +17,7 @@
             await Scenario.Define<Context>()
                 .WithEndpoint<NonDtcReceivingEndpoint>(b => b.When(session => session.SendLocal(new PlaceOrder())))
                 .Done(c => c.DispatchedMessageReceived)
-                .Repeat(r=>r.For<AllOutboxCapableStorages>())
+                .Repeat(r => r.For<AllOutboxCapableStorages>())
                 .Should(context =>
                 {
                     Assert.AreEqual(TimeSpan.FromMinutes(1), TimeSpan.Parse(context.HeadersOnDispatchedMessage[Headers.TimeToBeReceived]), "Should honor the TTBR");
@@ -25,8 +25,6 @@
                 })
                 .Run(TimeSpan.FromSeconds(20));
         }
-
-
 
         public class Context : ScenarioContext
         {
@@ -67,13 +65,14 @@
             }
         }
 
-
-        public class PlaceOrder : ICommand { }
+        public class PlaceOrder : ICommand
+        {
+        }
 
         [TimeToBeReceived("00:01:00")]
         [Express]
-        class MessageToDispatch : IMessage { }
+        class MessageToDispatch : IMessage
+        {
+        }
     }
-
-    
 }

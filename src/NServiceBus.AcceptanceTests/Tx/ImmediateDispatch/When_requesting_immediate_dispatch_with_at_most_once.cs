@@ -11,14 +11,13 @@
         public async Task Should_dispatch_immediately()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<NonTransactionalEndpoint>(b => b
-                        .When(session => session.SendLocal(new InitiatingMessage()))
-                        .DoNotFailOnErrorMessages())
-                    .Done(c => c.MessageDispatched)
-                    .Run();
+                .WithEndpoint<NonTransactionalEndpoint>(b => b
+                    .When(session => session.SendLocal(new InitiatingMessage()))
+                    .DoNotFailOnErrorMessages())
+                .Done(c => c.MessageDispatched)
+                .Run();
 
             Assert.True(context.MessageDispatched, "Should dispatch the message immediately");
-
         }
 
         public class Context : ScenarioContext
@@ -30,10 +29,7 @@
         {
             public NonTransactionalEndpoint()
             {
-                EndpointSetup<DefaultServer>((config, context) =>
-                {
-                    config.UseTransport(context.GetTransportType()).Transactions(TransportTransactionMode.None);
-                });
+                EndpointSetup<DefaultServer>((config, context) => { config.UseTransport(context.GetTransportType()).Transactions(TransportTransactionMode.None); });
             }
 
             public class InitiatingMessageHandler : IHandleMessages<InitiatingMessage>
@@ -63,7 +59,12 @@
             }
         }
 
-        public class InitiatingMessage : ICommand { }
-        public class MessageToBeDispatchedImmediately : ICommand { }
+        public class InitiatingMessage : ICommand
+        {
+        }
+
+        public class MessageToBeDispatchedImmediately : ICommand
+        {
+        }
     }
 }

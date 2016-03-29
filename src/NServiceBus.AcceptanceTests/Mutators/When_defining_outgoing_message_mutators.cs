@@ -2,9 +2,9 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.MessageMutator;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using MessageMutator;
     using NUnit.Framework;
 
     public class When_defining_outgoing_message_mutators : NServiceBusAcceptanceTest
@@ -13,9 +13,9 @@
         public async Task Should_be_applied_to_outgoing_messages()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new Message())))
-                    .Done(c => c.MessageProcessed)
-                    .Run();
+                .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new Message())))
+                .Done(c => c.MessageProcessed)
+                .Run();
 
             Assert.True(context.TransportMutatorCalled);
             Assert.True(context.MessageMutatorCalled);
@@ -43,23 +43,22 @@
             class TransportMutator :
                 IMutateOutgoingTransportMessages
             {
-
-                Context testContext;
                 public TransportMutator(Context testContext)
                 {
                     this.testContext = testContext;
                 }
+
                 public Task MutateOutgoing(MutateOutgoingTransportMessageContext context)
                 {
                     testContext.TransportMutatorCalled = true;
                     return Task.FromResult(0);
                 }
 
+                Context testContext;
             }
 
             class MessageMutator : IMutateOutgoingMessages
             {
-                Context testContext;
                 public MessageMutator(Context testContext)
                 {
                     this.testContext = testContext;
@@ -70,11 +69,12 @@
                     testContext.MessageMutatorCalled = true;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
 
             class Handler : IHandleMessages<Message>
             {
-                Context testContext;
                 public Handler(Context testContext)
                 {
                     this.testContext = testContext;
@@ -86,8 +86,9 @@
 
                     return Task.FromResult(0);
                 }
-            }
 
+                Context testContext;
+            }
         }
 
         [Serializable]

@@ -4,8 +4,8 @@
     using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using EndpointTemplates;
     using Configuration.AdvanceExtensibility;
+    using EndpointTemplates;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
     using ScenarioDescriptors;

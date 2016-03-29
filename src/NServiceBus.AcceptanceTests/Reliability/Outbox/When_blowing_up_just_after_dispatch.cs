@@ -3,12 +3,12 @@
     using System;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
-    using NServiceBus.Configuration.AdvanceExtensibility;
+    using AcceptanceTesting;
+    using Configuration.AdvanceExtensibility;
+    using EndpointTemplates;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
+    using ScenarioDescriptors;
 
     public class When_blowing_up_just_after_dispatch : NServiceBusAcceptanceTest
     {
@@ -18,12 +18,10 @@
             await Scenario.Define<Context>()
                 .WithEndpoint<NonDtcReceivingEndpoint>(b => b.When(session => session.SendLocal(new PlaceOrder())))
                 .Done(c => c.OrderAckReceived == 1)
-                .Repeat(r=>r.For<AllOutboxCapableStorages>())
+                .Repeat(r => r.For<AllOutboxCapableStorages>())
                 .Should(context => Assert.AreEqual(1, context.OrderAckReceived, "Order ack should have been received since outbox dispatch isn't part of the receive tx"))
                 .Run(TimeSpan.FromSeconds(20));
         }
-
-
 
         public class Context : ScenarioContext
         {
@@ -47,12 +45,12 @@
             {
                 public async override Task Invoke(IBatchDispatchContext context, Func<Task> next)
                 {
-                    if (!context.Operations.Any(op=>op.Message.Headers[Headers.EnclosedMessageTypes].Contains(typeof(PlaceOrder).Name)))
+                    if (!context.Operations.Any(op => op.Message.Headers[Headers.EnclosedMessageTypes].Contains(typeof(PlaceOrder).Name)))
                     {
                         await next().ConfigureAwait(false);
                         return;
                     }
-                    
+
                     if (called)
                     {
                         Console.Out.WriteLine("Called once, skipping next");
@@ -89,11 +87,12 @@
             }
         }
 
+        public class PlaceOrder : ICommand
+        {
+        }
 
-        public class PlaceOrder : ICommand { }
-
-        class SendOrderAcknowledgment : IMessage { }
+        class SendOrderAcknowledgment : IMessage
+        {
+        }
     }
-
-   
 }

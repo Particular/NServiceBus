@@ -1,8 +1,8 @@
 namespace NServiceBus.AcceptanceTests.FakeTransport
 {
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
-    using NServiceBus.Transports;
+    using Extensibility;
+    using Transports;
 
     class FakeDispatcher : IDispatchMessages
     {

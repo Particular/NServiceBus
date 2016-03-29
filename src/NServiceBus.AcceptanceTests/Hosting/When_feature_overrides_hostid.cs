@@ -4,9 +4,9 @@ namespace NServiceBus.AcceptanceTests.Hosting
     using System.Collections.Concurrent;
     using System.Reflection;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.Features;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Features;
     using NUnit.Framework;
 
     public class When_feature_overrides_hostid : NServiceBusAcceptanceTest
@@ -32,7 +32,6 @@ namespace NServiceBus.AcceptanceTests.Hosting
 
         public class MyFeatureThatOverridesHostInformationDefaults : Feature
         {
-
             public MyFeatureThatOverridesHostInformationDefaults()
             {
                 EnableByDefault();
@@ -41,7 +40,7 @@ namespace NServiceBus.AcceptanceTests.Hosting
                 {
                     // remove the override, we need to hack it via reflection!
                     var fieldInfo = s.GetType().GetField("Overrides", BindingFlags.Instance | BindingFlags.NonPublic);
-                    var dictionary = (ConcurrentDictionary<string, object>)fieldInfo.GetValue(s);
+                    var dictionary = (ConcurrentDictionary<string, object>) fieldInfo.GetValue(s);
                     object s2;
                     dictionary.TryRemove("NServiceBus.HostInformation.HostId", out s2);
 

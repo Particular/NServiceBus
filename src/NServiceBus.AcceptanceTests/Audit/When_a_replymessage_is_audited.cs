@@ -3,10 +3,10 @@
     using System;
     using System.Linq;
     using System.Threading.Tasks;
-    using EndpointTemplates;
     using AcceptanceTesting;
+    using EndpointTemplates;
+    using Features;
     using MessageMutator;
-    using NServiceBus.Features;
     using NUnit.Framework;
 
     public class When_a_replymessage_is_audited : NServiceBusAcceptanceTest
@@ -15,16 +15,21 @@
         public async Task Should_audit_the_message()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<Server>()
-                    .WithEndpoint<EndpointWithAuditOn>(b => b.When(session => session.Send(new Request())))
-                    .WithEndpoint<AuditSpyEndpoint>()
-                    .Done(c => c.MessageAudited)
-                    .Run();
+                .WithEndpoint<Server>()
+                .WithEndpoint<EndpointWithAuditOn>(b => b.When(session => session.Send(new Request())))
+                .WithEndpoint<AuditSpyEndpoint>()
+                .Done(c => c.MessageAudited)
+                .Run();
 
             Assert.True(context.MessageProcessed);
             Assert.True(context.MessageAudited);
         }
 
+        public static byte Checksum(byte[] data)
+        {
+            var longSum = data.Sum(x => (long) x);
+            return unchecked((byte) longSum);
+        }
 
         public class Context : ScenarioContext
         {
@@ -60,7 +65,6 @@
                     .AddMapping<Request>(typeof(Server))
                     .AuditTo<AuditSpyEndpoint>();
             }
-
 
             public class MessageToBeAuditedHandler : IHandleMessages<ResponseToBeAudited>
             {
@@ -107,21 +111,13 @@
             }
         }
 
-        public static byte Checksum(byte[] data)
-        {
-            var longSum = data.Sum(x => (long)x);
-            return unchecked((byte)longSum);
-        }
-
         [Serializable]
         public class ResponseToBeAudited : IMessage
         {
         }
 
-
         class Request : IMessage
         {
         }
     }
-
 }

@@ -2,10 +2,11 @@
 {
     using System.Text;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.MessageMutator;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using MessageMutator;
     using NUnit.Framework;
+    using ScenarioDescriptors;
 
     public class When_using_outgoing_tm_mutator : NServiceBusAcceptanceTest
     {
@@ -13,15 +14,15 @@
         public async Task Should_be_able_to_update_message()
         {
             await Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new MessageToBeMutated())))
-                    .Done(c => c.MessageProcessed)
-                    .Repeat(r => r.For(NServiceBus.AcceptanceTests.ScenarioDescriptors.Serializers.Xml))
-                    .Should(c =>
-                    {
-                        Assert.True(c.CanAddHeaders);
-                        Assert.AreEqual("SomeValue", c.MutatedPropertyValue, "Mutator should be able to mutate body.");
-                    })
-                    .Run();
+                .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new MessageToBeMutated())))
+                .Done(c => c.MessageProcessed)
+                .Repeat(r => r.For(Serializers.Xml))
+                .Should(c =>
+                {
+                    Assert.True(c.CanAddHeaders);
+                    Assert.AreEqual("SomeValue", c.MutatedPropertyValue, "Mutator should be able to mutate body.");
+                })
+                .Run();
         }
 
         public class Context : ScenarioContext
@@ -56,8 +57,6 @@
 
             class MessageToBeMutatedHandler : IHandleMessages<MessageThatMutatorChangesTo>
             {
-                Context testContext;
-
                 public MessageToBeMutatedHandler(Context testContext)
                 {
                     this.testContext = testContext;
@@ -70,8 +69,9 @@
                     testContext.MessageProcessed = true;
                     return Task.FromResult(0);
                 }
-            }
 
+                Context testContext;
+            }
         }
 
         public class MessageToBeMutated : ICommand

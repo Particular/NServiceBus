@@ -2,8 +2,8 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
 
     public class When_audit_is_overridden_in_code : NServiceBusAcceptanceTest
@@ -34,7 +34,6 @@
                     return Task.FromResult(0);
                 }
             }
-
         }
 
         public class AuditSpy : EndpointConfigurationBuilder
@@ -62,11 +61,9 @@
             public bool MessageAudited { get; set; }
         }
 
-
         [Serializable]
         public class MessageToBeAudited : IMessage
         {
         }
-
     }
 }

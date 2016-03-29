@@ -1,10 +1,10 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing
 {
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
+    using ScenarioDescriptors;
 
     public class when_using_autosubscribe_with_missing_routing_information : NServiceBusAcceptanceTest
     {
@@ -15,10 +15,7 @@
                 .WithEndpoint<Subscriber>()
                 .Done(c => c.EndpointsStarted)
                 .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
-                .Should(c =>
-                {
-                    Assert.True(c.EndpointsStarted);
-                })
+                .Should(c => { Assert.True(c.EndpointsStarted); })
                 .Run();
         }
 

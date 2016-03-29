@@ -3,10 +3,10 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting.Customization;
-    using NServiceBus.AcceptanceTesting.Support;
+    using AcceptanceTesting.Customization;
+    using AcceptanceTesting.Support;
+    using Features;
     using NServiceBus.Config.ConfigurationSource;
-    using NServiceBus.Features;
 
     public class ServerWithNoDefaultPersistenceDefinitions : IEndpointSetupTemplate
     {

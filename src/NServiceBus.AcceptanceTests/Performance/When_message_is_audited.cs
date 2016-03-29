@@ -3,23 +3,22 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
 
     public class When_message_is_audited : NServiceBusAcceptanceTest
     {
-
         [Test]
         public async Task Should_contain_processing_stats_headers()
         {
             var now = DateTime.UtcNow;
 
             var context = await Scenario.Define<Context>()
-            .WithEndpoint<EndpointWithAuditOn>(b => b.When(session => session.SendLocal(new MessageToBeAudited())))
-            .WithEndpoint<EndpointThatHandlesAuditMessages>()
-            .Done(c => c.IsMessageHandledByTheAuditEndpoint)
-            .Run();
+                .WithEndpoint<EndpointWithAuditOn>(b => b.When(session => session.SendLocal(new MessageToBeAudited())))
+                .WithEndpoint<EndpointThatHandlesAuditMessages>()
+                .Done(c => c.IsMessageHandledByTheAuditEndpoint)
+                .Run();
 
             var processingStarted = DateTimeExtensions.ToUtcDateTime(context.Headers[Headers.ProcessingStarted]);
             var processingEnded = DateTimeExtensions.ToUtcDateTime(context.Headers[Headers.ProcessingEnded]);
@@ -41,7 +40,6 @@
 
         public class EndpointWithAuditOn : EndpointConfigurationBuilder
         {
-
             public EndpointWithAuditOn()
             {
                 EndpointSetup<DefaultServer>()
@@ -59,7 +57,6 @@
 
         public class EndpointThatHandlesAuditMessages : EndpointConfigurationBuilder
         {
-
             public EndpointThatHandlesAuditMessages()
             {
                 EndpointSetup<DefaultServer>();
@@ -67,8 +64,6 @@
 
             class AuditMessageHandler : IHandleMessages<MessageToBeAudited>
             {
-                Context testContext;
-
                 public AuditMessageHandler(Context testContext)
                 {
                     this.testContext = testContext;
@@ -80,6 +75,8 @@
                     testContext.IsMessageHandledByTheAuditEndpoint = true;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 

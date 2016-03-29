@@ -31,8 +31,8 @@
             {
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
-                     config.UseTransport(context.GetTransportType())
-                            .Transactions(TransportTransactionMode.ReceiveOnly);
+                    config.UseTransport(context.GetTransportType())
+                        .Transactions(TransportTransactionMode.ReceiveOnly);
                 });
             }
 
@@ -63,7 +63,12 @@
             }
         }
 
-        public class InitiatingMessage : ICommand { }
-        public class MessageToBeDispatchedImmediately : ICommand { }
+        public class InitiatingMessage : ICommand
+        {
+        }
+
+        public class MessageToBeDispatchedImmediately : ICommand
+        {
+        }
     }
 }

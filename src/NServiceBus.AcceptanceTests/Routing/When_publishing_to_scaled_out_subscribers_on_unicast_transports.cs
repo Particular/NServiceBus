@@ -2,11 +2,11 @@
 {
     using System.Threading;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTesting.Customization;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
+    using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
+    using EndpointTemplates;
     using NUnit.Framework;
+    using ScenarioDescriptors;
 
     public class When_publishing_to_scaled_out_subscribers_on_unicast_transports : NServiceBusAcceptanceTest
     {
@@ -16,10 +16,7 @@
         public async Task Each_event_should_be_delivered_to_single_instance_of_each_subscriber()
         {
             await Scenario.Define<Context>()
-                .WithEndpoint<Publisher>(b => b.When(c => c.SubscribersCounter == 4, async (session, c) =>
-                {
-                    await session.Publish(new MyEvent());
-                }))
+                .WithEndpoint<Publisher>(b => b.When(c => c.SubscribersCounter == 4, async (session, c) => { await session.Publish(new MyEvent()); }))
                 .WithEndpoint<SubscriberA>(b => b.CustomConfig(c => c.ScaleOut().InstanceDiscriminator("1")))
                 .WithEndpoint<SubscriberA>(b => b.CustomConfig(c => c.ScaleOut().InstanceDiscriminator("2")))
                 .WithEndpoint<SubscriberB>(b => b.CustomConfig(c => c.ScaleOut().InstanceDiscriminator("1")))
@@ -36,10 +33,6 @@
 
         public class Context : ScenarioContext
         {
-            int subscribersCounter;
-            int processedByA;
-            int processedByB;
-
             public int SubscribersCounter => subscribersCounter;
 
             public int ProcessedByA => processedByA;
@@ -60,19 +53,17 @@
             {
                 Interlocked.Increment(ref subscribersCounter);
             }
+
+            int processedByA;
+            int processedByB;
+            int subscribersCounter;
         }
 
         public class Publisher : EndpointConfigurationBuilder
         {
             public Publisher()
             {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.OnEndpointSubscribed<Context>((s, context) =>
-                    {
-                        context.IncrementSubscribersCounter();
-                    });
-                });
+                EndpointSetup<DefaultServer>(c => { c.OnEndpointSubscribed<Context>((s, context) => { context.IncrementSubscribersCounter(); }); });
             }
         }
 
@@ -80,10 +71,7 @@
         {
             public SubscriberA()
             {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.UnicastRouting().AddPublisher(PublisherEndpoint, typeof(MyEvent));
-                });
+                EndpointSetup<DefaultServer>(c => { c.UnicastRouting().AddPublisher(PublisherEndpoint, typeof(MyEvent)); });
             }
 
             public class MyEventHandler : IHandleMessages<MyEvent>
@@ -97,20 +85,18 @@
                 }
             }
         }
-        
+
         public class SubscriberB : EndpointConfigurationBuilder
         {
             public SubscriberB()
             {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.UnicastRouting().AddPublisher(PublisherEndpoint, typeof(MyEvent));
-                });
+                EndpointSetup<DefaultServer>(c => { c.UnicastRouting().AddPublisher(PublisherEndpoint, typeof(MyEvent)); });
             }
 
             public class MyEventHandler : IHandleMessages<MyEvent>
             {
                 public Context Context { get; set; }
+
                 public Task Handle(MyEvent message, IMessageHandlerContext context)
                 {
                     Context.IncrementB();

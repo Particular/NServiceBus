@@ -5,12 +5,12 @@
     using System.IO;
     using System.Runtime.Serialization.Formatters.Binary;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.MessageInterfaces;
-    using NServiceBus.Serialization;
-    using NServiceBus.Settings;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using MessageInterfaces;
     using NUnit.Framework;
+    using Serialization;
+    using Settings;
 
     public class When_registering_additional_deserializers : NServiceBusAcceptanceTest
     {
@@ -87,7 +87,7 @@
                 return mapper => new MyCustomMessageSerializer();
             }
         }
-        
+
         class MyCustomMessageSerializer : IMessageSerializer
         {
             public void Serialize(object message, Stream stream)

@@ -2,27 +2,23 @@
 {
     using System;
     using System.Threading.Tasks;
-    using EndpointTemplates;
     using AcceptanceTesting;
+    using EndpointTemplates;
     using Features;
-    using NServiceBus.AcceptanceTests.Routing;
     using NUnit.Framework;
+    using Routing;
     using ScenarioDescriptors;
 
     //Repro for #1323
     public class When_started_by_base_event_from_other_saga : NServiceBusAcceptanceTest
     {
-
         [Test]
         public async Task Should_start_the_saga_when_set_up_to_start_for_the_base_event()
         {
             await Scenario.Define<SagaContext>()
                 .WithEndpoint<Publisher>(b =>
                     b.When(c => c.IsEventSubscriptionReceived,
-                        session =>
-                        {
-                            return session.Publish<SomethingHappenedEvent>(m => { m.DataId = Guid.NewGuid(); });
-                        })
+                        session => { return session.Publish<SomethingHappenedEvent>(m => { m.DataId = Guid.NewGuid(); }); })
                 )
                 .WithEndpoint<SagaThatIsStartedByABaseEvent>(
                     b => b.When(async (session, context) =>
@@ -30,7 +26,9 @@
                         await session.Subscribe<BaseEvent>();
 
                         if (context.HasNativePubSubSupport)
+                        {
                             context.IsEventSubscriptionReceived = true;
+                        }
                     }))
                 .Done(c => c.DidSagaComplete)
                 .Repeat(r => r.For(Transports.Default))
@@ -80,14 +78,14 @@
                     return Task.FromResult(0);
                 }
 
-                public class SagaStartedByBaseEventSagaData : ContainSagaData
-                {
-                    public virtual Guid DataId { get; set; }
-                }
-
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaStartedByBaseEventSagaData> mapper)
                 {
                     mapper.ConfigureMapping<StartSaga>(m => m.DataId).ToSaga(s => s.DataId);
+                }
+
+                public class SagaStartedByBaseEventSagaData : ContainSagaData
+                {
+                    public virtual Guid DataId { get; set; }
                 }
             }
         }
@@ -100,7 +98,6 @@
 
         public interface SomethingHappenedEvent : BaseEvent
         {
-
         }
 
         public interface BaseEvent : IEvent

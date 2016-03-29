@@ -3,16 +3,13 @@ namespace NServiceBus.AcceptanceTests.Hosting
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.Features;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Features;
     using NUnit.Framework;
 
     public class When_feature_overrides_hostinfo : NServiceBusAcceptanceTest
     {
-        static Guid hostId = new Guid("6c0f50de-dac9-4693-b138-6d1033c15ed6");
-        static string instanceName = "Foo";
-
         [Test]
         public async Task HostInfo_is_changed()
         {
@@ -23,6 +20,9 @@ namespace NServiceBus.AcceptanceTests.Hosting
 
             Assert.AreEqual(hostId, context.OriginatingHostId);
         }
+
+        static Guid hostId = new Guid("6c0f50de-dac9-4693-b138-6d1033c15ed6");
+        static string instanceName = "Foo";
 
         public class MyEndpoint : EndpointConfigurationBuilder
         {
@@ -45,7 +45,7 @@ namespace NServiceBus.AcceptanceTests.Hosting
                     s.SetDefault("NServiceBus.HostInformation.Properties", new Dictionary<string, string>
                     {
                         {"RoleName", "My role name"},
-                        {"RoleInstanceId", "the role instance id"},
+                        {"RoleInstanceId", "the role instance id"}
                     });
                 });
             }

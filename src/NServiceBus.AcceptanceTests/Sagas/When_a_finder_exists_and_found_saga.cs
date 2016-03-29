@@ -1,10 +1,10 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.Extensibility;
-    using NServiceBus.Features;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Extensibility;
+    using Features;
     using NServiceBus.Persistence;
     using NServiceBus.Sagas;
     using NUnit.Framework;
@@ -62,6 +62,12 @@
                     return context.SendLocal(new SomeOtherMessage());
                 }
 
+                public Task Handle(SomeOtherMessage message, IMessageHandlerContext context)
+                {
+                    TestContext.Completed = true;
+                    return Task.FromResult(0);
+                }
+
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData08> mapper)
                 {
                     // not required because of CustomFinder
@@ -71,14 +77,7 @@
                 {
                     public virtual string Property { get; set; }
                 }
-
-                public Task Handle(SomeOtherMessage message, IMessageHandlerContext context)
-                {
-                    TestContext.Completed = true;
-                    return Task.FromResult(0);
-                }
             }
-
         }
 
         public class StartSagaMessage : IMessage

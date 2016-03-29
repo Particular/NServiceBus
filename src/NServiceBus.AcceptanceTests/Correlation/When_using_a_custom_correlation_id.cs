@@ -2,32 +2,32 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
 
     public class When_using_a_custom_correlation_id : NServiceBusAcceptanceTest
     {
-        static string CorrelationId = "my_custom_correlation_id";
-
         [Test]
         public async Task Should_use_the_given_id_as_the_transport_level_correlation_id()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<CorrelationEndpoint>(b => b.When(session =>
-                    {
-                        var options = new SendOptions();
+                .WithEndpoint<CorrelationEndpoint>(b => b.When(session =>
+                {
+                    var options = new SendOptions();
 
-                        options.SetCorrelationId(CorrelationId);
-                        options.RouteToThisEndpoint();
+                    options.SetCorrelationId(CorrelationId);
+                    options.RouteToThisEndpoint();
 
-                        return session.Send(new MessageWithCustomCorrelationId(), options);
-                    }))
-                    .Done(c => c.GotRequest)
-                    .Run();
+                    return session.Send(new MessageWithCustomCorrelationId(), options);
+                }))
+                .Done(c => c.GotRequest)
+                .Run();
 
             Assert.AreEqual(CorrelationId, context.CorrelationIdReceived, "Correlation ids should match");
         }
+
+        static string CorrelationId = "my_custom_correlation_id";
 
         public class Context : ScenarioContext
         {

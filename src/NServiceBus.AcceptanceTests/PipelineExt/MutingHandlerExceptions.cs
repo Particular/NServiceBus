@@ -1,10 +1,9 @@
-﻿
-namespace NServiceBus.AcceptanceTests.PipelineExt
+﻿namespace NServiceBus.AcceptanceTests.PipelineExt
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
 
@@ -52,7 +51,7 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
                         //invoke the handler/rest of the pipeline
                         await next().ConfigureAwait(false);
                     }
-                    //catch specifix exceptions or
+                        //catch specifix exceptions or
                     catch (Exception ex)
                     {
                         //modify this if necessary

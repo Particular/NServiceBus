@@ -2,11 +2,11 @@
 {
     using System;
     using System.Threading.Tasks;
-    using EndpointTemplates;
     using AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.Routing;
-    using NServiceBus.Features;
+    using EndpointTemplates;
+    using Features;
     using NUnit.Framework;
+    using Routing;
     using ScenarioDescriptors;
 
     // Repro for issue  https://github.com/NServiceBus/NServiceBus/issues/1277
@@ -16,25 +16,25 @@
         public async Task Should_invoke_all_handlers_on_all_sagas()
         {
             await Scenario.Define<Context>()
-                    .WithEndpoint<Publisher>(b => b.When((session, context) =>
+                .WithEndpoint<Publisher>(b => b.When((session, context) =>
+                {
+                    if (context.HasNativePubSubSupport)
                     {
-                        if (context.HasNativePubSubSupport)
-                        {
-                            context.Subscribed = true;
-                            context.AddTrace("EndpointThatHandlesAMessageAndPublishesEvent is now subscribed (at least we have asked the broker to be subscribed)");
-                        }
-                        return Task.FromResult(0);
+                        context.Subscribed = true;
+                        context.AddTrace("EndpointThatHandlesAMessageAndPublishesEvent is now subscribed (at least we have asked the broker to be subscribed)");
+                    }
+                    return Task.FromResult(0);
+                }))
+                .WithEndpoint<SagaEndpoint>(b =>
+                    b.When(c => c.Subscribed, session => session.SendLocal(new StartSaga2
+                    {
+                        DataId = Guid.NewGuid()
                     }))
-                    .WithEndpoint<SagaEndpoint>(b =>
-                        b.When(c => c.Subscribed, session => session.SendLocal(new StartSaga2
-                        {
-                            DataId = Guid.NewGuid()
-                        }))
-                     )
-                    .Done(c => c.DidSaga1EventHandlerGetInvoked && c.DidSaga2EventHandlerGetInvoked)
-                    .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>()) // exclude the brokers since c.Subscribed won't get set for them
-                    .Should(c => Assert.True(c.DidSaga1EventHandlerGetInvoked && c.DidSaga2EventHandlerGetInvoked))
-                    .Run();
+                )
+                .Done(c => c.DidSaga1EventHandlerGetInvoked && c.DidSaga2EventHandlerGetInvoked)
+                .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>()) // exclude the brokers since c.Subscribed won't get set for them
+                .Should(c => Assert.True(c.DidSaga1EventHandlerGetInvoked && c.DidSaga2EventHandlerGetInvoked))
+                .Run();
         }
 
         public class Context : ScenarioContext
@@ -60,7 +60,10 @@
                 public Task Handle(OpenGroupCommand message, IMessageHandlerContext context)
                 {
                     Console.WriteLine("Received OpenGroupCommand for RunId:{0} ... and publishing GroupPendingEvent", message.DataId);
-                    return context.Publish(new GroupPendingEvent { DataId = message.DataId });
+                    return context.Publish(new GroupPendingEvent
+                    {
+                        DataId = message.DataId
+                    });
                 }
             }
         }
@@ -74,8 +77,8 @@
                     .AddMapping<GroupPendingEvent>(typeof(Publisher));
             }
 
-            public class Saga1 : Saga<Saga1.MySaga1Data>, 
-                IAmStartedByMessages<GroupPendingEvent>, 
+            public class Saga1 : Saga<Saga1.MySaga1Data>,
+                IAmStartedByMessages<GroupPendingEvent>,
                 IHandleMessages<CompleteSaga1Now>
             {
                 public Context TestContext { get; set; }
@@ -83,7 +86,10 @@
                 public Task Handle(GroupPendingEvent message, IMessageHandlerContext context)
                 {
                     Console.Out.WriteLine("Saga1 received GroupPendingEvent for RunId: {0}", message.DataId);
-                    return context.SendLocal(new CompleteSaga1Now { DataId = message.DataId });
+                    return context.SendLocal(new CompleteSaga1Now
+                    {
+                        DataId = message.DataId
+                    });
                 }
 
                 public Task Handle(CompleteSaga1Now message, IMessageHandlerContext context)
@@ -108,8 +114,8 @@
                 }
             }
 
-            public class Saga2 : Saga<Saga2.MySaga2Data>, 
-                IAmStartedByMessages<StartSaga2>, 
+            public class Saga2 : Saga<Saga2.MySaga2Data>,
+                IAmStartedByMessages<StartSaga2>,
                 IHandleMessages<GroupPendingEvent>
             {
                 public Context TestContext { get; set; }
@@ -117,7 +123,10 @@
                 public Task Handle(StartSaga2 message, IMessageHandlerContext context)
                 {
                     Console.Out.WriteLine("Saga2 sending OpenGroupCommand for RunId: {0}", Data.DataId);
-                    return context.Send(new OpenGroupCommand { DataId = Data.DataId });
+                    return context.Send(new OpenGroupCommand
+                    {
+                        DataId = Data.DataId
+                    });
                 }
 
                 public Task Handle(GroupPendingEvent message, IMessageHandlerContext context)

@@ -2,11 +2,11 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
-    using NServiceBus.Configuration.AdvanceExtensibility;
+    using AcceptanceTesting;
+    using Configuration.AdvanceExtensibility;
+    using EndpointTemplates;
     using NUnit.Framework;
+    using ScenarioDescriptors;
 
     public class When_a_duplicate_message_arrives : NServiceBusAcceptanceTest
     {
@@ -47,10 +47,7 @@
         {
             public DownstreamEndpoint()
             {
-                EndpointSetup<DefaultServer>(b =>
-                {
-                    b.LimitMessageProcessingConcurrencyTo(1);
-                });
+                EndpointSetup<DefaultServer>(b => { b.LimitMessageProcessingConcurrencyTo(1); });
             }
 
             class SendOrderAcknowledgementHandler : IHandleMessages<SendOrderAcknowledgement>

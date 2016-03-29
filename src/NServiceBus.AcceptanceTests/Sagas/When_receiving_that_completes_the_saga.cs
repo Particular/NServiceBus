@@ -2,9 +2,9 @@
 {
     using System;
     using System.Threading.Tasks;
-    using EndpointTemplates;
     using AcceptanceTesting;
-    using NServiceBus.Features;
+    using EndpointTemplates;
+    using Features;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
@@ -14,23 +14,26 @@
         public async Task Should_hydrate_and_complete_the_existing_instance()
         {
             await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                    .WithEndpoint<ReceiveCompletesSagaEndpoint>(b =>
-                        {
-                            b.When((session, context) => session.SendLocal(new StartSagaMessage { SomeId = context.Id }));
-                            b.When(context => context.StartSagaMessageReceived, (session, context) =>
-                            {
-                                context.AddTrace("CompleteSagaMessage sent");
+                .WithEndpoint<ReceiveCompletesSagaEndpoint>(b =>
+                {
+                    b.When((session, context) => session.SendLocal(new StartSagaMessage
+                    {
+                        SomeId = context.Id
+                    }));
+                    b.When(context => context.StartSagaMessageReceived, (session, context) =>
+                    {
+                        context.AddTrace("CompleteSagaMessage sent");
 
-                                return session.SendLocal(new CompleteSagaMessage
-                                {
-                                    SomeId = context.Id
-                                });
-                            });
-                        })
-                    .Done(c => c.SagaCompleted)
-                    .Repeat(r => r.For(Transports.Default))
-                    .Should(c => Assert.True(c.SagaCompleted))
-                    .Run();
+                        return session.SendLocal(new CompleteSagaMessage
+                        {
+                            SomeId = context.Id
+                        });
+                    });
+                })
+                .Done(c => c.SagaCompleted)
+                .Repeat(r => r.For(Transports.Default))
+                .Should(c => Assert.True(c.SagaCompleted))
+                .Run();
         }
 
         [Test]
@@ -105,18 +108,18 @@
                     return Task.FromResult(0);
                 }
 
+                public Task Handle(AnotherMessage message, IMessageHandlerContext context)
+                {
+                    Context.AddTrace("AnotherMessage received");
+                    Context.SagaReceivedAnotherMessage = true;
+                    return Task.FromResult(0);
+                }
+
                 public Task Handle(CompleteSagaMessage message, IMessageHandlerContext context)
                 {
                     Context.AddTrace("CompleteSagaMessage received");
                     MarkAsComplete();
                     Context.SagaCompleted = true;
-                    return Task.FromResult(0);
-                }
-
-                public Task Handle(AnotherMessage message, IMessageHandlerContext context)
-                {
-                    Context.AddTrace("AnotherMessage received");
-                    Context.SagaReceivedAnotherMessage = true;
                     return Task.FromResult(0);
                 }
 
@@ -133,16 +136,17 @@
 
             public class TestSagaData10 : IContainSagaData
             {
+                public virtual Guid SomeId { get; set; }
                 public virtual Guid Id { get; set; }
                 public virtual string Originator { get; set; }
                 public virtual string OriginalMessageId { get; set; }
-                public virtual Guid SomeId { get; set; }
             }
         }
 
         public class CompletionHandler : IHandleMessages<AnotherMessage>
         {
             public Context Context { get; set; }
+
             public Task Handle(AnotherMessage message, IMessageHandlerContext context)
             {
                 Context.AnotherMessageReceived = true;

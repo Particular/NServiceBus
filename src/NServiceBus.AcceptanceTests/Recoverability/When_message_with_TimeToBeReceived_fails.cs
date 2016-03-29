@@ -2,8 +2,9 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Features;
     using NServiceBus.Config;
     using NUnit.Framework;
 
@@ -13,12 +14,12 @@
         public async Task Should_not_honor_TimeToBeReceived_for_error_message()
         {
             var context = await Scenario.Define<Context>()
-            .WithEndpoint<EndpointThatThrows>(b => b
-                .When(session => session.SendLocal(new MessageThatFails()))
-                .DoNotFailOnErrorMessages())
-            .WithEndpoint<EndpointThatHandlesErrorMessages>()
-            .Done(c => c.MessageFailed && c.TTBRHasExpiredAndMessageIsStillInErrorQueue)
-            .Run();
+                .WithEndpoint<EndpointThatThrows>(b => b
+                    .When(session => session.SendLocal(new MessageThatFails()))
+                    .DoNotFailOnErrorMessages())
+                .WithEndpoint<EndpointThatHandlesErrorMessages>()
+                .Done(c => c.MessageFailed && c.TTBRHasExpiredAndMessageIsStillInErrorQueue)
+                .Run();
 
             Assert.IsTrue(context.MessageFailed);
             Assert.IsTrue(context.TTBRHasExpiredAndMessageIsStillInErrorQueue);
@@ -37,19 +38,14 @@
             {
                 EndpointSetup<DefaultServer>(b =>
                 {
-                    b.DisableFeature<Features.SecondLevelRetries>();
+                    b.DisableFeature<SecondLevelRetries>();
                     b.SendFailedMessagesTo("errorQueueForAcceptanceTest");
                 })
-                    .WithConfig<TransportConfig>(c =>
-                    {
-                        c.MaxRetries = 0;
-                    });
+                    .WithConfig<TransportConfig>(c => { c.MaxRetries = 0; });
             }
 
             class ThrowingMessageHandler : IHandleMessages<MessageThatFails>
             {
-                Context context;
-
                 public ThrowingMessageHandler(Context context)
                 {
                     this.context = context;
@@ -60,12 +56,13 @@
                     context.MessageFailed = true;
                     throw new SimulatedException();
                 }
+
+                Context context;
             }
         }
 
         class EndpointThatHandlesErrorMessages : EndpointConfigurationBuilder
         {
-
             public EndpointThatHandlesErrorMessages()
             {
                 EndpointSetup<DefaultServer>()
@@ -74,8 +71,6 @@
 
             class ErrorMessageHandler : IHandleMessages<MessageThatFails>
             {
-                Context testContext;
-
                 public ErrorMessageHandler(Context testContext)
                 {
                     this.testContext = testContext;
@@ -104,6 +99,8 @@
 
                     return Task.FromResult(0); // ignore messages from previous test runs
                 }
+
+                Context testContext;
             }
         }
 

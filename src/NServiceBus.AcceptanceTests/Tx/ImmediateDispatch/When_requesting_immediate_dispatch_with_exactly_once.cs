@@ -60,7 +60,12 @@
             }
         }
 
-        public class InitiatingMessage : ICommand { }
-        public class MessageToBeDispatchedImmediately : ICommand { }
+        public class InitiatingMessage : ICommand
+        {
+        }
+
+        public class MessageToBeDispatchedImmediately : ICommand
+        {
+        }
     }
 }

@@ -18,7 +18,6 @@
                 .Where(t => t.BaseType == null || !typeof(NServiceBusAcceptanceTest).IsAssignableFrom(t))
                 .ToList();
 
-
             CollectionAssert.IsEmpty(missingBaseClass, string.Join(",", missingBaseClass));
         }
 

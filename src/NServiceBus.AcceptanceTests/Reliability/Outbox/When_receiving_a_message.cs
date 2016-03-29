@@ -2,12 +2,12 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTesting.Support;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
-    using NServiceBus.Configuration.AdvanceExtensibility;
+    using AcceptanceTesting;
+    using AcceptanceTesting.Support;
+    using Configuration.AdvanceExtensibility;
+    using EndpointTemplates;
     using NUnit.Framework;
+    using ScenarioDescriptors;
 
     public class When_receiving_a_message_not_found_in_the_outbox : NServiceBusAcceptanceTest
     {
@@ -18,7 +18,10 @@
                 .WithEndpoint<NonDtcReceivingEndpoint>(b => b.When(session => session.SendLocal(new PlaceOrder())))
                 .Done(c => c.OrderAckReceived == 1)
                 .Repeat(r => r.For<AllOutboxCapableStorages>())
-                .Run(new RunSettings { TestExecutionTimeout = TimeSpan.FromSeconds(20) });
+                .Run(new RunSettings
+                {
+                    TestExecutionTimeout = TimeSpan.FromSeconds(20)
+                });
         }
 
         class Context : ScenarioContext
@@ -57,8 +60,12 @@
             }
         }
 
-        class PlaceOrder : ICommand { }
+        class PlaceOrder : ICommand
+        {
+        }
 
-        class SendOrderAcknowledgement : IMessage { }
+        class SendOrderAcknowledgement : IMessage
+        {
+        }
     }
 }

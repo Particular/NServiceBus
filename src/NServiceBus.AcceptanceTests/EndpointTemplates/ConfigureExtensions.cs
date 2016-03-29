@@ -2,9 +2,9 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting.Support;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
+    using AcceptanceTesting.Support;
     using ObjectBuilder;
+    using ScenarioDescriptors;
 
     public static class ConfigureExtensions
     {
@@ -65,10 +65,7 @@
 
         public static void RegisterComponentsAndInheritanceHierarchy(this EndpointConfiguration builder, RunDescriptor runDescriptor)
         {
-            builder.RegisterComponents(r =>
-            {
-                RegisterInheritanceHierarchyOfContextOnContainer(runDescriptor, r);
-            });
+            builder.RegisterComponents(r => { RegisterInheritanceHierarchyOfContextOnContainer(runDescriptor, r); });
         }
 
         static async Task ConfigureTestExecution(TestDependencyType type, EndpointConfiguration config, RunSettings settings, string endpointName)

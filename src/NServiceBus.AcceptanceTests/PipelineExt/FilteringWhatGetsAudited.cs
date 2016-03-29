@@ -1,10 +1,9 @@
-﻿
-namespace NServiceBus.AcceptanceTests.PipelineExt
+﻿namespace NServiceBus.AcceptanceTests.PipelineExt
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
 
@@ -24,7 +23,6 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
 
             Assert.IsFalse(context.WrongMessageAudited);
         }
-
 
         public class UserEndpoint : EndpointConfigurationBuilder
         {
@@ -155,7 +153,6 @@ namespace NServiceBus.AcceptanceTests.PipelineExt
             public bool Done { get; set; }
             public bool WrongMessageAudited { get; set; }
         }
-
 
         [Serializable]
         public class MessageToBeAudited : IMessage
