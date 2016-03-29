@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using Extensibility;
     using NServiceBus.DelayedDelivery;
     using NServiceBus.DeliveryConstraints;
     using NServiceBus.Features;
@@ -24,6 +25,21 @@
             var context = new FeatureConfigurationContext(settings, null, null);
             var result = context.DoesTransportSupportConstraint<DeliveryConstraint>();
             Assert.IsTrue(result);
+        }
+
+        [Test]
+        public void Should_be_able_to_try_remove_constraints()
+        {
+            var context = new ContextBag();
+
+            DelayDeliveryWith with;
+            var resultBeforeAdd = context.TryRemoveDeliveryConstraint(out with);
+
+            context.AddDeliveryConstraint(new DelayDeliveryWith(TimeSpan.FromHours(1)));
+            var resultAfterAdd = context.TryRemoveDeliveryConstraint(out with);
+
+            Assert.IsFalse(resultBeforeAdd);
+            Assert.IsTrue(resultAfterAdd);
         }
 
         class FakeTransportDefinition : TransportDefinition
@@ -69,8 +85,6 @@
             public override TransportTransactionMode TransactionMode { get; } = TransportTransactionMode.None;
 
             public override OutboundRoutingPolicy OutboundRoutingPolicy { get; } = new OutboundRoutingPolicy(OutboundRoutingType.Unicast, OutboundRoutingType.Unicast, OutboundRoutingType.Unicast);
-
-
         }
     }
 }

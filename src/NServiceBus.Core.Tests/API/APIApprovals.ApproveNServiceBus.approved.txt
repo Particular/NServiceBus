@@ -743,6 +743,14 @@ namespace NServiceBus
     {
         public static NServiceBus.Outbox.OutboxSettings EnableOutbox(this NServiceBus.EndpointConfiguration config) { }
     }
+    public class PendingTransportOperations
+    {
+        public PendingTransportOperations() { }
+        public bool HasOperations { get; }
+        public System.Collections.Generic.IReadOnlyCollection<NServiceBus.Transports.TransportOperation> Operations { get; }
+        public void Add(NServiceBus.Transports.TransportOperation transportOperation) { }
+        public void AddRange(System.Collections.Generic.IEnumerable<NServiceBus.Transports.TransportOperation> transportOperations) { }
+    }
     public class static PersistenceConfig
     {
         public static NServiceBus.PersistenceExtentions<T> UsePersistence<T>(this NServiceBus.EndpointConfiguration config)
@@ -1366,6 +1374,8 @@ namespace NServiceBus.DeliveryConstraints
         public static System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> GetDeliveryConstraints(this NServiceBus.Extensibility.ContextBag context) { }
         public static void RemoveDeliveryConstaint(this NServiceBus.Extensibility.ContextBag context, NServiceBus.DeliveryConstraints.DeliveryConstraint constraint) { }
         public static bool TryGetDeliveryConstraint<T>(this NServiceBus.Extensibility.ContextBag context, out T constraint)
+            where T : NServiceBus.DeliveryConstraints.DeliveryConstraint { }
+        public static bool TryRemoveDeliveryConstraint<T>(this NServiceBus.Extensibility.ContextBag context, out T constraint)
             where T : NServiceBus.DeliveryConstraints.DeliveryConstraint { }
     }
 }

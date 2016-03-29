@@ -48,6 +48,26 @@ namespace NServiceBus.DeliveryConstraints
             constraint = null;
             return false;
         }
+        
+        /// <summary>
+        /// Tries to remove an instance of <typeparamref name="T" /> from a <see cref="ContextBag" />.
+        /// </summary>
+        public static bool TryRemoveDeliveryConstraint<T>(this ContextBag context, out T constraint) where T : DeliveryConstraint
+        {
+            List<DeliveryConstraint> constraints;
+
+            if (context.TryGet(out constraints))
+            {
+                var result = constraints.TryGet(out constraint);
+                if (result)
+                {
+                    constraints.Remove(constraint);
+                }
+                return result;
+            }
+            constraint = null;
+            return false;
+        }
 
         /// <summary>
         /// Removes a <see cref="DeliveryConstraint" /> to a <see cref="ContextBag" />.
