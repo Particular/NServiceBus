@@ -19,7 +19,7 @@
         /// <summary>
         /// Message being handled.
         /// </summary>
-        public LogicalMessage Message { get; set; }
+        public LogicalMessage Message { get; set; } = new LogicalMessage(new MessageMetadata(typeof(object)), new object());
 
         /// <summary>
         /// Headers for the incoming message.

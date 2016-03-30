@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Testing
 {
+    using System;
     using System.Collections.Generic;
     using NServiceBus.Pipeline;
     using NServiceBus.Transports;
@@ -17,12 +18,12 @@
         /// <summary>
         /// Address of the audit queue.
         /// </summary>
-        public string AuditAddress { get; set; }
+        public string AuditAddress { get; set; } = "audit queue address";
 
         /// <summary>
         /// The message to be audited.
         /// </summary>
-        public OutgoingMessage Message { get; set; }
+        public OutgoingMessage Message { get; set; } = new OutgoingMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), new byte[0]);
 
         /// <summary>
         /// Adds information about the current message that should be audited.
