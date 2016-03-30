@@ -101,7 +101,7 @@
         /// </returns>
         public virtual IBuilder CreateChildBuilder()
         {
-            throw new NotImplementedException();
+            return this;
         }
 
         /// <summary>
@@ -147,7 +147,7 @@
             factories.Add(typeof(T), factory);
         }
 
-        IDictionary<Type, Func<object[]>> factories = new Dictionary<Type, Func<object[]>>();
         IDictionary<Type, object[]> instances = new Dictionary<Type, object[]>();
+        IDictionary<Type, Func<object[]>> factories = new Dictionary<Type, Func<object[]>>();
     }
 }

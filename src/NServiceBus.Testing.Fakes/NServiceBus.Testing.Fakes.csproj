@@ -7,7 +7,7 @@
     <ProjectGuid>{80105366-8EF9-494D-A296-E100E82224CF}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NServiceBus.Testing.Fakes</RootNamespace>
+    <RootNamespace>NServiceBus.Testing</RootNamespace>
     <AssemblyName>NServiceBus.Testing.Fakes</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

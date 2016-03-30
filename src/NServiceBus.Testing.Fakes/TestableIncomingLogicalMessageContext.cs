@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using NServiceBus.Pipeline;
+    using Unicast.Messages;
 
     /// <summary>
     /// A testable implementation of <see cref="IIncomingLogicalMessageContext" />.
@@ -36,6 +37,7 @@
         /// <param name="newInstance">The new instance.</param>
         public virtual void UpdateMessageInstance(object newInstance)
         {
+            Message = new LogicalMessage(new MessageMetadata(newInstance.GetType()), newInstance);
         }
     }
 }
