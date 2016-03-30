@@ -2,9 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Routing;
-    using NServiceBus.Transports;
+    using Pipeline;
+    using Routing;
+    using Transports;
 
     /// <summary>
     /// A testable implementation of <see cref="IRoutingContext" />.

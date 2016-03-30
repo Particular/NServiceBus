@@ -2,8 +2,8 @@
 {
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Transports;
+    using Pipeline;
+    using Transports;
 
     /// <summary>
     /// A testable implementation of <see cref="IBatchDispatchContext" />.

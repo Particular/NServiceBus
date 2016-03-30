@@ -77,8 +77,8 @@ namespace NServiceBus.Testing
         public string ReplyToAddress { get; set; } = "reply address";
 
         IReadOnlyDictionary<string, string> IMessageProcessingContext.MessageHeaders => new ReadOnlyDictionary<string, string>(MessageHeaders);
+        ConcurrentQueue<string> forwardedMessages = new ConcurrentQueue<string>();
 
         ConcurrentQueue<RepliedMessage<object>> repliedMessages = new ConcurrentQueue<RepliedMessage<object>>();
-        ConcurrentQueue<string> forwardedMessages = new ConcurrentQueue<string>();
     }
 }

@@ -1,8 +1,8 @@
 ﻿namespace NServiceBus.Testing
 {
     using System.Collections.Generic;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Routing;
+    using Pipeline;
+    using Routing;
 
     /// <summary>
     /// A testable implementation of <see cref="IOutgoingPhysicalMessageContext" />.

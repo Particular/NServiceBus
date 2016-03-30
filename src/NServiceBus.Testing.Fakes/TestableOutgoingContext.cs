@@ -2,8 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.Pipeline;
+    using ObjectBuilder;
+    using Pipeline;
 
     /// <summary>
     /// A base implementation for all behaviors implementing <see cref="IOutgoingContext" />.

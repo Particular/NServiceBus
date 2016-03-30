@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.Testing
 {
     using System.Collections.Generic;
-    using NServiceBus.Pipeline;
+    using Pipeline;
     using Unicast.Messages;
 
     /// <summary>

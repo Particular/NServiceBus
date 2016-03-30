@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.Testing
 {
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.Pipeline;
+    using ObjectBuilder;
+    using Pipeline;
 
     /// <summary>
     /// Base implementation for contexts implementing <see cref="IIncomingContext" />.

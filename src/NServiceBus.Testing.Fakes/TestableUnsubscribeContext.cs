@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.Testing
 {
     using System;
-    using NServiceBus.Pipeline;
+    using Pipeline;
 
     /// <summary>
     /// A testable implementation of <see cref="IUnsubscribeContext" />.
