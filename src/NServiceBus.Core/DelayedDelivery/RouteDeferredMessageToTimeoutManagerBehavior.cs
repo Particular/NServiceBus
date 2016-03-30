@@ -40,7 +40,7 @@ namespace NServiceBus
                 }
 
                 //Hack 133
-                var ultimateDestination = ((UnicastAddressTag) context.RoutingStrategies.Single().Apply(new Dictionary<string, string>(context.Message.Headers))).Destination;
+                var ultimateDestination = ((UnicastAddressTag) context.RoutingStrategies.Single().Apply(context.Message.Headers)).Destination;
                 context.Message.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo] = ultimateDestination;
                 context.RoutingStrategies = new[]
                 {

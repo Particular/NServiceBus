@@ -158,6 +158,7 @@
     <Compile Include="Routing\Routers\UnicastReplyRouterConnectorTests.cs" />
     <Compile Include="Routing\Routers\UnicastPublishRouterConnectorTests.cs" />
     <Compile Include="Routing\RoutingOptionExtensionsTests.cs" />
+    <Compile Include="Routing\RoutingToDispatchConnectorTests.cs" />
     <Compile Include="Routing\SubscriptionRouterTests.cs" />
     <Compile Include="Sagas\CustomFinderAdapterTests.cs" />
     <Compile Include="Sagas\InvokeSagaNotFoundBehaviorTests.cs" />

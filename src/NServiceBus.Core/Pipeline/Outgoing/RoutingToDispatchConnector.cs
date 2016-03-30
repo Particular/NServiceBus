@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
@@ -21,8 +20,7 @@
             var operations = context.RoutingStrategies
                 .Select(rs =>
                 {
-                    var headers = new Dictionary<string, string>(context.Message.Headers);
-                    var addressLabel = rs.Apply(headers);
+                    var addressLabel = rs.Apply(context.Message.Headers);
                     var message = new OutgoingMessage(context.Message.MessageId, context.Message.Headers, context.Message.Body);
                     return new TransportOperation(message, addressLabel, dispatchConsistency, context.Extensions.GetDeliveryConstraints());
                 }).ToList();
