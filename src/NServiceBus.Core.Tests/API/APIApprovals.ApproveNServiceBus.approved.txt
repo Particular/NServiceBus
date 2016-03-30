@@ -2116,8 +2116,9 @@ namespace NServiceBus.Pipeline
         public object Instance { get; }
         public System.Type MessageType { get; }
     }
-    [System.ObsoleteAttribute("The pipeline context is no longer avaliable via dependency injection. Use a behav" +
-        "ior to get access instead. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("The pipeline context is no longer avaliable via dependency injection. Use a custo" +
+        "m behavior as described in the version 6 upgrade guide. Will be removed in versi" +
+        "on 7.0.0.", true)]
     public class PipelineExecutor
     {
         public PipelineExecutor() { }
