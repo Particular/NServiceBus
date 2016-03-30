@@ -2,8 +2,8 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
 
     public class When_multiple_mappings_exists : NServiceBusAcceptanceTest
@@ -12,11 +12,11 @@
         public async Task First_registration_should_be_the_final_destination()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<Sender>(b => b.When((session, c) => session.Send(new MyCommand1())))
-                    .WithEndpoint<Receiver1>()
-                    .WithEndpoint<Receiver2>()
-                    .Done(c => c.WasCalled1 || c.WasCalled2)
-                    .Run();
+                .WithEndpoint<Sender>(b => b.When((session, c) => session.Send(new MyCommand1())))
+                .WithEndpoint<Receiver1>()
+                .WithEndpoint<Receiver2>()
+                .Done(c => c.WasCalled1 || c.WasCalled2)
+                .Run();
 
             Assert.IsTrue(context.WasCalled1);
             Assert.IsFalse(context.WasCalled2);

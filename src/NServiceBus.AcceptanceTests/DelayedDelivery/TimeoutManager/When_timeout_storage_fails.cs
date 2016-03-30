@@ -3,14 +3,14 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
-    using NServiceBus.Extensibility;
-    using NServiceBus.Features;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Extensibility;
+    using Features;
     using NServiceBus.Persistence;
-    using NServiceBus.Timeout.Core;
     using NUnit.Framework;
+    using ScenarioDescriptors;
+    using Timeout.Core;
 
     public class When_timeout_storage_fails : NServiceBusAcceptanceTest
     {
@@ -35,6 +35,8 @@
                 .Should(c => Assert.AreEqual(5, c.NumTimesStorageCalled))
                 .Run();
         }
+
+        const string ErrorQueueForTimeoutErrors = "timeout_store_errors";
 
         public class Context : ScenarioContext
         {
@@ -65,16 +67,9 @@
 
             public class FakeTimeoutStorage : IQueryTimeouts, IPersistTimeouts
             {
-                Context testContext;
-
                 public FakeTimeoutStorage(Context context)
                 {
                     testContext = context;
-                }
-
-                public Task<TimeoutsChunk> GetNextChunk(DateTime startSlice)
-                {
-                    return Task.FromResult(new TimeoutsChunk(new List<TimeoutsChunk.Timeout>(), DateTime.UtcNow + TimeSpan.FromSeconds(10)));
                 }
 
                 public Task Add(TimeoutData timeout, ContextBag context)
@@ -98,6 +93,13 @@
                 {
                     throw new NotImplementedException();
                 }
+
+                public Task<TimeoutsChunk> GetNextChunk(DateTime startSlice)
+                {
+                    return Task.FromResult(new TimeoutsChunk(new List<TimeoutsChunk.Timeout>(), DateTime.UtcNow + TimeSpan.FromSeconds(10)));
+                }
+
+                Context testContext;
             }
         }
 
@@ -120,9 +122,6 @@
                 }
             }
         }
-
-        const string ErrorQueueForTimeoutErrors = "timeout_store_errors";
-
 
         public class MyMessage : IMessage
         {

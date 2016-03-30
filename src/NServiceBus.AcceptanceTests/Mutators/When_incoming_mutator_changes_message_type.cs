@@ -51,8 +51,6 @@
 
             public class OriginalMessageHandler : IHandleMessages<OriginalMessage>
             {
-                Context TestContext;
-
                 public OriginalMessageHandler(Context testContext)
                 {
                     TestContext = testContext;
@@ -63,12 +61,12 @@
                     TestContext.OriginalMessageHandlerCalled = true;
                     return Task.FromResult(0);
                 }
+
+                Context TestContext;
             }
 
             public class NewMessaeHandler : IHandleMessages<NewMessage>
             {
-                Context TestContext;
-
                 public NewMessaeHandler(Context testContext)
                 {
                     TestContext = testContext;
@@ -79,21 +77,15 @@
                     TestContext.NewMessageHandlerCalled = true;
                     return Task.FromResult(0);
                 }
+
+                Context TestContext;
             }
 
             public class Saga : Saga<SagaData>, IAmStartedByMessages<OriginalMessage>, IAmStartedByMessages<NewMessage>
             {
-                Context TestContext;
-
                 public Saga(Context testContext)
                 {
                     TestContext = testContext;
-                }
-
-                public Task Handle(OriginalMessage message, IMessageHandlerContext context)
-                {
-                    TestContext.OriginalMessageSagaHandlerCalled = true;
-                    return Task.FromResult(0);
                 }
 
                 public Task Handle(NewMessage message, IMessageHandlerContext context)
@@ -102,9 +94,17 @@
                     return Task.FromResult(0);
                 }
 
+                public Task Handle(OriginalMessage message, IMessageHandlerContext context)
+                {
+                    TestContext.OriginalMessageSagaHandlerCalled = true;
+                    return Task.FromResult(0);
+                }
+
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
                 {
                 }
+
+                Context TestContext;
             }
 
             public class SagaData : ContainSagaData

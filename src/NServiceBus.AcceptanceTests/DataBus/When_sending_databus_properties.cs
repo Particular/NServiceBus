@@ -2,36 +2,36 @@
 {
     using System;
     using System.Threading.Tasks;
-    using EndpointTemplates;
     using AcceptanceTesting;
-    using NServiceBus.MessageMutator;
+    using EndpointTemplates;
+    using MessageMutator;
     using NUnit.Framework;
 
     public class When_sending_databus_properties : NServiceBusAcceptanceTest
     {
-        const int PayloadSize = 100;
         [Test]
         public async Task Should_receive_messages_with_largepayload_correctly()
         {
             var payloadToSend = new byte[PayloadSize];
 
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<Sender>(b => b.When(session => session.Send(new MyMessageWithLargePayload
-                    {
-                        Payload = new DataBusProperty<byte[]>(payloadToSend)
-                    })))
-                    .WithEndpoint<Receiver>()
-                    .Done(c => c.ReceivedPayload != null)
-                    .Run();
+                .WithEndpoint<Sender>(b => b.When(session => session.Send(new MyMessageWithLargePayload
+                {
+                    Payload = new DataBusProperty<byte[]>(payloadToSend)
+                })))
+                .WithEndpoint<Receiver>()
+                .Done(c => c.ReceivedPayload != null)
+                .Run();
 
             Assert.AreEqual(payloadToSend, context.ReceivedPayload, "The large payload should be marshalled correctly using the databus");
         }
+
+        const int PayloadSize = 100;
 
         public class Context : ScenarioContext
         {
             public byte[] ReceivedPayload { get; set; }
         }
-
 
         public class Sender : EndpointConfigurationBuilder
         {
@@ -80,7 +80,6 @@
                     }
                     return Task.FromResult(0);
                 }
-
             }
         }
 

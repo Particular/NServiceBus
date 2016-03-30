@@ -2,8 +2,8 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
 
     public class When_injecting_handler_props : NServiceBusAcceptanceTest
@@ -12,9 +12,9 @@
         public async Task Run()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<Receiver>(c=>c.When(b => b.SendLocal(new MyMessage())))
-                    .Done(c => c.WasCalled)
-                    .Run();
+                .WithEndpoint<Receiver>(c => c.When(b => b.SendLocal(new MyMessage())))
+                .Done(c => c.WasCalled)
+                .Run();
 
             Assert.AreEqual(10, context.Number);
             Assert.AreEqual("Foo", context.Name);
@@ -36,7 +36,6 @@
                     c.InitializeHandlerProperty<MyMessageHandler>("Number", 10);
                     c.InitializeHandlerProperty<MyMessageHandler>("Name", "Foo");
                 });
-
             }
 
             public class MyMessageHandler : IHandleMessages<MyMessage>

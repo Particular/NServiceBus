@@ -130,8 +130,9 @@
                     return Task.FromResult(0);
                 }
 
-                CriticalError criticalError;
                 readonly TestContext testContext;
+
+                CriticalError criticalError;
             }
         }
 

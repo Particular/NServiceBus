@@ -61,7 +61,6 @@
                 }
             }
 
-
             public class MessageToBeForwardedHandler : IHandleMessages<MessageToBeForwarded>
             {
                 public Task Handle(MessageToBeForwarded message, IMessageHandlerContext context)

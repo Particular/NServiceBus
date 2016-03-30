@@ -2,9 +2,9 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
+    using AcceptanceTesting;
     using NUnit.Framework;
+    using ScenarioDescriptors;
 
     public class When_receiving_that_should_start_a_saga_without_interception : When_receiving_that_should_start_a_saga
     {
@@ -12,7 +12,10 @@
         public async Task Should_start_the_saga_and_call_messagehandlers()
         {
             await Scenario.Define<SagaEndpointContext>()
-                .WithEndpoint<SagaEndpoint>(b => b.When(session => session.SendLocal(new StartSagaMessage { SomeId = Guid.NewGuid().ToString() })))
+                .WithEndpoint<SagaEndpoint>(b => b.When(session => session.SendLocal(new StartSagaMessage
+                {
+                    SomeId = Guid.NewGuid().ToString()
+                })))
                 .Done(context => context.InterceptingHandlerCalled && context.SagaStarted)
                 .Repeat(r => r.For(Transports.Default))
                 .Should(c =>

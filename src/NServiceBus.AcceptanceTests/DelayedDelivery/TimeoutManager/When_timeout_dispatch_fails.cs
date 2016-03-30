@@ -3,14 +3,14 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
-    using NServiceBus.Extensibility;
-    using NServiceBus.Features;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Extensibility;
+    using Features;
     using NServiceBus.Persistence;
-    using NServiceBus.Timeout.Core;
     using NUnit.Framework;
+    using ScenarioDescriptors;
+    using Timeout.Core;
 
     public class When_timeout_dispatch_fails : NServiceBusAcceptanceTest
     {
@@ -33,6 +33,8 @@
                 .Should(c => Assert.AreEqual(5, c.NumTimesStorageCalled))
                 .Run();
         }
+
+        const string ErrorQueueForTimeoutErrors = "timeout_dispatch_errors";
 
         public class Context : ScenarioContext
         {
@@ -65,16 +67,6 @@
             {
                 public Context TestContext { get; set; }
 
-                public Task<TimeoutsChunk> GetNextChunk(DateTime startSlice)
-                {
-                    var timeout = new TimeoutsChunk.Timeout(Guid.NewGuid().ToString(), DateTime.UtcNow);
-                    var timeouts = new List<TimeoutsChunk.Timeout>
-                    {
-                        timeout
-                    };
-                    return Task.FromResult(new TimeoutsChunk(timeouts, DateTime.UtcNow + TimeSpan.FromSeconds(10)));
-                }
-
                 public Task Add(TimeoutData timeout, ContextBag context)
                 {
                     return Task.FromResult(0);
@@ -94,6 +86,16 @@
                 public Task RemoveTimeoutBy(Guid sagaId, ContextBag context)
                 {
                     throw new NotImplementedException();
+                }
+
+                public Task<TimeoutsChunk> GetNextChunk(DateTime startSlice)
+                {
+                    var timeout = new TimeoutsChunk.Timeout(Guid.NewGuid().ToString(), DateTime.UtcNow);
+                    var timeouts = new List<TimeoutsChunk.Timeout>
+                    {
+                        timeout
+                    };
+                    return Task.FromResult(new TimeoutsChunk(timeouts, DateTime.UtcNow + TimeSpan.FromSeconds(10)));
                 }
             }
         }
@@ -117,9 +119,6 @@
                 }
             }
         }
-
-        const string ErrorQueueForTimeoutErrors = "timeout_dispatch_errors";
-
 
         public class MyMessage : IMessage
         {

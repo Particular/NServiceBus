@@ -2,9 +2,9 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.Features;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Features;
     using NServiceBus.Sagas;
     using NUnit.Framework;
 
@@ -34,7 +34,6 @@
             Assert.False(context.MessageHandlerCalled);
             Assert.False(context.TimeoutHandlerCalled);
         }
-
 
         public class Context : ScenarioContext
         {
@@ -89,9 +88,10 @@
                 }
             }
 
-            class MessageWithSagaIdHandler:IHandleMessages<MessageWithSagaId>
+            class MessageWithSagaIdHandler : IHandleMessages<MessageWithSagaId>
             {
                 public Context TestContext { get; set; }
+
                 public Task Handle(MessageWithSagaId message, IMessageHandlerContext context)
                 {
                     TestContext.Done = true;

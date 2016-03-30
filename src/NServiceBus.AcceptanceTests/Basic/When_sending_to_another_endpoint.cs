@@ -3,8 +3,8 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
 
     public class When_sending_to_another_endpoint : NServiceBusAcceptanceTest
@@ -13,24 +13,26 @@
         public async Task Should_receive_the_message()
         {
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                    .WithEndpoint<Sender>(b => b.When((session, c) =>
+                .WithEndpoint<Sender>(b => b.When((session, c) =>
+                {
+                    var sendOptions = new SendOptions();
+
+                    sendOptions.SetHeader("MyHeader", "MyHeaderValue");
+                    sendOptions.SetMessageId("MyMessageId");
+
+                    return session.Send(new MyMessage
                     {
-                        var sendOptions = new SendOptions();
-
-                        sendOptions.SetHeader("MyHeader", "MyHeaderValue");
-                        sendOptions.SetMessageId("MyMessageId");
-
-                        return session.Send(new MyMessage { Id = c.Id }, sendOptions);
-                    }))
-                    .WithEndpoint<Receiver>()
-                    .Done(c => c.WasCalled)
-                    .Run();
+                        Id = c.Id
+                    }, sendOptions);
+                }))
+                .WithEndpoint<Receiver>()
+                .Done(c => c.WasCalled)
+                .Run();
 
             Assert.True(context.WasCalled, "The message handler should be called");
             Assert.AreEqual(1, context.TimesCalled, "The message handler should only be invoked once");
             Assert.AreEqual("StaticHeaderValue", context.ReceivedHeaders["MyStaticHeader"], "Static headers should be attached to outgoing messages");
             Assert.AreEqual("MyHeaderValue", context.MyHeader, "Static headers should be attached to outgoing messages");
-
         }
 
         public class Context : ScenarioContext
@@ -50,10 +52,7 @@
         {
             public Sender()
             {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.AddHeaderToAllOutgoingMessages("MyStaticHeader", "StaticHeaderValue");
-                }).AddMapping<MyMessage>(typeof(Receiver));
+                EndpointSetup<DefaultServer>(c => { c.AddHeaderToAllOutgoingMessages("MyStaticHeader", "StaticHeaderValue"); }).AddMapping<MyMessage>(typeof(Receiver));
             }
         }
 
@@ -71,7 +70,9 @@
                 public Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
                     if (TestContext.Id != message.Id)
+                    {
                         return Task.FromResult(0);
+                    }
 
                     Assert.AreEqual(context.MessageId, "MyMessageId");
 

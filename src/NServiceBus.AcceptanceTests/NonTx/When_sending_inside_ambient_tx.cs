@@ -3,11 +3,11 @@
     using System;
     using System.Threading.Tasks;
     using System.Transactions;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
+    using ScenarioDescriptors;
 
     public class When_sending_inside_ambient_tx : NServiceBusAcceptanceTest
     {
@@ -15,13 +15,13 @@
         public async Task Should_not_roll_the_message_back_to_the_queue_in_case_of_failure()
         {
             await Scenario.Define<Context>()
-                    .WithEndpoint<NonTransactionalEndpoint>(b => b
-                        .When(session => session.SendLocal(new MyMessage()))
-                        .DoNotFailOnErrorMessages())
-                    .Done(c => c.TestComplete)
-                    .Repeat(r => r.For<AllDtcTransports>())
-                    .Should(c => Assert.False(c.MessageEnlistedInTheAmbientTxReceived, "The enlisted session.Send should not commit"))
-                    .Run();
+                .WithEndpoint<NonTransactionalEndpoint>(b => b
+                    .When(session => session.SendLocal(new MyMessage()))
+                    .DoNotFailOnErrorMessages())
+                .Done(c => c.TestComplete)
+                .Repeat(r => r.For<AllDtcTransports>())
+                .Should(c => Assert.False(c.MessageEnlistedInTheAmbientTxReceived, "The enlisted session.Send should not commit"))
+                .Run();
         }
 
         public class Context : ScenarioContext
@@ -35,14 +35,14 @@
         {
             public NonTransactionalEndpoint()
             {
-                EndpointSetup<DefaultServer>((config,context) =>
+                EndpointSetup<DefaultServer>((config, context) =>
                 {
                     config.UseTransport(context.GetTransportType()).Transactions(TransportTransactionMode.None);
                     config.Pipeline.Register("WrapInScope", typeof(WrapHandlersInScope), "Wraps the handlers in a scope");
                 });
             }
 
-            class WrapHandlersInScope:Behavior<IIncomingLogicalMessageContext>
+            class WrapHandlersInScope : Behavior<IIncomingLogicalMessageContext>
             {
                 public override async Task Invoke(IIncomingLogicalMessageContext context, Func<Task> next)
                 {
@@ -81,7 +81,9 @@
                 public Task Handle(CompleteTest message, IMessageHandlerContext context)
                 {
                     if (!Context.MessageEnlistedInTheAmbientTxReceived)
+                    {
                         Context.MessageEnlistedInTheAmbientTxReceived = message.EnlistedInTheAmbientTx;
+                    }
 
                     Context.TestComplete = true;
 
@@ -100,7 +102,5 @@
         {
             public bool EnlistedInTheAmbientTx { get; set; }
         }
-
-
     }
 }

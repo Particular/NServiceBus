@@ -2,12 +2,12 @@
 {
     using System;
     using System.Threading.Tasks;
-    using EndpointTemplates;
     using AcceptanceTesting;
+    using EndpointTemplates;
     using Features;
-    using NServiceBus.AcceptanceTests.Routing;
     using NServiceBus.Config;
     using NUnit.Framework;
+    using Routing;
     using ScenarioDescriptors;
 
     public class When_replies_to_message_published_by_a_saga : NServiceBusAcceptanceTest
@@ -48,21 +48,18 @@
             {
                 EndpointSetup<DefaultServer>(b => b.DisableFeature<AutoSubscribe>())
                     .AddMapping<DidSomething>(typeof(SagaEndpoint))
-                    .WithConfig<TransportConfig>(c =>
-                    {
-                        c.MaxRetries = 0;
-                    })
-                    .WithConfig<SecondLevelRetriesConfig>(c =>
-                    {
-                        c.Enabled = false;
-                    });
+                    .WithConfig<TransportConfig>(c => { c.MaxRetries = 0; })
+                    .WithConfig<SecondLevelRetriesConfig>(c => { c.Enabled = false; });
             }
 
             class DidSomethingHandler : IHandleMessages<DidSomething>
             {
                 public Task Handle(DidSomething message, IMessageHandlerContext context)
                 {
-                    return context.Reply(new DidSomethingResponse { ReceivedDataId = message.DataId });
+                    return context.Reply(new DidSomethingResponse
+                    {
+                        ReceivedDataId = message.DataId
+                    });
                 }
             }
         }
@@ -85,7 +82,10 @@
                 public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
                     Data.DataId = message.DataId;
-                    return context.Publish(new DidSomething { DataId = message.DataId });
+                    return context.Publish(new DidSomething
+                    {
+                        DataId = message.DataId
+                    });
                 }
 
                 public Task Handle(DidSomethingResponse message, IMessageHandlerContext context)
@@ -106,7 +106,7 @@
                 }
             }
         }
-        
+
         [Serializable]
         public class StartSaga : ICommand
         {

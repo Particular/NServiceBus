@@ -23,7 +23,6 @@
                 })
                 .SelectMany(a => a.GetTypes());
 
-
             types = types.Union(GetNestedTypeRecursive(endpointConfiguration.BuilderType.DeclaringType, endpointConfiguration.BuilderType));
 
             types = types.Union(endpointConfiguration.TypesToInclude);

@@ -2,9 +2,9 @@
 {
     using System;
     using System.Threading.Tasks;
-    using EndpointTemplates;
     using AcceptanceTesting;
-    using NServiceBus.Features;
+    using EndpointTemplates;
+    using Features;
     using NServiceBus.Sagas;
     using NUnit.Framework;
 
@@ -15,10 +15,10 @@
         public async Task It_should_invoke_message_handler()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<Sender>(b => b.When((session, c) => session.Send(new MessageToSaga())))
-                    .WithEndpoint<ReceiverWithSaga>()
-                    .Done(c => c.ReplyReceived)
-                    .Run();
+                .WithEndpoint<Sender>(b => b.When((session, c) => session.Send(new MessageToSaga())))
+                .WithEndpoint<ReceiverWithSaga>()
+                .Done(c => c.ReplyReceived)
+                .Run();
 
             Assert.IsTrue(context.ReplyReceived);
         }
@@ -40,7 +40,6 @@
             {
                 public Context Context { get; set; }
 
-
                 public Task Handle(Reply message, IMessageHandlerContext context)
                 {
                     Context.ReplyReceived = true;
@@ -59,7 +58,6 @@
 
             public class NotFoundHandlerSaga1 : Saga<NotFoundHandlerSaga1.NotFoundHandlerSaga1Data>, IAmStartedByMessages<StartSaga1>, IHandleMessages<MessageToSaga>
             {
-
                 public Task Handle(StartSaga1 message, IMessageHandlerContext context)
                 {
                     Data.ContextId = message.ContextId;
@@ -71,17 +69,17 @@
                     return Task.FromResult(0);
                 }
 
-                public class NotFoundHandlerSaga1Data : ContainSagaData
-                {
-                    public virtual Guid ContextId { get; set; }
-                }
-
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NotFoundHandlerSaga1Data> mapper)
                 {
                     mapper.ConfigureMapping<StartSaga1>(m => m.ContextId)
                         .ToSaga(s => s.ContextId);
                     mapper.ConfigureMapping<MessageToSaga>(m => m.ContextId)
                         .ToSaga(s => s.ContextId);
+                }
+
+                public class NotFoundHandlerSaga1Data : ContainSagaData
+                {
+                    public virtual Guid ContextId { get; set; }
                 }
             }
 

@@ -1,10 +1,10 @@
-﻿
-namespace NServiceBus.AcceptanceTests.Audit
+﻿namespace NServiceBus.AcceptanceTests.Audit
 {
     using System;
     using System.Threading.Tasks;
-    using EndpointTemplates;
     using AcceptanceTesting;
+    using EndpointTemplates;
+    using Features;
     using NUnit.Framework;
 
     public class When_auditing : NServiceBusAcceptanceTest
@@ -13,10 +13,10 @@ namespace NServiceBus.AcceptanceTests.Audit
         public async Task Should_not_be_forwarded_to_auditQueue_when_auditing_is_disabled()
         {
             var context = await Scenario.Define<Context>()
-            .WithEndpoint<EndpointWithAuditOff>(b => b.When(session => session.SendLocal(new MessageToBeAudited())))
-            .WithEndpoint<EndpointThatHandlesAuditMessages>()
-            .Done(c => c.IsMessageHandlingComplete)
-            .Run();
+                .WithEndpoint<EndpointWithAuditOff>(b => b.When(session => session.SendLocal(new MessageToBeAudited())))
+                .WithEndpoint<EndpointThatHandlesAuditMessages>()
+                .Done(c => c.IsMessageHandlingComplete)
+                .Run();
 
             Assert.IsFalse(context.IsMessageHandledByTheAuditEndpoint);
         }
@@ -25,10 +25,10 @@ namespace NServiceBus.AcceptanceTests.Audit
         public async Task Should_be_forwarded_to_auditQueue_when_auditing_is_enabled()
         {
             var context = await Scenario.Define<Context>()
-            .WithEndpoint<EndpointWithAuditOn>(b => b.When(session => session.SendLocal(new MessageToBeAudited())))
-            .WithEndpoint<EndpointThatHandlesAuditMessages>()
-            .Done(c => c.IsMessageHandlingComplete && c.IsMessageHandledByTheAuditEndpoint)
-            .Run();
+                .WithEndpoint<EndpointWithAuditOn>(b => b.When(session => session.SendLocal(new MessageToBeAudited())))
+                .WithEndpoint<EndpointThatHandlesAuditMessages>()
+                .Done(c => c.IsMessageHandlingComplete && c.IsMessageHandledByTheAuditEndpoint)
+                .Run();
 
             Assert.IsTrue(context.IsMessageHandledByTheAuditEndpoint);
         }
@@ -41,15 +41,13 @@ namespace NServiceBus.AcceptanceTests.Audit
 
         public class EndpointWithAuditOff : EndpointConfigurationBuilder
         {
-
             public EndpointWithAuditOff()
             {
                 // Although the AuditTo seems strange here, this test tries to fake the scenario where
                 // even though the user has specified audit config, because auditing is explicitly turned
                 // off, no messages should be audited.
-                EndpointSetup<DefaultServer>(c => c.DisableFeature<Features.Audit>())
+                EndpointSetup<DefaultServer>(c => c.DisableFeature<Audit>())
                     .AuditTo<EndpointThatHandlesAuditMessages>();
-
             }
 
             class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
@@ -66,7 +64,6 @@ namespace NServiceBus.AcceptanceTests.Audit
 
         public class EndpointWithAuditOn : EndpointConfigurationBuilder
         {
-
             public EndpointWithAuditOn()
             {
                 EndpointSetup<DefaultServer>()
@@ -87,7 +84,6 @@ namespace NServiceBus.AcceptanceTests.Audit
 
         public class EndpointThatHandlesAuditMessages : EndpointConfigurationBuilder
         {
-
             public EndpointThatHandlesAuditMessages()
             {
                 EndpointSetup<DefaultServer>();

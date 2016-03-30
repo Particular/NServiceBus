@@ -3,10 +3,10 @@
     using System;
     using System.Threading.Tasks;
     using System.Transactions;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
+    using ScenarioDescriptors;
 
     public class When_receiving_with_dtc_enabled : NServiceBusAcceptanceTest
     {
@@ -32,7 +32,6 @@
                 tx.Complete();
             }
         }
-
 
         [Test]
         public void Basic_assumptions_second_promotable_should_fail()
@@ -78,7 +77,5 @@
         public class MyMessage : ICommand
         {
         }
-
-
     }
 }

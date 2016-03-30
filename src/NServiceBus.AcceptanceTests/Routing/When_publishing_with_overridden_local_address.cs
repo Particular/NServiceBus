@@ -2,11 +2,11 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
-    using NServiceBus.Features;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Features;
     using NUnit.Framework;
+    using ScenarioDescriptors;
 
     public class When_publishing_with_overridden_local_address : NServiceBusAcceptanceTest
     {
@@ -16,14 +16,16 @@
             await Scenario.Define<Context>()
                 .WithEndpoint<Publisher>(b =>
                     b.When(c => c.Subscriber1Subscribed, session => session.Publish(new MyEvent()))
-                    )
+                )
                 .WithEndpoint<Subscriber1>(b => b.When(async (session, context) =>
-                    {
-                        await session.Subscribe<MyEvent>();
+                {
+                    await session.Subscribe<MyEvent>();
 
-                        if (context.HasNativePubSubSupport)
-                            context.Subscriber1Subscribed = true;
-                    }))
+                    if (context.HasNativePubSubSupport)
+                    {
+                        context.Subscriber1Subscribed = true;
+                    }
+                }))
                 .Done(c => c.Subscriber1GotTheEvent)
                 .Repeat(r => r.For(Transports.Default))
                 .Should(c => Assert.True(c.Subscriber1GotTheEvent))

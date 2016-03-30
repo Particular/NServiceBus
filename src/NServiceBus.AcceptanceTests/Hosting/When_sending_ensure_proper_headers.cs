@@ -3,8 +3,8 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
 
     public class When_sending_ensure_proper_headers : NServiceBusAcceptanceTest
@@ -13,13 +13,10 @@
         public async Task Should_have_proper_headers_for_the_originating_endpoint()
         {
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                                .WithEndpoint<Sender>(b => b.When((session, c) => session.Send<MyMessage>(m =>
-                                {
-                                    m.Id = c.Id;
-                                })))
-                                .WithEndpoint<Receiver>()
-                                .Done(c => c.WasCalled)
-                                .Run();
+                .WithEndpoint<Sender>(b => b.When((session, c) => session.Send<MyMessage>(m => { m.Id = c.Id; })))
+                .WithEndpoint<Receiver>()
+                .Done(c => c.WasCalled)
+                .Run();
 
             Assert.True(context.WasCalled, "The message handler should be called");
             Assert.AreEqual("SenderForEnsureProperHeadersTest", context.ReceivedHeaders[Headers.OriginatingEndpoint], "Message should contain the Originating endpoint");
@@ -65,7 +62,9 @@
             public Task Handle(MyMessage message, IMessageHandlerContext context)
             {
                 if (TestContext.Id != message.Id)
+                {
                     return Task.FromResult(0);
+                }
 
                 TestContext.ReceivedHeaders = context.MessageHeaders;
                 TestContext.WasCalled = true;

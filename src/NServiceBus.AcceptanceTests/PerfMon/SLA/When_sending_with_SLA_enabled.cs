@@ -4,28 +4,28 @@
     using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
+    using ScenarioDescriptors;
 
     public class When_sending_with_SLA_enabled : NServiceBusAcceptanceTest
     {
-        float counterValue;
-
         [Test]
         [Explicit("Since perf counters need to be enabled with powershell")]
         public async Task Should_have_perf_counter_set()
         {
             using (var counter = new PerformanceCounter("NServiceBus", "SLA violation countdown", "PerformanceMonitoring.Endpoint.WhenSendingWithSLAEnabled." + Transports.Default.Key, true))
-            using (new Timer(state => CheckPerfCounter(counter), null, 0, 100))
             {
-                await Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(b => b.When((session, c) => session.SendLocal(new MyMessage())))
-                    .Done(c => c.WasCalled)
-                    .Repeat(r => r.For(Transports.Default))
-                    .Should(c => Assert.True(c.WasCalled, "The message handler should be called"))
-                    .Run();
+                using (new Timer(state => CheckPerfCounter(counter), null, 0, 100))
+                {
+                    await Scenario.Define<Context>()
+                        .WithEndpoint<Endpoint>(b => b.When((session, c) => session.SendLocal(new MyMessage())))
+                        .Done(c => c.WasCalled)
+                        .Repeat(r => r.For(Transports.Default))
+                        .Should(c => Assert.True(c.WasCalled, "The message handler should be called"))
+                        .Run();
+                }
             }
             Assert.Greater(counterValue, 0);
         }
@@ -39,6 +39,8 @@
             }
         }
 
+        float counterValue;
+
         public class Context : ScenarioContext
         {
             public bool WasCalled { get; set; }
@@ -51,7 +53,6 @@
                 EndpointSetup<DefaultServer>(builder => builder.EnableSLAPerformanceCounter(TimeSpan.FromMinutes(10)));
             }
         }
-
 
         public class MyMessage : IMessage
         {

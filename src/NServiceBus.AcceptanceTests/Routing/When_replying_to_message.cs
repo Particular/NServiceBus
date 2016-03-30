@@ -1,8 +1,8 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing
 {
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
 
     public class When_replying_to_message : NServiceBusAcceptanceTest
@@ -103,7 +103,7 @@
         public class MyMessage : IMessage
         {
         }
-        
+
         public class MyReply : IMessage
         {
         }

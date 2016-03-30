@@ -1,11 +1,11 @@
 ﻿namespace NServiceBus.AcceptanceTests.Versioning
 {
     using System.Threading.Tasks;
-    using EndpointTemplates;
     using AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.Routing;
-    using NServiceBus.Features;
+    using EndpointTemplates;
+    using Features;
     using NUnit.Framework;
+    using Routing;
 
     public class When_multiple_versions_of_a_message_is_published : NServiceBusAcceptanceTest
     {
@@ -13,29 +13,33 @@
         public async Task Should_deliver_is_to_both_v1_and_vX_subscribers()
         {
             await Scenario.Define<Context>()
-                    .WithEndpoint<V2Publisher>(b =>
-                        b.When(c => c.V1Subscribed && c.V2Subscribed, (session, c) =>
+                .WithEndpoint<V2Publisher>(b =>
+                    b.When(c => c.V1Subscribed && c.V2Subscribed, (session, c) =>
+                    {
+                        return session.Publish<V2Event>(e =>
                         {
-                            return session.Publish<V2Event>(e =>
-                            {
-                                e.SomeData = 1;
-                                e.MoreInfo = "dasd";
-                            });
-                        }))
-                    .WithEndpoint<V1Subscriber>(b => b.When(async (session,c) =>
-                        {
-                            await session.Subscribe<V1Event>();
-                            if (c.HasNativePubSubSupport)
-                                c.V1Subscribed = true;
-                        }))
-                    .WithEndpoint<V2Subscriber>(b => b.When(async (session,c) =>
-                        {
-                            await session.Subscribe<V2Event>();
-                            if (c.HasNativePubSubSupport)
-                                c.V2Subscribed = true;
-                        }))
-                    .Done(c => c.V1SubscriberGotTheMessage && c.V2SubscriberGotTheMessage)
-                    .Run();
+                            e.SomeData = 1;
+                            e.MoreInfo = "dasd";
+                        });
+                    }))
+                .WithEndpoint<V1Subscriber>(b => b.When(async (session, c) =>
+                {
+                    await session.Subscribe<V1Event>();
+                    if (c.HasNativePubSubSupport)
+                    {
+                        c.V1Subscribed = true;
+                    }
+                }))
+                .WithEndpoint<V2Subscriber>(b => b.When(async (session, c) =>
+                {
+                    await session.Subscribe<V2Event>();
+                    if (c.HasNativePubSubSupport)
+                    {
+                        c.V2Subscribed = true;
+                    }
+                }))
+                .Done(c => c.V1SubscriberGotTheMessage && c.V2SubscriberGotTheMessage)
+                .Run();
         }
 
         public class Context : ScenarioContext
@@ -67,6 +71,7 @@
                 }));
             }
         }
+
         public class V1Subscriber : EndpointConfigurationBuilder
         {
             public V1Subscriber()
@@ -74,13 +79,12 @@
                 EndpointSetup<DefaultServer>(b => b.DisableFeature<AutoSubscribe>())
                     .ExcludeType<V2Event>()
                     .AddMapping<V1Event>(typeof(V2Publisher));
-
             }
 
-
-            class V1Handler:IHandleMessages<V1Event>
+            class V1Handler : IHandleMessages<V1Event>
             {
                 public Context Context { get; set; }
+
                 public Task Handle(V1Event message, IMessageHandlerContext context)
                 {
                     Context.V1SubscriberGotTheMessage = true;
@@ -89,13 +93,12 @@
             }
         }
 
-
         public class V2Subscriber : EndpointConfigurationBuilder
         {
             public V2Subscriber()
             {
                 EndpointSetup<DefaultServer>(b => b.DisableFeature<AutoSubscribe>())
-                     .AddMapping<V2Event>(typeof(V2Publisher));
+                    .AddMapping<V2Event>(typeof(V2Publisher));
             }
 
             class V2Handler : IHandleMessages<V2Event>
@@ -109,7 +112,6 @@
                 }
             }
         }
-
 
         public interface V1Event : IEvent
         {

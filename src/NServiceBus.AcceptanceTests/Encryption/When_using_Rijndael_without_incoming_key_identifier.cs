@@ -4,9 +4,9 @@
     using System.Collections.Generic;
     using System.Text;
     using System.Threading.Tasks;
-    using EndpointTemplates;
     using AcceptanceTesting;
-    using NServiceBus.MessageMutator;
+    using EndpointTemplates;
+    using MessageMutator;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
@@ -16,15 +16,15 @@
         public async Task Should_process_decrypted_message_without_key_identifier()
         {
             await Scenario.Define<Context>()
-                    .WithEndpoint<Sender>(b => b.When((bus, context) => bus.Send(new MessageWithSecretData
-                        {
-                            Secret = "betcha can't guess my secret",
-                        })))
-                    .WithEndpoint<Receiver>()
-                    .Done(c => c.Done)
-                    .Repeat(r => r.For(Transports.Default))
-                    .Should(c => Assert.AreEqual("betcha can't guess my secret", c.Secret))
-                    .Run();
+                .WithEndpoint<Sender>(b => b.When((bus, context) => bus.Send(new MessageWithSecretData
+                {
+                    Secret = "betcha can't guess my secret"
+                })))
+                .WithEndpoint<Receiver>()
+                .Done(c => c.Done)
+                .Repeat(r => r.For(Transports.Default))
+                .Should(c => Assert.AreEqual("betcha can't guess my secret", c.Secret))
+                .Run();
         }
 
         public class Context : ScenarioContext
@@ -48,12 +48,14 @@
             {
                 var keys = new Dictionary<string, byte[]>
                 {
-                    {"new", Encoding.ASCII.GetBytes("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb") },
+                    {"new", Encoding.ASCII.GetBytes("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb")}
                 };
 
-                var expiredKeys = new[] { Encoding.ASCII.GetBytes("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa") };
+                var expiredKeys = new[]
+                {
+                    Encoding.ASCII.GetBytes("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+                };
                 EndpointSetup<DefaultServer>(builder => builder.RijndaelEncryptionService("new", keys, expiredKeys));
-
             }
 
             public class Handler : IHandleMessages<MessageWithSecretData>
@@ -74,7 +76,6 @@
         {
             public WireEncryptedString Secret { get; set; }
         }
-
 
         class RemoveKeyIdentifierHeaderMutator : IMutateIncomingTransportMessages, INeedInitialization
         {

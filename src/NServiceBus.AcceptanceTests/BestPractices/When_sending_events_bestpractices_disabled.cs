@@ -1,8 +1,8 @@
 namespace NServiceBus.AcceptanceTests.BestPractices
 {
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
 
     public class When_sending_events_bestpractices_disabled : NServiceBusAcceptanceTest
@@ -45,7 +45,13 @@ namespace NServiceBus.AcceptanceTests.BestPractices
                 }
             }
         }
-        public class MyCommand : ICommand { }
-        public class MyEvent : IEvent { }
+
+        public class MyCommand : ICommand
+        {
+        }
+
+        public class MyEvent : IEvent
+        {
+        }
     }
 }

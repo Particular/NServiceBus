@@ -15,8 +15,8 @@
             // Because otherwise NHibernate gets cranky!
             var sagaEntities = Assembly.GetExecutingAssembly().GetTypes()
                 .Where(t => typeof(IContainSagaData).IsAssignableFrom(t) && !t.IsInterface &&
-                //only include core tests
-                t.Namespace != null && t.Namespace.StartsWith("NServiceBus.AcceptanceTests"))
+                            //only include core tests
+                            t.Namespace != null && t.Namespace.StartsWith("NServiceBus.AcceptanceTests"))
                 .ToArray();
 
             var offenders = 0;
@@ -47,7 +47,7 @@
 
             var sagas = allTypes.Where(t => typeof(Saga).IsAssignableFrom(t)).ToArray();
             var sagaEntities = allTypes.Where(t => typeof(IContainSagaData).IsAssignableFrom(t) && !t.IsInterface)
-               .ToArray();
+                .ToArray();
 
             var nestedSagaEntityParents = sagaEntities
                 .Where(t => t.DeclaringType != null)

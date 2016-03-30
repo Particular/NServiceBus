@@ -1,12 +1,12 @@
 ﻿namespace NServiceBus.AcceptanceTests.Persistence
 {
     using System.Collections.Generic;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using System.Threading.Tasks;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Extensibility;
     using NServiceBus.Persistence;
     using NUnit.Framework;
-    using System.Threading.Tasks;
-    using Extensibility;
     using Unicast.Subscriptions;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
 

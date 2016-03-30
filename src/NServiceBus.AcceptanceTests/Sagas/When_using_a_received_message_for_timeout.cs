@@ -2,9 +2,9 @@
 {
     using System;
     using System.Threading.Tasks;
-    using EndpointTemplates;
     using AcceptanceTesting;
-    using NServiceBus.Features;
+    using EndpointTemplates;
+    using Features;
     using NUnit.Framework;
 
     public class When_using_a_received_message_for_timeout : NServiceBusAcceptanceTest
@@ -13,9 +13,12 @@
         public async Task Timeout_should_be_received_after_expiration()
         {
             await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                    .WithEndpoint<ReceiveMessageForTimeoutEndpoint>(g => g.When(session => session.SendLocal(new StartSagaMessage { SomeId = Guid.NewGuid() })))
-                    .Done(c => c.TimeoutReceived)
-                    .Run();
+                .WithEndpoint<ReceiveMessageForTimeoutEndpoint>(g => g.When(session => session.SendLocal(new StartSagaMessage
+                {
+                    SomeId = Guid.NewGuid()
+                })))
+                .Done(c => c.TimeoutReceived)
+                .Run();
         }
 
         public class Context : ScenarioContext
@@ -44,26 +47,26 @@
                     return RequestTimeout(context, TimeSpan.FromMilliseconds(100), message);
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData01> mapper)
-                {
-                    mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
-                        .ToSaga(s => s.SomeId);
-                }
-
                 public Task Timeout(StartSagaMessage message, IMessageHandlerContext context)
                 {
                     MarkAsComplete();
                     TestContext.TimeoutReceived = true;
                     return Task.FromResult(0);
                 }
+
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData01> mapper)
+                {
+                    mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
+                        .ToSaga(s => s.SomeId);
+                }
             }
 
             public class TestSagaData01 : IContainSagaData
             {
+                public virtual Guid SomeId { get; set; }
                 public virtual Guid Id { get; set; }
                 public virtual string Originator { get; set; }
                 public virtual string OriginalMessageId { get; set; }
-                public virtual Guid SomeId { get; set; }
             }
         }
 

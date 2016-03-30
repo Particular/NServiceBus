@@ -2,8 +2,8 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
 
     public class When_sending_with_conventions : NServiceBusAcceptanceTest
@@ -12,12 +12,12 @@
         public async Task Should_receive_the_message()
         {
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                    .WithEndpoint<Endpoint>(b => b.When((session, c) => session.SendLocal(new MyMessage
-                    {
-                        Id = c.Id
-                    })))
-                    .Done(c => c.WasCalled)
-                    .Run();
+                .WithEndpoint<Endpoint>(b => b.When((session, c) => session.SendLocal(new MyMessage
+                {
+                    Id = c.Id
+                })))
+                .Done(c => c.WasCalled)
+                .Run();
 
             Assert.True(context.WasCalled);
         }
@@ -46,11 +46,12 @@
         {
             public Context Context { get; set; }
 
-
             public Task Handle(MyMessage message, IMessageHandlerContext context)
             {
                 if (Context.Id != message.Id)
+                {
                     return Task.FromResult(0);
+                }
 
                 Context.WasCalled = true;
 

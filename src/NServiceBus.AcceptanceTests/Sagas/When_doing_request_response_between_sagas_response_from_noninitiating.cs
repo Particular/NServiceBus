@@ -1,7 +1,7 @@
 namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
+    using AcceptanceTesting;
     using NUnit.Framework;
 
     public class When_doing_request_response_between_sagas_response_from_noninitiating : When_doing_request_response_between_sagas

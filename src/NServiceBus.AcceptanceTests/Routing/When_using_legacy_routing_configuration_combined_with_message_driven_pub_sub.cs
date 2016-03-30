@@ -1,11 +1,11 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing
 {
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
-    using NServiceBus.Features;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Features;
     using NUnit.Framework;
+    using ScenarioDescriptors;
 
     public class When_using_legacy_routing_configuration_combined_with_message_driven_pub_sub : NServiceBusAcceptanceTest
     {
@@ -19,7 +19,7 @@
                         await session.Publish(new MyEvent());
                         await session.Send(new DoneCommand());
                     })
-                    )
+                )
                 .WithEndpoint<Subscriber>(b => b.When((session, context) => session.Subscribe<MyEvent>()))
                 .Done(c => c.Done)
                 .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
@@ -38,10 +38,7 @@
         {
             public Publisher()
             {
-                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) =>
-                {
-                    context.Subscribed = true;
-                }))
+                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) => { context.Subscribed = true; }))
                     .AddMapping<MyEvent>(typeof(Subscriber))
                     .AddMapping<DoneCommand>(typeof(Subscriber));
             }

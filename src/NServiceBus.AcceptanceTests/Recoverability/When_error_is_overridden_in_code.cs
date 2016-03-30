@@ -2,8 +2,9 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Features;
     using NServiceBus.Config;
     using NUnit.Framework;
 
@@ -29,13 +30,10 @@
             {
                 EndpointSetup<DefaultServer>(b =>
                 {
-                    b.DisableFeature<Features.SecondLevelRetries>();
+                    b.DisableFeature<SecondLevelRetries>();
                     b.SendFailedMessagesTo("error_with_code_source");
                 })
-                    .WithConfig<TransportConfig>(c =>
-                    {
-                        c.MaxRetries = 0;
-                    });
+                    .WithConfig<TransportConfig>(c => { c.MaxRetries = 0; });
             }
 
             class Handler : IHandleMessages<Message>
@@ -45,7 +43,6 @@
                     throw new SimulatedException();
                 }
             }
-
         }
 
         public class ErrorSpy : EndpointConfigurationBuilder
@@ -77,6 +74,5 @@
         public class Message : IMessage
         {
         }
-
     }
 }

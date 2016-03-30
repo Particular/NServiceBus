@@ -2,15 +2,13 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
 
     public class When_extending_behavior_context : NServiceBusAcceptanceTest
     {
-        static string ExtensionValue;
-
         [Test]
         public async Task Should_be_available_in_handler_context()
         {
@@ -25,6 +23,8 @@
             Assert.AreEqual(ExtensionValue, context.HandlerAExtensionValue);
             Assert.AreEqual(ExtensionValue, context.HandlerBExtensionValue);
         }
+
+        static string ExtensionValue;
 
         class Context : ScenarioContext
         {

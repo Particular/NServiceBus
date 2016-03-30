@@ -1,7 +1,7 @@
 namespace NServiceBus.AcceptanceTests.Routing
 {
     using System;
-    using NServiceBus.AcceptanceTesting;
+    using AcceptanceTesting;
 
     static class SubscriptionBehaviorExtensions
     {

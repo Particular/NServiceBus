@@ -2,9 +2,9 @@
 {
     using System;
     using System.Threading.Tasks;
-    using EndpointTemplates;
     using AcceptanceTesting;
-    using NServiceBus.Features;
+    using EndpointTemplates;
+    using Features;
     using NServiceBus.Sagas;
     using NUnit.Framework;
 
@@ -14,10 +14,12 @@
         public async Task Should_not_fire_notfound_for_tm()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new StartSaga { DataId = Guid.NewGuid() })))
+                .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new StartSaga
+                {
+                    DataId = Guid.NewGuid()
+                })))
                 .Done(c => c.NotFoundHandlerCalledForRegularMessage)
                 .Run();
-
 
             Assert.False(context.NotFoundHandlerCalledForTimeout);
         }
@@ -49,9 +51,36 @@
 
                     //this will cause the message to be delivered right away
                     await RequestTimeout<MyTimeout>(context, TimeSpan.Zero);
-                    await context.SendLocal(new SomeOtherMessage { DataId = Guid.NewGuid() });
+                    await context.SendLocal(new SomeOtherMessage
+                    {
+                        DataId = Guid.NewGuid()
+                    });
 
                     MarkAsComplete();
+                }
+
+                public Task Handle(SomeOtherMessage message, IMessageHandlerContext context)
+                {
+                    return Task.FromResult(0);
+                }
+
+                public Task Handle(object message, IMessageProcessingContext context)
+                {
+                    if (message is SomeOtherMessage)
+                    {
+                        TestContext.NotFoundHandlerCalledForRegularMessage = true;
+                    }
+
+                    if (message is MyTimeout)
+                    {
+                        TestContext.NotFoundHandlerCalledForTimeout = true;
+                    }
+                    return Task.FromResult(0);
+                }
+
+                public Task Timeout(MyTimeout state, IMessageHandlerContext context)
+                {
+                    return Task.FromResult(0);
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TimeoutHitsNotFoundSagaData> mapper)
@@ -65,31 +94,8 @@
                     public virtual Guid DataId { get; set; }
                 }
 
-                public class MyTimeout { }
-
-                public Task Handle(object message, IMessageProcessingContext context)
+                public class MyTimeout
                 {
-                    if (message is SomeOtherMessage)
-                    {
-                        TestContext.NotFoundHandlerCalledForRegularMessage = true;
-                    }
-
-
-                    if (message is MyTimeout)
-                    {
-                        TestContext.NotFoundHandlerCalledForTimeout = true;
-                    }
-                    return Task.FromResult(0);
-                }
-
-                public Task Handle(SomeOtherMessage message, IMessageHandlerContext context)
-                {
-                    return Task.FromResult(0);
-                }
-
-                public Task Timeout(MyTimeout state, IMessageHandlerContext context)
-                {
-                    return Task.FromResult(0);
                 }
             }
         }

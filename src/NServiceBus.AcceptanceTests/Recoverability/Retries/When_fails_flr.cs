@@ -2,33 +2,36 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Features;
     using NServiceBus.Config;
-    using NServiceBus.Features;
     using NUnit.Framework;
+    using ScenarioDescriptors;
 
     public class When_fails_flr : NServiceBusAcceptanceTest
     {
-        static TimeSpan SlrDelay = TimeSpan.FromMilliseconds(1);
-
         [Test]
         public async Task Should_be_moved_to_slr()
         {
             await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                    .WithEndpoint<SLREndpoint>(b => b
-                        .When((session, context) => session.SendLocal(new MessageToBeRetried { Id = context.Id }))
-                        .DoNotFailOnErrorMessages())
-                    .Done(c => c.NumberOfTimesInvoked >= 2)
-                    .Repeat(r => r.For(Transports.Default))
-                    .Should(context =>
-                        {
-                            Assert.GreaterOrEqual(1, context.NumberOfSlrRetriesPerformed, "The SLR should only do one retry");
-                            Assert.GreaterOrEqual(context.TimeOfSecondAttempt - context.TimeOfFirstAttempt, SlrDelay, "The SLR should delay the retry");
-                        })
-                    .Run();
+                .WithEndpoint<SLREndpoint>(b => b
+                    .When((session, context) => session.SendLocal(new MessageToBeRetried
+                    {
+                        Id = context.Id
+                    }))
+                    .DoNotFailOnErrorMessages())
+                .Done(c => c.NumberOfTimesInvoked >= 2)
+                .Repeat(r => r.For(Transports.Default))
+                .Should(context =>
+                {
+                    Assert.GreaterOrEqual(1, context.NumberOfSlrRetriesPerformed, "The SLR should only do one retry");
+                    Assert.GreaterOrEqual(context.TimeOfSecondAttempt - context.TimeOfFirstAttempt, SlrDelay, "The SLR should delay the retry");
+                })
+                .Run();
         }
+
+        static TimeSpan SlrDelay = TimeSpan.FromMilliseconds(1);
 
         class Context : ScenarioContext
         {
@@ -51,9 +54,7 @@
                     config.EnableFeature<TimeoutManager>();
                     config.EnableFeature<SecondLevelRetries>();
                 })
-                    .WithConfig<TransportConfig>(c =>
-                    {
-                        c.MaxRetries = 0; //to skip the FLR
+                    .WithConfig<TransportConfig>(c => { c.MaxRetries = 0; //to skip the FLR
                     })
                     .WithConfig<SecondLevelRetriesConfig>(c =>
                     {
@@ -69,12 +70,16 @@
                 public Task Handle(MessageToBeRetried message, IMessageHandlerContext context)
                 {
                     if (message.Id != TestContext.Id)
+                    {
                         return Task.FromResult(0); // messages from previous test runs must be ignored
+                    }
 
                     TestContext.NumberOfTimesInvoked++;
 
                     if (TestContext.NumberOfTimesInvoked == 1)
+                    {
                         TestContext.TimeOfFirstAttempt = DateTime.UtcNow;
+                    }
 
                     if (TestContext.NumberOfTimesInvoked == 2)
                     {
@@ -88,7 +93,6 @@
                         TestContext.NumberOfSlrRetriesPerformed = int.Parse(retries);
                     }
 
-
                     throw new SimulatedException();
                 }
             }
@@ -100,6 +104,4 @@
             public Guid Id { get; set; }
         }
     }
-
-
 }

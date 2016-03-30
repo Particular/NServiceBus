@@ -2,8 +2,8 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
 
     public class When_TimeToBeReceived_has_not_expired : NServiceBusAcceptanceTest
@@ -12,9 +12,9 @@
         public async Task Message_should_be_received()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(b => b.When((session, c) => session.SendLocal(new MyMessage())))
-                    .Done(c => c.WasCalled)
-                    .Run();
+                .WithEndpoint<Endpoint>(b => b.When((session, c) => session.SendLocal(new MyMessage())))
+                .Done(c => c.WasCalled)
+                .Run();
 
             Assert.IsTrue(context.WasCalled);
             Assert.AreEqual(TimeSpan.FromSeconds(10), context.TTBROnIncomingMessage, "TTBR should be available as a header so receiving endpoints can know what value was used when the message was originally sent");
@@ -32,6 +32,7 @@
             {
                 EndpointSetup<DefaultServer>();
             }
+
             public class MyMessageHandler : IHandleMessages<MyMessage>
             {
                 public Context TestContext { get; set; }

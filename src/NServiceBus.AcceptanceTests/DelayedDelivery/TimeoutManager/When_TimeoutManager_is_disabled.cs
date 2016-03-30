@@ -2,11 +2,11 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
-    using NServiceBus.Features;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Features;
     using NUnit.Framework;
+    using ScenarioDescriptors;
 
     public class When_TimeoutManager_is_disabled : NServiceBusAcceptanceTest
     {
@@ -14,22 +14,22 @@
         public async Task Bus_Defer_should_throw()
         {
             await Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(b => b.When((session, c) =>
-                    {
-                        var options = new SendOptions();
+                .WithEndpoint<Endpoint>(b => b.When((session, c) =>
+                {
+                    var options = new SendOptions();
 
-                        options.RouteToThisEndpoint();
+                    options.RouteToThisEndpoint();
 
-                        return session.Send(new MyMessage(), options);
-                    }))
-                    .Done(c => c.ExceptionThrown || c.SecondMessageReceived)
-                    .Repeat(r => r.For<AllTransportsWithoutNativeDeferral>())
-                    .Should(c =>
-                    {
-                        Assert.AreEqual(true, c.ExceptionThrown);
-                        Assert.AreEqual(false, c.SecondMessageReceived);
-                    })
-                    .Run();
+                    return session.Send(new MyMessage(), options);
+                }))
+                .Done(c => c.ExceptionThrown || c.SecondMessageReceived)
+                .Repeat(r => r.For<AllTransportsWithoutNativeDeferral>())
+                .Should(c =>
+                {
+                    Assert.AreEqual(true, c.ExceptionThrown);
+                    Assert.AreEqual(false, c.SecondMessageReceived);
+                })
+                .Run();
         }
 
         public class Context : ScenarioContext
@@ -45,6 +45,7 @@
                 // Explicitly disable TimeoutManager, although this should be default anyway
                 EndpointSetup<DefaultServer>(config => config.DisableFeature<TimeoutManager>());
             }
+
             public class MyMessageHandler : IHandleMessages<MyMessage>, IHandleMessages<MyOtherMessage>
             {
                 public Context TestContext { get; set; }

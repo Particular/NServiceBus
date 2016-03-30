@@ -2,8 +2,8 @@
 {
     using System;
     using System.Threading.Tasks;
-    using EndpointTemplates;
     using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
 
     public class When_saga_is_mapped_to_complex_expression : NServiceBusAcceptanceTest
@@ -12,11 +12,18 @@
         public async Task Should_hydrate_and_invoke_the_existing_instance()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<SagaEndpoint>(b => b
-                        .When(session => session.SendLocal(new StartSagaMessage { Key = "Part1_Part2" }))
-                        .When(c => c.FirstMessageReceived, session => session.SendLocal(new OtherMessage { Part1 = "Part1", Part2 = "Part2" })))
-                    .Done(c => c.SecondMessageReceived)
-                    .Run();
+                .WithEndpoint<SagaEndpoint>(b => b
+                    .When(session => session.SendLocal(new StartSagaMessage
+                    {
+                        Key = "Part1_Part2"
+                    }))
+                    .When(c => c.FirstMessageReceived, session => session.SendLocal(new OtherMessage
+                    {
+                        Part1 = "Part1",
+                        Part2 = "Part2"
+                    })))
+                .Done(c => c.SecondMessageReceived)
+                .Run();
 
             Assert.IsTrue(context.SecondMessageReceived);
         }
@@ -40,6 +47,14 @@
                 IAmStartedByMessages<StartSagaMessage>, IAmStartedByMessages<OtherMessage>
             {
                 public Context Context { get; set; }
+
+                public Task Handle(OtherMessage message, IMessageHandlerContext context)
+                {
+                    Assert.AreEqual(Context.SagaId, Data.Id, "Existing instance should be found");
+                    Context.SecondMessageReceived = true;
+                    return Task.FromResult(0);
+                }
+
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
                     Context.FirstMessageReceived = true;
@@ -55,21 +70,14 @@
                     mapper.ConfigureMapping<OtherMessage>(m => m.Part1 + "_" + m.Part2)
                         .ToSaga(s => s.KeyValue);
                 }
-
-                public Task Handle(OtherMessage message, IMessageHandlerContext context)
-                {
-                    Assert.AreEqual(Context.SagaId, Data.Id, "Existing instance should be found");
-                    Context.SecondMessageReceived = true;
-                    return Task.FromResult(0);
-                }
             }
 
             public class TestSagaData02 : IContainSagaData
             {
+                public virtual string KeyValue { get; set; }
                 public virtual Guid Id { get; set; }
                 public virtual string Originator { get; set; }
                 public virtual string OriginalMessageId { get; set; }
-                public virtual string KeyValue { get; set; }
             }
         }
 

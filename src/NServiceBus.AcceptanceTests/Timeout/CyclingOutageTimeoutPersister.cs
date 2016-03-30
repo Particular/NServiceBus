@@ -5,17 +5,15 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
+    using Extensibility;
     using Timeout.Core;
 
     /// <summary>
-    /// This class mocks outages for timeout storage. 
+    /// This class mocks outages for timeout storage.
     /// If SecondsToWait is set to 10, it will throw exceptions for 10 seconds, then be available for 10 seconds, and repeat.
     /// </summary>
     class CyclingOutageTimeoutPersister : IPersistTimeouts, IQueryTimeouts
     {
-        int secondsToWait;
-
         public int SecondsToWait
         {
             get { return secondsToWait; }
@@ -24,38 +22,6 @@
                 secondsToWait = value;
                 NextChangeTime = DateTime.Now.AddSeconds(SecondsToWait);
             }
-        }
-
-        static bool isAvailable = false;
-        Task completedTask = Task.FromResult(0);
-        DateTime NextChangeTime;
-        ConcurrentDictionary<string, TimeoutData> storage = new ConcurrentDictionary<string, TimeoutData>(); 
-
-        void ThrowExceptionUntilWaitTimeReached()
-        {
-            if (NextChangeTime <= DateTime.Now)
-            {
-                NextChangeTime = DateTime.Now.AddSeconds(SecondsToWait);
-                isAvailable = !isAvailable;
-            }
-
-            if (!isAvailable)
-            {
-                throw new Exception("Persister is temporarily unavailable");
-            }
-        }
-
-        public IEnumerable<Tuple<string, DateTime>> GetNextChunk(DateTime startSlice, out DateTime nextTimeToRunQuery)
-        {
-            ThrowExceptionUntilWaitTimeReached();
-            nextTimeToRunQuery = DateTime.Now.AddSeconds(2);
-            return Enumerable.Empty<Tuple<string, DateTime>>().ToList();
-        }
-
-        public Task Add(TimeoutData timeout)
-        {
-            ThrowExceptionUntilWaitTimeReached();
-            return completedTask;
         }
 
         public Task<bool> TryRemove(string timeoutId, ContextBag context)
@@ -114,5 +80,39 @@
 
             return Task.FromResult(chunk);
         }
+
+        void ThrowExceptionUntilWaitTimeReached()
+        {
+            if (NextChangeTime <= DateTime.Now)
+            {
+                NextChangeTime = DateTime.Now.AddSeconds(SecondsToWait);
+                isAvailable = !isAvailable;
+            }
+
+            if (!isAvailable)
+            {
+                throw new Exception("Persister is temporarily unavailable");
+            }
+        }
+
+        public IEnumerable<Tuple<string, DateTime>> GetNextChunk(DateTime startSlice, out DateTime nextTimeToRunQuery)
+        {
+            ThrowExceptionUntilWaitTimeReached();
+            nextTimeToRunQuery = DateTime.Now.AddSeconds(2);
+            return Enumerable.Empty<Tuple<string, DateTime>>().ToList();
+        }
+
+        public Task Add(TimeoutData timeout)
+        {
+            ThrowExceptionUntilWaitTimeReached();
+            return completedTask;
+        }
+
+        Task completedTask = Task.FromResult(0);
+        DateTime NextChangeTime;
+        int secondsToWait;
+        ConcurrentDictionary<string, TimeoutData> storage = new ConcurrentDictionary<string, TimeoutData>();
+
+        static bool isAvailable;
     }
 }

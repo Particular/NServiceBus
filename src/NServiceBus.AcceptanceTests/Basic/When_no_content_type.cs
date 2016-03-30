@@ -2,9 +2,9 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.MessageMutator;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using MessageMutator;
     using NUnit.Framework;
 
     public class When_no_content_type : NServiceBusAcceptanceTest
@@ -44,6 +44,7 @@
                     return Task.FromResult(0);
                 }
             }
+
             class ContentTypeMutator : IMutateIncomingTransportMessages, INeedInitialization
             {
                 public Context Context { get; set; }
@@ -67,6 +68,5 @@
         {
             public string Property { get; set; }
         }
-
     }
 }

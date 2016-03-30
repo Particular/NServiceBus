@@ -2,13 +2,15 @@ namespace NServiceBus.AcceptanceTests.FakeTransport
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Transports;
+    using Transports;
     using CriticalError = NServiceBus.CriticalError;
 
     class FakeReceiver : IPushMessages
     {
-        CriticalError criticalError;
-        Exception throwCritical;
+        public FakeReceiver(Exception throwCritical)
+        {
+            this.throwCritical = throwCritical;
+        }
 
         public Task Init(Func<PushContext, Task> pipe, CriticalError criticalError, PushSettings settings)
         {
@@ -29,9 +31,7 @@ namespace NServiceBus.AcceptanceTests.FakeTransport
             return Task.FromResult(0);
         }
 
-        public FakeReceiver(Exception throwCritical)
-        {
-            this.throwCritical = throwCritical;
-        }
+        CriticalError criticalError;
+        Exception throwCritical;
     }
 }

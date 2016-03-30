@@ -2,9 +2,9 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.Features;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Features;
     using NUnit.Framework;
 
     [TestFixture]
@@ -15,12 +15,12 @@
         {
             var correlationId = Guid.NewGuid();
             var context = await Scenario.Define<Context>()
-                   .WithEndpoint<SagaEndpoint>(b => b.When(session => session.SendLocal(new StartSagaMessage
-                   {
-                       SomeId = correlationId
-                   })))
-                   .Done(c => c.SecondMessageFoundExistingSaga)
-                   .Run(TimeSpan.FromSeconds(20));
+                .WithEndpoint<SagaEndpoint>(b => b.When(session => session.SendLocal(new StartSagaMessage
+                {
+                    SomeId = correlationId
+                })))
+                .Done(c => c.SecondMessageFoundExistingSaga)
+                .Run(TimeSpan.FromSeconds(20));
 
             Assert.True(context.SecondMessageFoundExistingSaga);
         }
@@ -69,18 +69,15 @@
                     public virtual Guid SomeId { get; set; }
                 }
             }
-
         }
-
 
         public class StartSagaMessage : StartSagaMessageBase
         {
         }
+
         public class StartSagaMessageBase : IMessage
         {
             public Guid SomeId { get; set; }
         }
-
-
     }
 }

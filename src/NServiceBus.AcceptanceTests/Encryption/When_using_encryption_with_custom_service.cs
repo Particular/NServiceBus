@@ -4,8 +4,8 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using EndpointTemplates;
     using AcceptanceTesting;
+    using EndpointTemplates;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
 
@@ -15,33 +15,37 @@
         public async Task Should_receive_decrypted_message()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new MessageWithSecretData
+                .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new MessageWithSecretData
+                {
+                    Secret = "betcha can't guess my secret",
+                    SubProperty = new MySecretSubProperty
                     {
-                        Secret = "betcha can't guess my secret",
-                        SubProperty = new MySecretSubProperty
+                        Secret = "My sub secret"
+                    },
+                    CreditCards = new List<CreditCardDetails>
+                    {
+                        new CreditCardDetails
                         {
-                            Secret = "My sub secret"
+                            ValidTo = DateTime.UtcNow.AddYears(1),
+                            Number = "312312312312312"
                         },
-                        CreditCards = new List<CreditCardDetails>
+                        new CreditCardDetails
                         {
-                            new CreditCardDetails
-                            {
-                                ValidTo = DateTime.UtcNow.AddYears(1),
-                                Number = "312312312312312"
-                            },
-                            new CreditCardDetails
-                            {
-                                ValidTo = DateTime.UtcNow.AddYears(2),
-                                Number = "543645546546456"
-                            }
+                            ValidTo = DateTime.UtcNow.AddYears(2),
+                            Number = "543645546546456"
                         }
-                    })))
-                    .Done(c => c.GotTheMessage)
-                    .Run();
+                    }
+                })))
+                .Done(c => c.GotTheMessage)
+                .Run();
 
             Assert.AreEqual("betcha can't guess my secret", context.Secret);
             Assert.AreEqual("My sub secret", context.SubPropertySecret);
-            CollectionAssert.AreEquivalent(new List<string> { "312312312312312", "543645546546456" }, context.CreditCards);
+            CollectionAssert.AreEquivalent(new List<string>
+            {
+                "312312312312312",
+                "543645546546456"
+            }, context.CreditCards);
         }
 
         public class Context : ScenarioContext

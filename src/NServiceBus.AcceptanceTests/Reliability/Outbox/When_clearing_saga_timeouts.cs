@@ -3,15 +3,15 @@
     using System;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
-    using NServiceBus.Configuration.AdvanceExtensibility;
-    using NServiceBus.Extensibility;
-    using NServiceBus.Features;
+    using AcceptanceTesting;
+    using Configuration.AdvanceExtensibility;
+    using EndpointTemplates;
+    using Extensibility;
+    using Features;
     using NServiceBus.Outbox;
     using NServiceBus.Persistence;
     using NUnit.Framework;
+    using ScenarioDescriptors;
 
     public class When_clearing_saga_timeouts : NServiceBusAcceptanceTest
     {
@@ -122,7 +122,6 @@
                 }
             }
         }
-
 
         public class PlaceOrder : ICommand
         {

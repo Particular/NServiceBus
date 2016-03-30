@@ -2,9 +2,9 @@
 {
     using System;
     using System.Threading.Tasks;
-    using EndpointTemplates;
     using AcceptanceTesting;
-    using NServiceBus.Features;
+    using EndpointTemplates;
+    using Features;
     using NServiceBus.Sagas;
     using NUnit.Framework;
 
@@ -14,9 +14,12 @@
         public async Task IHandleSagaNotFound_only_called_once()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<ReceiverWithSagas>(b => b.When((session, c) => session.SendLocal(new MessageToSaga { Id = Guid.NewGuid() })))
-                    .Done(c => c.Done)
-                    .Run();
+                .WithEndpoint<ReceiverWithSagas>(b => b.When((session, c) => session.SendLocal(new MessageToSaga
+                {
+                    Id = Guid.NewGuid()
+                })))
+                .Done(c => c.Done)
+                .Run();
 
             Assert.AreEqual(1, context.TimesFired);
         }
@@ -25,9 +28,12 @@
         public async Task IHandleSagaNotFound_not_called_if_second_saga_is_executed()
         {
             var context = await Scenario.Define<Context>()
-                     .WithEndpoint<ReceiverWithOrderedSagas>(b => b.When((session, c) => session.SendLocal(new MessageToSaga { Id = Guid.NewGuid() })))
-                     .Done(c => c.Done)
-                     .Run();
+                .WithEndpoint<ReceiverWithOrderedSagas>(b => b.When((session, c) => session.SendLocal(new MessageToSaga
+                {
+                    Id = Guid.NewGuid()
+                })))
+                .Done(c => c.Done)
+                .Run();
 
             Assert.AreEqual(0, context.TimesFired);
         }
@@ -72,7 +78,6 @@
 
             public class CantBeFoundSaga1 : Saga<CantBeFoundSaga1.CantBeFoundSaga1Data>, IAmStartedByMessages<StartSaga>, IHandleMessages<MessageToSaga>
             {
-
                 public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
                     Data.MessageId = message.Id;
@@ -82,11 +87,6 @@
                 public Task Handle(MessageToSaga message, IMessageHandlerContext context)
                 {
                     return Task.FromResult(0);
-                }
-
-                public class CantBeFoundSaga1Data : ContainSagaData
-                {
-                    public virtual Guid MessageId { get; set; }
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<CantBeFoundSaga1Data> mapper)
@@ -94,11 +94,15 @@
                     mapper.ConfigureMapping<StartSaga>(m => m.Id).ToSaga(s => s.MessageId);
                     mapper.ConfigureMapping<MessageToSaga>(m => m.Id).ToSaga(s => s.MessageId);
                 }
+
+                public class CantBeFoundSaga1Data : ContainSagaData
+                {
+                    public virtual Guid MessageId { get; set; }
+                }
             }
 
             public class CantBeFoundSaga2 : Saga<CantBeFoundSaga2.CantBeFoundSaga2Data>, IAmStartedByMessages<StartSaga>, IHandleMessages<MessageToSaga>
             {
-
                 public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
                     Data.MessageId = message.Id;
@@ -110,15 +114,15 @@
                     return Task.FromResult(0);
                 }
 
-                public class CantBeFoundSaga2Data : ContainSagaData
-                {
-                    public virtual Guid MessageId { get; set; }
-                }
-
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<CantBeFoundSaga2Data> mapper)
                 {
                     mapper.ConfigureMapping<StartSaga>(m => m.Id).ToSaga(s => s.MessageId);
                     mapper.ConfigureMapping<MessageToSaga>(m => m.Id).ToSaga(s => s.MessageId);
+                }
+
+                public class CantBeFoundSaga2Data : ContainSagaData
+                {
+                    public virtual Guid MessageId { get; set; }
                 }
             }
 
@@ -184,27 +188,21 @@
                     return Task.FromResult(0);
                 }
 
-                public class ReceiverWithOrderedSagasSaga1Data : ContainSagaData
-                {
-                    public virtual Guid MessageId { get; set; }
-                }
-
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ReceiverWithOrderedSagasSaga1Data> mapper)
                 {
                     mapper.ConfigureMapping<StartSaga>(m => m.Id).ToSaga(s => s.MessageId);
                     mapper.ConfigureMapping<MessageToSaga>(m => m.Id).ToSaga(s => s.MessageId);
+                }
+
+                public class ReceiverWithOrderedSagasSaga1Data : ContainSagaData
+                {
+                    public virtual Guid MessageId { get; set; }
                 }
             }
 
             public class ReceiverWithOrderedSagasSaga2 : Saga<ReceiverWithOrderedSagasSaga2.ReceiverWithOrderedSagasSaga2Data>, IHandleMessages<StartSaga>, IAmStartedByMessages<MessageToSaga>
             {
                 public Context Context { get; set; }
-
-                public Task Handle(StartSaga message, IMessageHandlerContext context)
-                {
-                    Data.MessageId = message.Id;
-                    return Task.FromResult(0);
-                }
 
                 public Task Handle(MessageToSaga message, IMessageHandlerContext context)
                 {
@@ -213,15 +211,21 @@
                     return Task.FromResult(0);
                 }
 
-                public class ReceiverWithOrderedSagasSaga2Data : ContainSagaData
+                public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
-                    public virtual Guid MessageId { get; set; }
+                    Data.MessageId = message.Id;
+                    return Task.FromResult(0);
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ReceiverWithOrderedSagasSaga2Data> mapper)
                 {
                     mapper.ConfigureMapping<StartSaga>(m => m.Id).ToSaga(s => s.MessageId);
                     mapper.ConfigureMapping<MessageToSaga>(m => m.Id).ToSaga(s => s.MessageId);
+                }
+
+                public class ReceiverWithOrderedSagasSaga2Data : ContainSagaData
+                {
+                    public virtual Guid MessageId { get; set; }
                 }
             }
 

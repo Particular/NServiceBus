@@ -3,9 +3,9 @@
     using System;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTesting.Support;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using AcceptanceTesting;
+    using AcceptanceTesting.Support;
+    using EndpointTemplates;
     using NUnit.Framework;
 
     [TestFixture]
@@ -26,7 +26,7 @@
                 .ExpectFailedMessages();
 
             Assert.AreEqual(1, exception.FailedMessages.Count);
-            Assert.AreEqual(((Context)exception.ScenarioContext).MessageId, exception.FailedMessages.Single().MessageId, "Message should be moved to errorqueue");
+            Assert.AreEqual(((Context) exception.ScenarioContext).MessageId, exception.FailedMessages.Single().MessageId, "Message should be moved to errorqueue");
 
             Assert.True(exception.ScenarioContext.Exceptions.Any(e =>
                 e.Message.Contains("A modification of IContainSagaData.Id has been detected. This property is for infrastructure purposes only and should not be modified. SagaType: " + typeof(Endpoint.SagaIdChangedSaga))));

@@ -3,29 +3,29 @@
     using System;
     using System.IO;
     using System.Threading.Tasks;
-    using EndpointTemplates;
     using AcceptanceTesting;
+    using EndpointTemplates;
     using NServiceBus.DataBus;
     using NUnit.Framework;
 
     public class When_using_custom_IDataBus : NServiceBusAcceptanceTest
     {
-        static byte[] PayloadToSend = new byte[1024 * 10];
-
         [Test]
         public async Task Should_be_able_to_register_via_fluent()
         {
             var context = await Scenario.Define<Context>(c => { c.TempPath = Path.GetTempFileName(); })
-                    .WithEndpoint<SenderViaFluent>(b => b.When(session => session.Send(new MyMessageWithLargePayload
-                    {
-                        Payload = new DataBusProperty<byte[]>(PayloadToSend)
-                    })))
-                    .WithEndpoint<ReceiverViaFluent>()
-                    .Done(c => c.ReceivedPayload != null)
-                    .Run();
+                .WithEndpoint<SenderViaFluent>(b => b.When(session => session.Send(new MyMessageWithLargePayload
+                {
+                    Payload = new DataBusProperty<byte[]>(PayloadToSend)
+                })))
+                .WithEndpoint<ReceiverViaFluent>()
+                .Done(c => c.ReceivedPayload != null)
+                .Run();
 
             Assert.AreEqual(PayloadToSend, context.ReceivedPayload, "The large payload should be marshalled correctly using the databus");
         }
+
+        static byte[] PayloadToSend = new byte[1024*10];
 
         public class Context : ScenarioContext
         {
@@ -68,7 +68,7 @@
 
             public Task<Stream> Get(string key)
             {
-                var fileStream = new FileStream(Context.TempPath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 4096, useAsync: true);
+                var fileStream = new FileStream(Context.TempPath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true);
                 return Task.FromResult((Stream) fileStream);
             }
 
@@ -93,6 +93,4 @@
             public DataBusProperty<byte[]> Payload { get; set; }
         }
     }
-
-
 }

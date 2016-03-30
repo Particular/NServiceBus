@@ -2,8 +2,8 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
 
     public class When_sending_event : NServiceBusAcceptanceTest
@@ -12,20 +12,20 @@
         public async Task Should_throw()
         {
             var context = await Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(b => b.When(async (session, c) =>
+                .WithEndpoint<Endpoint>(b => b.When(async (session, c) =>
+                {
+                    try
                     {
-                        try
-                        {
-                            await session.SendLocal(new MyEvent());
-                        }
-                        catch (Exception ex)
-                        {
-                            c.Exception = ex;
-                            c.GotTheException = true;
-                        }
-                    }))
-                    .Done(c => c.GotTheException)
-                    .Run();
+                        await session.SendLocal(new MyEvent());
+                    }
+                    catch (Exception ex)
+                    {
+                        c.Exception = ex;
+                        c.GotTheException = true;
+                    }
+                }))
+                .Done(c => c.GotTheException)
+                .Run();
 
             Assert.IsInstanceOf<Exception>(context.Exception);
         }
@@ -43,6 +43,9 @@
                 EndpointSetup<DefaultServer>();
             }
         }
-        public class MyEvent : IEvent { }
+
+        public class MyEvent : IEvent
+        {
+        }
     }
 }

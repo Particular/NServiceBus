@@ -1,9 +1,9 @@
 ﻿namespace NServiceBus.AcceptanceTests.BestPractices
 {
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.Features;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Features;
     using NUnit.Framework;
 
     public class When_subscribing_to_command_bestpractices_disabled_on_endpoint : NServiceBusAcceptanceTest
@@ -50,18 +50,24 @@
 
             public class Handler : IHandleMessages<MyEvent>, IHandleMessages<MyCommand>
             {
-                public Task Handle(MyEvent message, IMessageHandlerContext context)
+                public Task Handle(MyCommand message, IMessageHandlerContext context)
                 {
                     return Task.FromResult(0);
                 }
 
-                public Task Handle(MyCommand message, IMessageHandlerContext context)
+                public Task Handle(MyEvent message, IMessageHandlerContext context)
                 {
                     return Task.FromResult(0);
                 }
             }
         }
-        public class MyCommand : ICommand { }
-        public class MyEvent : IEvent { }
+
+        public class MyCommand : ICommand
+        {
+        }
+
+        public class MyEvent : IEvent
+        {
+        }
     }
 }

@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using NServiceBus.AcceptanceTesting.Support;
+    using AcceptanceTesting.Support;
     using NServiceBus.Hosting.Helpers;
 
     public class AllTransports : ScenarioDescriptor
@@ -14,7 +14,10 @@
             AddRange(ActiveTransports);
         }
 
-        static IEnumerable<RunDescriptor> ActiveTransports => new List<RunDescriptor> { Transports.Default };
+        static IEnumerable<RunDescriptor> ActiveTransports => new List<RunDescriptor>
+        {
+            Transports.Default
+        };
     }
 
     public class AllDtcTransports : AllTransports
@@ -121,7 +124,6 @@
                     {
                         throw new InvalidOperationException($"{configurerTypeName} does not implement {typeof(IConfigureSupportedScenariosForTestExecution).Name}.");
                     }
-
 
                     if (configurer.UnsupportedScenarioDescriptorTypes.Contains(scenarioDescriptor.GetType()))
                     {

@@ -44,10 +44,10 @@
                     configure.EnableFeature<TimeoutManager>();
                     configure.RegisterComponents(c => c.ConfigureComponent<BodyMutator>(DependencyLifecycle.InstancePerCall));
                     configure.Notifications.Errors.MessageSentToErrorQueue += (sender, message) =>
-                {
-                    testContext.ForwardedToErrorQueue = true;
-                    testContext.SlrChecksum = Checksum(message.Body);
-                };
+                    {
+                        testContext.ForwardedToErrorQueue = true;
+                        testContext.SlrChecksum = Checksum(message.Body);
+                    };
                 })
                     .WithConfig<SecondLevelRetriesConfig>(c => c.TimeIncrease = TimeSpan.FromMilliseconds(1));
             }

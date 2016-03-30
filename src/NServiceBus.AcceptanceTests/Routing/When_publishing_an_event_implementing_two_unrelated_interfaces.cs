@@ -2,11 +2,11 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
-    using NServiceBus.Features;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Features;
     using NUnit.Framework;
+    using ScenarioDescriptors;
 
     public class When_publishing_an_event_implementing_two_unrelated_interfaces : NServiceBusAcceptanceTest
     {
@@ -14,34 +14,34 @@
         public async Task Event_should_be_published_using_instance_type()
         {
             await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                    .WithEndpoint<Publisher>(b =>
-                        b.When(c => c.EventASubscribed && c.EventBSubscribed, (session, ctx) =>
-                        {
-                            var message = new CompositeEvent
-                            {
-                                ContextId = ctx.Id
-                            };
-                            return session.Publish(message);
-                        }))
-                    .WithEndpoint<Subscriber>(b => b.When(async (session, context) =>
+                .WithEndpoint<Publisher>(b =>
+                    b.When(c => c.EventASubscribed && c.EventBSubscribed, (session, ctx) =>
                     {
-                        await session.Subscribe<IEventA>();
-                        await session.Subscribe<IEventB>();
-
-                        if (context.HasNativePubSubSupport)
+                        var message = new CompositeEvent
                         {
-                            context.EventASubscribed = true;
-                            context.EventBSubscribed = true;
-                        }
+                            ContextId = ctx.Id
+                        };
+                        return session.Publish(message);
                     }))
-                    .Done(c => c.GotEventA && c.GotEventB)
-                    .Repeat(r => r.For(Serializers.Xml))
-                    .Should(c =>
+                .WithEndpoint<Subscriber>(b => b.When(async (session, context) =>
+                {
+                    await session.Subscribe<IEventA>();
+                    await session.Subscribe<IEventB>();
+
+                    if (context.HasNativePubSubSupport)
                     {
-                        Assert.True(c.GotEventA);
-                        Assert.True(c.GotEventB);
-                    })
-                    .Run(TimeSpan.FromSeconds(20));
+                        context.EventASubscribed = true;
+                        context.EventBSubscribed = true;
+                    }
+                }))
+                .Done(c => c.GotEventA && c.GotEventB)
+                .Repeat(r => r.For(Serializers.Xml))
+                .Should(c =>
+                {
+                    Assert.True(c.GotEventA);
+                    Assert.True(c.GotEventB);
+                })
+                .Run(TimeSpan.FromSeconds(20));
         }
 
         public class Context : ScenarioContext
@@ -129,8 +129,8 @@
         public class CompositeEvent : IEventA, IEventB
         {
             public Guid ContextId { get; set; }
-            public int IntProperty { get; set; }
             public string StringProperty { get; set; }
+            public int IntProperty { get; set; }
         }
 
         public interface IEventA : IEvent

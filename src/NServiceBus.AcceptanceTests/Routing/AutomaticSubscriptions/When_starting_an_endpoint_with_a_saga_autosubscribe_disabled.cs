@@ -4,8 +4,8 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
 
@@ -29,6 +29,7 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
             {
                 EventsSubscribedTo = new List<Type>();
             }
+
             public List<Type> EventsSubscribedTo { get; }
         }
 
@@ -43,8 +44,6 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
 
             public class SubscriptionSpy : Behavior<ISubscribeContext>
             {
-                Context testContext;
-
                 public SubscriptionSpy(Context testContext)
                 {
                     this.testContext = testContext;
@@ -56,6 +55,8 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
 
                     testContext.EventsSubscribedTo.Add(context.EventType);
                 }
+
+                Context testContext;
             }
 
             public class NotAutoSubscribedSaga : Saga<NotAutoSubscribedSaga.NotAutoSubscribedSagaSagaData>, IAmStartedByMessages<MyEvent>
@@ -65,11 +66,11 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
                     return Task.FromResult(0);
                 }
 
-                public class NotAutoSubscribedSagaSagaData : ContainSagaData
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NotAutoSubscribedSagaSagaData> mapper)
                 {
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NotAutoSubscribedSagaSagaData> mapper)
+                public class NotAutoSubscribedSagaSagaData : ContainSagaData
                 {
                 }
             }
@@ -82,24 +83,30 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
                     return Task.FromResult(0);
                 }
 
-                public class NotAutosubscribeSuperClassEventSagaData : ContainSagaData
-                {
-                }
-
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NotAutosubscribeSuperClassEventSagaData> mapper)
                 {
                 }
-            }
 
+                public class NotAutosubscribeSuperClassEventSagaData : ContainSagaData
+                {
+                }
+            }
         }
 
+        public class MyEventBase : IEvent
+        {
+        }
 
-        public class MyEventBase : IEvent { }
+        public class MyEventWithParent : MyEventBase
+        {
+        }
 
-        public class MyEventWithParent : MyEventBase { }
+        public class MyMessage : IMessage
+        {
+        }
 
-        public class MyMessage : IMessage { }
-
-        public class MyEvent : IEvent { }
+        public class MyEvent : IEvent
+        {
+        }
     }
 }

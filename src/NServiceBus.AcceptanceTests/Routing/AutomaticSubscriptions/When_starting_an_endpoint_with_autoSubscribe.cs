@@ -3,11 +3,11 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
+    using ScenarioDescriptors;
 
     [TestFixture]
     public class When_starting_an_endpoint_with_autosubscribe : NServiceBusAcceptanceTest
@@ -16,15 +16,15 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
         public async Task Should_autosubscribe_to_relevant_messagetypes()
         {
             await Scenario.Define<Context>()
-               .WithEndpoint<Subscriber>()
-               .Done(c => c.EventsSubscribedTo.Count >= 1)
-               .Repeat(b => b.For<AllTransportsWithMessageDrivenPubSub>())
-               .Should(ctx => Assert.True(ctx.EventsSubscribedTo.Contains(typeof(MyEvent)), "Events should be auto subscribed"))
-               .Should(ctx => Assert.False(ctx.EventsSubscribedTo.Contains(typeof(MyEventWithNoRouting)), "Events without routing should not be auto subscribed"))
-               .Should(ctx => Assert.False(ctx.EventsSubscribedTo.Contains(typeof(MyEventWithNoHandler)), "Events without handlers should not be auto subscribed"))
-               .Should(ctx => Assert.False(ctx.EventsSubscribedTo.Contains(typeof(MyCommand)), "Commands should not be auto subscribed"))
-               .Should(ctx => Assert.False(ctx.EventsSubscribedTo.Contains(typeof(MyMessage)), "Plain messages should not be auto subscribed by default"))
-               .Run();
+                .WithEndpoint<Subscriber>()
+                .Done(c => c.EventsSubscribedTo.Count >= 1)
+                .Repeat(b => b.For<AllTransportsWithMessageDrivenPubSub>())
+                .Should(ctx => Assert.True(ctx.EventsSubscribedTo.Contains(typeof(MyEvent)), "Events should be auto subscribed"))
+                .Should(ctx => Assert.False(ctx.EventsSubscribedTo.Contains(typeof(MyEventWithNoRouting)), "Events without routing should not be auto subscribed"))
+                .Should(ctx => Assert.False(ctx.EventsSubscribedTo.Contains(typeof(MyEventWithNoHandler)), "Events without handlers should not be auto subscribed"))
+                .Should(ctx => Assert.False(ctx.EventsSubscribedTo.Contains(typeof(MyCommand)), "Commands should not be auto subscribed"))
+                .Should(ctx => Assert.False(ctx.EventsSubscribedTo.Contains(typeof(MyMessage)), "Plain messages should not be auto subscribed by default"))
+                .Run();
         }
 
         class Context : ScenarioContext
@@ -33,6 +33,7 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
             {
                 EventsSubscribedTo = new List<Type>();
             }
+
             public List<Type> EventsSubscribedTo { get; }
         }
 
@@ -64,7 +65,6 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
                 Context testContext;
             }
 
-
             class MyMessageHandler : IHandleMessages<MyMessage>
             {
                 public Task Handle(MyMessage message, IMessageHandlerContext context)
@@ -73,7 +73,6 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
                 }
             }
 
-
             public class EventMessageHandler : IHandleMessages<MyEvent>
             {
                 public Task Handle(MyEvent message, IMessageHandlerContext context)
@@ -81,6 +80,7 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
                     return Task.FromResult(0);
                 }
             }
+
             public class MyEventWithNoRoutingHandler : IHandleMessages<MyEventWithNoRouting>
             {
                 public Task Handle(MyEventWithNoRouting message, IMessageHandlerContext context)
@@ -98,10 +98,24 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
             }
         }
 
-        class MyMessage : IMessage { }
-        class MyCommand : ICommand { }
-        class MyEvent : IEvent { }
-        class MyEventWithNoRouting : IEvent { }
-        class MyEventWithNoHandler : IEvent { }
+        class MyMessage : IMessage
+        {
+        }
+
+        class MyCommand : ICommand
+        {
+        }
+
+        class MyEvent : IEvent
+        {
+        }
+
+        class MyEventWithNoRouting : IEvent
+        {
+        }
+
+        class MyEventWithNoHandler : IEvent
+        {
+        }
     }
 }

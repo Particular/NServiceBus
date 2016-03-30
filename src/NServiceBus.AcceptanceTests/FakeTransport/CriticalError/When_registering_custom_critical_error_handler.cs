@@ -4,9 +4,9 @@
     using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.FakeTransport;
-    using NServiceBus.Configuration.AdvanceExtensibility;
+    using Configuration.AdvanceExtensibility;
+    using EndpointTemplates;
+    using FakeTransport;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
@@ -46,7 +46,7 @@
 
                     builder.DefineCriticalErrorAction(errorContext =>
                     {
-                        var aggregateException = (AggregateException)errorContext.Exception;
+                        var aggregateException = (AggregateException) errorContext.Exception;
                         var context = builder.GetSettings().Get<Context>();
                         context.Exception = aggregateException.InnerExceptions.First();
                         context.Message = errorContext.Error;
@@ -66,6 +66,8 @@
         }
 
         [Serializable]
-        public class MyRequest : IMessage{}
+        public class MyRequest : IMessage
+        {
+        }
     }
 }

@@ -1,8 +1,10 @@
 namespace NServiceBus.AcceptanceTests
 {
     using System.Linq;
+    using System.Threading;
     using AcceptanceTesting.Customization;
     using NUnit.Framework;
+    using ScenarioDescriptors;
 
     /// <summary>
     /// Base class for all the NSB test that sets up our conventions
@@ -24,15 +26,14 @@ namespace NServiceBus.AcceptanceTests
 
                 var endpointBuilder = classAndEndpoint.Split('+').Last();
 
-                
-                testName = System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(testName);
-              
+                testName = Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(testName);
+
                 testName = testName.Replace("_", "");
 
-                return testName +"."+ endpointBuilder;
+                return testName + "." + endpointBuilder;
             };
 
-            Conventions.DefaultRunDescriptor = () => ScenarioDescriptors.Transports.Default;
+            Conventions.DefaultRunDescriptor = () => Transports.Default;
         }
     }
 }

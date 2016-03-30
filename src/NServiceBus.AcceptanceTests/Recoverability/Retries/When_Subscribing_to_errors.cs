@@ -73,7 +73,6 @@
                     });
             }
 
-
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
             {
                 public Context Context { get; set; }
