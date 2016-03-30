@@ -282,6 +282,7 @@ namespace NServiceBus
     public class EndpointConfiguration : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
         public EndpointConfiguration(string endpointName) { }
+        public NServiceBus.Notifications Notifications { get; }
         [System.ObsoleteAttribute("Please use `EndpointConfiguration.AddHeaderToAllOutgoingMessages(string key,strin" +
             "g value)` instead. Will be removed in version 7.0.0.", true)]
         public System.Collections.Generic.IDictionary<string, string> OutgoingHeaders { get; }

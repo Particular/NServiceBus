@@ -3,7 +3,6 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
     using Features;
     using NServiceBus.Config;
@@ -42,7 +41,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
                     configure.EnableFeature<SecondLevelRetries>();
                     configure.EnableFeature<TimeoutManager>();
                     configure.SecondLevelRetries().CustomRetryPolicy(RetryPolicy);
-                    configure.GetSettings().Get<Notifications>().Errors.MessageSentToErrorQueue += (sender, message) => { scenarioContext.MessageSentToErrorQueue = true; };
+                    configure.Notifications.Errors.MessageSentToErrorQueue += (sender, message) => { scenarioContext.MessageSentToErrorQueue = true; };
                 })
                     .WithConfig<SecondLevelRetriesConfig>(c => c.TimeIncrease = TimeSpan.FromMilliseconds(1));
             }

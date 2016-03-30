@@ -3,7 +3,6 @@
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
     using Features;
     using NServiceBus.Config;
@@ -45,7 +44,7 @@
                 {
                     var scenarioContext = (Context) context.ScenarioContext;
                     configure.EnableFeature<FirstLevelRetries>();
-                    configure.GetSettings().Get<Notifications>().Errors.MessageSentToErrorQueue += (sender, message) => scenarioContext.GaveUp = true;
+                    configure.Notifications.Errors.MessageSentToErrorQueue += (sender, message) => scenarioContext.GaveUp = true;
                 })
                     .WithConfig<TransportConfig>(c => { c.MaxRetries = 0; });
             }

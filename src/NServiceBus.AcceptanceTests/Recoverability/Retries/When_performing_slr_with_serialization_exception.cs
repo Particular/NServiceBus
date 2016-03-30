@@ -4,7 +4,6 @@
     using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
     using Features;
     using MessageMutator;
@@ -44,7 +43,7 @@
                     configure.EnableFeature<SecondLevelRetries>();
                     configure.EnableFeature<TimeoutManager>();
                     configure.RegisterComponents(c => c.ConfigureComponent<BodyMutator>(DependencyLifecycle.InstancePerCall));
-                    configure.GetSettings().Get<Notifications>().Errors.MessageSentToErrorQueue += (sender, message) =>
+                    configure.Notifications.Errors.MessageSentToErrorQueue += (sender, message) =>
                 {
                     testContext.ForwardedToErrorQueue = true;
                     testContext.SlrChecksum = Checksum(message.Body);
