@@ -45,11 +45,17 @@ namespace NServiceBus
             Settings.SetDefault("Transactions.IsolationLevel", IsolationLevel.ReadCommitted);
             Settings.SetDefault("Transactions.DefaultTimeout", TransactionManager.DefaultTimeout);
 
-            Settings.Set<Notifications>(new Notifications());
+            Notifications = new Notifications();
+            Settings.Set<Notifications>(Notifications);
             Settings.Set<NotificationSubscriptions>(new NotificationSubscriptions());
 
             conventionsBuilder = new ConventionsBuilder(Settings);
         }
+
+        /// <summary>
+        /// Access to the current endpoint <see cref="Notifications"/>.
+        /// </summary>
+        public Notifications Notifications { get; }
 
         /// <summary>
         /// Access to the pipeline configuration.

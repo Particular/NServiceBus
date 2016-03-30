@@ -4,7 +4,6 @@
     using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
     using Features;
     using NServiceBus.Config;
@@ -53,7 +52,7 @@
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
                     var testContext = (Context) context.ScenarioContext;
-                    var notifications = config.GetSettings().Get<Notifications>();
+                    var notifications = config.Notifications;
                     config.EnableFeature<SecondLevelRetries>();
                     config.EnableFeature<TimeoutManager>();
                     config.EnableFeature<FirstLevelRetries>();
