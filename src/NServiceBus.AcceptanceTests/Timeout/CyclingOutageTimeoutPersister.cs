@@ -14,14 +14,9 @@
     /// </summary>
     class CyclingOutageTimeoutPersister : IPersistTimeouts, IQueryTimeouts
     {
-        public int SecondsToWait
+        public CyclingOutageTimeoutPersister(int secondsToWait)
         {
-            get { return secondsToWait; }
-            set
-            {
-                secondsToWait = value;
-                NextChangeTime = DateTime.Now.AddSeconds(SecondsToWait);
-            }
+            this.secondsToWait = secondsToWait;
         }
 
         public Task<bool> TryRemove(string timeoutId, ContextBag context)
@@ -85,7 +80,7 @@
         {
             if (NextChangeTime <= DateTime.Now)
             {
-                NextChangeTime = DateTime.Now.AddSeconds(SecondsToWait);
+                NextChangeTime = DateTime.Now.AddSeconds(secondsToWait);
                 isAvailable = !isAvailable;
             }
 

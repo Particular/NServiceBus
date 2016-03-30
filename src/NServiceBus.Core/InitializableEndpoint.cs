@@ -109,16 +109,12 @@ namespace NServiceBus
 
         void RegisterContainerAdapter(IContainer containerToAdapt)
         {
-            var b = new CommonObjectBuilder
-            {
-                Container = containerToAdapt
-            };
+            var b = new CommonObjectBuilder(containerToAdapt);
 
             builder = b;
             container = b;
 
-            container.ConfigureComponent<CommonObjectBuilder>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(c => c.Container, containerToAdapt);
+            container.ConfigureComponent<IBuilder>(_ => b, DependencyLifecycle.SingleInstance);
         }
 
         void WireUpConfigSectionOverrides(IEnumerable<Type> concreteTypes)

@@ -46,15 +46,6 @@ namespace NServiceBus.ObjectBuilder.Common
         void Configure<T>(Func<T> component, DependencyLifecycle dependencyLifecycle);
 
         /// <summary>
-        /// Sets the value to be configured for the given property of the
-        /// given component type.
-        /// </summary>
-        /// <param name="component">The interface type.</param>
-        /// <param name="property">The property name to be injected.</param>
-        /// <param name="value">The value to assign to the <paramref name="property" />.</param>
-        void ConfigureProperty(Type component, string property, object value);
-
-        /// <summary>
         /// Registers the given instance as the singleton that will be returned for the given type.
         /// </summary>
         /// <param name="lookupType">The interface type.</param>

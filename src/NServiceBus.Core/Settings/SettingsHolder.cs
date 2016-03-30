@@ -5,12 +5,11 @@ namespace NServiceBus.Settings
     using System.Collections.Generic;
     using System.Configuration;
     using System.Linq.Expressions;
-    using ObjectBuilder;
 
     /// <summary>
     /// Setting container.
     /// </summary>
-    public class SettingsHolder : ReadOnlySettings
+    public partial class SettingsHolder : ReadOnlySettings
     {
         /// <summary>
         /// Gets the given setting by key.
@@ -20,7 +19,7 @@ namespace NServiceBus.Settings
         public T Get<T>(string key)
         {
             Guard.AgainstNullAndEmpty(nameof(key), key);
-            return (T) Get(key);
+            return (T)Get(key);
         }
 
         /// <summary>
@@ -60,7 +59,7 @@ namespace NServiceBus.Settings
                 return false;
             }
 
-            val = (T) tmp;
+            val = (T)tmp;
             return true;
         }
 
@@ -71,7 +70,7 @@ namespace NServiceBus.Settings
         /// <returns>The value if found, throws if not.</returns>
         public T Get<T>()
         {
-            return (T) Get(typeof(T).FullName);
+            return (T)Get(typeof(T).FullName);
         }
 
         /// <summary>
@@ -118,12 +117,12 @@ namespace NServiceBus.Settings
             object result;
             if (Overrides.TryGetValue(key, out result))
             {
-                return (T) result;
+                return (T)result;
             }
 
             if (Defaults.TryGetValue(key, out result))
             {
-                return (T) result;
+                return (T)result;
             }
 
             return default(T);
@@ -173,33 +172,6 @@ namespace NServiceBus.Settings
             var key = typeof(T).FullName;
 
             return HasExplicitValue(key);
-        }
-
-        /// <summary>
-        /// Applies property inject for the given type based on convention.
-        /// </summary>
-        public void ApplyTo<T>(IComponentConfig config)
-        {
-            ApplyTo(typeof(T), config);
-        }
-
-        /// <summary>
-        /// Setup property injection for the given type based on convention.
-        /// </summary>
-        public void ApplyTo(Type componentType, IComponentConfig config)
-        {
-            Guard.AgainstNull(nameof(config), config);
-            var targetType = componentType;
-
-            foreach (var property in targetType.GetProperties())
-            {
-                var settingsKey = targetType.FullName + "." + property.Name;
-
-                if (HasSetting(settingsKey))
-                {
-                    config.ConfigureProperty(property.Name, Get(settingsKey));
-                }
-            }
         }
 
         /// <summary>
@@ -327,9 +299,7 @@ namespace NServiceBus.Settings
         }
 
         ConcurrentDictionary<string, object> Defaults = new ConcurrentDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
-
         bool locked;
-
         ConcurrentDictionary<string, object> Overrides = new ConcurrentDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
     }
 }

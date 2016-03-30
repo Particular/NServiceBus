@@ -2,6 +2,7 @@
 // ReSharper disable UnusedParameter.Local
 
 
+using NServiceBus;
 
 #pragma warning disable 1591
 // ReSharper disable UnusedParameter.Global
@@ -1860,3 +1861,123 @@ namespace NServiceBus.Transports.Msmq.Config
     {
     }
 }
+
+public static class ConfigureHandlerSettings
+{
+    [ObsoleteEx(
+         RemoveInVersion = "7.0",
+         TreatAsErrorFromVersion = "6.0",
+         Message = "Setting property values explicitly is no longer supported via this API. Use `.ConfigureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full control over handler creation.")]
+    public static void InitializeHandlerProperty<THandler>(this EndpointConfiguration config, string property, object value)
+    {
+    }
+}
+
+
+namespace NServiceBus.ObjectBuilder
+{
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        Message = "Setting property values explicitly is no longer supported via this API. Use `.ConfigureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full control over handler creation.")]
+    public interface IComponentConfig
+    {
+    }
+
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        Message = "Setting property values explicitly is no longer supported via this API. Use `.ConfigureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full control over handler creation.")]
+    public interface IComponentConfig<T>
+    {
+    }
+}
+
+namespace NServiceBus.ObjectBuilder
+{
+    using System;
+    using System.Linq.Expressions;
+
+    [ObsoleteEx(
+      RemoveInVersion = "7.0",
+      TreatAsErrorFromVersion = "6.0",
+      Message = "Setting property values explicitly is no longer supported via this API. Use `.ConfigureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full control over handler creation.")]
+    public static class IConfigureComponentObsoleteExtensions
+    {
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Setting property values explicitly is no longer supported via this API. Use `.ConfigureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full control over handler creation.")]
+        public static IConfigureComponents ConfigureProperty<T>(this IConfigureComponents config, Expression<Func<T, object>> property, object value)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Setting property values explicitly is no longer supported via this API. Use `.ConfigureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full control over handler creation.")]
+        public static IConfigureComponents ConfigureProperty<T>(this IConfigureComponents config, string propertyName, object value)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+
+namespace NServiceBus.Settings
+{
+    using System;
+    using ObjectBuilder;
+
+    public partial class SettingsHolder
+    {
+        [ObsoleteEx(
+           RemoveInVersion = "7.0",
+           TreatAsErrorFromVersion = "6.0",
+           Message = "Setting property values explicitly is no longer supported via this API. Use `.ConfigureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full control over handler creation.")]
+        public void ApplyTo<T>(IComponentConfig config)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+          RemoveInVersion = "7.0",
+          TreatAsErrorFromVersion = "6.0",
+          Message = "Setting property values explicitly is no longer supported via this API. Use `.ConfigureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full control over handler creation.")]
+        public void ApplyTo(Type componentType, IComponentConfig config)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+
+namespace NServiceBus.Settings
+{
+    using System;
+    using ObjectBuilder;
+
+    public static class ReadOnlySettingsExtensions
+    {
+        [ObsoleteEx(
+                RemoveInVersion = "7.0",
+                TreatAsErrorFromVersion = "6.0",
+                Message = "Setting property values explicitly is no longer supported via this API. Use `.ConfigureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full control over handler creation.")]
+        public static void ApplyTo<T>(IComponentConfig config)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+              RemoveInVersion = "7.0",
+              TreatAsErrorFromVersion = "6.0",
+              Message = "Setting property values explicitly is no longer supported via this API. Use `.ConfigureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full control over handler creation.")]
+        public static void ApplyTo(Type componentType, IComponentConfig config)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+
+
+
+

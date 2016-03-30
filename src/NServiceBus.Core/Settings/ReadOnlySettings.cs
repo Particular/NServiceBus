@@ -1,8 +1,5 @@
 namespace NServiceBus.Settings
 {
-    using System;
-    using ObjectBuilder;
-
     /// <summary>
     /// Settings for readonly.
     /// </summary>
@@ -90,15 +87,5 @@ namespace NServiceBus.Settings
         /// <typeparam name="T">The <typeparamref name="T" /> to locate in the <see cref="ReadOnlySettings" />.</typeparam>
         /// <returns>true if the <see cref="ReadOnlySettings" /> contains an element with the specified key; otherwise, false.</returns>
         bool HasExplicitValue<T>();
-
-        /// <summary>
-        /// Setup property injection for the given type based on convention.
-        /// </summary>
-        void ApplyTo<T>(IComponentConfig config);
-
-        /// <summary>
-        /// Setup property injection for the given type based on convention.
-        /// </summary>
-        void ApplyTo(Type componentType, IComponentConfig config);
     }
 }
