@@ -1,6 +1,6 @@
 namespace NServiceBus.Testing
 {
-    using NServiceBus.Extensibility;
+    using Extensibility;
 
     /// <summary>
     /// Represents an outgoing message. Contains the message itself and its associated options.

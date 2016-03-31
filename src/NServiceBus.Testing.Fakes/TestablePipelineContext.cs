@@ -3,8 +3,8 @@
     using System;
     using System.Collections.Concurrent;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
-    using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
+    using Extensibility;
+    using MessageInterfaces.MessageMapper.Reflection;
 
     /// <summary>
     /// A testable implementation of <see cref="IPipelineContext" />.
@@ -84,8 +84,8 @@
         /// </summary>
         protected IMessageCreator messageCreator;
 
-        ConcurrentQueue<SentMessage<object>> sentMessages = new ConcurrentQueue<SentMessage<object>>();
-
         ConcurrentQueue<PublishedMessage<object>> publishedMessages = new ConcurrentQueue<PublishedMessage<object>>();
+
+        ConcurrentQueue<SentMessage<object>> sentMessages = new ConcurrentQueue<SentMessage<object>>();
     }
 }

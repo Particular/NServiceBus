@@ -1,8 +1,8 @@
 ﻿namespace NServiceBus.Testing
 {
-    using NServiceBus.Extensibility;
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.Pipeline;
+    using Extensibility;
+    using ObjectBuilder;
+    using Pipeline;
 
     /// <summary>
     /// A base implementation for contexts implementing <see cref="IBehaviorContext" />.

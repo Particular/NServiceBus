@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.Testing
 {
     using System.Collections.Generic;
-    using NServiceBus.Pipeline;
+    using Pipeline;
     using Unicast.Messages;
 
     /// <summary>
@@ -19,7 +19,7 @@
         /// <summary>
         /// Message being handled.
         /// </summary>
-        public LogicalMessage Message { get; set; }
+        public LogicalMessage Message { get; set; } = new LogicalMessage(new MessageMetadata(typeof(object)), new object());
 
         /// <summary>
         /// Headers for the incoming message.
