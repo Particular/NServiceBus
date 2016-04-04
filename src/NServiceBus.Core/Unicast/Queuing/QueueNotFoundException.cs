@@ -43,10 +43,7 @@ namespace NServiceBus.Unicast.Queuing
         /// </summary>
         protected QueueNotFoundException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
-            if (info != null)
-            {
-                Queue = info.GetString("Queue");
-            }
+            Queue = info.GetString("Queue");
         }
 
         /// <summary>

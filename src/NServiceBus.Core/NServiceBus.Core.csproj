@@ -204,7 +204,7 @@
     <Compile Include="Routing\MessageDrivenSubscriptions\MessageDrivenSubscriptionsConfigExtensions.cs" />
     <Compile Include="StaticHeaders\StaticHeaders.cs" />
     <Compile Include="Transports\Msmq\EndpointInstanceExtensions.cs" />
-    <Compile Include="Transports\Msmq\QueuePermissionChecker.cs" />
+    <Compile Include="Transports\Msmq\QueuePermissions.cs" />
     <Compile Include="Routing\SubscribeContext.cs" />
     <Compile Include="Routing\UnsubscribeContext.cs" />
     <Compile Include="Transports\Msmq\MsmqTimeToBeReceivedOverrideCheck.cs" />
