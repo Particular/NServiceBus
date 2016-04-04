@@ -1,12 +1,13 @@
 ﻿namespace NServiceBus.Core.Tests.Pipeline.MutateInstanceMessage
 {
     using System.Collections.Generic;
+    using System.IO;
     using System.Threading.Tasks;
     using MessageMutator;
     using NServiceBus.Pipeline;
-    using NServiceBus.Routing;
+    using NServiceBus.Transports;
     using NUnit.Framework;
-    using ObjectBuilder;
+    using Testing;
 
     [TestFixture]
     class MutateOutgoingMessageBehaviorTests
@@ -16,15 +17,10 @@
         {
             var behavior = new MutateOutgoingMessageBehavior();
 
-            var message = new FakeMessage();
-
-            var context = new OutgoingLogicalMessageContext("messageId", new Dictionary<string, string>(), new OutgoingLogicalMessage(message.GetType(), message), new List<RoutingStrategy>(), null);
-
-            var builder = new FuncBuilder();
-
-            builder.Register<IMutateOutgoingMessages>(() => new MutateOutgoingMessagesReturnsNull());
-
-            context.Set<IBuilder>(builder);
+            var context = new TestableOutgoingLogicalMessageContext();
+            context.Extensions.Set(new IncomingMessage("messageId", new Dictionary<string, string>(), Stream.Null ));
+            context.Extensions.Set(new LogicalMessage(null, null));
+            context.Builder.Register<IMutateOutgoingMessages>(() => new MutateOutgoingMessagesReturnsNull());
 
             Assert.That(async () => await behavior.Invoke(context, () => TaskEx.CompletedTask), Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
         }
@@ -36,8 +32,5 @@
                 return null;
             }
         }
-
-        class FakeMessage : IMessage
-        { }
     }
 }

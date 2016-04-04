@@ -1,11 +1,9 @@
 ﻿namespace NServiceBus.Unicast.Tests
 {
-    using System.Collections.Generic;
     using Outbox;
-    using Pipeline;
     using Transports;
-    using Unicast.Messages;
     using NUnit.Framework;
+    using Testing;
 
     [TestFixture]
     public class LoadHandlersBehaviorTests
@@ -15,12 +13,7 @@
         {
             var behavior = new LoadHandlersConnector(new MessageHandlerRegistry(new Conventions()), new InMemorySynchronizedStorage(), new InMemoryTransactionalSynchronizedStorageAdapter());
 
-            var context = new IncomingLogicalMessageContext(
-                new LogicalMessage(new MessageMetadata(typeof(string)), null), 
-                "messageId",
-                "replyToAddress",
-                new Dictionary<string, string>(), 
-                null);
+            var context = new TestableIncomingLogicalMessageContext();
 
             context.Extensions.Set<OutboxTransaction>(new InMemoryOutboxTransaction());
             context.Extensions.Set<TransportTransaction>(new FakeTransportTransaction());

@@ -8,6 +8,7 @@
     using NServiceBus.Routing.MessageDrivenSubscriptions;
     using NServiceBus.Transports;
     using NUnit.Framework;
+    using Testing;
     using Unicast.Queuing;
 
     [TestFixture]
@@ -28,8 +29,8 @@
         {
             var unsubscribeTerminator = new MessageDrivenUnsubscribeTerminator(router, "replyToAddress", new EndpointName("Endpoint"), dispatcher);
 
-            await subscribeTerminator.Invoke(new SubscribeContext(new FakeContext(), typeof(object), new SubscribeOptions()), c => TaskEx.CompletedTask);
-            await unsubscribeTerminator.Invoke(new UnsubscribeContext(new FakeContext(), typeof(object), new UnsubscribeOptions()), c => TaskEx.CompletedTask);
+            await subscribeTerminator.Invoke(new TestableSubscribeContext(), c => TaskEx.CompletedTask);
+            await unsubscribeTerminator.Invoke(new TestableUnsubscribeContext(), c => TaskEx.CompletedTask);
 
             foreach (var dispatchedTransportOperation in dispatcher.DispatchedTransportOperations)
             {
@@ -44,7 +45,7 @@
         [Test]
         public async Task Should_Dispatch_for_all_publishers()
         {
-            await subscribeTerminator.Invoke(new SubscribeContext(new FakeContext(), typeof(object), new SubscribeOptions()), c => TaskEx.CompletedTask);
+            await subscribeTerminator.Invoke(new TestableSubscribeContext(), c => TaskEx.CompletedTask);
 
             Assert.AreEqual(1, dispatcher.DispatchedTransportOperations.Count);
         }
@@ -58,7 +59,7 @@
             state.RetryDelay = TimeSpan.Zero;
             dispatcher.FailDispatch(10);
 
-            await subscribeTerminator.Invoke(new SubscribeContext(new FakeContext(), typeof(object), options), c => TaskEx.CompletedTask);
+            await subscribeTerminator.Invoke(new TestableSubscribeContext(), c => TaskEx.CompletedTask);
 
             Assert.AreEqual(1, dispatcher.DispatchedTransportOperations.Count);
             Assert.AreEqual(10, dispatcher.FailedNumberOfTimes);
@@ -73,7 +74,7 @@
             state.RetryDelay = TimeSpan.Zero;
             dispatcher.FailDispatch(11);
 
-            Assert.That(async () => await subscribeTerminator.Invoke(new SubscribeContext(new FakeContext(), typeof(object), options), c => TaskEx.CompletedTask), Throws.InstanceOf<QueueNotFoundException>());
+            Assert.That(async () => await subscribeTerminator.Invoke(new TestableSubscribeContext(), c => TaskEx.CompletedTask), Throws.InstanceOf<QueueNotFoundException>());
 
             Assert.AreEqual(0, dispatcher.DispatchedTransportOperations.Count);
             Assert.AreEqual(11, dispatcher.FailedNumberOfTimes);
@@ -107,13 +108,6 @@
             }
 
             int? numberOfTimes;
-        }
-
-        class FakeContext : BehaviorContext
-        {
-            public FakeContext() : base(null)
-            {
-            }
         }
     }
 }

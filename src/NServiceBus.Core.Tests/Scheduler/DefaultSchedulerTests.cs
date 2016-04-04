@@ -1,14 +1,15 @@
 ﻿namespace NServiceBus.Scheduling.Tests
 {
     using System;
+    using System.Linq;
     using System.Threading.Tasks;
-    using Core.Tests.Fakes;
     using NUnit.Framework;
+    using Testing;
 
     [TestFixture]
     public class DefaultSchedulerTests
     {
-        FakeHandlingContext handlingContext = new FakeHandlingContext();
+        TestableMessageHandlerContext handlingContext = new TestableMessageHandlerContext();
         DefaultScheduler scheduler;
 
         [SetUp]
@@ -39,10 +40,9 @@
 
             scheduler.Schedule(task);
 
-            var deferCount = handlingContext.DeferWasCalled;
             await scheduler.Start(taskId, handlingContext);
             
-            Assert.That(handlingContext.DeferWasCalled > deferCount);
+            Assert.That(handlingContext.SentMessages.Any(message => message.Options.GetDeliveryDelay().HasValue));
         }
 
         [Test]
@@ -61,7 +61,7 @@
             };
             var taskId = task.Id;
 
-            scheduler.Schedule(task);            
+            scheduler.Schedule(task);
             await scheduler.Start(taskId, handlingContext);
 
             Assert.That(i == 2);

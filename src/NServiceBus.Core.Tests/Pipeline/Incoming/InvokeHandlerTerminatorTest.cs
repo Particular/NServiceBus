@@ -7,6 +7,7 @@
     using NServiceBus.Pipeline;
     using NServiceBus.Sagas;
     using NUnit.Framework;
+    using Testing;
 
     [TestFixture]
     public class InvokeHandlerTerminatorTest
@@ -162,15 +163,10 @@
 
         static IInvokeHandlerContext CreateBehaviorContext(MessageHandler messageHandler)
         {
-            var behaviorContext = new InvokeHandlerContext(
-                messageHandler,
-                "messageId",
-                "replyToAddress",
-                new Dictionary<string, string>(),
-                null,
-                null,
-                null,
-                new RootContext(null, null, null));
+            var behaviorContext = new TestableInvokeHandlerContext
+            {
+                MessageHandler = messageHandler
+            };
 
             return behaviorContext;
         }

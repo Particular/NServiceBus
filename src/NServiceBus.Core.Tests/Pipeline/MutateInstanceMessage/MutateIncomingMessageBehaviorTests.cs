@@ -1,11 +1,10 @@
 ﻿namespace NServiceBus.Core.Tests.Pipeline.MutateInstanceMessage
 {
-    using System.Collections.Generic;
     using System.Threading.Tasks;
     using MessageMutator;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
-    using ObjectBuilder;
+    using Testing;
     using Unicast.Messages;
 
     [TestFixture]
@@ -18,14 +17,13 @@
 
             var logicalMessage = new LogicalMessage(new MessageMetadata(typeof(TestMessage)), new TestMessage());
 
-            var context = new IncomingLogicalMessageContext(logicalMessage, "messageId", "replyToAddress", new Dictionary<string, string>(), null);
-
-            var builder = new FuncBuilder();
-
-            builder.Register<IMutateIncomingMessages>(() => new MutateIncomingMessagesReturnsNull());
-
-            context.Set<IBuilder>(builder);
-
+            var context = new TestableIncomingLogicalMessageContext
+            {
+                Message = logicalMessage
+            };
+            
+            context.Builder.Register<IMutateIncomingMessages>(() => new MutateIncomingMessagesReturnsNull());
+            
             Assert.That(async () => await behavior.Invoke(context, () => TaskEx.CompletedTask), Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
         }
 

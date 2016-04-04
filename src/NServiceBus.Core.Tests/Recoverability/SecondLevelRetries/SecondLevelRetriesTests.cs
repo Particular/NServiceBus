@@ -12,6 +12,7 @@
     using NServiceBus.Routing;
     using NServiceBus.Transports;
     using NUnit.Framework;
+    using Testing;
 
     [TestFixture]
     public class SecondLevelRetriesTests
@@ -21,16 +22,17 @@
         {
             var delay = TimeSpan.FromSeconds(5);
             var fakeDispatchPipeline = new FakeDispatchPipeline();
+            var eventAggregator = new FakeEventAggregator();
             var behavior = new SecondLevelRetriesBehavior(new FakePolicy(delay), "test-address-for-this-pipeline");
 
-            var context = CreateContext("someid", 1, fakeDispatchPipeline);
+            var context = CreateContext("someid", 1, fakeDispatchPipeline, eventAggregator: eventAggregator);
 
             await behavior.Invoke(context, () => { throw new Exception("testex"); });
 
             Assert.AreEqual("someid", fakeDispatchPipeline.RoutingContext.Message.MessageId);
             Assert.AreEqual(delay, ((DelayDeliveryWith) fakeDispatchPipeline.RoutingContext.Extensions.GetDeliveryConstraints().Single(c => c is DelayDeliveryWith)).Delay);
             Assert.AreEqual("test-address-for-this-pipeline", ((UnicastAddressTag) fakeDispatchPipeline.RoutingContext.RoutingStrategies.First().Apply(new Dictionary<string, string>())).Destination);
-            Assert.AreEqual("testex", context.GetNotification<MessageToBeRetried>().Exception.Message);
+            Assert.AreEqual("testex", eventAggregator.GetNotification<MessageToBeRetried>().Exception.Message);
         }
 
         [Test]
@@ -48,11 +50,10 @@
         [Test]
         public void ShouldSkipRetryIfNoDelayIsReturned()
         {
-            var fakeDispatchPipeline = new FakeDispatchPipeline();
             var behavior = new SecondLevelRetriesBehavior(new FakePolicy(), "MyAddress");
-            var context = CreateContext("someid", 1, fakeDispatchPipeline);
+            var context = CreateContext("someid", 1);
 
-            Assert.That(async () => await behavior.Invoke(context, () => { throw new Exception("testex"); }), Throws.InstanceOf<Exception>());
+            Assert.That(async () => await behavior.Invoke(context, () => { throw new Exception("testex"); }, routingContext => TaskEx.CompletedTask), Throws.InstanceOf<Exception>());
 
             Assert.False(context.Message.Headers.ContainsKey(Headers.Retries));
         }
@@ -60,11 +61,10 @@
         [Test]
         public void ShouldSkipRetryForDeserializationErrors()
         {
-            var fakeDispatchPipeline = new FakeDispatchPipeline();
             var behavior = new SecondLevelRetriesBehavior(new FakePolicy(TimeSpan.FromSeconds(5)), "MyAddress");
-            var context = CreateContext("someid", 1, fakeDispatchPipeline);
+            var context = CreateContext("someid", 1);
 
-            Assert.That(async () => await behavior.Invoke(context, () => { throw new MessageDeserializationException("testex"); }), Throws.InstanceOf<MessageDeserializationException>());
+            Assert.That(async () => await behavior.Invoke(context, () => { throw new MessageDeserializationException("testex"); }, routingContext => TaskEx.CompletedTask), Throws.InstanceOf<MessageDeserializationException>());
             Assert.False(context.Message.Headers.ContainsKey(Headers.Retries));
         }
 
@@ -73,12 +73,11 @@
         {
             var retryPolicy = new FakePolicy(TimeSpan.FromSeconds(5));
 
-            var fakeDispatchPipeline = new FakeDispatchPipeline();
             var behavior = new SecondLevelRetriesBehavior(retryPolicy, "MyAddress");
 
             var currentRetry = 3;
 
-            await behavior.Invoke(CreateContext("someid", currentRetry, fakeDispatchPipeline), () => { throw new Exception("testex"); });
+            await behavior.Invoke(CreateContext("someid", currentRetry), () => { throw new Exception("testex"); }, routingContext => TaskEx.CompletedTask);
 
             Assert.AreEqual(currentRetry + 1, retryPolicy.InvokedWithCurrentRetry);
         }
@@ -119,33 +118,20 @@
             Assert.AreEqual(originalContent, Encoding.UTF8.GetString(message.Body));
         }
 
-        FakeTransportReceiveContext CreateContext(string messageId, int currentRetryCount, FakeDispatchPipeline pipeline, byte[] messageBody = null)
+        TestableTransportReceiveContext CreateContext(string messageId, int currentRetryCount, FakeDispatchPipeline pipeline = null, byte[] messageBody = null, FakeEventAggregator eventAggregator = null)
         {
-            var context = new FakeTransportReceiveContext(messageId, currentRetryCount, messageBody);
-
-            context.Extensions.Set<IPipelineCache>(new FakePipelineCache(pipeline));
-
-            return context;
-        }
-
-        class FakeTransportReceiveContext : FakeBehaviorContext, ITransportReceiveContext
-        {
-            public FakeTransportReceiveContext(string messageId, int currentRetryCount, byte[] messageBody)
+            var context = new TestableTransportReceiveContext
             {
                 Message = new IncomingMessage(messageId, new Dictionary<string, string>
                 {
                     {Headers.Retries, currentRetryCount.ToString()}
-                }, new MemoryStream(messageBody ?? new byte[0]));
-            }
+                }, new MemoryStream(messageBody ?? new byte[0]))
+            };
 
-            public bool ReceiveOperationWasAborted { get; private set; }
+            context.Extensions.Set<IEventAggregator>(eventAggregator ?? new FakeEventAggregator());
+            context.Extensions.Set<IPipelineCache>(new FakePipelineCache(pipeline));
 
-            public IncomingMessage Message { get; }
-
-            public void AbortReceiveOperation()
-            {
-                ReceiveOperationWasAborted = true;
-            }
+            return context;
         }
     }
 

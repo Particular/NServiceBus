@@ -8,6 +8,7 @@ namespace NServiceBus.Core.Tests
     using NServiceBus.Pipeline;
     using NServiceBus.Transports;
     using NUnit.Framework;
+    using Testing;
 
     [TestFixture]
     public class MoveFaultsToErrorQueueTests
@@ -15,27 +16,27 @@ namespace NServiceBus.Core.Tests
         [Test]
         public async Task ShouldForwardToErrorQueueForAllExceptions()
         {
-            var fakeFaultPipeline = new FakeFaultPipeline();
             var errorQueueAddress = "error";
             var behavior = new MoveFaultsToErrorQueueBehavior(
                 new FakeCriticalError(),
                 errorQueueAddress,
                 "public-receive-address");
 
-            var context = CreateContext("someid", fakeFaultPipeline);
+            var context = CreateContext("someid");
 
-            await behavior.Invoke(context, () => { throw new Exception("testex"); });
+            IFaultContext faultContext = null;
 
-            Assert.AreEqual(errorQueueAddress, fakeFaultPipeline.Destination);
+            await behavior.Invoke(context, () => { throw new Exception("testex"); }, c => CaptureFaultContext(c, out faultContext));
 
-            Assert.AreEqual("someid", fakeFaultPipeline.MessageSent.MessageId);
+            Assert.IsNotNull(faultContext, "it should forward message to error queue");
+            Assert.AreEqual(errorQueueAddress, faultContext.ErrorQueueAddress);
+            Assert.AreEqual("someid", faultContext.Message.MessageId);
         }
 
         [Test]
         public void ShouldInvokeCriticalErrorIfForwardingFails()
         {
             var criticalError = new FakeCriticalError();
-            var fakeDispatchPipeline = new FakeFaultPipeline { ThrowOnDispatch = true };
 
             var behavior = new MoveFaultsToErrorQueueBehavior(
                 criticalError,
@@ -43,114 +44,68 @@ namespace NServiceBus.Core.Tests
                 "public-receive-address");
 
             //the ex should bubble to force the transport to rollback. If not the message will be lost
-            Assert.That(async () => await behavior.Invoke(CreateContext("someid", fakeDispatchPipeline), () => { throw new Exception("testex"); }), Throws.InstanceOf<Exception>());
+            Assert.That(async () => await behavior.Invoke(CreateContext("someid"), () => { throw new Exception("testex"); }, context => { throw new Exception("Failed to dispatch"); }), Throws.InstanceOf<Exception>());
             Assert.True(criticalError.ErrorRaised);
         }
 
         [Test]
         public async Task ShouldEnrichHeadersWithExceptionDetails()
         {
-            var fakeFaultPipeline = new FakeFaultPipeline();
-            var context = CreateContext("someid", fakeFaultPipeline);
+            var context = CreateContext("someid");
 
             var behavior = new MoveFaultsToErrorQueueBehavior(
                 new FakeCriticalError(),
                 "error",
                 "public-receive-address");
 
-            await behavior.Invoke(context, () => { throw new Exception("testex"); });
+            IFaultContext faultContext = null;
+            await behavior.Invoke(context, () => { throw new Exception("testex"); }, c => CaptureFaultContext(c, out faultContext));
 
-            Assert.AreEqual("public-receive-address", fakeFaultPipeline.MessageSent.Headers[FaultsHeaderKeys.FailedQ]);
+            Assert.IsNotNull(faultContext, "it should forward message to error queue");
+            Assert.AreEqual("public-receive-address", faultContext.Message.Headers[FaultsHeaderKeys.FailedQ]);
             //exception details
-            Assert.AreEqual("testex", fakeFaultPipeline.MessageSent.Headers["NServiceBus.ExceptionInfo.Message"]);
+            Assert.AreEqual("testex", faultContext.Message.Headers["NServiceBus.ExceptionInfo.Message"]);
         }
 
         [Test]
         public async Task ShouldRegisterFailureInfoWhenMessageIsForwarded()
         {
-            var fakeFaultPipeline = new FakeFaultPipeline();
+            var eventAggregator = new FakeEventAggregator();
 
             var behavior = new MoveFaultsToErrorQueueBehavior(
                 new FakeCriticalError(),
                 "error",
                 "public-receive-address");
 
-
-            var context = CreateContext("someid", fakeFaultPipeline);
-
+            var context = CreateContext("someid", eventAggregator);
 
             await behavior.Invoke(context, () =>
             {
                 throw new Exception("testex");
-            });
+            }, fc => TaskEx.CompletedTask);
 
-            var notification = context.GetNotification<MessageFaulted>();
+            var notification = eventAggregator.GetNotification<MessageFaulted>();
 
             Assert.AreEqual("someid", notification.Message.MessageId);
             Assert.AreEqual("testex", notification.Exception.Message);
         }
 
-        static FakeTransportReceiveContext CreateContext(string messageId, FakeFaultPipeline pipeline)
+        static Task CaptureFaultContext(IFaultContext ctx, out IFaultContext context)
         {
-            var context = new FakeTransportReceiveContext(messageId);
+            context = ctx;
+            return TaskEx.CompletedTask;
+        }
 
-            context.Extensions.Set<IPipelineCache>(new FakePipelineCache(pipeline));
+        static TestableTransportReceiveContext CreateContext(string messageId, FakeEventAggregator eventAggregator = null)
+        {
+            var context = new TestableTransportReceiveContext
+            {
+                Message = new IncomingMessage(messageId, new Dictionary<string, string>(), Stream.Null)
+            };
+
+            context.Extensions.Set<IEventAggregator>(eventAggregator ?? new FakeEventAggregator());
 
             return context;
-        }
-
-        class FakeTransportReceiveContext : FakeBehaviorContext, ITransportReceiveContext
-        {
-            public FakeTransportReceiveContext(string messageId)
-            {
-
-                Message = new IncomingMessage(messageId, new Dictionary<string, string>(), new MemoryStream());
-            }
-
-            public bool ReceiveOperationWasAborted { get; private set; }
-            
-            public IncomingMessage Message { get; }
-
-            public void AbortReceiveOperation()
-            {
-                ReceiveOperationWasAborted = true;
-            }
-        }
-
-        class FakePipelineCache : IPipelineCache
-        {
-            IPipeline<IFaultContext> pipeline;
-
-            public FakePipelineCache(IPipeline<IFaultContext> pipeline)
-            {
-                this.pipeline = pipeline;
-            }
-
-            public IPipeline<TContext> Pipeline<TContext>()
-                where TContext : IBehaviorContext
-
-            {
-                return (IPipeline<TContext>)pipeline;
-            }
-        }
-
-        class FakeFaultPipeline : IPipeline<IFaultContext>
-        {
-            public string Destination { get; private set; }
-            public OutgoingMessage MessageSent { get; private set; }
-            public bool ThrowOnDispatch { get; set; }
-
-            public Task Invoke(IFaultContext context)
-            {
-                if (ThrowOnDispatch)
-                {
-                    throw new Exception("Failed to dispatch");
-                }
-
-                Destination = context.ErrorQueueAddress;
-                MessageSent = context.Message;
-                return TaskEx.CompletedTask;
-            }
         }
 
         class FakeCriticalError : CriticalError

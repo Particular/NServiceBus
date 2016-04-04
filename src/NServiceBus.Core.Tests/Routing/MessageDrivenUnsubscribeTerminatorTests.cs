@@ -9,6 +9,7 @@
     using NServiceBus.Transports;
     using NServiceBus.Unicast.Queuing;
     using NUnit.Framework;
+    using Testing;
 
     [TestFixture]
     public class MessageDrivenUnsubscribeTerminatorTests
@@ -30,7 +31,7 @@
         [Test]
         public async Task Should_Dispatch_for_all_publishers()
         {
-            await terminator.Invoke(new UnsubscribeContext(new FakeContext(), typeof(object), new UnsubscribeOptions()), c => TaskEx.CompletedTask);
+            await terminator.Invoke(new TestableUnsubscribeContext(), c => TaskEx.CompletedTask);
 
             Assert.AreEqual(1, dispatcher.DispatchedTransportOperations.Count);
         }
@@ -44,7 +45,12 @@
             state.RetryDelay = TimeSpan.Zero;
             dispatcher.FailDispatch(10);
 
-            await terminator.Invoke(new UnsubscribeContext(new FakeContext(), typeof(object), options), c => TaskEx.CompletedTask);
+            var context = new TestableUnsubscribeContext
+            {
+                Extensions = options.Context
+            };
+
+            await terminator.Invoke(context, c => TaskEx.CompletedTask);
 
             Assert.AreEqual(1, dispatcher.DispatchedTransportOperations.Count);
             Assert.AreEqual(10, dispatcher.FailedNumberOfTimes);
@@ -59,7 +65,12 @@
             state.RetryDelay = TimeSpan.Zero;
             dispatcher.FailDispatch(11);
 
-            Assert.That(async () => await terminator.Invoke(new UnsubscribeContext(new FakeContext(), typeof(object), options), c => TaskEx.CompletedTask), Throws.InstanceOf<QueueNotFoundException>());
+            var context = new TestableUnsubscribeContext
+            {
+                Extensions = options.Context
+            };
+            
+            Assert.That(async () => await terminator.Invoke(context, c => TaskEx.CompletedTask), Throws.InstanceOf<QueueNotFoundException>());
 
             Assert.AreEqual(0, dispatcher.DispatchedTransportOperations.Count);
             Assert.AreEqual(11, dispatcher.FailedNumberOfTimes);
@@ -88,13 +99,6 @@
 
                 DispatchedTransportOperations.Add(outgoingMessages);
                 return TaskEx.CompletedTask;
-            }
-        }
-
-        class FakeContext : BehaviorContext
-        {
-            public FakeContext() : base(null)
-            {
             }
         }
     }
