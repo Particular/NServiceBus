@@ -67,7 +67,6 @@
     <Compile Include="TestableSubscribeContext.cs" />
     <Compile Include="TestableTransportReceiveContext.cs" />
     <Compile Include="TestableUnsubscribeContext.cs" />
-    <Compile Include="TimeoutMessage.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj">

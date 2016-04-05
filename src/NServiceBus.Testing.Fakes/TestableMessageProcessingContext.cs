@@ -1,3 +1,4 @@
+// ReSharper disable PartialTypeWithSinglePart
 namespace NServiceBus.Testing
 {
     using System;
@@ -9,7 +10,7 @@ namespace NServiceBus.Testing
     /// <summary>
     /// Testable implementation of <see cref="IMessageProcessingContext" />.
     /// </summary>
-    public class TestableMessageProcessingContext : TestablePipelineContext, IMessageProcessingContext
+    public partial class TestableMessageProcessingContext : TestablePipelineContext, IMessageProcessingContext
     {
         /// <summary>
         /// Creates a new instance of <see cref="TestableMessageProcessingContext" />.
