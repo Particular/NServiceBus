@@ -1,4 +1,5 @@
-﻿namespace NServiceBus.Testing
+﻿// ReSharper disable PartialTypeWithSinglePart
+namespace NServiceBus.Testing
 {
     using System;
     using System.Collections.Generic;
@@ -8,7 +9,7 @@
     /// <summary>
     /// A fake implementation of <see cref="IBuilder" /> for testing purposes.
     /// </summary>
-    public class FakeBuilder : IBuilder
+    public partial class FakeBuilder : IBuilder
     {
         /// <summary>
         /// Returns an instantiation of the given type.

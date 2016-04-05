@@ -1,4 +1,5 @@
-﻿namespace NServiceBus.Testing
+﻿// ReSharper disable PartialTypeWithSinglePart
+namespace NServiceBus.Testing
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
@@ -9,7 +10,7 @@
     /// <summary>
     /// A testable implementation of <see cref="IInvokeHandlerContext" />.
     /// </summary>
-    public class TestableInvokeHandlerContext : TestableIncomingContext, IInvokeHandlerContext
+    public partial class TestableInvokeHandlerContext : TestableIncomingContext, IInvokeHandlerContext
     {
         /// <summary>
         /// Creates a new instance of <see cref="TestableInvokeHandlerContext" />.

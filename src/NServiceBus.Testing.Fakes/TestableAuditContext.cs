@@ -1,4 +1,5 @@
-﻿namespace NServiceBus.Testing
+﻿// ReSharper disable PartialTypeWithSinglePart
+namespace NServiceBus.Testing
 {
     using System;
     using System.Collections.Generic;
@@ -8,7 +9,7 @@
     /// <summary>
     /// A testable implementation of <see cref="IAuditContext" />.
     /// </summary>
-    public class TestableAuditContext : TestableBehaviorContext, IAuditContext
+    public partial class TestableAuditContext : TestableBehaviorContext, IAuditContext
     {
         /// <summary>
         /// Contains the information added by <see cref="AddedAuditData" />.

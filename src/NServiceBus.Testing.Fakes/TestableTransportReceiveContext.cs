@@ -1,4 +1,5 @@
-﻿namespace NServiceBus.Testing
+﻿// ReSharper disable PartialTypeWithSinglePart
+namespace NServiceBus.Testing
 {
     using System;
     using System.Collections.Generic;
@@ -9,7 +10,7 @@
     /// <summary>
     /// A testable implementation for <see cref="ITransportReceiveContext" />.
     /// </summary>
-    public class TestableTransportReceiveContext : TestableBehaviorContext, ITransportReceiveContext
+    public partial class TestableTransportReceiveContext : TestableBehaviorContext, ITransportReceiveContext
     {
         /// <summary>
         /// Indicated whether <see cref="AbortReceiveOperation" /> has been called or not.

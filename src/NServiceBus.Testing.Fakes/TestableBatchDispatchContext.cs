@@ -1,4 +1,5 @@
-﻿namespace NServiceBus.Testing
+﻿// ReSharper disable PartialTypeWithSinglePart
+namespace NServiceBus.Testing
 {
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
@@ -8,7 +9,7 @@
     /// <summary>
     /// A testable implementation of <see cref="IBatchDispatchContext" />.
     /// </summary>
-    public class TestableBatchDispatchContext : TestableBehaviorContext, IBatchDispatchContext
+    public partial class TestableBatchDispatchContext : TestableBehaviorContext, IBatchDispatchContext
     {
         /// <summary>
         /// The captured transport operations to dispatch.

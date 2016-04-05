@@ -40,13 +40,6 @@ namespace NServiceBus.Testing
                 .Select(x => new SentMessage<TMessage>((TMessage) x.Message, x.Options));
         }
 
-        internal static IEnumerable<TimeoutMessage<TMessage>> Containing<TMessage>(this IEnumerable<TimeoutMessage<object>> timeoutMessages)
-        {
-            return timeoutMessages
-                .Where(x => x.Message is TMessage)
-                .Select(x => new TimeoutMessage<TMessage>((TMessage) x.Message, x.Options, x.Within));
-        }
-
         /// <summary>
         /// Tries to cast the message contained in <paramref name="sentMessage" /> to <typeparamref name="TMessage" />.
         /// </summary>

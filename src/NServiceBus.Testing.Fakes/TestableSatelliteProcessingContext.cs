@@ -1,4 +1,5 @@
-﻿namespace NServiceBus.Testing
+﻿// ReSharper disable PartialTypeWithSinglePart
+namespace NServiceBus.Testing
 {
     using System;
     using System.Collections.Generic;
@@ -9,7 +10,8 @@
     /// <summary>
     /// A testable implementation of <see cref="ISatelliteProcessingContext" />.
     /// </summary>
-    public class TestableSatelliteProcessingContext : TestableBehaviorContext, ISatelliteProcessingContext
+    
+    public partial class TestableSatelliteProcessingContext : TestableBehaviorContext, ISatelliteProcessingContext
     {
         /// <summary>
         /// The physical message being processed.
