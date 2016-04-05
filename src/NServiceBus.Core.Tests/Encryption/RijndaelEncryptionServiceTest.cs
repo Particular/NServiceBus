@@ -14,7 +14,10 @@
         public void Should_encrypt_and_decrypt()
         {
             var encryptionKey = Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6");
-            var service = new TestableRijndaelEncryptionService("encryptionKey", encryptionKey, new[] { encryptionKey });
+            var service = new TestableRijndaelEncryptionService("encryptionKey", encryptionKey, new[]
+            {
+                encryptionKey
+            });
             var encryptedValue = service.Encrypt("string to encrypt", null);
             Assert.AreNotEqual("string to encrypt", encryptedValue.EncryptedBase64Value);
             var decryptedValue = service.Decrypt(encryptedValue, null);
@@ -25,10 +28,12 @@
         public void Should_encrypt_and_decrypt_for_expired_key()
         {
             var encryptionKey1 = Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6");
-            var service1 = new TestableRijndaelEncryptionService("encryptionKey1", encryptionKey1, new[] { encryptionKey1 });
+            var service1 = new TestableRijndaelEncryptionService("encryptionKey1", encryptionKey1, new[]
+            {
+                encryptionKey1
+            });
             var encryptedValue = service1.Encrypt("string to encrypt", null);
             Assert.AreNotEqual("string to encrypt", encryptedValue.EncryptedBase64Value);
-
 
             var encryptionKey2 = Encoding.ASCII.GetBytes("vznkynwuvateefgduvsqjsufqfrrfcya");
             var expiredKeys = new List<byte[]>
@@ -79,7 +84,10 @@
         public void Should_throw_for_invalid_expired_key()
         {
             var validKey = Encoding.ASCII.GetBytes("adDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6");
-            var expiredKeys = new List<byte[]> { Encoding.ASCII.GetBytes("invalidKey") };
+            var expiredKeys = new List<byte[]>
+            {
+                Encoding.ASCII.GetBytes("invalidKey")
+            };
             var exception = Assert.Throws<Exception>(() => new TestableRijndaelEncryptionService("keyid", validKey, expiredKeys));
             Assert.AreEqual("The expired key at index 0 has an invalid length of 10 bytes.", exception.Message);
         }
@@ -102,7 +110,10 @@
             var service1 = new TestableRijndaelEncryptionService("encryptionKey1", encryptionKey1, new List<byte[]>());
             var encryptedValue = service1.Encrypt("string to encrypt", null);
 
-            var expiredKeys = new List<byte[]> { Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6") };
+            var expiredKeys = new List<byte[]>
+            {
+                Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6")
+            };
             var service2 = new TestableRijndaelEncryptionService("encryptionKey1", encryptionKey1, expiredKeys)
             {
                 IncomingKeyIdentifier = "encryptionKey1"
@@ -112,7 +123,6 @@
             Assert.AreEqual("string to encrypt", decryptedValue);
         }
 
-
         [Test]
         public void Decrypt_using_missing_key_identifier_must_throw()
         {
@@ -121,16 +131,16 @@
             var encryptedValue = service1.Encrypt("string to encrypt", null);
 
             var encryptionKey2 = Encoding.ASCII.GetBytes("vznkynwuvateefgduvsqjsufqfrrfcya");
-            var expiredKeys = new List<byte[]> { Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6") };
+            var expiredKeys = new List<byte[]>
+            {
+                Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6")
+            };
             var service2 = new TestableRijndaelEncryptionService("encryptionKey1", encryptionKey2, expiredKeys)
             {
                 IncomingKeyIdentifier = "missingKey"
             };
 
-            Assert.Catch<InvalidOperationException>(() =>
-            {
-                service2.Decrypt(encryptedValue, null);
-            }, "Decryption key not available for key identifier 'missingKey'. Add this key to the rijndael encryption service configuration. Key identifiers are case sensitive.");
+            Assert.Catch<InvalidOperationException>(() => { service2.Decrypt(encryptedValue, null); }, "Decryption key not available for key identifier 'missingKey'. Add this key to the rijndael encryption service configuration. Key identifiers are case sensitive.");
         }
 
         [Test]
@@ -148,10 +158,7 @@
         [Test]
         public void Should_throw_when_passing_non_existing_key_identifier()
         {
-            Assert.Catch<ArgumentException>(() =>
-            {
-                new RijndaelEncryptionService("not-in-keys", new Dictionary<string, byte[]>(), null);
-            });
+            Assert.Catch<ArgumentException>(() => { new RijndaelEncryptionService("not-in-keys", new Dictionary<string, byte[]>(), null); });
         }
 
         [Test]
@@ -169,24 +176,24 @@
                 IncomingKeyIdentifier = "encryptionKey1"
             };
 
-            Assert.Catch<InvalidOperationException>(() =>
-            {
-                service2.Decrypt(encryptedValue, null);
-            }, "Unable to decrypt property using configured decryption key specified in key identifier header.");
+            Assert.Catch<InvalidOperationException>(() => { service2.Decrypt(encryptedValue, null); }, "Unable to decrypt property using configured decryption key specified in key identifier header.");
         }
 
         class TestableRijndaelEncryptionService : RijndaelEncryptionService
         {
-            public bool OutgoingKeyIdentifierSet { get; private set; }
-            public string IncomingKeyIdentifier { private get; set; }
-
             public TestableRijndaelEncryptionService(
                 string encryptionKeyIdentifier,
                 byte[] encryptionKey,
                 IList<byte[]> decryptionKeys)
-                : base(encryptionKeyIdentifier, new Dictionary<string, byte[]> { { encryptionKeyIdentifier, encryptionKey } }, decryptionKeys)
+                : base(encryptionKeyIdentifier, new Dictionary<string, byte[]>
+                {
+                    {encryptionKeyIdentifier, encryptionKey}
+                }, decryptionKeys)
             {
             }
+
+            public bool OutgoingKeyIdentifierSet { get; private set; }
+            public string IncomingKeyIdentifier { private get; set; }
 
             protected override void AddKeyIdentifierHeader(IOutgoingLogicalMessageContext context)
             {
