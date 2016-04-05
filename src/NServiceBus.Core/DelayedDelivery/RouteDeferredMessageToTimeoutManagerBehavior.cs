@@ -6,6 +6,7 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using DelayedDelivery;
     using DeliveryConstraints;
+    using Extensibility;
     using Performance.TimeToBeReceived;
     using Pipeline;
     using Routing;
@@ -17,63 +18,56 @@ namespace NServiceBus
             this.timeoutManagerAddress = timeoutManagerAddress;
         }
 
-
         public override Task Invoke(IRoutingContext context, Func<Task> next)
         {
-            DelayedDeliveryConstraint constraint;
-            if (context.Extensions.TryGetDeliveryConstraint(out constraint))
+            DateTime deliverAt;
+            if (!IsDeferred(context, out deliverAt))
             {
-                if (context.RoutingStrategies.Any(l => l.GetType() != typeof(UnicastRoutingStrategy)))
-                {
-                    throw new Exception("Delayed delivery using the timeoutmanager is only supported for messages with unicast routing");
-                }
-                if (context.RoutingStrategies.Count > 1)
-                {
-                    var destinations = string.Join(", ", context.RoutingStrategies.Select(s => s.Apply(new Dictionary<string, string>(context.Message.Headers))).Cast<UnicastAddressTag>().Select(l => l.Destination));
-                    throw new Exception($"A deferred message cannot contain more than one destination: {destinations}. This is the case when publishing an event to multiple subscriber endpoints or sending a command with overriden distribution strategy.");
-                }
-
-                DiscardIfNotReceivedBefore discardIfNotReceivedBefore;
-                if (context.Extensions.TryGetDeliveryConstraint(out discardIfNotReceivedBefore))
-                {
-                    throw new Exception("Postponed delivery of messages with TimeToBeReceived set is not supported. Remove the TimeToBeReceived attribute to postpone messages of this type.");
-                }
-
-                //Hack 133
-                var ultimateDestination = ((UnicastAddressTag) context.RoutingStrategies.Single().Apply(context.Message.Headers)).Destination;
-                context.Message.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo] = ultimateDestination;
-                context.RoutingStrategies = new[]
-                {
-                    new UnicastRoutingStrategy(timeoutManagerAddress)
-                };
-
-                DateTime deliverAt;
-                var delayConstraint = constraint as DelayDeliveryWith;
-
-                if (delayConstraint != null)
-                {
-                    deliverAt = DateTime.UtcNow + delayConstraint.Delay;
-                }
-                else
-                {
-                    deliverAt = ((DoNotDeliverBefore) constraint).At;
-                }
-
-                context.Message.Headers[TimeoutManagerHeaders.Expire] = DateTimeExtensions.ToWireFormattedString(deliverAt);
-                context.Extensions.RemoveDeliveryConstaint(constraint);
+                return next();
             }
+
+            DiscardIfNotReceivedBefore discardIfNotReceivedBefore;
+            if (context.Extensions.TryGetDeliveryConstraint(out discardIfNotReceivedBefore))
+            {
+                throw new Exception("Postponed delivery of messages with TimeToBeReceived set is not supported. Remove the TimeToBeReceived attribute to postpone messages of this type.");
+            }
+
+            var newRoutingStrategies = context.RoutingStrategies.Select(s => RerouteToTimeoutManager(s, context, deliverAt));
+            context.RoutingStrategies = newRoutingStrategies.ToArray();
 
             return next();
         }
 
-        string timeoutManagerAddress;
-
-        public class Registration : RegisterStep
+        RoutingStrategy RerouteToTimeoutManager(RoutingStrategy routingStrategy, IRoutingContext context, DateTime deliverAt)
         {
-            public Registration()
-                : base("RouteDeferredMessageToTimeoutManager", typeof(RouteDeferredMessageToTimeoutManagerBehavior), "Reroutes deferred messages to the timeout manager")
+            var headers = new Dictionary<string, string>(context.Message.Headers);
+            var originalTag = routingStrategy.Apply(headers);
+            var unicastTag = originalTag as UnicastAddressTag;
+            if (unicastTag == null)
             {
+                throw new Exception("Delayed delivery using the Timeout Manager is only supported for messages with unicast routing");
             }
+            return new TimeoutManagerRoutingStrategy(timeoutManagerAddress, unicastTag.Destination, deliverAt);
         }
+
+        static bool IsDeferred(IExtendable context, out DateTime deliverAt)
+        {
+            deliverAt = DateTime.MinValue;
+            DoNotDeliverBefore doNotDeliverBefore;
+            DelayDeliveryWith delayDeliveryWith;
+            if (context.Extensions.TryRemoveDeliveryConstraint(out doNotDeliverBefore))
+            {
+                deliverAt = doNotDeliverBefore.At;
+                return true;
+            }
+            if (context.Extensions.TryRemoveDeliveryConstraint(out delayDeliveryWith))
+            {
+                deliverAt = DateTime.UtcNow + delayDeliveryWith.Delay;
+                return true;
+            }
+            return false;
+        }
+
+        string timeoutManagerAddress;
     }
 }
