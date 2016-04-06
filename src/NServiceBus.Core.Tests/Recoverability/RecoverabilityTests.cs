@@ -34,6 +34,7 @@
             {
                 new BehaviorInstance(typeof(MoveFaultsToErrorQueueBehavior), new MoveFaultsToErrorQueueBehavior(criticalError, "", "", TransportTransactionMode.None, failureStorage)),
                 new BehaviorInstance(typeof(SecondLevelRetriesBehavior), new SecondLevelRetriesBehavior(policy, "", failureStorage)),
+                new BehaviorInstance(typeof(FirstLevelRetriesBehavior), new FirstLevelRetriesBehavior(failureStorage, new FirstLevelRetryPolicy(0))), 
                 new BehaviorInstance(typeof(FailingBehavior), new FailingBehavior())
             });
 
@@ -50,13 +51,14 @@
             var policy = new FakePolicy();
             var failureStorage = new FailureInfoStorage(10);
             var criticalError = new CriticalError(c => Task.FromResult(0));
-            var trackingBehavior = new TrackingBehavior();
+            var failingBehavior = new FailingBehavior();
 
             var chain = new BehaviorChain(new[]
             {
                 new BehaviorInstance(typeof(MoveFaultsToErrorQueueBehavior), new MoveFaultsToErrorQueueBehavior(criticalError, "", "", TransportTransactionMode.None, failureStorage)),
                 new BehaviorInstance(typeof(SecondLevelRetriesBehavior), new SecondLevelRetriesBehavior(policy, "", failureStorage)),
-                new BehaviorInstance(typeof(TrackingBehavior), trackingBehavior)
+                new BehaviorInstance(typeof(FirstLevelRetriesBehavior), new FirstLevelRetriesBehavior(failureStorage, new FirstLevelRetryPolicy(0))), 
+                new BehaviorInstance(typeof(FailingBehavior), failingBehavior)
             });
 
             var message = CreateMessage();
@@ -65,24 +67,16 @@
             await chain.Invoke(CreateContext(message));
 
             Assert.AreEqual(dispatchPipeline.MessageId, message.MessageId);
-            Assert.IsFalse(trackingBehavior.WasCalled);
-        }
-
-        class TrackingBehavior : ForkConnector<ITransportReceiveContext, IRoutingContext>
-        {
-            public bool WasCalled { get; set; }
-            public override Task Invoke(ITransportReceiveContext context, Func<Task> next, Func<IRoutingContext, Task> fork)
-            {
-                WasCalled = true;
-
-                return Task.FromResult(0);
-            }
+            Assert.AreEqual(1, failingBehavior.NumberOfCalls);
         }
 
         class FailingBehavior : ForkConnector<ITransportReceiveContext, IRoutingContext>
         {
+            public int NumberOfCalls { get; private set; }
+
             public override Task Invoke(ITransportReceiveContext context, Func<Task> next, Func<IRoutingContext, Task> fork)
             {
+                NumberOfCalls++;
                 throw new Exception();
             }
         }
@@ -117,7 +111,8 @@
         {
             public override bool TryGetDelay(IncomingMessage message, Exception ex, int currentRetry, out TimeSpan delay)
             {
-                throw new NotImplementedException();
+                delay = TimeSpan.FromSeconds(10);
+                return true;
             }
         }
 
