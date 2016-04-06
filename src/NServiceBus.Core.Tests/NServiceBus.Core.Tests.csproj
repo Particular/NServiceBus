@@ -146,6 +146,7 @@
     <Compile Include="Pipeline\Outgoing\OutgoingSendContextTests.cs" />
     <Compile Include="Pipeline\RegisterStepTests.cs" />
     <Compile Include="Recoverability\FailureInfoStorageTests.cs" />
+    <Compile Include="Recoverability\RecoverabilityTests.cs" />
     <Compile Include="Routing\ApplyReplyToAddressBehaviorTests.cs" />
     <Compile Include="Routing\BestPracticesOptionExtensionsTests.cs" />
     <Compile Include="Routing\DetermineRouteForPublishBehaviorTests.cs" />
