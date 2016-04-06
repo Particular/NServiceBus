@@ -37,7 +37,9 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DefaultTestingLoggerFactory.cs" />
     <Compile Include="FakeBuilder.cs" />
+    <Compile Include="NamedLogger.cs" />
     <Compile Include="OutgoingMessage.cs" />
     <Compile Include="OutgoingMessageExtensions.cs" />
     <Compile Include="PublishedMessage.cs" />
@@ -67,6 +69,8 @@
     <Compile Include="TestableSubscribeContext.cs" />
     <Compile Include="TestableTransportReceiveContext.cs" />
     <Compile Include="TestableUnsubscribeContext.cs" />
+    <Compile Include="TestingLoggerFactory.cs" />
+    <Compile Include="TextWriterLogger.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj">
