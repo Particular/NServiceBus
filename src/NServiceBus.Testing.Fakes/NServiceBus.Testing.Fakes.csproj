@@ -54,10 +54,12 @@
     <Compile Include="PublishedMessage.cs" />
     <Compile Include="RepliedMessage.cs" />
     <Compile Include="SentMessage.cs" />
+    <Compile Include="Subscription.cs" />
     <Compile Include="TestableAuditContext.cs" />
     <Compile Include="TestableBatchDispatchContext.cs" />
     <Compile Include="TestableBehaviorContext.cs" />
     <Compile Include="TestableDispatchContext.cs" />
+    <Compile Include="TestableEndpointInstance.cs" />
     <Compile Include="TestableFaultContext.cs" />
     <Compile Include="TestableForwardingContext.cs" />
     <Compile Include="TestableIncomingContext.cs" />
@@ -66,6 +68,7 @@
     <Compile Include="TestableInvokeHandlerContext.cs" />
     <Compile Include="TestableMessageHandlerContext.cs" />
     <Compile Include="TestableMessageProcessingContext.cs" />
+    <Compile Include="TestableMessageSession.cs" />
     <Compile Include="TestableOutgoingContext.cs" />
     <Compile Include="TestableOutgoingLogicalMessageContext.cs" />
     <Compile Include="TestableOutgoingPhysicalMessageContext.cs" />
@@ -80,6 +83,7 @@
     <Compile Include="TestableUnsubscribeContext.cs" />
     <Compile Include="TestingLoggerFactory.cs" />
     <Compile Include="TextWriterLogger.cs" />
+    <Compile Include="Unsubscription.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj">
