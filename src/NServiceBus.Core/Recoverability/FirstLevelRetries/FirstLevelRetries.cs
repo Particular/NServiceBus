@@ -1,8 +1,5 @@
 namespace NServiceBus.Features
 {
-    using System;
-    using System.Threading;
-    using System.Threading.Tasks;
     using Config;
     using ConsistencyGuarantees;
     using Settings;
@@ -15,6 +12,9 @@ namespace NServiceBus.Features
         internal FirstLevelRetries()
         {
             EnableByDefault();
+
+            DependsOn<StoreFaultsInErrorQueue>();
+
             Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Send only endpoints can't use FLR since it only applies to messages being received");
 
             Prerequisite(context => context.Settings.GetRequiredTransactionModeForReceives() != TransportTransactionMode.None, "Transactions must be enabled since FLR requires the transport to be able to rollback");
@@ -31,13 +31,8 @@ namespace NServiceBus.Features
             var maxRetries = transportConfig?.MaxRetries ?? 5;
             var retryPolicy = new FirstLevelRetryPolicy(maxRetries);
             context.Container.RegisterSingleton(retryPolicy);
-
-            var flrStatusStorage = new FlrStatusStorage();
-            context.Container.RegisterSingleton(flrStatusStorage);
-
-            context.RegisterStartupTask(new FlrStatusStorageCleaner(flrStatusStorage));
-
-            context.Pipeline.Register("FirstLevelRetries", b => new FirstLevelRetriesBehavior(b.Build<FlrStatusStorage>(), b.Build<FirstLevelRetryPolicy>()), "Performs first level retries");
+            
+            context.Pipeline.Register("FirstLevelRetries", b => new FirstLevelRetriesBehavior(b.Build<FailureInfoStorage>(), retryPolicy), "Performs first level retries");
         }
 
         int GetMaxRetries(ReadOnlySettings settings)
@@ -50,36 +45,6 @@ namespace NServiceBus.Features
             }
 
             return retriesConfig.MaxRetries;
-        }
-
-        class FlrStatusStorageCleaner : FeatureStartupTask
-        {
-            public FlrStatusStorageCleaner(FlrStatusStorage statusStorage)
-            {
-                this.statusStorage = statusStorage;
-            }
-
-            protected override Task OnStart(IMessageSession session)
-            {
-                timer = new Timer(ClearFlrStatusStorage, null, ClearingInterval, ClearingInterval);
-                return TaskEx.CompletedTask;
-            }
-
-            protected override Task OnStop(IMessageSession session)
-            {
-                timer?.Dispose();
-                return TaskEx.CompletedTask;
-            }
-
-            void ClearFlrStatusStorage(object state)
-            {
-                statusStorage.ClearAllFailures();
-            }
-
-            FlrStatusStorage statusStorage;
-            Timer timer;
-
-            static readonly TimeSpan ClearingInterval = TimeSpan.FromMinutes(5);
         }
     }
 }

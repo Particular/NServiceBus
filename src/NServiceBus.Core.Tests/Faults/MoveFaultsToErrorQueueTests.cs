@@ -13,81 +13,134 @@ namespace NServiceBus.Core.Tests
     [TestFixture]
     public class MoveFaultsToErrorQueueTests
     {
-        [Test]
-        public async Task ShouldForwardToErrorQueueForAllExceptions()
-        {
-            var errorQueueAddress = "error";
-            var behavior = new MoveFaultsToErrorQueueBehavior(
-                new FakeCriticalError(),
-                errorQueueAddress,
-                "public-receive-address");
+        FakeCriticalError criticalError;
 
-            var context = CreateContext("someid");
+        [SetUp]
+        public void Setup()
+        {
+            criticalError = new FakeCriticalError();
+        }
+
+        [TestCase(TransportTransactionMode.None)]
+        [TestCase(TransportTransactionMode.ReceiveOnly)]
+        [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
+        [TestCase(TransportTransactionMode.TransactionScope)]
+        public async Task ShouldForwardToErrorQueueForAllExceptions(TransportTransactionMode transactionMode)
+        {
+            var behavior = CreateBehavior(transactionMode, "errors-queue");
+            var context = CreateContext("some-id");
 
             IFaultContext faultContext = null;
 
-            await behavior.Invoke(context, () => { throw new Exception("testex"); }, c => CaptureFaultContext(c, out faultContext));
+            await behavior.Invoke(context, () => { throw new Exception(); }, c => CaptureFaultContext(c, out faultContext));
 
-            Assert.IsNotNull(faultContext, "it should forward message to error queue");
-            Assert.AreEqual(errorQueueAddress, faultContext.ErrorQueueAddress);
-            Assert.AreEqual("someid", faultContext.Message.MessageId);
+            if (transactionMode != TransportTransactionMode.None)
+            {
+                await behavior.Invoke(context, () => Task.FromResult(0), c => CaptureFaultContext(c, out faultContext));
+            }
+
+            Assert.AreEqual("errors-queue", faultContext.ErrorQueueAddress);
+            Assert.AreEqual("some-id", faultContext.Message.MessageId);
         }
 
-        [Test]
-        public void ShouldInvokeCriticalErrorIfForwardingFails()
+        [TestCase(TransportTransactionMode.None)]
+        [TestCase(TransportTransactionMode.ReceiveOnly)]
+        [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
+        [TestCase(TransportTransactionMode.TransactionScope)]
+        public void ShouldInvokeCriticalErrorIfForwardingFails(TransportTransactionMode transactionMode)
         {
-            var criticalError = new FakeCriticalError();
+            var behavior = CreateBehavior(transactionMode);
+            var context = CreateContext();
 
-            var behavior = new MoveFaultsToErrorQueueBehavior(
-                criticalError,
-                "error",
-                "public-receive-address");
+            var behaviorInvocation = new TestDelegate(async () =>
+            {
+                await behavior.Invoke(context, () => { throw new Exception(); });
+
+                if (transactionMode != TransportTransactionMode.None)
+                {
+                    await behavior.Invoke(context, () => Task.FromResult(0));
+                }
+            });
 
             //the ex should bubble to force the transport to rollback. If not the message will be lost
-            Assert.That(async () => await behavior.Invoke(CreateContext("someid"), () => { throw new Exception("testex"); }, context => { throw new Exception("Failed to dispatch"); }), Throws.InstanceOf<Exception>());
+            Assert.That(behaviorInvocation, Throws.InstanceOf<Exception>());
             Assert.True(criticalError.ErrorRaised);
         }
 
-        [Test]
-        public async Task ShouldEnrichHeadersWithExceptionDetails()
+        [TestCase(TransportTransactionMode.None)]
+        [TestCase(TransportTransactionMode.ReceiveOnly)]
+        [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
+        [TestCase(TransportTransactionMode.TransactionScope)]
+        public async Task ShouldEnrichHeadersWithExceptionDetails(TransportTransactionMode transactionMode)
         {
-            var context = CreateContext("someid");
-
-            var behavior = new MoveFaultsToErrorQueueBehavior(
-                new FakeCriticalError(),
-                "error",
-                "public-receive-address");
+            var context = CreateContext();
+            var behavior = CreateBehavior(transactionMode);
 
             IFaultContext faultContext = null;
-            await behavior.Invoke(context, () => { throw new Exception("testex"); }, c => CaptureFaultContext(c, out faultContext));
 
-            Assert.IsNotNull(faultContext, "it should forward message to error queue");
+            await behavior.Invoke(context, () => { throw new Exception("exception-message"); }, c => CaptureFaultContext(c, out faultContext));
+
+            if (transactionMode != TransportTransactionMode.None)
+            {
+                await behavior.Invoke(context, () => Task.FromResult(0), c => CaptureFaultContext(c, out faultContext));
+            }
+
             Assert.AreEqual("public-receive-address", faultContext.Message.Headers[FaultsHeaderKeys.FailedQ]);
-            //exception details
-            Assert.AreEqual("testex", faultContext.Message.Headers["NServiceBus.ExceptionInfo.Message"]);
+            Assert.AreEqual("exception-message", faultContext.Message.Headers["NServiceBus.ExceptionInfo.Message"]);
         }
 
-        [Test]
-        public async Task ShouldRegisterFailureInfoWhenMessageIsForwarded()
+        [TestCase(TransportTransactionMode.None)]
+        [TestCase(TransportTransactionMode.ReceiveOnly)]
+        [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
+        [TestCase(TransportTransactionMode.TransactionScope)]
+        public async Task ShouldRegisterFailureInfoWhenMessageIsForwarded(TransportTransactionMode transactionMode)
         {
+            var behavior = CreateBehavior(transactionMode);
             var eventAggregator = new FakeEventAggregator();
+            var context = CreateContext("some-id", eventAggregator);
 
-            var behavior = new MoveFaultsToErrorQueueBehavior(
-                new FakeCriticalError(),
-                "error",
-                "public-receive-address");
+            await behavior.Invoke(context, () => { throw new Exception("exception-message"); }, c => Task.FromResult(0));
 
-            var context = CreateContext("someid", eventAggregator);
-
-            await behavior.Invoke(context, () =>
+            if (transactionMode != TransportTransactionMode.None)
             {
-                throw new Exception("testex");
-            }, fc => TaskEx.CompletedTask);
+                await behavior.Invoke(context, () => Task.FromResult(0), c => Task.FromResult(0));
+            }
 
             var notification = eventAggregator.GetNotification<MessageFaulted>();
 
-            Assert.AreEqual("someid", notification.Message.MessageId);
-            Assert.AreEqual("testex", notification.Exception.Message);
+            Assert.AreEqual("some-id", notification.Message.MessageId);
+            Assert.AreEqual("exception-message", notification.Exception.Message);
+        }
+
+        [TestCase(TransportTransactionMode.ReceiveOnly)]
+        [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
+        [TestCase(TransportTransactionMode.TransactionScope)]
+        public async Task ShoulInvokePipelineOnlyOnceWhenErrorIsThrown(TransportTransactionMode transactionMode)
+        {
+            var behavior = CreateBehavior(transactionMode);
+            var context = CreateContext();
+            var invokedTwice = false;
+
+            await behavior.Invoke(context, () => { throw new Exception("exception-message"); }, c => Task.FromResult(0));
+            await behavior.Invoke(context, () =>
+            {
+                invokedTwice = true;
+                return Task.FromResult(0);
+            }, c => Task.FromResult(0));
+
+            Assert.IsFalse(invokedTwice, "Pipline continuation should not be called when failed message is processed second time.");
+        }
+
+        MoveFaultsToErrorQueueBehavior CreateBehavior(TransportTransactionMode transactionMode, string errorQueueAddress = "errors")
+        {
+            var behavior = new MoveFaultsToErrorQueueBehavior(
+                criticalError,
+                errorQueueAddress,
+                "public-receive-address",
+                transactionMode,
+                new FailureInfoStorage(10));
+
+            return behavior;
         }
 
         static Task CaptureFaultContext(IFaultContext ctx, out IFaultContext context)
@@ -96,7 +149,7 @@ namespace NServiceBus.Core.Tests
             return TaskEx.CompletedTask;
         }
 
-        static TestableTransportReceiveContext CreateContext(string messageId, FakeEventAggregator eventAggregator = null)
+        static TestableTransportReceiveContext CreateContext(string messageId = "message-id", FakeEventAggregator eventAggregator = null)
         {
             var context = new TestableTransportReceiveContext
             {

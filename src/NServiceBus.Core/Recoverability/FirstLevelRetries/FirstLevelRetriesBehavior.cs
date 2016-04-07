@@ -1,13 +1,14 @@
 namespace NServiceBus
 {
     using System;
+    using System.Runtime.ExceptionServices;
     using System.Threading.Tasks;
     using Logging;
     using Pipeline;
 
     class FirstLevelRetriesBehavior : Behavior<ITransportReceiveContext>
     {
-        public FirstLevelRetriesBehavior(FlrStatusStorage storage, FirstLevelRetryPolicy retryPolicy)
+        public FirstLevelRetriesBehavior(FailureInfoStorage storage, FirstLevelRetryPolicy retryPolicy)
         {
             this.storage = storage;
             this.retryPolicy = retryPolicy;
@@ -28,28 +29,26 @@ namespace NServiceBus
                 var messageId = context.Message.MessageId;
                 var pipelineUniqueMessageId = messageId;
 
-                var numberOfFailures = storage.GetFailuresForMessage(pipelineUniqueMessageId);
+                var firstLevelRetries = storage.GetFailureInfoForMessage(pipelineUniqueMessageId).FLRetries;
 
-                if (retryPolicy.ShouldGiveUp(numberOfFailures))
+                if (retryPolicy.ShouldGiveUp(firstLevelRetries))
                 {
-                    storage.ClearFailuresForMessage(pipelineUniqueMessageId);
-                    context.Message.Headers[Headers.FLRetries] = numberOfFailures.ToString();
                     Logger.InfoFormat("Giving up First Level Retries for message '{0}'.", messageId);
                     throw;
                 }
 
-                storage.IncrementFailuresForMessage(pipelineUniqueMessageId);
-
                 Logger.Info($"First Level Retry is going to retry message '{messageId}' because of an exception:", ex);
 
-                await context.RaiseNotification(new MessageToBeRetried(numberOfFailures, TimeSpan.Zero, context.Message, ex)).ConfigureAwait(false);
+                await context.RaiseNotification(new MessageToBeRetried(firstLevelRetries, TimeSpan.Zero, context.Message, ex)).ConfigureAwait(false);
+
+                storage.RecordFirstLevelRetryAttempt(pipelineUniqueMessageId, ExceptionDispatchInfo.Capture(ex));
 
                 context.AbortReceiveOperation();
             }
         }
 
         FirstLevelRetryPolicy retryPolicy;
-        FlrStatusStorage storage;
+        FailureInfoStorage storage;
 
         static ILog Logger = LogManager.GetLogger<FirstLevelRetriesBehavior>();
     }

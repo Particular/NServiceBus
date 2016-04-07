@@ -2,6 +2,7 @@ namespace NServiceBus.Features
 {
     using System;
     using Config;
+    using ConsistencyGuarantees;
     using Settings;
     using Transports;
 
@@ -15,10 +16,13 @@ namespace NServiceBus.Features
             EnableByDefault();
 
             DependsOn<DelayedDeliveryFeature>();
+            DependsOn<StoreFaultsInErrorQueue>();
 
             Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Send only endpoints can't use SLR since it requires receive capabilities");
 
             Prerequisite(IsEnabledInConfig, "SLR was disabled in config");
+
+            Prerequisite(context => context.Settings.GetRequiredTransactionModeForReceives() != TransportTransactionMode.None, "Transactions must be enabled since SLR requires the transport to be able to rollback");
         }
 
         /// <summary>
@@ -29,9 +33,10 @@ namespace NServiceBus.Features
             var retryPolicy = GetRetryPolicy(context.Settings);
 
             context.Container.RegisterSingleton(typeof(SecondLevelRetryPolicy), retryPolicy);
+
             context.Pipeline.Register<SecondLevelRetriesBehavior.Registration>();
 
-            context.Container.ConfigureComponent(b => new SecondLevelRetriesBehavior(retryPolicy, context.Settings.LocalAddress()), DependencyLifecycle.InstancePerCall);
+            context.Container.ConfigureComponent(b => new SecondLevelRetriesBehavior(retryPolicy, context.Settings.LocalAddress(), b.Build<FailureInfoStorage>()), DependencyLifecycle.InstancePerCall);
         }
 
         bool IsEnabledInConfig(FeatureConfigurationContext context)

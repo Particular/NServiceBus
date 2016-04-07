@@ -36,7 +36,7 @@
             var moreThanADayAgo = now.AddHours(-24).AddTicks(-1);
             var headers = new Dictionary<string, string>
             {
-                {SecondLevelRetriesBehavior.RetriesTimestamp, DateTimeExtensions.ToWireFormattedString(moreThanADayAgo)}
+                {Headers.RetriesTimestamp, DateTimeExtensions.ToWireFormattedString(moreThanADayAgo)}
             };
 
             Assert.False(policy.TryGetDelay(new IncomingMessage("someid", headers, Stream.Null), new Exception(""), 1, out delay));

@@ -14,7 +14,7 @@ namespace NServiceBus
         {
             delay = customRetryPolicy(message);
 
-            return delay != TimeSpan.Zero;
+            return delay != TimeSpan.MinValue;
         }
 
         Func<IncomingMessage, TimeSpan> customRetryPolicy;
