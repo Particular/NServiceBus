@@ -6,6 +6,7 @@
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
     using NUnit.Framework;
+    using Testing;
 
     public class DetermineRouteForPublishBehaviorTests
     {
@@ -14,7 +15,10 @@
         {
             var behavior = new MulticastPublishRouterBehavior();
 
-            var context = new OutgoingPublishContext(new OutgoingLogicalMessage(typeof(MyEvent), new MyEvent()), new PublishOptions(), new RootContext(null, null, null));
+            var context = new TestableOutgoingPublishContext
+            {
+                Message = new OutgoingLogicalMessage(typeof(MyEvent), new MyEvent())
+            };
 
             MulticastAddressTag addressTag = null;
             await behavior.Invoke(context, _ =>

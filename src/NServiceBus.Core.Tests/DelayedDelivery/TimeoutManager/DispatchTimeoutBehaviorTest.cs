@@ -10,6 +10,7 @@
     using NServiceBus.Timeout.Core;
     using NServiceBus.Transports;
     using NUnit.Framework;
+    using Testing;
 
     public class DispatchTimeoutBehaviorTest
     {
@@ -119,8 +120,7 @@
                 {"Timeout.Id", timeoutId}
             };
 
-            return new SatelliteProcessingContext(
-                new IncomingMessage(messageId, headers, new MemoryStream()), null);
+            return new TestableSatelliteProcessingContext {Message = new IncomingMessage(messageId, headers, Stream.Null) };
         }
 
         class FakeMessageDispatcher : IDispatchMessages

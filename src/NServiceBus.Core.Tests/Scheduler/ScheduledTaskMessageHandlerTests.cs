@@ -1,13 +1,14 @@
 ﻿namespace NServiceBus.Scheduling.Tests
 {
     using System;
-    using Core.Tests.Fakes;
+    using System.Linq;
     using NUnit.Framework;
+    using Testing;
 
     [TestFixture]
     public class ScheduledTaskMessageHandlerTests
     {
-        FakeHandlingContext handlingContext = new FakeHandlingContext();
+        TestableMessageHandlerContext handlingContext = new TestableMessageHandlerContext();
         DefaultScheduler scheduler;
         ScheduledTaskMessageHandler handler;
         Guid taskId;
@@ -36,7 +37,8 @@
                 TaskId = taskId
             }, handlingContext);
 
-            Assert.That(((ScheduledTask)handlingContext.DeferedMessage).TaskId, Is.EqualTo(taskId));
+            var deferredMessage = handlingContext.SentMessages.First(message => message.Options.GetDeliveryDelay().HasValue).Message<ScheduledTask>();
+            Assert.That(deferredMessage.TaskId, Is.EqualTo(taskId));
         }
     }
 }

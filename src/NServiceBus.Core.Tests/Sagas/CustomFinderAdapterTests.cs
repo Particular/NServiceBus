@@ -7,6 +7,7 @@
     using NUnit.Framework;
     using System;
     using System.Collections.Generic;
+    using Testing;
 
     [TestFixture]
     public class CustomFinderAdapterTests
@@ -35,9 +36,9 @@
                 throw new Exception("Finder not found");
             }
 
-            var builder = new FuncBuilder();
+            var builder = new FakeBuilder();
 
-            builder.Register(finderDefinition.Type, () => new ReturnsNullFinder());
+            builder.Register(() => new ReturnsNullFinder());
 
             var customerFinderAdapter = new CustomFinderAdapter<TestSaga.SagaData, StartSagaMessage>();
 

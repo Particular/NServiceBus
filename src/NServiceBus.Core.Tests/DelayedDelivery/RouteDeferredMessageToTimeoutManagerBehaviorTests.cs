@@ -8,8 +8,8 @@
     using NServiceBus.DeliveryConstraints;
     using NServiceBus.Performance.TimeToBeReceived;
     using NServiceBus.Routing;
-    using NServiceBus.Transports;
     using NUnit.Framework;
+    using Testing;
 
     class RouteDeferredMessageToTimeoutManagerBehaviorTests
     {
@@ -18,13 +18,11 @@
         {
             var behavior = new RouteDeferredMessageToTimeoutManagerBehavior("tm");
             var delay = TimeSpan.FromDays(1);
-            var message = new OutgoingMessage("id", new Dictionary<string, string>(), new byte[0]);
 
             var headers = new Dictionary<string, string>();
             string destination = null;
-            var context = new RoutingContext(message, new UnicastRoutingStrategy("target"), null);
-            context.AddDeliveryConstraint(new DelayDeliveryWith(delay));
-
+            var context = CreateContext(new UnicastRoutingStrategy("target"), new DelayDeliveryWith(delay));
+        
             await behavior.Invoke(context, c =>
             {
                 var addressTag = (UnicastAddressTag) c.RoutingStrategies.First().Apply(headers);
@@ -36,18 +34,14 @@
             Assert.AreEqual(headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo], "target");
         }
 
-
         [Test]
         public void Supports_only_unicast_routing()
         {
             var behavior = new RouteDeferredMessageToTimeoutManagerBehavior("tm");
             var delay = TimeSpan.FromDays(1);
 
-            var message = new OutgoingMessage("id", new Dictionary<string, string>(), new byte[0]);
-
-            var context = new RoutingContext(message, new MulticastRoutingStrategy(null), null);
-            context.AddDeliveryConstraint(new DelayDeliveryWith(delay));
-
+            var context = CreateContext(new MulticastRoutingStrategy(null), new DelayDeliveryWith(delay));
+        
             Assert.That(async () => await behavior.Invoke(context, () => TaskEx.CompletedTask), Throws.InstanceOf<Exception>().And.Message.Contains("Delayed delivery using the Timeout Manager is only supported for messages with unicast routing"));
         }
 
@@ -57,11 +51,7 @@
             var behavior = new RouteDeferredMessageToTimeoutManagerBehavior("tm");
             var delay = TimeSpan.FromDays(1);
 
-            var message = new OutgoingMessage("id", new Dictionary<string, string>(), new byte[0]);
-
-            var context = new RoutingContext(message, new UnicastRoutingStrategy("target"), null);
-            context.AddDeliveryConstraint(new DelayDeliveryWith(delay));
-            context.AddDeliveryConstraint(new DiscardIfNotReceivedBefore(TimeSpan.FromSeconds(30)));
+            var context = CreateContext(new UnicastRoutingStrategy("target"), new DelayDeliveryWith(delay), new DiscardIfNotReceivedBefore(TimeSpan.FromSeconds(30)));
 
             Assert.That(async () => await behavior.Invoke(context, () => TaskEx.CompletedTask), Throws.InstanceOf<Exception>().And.Message.Contains("Postponed delivery of messages with TimeToBeReceived set is not supported. Remove the TimeToBeReceived attribute to postpone messages of this type."));
         }
@@ -71,13 +61,10 @@
         {
             var behavior = new RouteDeferredMessageToTimeoutManagerBehavior("tm");
             var delay = TimeSpan.FromDays(1);
-
-            var message = new OutgoingMessage("id", new Dictionary<string, string>(), new byte[0]);
-
+            
             var headers = new Dictionary<string, string>();
-            var context = new RoutingContext(message, new UnicastRoutingStrategy("target"), null);
-            context.AddDeliveryConstraint(new DelayDeliveryWith(delay));
-
+            var context = CreateContext(new UnicastRoutingStrategy("target"), new DelayDeliveryWith(delay));
+        
             await behavior.Invoke(context, c =>
             {
                 c.RoutingStrategies.First().Apply(headers);
@@ -92,12 +79,9 @@
         {
             var behavior = new RouteDeferredMessageToTimeoutManagerBehavior("tm");
             var at = DateTime.UtcNow + TimeSpan.FromDays(1);
-
-            var message = new OutgoingMessage("id", new Dictionary<string, string>(), new byte[0]);
-
+            
             var headers = new Dictionary<string, string>();
-            var context = new RoutingContext(message, new UnicastRoutingStrategy("target"), null);
-            context.AddDeliveryConstraint(new DoNotDeliverBefore(at));
+            var context = CreateContext(new UnicastRoutingStrategy("target"), new DoNotDeliverBefore(at));
 
             await behavior.Invoke(context, c =>
             {
@@ -106,6 +90,23 @@
             });
 
             Assert.AreEqual(headers[TimeoutManagerHeaders.Expire], DateTimeExtensions.ToWireFormattedString(at));
+        }
+
+        TestableRoutingContext CreateContext(RoutingStrategy routingStrategy, params DeliveryConstraint[] deliveryConstraints)
+        {
+            var context = new TestableRoutingContext
+            {
+                RoutingStrategies = new List<RoutingStrategy>
+                {
+                    routingStrategy
+                }
+            };
+            foreach (var deliveryContraint in deliveryConstraints)
+            {
+                context.Extensions.AddDeliveryConstraint(deliveryContraint);
+            }
+
+            return context;
         }
     }
 }

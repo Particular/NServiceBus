@@ -1,17 +1,12 @@
 ﻿namespace NServiceBus.Unicast.Tests
 {
     using System;
-    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
-    using NServiceBus.Persistence;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
-    using PublishOptions = NServiceBus.PublishOptions;
-    using ReplyOptions = NServiceBus.ReplyOptions;
-    using SendOptions = NServiceBus.SendOptions;
+    using Testing;
 
     [TestFixture]
     [Explicit("Performance Tests")]
@@ -101,7 +96,7 @@
             cache.RegisterHandler(typeof(StubHandler));
 
             var handler = cache.GetCachedHandlerForMessage<StubMessage>();
-            var handlerContext = new FakeMessageHandlerContext();
+            var handlerContext = new TestableMessageHandlerContext();
             await handler.Invoke(new StubMessage(), handlerContext);
 
             Assert.AreSame(handlerContext, ((StubHandler)handler.Instance).HandlerContext);
@@ -162,7 +157,7 @@
             cache.RegisterHandler(typeof(StubHandler));
 
             var handler = cache.GetCachedHandlerForMessage<StubTimeoutState>();
-            var handlerContext = new FakeMessageHandlerContext();
+            var handlerContext = new TestableMessageHandlerContext();
             await handler.Invoke(new StubTimeoutState(), handlerContext);
 
             Assert.AreSame(handlerContext, ((StubHandler)handler.Instance).HandlerContext);
@@ -196,70 +191,5 @@
             handler.Instance = Activator.CreateInstance(handler.HandlerType);
             return handler;
         }
-    }
-
-    class FakeMessageHandlerContext : IMessageHandlerContext
-    {
-        public string MessageId { get; }
-        public string ReplyToAddress { get; }
-        public IReadOnlyDictionary<string, string> MessageHeaders { get; }
-        public Task Reply(object message, ReplyOptions options)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task IMessageProcessingContext.Reply<T>(Action<T> messageConstructor, ReplyOptions options)
-        {
-            return Reply(messageConstructor, options);
-        }
-
-        public ContextBag Extensions { get; }
-
-        public Task Send(object message, SendOptions options)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task IPipelineContext.Send<T>(Action<T> messageConstructor, SendOptions options)
-        {
-            return Send(messageConstructor, options);
-        }
-
-        public Task Publish(object message, PublishOptions options)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task IPipelineContext.Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)
-        {
-            return Publish(messageConstructor, publishOptions);
-        }
-
-        public Task Subscribe(Type eventType, SubscribeOptions options)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task Unsubscribe(Type eventType, UnsubscribeOptions options)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task HandleCurrentMessageLater()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task ForwardCurrentMessageTo(string destination)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void DoNotContinueDispatchingCurrentMessageToHandlers()
-        {
-            throw new NotImplementedException();
-        }
-
-        public SynchronizedStorageSession SynchronizedStorageSession => null;
     }
 }

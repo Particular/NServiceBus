@@ -5,6 +5,7 @@
     using NServiceBus.Routing;
     using NServiceBus.Transports;
     using NUnit.Framework;
+    using Testing;
 
     [TestFixture]
     public class AttachSenderRelatedInfoOnMessageTests
@@ -58,16 +59,9 @@
             var message = new OutgoingMessage("id", headers ?? new Dictionary<string, string>(), null);
 
             new AttachSenderRelatedInfoOnMessageBehavior()
-                .Invoke(new RoutingContext(message, new List<UnicastRoutingStrategy> { new UnicastRoutingStrategy("_") }, new FakeRootContext()), _ => TaskEx.CompletedTask);
+                .Invoke(new TestableRoutingContext {Message = message, RoutingStrategies = new List<UnicastRoutingStrategy> { new UnicastRoutingStrategy("_") }}, _ => TaskEx.CompletedTask);
 
             return message;
-        }
-
-        class FakeRootContext : BehaviorContext
-        {
-            public FakeRootContext() : base(null)
-            {
-            }
         }
     }
 }
