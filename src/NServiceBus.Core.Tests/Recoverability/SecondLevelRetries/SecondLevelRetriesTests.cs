@@ -12,6 +12,7 @@
     using NServiceBus.Routing;
     using NServiceBus.Transports;
     using NUnit.Framework;
+    using Testing;
 
     [TestFixture]
     public class SecondLevelRetriesTests
@@ -30,7 +31,8 @@
         public async Task ShouldRetryIfPolicyReturnsADelay()
         {
             var message = CreateMessage(id: "message-id", slrRetryHeader: "1");
-            var context = CreateContext(message);
+            var eventAggregator = new FakeEventAggregator();
+            var context = CreateContext(message, eventAggregator);
 
             var delay = TimeSpan.FromSeconds(5);
             var behavior = new SecondLevelRetriesBehavior(new FakePolicy(delay), "deferral-address", failureInfoStorage);
@@ -41,7 +43,7 @@
             Assert.AreEqual("message-id", dispatchPipline.MessageId);
             Assert.AreEqual(delay, dispatchPipline.MessageDeliveryDelay);
             Assert.AreEqual("deferral-address", dispatchPipline.MessageDestination);
-            Assert.AreEqual("exception-message", context.GetNotification<MessageToBeRetried>().Exception.Message);
+            Assert.AreEqual("exception-message", eventAggregator.GetNotification<MessageToBeRetried>().Exception.Message);
         }
 
         [Test]
@@ -155,7 +157,7 @@
 
             await behavior.Invoke(context, () => { throw new Exception(); });
 
-            Assert.IsTrue(context.ReceiveOperationWasAborted, "SLR should request recive operation abort when marking message for deferal.");
+            Assert.IsTrue(context.ReceiveOperationAborted, "SLR should request recive operation abort when marking message for deferal.");
         }
 
         IncomingMessage CreateMessage(string id = "id", string slrRetryHeader = null, byte[] body = null)
@@ -167,35 +169,23 @@
             return new IncomingMessage(id, headers, new MemoryStream(body ?? new byte[0]));
         }
 
-        FakeTransportReceiveContext CreateContext()
+        TestableTransportReceiveContext CreateContext()
         {
             return CreateContext(CreateMessage());
         }
 
-        FakeTransportReceiveContext CreateContext(IncomingMessage message)
-        {
-            var context = new FakeTransportReceiveContext(message);
 
+        TestableTransportReceiveContext CreateContext(IncomingMessage incomingMessage, FakeEventAggregator eventAggregator = null)
+        {
+            var context = new TestableTransportReceiveContext
+            {
+                Message = incomingMessage
+            };
+
+            context.Extensions.Set<IEventAggregator>(eventAggregator ?? new FakeEventAggregator());
             context.Extensions.Set<IPipelineCache>(new FakePipelineCache(dispatchPipline));
 
             return context;
-        }
-
-        class FakeTransportReceiveContext : FakeBehaviorContext, ITransportReceiveContext
-        {
-            public FakeTransportReceiveContext(IncomingMessage message)
-            {
-                Message = message;
-            }
-
-            public bool ReceiveOperationWasAborted { get; private set; }
-
-            public IncomingMessage Message { get; }
-
-            public void AbortReceiveOperation()
-            {
-                ReceiveOperationWasAborted = true;
-            }
         }
     }
 
