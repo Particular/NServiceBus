@@ -29,9 +29,9 @@ namespace NServiceBus
                 var messageId = context.Message.MessageId;
                 var pipelineUniqueMessageId = messageId;
 
-                var fltRetries = storage.GetFailureInfoForMessage(pipelineUniqueMessageId).FLRetries;
+                var firstLevelRetries = storage.GetFailureInfoForMessage(pipelineUniqueMessageId).FLRetries;
 
-                if (retryPolicy.ShouldGiveUp(fltRetries))
+                if (retryPolicy.ShouldGiveUp(firstLevelRetries))
                 {
                     Logger.InfoFormat("Giving up First Level Retries for message '{0}'.", messageId);
                     throw;
@@ -39,7 +39,7 @@ namespace NServiceBus
 
                 Logger.Info($"First Level Retry is going to retry message '{messageId}' because of an exception:", ex);
 
-                await context.RaiseNotification(new MessageToBeRetried(fltRetries, TimeSpan.Zero, context.Message, ex)).ConfigureAwait(false);
+                await context.RaiseNotification(new MessageToBeRetried(firstLevelRetries, TimeSpan.Zero, context.Message, ex)).ConfigureAwait(false);
 
                 storage.RecordFirstLevelRetryAttempt(pipelineUniqueMessageId, ExceptionDispatchInfo.Capture(ex));
 
