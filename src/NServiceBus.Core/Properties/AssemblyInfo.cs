@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using NServiceBus;
 
 [assembly: AssemblyTitle("NServiceBus.Core")]
-[assembly: AssemblyCopyright("Copyright 2010-2014 NServiceBus. All rights reserved")]
+[assembly: AssemblyCopyright("Copyright NServiceBus Ltd. All rights reserved")]
 [assembly: AssemblyProduct("NServiceBus.Core")]
 [assembly: AssemblyCompany("NServiceBus Ltd.")]
 [assembly: ComVisible(false)]
