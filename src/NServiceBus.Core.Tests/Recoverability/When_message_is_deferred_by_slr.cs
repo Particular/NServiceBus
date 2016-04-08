@@ -23,17 +23,7 @@
         [Test]
         public async Task _should_abort_message_receive_when_marking_for_deferral()
         {
-            var policy = new FakePolicy();
-            var failureStorage = new FailureInfoStorage(10);
-            var criticalError = new CriticalError(c => Task.FromResult(0));
-
-            var chain = new BehaviorChain(new[]
-            {
-                new BehaviorInstance(typeof(MoveFaultsToErrorQueueBehavior), new MoveFaultsToErrorQueueBehavior(criticalError, "error", "", TransportTransactionMode.None, failureStorage)),
-                new BehaviorInstance(typeof(SecondLevelRetriesBehavior), new SecondLevelRetriesBehavior(policy, "", failureStorage)),
-                new BehaviorInstance(typeof(FirstLevelRetriesBehavior), new FirstLevelRetriesBehavior(failureStorage, new FirstLevelRetryPolicy(0))), 
-                new BehaviorInstance(typeof(FailingBehavior), new FailingBehavior())
-            });
+            var chain = CreateBehaviorChain(new FailingBehavior());
 
             var context = CreateContext();
 
@@ -45,18 +35,9 @@
         [Test]
         public async Task _should_schedule_delayed_delivery_for_failed_message()
         {
-            var policy = new FakePolicy();
-            var failureStorage = new FailureInfoStorage(10);
-            var criticalError = new CriticalError(c => Task.FromResult(0));
             var failingBehavior = new FailingBehavior();
 
-            var chain = new BehaviorChain(new[]
-            {
-                new BehaviorInstance(typeof(MoveFaultsToErrorQueueBehavior), new MoveFaultsToErrorQueueBehavior(criticalError, "error", "", TransportTransactionMode.None, failureStorage)),
-                new BehaviorInstance(typeof(SecondLevelRetriesBehavior), new SecondLevelRetriesBehavior(policy, "", failureStorage)),
-                new BehaviorInstance(typeof(FirstLevelRetriesBehavior), new FirstLevelRetriesBehavior(failureStorage, new FirstLevelRetryPolicy(0))), 
-                new BehaviorInstance(typeof(FailingBehavior), failingBehavior)
-            });
+            var chain = CreateBehaviorChain(failingBehavior);
 
             var message = CreateMessage();
 
@@ -65,6 +46,23 @@
 
             Assert.AreEqual(dispatchPipeline.MessageId, message.MessageId);
             Assert.AreEqual(1, failingBehavior.NumberOfCalls);
+        }
+
+        BehaviorChain CreateBehaviorChain<LastBehaviorT>(LastBehaviorT lastBehavior) where LastBehaviorT : IBehavior
+        {
+            var criticalError = new CriticalError(c => Task.FromResult(0));
+            var policy = new FakePolicy();
+            var failureStorage = new FailureInfoStorage(10);
+
+            var chain = new BehaviorChain(new[]
+           {
+                new BehaviorInstance(typeof(MoveFaultsToErrorQueueBehavior), new MoveFaultsToErrorQueueBehavior(criticalError, "error", "", TransportTransactionMode.None, failureStorage)),
+                new BehaviorInstance(typeof(SecondLevelRetriesBehavior), new SecondLevelRetriesBehavior(policy, "", failureStorage)),
+                new BehaviorInstance(typeof(FirstLevelRetriesBehavior), new FirstLevelRetriesBehavior(failureStorage, new FirstLevelRetryPolicy(0))),
+                new BehaviorInstance(typeof(LastBehaviorT), lastBehavior)
+            });
+
+            return chain;
         }
 
         class FailingBehavior : ForkConnector<ITransportReceiveContext, IRoutingContext>
