@@ -7,6 +7,7 @@
     using NServiceBus.Pipeline;
     using NServiceBus.Transports;
     using NUnit.Framework;
+    using Testing;
 
     [TestFixture]
     public class AttachCausationHeadersBehaviorTests
@@ -68,8 +69,7 @@
 
         static IOutgoingPhysicalMessageContext InitializeContext()
         {
-            var context = new OutgoingPhysicalMessageContext(null, null, ContextHelpers.GetOutgoingContext(new SendOptions()));
-            return context;
+            return new TestableOutgoingPhysicalMessageContext();
         }
     }
 }

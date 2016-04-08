@@ -1,5 +1,6 @@
 namespace NServiceBus.Features
 {
+    using ConsistencyGuarantees;
     using Transports;
 
     class StoreFaultsInErrorQueue : Feature
@@ -7,18 +8,26 @@ namespace NServiceBus.Features
         public StoreFaultsInErrorQueue()
         {
             EnableByDefault();
+
             Prerequisite(context =>
             {
                 var b = !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly");
                 return b;
             }, "Send only endpoints can't be used to forward received messages to the error queue as the endpoint requires receive capabilities");
+
+            Defaults(settings => { settings.SetDefault(FailureInfoStorageCacheSizeKey, 1000); });
         }
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             var errorQueue = ErrorQueueSettings.GetConfiguredErrorQueue(context.Settings);
             context.Settings.Get<QueueBindings>().BindSending(errorQueue);
-            context.Pipeline.Register(new MoveFaultsToErrorQueueBehavior.Registration(errorQueue, context.Settings.LocalAddress()));
+
+            var failureInfoStorage = new FailureInfoStorage(context.Settings.Get<int>(FailureInfoStorageCacheSizeKey));
+            context.Container.RegisterSingleton(failureInfoStorage);
+
+            var transportTransactionMode = context.Settings.GetRequiredTransactionModeForReceives();
+            context.Pipeline.Register(new MoveFaultsToErrorQueueBehavior.Registration(errorQueue, context.Settings.LocalAddress(), transportTransactionMode));
             context.Pipeline.Register("FaultToDispatchConnector", new FaultToDispatchConnector(), "Connector to dispatch faulted messages");
 
             RaiseLegacyNotifications(context);
@@ -50,5 +59,7 @@ namespace NServiceBus.Features
                 return TaskEx.CompletedTask;
             });
         }
+
+        const string FailureInfoStorageCacheSizeKey = "Recoverability.FailureInfoStorage.CacheSize";
     }
 }

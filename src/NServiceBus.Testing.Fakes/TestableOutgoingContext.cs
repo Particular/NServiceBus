@@ -17,7 +17,7 @@ namespace NServiceBus.Testing
         /// </summary>
         public FakeBuilder Builder { get; set; } = new FakeBuilder();
 
-        IBuilder IBehaviorContext.Builder { get; }
+        IBuilder IBehaviorContext.Builder => GetBuilder();
 
         /// <summary>
         /// The id of the outgoing message.

@@ -9,6 +9,7 @@
     using NServiceBus.Routing;
     using NServiceBus.Unicast.Messages;
     using NUnit.Framework;
+    using Testing;
     using Conventions = NServiceBus.Conventions;
 
     [TestFixture]
@@ -213,7 +214,11 @@
                 message = new MyMessage();
             }
 
-            var context = new OutgoingSendContext(new OutgoingLogicalMessage(message.GetType(), message), options, new RootContext(null, null, null));
+            var context = new TestableOutgoingSendContext
+            {
+                Message = new OutgoingLogicalMessage(message.GetType(), message),
+                Extensions = options.Context
+            };
             return context;
         }
 

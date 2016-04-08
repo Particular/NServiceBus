@@ -7,6 +7,7 @@
     using NServiceBus.Routing;
     using NServiceBus.Transports;
     using NUnit.Framework;
+    using Testing;
 
     [TestFixture]
     public class RoutingToDispatchConnectorTests
@@ -15,13 +16,10 @@
         public async Task Should_preserve_headers_generated_by_custom_routing_strategy()
         {
             var behavior = new RoutingToDispatchConnector();
-            var message = new OutgoingMessage("ID", new Dictionary<string, string>(), new byte[0]);
             Dictionary<string, string> headers = null;
-
-            await behavior.Invoke(new RoutingContext(message,
-                new CustomRoutingStrategy(),CreateContext(new SendOptions(), false)), c =>
+            await behavior.Invoke(new TestableRoutingContext { RoutingStrategies = new List<RoutingStrategy> { new CustomRoutingStrategy() } }, context =>
                 {
-                    headers = c.Operations.First().Message.Headers;
+                    headers = context.Operations.First().Message.Headers;
                     return TaskEx.CompletedTask;
                 });
 

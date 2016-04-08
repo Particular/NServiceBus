@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -121,9 +121,11 @@
     <Compile Include="Encryption\When_sending_a_message_with_2x_compatibility_disabled.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\DispatchTimeoutBehaviorTest.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\ExpiredTimeoutsPollerTests.cs" />
-    <Compile Include="DelayedDelivery\TimeoutManager\FailureInfoStorageTests.cs" />
+    <Compile Include="DelayedDelivery\TimeoutManager\TimeoutFailureInfoStorageTests.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\RecordingFakeDispatcher.cs" />
     <Compile Include="DeliveryConstraintContextExtensions\DeliveryConstraintContextExtensionsTests.cs" />
+    <Compile Include="FakeEventAggregator.cs" />
+    <Compile Include="Fakes\TestableMessageSessionTests.cs" />
     <Compile Include="MessageMapper\MessageMapperTests.cs" />
     <Compile Include="Msmq\TimeToBeReceivedOverrideCheckerTest.cs" />
     <Compile Include="Msmq\MsmqExtensionsTests.cs" />
@@ -142,8 +144,8 @@
     <Compile Include="Pipeline\Outgoing\OutgoingPublishContextTests.cs" />
     <Compile Include="Pipeline\Outgoing\OutgoingReplyContextTests.cs" />
     <Compile Include="Pipeline\Outgoing\OutgoingSendContextTests.cs" />
-    <Compile Include="FakeBehaviorContext.cs" />
     <Compile Include="Pipeline\RegisterStepTests.cs" />
+    <Compile Include="Recoverability\FailureInfoStorageTests.cs" />
     <Compile Include="Routing\ApplyReplyToAddressBehaviorTests.cs" />
     <Compile Include="Routing\BestPracticesOptionExtensionsTests.cs" />
     <Compile Include="Routing\DetermineRouteForPublishBehaviorTests.cs" />
@@ -248,8 +250,6 @@
     <Compile Include="Encryption\Issue_949.cs" />
     <Compile Include="Encryption\Mailing_list_complex_dto.cs" />
     <Compile Include="Encryption\WireEncryptedStringSpecs.cs" />
-    <Compile Include="Fakes\FakeHandlingContext.cs" />
-    <Compile Include="FuncBuilder.cs" />
     <Compile Include="Installers\PerformanceMonitorUsersInstallerTests.cs" />
     <Compile Include="ExceptionTests.cs" />
     <Compile Include="MessageMapper\When_mapping_ienumerable_implementations.cs" />
@@ -321,6 +321,10 @@
     <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj">
       <Project>{dd48b2d0-e996-412d-9157-821ed8b17a9d}</Project>
       <Name>NServiceBus.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NServiceBus.Testing.Fakes\NServiceBus.Testing.Fakes.csproj">
+      <Project>{80105366-8ef9-494d-a296-e100e82224cf}</Project>
+      <Name>NServiceBus.Testing.Fakes</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -6,9 +6,9 @@
     using System.Threading.Tasks;
     using NServiceBus.Extensibility;
     using NServiceBus.Pipeline;
-    using NServiceBus.Routing;
     using NServiceBus.Transports;
     using NUnit.Framework;
+    using Testing;
 
     [TestFixture]
     public class ApplyReplyToAddressBehaviorTests
@@ -25,17 +25,10 @@
             Assert.AreEqual("PublicAddress", context.Headers[Headers.ReplyToAddress]);
         }
 
-        static OutgoingLogicalMessageContext CreateContext(ExtendableOptions options)
+        static IOutgoingLogicalMessageContext CreateContext(ExtendableOptions options)
         {
-            var context = new OutgoingLogicalMessageContext(
-                Guid.NewGuid().ToString(),
-                new Dictionary<string, string>(),
-                new OutgoingLogicalMessage(typeof(MyMessage), new MyMessage()),
-                new RoutingStrategy[]
-                {
-                },
-                new RootContext(null, null, null));
-            context.Merge(options.Context);
+            var context = new TestableOutgoingLogicalMessageContext { Extensions = options.Context };
+            
             return context;
         }
 
@@ -100,12 +93,12 @@
             var options = new SendOptions();
             var context = CreateContext(options);
 
-            context.Set(new IncomingMessage("ID", new Dictionary<string, string>
+            context.Extensions.Set(new IncomingMessage("ID", new Dictionary<string, string>
             {
                 { LegacyDistributorHeaders.WorkerSessionId, "SessionID" }
             }, new MemoryStream()));
 
-            var state = context.GetOrCreate<ApplyReplyToAddressBehavior.State>();
+            var state = context.Extensions.GetOrCreate<ApplyReplyToAddressBehavior.State>();
             state.Option = ApplyReplyToAddressBehavior.RouteOption.RouteReplyToThisInstance;
 
             await behavior.Invoke(context, () => TaskEx.CompletedTask);

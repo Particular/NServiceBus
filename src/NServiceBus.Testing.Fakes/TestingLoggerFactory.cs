@@ -19,7 +19,7 @@
         }
 
         /// <summary>
-        /// Controls the <see cref="LogLevel" />.
+        /// Controls the <see cref="Logging.LogLevel" />.
         /// </summary>
         public void Level(LogLevel level)
         {
@@ -35,6 +35,9 @@
             this.writer = new Lazy<TextWriter>(() => writer);
         }
 
+        /// <summary>
+        /// Constructs an instance of <see cref="ILoggerFactory" /> for use by <see cref="LogManager.Use{T}" />.
+        /// </summary>
         protected override ILoggerFactory GetLoggingFactory()
         {
             var loggerFactory = new DefaultTestingLoggerFactory(level.Value, writer.Value);

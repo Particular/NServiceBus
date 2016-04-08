@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Threading;
     using System.Threading.Tasks;
     using DelayedDelivery;
     using DeliveryConstraints;
@@ -14,15 +13,16 @@
     using NServiceBus.Routing;
     using NServiceBus.Transports;
     using NUnit.Framework;
-    using TransportOperation = NServiceBus.Outbox.TransportOperation;
+    using Testing;
+    using TransportOperation = NServiceBus.Transports.TransportOperation;
 
     [TestFixture]
     public class TransportReceiveToPhysicalMessageProcessingConnectorTests
     {
-
         [Test]
         public async Task Should_honor_stored_delivery_constraints()
         {
+            var messageId = "id";
             var options = new Dictionary<string, string>();
             var deliverTime = DateTime.UtcNow.AddDays(1);
             var maxTime = TimeSpan.FromDays(1);
@@ -34,12 +34,12 @@
             options["DelayDeliveryFor"] = TimeSpan.FromSeconds(10).ToString();
             options["TimeToBeReceived"] = maxTime.ToString();
 
-            fakeOutbox.ExistingMessage = new OutboxMessage("id", new List<TransportOperation>
+            fakeOutbox.ExistingMessage = new OutboxMessage(messageId, new List<NServiceBus.Outbox.TransportOperation>
             {
-                new TransportOperation("x",options,new byte[0],new Dictionary<string, string>())
+                new NServiceBus.Outbox.TransportOperation("x", options, new byte[0], new Dictionary<string, string>())
             });
 
-            var context = CreateContext(fakeBatchPipeline);
+            var context = CreateContext(fakeBatchPipeline, messageId);
 
             await Invoke(context);
 
@@ -66,16 +66,17 @@
         [Test]
         public async Task Should_honor_stored_direct_routing()
         {
+            var messageId = "id";
             var options = new Dictionary<string, string>();
 
             options["Destination"] = "myEndpoint";
-            
-            fakeOutbox.ExistingMessage = new OutboxMessage("id", new List<TransportOperation>
+
+            fakeOutbox.ExistingMessage = new OutboxMessage(messageId, new List<NServiceBus.Outbox.TransportOperation>
             {
-                new TransportOperation("x",options,new byte[0],new Dictionary<string, string>())
+                new NServiceBus.Outbox.TransportOperation("x", options, new byte[0], new Dictionary<string, string>())
             });
 
-            var context = CreateContext(fakeBatchPipeline);
+            var context = CreateContext(fakeBatchPipeline, messageId);
 
             await Invoke(context);
 
@@ -89,16 +90,17 @@
         [Test]
         public async Task Should_honor_stored_pubsub_routing()
         {
+            var messageId = "id";
             var options = new Dictionary<string, string>();
 
             options["EventType"] = typeof(MyEvent).AssemblyQualifiedName;
-            
-            fakeOutbox.ExistingMessage = new OutboxMessage("id", new List<TransportOperation>
+
+            fakeOutbox.ExistingMessage = new OutboxMessage(messageId, new List<NServiceBus.Outbox.TransportOperation>
             {
-                new TransportOperation("x",options,new byte[0],new Dictionary<string, string>())
+                new NServiceBus.Outbox.TransportOperation("x", options, new byte[0], new Dictionary<string, string>())
             });
 
-            var context = CreateContext(fakeBatchPipeline);
+            var context = CreateContext(fakeBatchPipeline, messageId);
 
             await Invoke(context);
 
@@ -108,9 +110,15 @@
             Assert.Null(fakeOutbox.StoredMessage);
         }
 
-        static ITransportReceiveContext CreateContext(FakeBatchPipeline pipeline)
+        static ITransportReceiveContext CreateContext(FakeBatchPipeline pipeline, string messageId)
         {
-            var context = new TransportReceiveContext(new IncomingMessage("id", new Dictionary<string, string>(), new MemoryStream()), null, new CancellationTokenSource(), new RootContext(null, new FakePipelineCache(pipeline), null));
+            var context = new TestableTransportReceiveContext
+            {
+                Message = new IncomingMessage(messageId, new Dictionary<string, string>(), Stream.Null)
+            };
+
+            context.Extensions.Set<IPipelineCache>(new FakePipelineCache(pipeline));
+
             return context;
         }
 
@@ -128,16 +136,17 @@
             await behavior.Invoke(context, c => TaskEx.CompletedTask).ConfigureAwait(false);
         }
 
-        FakeBatchPipeline fakeBatchPipeline;
-        FakeOutboxStorage fakeOutbox;
         TransportReceiveToPhysicalMessageProcessingConnector behavior;
 
-        class MyEvent { }
+        FakeBatchPipeline fakeBatchPipeline;
+        FakeOutboxStorage fakeOutbox;
+
+        class MyEvent
+        {
+        }
 
         class FakePipelineCache : IPipelineCache
         {
-            IPipeline<IBatchDispatchContext> pipeline;
-
             public FakePipelineCache(IPipeline<IBatchDispatchContext> pipeline)
             {
                 this.pipeline = pipeline;
@@ -147,13 +156,15 @@
                 where TContext : IBehaviorContext
 
             {
-                return (IPipeline<TContext>)pipeline;
+                return (IPipeline<TContext>) pipeline;
             }
+
+            IPipeline<IBatchDispatchContext> pipeline;
         }
 
         class FakeBatchPipeline : IPipeline<IBatchDispatchContext>
         {
-            public IEnumerable<NServiceBus.Transports.TransportOperation> TransportOperations { get; set; }
+            public IEnumerable<TransportOperation> TransportOperations { get; set; }
 
             public Task Invoke(IBatchDispatchContext context)
             {

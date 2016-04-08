@@ -3,10 +3,8 @@
     using NServiceBus.Pipeline;
     using NServiceBus.Sagas;
     using NUnit.Framework;
-    using ObjectBuilder;
-    using Unicast.Messages;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Testing;
 
     [TestFixture]
     public class InvokeSagaNotFoundBehaviorTests
@@ -14,20 +12,9 @@
         [SetUp]
         public void SetupTests()
         {
-            message = new LogicalMessage(new MessageMetadata(typeof(TestMessage)), new TestMessage());
-
             behavior = new InvokeSagaNotFoundBehavior();
 
-            incomingContext = new IncomingLogicalMessageContext(
-                message,
-                "messageId",
-                "replyToAddress",
-                new Dictionary<string, string>(),
-                null);
-
-            builder = new FuncBuilder();
-
-            incomingContext.Set<IBuilder>(builder);
+            incomingContext = new TestableIncomingLogicalMessageContext();
         }
 
         [Test]
@@ -35,8 +22,7 @@
         {
             var validSagaHandler = new HandleSagaNotFoundValid();
 
-            builder.Register<IHandleSagaNotFound>(() => new HandleSagaNotFoundReturnsNull1());
-            builder.Register<IHandleSagaNotFound>(() => validSagaHandler);
+            incomingContext.Builder.Register<IHandleSagaNotFound>(new HandleSagaNotFoundReturnsNull1(), validSagaHandler);
 
             Assert.That(async () => await behavior.Invoke(incomingContext, () => TaskEx.CompletedTask), Throws.Nothing);
 
@@ -46,8 +32,7 @@
         [Test]
         public void Throw_friendly_exception_when_any_IHandleSagaNotFound_Handler_returns_null()
         {
-            builder.Register<IHandleSagaNotFound>(() => new HandleSagaNotFoundReturnsNull1());
-            builder.Register<IHandleSagaNotFound>(() => new HandleSagaNotFoundValid());
+            incomingContext.Builder.Register<IHandleSagaNotFound>(new HandleSagaNotFoundReturnsNull1(), new HandleSagaNotFoundValid());
 
             Assert.That(async () => await behavior.Invoke(incomingContext, SetSagaNotFound), Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
         }
@@ -82,9 +67,7 @@
             }
         }
 
-        LogicalMessage message;
         InvokeSagaNotFoundBehavior behavior;
-        FuncBuilder builder;
-        IncomingLogicalMessageContext incomingContext;
+        TestableIncomingLogicalMessageContext incomingContext;
     }
 }

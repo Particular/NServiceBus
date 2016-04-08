@@ -48,12 +48,12 @@ namespace NServiceBus
             await MoveToErrorQueue(context, message, failureInfo).ConfigureAwait(false);
         }
 
-        bool ShouldAttemptAnotherRetry([NotNull] ProcessingFailureInfo failureInfo)
+        bool ShouldAttemptAnotherRetry([NotNull] TimeoutProcessingFailureInfo failureInfo)
         {
             return failureInfo.NumberOfFailedAttempts <= MaxNumberOfFailedRetries;
         }
 
-        async Task MoveToErrorQueue(ITransportReceiveContext context, IncomingMessage message, ProcessingFailureInfo failureInfo)
+        async Task MoveToErrorQueue(ITransportReceiveContext context, IncomingMessage message, TimeoutProcessingFailureInfo failureInfo)
         {
             try
             {
@@ -79,7 +79,7 @@ namespace NServiceBus
         IDispatchMessages dispatcher;
         string errorQueueAddress;
 
-        FailureInfoStorage failures = new FailureInfoStorage();
+        TimeoutFailureInfoStorage failures = new TimeoutFailureInfoStorage();
         string localAddress;
 
         const int MaxNumberOfFailedRetries = 4;

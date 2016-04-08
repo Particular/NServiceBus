@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using NServiceBus;
 
 [assembly: AssemblyTitle("NServiceBus.Core")]
 [assembly: AssemblyCopyright("Copyright 2010-2014 NServiceBus. All rights reserved")]
@@ -8,3 +9,6 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCompany("NServiceBus Ltd.")]
 [assembly: ComVisible(false)]
 [assembly: CLSCompliant(true)]
+
+// TODO: Introduce proper way to automatically generate these dates before final release of 6.0.0
+[assembly: ReleaseDate("2016-04-06", "2016-04-06")]
