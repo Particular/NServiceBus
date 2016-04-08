@@ -3,17 +3,14 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
     using System.Threading.Tasks;
-    using DelayedDelivery;
-    using DeliveryConstraints;
     using NServiceBus.Pipeline;
-    using NServiceBus.Routing;
     using NServiceBus.Transports;
     using NUnit.Framework;
+    using Testing;
 
     [TestFixture]
-    public class RecoverabilityTests
+    public class When_message_is_deferred_by_slr
     {
         FakeDispatchPipeline dispatchPipeline;
 
@@ -24,7 +21,7 @@
         }
 
         [Test]
-        public async Task ShouldAbortMessageReceiveWhenMarkingForDeferal()
+        public async Task _should_abort_message_receive_when_marking_for_deferral()
         {
             var policy = new FakePolicy();
             var failureStorage = new FailureInfoStorage(10);
@@ -32,7 +29,7 @@
 
             var chain = new BehaviorChain(new[]
             {
-                new BehaviorInstance(typeof(MoveFaultsToErrorQueueBehavior), new MoveFaultsToErrorQueueBehavior(criticalError, "", "", TransportTransactionMode.None, failureStorage)),
+                new BehaviorInstance(typeof(MoveFaultsToErrorQueueBehavior), new MoveFaultsToErrorQueueBehavior(criticalError, "error", "", TransportTransactionMode.None, failureStorage)),
                 new BehaviorInstance(typeof(SecondLevelRetriesBehavior), new SecondLevelRetriesBehavior(policy, "", failureStorage)),
                 new BehaviorInstance(typeof(FirstLevelRetriesBehavior), new FirstLevelRetriesBehavior(failureStorage, new FirstLevelRetryPolicy(0))), 
                 new BehaviorInstance(typeof(FailingBehavior), new FailingBehavior())
@@ -42,11 +39,11 @@
 
             await chain.Invoke(context);
 
-            Assert.IsTrue(context.ReceiveOperationWasAborted, "Message receive should be aborted by SecondLevelRetries");
+            Assert.IsTrue(context.ReceiveOperationAborted, "Message receive should be aborted by SecondLevelRetries");
         }
 
         [Test]
-        public async Task ShouldImmediatellyDelayFailedMessage()
+        public async Task _should_schedule_delayed_delivery_for_failed_message()
         {
             var policy = new FakePolicy();
             var failureStorage = new FailureInfoStorage(10);
@@ -55,7 +52,7 @@
 
             var chain = new BehaviorChain(new[]
             {
-                new BehaviorInstance(typeof(MoveFaultsToErrorQueueBehavior), new MoveFaultsToErrorQueueBehavior(criticalError, "", "", TransportTransactionMode.None, failureStorage)),
+                new BehaviorInstance(typeof(MoveFaultsToErrorQueueBehavior), new MoveFaultsToErrorQueueBehavior(criticalError, "error", "", TransportTransactionMode.None, failureStorage)),
                 new BehaviorInstance(typeof(SecondLevelRetriesBehavior), new SecondLevelRetriesBehavior(policy, "", failureStorage)),
                 new BehaviorInstance(typeof(FirstLevelRetriesBehavior), new FirstLevelRetriesBehavior(failureStorage, new FirstLevelRetryPolicy(0))), 
                 new BehaviorInstance(typeof(FailingBehavior), failingBehavior)
@@ -93,15 +90,16 @@
             return new IncomingMessage(id, headers, new MemoryStream(body ?? new byte[0]));
         }
 
-        FakeTransportReceiveContext CreateContext()
+        TestableTransportReceiveContext CreateContext()
         {
             return CreateContext(CreateMessage());
         }
 
-        FakeTransportReceiveContext CreateContext(IncomingMessage message)
+        TestableTransportReceiveContext CreateContext(IncomingMessage message)
         {
-            var context = new FakeTransportReceiveContext(message);
+            var context = new TestableTransportReceiveContext {Message = message };
 
+            context.Extensions.Set<IEventAggregator>(new FakeEventAggregator());
             context.Extensions.Set<IPipelineCache>(new FakePipelineCache(dispatchPipeline));
 
             return context;
@@ -135,39 +133,14 @@
 
         class FakeDispatchPipeline : IPipeline<IRoutingContext>
         {
-            public IRoutingContext RoutingContext { get; set; }
+            IRoutingContext RoutingContext { get; set; }
 
             public string MessageId => RoutingContext.Message.MessageId;
-
-            public TimeSpan MessageDeliveryDelay => ((DelayDeliveryWith) RoutingContext.Extensions.GetDeliveryConstraints().Single(c => c is DelayDeliveryWith)).Delay;
-
-            public string MessageDestination => ((UnicastAddressTag) RoutingContext.RoutingStrategies.First().Apply(new Dictionary<string, string>())).Destination;
-
-            public Dictionary<string, string> MessageHeaders => RoutingContext.Message.Headers;
-
-            public byte[] MessageBody => RoutingContext.Message.Body;
-
+            
             public Task Invoke(IRoutingContext context)
             {
                 RoutingContext = context;
                 return TaskEx.CompletedTask;
-            }
-        }
-
-        class FakeTransportReceiveContext : FakeBehaviorContext, ITransportReceiveContext
-        {
-            public FakeTransportReceiveContext(IncomingMessage message)
-            {
-                Message = message;
-            }
-
-            public bool ReceiveOperationWasAborted { get; private set; }
-
-            public IncomingMessage Message { get; }
-
-            public void AbortReceiveOperation()
-            {
-                ReceiveOperationWasAborted = true;
             }
         }
     }
