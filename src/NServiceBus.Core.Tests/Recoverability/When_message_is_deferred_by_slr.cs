@@ -21,7 +21,7 @@
         }
 
         [Test]
-        public async Task _should_abort_message_receive_when_marking_for_deferral()
+        public async Task Should_abort_message_receive_when_marking_for_deferral()
         {
             var chain = CreateBehaviorChain(new FailingBehavior());
 
@@ -33,7 +33,7 @@
         }
 
         [Test]
-        public async Task _should_schedule_delayed_delivery_for_failed_message()
+        public async Task Should_schedule_delayed_delivery_for_failed_message()
         {
             var failingBehavior = new FailingBehavior();
 
