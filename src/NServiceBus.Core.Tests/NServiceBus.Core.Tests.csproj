@@ -148,6 +148,7 @@
     <Compile Include="Pipeline\Outgoing\OutgoingSendContextTests.cs" />
     <Compile Include="Pipeline\RegisterStepTests.cs" />
     <Compile Include="Recoverability\FailureInfoStorageTests.cs" />
+    <Compile Include="Recoverability\When_message_is_deferred_by_slr.cs" />
     <Compile Include="Routing\ApplyReplyToAddressBehaviorTests.cs" />
     <Compile Include="Routing\BestPracticesOptionExtensionsTests.cs" />
     <Compile Include="Routing\DetermineRouteForPublishBehaviorTests.cs" />
