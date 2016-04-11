@@ -3,7 +3,10 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Threading.Tasks;
+    using DelayedDelivery;
+    using DeliveryConstraints;
     using NServiceBus.Pipeline;
     using NServiceBus.Transports;
     using NUnit.Framework;
@@ -46,6 +49,10 @@
 
             Assert.AreEqual(dispatchPipeline.MessageId, message.MessageId);
             Assert.AreEqual(1, failingBehavior.NumberOfCalls);
+            Assert.AreEqual(dispatchPipeline.Headers[Headers.Retries], "1");
+            Assert.IsNotNullOrEmpty(dispatchPipeline.Headers[Headers.RetriesTimestamp]);
+            var deliveryConstraint = dispatchPipeline.RoutingContext.Extensions.Get<List<DeliveryConstraint>>().Single();
+            Assert.IsTrue(deliveryConstraint is DelayDeliveryWith);
         }
 
         BehaviorChain CreateBehaviorChain<LastBehaviorT>(LastBehaviorT lastBehavior) where LastBehaviorT : IBehavior
@@ -131,9 +138,11 @@
 
         class FakeDispatchPipeline : IPipeline<IRoutingContext>
         {
-            IRoutingContext RoutingContext { get; set; }
+            public IRoutingContext RoutingContext { get; set; }
 
             public string MessageId => RoutingContext.Message.MessageId;
+
+            public Dictionary<string, string> Headers => RoutingContext.Message.Headers;
             
             public Task Invoke(IRoutingContext context)
             {
