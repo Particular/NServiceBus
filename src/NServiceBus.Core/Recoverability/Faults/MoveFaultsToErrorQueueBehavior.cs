@@ -68,11 +68,11 @@
                 var outgoingMessage = new OutgoingMessage(message.MessageId, message.Headers, message.Body);
                 var faultContext = this.CreateFaultContext(context, outgoingMessage, errorQueueAddress, exception);
 
+                failureInfoStorage.ClearFailureInfoForMessage(message.MessageId);
+
                 await fork(faultContext).ConfigureAwait(false);
 
                 await context.RaiseNotification(new MessageFaulted(message, exception)).ConfigureAwait(false);
-
-                failureInfoStorage.ClearFailureInfoForMessage(message.MessageId);
             }
             catch (Exception ex)
             {
