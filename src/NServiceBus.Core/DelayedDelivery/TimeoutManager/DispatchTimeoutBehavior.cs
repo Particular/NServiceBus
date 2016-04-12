@@ -46,7 +46,7 @@ namespace NServiceBus
         static DispatchConsistency GetDispatchConsistency(TransportTransactionMode transportTransactionMode)
         {
             // dispatch message isolated from existing transactions when not using DTC to avoid loosing timeout data when the transaction commit fails.
-            return transportTransactionMode == TransportTransactionMode.TransactionScope
+            return transportTransactionMode >= TransportTransactionMode.SendsAtomicWithReceive
                 ? DispatchConsistency.Default
                 : DispatchConsistency.Isolated;
         }
