@@ -17,13 +17,13 @@
     [TestFixture]
     public class SecondLevelRetriesTests
     {
-        FakeDispatchPipeline dispatchPipline;
+        FakeDispatchPipeline dispatchPipeline;
         FailureInfoStorage failureInfoStorage;
 
         [SetUp]
         public void SetUp()
         {
-            dispatchPipline = new FakeDispatchPipeline();
+            dispatchPipeline = new FakeDispatchPipeline();
             failureInfoStorage = new FailureInfoStorage(10);
         }
 
@@ -40,9 +40,9 @@
             await behavior.Invoke(context, () => { throw new Exception("exception-message"); });
             await behavior.Invoke(context, () => Task.FromResult(0));
 
-            Assert.AreEqual("message-id", dispatchPipline.MessageId);
-            Assert.AreEqual(delay, dispatchPipline.MessageDeliveryDelay);
-            Assert.AreEqual("deferral-address", dispatchPipline.MessageDestination);
+            Assert.AreEqual("message-id", dispatchPipeline.MessageId);
+            Assert.AreEqual(delay, dispatchPipeline.MessageDeliveryDelay);
+            Assert.AreEqual("deferral-address", dispatchPipeline.MessageDestination);
             Assert.AreEqual("exception-message", eventAggregator.GetNotification<MessageToBeRetried>().Exception.Message);
         }
 
@@ -58,8 +58,8 @@
             await behavior.Invoke(context, () => { throw new Exception(); });
             await behavior.Invoke(context, () => Task.FromResult(0) );
 
-            var retryTimestampHeader = dispatchPipline.MessageHeaders.ContainsKey(Headers.RetriesTimestamp)
-                ? dispatchPipline.MessageHeaders[Headers.RetriesTimestamp]
+            var retryTimestampHeader = dispatchPipeline.MessageHeaders.ContainsKey(Headers.RetriesTimestamp)
+                ? dispatchPipeline.MessageHeaders[Headers.RetriesTimestamp]
                 : null;
 
             Assert.NotNull(retryTimestampHeader, "Message should have retry timestamp set.");
@@ -157,7 +157,33 @@
 
             await behavior.Invoke(context, () => { throw new Exception(); });
 
-            Assert.IsTrue(context.ReceiveOperationAborted, "SLR should request recive operation abort when marking message for deferal.");
+            Assert.IsTrue(context.ReceiveOperationAborted, "SLR should request receive operation abort when marking message for deferal.");
+        }
+
+        [Test]
+        public async Task ShouldInvokePipelineWhenDeferredMessageDeliveredImmediately()
+        {
+            var message = CreateMessage();
+            var eventAggregator = new FakeEventAggregator();
+            var context = CreateContext(message, eventAggregator);
+
+            var delay = TimeSpan.FromSeconds(1);
+            var behavior = new SecondLevelRetriesBehavior(new FakePolicy(delay), "", failureInfoStorage);
+
+            var continuationCalledAfterDeferral = false;
+
+            await behavior.Invoke(context, () => { throw new Exception(); }, c => Task.FromResult(0));
+
+            await behavior.Invoke(context, () => Task.FromResult(0), c =>
+            {
+                return behavior.Invoke(context, () =>
+                {
+                    continuationCalledAfterDeferral = true;
+                    return Task.FromResult(0);
+                });
+            });
+
+            Assert.IsTrue(continuationCalledAfterDeferral);
         }
 
         IncomingMessage CreateMessage(string id = "id", string slrRetryHeader = null, byte[] body = null)
@@ -183,7 +209,7 @@
             };
 
             context.Extensions.Set<IEventAggregator>(eventAggregator ?? new FakeEventAggregator());
-            context.Extensions.Set<IPipelineCache>(new FakePipelineCache(dispatchPipline));
+            context.Extensions.Set<IPipelineCache>(new FakePipelineCache(dispatchPipeline));
 
             return context;
         }

@@ -131,6 +131,30 @@ namespace NServiceBus.Core.Tests
             Assert.IsFalse(invokedTwice, "Pipline continuation should not be called when failed message is processed second time.");
         }
 
+        [TestCase(TransportTransactionMode.ReceiveOnly)]
+        [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
+        [TestCase(TransportTransactionMode.TransactionScope)]
+        public async Task ShouldInvokePipelineWhenFaultedMessageRedeliveredImmediately(TransportTransactionMode transactionMode)
+        {
+            var behavior = CreateBehavior(transactionMode);
+            var context = CreateContext();
+
+            var continuationCalledAfterDeferral = false;
+
+            await behavior.Invoke(context, () => { throw new Exception(); }, c => Task.FromResult(0));
+
+            await behavior.Invoke(context, () => Task.FromResult(0), c =>
+            {
+                return behavior.Invoke(context, () =>
+                {
+                    continuationCalledAfterDeferral = true;
+                    return Task.FromResult(0);
+                });
+            });
+
+            Assert.IsTrue(continuationCalledAfterDeferral);
+        }
+
         MoveFaultsToErrorQueueBehavior CreateBehavior(TransportTransactionMode transactionMode, string errorQueueAddress = "errors")
         {
             var behavior = new MoveFaultsToErrorQueueBehavior(

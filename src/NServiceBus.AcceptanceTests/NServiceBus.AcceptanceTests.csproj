@@ -102,7 +102,6 @@
     <Compile Include="Persistence\When_a_persistence_does_not_support_timeouts.cs" />
     <Compile Include="Pipeline\When_replacing_behavior.cs" />
     <Compile Include="Persistence\When_a_persistence_does_not_provide_ISynchronizationContext.cs" />
-    <Compile Include="Recoverability\Retries\When_message_is_deferred_by_slr.cs" />
     <Compile Include="Recoverability\Retries\When_message_is_deferred_by_slr_using_dtc.cs" />
     <Compile Include="Recoverability\Retries\When_message_fails_retries.cs" />
     <Compile Include="Recoverability\Retries\When_performing_slr_with_flr_disabled.cs" />
