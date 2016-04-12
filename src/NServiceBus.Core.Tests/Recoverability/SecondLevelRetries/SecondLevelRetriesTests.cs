@@ -157,7 +157,33 @@
 
             await behavior.Invoke(context, () => { throw new Exception(); });
 
-            Assert.IsTrue(context.ReceiveOperationAborted, "SLR should request recive operation abort when marking message for deferal.");
+            Assert.IsTrue(context.ReceiveOperationAborted, "SLR should request receive operation abort when marking message for deferal.");
+        }
+
+        [Test]
+        public async Task ShouldInvokePipelineWhenDeferredMessageDeliveredImmediately()
+        {
+            var message = CreateMessage();
+            var eventAggregator = new FakeEventAggregator();
+            var context = CreateContext(message, eventAggregator);
+
+            var delay = TimeSpan.FromSeconds(1);
+            var behavior = new SecondLevelRetriesBehavior(new FakePolicy(delay), "", failureInfoStorage);
+
+            var continuationCalledAfterDeferral = false;
+
+            await behavior.Invoke(context, () => { throw new Exception(); }, c => Task.FromResult(0));
+
+            await behavior.Invoke(context, () => Task.FromResult(0), c =>
+            {
+                return behavior.Invoke(context, () =>
+                {
+                    continuationCalledAfterDeferral = true;
+                    return Task.FromResult(0);
+                });
+            });
+
+            Assert.IsTrue(continuationCalledAfterDeferral);
         }
 
         IncomingMessage CreateMessage(string id = "id", string slrRetryHeader = null, byte[] body = null)
