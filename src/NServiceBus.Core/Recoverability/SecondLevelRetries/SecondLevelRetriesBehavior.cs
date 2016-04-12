@@ -72,9 +72,9 @@
 
                 Logger.Warn($"Second Level Retry will reschedule message '{message.MessageId}' after a delay of {delay} because of an exception:", failureInfo.Exception);
 
-                await fork(dispatchContext).ConfigureAwait(false);
-
                 failureInfoStorage.ClearFailureInfoForMessage(message.MessageId);
+
+                await fork(dispatchContext).ConfigureAwait(false);
 
                 await context.RaiseNotification(new MessageToBeRetried(currentRetry, delay, context.Message, failureInfo.Exception)).ConfigureAwait(false);
 
