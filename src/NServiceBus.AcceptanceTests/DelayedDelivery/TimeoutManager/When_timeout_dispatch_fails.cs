@@ -30,7 +30,12 @@
                 .WithEndpoint<ErrorSpy>()
                 .Done(c => c.FailedTimeoutMovedToError)
                 .Repeat(r => r.For<AllTransportsWithoutNativeDeferral>())
-                .Should(c => Assert.AreEqual(5, c.NumTimesStorageCalled))
+                .Should(c =>
+                {
+                    // depending on the latency the warm up can take more and some queries might be not executed
+                    Assert.LessOrEqual(1, c.NumTimesStorageCalled);
+                    Assert.GreaterOrEqual(5, c.NumTimesStorageCalled);
+                })
                 .Run();
         }
 
