@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.DelayedDelivery
 {
     using System;
-    using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -11,6 +11,7 @@
     using NUnit.Framework;
     using ScenarioDescriptors;
     using Timeout.Core;
+    using Conventions = AcceptanceTesting.Customization.Conventions;
 
     public class When_timeout_dispatch_fails : NServiceBusAcceptanceTest
     {
@@ -23,19 +24,14 @@
                         .When((bus, c) =>
                         {
                             var options = new SendOptions();
-                            options.DelayDeliveryWith(TimeSpan.FromSeconds(1));
-                            options.RouteToThisEndpoint();
+                            options.SetHeader("Timeout.Id", Guid.NewGuid().ToString());
+                            options.SetDestination(Conventions.EndpointNamingConvention(typeof(Endpoint)) + ".TimeoutsDispatcher");
                             return bus.Send(new MyMessage(), options);
                         }))
                 .WithEndpoint<ErrorSpy>()
                 .Done(c => c.FailedTimeoutMovedToError)
                 .Repeat(r => r.For<AllTransportsWithoutNativeDeferral>())
-                .Should(c =>
-                {
-                    // depending on the latency the warm up can take more and some queries might be not executed
-                    Assert.LessOrEqual(1, c.NumTimesStorageCalled);
-                    Assert.GreaterOrEqual(5, c.NumTimesStorageCalled);
-                })
+                .Should(c => Assert.AreEqual(5, c.NumTimesStorageCalled))
                 .Run();
         }
 
@@ -95,12 +91,7 @@
 
                 public Task<TimeoutsChunk> GetNextChunk(DateTime startSlice)
                 {
-                    var timeout = new TimeoutsChunk.Timeout(Guid.NewGuid().ToString(), DateTime.UtcNow);
-                    var timeouts = new List<TimeoutsChunk.Timeout>
-                    {
-                        timeout
-                    };
-                    return Task.FromResult(new TimeoutsChunk(timeouts, DateTime.UtcNow + TimeSpan.FromSeconds(10)));
+                    return Task.FromResult(new TimeoutsChunk(Enumerable.Empty<TimeoutsChunk.Timeout>(), DateTime.MaxValue));
                 }
             }
         }
