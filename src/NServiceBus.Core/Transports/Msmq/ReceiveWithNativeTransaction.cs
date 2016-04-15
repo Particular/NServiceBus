@@ -11,58 +11,61 @@ namespace NServiceBus
 
     class ReceiveWithNativeTransaction : ReceiveStrategy
     {
-        public override async Task ReceiveMessage(MessageQueue inputQueue, MessageQueue errorQueue, CancellationTokenSource cancellationTokenSource, Func<PushContext, Task> onMessage)
+        public override Task ReceiveMessage(MessageQueue inputQueue, MessageQueue errorQueue, CancellationTokenSource cancellationTokenSource, Func<PushContext, Task> onMessage)
         {
-            using (var msmqTransaction = new MessageQueueTransaction())
+            return Task.Run(async () =>
             {
-                try
+                using (var msmqTransaction = new MessageQueueTransaction())
                 {
-                    msmqTransaction.Begin();
-
-                    var message = inputQueue.Receive(TimeSpan.FromMilliseconds(10), msmqTransaction);
-
-                    Dictionary<string, string> headers;
-
                     try
                     {
-                        headers = MsmqUtilities.ExtractHeaders(message);
-                    }
-                    catch (Exception ex)
-                    {
-                        var error = $"Message '{message.Id}' is corrupt and will be moved to '{errorQueue.QueueName}'";
-                        Logger.Error(error, ex);
+                        msmqTransaction.Begin();
 
-                        errorQueue.Send(message, msmqTransaction);
+                        var message = inputQueue.Receive(TimeSpan.FromMilliseconds(10), msmqTransaction);
+
+                        Dictionary<string, string> headers;
+
+                        try
+                        {
+                            headers = MsmqUtilities.ExtractHeaders(message);
+                        }
+                        catch (Exception ex)
+                        {
+                            var error = $"Message '{message.Id}' is corrupt and will be moved to '{errorQueue.QueueName}'";
+                            Logger.Error(error, ex);
+
+                            errorQueue.Send(message, msmqTransaction);
+
+                            msmqTransaction.Commit();
+                            return;
+                        }
+
+                        using (var bodyStream = message.BodyStream)
+                        {
+                            var nativeMsmqTransaction = new TransportTransaction();
+                            nativeMsmqTransaction.Set(msmqTransaction);
+
+                            var pushContext = new PushContext(message.Id, headers, bodyStream, nativeMsmqTransaction, cancellationTokenSource, new ContextBag());
+
+                            await onMessage(pushContext).ConfigureAwait(false);
+                        }
+
+                        if (cancellationTokenSource.Token.IsCancellationRequested)
+                        {
+                            msmqTransaction.Abort();
+                            return;
+                        }
 
                         msmqTransaction.Commit();
-                        return;
                     }
-
-                    using (var bodyStream = message.BodyStream)
-                    {
-                        var nativeMsmqTransaction = new TransportTransaction();
-                        nativeMsmqTransaction.Set(msmqTransaction);
-
-                        var pushContext = new PushContext(message.Id, headers, bodyStream, nativeMsmqTransaction, cancellationTokenSource, new ContextBag());
-
-                        await onMessage(pushContext).ConfigureAwait(false);
-                    }
-
-                    if (cancellationTokenSource.Token.IsCancellationRequested)
+                    catch (Exception)
                     {
                         msmqTransaction.Abort();
-                        return;
+
+                        throw;
                     }
-
-                    msmqTransaction.Commit();
                 }
-                catch (Exception)
-                {
-                    msmqTransaction.Abort();
-
-                    throw;
-                }
-            }
+            });
         }
 
         static ILog Logger = LogManager.GetLogger<ReceiveWithNativeTransaction>();
