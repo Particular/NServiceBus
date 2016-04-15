@@ -13,6 +13,10 @@
     {
         public XmlSerialization(Type messageType, Stream stream, object message, Conventions conventions, XmlSerializerCache cache, bool skipWrappingRawXml, string @namespace = DefaultNamespace)
         {
+            if (messageType.IsValueType)
+            {
+                throw new ArgumentException($"XmlSerializer cannot serialze structs. Message type '{messageType.AssemblyQualifiedName}'.");
+            }
             this.messageType = messageType;
             this.message = message;
             this.conventions = conventions;
@@ -50,7 +54,7 @@
             // this is to force compatibility with previous implementation,
             // in particular, to support nested objects with null properties in them.
 
-            foreach (var childElement in 
+            foreach (var childElement in
                 from x in document.DescendantNodes().OfType<XElement>()
                 where x.IsEmpty && !x.HasAttributes
                 select x)
