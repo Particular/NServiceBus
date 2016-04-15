@@ -146,36 +146,41 @@ namespace NServiceBus
 
                     await concurrencyLimiter.WaitAsync(cancellationToken).ConfigureAwait(false);
 
-                    var tokenSource = new CancellationTokenSource();
-
                     var receiveTask = Task.Run(async () =>
                     {
-                        try
+                        using (var tokenSource = new CancellationTokenSource())
                         {
-                            await receiveStrategy.ReceiveMessage(inputQueue, errorQueue, tokenSource, pipeline).ConfigureAwait(false);
-                            receiveCircuitBreaker.Success();
-                        }
-                        catch (MessageQueueException ex)
-                        {
-                            if (ex.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
+                            try
                             {
-                                //We should only get an IOTimeout exception here if another process removed the message between us peeking and now.
-                                return;
+                                await receiveStrategy.ReceiveMessage(inputQueue, errorQueue, tokenSource, pipeline).ConfigureAwait(false);
+                                receiveCircuitBreaker.Success();
                             }
+                            catch (MessageQueueException ex)
+                            {
+                                if (ex.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
+                                {
+                                    //We should only get an IOTimeout exception here if another process removed the message between us peeking and now.
+                                    return;
+                                }
 
-                            Logger.Warn("MSMQ receive operation failed", ex);
-                            await receiveCircuitBreaker.Failure(ex).ConfigureAwait(false);
+                                Logger.Warn("MSMQ receive operation failed", ex);
+                                await receiveCircuitBreaker.Failure(ex).ConfigureAwait(false);
+                            }
+                            catch (OperationCanceledException)
+                            {
+                                // Intentionally ignored
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.Warn("MSMQ receive operation failed", ex);
+                                await receiveCircuitBreaker.Failure(ex).ConfigureAwait(false);
+                            }
+                            finally
+                            {
+                                concurrencyLimiter.Release();
+                            }
                         }
-                        catch (Exception ex)
-                        {
-                            Logger.Warn("MSMQ receive operation failed", ex);
-                            await receiveCircuitBreaker.Failure(ex).ConfigureAwait(false);
-                        }
-                        finally
-                        {
-                            concurrencyLimiter.Release();
-                        }
-                    }, tokenSource.Token).ContinueWith(t => tokenSource.Dispose());
+                    }, CancellationToken.None);
 
                     runningReceiveTasks.TryAdd(receiveTask, receiveTask);
 
