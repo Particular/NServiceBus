@@ -28,6 +28,13 @@ top of things.
 * Make sure you have added the necessary tests for your changes.
 * Run build.bat in the root to assure nothing else was accidentally broken.
 * We have a resharper layer that applies our coding standards so make sure that you're "all green in reshaper"
+ 
+
+## Running the Acceptance Tests
+
+Follow these steps to run the acceptance tests locally:
+* Add a new environment variable `Transport.UseSpecific` with the value `AzureStorageQueueTransport`
+* Add a new environment variable `AzureStorageQueueTransport.ConnectionString` containing a connection string to your Azure storage account or use use `UseDevelopmentStorage=true` to use the [Azure Storage Emulator](https://azure.microsoft.com/en-us/documentation/articles/storage-use-emulator/) (make sure to start it before you run the tests).
 
 
 ## Submitting Changes
