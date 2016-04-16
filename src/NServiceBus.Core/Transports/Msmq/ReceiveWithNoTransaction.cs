@@ -13,7 +13,7 @@ namespace NServiceBus
     {
         public override async Task ReceiveMessage(MessageQueue inputQueue, MessageQueue errorQueue, CancellationTokenSource cancellationTokenSource, Func<PushContext, Task> onMessage)
         {
-            var message = inputQueue.Receive(TimeSpan.FromMilliseconds(10), MessageQueueTransactionType.None);
+            var message = await Task.Factory.FromAsync(inputQueue.BeginReceive(TimeSpan.FromMilliseconds(10)), inputQueue.EndReceive).ConfigureAwait(false);
 
             Dictionary<string, string> headers;
 

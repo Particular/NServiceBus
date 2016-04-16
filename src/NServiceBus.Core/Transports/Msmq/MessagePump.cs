@@ -146,36 +146,7 @@ namespace NServiceBus
 
                     await concurrencyLimiter.WaitAsync(cancellationToken).ConfigureAwait(false);
 
-                    var tokenSource = new CancellationTokenSource();
-
-                    var receiveTask = Task.Run(async () =>
-                    {
-                        try
-                        {
-                            await receiveStrategy.ReceiveMessage(inputQueue, errorQueue, tokenSource, pipeline).ConfigureAwait(false);
-                            receiveCircuitBreaker.Success();
-                        }
-                        catch (MessageQueueException ex)
-                        {
-                            if (ex.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
-                            {
-                                //We should only get an IOTimeout exception here if another process removed the message between us peeking and now.
-                                return;
-                            }
-
-                            Logger.Warn("MSMQ receive operation failed", ex);
-                            await receiveCircuitBreaker.Failure(ex).ConfigureAwait(false);
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.Warn("MSMQ receive operation failed", ex);
-                            await receiveCircuitBreaker.Failure(ex).ConfigureAwait(false);
-                        }
-                        finally
-                        {
-                            concurrencyLimiter.Release();
-                        }
-                    }, tokenSource.Token).ContinueWith(t => tokenSource.Dispose());
+                    var receiveTask = InnerReceive();
 
                     runningReceiveTasks.TryAdd(receiveTask, receiveTask);
 
@@ -192,7 +163,43 @@ namespace NServiceBus
                         Task toBeRemoved;
                         runningReceiveTasks.TryRemove(t, out toBeRemoved);
                     }, TaskContinuationOptions.ExecuteSynchronously)
-                        .Ignore();
+                    .Ignore();
+                }
+            }
+        }
+
+        async Task InnerReceive()
+        {
+            using (var tokenSource = new CancellationTokenSource())
+            {
+                try
+                {
+                    await receiveStrategy.ReceiveMessage(inputQueue, errorQueue, tokenSource, pipeline).ConfigureAwait(false);
+                    receiveCircuitBreaker.Success();
+                }
+                catch (MessageQueueException ex)
+                {
+                    if (ex.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
+                    {
+                        //We should only get an IOTimeout exception here if another process removed the message between us peeking and now.
+                        return;
+                    }
+
+                    Logger.Warn("MSMQ receive operation failed", ex);
+                    await receiveCircuitBreaker.Failure(ex).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException)
+                {
+                    // Intentionally left blank
+                }
+                catch (Exception ex)
+                {
+                    Logger.Warn("MSMQ receive operation failed", ex);
+                    await receiveCircuitBreaker.Failure(ex).ConfigureAwait(false);
+                }
+                finally
+                {
+                    concurrencyLimiter.Release();
                 }
             }
         }
