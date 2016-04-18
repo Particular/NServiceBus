@@ -9,10 +9,9 @@
 
     class MoveFaultsToErrorQueueBehavior : ForkConnector<ITransportReceiveContext, IFaultContext>
     {
-        public MoveFaultsToErrorQueueBehavior(CriticalError criticalError, string errorQueueAddress, string localAddress, TransportTransactionMode transportTransactionMode, FailureInfoStorage failureInfoStorage)
+        public MoveFaultsToErrorQueueBehavior(CriticalError criticalError, string localAddress, TransportTransactionMode transportTransactionMode, FailureInfoStorage failureInfoStorage)
         {
             this.criticalError = criticalError;
-            this.errorQueueAddress = errorQueueAddress;
             this.localAddress = localAddress;
             this.transportTransactionMode = transportTransactionMode;
             this.failureInfoStorage = failureInfoStorage;
@@ -60,13 +59,8 @@
 
                 message.RevertToOriginalBodyIfNeeded();
 
-                message.SetExceptionHeaders(exception, localAddress);
-
-                message.Headers.Remove(Headers.Retries);
-                message.Headers.Remove(Headers.FLRetries);
-
                 var outgoingMessage = new OutgoingMessage(message.MessageId, message.Headers, message.Body);
-                var faultContext = this.CreateFaultContext(context, outgoingMessage, errorQueueAddress, exception);
+                var faultContext = this.CreateFaultContext(context, outgoingMessage, exception, localAddress);
 
                 failureInfoStorage.ClearFailureInfoForMessage(message.MessageId);
 
@@ -83,7 +77,6 @@
         }
 
         CriticalError criticalError;
-        string errorQueueAddress;
         FailureInfoStorage failureInfoStorage;
         string localAddress;
         TransportTransactionMode transportTransactionMode;
@@ -91,10 +84,9 @@
 
         public class Registration : RegisterStep
         {
-            public Registration(string errorQueueAddress, string localAddress, TransportTransactionMode transportTransactionMode)
+            public Registration(string localAddress, TransportTransactionMode transportTransactionMode)
                 : base("MoveFaultsToErrorQueue", typeof(MoveFaultsToErrorQueueBehavior), "Moved failing messages to the configured error queue", b => new MoveFaultsToErrorQueueBehavior(
                     b.Build<CriticalError>(),
-                    errorQueueAddress,
                     localAddress,
                     transportTransactionMode,
                     b.Build<FailureInfoStorage>()))

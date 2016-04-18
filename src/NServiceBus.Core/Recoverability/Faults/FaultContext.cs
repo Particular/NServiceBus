@@ -6,15 +6,25 @@
 
     class FaultContext : BehaviorContext, IFaultContext
     {
-        public FaultContext(OutgoingMessage message, string errorQueueAddress, Exception exception, IBehaviorContext parent)
+        public FaultContext(OutgoingMessage message, string localAddress, Exception exception, IBehaviorContext parent)
             : base(parent)
         {
             Guard.AgainstNull(nameof(message), message);
-            Guard.AgainstNullAndEmpty(nameof(errorQueueAddress), errorQueueAddress);
+            Guard.AgainstNullAndEmpty(nameof(localAddress), localAddress);
             Guard.AgainstNull(nameof(exception), exception);
+
+            var errorQueueAddress = ErrorQueueSettings.GetConfiguredErrorQueue(Builder.Build<Settings.ReadOnlySettings>());
+            Guard.AgainstNullAndEmpty(nameof(errorQueueAddress), errorQueueAddress);
+
             Message = message;
             ErrorQueueAddress = errorQueueAddress;
             Exception = exception;
+
+            var headers = message.Headers;
+            ExceptionHeaderHelper.SetExceptionHeaders(headers, exception, localAddress);
+
+            headers.Remove(Headers.Retries);
+            headers.Remove(Headers.FLRetries);
         }
 
         public OutgoingMessage Message { get; }

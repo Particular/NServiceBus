@@ -159,7 +159,6 @@ namespace NServiceBus.Core.Tests
         {
             var behavior = new MoveFaultsToErrorQueueBehavior(
                 criticalError,
-                errorQueueAddress,
                 "public-receive-address",
                 transactionMode,
                 new FailureInfoStorage(10));
