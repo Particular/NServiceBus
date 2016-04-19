@@ -2,10 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
-    using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
-    using NServiceBus.Serialization;
+    using MessageInterfaces.MessageMapper.Reflection;
+    using Serialization;
     using NUnit.Framework;
-    using Conventions = NServiceBus.Conventions;
 
     [TestFixture]
     public class MessageDeserializerResolverTests

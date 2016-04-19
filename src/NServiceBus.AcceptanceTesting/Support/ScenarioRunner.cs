@@ -10,7 +10,7 @@
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting.Customization;
+    using Customization;
 
     public class ScenarioRunner
     {

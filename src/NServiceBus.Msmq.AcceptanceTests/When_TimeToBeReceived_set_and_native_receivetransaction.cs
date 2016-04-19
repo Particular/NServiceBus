@@ -3,8 +3,8 @@
     using System;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTesting.Support;
+    using AcceptanceTesting;
+    using AcceptanceTesting.Support;
     using NUnit.Framework;
 
     public class When_TimeToBeReceived_set_and_native_receivetransaction : NServiceBusAcceptanceTest

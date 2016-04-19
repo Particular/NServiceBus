@@ -12,7 +12,7 @@ namespace NServiceBus.Transports
         }
 
         /// <summary>
-        /// Returns weather the result was a succes.
+        /// Returns weather the result was a success.
         /// </summary>
         public bool Succeeded { get; }
 

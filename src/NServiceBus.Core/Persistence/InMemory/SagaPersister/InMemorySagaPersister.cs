@@ -159,7 +159,7 @@ namespace NServiceBus
 
                 if (v.Version != currentVersion)
                 {
-                    throw new Exception($@"InMemorySagaPersister concurrency violation: saga entity Id[{sagaEntity.Id}] already saved.");
+                    throw new Exception($"InMemorySagaPersister concurrency violation: saga entity Id[{sagaEntity.Id}] already saved.");
                 }
             }
 

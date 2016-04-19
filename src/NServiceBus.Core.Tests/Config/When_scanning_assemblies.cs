@@ -4,7 +4,7 @@ namespace NServiceBus.Core.Tests.Config
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using global::NServiceBus.Hosting.Helpers;
+    using Hosting.Helpers;
     using NUnit.Framework;
 
     [TestFixture]

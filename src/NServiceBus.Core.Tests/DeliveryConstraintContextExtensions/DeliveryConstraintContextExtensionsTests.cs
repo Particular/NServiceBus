@@ -3,11 +3,11 @@
     using System;
     using System.Collections.Generic;
     using Extensibility;
-    using NServiceBus.DelayedDelivery;
-    using NServiceBus.DeliveryConstraints;
+    using DelayedDelivery;
+    using DeliveryConstraints;
     using NServiceBus.Features;
     using NServiceBus.Routing;
-    using NServiceBus.Settings;
+    using Settings;
     using NServiceBus.Transports;
     using NUnit.Framework;
 

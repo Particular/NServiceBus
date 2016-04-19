@@ -7,7 +7,6 @@ namespace NServiceBus.Core.Tests.DataBus
     using DeliveryConstraints;
     using NServiceBus.Performance.TimeToBeReceived;
     using NUnit.Framework;
-    using Conventions = NServiceBus.Conventions;
 
     [TestFixture]
     class When_applying_the_databus_message_mutator_to_outgoing_messages
@@ -21,7 +20,7 @@ namespace NServiceBus.Core.Tests.DataBus
             };
 
             var context = ContextHelpers.GetOutgoingContext(message);
-            
+
             var fakeDatabus = new FakeDataBus();
 
             var sendBehavior = new DataBusSendBehavior(fakeDatabus, new DefaultDataBusSerializer(), new Conventions());
@@ -40,7 +39,7 @@ namespace NServiceBus.Core.Tests.DataBus
             };
 
            var context = ContextHelpers.GetOutgoingContext(message);
-          
+
            context.Extensions.AddDeliveryConstraint(new DiscardIfNotReceivedBefore(TimeSpan.FromMinutes(1)));
 
            var fakeDatabus = new FakeDataBus();

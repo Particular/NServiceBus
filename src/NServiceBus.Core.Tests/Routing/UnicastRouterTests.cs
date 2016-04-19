@@ -3,12 +3,11 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
+    using Extensibility;
     using NServiceBus.Routing;
     using NServiceBus.Transports;
-    using NServiceBus.Unicast.Messages;
+    using Unicast.Messages;
     using NUnit.Framework;
-    using Conventions = NServiceBus.Conventions;
 
     [TestFixture]
     public class UnicastRouterTests

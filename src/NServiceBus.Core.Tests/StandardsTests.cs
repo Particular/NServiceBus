@@ -5,8 +5,8 @@
     using System.Linq;
     using System.Reflection;
     using System.Runtime.CompilerServices;
-    using global::NServiceBus.Features;
-    using global::NServiceBus.Logging;
+    using NServiceBus.Features;
+    using NServiceBus.Logging;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
 

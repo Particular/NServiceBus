@@ -2,7 +2,7 @@
 {
     using System;
     using NServiceBus.Persistence;
-    using NServiceBus.Settings;
+    using Settings;
     using NUnit.Framework;
 
     [TestFixture]

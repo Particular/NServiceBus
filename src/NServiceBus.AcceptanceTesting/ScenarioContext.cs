@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using NServiceBus.Faults;
+    using Faults;
 
     public abstract class ScenarioContext
     {
@@ -14,7 +14,7 @@
         public bool HasNativePubSubSupport { get; set; }
 
         public string Trace => string.Join(Environment.NewLine, traceQueue.ToArray());
-        
+
         public void AddTrace(string trace)
         {
             traceQueue.Enqueue($"{DateTime.Now:HH:mm:ss.ffffff} - {trace}");

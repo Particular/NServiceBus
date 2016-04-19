@@ -3,7 +3,7 @@ namespace NServiceBus.Core.Tests.Utils
     using System;
     using System.Collections.Generic;
     using System.Runtime.CompilerServices;
-    using NServiceBus.Faults;
+    using Faults;
     using NUnit.Framework;
 
     [TestFixture]

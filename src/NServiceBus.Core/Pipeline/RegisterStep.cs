@@ -3,8 +3,8 @@ namespace NServiceBus.Pipeline
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.Settings;
+    using ObjectBuilder;
+    using Settings;
 
     /// <summary>
     /// Base class to do an advance registration of a step.

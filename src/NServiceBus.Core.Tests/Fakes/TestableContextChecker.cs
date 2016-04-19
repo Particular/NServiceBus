@@ -2,7 +2,7 @@
 {
     using System.Linq;
     using System.Reflection;
-    using NServiceBus.Pipeline;
+    using Pipeline;
     using NUnit.Framework;
 
     [TestFixture]

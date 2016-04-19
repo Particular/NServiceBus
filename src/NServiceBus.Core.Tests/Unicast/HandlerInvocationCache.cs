@@ -4,7 +4,7 @@
     using System.Diagnostics;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.Pipeline;
+    using Pipeline;
     using NUnit.Framework;
     using Testing;
 

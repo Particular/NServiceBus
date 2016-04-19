@@ -4,13 +4,12 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
+    using Extensibility;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
-    using NServiceBus.Unicast.Messages;
+    using Unicast.Messages;
     using NUnit.Framework;
     using Testing;
-    using Conventions = NServiceBus.Conventions;
 
     [TestFixture]
     public class UnicastSendRouterConnectorTests

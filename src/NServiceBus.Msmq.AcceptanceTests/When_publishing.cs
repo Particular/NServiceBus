@@ -2,9 +2,9 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.Features;
-    using NServiceBus.Persistence.Legacy;
+    using AcceptanceTesting;
+    using Features;
+    using Persistence.Legacy;
     using NUnit.Framework;
 
     public class When_using_subscription_store : NServiceBusAcceptanceTest

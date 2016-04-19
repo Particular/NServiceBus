@@ -4,11 +4,11 @@
     using System.Linq;
     using System.Messaging;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
+    using Extensibility;
     using NServiceBus.Routing;
-    using NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions;
+    using Unicast.Subscriptions.MessageDrivenSubscriptions;
     using NUnit.Framework;
-    using MessageType = NServiceBus.Unicast.Subscriptions.MessageType;
+    using MessageType = Unicast.Subscriptions.MessageType;
 
     [TestFixture]
     public class MsmqSubscriptionStorageQueueTests

@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests
 {
     using System;
-    using NServiceBus.AcceptanceTesting;
+    using AcceptanceTesting;
     using NUnit.Framework;
 
     public class When_using_scope_timeout_greater_than_machine_max
