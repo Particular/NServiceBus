@@ -3272,9 +3272,9 @@ namespace NServiceBus.Unicast.Transport
             "ionModeForReceives() != Transactions.None` instead. Will be removed in version 7" +
             ".0.0.", true)]
         public bool IsTransactional { get; set; }
-        [System.ObsoleteAttribute("SuppressDistributedTransactions is no longer used here. Uuse `context.Settings.Ge" +
-            "tRequiredTransactionModeForReceives() != Transactions.TransactionScope` instead." +
-            " Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("SuppressDistributedTransactions is no longer used here. Use `context.Settings.Get" +
+            "RequiredTransactionModeForReceives() != Transactions.TransactionScope` instead. " +
+            "Will be removed in version 7.0.0.", true)]
         public bool SuppressDistributedTransactions { get; set; }
         [System.ObsoleteAttribute("Timeouts are now controlled explicitly for the transaction scope unit of work usi" +
             "ng config.UnitOfWork().WrapHandlersInATransactionScope(timeout: X). Will be remo" +
