@@ -4,22 +4,30 @@
     using Pipeline;
     using Transports;
 
+    /// <summary>
+    ///
+    /// </summary>
     class FaultContext : BehaviorContext, IFaultContext
     {
-        public FaultContext(OutgoingMessage message, string errorQueueAddress, Exception exception, IBehaviorContext parent)
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="exception"></param>
+        /// <param name="parent"></param>
+        public FaultContext(OutgoingMessage message, Exception exception, IBehaviorContext parent)
             : base(parent)
         {
             Guard.AgainstNull(nameof(message), message);
-            Guard.AgainstNullAndEmpty(nameof(errorQueueAddress), errorQueueAddress);
             Guard.AgainstNull(nameof(exception), exception);
+
             Message = message;
-            ErrorQueueAddress = errorQueueAddress;
             Exception = exception;
         }
 
         public OutgoingMessage Message { get; }
 
-        public string ErrorQueueAddress { get; }
+        public string ErrorQueueAddress { get; set; }
 
         public Exception Exception { get; }
 

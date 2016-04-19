@@ -16,7 +16,7 @@
         /// <summary>
         /// Address of the error queue.
         /// </summary>
-        string ErrorQueueAddress { get; }
+        string ErrorQueueAddress { get; set; }
 
         /// <summary>
         /// Exception that occurred while processing the message.

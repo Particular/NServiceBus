@@ -5,13 +5,11 @@
     using System.Collections.Generic;
     using System.Configuration;
     using Faults;
-    using Transports;
-
+    
     static class ExceptionHeaderHelper
     {
-        public static void SetExceptionHeaders(this IncomingMessage message, Exception e, string failedQueue, string reason = null)
+        public static void SetExceptionHeaders(Dictionary<string, string> headers, Exception e, string failedQueue, string reason = null)
         {
-            var headers = message.Headers;
             SetExceptionHeaders(headers, e, failedQueue, reason, useLegacyStackTrace);
         }
 

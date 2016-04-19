@@ -6,6 +6,7 @@ namespace NServiceBus.Core.Tests
     using System.Threading.Tasks;
     using Faults;
     using NServiceBus.Pipeline;
+    using NServiceBus.Recoverability.Faults;
     using NServiceBus.Transports;
     using NUnit.Framework;
     using Testing;
@@ -32,11 +33,13 @@ namespace NServiceBus.Core.Tests
 
             IFaultContext faultContext = null;
 
-            await behavior.Invoke(context, () => { throw new Exception(); }, c => CaptureFaultContext(c, out faultContext));
+            Func<IFaultContext, Task> captureFaultContext = c => CaptureFaultContext(c, out faultContext, "errors-queue", "local");
+
+            await behavior.Invoke(context, () => { throw new Exception(); }, captureFaultContext);
 
             if (transactionMode != TransportTransactionMode.None)
             {
-                await behavior.Invoke(context, () => Task.FromResult(0), c => CaptureFaultContext(c, out faultContext));
+                await behavior.Invoke(context, () => Task.FromResult(0), captureFaultContext);
             }
 
             Assert.AreEqual("errors-queue", faultContext.ErrorQueueAddress);
@@ -78,11 +81,13 @@ namespace NServiceBus.Core.Tests
 
             IFaultContext faultContext = null;
 
-            await behavior.Invoke(context, () => { throw new Exception("exception-message"); }, c => CaptureFaultContext(c, out faultContext));
+            Func<IFaultContext, Task> captureFault = c => CaptureFaultContext(c, out faultContext, "errors", "public-receive-address");
+
+            await behavior.Invoke(context, () => { throw new Exception("exception-message"); }, captureFault);
 
             if (transactionMode != TransportTransactionMode.None)
             {
-                await behavior.Invoke(context, () => Task.FromResult(0), c => CaptureFaultContext(c, out faultContext));
+                await behavior.Invoke(context, () => Task.FromResult(0), captureFault);
             }
 
             Assert.AreEqual("public-receive-address", faultContext.Message.Headers[FaultsHeaderKeys.FailedQ]);
@@ -159,18 +164,23 @@ namespace NServiceBus.Core.Tests
         {
             var behavior = new MoveFaultsToErrorQueueBehavior(
                 criticalError,
-                errorQueueAddress,
-                "public-receive-address",
                 transactionMode,
                 new FailureInfoStorage(10));
 
             return behavior;
         }
 
-        static Task CaptureFaultContext(IFaultContext ctx, out IFaultContext context)
+        static Task CaptureFaultContext(IFaultContext ctx, out IFaultContext context, string errorQueueAddress, string localAddress)
         {
             context = ctx;
-            return TaskEx.CompletedTask;
+
+            var chain = new BehaviorChain(new[]
+            {
+                new BehaviorInstance(typeof(SetErrorQueueBehavior), new SetErrorQueueBehavior(errorQueueAddress)),
+                new BehaviorInstance(typeof(AddExceptionHeadersBehavior), new AddExceptionHeadersBehavior(localAddress)),
+            });
+
+            return chain.Invoke(ctx);
         }
 
         static TestableTransportReceiveContext CreateContext(string messageId = "message-id", FakeEventAggregator eventAggregator = null)
