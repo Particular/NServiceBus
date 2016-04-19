@@ -4,7 +4,6 @@ namespace NServiceBus.Core.Tests
     using System.Collections.Generic;
     using System.IO;
     using System.Threading.Tasks;
-    using Faults;
     using NServiceBus.Pipeline;
     using NServiceBus.Transports;
     using NUnit.Framework;
@@ -27,7 +26,7 @@ namespace NServiceBus.Core.Tests
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task ShouldForwardToErrorQueueForAllExceptions(TransportTransactionMode transactionMode)
         {
-            var behavior = CreateBehavior(transactionMode, "errors-queue");
+            var behavior = CreateBehavior(transactionMode, "some-source-queue");
             var context = CreateContext("some-id");
 
             IFaultContext faultContext = null;
@@ -39,7 +38,7 @@ namespace NServiceBus.Core.Tests
                 await behavior.Invoke(context, () => Task.FromResult(0), c => CaptureFaultContext(c, out faultContext));
             }
 
-            Assert.AreEqual("errors-queue", faultContext.ErrorQueueAddress);
+            Assert.AreEqual("some-source-queue", faultContext.SourceQueueAddress);
             Assert.AreEqual("some-id", faultContext.Message.MessageId);
         }
 
@@ -65,28 +64,6 @@ namespace NServiceBus.Core.Tests
             //the ex should bubble to force the transport to rollback. If not the message will be lost
             Assert.That(behaviorInvocation, Throws.InstanceOf<Exception>());
             Assert.True(criticalError.ErrorRaised);
-        }
-
-        [TestCase(TransportTransactionMode.None)]
-        [TestCase(TransportTransactionMode.ReceiveOnly)]
-        [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
-        [TestCase(TransportTransactionMode.TransactionScope)]
-        public async Task ShouldEnrichHeadersWithExceptionDetails(TransportTransactionMode transactionMode)
-        {
-            var context = CreateContext();
-            var behavior = CreateBehavior(transactionMode);
-
-            IFaultContext faultContext = null;
-
-            await behavior.Invoke(context, () => { throw new Exception("exception-message"); }, c => CaptureFaultContext(c, out faultContext));
-
-            if (transactionMode != TransportTransactionMode.None)
-            {
-                await behavior.Invoke(context, () => Task.FromResult(0), c => CaptureFaultContext(c, out faultContext));
-            }
-
-            Assert.AreEqual("public-receive-address", faultContext.Message.Headers[FaultsHeaderKeys.FailedQ]);
-            Assert.AreEqual("exception-message", faultContext.Message.Headers["NServiceBus.ExceptionInfo.Message"]);
         }
 
         [TestCase(TransportTransactionMode.None)]
@@ -155,12 +132,11 @@ namespace NServiceBus.Core.Tests
             Assert.IsTrue(continuationCalledAfterDeferral);
         }
 
-        MoveFaultsToErrorQueueBehavior CreateBehavior(TransportTransactionMode transactionMode, string errorQueueAddress = "errors")
+        MoveFaultsToErrorQueueBehavior CreateBehavior(TransportTransactionMode transactionMode, string localAddress = "public-receive-address")
         {
             var behavior = new MoveFaultsToErrorQueueBehavior(
                 criticalError,
-                errorQueueAddress,
-                "public-receive-address",
+                localAddress, 
                 transactionMode,
                 new FailureInfoStorage(10));
 

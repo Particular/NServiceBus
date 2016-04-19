@@ -158,9 +158,9 @@ namespace NServiceBus
         /// <summary>
         /// Creates a <see cref="IFaultContext" /> based on the current context.
         /// </summary>
-        public static IFaultContext CreateFaultContext(this ForkConnector<ITransportReceiveContext, IFaultContext> forkConnector, ITransportReceiveContext sourceContext, OutgoingMessage outgoingMessage, string errorQueueAddress, Exception exception)
+        public static IFaultContext CreateFaultContext(this ForkConnector<ITransportReceiveContext, IFaultContext> forkConnector, ITransportReceiveContext sourceContext, OutgoingMessage outgoingMessage, string sourceQueueAddress, Exception exception)
         {
-            return new FaultContext(outgoingMessage, errorQueueAddress, exception, sourceContext);
+            return new FaultContext(outgoingMessage, sourceQueueAddress, exception, sourceContext);
         }
 
         /// <summary>
