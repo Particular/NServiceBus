@@ -9,10 +9,9 @@
 
     class MoveFaultsToErrorQueueBehavior : ForkConnector<ITransportReceiveContext, IFaultContext>
     {
-        public MoveFaultsToErrorQueueBehavior(CriticalError criticalError, string localAddress, TransportTransactionMode transportTransactionMode, FailureInfoStorage failureInfoStorage)
+        public MoveFaultsToErrorQueueBehavior(CriticalError criticalError, TransportTransactionMode transportTransactionMode, FailureInfoStorage failureInfoStorage)
         {
             this.criticalError = criticalError;
-            this.localAddress = localAddress;
             this.transportTransactionMode = transportTransactionMode;
             this.failureInfoStorage = failureInfoStorage;
         }
@@ -60,7 +59,7 @@
                 message.RevertToOriginalBodyIfNeeded();
 
                 var outgoingMessage = new OutgoingMessage(message.MessageId, message.Headers, message.Body);
-                var faultContext = this.CreateFaultContext(context, outgoingMessage, exception, localAddress);
+                var faultContext = this.CreateFaultContext(context, outgoingMessage, exception);
 
                 failureInfoStorage.ClearFailureInfoForMessage(message.MessageId);
 
@@ -78,16 +77,14 @@
 
         CriticalError criticalError;
         FailureInfoStorage failureInfoStorage;
-        string localAddress;
         TransportTransactionMode transportTransactionMode;
         static ILog Logger = LogManager.GetLogger<MoveFaultsToErrorQueueBehavior>();
 
         public class Registration : RegisterStep
         {
-            public Registration(string localAddress, TransportTransactionMode transportTransactionMode)
+            public Registration(TransportTransactionMode transportTransactionMode)
                 : base("MoveFaultsToErrorQueue", typeof(MoveFaultsToErrorQueueBehavior), "Moved failing messages to the configured error queue", b => new MoveFaultsToErrorQueueBehavior(
                     b.Build<CriticalError>(),
-                    localAddress,
                     transportTransactionMode,
                     b.Build<FailureInfoStorage>()))
             {

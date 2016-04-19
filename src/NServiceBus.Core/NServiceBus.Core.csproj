@@ -121,9 +121,11 @@
     <Compile Include="Pipeline\StageForkConnector.cs" />
     <Compile Include="Pipeline\ConnectorContextExtensions.cs" />
     <Compile Include="Recoverability\FailureInfoStorage.cs" />
+    <Compile Include="Recoverability\Faults\AddExceptionHeadersBehavior.cs" />
     <Compile Include="Recoverability\Faults\MessageProcessingFailed.cs" />
     <Compile Include="Recoverability\Faults\MessageToBeRetried.cs" />
     <Compile Include="Recoverability\Faults\MessageFaulted.cs" />
+    <Compile Include="Recoverability\Faults\SetErrorQueueBehavior.cs" />
     <Compile Include="ReleaseDateAttribute.cs" />
     <Compile Include="Recoverability\ProcessingFailureInfo.cs" />
     <Compile Include="Routing\RoutingMappingSettings.cs" />

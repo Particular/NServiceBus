@@ -4,32 +4,30 @@
     using Pipeline;
     using Transports;
 
+    /// <summary>
+    ///
+    /// </summary>
     class FaultContext : BehaviorContext, IFaultContext
     {
-        public FaultContext(OutgoingMessage message, string localAddress, Exception exception, IBehaviorContext parent)
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="exception"></param>
+        /// <param name="parent"></param>
+        public FaultContext(OutgoingMessage message, Exception exception, IBehaviorContext parent)
             : base(parent)
         {
             Guard.AgainstNull(nameof(message), message);
-            Guard.AgainstNullAndEmpty(nameof(localAddress), localAddress);
             Guard.AgainstNull(nameof(exception), exception);
 
-            var errorQueueAddress = ErrorQueueSettings.GetConfiguredErrorQueue(Builder.Build<Settings.ReadOnlySettings>());
-            Guard.AgainstNullAndEmpty(nameof(errorQueueAddress), errorQueueAddress);
-
             Message = message;
-            ErrorQueueAddress = errorQueueAddress;
             Exception = exception;
-
-            var headers = message.Headers;
-            ExceptionHeaderHelper.SetExceptionHeaders(headers, exception, localAddress);
-
-            headers.Remove(Headers.Retries);
-            headers.Remove(Headers.FLRetries);
         }
 
         public OutgoingMessage Message { get; }
 
-        public string ErrorQueueAddress { get; }
+        public string ErrorQueueAddress { get; set; }
 
         public Exception Exception { get; }
 

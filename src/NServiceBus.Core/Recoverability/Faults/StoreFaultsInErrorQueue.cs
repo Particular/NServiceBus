@@ -1,6 +1,7 @@
 namespace NServiceBus.Features
 {
     using ConsistencyGuarantees;
+    using Recoverability.Faults;
     using Transports;
 
     class StoreFaultsInErrorQueue : Feature
@@ -23,11 +24,14 @@ namespace NServiceBus.Features
             var errorQueue = ErrorQueueSettings.GetConfiguredErrorQueue(context.Settings);
             context.Settings.Get<QueueBindings>().BindSending(errorQueue);
 
+            context.Pipeline.Register("SetErrorQueue", b => new SetErrorQueueBehavior(errorQueue), "Set the error queue address");
+            context.Pipeline.Register("AddExceptionHeaders", b => new AddExceptionHeadersBehavior(context.Settings.LocalAddress()), "Adds the exception headers to the message");
+
             var failureInfoStorage = new FailureInfoStorage(context.Settings.Get<int>(FailureInfoStorageCacheSizeKey));
             context.Container.RegisterSingleton(failureInfoStorage);
 
             var transportTransactionMode = context.Settings.GetRequiredTransactionModeForReceives();
-            context.Pipeline.Register(new MoveFaultsToErrorQueueBehavior.Registration(context.Settings.LocalAddress(), transportTransactionMode));
+            context.Pipeline.Register(new MoveFaultsToErrorQueueBehavior.Registration(transportTransactionMode));
             context.Pipeline.Register("FaultToDispatchConnector", new FaultToDispatchConnector(), "Connector to dispatch faulted messages");
 
             RaiseLegacyNotifications(context);
