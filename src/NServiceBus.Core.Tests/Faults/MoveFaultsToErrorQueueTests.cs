@@ -115,7 +115,7 @@ namespace NServiceBus.Core.Tests
         [TestCase(TransportTransactionMode.ReceiveOnly)]
         [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
         [TestCase(TransportTransactionMode.TransactionScope)]
-        public async Task ShoulInvokePipelineOnlyOnceWhenErrorIsThrown(TransportTransactionMode transactionMode)
+        public async Task ShouldInvokePipelineOnlyOnceWhenErrorIsThrown(TransportTransactionMode transactionMode)
         {
             var behavior = CreateBehavior(transactionMode);
             var context = CreateContext();

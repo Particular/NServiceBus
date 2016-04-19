@@ -5,9 +5,9 @@ namespace NServiceBus.AcceptanceTesting
     using System.Diagnostics;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting.Customization;
-    using NServiceBus.AcceptanceTesting.Support;
-    using NServiceBus.Logging;
+    using Customization;
+    using Support;
+    using Logging;
 
     public class ScenarioWithContext<TContext> : IScenarioWithEndpointBehavior<TContext>, IAdvancedScenarioWithEndpointBehavior<TContext> where TContext : ScenarioContext, new()
     {

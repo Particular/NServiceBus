@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Messaging;
-    using NServiceBus.Extensibility;
+    using Extensibility;
     using NServiceBus.Routing;
     using NServiceBus.Transports;
     using NUnit.Framework;

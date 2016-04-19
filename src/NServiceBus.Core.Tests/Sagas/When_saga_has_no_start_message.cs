@@ -5,7 +5,6 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
     using System.Threading.Tasks;
     using NServiceBus.Sagas;
     using NUnit.Framework;
-    using Conventions = NServiceBus.Conventions;
 
     [TestFixture]
     public class When_saga_has_no_start_message

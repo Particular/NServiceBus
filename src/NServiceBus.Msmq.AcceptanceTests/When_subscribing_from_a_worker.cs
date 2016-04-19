@@ -1,9 +1,9 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing
 {
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTesting.Customization;
-    using NServiceBus.Features;
+    using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
+    using Features;
     using NServiceBus.Routing.Legacy;
     using NUnit.Framework;
 

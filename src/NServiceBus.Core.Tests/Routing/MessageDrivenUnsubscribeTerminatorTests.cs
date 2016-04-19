@@ -3,11 +3,11 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
+    using Extensibility;
     using NServiceBus.Routing;
     using NServiceBus.Routing.MessageDrivenSubscriptions;
     using NServiceBus.Transports;
-    using NServiceBus.Unicast.Queuing;
+    using Unicast.Queuing;
     using NUnit.Framework;
     using Testing;
 

@@ -5,7 +5,7 @@
     using System.Messaging;
     using System.Text;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
+    using AcceptanceTesting;
     using NUnit.Framework;
 
     public class When_a_corrupted_message_is_received : NServiceBusAcceptanceTest

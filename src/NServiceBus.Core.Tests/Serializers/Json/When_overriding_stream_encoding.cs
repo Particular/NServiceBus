@@ -1,9 +1,9 @@
 namespace NServiceBus.Serializers.Json.Tests
 {
     using System.Text;
-    using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
-    using NServiceBus.Serialization;
-    using NServiceBus.Settings;
+    using MessageInterfaces.MessageMapper.Reflection;
+    using Serialization;
+    using Settings;
     using NUnit.Framework;
 
     [TestFixture]

@@ -5,13 +5,13 @@
     using System.Threading.Tasks;
     using AcceptanceTesting.Customization;
     using Configuration.AdvanceExtensibility;
-    using NServiceBus.AcceptanceTesting;
+    using AcceptanceTesting;
     using NUnit.Framework;
     using Settings;
 
     public class When_distributing_a_command : NServiceBusAcceptanceTest
     {
-        static string ReceiverEdndpoint => Conventions.EndpointNamingConvention(typeof(Receiver));
+        static string ReceiverEndpoint => Conventions.EndpointNamingConvention(typeof(Receiver));
 
         [Test]
         public async Task Should_round_robin()
@@ -57,7 +57,7 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.UseTransport<MsmqTransport>().DistributeMessagesUsingFileBasedEndpointInstanceMapping(filePath);
-                    c.UnicastRouting().RouteToEndpoint(typeof(Request), ReceiverEdndpoint);
+                    c.UnicastRouting().RouteToEndpoint(typeof(Request), ReceiverEndpoint);
                 });
             }
 

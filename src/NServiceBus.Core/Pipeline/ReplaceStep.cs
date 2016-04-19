@@ -1,8 +1,8 @@
 namespace NServiceBus
 {
     using System;
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.Pipeline;
+    using ObjectBuilder;
+    using Pipeline;
 
     class ReplaceStep
     {

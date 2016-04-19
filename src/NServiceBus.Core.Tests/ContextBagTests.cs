@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests
 {
-    using NServiceBus.Extensibility;
+    using Extensibility;
     using NUnit.Framework;
 
     [TestFixture]

@@ -1,6 +1,6 @@
 namespace NServiceBus.Core.Tests
 {
-    using NServiceBus.Extensibility;
+    using Extensibility;
     using NServiceBus.Pipeline;
     using Testing;
 

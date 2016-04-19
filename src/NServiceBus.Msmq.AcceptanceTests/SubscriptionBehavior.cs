@@ -3,9 +3,9 @@
     using System;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Transports;
+    using AcceptanceTesting;
+    using Pipeline;
+    using Transports;
 
     class SubscriptionBehavior<TContext> : Behavior<IIncomingPhysicalMessageContext> where TContext : ScenarioContext
     {

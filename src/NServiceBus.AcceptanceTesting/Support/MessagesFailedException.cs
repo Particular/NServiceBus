@@ -4,7 +4,7 @@ namespace NServiceBus.AcceptanceTesting.Support
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
-    using NServiceBus.Faults;
+    using Faults;
 
     public class MessagesFailedException : Exception
     {

@@ -13,7 +13,7 @@ namespace NServiceBus
             var appConfigLicenseString = ConfigurationManager.AppSettings["NServiceBus/License"];
             if (!string.IsNullOrEmpty(appConfigLicenseString))
             {
-                Logger.Info(@"Using embedded license supplied via config file AppSettings/NServiceBus/License.");
+                Logger.Info("Using embedded license supplied via config file AppSettings/NServiceBus/License.");
                 return appConfigLicenseString;
             }
 
@@ -22,7 +22,7 @@ namespace NServiceBus
             {
                 if (File.Exists(appConfigLicenseFile))
                 {
-                    Logger.InfoFormat(@"Using license supplied via config file AppSettings/NServiceBus/LicensePath ({0}).", appConfigLicenseFile);
+                    Logger.InfoFormat("Using license supplied via config file AppSettings/NServiceBus/LicensePath ({0}).", appConfigLicenseFile);
                     return NonLockingFileReader.ReadAllTextWithoutLocking(appConfigLicenseFile);
                 }
                 //TODO: should we throw if file does not exist?
@@ -32,14 +32,14 @@ namespace NServiceBus
             var localLicenseFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"NServiceBus\License.xml");
             if (File.Exists(localLicenseFile))
             {
-                Logger.InfoFormat(@"Using license in current folder ({0}).", localLicenseFile);
+                Logger.InfoFormat("Using license in current folder ({0}).", localLicenseFile);
                 return NonLockingFileReader.ReadAllTextWithoutLocking(localLicenseFile);
             }
 
             var oldLocalLicenseFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"License\License.xml");
             if (File.Exists(oldLocalLicenseFile))
             {
-                Logger.InfoFormat(@"Using license in current folder ({0}).", oldLocalLicenseFile);
+                Logger.InfoFormat("Using license in current folder ({0}).", oldLocalLicenseFile);
                 return NonLockingFileReader.ReadAllTextWithoutLocking(oldLocalLicenseFile);
             }
 

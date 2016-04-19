@@ -2,8 +2,8 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Core.Tests.Features;
-    using NServiceBus.ObjectBuilder;
+    using Features;
+    using ObjectBuilder;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
 

@@ -5,10 +5,10 @@
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using NServiceBus.Configuration.AdvanceExtensibility;
-    using NServiceBus.Logging;
+    using Configuration.AdvanceExtensibility;
+    using Logging;
     using NServiceBus.Support;
-    using NServiceBus.Transports;
+    using Transports;
 
     public class EndpointRunner
     {

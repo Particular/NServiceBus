@@ -3,7 +3,7 @@
     using System;
     using System.Threading.Tasks;
     using System.Transactions;
-    using NServiceBus.AcceptanceTesting;
+    using AcceptanceTesting;
     using NUnit.Framework;
 
     public class When_receiving_with_dtc_disabled : NServiceBusAcceptanceTest

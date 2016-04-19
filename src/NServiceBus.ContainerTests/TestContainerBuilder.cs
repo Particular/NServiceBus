@@ -1,7 +1,7 @@
 namespace NServiceBus.ContainerTests
 {
     using System;
-    using NServiceBus.ObjectBuilder.Common;
+    using ObjectBuilder.Common;
 
     public static class TestContainerBuilder
     {

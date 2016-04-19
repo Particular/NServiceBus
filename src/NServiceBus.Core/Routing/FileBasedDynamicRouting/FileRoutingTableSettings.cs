@@ -31,7 +31,7 @@ namespace NServiceBus
         /// <summary>
         /// Specifies the maximum number of attempts to load contents of a file before logging an error.
         /// </summary>
-        /// <param name="maxLoadAttempts">Max load attepts.</param>
+        /// <param name="maxLoadAttempts">Max load attempts.</param>
         public FileRoutingTableSettings MaxLoadAttempts(int maxLoadAttempts)
         {
             Settings.Set(FileRoutingTableFeature.MaxLoadAttemptsSettingsKey, maxLoadAttempts);

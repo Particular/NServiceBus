@@ -3,12 +3,12 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using NServiceBus.Core.Tests.Config;
+    using Config;
     using NUnit.Framework;
 
     [TestFixture]
     public class When_scanning_directory_with_nested_directories
-    {          
+    {
         [Test]
         public void Should_not_scan_nested_directories_by_default()
         {

@@ -5,7 +5,7 @@
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
+    using Extensibility;
     using NServiceBus.Pipeline;
     using NServiceBus.Timeout.Core;
     using NServiceBus.Transports;

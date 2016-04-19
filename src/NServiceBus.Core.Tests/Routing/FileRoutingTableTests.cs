@@ -5,7 +5,7 @@
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using NServiceBus.Routing;
-    using NServiceBus.Settings;
+    using Settings;
     using NUnit.Framework;
 
     [TestFixture]
@@ -50,7 +50,7 @@
             try
             {
                 await table.PerformStartup(null);
-                Assert.Fail("Expected exception saying file could not be loaed.");
+                Assert.Fail("Expected exception saying file could not be loaded.");
             }
             catch (Exception ex)
             {

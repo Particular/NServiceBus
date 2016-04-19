@@ -1,7 +1,7 @@
 namespace NServiceBus.AcceptanceTests
 {
     using System.Linq;
-    using NServiceBus.AcceptanceTesting.Customization;
+    using AcceptanceTesting.Customization;
     using NUnit.Framework;
 
     /// <summary>
@@ -22,10 +22,8 @@ namespace NServiceBus.AcceptanceTests
                 testName = testName.Replace("When_", "");
 
                 var endpointBuilder = classAndEndpoint.Split('+').Last();
-
                 
                 testName = System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(testName);
-              
                 testName = testName.Replace("_", "");
 
                 return testName +"."+ endpointBuilder;

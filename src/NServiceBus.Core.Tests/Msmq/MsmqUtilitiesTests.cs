@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Messaging;
-    using NServiceBus.DeliveryConstraints;
+    using DeliveryConstraints;
     using NServiceBus.Performance.TimeToBeReceived;
     using NServiceBus.Transports;
     using NUnit.Framework;

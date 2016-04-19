@@ -1073,7 +1073,7 @@ namespace NServiceBus.Unicast.Transport
         public bool DoNotWrapHandlersExecutionInATransactionScope { get; set; }
 
         [ObsoleteEx(
-            Message = "SuppressDistributedTransactions is no longer used here. Uuse `context.Settings.GetRequiredTransactionModeForReceives() != Transactions.TransactionScope` instead.",
+            Message = "SuppressDistributedTransactions is no longer used here. Use `context.Settings.GetRequiredTransactionModeForReceives() != Transactions.TransactionScope` instead.",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public bool SuppressDistributedTransactions { get; set; }
