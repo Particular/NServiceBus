@@ -15,6 +15,12 @@
             SetExceptionHeaders(headers, e, failedQueue, reason, useLegacyStackTrace);
         }
 
+        public static void SetExceptionHeaders(this OutgoingMessage message, Exception e, string failedQueue, string reason = null)
+        {
+            var headers = message.Headers;
+            SetExceptionHeaders(headers, e, failedQueue, reason, useLegacyStackTrace);
+        }
+
         internal static void SetExceptionHeaders(Dictionary<string, string> headers, Exception e, string failedQueue, string reason, bool legacyStackTrace)
         {
             if (!string.IsNullOrWhiteSpace(reason))

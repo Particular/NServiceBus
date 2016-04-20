@@ -14,9 +14,9 @@
         OutgoingMessage Message { get; }
 
         /// <summary>
-        /// Address of the error queue.
+        /// Address of the source queue for the faulted message.
         /// </summary>
-        string ErrorQueueAddress { get; }
+        string SourceQueueAddress { get; }
 
         /// <summary>
         /// Exception that occurred while processing the message.
