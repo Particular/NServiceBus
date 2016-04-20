@@ -19,7 +19,7 @@
                     {
                         SomeId = Guid.NewGuid()
                     })))
-                    .Done(c => c.Exceptions.Any())
+                    .Done(c => c.ModifiedCorrelationProperty)
                     .Run())
                 .ExpectFailedMessages();
 
@@ -32,6 +32,7 @@
 
         public class Context : ScenarioContext
         {
+            public bool ModifiedCorrelationProperty { get; set; }
         }
 
         public class ChangePropertyEndpoint : EndpointConfigurationBuilder
@@ -43,11 +44,14 @@
 
             public class ChangeCorrPropertySaga : Saga<ChangeCorrPropertySagaData>, IAmStartedByMessages<StartSagaMessage>
             {
+                public Context TestContext { get; set; }
+
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
                     if (message.SecondMessage)
                     {
                         Data.SomeId = Guid.NewGuid(); //this is not allowed
+                        TestContext.ModifiedCorrelationProperty = true;
                         return Task.FromResult(0);
                     }
 
