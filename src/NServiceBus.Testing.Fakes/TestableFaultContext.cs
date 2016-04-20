@@ -32,9 +32,9 @@ namespace NServiceBus.Testing
         public OutgoingMessage Message { get; set; } = new OutgoingMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), new byte[0]);
 
         /// <summary>
-        /// Address of the error queue.
+        /// Address of the source queue.
         /// </summary>
-        public string ErrorQueueAddress { get; set; } = "error queue address";
+        public string SourceQueueAddress { get; set; } = "source queue address";
 
         /// <summary>
         /// Exception that occurred while processing the message.

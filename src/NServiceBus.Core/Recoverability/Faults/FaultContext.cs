@@ -6,20 +6,20 @@
 
     class FaultContext : BehaviorContext, IFaultContext
     {
-        public FaultContext(OutgoingMessage message, string errorQueueAddress, Exception exception, IBehaviorContext parent)
+        public FaultContext(OutgoingMessage message, string sourceQueueAddress, Exception exception, IBehaviorContext parent)
             : base(parent)
         {
             Guard.AgainstNull(nameof(message), message);
-            Guard.AgainstNullAndEmpty(nameof(errorQueueAddress), errorQueueAddress);
+            Guard.AgainstNullAndEmpty(nameof(sourceQueueAddress), sourceQueueAddress);
             Guard.AgainstNull(nameof(exception), exception);
             Message = message;
-            ErrorQueueAddress = errorQueueAddress;
+            SourceQueueAddress = sourceQueueAddress;
             Exception = exception;
         }
 
         public OutgoingMessage Message { get; }
 
-        public string ErrorQueueAddress { get; }
+        public string SourceQueueAddress { get; }
 
         public Exception Exception { get; }
 

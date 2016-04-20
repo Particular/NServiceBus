@@ -8,6 +8,13 @@ namespace NServiceBus
 
     class FaultToDispatchConnector : StageConnector<IFaultContext, IRoutingContext>
     {
+        string errorQueueAddress;
+
+        public FaultToDispatchConnector(string errorQueueAddress)
+        {
+            this.errorQueueAddress = errorQueueAddress;
+        }
+
         public override Task Invoke(IFaultContext context, Func<IRoutingContext, Task> stage)
         {
             var message = context.Message;
@@ -23,7 +30,7 @@ namespace NServiceBus
                 }
             }
 
-            var dispatchContext = this.CreateRoutingContext(context.Message, new UnicastRoutingStrategy(context.ErrorQueueAddress), context);
+            var dispatchContext = this.CreateRoutingContext(context.Message, new UnicastRoutingStrategy(errorQueueAddress), context);
 
             return stage(dispatchContext);
         }
