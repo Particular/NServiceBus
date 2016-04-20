@@ -19,7 +19,7 @@
                     var runDescriptor = new RunDescriptor(key);
                     runDescriptor.Settings.Set("Transport", transportDefinitionType);
 
-                    var connectionString = Environment.GetEnvironmentVariable(key + ".ConnectionString");
+                    var connectionString = EnvironmentHelper.GetEnvironmentVariable(key + ".ConnectionString");
 
                     if (string.IsNullOrEmpty(connectionString) && DefaultConnectionStrings.ContainsKey(key))
                     {
