@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
-    using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -19,7 +18,7 @@
                 {
                     SomeId = id
                 })))
-                .Done(c => c.Done || c.Exceptions.Any())
+                .Done(c => c.Done)
                 .Run();
 
             Assert.AreEqual(context.SomeId, id);

@@ -15,7 +15,7 @@
             var exception = Assert.Throws<AggregateException>(async () =>
                 await Scenario.Define<Context>()
                     .WithEndpoint<Endpoint>(b => b.When(async (session, c) => await session.SendLocal(new MyMessage())))
-                    .Done(c => c.Exceptions.Any())
+                    .Done(c => c.HandlerInvoked)
                     .Run())
                 .ExpectFailedMessages();
 
@@ -27,7 +27,9 @@
 
         public class Context : ScenarioContext
         {
+            public bool HandlerInvoked { get; set; }
         }
+
         public class Endpoint : EndpointConfigurationBuilder
         {
             public Endpoint()
@@ -43,6 +45,7 @@
 
                 public async Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
+                    Context.HandlerInvoked = true;
                     await context.SendLocal(new MyTimeToBeReceivedMessage());
                 }
             }

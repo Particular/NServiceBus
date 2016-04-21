@@ -48,7 +48,7 @@
 
         static void AppendException(Exception exception)
         {
-            context?.Exceptions.Enqueue(exception);
+            context?.LoggedExceptions.Enqueue(exception);
         }
 
         public void Debug(string message)

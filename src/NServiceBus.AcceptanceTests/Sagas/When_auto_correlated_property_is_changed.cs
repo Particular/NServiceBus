@@ -21,7 +21,7 @@
                         {
                             DataId = Guid.NewGuid()
                         })))
-                    .Done(c => c.Exceptions.Any())
+                    .Done(c => c.ModifiedCorrelationProperty)
                     .Run())
                 .ExpectFailedMessages();
 
@@ -33,6 +33,7 @@
 
         public class Context : ScenarioContext
         {
+            public bool ModifiedCorrelationProperty { get; set; }
         }
 
         public class Endpoint : EndpointConfigurationBuilder
@@ -45,9 +46,12 @@
             public class CorrIdChangedSaga : Saga<CorrIdChangedSaga.CorrIdChangedSagaData>,
                 IAmStartedByMessages<StartSaga>
             {
+                public Context TestContext { get; set; }
+
                 public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
                     Data.DataId = Guid.NewGuid();
+                    TestContext.ModifiedCorrelationProperty = true;
                     return Task.FromResult(0);
                 }
 
