@@ -217,7 +217,7 @@
 
         static string GetFeatureName(Type featureType)
         {
-            var name = featureType.Name;
+            var name = featureType.FullName;
 
             if (name.EndsWith("Feature"))
             {
