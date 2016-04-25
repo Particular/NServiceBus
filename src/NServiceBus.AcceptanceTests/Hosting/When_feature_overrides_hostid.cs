@@ -35,7 +35,6 @@ namespace NServiceBus.AcceptanceTests.Hosting
             public MyFeatureThatOverridesHostInformationDefaults()
             {
                 EnableByDefault();
-                DependsOn("UnicastBus");
                 Defaults(s =>
                 {
                     // remove the override, we need to hack it via reflection!

@@ -37,7 +37,6 @@ namespace NServiceBus.AcceptanceTests.Hosting
             public MyFeatureThatOverridesHostInformationDefaults()
             {
                 EnableByDefault();
-                DependsOn("UnicastBus");
                 Defaults(s =>
                 {
                     s.SetDefault("NServiceBus.HostInformation.HostId", hostId);
