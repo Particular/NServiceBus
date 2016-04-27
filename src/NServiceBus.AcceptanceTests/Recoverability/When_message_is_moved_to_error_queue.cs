@@ -11,7 +11,6 @@
 
     public class When_message_is_moved_to_error_queue : NServiceBusAcceptanceTest
     {
-        [TestCase(TransportTransactionMode.ReceiveOnly)]
         [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
         [TestCase(TransportTransactionMode.TransactionScope)]
         public Task Should_not_send_outgoing_messages(TransportTransactionMode transactionMode)
@@ -34,13 +33,14 @@
             .Run();
         }
 
-        [Test]
-        public Task May_send_outgoing_messages_without_transport_transactions()
+        [TestCase(TransportTransactionMode.ReceiveOnly)]
+        [TestCase(TransportTransactionMode.None)]
+        public Task May_send_outgoing_messages(TransportTransactionMode transactionMode)
         {
             return Scenario.Define<Context>(c =>
             {
                 c.Id = Guid.NewGuid();
-                c.TransactionMode = TransportTransactionMode.None;
+                c.TransactionMode = transactionMode;
             })
             .WithEndpoint<Endpoint>(b => b.DoNotFailOnErrorMessages()
                 .When((session, context) => session.SendLocal(new InitiatingMessage
