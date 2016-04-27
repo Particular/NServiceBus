@@ -20,13 +20,14 @@
                 .Done(c => c.MessageRetried)
                 .Run();
 
-            Assert.AreEqual("0", context.FLRetriesHeader);
+            Assert.AreEqual(4, context.ReceiveCount, "Message should be delivered 4 times. Once initially and retried 3 times by SLR");
+            Assert.AreEqual("0", context.FLRetriesHeader, "When FLR is disabled no FLRRetries header should be '0'");
         }
 
         class Context : ScenarioContext
         {
             public Guid Id { get; set; }
-            public bool MessageRetried => ReceiveCount == 2;
+            public bool MessageRetried => ReceiveCount == 4;
             public int ReceiveCount { get; set; }
             public string FLRetriesHeader { get; set; }
         }
