@@ -13,7 +13,7 @@ namespace NServiceBus
             this.encryptionService = encryptionService;
         }
 
-        public override async Task Invoke(IIncomingLogicalMessageContext context, Func<Task> next)
+        public override Task Invoke(IIncomingLogicalMessageContext context, Func<Task> next)
         {
             var current = context.Message.Instance;
 
@@ -24,7 +24,7 @@ namespace NServiceBus
 
             context.UpdateMessageInstance(current);
 
-            await next().ConfigureAwait(false);
+            return next();
         }
 
 

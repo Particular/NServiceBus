@@ -17,9 +17,9 @@
     public class When_publishing_from_sendonly : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_be_delivered_to_all_subscribers()
+        public Task Should_be_delivered_to_all_subscribers()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<SendOnlyPublisher>(b => b.When((session, c) => session.Publish(new MyEvent())))
                 .WithEndpoint<Subscriber>()
                 .Done(c => c.SubscriberGotTheEvent)

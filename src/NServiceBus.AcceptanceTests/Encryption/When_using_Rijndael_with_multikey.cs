@@ -12,9 +12,9 @@
     public class When_using_Rijndael_with_multikey : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_receive_decrypted_message()
+        public Task Should_receive_decrypted_message()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<Sender>(b => b.When((session, context) => session.Send(new MessageWithSecretData
                 {
                     Secret = "betcha can't guess my secret"

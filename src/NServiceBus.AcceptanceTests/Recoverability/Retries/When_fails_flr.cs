@@ -12,9 +12,9 @@
     public class When_fails_flr : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_be_moved_to_slr()
+        public Task Should_be_moved_to_slr()
         {
-            await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
+            return Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<SLREndpoint>(b => b
                     .When((session, context) => session.SendLocal(new MessageToBeRetried
                     {

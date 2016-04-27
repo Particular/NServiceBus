@@ -8,10 +8,10 @@
     {
         [Test]
         [Explicit]
-        public async Task Integration()
+        public Task Integration()
         {
             var installer = new PerformanceMonitorUsersInstaller();
-            await installer.Install(@"location\username");
+            return installer.Install(@"location\username");
         }
     }
 }

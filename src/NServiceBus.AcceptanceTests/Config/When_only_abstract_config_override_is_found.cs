@@ -11,9 +11,9 @@
     public class When_only_abstract_config_override_is_found : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_not_invoke_it()
+        public Task Should_not_invoke_it()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<ConfigOverrideEndpoint>().Done(c => c.EndpointsStarted)
                 .Run();
         }

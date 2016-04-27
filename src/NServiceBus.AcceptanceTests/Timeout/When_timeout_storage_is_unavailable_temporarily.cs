@@ -11,9 +11,9 @@
     class When_timeout_storage_is_unavailable_temporarily : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Endpoint_should_start()
+        public Task Endpoint_should_start()
         {
-            await Scenario.Define<TimeoutTestContext>()
+            return Scenario.Define<TimeoutTestContext>()
                 .WithEndpoint<EndpointWithFlakyTimeoutPersister>()
                 .Done(c => c.EndpointsStarted)
                 .Repeat(r => r.For<AllTransportsWithoutNativeDeferral>())
@@ -65,9 +65,9 @@
 
             public TestContext TestContext { get; set; }
 
-            class Initalizer : Feature
+            class Initializer : Feature
             {
-                public Initalizer()
+                public Initializer()
                 {
                     EnableByDefault();
                 }

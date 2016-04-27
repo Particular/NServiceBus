@@ -7,11 +7,11 @@ namespace NServiceBus
 
     class LogErrorOnInvalidLicenseBehavior : Behavior<IIncomingPhysicalMessageContext>
     {
-        public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
+        public override Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
         {
             Log.Error("Your license has expired");
 
-            await next().ConfigureAwait(false);
+            return next();
         }
 
         static ILog Log = LogManager.GetLogger<LogErrorOnInvalidLicenseBehavior>();

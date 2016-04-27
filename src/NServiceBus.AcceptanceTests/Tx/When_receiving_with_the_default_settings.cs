@@ -11,9 +11,9 @@
     public class When_receiving_with_the_default_settings : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_wrap_the_handler_pipeline_with_a_transactionscope()
+        public Task Should_wrap_the_handler_pipeline_with_a_transactionscope()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<TransactionalEndpoint>(b => b.When(session => session.SendLocal(new MyMessage())))
                 .Done(c => c.HandlerInvoked)
                 .Repeat(r => r.For<AllDtcTransports>())

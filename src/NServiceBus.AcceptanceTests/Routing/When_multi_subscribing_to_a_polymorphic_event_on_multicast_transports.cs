@@ -9,9 +9,9 @@
     public class When_multi_subscribing_to_a_polymorphic_event_on_multicast_transports : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Both_events_should_be_delivered()
+        public Task Both_events_should_be_delivered()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<Publisher1>(b => b.When(c => c.EndpointsStarted, (session, c) =>
                 {
                     c.AddTrace("Publishing MyEvent1");

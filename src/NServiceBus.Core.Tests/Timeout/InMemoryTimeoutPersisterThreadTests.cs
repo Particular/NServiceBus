@@ -50,9 +50,9 @@ namespace NServiceBus.Core.Tests.Timeout
             return inMemoryTimeoutPersister.RemoveTimeoutBy(sagaId, context);
         }
 
-        static async Task TryRemove(IPersistTimeouts inMemoryTimeoutPersister, ContextBag context)
+        static Task TryRemove(IPersistTimeouts inMemoryTimeoutPersister, ContextBag context)
         {
-            await inMemoryTimeoutPersister.TryRemove(Thread.CurrentThread.Name, context);
+            return inMemoryTimeoutPersister.TryRemove(Thread.CurrentThread.Name, context);
         }
 
         static Task Add(IPersistTimeouts inMemoryTimeoutPersister, ContextBag context)

@@ -131,9 +131,9 @@
             behavior = new TransportReceiveToPhysicalMessageProcessingConnector(fakeOutbox);
         }
 
-        async Task Invoke(ITransportReceiveContext context)
+        Task Invoke(ITransportReceiveContext context)
         {
-            await behavior.Invoke(context, c => TaskEx.CompletedTask).ConfigureAwait(false);
+            return behavior.Invoke(context, c => TaskEx.CompletedTask);
         }
 
         TransportReceiveToPhysicalMessageProcessingConnector behavior;

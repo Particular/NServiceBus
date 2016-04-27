@@ -13,9 +13,9 @@
     public class When_dispatching_forwarded_messages : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_be_dispatched_immediately()
+        public Task Should_be_dispatched_immediately()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithAuditOn>(b => b
                     .When(session => session.SendLocal(new MessageToBeForwarded()))
                     .DoNotFailOnErrorMessages())

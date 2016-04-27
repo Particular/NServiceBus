@@ -15,11 +15,11 @@
         // Run this test twice to ensure that the NoOpCompletableSynchronizedStorageSession's IDisposable method
         // is not altered by Fody to throw an ObjectDisposedException if it was disposed
         [Test, Repeat(2)]
-        public async Task ReceiveFeature_should_work_without_ISynchronizedStorage()
+        public Task ReceiveFeature_should_work_without_ISynchronizedStorage()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<NoSyncEndpoint>(e => e.When(b => b.SendLocal(new MyMessage())))
-                .Done(c => c.MessageRecieved)
+                .Done(c => c.MessageReceived)
                 .Run();
         }
 
@@ -69,7 +69,7 @@
 
             public Task Handle(MyMessage message, IMessageHandlerContext context)
             {
-                Context.MessageRecieved = true;
+                Context.MessageReceived = true;
 
                 return Task.FromResult(0);
             }
@@ -78,7 +78,7 @@
         public class Context : ScenarioContext
         {
             public bool NotSet { get; set; }
-            public bool MessageRecieved { get; set; }
+            public bool MessageReceived { get; set; }
         }
 
         public class MyMessage : ICommand

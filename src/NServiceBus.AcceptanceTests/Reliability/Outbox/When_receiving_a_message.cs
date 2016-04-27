@@ -12,9 +12,9 @@
     public class When_receiving_a_message_not_found_in_the_outbox : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_handle_it()
+        public Task Should_handle_it()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<NonDtcReceivingEndpoint>(b => b.When(session => session.SendLocal(new PlaceOrder())))
                 .Done(c => c.OrderAckReceived == 1)
                 .Repeat(r => r.For<AllOutboxCapableStorages>())

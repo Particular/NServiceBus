@@ -10,9 +10,9 @@
     public class When_using_a_received_message_for_timeout : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Timeout_should_be_received_after_expiration()
+        public Task Timeout_should_be_received_after_expiration()
         {
-            await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
+            return Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<ReceiveMessageForTimeoutEndpoint>(g => g.When(session => session.SendLocal(new StartSagaMessage
                 {
                     SomeId = Guid.NewGuid()

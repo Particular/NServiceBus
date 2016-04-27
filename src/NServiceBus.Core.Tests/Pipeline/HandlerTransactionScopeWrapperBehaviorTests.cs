@@ -23,11 +23,11 @@
         }
 
         [Test]
-        public async Task ShouldWrapInnerBehaviorsIfNoAmbientExists()
+        public Task ShouldWrapInnerBehaviorsIfNoAmbientExists()
         {
             var behavior = new TransactionScopeUnitOfWorkBehavior(new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted });
 
-            await behavior.Invoke(null, () =>
+            return behavior.Invoke(null, () =>
             {
                 Assert.NotNull(Transaction.Current);
                 return TaskEx.CompletedTask;

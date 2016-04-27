@@ -9,9 +9,9 @@
     public class When_sending_events_bestpractices_disabled_on_endpoint : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_allow_sending_events()
+        public Task Should_allow_sending_events()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b.When((session, c) => session.Send(new MyEvent())))
                 .Done(c => c.EndpointsStarted)
                 .Run();

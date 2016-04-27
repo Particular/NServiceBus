@@ -10,9 +10,9 @@
     public class When_sending_to_non_durable_endpoint : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_receive_the_message()
+        public Task Should_receive_the_message()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<Sender>(b => b.When((session, c) => session.Send(new MyMessage())))
                 .WithEndpoint<Receiver>()
                 .Done(c => c.WasCalled)

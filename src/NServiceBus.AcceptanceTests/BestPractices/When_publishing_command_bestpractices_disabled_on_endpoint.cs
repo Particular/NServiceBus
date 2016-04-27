@@ -9,18 +9,18 @@
     public class When_publishing_command_bestpractices_disabled_on_endpoint : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_allow_publishing_commands()
+        public Task Should_allow_publishing_commands()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b.When((session, c) => session.Publish(new MyCommand())))
                 .Done(c => c.EndpointsStarted)
                 .Run();
         }
 
         [Test]
-        public async Task Should_allow_sending_events()
+        public Task Should_allow_sending_events()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b.When((session, c) => session.Send(new MyEvent())))
                 .Done(c => c.EndpointsStarted)
                 .Run();

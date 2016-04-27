@@ -12,9 +12,9 @@
     public class When_sending_inside_ambient_tx : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_not_roll_the_message_back_to_the_queue_in_case_of_failure()
+        public Task Should_not_roll_the_message_back_to_the_queue_in_case_of_failure()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<NonTransactionalEndpoint>(b => b
                     .When(session => session.SendLocal(new MyMessage()))
                     .DoNotFailOnErrorMessages())
