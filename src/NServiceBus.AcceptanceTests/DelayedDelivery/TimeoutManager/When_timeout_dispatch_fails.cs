@@ -30,10 +30,7 @@
                             options.RouteToThisEndpoint();
                             options.SetMessageId(c.TestRunId.ToString());
 
-                            return bus.Send(new MyMessage
-                            {
-                                Id = c.TestRunId
-                            }, options);
+                            return bus.Send(new MyMessage(), options);
                         }))
                 .Done(c => c.FailedTimeoutMovedToError)
                 .Repeat(r => r.For<AllTransportsWithoutNativeDeferral>())
@@ -63,7 +60,6 @@
                     config.SendFailedMessagesTo(Conventions.EndpointNamingConvention(typeof(Endpoint)));
                     config.RegisterComponents(c => c.ConfigureComponent<FakeTimeoutStorage>(DependencyLifecycle.SingleInstance));
                     config.Pipeline.Register<BehaviorThatLogsControlMessageDelivery.Registration>();
-                    config.LimitMessageProcessingConcurrencyTo(1);
                 });
             }
 
@@ -164,7 +160,6 @@
 
         public class MyMessage : IMessage
         {
-            public Guid Id { get; set; }
         }
     }
 }
