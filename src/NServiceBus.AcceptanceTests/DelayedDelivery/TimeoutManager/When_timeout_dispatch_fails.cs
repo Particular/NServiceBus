@@ -1,19 +1,22 @@
 ﻿namespace NServiceBus.AcceptanceTests.DelayedDelivery
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using Extensibility;
     using Features;
     using NServiceBus.Persistence;
+    using NServiceBus.Pipeline;
     using NUnit.Framework;
     using ScenarioDescriptors;
     using Timeout.Core;
 
     public class When_timeout_dispatch_fails : NServiceBusAcceptanceTest
     {
+        static readonly TimeSpan VeryLongTimeSpan = TimeSpan.FromMinutes(10);
+
         [Test]
         public async Task Should_retry_and_move_to_error()
         {
@@ -23,14 +26,19 @@
                         .When((bus, c) =>
                         {
                             var options = new SendOptions();
-                            options.DelayDeliveryWith(TimeSpan.FromSeconds(1));
+                            options.DelayDeliveryWith(VeryLongTimeSpan);
                             options.RouteToThisEndpoint();
+                            options.SetMessageId(c.TestRunId.ToString());
+
                             return bus.Send(new MyMessage(), options);
                         }))
-                .WithEndpoint<ErrorSpy>()
                 .Done(c => c.FailedTimeoutMovedToError)
                 .Repeat(r => r.For<AllTransportsWithoutNativeDeferral>())
-                .Should(c => Assert.AreEqual(5, c.NumTimesStorageCalled))
+                .Should(c =>
+                {
+                    Assert.IsFalse(c.DelayedMessageDeliveredToHandler, "Message was unexpectedly delivered to the handler");
+                    Assert.IsTrue(c.FailedTimeoutMovedToError, "Message should have been moved to the error queue");
+                })
                 .Run();
         }
 
@@ -39,7 +47,7 @@
         public class Context : ScenarioContext
         {
             public bool FailedTimeoutMovedToError { get; set; }
-            public int NumTimesStorageCalled { get; set; }
+            public bool DelayedMessageDeliveredToHandler { get; set; }
         }
 
         public class Endpoint : EndpointConfigurationBuilder
@@ -50,9 +58,21 @@
                 {
                     config.EnableFeature<TimeoutManager>();
                     config.UsePersistence<FakeTimeoutPersistence>();
-                    config.SendFailedMessagesTo(ErrorQueueForTimeoutErrors);
+                    config.SendFailedMessagesTo(Conventions.EndpointNamingConvention(typeof(Endpoint)));
                     config.RegisterComponents(c => c.ConfigureComponent<FakeTimeoutStorage>(DependencyLifecycle.SingleInstance));
+                    config.Pipeline.Register<BehaviorThatLogsControlMessageDelivery.Registration>();
                 });
+            }
+
+            class Handler : IHandleMessages<MyMessage>
+            {
+                public Context TestContext { get; set; }
+
+                public Task Handle(MyMessage message, IMessageHandlerContext context)
+                {
+                    TestContext.DelayedMessageDeliveredToHandler = true;
+                    return Task.FromResult(0);
+                }
             }
 
             class FakeTimeoutPersistence : PersistenceDefinition
@@ -66,9 +86,18 @@
             class FakeTimeoutStorage : IQueryTimeouts, IPersistTimeouts
             {
                 public Context TestContext { get; set; }
+                TimeoutData timeoutData;
 
                 public Task Add(TimeoutData timeout, ContextBag context)
                 {
+                    if (TestContext.TestRunId.ToString() == timeout.Headers[Headers.MessageId])
+                    {
+                        timeout.Id = TestContext.TestRunId.ToString();
+                        timeout.Time = DateTime.UtcNow;
+
+                        timeoutData = timeout;
+                    }
+
                     return Task.FromResult(0);
                 }
 
@@ -79,7 +108,11 @@
 
                 public Task<TimeoutData> Peek(string timeoutId, ContextBag context)
                 {
-                    TestContext.NumTimesStorageCalled++;
+                    if (timeoutId != TestContext.TestRunId.ToString())
+                    {
+                        throw new ArgumentException("The timeoutId is different from one registered in the test context", "timeoutId");
+                    }
+
                     throw new Exception("Ooops. Timeout storage went bust");
                 }
 
@@ -90,32 +123,38 @@
 
                 public Task<TimeoutsChunk> GetNextChunk(DateTime startSlice)
                 {
-                    var timeout = new TimeoutsChunk.Timeout(Guid.NewGuid().ToString(), DateTime.UtcNow);
-                    var timeouts = new List<TimeoutsChunk.Timeout>
-                    {
-                        timeout
-                    };
+                    var timeouts = timeoutData != null
+                        ? new[]
+                        {
+                            new TimeoutsChunk.Timeout(timeoutData.Id, timeoutData.Time)
+                        }
+                        : new TimeoutsChunk.Timeout[0];
+
                     return Task.FromResult(new TimeoutsChunk(timeouts, DateTime.UtcNow + TimeSpan.FromSeconds(10)));
                 }
             }
-        }
 
-        public class ErrorSpy : EndpointConfigurationBuilder
-        {
-            public ErrorSpy()
-            {
-                EndpointSetup<DefaultServer>()
-                    .CustomEndpointName(ErrorQueueForTimeoutErrors);
-            }
-
-            class Handler : IHandleMessages<MyMessage>
+            class BehaviorThatLogsControlMessageDelivery : Behavior<ITransportReceiveContext>
             {
                 public Context TestContext { get; set; }
 
-                public Task Handle(MyMessage message, IMessageHandlerContext context)
+                public override async Task Invoke(ITransportReceiveContext context, Func<Task> next)
                 {
-                    TestContext.FailedTimeoutMovedToError = true;
-                    return Task.FromResult(0);
+                    if (context.Message.Headers.ContainsKey(Headers.ControlMessageHeader) &&
+                        context.Message.Headers["Timeout.Id"] == TestContext.TestRunId.ToString())
+                    {
+                        TestContext.FailedTimeoutMovedToError = true;
+                        return;
+                    }
+
+                    await next().ConfigureAwait(false);
+                }
+
+                public class Registration : RegisterStep
+                {
+                    public Registration() : base("BehaviorThatLogsControlMessageDelivery", typeof(BehaviorThatLogsControlMessageDelivery), "BehaviorThatLogsControlMessageDelivery")
+                    {
+                    }
                 }
             }
         }
