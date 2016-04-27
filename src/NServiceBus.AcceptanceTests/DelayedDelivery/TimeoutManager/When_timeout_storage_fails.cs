@@ -15,9 +15,9 @@
     public class When_timeout_storage_fails : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_retry_and_move_to_error()
+        public Task Should_retry_and_move_to_error()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b.DoNotFailOnErrorMessages()
                     .When((bus, c) =>
                     {

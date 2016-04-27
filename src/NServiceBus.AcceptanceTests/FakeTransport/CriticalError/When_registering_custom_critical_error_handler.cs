@@ -13,9 +13,9 @@
     public class When_registering_custom_critical_error_handler : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Critical_error_should_be_raised_inside_delegate()
+        public Task Critical_error_should_be_raised_inside_delegate()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithLocalCallback>(b => b.When(
                     (session, context) => session.SendLocal(new MyRequest())))
                 .Done(c => c.ExceptionReceived)

@@ -9,9 +9,9 @@
     public class when_using_autosubscribe_with_missing_routing_information : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_skip_events_with_missing_routes()
+        public Task Should_skip_events_with_missing_routes()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<Subscriber>()
                 .Done(c => c.EndpointsStarted)
                 .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())

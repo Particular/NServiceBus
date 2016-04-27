@@ -10,9 +10,9 @@
     public class When_no_content_type : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_handle_message()
+        public Task Should_handle_message()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<EndpointViaType>(b => b.When(
                     (session, c) => session.SendLocal(new Message
                     {

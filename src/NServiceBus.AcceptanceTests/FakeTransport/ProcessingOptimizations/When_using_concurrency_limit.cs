@@ -16,9 +16,9 @@
     public class When_using_concurrency_limit : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_pass_it_to_the_transport()
+        public Task Should_pass_it_to_the_transport()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<ThrottledEndpoint>(b => b.CustomConfig(c => c.LimitMessageProcessingConcurrencyTo(10)))
                 .Done(c => c.EndpointsStarted)
                 .Run();

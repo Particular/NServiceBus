@@ -14,9 +14,9 @@
         [TestCase(TransportTransactionMode.ReceiveOnly)]
         [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
         [TestCase(TransportTransactionMode.TransactionScope)]
-        public async Task Should_not_send_outgoing_messages(TransportTransactionMode transactionMode)
+        public Task Should_not_send_outgoing_messages(TransportTransactionMode transactionMode)
         {
-            await Scenario.Define<Context>(c =>
+            return Scenario.Define<Context>(c =>
             {
                 c.Id = Guid.NewGuid();
                 c.TransactionMode = transactionMode;
@@ -35,9 +35,9 @@
         }
 
         [Test]
-        public async Task May_send_outgoing_messages_without_transport_transactions()
+        public Task May_send_outgoing_messages_without_transport_transactions()
         {
-            await Scenario.Define<Context>(c =>
+            return Scenario.Define<Context>(c =>
             {
                 c.Id = Guid.NewGuid();
                 c.TransactionMode = TransportTransactionMode.None;

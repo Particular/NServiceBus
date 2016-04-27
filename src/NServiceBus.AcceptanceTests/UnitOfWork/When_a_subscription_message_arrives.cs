@@ -11,9 +11,9 @@
     public class When_a_subscription_message_arrives : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_invoke_uow()
+        public Task Should_invoke_uow()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<UOWEndpoint>()
                 .Done(c => c.UowWasCalled)
                 .Repeat(b => b.For<AllTransportsWithMessageDrivenPubSub>())

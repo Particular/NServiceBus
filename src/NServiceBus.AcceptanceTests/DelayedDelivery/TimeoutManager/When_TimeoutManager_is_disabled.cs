@@ -11,9 +11,9 @@
     public class When_TimeoutManager_is_disabled : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Bus_Defer_should_throw()
+        public Task Bus_Defer_should_throw()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b.When((session, c) =>
                 {
                     var options = new SendOptions();

@@ -13,9 +13,9 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
     public class When_starting_an_endpoint_with_autosubscribe : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_autosubscribe_to_relevant_messagetypes()
+        public Task Should_autosubscribe_to_relevant_messagetypes()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<Subscriber>()
                 .Done(c => c.EventsSubscribedTo.Count >= 1)
                 .Repeat(b => b.For<AllTransportsWithMessageDrivenPubSub>())

@@ -13,9 +13,9 @@
     public class When_a_saga_message_goes_through_the_slr : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_invoke_the_correct_handle_methods_on_the_saga()
+        public Task Should_invoke_the_correct_handle_methods_on_the_saga()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<SagaMsgThruSlrEndpt>(b => b
                     .When(session => session.SendLocal(new StartSagaMessage
                     {

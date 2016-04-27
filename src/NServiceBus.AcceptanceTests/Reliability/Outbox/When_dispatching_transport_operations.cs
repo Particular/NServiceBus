@@ -12,9 +12,9 @@
     public class When_dispatching_transport_operations : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_honor_all_delivery_options()
+        public Task Should_honor_all_delivery_options()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<NonDtcReceivingEndpoint>(b => b.When(session => session.SendLocal(new PlaceOrder())))
                 .Done(c => c.DispatchedMessageReceived)
                 .Repeat(r => r.For<AllOutboxCapableStorages>())

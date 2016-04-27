@@ -12,9 +12,9 @@
     public class When_requesting_immediate_dispatch_using_scope_suppress : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_dispatch_immediately()
+        public Task Should_dispatch_immediately()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<SuppressEndpoint>(b => b
                     .When(session => session.SendLocal(new InitiatingMessage()))
                     .DoNotFailOnErrorMessages())

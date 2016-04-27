@@ -9,9 +9,9 @@
     public class When_unsubscribing_to_command_bestpractices_disabled_on_endpoint : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_allow_unsubscribing_to_commands()
+        public Task Should_allow_unsubscribing_to_commands()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b.When((session, c) => session.Unsubscribe<MyCommand>()))
                 .Done(c => c.EndpointsStarted)
                 .Run();

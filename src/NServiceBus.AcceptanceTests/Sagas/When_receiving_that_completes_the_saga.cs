@@ -11,9 +11,9 @@
     public class When_receiving_that_completes_the_saga : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_hydrate_and_complete_the_existing_instance()
+        public Task Should_hydrate_and_complete_the_existing_instance()
         {
-            await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
+            return Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<ReceiveCompletesSagaEndpoint>(b =>
                 {
                     b.When((session, context) => session.SendLocal(new StartSagaMessage
@@ -37,9 +37,9 @@
         }
 
         [Test]
-        public async Task Should_ignore_messages_afterwards()
+        public Task Should_ignore_messages_afterwards()
         {
-            await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
+            return Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<ReceiveCompletesSagaEndpoint>(b =>
                 {
                     b.When((session, c) => session.SendLocal(new StartSagaMessage

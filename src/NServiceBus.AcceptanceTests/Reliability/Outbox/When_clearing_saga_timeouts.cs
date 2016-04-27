@@ -16,9 +16,9 @@
     public class When_clearing_saga_timeouts : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_record_the_request_to_clear_in_outbox()
+        public Task Should_record_the_request_to_clear_in_outbox()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<NonDtcReceivingEndpoint>(b => b.When(session => session.SendLocal(new PlaceOrder
                 {
                     DataId = Guid.NewGuid()

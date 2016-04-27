@@ -17,9 +17,9 @@
     public class When_timeout_dispatch_fails_on_timeout_data_removal : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_move_control_message_to_errors_and_not_dispatch_original_message_to_handler()
+        public Task Should_move_control_message_to_errors_and_not_dispatch_original_message_to_handler()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b.DoNotFailOnErrorMessages()
                     .When((bus, c) =>
                     {

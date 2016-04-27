@@ -11,9 +11,9 @@
     public class When_sending_from_a_non_dtc_endpoint : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_store_them_and_dispatch_them_from_the_outbox()
+        public Task Should_store_them_and_dispatch_them_from_the_outbox()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<NonDtcSalesEndpoint>(b => b.When(session => session.SendLocal(new PlaceOrder())))
                 .Done(c => c.OrderAckReceived)
                 .Repeat(r => r.For<AllOutboxCapableStorages>())

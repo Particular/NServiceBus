@@ -10,9 +10,9 @@
     public class When_using_a_greedy_convention : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_receive_the_message()
+        public Task Should_receive_the_message()
         {
-            await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
+            return Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<Endpoint>(b => b.When((session, c) => session.SendLocal(new MyMessage
                 {
                     Id = c.Id

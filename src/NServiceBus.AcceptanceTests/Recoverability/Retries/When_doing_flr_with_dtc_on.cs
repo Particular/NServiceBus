@@ -13,9 +13,9 @@
     public class When_doing_flr_with_dtc_on : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_do_X_retries_by_default_with_dtc_on()
+        public Task Should_do_X_retries_by_default_with_dtc_on()
         {
-            await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
+            return Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<RetryEndpoint>(b => b
                     .When((session, context) => session.SendLocal(new MessageToBeRetried
                     {

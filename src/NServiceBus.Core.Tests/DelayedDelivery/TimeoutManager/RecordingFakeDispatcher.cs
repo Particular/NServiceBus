@@ -21,10 +21,10 @@
 
         public readonly List<DispatchedMessage> DispatchedMessages = new List<DispatchedMessage>();
 
-        public async Task Dispatch(TransportOperations outgoingMessages, ContextBag context)
+        public Task Dispatch(TransportOperations outgoingMessages, ContextBag context)
         {
             DispatchedMessages.Add(new DispatchedMessage(outgoingMessages, context));
-            await TaskEx.CompletedTask;
+            return TaskEx.CompletedTask;
         }
     }
 }

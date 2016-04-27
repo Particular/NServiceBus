@@ -13,9 +13,9 @@
     public class When_using_Rijndael_without_incoming_key_identifier : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_process_decrypted_message_without_key_identifier()
+        public Task Should_process_decrypted_message_without_key_identifier()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<Sender>(b => b.When((bus, context) => bus.Send(new MessageWithSecretData
                 {
                     Secret = "betcha can't guess my secret"
