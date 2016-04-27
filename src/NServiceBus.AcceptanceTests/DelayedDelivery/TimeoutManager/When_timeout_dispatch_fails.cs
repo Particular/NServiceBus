@@ -37,6 +37,7 @@
                 .Should(c =>
                 {
                     Assert.IsFalse(c.DelayedMessageDeliveredToHandler, "Message was unexpectedly delivered to the handler");
+                    Assert.IsTrue(c.FailedTimeoutMovedToError, "Message should have been moved to the error queue");
                 })
                 .Run();
         }
