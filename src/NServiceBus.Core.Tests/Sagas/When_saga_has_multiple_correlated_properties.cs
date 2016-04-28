@@ -3,6 +3,7 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using ApprovalTests;
     using NServiceBus.Sagas;
     using NUnit.Framework;
 
@@ -12,12 +13,11 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
         [Test]
         public void Should_throw()
         {
-            var ex = Assert.Throws<Exception>(() => SagaMetadata.Create(typeof(SagaWithMultipleCorrelatedProperties), new List<Type>(), new Conventions()));
-
-            StringAssert.Contains("Sagas can only have mappings that correlate on a single saga property", ex.Message);
+            var exception = Assert.Throws<Exception>(() => SagaMetadata.Create(typeof(SagaWithMultipleCorrelatedProperties), new List<Type>(), new Conventions()));
+            Approvals.Verify(exception.Message);
         }
 
-        class SagaWithMultipleCorrelatedProperties : Saga<SagaWithMultipleCorrelatedProperties.MyEntity>, 
+        class SagaWithMultipleCorrelatedProperties : Saga<SagaWithMultipleCorrelatedProperties.MyEntity>,
             IAmStartedByMessages<Message1>,
             IAmStartedByMessages<Message2>
         {
@@ -36,12 +36,13 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
                     .ToSaga(s=>s.OrderId);
                 mapper.ConfigureMapping<Message2>(m => m.LegacyOrderId)
                     .ToSaga(s => s.LegacyOrderId);
+                mapper.ConfigureMapping<Message1>(m => m.Property2)
+                    .ToSaga(s => s.OrderId);
             }
 
             public class MyEntity : ContainSagaData
             {
                 public string OrderId { get; set; }
-
                 public string LegacyOrderId { get; set; }
             }
         }
@@ -49,12 +50,13 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
         class Message1 : IMessage
         {
             public string OrderId { get; set; }
-
+            public string Property2 { get; set; }
         }
 
         class Message2 : IMessage
         {
             public string LegacyOrderId { get; set; }
         }
+
     }
 }
