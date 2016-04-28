@@ -1,9 +1,11 @@
 ﻿namespace NServiceBus.AcceptanceTesting.Support
 {
+    using System;
     using System.Linq;
     using System.Threading.Tasks;
     using Faults;
     using Features;
+    using Pipeline;
     using Routing;
     using Settings;
 
@@ -16,49 +18,55 @@
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.RegisterStartupTask(b => new FailTestOnErrorMessageFeatureStartupTask(b.Build<ScenarioContext>(), context.Settings, context.Settings.Get<Notifications>()));
+            context.Pipeline.Register<CaptureExceptionBehavior.Registration>();
         }
 
-        class FailTestOnErrorMessageFeatureStartupTask : FeatureStartupTask
+        class CaptureExceptionBehavior : Behavior<ITransportReceiveContext>
         {
-            public FailTestOnErrorMessageFeatureStartupTask(ScenarioContext context, ReadOnlySettings settings, Notifications notifications)
+            ScenarioContext scenarioContext;
+            EndpointName endpoint;
+
+            public CaptureExceptionBehavior(ScenarioContext scenarioContext, ReadOnlySettings settings)
             {
-                scenarioContext = context;
-                this.notifications = notifications;
+                this.scenarioContext = scenarioContext;
                 endpoint = settings.EndpointName();
             }
 
-            protected override Task OnStart(IMessageSession session)
+            public override async Task Invoke(ITransportReceiveContext context, Func<Task> next)
             {
-                notifications.Errors.MessageSentToErrorQueue += OnMessageSentToErrorQueue;
-                return TaskEx.CompletedTask;
-            }
-
-            protected override Task OnStop(IMessageSession session)
-            {
-                notifications.Errors.MessageSentToErrorQueue -= OnMessageSentToErrorQueue;
-                return TaskEx.CompletedTask;
-            }
-
-            void OnMessageSentToErrorQueue(object sender, FailedMessage failedMessage)
-            {
-                scenarioContext.FailedMessages.AddOrUpdate(
+                try
+                {
+                    await next().ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    scenarioContext.FailedMessages.AddOrUpdate(
                     endpoint.ToString(),
                     new[]
                     {
-                        failedMessage
+                        new FailedMessage(context.Message.MessageId, context.Message.Headers, context.Message.Body, ex)
                     },
                     (i, failed) =>
                     {
                         var result = failed.ToList();
-                        result.Add(failedMessage);
+                        result.Add(new FailedMessage(context.Message.MessageId, context.Message.Headers, context.Message.Body, ex));
                         return result;
                     });
+
+                    // rethrow exception to let NServiceBus properly handle it.
+                    throw;
+                }
             }
 
-            EndpointName endpoint;
-            Notifications notifications;
-            ScenarioContext scenarioContext;
+            internal class Registration : RegisterStep
+            {
+                public Registration() : base("CaptureExceptionBehavior", typeof(CaptureExceptionBehavior), "Captures unhandled exceptions from processed messages for the AcceptanceTesting Framework")
+                {
+                    InsertAfter("MoveFaultsToErrorQueue");
+                    InsertBeforeIfExists("FirstLevelRetries");
+                    InsertBeforeIfExists("SecondLevelRetries");
+                }
+            }
         }
     }
 }
