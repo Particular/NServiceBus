@@ -21,10 +21,11 @@
                         {
                             DataId = Guid.NewGuid()
                         })))
-                    .Done(c => c.ModifiedCorrelationProperty)
+                    .Done(c => c.FailedMessages.Any())
                     .Run())
                 .ExpectFailedMessages();
 
+            Assert.IsTrue(((Context)exception.ScenarioContext).ModifiedCorrelationProperty);
             Assert.AreEqual(1, exception.FailedMessages.Count);
             StringAssert.Contains(
                 "Changing the value of correlated properties at runtime is currently not supported",
