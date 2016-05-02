@@ -164,14 +164,14 @@
         [Test]
         public void Should_throw_informative_exception_when_decryption_fails_with_key_identifier()
         {
-            var keyIdentier = "encryptionKey1";
+            var keyIdentifier = "encryptionKey1";
 
             var key1 = Encoding.ASCII.GetBytes("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-            var service1 = new TestableRijndaelEncryptionService(keyIdentier, key1, new List<byte[]>());
+            var service1 = new TestableRijndaelEncryptionService(keyIdentifier, key1, new List<byte[]>());
             var encryptedValue = service1.Encrypt("string to encrypt", null);
 
             var key2 = Encoding.ASCII.GetBytes("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
-            var service2 = new TestableRijndaelEncryptionService(keyIdentier, key2, new List<byte[]>())
+            var service2 = new TestableRijndaelEncryptionService(keyIdentifier, key2, new List<byte[]>())
             {
                 IncomingKeyIdentifier = "encryptionKey1"
             };

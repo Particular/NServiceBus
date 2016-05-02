@@ -3,7 +3,7 @@
     using System.Threading.Tasks;
 
     /// <summary>
-    /// Provide a mechanism in acceptence tests for transports and persistences 
+    /// Provide a mechanism in acceptance tests for transports and persistences
     /// to configure an endpoint for a test and then clean up afterwards.
     /// </summary>
     public interface IConfigureEndpointTestExecution
@@ -20,7 +20,7 @@
         Task Configure(string endpointName, EndpointConfiguration configuration, RunSettings settings);
 
         /// <summary>
-        /// Gives the transport/persistence a chance to clean up after the test is complete. Implementors of this class may store
+        /// Gives the transport/persistence a chance to clean up after the test is complete. Implementations of this class may store
         /// private variables during Configure to use during the cleanup phase.
         /// </summary>
         /// <returns>An async Task.</returns>

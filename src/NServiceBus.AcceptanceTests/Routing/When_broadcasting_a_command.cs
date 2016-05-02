@@ -9,7 +9,7 @@
 
     public class When_broadcasting_a_command : NServiceBusAcceptanceTest
     {
-        static string ReceiverEdndpoint => Conventions.EndpointNamingConvention(typeof(Receiver));
+        static string ReceiverEndpoint => Conventions.EndpointNamingConvention(typeof(Receiver));
 
         [Test]
         public async Task Should_send_it_to_all_instances()
@@ -37,12 +37,12 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.UnicastRouting().RouteToEndpoint(typeof(Request), ReceiverEdndpoint);
+                    c.UnicastRouting().RouteToEndpoint(typeof(Request), ReceiverEndpoint);
 
                     c.UnicastRouting().Mapping.SetMessageDistributionStrategy(new AllInstancesDistributionStrategy(), t => t == typeof(Request));
-                    c.UnicastRouting().Mapping.Physical.Add(new EndpointName(ReceiverEdndpoint),
-                        new EndpointInstance(ReceiverEdndpoint, "1"),
-                        new EndpointInstance(ReceiverEdndpoint, "2"));
+                    c.UnicastRouting().Mapping.Physical.Add(new EndpointName(ReceiverEndpoint),
+                        new EndpointInstance(ReceiverEndpoint, "1"),
+                        new EndpointInstance(ReceiverEndpoint, "2"));
                 });
             }
 

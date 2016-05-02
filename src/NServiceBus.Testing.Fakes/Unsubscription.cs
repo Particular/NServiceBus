@@ -3,7 +3,7 @@ namespace NServiceBus.Testing
     using System;
 
     /// <summary>
-    /// Represents an event subscription cancelation.
+    /// Represents an event subscription cancellation.
     /// </summary>
     public class Unsubscription : OutgoingMessage<Type, UnsubscribeOptions>
     {

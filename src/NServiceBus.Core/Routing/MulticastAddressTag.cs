@@ -8,7 +8,7 @@ namespace NServiceBus.Routing
     public class MulticastAddressTag : AddressTag
     {
         /// <summary>
-        /// Initializes a new insatnce of <see cref="MulticastAddressTag" />.
+        /// Initializes a new instance of <see cref="MulticastAddressTag" />.
         /// </summary>
         /// <param name="messageType">The event being published.</param>
         public MulticastAddressTag(Type messageType)

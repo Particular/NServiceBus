@@ -65,9 +65,9 @@
                 Context TestContext;
             }
 
-            public class NewMessaeHandler : IHandleMessages<NewMessage>
+            public class NewMessageHandler : IHandleMessages<NewMessage>
             {
-                public NewMessaeHandler(Context testContext)
+                public NewMessageHandler(Context testContext)
                 {
                     TestContext = testContext;
                 }

@@ -358,11 +358,16 @@
                 runners.Add(runner);
             }
 
-            await Task.WhenAll(runners.Select(r => r.InitializeTask).ToArray()).ConfigureAwait(false);
-            var failedRunner = runners.FirstOrDefault(r => r.InitializeTask.Result.Failed);
-            if (failedRunner != null)
+            var tasks = runners.Select(r => r.InitializeTask).ToArray();
+            await Task.WhenAll(tasks).ConfigureAwait(false);
+
+            foreach (var runner in runners)
             {
-                throw new ScenarioException($"Endpoint {failedRunner.Instance.Name()} failed to initialize", failedRunner.InitializeTask.Result.Exception);
+                var result = await runner.InitializeTask;
+                if (result.Failed)
+                {
+                    throw new ScenarioException($"Endpoint {runner.Instance.Name()} failed to initialize", result.Exception);
+                }
             }
             return runners;
         }
