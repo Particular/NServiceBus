@@ -9,7 +9,7 @@
     public class CriticalErrorContext : ICriticalErrorContext
     {
         /// <summary>
-        /// Initizes a new instance of <see cref="CriticalErrorContext" />.
+        /// Initializes a new instance of <see cref="CriticalErrorContext" />.
         /// </summary>
         /// <param name="stop">See <see cref="ICriticalErrorContext.Stop" />.</param>
         /// <param name="error">See <see cref="ICriticalErrorContext.Error" />.</param>

@@ -8,7 +8,7 @@ namespace NServiceBus.Pipeline
     /// </summary>
     /// <typeparam name="TFromContext">The context to connect from.</typeparam>
     /// <typeparam name="TToContext">The context to connect to.</typeparam>
-    /// <typeparam name="TForkContext">The context to fork an indepent pipeline to.</typeparam>
+    /// <typeparam name="TForkContext">The context to fork an independent pipeline to.</typeparam>
     public abstract class StageForkConnector<TFromContext, TToContext, TForkContext> : IBehavior<TFromContext, TToContext>, IForkConnector<TForkContext>, IStageConnector
         where TFromContext : IBehaviorContext
         where TToContext : IBehaviorContext

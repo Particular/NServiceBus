@@ -7,7 +7,7 @@
     /// Forks into another independent pipeline.
     /// </summary>
     /// <typeparam name="TFromContext">The context to connect from.</typeparam>
-    /// <typeparam name="TForkContext">The context to fork an indepent pipeline to.</typeparam>
+    /// <typeparam name="TForkContext">The context to fork an independent pipeline to.</typeparam>
     public abstract class ForkConnector<TFromContext, TForkContext> : Behavior<TFromContext>, IForkConnector<TForkContext>
         where TFromContext : IBehaviorContext
         where TForkContext : IBehaviorContext

@@ -61,7 +61,7 @@
                             context.Publisher1HasASubscriberForIMyEvent = true;
                         }
                     });
-                    b.EnableFeature<FirstLevelRetries>(); //Because subscription storages can throw on concurrecy violation and need to retry
+                    b.EnableFeature<FirstLevelRetries>(); //Because subscription storages can throw on concurrency violation and need to retry
                 });
             }
         }
@@ -81,7 +81,7 @@
                             context.Publisher2HasDetectedASubscriberForEvent2 = true;
                         }
                     });
-                    b.EnableFeature<FirstLevelRetries>(); //Because subscription storages can throw on concurrecy violation and need to retry
+                    b.EnableFeature<FirstLevelRetries>(); //Because subscription storages can throw on concurrency violation and need to retry
                 });
             }
         }

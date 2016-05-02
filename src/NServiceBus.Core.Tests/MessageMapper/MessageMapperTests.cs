@@ -59,7 +59,7 @@
         }
 
         [Test]
-        public void ShouldAllowMutlipleMapperInstancesPerAppDomain()
+        public void ShouldAllowMultipleMapperInstancesPerAppDomain()
         {
             Parallel.For(0, 10, i =>
             {

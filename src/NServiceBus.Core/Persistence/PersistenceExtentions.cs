@@ -18,7 +18,7 @@
         where S : StorageType
     {
         /// <summary>
-        /// Initializes a new insatnce of <see cref="PersistenceExtentions" />.
+        /// Initializes a new instance of <see cref="PersistenceExtentions" />.
         /// </summary>
         public PersistenceExtentions(SettingsHolder settings) : base(settings, typeof(S))
         {

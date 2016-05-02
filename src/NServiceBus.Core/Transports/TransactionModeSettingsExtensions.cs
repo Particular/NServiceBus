@@ -5,7 +5,7 @@ namespace NServiceBus.ConsistencyGuarantees
     using Transports;
 
     /// <summary>
-    /// Extension methods to provide access to various consistency releated convenience methods.
+    /// Extension methods to provide access to various consistency related convenience methods.
     /// </summary>
     public static class TransactionModeSettingsExtensions
     {
