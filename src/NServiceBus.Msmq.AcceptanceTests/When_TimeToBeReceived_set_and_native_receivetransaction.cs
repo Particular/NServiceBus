@@ -43,10 +43,10 @@
             {
                 public Context Context { get; set; }
 
-                public async Task Handle(MyMessage message, IMessageHandlerContext context)
+                public Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
                     Context.HandlerInvoked = true;
-                    await context.SendLocal(new MyTimeToBeReceivedMessage());
+                    return context.SendLocal(new MyTimeToBeReceivedMessage());
                 }
             }
         }

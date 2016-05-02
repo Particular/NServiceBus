@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests
 {
     using System;
-    using System.Threading.Tasks;
     using AcceptanceTesting;
     using Config;
     using NUnit.Framework;
@@ -9,7 +8,7 @@
     public class When_TimeToBeReceivedOnForwardedMessages_set_and_tx_scope_receives : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Endpoint_should_not_start_and_show_error()
+        public void Endpoint_should_not_start_and_show_error()
         {
             Assert.That(async () =>
             {
