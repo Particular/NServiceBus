@@ -10,7 +10,7 @@
         [Test]
         public void Should_blow_up()
         {
-            var aex = Assert.Throws<AggregateException>(async () =>
+            var aex = Assert.ThrowsAsync<AggregateException>(async () =>
             {
                 await Scenario.Define<Context>()
                     .WithEndpoint<ScopeEndpoint>()

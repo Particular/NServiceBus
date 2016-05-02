@@ -51,7 +51,7 @@ namespace NServiceBus.Core.Tests
             var behavior = CreateBehavior(transactionMode);
             var context = CreateContext();
 
-            var behaviorInvocation = new TestDelegate(async () =>
+            var behaviorInvocation = new AsyncTestDelegate(async () =>
             {
                 await behavior.Invoke(context, () => { throw new Exception(); });
 

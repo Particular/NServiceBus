@@ -14,7 +14,7 @@
         [Test]
         public void Should_throw()
         {
-            var exception = Assert.Throws<AggregateException>(async () =>
+            var exception = Assert.ThrowsAsync<AggregateException>(async () =>
                 await Scenario.Define<Context>()
                     .WithEndpoint<Endpoint>(
                         b => b.When(session => session.SendLocal(new StartSaga
