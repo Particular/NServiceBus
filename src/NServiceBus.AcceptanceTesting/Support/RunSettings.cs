@@ -7,15 +7,19 @@ namespace NServiceBus.AcceptanceTesting.Support
 
     public class RunSettings : IEnumerable<KeyValuePair<string, object>>
     {
-        public RunSettings()
+        public TimeSpan? TestExecutionTimeout
         {
-            TestExecutionTimeout = TimeSpan.FromSeconds(90); // default timeout
-        }
-
-        public TimeSpan TestExecutionTimeout
-        {
-            get { return Get<TimeSpan>("TestExecutionTimeout"); }
-            set { Set("TestExecutionTimeout", value); }
+            get
+            {
+                TimeSpan? timeout;
+                TryGet("TestExecutionTimeout", out timeout);
+                return timeout;
+            }
+            set
+            {
+                Guard.AgainstNull(nameof(value), value);
+                Set("TestExecutionTimeout", value);
+            }
         }
 
         public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
@@ -87,7 +91,6 @@ namespace NServiceBus.AcceptanceTesting.Support
             return TryGet(typeof(T).FullName, out result);
         }
 
-
         /// <summary>
         /// Stores the type instance in the settings.
         /// </summary>
@@ -97,7 +100,6 @@ namespace NServiceBus.AcceptanceTesting.Support
         {
             Set(typeof(T).FullName, t);
         }
-
 
         /// <summary>
         /// Removes the instance type from the settings.

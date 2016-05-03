@@ -3,7 +3,6 @@
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using AcceptanceTesting.Support;
     using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
     using NUnit.Framework;
@@ -18,10 +17,7 @@
                 .WithEndpoint<NonDtcReceivingEndpoint>(b => b.When(session => session.SendLocal(new PlaceOrder())))
                 .Done(c => c.OrderAckReceived == 1)
                 .Repeat(r => r.For<AllOutboxCapableStorages>())
-                .Run(new RunSettings
-                {
-                    TestExecutionTimeout = TimeSpan.FromSeconds(20)
-                });
+                .Run(TimeSpan.FromSeconds(20));
         }
 
         class Context : ScenarioContext
