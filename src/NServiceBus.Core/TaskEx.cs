@@ -39,5 +39,19 @@ namespace NServiceBus
 
             throw new Exception(TaskIsNullExceptionMessage);
         }
+
+        public static Task<TResult> Cast<TSource, TResult>(this Task<TSource> task) where TSource:TResult
+        {
+            var tcs = new TaskCompletionSource<TResult>();
+            task.ContinueWith(t => {
+                if (t.IsFaulted)
+                    tcs.SetException(t.Exception.InnerException);
+                else if (t.IsCanceled)
+                    tcs.SetCanceled();
+                else
+                    tcs.SetResult(t.Result);
+            });
+            return tcs.Task;
+        }
     }
 }
