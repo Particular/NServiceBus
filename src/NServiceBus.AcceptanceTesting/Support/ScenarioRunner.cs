@@ -238,9 +238,14 @@
                 await StopEndpoints(endpoints).ConfigureAwait(false);
             }
 
-            if (runDescriptor.ScenarioContext.FailedMessages.Any(kvp => endpoints.Single(e => e.Name() == kvp.Key).FailOnErrorMessage))
+            var unexpectedFailedMessages = runDescriptor.ScenarioContext.FailedMessages
+                .Where(kvp => endpoints.Single(e => e.Name() == kvp.Key).FailOnErrorMessage)
+                .SelectMany(kvp => kvp.Value)
+                .ToList();
+
+            if (unexpectedFailedMessages.Any())
             {
-                throw new MessagesFailedException(runDescriptor.ScenarioContext);
+                throw new MessagesFailedException(unexpectedFailedMessages, runDescriptor.ScenarioContext);
             }
         }
 
