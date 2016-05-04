@@ -221,7 +221,7 @@
                 await ExecuteWhens(endpoints, allowedExceptions, cts).ConfigureAwait(false);
 
                 var startTime = DateTime.UtcNow;
-                var maxTime = runDescriptor.Settings.TestExecutionTimeout;
+                var maxTime = runDescriptor.Settings.TestExecutionTimeout ?? TimeSpan.FromSeconds(90);
 
                 while (!done() && !cts.Token.IsCancellationRequested)
                 {
@@ -294,7 +294,7 @@
 
             if (completedTask.Equals(timeoutTask))
             {
-                throw new Exception("Executing given and whens took longer than 2 minutes");
+                throw new Exception("Executing given and whens took longer than 30 seconds.");
             }
 
             if (completedTask.IsFaulted && completedTask.Exception != null)

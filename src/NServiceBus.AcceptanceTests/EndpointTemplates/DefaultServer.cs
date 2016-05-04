@@ -30,32 +30,32 @@
 
             typesToInclude.AddRange(types);
 
-            var builder = new EndpointConfiguration(endpointConfiguration.EndpointName);
+            var configuration = new EndpointConfiguration(endpointConfiguration.EndpointName);
 
-            builder.TypesToIncludeInScan(typesToInclude);
-            builder.CustomConfigurationSource(configSource);
-            builder.EnableInstallers();
+            configuration.TypesToIncludeInScan(typesToInclude);
+            configuration.CustomConfigurationSource(configSource);
+            configuration.EnableInstallers();
 
-            builder.DisableFeature<TimeoutManager>();
-            builder.DisableFeature<SecondLevelRetries>();
-            builder.DisableFeature<FirstLevelRetries>();
+            configuration.DisableFeature<TimeoutManager>();
+            configuration.DisableFeature<SecondLevelRetries>();
+            configuration.DisableFeature<FirstLevelRetries>();
 
-            await builder.DefineTransport(settings, endpointConfiguration.EndpointName).ConfigureAwait(false);
+            await configuration.DefineTransport(settings, endpointConfiguration.EndpointName).ConfigureAwait(false);
 
-            builder.DefineBuilder(settings);
-            builder.RegisterComponentsAndInheritanceHierarchy(runDescriptor);
+            configuration.DefineBuilder(settings);
+            configuration.RegisterComponentsAndInheritanceHierarchy(runDescriptor);
 
             Type serializerType;
             if (settings.TryGet("Serializer", out serializerType))
             {
-                builder.UseSerialization((SerializationDefinition) Activator.CreateInstance(serializerType));
+                configuration.UseSerialization((SerializationDefinition) Activator.CreateInstance(serializerType));
             }
-            await builder.DefinePersistence(settings, endpointConfiguration.EndpointName).ConfigureAwait(false);
+            await configuration.DefinePersistence(settings, endpointConfiguration.EndpointName).ConfigureAwait(false);
 
-            builder.GetSettings().SetDefault("ScaleOut.UseSingleBrokerQueue", true);
-            configurationBuilderCustomization(builder);
+            configuration.GetSettings().SetDefault("ScaleOut.UseSingleBrokerQueue", true);
+            configurationBuilderCustomization(configuration);
 
-            return builder;
+            return configuration;
         }
 
         List<Type> typesToInclude;
