@@ -183,7 +183,7 @@ namespace NServiceBus.Features
             var featureType = featureInfo.Feature.GetType();
             if (featureInfo.Feature.Dependencies.All(dependencyActivator))
             {
-                featureInfo.Diagnostics.DependenciesAreMeet = true;
+                featureInfo.Diagnostics.DependenciesAreMet = true;
 
                 var context = new FeatureConfigurationContext(settings, container, pipelineSettings);
                 if (!HasAllPrerequisitesSatisfied(featureInfo.Feature, featureInfo.Diagnostics, context))
@@ -199,7 +199,7 @@ namespace NServiceBus.Features
                 return true;
             }
             settings.MarkFeatureAsDeactivated(featureType);
-            featureInfo.Diagnostics.DependenciesAreMeet = false;
+            featureInfo.Diagnostics.DependenciesAreMet = false;
             return false;
         }
 

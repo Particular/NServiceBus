@@ -18,6 +18,6 @@ namespace NServiceBus.Features
 
         public IReadOnlyList<string> StartupTasks { get; internal set; }
 
-        public bool DependenciesAreMeet { get; set; }
+        public bool DependenciesAreMet { get; set; }
     }
 }
