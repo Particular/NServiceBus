@@ -19,7 +19,7 @@ namespace NServiceBus
         /// <summary>
         /// Gets the routing table for the direct routing.
         /// </summary>
-        public UnicastRoutingTable Logical => GetOrCreate<UnicastRoutingTable>();
+        public UnicastRoutingTableConfiguration Logical => GetOrCreate<UnicastRoutingTableConfiguration>();
 
         /// <summary>
         /// Gets the known endpoints collection.

@@ -1,6 +1,8 @@
 namespace NServiceBus.Routing
 {
+    using System;
     using System.Collections.Generic;
+    using Extensibility;
 
     /// <summary>
     /// Governs to how many and which instances of a given endpoint a message is to be sent.
@@ -8,8 +10,8 @@ namespace NServiceBus.Routing
     public abstract class DistributionStrategy
     {
         /// <summary>
-        /// Selects destination instances from all known instances of a given endpoint.
+        /// Returns a function that selects the next target of a message.
         /// </summary>
-        public abstract IEnumerable<UnicastRoutingTarget> SelectDestination(IEnumerable<UnicastRoutingTarget> allInstances);
+        public abstract Func<ContextBag, IEnumerable<UnicastRoutingTarget>> SelectDestination(List<UnicastRoutingTarget> allDestinations);
     }
 }

@@ -1,7 +1,10 @@
 namespace NServiceBus.Routing
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
+    using Extensibility;
 
     /// <summary>
     /// Selects a single instance based on a round-robin scheme.
@@ -11,31 +14,50 @@ namespace NServiceBus.Routing
         /// <summary>
         /// Selects destination instances from all known instances of a given endpoint.
         /// </summary>
-        public override IEnumerable<UnicastRoutingTarget> SelectDestination(IEnumerable<UnicastRoutingTarget> currentAllInstances)
+        public override Func<ContextBag, IEnumerable<UnicastRoutingTarget>> SelectDestination(List<UnicastRoutingTarget> allDestinations)
         {
-            var localAllInstances = allInstances;
-            var currentList = currentAllInstances.ToList();
-            if (localAllInstances == null || !currentList.SequenceEqual(localAllInstances))
-            {
-                lock (lockObject)
-                {
-                    localAllInstances = allInstances;
-                    if (localAllInstances == null || !currentList.SequenceEqual(localAllInstances))
-                    {
-                        allInstances = currentList;
-                        localAllInstances = currentList;
-                        index = 0;
-                    }
-                }
-            }
-            var arrayIndex = index%localAllInstances.Count;
-            var destination = allInstances[(int) arrayIndex];
-            index++;
-            yield return destination;
+            var distributor = new Distributor(allDestinations);
+            return distributor.Distribute;
         }
 
-        volatile IList<UnicastRoutingTarget> allInstances;
-        long index;
-        object lockObject = new object();
+        class Distributor
+        {
+            public Distributor(List<UnicastRoutingTarget> allDestinations)
+            {
+                this.allDestinations = allDestinations;
+                length = allDestinations.Count;
+            }
+
+            public IEnumerable<UnicastRoutingTarget> Distribute(ContextBag bag)
+            {
+                SpecificInstanceHint hint;
+                if (bag.TryGet(out hint))
+                {
+                    var result = allDestinations.FirstOrDefault(d => d.Instance != null && d.Instance.Discriminator == hint.InstanceId);
+                    yield return result;
+                }
+                else
+                {
+                    var i = index % length;
+                    var result = allDestinations[(int)i];
+                    Interlocked.Increment(ref index);
+                    yield return result;
+                }
+            }
+
+            List<UnicastRoutingTarget> allDestinations;
+            long index;
+            long length;
+        }
+        
+        internal class SpecificInstanceHint
+        {
+            public string InstanceId { get; }
+
+            public SpecificInstanceHint(string instanceId)
+            {
+                InstanceId = instanceId;
+            }
+        }
     }
 }
