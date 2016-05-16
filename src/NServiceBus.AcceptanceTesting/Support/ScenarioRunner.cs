@@ -50,9 +50,9 @@
 
                     Console.WriteLine("{0} - Started @ {1}", runDescriptor.Key, DateTime.Now.ToString(CultureInfo.InvariantCulture));
 
-                    ContextAppender.SetContext(runDescriptor.ScenarioContext);
+                    ContextAppenderFactory.SetContext(runDescriptor.ScenarioContext);
                     var runResult = await PerformTestRun(behaviorDescriptors, shoulds, runDescriptor, done, allowedExceptions).ConfigureAwait(false);
-                    ContextAppender.SetContext(null);
+                    ContextAppenderFactory.SetContext(null);
 
                     Console.WriteLine("{0} - Finished @ {1}", runDescriptor.Key, DateTime.Now.ToString(CultureInfo.InvariantCulture));
 
