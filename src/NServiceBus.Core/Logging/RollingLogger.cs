@@ -31,7 +31,7 @@ namespace NServiceBus
             }
             catch (Exception exception)
             {
-                var errorMessage = $"NServiceBus.RollingLogger Could not write to log file {currentfilePath} {exception}";
+                var errorMessage = $"NServiceBus.RollingLogger Could not write to log file '{currentfilePath}'. Exception: {exception}";
                 Trace.WriteLine(errorMessage);
             }
         }
@@ -76,7 +76,7 @@ namespace NServiceBus
                 }
                 catch (Exception exception)
                 {
-                    var errorMessage = $"NServiceBus.RollingLogger Could not purge log file {file} {exception}";
+                    var errorMessage = $"NServiceBus.RollingLogger Could not purge log file '{file}'. Exception: {exception}";
                     InnerWrite(errorMessage);
                 }
             }
