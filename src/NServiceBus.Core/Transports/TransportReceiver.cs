@@ -16,8 +16,9 @@ namespace NServiceBus
             PushSettings pushSettings,
             IPipeline<ITransportReceiveContext> pipeline,
             IPipelineCache pipelineCache,
-            PushRuntimeSettings pushRuntimeSettings, 
-            IEventAggregator eventAggregator)
+            PushRuntimeSettings pushRuntimeSettings,
+            IEventAggregator eventAggregator,
+            bool isMainReceiver)
         {
             Id = id;
             this.pipeline = pipeline;
@@ -27,6 +28,7 @@ namespace NServiceBus
             this.pushSettings = pushSettings;
             this.receiver = receiver;
             this.builder = builder;
+            this.isMainReceiver = isMainReceiver;
         }
 
         public string Id { get; }
@@ -61,20 +63,30 @@ namespace NServiceBus
 
         async Task InvokePipeline(PushContext pushContext)
         {
+            var pipelineStartedAt = DateTime.UtcNow;
+
             using (var childBuilder = builder.CreateChildBuilder())
             {
                 var rootContext = new RootContext(childBuilder, pipelineCache, eventAggregator);
-                var context = new TransportReceiveContext(new IncomingMessage(pushContext.MessageId, pushContext.Headers, pushContext.BodyStream), pushContext.TransportTransaction, pushContext.ReceiveCancellationTokenSource, rootContext);
+                
+                var message = new IncomingMessage(pushContext.MessageId, pushContext.Headers, pushContext.BodyStream);
+                var context = new TransportReceiveContext(message, pushContext.TransportTransaction, pushContext.ReceiveCancellationTokenSource, rootContext);
+
                 context.Extensions.Merge(pushContext.Context);
+
                 await pipeline.Invoke(context).ConfigureAwait(false);
 
-                await context.RaiseNotification(new ReceivePipelineCompleted()).ConfigureAwait(false);
+                //notifications are only relevant for the main pipeline since satellites pipelines are not exposed to user in any way
+                if (isMainReceiver)
+                {
+                    await context.RaiseNotification(new ReceivePipelineCompleted(message, pipelineStartedAt, DateTime.UtcNow)).ConfigureAwait(false);
+                }
             }
         }
 
-        IBuilder builder;
-
+        bool isMainReceiver;
         bool isStarted;
+        IBuilder builder;
         IPipeline<ITransportReceiveContext> pipeline;
         IPipelineCache pipelineCache;
         PushRuntimeSettings pushRuntimeSettings;

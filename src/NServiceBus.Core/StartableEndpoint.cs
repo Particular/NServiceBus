@@ -18,9 +18,9 @@ namespace NServiceBus
     class StartableEndpoint : IStartableEndpoint
     {
         public StartableEndpoint(SettingsHolder settings,
-            IBuilder builder, 
-            FeatureActivator featureActivator, 
-            PipelineConfiguration pipelineConfiguration, 
+            IBuilder builder,
+            FeatureActivator featureActivator,
+            PipelineConfiguration pipelineConfiguration,
             IEventAggregator eventAggregator,
             TransportInfrastructure transportInfrastructure)
         {
@@ -131,12 +131,12 @@ namespace NServiceBus
             var mainPipelineInstance = new Pipeline<ITransportReceiveContext>(builder, settings, pipelineConfiguration.MainPipeline);
 
             var pushSettings = new PushSettings(settings.LocalAddress(), errorQueue, purgeOnStartup, requiredTransactionSupport);
-            yield return BuildReceiver(mainPipelineInstance, "Main", pushSettings, dequeueLimitations, cache);
+            yield return BuildReceiver(mainPipelineInstance, MainPipelineId, pushSettings, dequeueLimitations, cache);
 
             if (settings.InstanceSpecificQueue() != null)
             {
                 var sharedReceiverPushSettings = new PushSettings(settings.InstanceSpecificQueue(), errorQueue, purgeOnStartup, requiredTransactionSupport);
-                yield return BuildReceiver(mainPipelineInstance, "Main", sharedReceiverPushSettings, dequeueLimitations, cache);
+                yield return BuildReceiver(mainPipelineInstance, MainPipelineId, sharedReceiverPushSettings, dequeueLimitations, cache);
             }
 
             foreach (var satellitePipeline in pipelineConfiguration.SatellitePipelines)
@@ -168,17 +168,18 @@ namespace NServiceBus
             return PushRuntimeSettings.Default;
         }
 
-        TransportReceiver BuildReceiver(Pipeline<ITransportReceiveContext> pipelineInstance, string name, PushSettings pushSettings, PushRuntimeSettings runtimeSettings, IPipelineCache cache)
+        TransportReceiver BuildReceiver(Pipeline<ITransportReceiveContext> pipelineInstance, string pipelineId, PushSettings pushSettings, PushRuntimeSettings runtimeSettings, IPipelineCache cache)
         {
             var receiver = new TransportReceiver(
-                name,
+                pipelineId,
                 builder,
                 builder.Build<IPushMessages>(),
                 pushSettings,
                 pipelineInstance,
                 cache,
                 runtimeSettings,
-                eventAggregator);
+                eventAggregator,
+                pipelineId == MainPipelineId);
 
             return receiver;
         }
@@ -189,5 +190,7 @@ namespace NServiceBus
         SettingsHolder settings;
         IEventAggregator eventAggregator;
         TransportInfrastructure transportInfrastructure;
+
+        const string MainPipelineId = "Main";
     }
 }
