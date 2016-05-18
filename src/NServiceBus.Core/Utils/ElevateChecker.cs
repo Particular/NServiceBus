@@ -8,10 +8,6 @@ namespace NServiceBus
         {
             using (var windowsIdentity = WindowsIdentity.GetCurrent())
             {
-                if (windowsIdentity == null)
-                {
-                    return false;
-                }
                 var windowsPrincipal = new WindowsPrincipal(windowsIdentity);
                 return windowsPrincipal.IsInRole(WindowsBuiltInRole.Administrator);
             }
