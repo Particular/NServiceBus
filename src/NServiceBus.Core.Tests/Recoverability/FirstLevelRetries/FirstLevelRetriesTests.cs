@@ -98,7 +98,7 @@
 
             storage.ClearFailureInfoForMessage(messageId);
 
-            Assert.DoesNotThrow(async () => await behavior.Invoke(CreateContext(messageId), () => { throw new Exception("test"); }));
+            Assert.DoesNotThrowAsync(async () => await behavior.Invoke(CreateContext(messageId), () => { throw new Exception("test"); }));
         }
         
         static FirstLevelRetriesBehavior CreateFlrBehavior(FirstLevelRetryPolicy retryPolicy, FailureInfoStorage storage = null)

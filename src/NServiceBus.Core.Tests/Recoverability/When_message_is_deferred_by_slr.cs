@@ -50,7 +50,7 @@
             Assert.AreEqual(dispatchPipeline.MessageId, message.MessageId);
             Assert.AreEqual(1, failingBehavior.NumberOfCalls);
             Assert.AreEqual(dispatchPipeline.Headers[Headers.Retries], "1");
-            Assert.IsNotNullOrEmpty(dispatchPipeline.Headers[Headers.RetriesTimestamp]);
+            Assert.That(dispatchPipeline.Headers[Headers.RetriesTimestamp], Is.Not.Null.And.Not.Empty);
             var deliveryConstraint = dispatchPipeline.RoutingContext.Extensions.Get<List<DeliveryConstraint>>().Single();
             Assert.IsTrue(deliveryConstraint is DelayDeliveryWith);
         }

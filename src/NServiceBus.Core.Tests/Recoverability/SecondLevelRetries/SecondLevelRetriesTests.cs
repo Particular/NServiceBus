@@ -85,7 +85,7 @@
             var context = CreateContext(message);
             var behavior = new SecondLevelRetriesBehavior(new FakePolicy(TimeSpan.FromSeconds(5)), string.Empty, failureInfoStorage);
 
-            var behaviorInvocation = new TestDelegate(async () => await behavior.Invoke(context, () => { throw new MessageDeserializationException(string.Empty); }));
+            var behaviorInvocation = new AsyncTestDelegate(async () => await behavior.Invoke(context, () => { throw new MessageDeserializationException(string.Empty); }));
 
             Assert.That(behaviorInvocation, Throws.InstanceOf<MessageDeserializationException>());
             Assert.That(context.Message.Headers.ContainsKey(Headers.Retries) == false);
