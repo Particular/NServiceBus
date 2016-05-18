@@ -12,6 +12,7 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
 
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SimpleSagaEntity> mapper)
         {
+            mapper.ConfigureMapping<StartMessage>(msg => msg.SomeId).ToSaga(saga => saga.OrderSource);
         }
     }
 
