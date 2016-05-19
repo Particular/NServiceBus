@@ -1531,7 +1531,7 @@ namespace NServiceBus.Features
         protected void Defaults(System.Action<NServiceBus.Settings.SettingsHolder> settings) { }
         protected void DependsOn<T>()
             where T : NServiceBus.Features.Feature { }
-        protected void DependsOn(string featureName) { }
+        protected void DependsOn(string featureTypeName) { }
         protected void DependsOnAtLeastOne(params System.Type[] features) { }
         protected void DependsOnAtLeastOne(params string[] featureNames) { }
         protected void DependsOnOptionally(string featureName) { }

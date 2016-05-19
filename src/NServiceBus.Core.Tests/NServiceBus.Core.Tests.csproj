@@ -130,6 +130,7 @@
     <Compile Include="Fakes\TestableMessageHandlerContextTests.cs" />
     <Compile Include="Fakes\TestableMessageSessionTests.cs" />
     <Compile Include="Faults\AddExceptionHeadersBehaviorTests.cs" />
+    <Compile Include="Features\FeatureDifferingOnlyByNamespaceTests.cs" />
     <Compile Include="MessageMapper\MessageMapperTests.cs" />
     <Compile Include="Msmq\TimeToBeReceivedOverrideCheckerTest.cs" />
     <Compile Include="Msmq\MsmqExtensionsTests.cs" />
