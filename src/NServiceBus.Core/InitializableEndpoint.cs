@@ -45,6 +45,7 @@ namespace NServiceBus
             var transportInfrastructure = transportDefinition.Initialize(settings, connectionString);
             settings.Set<TransportInfrastructure>(transportInfrastructure);
 
+            // ReSharper disable once AccessToModifiedClosure
             var featureStats = featureActivator.SetupFeatures(container, pipelineSettings);
 
             pipelineConfiguration.RegisterBehaviorsInContainer(settings, container);
@@ -53,7 +54,6 @@ namespace NServiceBus
             WireUpInstallers(concreteTypes);
 
             container.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
-
             var startableEndpoint = new StartableEndpoint(settings, builder, featureActivator, pipelineConfiguration, new EventAggregator(settings.Get<NotificationSubscriptions>()), transportInfrastructure);
             return Task.FromResult<IStartableEndpoint>(startableEndpoint);
         }

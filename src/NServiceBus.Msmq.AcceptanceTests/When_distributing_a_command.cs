@@ -11,34 +11,49 @@
 
     public class When_distributing_a_command : NServiceBusAcceptanceTest
     {
-        static string ReceiverEndpoint => Conventions.EndpointNamingConvention(typeof(Receiver));
+        static string ReceiverAEndpoint => Conventions.EndpointNamingConvention(typeof(ReceiverA));
+        static string ReceiverBEndpoint => Conventions.EndpointNamingConvention(typeof(ReceiverB));
 
         [Test]
         public async Task Should_round_robin()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Sender>(b => b.When((session, c) => session.Send(new Request())))
-                .WithEndpoint<Receiver>(b => b.CustomConfig(c =>
+                .WithEndpoint<Sender>(b => b.When((session, c) => session.Send(new RequestA())))
+                .WithEndpoint<ReceiverA>(b => b.CustomConfig(c =>
                 {
                     c.ScaleOut().InstanceDiscriminator("1");
-                    c.GetSettings().Set("Name", "Receiver1");
+                    c.GetSettings().Set("Name", "ReceiverA1");
                 }))
-                .WithEndpoint<Receiver>(b => b.CustomConfig(c =>
+                .WithEndpoint<ReceiverA>(b => b.CustomConfig(c =>
                 {
                     c.ScaleOut().InstanceDiscriminator("2");
-                    c.GetSettings().Set("Name", "Receiver2");
+                    c.GetSettings().Set("Name", "ReceiverA2");
                 }))
-                .Done(c => c.Receiver1TimesCalled > 4 && c.Receiver2TimesCalled > 4)
+                .WithEndpoint<ReceiverB>(b => b.CustomConfig(c =>
+                {
+                    c.ScaleOut().InstanceDiscriminator("1");
+                    c.GetSettings().Set("Name", "ReceiverB1");
+                }))
+                .WithEndpoint<ReceiverB>(b => b.CustomConfig(c =>
+                {
+                    c.ScaleOut().InstanceDiscriminator("2");
+                    c.GetSettings().Set("Name", "ReceiverB2");
+                }))
+                .Done(c => c.ReceiverA1TimesCalled > 4 || c.ReceiverA2TimesCalled > 4 || c.ReceiverB1TimesCalled > 4 || c.ReceiverB2TimesCalled > 4)
                 .Run();
 
-            Assert.IsTrue(context.Receiver1TimesCalled > 4);
-            Assert.IsTrue(context.Receiver2TimesCalled > 4);
+            Assert.IsTrue(context.ReceiverA1TimesCalled > 3);
+            Assert.IsTrue(context.ReceiverA2TimesCalled > 3);
+            Assert.IsTrue(context.ReceiverB1TimesCalled > 3);
+            Assert.IsTrue(context.ReceiverB2TimesCalled > 3);
         }
 
         public class Context : ScenarioContext
         {
-            public int Receiver1TimesCalled { get; set; }
-            public int Receiver2TimesCalled { get; set; }
+            public int ReceiverA1TimesCalled { get; set; }
+            public int ReceiverA2TimesCalled { get; set; }
+            public int ReceiverB1TimesCalled { get; set; }
+            public int ReceiverB2TimesCalled { get; set; }
         }
 
         public class Sender : EndpointConfigurationBuilder
@@ -46,56 +61,78 @@
             public Sender()
             {
                 var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "routes.xml");
-                File.WriteAllText(filePath, @"<endpoints>
-    <endpoint name=""DistributingACommand.Receiver"">
+                File.WriteAllText(filePath, string.Format(@"<endpoints>
+    <endpoint name=""{0}"">
+        <instance discriminator=""1""/>
+        <instance discriminator=""2""/>
+    </endpoint>
+    <endpoint name=""{1}"">
         <instance discriminator=""1""/>
         <instance discriminator=""2""/>
     </endpoint>
 </endpoints>
-");
+", ReceiverAEndpoint, ReceiverBEndpoint));
 
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.UseTransport<MsmqTransport>().DistributeMessagesUsingFileBasedEndpointInstanceMapping(filePath);
-                    c.UnicastRouting().RouteToEndpoint(typeof(Request), ReceiverEndpoint);
+                    c.UnicastRouting().RouteToEndpoint(typeof(RequestA), ReceiverAEndpoint);
+                    c.UnicastRouting().RouteToEndpoint(typeof(RequestB), ReceiverBEndpoint);
                 });
             }
 
-            public class ResponseHandler : IHandleMessages<Response>
+            public class ResponseHandler : 
+                IHandleMessages<ResponseA>,
+                IHandleMessages<ResponseB>
             {
                 public Context Context { get; set; }
 
-                public Task Handle(Response message, IMessageHandlerContext context)
+                public Task Handle(ResponseA message, IMessageHandlerContext context)
                 {
                     switch (message.EndpointName)
                     {
-                        case "Receiver1":
-                            Context.Receiver1TimesCalled++;
+                        case "ReceiverA1":
+                            Context.ReceiverA1TimesCalled++;
                             break;
-                        case "Receiver2":
-                            Context.Receiver2TimesCalled++;
+                        case "ReceiverA2":
+                            Context.ReceiverA2TimesCalled++;
                             break;
                     }
 
-                    return context.Send(new Request());
+                    return context.Send(new RequestB());
+                }
+
+                public Task Handle(ResponseB message, IMessageHandlerContext context)
+                {
+                    switch (message.EndpointName)
+                    {
+                        case "ReceiverB1":
+                            Context.ReceiverB1TimesCalled++;
+                            break;
+                        case "ReceiverB2":
+                            Context.ReceiverB2TimesCalled++;
+                            break;
+                    }
+
+                    return context.Send(new RequestA());
                 }
             }
         }
 
-        public class Receiver : EndpointConfigurationBuilder
+        public class ReceiverA : EndpointConfigurationBuilder
         {
-            public Receiver()
+            public ReceiverA()
             {
                 EndpointSetup<DefaultServer>();
             }
 
-            public class MyMessageHandler : IHandleMessages<Request>
+            public class MyMessageHandler : IHandleMessages<RequestA>
             {
                 public ReadOnlySettings Settings { get; set; }
 
-                public Task Handle(Request message, IMessageHandlerContext context)
+                public Task Handle(RequestA message, IMessageHandlerContext context)
                 {
-                    return context.Reply(new Response
+                    return context.Reply(new ResponseA
                     {
                         EndpointName = Settings.Get<string>("Name")
                     });
@@ -103,11 +140,41 @@
             }
         }
 
-        public class Request : ICommand
+        public class ReceiverB : EndpointConfigurationBuilder
+        {
+            public ReceiverB()
+            {
+                EndpointSetup<DefaultServer>();
+            }
+
+            public class MyMessageHandler : IHandleMessages<RequestB>
+            {
+                public ReadOnlySettings Settings { get; set; }
+
+                public Task Handle(RequestB message, IMessageHandlerContext context)
+                {
+                    return context.Reply(new ResponseB
+                    {
+                        EndpointName = Settings.Get<string>("Name")
+                    });
+                }
+            }
+        }
+
+        public class RequestA : ICommand
         {
         }
 
-        public class Response : IMessage
+        public class RequestB : ICommand
+        {
+        }
+
+        public class ResponseA : IMessage
+        {
+            public string EndpointName { get; set; }
+        }
+
+        public class ResponseB : IMessage
         {
             public string EndpointName { get; set; }
         }

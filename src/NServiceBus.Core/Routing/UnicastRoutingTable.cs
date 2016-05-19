@@ -1,95 +1,111 @@
-namespace NServiceBus.Routing
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using Extensibility;
+    using Logging;
+    using Routing;
+    using Unicast.Messages;
 
-    /// <summary>
-    /// Manages the unicast routing table.
-    /// </summary>
-    public class UnicastRoutingTable
+    class UnicastRoutingTable
     {
-        internal async Task<IEnumerable<IUnicastRoute>> GetDestinationsFor(List<Type> messageTypes, ContextBag contextBag)
+        UnicastRoutingTable(Dictionary<Type, List<IUnicastRoutingTableEntry>> tableEntries)
         {
-            var routes = new List<IUnicastRoute>();
-            foreach (var rule in asyncDynamicRules)
+            this.tableEntries = tableEntries;
+        }
+
+        public IEnumerable<UnicastRoutingTarget> Route(Type type, ContextBag contextBag)
+        {
+            List<IUnicastRoutingTableEntry> entries;
+            return tableEntries.TryGetValue(type, out entries) 
+                ? entries.SelectMany(e => e.GetTargets(contextBag)) 
+                : emptyRoutes;
+        }
+
+        public static async Task<UnicastRoutingTable> Build(
+            string name,
+            Func<List<Type>, Task<IEnumerable<IUnicastRoute>>> routingTableConfiguration,
+            EndpointInstances endpointInstances,
+            DistributionPolicy distributionPolicy,
+            List<Type> allMessageTypes,
+            MessageMetadataRegistry messageMetadataRegistry)
+        {
+            var targetsByConcreteMessageType = await ComputeTargets(routingTableConfiguration, endpointInstances, allMessageTypes, messageMetadataRegistry).ConfigureAwait(false);
+            var table = ComputeTableEntries(distributionPolicy, targetsByConcreteMessageType);
+            LogTable(name, table);
+            return new UnicastRoutingTable(table);
+        }
+
+        static void LogTable(string name, Dictionary<Type, List<IUnicastRoutingTableEntry>> table)
+        {
+            if (!log.IsDebugEnabled)
             {
-                routes.AddRange(await rule.Invoke(messageTypes, contextBag).ConfigureAwait(false));
+                return;
             }
-
-            foreach (var rule in dynamicRules)
+            foreach (var row in table)
             {
-                routes.AddRange(rule.Invoke(messageTypes, contextBag));
+                log.DebugFormat("Unicast routing table {0}", name);
+                log.DebugFormat(" * {0}", row.Key.FullName);
+                foreach (var route in row.Value)
+                {
+                    log.DebugFormat("    - {0}", route);
+                }
             }
-
-            var staticRoutes = messageTypes
-                .SelectMany(type => staticRules, (type, rule) => rule.Invoke(type, contextBag))
-                .Where(route => route != null);
-
-            routes.AddRange(staticRoutes);
-
-            return routes;
         }
 
-        /// <summary>
-        /// Adds a static unicast route.
-        /// </summary>
-        /// <param name="messageType">Message type.</param>
-        /// <param name="destination">Destination endpoint.</param>
-        public void RouteToEndpoint(Type messageType, EndpointName destination)
+        static async Task<Dictionary<Type, List<UnicastRoutingTarget>>> ComputeTargets(Func<List<Type>, Task<IEnumerable<IUnicastRoute>>> routingTableConfiguration, EndpointInstances endpointInstances, List<Type> allMessageTypes, MessageMetadataRegistry messageMetadataRegistry)
         {
-            staticRules.Add((t, c) => StaticRule(t, messageType, new UnicastRoute(destination)));
+            var targetsByConcreteMessageType = new Dictionary<Type, List<UnicastRoutingTarget>>();
+
+            foreach (var messageType in allMessageTypes)
+            {
+                var hierarchy = messageMetadataRegistry.GetMessageMetadata(messageType)
+                    .MessageHierarchy
+                    .Distinct()
+                    .ToList();
+
+                var routes = await routingTableConfiguration(hierarchy).ConfigureAwait(false);
+                var destinations = new List<UnicastRoutingTarget>();
+                foreach (var route in routes)
+                {
+                    var instances = await route.Resolve(endpointInstances.FindInstances).ConfigureAwait(false);
+                    destinations.AddRange(instances);
+                }
+                targetsByConcreteMessageType[messageType] = destinations;
+            }
+            return targetsByConcreteMessageType;
         }
 
-        /// <summary>
-        /// Adds a static unicast route.
-        /// </summary>
-        /// <param name="messageType">Message type.</param>
-        /// <param name="destination">Destination endpoint.</param>
-        public void RouteToEndpoint(Type messageType, string destination)
+        static Dictionary<Type, List<IUnicastRoutingTableEntry>> ComputeTableEntries(DistributionPolicy distributionPolicy, Dictionary<Type, List<UnicastRoutingTarget>> targetsByConcreteMessageType)
         {
-            RouteToEndpoint(messageType, new EndpointName(destination));
+            var entriesByConcreteMessageType = new Dictionary<Type, List<IUnicastRoutingTableEntry>>();
+            foreach (var entryData in targetsByConcreteMessageType)
+            {
+                var entries = new List<IUnicastRoutingTableEntry>();
+                var entryDataByEndpoint = entryData.Value.GroupBy(e => e.Endpoint);
+                foreach (var group in entryDataByEndpoint)
+                {
+                    if (@group.Key == null) //Routing targets that do not specify endpoint name
+                    {
+                        entries.AddRange(group.Select(t => new SingleUnicastRoutingTableEntry(t)));
+                    }
+                    else
+                    {
+                        var distributionStrategy = distributionPolicy.GetDistributionStrategy(entryData.Key);
+                        var targets = @group.ToList();
+                        entries.Add(new DistributedUnicastRoutingTableEntry(distributionStrategy.SelectDestination(targets), targets));
+                    }
+                }
+                entriesByConcreteMessageType[entryData.Key] = entries;
+            }
+            return entriesByConcreteMessageType;
         }
 
-        /// <summary>
-        /// Adds a static unicast route.
-        /// </summary>
-        /// <param name="messageType">Message type.</param>
-        /// <param name="destinationAddress">Destination endpoint instance address.</param>
-        public void RouteToAddress(Type messageType, string destinationAddress)
-        {
-            staticRules.Add((t, c) => StaticRule(t, messageType, new UnicastRoute(destinationAddress)));
-        }
 
-        /// <summary>
-        /// Adds an external provider of routes.
-        /// </summary>
-        /// <remarks>For dynamic routes that do not require async use <see cref="AddDynamic(System.Func{System.Collections.Generic.List{System.Type},NServiceBus.Extensibility.ContextBag,System.Collections.Generic.IEnumerable{NServiceBus.Routing.IUnicastRoute}})"/>.</remarks>
-        /// <param name="dynamicRule">The rule.</param>
-        public void AddDynamic(Func<List<Type>, ContextBag, Task<IEnumerable<IUnicastRoute>>> dynamicRule)
-        {
-            asyncDynamicRules.Add(dynamicRule);
-        }
-
-        /// <summary>
-        /// Adds an external provider of routes.
-        /// </summary>
-        /// <remarks>For dynamic routes that require async use <see cref="AddDynamic(System.Func{System.Collections.Generic.List{System.Type},NServiceBus.Extensibility.ContextBag,System.Threading.Tasks.Task{System.Collections.Generic.IEnumerable{NServiceBus.Routing.IUnicastRoute}}})"/>.</remarks>
-        /// <param name="dynamicRule">The rule.</param>
-        public void AddDynamic(Func<List<Type>, ContextBag, IEnumerable<IUnicastRoute>> dynamicRule)
-        {
-            dynamicRules.Add(dynamicRule);
-        }
-
-        static IUnicastRoute StaticRule(Type messageBeingRouted, Type configuredMessage, UnicastRoute configuredDestination)
-        {
-            return messageBeingRouted == configuredMessage ? configuredDestination : null;
-        }
-
-        List<Func<List<Type>, ContextBag, Task<IEnumerable<IUnicastRoute>>>> asyncDynamicRules = new List<Func<List<Type>, ContextBag, Task<IEnumerable<IUnicastRoute>>>>();
-        List<Func<List<Type>, ContextBag, IEnumerable<IUnicastRoute>>> dynamicRules = new List<Func<List<Type>, ContextBag, IEnumerable<IUnicastRoute>>>();
-        List<Func<Type, ContextBag, IUnicastRoute>> staticRules = new List<Func<Type, ContextBag, IUnicastRoute>>();
+        Dictionary<Type, List<IUnicastRoutingTableEntry>> tableEntries;
+        static IEnumerable<UnicastRoutingTarget> emptyRoutes = Enumerable.Empty<UnicastRoutingTarget>();
+        static ILog log = LogManager.GetLogger<UnicastRoutingTable>();
     }
 }

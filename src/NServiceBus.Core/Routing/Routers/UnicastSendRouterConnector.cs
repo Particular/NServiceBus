@@ -10,25 +10,12 @@ namespace NServiceBus
 
     class UnicastSendRouterConnector : StageConnector<IOutgoingSendContext, IOutgoingLogicalMessageContext>
     {
-        public enum RouteOption
-        {
-            None,
-            ExplicitDestination,
-            RouteToThisInstance,
-            RouteToAnyInstanceOfThisEndpoint,
-            RouteToSpecificInstance
-        }
-
-        public UnicastSendRouterConnector(
-            string sharedQueue,
-            string instanceSpecificQueue,
-            IUnicastRouter unicastRouter,
-            DistributionPolicy distributionPolicy)
+       
+        public UnicastSendRouterConnector(string sharedQueue, string instanceSpecificQueue, IUnicastRouter unicastRouter)
         {
             this.sharedQueue = sharedQueue;
             this.instanceSpecificQueue = instanceSpecificQueue;
             this.unicastRouter = unicastRouter;
-            this.distributionPolicy = distributionPolicy;
         }
 
         public override async Task Invoke(IOutgoingSendContext context, Func<IOutgoingLogicalMessageContext, Task> stage)
@@ -45,20 +32,9 @@ namespace NServiceBus
             var thisInstance = state.Option == RouteOption.RouteToThisInstance ? instanceSpecificQueue : null;
             var explicitDestination = state.Option == RouteOption.ExplicitDestination ? state.ExplicitDestination : null;
             var destination = explicitDestination ?? thisInstance ?? thisEndpoint;
-
-            DistributionStrategy distributionStrategy;
-
-            if (state.Option == RouteOption.RouteToSpecificInstance)
-            {
-                distributionStrategy = new SpecificInstanceDistributionStrategy(state.SpecificInstance);
-            }
-            else
-            {
-                distributionStrategy = distributionPolicy.GetDistributionStrategy(messageType);
-            }
-
+            
             var routingStrategies = string.IsNullOrEmpty(destination)
-                ? await unicastRouter.Route(messageType, distributionStrategy, context.Extensions).ConfigureAwait(false)
+                ? await RouteUsingTable(context, messageType, state).ConfigureAwait(false)
                 : RouteToDestination(destination);
 
             context.Headers[Headers.MessageIntent] = MessageIntentEnum.Send.ToString();
@@ -78,34 +54,31 @@ namespace NServiceBus
             }
         }
 
+        Task<IEnumerable<UnicastRoutingStrategy>> RouteUsingTable(IOutgoingSendContext context, Type messageType, State state)
+        {
+            if (state.Option == RouteOption.RouteToSpecificInstance)
+            {
+                var hint = new SingleInstanceRoundRobinDistributionStrategy.SpecificInstanceHint(state.SpecificInstance);
+                context.Extensions.Set(hint);
+            }
+            return unicastRouter.Route(messageType, context.Extensions);
+        }
+
         static IEnumerable<UnicastRoutingStrategy> RouteToDestination(string physicalAddress)
         {
             yield return new UnicastRoutingStrategy(physicalAddress);
         }
 
-        DistributionPolicy distributionPolicy;
         string instanceSpecificQueue;
         string sharedQueue;
         IUnicastRouter unicastRouter;
-
-        class SpecificInstanceDistributionStrategy : DistributionStrategy
+        public enum RouteOption
         {
-            public SpecificInstanceDistributionStrategy(string specificInstance)
-            {
-                this.specificInstance = specificInstance;
-            }
-
-            public override IEnumerable<UnicastRoutingTarget> SelectDestination(IEnumerable<UnicastRoutingTarget> allInstances)
-            {
-                var target = allInstances.FirstOrDefault(t => t.Instance != null && t.Instance.Discriminator == specificInstance);
-                if (target == null)
-                {
-                    throw new Exception($"Specified instance {specificInstance} has not been configured in the routing tables.");
-                }
-                yield return target;
-            }
-
-            string specificInstance;
+            None,
+            ExplicitDestination,
+            RouteToThisInstance,
+            RouteToAnyInstanceOfThisEndpoint,
+            RouteToSpecificInstance
         }
 
         public class State

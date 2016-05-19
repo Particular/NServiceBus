@@ -14,7 +14,7 @@
         [Test]
         public async Task Should_set_messageintent_to_publish()
         {
-            var router = new UnicastPublishRouterConnector(new Router(), new DistributionPolicy());
+            var router = new UnicastPublishRouterConnector(new Router());
             var context = new TestableOutgoingPublishContext();
 
             await router.Invoke(context, ctx => TaskEx.CompletedTask);
@@ -25,7 +25,7 @@
 
         class Router : IUnicastRouter
         {
-            public Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, DistributionStrategy distributionStrategy, ContextBag contextBag)
+            public Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, ContextBag contextBag)
             {
                 IEnumerable<UnicastRoutingStrategy> unicastRoutingStrategies = new List<UnicastRoutingStrategy>
                 {

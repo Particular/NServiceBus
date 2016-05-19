@@ -6,6 +6,7 @@
     using System.Text;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using Logging;
     using NUnit.Framework;
 
     public class When_a_corrupted_message_is_received : NServiceBusAcceptanceTest
@@ -45,7 +46,7 @@
                             return Task.FromResult(0);
                         });
                     })
-                    .Done(c => c.Logs.Any(l => l.Level == "error"))
+                    .Done(c => c.Logs.Any(l => l.Level == LogLevel.Error))
                     .Run();
                 Assert.True(MessageExistsInErrorQueue(), "The message should have been moved to the error queue");
             }

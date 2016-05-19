@@ -9,75 +9,55 @@ namespace NServiceBus
     using Transports;
     using Unicast.Messages;
 
-    class UnicastRouter : IUnicastRouter
+    abstract class UnicastRouter : IUnicastRouter
     {
-        public UnicastRouter(MessageMetadataRegistry messageMetadataRegistry,
-            UnicastRoutingTable unicastRoutingTable,
+        public UnicastRouter(
+            string name,
+            MessageMetadataRegistry messageMetadataRegistry,
             EndpointInstances endpointInstances,
-            TransportAddresses physicalAddresses)
+            TransportAddresses physicalAddresses,
+            DistributionPolicy distributionPolicy,
+            List<Type> allMessageTypes)
         {
+            this.name = name;
             this.messageMetadataRegistry = messageMetadataRegistry;
-            this.unicastRoutingTable = unicastRoutingTable;
             this.endpointInstances = endpointInstances;
             this.physicalAddresses = physicalAddresses;
+            this.distributionPolicy = distributionPolicy;
+            this.allMessageTypes = allMessageTypes;
         }
 
-        public async Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, DistributionStrategy distributionStrategy, ContextBag contextBag)
-        {
-            var typesToRoute = messageMetadataRegistry.GetMessageMetadata(messageType)
-                .MessageHierarchy
-                .Distinct()
-                .ToList();
+        protected abstract Task<IEnumerable<IUnicastRoute>> GetDestinationsFor(List<Type> messageTypeHierarchy);
 
-            var routes = await unicastRoutingTable.GetDestinationsFor(typesToRoute, contextBag).ConfigureAwait(false);
-            var destinations = new List<UnicastRoutingTarget>();
-            foreach (var route in routes)
+        public async Task RebuildRoutingTable()
+        {
+            routingTable = await UnicastRoutingTable.Build(name, GetDestinationsFor, endpointInstances, distributionPolicy, allMessageTypes, messageMetadataRegistry).ConfigureAwait(false);
+        }
+
+        public async Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, ContextBag contextBag)
+        {
+            // We lazy-load the tables because there is no hook to invoke stuff after all features have been set up but before the message session is initialized and passed to FSTs
+            if (routingTable == null)
             {
-                destinations.AddRange(await route.Resolve(InstanceResolver).ConfigureAwait(false));
+                await RebuildRoutingTable().ConfigureAwait(false);
             }
 
-            var destinationsByEndpoint = destinations
-                .GroupBy(d => d.Endpoint, d => d);
+            // RebuildRoutingTable ensures routing table is initialized.
+            // ReSharper disable once PossibleNullReferenceException
+            var targets = routingTable.Route(messageType, contextBag);
 
-            var selectedDestinations = SelectDestinationsForEachEndpoint(distributionStrategy, destinationsByEndpoint);
-
-            return selectedDestinations
+            return targets
                 .Select(destination => destination.Resolve(x => physicalAddresses.GetTransportAddress(new LogicalAddress(x))))
                 .Distinct() //Make sure we are sending only one to each transport destination. Might happen when there are multiple routing information sources.
                 .Select(destination => new UnicastRoutingStrategy(destination));
         }
 
-        Task<IEnumerable<EndpointInstance>> InstanceResolver(EndpointName endpoint)
-        {
-            return endpointInstances.FindInstances(endpoint);
-        }
-
-        static IEnumerable<UnicastRoutingTarget> SelectDestinationsForEachEndpoint(DistributionStrategy distributionStrategy, IEnumerable<IGrouping<EndpointName, UnicastRoutingTarget>> destinationsByEndpoint)
-        {
-            foreach (var group in destinationsByEndpoint)
-            {
-                if (@group.Key == null) //Routing targets that do not specify endpoint name
-                {
-                    //Send a message to each target as we have no idea which endpoint they represent
-                    foreach (var destination in @group)
-                    {
-                        yield return destination;
-                    }
-                }
-                else
-                {
-                    //Use the distribution strategy to select subset of instances of a given endpoint
-                    foreach (var destination in distributionStrategy.SelectDestination(@group))
-                    {
-                        yield return destination;
-                    }
-                }
-            }
-        }
-
         EndpointInstances endpointInstances;
+        string name;
         MessageMetadataRegistry messageMetadataRegistry;
         TransportAddresses physicalAddresses;
-        UnicastRoutingTable unicastRoutingTable;
+        DistributionPolicy distributionPolicy;
+        List<Type> allMessageTypes;
+        UnicastRoutingTable routingTable;
     }
 }

@@ -821,7 +821,7 @@ namespace NServiceBus
     }
     public class RoutingMappingSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
-        public NServiceBus.Routing.UnicastRoutingTable Logical { get; }
+        public NServiceBus.Routing.UnicastRoutingTableConfiguration Logical { get; }
         public NServiceBus.Routing.EndpointInstances Physical { get; }
         public NServiceBus.Routing.MessageDrivenSubscriptions.Publishers Publishers { get; }
         public void SetMessageDistributionStrategy(NServiceBus.Routing.DistributionStrategy distributionStrategy, System.Func<System.Type, bool> typeMatchingRule) { }
@@ -1074,6 +1074,7 @@ namespace NServiceBus
         public override int GetHashCode() { }
         public static NServiceBus.UnicastRoutingTarget ToAnonymousInstance(NServiceBus.Routing.EndpointName endpoint, string transportAddress) { }
         public static NServiceBus.UnicastRoutingTarget ToEndpointInstance(NServiceBus.Routing.EndpointInstance instance) { }
+        public override string ToString() { }
         public static NServiceBus.UnicastRoutingTarget ToTransportAddress(string transportAddress) { }
     }
     public class UnitOfWorkSettings
@@ -2296,12 +2297,12 @@ namespace NServiceBus.Routing
     public class AllInstancesDistributionStrategy : NServiceBus.Routing.DistributionStrategy
     {
         public AllInstancesDistributionStrategy() { }
-        public override System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> SelectDestination(System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> allInstances) { }
+        public override System.Func<NServiceBus.Extensibility.ContextBag, System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget>> SelectDestination(System.Collections.Generic.List<NServiceBus.UnicastRoutingTarget> allDestinations) { }
     }
     public abstract class DistributionStrategy
     {
         protected DistributionStrategy() { }
-        public abstract System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> SelectDestination(System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> allInstances);
+        public abstract System.Func<NServiceBus.Extensibility.ContextBag, System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget>> SelectDestination(System.Collections.Generic.List<NServiceBus.UnicastRoutingTarget> allDestinations);
     }
     public sealed class EndpointInstance
     {
@@ -2350,8 +2351,7 @@ namespace NServiceBus.Routing
     public class SingleInstanceRoundRobinDistributionStrategy : NServiceBus.Routing.DistributionStrategy
     {
         public SingleInstanceRoundRobinDistributionStrategy() { }
-        [System.Runtime.CompilerServices.IteratorStateMachineAttribute(typeof(NServiceBus.Routing.SingleInstanceRoundRobinDistributionStrategy.<SelectDestination>d__0))]
-        public override System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> SelectDestination(System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> currentAllInstances) { }
+        public override System.Func<NServiceBus.Extensibility.ContextBag, System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget>> SelectDestination(System.Collections.Generic.List<NServiceBus.UnicastRoutingTarget> allDestinations) { }
     }
     public class UnicastAddressTag : NServiceBus.Routing.AddressTag
     {
@@ -2369,11 +2369,11 @@ namespace NServiceBus.Routing
         public UnicastRoutingStrategy(string destination) { }
         public override NServiceBus.Routing.AddressTag Apply(System.Collections.Generic.Dictionary<string, string> headers) { }
     }
-    public class UnicastRoutingTable
+    public class UnicastRoutingTableConfiguration
     {
-        public UnicastRoutingTable() { }
-        public void AddDynamic(System.Func<System.Collections.Generic.List<System.Type>, NServiceBus.Extensibility.ContextBag, System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<NServiceBus.Routing.IUnicastRoute>>> dynamicRule) { }
-        public void AddDynamic(System.Func<System.Collections.Generic.List<System.Type>, NServiceBus.Extensibility.ContextBag, System.Collections.Generic.IEnumerable<NServiceBus.Routing.IUnicastRoute>> dynamicRule) { }
+        public UnicastRoutingTableConfiguration() { }
+        public void AddDynamic(System.Func<System.Collections.Generic.List<System.Type>, System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<NServiceBus.Routing.IUnicastRoute>>> dynamicRule) { }
+        public void AddDynamic(System.Func<System.Collections.Generic.List<System.Type>, System.Collections.Generic.IEnumerable<NServiceBus.Routing.IUnicastRoute>> dynamicRule) { }
         public void RouteToAddress(System.Type messageType, string destinationAddress) { }
         public void RouteToEndpoint(System.Type messageType, NServiceBus.Routing.EndpointName destination) { }
         public void RouteToEndpoint(System.Type messageType, string destination) { }

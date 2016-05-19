@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
@@ -14,7 +15,7 @@
     {
         UnicastRouter router;
         MessageMetadataRegistry metadataRegistry;
-        UnicastRoutingTable routingTable;
+        UnicastRoutingTableConfiguration routingTableConfiguration;
         EndpointInstances endpointInstances;
         TransportAddresses transportAddresses;
 
@@ -23,11 +24,11 @@
         {
             var sales = new EndpointName("Sales");
             metadataRegistry.RegisterMessageType(typeof(Command));
-            routingTable.RouteToEndpoint(typeof(Command), sales);
+            routingTableConfiguration.RouteToEndpoint(typeof(Command), sales);
             endpointInstances.Add(sales, new EndpointInstance(sales, null, null));
             transportAddresses.AddRule(i => i.ToString());
 
-            var routes = router.Route(typeof(Command), new SingleInstanceRoundRobinDistributionStrategy(), new ContextBag()).Result.ToArray();
+            var routes = router.Route(typeof(Command), new ContextBag()).Result.ToArray();
             
             Assert.AreEqual(1, routes.Length);
             var headers = new Dictionary<string, string>();
@@ -40,11 +41,11 @@
         {
             var sales = new EndpointName("Sales");
             metadataRegistry.RegisterMessageType(typeof(Event));
-            routingTable.RouteToEndpoint(typeof(Event), sales);
+            routingTableConfiguration.RouteToEndpoint(typeof(Event), sales);
             endpointInstances.Add(sales, new EndpointInstance(sales));
             transportAddresses.AddRule(i => i.ToString());
 
-            var routes = router.Route(typeof(Event), new SingleInstanceRoundRobinDistributionStrategy(), new ContextBag()).Result.ToArray();
+            var routes = router.Route(typeof(Event), new ContextBag()).Result.ToArray();
 
             Assert.AreEqual(1, routes.Length);
             Assert.AreEqual("Sales", ExtractDestination(routes[0]));
@@ -56,8 +57,8 @@
             var sales = new EndpointName("Sales");
             var shipping = new EndpointName("Shipping");
             metadataRegistry.RegisterMessageType(typeof(Event));
-            routingTable.RouteToEndpoint(typeof(Event), sales);
-            routingTable.RouteToEndpoint(typeof(Event), shipping);
+            routingTableConfiguration.RouteToEndpoint(typeof(Event), sales);
+            routingTableConfiguration.RouteToEndpoint(typeof(Event), shipping);
 
             endpointInstances.Add(sales, new EndpointInstance(sales, "1"));
             endpointInstances.AddDynamic(e => Task.FromResult(EnumerableEx.Single(new EndpointInstance(sales, "2"))));
@@ -65,7 +66,7 @@
 
             transportAddresses.AddRule(i => i.ToString());
 
-            var routes = router.Route(typeof(Event), new SingleInstanceRoundRobinDistributionStrategy(), new ContextBag()).Result.ToArray();
+            var routes = router.Route(typeof(Event), new ContextBag()).Result.ToArray();
 
             Assert.AreEqual(2, routes.Length);
             Assert.AreEqual("Sales-1", ExtractDestination(routes[0]));
@@ -78,12 +79,12 @@
             var sales = new EndpointName("Sales");
             metadataRegistry.RegisterMessageType(typeof(Event));
 
-            routingTable.RouteToEndpoint(typeof(Event), sales);
-            routingTable.RouteToAddress(typeof(Event), "Sales-1");
+            routingTableConfiguration.RouteToEndpoint(typeof(Event), sales);
+            routingTableConfiguration.RouteToAddress(typeof(Event), "Sales-1");
             endpointInstances.Add(sales, new EndpointInstance(sales, "1"));
             transportAddresses.AddRule(i => i.ToString());
 
-            var routes = router.Route(typeof(Event), new SingleInstanceRoundRobinDistributionStrategy(), new ContextBag()).Result.ToArray();
+            var routes = router.Route(typeof(Event), new ContextBag()).Result.ToArray();
 
             Assert.AreEqual(1, routes.Length);
         }
@@ -94,7 +95,7 @@
             var sales = new EndpointName("Sales");
             metadataRegistry.RegisterMessageType(typeof(Event));
 
-            routingTable.RouteToEndpoint(typeof(Event), sales);
+            routingTableConfiguration.RouteToEndpoint(typeof(Event), sales);
             endpointInstances.Add(sales, new EndpointInstance(sales, "1"));
             endpointInstances.AddDynamic(name =>
             {
@@ -106,19 +107,9 @@
             });
             transportAddresses.AddRule(i => i.ToString());
 
-            var routes = router.Route(typeof(Event), new TestDistributionStrategy(), new ContextBag()).Result.ToArray();
+            var routes = router.Route(typeof(Event), new ContextBag()).Result.ToArray();
 
             Assert.AreEqual(1, routes.Length);
-        }
-
-        class TestDistributionStrategy : DistributionStrategy
-        {
-            public override IEnumerable<UnicastRoutingTarget> SelectDestination(IEnumerable<UnicastRoutingTarget> allInstances)
-            {
-                var instances = allInstances.ToList();
-                Assert.AreEqual(1, instances.Count);
-                return instances;
-            }
         }
 
         static string ExtractDestination(UnicastRoutingStrategy route)
@@ -133,14 +124,17 @@
         public void Setup()
         {
             metadataRegistry = new MessageMetadataRegistry(new Conventions());
-            routingTable = new UnicastRoutingTable();
+            routingTableConfiguration = new UnicastRoutingTableConfiguration();
             endpointInstances = new EndpointInstances();
             transportAddresses = new TransportAddresses(address => null);
-            router = new UnicastRouter(
+            router = new UnicastSendRouter(
+                "",
                 metadataRegistry,
-                routingTable,
+                routingTableConfiguration,
                 endpointInstances,
-                transportAddresses);
+                transportAddresses,
+                new DistributionPolicy(),
+                new List<Type>{typeof(Command), typeof(Event)});
         }
 
         class Command : ICommand

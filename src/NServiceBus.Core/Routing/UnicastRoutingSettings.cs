@@ -25,7 +25,7 @@
         /// <param name="destination">Destination endpoint.</param>
         public void RouteToEndpoint(Type messageType, string destination)
         {
-            GetOrCreate<UnicastRoutingTable>().RouteToEndpoint(messageType, destination);
+            GetOrCreate<UnicastRoutingTableConfiguration>().RouteToEndpoint(messageType, destination);
         }
 
         /// <summary>

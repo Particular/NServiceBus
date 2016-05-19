@@ -5,6 +5,7 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using Features;
+    using Logging;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
     using ScenarioDescriptors;
@@ -14,7 +15,7 @@
         [Test]
         public async Task Should_receive_event_for_non_xml()
         {
-            await Scenario.Define<Context>()
+            await Scenario.Define<Context>(c => c.SetLogLevel("NServiceBus.UnicastRoutingTable", LogLevel.Debug))
                 .WithEndpoint<Publisher>(b =>
                     b.When(c => c.Subscribed, (session, ctx) => session.Publish<MyEvent>()))
                 .WithEndpoint<Subscriber>(b => b.When(async (session, context) =>

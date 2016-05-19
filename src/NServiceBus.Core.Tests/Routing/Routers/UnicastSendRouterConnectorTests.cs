@@ -230,14 +230,14 @@
             var metadataRegistry = new MessageMetadataRegistry(new Conventions());
             metadataRegistry.RegisterMessageType(typeof(MyMessage));
             metadataRegistry.RegisterMessageType(typeof(MessageWithoutRouting));
-            return new UnicastSendRouterConnector(sharedQueue, instanceSpecificQueue, strategy ?? new FakeRoutingStrategy(), new DistributionPolicy());
+            return new UnicastSendRouterConnector(sharedQueue, instanceSpecificQueue, strategy ?? new FakeRoutingStrategy());
         }
 
         class FakeRoutingStrategy : IUnicastRouter
         {
             public IEnumerable<UnicastRoutingStrategy> FixedDestination { get; set; }
 
-            public Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, DistributionStrategy distributionStrategy, ContextBag contextBag)
+            public Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, ContextBag contextBag)
             {
                 return Task.FromResult(FixedDestination);
             }

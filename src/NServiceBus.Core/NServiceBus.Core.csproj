@@ -127,7 +127,14 @@
     <Compile Include="Recoverability\Faults\MessageFaulted.cs" />
     <Compile Include="ReleaseDateAttribute.cs" />
     <Compile Include="Recoverability\ProcessingFailureInfo.cs" />
+    <Compile Include="Routing\DistributedUnicastRoutingTableEntry.cs" />
+    <Compile Include="Routing\IUnicastRoutingTableEntry.cs" />
     <Compile Include="Routing\RoutingMappingSettings.cs" />
+    <Compile Include="Routing\SingleUnicastRoutingTableEntry.cs" />
+    <Compile Include="Routing\UnicastPublishRouter.cs" />
+    <Compile Include="Routing\UnicastRouterTableUpdater.cs" />
+    <Compile Include="Routing\UnicastRoutingTable.cs" />
+    <Compile Include="Routing\UnicastSendRouter.cs" />
     <Compile Include="Serialization\SerializationFeature.cs" />
     <Compile Include="Serializers\XML\XmlSerialization.cs" />
     <Compile Include="Settings\ScaleOutSettings.cs" />
@@ -271,7 +278,7 @@
     <Compile Include="Transports\TransportTransactionMode.cs" />
     <Compile Include="Transports\Sending.cs" />
     <Compile Include="Transports\TransportAddresses.cs" />
-    <Compile Include="Routing\UnicastRoutingTable.cs" />
+    <Compile Include="Routing\UnicastRoutingTableConfiguration.cs" />
     <Compile Include="Routing\UnicastRoutingSettings.cs" />
     <Compile Include="Routing\RoutingSettingsExtensions.cs" />
     <Compile Include="TaskEx.cs" />

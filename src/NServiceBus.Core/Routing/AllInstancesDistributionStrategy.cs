@@ -1,6 +1,8 @@
 namespace NServiceBus.Routing
 {
+    using System;
     using System.Collections.Generic;
+    using Extensibility;
 
     /// <summary>
     /// Selects all instances.
@@ -8,11 +10,11 @@ namespace NServiceBus.Routing
     public class AllInstancesDistributionStrategy : DistributionStrategy
     {
         /// <summary>
-        /// Selects destination instances from all known instances of a given endpoint.
+        /// Returns a function that selects the next target of a message.
         /// </summary>
-        public override IEnumerable<UnicastRoutingTarget> SelectDestination(IEnumerable<UnicastRoutingTarget> allInstances)
+        public override Func<ContextBag, IEnumerable<UnicastRoutingTarget>> SelectDestination(List<UnicastRoutingTarget> allDestinations)
         {
-            return allInstances;
+            return bag => allDestinations;
         }
     }
 }
