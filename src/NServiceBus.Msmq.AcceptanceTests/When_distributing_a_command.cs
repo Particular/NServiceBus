@@ -87,17 +87,22 @@
                 IHandleMessages<ResponseA>,
                 IHandleMessages<ResponseB>
             {
-                public Context Context { get; set; }
+                private Context testContext;
+
+                public ResponseHandler(Context testContext)
+                {
+                    this.testContext = testContext;
+                }
 
                 public Task Handle(ResponseA message, IMessageHandlerContext context)
                 {
                     switch (message.EndpointName)
                     {
                         case "ReceiverA1":
-                            Context.ReceiverA1TimesCalled++;
+                            testContext.ReceiverA1TimesCalled++;
                             break;
                         case "ReceiverA2":
-                            Context.ReceiverA2TimesCalled++;
+                            testContext.ReceiverA2TimesCalled++;
                             break;
                     }
 
@@ -109,15 +114,15 @@
                     switch (message.EndpointName)
                     {
                         case "ReceiverB1":
-                            Context.ReceiverB1TimesCalled++;
+                            testContext.ReceiverB1TimesCalled++;
                             break;
                         case "ReceiverB2":
-                            Context.ReceiverB2TimesCalled++;
+                            testContext.ReceiverB2TimesCalled++;
                             break;
                     }
 
-                    Context.MessagesReceivedPerEndpoint++;
-                    if (Context.MessagesReceivedPerEndpoint < numberOfMessagesToSendPerEndpoint)
+                    testContext.MessagesReceivedPerEndpoint++;
+                    if (testContext.MessagesReceivedPerEndpoint < numberOfMessagesToSendPerEndpoint)
                     {
                         return context.Send(new RequestA());
                     }

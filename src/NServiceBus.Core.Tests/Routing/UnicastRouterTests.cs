@@ -113,11 +113,10 @@
 
         class TestDistributionStrategy : DistributionStrategy
         {
-            public override IEnumerable<UnicastRoutingTarget> SelectDestination(IEnumerable<UnicastRoutingTarget> allInstances)
+            public override IEnumerable<UnicastRoutingTarget> SelectDestination(IList<UnicastRoutingTarget> allInstances)
             {
-                var instances = allInstances.ToList();
-                Assert.AreEqual(1, instances.Count);
-                return instances;
+                Assert.AreEqual(1, allInstances.Count);
+                return allInstances;
             }
         }
 
