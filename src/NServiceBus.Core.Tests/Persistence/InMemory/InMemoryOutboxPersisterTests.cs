@@ -71,6 +71,9 @@
                 await transaction.Commit();
             }
 
+            // Account for the low resolution of DateTime.UtcNow.
+            var afterStore = DateTime.UtcNow.AddTicks(1);
+
             await storage.SetAsDispatched(messageId, new ContextBag());
 
             storage.RemoveEntriesOlderThan(beforeStore);
@@ -78,7 +81,7 @@
             var message = await storage.Get(messageId, new ContextBag());
             Assert.NotNull(message);
 
-            storage.RemoveEntriesOlderThan(DateTime.UtcNow);
+            storage.RemoveEntriesOlderThan(afterStore);
 
             message = await storage.Get(messageId, new ContextBag());
             Assert.Null(message);
