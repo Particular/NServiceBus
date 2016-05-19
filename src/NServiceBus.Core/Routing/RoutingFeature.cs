@@ -1,19 +1,10 @@
 ﻿namespace NServiceBus.Features
 {
-    using System;
-    using System.Collections.Generic;
     using System.Linq;
-    using System.Threading.Tasks;
     using Config;
-    using Extensibility;
-    using ObjectBuilder;
-    using Pipeline;
     using Routing;
     using Routing.MessageDrivenSubscriptions;
-    using Settings;
     using Transports;
-    using Unicast.Subscriptions;
-    using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
     class RoutingFeature : Feature
     {
@@ -39,7 +30,6 @@
             context.Container.ConfigureComponent(b => context.Settings.Get<Publishers>(), DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent(b => context.Settings.Get<DistributionPolicy>(), DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent<UnicastRouter>(DependencyLifecycle.SingleInstance);
-            context.Container.ConfigureComponent(b => new UnicastSendRouterConnector(context.Settings.LocalAddress(), context.Settings.InstanceSpecificQueue(), b.Build<UnicastRouter>(), b.Build<DistributionPolicy>()), DependencyLifecycle.InstancePerCall);
 
             var unicastBusConfig = context.Settings.GetConfigSection<UnicastBusConfig>();
             if (unicastBusConfig != null)
@@ -67,13 +57,14 @@
                 }
             }
 
-            context.RegisterStartupTask(b => new SubscriptionStoreRouteInformationProvider(context.Settings, b));
             var outboundRoutingPolicy = transportInfrastructure.OutboundRoutingPolicy;
-            context.Pipeline.Register("UnicastSendRouterConnector", typeof(UnicastSendRouterConnector), "Determines how the message being sent should be routed");
+            context.Container.ConfigureComponent<UnicastSendRouter>(DependencyLifecycle.SingleInstance);
+            context.Pipeline.Register("UnicastSendRouterConnector", b => new UnicastSendRouterConnector(context.Settings.LocalAddress(), context.Settings.InstanceSpecificQueue(), b.Build<UnicastSendRouter>(), b.Build<DistributionPolicy>()), "Determines how the message being sent should be routed");
             context.Pipeline.Register("UnicastReplyRouterConnector", typeof(UnicastReplyRouterConnector), "Determines how replies should be routed");
             if (outboundRoutingPolicy.Publishes == OutboundRoutingType.Unicast)
             {
-                context.Pipeline.Register("UnicastPublishRouterConnector", typeof(UnicastPublishRouterConnector), "Determines how the published messages should be routed");
+                context.Container.ConfigureComponent<UnicastPublishRouter>(DependencyLifecycle.SingleInstance);
+                context.Pipeline.Register("UnicastPublishRouterConnector", b => new UnicastPublishRouterConnector(b.Build<UnicastPublishRouter>(), b.Build<DistributionPolicy>()), "Determines how the published messages should be routed");
             }
             else
             {
@@ -106,71 +97,6 @@
                     context.Pipeline.Register("NativeSubscribeTerminator", typeof(NativeSubscribeTerminator), "Requests the transport to subscribe to a given message type");
                     context.Pipeline.Register("NativeUnsubscribeTerminator", typeof(NativeUnsubscribeTerminator), "Requests the transport to unsubscribe to a given message type");
                 }
-            }
-        }
-
-        class SubscriptionStoreRouteInformationProvider : FeatureStartupTask
-        {
-            public SubscriptionStoreRouteInformationProvider(ReadOnlySettings settings, IBuilder builder)
-            {
-                this.settings = settings;
-                this.builder = builder;
-            }
-
-            protected override Task OnStart(IMessageSession session)
-            {
-                var transportInfrastructure = settings.Get<TransportInfrastructure>();
-                if (transportInfrastructure.OutboundRoutingPolicy.Publishes == OutboundRoutingType.Unicast) //Publish via send
-                {
-                    var subscriptions = builder.BuildAll<ISubscriptionStorage>().FirstOrDefault();
-                    if (subscriptions != null)
-                    {
-                        settings.Get<UnicastRoutingTable>().AddDynamic((t, c) => QuerySubscriptionStore(subscriptions, t, c));
-                    }
-                }
-                return TaskEx.CompletedTask;
-            }
-
-            protected override Task OnStop(IMessageSession session)
-            {
-                return TaskEx.CompletedTask;
-            }
-
-            static async Task<IEnumerable<IUnicastRoute>> QuerySubscriptionStore(ISubscriptionStorage subscriptions, List<Type> types, ContextBag contextBag)
-            {
-                if (!(contextBag is IOutgoingPublishContext))
-                {
-                    return new List<IUnicastRoute>();
-                }
-
-                var messageTypes = types.Select(t => new MessageType(t));
-                var subscribers = await subscriptions.GetSubscriberAddressesForMessage(messageTypes, contextBag).ConfigureAwait(false);
-                return subscribers.Select(s => new SubscriberDestination(s));
-            }
-
-            IBuilder builder;
-            ReadOnlySettings settings;
-
-            class SubscriberDestination : IUnicastRoute
-            {
-                public SubscriberDestination(Subscriber subscriber)
-                {
-                    if (subscriber.Endpoint != null)
-                    {
-                        target = UnicastRoutingTarget.ToAnonymousInstance(subscriber.Endpoint, subscriber.TransportAddress);
-                    }
-                    else
-                    {
-                        target = UnicastRoutingTarget.ToTransportAddress(subscriber.TransportAddress);
-                    }
-                }
-
-                public Task<IEnumerable<UnicastRoutingTarget>> Resolve(Func<EndpointName, Task<IEnumerable<EndpointInstance>>> instanceResolver)
-                {
-                    return Task.FromResult(EnumerableEx.Single(target));
-                }
-
-                UnicastRoutingTarget target;
             }
         }
     }

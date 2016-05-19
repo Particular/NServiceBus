@@ -128,6 +128,8 @@
     <Compile Include="ReleaseDateAttribute.cs" />
     <Compile Include="Recoverability\ProcessingFailureInfo.cs" />
     <Compile Include="Routing\RoutingMappingSettings.cs" />
+    <Compile Include="Routing\UnicastPublishRouter.cs" />
+    <Compile Include="Routing\UnicastSendRouter.cs" />
     <Compile Include="Serialization\SerializationFeature.cs" />
     <Compile Include="Serializers\XML\XmlSerialization.cs" />
     <Compile Include="Settings\ScaleOutSettings.cs" />

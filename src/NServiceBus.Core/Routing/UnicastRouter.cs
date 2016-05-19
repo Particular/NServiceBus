@@ -9,15 +9,13 @@ namespace NServiceBus
     using Transports;
     using Unicast.Messages;
 
-    class UnicastRouter : IUnicastRouter
+    abstract class UnicastRouter : IUnicastRouter
     {
         public UnicastRouter(MessageMetadataRegistry messageMetadataRegistry,
-            UnicastRoutingTable unicastRoutingTable,
             EndpointInstances endpointInstances,
             TransportAddresses physicalAddresses)
         {
             this.messageMetadataRegistry = messageMetadataRegistry;
-            this.unicastRoutingTable = unicastRoutingTable;
             this.endpointInstances = endpointInstances;
             this.physicalAddresses = physicalAddresses;
         }
@@ -29,7 +27,7 @@ namespace NServiceBus
                 .Distinct()
                 .ToList();
 
-            var routes = await unicastRoutingTable.GetDestinationsFor(typesToRoute, contextBag).ConfigureAwait(false);
+            var routes = await GetDestinations(contextBag, typesToRoute).ConfigureAwait(false);
             var destinations = new List<UnicastRoutingTarget>();
             foreach (var route in routes)
             {
@@ -46,6 +44,8 @@ namespace NServiceBus
                 .Distinct() //Make sure we are sending only one to each transport destination. Might happen when there are multiple routing information sources.
                 .Select(destination => new UnicastRoutingStrategy(destination));
         }
+
+        protected abstract Task<IEnumerable<IUnicastRoute>> GetDestinations(ContextBag contextBag, List<Type> typesToRoute);
 
         Task<IEnumerable<EndpointInstance>> InstanceResolver(EndpointName endpoint)
         {
@@ -78,6 +78,5 @@ namespace NServiceBus
         EndpointInstances endpointInstances;
         MessageMetadataRegistry messageMetadataRegistry;
         TransportAddresses physicalAddresses;
-        UnicastRoutingTable unicastRoutingTable;
     }
 }

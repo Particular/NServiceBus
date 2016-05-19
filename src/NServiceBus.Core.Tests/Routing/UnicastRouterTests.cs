@@ -136,7 +136,7 @@
             routingTable = new UnicastRoutingTable();
             endpointInstances = new EndpointInstances();
             transportAddresses = new TransportAddresses(address => null);
-            router = new UnicastRouter(
+            router = new UnicastSendRouter(
                 metadataRegistry,
                 routingTable,
                 endpointInstances,
