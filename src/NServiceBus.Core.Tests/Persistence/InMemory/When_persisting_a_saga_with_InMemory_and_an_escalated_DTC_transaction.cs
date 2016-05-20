@@ -6,7 +6,6 @@
     using NUnit.Framework;
     using System.Transactions;
     using Transports;
-    using Persistence;
 
     [TestFixture]
     class When_persisting_a_saga_with_InMemory_and_an_escalated_DTC_transaction
@@ -37,8 +36,7 @@
 
                     var unenlistedSession = new InMemorySynchronizedStorageSession();
 
-                    CompletableSynchronizedStorageSession enlistedSession;
-                    storageAdapter.TryAdapt(transportTransaction, out enlistedSession);
+                    var enlistedSession = await storageAdapter.TryAdapt(transportTransaction, new ContextBag());
 
                     var unenlistedRecord = await persister.Get<TestSagaData>(saga.Id, unenlistedSession, new ContextBag());
                     var enlistedRecord = await persister.Get<TestSagaData>("Id", saga.Id, enlistedSession, new ContextBag());
@@ -58,7 +56,6 @@
     {
         public static readonly Guid Id = Guid.NewGuid();
 
-        private bool WasCommitted { get; set; }
         public void Prepare(PreparingEnlistment preparingEnlistment)
         {
             preparingEnlistment.Prepared();
@@ -66,7 +63,6 @@
 
         public void Commit(Enlistment enlistment)
         {
-            WasCommitted = true;
             enlistment.Done();
         }
 
