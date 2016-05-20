@@ -73,7 +73,7 @@ namespace NServiceBus.Features
                     OccurredAt = processingEnded
                 };
 
-                lock (dataPoints)
+                lock (locker)
                 {
                     var i = index;
                     i = (i + 1) & MaxDataPointsMask;
@@ -102,21 +102,23 @@ namespace NServiceBus.Features
 
             void UpdateTimeToSLABreach()
             {
+                int indexLatest;
                 var snapshots = new DataPoint[MaxDataPoints];
 
-                lock (dataPoints)
+                lock (locker)
                 {
+                    indexLatest = index;
                     Array.Copy(dataPoints, snapshots, MaxDataPoints);
                 }
 
-                var secondsToSLABreach = CalculateTimeToSLABreach(snapshots);
+                var secondsToSLABreach = CalculateTimeToSLABreach(snapshots, indexLatest);
 
                 counter.RawValue = Convert.ToInt32(Math.Min(secondsToSLABreach, int.MaxValue));
             }
 
-            double CalculateTimeToSLABreach(DataPoint[] snapshots)
+            double CalculateTimeToSLABreach(DataPoint[] snapshots, int indexLatest)
             {
-                if (snapshots.Length == 0)
+                if (indexLatest < 0)
                 {
                     return double.MaxValue;
                 }
@@ -125,7 +127,7 @@ namespace NServiceBus.Features
 
                 var criticalTimeDelta = TimeSpan.Zero;
 
-                var last = snapshots[snapshots.Length - 1];
+                var last = snapshots[indexLatest];
                 var oldestDataToKeep = DateTime.UtcNow - new TimeSpan(last.ProcessingTime.Ticks*3);
 
                 for (var i = 0; i < snapshots.Length; i++)
@@ -181,6 +183,7 @@ namespace NServiceBus.Features
             }
 
             PerformanceCounter counter;
+            object locker = new object();
             DataPoint[] dataPoints = new DataPoint[MaxDataPoints];
             TimeSpan endpointSla;
             string counterInstanceName;
