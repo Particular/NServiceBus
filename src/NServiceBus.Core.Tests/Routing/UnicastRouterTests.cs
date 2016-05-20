@@ -24,11 +24,11 @@
             var sales = new EndpointName("Sales");
             metadataRegistry.RegisterMessageType(typeof(Command));
             routingTable.RouteToEndpoint(typeof(Command), sales);
-            endpointInstances.Add(sales, new EndpointInstance(sales, null, null));
+            endpointInstances.Add(new EndpointInstance(sales, null, null));
             transportAddresses.AddRule(i => i.ToString());
 
             var routes = router.Route(typeof(Command), new SingleInstanceRoundRobinDistributionStrategy(), new ContextBag()).Result.ToArray();
-            
+
             Assert.AreEqual(1, routes.Length);
             var headers = new Dictionary<string, string>();
             var addressTag = (UnicastAddressTag) routes[0].Apply(headers);
@@ -41,7 +41,7 @@
             var sales = new EndpointName("Sales");
             metadataRegistry.RegisterMessageType(typeof(Event));
             routingTable.RouteToEndpoint(typeof(Event), sales);
-            endpointInstances.Add(sales, new EndpointInstance(sales));
+            endpointInstances.Add(new EndpointInstance(sales));
             transportAddresses.AddRule(i => i.ToString());
 
             var routes = router.Route(typeof(Event), new SingleInstanceRoundRobinDistributionStrategy(), new ContextBag()).Result.ToArray();
@@ -59,9 +59,9 @@
             routingTable.RouteToEndpoint(typeof(Event), sales);
             routingTable.RouteToEndpoint(typeof(Event), shipping);
 
-            endpointInstances.Add(sales, new EndpointInstance(sales, "1"));
+            endpointInstances.Add(new EndpointInstance(sales, "1"));
             endpointInstances.AddDynamic(e => Task.FromResult(EnumerableEx.Single(new EndpointInstance(sales, "2"))));
-            endpointInstances.Add(shipping, new EndpointInstance(shipping, "1", null), new EndpointInstance(shipping, "2"));
+            endpointInstances.Add(new EndpointInstance(shipping, "1", null), new EndpointInstance(shipping, "2"));
 
             transportAddresses.AddRule(i => i.ToString());
 
@@ -80,7 +80,7 @@
 
             routingTable.RouteToEndpoint(typeof(Event), sales);
             routingTable.RouteToAddress(typeof(Event), "Sales-1");
-            endpointInstances.Add(sales, new EndpointInstance(sales, "1"));
+            endpointInstances.Add(new EndpointInstance(sales, "1"));
             transportAddresses.AddRule(i => i.ToString());
 
             var routes = router.Route(typeof(Event), new SingleInstanceRoundRobinDistributionStrategy(), new ContextBag()).Result.ToArray();
@@ -95,7 +95,7 @@
             metadataRegistry.RegisterMessageType(typeof(Event));
 
             routingTable.RouteToEndpoint(typeof(Event), sales);
-            endpointInstances.Add(sales, new EndpointInstance(sales, "1"));
+            endpointInstances.Add(new EndpointInstance(sales, "1"));
             endpointInstances.AddDynamic(name =>
             {
                 IEnumerable<EndpointInstance> results = new[]

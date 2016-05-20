@@ -12,13 +12,16 @@ namespace NServiceBus.Routing
     {
         internal async Task<IEnumerable<EndpointInstance>> FindInstances(EndpointName endpoint)
         {
-            var instances = new List<EndpointInstance>();
+            var instances = new HashSet<EndpointInstance>();
             foreach (var rule in rules)
             {
-                instances.AddRange(await rule.Invoke(endpoint).ConfigureAwait(false));
+                var instancesFromRule = await rule.Invoke(endpoint).ConfigureAwait(false);
+                foreach (var instance in instancesFromRule)
+                {
+                    instances.Add(instance);
+                }
             }
-            var distinctInstances = instances.Distinct().ToArray();
-            return distinctInstances.EnsureNonEmpty(() => new EndpointInstance(endpoint));
+            return instances.EnsureNonEmpty(() => new EndpointInstance(endpoint));
         }
 
 
@@ -34,18 +37,23 @@ namespace NServiceBus.Routing
         /// <summary>
         /// Adds static information about an endpoint.
         /// </summary>
-        /// <param name="endpoint">Name of the endpoint.</param>
         /// <param name="instances">A static list of endpoint's instances.</param>
-        public void Add(EndpointName endpoint, params EndpointInstance[] instances)
+        public void Add(params EndpointInstance[] instances) => Add((IEnumerable<EndpointInstance>)instances);
+
+        /// <summary>
+        /// Adds static information about an endpoint.
+        /// </summary>
+        /// <param name="instances">A static list of endpoint's instances.</param>
+        public void Add(IEnumerable<EndpointInstance> instances)
         {
-            Guard.AgainstNull(nameof(endpoint), endpoint);
-            if (instances.Length == 0)
+            if (!instances.Any())
             {
                 throw new ArgumentException("The list of instances can't be empty.", nameof(instances));
             }
+            var endpoint = instances.First().Endpoint;
             if (instances.Any(i => i.Endpoint != endpoint))
             {
-                throw new ArgumentException("At least one of the instances belongs to a different endpoint than specified in the 'endpoint' parameter.", nameof(instances));
+                throw new ArgumentException("The instances belong to different endpoints. The endpoint names do not match.", nameof(instances));
             }
             rules.Add(e => StaticRule(e, endpoint, instances));
         }
