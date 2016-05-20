@@ -3,7 +3,6 @@ namespace NServiceBus.Features
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -105,7 +104,7 @@ namespace NServiceBus.Features
 
             void UpdateTimeToSLABreach()
             {
-                IList<DataPoint> snapshots;
+                List<DataPoint> snapshots;
 
                 lock (dataPoints)
                 {
@@ -117,23 +116,22 @@ namespace NServiceBus.Features
                 counter.RawValue = Convert.ToInt32(Math.Min(secondsToSLABreach, int.MaxValue));
             }
 
-            double CalculateTimeToSLABreach(IList<DataPoint> snapshots)
+            double CalculateTimeToSLABreach(List<DataPoint> snapshots)
             {
-                //need at least 2 data points to be able to calculate
-                if (snapshots.Count < 2)
-                {
-                    return double.MaxValue;
-                }
-
-                DataPoint previous = null;
+                DataPoint? first = null, previous = null;
 
                 var criticalTimeDelta = TimeSpan.Zero;
 
                 foreach (var current in snapshots)
                 {
-                    if (previous != null)
+                    if (!first.HasValue)
                     {
-                        criticalTimeDelta += current.CriticalTime - previous.CriticalTime;
+                        first = current;
+                    }
+
+                    if (previous.HasValue)
+                    {
+                        criticalTimeDelta += current.CriticalTime - previous.Value.CriticalTime;
                     }
 
                     previous = current;
@@ -144,14 +142,14 @@ namespace NServiceBus.Features
                     return double.MaxValue;
                 }
 
-                var elapsedTime = snapshots.Last().OccurredAt - snapshots.First().OccurredAt;
+                var elapsedTime = previous.Value.OccurredAt - first.Value.OccurredAt;
 
                 if (elapsedTime.TotalSeconds <= 0.0)
                 {
                     return double.MaxValue;
                 }
 
-                var lastKnownCriticalTime = snapshots.Last().CriticalTime.TotalSeconds;
+                var lastKnownCriticalTime = previous.Value.CriticalTime.TotalSeconds;
 
                 var criticalTimeDeltaPerSecond = criticalTimeDelta.TotalSeconds / elapsedTime.TotalSeconds;
 
@@ -169,11 +167,11 @@ namespace NServiceBus.Features
             {
                 lock (dataPoints)
                 {
-                    var last = dataPoints.LastOrDefault();
+                    var last = dataPoints.Count == 0 ? default(DataPoint?) : dataPoints[dataPoints.Count - 1];
 
-                    if (last != null)
+                    if (last.HasValue)
                     {
-                        var oldestDataToKeep = DateTime.UtcNow - new TimeSpan(last.ProcessingTime.Ticks * 3);
+                        var oldestDataToKeep = DateTime.UtcNow - new TimeSpan(last.Value.ProcessingTime.Ticks * 3);
 
                         dataPoints.RemoveAll(d => d.OccurredAt < oldestDataToKeep);
                     }
@@ -191,11 +189,11 @@ namespace NServiceBus.Features
 
             const int MaxDataPoints = 10;
 
-            class DataPoint
+            struct DataPoint
             {
-                public TimeSpan CriticalTime { get; set; }
-                public DateTime OccurredAt { get; set; }
-                public TimeSpan ProcessingTime { get; set; }
+                public TimeSpan CriticalTime;
+                public DateTime OccurredAt;
+                public TimeSpan ProcessingTime;
             }
         }
     }
