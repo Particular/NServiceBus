@@ -13,39 +13,43 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
         /// <summary>
         /// Creates a new publisher based on the endpoint name.
         /// </summary>
-        public PublisherAddress(EndpointName endpoint)
+        public static PublisherAddress CreateFromEndpointName(string endpoint)
         {
             Guard.AgainstNull(nameof(endpoint), endpoint);
-            this.endpoint = endpoint;
+            return new PublisherAddress { endpoint = endpoint };
         }
 
         /// <summary>
         /// Creates a new publisher based on a set of endpoint instance names.
         /// </summary>
-        public PublisherAddress(params EndpointInstance[] instances)
+        public static PublisherAddress CreateFromEndpointInstances(params EndpointInstance[] instances)
         {
             Guard.AgainstNull(nameof(instances), instances);
             if (instances.Length == 0)
             {
                 throw new ArgumentException("You have to provide at least one instance.");
             }
-            this.instances = instances;
+            return new PublisherAddress { instances = instances };
         }
 
         /// <summary>
         /// Creates a new publisher based on a set of physical addresses.
         /// </summary>
-        public PublisherAddress(params string[] addresses)
+        public static PublisherAddress CreateFromPhysicalAddresses(params string[] addresses)
         {
             Guard.AgainstNull(nameof(addresses), addresses);
             if (addresses.Length == 0)
             {
                 throw new ArgumentException("You need to provide at least one address.");
             }
-            this.addresses = addresses;
+            return new PublisherAddress { addresses = addresses };
         }
 
-        internal async Task<IEnumerable<string>> Resolve(Func<EndpointName, Task<IEnumerable<EndpointInstance>>> instanceResolver, Func<EndpointInstance, string> addressResolver)
+        private PublisherAddress()
+        {
+        }
+
+        internal async Task<IEnumerable<string>> Resolve(Func<string, Task<IEnumerable<EndpointInstance>>> instanceResolver, Func<EndpointInstance, string> addressResolver)
         {
             if (addresses != null)
             {
@@ -60,7 +64,7 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
         }
 
         string[] addresses;
-        EndpointName endpoint;
+        string endpoint;
         EndpointInstance[] instances;
     }
 }

@@ -21,7 +21,7 @@
         [Test]
         public void Should_route_a_command_to_a_single_non_scaled_out_destination()
         {
-            var sales = new EndpointName("Sales");
+            var sales = "Sales";
             metadataRegistry.RegisterMessageType(typeof(Command));
             routingTable.RouteToEndpoint(typeof(Command), sales);
             endpointInstances.Add(new EndpointInstance(sales, null, null));
@@ -38,7 +38,7 @@
         [Test]
         public void Should_route_an_event_to_a_single_non_scaled_out_destination()
         {
-            var sales = new EndpointName("Sales");
+            var sales = "Sales";
             metadataRegistry.RegisterMessageType(typeof(Event));
             routingTable.RouteToEndpoint(typeof(Event), sales);
             endpointInstances.Add(new EndpointInstance(sales));
@@ -53,8 +53,8 @@
         [Test]
         public void Should_route_an_event_to_a_single_instance_of_each_endpoint()
         {
-            var sales = new EndpointName("Sales");
-            var shipping = new EndpointName("Shipping");
+            var sales = "Sales";
+            var shipping = "Shipping";
             metadataRegistry.RegisterMessageType(typeof(Event));
             routingTable.RouteToEndpoint(typeof(Event), sales);
             routingTable.RouteToEndpoint(typeof(Event), shipping);
@@ -75,7 +75,7 @@
         [Test]
         public void Should_not_send_multiple_copies_of_message_to_one_physical_destination()
         {
-            var sales = new EndpointName("Sales");
+            var sales = "Sales";
             metadataRegistry.RegisterMessageType(typeof(Event));
 
             routingTable.RouteToEndpoint(typeof(Event), sales);
@@ -91,7 +91,7 @@
         [Test]
         public void Should_not_pass_duplicate_routes_to_distribution_strategy()
         {
-            var sales = new EndpointName("Sales");
+            var sales = "Sales";
             metadataRegistry.RegisterMessageType(typeof(Event));
 
             routingTable.RouteToEndpoint(typeof(Event), sales);

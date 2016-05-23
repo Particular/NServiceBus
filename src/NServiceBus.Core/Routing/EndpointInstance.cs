@@ -15,17 +15,6 @@
         /// <param name="discriminator">A specific discriminator for scale-out purposes.</param>
         /// <param name="properties">A bag of additional properties that differentiate this endpoint instance from other instances.</param>
         public EndpointInstance(string endpoint, string discriminator = null, IReadOnlyDictionary<string, string> properties = null)
-            : this(new EndpointName(endpoint), discriminator, properties)
-        {
-        }
-
-        /// <summary>
-        /// Creates a new endpoint name for a given discriminator.
-        /// </summary>
-        /// <param name="endpoint">The name of the endpoint.</param>
-        /// <param name="discriminator">A specific discriminator for scale-out purposes.</param>
-        /// <param name="properties">A bag of additional properties that differentiate this endpoint instance from other instances.</param>
-        public EndpointInstance(EndpointName endpoint, string discriminator = null, IReadOnlyDictionary<string, string> properties = null)
         {
             Guard.AgainstNull(nameof(endpoint), endpoint);
 
@@ -37,7 +26,7 @@
         /// <summary>
         /// Returns the name of the endpoint.
         /// </summary>
-        public EndpointName Endpoint { get; }
+        public string Endpoint { get; }
 
         /// <summary>
         /// A specific discriminator for scale-out purposes.
@@ -77,7 +66,7 @@
             var propsFormatted = Properties.Select(kvp => $"{kvp.Key}:{kvp.Value}");
             var instanceId = Discriminator != null
                 ? $"{Endpoint}-{Discriminator}"
-                : Endpoint.ToString();
+                : Endpoint;
 
             var parts = new[]
             {

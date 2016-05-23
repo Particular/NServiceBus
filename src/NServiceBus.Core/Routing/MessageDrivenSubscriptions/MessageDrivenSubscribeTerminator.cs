@@ -13,7 +13,7 @@
 
     class MessageDrivenSubscribeTerminator : PipelineTerminator<ISubscribeContext>
     {
-        public MessageDrivenSubscribeTerminator(SubscriptionRouter subscriptionRouter, string subscriberAddress, EndpointName subscriberEndpoint, IDispatchMessages dispatcher)
+        public MessageDrivenSubscribeTerminator(SubscriptionRouter subscriptionRouter, string subscriberAddress, string subscriberEndpoint, IDispatchMessages dispatcher)
         {
             this.subscriptionRouter = subscriptionRouter;
             this.subscriberAddress = subscriberAddress;
@@ -73,7 +73,7 @@
 
         IDispatchMessages dispatcher;
         string subscriberAddress;
-        EndpointName subscriberEndpoint;
+        string subscriberEndpoint;
 
         SubscriptionRouter subscriptionRouter;
 
