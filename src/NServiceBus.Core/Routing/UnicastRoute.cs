@@ -14,33 +14,40 @@ namespace NServiceBus.Routing
         /// Creates a destination based on the name of the endpoint.
         /// </summary>
         /// <param name="endpoint">Destination endpoint.</param>
-        public UnicastRoute(EndpointName endpoint)
+        /// <returns>The new destination route.</returns>
+        public static UnicastRoute CreateFromEndpointName(string endpoint)
         {
             Guard.AgainstNull(nameof(endpoint), endpoint);
-            this.endpoint = endpoint;
+            return new UnicastRoute { endpoint = endpoint };
         }
 
         /// <summary>
         /// Creates a destination based on the name of the endpoint instance.
         /// </summary>
         /// <param name="instance">Destination instance name.</param>
-        public UnicastRoute(EndpointInstance instance)
+        /// <returns>The new destination route.</returns>
+        public static UnicastRoute CreateFromEndpointInstance(EndpointInstance instance)
         {
             Guard.AgainstNull(nameof(instance), instance);
-            this.instance = instance;
+            return new UnicastRoute { instance = instance };
         }
 
         /// <summary>
         /// Creates a destination based on the physical address.
         /// </summary>
         /// <param name="physicalAddress">Destination physical address.</param>
-        public UnicastRoute(string physicalAddress)
+        /// <returns>The new destination route.</returns>
+        public static UnicastRoute CreateFromPhysicalAddress(string physicalAddress)
         {
             Guard.AgainstNullAndEmpty(nameof(physicalAddress), physicalAddress);
-            this.physicalAddress = physicalAddress;
+            return new UnicastRoute { physicalAddress = physicalAddress };
         }
 
-        async Task<IEnumerable<UnicastRoutingTarget>> IUnicastRoute.Resolve(Func<EndpointName, Task<IEnumerable<EndpointInstance>>> instanceResolver)
+        private UnicastRoute()
+        {
+        }
+
+        async Task<IEnumerable<UnicastRoutingTarget>> IUnicastRoute.Resolve(Func<string, Task<IEnumerable<EndpointInstance>>> instanceResolver)
         {
             if (physicalAddress != null)
             {
@@ -54,7 +61,7 @@ namespace NServiceBus.Routing
             return instances.Select(UnicastRoutingTarget.ToEndpointInstance);
         }
 
-        EndpointName endpoint;
+        string endpoint;
         EndpointInstance instance;
         string physicalAddress;
     }

@@ -57,10 +57,10 @@ namespace NServiceBus
         /// <summary>
         /// Returns the name of this endpoint.
         /// </summary>
-        public static EndpointName EndpointName(this ReadOnlySettings settings)
+        public static string EndpointName(this ReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
-            return settings.Get<EndpointName>();
+            return settings.Get<string>("NServiceBus.Routing.EndpointName");
         }
 
         /// <summary>

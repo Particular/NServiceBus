@@ -10,7 +10,7 @@ namespace NServiceBus.Routing
     /// </summary>
     public class EndpointInstances
     {
-        internal async Task<IEnumerable<EndpointInstance>> FindInstances(EndpointName endpoint)
+        internal async Task<IEnumerable<EndpointInstance>> FindInstances(string endpoint)
         {
             var instances = new HashSet<EndpointInstance>();
             foreach (var rule in rules)
@@ -29,7 +29,7 @@ namespace NServiceBus.Routing
         /// Adds a dynamic rule for determining endpoint instances.
         /// </summary>
         /// <param name="dynamicRule">The rule.</param>
-        public void AddDynamic(Func<EndpointName, Task<IEnumerable<EndpointInstance>>> dynamicRule)
+        public void AddDynamic(Func<string, Task<IEnumerable<EndpointInstance>>> dynamicRule)
         {
             rules.Add(dynamicRule);
         }
@@ -58,7 +58,7 @@ namespace NServiceBus.Routing
             rules.Add(e => StaticRule(e, endpoint, instances));
         }
 
-        static Task<IEnumerable<EndpointInstance>> StaticRule(EndpointName endpointBeingQueried, EndpointName configuredEndpoint, IEnumerable<EndpointInstance> configuredInstances)
+        static Task<IEnumerable<EndpointInstance>> StaticRule(string endpointBeingQueried, string configuredEndpoint, IEnumerable<EndpointInstance> configuredInstances)
         {
             if (endpointBeingQueried == configuredEndpoint)
             {
@@ -67,7 +67,7 @@ namespace NServiceBus.Routing
             return EmptyStaticRuleTask;
         }
 
-        List<Func<EndpointName, Task<IEnumerable<EndpointInstance>>>> rules = new List<Func<EndpointName, Task<IEnumerable<EndpointInstance>>>>();
+        List<Func<string, Task<IEnumerable<EndpointInstance>>>> rules = new List<Func<string, Task<IEnumerable<EndpointInstance>>>>();
         static Task<IEnumerable<EndpointInstance>> EmptyStaticRuleTask = Task.FromResult(Enumerable.Empty<EndpointInstance>());
     }
 }
