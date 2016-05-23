@@ -2296,12 +2296,12 @@ namespace NServiceBus.Routing
     public class AllInstancesDistributionStrategy : NServiceBus.Routing.DistributionStrategy
     {
         public AllInstancesDistributionStrategy() { }
-        public override System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> SelectDestination(System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> allInstances) { }
+        public override System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> SelectDestination(System.Collections.Generic.IList<NServiceBus.UnicastRoutingTarget> allInstances) { }
     }
     public abstract class DistributionStrategy
     {
         protected DistributionStrategy() { }
-        public abstract System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> SelectDestination(System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> allInstances);
+        public abstract System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> SelectDestination(System.Collections.Generic.IList<NServiceBus.UnicastRoutingTarget> allInstances);
     }
     public sealed class EndpointInstance
     {
@@ -2350,8 +2350,7 @@ namespace NServiceBus.Routing
     public class SingleInstanceRoundRobinDistributionStrategy : NServiceBus.Routing.DistributionStrategy
     {
         public SingleInstanceRoundRobinDistributionStrategy() { }
-        [System.Runtime.CompilerServices.IteratorStateMachineAttribute(typeof(NServiceBus.Routing.SingleInstanceRoundRobinDistributionStrategy.<SelectDestination>d__0))]
-        public override System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> SelectDestination(System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> currentAllInstances) { }
+        public override System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> SelectDestination(System.Collections.Generic.IList<NServiceBus.UnicastRoutingTarget> currentAllInstances) { }
     }
     public class UnicastAddressTag : NServiceBus.Routing.AddressTag
     {

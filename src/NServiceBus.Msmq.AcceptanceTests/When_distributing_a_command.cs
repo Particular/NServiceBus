@@ -4,41 +4,53 @@
     using System.IO;
     using System.Threading.Tasks;
     using AcceptanceTesting.Customization;
-    using Configuration.AdvanceExtensibility;
     using AcceptanceTesting;
     using NUnit.Framework;
     using Settings;
 
     public class When_distributing_a_command : NServiceBusAcceptanceTest
     {
-        static string ReceiverEndpoint => Conventions.EndpointNamingConvention(typeof(Receiver));
+        const int numberOfMessagesToSendPerEndpoint = 20;
+        static string ReceiverAEndpoint => Conventions.EndpointNamingConvention(typeof(ReceiverA));
+        static string ReceiverBEndpoint => Conventions.EndpointNamingConvention(typeof(ReceiverB));
 
         [Test]
         public async Task Should_round_robin()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Sender>(b => b.When((session, c) => session.Send(new Request())))
-                .WithEndpoint<Receiver>(b => b.CustomConfig(c =>
+                .WithEndpoint<Sender>(b => b.When((session, c) => session.Send(new RequestA())))
+                .WithEndpoint<ReceiverA>(b => b.CustomConfig(c =>
                 {
                     c.ScaleOut().InstanceDiscriminator("1");
-                    c.GetSettings().Set("Name", "Receiver1");
                 }))
-                .WithEndpoint<Receiver>(b => b.CustomConfig(c =>
+                .WithEndpoint<ReceiverA>(b => b.CustomConfig(c =>
                 {
                     c.ScaleOut().InstanceDiscriminator("2");
-                    c.GetSettings().Set("Name", "Receiver2");
                 }))
-                .Done(c => c.Receiver1TimesCalled > 4 && c.Receiver2TimesCalled > 4)
+                .WithEndpoint<ReceiverB>(b => b.CustomConfig(c =>
+                {
+                    c.ScaleOut().InstanceDiscriminator("1");
+                }))
+                .WithEndpoint<ReceiverB>(b => b.CustomConfig(c =>
+                {
+                    c.ScaleOut().InstanceDiscriminator("2");
+                }))
+                .Done(c => c.MessagesReceivedPerEndpoint == numberOfMessagesToSendPerEndpoint)
                 .Run();
 
-            Assert.IsTrue(context.Receiver1TimesCalled > 4);
-            Assert.IsTrue(context.Receiver2TimesCalled > 4);
+            Assert.That(context.ReceiverA1TimesCalled, Is.EqualTo(10));
+            Assert.That(context.ReceiverA2TimesCalled, Is.EqualTo(10));
+            Assert.That(context.ReceiverB1TimesCalled, Is.EqualTo(10));
+            Assert.That(context.ReceiverB2TimesCalled, Is.EqualTo(10));
         }
 
         public class Context : ScenarioContext
         {
-            public int Receiver1TimesCalled { get; set; }
-            public int Receiver2TimesCalled { get; set; }
+            public int MessagesReceivedPerEndpoint { get; set; }
+            public int ReceiverA1TimesCalled { get; set; }
+            public int ReceiverA2TimesCalled { get; set; }
+            public int ReceiverB1TimesCalled { get; set; }
+            public int ReceiverB2TimesCalled { get; set; }
         }
 
         public class Sender : EndpointConfigurationBuilder
@@ -46,70 +58,133 @@
             public Sender()
             {
                 var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "routes.xml");
-                File.WriteAllText(filePath, @"<endpoints>
-    <endpoint name=""DistributingACommand.Receiver"">
+                File.WriteAllText(filePath, string.Format(@"<endpoints>
+    <endpoint name=""{0}"">
+        <instance discriminator=""1""/>
+        <instance discriminator=""2""/>
+    </endpoint>
+    <endpoint name=""{1}"">
         <instance discriminator=""1""/>
         <instance discriminator=""2""/>
     </endpoint>
 </endpoints>
-");
+", ReceiverAEndpoint, ReceiverBEndpoint));
 
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.UseTransport<MsmqTransport>().DistributeMessagesUsingFileBasedEndpointInstanceMapping(filePath);
-                    c.UnicastRouting().RouteToEndpoint(typeof(Request), ReceiverEndpoint);
+                    c.UnicastRouting().RouteToEndpoint(typeof(RequestA), ReceiverAEndpoint);
+                    c.UnicastRouting().RouteToEndpoint(typeof(RequestB), ReceiverBEndpoint);
                 });
             }
 
-            public class ResponseHandler : IHandleMessages<Response>
+            public class ResponseHandler :
+                IHandleMessages<ResponseA>,
+                IHandleMessages<ResponseB>
             {
-                public Context Context { get; set; }
+                private Context testContext;
 
-                public Task Handle(Response message, IMessageHandlerContext context)
+                public ResponseHandler(Context testContext)
                 {
-                    switch (message.EndpointName)
+                    this.testContext = testContext;
+                }
+
+                public Task Handle(ResponseA message, IMessageHandlerContext context)
+                {
+                    switch (message.EndpointInstance)
                     {
-                        case "Receiver1":
-                            Context.Receiver1TimesCalled++;
+                        case "1":
+                            testContext.ReceiverA1TimesCalled++;
                             break;
-                        case "Receiver2":
-                            Context.Receiver2TimesCalled++;
+                        case "2":
+                            testContext.ReceiverA2TimesCalled++;
                             break;
                     }
 
-                    return context.Send(new Request());
+                    return context.Send(new RequestB());
+                }
+
+                public Task Handle(ResponseB message, IMessageHandlerContext context)
+                {
+                    switch (message.EndpointInstance)
+                    {
+                        case "1":
+                            testContext.ReceiverB1TimesCalled++;
+                            break;
+                        case "2":
+                            testContext.ReceiverB2TimesCalled++;
+                            break;
+                    }
+
+                    testContext.MessagesReceivedPerEndpoint++;
+                    if (testContext.MessagesReceivedPerEndpoint < numberOfMessagesToSendPerEndpoint)
+                    {
+                        return context.Send(new RequestA());
+                    }
+
+                    return Task.CompletedTask;
                 }
             }
         }
 
-        public class Receiver : EndpointConfigurationBuilder
+        public class ReceiverA : EndpointConfigurationBuilder
         {
-            public Receiver()
+            public ReceiverA()
             {
                 EndpointSetup<DefaultServer>();
             }
 
-            public class MyMessageHandler : IHandleMessages<Request>
+            public class MyMessageHandler : IHandleMessages<RequestA>
             {
                 public ReadOnlySettings Settings { get; set; }
 
-                public Task Handle(Request message, IMessageHandlerContext context)
+                public Task Handle(RequestA message, IMessageHandlerContext context)
                 {
-                    return context.Reply(new Response
+                    return context.Reply(new ResponseA
                     {
-                        EndpointName = Settings.Get<string>("Name")
+                        EndpointInstance = Settings.Get<string>("EndpointInstanceDiscriminator")
                     });
                 }
             }
         }
 
-        public class Request : ICommand
+        public class ReceiverB : EndpointConfigurationBuilder
+        {
+            public ReceiverB()
+            {
+                EndpointSetup<DefaultServer>();
+            }
+
+            public class MyMessageHandler : IHandleMessages<RequestB>
+            {
+                public ReadOnlySettings Settings { get; set; }
+
+                public Task Handle(RequestB message, IMessageHandlerContext context)
+                {
+                    return context.Reply(new ResponseB
+                    {
+                        EndpointInstance = Settings.Get<string>("EndpointInstanceDiscriminator")
+                    });
+                }
+            }
+        }
+
+        public class RequestA : ICommand
         {
         }
 
-        public class Response : IMessage
+        public class RequestB : ICommand
         {
-            public string EndpointName { get; set; }
+        }
+
+        public class ResponseA : IMessage
+        {
+            public string EndpointInstance { get; set; }
+        }
+
+        public class ResponseB : IMessage
+        {
+            public string EndpointInstance { get; set; }
         }
     }
 }

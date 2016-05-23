@@ -67,7 +67,7 @@ namespace NServiceBus
                 else
                 {
                     //Use the distribution strategy to select subset of instances of a given endpoint
-                    foreach (var destination in distributionStrategy.SelectDestination(@group))
+                    foreach (var destination in distributionStrategy.SelectDestination(@group.ToArray()))
                     {
                         yield return destination;
                     }

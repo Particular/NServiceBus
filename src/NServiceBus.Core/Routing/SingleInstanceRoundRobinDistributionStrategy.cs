@@ -1,5 +1,6 @@
 namespace NServiceBus.Routing
 {
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -11,31 +12,21 @@ namespace NServiceBus.Routing
         /// <summary>
         /// Selects destination instances from all known instances of a given endpoint.
         /// </summary>
-        public override IEnumerable<UnicastRoutingTarget> SelectDestination(IEnumerable<UnicastRoutingTarget> currentAllInstances)
+        public override IEnumerable<UnicastRoutingTarget> SelectDestination(IList<UnicastRoutingTarget> currentAllInstances)
         {
-            var localAllInstances = allInstances;
-            var currentList = currentAllInstances.ToList();
-            if (localAllInstances == null || !currentList.SequenceEqual(localAllInstances))
+            if (currentAllInstances.Count == 0)
             {
-                lock (lockObject)
-                {
-                    localAllInstances = allInstances;
-                    if (localAllInstances == null || !currentList.SequenceEqual(localAllInstances))
-                    {
-                        allInstances = currentList;
-                        localAllInstances = currentList;
-                        index = 0;
-                    }
-                }
+                return Enumerable.Empty<UnicastRoutingTarget>();
             }
-            var arrayIndex = index%localAllInstances.Count;
-            var destination = allInstances[(int) arrayIndex];
-            index++;
-            yield return destination;
+            var endpointName = currentAllInstances[0].Endpoint;
+            var index = indexes.AddOrUpdate(endpointName, e => 0L, (e, i) => i + 1L);
+
+            return new[]
+            {
+                currentAllInstances[(int) (index%currentAllInstances.Count)]
+            };
         }
 
-        volatile IList<UnicastRoutingTarget> allInstances;
-        long index;
-        object lockObject = new object();
+        ConcurrentDictionary<EndpointName, long> indexes = new ConcurrentDictionary<EndpointName, long>();
     }
 }

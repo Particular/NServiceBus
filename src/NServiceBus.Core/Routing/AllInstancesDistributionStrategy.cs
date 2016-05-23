@@ -10,7 +10,7 @@ namespace NServiceBus.Routing
         /// <summary>
         /// Selects destination instances from all known instances of a given endpoint.
         /// </summary>
-        public override IEnumerable<UnicastRoutingTarget> SelectDestination(IEnumerable<UnicastRoutingTarget> allInstances)
+        public override IEnumerable<UnicastRoutingTarget> SelectDestination(IList<UnicastRoutingTarget> allInstances)
         {
             return allInstances;
         }
