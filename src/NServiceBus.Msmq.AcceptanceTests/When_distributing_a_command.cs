@@ -4,7 +4,6 @@
     using System.IO;
     using System.Threading.Tasks;
     using AcceptanceTesting.Customization;
-    using Configuration.AdvanceExtensibility;
     using AcceptanceTesting;
     using NUnit.Framework;
     using Settings;
@@ -23,22 +22,18 @@
                 .WithEndpoint<ReceiverA>(b => b.CustomConfig(c =>
                 {
                     c.ScaleOut().InstanceDiscriminator("1");
-                    c.GetSettings().Set("Name", "ReceiverA1");
                 }))
                 .WithEndpoint<ReceiverA>(b => b.CustomConfig(c =>
                 {
                     c.ScaleOut().InstanceDiscriminator("2");
-                    c.GetSettings().Set("Name", "ReceiverA2");
                 }))
                 .WithEndpoint<ReceiverB>(b => b.CustomConfig(c =>
                 {
                     c.ScaleOut().InstanceDiscriminator("1");
-                    c.GetSettings().Set("Name", "ReceiverB1");
                 }))
                 .WithEndpoint<ReceiverB>(b => b.CustomConfig(c =>
                 {
                     c.ScaleOut().InstanceDiscriminator("2");
-                    c.GetSettings().Set("Name", "ReceiverB2");
                 }))
                 .Done(c => c.MessagesReceivedPerEndpoint == numberOfMessagesToSendPerEndpoint)
                 .Run();
@@ -96,12 +91,12 @@
 
                 public Task Handle(ResponseA message, IMessageHandlerContext context)
                 {
-                    switch (message.EndpointName)
+                    switch (message.EndpointInstance)
                     {
-                        case "ReceiverA1":
+                        case "1":
                             testContext.ReceiverA1TimesCalled++;
                             break;
-                        case "ReceiverA2":
+                        case "2":
                             testContext.ReceiverA2TimesCalled++;
                             break;
                     }
@@ -111,12 +106,12 @@
 
                 public Task Handle(ResponseB message, IMessageHandlerContext context)
                 {
-                    switch (message.EndpointName)
+                    switch (message.EndpointInstance)
                     {
-                        case "ReceiverB1":
+                        case "1":
                             testContext.ReceiverB1TimesCalled++;
                             break;
-                        case "ReceiverB2":
+                        case "2":
                             testContext.ReceiverB2TimesCalled++;
                             break;
                     }
@@ -147,7 +142,7 @@
                 {
                     return context.Reply(new ResponseA
                     {
-                        EndpointName = Settings.Get<string>("Name")
+                        EndpointInstance = Settings.Get<string>("EndpointInstanceDiscriminator")
                     });
                 }
             }
@@ -168,7 +163,7 @@
                 {
                     return context.Reply(new ResponseB
                     {
-                        EndpointName = Settings.Get<string>("Name")
+                        EndpointInstance = Settings.Get<string>("EndpointInstanceDiscriminator")
                     });
                 }
             }
@@ -184,12 +179,12 @@
 
         public class ResponseA : IMessage
         {
-            public string EndpointName { get; set; }
+            public string EndpointInstance { get; set; }
         }
 
         public class ResponseB : IMessage
         {
-            public string EndpointName { get; set; }
+            public string EndpointInstance { get; set; }
         }
     }
 }
