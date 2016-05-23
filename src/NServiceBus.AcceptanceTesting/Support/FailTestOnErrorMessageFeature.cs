@@ -6,7 +6,6 @@
     using Faults;
     using Features;
     using Pipeline;
-    using Routing;
     using Settings;
 
     public class FailTestOnErrorMessageFeature : Feature

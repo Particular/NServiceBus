@@ -13,7 +13,6 @@ namespace NServiceBus
     using ObjectBuilder;
     using ObjectBuilder.Common;
     using Pipeline;
-    using Routing;
     using Settings;
     using Transports;
 

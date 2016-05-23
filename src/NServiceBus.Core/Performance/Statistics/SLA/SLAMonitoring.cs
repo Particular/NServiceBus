@@ -32,7 +32,7 @@ namespace NServiceBus.Features
                 throw new Exception("Endpoint SLA is required for the `SLA violation countdown` counter. Pass the SLA for this endpoint to .EnableSLAPerformanceCounter(mySLA).");
             }
 
-            var counterInstanceName = context.Settings.EndpointName().ToString();
+            var counterInstanceName = context.Settings.EndpointName();
             var slaBreachCounter = new EstimatedTimeToSLABreachCounter(endpointSla, counterInstanceName);
 
             var notifications = context.Settings.Get<NotificationSubscriptions>();

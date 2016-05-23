@@ -92,7 +92,7 @@
             messageProcessorPipeline.Register("StoreTimeoutTerminator", b => new StoreTimeoutBehavior(b.Build<ExpiredTimeoutsPoller>(),
                 b.Build<IDispatchMessages>(),
                 b.Build<IPersistTimeouts>(),
-                context.Settings.EndpointName().ToString()),
+                context.Settings.EndpointName()),
                 "Terminates the satellite responsible for storing timeouts into timeout storage");
 
             context.Settings.Get<TimeoutManagerAddressConfiguration>().Set(processorAddress);
