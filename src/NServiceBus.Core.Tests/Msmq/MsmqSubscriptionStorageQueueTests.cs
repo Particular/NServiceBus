@@ -5,7 +5,6 @@
     using System.Messaging;
     using System.Threading.Tasks;
     using Extensibility;
-    using NServiceBus.Routing;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
     using NUnit.Framework;
     using MessageType = Unicast.Subscriptions.MessageType;

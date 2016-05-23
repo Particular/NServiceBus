@@ -38,7 +38,7 @@
                 unsubscribeMessage.Headers[Headers.SubscriptionMessageType] = eventType.AssemblyQualifiedName;
                 unsubscribeMessage.Headers[Headers.ReplyToAddress] = replyToAddress;
                 unsubscribeMessage.Headers[Headers.SubscriberTransportAddress] = replyToAddress;
-                unsubscribeMessage.Headers[Headers.SubscriberEndpoint] = endpoint.ToString();
+                unsubscribeMessage.Headers[Headers.SubscriberEndpoint] = endpoint;
                 unsubscribeMessage.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
                 unsubscribeMessage.Headers[Headers.NServiceBusVersion] = GitFlowVersion.MajorMinorPatch;
 

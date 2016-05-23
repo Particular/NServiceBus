@@ -32,7 +32,7 @@ namespace NServiceBus.Core.Tests.Routing
             var endpointInstances = new EndpointInstances();
             endpointInstances.AddDynamic(e => Task.FromResult(EnumerableEx.Single(new EndpointInstance(e))));
             var physicalAddresses = new TransportAddresses(address => null);
-            physicalAddresses.AddRule(i => i.EndpointInstance.Endpoint.ToString());
+            physicalAddresses.AddRule(i => i.EndpointInstance.Endpoint);
             var router = new SubscriptionRouter(publishers, endpointInstances, physicalAddresses);
 
             Assert.Contains(baseAddress, (await router.GetAddressesForEventType(baseType)).ToList());
@@ -53,7 +53,7 @@ namespace NServiceBus.Core.Tests.Routing
             var knownEndpoints = new EndpointInstances();
             knownEndpoints.AddDynamic(e => Task.FromResult(EnumerableEx.Single(new EndpointInstance(e, null, null))));
             var physicalAddresses = new TransportAddresses(address => null);
-            physicalAddresses.AddRule(i => i.EndpointInstance.Endpoint.ToString());
+            physicalAddresses.AddRule(i => i.EndpointInstance.Endpoint);
             var router = new SubscriptionRouter(publishers, knownEndpoints, physicalAddresses);
 
             Assert.AreEqual(2, (await router.GetAddressesForEventType(baseType)).Count());

@@ -82,7 +82,7 @@
                 return;
             }
             Logger.DebugFormat("Message definitions: \n {0}",
-                string.Concat(messageDefinitions.Select(md => md.ToString() + "\n")));
+                string.Concat(messageDefinitions.Select(md => md + "\n")));
         }
 
         static ILog Logger = LogManager.GetLogger<SerializationFeature>();

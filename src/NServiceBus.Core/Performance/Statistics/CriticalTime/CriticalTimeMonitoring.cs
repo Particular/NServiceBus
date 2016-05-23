@@ -19,7 +19,7 @@ namespace NServiceBus.Features
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var counterInstanceName = context.Settings.EndpointName().ToString();
+            var counterInstanceName = context.Settings.EndpointName();
             var criticalTimeCounter = new CriticalTimeCounter(counterInstanceName);
 
             var notifications = context.Settings.Get<NotificationSubscriptions>();

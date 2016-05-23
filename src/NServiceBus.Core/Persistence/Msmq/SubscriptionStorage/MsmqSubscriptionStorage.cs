@@ -7,7 +7,6 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using Extensibility;
     using Logging;
-    using Routing;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
     using MessageType = Unicast.Subscriptions.MessageType;
 

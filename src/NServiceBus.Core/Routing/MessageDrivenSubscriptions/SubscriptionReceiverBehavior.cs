@@ -5,7 +5,6 @@
     using System.Threading.Tasks;
     using Logging;
     using Pipeline;
-    using Routing;
     using Transports;
     using Unicast.Subscriptions;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;

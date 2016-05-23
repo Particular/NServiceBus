@@ -54,7 +54,7 @@ namespace NServiceBus
                 machine = Environment.MachineName;
             }
 
-            var queue = new StringBuilder(logicalAddress.EndpointInstance.Endpoint.ToString());
+            var queue = new StringBuilder(logicalAddress.EndpointInstance.Endpoint);
             if (logicalAddress.EndpointInstance.Discriminator != null)
             {
                 queue.Append("-" + logicalAddress.EndpointInstance.Discriminator);
