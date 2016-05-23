@@ -323,7 +323,6 @@
     <Compile Include="Extensibility\ReadOnlyContextBag.cs" />
     <Compile Include="Recoverability\Faults\ConfigureError.cs" />
     <Compile Include="Routing\EndpointInstance.cs" />
-    <Compile Include="Routing\EndpointName.cs" />
     <Compile Include="Recoverability\Faults\FailedMessage.cs" />
     <Compile Include="Recoverability\Faults\ErrorsNotifications.cs" />
     <Compile Include="Features\FeatureRunner.cs" />

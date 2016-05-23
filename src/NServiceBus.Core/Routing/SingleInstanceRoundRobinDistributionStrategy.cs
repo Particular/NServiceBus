@@ -27,6 +27,6 @@ namespace NServiceBus.Routing
             };
         }
 
-        ConcurrentDictionary<EndpointName, long> indexes = new ConcurrentDictionary<EndpointName, long>();
+        ConcurrentDictionary<string, long> indexes = new ConcurrentDictionary<string, long>();
     }
 }

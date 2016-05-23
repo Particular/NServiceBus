@@ -31,7 +31,7 @@ namespace NServiceBus
         {
             Guard.AgainstNullAndEmpty(nameof(endpointName), endpointName);
 
-            Settings.Set<EndpointName>(new EndpointName(endpointName));
+            Settings.Set("NServiceBus.Routing.EndpointName", endpointName);
 
             configurationSourceToUse = new DefaultConfigurationSource();
 
