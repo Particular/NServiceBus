@@ -15,7 +15,7 @@
         [Explicit("Since perf counters need to be enabled with powershell")]
         public async Task Should_have_perf_counter_set()
         {
-            using (var counter = new PerformanceCounter("NServiceBus", "SLA violation countdown", "PerformanceMonitoring.Endpoint.WhenSendingSlowWithSLAEnabled." + Transports.Default.Key, true))
+            using (var counter = new PerformanceCounter("NServiceBus", "SLA violation countdown", "SendingWithSLAEnabled.Endpoint", false))
             {
                 using (new Timer(state => CheckPerfCounter(counter), null, 0, 100))
                 {

@@ -529,7 +529,6 @@
     <Compile Include="Forwarding\ForwardReceivedMessages.cs" />
     <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetriesBehavior.cs" />
     <Compile Include="Unicast\Config\RegisterHandlersInOrder.cs" />
-    <Compile Include="Performance\Statistics\SLA\SLABehavior.cs" />
     <Compile Include="Performance\Statistics\SLA\SLAMonitoring.cs" />
     <Compile Include="Performance\Statistics\ProcessingStatisticsBehavior.cs" />
     <Compile Include="MessageDeserializationException.cs" />
@@ -732,7 +731,6 @@
     <Compile Include="Unicast\Messages\MessageMetadataRegistry.cs" />
     <Compile Include="Unicast\Messages\MessageMetadata.cs" />
     <Compile Include="Routing\MessagingBestPractices\Validations.cs" />
-    <Compile Include="Performance\Statistics\SLA\EstimatedTimeToSLABreachCalculator.cs" />
     <Compile Include="Causation\AttachCausationHeadersBehavior.cs" />
     <Compile Include="Unicast\Queuing\QueueNotFoundException.cs" />
     <Compile Include="Unicast\Queuing\QueuesCreator.cs" />
