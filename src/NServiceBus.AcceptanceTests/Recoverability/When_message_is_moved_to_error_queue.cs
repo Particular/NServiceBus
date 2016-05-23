@@ -54,6 +54,30 @@
             .Run();
         }
 
+        [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
+        [TestCase(TransportTransactionMode.TransactionScope)]
+        [TestCase(TransportTransactionMode.ReceiveOnly)]
+        [TestCase(TransportTransactionMode.None)]
+        public Task Should_log_exception(TransportTransactionMode transactionMode)
+        {
+            return Scenario.Define<Context>(c =>
+            {
+                c.Id = Guid.NewGuid();
+                c.TransactionMode = transactionMode;
+            })
+            .WithEndpoint<Endpoint>(b => b.DoNotFailOnErrorMessages()
+                .When((session, context) => session.SendLocal(new InitiatingMessage
+                {
+                    Id = context.Id
+                }))
+            )
+            .WithEndpoint<ErrorSpy>()
+            .Done(c => c.MessageMovedToErrorQueue)
+            .Repeat(r => r.For<AllDtcTransports>())
+            .Should(c => Assert.That(c.Logs, Has.Some.Message.Match("Moving message .+ to the error queue because processing failed due to an exception: NServiceBus.AcceptanceTesting.SimulatedException:")))
+            .Run();
+        }
+
         const string ErrorSpyQueueName = "error_spy_queue";
 
         class Context : ScenarioContext
