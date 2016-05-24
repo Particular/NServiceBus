@@ -48,7 +48,7 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.UnicastRouting().RouteToEndpoint(typeof(MyMessage), GetReceiverEndpoint());
-                    c.UnicastRouting().Mapping.Physical.Add(new EndpointName(GetReceiverEndpoint()), new EndpointInstance(GetReceiverEndpoint(), "XYZ"));
+                    c.UnicastRouting().Mapping.Physical.Add(new EndpointInstance(GetReceiverEndpoint(), "XYZ"));
                 });
             }
         }
