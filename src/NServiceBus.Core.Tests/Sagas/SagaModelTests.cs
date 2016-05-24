@@ -53,8 +53,8 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
             Assert.AreEqual(typeof(MySaga).FullName, metadata.Name);
 
             Assert.AreEqual(2, metadata.AssociatedMessages.Count());
-            Assert.AreEqual(1, metadata.AssociatedMessages.Count(am => am.MessageType == typeof(Message1).FullName && am.IsAllowedToStartSaga));
-            Assert.AreEqual(1, metadata.AssociatedMessages.Count(am => am.MessageType == typeof(Message2).FullName && !am.IsAllowedToStartSaga));
+            Assert.AreEqual(1, metadata.AssociatedMessages.Count(am => am.MessageTypeName == typeof(Message1).FullName && am.IsAllowedToStartSaga));
+            Assert.AreEqual(1, metadata.AssociatedMessages.Count(am => am.MessageTypeName == typeof(Message2).FullName && !am.IsAllowedToStartSaga));
 
             SagaMetadata.CorrelationPropertyMetadata correlatedProperty;
 
@@ -62,8 +62,8 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
             Assert.AreEqual("UniqueProperty", correlatedProperty.Name);
             
             Assert.AreEqual(2, metadata.Finders.Count());
-            Assert.AreEqual(1, metadata.Finders.Count(f => f.MessageType == typeof(Message1).FullName));
-            Assert.AreEqual(1, metadata.Finders.Count(f => f.MessageType == typeof(Message2).FullName));
+            Assert.AreEqual(1, metadata.Finders.Count(f => f.MessageType == typeof(Message1)));
+            Assert.AreEqual(1, metadata.Finders.Count(f => f.MessageType == typeof(Message2)));
         }
 
         [Test]

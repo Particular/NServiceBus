@@ -3,9 +3,9 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
     using System;
     using System.Threading.Tasks;
 
-    class SagaWithUniqueProperty : Saga<SagaWithUniquePropertyData>, IAmStartedByMessages<StartMessage>
+    class SagaWithUniqueProperty : Saga<SagaWithUniquePropertyData>, IAmStartedByMessages<M12>
     {
-        public Task Handle(StartMessage message, IMessageHandlerContext context)
+        public Task Handle(M12 message, IMessageHandlerContext context)
         {
             throw new NotImplementedException();
         }

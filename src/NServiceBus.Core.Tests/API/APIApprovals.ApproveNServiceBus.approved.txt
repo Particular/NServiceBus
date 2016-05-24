@@ -2463,16 +2463,16 @@ namespace NServiceBus.Sagas
     }
     public class SagaFinderDefinition
     {
-        public SagaFinderDefinition(System.Type type, string messageType, System.Collections.Generic.Dictionary<string, object> properties) { }
-        public string MessageType { get; }
+        public System.Type MessageType { get; }
+        public string MessageTypeName { get; }
         public System.Collections.Generic.Dictionary<string, object> Properties { get; }
         public System.Type Type { get; }
     }
     public class SagaMessage
     {
-        public SagaMessage(string messageType, bool isAllowedToStart) { }
         public bool IsAllowedToStartSaga { get; }
-        public string MessageType { get; }
+        public System.Type MessageType { get; }
+        public string MessageTypeName { get; }
     }
     public class SagaMetadata
     {
