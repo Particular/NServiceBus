@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
-    using System;
     using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.Routing;
@@ -10,11 +9,18 @@
     public class EndpointInstancesTests
     {
         [Test]
-        public void Should_throw_when_trying_to_configure_instances_that_do_not_match_endpoint_name()
+        public async Task Should_add_instances_grouped_by_endpoint_name()
         {
             var instances = new EndpointInstances();
-            TestDelegate action = () => instances.Add(new EndpointInstance(new EndpointName("Sales")), new EndpointInstance(new EndpointName("A")));
-            Assert.Throws<ArgumentException>(action);
+            var endpointName1 = new EndpointName("EndpointA");
+            var endpointName2 = new EndpointName("EndpointB");
+            instances.Add(new EndpointInstance(endpointName1), new EndpointInstance(endpointName2));
+
+            var salesInstances = await instances.FindInstances(endpointName1);
+            Assert.AreEqual(1, salesInstances.Count());
+
+            var otherInstances = await instances.FindInstances(endpointName2);
+            Assert.AreEqual(1, otherInstances.Count());
         }
 
         [Test]
