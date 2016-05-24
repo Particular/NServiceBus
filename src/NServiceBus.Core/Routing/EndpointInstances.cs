@@ -50,12 +50,11 @@ namespace NServiceBus.Routing
             {
                 throw new ArgumentException("The list of instances can't be empty.", nameof(instances));
             }
-            var endpoint = instances.First().Endpoint;
-            if (instances.Any(i => i.Endpoint != endpoint))
+            var endpointsByName = instances.GroupBy(i => i.Endpoint);
+            foreach (var instanceGroup in endpointsByName)
             {
-                throw new ArgumentException("The instances belong to different endpoints. The endpoint names do not match.", nameof(instances));
+                rules.Add(e => StaticRule(e, instanceGroup.Key, instanceGroup));
             }
-            rules.Add(e => StaticRule(e, endpoint, instances));
         }
 
         static Task<IEnumerable<EndpointInstance>> StaticRule(string endpointBeingQueried, string configuredEndpoint, IEnumerable<EndpointInstance> configuredInstances)
