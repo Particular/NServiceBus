@@ -23,7 +23,7 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
         /// <param name="eventType">Event type.</param>
         public void Add(string publisher, Type eventType)
         {
-            rules.Add(new Rule(type => StaticTypeRule(type, eventType, new PublisherAddress(new EndpointName(publisher))), $"{eventType.FullName} -> {publisher}"));
+            rules.Add(new Rule(type => StaticTypeRule(type, eventType, PublisherAddress.CreateFromEndpointName(publisher)), $"{eventType.FullName} -> {publisher}"));
         }
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
         /// <param name="eventType">Event type.</param>
         public void AddByAddress(string publisherAddress, Type eventType)
         {
-            rules.Add(new Rule(type => StaticTypeRule(type, eventType, new PublisherAddress(publisherAddress)), $"{eventType.FullName} -> {publisherAddress}"));
+            rules.Add(new Rule(type => StaticTypeRule(type, eventType, PublisherAddress.CreateFromPhysicalAddresses(publisherAddress)), $"{eventType.FullName} -> {publisherAddress}"));
         }
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
         /// <param name="eventNamespace">Optional namespace containing events.</param>
         public void Add(string publisher, Assembly eventAssembly, string eventNamespace = null)
         {
-            rules.Add(new Rule(type => StaticAssemblyRule(type, eventAssembly, eventNamespace, new PublisherAddress(new EndpointName(publisher))), $"{eventAssembly.GetName().Name}/{eventNamespace ?? "*"} -> {publisher}"));
+            rules.Add(new Rule(type => StaticAssemblyRule(type, eventAssembly, eventNamespace, PublisherAddress.CreateFromEndpointName(publisher)), $"{eventAssembly.GetName().Name}/{eventNamespace ?? "*"} -> {publisher}"));
         }
 
         static PublisherAddress StaticAssemblyRule(Type typeBeingQueried, Assembly configuredAssembly, string configuredNamespace, PublisherAddress configuredAddress)

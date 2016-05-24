@@ -47,12 +47,12 @@ namespace NServiceBus
 
         protected abstract Task<IEnumerable<IUnicastRoute>> GetDestinations(ContextBag contextBag, List<Type> typesToRoute);
 
-        Task<IEnumerable<EndpointInstance>> InstanceResolver(EndpointName endpoint)
+        Task<IEnumerable<EndpointInstance>> InstanceResolver(string endpoint)
         {
             return endpointInstances.FindInstances(endpoint);
         }
 
-        static IEnumerable<UnicastRoutingTarget> SelectDestinationsForEachEndpoint(DistributionStrategy distributionStrategy, IEnumerable<IGrouping<EndpointName, UnicastRoutingTarget>> destinationsByEndpoint)
+        static IEnumerable<UnicastRoutingTarget> SelectDestinationsForEachEndpoint(DistributionStrategy distributionStrategy, IEnumerable<IGrouping<string, UnicastRoutingTarget>> destinationsByEndpoint)
         {
             foreach (var group in destinationsByEndpoint)
             {

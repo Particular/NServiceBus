@@ -13,7 +13,7 @@
         {
             var strategy = new SingleInstanceRoundRobinDistributionStrategy();
 
-            var endpointName = new EndpointName("endpointA");
+            var endpointName = "endpointA";
             var instances = new[]
             {
                 UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointName, "1")),
@@ -37,7 +37,7 @@
         {
             var strategy = new SingleInstanceRoundRobinDistributionStrategy();
 
-            var endpointName = new EndpointName("endpointA");
+            var endpointName = "endpointA";
             var instances = new[]
             {
                 UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointName, "1")),
@@ -60,14 +60,14 @@
         {
             var strategy = new SingleInstanceRoundRobinDistributionStrategy();
 
-            var endpointA = new EndpointName("endpointA");
+            var endpointA = "endpointA";
             var endpointAInstances = new[]
             {
                 UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointA, "1")),
                 UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointA, "2")),
             };
 
-            var endpointB = new EndpointName("endpointB");
+            var endpointB = "endpointB";
             var endpointBInstances = new[]
             {
                 UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointB, "1")),
@@ -92,7 +92,7 @@
         {
             var strategy = new SingleInstanceRoundRobinDistributionStrategy();
 
-            var endpointName = new EndpointName("endpointA");
+            var endpointName = "endpointA";
             var instances = new List<UnicastRoutingTarget>
             {
                 UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointName, "1")),
@@ -116,7 +116,7 @@
         {
             var strategy = new SingleInstanceRoundRobinDistributionStrategy();
 
-            var endpointName = new EndpointName("endpointA");
+            var endpointName = "endpointA";
             var instances = new List<UnicastRoutingTarget>
             {
                 UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointName, "1")),

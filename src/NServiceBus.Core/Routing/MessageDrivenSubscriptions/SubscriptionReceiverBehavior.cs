@@ -5,7 +5,6 @@
     using System.Threading.Tasks;
     using Logging;
     using Pipeline;
-    using Routing;
     using Transports;
     using Unicast.Subscriptions;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
@@ -42,11 +41,11 @@
             }
 
             string subscriberAddress;
-            EndpointName subscriberEndpoint = null;
+            string subscriberEndpoint = null;
 
             if (incomingMessage.Headers.TryGetValue(Headers.SubscriberTransportAddress, out subscriberAddress))
             {
-                subscriberEndpoint = new EndpointName(incomingMessage.Headers[Headers.SubscriberEndpoint]);
+                subscriberEndpoint = incomingMessage.Headers[Headers.SubscriberEndpoint];
             }
             else
             {
