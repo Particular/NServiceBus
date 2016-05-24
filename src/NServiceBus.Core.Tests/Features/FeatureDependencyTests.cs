@@ -141,7 +141,7 @@
         {
             var order = new List<Feature>();
 
-           
+
             var level1 = new Level1
             {
                 OnActivation = f => order.Add(f)
