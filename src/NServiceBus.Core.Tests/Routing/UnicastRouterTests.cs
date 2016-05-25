@@ -28,7 +28,7 @@
             transportAddresses.AddRule(i => i.ToString());
 
             var routes = router.Route(typeof(Command), new SingleInstanceRoundRobinDistributionStrategy(), new ContextBag()).Result.ToArray();
-            
+
             Assert.AreEqual(1, routes.Length);
             var headers = new Dictionary<string, string>();
             var addressTag = (UnicastAddressTag) routes[0].Apply(headers);
@@ -109,6 +109,14 @@
             var routes = router.Route(typeof(Event), new TestDistributionStrategy(), new ContextBag()).Result.ToArray();
 
             Assert.AreEqual(1, routes.Length);
+        }
+
+        [Test]
+        public void Should_return_empty_list_when_no_routes_found()
+        {
+            var routes = router.Route(typeof(Event), new TestDistributionStrategy(), new ContextBag()).Result.ToArray();
+
+            Assert.IsEmpty(routes);
         }
 
         class TestDistributionStrategy : DistributionStrategy
