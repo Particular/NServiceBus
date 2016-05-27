@@ -19,7 +19,13 @@ namespace NServiceBus
 
         public override async Task ReceiveMessage(MessageQueue inputQueue, MessageQueue errorQueue, CancellationTokenSource cancellationTokenSource, Func<PushContext, Task> onMessage)
         {
-            Func<ErrorContext, Task<RecoveryAction>> onError = context => Task.FromResult(new RecoveryAction());
+            //this is given to us by the core
+            Func<ErrorContext, Task<FaultMetadata>> onError = context => Task.FromResult(new FaultMetadata());
+
+            //this is defaulted by the transport but users will be allowed to override using
+            // .UseTransport<MsmqTransport>().RetryPolicy(c=>{....})
+            Func<MsmqRecoveryContext, RecoveryAction> determineRecoveryAction = c=> new MsmqImmediateRetry();
+
 
             Dictionary<string, string> headers = null;
             Message message = null;
@@ -72,27 +78,27 @@ namespace NServiceBus
                 {
                     throw;
                 }
-                var numberOfRetries = GetNumberOfRetries(message.Id);
 
-                var context = new ErrorContext(ex,
-                    message.Id,
-                    headers ?? new Dictionary<string, string>(),
-                    numberOfRetries
-                    );
+                var context = new ErrorContext(ex, message.Id, headers ?? new Dictionary<string, string>());
 
-                var recoveryAction = await onError(context).ConfigureAwait(false);
+                //get the fault metadata from the core
+                var faultMetadata = await onError(context).ConfigureAwait(false);
 
-                AddToLRU(message.Id, recoveryAction);
+                var numberOfRetries = GetNumberOfRetriesFromLRU(message.Id);
+
+                var recoverabilityAction = determineRecoveryAction(new MsmqRecoveryContext(numberOfRetries));
+
+                AddToLRU(message.Id, faultMetadata, recoverabilityAction);
             }
         }
 
-        int GetNumberOfRetries(string messageId)
+        int GetNumberOfRetriesFromLRU(string messageId)
         {
             //get this from the LRU/headers etc
             return 0;
         }
 
-        void AddToLRU(string messageId, RecoveryAction recoveryAction)
+        void AddToLRU(string messageId, FaultMetadata faultContext, RecoveryAction recoverabilityAction)
         {
 
         }
@@ -109,28 +115,40 @@ namespace NServiceBus
         static ILog Logger = LogManager.GetLogger<ReceiveWithTransactionScope>();
     }
 
+    class MsmqRecoveryContext
+    {
+        public int NumberOfImmediateRetriesPerformedByThisEndpointInstance { get; }
+
+        public MsmqRecoveryContext(int numberOfImmediateRetriesPerformedByThisEndpointInstance)
+        {
+            NumberOfImmediateRetriesPerformedByThisEndpointInstance = numberOfImmediateRetriesPerformedByThisEndpointInstance;
+        }
+    }
+
+    class MsmqImmediateRetry : RecoveryAction
+    {
+    }
+
+    class RecoveryAction
+    {
+    }
+
     class ErrorContext
     {
         public Exception Exception { get; }
         public string MessageId { get; }
         public Dictionary<string, string> Headers { get; }
 
-        public  int NumberOfRetries{ get;  }
-
-        public ErrorContext(Exception exception, string messageId, Dictionary<string, string> headers, int numberOfRetries)
+        public ErrorContext(Exception exception, string messageId, Dictionary<string, string> headers)
         {
             Exception = exception;
             MessageId = messageId;
             Headers = headers;
-            NumberOfRetries = numberOfRetries;
         }
     }
 
-    class RecoveryAction
+    class FaultMetadata
     {
-        public bool ImmediateRetry { get; set; }
-        public bool DelayedRetry { get; set; }
-
-        public Dictionary<string,string> AdditionalFaultDetailStuff{ get; set; }
+        public Dictionary<string, string> Values { get; set; }
     }
 }
