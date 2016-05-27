@@ -24,7 +24,7 @@ namespace NServiceBus
 
             //this is defaulted by the transport but users will be allowed to override using
             // .UseTransport<MsmqTransport>().RetryPolicy(c=>{....})
-            Func<MsmqRecoveryContext, RecoveryAction> determineRecoveryAction = c=> new MsmqImmediateRetry();
+            Func<MsmqRecoveryContext, RecoveryAction> determineRecoveryAction = c => new MsmqImmediateRetry();
 
 
             Dictionary<string, string> headers = null;
@@ -42,20 +42,7 @@ namespace NServiceBus
                         return;
                     }
 
-                    try
-                    {
-                        headers = MsmqUtilities.ExtractHeaders(message);
-                    }
-                    catch (Exception ex)
-                    {
-                        var error = $"Message '{message.Id}' is corrupt and will be moved to '{errorQueue.QueueName}'";
-                        Logger.Error(error, ex);
-
-                        errorQueue.Send(message, MessageQueueTransactionType.Automatic);
-
-                        scope.Complete();
-                        return;
-                    }
+                    headers = MsmqUtilities.ExtractHeaders(message);
 
                     using (var bodyStream = message.BodyStream)
                     {
