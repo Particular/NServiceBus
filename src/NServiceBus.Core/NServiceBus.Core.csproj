@@ -294,7 +294,7 @@
     <Compile Include="DataBus\CustomIDataBus.cs" />
     <Compile Include="DataBus\DataBus.cs" />
     <Compile Include="DataBus\DataBusDefinition.cs" />
-    <Compile Include="DataBus\DataBusExtentions.cs" />
+    <Compile Include="DataBus\DataBusExtensions.cs" />
     <Compile Include="DataBus\FileShareDataBus.cs" />
     <Compile Include="DataBus\UseDataBusExtensions.cs" />
     <Compile Include="DelayedDelivery\DelayedDeliveryConstraint.cs" />
@@ -479,7 +479,7 @@
     <Compile Include="Features\FeatureConfigurationContext.cs" />
     <Compile Include="Features\EndpointConfigurationExtensions.cs" />
     <Compile Include="Features\FeatureStartupTask.cs" />
-    <Compile Include="Features\SettingsExtentions.cs" />
+    <Compile Include="Features\SettingsExtensions.cs" />
     <Compile Include="GitFlowVersion.cs" />
     <Compile Include="Headers.cs" />
     <Compile Include="Hosting\Helpers\Image.cs" />
@@ -496,7 +496,7 @@
     <Compile Include="Unicast\Transport\Config\InboundTransport.cs" />
     <Compile Include="Unicast\Transport\Config\OutboundTransport.cs" />
     <Compile Include="Persistence\EnabledPersistence.cs" />
-    <Compile Include="Persistence\PersistenceExtentions.cs" />
+    <Compile Include="Persistence\PersistenceExtensions.cs" />
     <Compile Include="Persistence\PersistenceStartup.cs" />
     <Compile Include="Persistence\PersistenceStorageMerger.cs" />
     <Compile Include="Persistence\StorageType.cs" />
@@ -516,10 +516,10 @@
     <Compile Include="Recoverability\SecondLevelRetries\DefaultSecondLevelRetryPolicy.cs" />
     <Compile Include="Serialization\SerializationConfigExtensions.cs" />
     <Compile Include="Serialization\SerializationDefinition.cs" />
-    <Compile Include="Serialization\SerializationExtentions.cs" />
+    <Compile Include="Serialization\SerializationExtensions.cs" />
     <Compile Include="Serializers\Json\JsonSerializer.cs" />
     <Compile Include="Serializers\XML\XmlSerializer.cs" />
-    <Compile Include="Serializers\XML\Config\XmlSerializationExtentions.cs" />
+    <Compile Include="Serializers\XML\Config\XmlSerializationExtensions.cs" />
     <Compile Include="Serializers\XML\XmlDeserialization.cs" />
     <Compile Include="Serializers\XML\XmlSerializerCache.cs" />
     <Compile Include="Performance\MessageDurability\DurableMessagesConfig.cs" />
@@ -604,9 +604,9 @@
     <Compile Include="Sagas\SagaT.cs" />
     <Compile Include="Sagas\ToSagaExpression.cs" />
     <Compile Include="Serialization\IMessageSerializer.cs" />
-    <Compile Include="SettingsExtentions.cs" />
+    <Compile Include="SettingsExtensions.cs" />
     <Compile Include="Settings\ReadOnlySettings.cs" />
-    <Compile Include="Settings\ScaleOutExtentions.cs" />
+    <Compile Include="Settings\ScaleOutExtensions.cs" />
     <Compile Include="Support\RuntimeEnvironment.cs" />
     <Compile Include="Performance\TimeToBeReceived\TimeToBeReceivedAttribute.cs" />
     <Compile Include="Transports\Receiving.cs" />
@@ -725,7 +725,7 @@
       <DependentUpon>LicenseExpiredForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Unicast\BuilderExtensions.cs" />
-    <Compile Include="Unicast\Config\LoadMessageHandlersExtentions.cs" />
+    <Compile Include="Unicast\Config\LoadMessageHandlersExtensions.cs" />
     <Compile Include="Unicast\MessagesEventArgs.cs" />
     <Compile Include="Unicast\MessageEventArgs.cs" />
     <Compile Include="Unicast\Messages\MessageMetadataRegistry.cs" />

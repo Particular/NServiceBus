@@ -12,11 +12,11 @@
         /// Configures NServiceBus to use the given data bus definition.
         /// </summary>
         /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
-        public static DataBusExtentions<T> UseDataBus<T>(this EndpointConfiguration config) where T : DataBusDefinition, new()
+        public static DataBusExtensions<T> UseDataBus<T>(this EndpointConfiguration config) where T : DataBusDefinition, new()
         {
             Guard.AgainstNull(nameof(config), config);
-            var type = typeof(DataBusExtentions<>).MakeGenericType(typeof(T));
-            var extension = (DataBusExtentions<T>) Activator.CreateInstance(type, config.Settings);
+            var type = typeof(DataBusExtensions<>).MakeGenericType(typeof(T));
+            var extension = (DataBusExtensions<T>) Activator.CreateInstance(type, config.Settings);
             var definition = (DataBusDefinition) Activator.CreateInstance(typeof(T));
 
             config.Settings.Set("SelectedDataBus", definition);
@@ -31,7 +31,7 @@
         /// </summary>
         /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
         /// <param name="dataBusType">The <see cref="IDataBus" /> <see cref="Type" /> to use.</param>
-        public static DataBusExtentions UseDataBus(this EndpointConfiguration config, Type dataBusType)
+        public static DataBusExtensions UseDataBus(this EndpointConfiguration config, Type dataBusType)
         {
             Guard.AgainstNull(nameof(config), config);
             Guard.AgainstNull(nameof(dataBusType), dataBusType);
@@ -46,7 +46,7 @@
 
             config.EnableFeature<Features.DataBus>();
 
-            return new DataBusExtentions(config.Settings);
+            return new DataBusExtensions(config.Settings);
         }
     }
 }

@@ -13,7 +13,7 @@ namespace NServiceBus
         /// <param name="config">The configuration object.</param>
         /// <param name="basePath">The location to which to write/read serialized properties for the databus.</param>
         /// <returns>The configuration.</returns>
-        public static DataBusExtentions<FileShareDataBus> BasePath(this DataBusExtentions<FileShareDataBus> config, string basePath)
+        public static DataBusExtensions<FileShareDataBus> BasePath(this DataBusExtensions<FileShareDataBus> config, string basePath)
         {
             Guard.AgainstNull(nameof(config), config);
             Guard.AgainstNullAndEmpty(nameof(basePath), basePath);
