@@ -5,7 +5,7 @@
     /// <summary>
     /// Custom extensions for the <see cref="XmlSerializer" /> serializer.
     /// </summary>
-    public static class XmlSerializationExtensions
+    public static partial class XmlSerializationExtensions
     {
         /// <summary>
         /// Tells the serializer to not wrap properties which have either XDocument or XElement with a "PropertyName" element.

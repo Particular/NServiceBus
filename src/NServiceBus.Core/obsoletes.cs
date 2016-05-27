@@ -35,6 +35,8 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Reflection;
+    using System.Text;
+    using DataBus;
     using ObjectBuilder;
 
     public static partial class ConfigureCriticalErrorAction
@@ -355,6 +357,116 @@ namespace NServiceBus
         TreatAsErrorFromVersion = "6.0")]
     public interface IWantToRunWhenBusStartsAndStops
     {
+    }
+
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        ReplacementTypeOrMember = "PersistenceExtensions<T, S>")]
+    public class PersistenceExtentions<T, S>
+    {
+    }
+
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        ReplacementTypeOrMember = "PersistenceExtensions<T>")]
+    public class PersistenceExtentions<T>
+    {
+    }
+
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        ReplacementTypeOrMember = "PersistenceExtensions")]
+    public class PersistenceExtentions
+    {
+    }
+
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        ReplacementTypeOrMember = "SerializationExtensions<T>")]
+    public class SerializationExtentions<T>
+    {
+    }
+
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        ReplacementTypeOrMember = "ScaleOutExtensions")]
+    public static class ScaleOutExtentions
+    {
+    }
+
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        ReplacementTypeOrMember = "SettingsExtensions")]
+    public static class SettingsExtentions
+    {
+    }
+
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        ReplacementTypeOrMember = "LoadMessageHandlersExtensions")]
+    public static class LoadMessageHandlersExtentions
+    {
+    }
+
+    public static partial class ConfigureFileShareDataBus
+    {
+        [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        ReplacementTypeOrMember = "BasePath(this DataBusExtensions<FileShareDataBus> config, string basePath)")]
+        public static DataBusExtentions<FileShareDataBus> BasePath(this DataBusExtentions<FileShareDataBus> config, string basePath)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public static partial class JsonSerializerConfigurationExtensions
+    {
+        [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        ReplacementTypeOrMember = "Encoding(this SerializationExtensions<JsonSerializer> config, Encoding encoding)")]
+        public static void Encoding(this SerializationExtentions<JsonSerializer> config, Encoding encoding)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public static partial class XmlSerializationExtensions
+    {
+        [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        ReplacementTypeOrMember = "DontWrapRawXml(this SerializationExtensions<XmlSerializer> config)")]
+        public static SerializationExtentions<XmlSerializer> DontWrapRawXml(this SerializationExtentions<XmlSerializer> config)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        ReplacementTypeOrMember = "Namespace(this SerializationExtensions<XmlSerializer> config, string namespaceToUse)")]
+        public static SerializationExtentions<XmlSerializer> Namespace(this SerializationExtentions<XmlSerializer> config, string namespaceToUse)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        ReplacementTypeOrMember = "SanitizeInput(this SerializationExtensions<XmlSerializer> config)")]
+        public static SerializationExtentions<XmlSerializer> SanitizeInput(this SerializationExtentions<XmlSerializer> config)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
 
@@ -1697,7 +1809,7 @@ namespace NServiceBus.Settings
             TreatAsErrorFromVersion = "6.0",
             Message =
                 @"DoNotWrapHandlersExecutionInATransactionScope() has been removed since transaction scopes are no longer used by non DTC transports delay the dispatch of all outgoing operations until handlers have been executed.
-In Version 6 handlers will only be wrapped in a transactionscope if running the MSMQ or SQLServer transports in default mode. This means that performing storage operations against data sources also supporting transaction scopes 
+In Version 6 handlers will only be wrapped in a transactionscope if running the MSMQ or SQLServer transports in default mode. This means that performing storage operations against data sources also supporting transaction scopes
 will escalate to a distributed transaction. Previous versions allowed opting out of this behavior using config.Transactions().DoNotWrapHandlersExecutionInATransactionScope(). In Version 6 it's recommended to use `EndpointConfiguration.UseTransport<MyTransport>().Transactions(TransportTransactionMode.ReceiveOnly)` to lean on native transport transaction and the new batched dispatch support to achieve the same level of consistency with better performance.
 Suppressing the ambient transaction created by the MSMQ and SQL Server transports can still be achieved by creating a custom pipeline behavior with a suppressed transaction scope.")]
         public TransactionSettings DoNotWrapHandlersExecutionInATransactionScope()
@@ -1975,6 +2087,25 @@ namespace NServiceBus.Settings
         {
             throw new NotImplementedException();
         }
+    }
+}
+
+namespace NServiceBus.DataBus
+{
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        ReplacementTypeOrMember = "DataBusExtensions<T>")]
+    public class DataBusExtentions<T>
+    {
+    }
+
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        ReplacementTypeOrMember = "DataBusExtensions")]
+    public class DataBusExtentions
+    {
     }
 }
 
