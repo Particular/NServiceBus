@@ -46,11 +46,6 @@
             });
         }
 
-        static void AppendException(Exception exception)
-        {
-            context?.LoggedExceptions.Enqueue(exception);
-        }
-
         public void Debug(string message)
         {
             //we don't care about debug logs
@@ -58,7 +53,7 @@
 
         public void Debug(string message, Exception exception)
         {
-            AppendException(exception);
+            //we don't care about debug logs
         }
 
         public void DebugFormat(string format, params object[] args)
@@ -77,7 +72,6 @@
         {
             var fullMessage = $"{message} {exception}";
             Trace.WriteLine(fullMessage);
-            AppendException(exception);
             RecordLog(fullMessage, "info");
         }
 
@@ -98,7 +92,6 @@
         {
             var fullMessage = $"{message} {exception}";
             Trace.WriteLine(fullMessage);
-            AppendException(exception);
             RecordLog(fullMessage, "warn");
         }
 
@@ -120,7 +113,6 @@
         {
             var fullMessage = $"{message} {exception}";
             Trace.WriteLine(fullMessage);
-            AppendException(exception);
             RecordLog(fullMessage, "error");
         }
 
@@ -142,7 +134,6 @@
         {
             var fullMessage = $"{message} {exception}";
             Trace.WriteLine(fullMessage);
-            AppendException(exception);
             RecordLog(fullMessage, "fatal");
         }
 
