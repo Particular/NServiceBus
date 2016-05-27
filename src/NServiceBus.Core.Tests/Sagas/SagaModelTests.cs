@@ -60,7 +60,7 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
 
             Assert.True(metadata.TryGetCorrelationProperty(out correlatedProperty));
             Assert.AreEqual("UniqueProperty", correlatedProperty.Name);
-            
+
             Assert.AreEqual(2, metadata.Finders.Count());
             Assert.AreEqual(1, metadata.Finders.Count(f => f.MessageType == typeof(Message1)));
             Assert.AreEqual(1, metadata.Finders.Count(f => f.MessageType == typeof(Message2)));
@@ -69,9 +69,9 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
         [Test]
         public void FilterOutNonSagaTypes()
         {
-            var model = GetModel(typeof(MySaga), typeof(string));
+            var model = GetModel(typeof(MySaga), typeof(string), typeof(AbstractSaga)).ToList();
 
-            Assert.AreEqual(1, model.Count());
+            Assert.That(model, Has.Exactly(1).Matches<SagaMetadata>(x => x.SagaType == typeof(MySaga)));
         }
 
         class MySaga : Saga<MySaga.MyEntity>, IAmStartedByMessages<Message1>, IHandleMessages<Message2>
@@ -95,6 +95,15 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
             public class MyEntity : ContainSagaData
             {
                 public int UniqueProperty { get; set; }
+            }
+        }
+
+        abstract class AbstractSaga : Saga<MySaga.MyEntity>, IAmStartedByMessages<Message1>
+        {
+            public abstract Task Handle(Message1 message, IMessageHandlerContext context);
+
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySaga.MyEntity> mapper)
+            {
             }
         }
 
