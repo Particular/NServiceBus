@@ -36,12 +36,15 @@
             Assert.AreNotEqual("string to encrypt", encryptedValue.EncryptedBase64Value);
 
             var encryptionKey2 = Encoding.ASCII.GetBytes("vznkynwuvateefgduvsqjsufqfrrfcya");
-            var expiredKeys = new List<byte[]>
+            var keys = new Dictionary<string, byte[]>
             {
-                encryptionKey2,
-                encryptionKey1
+                {"encryptionKey2", encryptionKey2},
+                {"encryptionKey1", encryptionKey1}
             };
-            var service2 = new TestableRijndaelEncryptionService("encryptionKey1", encryptionKey2, expiredKeys);
+            var service2 = new TestableRijndaelEncryptionService("encryptionKey2", keys)
+            {
+                IncomingKeyIdentifier = "encryptionKey1"
+            };
 
             var decryptedValue = service2.Decrypt(encryptedValue, null);
             Assert.AreEqual("string to encrypt", decryptedValue);
@@ -189,6 +192,13 @@
                 {
                     {encryptionKeyIdentifier, encryptionKey}
                 }, decryptionKeys)
+            {
+            }
+
+            public TestableRijndaelEncryptionService(
+                string encryptionKeyIdentifier,
+                IDictionary<string, byte[]> keys)
+                : base(encryptionKeyIdentifier, keys, new List<byte[]>())
             {
             }
 
