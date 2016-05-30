@@ -105,7 +105,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
 
         internal static bool IsSagaType(Type t)
         {
-            return typeof(Saga).IsAssignableFrom(t) && t != typeof(Saga) && !t.IsGenericType;
+            return typeof(Saga).IsAssignableFrom(t) && t != typeof(Saga) && !t.IsGenericType && !t.IsAbstract;
         }
 
         /// <summary>
