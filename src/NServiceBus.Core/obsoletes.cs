@@ -686,7 +686,7 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
-            Message = "Headers can be set using the ``.SetHeader` method on the context object passed into the behavior or mutator")]
+            Message = @"Use the overload of the Send, Publish or Reply method that accepts an options parameter. Call options.SetHeader(""MyHeader"",""MyValue"") instead.")]
         public static void SetMessageHeader(this IBus bus, object msg, string key, string value)
         {
             throw new NotImplementedException();
@@ -1697,7 +1697,7 @@ namespace NServiceBus.Settings
             TreatAsErrorFromVersion = "6.0",
             Message =
                 @"DoNotWrapHandlersExecutionInATransactionScope() has been removed since transaction scopes are no longer used by non DTC transports delay the dispatch of all outgoing operations until handlers have been executed.
-In Version 6 handlers will only be wrapped in a transactionscope if running the MSMQ or SQLServer transports in default mode. This means that performing storage operations against data sources also supporting transaction scopes 
+In Version 6 handlers will only be wrapped in a transactionscope if running the MSMQ or SQLServer transports in default mode. This means that performing storage operations against data sources also supporting transaction scopes
 will escalate to a distributed transaction. Previous versions allowed opting out of this behavior using config.Transactions().DoNotWrapHandlersExecutionInATransactionScope(). In Version 6 it's recommended to use `EndpointConfiguration.UseTransport<MyTransport>().Transactions(TransportTransactionMode.ReceiveOnly)` to lean on native transport transaction and the new batched dispatch support to achieve the same level of consistency with better performance.
 Suppressing the ambient transaction created by the MSMQ and SQL Server transports can still be achieved by creating a custom pipeline behavior with a suppressed transaction scope.")]
         public TransactionSettings DoNotWrapHandlersExecutionInATransactionScope()
