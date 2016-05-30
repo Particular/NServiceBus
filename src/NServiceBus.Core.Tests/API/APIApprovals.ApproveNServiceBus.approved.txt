@@ -103,6 +103,10 @@ namespace NServiceBus
     }
     public class static ConfigureFileShareDataBus
     {
+        public static NServiceBus.DataBus.DataBusExtensions<NServiceBus.FileShareDataBus> BasePath(this NServiceBus.DataBus.DataBusExtensions<NServiceBus.FileShareDataBus> config, string basePath) { }
+        [System.ObsoleteAttribute("Use `BasePath(this DataBusExtensions<FileShareDataBus> config, string basePath)` " +
+            "instead. The member currently throws a NotImplementedException. Will be removed " +
+            "in version 7.0.0.", true)]
         public static NServiceBus.DataBus.DataBusExtentions<NServiceBus.FileShareDataBus> BasePath(this NServiceBus.DataBus.DataBusExtentions<NServiceBus.FileShareDataBus> config, string basePath) { }
     }
     public class static ConfigureForwarding
@@ -682,9 +686,13 @@ namespace NServiceBus
     }
     public class static JsonSerializerConfigurationExtensions
     {
-        public static void Encoding(this NServiceBus.Serialization.SerializationExtentions<NServiceBus.JsonSerializer> config, System.Text.Encoding encoding) { }
+        public static void Encoding(this NServiceBus.Serialization.SerializationExtensions<NServiceBus.JsonSerializer> config, System.Text.Encoding encoding) { }
+        [System.ObsoleteAttribute("Use `Encoding(this SerializationExtensions<JsonSerializer> config, Encoding encod" +
+            "ing)` instead. The member currently throws a NotImplementedException. Will be re" +
+            "moved in version 7.0.0.", true)]
+        public static void Encoding(this NServiceBus.SerializationExtentions<NServiceBus.JsonSerializer> config, System.Text.Encoding encoding) { }
     }
-    public class static LoadMessageHandlersExtentions
+    public class static LoadMessageHandlersExtensions
     {
         public static void ExecuteTheseHandlersFirst(this NServiceBus.EndpointConfiguration config, System.Collections.Generic.IEnumerable<System.Type> handlerTypes) { }
         public static void ExecuteTheseHandlersFirst(this NServiceBus.EndpointConfiguration config, params System.Type[] handlerTypes) { }
@@ -695,6 +703,8 @@ namespace NServiceBus
             "ntedException. Will be removed in version 7.0.0.", true)]
         public static void LoadMessageHandlers<T>(this NServiceBus.EndpointConfiguration config, NServiceBus.First<T> order) { }
     }
+    [System.ObsoleteAttribute("Use `LoadMessageHandlersExtensions` instead. Will be removed in version 7.0.0.", true)]
+    public class static LoadMessageHandlersExtentions { }
     public sealed class LogicalAddress
     {
         public LogicalAddress(NServiceBus.Routing.EndpointInstance endpointInstance, [JetBrains.Annotations.NotNullAttribute()] string qualifier) { }
@@ -778,32 +788,47 @@ namespace NServiceBus
     }
     public class static PersistenceConfig
     {
-        public static NServiceBus.PersistenceExtentions<T> UsePersistence<T>(this NServiceBus.EndpointConfiguration config)
+        public static NServiceBus.PersistenceExtensions<T> UsePersistence<T>(this NServiceBus.EndpointConfiguration config)
             where T : NServiceBus.Persistence.PersistenceDefinition { }
-        public static NServiceBus.PersistenceExtentions<T, S> UsePersistence<T, S>(this NServiceBus.EndpointConfiguration config)
+        public static NServiceBus.PersistenceExtensions<T, S> UsePersistence<T, S>(this NServiceBus.EndpointConfiguration config)
             where T : NServiceBus.Persistence.PersistenceDefinition
             where S : NServiceBus.Persistence.StorageType { }
-        public static NServiceBus.PersistenceExtentions UsePersistence(this NServiceBus.EndpointConfiguration config, System.Type definitionType) { }
+        public static NServiceBus.PersistenceExtensions UsePersistence(this NServiceBus.EndpointConfiguration config, System.Type definitionType) { }
     }
-    public class PersistenceExtentions : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
+    public class PersistenceExtensions : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
-        public PersistenceExtentions(System.Type definitionType, NServiceBus.Settings.SettingsHolder settings, System.Type storageType) { }
+        public PersistenceExtensions(System.Type definitionType, NServiceBus.Settings.SettingsHolder settings, System.Type storageType) { }
         [System.ObsoleteAttribute("Use `UsePersistence<T, S>()` instead. Will be removed in version 7.0.0.", true)]
-        public NServiceBus.PersistenceExtentions For(params NServiceBus.Persistence.Storage[] specificStorages) { }
+        public NServiceBus.PersistenceExtensions For(params NServiceBus.Persistence.Storage[] specificStorages) { }
     }
-    public class PersistenceExtentions<T> : NServiceBus.PersistenceExtentions
+    public class PersistenceExtensions<T> : NServiceBus.PersistenceExtensions
         where T : NServiceBus.Persistence.PersistenceDefinition
     {
-        public PersistenceExtentions(NServiceBus.Settings.SettingsHolder settings) { }
-        protected PersistenceExtentions(NServiceBus.Settings.SettingsHolder settings, System.Type storageType) { }
+        public PersistenceExtensions(NServiceBus.Settings.SettingsHolder settings) { }
+        protected PersistenceExtensions(NServiceBus.Settings.SettingsHolder settings, System.Type storageType) { }
         [System.ObsoleteAttribute("Use `UsePersistence<T, S>()` instead. Will be removed in version 7.0.0.", true)]
-        public NServiceBus.PersistenceExtentions<T> For(params NServiceBus.Persistence.Storage[] specificStorages) { }
+        public NServiceBus.PersistenceExtensions<T> For(params NServiceBus.Persistence.Storage[] specificStorages) { }
     }
-    public class PersistenceExtentions<T, S> : NServiceBus.PersistenceExtentions<T>
+    public class PersistenceExtensions<T, S> : NServiceBus.PersistenceExtensions<T>
         where T : NServiceBus.Persistence.PersistenceDefinition
         where S : NServiceBus.Persistence.StorageType
     {
-        public PersistenceExtentions(NServiceBus.Settings.SettingsHolder settings) { }
+        public PersistenceExtensions(NServiceBus.Settings.SettingsHolder settings) { }
+    }
+    [System.ObsoleteAttribute("Use `PersistenceExtensions` instead. Will be removed in version 7.0.0.", true)]
+    public class PersistenceExtentions
+    {
+        public PersistenceExtentions() { }
+    }
+    [System.ObsoleteAttribute("Use `PersistenceExtensions<T>` instead. Will be removed in version 7.0.0.", true)]
+    public class PersistenceExtentions<T>
+    {
+        public PersistenceExtentions() { }
+    }
+    [System.ObsoleteAttribute("Use `PersistenceExtensions<T, S>` instead. Will be removed in version 7.0.0.", true)]
+    public class PersistenceExtentions<T, S>
+    {
+        public PersistenceExtentions() { }
     }
     [System.ObsoleteAttribute("For performance reasons it is no longer possible to instrument the pipeline execu" +
         "tion. Will be removed in version 7.0.0.", true)]
@@ -913,10 +938,12 @@ namespace NServiceBus
     {
         public NServiceBus.ToSagaExpression<TSagaData, TMessage> ConfigureMapping<TMessage>(System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty) { }
     }
-    public class static ScaleOutExtentions
+    public class static ScaleOutExtensions
     {
         public static NServiceBus.Settings.ScaleOutSettings ScaleOut(this NServiceBus.EndpointConfiguration config) { }
     }
+    [System.ObsoleteAttribute("Use `ScaleOutExtensions` instead. Will be removed in version 7.0.0.", true)]
+    public class static ScaleOutExtentions { }
     [System.ObsoleteAttribute("Use extension methods provided on ISendOnlyBus. Will be removed in version 7.0.0." +
         "", true)]
     public class Schedule
@@ -948,9 +975,9 @@ namespace NServiceBus
     {
         public static void AddDeserializer<T>(this NServiceBus.EndpointConfiguration config)
             where T : NServiceBus.Serialization.SerializationDefinition, new () { }
-        public static NServiceBus.Serialization.SerializationExtentions<T> UseSerialization<T>(this NServiceBus.EndpointConfiguration config)
+        public static NServiceBus.Serialization.SerializationExtensions<T> UseSerialization<T>(this NServiceBus.EndpointConfiguration config)
             where T : NServiceBus.Serialization.SerializationDefinition, new () { }
-        public static NServiceBus.Serialization.SerializationExtentions<T> UseSerialization<T>(this NServiceBus.EndpointConfiguration config, T serializationDefinition)
+        public static NServiceBus.Serialization.SerializationExtensions<T> UseSerialization<T>(this NServiceBus.EndpointConfiguration config, T serializationDefinition)
             where T : NServiceBus.Serialization.SerializationDefinition { }
         [System.ObsoleteAttribute("To use a custom serializer derive from SerializationDefinition and provide a fact" +
             "ory method for creating the serializer instance. The member currently throws a N" +
@@ -962,7 +989,12 @@ namespace NServiceBus
         public static bool ShouldSkipSerialization(this NServiceBus.Pipeline.IOutgoingLogicalMessageContext context) { }
         public static void SkipSerialization(this NServiceBus.Pipeline.IOutgoingLogicalMessageContext context) { }
     }
-    public class static SettingsExtentions
+    [System.ObsoleteAttribute("Use `SerializationExtensions<T>` instead. Will be removed in version 7.0.0.", true)]
+    public class SerializationExtentions<T>
+    {
+        public SerializationExtentions() { }
+    }
+    public class static SettingsExtensions
     {
         public static NServiceBus.Routing.EndpointInstance EndpointInstanceName(this NServiceBus.Settings.ReadOnlySettings settings) { }
         public static NServiceBus.Routing.EndpointName EndpointName(this NServiceBus.Settings.ReadOnlySettings settings) { }
@@ -972,6 +1004,8 @@ namespace NServiceBus
         public static string InstanceSpecificQueue(this NServiceBus.Settings.ReadOnlySettings settings) { }
         public static string LocalAddress(this NServiceBus.Settings.ReadOnlySettings settings) { }
     }
+    [System.ObsoleteAttribute("Use `SettingsExtensions` instead. Will be removed in version 7.0.0.", true)]
+    public class static SettingsExtentions { }
     public class static SLAMonitoringConfig
     {
         public static void EnableSLAPerformanceCounter(this NServiceBus.EndpointConfiguration config, System.TimeSpan sla) { }
@@ -1090,9 +1124,9 @@ namespace NServiceBus
     }
     public class static UseDataBusExtensions
     {
-        public static NServiceBus.DataBus.DataBusExtentions<T> UseDataBus<T>(this NServiceBus.EndpointConfiguration config)
+        public static NServiceBus.DataBus.DataBusExtensions<T> UseDataBus<T>(this NServiceBus.EndpointConfiguration config)
             where T : NServiceBus.DataBus.DataBusDefinition, new () { }
-        public static NServiceBus.DataBus.DataBusExtentions UseDataBus(this NServiceBus.EndpointConfiguration config, System.Type dataBusType) { }
+        public static NServiceBus.DataBus.DataBusExtensions UseDataBus(this NServiceBus.EndpointConfiguration config, System.Type dataBusType) { }
     }
     public class static UseTransportExtensions
     {
@@ -1112,11 +1146,23 @@ namespace NServiceBus
         public string Value { get; set; }
         public void GetObjectData(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
     }
-    public class static XmlSerializationExtentions
+    public class static XmlSerializationExtensions
     {
-        public static NServiceBus.Serialization.SerializationExtentions<NServiceBus.XmlSerializer> DontWrapRawXml(this NServiceBus.Serialization.SerializationExtentions<NServiceBus.XmlSerializer> config) { }
-        public static NServiceBus.Serialization.SerializationExtentions<NServiceBus.XmlSerializer> Namespace(this NServiceBus.Serialization.SerializationExtentions<NServiceBus.XmlSerializer> config, string namespaceToUse) { }
-        public static NServiceBus.Serialization.SerializationExtentions<NServiceBus.XmlSerializer> SanitizeInput(this NServiceBus.Serialization.SerializationExtentions<NServiceBus.XmlSerializer> config) { }
+        public static NServiceBus.Serialization.SerializationExtensions<NServiceBus.XmlSerializer> DontWrapRawXml(this NServiceBus.Serialization.SerializationExtensions<NServiceBus.XmlSerializer> config) { }
+        [System.ObsoleteAttribute("Use `DontWrapRawXml(this SerializationExtensions<XmlSerializer> config)` instead." +
+            " The member currently throws a NotImplementedException. Will be removed in versi" +
+            "on 7.0.0.", true)]
+        public static NServiceBus.SerializationExtentions<NServiceBus.XmlSerializer> DontWrapRawXml(this NServiceBus.SerializationExtentions<NServiceBus.XmlSerializer> config) { }
+        public static NServiceBus.Serialization.SerializationExtensions<NServiceBus.XmlSerializer> Namespace(this NServiceBus.Serialization.SerializationExtensions<NServiceBus.XmlSerializer> config, string namespaceToUse) { }
+        [System.ObsoleteAttribute("Use `Namespace(this SerializationExtensions<XmlSerializer> config, string namespa" +
+            "ceToUse)` instead. The member currently throws a NotImplementedException. Will b" +
+            "e removed in version 7.0.0.", true)]
+        public static NServiceBus.SerializationExtentions<NServiceBus.XmlSerializer> Namespace(this NServiceBus.SerializationExtentions<NServiceBus.XmlSerializer> config, string namespaceToUse) { }
+        public static NServiceBus.Serialization.SerializationExtensions<NServiceBus.XmlSerializer> SanitizeInput(this NServiceBus.Serialization.SerializationExtensions<NServiceBus.XmlSerializer> config) { }
+        [System.ObsoleteAttribute("Use `SanitizeInput(this SerializationExtensions<XmlSerializer> config)` instead. " +
+            "The member currently throws a NotImplementedException. Will be removed in versio" +
+            "n 7.0.0.", true)]
+        public static NServiceBus.SerializationExtentions<NServiceBus.XmlSerializer> SanitizeInput(this NServiceBus.SerializationExtentions<NServiceBus.XmlSerializer> config) { }
     }
     public class XmlSerializer : NServiceBus.Serialization.SerializationDefinition
     {
@@ -1357,14 +1403,24 @@ namespace NServiceBus.DataBus
         protected DataBusDefinition() { }
         protected internal abstract System.Type ProvidedByFeature();
     }
-    public class DataBusExtentions : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
+    public class DataBusExtensions : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
-        public DataBusExtentions(NServiceBus.Settings.SettingsHolder settings) { }
+        public DataBusExtensions(NServiceBus.Settings.SettingsHolder settings) { }
     }
-    public class DataBusExtentions<T> : NServiceBus.DataBus.DataBusExtentions
+    public class DataBusExtensions<T> : NServiceBus.DataBus.DataBusExtensions
         where T : NServiceBus.DataBus.DataBusDefinition
     {
-        public DataBusExtentions(NServiceBus.Settings.SettingsHolder settings) { }
+        public DataBusExtensions(NServiceBus.Settings.SettingsHolder settings) { }
+    }
+    [System.ObsoleteAttribute("Use `DataBusExtensions` instead. Will be removed in version 7.0.0.", true)]
+    public class DataBusExtentions
+    {
+        public DataBusExtentions() { }
+    }
+    [System.ObsoleteAttribute("Use `DataBusExtensions<T>` instead. Will be removed in version 7.0.0.", true)]
+    public class DataBusExtentions<T>
+    {
+        public DataBusExtentions() { }
     }
     public interface IDataBus
     {
@@ -1629,7 +1685,7 @@ namespace NServiceBus.Features
     [System.ObsoleteAttribute("Use the ConfigureSerialization Feature class instead. Use `ConfigureSerialization" +
         "` instead. Will be removed in version 7.0.0.", true)]
     public class static SerializationFeatureHelper { }
-    public class static SettingsExtentions
+    public class static SettingsExtensions
     {
         public static NServiceBus.Settings.SettingsHolder EnableFeatureByDefault<T>(this NServiceBus.Settings.SettingsHolder settings)
             where T : NServiceBus.Features.Feature { }
@@ -2561,10 +2617,10 @@ namespace NServiceBus.Serialization
         protected SerializationDefinition() { }
         public abstract System.Func<NServiceBus.MessageInterfaces.IMessageMapper, NServiceBus.Serialization.IMessageSerializer> Configure(NServiceBus.Settings.ReadOnlySettings settings);
     }
-    public class SerializationExtentions<T> : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
+    public class SerializationExtensions<T> : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
         where T : NServiceBus.Serialization.SerializationDefinition
     {
-        public SerializationExtentions(NServiceBus.Settings.SettingsHolder settings) { }
+        public SerializationExtensions(NServiceBus.Settings.SettingsHolder settings) { }
     }
 }
 namespace NServiceBus.Serializers.Json
@@ -2680,7 +2736,7 @@ namespace NServiceBus.Settings
             "eiveOnly|TransportTransactionMode.SendsAtomicWithReceive);` instead. The member " +
             "currently throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
         public NServiceBus.Settings.TransactionSettings DisableDistributedTransactions() { }
-        [System.ObsoleteAttribute(@"DoNotWrapHandlersExecutionInATransactionScope() has been removed since transaction scopes are no longer used by non DTC transports delay the dispatch of all outgoing operations until handlers have been executed.\r\nIn Version 6 handlers will only be wrapped in a transactionscope if running the MSMQ or SQLServer transports in default mode. This means that performing storage operations against data sources also supporting transaction scopes \r\nwill escalate to a distributed transaction. Previous versions allowed opting out of this behavior using config.Transactions().DoNotWrapHandlersExecutionInATransactionScope(). In Version 6 it's recommended to use `EndpointConfiguration.UseTransport<MyTransport>().Transactions(TransportTransactionMode.ReceiveOnly)` to lean on native transport transaction and the new batched dispatch support to achieve the same level of consistency with better performance.\r\nSuppressing the ambient transaction created by the MSMQ and SQL Server transports can still be achieved by creating a custom pipeline behavior with a suppressed transaction scope. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute(@"DoNotWrapHandlersExecutionInATransactionScope() has been removed since transaction scopes are no longer used by non DTC transports delay the dispatch of all outgoing operations until handlers have been executed.\r\nIn Version 6 handlers will only be wrapped in a transactionscope if running the MSMQ or SQLServer transports in default mode. This means that performing storage operations against data sources also supporting transaction scopes\r\nwill escalate to a distributed transaction. Previous versions allowed opting out of this behavior using config.Transactions().DoNotWrapHandlersExecutionInATransactionScope(). In Version 6 it's recommended to use `EndpointConfiguration.UseTransport<MyTransport>().Transactions(TransportTransactionMode.ReceiveOnly)` to lean on native transport transaction and the new batched dispatch support to achieve the same level of consistency with better performance.\r\nSuppressing the ambient transaction created by the MSMQ and SQL Server transports can still be achieved by creating a custom pipeline behavior with a suppressed transaction scope. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
         public NServiceBus.Settings.TransactionSettings DoNotWrapHandlersExecutionInATransactionScope() { }
         [System.ObsoleteAttribute("Use `config.UseTransport<MyTransport>().Transactions(TransportTransactionMode.Rec" +
             "eiveOnly|TransportTransactionMode.SendsAtomicWithReceive);` instead. The member " +

@@ -9,40 +9,40 @@
 
     /// <summary>
     /// This class provides implementers of persisters with an extension mechanism for custom settings for specific storage
-    /// type via extention methods.
+    /// type via extension methods.
     /// </summary>
     /// <typeparam name="T">The persister definition eg <see cref="NServiceBus.InMemory" />, <see cref="MsmqTransport" />, etc.</typeparam>
     /// <typeparam name="S">The <see cref="StorageType" />storage type.</typeparam>
-    public class PersistenceExtentions<T, S> : PersistenceExtentions<T>
+    public class PersistenceExtensions<T, S> : PersistenceExtensions<T>
         where T : PersistenceDefinition
         where S : StorageType
     {
         /// <summary>
-        /// Initializes a new instance of <see cref="PersistenceExtentions" />.
+        /// Initializes a new instance of <see cref="PersistenceExtensions" />.
         /// </summary>
-        public PersistenceExtentions(SettingsHolder settings) : base(settings, typeof(S))
+        public PersistenceExtensions(SettingsHolder settings) : base(settings, typeof(S))
         {
         }
     }
 
     /// <summary>
-    /// This class provides implementers of persisters with an extension mechanism for custom settings via extention
+    /// This class provides implementers of persisters with an extension mechanism for custom settings via extension
     /// methods.
     /// </summary>
     /// <typeparam name="T">The persister definition eg <see cref="NServiceBus.InMemory" />, <see cref="MsmqTransport" />, etc.</typeparam>
-    public class PersistenceExtentions<T> : PersistenceExtentions where T : PersistenceDefinition
+    public class PersistenceExtensions<T> : PersistenceExtensions where T : PersistenceDefinition
     {
         /// <summary>
         /// Default constructor.
         /// </summary>
-        public PersistenceExtentions(SettingsHolder settings) : base(typeof(T), settings, null)
+        public PersistenceExtensions(SettingsHolder settings) : base(typeof(T), settings, null)
         {
         }
 
         /// <summary>
         /// Constructor for a specific <see cref="StorageType" />.
         /// </summary>
-        protected PersistenceExtentions(SettingsHolder settings, Type storageType) : base(typeof(T), settings, storageType)
+        protected PersistenceExtensions(SettingsHolder settings, Type storageType) : base(typeof(T), settings, storageType)
         {
         }
 
@@ -54,7 +54,7 @@
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
             ReplacementTypeOrMember = "UsePersistence<T, S>()")]
-        public new PersistenceExtentions<T> For(params Storage[] specificStorages)
+        public new PersistenceExtensions<T> For(params Storage[] specificStorages)
         {
             base.For(specificStorages);
             return this;
@@ -62,15 +62,15 @@
     }
 
     /// <summary>
-    /// This class provides implementers of persisters with an extension mechanism for custom settings via extention
+    /// This class provides implementers of persisters with an extension mechanism for custom settings via extension
     /// methods.
     /// </summary>
-    public class PersistenceExtentions : ExposeSettings
+    public class PersistenceExtensions : ExposeSettings
     {
         /// <summary>
-        /// Initializes a new instance of <see cref="PersistenceExtentions" />.
+        /// Initializes a new instance of <see cref="PersistenceExtensions" />.
         /// </summary>
-        public PersistenceExtentions(Type definitionType, SettingsHolder settings, Type storageType)
+        public PersistenceExtensions(Type definitionType, SettingsHolder settings, Type storageType)
             : base(settings)
         {
             List<EnabledPersistence> definitions;
@@ -110,7 +110,7 @@
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
             ReplacementTypeOrMember = "UsePersistence<T, S>()")]
-        public PersistenceExtentions For(params Storage[] specificStorages)
+        public PersistenceExtensions For(params Storage[] specificStorages)
         {
             if (specificStorages == null || specificStorages.Length == 0)
             {

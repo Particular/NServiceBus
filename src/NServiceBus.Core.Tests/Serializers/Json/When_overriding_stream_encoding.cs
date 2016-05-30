@@ -13,7 +13,7 @@ namespace NServiceBus.Serializers.Json.Tests
         public void Should_construct_serializer_that_uses_requested_encoding()
         {
             var settings = new SettingsHolder();
-            var extensions = new SerializationExtentions<JsonSerializer>(settings);
+            var extensions = new SerializationExtensions<JsonSerializer>(settings);
             extensions.Encoding(Encoding.UTF7);
 
             var serializer = (NServiceBus.JsonMessageSerializer)new JsonSerializer().Configure(settings)(new MessageMapper());

@@ -4,9 +4,9 @@
     using Settings;
 
     /// <summary>
-    /// Feature related extentions to the settings.
+    /// Feature related extensions to the settings.
     /// </summary>
-    public static class SettingsExtentions
+    public static class SettingsExtensions
     {
         /// <summary>
         /// Marks the given feature as enabled by default.
