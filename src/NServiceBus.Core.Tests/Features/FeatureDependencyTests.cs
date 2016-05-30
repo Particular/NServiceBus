@@ -94,6 +94,60 @@
         }
 
         [Test]
+        public void Should_activate_named_dependency_first()
+        {
+            var order = new List<Feature>();
+
+            var dependingFeature = new DependsOnOneByName_Feature
+            {
+                OnActivation = f => order.Add(f)
+            };
+            var feature = new MyFeature2
+            {
+                OnActivation = f => order.Add(f)
+            };
+
+            var settings = new SettingsHolder();
+            var featureSettings = new FeatureActivator(settings);
+
+            featureSettings.Add(dependingFeature);
+            featureSettings.Add(feature);
+
+            settings.EnableFeatureByDefault<MyFeature2>();
+
+            featureSettings.SetupFeatures(null, null);
+
+            Assert.True(dependingFeature.IsActive);
+            Assert.IsInstanceOf<MyFeature2>(order.First(), "Upstream dependencies should be activated first");
+        }
+
+        [Test]
+        public void Should_not_activate_feature_when_named_dependency_disabled()
+        {
+            var order = new List<Feature>();
+
+            var dependingFeature = new DependsOnOneByName_Feature
+            {
+                OnActivation = f => order.Add(f)
+            };
+            var feature = new MyFeature2
+            {
+                OnActivation = f => order.Add(f)
+            };
+
+            var settings = new SettingsHolder();
+            var featureSettings = new FeatureActivator(settings);
+
+            featureSettings.Add(dependingFeature);
+            featureSettings.Add(feature);
+
+            featureSettings.SetupFeatures(null, null);
+
+            Assert.False(dependingFeature.IsActive);
+            Assert.IsEmpty(order);
+        }
+
+        [Test]
         public void Should_activate_all_upstream_dependencies_first()
         {
             var order = new List<Feature>();
@@ -264,6 +318,15 @@
             {
                 EnableByDefault();
                 DependsOn<MyFeature1>();
+            }
+        }
+
+        public class DependsOnOneByName_Feature : TestFeature
+        {
+            public DependsOnOneByName_Feature()
+            {
+                EnableByDefault();
+                DependsOn("NServiceBus.Core.Tests.Features.FeatureDependencyTests+MyFeature2");
             }
         }
 
