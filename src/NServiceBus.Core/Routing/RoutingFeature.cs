@@ -58,16 +58,16 @@
 
             var outboundRoutingPolicy = transportInfrastructure.OutboundRoutingPolicy;
             context.Container.ConfigureComponent<UnicastSendRouter>(DependencyLifecycle.SingleInstance);
-            context.Pipeline.Register("UnicastSendRouterConnector", b => new UnicastSendRouterConnector(context.Settings.LocalAddress(), context.Settings.InstanceSpecificQueue(), b.Build<UnicastSendRouter>(), b.Build<DistributionPolicy>()), "Determines how the message being sent should be routed");
-            context.Pipeline.Register("UnicastReplyRouterConnector", typeof(UnicastReplyRouterConnector), "Determines how replies should be routed");
+            context.Pipeline.Register(b => new UnicastSendRouterConnector(context.Settings.LocalAddress(), context.Settings.InstanceSpecificQueue(), b.Build<UnicastSendRouter>(), b.Build<DistributionPolicy>()), "Determines how the message being sent should be routed");
+            context.Pipeline.Register(typeof(UnicastReplyRouterConnector), "Determines how replies should be routed");
             if (outboundRoutingPolicy.Publishes == OutboundRoutingType.Unicast)
             {
                 context.Container.ConfigureComponent<UnicastPublishRouter>(DependencyLifecycle.SingleInstance);
-                context.Pipeline.Register("UnicastPublishRouterConnector", b => new UnicastPublishRouterConnector(b.Build<UnicastPublishRouter>(), b.Build<DistributionPolicy>()), "Determines how the published messages should be routed");
+                context.Pipeline.Register(b => new UnicastPublishRouterConnector(b.Build<UnicastPublishRouter>(), b.Build<DistributionPolicy>()), "Determines how the published messages should be routed");
             }
             else
             {
-                context.Pipeline.Register("MulticastPublishRouterBehavior", typeof(MulticastPublishRouterBehavior), "Determines how the published messages should be routed");
+                context.Pipeline.Register(typeof(MulticastPublishRouterBehavior), "Determines how the published messages should be routed");
             }
 
             if (canReceive)
@@ -80,8 +80,8 @@
                 {
                     context.Container.ConfigureComponent<SubscriptionRouter>(DependencyLifecycle.SingleInstance);
 
-                    context.Pipeline.Register("MessageDrivenSubscribeTerminator", typeof(MessageDrivenSubscribeTerminator), "Sends subscription requests when message driven subscriptions is in use");
-                    context.Pipeline.Register("MessageDrivenUnsubscribeTerminator", typeof(MessageDrivenUnsubscribeTerminator), "Sends requests to unsubscribe when message driven subscriptions is in use");
+                    context.Pipeline.Register(typeof(MessageDrivenSubscribeTerminator), "Sends subscription requests when message driven subscriptions is in use");
+                    context.Pipeline.Register(typeof(MessageDrivenUnsubscribeTerminator), "Sends requests to unsubscribe when message driven subscriptions is in use");
 
                     var subscriberAddress = distributorAddress ?? context.Settings.LocalAddress();
                     context.Container.ConfigureComponent(b => new MessageDrivenSubscribeTerminator(b.Build<SubscriptionRouter>(), subscriberAddress, context.Settings.EndpointName(), b.Build<IDispatchMessages>()), DependencyLifecycle.SingleInstance);
@@ -93,8 +93,8 @@
                     var subscriptionManager = transportSubscriptionInfrastructure.SubscriptionManagerFactory();
 
                     context.Container.RegisterSingleton(subscriptionManager);
-                    context.Pipeline.Register("NativeSubscribeTerminator", typeof(NativeSubscribeTerminator), "Requests the transport to subscribe to a given message type");
-                    context.Pipeline.Register("NativeUnsubscribeTerminator", typeof(NativeUnsubscribeTerminator), "Requests the transport to unsubscribe to a given message type");
+                    context.Pipeline.Register(typeof(NativeSubscribeTerminator), "Requests the transport to subscribe to a given message type");
+                    context.Pipeline.Register(typeof(NativeUnsubscribeTerminator), "Requests the transport to unsubscribe to a given message type");
                 }
             }
         }

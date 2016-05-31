@@ -75,6 +75,18 @@ namespace NServiceBus.Pipeline
         /// <summary>
         /// Register a new step into the pipeline.
         /// </summary>
+        /// <param name="behavior">The <see cref="Behavior{TContext}" /> to execute.</param>
+        /// <param name="description">The description of the behavior.</param>
+        public StepRegistrationSequence Register(Type behavior, string description)
+        {
+            BehaviorTypeChecker.ThrowIfInvalid(behavior, nameof(behavior));
+
+            return Register(behavior.Name, behavior, description);
+        }
+
+        /// <summary>
+        /// Register a new step into the pipeline.
+        /// </summary>
         /// <param name="stepId">The identifier of the new step to add.</param>
         /// <param name="behavior">The <see cref="Behavior{TContext}" /> to execute.</param>
         /// <param name="description">The description of the behavior.</param>
@@ -87,6 +99,19 @@ namespace NServiceBus.Pipeline
 
             AddStep(RegisterStep.Create(stepId, behavior, description));
             return new StepRegistrationSequence(AddStep);
+        }
+
+        /// <summary>
+        /// Register a new step into the pipeline.
+        /// </summary>
+        /// <param name="factoryMethod">A callback that creates the behavior instance.</param>
+        /// <param name="description">The description of the behavior.</param>
+        public StepRegistrationSequence Register<T>(Func<IBuilder, T> factoryMethod, string description)
+            where T : IBehavior
+        {
+            BehaviorTypeChecker.ThrowIfInvalid(typeof(T), "behavior");
+
+            return Register(typeof(T).Name, factoryMethod, description);
         }
 
         /// <summary>
@@ -105,6 +130,19 @@ namespace NServiceBus.Pipeline
 
             AddStep(RegisterStep.Create(stepId, typeof(T), description, b => factoryMethod(b)));
             return new StepRegistrationSequence(AddStep);
+        }
+
+        /// <summary>
+        /// Register a new step into the pipeline.
+        /// </summary>
+        /// <param name="behavior">The behavior instance.</param>
+        /// <param name="description">The description of the behavior.</param>
+        public StepRegistrationSequence Register<T>(T behavior, string description)
+            where T : IBehavior
+        {
+            BehaviorTypeChecker.ThrowIfInvalid(typeof(T), nameof(behavior));
+
+            return Register(typeof(T).Name, behavior, description);
         }
 
         /// <summary>

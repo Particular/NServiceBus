@@ -2239,8 +2239,13 @@ namespace NServiceBus.Pipeline
     }
     public class PipelineSettings
     {
+        public NServiceBus.Pipeline.StepRegistrationSequence Register(System.Type behavior, string description) { }
         public NServiceBus.Pipeline.StepRegistrationSequence Register(string stepId, System.Type behavior, string description) { }
+        public NServiceBus.Pipeline.StepRegistrationSequence Register<T>(System.Func<NServiceBus.ObjectBuilder.IBuilder, T> factoryMethod, string description)
+            where T : NServiceBus.Pipeline.IBehavior { }
         public NServiceBus.Pipeline.StepRegistrationSequence Register<T>(string stepId, System.Func<NServiceBus.ObjectBuilder.IBuilder, T> factoryMethod, string description)
+            where T : NServiceBus.Pipeline.IBehavior { }
+        public NServiceBus.Pipeline.StepRegistrationSequence Register<T>(T behavior, string description)
             where T : NServiceBus.Pipeline.IBehavior { }
         public NServiceBus.Pipeline.StepRegistrationSequence Register<T>(string stepId, T behavior, string description)
             where T : NServiceBus.Pipeline.IBehavior { }

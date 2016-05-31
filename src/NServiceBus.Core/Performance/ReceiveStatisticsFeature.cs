@@ -14,7 +14,7 @@
         {
             var performanceDiagnosticsBehavior = new ReceivePerformanceDiagnosticsBehavior(context.Settings.LocalAddress());
 
-            context.Pipeline.Register("ReceivePerformanceDiagnosticsBehavior", performanceDiagnosticsBehavior, "Provides various performance counters for receive statistics");
+            context.Pipeline.Register(performanceDiagnosticsBehavior, "Provides various performance counters for receive statistics");
             context.Pipeline.Register("ProcessingStatistics", new ProcessingStatisticsBehavior(), "Collects timing for ProcessingStarted and adds the state to determine ProcessingEnded");
             context.Pipeline.Register("AuditProcessingStatistics", new AuditProcessingStatisticsBehavior(), "Add ProcessingStarted and ProcessingEnded headers");
 

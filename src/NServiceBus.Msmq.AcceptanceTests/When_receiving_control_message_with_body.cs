@@ -82,7 +82,7 @@
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
                     config.UseTransport<MsmqTransport>();
-                    config.Pipeline.Register("AssertBehavior", typeof(AssertBehavior), "Asserts message was processed without any failures");
+                    config.Pipeline.Register(typeof(AssertBehavior), "Asserts message was processed without any failures");
                     config.EnableFeature<V33ControlMessageSimulator>();
                 });
             }

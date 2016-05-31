@@ -17,8 +17,8 @@
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.Pipeline.Register("TransportReceiveToPhysicalMessageProcessingConnector", typeof(TransportReceiveToPhysicalMessageProcessingConnector), "Allows to abort processing the message");
-            context.Pipeline.Register("LoadHandlersConnector", typeof(LoadHandlersConnector), "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
+            context.Pipeline.Register(typeof(TransportReceiveToPhysicalMessageProcessingConnector), "Allows to abort processing the message");
+            context.Pipeline.Register(typeof(LoadHandlersConnector), "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
 
             context.Pipeline
                 .Register("ExecuteUnitOfWork", typeof(UnitOfWorkBehavior), "Executes the UoW")
