@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Features
 {
-    using Pipeline;
     using Transports;
 
     /// <summary>
@@ -21,7 +20,7 @@
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             context.Pipeline.Register("AuditToDispatchConnector", new AuditToDispatchConnector(auditConfig.TimeToBeReceived), "Dispatches the audit message to the transport");
-            context.Pipeline.Register(WellKnownStep.AuditProcessedMessage, new InvokeAuditPipelineBehavior(auditConfig.Address), "Execute the audit pipeline");
+            context.Pipeline.Register("AuditProcessedMessage", new InvokeAuditPipelineBehavior(auditConfig.Address), "Execute the audit pipeline");
 
             context.Settings.Get<QueueBindings>().BindSending(auditConfig.Address);
         }

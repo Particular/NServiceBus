@@ -2244,17 +2244,25 @@ namespace NServiceBus.Pipeline
             where T : NServiceBus.Pipeline.IBehavior { }
         public NServiceBus.Pipeline.StepRegistrationSequence Register<T>(string stepId, T behavior, string description)
             where T : NServiceBus.Pipeline.IBehavior { }
-        public NServiceBus.Pipeline.StepRegistrationSequence Register(NServiceBus.Pipeline.WellKnownStep wellKnownStep, System.Type behavior, string description) { }
         public void Register<TRegisterStep>()
             where TRegisterStep : NServiceBus.Pipeline.RegisterStep, new () { }
         public void Register(NServiceBus.Pipeline.RegisterStep registration) { }
+        [System.ObsoleteAttribute("Use `Register(string stepId, Type behavior, string description)` instead. The mem" +
+            "ber currently throws a NotImplementedException. Will be removed in version 7.0.0" +
+            ".", true)]
+        public NServiceBus.Pipeline.StepRegistrationSequence Register(NServiceBus.Pipeline.WellKnownStep wellKnownStep, System.Type behavior, string description) { }
         public void Remove(string stepId) { }
+        [System.ObsoleteAttribute("Use `Remove(string stepId)` instead. The member currently throws a NotImplemented" +
+            "Exception. Will be removed in version 7.0.0.", true)]
         public void Remove(NServiceBus.Pipeline.WellKnownStep wellKnownStep) { }
         public void Replace(string stepId, System.Type newBehavior, string description = null) { }
         public void Replace<T>(string stepId, T newBehavior, string description = null)
             where T : NServiceBus.Pipeline.IBehavior { }
         public void Replace<T>(string stepId, System.Func<NServiceBus.ObjectBuilder.IBuilder, T> factoryMethod, string description = null)
             where T : NServiceBus.Pipeline.IBehavior { }
+        [System.ObsoleteAttribute("Use `Replace(string stepId, Type newBehavior, string description)` instead. The m" +
+            "ember currently throws a NotImplementedException. Will be removed in version 7.0" +
+            ".0.", true)]
         public void Replace(NServiceBus.Pipeline.WellKnownStep wellKnownStep, System.Type newBehavior, string description = null) { }
     }
     public abstract class PipelineTerminator<T> : NServiceBus.Pipeline.StageConnector<T, NServiceBus.Pipeline.PipelineTerminator<T>.ITerminatingContext>, NServiceBus.IPipelineTerminator
@@ -2273,14 +2281,26 @@ namespace NServiceBus.Pipeline
         public System.Type BehaviorType { get; }
         public string Description { get; }
         public string StepId { get; }
-        public void InsertAfter(NServiceBus.Pipeline.WellKnownStep step) { }
         public void InsertAfter(string id) { }
-        public void InsertAfterIfExists(NServiceBus.Pipeline.WellKnownStep step) { }
+        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
+            " extension documentation for more information. The member currently throws a Not" +
+            "ImplementedException. Will be removed in version 7.0.0.", true)]
+        public void InsertAfter(NServiceBus.Pipeline.WellKnownStep step) { }
         public void InsertAfterIfExists(string id) { }
-        public void InsertBefore(NServiceBus.Pipeline.WellKnownStep step) { }
+        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
+            " extension documentation for more information. The member currently throws a Not" +
+            "ImplementedException. Will be removed in version 7.0.0.", true)]
+        public void InsertAfterIfExists(NServiceBus.Pipeline.WellKnownStep step) { }
         public void InsertBefore(string id) { }
-        public void InsertBeforeIfExists(NServiceBus.Pipeline.WellKnownStep step) { }
+        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
+            " extension documentation for more information. The member currently throws a Not" +
+            "ImplementedException. Will be removed in version 7.0.0.", true)]
+        public void InsertBefore(NServiceBus.Pipeline.WellKnownStep step) { }
         public void InsertBeforeIfExists(string id) { }
+        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
+            " extension documentation for more information. The member currently throws a Not" +
+            "ImplementedException. Will be removed in version 7.0.0.", true)]
+        public void InsertBeforeIfExists(NServiceBus.Pipeline.WellKnownStep step) { }
         public virtual bool IsEnabled(NServiceBus.Settings.ReadOnlySettings settings) { }
     }
     public abstract class StageConnector<TFromContext, TToContext> : NServiceBus.IStageConnector, NServiceBus.Pipeline.IBehavior, NServiceBus.Pipeline.IBehavior<TFromContext, TToContext>
@@ -2302,6 +2322,9 @@ namespace NServiceBus.Pipeline
     public class StepRegistrationSequence
     {
         public NServiceBus.Pipeline.StepRegistrationSequence Register(string stepId, System.Type behavior, string description) { }
+        [System.ObsoleteAttribute("Use `Register(string stepId, Type behavior, string description)` instead. The mem" +
+            "ber currently throws a NotImplementedException. Will be removed in version 7.0.0" +
+            ".", true)]
         public NServiceBus.Pipeline.StepRegistrationSequence Register(NServiceBus.Pipeline.WellKnownStep wellKnownStep, System.Type behavior, string description) { }
     }
     public class static TransportMessageContextExtensions
@@ -2310,29 +2333,79 @@ namespace NServiceBus.Pipeline
         public static bool TryGetIncomingPhysicalMessage(this NServiceBus.Pipeline.IOutgoingLogicalMessageContext context, out NServiceBus.Transports.IncomingMessage message) { }
         public static bool TryGetIncomingPhysicalMessage(this NServiceBus.Pipeline.IOutgoingPhysicalMessageContext context, out NServiceBus.Transports.IncomingMessage message) { }
     }
+    [System.ObsoleteAttribute("WellKnownSteps are obsolete. Use an appropriate pipeline stage for your behavior " +
+        "instead. Consult the pipeline extension documentation for more information. Will" +
+        " be removed in version 7.0.0.", true)]
     public class WellKnownStep
     {
+        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
+            " extension documentation for more information. Will be removed in version 7.0.0." +
+            "", true)]
         public static readonly NServiceBus.Pipeline.WellKnownStep AuditProcessedMessage;
         [System.ObsoleteAttribute("The child container creation is now an integral part of the pipeline invocation a" +
             "nd no longer a separate behavior. Will be removed in version 7.0.0.", true)]
         public static readonly NServiceBus.Pipeline.WellKnownStep CreateChildContainer;
-        [System.ObsoleteAttribute("The dispatch step is the terminating step in v6 so any dependency on it can safel" +
-            "y be removed. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
+            " extension documentation for more information. Will be removed in version 7.0.0." +
+            "", true)]
         public static readonly NServiceBus.Pipeline.WellKnownStep DispatchMessageToTransport;
+        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
+            " extension documentation for more information. Will be removed in version 7.0.0." +
+            "", true)]
         public static readonly NServiceBus.Pipeline.WellKnownStep EnforcePublishBestPractices;
+        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
+            " extension documentation for more information. Will be removed in version 7.0.0." +
+            "", true)]
         public static readonly NServiceBus.Pipeline.WellKnownStep EnforceReplyBestPractices;
+        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
+            " extension documentation for more information. Will be removed in version 7.0.0." +
+            "", true)]
         public static readonly NServiceBus.Pipeline.WellKnownStep EnforceSendBestPractices;
+        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
+            " extension documentation for more information. Will be removed in version 7.0.0." +
+            "", true)]
         public static readonly NServiceBus.Pipeline.WellKnownStep EnforceSubscribeBestPractices;
+        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
+            " extension documentation for more information. Will be removed in version 7.0.0." +
+            "", true)]
         public static readonly NServiceBus.Pipeline.WellKnownStep EnforceUnsubscribeBestPractices;
+        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
+            " extension documentation for more information. Will be removed in version 7.0.0." +
+            "", true)]
         public static readonly NServiceBus.Pipeline.WellKnownStep ExecuteUnitOfWork;
+        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
+            " extension documentation for more information. Will be removed in version 7.0.0." +
+            "", true)]
         public static NServiceBus.Pipeline.WellKnownStep HostInformation;
+        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
+            " extension documentation for more information. Will be removed in version 7.0.0." +
+            "", true)]
         public static readonly NServiceBus.Pipeline.WellKnownStep InvokeHandlers;
+        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
+            " extension documentation for more information. Will be removed in version 7.0.0." +
+            "", true)]
         public static readonly NServiceBus.Pipeline.WellKnownStep InvokeSaga;
+        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
+            " extension documentation for more information. Will be removed in version 7.0.0." +
+            "", true)]
         public static readonly NServiceBus.Pipeline.WellKnownStep MutateIncomingMessages;
+        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
+            " extension documentation for more information. Will be removed in version 7.0.0." +
+            "", true)]
         public static readonly NServiceBus.Pipeline.WellKnownStep MutateIncomingTransportMessage;
+        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
+            " extension documentation for more information. Will be removed in version 7.0.0." +
+            "", true)]
         public static readonly NServiceBus.Pipeline.WellKnownStep MutateOutgoingMessages;
+        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
+            " extension documentation for more information. Will be removed in version 7.0.0." +
+            "", true)]
         public static readonly NServiceBus.Pipeline.WellKnownStep MutateOutgoingTransportMessage;
+        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
+            " extension documentation for more information. Will be removed in version 7.0.0." +
+            "", true)]
         public static NServiceBus.Pipeline.WellKnownStep ProcessingStatistics;
+        public WellKnownStep() { }
     }
 }
 namespace NServiceBus.Pipeline.Contexts

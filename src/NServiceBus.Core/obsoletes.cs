@@ -1318,6 +1318,8 @@ namespace NServiceBus.Pipeline.Contexts
 
 namespace NServiceBus.Pipeline
 {
+    using System;
+
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
@@ -1325,16 +1327,203 @@ namespace NServiceBus.Pipeline
     public interface IBehavior<in TContext>
     {
     }
-}
 
-namespace NServiceBus.Pipeline
-{
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
         Message = "The pipeline context is no longer avaliable via dependency injection. Use a custom behavior as described in the version 6 upgrade guide")]
     public class PipelineExecutor
     {
+    }
+
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        Message = "WellKnownSteps are obsolete. Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+    public class WellKnownStep
+    {
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+        public static WellKnownStep HostInformation;
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+        public static WellKnownStep ProcessingStatistics;
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+        public static readonly WellKnownStep AuditProcessedMessage;
+
+        [ObsoleteEx(
+            Message = "The child container creation is now an integral part of the pipeline invocation and no longer a separate behavior.",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public static readonly WellKnownStep CreateChildContainer;
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+        public static readonly WellKnownStep ExecuteUnitOfWork;
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+        public static readonly WellKnownStep MutateIncomingTransportMessage;
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+        public static readonly WellKnownStep DispatchMessageToTransport;
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+        public static readonly WellKnownStep InvokeHandlers;
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+        public static readonly WellKnownStep MutateIncomingMessages;
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+        public static readonly WellKnownStep InvokeSaga;
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+        public static readonly WellKnownStep MutateOutgoingMessages;
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+        public static readonly WellKnownStep MutateOutgoingTransportMessage;
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+        public static readonly WellKnownStep EnforceSendBestPractices;
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+        public static readonly WellKnownStep EnforceReplyBestPractices;
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+        public static readonly WellKnownStep EnforcePublishBestPractices;
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+        public static readonly WellKnownStep EnforceSubscribeBestPractices;
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+        public static readonly WellKnownStep EnforceUnsubscribeBestPractices;
+    }
+
+    public partial class StepRegistrationSequence
+    {
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            ReplacementTypeOrMember = "Register(string stepId, Type behavior, string description)")]
+        public StepRegistrationSequence Register(WellKnownStep wellKnownStep, Type behavior, string description)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public abstract partial class RegisterStep
+    {
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+        public void InsertBeforeIfExists(WellKnownStep step)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+        public void InsertBefore(WellKnownStep step)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+        public void InsertAfterIfExists(WellKnownStep step)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+        public void InsertAfter(WellKnownStep step)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public partial class PipelineSettings
+    {
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            ReplacementTypeOrMember = "Remove(string stepId)")]
+        public void Remove(WellKnownStep wellKnownStep)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            ReplacementTypeOrMember = "Replace(string stepId, Type newBehavior, string description)")]
+        public void Replace(WellKnownStep wellKnownStep, Type newBehavior, string description = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            ReplacementTypeOrMember = "Register(string stepId, Type behavior, string description)")]
+        public StepRegistrationSequence Register(WellKnownStep wellKnownStep, Type behavior, string description)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
 

@@ -106,7 +106,7 @@
             public Registration()
                 : base("ProcessSubscriptionRequests", typeof(SubscriptionReceiverBehavior), "Check for subscription messages and execute the requested behavior to subscribe or unsubscribe.")
             {
-                InsertAfterIfExists(WellKnownStep.ExecuteUnitOfWork);
+                InsertAfterIfExists("ExecuteUnitOfWork");
             }
         }
     }

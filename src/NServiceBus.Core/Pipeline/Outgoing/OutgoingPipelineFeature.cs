@@ -1,7 +1,5 @@
 ﻿namespace NServiceBus.Features
 {
-    using Pipeline;
-
     class OutgoingPipelineFeature : Feature
     {
         public OutgoingPipelineFeature()
@@ -11,8 +9,8 @@
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.Pipeline.Register(WellKnownStep.MutateOutgoingMessages, typeof(MutateOutgoingMessageBehavior), "Executes IMutateOutgoingMessages");
-            context.Pipeline.Register(WellKnownStep.MutateOutgoingTransportMessage, typeof(MutateOutgoingTransportMessageBehavior), "Executes IMutateOutgoingTransportMessages");
+            context.Pipeline.Register("MutateOutgoingMessages", typeof(MutateOutgoingMessageBehavior), "Executes IMutateOutgoingMessages");
+            context.Pipeline.Register("MutateOutgoingTransportMessage", typeof(MutateOutgoingTransportMessageBehavior), "Executes IMutateOutgoingTransportMessages");
 
             context.Pipeline.Register("AttachSenderRelatedInfoOnMessageBehavior", new AttachSenderRelatedInfoOnMessageBehavior(), "Makes sure that outgoing messages contains relevant info on the sending endpoint.");
 

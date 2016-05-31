@@ -2,7 +2,6 @@
 {
     using System.Threading.Tasks;
     using Features;
-    using Pipeline;
 
     class ReceiveStatisticsFeature : Feature
     {
@@ -16,7 +15,7 @@
             var performanceDiagnosticsBehavior = new ReceivePerformanceDiagnosticsBehavior(context.Settings.LocalAddress());
 
             context.Pipeline.Register("ReceivePerformanceDiagnosticsBehavior", performanceDiagnosticsBehavior, "Provides various performance counters for receive statistics");
-            context.Pipeline.Register(WellKnownStep.ProcessingStatistics, new ProcessingStatisticsBehavior(), "Collects timing for ProcessingStarted and adds the state to determine ProcessingEnded");
+            context.Pipeline.Register("ProcessingStatistics", new ProcessingStatisticsBehavior(), "Collects timing for ProcessingStarted and adds the state to determine ProcessingEnded");
             context.Pipeline.Register("AuditProcessingStatistics", new AuditProcessingStatisticsBehavior(), "Add ProcessingStarted and ProcessingEnded headers");
 
             context.RegisterStartupTask(new WarmupCooldownTask(performanceDiagnosticsBehavior));
