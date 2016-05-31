@@ -34,10 +34,9 @@ namespace NServiceBus
             var inputAddress = MsmqAddress.Parse(settings.InputQueue);
             var errorAddress = MsmqAddress.Parse(settings.ErrorQueue);
 
-            if (!string.Equals(errorAddress.Machine, Environment.MachineName, StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(inputAddress.Machine, Environment.MachineName, StringComparison.OrdinalIgnoreCase))
             {
-                var message = $"MSMQ Dequeuing can only run against the local machine. Invalid inputQueue name '{settings.InputQueue}'";
-                throw new Exception(message);
+                throw new Exception($"MSMQ Dequeuing can only run against the local machine. Invalid inputQueue name '{settings.InputQueue}'");
             }
 
             inputQueue = new MessageQueue(inputAddress.FullPath, false, true, QueueAccessMode.Receive);
@@ -45,7 +44,7 @@ namespace NServiceBus
 
             if (settings.RequiredTransactionMode != TransportTransactionMode.None && !QueueIsTransactional())
             {
-                throw new ArgumentException("Queue must be transactional if you configure the endpoint to be transactional (" + settings.InputQueue + ").");
+                throw new ArgumentException($"Queue must be transactional if you configure the endpoint to be transactional ({settings.InputQueue}).");
             }
 
             inputQueue.MessageReadPropertyFilter = DefaultReadPropertyFilter;
