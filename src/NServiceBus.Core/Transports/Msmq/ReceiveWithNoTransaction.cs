@@ -11,7 +11,7 @@ namespace NServiceBus
 
     class ReceiveWithNoTransaction : ReceiveStrategy
     {
-        public override async Task ReceiveMessage(MessageQueue inputQueue, MessageQueue errorQueue, CancellationTokenSource cancellationTokenSource, Func<PushContext, Task> onMessage)
+        public override async Task ReceiveMessage(MessageQueue inputQueue, MessageQueue errorQueue, CancellationTokenSource cancellationTokenSource, Func<PushContext, Task> onMessage, Func<ErrorContext, Task> onError)
         {
             var message = inputQueue.Receive(TimeSpan.FromMilliseconds(10), MessageQueueTransactionType.None);
 
@@ -31,11 +31,18 @@ namespace NServiceBus
                 return;
             }
 
-            using (var bodyStream = message.BodyStream)
+            try
             {
-                var pushContext = new PushContext(message.Id, headers, bodyStream, new TransportTransaction(), cancellationTokenSource, new ContextBag());
+                using (var bodyStream = message.BodyStream)
+                {
+                    var pushContext = new PushContext(message.Id, headers, bodyStream, new TransportTransaction(), cancellationTokenSource, new ContextBag());
 
-                await onMessage(pushContext).ConfigureAwait(false);
+                    await onMessage(pushContext).ConfigureAwait(false);
+                }
+            }
+            catch (Exception ex)
+            {
+                await onError(new ErrorContext(ex, true)).ConfigureAwait(false);
             }
         }
 

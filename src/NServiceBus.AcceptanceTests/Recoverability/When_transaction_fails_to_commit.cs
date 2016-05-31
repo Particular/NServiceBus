@@ -11,7 +11,6 @@
 
     public class When_transaction_fails_to_commit : NServiceBusAcceptanceTest
     {
-        [Ignore("enable when fixed")]
         [Test]
         public Task Should_move_message_to_error_queue()
         {

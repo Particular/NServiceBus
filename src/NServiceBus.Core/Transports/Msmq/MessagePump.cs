@@ -22,9 +22,10 @@ namespace NServiceBus
             // Injected
         }
 
-        public Task Init(Func<PushContext, Task> pipe, CriticalError criticalError, PushSettings settings)
+        public Task Init(Func<PushContext, Task> pipe, Func<ErrorContext, Task> error, CriticalError criticalError, PushSettings settings)
         {
             pipeline = pipe;
+            onError = error;
 
             receiveStrategy = receiveStrategyFactory(settings.RequiredTransactionMode);
 
@@ -152,7 +153,7 @@ namespace NServiceBus
                         {
                             try
                             {
-                                await receiveStrategy.ReceiveMessage(inputQueue, errorQueue, tokenSource, pipeline).ConfigureAwait(false);
+                                await receiveStrategy.ReceiveMessage(inputQueue, errorQueue, tokenSource, pipeline, onError).ConfigureAwait(false);
                                 receiveCircuitBreaker.Success();
                             }
                             catch (MessageQueueException ex)
@@ -187,7 +188,7 @@ namespace NServiceBus
                     // We insert the original task into the runningReceiveTasks because we want to await the completion
                     // of the running receives. ExecuteSynchronously is a request to execute the continuation as part of
                     // the transition of the antecedents completion phase. This means in most of the cases the continuation
-                    // will be executed during this transition and the antecedent task goes into the completion state only 
+                    // will be executed during this transition and the antecedent task goes into the completion state only
                     // after the continuation is executed. This is not always the case. When the TPL thread handling the
                     // antecedent task is aborted the continuation will be scheduled. But in this case we don't need to await
                     // the continuation to complete because only really care about the receive operations. The final operation
@@ -224,6 +225,7 @@ namespace NServiceBus
         Task messagePumpTask;
         RepeatedFailuresOverTimeCircuitBreaker peekCircuitBreaker;
         Func<PushContext, Task> pipeline;
+        Func<ErrorContext, Task> onError;
         RepeatedFailuresOverTimeCircuitBreaker receiveCircuitBreaker;
         ReceiveStrategy receiveStrategy;
         Func<TransportTransactionMode, ReceiveStrategy> receiveStrategyFactory;

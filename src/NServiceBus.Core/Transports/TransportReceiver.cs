@@ -42,7 +42,7 @@ namespace NServiceBus
 
             Logger.DebugFormat("Pipeline {0} is starting receiver for queue {1}.", Id, pushSettings.InputQueue);
 
-            await receiver.Init(InvokePipeline, builder.Build<CriticalError>(), pushSettings).ConfigureAwait(false);
+            await receiver.Init(InvokePipeline, InvokeErrorPipeline, builder.Build<CriticalError>(), pushSettings).ConfigureAwait(false);
 
             receiver.Start(pushRuntimeSettings);
 
@@ -68,7 +68,6 @@ namespace NServiceBus
             using (var childBuilder = builder.CreateChildBuilder())
             {
                 var rootContext = new RootContext(childBuilder, pipelineCache, eventAggregator);
-                
                 var message = new IncomingMessage(pushContext.MessageId, pushContext.Headers, pushContext.BodyStream);
                 var context = new TransportReceiveContext(message, pushContext.TransportTransaction, pushContext.ReceiveCancellationTokenSource, rootContext);
 
@@ -82,6 +81,12 @@ namespace NServiceBus
                     await context.RaiseNotification(new ReceivePipelineCompleted(message, pipelineStartedAt, DateTime.UtcNow)).ConfigureAwait(false);
                 }
             }
+        }
+
+        Task InvokeErrorPipeline(ErrorContext pushContext)
+        {
+            //todo:
+            return TaskEx.CompletedTask;
         }
 
         bool isMainReceiver;
