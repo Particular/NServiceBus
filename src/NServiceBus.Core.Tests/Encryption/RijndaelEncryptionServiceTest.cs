@@ -28,7 +28,7 @@
         public void Should_encrypt_and_decrypt_for_expired_key()
         {
             var encryptionKey1 = Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6");
-            var encryptionIV = Convert.FromBase64String("UjV8pJZ6ERroiFHluUlq6w==");
+            var encryptionIV = Encoding.ASCII.GetBytes("GaoKtfQo87igiaks");
             var service1 = new TestableRijndaelEncryptionService("encryptionKey1", encryptionKey1, new[]
             {
                 encryptionKey1
