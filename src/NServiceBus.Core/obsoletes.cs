@@ -798,7 +798,7 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
-            Message = "Headers can be set using the ``.SetHeader` method on the context object passed into the behavior or mutator")]
+            Message = @"Use the overload of the Send, Publish or Reply method that accepts an options parameter. Call options.SetHeader(""MyHeader"",""MyValue"") instead.")]
         public static void SetMessageHeader(this IBus bus, object msg, string key, string value)
         {
             throw new NotImplementedException();
