@@ -12,16 +12,16 @@
         public static void SetExceptionHeaders(this IncomingMessage message, Exception e, string failedQueue, string reason = null)
         {
             var headers = message.Headers;
-            SetExceptionHeaders(headers, e, failedQueue, reason, useLegacyStackTrace);
+            SetExceptionHeaders(headers, e, failedQueue, reason);
         }
 
         public static void SetExceptionHeaders(this OutgoingMessage message, Exception e, string failedQueue, string reason = null)
         {
             var headers = message.Headers;
-            SetExceptionHeaders(headers, e, failedQueue, reason, useLegacyStackTrace);
+            SetExceptionHeaders(headers, e, failedQueue, reason);
         }
 
-        internal static void SetExceptionHeaders(Dictionary<string, string> headers, Exception e, string failedQueue, string reason, bool legacyStackTrace)
+        internal static void SetExceptionHeaders(Dictionary<string, string> headers, Exception e, string failedQueue, string reason, bool? legacyStackTrace = null)
         {
             if (!string.IsNullOrWhiteSpace(reason))
             {
@@ -37,7 +37,7 @@
             headers["NServiceBus.ExceptionInfo.HelpLink"] = e.HelpLink;
             headers["NServiceBus.ExceptionInfo.Message"] = e.GetMessage().Truncate(16384);
             headers["NServiceBus.ExceptionInfo.Source"] = e.Source;
-            if (legacyStackTrace)
+            if (legacyStackTrace ?? useLegacyStackTrace)
             {
                 headers["NServiceBus.ExceptionInfo.StackTrace"] = e.StackTrace;
             }

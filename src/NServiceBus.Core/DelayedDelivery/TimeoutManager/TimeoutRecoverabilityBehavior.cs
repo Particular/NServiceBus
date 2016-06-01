@@ -4,11 +4,10 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using JetBrains.Annotations;
     using Logging;
-    using Pipeline;
     using Routing;
     using Transports;
 
-    class TimeoutRecoverabilityBehavior : Behavior<ITransportReceiveContext>
+    class TimeoutRecoverabilityBehavior
     {
         public TimeoutRecoverabilityBehavior(string errorQueueAddress, string localAddress, IDispatchMessages dispatcher, CriticalError criticalError)
         {
@@ -18,10 +17,9 @@ namespace NServiceBus
             this.criticalError = criticalError;
         }
 
-        public override async Task Invoke(ITransportReceiveContext context, Func<Task> next)
+        public async Task Invoke(PushContext context, Func<Task> next)
         {
-            var message = context.Message;
-            var failureInfo = failures.GetFailureInfoForMessage(message.MessageId);
+            var failureInfo = failures.GetFailureInfoForMessage(context.MessageId);
 
             if (ShouldAttemptAnotherRetry(failureInfo))
             {
@@ -32,20 +30,20 @@ namespace NServiceBus
                 }
                 catch (Exception exception)
                 {
-                    failures.RecordFailureInfoForMessage(message.MessageId, exception);
+                    failures.RecordFailureInfoForMessage(context.MessageId, exception);
 
-                    Logger.Debug($"Going to retry message '{message.MessageId}' from satellite '{localAddress}' because of an exception:", exception);
+                    Logger.Debug($"Going to retry message '{context.MessageId}' from satellite '{localAddress}' because of an exception:", exception);
 
-                    context.AbortReceiveOperation();
+                    context.ReceiveCancellationTokenSource.Cancel();
                     return;
                 }
             }
 
-            failures.ClearFailureInfoForMessage(message.MessageId);
+            failures.ClearFailureInfoForMessage(context.MessageId);
 
-            Logger.Debug($"Giving up Retries for message '{message.MessageId}' from satellite '{localAddress}' after {failureInfo.NumberOfFailedAttempts} attempts.");
+            Logger.Debug($"Giving up Retries for message '{context.MessageId}' from satellite '{localAddress}' after {failureInfo.NumberOfFailedAttempts} attempts.");
 
-            await MoveToErrorQueue(context, message, failureInfo).ConfigureAwait(false);
+            await MoveToErrorQueue(context, failureInfo).ConfigureAwait(false);
         }
 
         bool ShouldAttemptAnotherRetry([NotNull] TimeoutProcessingFailureInfo failureInfo)
@@ -53,20 +51,23 @@ namespace NServiceBus
             return failureInfo.NumberOfFailedAttempts <= MaxNumberOfFailedRetries;
         }
 
-        async Task MoveToErrorQueue(ITransportReceiveContext context, IncomingMessage message, TimeoutProcessingFailureInfo failureInfo)
+        async Task MoveToErrorQueue(PushContext context, TimeoutProcessingFailureInfo failureInfo)
         {
             try
             {
-                Logger.Error($"Moving timeout message '{message.MessageId}' from '{localAddress}' to '{errorQueueAddress}' because processing failed due to an exception:", failureInfo.Exception);
+                Logger.Error($"Moving timeout message '{context.MessageId}' from '{localAddress}' to '{errorQueueAddress}' because processing failed due to an exception:", failureInfo.Exception);
 
-                message.SetExceptionHeaders(failureInfo.Exception, localAddress);
+                ExceptionHeaderHelper.SetExceptionHeaders(context.Headers, failureInfo.Exception, localAddress, null);
 
-                var outgoingMessage = new OutgoingMessage(message.MessageId, message.Headers, message.Body);
+                var body = new byte[context.BodyStream.Length];
+                context.BodyStream.Read(body, 0, body.Length);
+
+                var outgoingMessage = new OutgoingMessage(context.MessageId, context.Headers, body);
                 var addressTag = new UnicastAddressTag(errorQueueAddress);
 
                 var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, addressTag));
 
-                await dispatcher.Dispatch(transportOperations, context.Extensions).ConfigureAwait(false);
+                await dispatcher.Dispatch(transportOperations, context.Context).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
