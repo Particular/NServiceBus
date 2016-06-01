@@ -66,7 +66,9 @@
         static string SetupDispatcherSatellite(FeatureConfigurationContext context, string errorQueueAddress, TransportTransactionMode requiredTransactionSupport)
         {
             string dispatcherAddress;
-            var dispatcherProcessorPipeline = context.AddSatellitePipeline("Timeout Dispatcher Processor", requiredTransactionSupport, PushRuntimeSettings.Default, "TimeoutsDispatcher", out dispatcherAddress);
+
+
+            context.AddSatelliteReceiver("Timeout Dispatcher Processor", requiredTransactionSupport, PushRuntimeSettings.Default, "TimeoutsDispatcher",, out dispatcherAddress);
 
             dispatcherProcessorPipeline.Register("DispatchTimeoutRecoverability",
                 b => CreateTimeoutRecoverabilityBehavior(errorQueueAddress, dispatcherAddress, b),
@@ -82,20 +84,20 @@
 
         static void SetupStorageSatellite(FeatureConfigurationContext context, string errorQueueAddress, TransportTransactionMode requiredTransactionSupport)
         {
-            string processorAddress;
-            var messageProcessorPipeline = context.AddSatellitePipeline("Timeout Message Processor", requiredTransactionSupport, PushRuntimeSettings.Default, "Timeouts", out processorAddress);
+            //string processorAddress;
+            //var messageProcessorPipeline = context.AddSatelliteReceiver("Timeout Message Processor", requiredTransactionSupport, PushRuntimeSettings.Default, "Timeouts", out processorAddress);
 
-            messageProcessorPipeline.Register("StoreTimeoutRecoverability",
-                b => CreateTimeoutRecoverabilityBehavior(errorQueueAddress, processorAddress, b),
-                "Handles failures when storing timeouts");
+            //messageProcessorPipeline.Register("StoreTimeoutRecoverability",
+            //    b => CreateTimeoutRecoverabilityBehavior(errorQueueAddress, processorAddress, b),
+            //    "Handles failures when storing timeouts");
 
-            messageProcessorPipeline.Register("StoreTimeoutTerminator", b => new StoreTimeoutBehavior(b.Build<ExpiredTimeoutsPoller>(),
-                b.Build<IDispatchMessages>(),
-                b.Build<IPersistTimeouts>(),
-                context.Settings.EndpointName().ToString()),
-                "Terminates the satellite responsible for storing timeouts into timeout storage");
+            //messageProcessorPipeline.Register("StoreTimeoutTerminator", b => new StoreTimeoutBehavior(b.Build<ExpiredTimeoutsPoller>(),
+            //    b.Build<IDispatchMessages>(),
+            //    b.Build<IPersistTimeouts>(),
+            //    context.Settings.EndpointName().ToString()),
+            //    "Terminates the satellite responsible for storing timeouts into timeout storage");
 
-            context.Settings.Get<TimeoutManagerAddressConfiguration>().Set(processorAddress);
+            //context.Settings.Get<TimeoutManagerAddressConfiguration>().Set(processorAddress);
         }
 
         static TimeoutRecoverabilityBehavior CreateTimeoutRecoverabilityBehavior(string errorQueueAddress, string processorAddress, IBuilder b)

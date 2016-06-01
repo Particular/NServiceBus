@@ -99,6 +99,7 @@
     <Compile Include="DelayedDelivery\TimeoutManagerRoutingStrategy.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\TimeoutFailureInfoStorage.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\TimeoutProcessingFailureInfo.cs" />
+    <Compile Include="Features\SatelliteDefinitions.cs" />
     <Compile Include="Notifications.cs" />
     <Compile Include="Notifications\EventAggregator.cs" />
     <Compile Include="Encryption\WireEncryptedStringConversions.cs" />
@@ -197,7 +198,7 @@
     <Compile Include="Pipeline\Outgoing\OutgoingSendContext.cs" />
     <Compile Include="Pipeline\Outgoing\RoutingContext.cs" />
     <Compile Include="Pipeline\RegisterStepExtensions.cs" />
-    <Compile Include="Pipeline\SatellitePipelineModifications.cs" />
+    <Compile Include="Pipeline\SatelliteDefinition.cs" />
     <Compile Include="Routing\FileBasedDynamicRouting\AsyncTimer.cs" />
     <Compile Include="Routing\FileBasedDynamicRouting\FileRoutingTableParser.cs" />
     <Compile Include="Routing\FileBasedDynamicRouting\IAsyncTimer.cs" />
