@@ -13,17 +13,22 @@
         public Exception Exception { get; }
 
         /// <summary>
-        ///
+        /// 
         /// </summary>
-        public bool IsAllowedToPerformRecoveryActions { get; }
+        public int NumberOfProcessingAttempts { get; }
+
+        /// <summary>
+        /// The ID of the message that failed processing.
+        /// </summary>
+        public string MessageId { get; }
 
         /// <summary>
         ///
         /// </summary>
-        public ErrorContext(Exception exception, bool isAllowedToPerformRecoveryActions)
+        public ErrorContext(Exception exception, int numberOfProcessingAttempts)
         {
             Exception = exception;
-            IsAllowedToPerformRecoveryActions = isAllowedToPerformRecoveryActions;
+            NumberOfProcessingAttempts = numberOfProcessingAttempts;
         }
     }
 }

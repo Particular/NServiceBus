@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Messaging;
     using System.Threading;
     using System.Threading.Tasks;
@@ -17,7 +18,7 @@ namespace NServiceBus
             this.transactionOptions = transactionOptions;
         }
 
-        public override async Task ReceiveMessage(MessageQueue inputQueue, MessageQueue errorQueue, CancellationTokenSource cancellationTokenSource, Func<PushContext, Task> onMessage, Func<ErrorContext, Task> onError)
+        public override async Task ReceiveMessage(MessageQueue inputQueue, MessageQueue errorQueue, CancellationTokenSource cancellationTokenSource, Func<PushContext, Task> onMessage, Func<ErrorContext, Task<bool>> onError)
         {
             Message message = null;
 
@@ -50,7 +51,20 @@ namespace NServiceBus
                         ambientTransaction.Set(Transaction.Current);
                         var pushContext = new PushContext(message.Id, headers, bodyStream, ambientTransaction, cancellationTokenSource, new ContextBag());
 
-                        await onMessage(pushContext).ConfigureAwait(false);
+                        Exception ex;
+                        int attemptNumber;
+                        if (!HasFailedBefore(message.Id, out ex, out attemptNumber))
+                        {
+                            await onMessage(pushContext).ConfigureAwait(false);
+                        }
+                        else
+                        {
+                            var shouldRetryImmediately = await onError(new ErrorContext(ex, attemptNumber, ambientTransaction, message.Id, headers, bodyStream)).ConfigureAwait(false);
+                            if (shouldRetryImmediately)
+                            {
+                                await onMessage(pushContext).ConfigureAwait(false);
+                            }
+                        }
                     }
 
                     if (!cancellationTokenSource.Token.IsCancellationRequested)
@@ -58,7 +72,6 @@ namespace NServiceBus
                         scope.Complete();
                     }
                 }
-
             }
             catch (Exception ex)
             {
@@ -66,10 +79,19 @@ namespace NServiceBus
                 {
                     throw;
                 }
-
-                await onError(new ErrorContext(ex,false)).ConfigureAwait(false);
+                RecordException(message.Id, ex);
             }
         }
+
+        void RecordException(string messageId, Exception exception)
+        {
+        }
+
+        bool HasFailedBefore(string messageId, out Exception exception, out int attemptNumber)
+        {
+            throw new NotImplementedException();
+        }
+        
 
         TransactionOptions transactionOptions;
 

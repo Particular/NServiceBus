@@ -103,9 +103,7 @@
         
         static FirstLevelRetriesBehavior CreateFlrBehavior(FirstLevelRetryPolicy retryPolicy, FailureInfoStorage storage = null)
         {
-            var flrBehavior = new FirstLevelRetriesBehavior(
-                storage ?? GetFailureInfoStorage(),
-                retryPolicy);
+            var flrBehavior = new FirstLevelRetriesBehavior(retryPolicy);
 
             return flrBehavior;
         }

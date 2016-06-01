@@ -65,7 +65,7 @@
            {
                 new BehaviorInstance(typeof(MoveFaultsToErrorQueueBehavior), new MoveFaultsToErrorQueueBehavior(criticalError, "", TransportTransactionMode.None, failureStorage)),
                 new BehaviorInstance(typeof(SecondLevelRetriesBehavior), new SecondLevelRetriesBehavior(policy, "", failureStorage)),
-                new BehaviorInstance(typeof(FirstLevelRetriesBehavior), new FirstLevelRetriesBehavior(failureStorage, new FirstLevelRetryPolicy(0))),
+                new BehaviorInstance(typeof(FirstLevelRetriesBehavior), new FirstLevelRetriesBehavior(new FirstLevelRetryPolicy(0))),
                 new BehaviorInstance(typeof(LastBehaviorT), lastBehavior)
             });
 

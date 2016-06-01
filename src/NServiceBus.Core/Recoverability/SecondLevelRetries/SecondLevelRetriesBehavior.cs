@@ -2,49 +2,55 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Runtime.ExceptionServices;
     using System.Threading.Tasks;
     using DelayedDelivery;
     using DeliveryConstraints;
+    using Extensibility;
     using Logging;
     using Pipeline;
+    using Routing;
     using Transports;
 
-    class SecondLevelRetriesBehavior : ForkConnector<ITransportReceiveContext, IRoutingContext>
+    class SecondLevelRetriesBehavior
     {
-        public SecondLevelRetriesBehavior(SecondLevelRetryPolicy retryPolicy, string localAddress, FailureInfoStorage failureInfoStorage)
+        public SecondLevelRetriesBehavior(SecondLevelRetryPolicy retryPolicy, string localAddress, FailureInfoStorage failureInfoStorage, IDispatchMessages dispatcher)
         {
             this.retryPolicy = retryPolicy;
             this.localAddress = localAddress;
             this.failureInfoStorage = failureInfoStorage;
+            this.dispatcher = dispatcher;
         }
 
-        public override async Task Invoke(ITransportReceiveContext context, Func<Task> next, Func<IRoutingContext, Task> fork)
+        public async Task<bool> Invoke(Exception exception, int numberOfSecondLevelAttempts, IncomingMessage failedMessage, ContextBag context)
         {
-            var failureInfo = failureInfoStorage.GetFailureInfoForMessage(context.Message.MessageId);
-
-            if (failureInfo.DeferForSecondLevelRetry)
+            if (exception is MessageDeserializationException)
             {
-                await DeferMessageForSecondLevelRetry(context, fork, context.Message, failureInfo).ConfigureAwait(false);
-
-                return;
+                failedMessage.Headers.Remove(Headers.Retries); //???
+                return false;
             }
 
-            try
-            {
-                await next().ConfigureAwait(false);
-            }
-            catch (MessageDeserializationException)
-            {
-                context.Message.Headers.Remove(Headers.Retries);
-                throw; // no SLR for poison messages
-            }
-            catch (Exception ex)
-            {
-                failureInfoStorage.MarkForDeferralForSecondLevelRetry(context.Message.MessageId, ExceptionDispatchInfo.Capture(ex));
+            TimeSpan delay;
 
-                context.AbortReceiveOperation();
+            if (!retryPolicy.TryGetDelay(failedMessage, exception, numberOfSecondLevelAttempts, out delay))
+            {
+                return false;
             }
+
+            failedMessage.Headers[Headers.Retries] = numberOfSecondLevelAttempts.ToString();
+            failedMessage.Headers[Headers.RetriesTimestamp] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
+
+            var operation = new TransportOperation(new OutgoingMessage(failedMessage.MessageId, failedMessage.Headers, failedMessage.Body), new UnicastAddressTag(localAddress));
+            
+            context.Extensions.Set(new List<DeliveryConstraint>
+            {
+                new DelayDeliveryWith(delay)
+            });
+
+            Logger.Warn($"Second Level Retry will reschedule message '{message.MessageId}' after a delay of {delay} because of an exception:", failureInfo.Exception);
+
+            await dispatcher.Dispatch(new TransportOperations(operation), context).ContinueWith(false);
         }
 
         async Task DeferMessageForSecondLevelRetry(ITransportReceiveContext context, Func<IRoutingContext, Task> fork, IncomingMessage message, ProcessingFailureInfo failureInfo)
@@ -76,7 +82,7 @@
 
                 await fork(dispatchContext).ConfigureAwait(false);
 
-                await context.RaiseNotification(new MessageToBeRetried(currentRetry, delay, context.Message, failureInfo.Exception)).ConfigureAwait(false);
+                //await context.RaiseNotification(new MessageToBeRetried(currentRetry, delay, context.Message, failureInfo.Exception)).ConfigureAwait(false);
 
                 return;
             }
@@ -101,6 +107,7 @@
         }
 
         FailureInfoStorage failureInfoStorage;
+        readonly IDispatchMessages dispatcher;
         string localAddress;
         SecondLevelRetryPolicy retryPolicy;
 
