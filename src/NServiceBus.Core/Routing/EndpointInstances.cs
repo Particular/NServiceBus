@@ -35,22 +35,26 @@ namespace NServiceBus.Routing
         }
 
         /// <summary>
-        /// Adds static information about an endpoint.
+        /// Registers provided endpoint instances.
         /// </summary>
-        /// <param name="instances">A static list of endpoint's instances.</param>
+        /// <param name="instances">A static list of endpoint instances.</param>
         public void Add(params EndpointInstance[] instances) => Add((IEnumerable<EndpointInstance>)instances);
 
         /// <summary>
-        /// Adds static information about an endpoint.
+        /// Registers provided endpoint instances.
         /// </summary>
-        /// <param name="instances">A static list of endpoint's instances.</param>
+        /// <param name="instances">A static list of endpoint instances.</param>
         public void Add(IEnumerable<EndpointInstance> instances)
         {
-            if (!instances.Any())
+            Guard.AgainstNull(nameof(instances), instances);
+            var endpointsByName = instances.Select(i =>
             {
-                throw new ArgumentException("The list of instances can't be empty.", nameof(instances));
-            }
-            var endpointsByName = instances.GroupBy(i => i.Endpoint);
+                if (i == null)
+                {
+                    throw new ArgumentNullException(nameof(instances), "One of the elements of collection is null");
+                }
+                return i;
+            }).GroupBy(i => i.Endpoint);
             foreach (var instanceGroup in endpointsByName)
             {
                 rules.Add(e => StaticRule(e, instanceGroup.Key, instanceGroup));
