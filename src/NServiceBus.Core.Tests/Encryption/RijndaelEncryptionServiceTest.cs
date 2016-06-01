@@ -28,23 +28,23 @@
         public void Should_encrypt_and_decrypt_for_expired_key()
         {
             var encryptionKey1 = Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6");
+            var encryptionIV = Convert.FromBase64String("UjV8pJZ6ERroiFHluUlq6w==");
             var service1 = new TestableRijndaelEncryptionService("encryptionKey1", encryptionKey1, new[]
             {
                 encryptionKey1
-            });
+            })
+            {
+                EncryptionIV = encryptionIV
+            };
             var encryptedValue = service1.Encrypt("string to encrypt", null);
             Assert.AreNotEqual("string to encrypt", encryptedValue.EncryptedBase64Value);
 
             var encryptionKey2 = Encoding.ASCII.GetBytes("vznkynwuvateefgduvsqjsufqfrrfcya");
-            var keys = new Dictionary<string, byte[]>
+            var service2 = new TestableRijndaelEncryptionService("encryptionKey2", encryptionKey2, new List<byte[]>
             {
-                {"encryptionKey2", encryptionKey2},
-                {"encryptionKey1", encryptionKey1}
-            };
-            var service2 = new TestableRijndaelEncryptionService("encryptionKey2", keys)
-            {
-                IncomingKeyIdentifier = "encryptionKey1"
-            };
+                encryptionKey2,
+                encryptionKey1
+            });
 
             var decryptedValue = service2.Decrypt(encryptedValue, null);
             Assert.AreEqual("string to encrypt", decryptedValue);
@@ -195,15 +195,9 @@
             {
             }
 
-            public TestableRijndaelEncryptionService(
-                string encryptionKeyIdentifier,
-                IDictionary<string, byte[]> keys)
-                : base(encryptionKeyIdentifier, keys, new List<byte[]>())
-            {
-            }
-
             public bool OutgoingKeyIdentifierSet { get; private set; }
             public string IncomingKeyIdentifier { private get; set; }
+            public byte[] EncryptionIV { get; set; }
 
             protected override void AddKeyIdentifierHeader(IOutgoingLogicalMessageContext context)
             {
@@ -214,6 +208,18 @@
             {
                 keyIdentifier = IncomingKeyIdentifier;
                 return IncomingKeyIdentifier != null;
+            }
+
+            protected override void GenerateIV(RijndaelManaged rijndael)
+            {
+                if (EncryptionIV != null)
+                {
+                    rijndael.IV = EncryptionIV;
+                }
+                else
+                {
+                    base.GenerateIV(rijndael);
+                }
             }
         }
     }
