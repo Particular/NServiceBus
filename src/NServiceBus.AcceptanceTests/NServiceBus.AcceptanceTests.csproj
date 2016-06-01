@@ -55,6 +55,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Basic\When_depending_on_untyped_feature.cs" />
     <Compile Include="Basic\When_extending_behavior_context.cs" />
     <Compile Include="Basic\When_registering_additional_deserializers.cs" />
     <Compile Include="Basic\When_no_content_type.cs" />
@@ -78,6 +79,7 @@
     <Compile Include="FakeTransport\FakeTransportInfrastructure.cs" />
     <Compile Include="FakeTransport\FakeTransportSetingsExtensions.cs" />
     <Compile Include="FakeTransport\ProcessingOptimizations\When_using_concurrency_limit.cs" />
+    <Compile Include="Basic\When_depending_on_typed_feature.cs" />
     <Compile Include="Hosting\When_overriding_local_addresses.cs" />
     <Compile Include="Hosting\When_a_message_is_faulted.cs" />
     <Compile Include="MessageId\When_message_has_empty_id_header.cs" />
@@ -301,6 +303,7 @@
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\GitVersionTask.3.4.1\build\dotnet\GitVersionTask.targets" Condition="Exists('..\packages\GitVersionTask.3.4.1\build\dotnet\GitVersionTask.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

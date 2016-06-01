@@ -216,17 +216,7 @@
 
         static string GetFeatureName(Type featureType)
         {
-            var name = featureType.FullName;
-
-            if (name.EndsWith("Feature"))
-            {
-                if (name.Length > featureStringLength)
-                {
-                    name = name.Substring(0, name.Length - featureStringLength);
-                }
-            }
-
-            return name;
+            return featureType.FullName;
         }
 
         readonly List<Action<SettingsHolder>> registeredDefaults = new List<Action<SettingsHolder>>();
