@@ -36,7 +36,7 @@ namespace NServiceBus
 
             if (!string.Equals(inputAddress.Machine, Environment.MachineName, StringComparison.OrdinalIgnoreCase))
             {
-                throw new Exception($"MSMQ Dequeuing can only run against the local machine. Invalid inputQueue name '{settings.InputQueue}'");
+                throw new Exception($"MSMQ Dequeuing can only run against the local machine. Invalid inputQueue name '{settings.InputQueue}'.");
             }
 
             inputQueue = new MessageQueue(inputAddress.FullPath, false, true, QueueAccessMode.Receive);
