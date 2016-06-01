@@ -41,7 +41,7 @@ namespace NServiceBus
             var lazyPipeline = new Lazy<IPipeline>(() =>
             {
                 var pipelinesCollection = settings.Get<PipelineConfiguration>();
-                var pipeline = new Pipeline<TContext>(builder, settings, pipelinesCollection.MainPipeline);
+                var pipeline = new Pipeline<TContext>(builder, settings, pipelinesCollection.Modifications);
                 return pipeline;
             }, LazyThreadSafetyMode.ExecutionAndPublication);
             pipelines.Add(typeof(TContext), lazyPipeline);

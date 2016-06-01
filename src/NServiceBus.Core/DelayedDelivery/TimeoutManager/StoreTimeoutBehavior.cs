@@ -2,12 +2,11 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using Pipeline;
     using Routing;
     using Timeout.Core;
     using Transports;
 
-    class StoreTimeoutBehavior : PipelineTerminator<ISatelliteProcessingContext>
+    class StoreTimeoutBehavior
     {
         public StoreTimeoutBehavior(ExpiredTimeoutsPoller poller, IDispatchMessages dispatcher, IPersistTimeouts persister, string owningTimeoutManager)
         {
@@ -17,64 +16,70 @@ namespace NServiceBus
             this.owningTimeoutManager = owningTimeoutManager;
         }
 
-        protected override async Task Terminate(ISatelliteProcessingContext context)
+        public async Task Invoke(PushContext context)
         {
-            var message = context.Message;
             var sagaId = Guid.Empty;
 
             string sagaIdString;
-            if (message.Headers.TryGetValue(Headers.SagaId, out sagaIdString))
+            if (context.Headers.TryGetValue(Headers.SagaId, out sagaIdString))
             {
                 sagaId = Guid.Parse(sagaIdString);
             }
 
-            if (message.Headers.ContainsKey(TimeoutManagerHeaders.ClearTimeouts))
+            if (context.Headers.ContainsKey(TimeoutManagerHeaders.ClearTimeouts))
             {
                 if (sagaId == Guid.Empty)
                 {
                     throw new InvalidOperationException("Invalid saga id specified, clear timeouts is only supported for saga instances");
                 }
 
-                await persister.RemoveTimeoutBy(sagaId, context.Extensions).ConfigureAwait(false);
+                await persister.RemoveTimeoutBy(sagaId, context.Context).ConfigureAwait(false);
             }
             else
             {
                 string expire;
-                if (!message.Headers.TryGetValue(TimeoutManagerHeaders.Expire, out expire))
+                if (!context.Headers.TryGetValue(TimeoutManagerHeaders.Expire, out expire))
                 {
-                    throw new InvalidOperationException("Non timeout message arrived at the timeout manager, id:" + message.MessageId);
+                    throw new InvalidOperationException("Non timeout message arrived at the timeout manager, id:" + context.MessageId);
                 }
 
-                var destination = message.GetReplyToAddress();
+                var destination = GetReplyToAddress(context);
 
                 string routeExpiredTimeoutTo;
-                if (message.Headers.TryGetValue(TimeoutManagerHeaders.RouteExpiredTimeoutTo, out routeExpiredTimeoutTo))
+                if (context.Headers.TryGetValue(TimeoutManagerHeaders.RouteExpiredTimeoutTo, out routeExpiredTimeoutTo))
                 {
                     destination = routeExpiredTimeoutTo;
                 }
-
+                var body = new byte[context.BodyStream.Length];
+                context.BodyStream.Read(body, 0, body.Length);
                 var data = new TimeoutData
                 {
                     Destination = destination,
                     SagaId = sagaId,
-                    State = message.Body,
+                    State = body,
                     Time = DateTimeExtensions.ToUtcDateTime(expire),
-                    Headers = message.Headers,
+                    Headers = context.Headers,
                     OwningTimeoutManager = owningTimeoutManager
                 };
 
                 if (data.Time.AddSeconds(-1) <= DateTime.UtcNow)
                 {
-                    var outgoingMessage = new OutgoingMessage(message.MessageId, data.Headers, data.State);
+                    var outgoingMessage = new OutgoingMessage(context.MessageId, data.Headers, data.State);
                     var transportOperation = new TransportOperation(outgoingMessage, new UnicastAddressTag(data.Destination));
-                    await dispatcher.Dispatch(new TransportOperations(transportOperation), context.Extensions).ConfigureAwait(false);
+                    await dispatcher.Dispatch(new TransportOperations(transportOperation), context.Context).ConfigureAwait(false);
                     return;
                 }
 
-                await persister.Add(data, context.Extensions).ConfigureAwait(false);
+                await persister.Add(data, context.Context).ConfigureAwait(false);
 
                 poller.NewTimeoutRegistered(data.Time);
             }
+        }
+
+        static string GetReplyToAddress(PushContext context)
+        {
+            string replyToAddress;
+            return context.Headers.TryGetValue(Headers.ReplyToAddress, out replyToAddress) ? replyToAddress : null;
         }
 
         IDispatchMessages dispatcher;

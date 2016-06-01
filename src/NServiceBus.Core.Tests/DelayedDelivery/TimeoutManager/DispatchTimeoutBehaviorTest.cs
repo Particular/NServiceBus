@@ -4,13 +4,12 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
-    using NServiceBus.Pipeline;
     using NServiceBus.Timeout.Core;
     using NServiceBus.Transports;
     using NUnit.Framework;
-    using Testing;
 
     public class DispatchTimeoutBehaviorTest
     {
@@ -23,7 +22,7 @@
             var timeoutData = CreateTimeout();
             await timeoutPersister.Add(timeoutData, null);
 
-            await behavior.Invoke(CreateContext(timeoutData.Id), context => TaskEx.CompletedTask);
+            await behavior.Invoke(CreateContext(timeoutData.Id));
 
             var result = await timeoutPersister.Peek(timeoutData.Id, null);
             Assert.Null(result);
@@ -36,7 +35,7 @@
             var timeoutPersister = new InMemoryTimeoutPersister(() => DateTime.UtcNow);
             var behavior = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransportTransactionMode.TransactionScope);
 
-            await behavior.Invoke(CreateContext(Guid.NewGuid().ToString()), context => TaskEx.CompletedTask);
+            await behavior.Invoke(CreateContext(Guid.NewGuid().ToString()));
 
             Assert.AreEqual(0, messageDispatcher.OutgoingTransportOperations.UnicastTransportOperations.Count());
         }
@@ -50,7 +49,7 @@
             var timeoutData = CreateTimeout();
             await timeoutPersister.Add(timeoutData, null);
 
-            Assert.That(async () => await behavior.Invoke(CreateContext(timeoutData.Id), context => TaskEx.CompletedTask), Throws.InstanceOf<Exception>());
+            Assert.That(async () => await behavior.Invoke(CreateContext(timeoutData.Id)), Throws.InstanceOf<Exception>());
 
             var result = await timeoutPersister.Peek(timeoutData.Id, null);
             Assert.NotNull(result);
@@ -68,7 +67,7 @@
 
             var behavior = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransportTransactionMode.TransactionScope);
 
-            Assert.That(async () => await behavior.Invoke(CreateContext(Guid.NewGuid().ToString()), context => TaskEx.CompletedTask), Throws.InstanceOf<Exception>());
+            Assert.That(async () => await behavior.Invoke(CreateContext(Guid.NewGuid().ToString())), Throws.InstanceOf<Exception>());
         }
 
         [Test]
@@ -80,7 +79,7 @@
             var timeoutData = CreateTimeout();
             await timeoutPersister.Add(timeoutData, null);
 
-            await behavior.Invoke(CreateContext(timeoutData.Id), context => TaskEx.CompletedTask);
+            await behavior.Invoke(CreateContext(timeoutData.Id));
 
             var transportOperation = messageDispatcher.OutgoingTransportOperations.UnicastTransportOperations.Single();
             Assert.AreEqual(DispatchConsistency.Default, transportOperation.RequiredDispatchConsistency);
@@ -97,7 +96,7 @@
             var timeoutData = CreateTimeout();
             await timeoutPersister.Add(timeoutData, null);
 
-            await behavior.Invoke(CreateContext(timeoutData.Id), context => TaskEx.CompletedTask);
+            await behavior.Invoke(CreateContext(timeoutData.Id));
 
             var transportOperation = messageDispatcher.OutgoingTransportOperations.UnicastTransportOperations.Single();
             Assert.AreEqual(DispatchConsistency.Isolated, transportOperation.RequiredDispatchConsistency);
@@ -112,7 +111,7 @@
             };
         }
 
-        static ISatelliteProcessingContext CreateContext(string timeoutId)
+        static PushContext CreateContext(string timeoutId)
         {
             var messageId = Guid.NewGuid().ToString("D");
             var headers = new Dictionary<string, string>
@@ -120,7 +119,7 @@
                 {"Timeout.Id", timeoutId}
             };
 
-            return new TestableSatelliteProcessingContext {Message = new IncomingMessage(messageId, headers, Stream.Null) };
+            return new PushContext(messageId, headers, Stream.Null, new TransportTransaction(), new CancellationTokenSource(), new ContextBag());
         }
 
         class FakeMessageDispatcher : IDispatchMessages

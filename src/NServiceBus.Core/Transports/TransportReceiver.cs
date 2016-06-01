@@ -4,7 +4,6 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using Logging;
     using ObjectBuilder;
-    using Pipeline;
     using Transports;
 
     class TransportReceiver
@@ -12,23 +11,16 @@ namespace NServiceBus
         public TransportReceiver(
             string id,
             IBuilder builder,
-            IPushMessages receiver,
             PushSettings pushSettings,
-            IPipeline<ITransportReceiveContext> pipeline,
-            IPipelineCache pipelineCache,
             PushRuntimeSettings pushRuntimeSettings,
-            IEventAggregator eventAggregator,
-            bool isMainReceiver)
+            Func<IBuilder, PushContext, Task> onMessage)
         {
             Id = id;
-            this.pipeline = pipeline;
-            this.pipelineCache = pipelineCache;
             this.pushRuntimeSettings = pushRuntimeSettings;
-            this.eventAggregator = eventAggregator;
+            this.onMessage = onMessage;
             this.pushSettings = pushSettings;
-            this.receiver = receiver;
+            receiver = builder.Build<IPushMessages>();
             this.builder = builder;
-            this.isMainReceiver = isMainReceiver;
         }
 
         public string Id { get; }
@@ -42,7 +34,7 @@ namespace NServiceBus
 
             Logger.DebugFormat("Pipeline {0} is starting receiver for queue {1}.", Id, pushSettings.InputQueue);
 
-            await receiver.Init(InvokePipeline, builder.Build<CriticalError>(), pushSettings).ConfigureAwait(false);
+            await receiver.Init(c => onMessage(builder, c), builder.Build<CriticalError>(), pushSettings).ConfigureAwait(false);
 
             receiver.Start(pushRuntimeSettings);
 
@@ -87,12 +79,10 @@ namespace NServiceBus
         bool isMainReceiver;
         bool isStarted;
         IBuilder builder;
-        IPipeline<ITransportReceiveContext> pipeline;
-        IPipelineCache pipelineCache;
         PushRuntimeSettings pushRuntimeSettings;
+        Func<IBuilder, PushContext, Task> onMessage;
         PushSettings pushSettings;
         IPushMessages receiver;
-        IEventAggregator eventAggregator;
 
         static ILog Logger = LogManager.GetLogger<TransportReceiver>();
     }
