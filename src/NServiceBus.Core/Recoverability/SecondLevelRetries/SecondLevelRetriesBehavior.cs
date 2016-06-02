@@ -21,38 +21,38 @@
             this.dispatcher = dispatcher;
         }
 
-        public async Task<bool> Invoke(Exception exception, int numberOfSecondLevelAttempts, IncomingMessage failedMessage, ContextBag context)
+        public bool Invoke(Exception exception, int numberOfSecondLevelAttempts, Dictionary<string,string> headers)
         {
             if (exception is MessageDeserializationException)
             {
-                failedMessage.Headers.Remove(Headers.Retries); //???
+                headers.Remove(Headers.Retries); //???
                 return false;
             }
 
             TimeSpan delay;
 
-            if (!retryPolicy.TryGetDelay(failedMessage, exception, numberOfSecondLevelAttempts, out delay))
+            if (!retryPolicy.TryGetDelay(headers, exception, numberOfSecondLevelAttempts, out delay))
             {
                 return false;
             }
 
-            failedMessage.Headers[Headers.Retries] = numberOfSecondLevelAttempts.ToString();
-            failedMessage.Headers[Headers.RetriesTimestamp] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
+            headers[Headers.Retries] = numberOfSecondLevelAttempts.ToString();
+            headers[Headers.RetriesTimestamp] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
 
-            var operation = new TransportOperation(
-                new OutgoingMessage(failedMessage.MessageId, failedMessage.Headers, failedMessage.Body), 
-                new UnicastAddressTag(localAddress));
-            
-            //Question: is this proper way to do it
-            context.Set(new List<DeliveryConstraint>
-            {
-                new DelayDeliveryWith(delay)
-            });
+            //var operation = new TransportOperation(
+            //    new OutgoingMessage(failedMessage.MessageId, failedMessage.Headers, failedMessage.Body),
+            //    new UnicastAddressTag(localAddress));
 
-            Logger.Warn($"Second Level Retry will reschedule message '{failedMessage.MessageId}' after a delay of {delay} because of an exception:", exception);
+            ////Question: is this proper way to do it
+            //context.Set(new List<DeliveryConstraint>
+            //{
+            //    new DelayDeliveryWith(delay)
+            //});
 
-            //Question: this is wrong we should set the destination address to timeout manager storage queue
-            await dispatcher.Dispatch(new TransportOperations(operation), context).ConfigureAwait(false);
+            //Logger.Warn($"Second Level Retry will reschedule message '{failedMessage.MessageId}' after a delay of {delay} because of an exception:", exception);
+
+            ////Question: this is wrong we should set the destination address to timeout manager storage queue
+            //await dispatcher.Dispatch(new TransportOperations(operation), context).ConfigureAwait(false);
 
             return true;
         }

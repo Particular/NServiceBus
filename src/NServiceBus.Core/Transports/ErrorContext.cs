@@ -43,6 +43,11 @@
         /// <summary>
         /// 
         /// </summary>
+        public Dictionary<string, string> Metadata { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="exception"></param>
         /// <param name="numberOfProcessingAttempts"></param>
         /// <param name="messageId"></param>
