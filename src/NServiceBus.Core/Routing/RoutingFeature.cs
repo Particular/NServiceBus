@@ -50,7 +50,7 @@
                         var typesEnclosed = knownMessageTypes.Where(t => t.IsAssignableFrom(type));
                         foreach (var t in typesEnclosed)
                         {
-                            publishers.Add(s, t);
+                            publishers.AddByAddress(s, t);
                         }
                     });
                 }
