@@ -53,13 +53,13 @@
         [Test]
         public async Task Should_Dispatch_according_to_max_retries_when_dispatch_fails()
         {
-            var options = new SubscribeOptions();
-            var state = options.GetExtensions().GetOrCreate<MessageDrivenSubscribeTerminator.Settings>();
+            var context = new TestableSubscribeContext();
+            var state = context.Extensions.GetOrCreate<MessageDrivenSubscribeTerminator.Settings>();
             state.MaxRetries = 10;
             state.RetryDelay = TimeSpan.Zero;
             dispatcher.FailDispatch(10);
 
-            await subscribeTerminator.Invoke(new TestableSubscribeContext(), c => TaskEx.CompletedTask);
+            await subscribeTerminator.Invoke(context, c => TaskEx.CompletedTask);
 
             Assert.AreEqual(1, dispatcher.DispatchedTransportOperations.Count);
             Assert.AreEqual(10, dispatcher.FailedNumberOfTimes);
@@ -68,13 +68,16 @@
         [Test]
         public void Should_Throw_when_max_retries_reached()
         {
-            var options = new SubscribeOptions();
-            var state = options.GetExtensions().GetOrCreate<MessageDrivenSubscribeTerminator.Settings>();
+            var context = new TestableSubscribeContext();
+            var state = context.Extensions.GetOrCreate<MessageDrivenSubscribeTerminator.Settings>();
             state.MaxRetries = 10;
             state.RetryDelay = TimeSpan.Zero;
             dispatcher.FailDispatch(11);
 
-            Assert.That(async () => await subscribeTerminator.Invoke(new TestableSubscribeContext(), c => TaskEx.CompletedTask), Throws.InstanceOf<QueueNotFoundException>());
+            Assert.That(async () =>
+            {
+                await subscribeTerminator.Invoke(context, c => TaskEx.CompletedTask);
+            }, Throws.InstanceOf<QueueNotFoundException>());
 
             Assert.AreEqual(0, dispatcher.DispatchedTransportOperations.Count);
             Assert.AreEqual(11, dispatcher.FailedNumberOfTimes);
