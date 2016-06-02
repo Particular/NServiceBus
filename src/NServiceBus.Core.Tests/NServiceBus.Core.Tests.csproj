@@ -138,6 +138,7 @@
     <Compile Include="Msmq\MsmqAddressTests.cs" />
     <Compile Include="Msmq\MsmqSubscriptionStorageQueueTests.cs" />
     <Compile Include="Persistence\InMemory\When_persisting_a_saga_with_InMemory_and_an_escalated_DTC_transaction.cs" />
+    <Compile Include="Persistence\PersistenceStartupTests.cs" />
     <Compile Include="Pipeline\HeaderOptionExtensionsTests.cs" />
     <Compile Include="Pipeline\Incoming\InvokeHandlerTerminatorTest.cs" />
     <Compile Include="Pipeline\MutateInstanceMessage\MutateIncomingMessageBehaviorTests.cs" />
