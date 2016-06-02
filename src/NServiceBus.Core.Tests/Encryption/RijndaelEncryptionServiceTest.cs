@@ -210,7 +210,7 @@
                 return IncomingKeyIdentifier != null;
             }
 
-            protected override void GenerateIV(RijndaelManaged rijndael)
+            protected override void ConfigureIV(RijndaelManaged rijndael)
             {
                 if (EncryptionIV != null)
                 {
@@ -218,7 +218,7 @@
                 }
                 else
                 {
-                    base.GenerateIV(rijndael);
+                    base.ConfigureIV(rijndael);
                 }
             }
         }
