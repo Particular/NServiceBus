@@ -12,13 +12,16 @@ namespace NServiceBus.Routing
     {
         internal async Task<IEnumerable<EndpointInstance>> FindInstances(EndpointName endpoint)
         {
-            var instances = new List<EndpointInstance>();
+            var instances = new HashSet<EndpointInstance>();
             foreach (var rule in rules)
             {
-                instances.AddRange(await rule.Invoke(endpoint).ConfigureAwait(false));
+                var instancesFromRule = await rule.Invoke(endpoint).ConfigureAwait(false);
+                foreach (var instance in instancesFromRule)
+                {
+                    instances.Add(instance);
+                }
             }
-            var distinctInstances = instances.Distinct().ToArray();
-            return distinctInstances.EnsureNonEmpty(() => new EndpointInstance(endpoint));
+            return instances.EnsureNonEmpty(() => new EndpointInstance(endpoint));
         }
 
 
@@ -32,22 +35,30 @@ namespace NServiceBus.Routing
         }
 
         /// <summary>
-        /// Adds static information about an endpoint.
+        /// Registers provided endpoint instances.
         /// </summary>
-        /// <param name="endpoint">Name of the endpoint.</param>
-        /// <param name="instances">A static list of endpoint's instances.</param>
-        public void Add(EndpointName endpoint, params EndpointInstance[] instances)
+        /// <param name="instances">A static list of endpoint instances.</param>
+        public void Add(params EndpointInstance[] instances) => Add((IEnumerable<EndpointInstance>)instances);
+
+        /// <summary>
+        /// Registers provided endpoint instances.
+        /// </summary>
+        /// <param name="instances">A static list of endpoint instances.</param>
+        public void Add(IEnumerable<EndpointInstance> instances)
         {
-            Guard.AgainstNull(nameof(endpoint), endpoint);
-            if (instances.Length == 0)
+            Guard.AgainstNull(nameof(instances), instances);
+            var endpointsByName = instances.Select(i =>
             {
-                throw new ArgumentException("The list of instances can't be empty.", nameof(instances));
-            }
-            if (instances.Any(i => i.Endpoint != endpoint))
+                if (i == null)
+                {
+                    throw new ArgumentNullException(nameof(instances), "One of the elements of collection is null");
+                }
+                return i;
+            }).GroupBy(i => i.Endpoint);
+            foreach (var instanceGroup in endpointsByName)
             {
-                throw new ArgumentException("At least one of the instances belongs to a different endpoint than specified in the 'endpoint' parameter.", nameof(instances));
+                rules.Add(e => StaticRule(e, instanceGroup.Key, instanceGroup));
             }
-            rules.Add(e => StaticRule(e, endpoint, instances));
         }
 
         static Task<IEnumerable<EndpointInstance>> StaticRule(EndpointName endpointBeingQueried, EndpointName configuredEndpoint, IEnumerable<EndpointInstance> configuredInstances)

@@ -2374,7 +2374,8 @@ namespace NServiceBus.Routing
     public class EndpointInstances
     {
         public EndpointInstances() { }
-        public void Add(NServiceBus.Routing.EndpointName endpoint, params NServiceBus.Routing.EndpointInstance[] instances) { }
+        public void Add(params NServiceBus.Routing.EndpointInstance[] instances) { }
+        public void Add(System.Collections.Generic.IEnumerable<NServiceBus.Routing.EndpointInstance> instances) { }
         public void AddDynamic(System.Func<NServiceBus.Routing.EndpointName, System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<NServiceBus.Routing.EndpointInstance>>> dynamicRule) { }
     }
     public sealed class EndpointName
