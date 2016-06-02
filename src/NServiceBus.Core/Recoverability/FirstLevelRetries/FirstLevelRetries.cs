@@ -32,7 +32,7 @@ namespace NServiceBus.Features
             var retryPolicy = new FirstLevelRetryPolicy(maxRetries);
             context.Container.RegisterSingleton(retryPolicy);
             
-            context.Pipeline.Register("FirstLevelRetries", b => new FirstLevelRetriesBehavior(retryPolicy), "Performs first level retries");
+            //context.Pipeline.Register("FirstLevelRetries", b => new FirstLevelRetriesBehavior(retryPolicy), "Performs first level retries");
         }
 
         int GetMaxRetries(ReadOnlySettings settings)

@@ -2,7 +2,6 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Messaging;
     using System.Threading;
     using System.Threading.Tasks;
@@ -59,7 +58,12 @@ namespace NServiceBus
                         }
                         else
                         {
-                            var shouldRetryImmediately = await onError(new ErrorContext(ex, attemptNumber, ambientTransaction, message.Id, headers, bodyStream)).ConfigureAwait(false);
+                            var context = new ContextBag();
+                            context.Set(ambientTransaction);
+
+                            var errorContext = new ErrorContext(ex, attemptNumber, message.Id, headers, bodyStream, context);
+
+                            var shouldRetryImmediately = await onError(errorContext).ConfigureAwait(false);
                             if (shouldRetryImmediately)
                             {
                                 await onMessage(pushContext).ConfigureAwait(false);

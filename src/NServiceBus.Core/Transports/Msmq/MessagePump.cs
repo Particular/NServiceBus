@@ -22,7 +22,7 @@ namespace NServiceBus
             // Injected
         }
 
-        public Task Init(Func<PushContext, Task> pipe, Func<ErrorContext, Task> error, CriticalError criticalError, PushSettings settings)
+        public Task Init(Func<PushContext, Task> pipe, Func<ErrorContext, Task<bool>> error, CriticalError criticalError, PushSettings settings)
         {
             pipeline = pipe;
             onError = error;
@@ -225,7 +225,7 @@ namespace NServiceBus
         Task messagePumpTask;
         RepeatedFailuresOverTimeCircuitBreaker peekCircuitBreaker;
         Func<PushContext, Task> pipeline;
-        Func<ErrorContext, Task> onError;
+        Func<ErrorContext, Task<bool>> onError;
         RepeatedFailuresOverTimeCircuitBreaker receiveCircuitBreaker;
         ReceiveStrategy receiveStrategy;
         Func<TransportTransactionMode, ReceiveStrategy> receiveStrategyFactory;

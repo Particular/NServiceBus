@@ -48,7 +48,9 @@ namespace NServiceBus
                 {
                     attempts++;
                     message.BodyStream.Seek(0, SeekOrigin.Begin);
-                    var immediateRetry = await onError(new ErrorContext(ex, attempts)).ConfigureAwait(false);
+
+                    var errorContext = new ErrorContext(ex, attempts, message.Id, headers, message.BodyStream, new ContextBag());
+                    var immediateRetry = await onError(errorContext).ConfigureAwait(false);
                     if (!immediateRetry)
                     {
                         break;

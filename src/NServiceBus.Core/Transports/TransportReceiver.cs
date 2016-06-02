@@ -83,10 +83,10 @@ namespace NServiceBus
             }
         }
 
-        Task InvokeErrorPipeline(ErrorContext pushContext)
+        Task<bool> InvokeErrorPipeline(ErrorContext pushContext)
         {
             //todo:
-            return TaskEx.CompletedTask;
+            return Task.FromResult(true);
         }
 
         bool isMainReceiver;

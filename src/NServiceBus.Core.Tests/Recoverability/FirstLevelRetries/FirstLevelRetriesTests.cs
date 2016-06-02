@@ -17,33 +17,36 @@
         {
             var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(0));
 
-            Assert.That(async () => await behavior.Invoke(null, () => { throw new MessageDeserializationException("test"); }), Throws.InstanceOf<MessageDeserializationException>());
+            var shouldImmediatelyRetry = behavior.Invoke(new MessageDeserializationException(string.Empty), 1, string.Empty);
+
+            Assert.IsFalse(shouldImmediatelyRetry);
         }
 
         [Test]
-        public async Task ShouldPerformFLRIfThereAreRetriesLeftToDo()
+        public void ShouldPerformFLRIfThereAreRetriesLeftToDo()
         {
             var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1));
-            var context = CreateContext("someid");
 
-            await behavior.Invoke(context, () => { throw new Exception("test"); });
+            var shouldImmediatelyRetry = behavior.Invoke(new Exception(), 0, string.Empty);
 
-            Assert.True(context.ReceiveOperationAborted, "Should request the transport to abort");
+            Assert.True(shouldImmediatelyRetry);
         }
 
         [Test]
-        public void ShouldBubbleTheExceptionUpIfThereAreNoMoreRetriesLeft()
+        public void ShouldGiveUpIfThereAreNoMoreRetriesLeft()
         {
             var storage = GetFailureInfoStorage();
             var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(0), storage);
-            var context = CreateContext("someid");
 
-            Assert.That(async () => await behavior.Invoke(context, () => { throw new Exception("test"); }), Throws.InstanceOf<Exception>());
+            var shouldImmediatelyRetry = behavior.Invoke(new Exception(), 0, string.Empty);
+
+            Assert.True(shouldImmediatelyRetry);
 
             //should update the failure info storage to capture how many flr attempts where made
             Assert.AreEqual(0, storage.GetFailureInfoForMessage("someid").FLRetries);
         }
 
+        /* This should probably go to transport level test
         [Test]
         public void ShouldNotClearStorageAfterGivingUp()
         {
@@ -57,6 +60,7 @@
 
             Assert.AreEqual(1, storage.GetFailureInfoForMessage(messageId).FLRetries);
         }
+        
 
         [Test]
         public async Task ShouldRememberRetryCountBetweenRetries()
@@ -71,23 +75,6 @@
         }
 
         [Test]
-        public async Task ShouldRaiseNotificationsForFLR()
-        {
-            var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1));
-            var eventAggregator = new FakeEventAggregator();
-
-            var context = CreateContext("someid", eventAggregator);
-
-            await behavior.Invoke(context, () => { throw new Exception("test"); });
-
-            var failure = eventAggregator.GetNotification<MessageToBeRetried>();
-
-            Assert.AreEqual(0, failure.Attempt);
-            Assert.AreEqual("test", failure.Exception.Message);
-            Assert.AreEqual("someid", failure.Message.MessageId);
-        }
-
-        [Test]
         public async Task WillResetRetryCounterWhenFlrStorageCleared()
         {
             const string messageId = "someId";
@@ -99,6 +86,22 @@
             storage.ClearFailureInfoForMessage(messageId);
 
             Assert.DoesNotThrowAsync(async () => await behavior.Invoke(CreateContext(messageId), () => { throw new Exception("test"); }));
+        }
+        */
+
+        [Test]
+        public void ShouldRaiseNotificationsForFLR()
+        {
+            var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1));
+            var eventAggregator = new FakeEventAggregator();
+
+            behavior.Invoke(new Exception(), 0, "someId");
+
+            var failure = eventAggregator.GetNotification<MessageToBeRetried>();
+
+            Assert.AreEqual(0, failure.Attempt);
+            Assert.AreEqual("test", failure.Exception.Message);
+            Assert.AreEqual("someid", failure.Message.MessageId);
         }
         
         static FirstLevelRetriesBehavior CreateFlrBehavior(FirstLevelRetryPolicy retryPolicy, FailureInfoStorage storage = null)

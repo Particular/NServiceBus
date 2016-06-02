@@ -11,6 +11,7 @@
     using NServiceBus.Transports;
     using NUnit.Framework;
     using Testing;
+    using Timeout;
 
     [TestFixture]
     public class When_message_is_deferred_by_slr
@@ -61,14 +62,18 @@
             var policy = new FakePolicy();
             var failureStorage = new FailureInfoStorage(10);
 
-            var chain = new BehaviorChain(new[]
-           {
-                new BehaviorInstance(typeof(MoveFaultsToErrorQueueBehavior), new MoveFaultsToErrorQueueBehavior(criticalError, "", TransportTransactionMode.None, failureStorage)),
-                new BehaviorInstance(typeof(SecondLevelRetriesBehavior), new SecondLevelRetriesBehavior(policy, "", failureStorage)),
-                new BehaviorInstance(typeof(FirstLevelRetriesBehavior), new FirstLevelRetriesBehavior(new FirstLevelRetryPolicy(0))),
-                new BehaviorInstance(typeof(LastBehaviorT), lastBehavior)
+            var chain = new BehaviorChain(new BehaviorInstance[]
+            {
             });
-
+            //TODO: this should change to recoveribility policy tests
+            /*
+               {
+                    new BehaviorInstance(typeof(MoveFaultsToErrorQueueBehavior), new MoveFaultsToErrorQueueBehavior(criticalError)),
+                    new BehaviorInstance(typeof(SecondLevelRetriesBehavior), new SecondLevelRetriesBehavior(policy, "", failureStorage, new FakeMessageDispatcher())),
+                    new BehaviorInstance(typeof(FirstLevelRetriesBehavior), new FirstLevelRetriesBehavior(new FirstLevelRetryPolicy(0))),
+                    new BehaviorInstance(typeof(LastBehaviorT), lastBehavior)
+                });
+            */
             return chain;
         }
 
