@@ -89,7 +89,7 @@ namespace NServiceBus
             {
                 rijndael.Key = encryptionKey;
                 rijndael.Mode = CipherMode.CBC;
-                rijndael.GenerateIV();
+                ConfigureIV(rijndael);
 
                 using (var encryptor = rijndael.CreateEncryptor())
                 {
@@ -225,6 +225,11 @@ namespace NServiceBus
         protected virtual bool TryGetKeyIdentifierHeader(out string keyIdentifier, IIncomingLogicalMessageContext context)
         {
             return context.Headers.TryGetValue(Headers.RijndaelKeyIdentifier, out keyIdentifier);
+        }
+
+        protected virtual void ConfigureIV(RijndaelManaged rijndael)
+        {
+            rijndael.GenerateIV();
         }
 
         readonly string encryptionKeyIdentifier;
