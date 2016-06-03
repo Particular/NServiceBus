@@ -4,12 +4,11 @@
     using System.Threading.Tasks;
     using Hosting;
     using Pipeline;
-    using Routing;
     using Support;
 
     class AuditHostInformationBehavior : Behavior<IAuditContext>
     {
-        public AuditHostInformationBehavior(HostInformation hostInfo, EndpointName endpoint)
+        public AuditHostInformationBehavior(HostInformation hostInfo, string endpoint)
         {
             this.hostInfo = hostInfo;
             this.endpoint = endpoint;
@@ -21,12 +20,12 @@
             context.AddAuditData(Headers.HostDisplayName, hostInfo.DisplayName);
 
             context.AddAuditData(Headers.ProcessingMachine, RuntimeEnvironment.MachineName);
-            context.AddAuditData(Headers.ProcessingEndpoint, endpoint.ToString());
+            context.AddAuditData(Headers.ProcessingEndpoint, endpoint);
 
             return next();
         }
 
-        EndpointName endpoint;
+        string endpoint;
 
         HostInformation hostInfo;
     }

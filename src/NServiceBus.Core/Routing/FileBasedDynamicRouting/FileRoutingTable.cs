@@ -73,7 +73,7 @@ namespace NServiceBus
             }
         }
 
-        Task<IEnumerable<EndpointInstance>> FindInstances(EndpointName endpoint)
+        Task<IEnumerable<EndpointInstance>> FindInstances(string endpoint)
         {
             Task<IEnumerable<EndpointInstance>> result;
             return instanceMap.TryGetValue(endpoint, out result) ? result : emptyEndpointInstancesTask;
@@ -88,7 +88,7 @@ namespace NServiceBus
         IRoutingFileAccess fileAccess;
         string filePath;
 
-        Dictionary<EndpointName, Task<IEnumerable<EndpointInstance>>> instanceMap = new Dictionary<EndpointName, Task<IEnumerable<EndpointInstance>>>();
+        Dictionary<string, Task<IEnumerable<EndpointInstance>>> instanceMap = new Dictionary<string, Task<IEnumerable<EndpointInstance>>>();
         int maxLoadAttempts;
         FileRoutingTableParser parser = new FileRoutingTableParser();
         ReadOnlySettings settings;

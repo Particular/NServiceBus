@@ -13,7 +13,7 @@
 
     class MessageDrivenUnsubscribeTerminator : PipelineTerminator<IUnsubscribeContext>
     {
-        public MessageDrivenUnsubscribeTerminator(SubscriptionRouter subscriptionRouter, string replyToAddress, EndpointName endpoint, IDispatchMessages dispatcher)
+        public MessageDrivenUnsubscribeTerminator(SubscriptionRouter subscriptionRouter, string replyToAddress, string endpoint, IDispatchMessages dispatcher)
         {
             this.subscriptionRouter = subscriptionRouter;
             this.replyToAddress = replyToAddress;
@@ -38,7 +38,7 @@
                 unsubscribeMessage.Headers[Headers.SubscriptionMessageType] = eventType.AssemblyQualifiedName;
                 unsubscribeMessage.Headers[Headers.ReplyToAddress] = replyToAddress;
                 unsubscribeMessage.Headers[Headers.SubscriberTransportAddress] = replyToAddress;
-                unsubscribeMessage.Headers[Headers.SubscriberEndpoint] = endpoint.ToString();
+                unsubscribeMessage.Headers[Headers.SubscriberEndpoint] = endpoint;
                 unsubscribeMessage.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
                 unsubscribeMessage.Headers[Headers.NServiceBusVersion] = GitFlowVersion.MajorMinorPatch;
 
@@ -71,7 +71,7 @@
             }
         }
 
-        readonly EndpointName endpoint;
+        readonly string endpoint;
         IDispatchMessages dispatcher;
         string replyToAddress;
 

@@ -40,19 +40,9 @@ namespace NServiceBus.Routing
         /// </summary>
         /// <param name="messageType">Message type.</param>
         /// <param name="destination">Destination endpoint.</param>
-        public void RouteToEndpoint(Type messageType, EndpointName destination)
-        {
-            AddStaticRoute(messageType, new UnicastRoute(destination));
-        }
-
-        /// <summary>
-        /// Adds a static unicast route.
-        /// </summary>
-        /// <param name="messageType">Message type.</param>
-        /// <param name="destination">Destination endpoint.</param>
         public void RouteToEndpoint(Type messageType, string destination)
         {
-            RouteToEndpoint(messageType, new EndpointName(destination));
+            AddStaticRoute(messageType, UnicastRoute.CreateFromEndpointName(destination));
         }
 
         /// <summary>
@@ -62,7 +52,7 @@ namespace NServiceBus.Routing
         /// <param name="destinationAddress">Destination endpoint instance address.</param>
         public void RouteToAddress(Type messageType, string destinationAddress)
         {
-            AddStaticRoute(messageType, new UnicastRoute(destinationAddress));
+            AddStaticRoute(messageType, UnicastRoute.CreateFromPhysicalAddress(destinationAddress));
         }
 
         /// <summary>

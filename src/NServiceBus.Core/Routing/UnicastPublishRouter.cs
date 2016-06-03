@@ -41,7 +41,7 @@ namespace NServiceBus
                 }
             }
 
-            public Task<IEnumerable<UnicastRoutingTarget>> Resolve(Func<EndpointName, Task<IEnumerable<EndpointInstance>>> instanceResolver)
+            public Task<IEnumerable<UnicastRoutingTarget>> Resolve(Func<string, Task<IEnumerable<EndpointInstance>>> instanceResolver)
             {
                 return Task.FromResult(EnumerableEx.Single(target));
             }
