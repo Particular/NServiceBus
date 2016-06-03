@@ -62,6 +62,8 @@
             Headers = headers;
             BodyStream = bodyStream;
             Context = context;
+
+            Metadata = new Dictionary<string, string>();
         }
     }
 }

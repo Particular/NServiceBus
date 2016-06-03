@@ -34,7 +34,7 @@ namespace NServiceBus.Features
 
             context.Container.RegisterSingleton(typeof(SecondLevelRetryPolicy), retryPolicy);
 
-            context.Pipeline.Register<SecondLevelRetriesBehavior.Registration>();
+            //context.Pipeline.Register<SecondLevelRetriesBehavior.Registration>();
 
             //context.Container.ConfigureComponent(b => new SecondLevelRetriesBehavior(retryPolicy, context.Settings.LocalAddress(), b.Build<FailureInfoStorage>()), DependencyLifecycle.InstancePerCall);
         }

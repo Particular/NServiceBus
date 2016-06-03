@@ -141,7 +141,7 @@
         {
             public RegisterThrowingBehavior() : base("ThrowingBehavior", typeof(ThrowingBehavior), "Behavior that always throws")
             {
-                InsertAfter("MoveFaultsToErrorQueue");
+                //InsertAfter("MoveFaultsToErrorQueue");
             }
         }
 

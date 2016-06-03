@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using Config;
     using DelayedDelivery;
     using DeliveryConstraints;
     using Extensibility;
@@ -45,9 +46,13 @@
             {
                 return new MoveToErrorQueue();
             }
-            var numberOfDelayedRetryAttempts = int.Parse(metadata[Headers.Retries]);
+            var numberOfDelayedRetryAttempts = metadata.ContainsKey(Headers.Retries)
+                ? int.Parse(metadata[Headers.Retries])
+                : 0;
 
-            var numberOfImmediateRetries = numberOfProcessingAttempts / numberOfDelayedRetryAttempts;
+            var numberOfImmediateRetries = numberOfDelayedRetryAttempts == 0 
+                ? numberOfProcessingAttempts
+                : numberOfProcessingAttempts / numberOfDelayedRetryAttempts;
 
             if (ShouldDoImmediateRetry(numberOfImmediateRetries))
             {
@@ -60,7 +65,7 @@
             {
                 return new DelayedRetry(delay, new Dictionary<string, string>
                 {
-                    {Headers.Retries, numberOfDelayedRetryAttempts.ToString()}
+                    {Headers.Retries, (numberOfDelayedRetryAttempts + 1).ToString()}
                 });
             }
 
@@ -81,9 +86,12 @@
     {
         public TimeSpan Delay { get; }
 
+        public Dictionary<string, string> Metadata { get; } 
+
         public DelayedRetry(TimeSpan delay, Dictionary<string, string> metadata)
         {
             Delay = delay;
+            Metadata = metadata;
         }
     }
 
@@ -98,6 +106,11 @@
         {
             EnableByDefault();
             DependsOnOptionally<TimeoutManager>();
+            Defaults(s =>
+            {
+                var timeoutManagerAddressConfiguration = new TimeoutManagerAddressConfiguration(s.GetConfigSection<UnicastBusConfig>()?.TimeoutManagerAddress);
+                s.Set<TimeoutManagerAddressConfiguration>(timeoutManagerAddressConfiguration);
+            });
         }
 
         protected internal override void Setup(FeatureConfigurationContext context)
@@ -105,7 +118,7 @@
             var inputQueueAddress = context.Settings.LocalAddress();
 
             var transportHasNativeDelayedDelivery = context.DoesTransportSupportConstraint<DelayedDeliveryConstraint>();
-            var timeoutManagerEnabled = !IsTimeoutManagerDisabled(context);
+            var timeoutManagerEnabled = true; //!IsTimeoutManagerDisabled(context);
             var timeoutManagerAddress = timeoutManagerEnabled
                 ? context.Settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress
                 : string.Empty;
@@ -152,6 +165,12 @@
 
         public async Task<bool> RawInvoke(ErrorContext context, IDispatchMessages messageDispatcher)
         {
+            //This needs to be proper metadata handling
+            if (context.Headers.ContainsKey(Headers.Retries))
+            {
+                context.Metadata.Add(Headers.Retries, context.Headers[Headers.Retries]);
+            }
+
             var action = recoverabilityPolicy.Invoke(context.Exception, context.Headers, context.NumberOfProcessingAttempts, context.Metadata);
 
             if (action is ImmediateRetry)
@@ -165,7 +184,22 @@
 
             if (action is DelayedRetry)
             {
-                var delayWith = ((DelayedRetry) action).Delay;
+                var delayAction = (DelayedRetry) action;
+
+                var delayWith = delayAction.Delay;
+
+                //This needs to be a proper merging of dictionaries
+                if (delayAction.Metadata.ContainsKey(Headers.Retries))
+                {
+                    if (outgoingMessage.Headers.ContainsKey(Headers.Retries))
+                    {
+                        outgoingMessage.Headers[Headers.Retries] = delayAction.Metadata[Headers.Retries];
+                    }
+                    else
+                    {
+                        outgoingMessage.Headers.Add(Headers.Retries, delayAction.Metadata[Headers.Retries]);
+                    }
+                }
 
                 if (nativeDeferralsSupported)
                 {

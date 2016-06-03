@@ -12,9 +12,10 @@ namespace NServiceBus
 
     class ReceiveWithTransactionScope : ReceiveStrategy
     {
-        public ReceiveWithTransactionScope(TransactionOptions transactionOptions)
+        public ReceiveWithTransactionScope(TransactionOptions transactionOptions, Dictionary<string, Tuple<Exception, int>> failureCache)
         {
             this.transactionOptions = transactionOptions;
+            this.failureCache = failureCache;
         }
 
         public override async Task ReceiveMessage(MessageQueue inputQueue, MessageQueue errorQueue, CancellationTokenSource cancellationTokenSource, Func<PushContext, Task> onMessage, Func<ErrorContext, Task<bool>> onError)
@@ -68,6 +69,11 @@ namespace NServiceBus
                             {
                                 await onMessage(pushContext).ConfigureAwait(false);
                             }
+                            else
+                            {
+                                ClearFailures(message.Id);
+                            }
+                            
                         }
                     }
 
@@ -89,15 +95,47 @@ namespace NServiceBus
 
         void RecordException(string messageId, Exception exception)
         {
+            //TODO: this is wrong. We need thread-safe structure and better encapsulation here
+            if (failureCache.ContainsKey(messageId) == false)
+            {
+                failureCache.Add(messageId, new Tuple<Exception, int>(exception, 1));
+            }
+            else
+            {
+                var previousFailuresData = failureCache[messageId];
+
+                failureCache[messageId] = new Tuple<Exception, int>(exception, previousFailuresData.Item2 + 1);
+            }
+        }
+
+        void ClearFailures(string messageId)
+        {
+            //TODO: this is smelly. This method needs to be called before onError because in other case we have a race
+            //      condition for short defered retries. But we do not know what recoverability will do with it :/
+
+            failureCache.Remove(messageId);
         }
 
         bool HasFailedBefore(string messageId, out Exception exception, out int attemptNumber)
         {
-            throw new NotImplementedException();
+            Tuple<Exception, int> failureRecord;
+            if (failureCache.TryGetValue(messageId, out failureRecord))
+            {
+                exception = failureRecord.Item1;
+                attemptNumber = failureRecord.Item2;
+
+                return true;
+            }
+
+            exception = null;
+            attemptNumber = 0;
+
+            return false;
         }
-        
+
 
         TransactionOptions transactionOptions;
+        readonly Dictionary<string, Tuple<Exception, int>> failureCache;
 
         static ILog Logger = LogManager.GetLogger<ReceiveWithTransactionScope>();
     }
