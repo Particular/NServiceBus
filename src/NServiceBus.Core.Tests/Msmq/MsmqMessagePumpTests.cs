@@ -9,7 +9,7 @@ namespace NServiceBus.Core.Tests.Msmq
     {
 
         [Test]
-        public void Should_throw_an_exception()
+        public void ShouldThrowIfConfiguredToReceiveFromRemoteQueue()
         {
             var messagePump = new MessagePump(mode => null);
             var pushSettings = new PushSettings("queue@remote", "error", false, TransportTransactionMode.None);
