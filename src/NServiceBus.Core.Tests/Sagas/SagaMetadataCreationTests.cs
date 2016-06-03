@@ -56,6 +56,18 @@
         }
 
         [Test]
+        public void When_message_only_has_custom_finder()
+        {
+            var availableTypes = new List<Type>
+            {
+                typeof(SagaWithFinderOnly.Finder)
+            };
+            var metadata = SagaMetadata.Create(typeof(SagaWithFinderOnly), availableTypes, new Conventions());
+            Assert.AreEqual(1, metadata.Finders.Count);
+            Assert.AreEqual(typeof(CustomFinderAdapter<SagaWithFinderOnly.SagaData, SagaWithFinderOnly.StartSagaMessage>), metadata.Finders.First().Type);
+        }
+
+        [Test]
         public void When_a_finder_and_a_mapping_exists_for_same_property()
         {
             var availableTypes = new List<Type>
@@ -97,10 +109,9 @@
         [Test]
         public void HandleNonExistingFinders()
         {
-            var metadata = SagaMetadata.Create(typeof(MySagaWithUnmappedStartProperty));
-            SagaFinderDefinition finder;
+            var ex = Assert.Throws<Exception>(() => SagaMetadata.Create(typeof(MySagaWithUnmappedStartProperty)));
 
-            Assert.False(metadata.TryGetFinder(typeof(MySagaWithUnmappedStartProperty.MessageThatStartsTheSaga).FullName, out finder));
+            Assert.That(ex.Message.Contains("mapper.ConfigureMapping"));
         }
 
         [Test]
@@ -184,6 +195,26 @@
         }
 
         [Test]
+        public void ValidateThrowsWhenSagaMapsMessageItDoesntHandle()
+        {
+            var ex = Assert.Throws<Exception>(() => SagaMetadata.Create(typeof(SagaThatMapsMessageItDoesntHandle)));
+
+            Assert.That(ex.Message.Contains("does not handle that message") && ex.Message.Contains("in the ConfigureHowToFindSaga method"));
+        }
+
+        [Test]
+        public void ValidateThrowsWhenSagaCustomFinderMapsMessageItDoesntHandle()
+        {
+            var availableTypes = new List<Type>
+            {
+                typeof(SagaWithCustomFinderForMessageItDoesntHandle.Finder)
+            };
+            var ex = Assert.Throws<Exception>(() => SagaMetadata.Create(typeof(SagaWithCustomFinderForMessageItDoesntHandle), availableTypes, new Conventions()));
+
+            Assert.That(ex.Message.Contains("does not handle that message") && ex.Message.Contains("Custom saga finder"));
+        }
+
+        [Test]
         public void GetEntityClrTypeFromInheritanceChain()
         {
             var metadata = SagaMetadata.Create(typeof(SagaWithInheritanceChain));
@@ -210,9 +241,9 @@
             }
         }
 
-        class MySaga : Saga<MySaga.MyEntity>, IAmStartedByMessages<StartMessage>
+        class MySaga : Saga<MySaga.MyEntity>, IAmStartedByMessages<M1>
         {
-            public Task Handle(StartMessage message, IMessageHandlerContext context)
+            public Task Handle(M1 message, IMessageHandlerContext context)
             {
                 throw new NotImplementedException();
             }
@@ -244,6 +275,7 @@
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
             {
+                // Does not need a mapping for StartSagaMessage because there is a SagaFinder
             }
 
             public class SagaData : ContainSagaData
@@ -260,6 +292,38 @@
             }
 
             public class StartSagaMessage
+            {
+                public string Property { get; set; }
+            }
+        }
+
+        public class SagaWithFinderOnly : Saga<SagaWithFinderOnly.SagaData>,
+            IAmStartedByMessages<SagaWithFinderOnly.StartSagaMessage>
+        {
+            public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
+            {
+                return TaskEx.CompletedTask;
+            }
+
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
+            {
+                // Does not need a mapping for StartSagaMessage because there is a SagaFinder
+            }
+
+            public class SagaData : ContainSagaData
+            {
+                public string Property { get; set; }
+            }
+
+            public class Finder : IFindSagas<SagaData>.Using<StartSagaMessage>
+            {
+                public Task<SagaData> FindBy(StartSagaMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context)
+                {
+                    return Task.FromResult(default(SagaData));
+                }
+            }
+
+            public class StartSagaMessage : IMessage
             {
                 public string Property { get; set; }
             }
@@ -298,9 +362,9 @@
             }
         }
 
-        class MySagaWithMappedAndUniqueProperty : Saga<MySagaWithMappedAndUniqueProperty.SagaData>, IAmStartedByMessages<MySagaWithMappedAndUniqueProperty.StartMessage>
+        class MySagaWithMappedAndUniqueProperty : Saga<MySagaWithMappedAndUniqueProperty.SagaData>, IAmStartedByMessages<SomeMessage>
         {
-            public Task Handle(StartMessage message, IMessageHandlerContext context)
+            public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {
                 throw new NotImplementedException();
             }
@@ -315,15 +379,11 @@
             {
                 public int UniqueProperty { get; set; }
             }
-
-            public class StartMessage
-            {
-            }
         }
 
-        class MySagaWithMappedProperty : Saga<MySagaWithMappedProperty.SagaData>, IAmStartedByMessages<StartMessage>
+        class MySagaWithMappedProperty : Saga<MySagaWithMappedProperty.SagaData>, IAmStartedByMessages<SomeMessage>
         {
-            public Task Handle(StartMessage message, IMessageHandlerContext context)
+            public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {
                 throw new NotImplementedException();
             }
@@ -360,6 +420,7 @@
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
             {
+                // Saga does not contain mappings on purpose, and should throw an exception
             }
 
             public class MessageThatStartsTheSaga : IMessage
@@ -542,6 +603,7 @@
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
             {
+                // Does not need a mapping for SomeMessage because a saga finder exists
             }
 
             public class SagaData : ContainSagaData
@@ -557,9 +619,9 @@
             }
         }
 
-        class SagaWithInheritanceChain : SagaWithInheritanceChainBase<SagaWithInheritanceChain.SagaData, SagaWithInheritanceChain.SomeOtherData>, IAmStartedByMessages<StartMessage>
+        class SagaWithInheritanceChain : SagaWithInheritanceChainBase<SagaWithInheritanceChain.SagaData, SagaWithInheritanceChain.SomeOtherData>, IAmStartedByMessages<SomeMessageWithStringProperty>
         {
-            public Task Handle(StartMessage message, IMessageHandlerContext context)
+            public Task Handle(SomeMessageWithStringProperty message, IMessageHandlerContext context)
             {
                 throw new NotImplementedException();
             }
@@ -572,6 +634,69 @@
             public class SomeOtherData
             {
                 public string SomeData { get; set; }
+            }
+
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
+            {
+                base.ConfigureHowToFindSaga(mapper);
+                mapper.ConfigureMapping<SomeMessageWithStringProperty>(message => message.StringProperty).ToSaga(saga => saga.SomeId);
+            }
+        }
+
+        class SagaThatMapsMessageItDoesntHandle : Saga<SagaThatMapsMessageItDoesntHandle.SagaData>,
+            IAmStartedByMessages<SomeMessage>
+        {
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
+            {
+                mapper.ConfigureMapping<SomeMessage>(msg => msg.SomeProperty).ToSaga(saga => saga.SomeProperty);
+                mapper.ConfigureMapping<OtherMessage>(msg => msg.SomeProperty).ToSaga(saga => saga.SomeProperty);
+            }
+
+            public Task Handle(SomeMessage message, IMessageHandlerContext context)
+            {
+                throw new NotImplementedException();
+            }
+
+            public class SagaData : ContainSagaData
+            {
+                public int SomeProperty { get; set; }
+            }
+
+            public class OtherMessage : IMessage
+            {
+                public int SomeProperty { get; set; }
+            }
+        }
+
+        class SagaWithCustomFinderForMessageItDoesntHandle : Saga<SagaWithCustomFinderForMessageItDoesntHandle.SagaData>,
+            IAmStartedByMessages<SomeMessage>
+        {
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
+            {
+                mapper.ConfigureMapping<SomeMessage>(msg => msg.SomeProperty).ToSaga(saga => saga.SomeProperty);
+            }
+
+            public Task Handle(SomeMessage message, IMessageHandlerContext context)
+            {
+                throw new NotImplementedException();
+            }
+
+            public class Finder : IFindSagas<SagaData>.Using<OtherMessage>
+            {
+                public Task<SagaData> FindBy(OtherMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context)
+                {
+                    return Task.FromResult(default(SagaData));
+                }
+            }
+
+            public class SagaData : ContainSagaData
+            {
+                public int SomeProperty { get; set; }
+            }
+
+            public class OtherMessage : IMessage
+            {
+                public int SomeProperty { get; set; }
             }
         }
 

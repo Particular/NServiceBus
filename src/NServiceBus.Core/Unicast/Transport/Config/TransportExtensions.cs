@@ -58,7 +58,7 @@ namespace NServiceBus
     }
 
     /// <summary>
-    /// This class provides implementers of transports with an extension mechanism for custom settings via extention methods.
+    /// This class provides implementers of transports with an extension mechanism for custom settings via extension methods.
     /// </summary>
     public class TransportExtensions : ExposeSettings
     {

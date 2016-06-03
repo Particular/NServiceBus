@@ -52,14 +52,14 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
 
             foreach (var sagaMessage in messages)
             {
-                associatedMessages[sagaMessage.MessageType] = sagaMessage;
+                associatedMessages[sagaMessage.MessageTypeName] = sagaMessage;
             }
 
             sagaFinders = new Dictionary<string, SagaFinderDefinition>();
 
             foreach (var finder in finders)
             {
-                sagaFinders[finder.MessageType] = finder;
+                sagaFinders[finder.MessageTypeName] = finder;
             }
         }
 
@@ -105,7 +105,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
 
         internal static bool IsSagaType(Type t)
         {
-            return typeof(Saga).IsAssignableFrom(t) && t != typeof(Saga) && !t.IsGenericType;
+            return typeof(Saga).IsAssignableFrom(t) && t != typeof(Saga) && !t.IsGenericType && !t.IsAbstract;
         }
 
         /// <summary>
@@ -192,13 +192,39 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
                 correlationProperty = new CorrelationPropertyMetadata(mapping.SagaPropName, mapping.SagaPropType);
             }
 
+            var associatedMessages = GetAssociatedMessages(sagaType)
+                .ToList();
+
             foreach (var mapping in mapper.Mappings)
             {
+                var associatedMessage = associatedMessages.FirstOrDefault(m => m.MessageType == mapping.MessageType);
+                if (associatedMessage == null)
+                {
+                    var msgType = mapping.MessageType.Name;
+                    if (mapping.HasCustomFinderMap)
+                    {
+                        throw new Exception($"Custom saga finder {mapping.CustomFinderType.FullName} maps message type {msgType} for saga {sagaType.Name}, but the saga does not handle that message. If {sagaType.Name} is supposed to handle this message, it should implement IAmStartedByMessages<{msgType}> or IHandleMessages<{msgType}>.");
+                    }
+                    else
+                    {
+                        throw new Exception($"Saga {sagaType.Name} contains a mapping for {msgType} in the ConfigureHowToFindSaga method, but does not handle that message. If {sagaType.Name} is supposed to handle this message, it should implement IAmStartedByMessages<{msgType}> or IHandleMessages<{msgType}>.");
+                    }
+                }
                 SetFinderForMessage(mapping, sagaEntityType, finders);
             }
 
-            var associatedMessages = GetAssociatedMessages(sagaType)
-                .ToList();
+            foreach (var messageType in associatedMessages)
+            {
+                if (messageType.IsAllowedToStartSaga)
+                {
+                    var match = mapper.Mappings.FirstOrDefault(m => m.MessageType == messageType.MessageType);
+                    if (match == null)
+                    {
+                        var simpleName = messageType.MessageType.Name;
+                        throw new Exception($"Message type {simpleName} can start the saga {sagaType.Name} (the saga implements IAmStartedByMessages<{simpleName}>) but does not map that message to saga data. In the ConfigureHowToFindSaga method, add a mapping using:{Environment.NewLine}    mapper.ConfigureMapping<{simpleName}>(message => message.SomeMessageProperty).ToSaga(saga => saga.MatchingSagaProperty);");
+                    }
+                }
+            }
 
             return new SagaMetadata(sagaType.FullName, sagaType, sagaEntityType.FullName, sagaEntityType, correlationProperty, associatedMessages, finders);
         }
@@ -247,14 +273,14 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
         {
             if (mapping.HasCustomFinderMap)
             {
-                finders.Add(new SagaFinderDefinition(typeof(CustomFinderAdapter<,>).MakeGenericType(sagaEntityType, mapping.MessageType), mapping.MessageType.FullName, new Dictionary<string, object>
+                finders.Add(new SagaFinderDefinition(typeof(CustomFinderAdapter<,>).MakeGenericType(sagaEntityType, mapping.MessageType), mapping.MessageType, new Dictionary<string, object>
                 {
                     {"custom-finder-clr-type", mapping.CustomFinderType}
                 }));
             }
             else
             {
-                finders.Add(new SagaFinderDefinition(typeof(PropertySagaFinder<>).MakeGenericType(sagaEntityType), mapping.MessageType.FullName, new Dictionary<string, object>
+                finders.Add(new SagaFinderDefinition(typeof(PropertySagaFinder<>).MakeGenericType(sagaEntityType), mapping.MessageType, new Dictionary<string, object>
                 {
                     {"property-accessor", mapping.MessageProp},
                     {"saga-property-name", mapping.SagaPropName}
@@ -265,24 +291,24 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
         static IEnumerable<SagaMessage> GetAssociatedMessages(Type sagaType)
         {
             var result = GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IAmStartedByMessages<>))
-                .Select(t => new SagaMessage(t.FullName, true)).ToList();
+                .Select(t => new SagaMessage(t, true)).ToList();
 
             foreach (var messageType in GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IHandleMessages<>)))
             {
-                if (result.Any(m => m.MessageType == messageType.FullName))
+                if (result.Any(m => m.MessageType == messageType))
                 {
                     continue;
                 }
-                result.Add(new SagaMessage(messageType.FullName, false));
+                result.Add(new SagaMessage(messageType, false));
             }
 
             foreach (var messageType in GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IHandleTimeouts<>)))
             {
-                if (result.Any(m => m.MessageType == messageType.FullName))
+                if (result.Any(m => m.MessageType == messageType))
                 {
                     continue;
                 }
-                result.Add(new SagaMessage(messageType.FullName, false));
+                result.Add(new SagaMessage(messageType, false));
             }
 
             return result;

@@ -53,25 +53,25 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
             Assert.AreEqual(typeof(MySaga).FullName, metadata.Name);
 
             Assert.AreEqual(2, metadata.AssociatedMessages.Count());
-            Assert.AreEqual(1, metadata.AssociatedMessages.Count(am => am.MessageType == typeof(Message1).FullName && am.IsAllowedToStartSaga));
-            Assert.AreEqual(1, metadata.AssociatedMessages.Count(am => am.MessageType == typeof(Message2).FullName && !am.IsAllowedToStartSaga));
+            Assert.AreEqual(1, metadata.AssociatedMessages.Count(am => am.MessageTypeName == typeof(Message1).FullName && am.IsAllowedToStartSaga));
+            Assert.AreEqual(1, metadata.AssociatedMessages.Count(am => am.MessageTypeName == typeof(Message2).FullName && !am.IsAllowedToStartSaga));
 
             SagaMetadata.CorrelationPropertyMetadata correlatedProperty;
 
             Assert.True(metadata.TryGetCorrelationProperty(out correlatedProperty));
             Assert.AreEqual("UniqueProperty", correlatedProperty.Name);
-            
+
             Assert.AreEqual(2, metadata.Finders.Count());
-            Assert.AreEqual(1, metadata.Finders.Count(f => f.MessageType == typeof(Message1).FullName));
-            Assert.AreEqual(1, metadata.Finders.Count(f => f.MessageType == typeof(Message2).FullName));
+            Assert.AreEqual(1, metadata.Finders.Count(f => f.MessageType == typeof(Message1)));
+            Assert.AreEqual(1, metadata.Finders.Count(f => f.MessageType == typeof(Message2)));
         }
 
         [Test]
         public void FilterOutNonSagaTypes()
         {
-            var model = GetModel(typeof(MySaga), typeof(string));
+            var model = GetModel(typeof(MySaga), typeof(string), typeof(AbstractSaga)).ToList();
 
-            Assert.AreEqual(1, model.Count());
+            Assert.That(model, Has.Exactly(1).Matches<SagaMetadata>(x => x.SagaType == typeof(MySaga)));
         }
 
         class MySaga : Saga<MySaga.MyEntity>, IAmStartedByMessages<Message1>, IHandleMessages<Message2>
@@ -95,6 +95,15 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
             public class MyEntity : ContainSagaData
             {
                 public int UniqueProperty { get; set; }
+            }
+        }
+
+        abstract class AbstractSaga : Saga<MySaga.MyEntity>, IAmStartedByMessages<Message1>
+        {
+            public abstract Task Handle(Message1 message, IMessageHandlerContext context);
+
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySaga.MyEntity> mapper)
+            {
             }
         }
 

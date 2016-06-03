@@ -17,13 +17,12 @@
         {
             return Scenario.Define<Context>(c =>
             {
-                c.Id = Guid.NewGuid();
                 c.TransactionMode = transactionMode;
             })
-            .WithEndpoint<Endpoint>(b => b.DoNotFailOnErrorMessages()
+            .WithEndpoint<EndpointWithOutgoingMessages>(b => b.DoNotFailOnErrorMessages()
                 .When((session, context) => session.SendLocal(new InitiatingMessage
                 {
-                    Id = context.Id
+                    Id = context.TestRunId
                 }))
             )
             .WithEndpoint<ErrorSpy>()
@@ -39,13 +38,12 @@
         {
             return Scenario.Define<Context>(c =>
             {
-                c.Id = Guid.NewGuid();
                 c.TransactionMode = transactionMode;
             })
-            .WithEndpoint<Endpoint>(b => b.DoNotFailOnErrorMessages()
+            .WithEndpoint<EndpointWithOutgoingMessages>(b => b.DoNotFailOnErrorMessages()
                 .When((session, context) => session.SendLocal(new InitiatingMessage
                 {
-                    Id = context.Id
+                    Id = context.TestRunId
                 }))
             )
             .WithEndpoint<ErrorSpy>()
@@ -54,19 +52,36 @@
             .Run();
         }
 
+        [Test]
+        public async Task Should_log_exception()
+        {
+            var context = await Scenario.Define<Context>()
+            .WithEndpoint<EndpointWithOutgoingMessages>(b => b
+                .DoNotFailOnErrorMessages()
+                .When((session, ctx) => session.SendLocal(new InitiatingMessage
+                {
+                    Id = ctx.TestRunId
+                }))
+            )
+            .WithEndpoint<ErrorSpy>()
+            .Done(c => c.MessageMovedToErrorQueue)
+            .Run();
+
+            Assert.That(context.Logs, Has.Some.Message.Match("Moving message .+ to the error queue because processing failed due to an exception: NServiceBus.AcceptanceTesting.SimulatedException:"));
+        }
+
         const string ErrorSpyQueueName = "error_spy_queue";
 
         class Context : ScenarioContext
         {
-            public Guid Id { get; set; }
             public bool MessageMovedToErrorQueue { get; set; }
             public bool OutgoingMessageSent { get; set; }
             public TransportTransactionMode TransactionMode { get; set; }
         }
 
-        class Endpoint : EndpointConfigurationBuilder
+        class EndpointWithOutgoingMessages : EndpointConfigurationBuilder
         {
-            public Endpoint()
+            public EndpointWithOutgoingMessages()
             {
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
@@ -87,13 +102,34 @@
 
                 public async Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
                 {
-                    if (initiatingMessage.Id == TestContext.Id)
+                    if (initiatingMessage.Id == TestContext.TestRunId)
                     {
                         await context.Send(ErrorSpyQueueName, new SubsequentMessage
                         {
                             Id = initiatingMessage.Id
                         });
                     }
+                }
+            }
+        }
+
+        class EndpointWithFailingHandler : EndpointConfigurationBuilder
+        {
+            public EndpointWithFailingHandler()
+            {
+                EndpointSetup<DefaultServer>((config, context) =>
+                {
+                    config.DisableFeature<FirstLevelRetries>();
+                    config.DisableFeature<SecondLevelRetries>();
+                    config.SendFailedMessagesTo(ErrorSpyQueueName);
+                });
+            }
+
+            class InitiatingMessageHandler : IHandleMessages<InitiatingMessage>
+            {
+                public Task Handle(InitiatingMessage message, IMessageHandlerContext context)
+                {
+                    throw new SimulatedException("message should be moved to the error queue");
                 }
             }
         }
@@ -112,7 +148,7 @@
 
                 public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
                 {
-                    if (initiatingMessage.Id == TestContext.Id)
+                    if (initiatingMessage.Id == TestContext.TestRunId)
                     {
                         TestContext.MessageMovedToErrorQueue = true;
                     }
@@ -127,7 +163,7 @@
 
                 public Task Handle(SubsequentMessage message, IMessageHandlerContext context)
                 {
-                    if (message.Id == TestContext.Id)
+                    if (message.Id == TestContext.TestRunId)
                     {
                         TestContext.OutgoingMessageSent = true;
                     }

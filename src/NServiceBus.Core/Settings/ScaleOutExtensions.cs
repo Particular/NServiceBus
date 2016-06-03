@@ -5,7 +5,7 @@ namespace NServiceBus
     /// <summary>
     /// Provides a fluent api to allow the configuration of <see cref="ScaleOutSettings" />.
     /// </summary>
-    public static class ScaleOutExtentions
+    public static class ScaleOutExtensions
     {
         /// <summary>
         /// Allows the user to control how the current endpoint behaves when scaled out.

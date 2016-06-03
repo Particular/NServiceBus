@@ -13,7 +13,7 @@
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<MutatorEndpoint>(e => e
-                    .When(s => s.SendLocal(new OriginalMessage())))
+                    .When(s => s.SendLocal(new OriginalMessage { SomeId = "TestId" })))
                 .Done(c => c.NewMessageHandlerCalled || c.OriginalMessageHandlerCalled)
                 .Run();
 
@@ -44,7 +44,8 @@
             {
                 public Task MutateIncoming(MutateIncomingMessageContext context)
                 {
-                    context.Message = new NewMessage();
+                    var original = (OriginalMessage)context.Message;
+                    context.Message = new NewMessage {  SomeId = original.SomeId };
                     return Task.FromResult(0);
                 }
             }
@@ -102,6 +103,8 @@
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
                 {
+                    mapper.ConfigureMapping<OriginalMessage>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
+                    mapper.ConfigureMapping<NewMessage>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
                 }
 
                 Context TestContext;
@@ -109,15 +112,18 @@
 
             public class SagaData : ContainSagaData
             {
+                public virtual string SomeId { get; set; }
             }
         }
 
         public class OriginalMessage : ICommand
         {
+            public string SomeId { get; set; }
         }
 
         public class NewMessage : ICommand
         {
+            public string SomeId { get; set; }
         }
     }
 }

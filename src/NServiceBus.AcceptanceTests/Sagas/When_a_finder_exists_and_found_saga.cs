@@ -16,7 +16,7 @@
         public async Task Should_find_saga_and_not_correlate()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<SagaEndpoint>(b => b.When(session => session.SendLocal(new StartSagaMessage())))
+                .WithEndpoint<SagaEndpoint>(b => b.When(session => session.SendLocal(new StartSagaMessage { Property = "Test" })))
                 .Done(c => c.Completed)
                 .Run();
 
@@ -70,7 +70,8 @@
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData08> mapper)
                 {
-                    // not required because of CustomFinder
+                    mapper.ConfigureMapping<StartSagaMessage>(saga => saga.Property).ToSaga(saga => saga.Property);
+                    // Mapping not required for SomeOtherMessage because CustomFinder used
                 }
 
                 public class SagaData08 : ContainSagaData
@@ -82,10 +83,12 @@
 
         public class StartSagaMessage : IMessage
         {
+            public string Property { get; set; }
         }
 
         public class SomeOtherMessage : IMessage
         {
+            public string Property { get; set; }
         }
     }
 }

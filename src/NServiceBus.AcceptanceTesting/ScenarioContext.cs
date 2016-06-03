@@ -20,8 +20,6 @@
             traceQueue.Enqueue($"{DateTime.Now:HH:mm:ss.ffffff} - {trace}");
         }
 
-        public ConcurrentQueue<Exception> LoggedExceptions = new ConcurrentQueue<Exception>();
-
         public ConcurrentDictionary<string, IReadOnlyCollection<FailedMessage>> FailedMessages = new ConcurrentDictionary<string, IReadOnlyCollection<FailedMessage>>();
 
         public ConcurrentQueue<LogItem> Logs = new ConcurrentQueue<LogItem>();
