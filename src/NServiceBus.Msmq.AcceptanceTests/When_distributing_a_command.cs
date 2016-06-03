@@ -82,7 +82,7 @@
                 IHandleMessages<ResponseA>,
                 IHandleMessages<ResponseB>
             {
-                private Context testContext;
+                Context testContext;
 
                 public ResponseHandler(Context testContext)
                 {

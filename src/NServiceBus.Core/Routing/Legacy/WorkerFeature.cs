@@ -14,7 +14,7 @@
             context.Container.ConfigureComponent(b => new ProcessedMessageCounterBehavior(b.Build<ReadyMessageSender>()), DependencyLifecycle.SingleInstance);
 
             context.RegisterStartupTask(b => b.Build<ReadyMessageSender>());
-            context.Pipeline.Register("ProcessedMessageCounterBehavior", typeof(ProcessedMessageCounterBehavior), "Counts messages processed by the worker.");
+            context.Pipeline.Register(typeof(ProcessedMessageCounterBehavior), "Counts messages processed by the worker.");
         }
     }
 }

@@ -70,7 +70,7 @@
             Settings.Get<PipelineConfiguration>().SatellitePipelines.Add(pipelineModifications);
             var newPipeline = new PipelineSettings(pipelineModifications);
 
-            newPipeline.Register("TransportReceiveToSatelliteConnector", typeof(TransportReceiveToSatelliteConnector), "Allows attaching satellite message processing logic.");
+            newPipeline.Register(typeof(TransportReceiveToSatelliteConnector), "Allows attaching satellite message processing logic.");
             Settings.Get<QueueBindings>().BindReceiving(transportAddress);
 
             return newPipeline;

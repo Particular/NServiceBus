@@ -29,7 +29,7 @@ namespace NServiceBus.Features
             var transportTransactionMode = context.Settings.GetRequiredTransactionModeForReceives();
             context.Pipeline.Register(new MoveFaultsToErrorQueueBehavior.Registration(context.Settings.LocalAddress(), transportTransactionMode));
             context.Pipeline.Register("AddExceptionHeaders", new AddExceptionHeadersBehavior(), "Adds the exception headers to the message");
-            context.Pipeline.Register("FaultToDispatchConnector", new FaultToDispatchConnector(errorQueue), "Connector to dispatch faulted messages");
+            context.Pipeline.Register(new FaultToDispatchConnector(errorQueue), "Connector to dispatch faulted messages");
 
             RaiseLegacyNotifications(context);
         }

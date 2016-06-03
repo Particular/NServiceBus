@@ -588,7 +588,6 @@
     <Compile Include="Pipeline\RegisterStep.cs" />
     <Compile Include="Pipeline\RemoveStep.cs" />
     <Compile Include="Pipeline\ReplaceStep.cs" />
-    <Compile Include="Pipeline\WellknownStep.cs" />
     <Compile Include="Sagas\AttachSagaDetailsToOutGoingMessageBehavior.cs" />
     <Compile Include="Sagas\ContainSagaData.cs" />
     <Compile Include="Sagas\IAmStartedByMessages.cs" />

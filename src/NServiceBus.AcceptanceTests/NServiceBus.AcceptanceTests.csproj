@@ -227,8 +227,6 @@
     <Compile Include="Sagas\When_started_by_base_event_from_other_saga.cs" />
     <Compile Include="ScenarioDescriptors\AllOutboxCapableStorages.cs" />
     <Compile Include="Reliability\Outbox\When_blowing_up_just_after_dispatch.cs" />
-    <Compile Include="PipelineExt\MutingHandlerExceptions.cs" />
-    <Compile Include="PipelineExt\FilteringWhatGetsAudited.cs" />
     <Compile Include="Audit\When_auditing.cs" />
     <Compile Include="Audit\When_a_message_is_audited.cs" />
     <Compile Include="Correlation\When_sending_with_no_correlation_id.cs" />

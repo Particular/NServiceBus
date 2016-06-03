@@ -22,7 +22,7 @@ namespace NServiceBus.Features
             context.Settings.Get<Conventions>().AddSystemMessagesConventions(t => typeof(ScheduledTask).IsAssignableFrom(t));
             context.Container.ConfigureComponent<DefaultScheduler>(DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent<ScheduleBehavior>(DependencyLifecycle.SingleInstance);
-            context.Pipeline.Register("ScheduleBehavior", typeof(ScheduleBehavior), "Registers a task definition for scheduling.");
+            context.Pipeline.Register(typeof(ScheduleBehavior), "Registers a task definition for scheduling.");
         }
     }
 }
