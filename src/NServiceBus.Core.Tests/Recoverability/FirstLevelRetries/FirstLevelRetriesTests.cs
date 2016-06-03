@@ -17,7 +17,7 @@
         {
             var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(0));
 
-            var shouldImmediatelyRetry = behavior.Invoke(new MessageDeserializationException(string.Empty), 1, string.Empty);
+            var shouldImmediatelyRetry = behavior.Invoke(new MessageDeserializationException(string.Empty), 1);
 
             Assert.IsFalse(shouldImmediatelyRetry);
         }
@@ -27,7 +27,7 @@
         {
             var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1));
 
-            var shouldImmediatelyRetry = behavior.Invoke(new Exception(), 0, string.Empty);
+            var shouldImmediatelyRetry = behavior.Invoke(new Exception(), 0);
 
             Assert.True(shouldImmediatelyRetry);
         }
@@ -38,7 +38,7 @@
             var storage = GetFailureInfoStorage();
             var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(0), storage);
 
-            var shouldImmediatelyRetry = behavior.Invoke(new Exception(), 0, string.Empty);
+            var shouldImmediatelyRetry = behavior.Invoke(new Exception(), 0);
 
             Assert.True(shouldImmediatelyRetry);
 
@@ -95,7 +95,7 @@
             var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1));
             var eventAggregator = new FakeEventAggregator();
 
-            behavior.Invoke(new Exception(), 0, "someId");
+            behavior.Invoke(new Exception(), 0);
 
             var failure = eventAggregator.GetNotification<MessageToBeRetried>();
 

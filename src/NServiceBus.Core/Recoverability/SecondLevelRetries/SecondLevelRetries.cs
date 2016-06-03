@@ -1,10 +1,10 @@
 namespace NServiceBus.Features
 {
     using System;
+    using System.Collections.Generic;
     using Config;
     using ConsistencyGuarantees;
     using Settings;
-    using Transports;
 
     /// <summary>
     /// Used to configure Second Level Retries.
@@ -58,7 +58,7 @@ namespace NServiceBus.Features
 
         static SecondLevelRetryPolicy GetRetryPolicy(ReadOnlySettings settings)
         {
-            var customRetryPolicy = settings.GetOrDefault<Func<IncomingMessage, TimeSpan>>("SecondLevelRetries.RetryPolicy");
+            var customRetryPolicy = settings.GetOrDefault<Func<Dictionary<string, string>, TimeSpan>>("SecondLevelRetries.RetryPolicy");
 
             if (customRetryPolicy != null)
             {

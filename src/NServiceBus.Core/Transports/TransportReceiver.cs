@@ -85,8 +85,9 @@ namespace NServiceBus
 
         Task<bool> InvokeErrorPipeline(ErrorContext pushContext)
         {
-            //todo:
-            return Task.FromResult(true);
+            var dispatcher = builder.Build<IDispatchMessages>();
+
+            return builder.Build<RecoveryActionExecutor>().RawInvoke(pushContext, dispatcher);
         }
 
         bool isMainReceiver;

@@ -4,11 +4,9 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Text;
     using System.Threading.Tasks;
     using DelayedDelivery;
     using DeliveryConstraints;
-    using Extensibility;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
     using NServiceBus.Transports;
@@ -31,7 +29,7 @@
         }
 
         [Test]
-        public async Task ShouldRetryIfPolicyReturnsADelay()
+        public Task ShouldRetryIfPolicyReturnsADelay()
         {
             var message = CreateMessage(id: "message-id", slrRetryHeader: "1");
             var eventAggregator = new FakeEventAggregator();
@@ -41,7 +39,7 @@
             var delay = TimeSpan.FromSeconds(5);
             var behavior = new SecondLevelRetriesBehavior(new FakePolicy(delay), "deferral-address", failureInfoStorage, dispatcher);
 
-            var messageDeclaredDefered = await behavior.Invoke(new Exception(), 1, context.Message, new ContextBag()).ConfigureAwait(false);
+            var messageDeclaredDefered = behavior.Invoke(new Exception(), 1, context.Message.Headers);
 
             var dispatchOperation = dispatcher.DispatchedMessages[0].Operations.UnicastTransportOperations.FirstOrDefault();
 
@@ -51,10 +49,12 @@
             Assert.IsTrue(messageDeclaredDefered);
             Assert.AreEqual("deferral-address", dispatchOperation.Destination);
             Assert.AreEqual("exception-message", eventAggregator.GetNotification<MessageToBeRetried>().Exception.Message);
+
+            return Task.FromResult(0);
         }
 
         [Test]
-        public async Task ShouldSetTimestampHeaderForFirstRetry()
+        public Task ShouldSetTimestampHeaderForFirstRetry()
         {
             var message = CreateMessage();
             var context = CreateContext(message);
@@ -63,7 +63,7 @@
             var delay = TimeSpan.FromSeconds(5);
             var behavior = new SecondLevelRetriesBehavior(new FakePolicy(delay), string.Empty, failureInfoStorage, dispatcher);
 
-            await behavior.Invoke(new Exception(), 1, context.Message, new ContextBag());
+            behavior.Invoke(new Exception(), 1, context.Message.Headers);
 
             var headers = dispatcher.DispatchedMessages[0].Operations.UnicastTransportOperations.First().Message.Headers;
 
@@ -73,24 +73,28 @@
 
             Assert.NotNull(retryTimestampHeader, "Message should have retry timestamp set.");
             Assert.DoesNotThrow(() => DateTimeExtensions.ToUtcDateTime(retryTimestampHeader), "Timestamp should be a proper format.");
+
+            return Task.FromResult(0);
         }
 
         [Test]
-        public async Task ShouldSkipRetryIfNoDelayIsReturned()
+        public Task ShouldSkipRetryIfNoDelayIsReturned()
         {
             var context = CreateContext();
             var dispatcher = new RecordingFakeDispatcher();
 
             var behavior = new SecondLevelRetriesBehavior(new FakePolicy(), string.Empty, failureInfoStorage, dispatcher);
 
-            var messageDeclaredAsDefered = await behavior.Invoke(new Exception(), 1, context.Message, new ContextBag()).ConfigureAwait(false);
+            var messageDeclaredAsDefered = behavior.Invoke(new Exception(), 1, context.Message.Headers);
 
             Assert.IsFalse(messageDeclaredAsDefered);
             Assert.AreEqual(0, dispatcher.DispatchedMessages);
+
+            return Task.FromResult(0);
         }
 
         [Test]
-        public async Task ShouldSkipRetryForDeserializationErrors()
+        public Task ShouldSkipRetryForDeserializationErrors()
         {
             var message = CreateMessage(slrRetryHeader: "1");
             var context = CreateContext(message);
@@ -98,14 +102,16 @@
 
             var behavior = new SecondLevelRetriesBehavior(new FakePolicy(TimeSpan.FromSeconds(5)), string.Empty, failureInfoStorage, dispatcher);
 
-            var messageDeclaredAsDefered = await behavior.Invoke(new MessageDeserializationException(String.Empty), 1, context.Message, new ContextBag()).ConfigureAwait(false);
+            var messageDeclaredAsDefered = behavior.Invoke(new MessageDeserializationException(String.Empty), 1, context.Message.Headers);
 
             Assert.IsFalse(messageDeclaredAsDefered);
             Assert.AreEqual(0, dispatcher.DispatchedMessages);
+
+            return Task.FromResult(0);
         }
 
         [Test]
-        public async Task ShouldPullCurrentRetryCountFromHeaders()
+        public Task ShouldPullCurrentRetryCountFromHeaders()
         {
             var currentRetry = 3;
             var message = CreateMessage(slrRetryHeader: currentRetry.ToString());
@@ -114,9 +120,11 @@
             var retryPolicy = new FakePolicy(TimeSpan.FromSeconds(5));
             var behavior = new SecondLevelRetriesBehavior(retryPolicy, string.Empty, failureInfoStorage, new FakeMessageDispatcher());
 
-            await behavior.Invoke(new Exception(), currentRetry, context.Message, new ContextBag());
+            behavior.Invoke(new Exception(), currentRetry, context.Message.Headers);
             
             Assert.AreEqual(currentRetry + 1, retryPolicy.InvokedWithCurrentRetry);
+
+            return Task.FromResult(0);
         }
 
         /* This one was regression I think we still need this but currently that should probably be ATT 
@@ -227,7 +235,7 @@
 
         public int InvokedWithCurrentRetry { get; private set; }
 
-        public override bool TryGetDelay(IncomingMessage message, Exception ex, int currentRetry, out TimeSpan delay)
+        public override bool TryGetDelay(Dictionary<string, string> message, Exception ex, int currentRetry, out TimeSpan delay)
         {
             InvokedWithCurrentRetry = currentRetry;
 

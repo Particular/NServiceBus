@@ -117,7 +117,7 @@
 
         class FakePolicy : SecondLevelRetryPolicy
         {
-            public override bool TryGetDelay(IncomingMessage message, Exception ex, int currentRetry, out TimeSpan delay)
+            public override bool TryGetDelay(Dictionary<string, string> headers, Exception ex, int currentRetry, out TimeSpan delay)
             {
                 delay = TimeSpan.FromSeconds(10);
                 return true;

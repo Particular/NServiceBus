@@ -6,12 +6,11 @@ namespace NServiceBus
     {
         public FirstLevelRetriesBehavior(FirstLevelRetryPolicy retryPolicy)
         {
-            this.retryPolicy = retryPolicy;
         }
 
         public bool Invoke(Exception exception, int firstLevelRetries)
         {
-          
+            throw new NotImplementedException();
         }
 
     }
