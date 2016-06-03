@@ -18,6 +18,15 @@
             Defaults(s =>
             {
                 s.SetDefault("AdditionalDeserializers", new List<SerializationDefinition>());
+                var conventions = s.Get<Conventions>();
+                var knownMessages = s.GetAvailableTypes().Where(conventions.IsMessageType);
+
+                var messageMetadataRegistry = new MessageMetadataRegistry(conventions);
+                foreach (var msg in knownMessages)
+                {
+                    messageMetadataRegistry.RegisterMessageType(msg);
+                }
+                s.Set<MessageMetadataRegistry>(messageMetadataRegistry);
             });
         }
 
@@ -42,22 +51,12 @@
             var additionalDeserializers = additionalDeserializerDefinitions.Select(d => CreateMessageSerializer(d, mapper, context)).ToArray();
             var resolver = new MessageDeserializerResolver(defaultSerializer, additionalDeserializers);
 
-            var knownMessages = context.Settings.GetAvailableTypes()
-                .Where(context.Settings.Get<Conventions>().IsMessageType)
-                .ToList();
-
-            var messageMetadataRegistry = new MessageMetadataRegistry(context.Settings.Get<Conventions>());
-            foreach (var msg in knownMessages)
-            {
-                messageMetadataRegistry.RegisterMessageType(msg);
-            }
-
+            var messageMetadataRegistry = context.Settings.Get<MessageMetadataRegistry>();
             var logicalMessageFactory = new LogicalMessageFactory(messageMetadataRegistry, mapper);
             context.Pipeline.Register("DeserializeLogicalMessagesConnector", new DeserializeLogicalMessagesConnector(resolver, logicalMessageFactory, messageMetadataRegistry), "Deserializes the physical message body into logical messages");
             context.Pipeline.Register("SerializeMessageConnector", new SerializeMessageConnector(defaultSerializer, messageMetadataRegistry), "Converts a logical message into a physical message");
 
             context.Container.ConfigureComponent(_ => mapper, DependencyLifecycle.SingleInstance);
-            context.Container.ConfigureComponent(_ => messageMetadataRegistry, DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent(_ => logicalMessageFactory, DependencyLifecycle.SingleInstance);
 
             LogFoundMessages(messageMetadataRegistry.GetAllMessages().ToList());
