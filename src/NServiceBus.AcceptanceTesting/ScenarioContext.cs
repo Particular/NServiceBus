@@ -4,6 +4,7 @@
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using Faults;
+    using Logging;
 
     public abstract class ScenarioContext
     {
@@ -26,10 +27,17 @@
 
         ConcurrentQueue<string> traceQueue = new ConcurrentQueue<string>();
 
+        internal LogLevel LogLevel { get; set; } = LogLevel.Info;
+
+        public void SetLogLevel(LogLevel level)
+        {
+            LogLevel = level;
+        }
+
         public class LogItem
         {
             public string Message { get; set; }
-            public string Level { get; set; }
+            public LogLevel Level { get; set; }
 
             public override string ToString()
             {
