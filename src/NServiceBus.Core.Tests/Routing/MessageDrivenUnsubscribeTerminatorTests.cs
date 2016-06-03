@@ -25,7 +25,7 @@
             publishers.AddByAddress("publisher1", typeof(object));
             router = new SubscriptionRouter(publishers, new EndpointInstances(), new TransportAddresses(address => null));
             dispatcher = new FakeDispatcher();
-            terminator = new MessageDrivenUnsubscribeTerminator(router, "replyToAddress", new EndpointName("Endpoint"), dispatcher);
+            terminator = new MessageDrivenUnsubscribeTerminator(router, "replyToAddress", "Endpoint", dispatcher);
         }
 
         [Test]
@@ -69,7 +69,7 @@
             {
                 Extensions = options.Context
             };
-            
+
             Assert.That(async () => await terminator.Invoke(context, c => TaskEx.CompletedTask), Throws.InstanceOf<QueueNotFoundException>());
 
             Assert.AreEqual(0, dispatcher.DispatchedTransportOperations.Count);

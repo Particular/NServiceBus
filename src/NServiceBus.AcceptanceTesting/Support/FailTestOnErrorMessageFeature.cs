@@ -6,7 +6,6 @@
     using Faults;
     using Features;
     using Pipeline;
-    using Routing;
     using Settings;
 
     public class FailTestOnErrorMessageFeature : Feature
@@ -24,7 +23,7 @@
         class CaptureExceptionBehavior : Behavior<ITransportReceiveContext>
         {
             ScenarioContext scenarioContext;
-            EndpointName endpoint;
+            string endpoint;
 
             public CaptureExceptionBehavior(ScenarioContext scenarioContext, ReadOnlySettings settings)
             {
@@ -41,7 +40,7 @@
                 catch (Exception ex)
                 {
                     scenarioContext.FailedMessages.AddOrUpdate(
-                    endpoint.ToString(),
+                    endpoint,
                     new[]
                     {
                         new FailedMessage(context.Message.MessageId, context.Message.Headers, context.Message.Body, ex)

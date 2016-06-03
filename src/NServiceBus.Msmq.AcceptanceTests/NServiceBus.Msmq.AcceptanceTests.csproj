@@ -67,6 +67,7 @@
     <Compile Include="When_replying_to_a_message_sent_via_a_distributor.cs" />
     <Compile Include="When_setting_label_generator.cs" />
     <Compile Include="When_starting_up_the_endpoint.cs" />
+    <Compile Include="When_subscribing_with_address_containing_host_name.cs" />
     <Compile Include="When_subscribing_from_a_worker.cs" />
     <Compile Include="When_TimeToBeReceivedOnForwardedMessages_set_and_tx_scope_receives.cs" />
     <Compile Include="When_timetobereceived_set_and_dtc.cs" />
@@ -86,6 +87,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -6,7 +6,7 @@ namespace NServiceBus.Pipeline
     /// <summary>
     /// Manages the pipeline configuration.
     /// </summary>
-    public class PipelineSettings
+    public partial class PipelineSettings
     {
         /// <summary>
         /// Initializes a new instance of <see cref="PipelineSettings" />.
@@ -26,18 +26,6 @@ namespace NServiceBus.Pipeline
             Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
 
             modifications.Removals.Add(new RemoveStep(stepId));
-        }
-
-        /// <summary>
-        /// Removes the specified step from the pipeline.
-        /// </summary>
-        /// <param name="wellKnownStep">The identifier of the well known step to remove.</param>
-        public void Remove(WellKnownStep wellKnownStep)
-        {
-            // I can only remove a behavior that is registered and other behaviors do not depend on, eg InsertBefore/After
-            Guard.AgainstNull(nameof(wellKnownStep), wellKnownStep);
-
-            Remove((string) wellKnownStep);
         }
 
         /// <summary>
@@ -85,18 +73,15 @@ namespace NServiceBus.Pipeline
         }
 
         /// <summary>
-        /// <see cref="Replace(string,System.Type,string)" />.
+        /// Register a new step into the pipeline.
         /// </summary>
-        /// <param name="wellKnownStep">The identifier of the well known step to replace.</param>
-        /// <param name="newBehavior">The new <see cref="Behavior{TContext}" /> to use.</param>
-        /// <param name="description">The description of the new behavior.</param>
-        public void Replace(WellKnownStep wellKnownStep, Type newBehavior, string description = null)
+        /// <param name="behavior">The <see cref="Behavior{TContext}" /> to execute.</param>
+        /// <param name="description">The description of the behavior.</param>
+        public StepRegistrationSequence Register(Type behavior, string description)
         {
-            BehaviorTypeChecker.ThrowIfInvalid(newBehavior, nameof(newBehavior));
+            BehaviorTypeChecker.ThrowIfInvalid(behavior, nameof(behavior));
 
-            Guard.AgainstNull(nameof(wellKnownStep), wellKnownStep);
-
-            Replace((string) wellKnownStep, newBehavior, description);
+            return Register(behavior.Name, behavior, description);
         }
 
         /// <summary>
@@ -114,6 +99,19 @@ namespace NServiceBus.Pipeline
 
             AddStep(RegisterStep.Create(stepId, behavior, description));
             return new StepRegistrationSequence(AddStep);
+        }
+
+        /// <summary>
+        /// Register a new step into the pipeline.
+        /// </summary>
+        /// <param name="factoryMethod">A callback that creates the behavior instance.</param>
+        /// <param name="description">The description of the behavior.</param>
+        public StepRegistrationSequence Register<T>(Func<IBuilder, T> factoryMethod, string description)
+            where T : IBehavior
+        {
+            BehaviorTypeChecker.ThrowIfInvalid(typeof(T), "behavior");
+
+            return Register(typeof(T).Name, factoryMethod, description);
         }
 
         /// <summary>
@@ -137,6 +135,19 @@ namespace NServiceBus.Pipeline
         /// <summary>
         /// Register a new step into the pipeline.
         /// </summary>
+        /// <param name="behavior">The behavior instance.</param>
+        /// <param name="description">The description of the behavior.</param>
+        public StepRegistrationSequence Register<T>(T behavior, string description)
+            where T : IBehavior
+        {
+            BehaviorTypeChecker.ThrowIfInvalid(typeof(T), nameof(behavior));
+
+            return Register(typeof(T).Name, behavior, description);
+        }
+
+        /// <summary>
+        /// Register a new step into the pipeline.
+        /// </summary>
         /// <param name="stepId">The identifier of the new step to add.</param>
         /// <param name="behavior">The behavior instance.</param>
         /// <param name="description">The description of the behavior.</param>
@@ -151,20 +162,6 @@ namespace NServiceBus.Pipeline
             AddStep(RegisterStep.Create(stepId, typeof(T), description, _ => behavior));
             return new StepRegistrationSequence(AddStep);
         }
-
-        /// <summary>
-        /// <see cref="Register(string,System.Type,string)" />.
-        /// </summary>
-        /// <param name="wellKnownStep">The identifier of the step to add.</param>
-        /// <param name="behavior">The <see cref="Behavior{TContext}" /> to execute.</param>
-        /// <param name="description">The description of the behavior.</param>
-        public StepRegistrationSequence Register(WellKnownStep wellKnownStep, Type behavior, string description)
-        {
-            Guard.AgainstNull(nameof(wellKnownStep), wellKnownStep);
-
-            return Register((string) wellKnownStep, behavior, description);
-        }
-
 
         /// <summary>
         /// Register a new step into the pipeline.

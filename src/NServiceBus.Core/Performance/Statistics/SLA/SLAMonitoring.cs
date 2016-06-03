@@ -1,7 +1,6 @@
 namespace NServiceBus.Features
 {
     using System;
-    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
@@ -32,7 +31,7 @@ namespace NServiceBus.Features
                 throw new Exception("Endpoint SLA is required for the `SLA violation countdown` counter. Pass the SLA for this endpoint to .EnableSLAPerformanceCounter(mySLA).");
             }
 
-            var counterInstanceName = context.Settings.EndpointName().ToString();
+            var counterInstanceName = context.Settings.EndpointName();
             var slaBreachCounter = new EstimatedTimeToSLABreachCounter(endpointSla, counterInstanceName);
 
             var notifications = context.Settings.Get<NotificationSubscriptions>();
@@ -74,13 +73,12 @@ namespace NServiceBus.Features
                     OccurredAt = processingEnded
                 };
 
-                lock (dataPoints)
+                lock (locker)
                 {
-                    dataPoints.Add(dataPoint);
-                    if (dataPoints.Count > MaxDataPoints)
-                    {
-                        dataPoints.RemoveRange(0, dataPoints.Count - MaxDataPoints);
-                    }
+                    var i = index;
+                    i = (i + 1) & MaxDataPointsMask;
+                    dataPoints[i] = dataPoint;
+                    index = i;
                 }
 
                 UpdateTimeToSLABreach();
@@ -89,7 +87,7 @@ namespace NServiceBus.Features
             protected override Task OnStart(IMessageSession session)
             {
                 counter = PerformanceCounterHelper.InstantiatePerformanceCounter("SLA violation countdown", counterInstanceName);
-                timer = new Timer(RemoveOldDataPoints, null, 0, 2000);
+                timer = new Timer(TriggerUpdateTimeToSLABreach, null, 0, 2000);
 
                 return TaskEx.CompletedTask;
             }
@@ -104,26 +102,42 @@ namespace NServiceBus.Features
 
             void UpdateTimeToSLABreach()
             {
-                List<DataPoint> snapshots;
+                int indexLatest;
+                var snapshots = new DataPoint[MaxDataPoints];
 
-                lock (dataPoints)
+                lock (locker)
                 {
-                    snapshots = new List<DataPoint>(dataPoints);
+                    indexLatest = index;
+                    Array.Copy(dataPoints, snapshots, MaxDataPoints);
                 }
 
-                var secondsToSLABreach = CalculateTimeToSLABreach(snapshots);
+                var secondsToSLABreach = CalculateTimeToSLABreach(snapshots, indexLatest);
 
                 counter.RawValue = Convert.ToInt32(Math.Min(secondsToSLABreach, int.MaxValue));
             }
 
-            double CalculateTimeToSLABreach(List<DataPoint> snapshots)
+            double CalculateTimeToSLABreach(DataPoint[] snapshots, int indexLatest)
             {
+                if (indexLatest < 0)
+                {
+                    return double.MaxValue;
+                }
+
                 DataPoint? first = null, previous = null;
 
                 var criticalTimeDelta = TimeSpan.Zero;
 
-                foreach (var current in snapshots)
+                var last = snapshots[indexLatest];
+                var oldestDataToKeep = DateTime.UtcNow - new TimeSpan(last.ProcessingTime.Ticks*3);
+
+                for (var i = 0; i < snapshots.Length; i++)
                 {
+                    var current = snapshots[i];
+                    if (current.OccurredAt < oldestDataToKeep)
+                    {
+                        continue;
+                    }
+
                     if (!first.HasValue)
                     {
                         first = current;
@@ -151,9 +165,9 @@ namespace NServiceBus.Features
 
                 var lastKnownCriticalTime = previous.Value.CriticalTime.TotalSeconds;
 
-                var criticalTimeDeltaPerSecond = criticalTimeDelta.TotalSeconds / elapsedTime.TotalSeconds;
+                var criticalTimeDeltaPerSecond = criticalTimeDelta.TotalSeconds/elapsedTime.TotalSeconds;
 
-                var secondsToSLABreach = (endpointSla.TotalSeconds - lastKnownCriticalTime) / criticalTimeDeltaPerSecond;
+                var secondsToSLABreach = (endpointSla.TotalSeconds - lastKnownCriticalTime)/criticalTimeDeltaPerSecond;
 
                 if (secondsToSLABreach < 0.0)
                 {
@@ -163,31 +177,22 @@ namespace NServiceBus.Features
                 return secondsToSLABreach;
             }
 
-            void RemoveOldDataPoints(object state)
+            void TriggerUpdateTimeToSLABreach(object state)
             {
-                lock (dataPoints)
-                {
-                    var last = dataPoints.Count == 0 ? default(DataPoint?) : dataPoints[dataPoints.Count - 1];
-
-                    if (last.HasValue)
-                    {
-                        var oldestDataToKeep = DateTime.UtcNow - new TimeSpan(last.Value.ProcessingTime.Ticks * 3);
-
-                        dataPoints.RemoveAll(d => d.OccurredAt < oldestDataToKeep);
-                    }
-                }
-
                 UpdateTimeToSLABreach();
             }
 
             PerformanceCounter counter;
-            List<DataPoint> dataPoints = new List<DataPoint>();
+            object locker = new object();
+            DataPoint[] dataPoints = new DataPoint[MaxDataPoints];
             TimeSpan endpointSla;
             string counterInstanceName;
             // ReSharper disable once NotAccessedField.Local
             Timer timer;
+            int index;
 
-            const int MaxDataPoints = 10;
+            const int MaxDataPoints = 16;
+            const int MaxDataPointsMask = MaxDataPoints - 1;
 
             struct DataPoint
             {

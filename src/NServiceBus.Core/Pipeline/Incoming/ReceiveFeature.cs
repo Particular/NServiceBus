@@ -5,7 +5,6 @@
     using Janitor;
     using NServiceBus.Outbox;
     using Persistence;
-    using Pipeline;
     using Transports;
     using Unicast;
 
@@ -18,14 +17,14 @@
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.Pipeline.Register("TransportReceiveToPhysicalMessageProcessingConnector", typeof(TransportReceiveToPhysicalMessageProcessingConnector), "Allows to abort processing the message");
-            context.Pipeline.Register("LoadHandlersConnector", typeof(LoadHandlersConnector), "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
+            context.Pipeline.Register(typeof(TransportReceiveToPhysicalMessageProcessingConnector), "Allows to abort processing the message");
+            context.Pipeline.Register(typeof(LoadHandlersConnector), "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
 
             context.Pipeline
-                .Register(WellKnownStep.ExecuteUnitOfWork, typeof(UnitOfWorkBehavior), "Executes the UoW")
-                .Register(WellKnownStep.MutateIncomingTransportMessage, typeof(MutateIncomingTransportMessageBehavior), "Executes IMutateIncomingTransportMessages")
-                .Register(WellKnownStep.MutateIncomingMessages, typeof(MutateIncomingMessageBehavior), "Executes IMutateIncomingMessages")
-                .Register(WellKnownStep.InvokeHandlers, typeof(InvokeHandlerTerminator), "Calls the IHandleMessages<T>.Handle(T)");
+                .Register("ExecuteUnitOfWork", typeof(UnitOfWorkBehavior), "Executes the UoW")
+                .Register("MutateIncomingTransportMessage", typeof(MutateIncomingTransportMessageBehavior), "Executes IMutateIncomingTransportMessages")
+                .Register("MutateIncomingMessages", typeof(MutateIncomingMessageBehavior), "Executes IMutateIncomingMessages")
+                .Register("InvokeHandlers", typeof(InvokeHandlerTerminator), "Calls the IHandleMessages<T>.Handle(T)");
 
             context.Container.ConfigureComponent(b =>
             {

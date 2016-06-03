@@ -6,7 +6,6 @@
     using NServiceBus.Sagas;
     using ObjectBuilder;
     using Persistence;
-    using Pipeline;
 
     /// <summary>
     /// Used to configure saga.
@@ -44,7 +43,7 @@
             }
 
             // Register the Saga related behaviors for incoming messages
-            context.Pipeline.Register(WellKnownStep.InvokeSaga, typeof(SagaPersistenceBehavior), "Invokes the saga logic");
+            context.Pipeline.Register("InvokeSaga", typeof(SagaPersistenceBehavior), "Invokes the saga logic");
             context.Pipeline.Register("InvokeSagaNotFound", typeof(InvokeSagaNotFoundBehavior), "Invokes saga not found logic");
             context.Pipeline.Register("AttachSagaDetailsToOutGoingMessage", typeof(AttachSagaDetailsToOutGoingMessageBehavior), "Makes sure that outgoing messages have saga info attached to them");
 

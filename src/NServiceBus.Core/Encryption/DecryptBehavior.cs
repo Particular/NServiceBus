@@ -54,7 +54,7 @@ namespace NServiceBus
             public DecryptRegistration(EncryptionInspector inspector, IEncryptionService encryptionService)
                 : base("InvokeDecryption", typeof(DecryptBehavior), "Invokes the decryption logic", b => new DecryptBehavior(inspector, encryptionService))
             {
-                InsertBefore(WellKnownStep.MutateIncomingMessages);
+                InsertBefore("MutateIncomingMessages");
             }
         }
     }

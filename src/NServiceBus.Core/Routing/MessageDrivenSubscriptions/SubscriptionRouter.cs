@@ -28,7 +28,7 @@
             return results;
         }
 
-        Task<IEnumerable<EndpointInstance>> ResolveInstances(EndpointName endpoint)
+        Task<IEnumerable<EndpointInstance>> ResolveInstances(string endpoint)
         {
             return endpointInstances.FindInstances(endpoint);
         }

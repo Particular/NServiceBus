@@ -13,7 +13,6 @@ namespace NServiceBus
     using ObjectBuilder;
     using ObjectBuilder.Common;
     using Pipeline;
-    using Routing;
     using Settings;
     using Transports;
 
@@ -31,7 +30,7 @@ namespace NServiceBus
         {
             Guard.AgainstNullAndEmpty(nameof(endpointName), endpointName);
 
-            Settings.Set<EndpointName>(new EndpointName(endpointName));
+            Settings.Set("NServiceBus.Routing.EndpointName", endpointName);
 
             configurationSourceToUse = new DefaultConfigurationSource();
 

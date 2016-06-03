@@ -68,10 +68,12 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NotAutoSubscribedSagaSagaData> mapper)
                 {
+                    mapper.ConfigureMapping<MyEvent>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
                 }
 
                 public class NotAutoSubscribedSagaSagaData : ContainSagaData
                 {
+                    public virtual string SomeId { get; set; }
                 }
             }
 
@@ -85,16 +87,19 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NotAutosubscribeSuperClassEventSagaData> mapper)
                 {
+                    mapper.ConfigureMapping<MyEventBase>(saga => saga.SomeId).ToSaga(saga => saga.SomeId);
                 }
 
                 public class NotAutosubscribeSuperClassEventSagaData : ContainSagaData
                 {
+                    public virtual string SomeId { get; set; }
                 }
             }
         }
 
         public class MyEventBase : IEvent
         {
+            public string SomeId { get; set; }
         }
 
         public class MyEventWithParent : MyEventBase
@@ -107,6 +112,7 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
 
         public class MyEvent : IEvent
         {
+            public string SomeId { get; set; }
         }
     }
 }

@@ -71,7 +71,7 @@
         {
             public Registration(Conventions conventions) : base("DataBusReceive", typeof(DataBusReceiveBehavior), "Copies the databus shared data back to the logical message", b => new DataBusReceiveBehavior(b.Build<IDataBus>(), b.Build<IDataBusSerializer>(), conventions))
             {
-                InsertAfter(WellKnownStep.MutateIncomingMessages);
+                InsertAfter("MutateIncomingMessages");
             }
         }
     }

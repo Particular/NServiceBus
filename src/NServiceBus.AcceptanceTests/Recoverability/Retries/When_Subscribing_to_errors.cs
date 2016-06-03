@@ -6,6 +6,7 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using Features;
+    using Logging;
     using NServiceBus.Config;
     using NUnit.Framework;
 
@@ -27,7 +28,7 @@
                 .Run();
 
             Assert.IsInstanceOf<SimulatedException>(context.MessageSentToErrorException);
-            Assert.True(context.Logs.Any(l => l.Level == "error" && l.Message.Contains("Simulated exception message")), "The last exception should be logged as `error` before sending it to the error queue");
+            Assert.True(context.Logs.Any(l => l.Level == LogLevel.Error && l.Message.Contains("Simulated exception message")), "The last exception should be logged as `error` before sending it to the error queue");
 
             //FLR max retries = 3 means we will be processing 4 times. SLR max retries = 2 means we will do 3*FLR
             Assert.AreEqual(4*3, context.TotalNumberOfFLRTimesInvokedInHandler);

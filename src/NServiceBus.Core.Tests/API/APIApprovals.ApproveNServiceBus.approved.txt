@@ -103,6 +103,10 @@ namespace NServiceBus
     }
     public class static ConfigureFileShareDataBus
     {
+        public static NServiceBus.DataBus.DataBusExtensions<NServiceBus.FileShareDataBus> BasePath(this NServiceBus.DataBus.DataBusExtensions<NServiceBus.FileShareDataBus> config, string basePath) { }
+        [System.ObsoleteAttribute("Use `BasePath(this DataBusExtensions<FileShareDataBus> config, string basePath)` " +
+            "instead. The member currently throws a NotImplementedException. Will be removed " +
+            "in version 7.0.0.", true)]
         public static NServiceBus.DataBus.DataBusExtentions<NServiceBus.FileShareDataBus> BasePath(this NServiceBus.DataBus.DataBusExtentions<NServiceBus.FileShareDataBus> config, string basePath) { }
     }
     public class static ConfigureForwarding
@@ -365,9 +369,9 @@ namespace NServiceBus
         [System.ObsoleteAttribute("Headers are not \'set\' only on the outgoing pipeline. The member currently throws " +
             "a NotImplementedException. Will be removed in version 7.0.0.", true)]
         public static string GetMessageHeader(this NServiceBus.IBus bus, object msg, string key) { }
-        [System.ObsoleteAttribute("Headers can be set using the ``.SetHeader` method on the context object passed in" +
-            "to the behavior or mutator. The member currently throws a NotImplementedExceptio" +
-            "n. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use the overload of the Send, Publish or Reply method that accepts an options par" +
+            "ameter. Call options.SetHeader(\"MyHeader\",\"MyValue\") instead. The member current" +
+            "ly throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
         public static void SetMessageHeader(this NServiceBus.IBus bus, object msg, string key, string value) { }
     }
     public class static FileBasedRoutingConfigurationExtensions
@@ -682,9 +686,13 @@ namespace NServiceBus
     }
     public class static JsonSerializerConfigurationExtensions
     {
-        public static void Encoding(this NServiceBus.Serialization.SerializationExtentions<NServiceBus.JsonSerializer> config, System.Text.Encoding encoding) { }
+        public static void Encoding(this NServiceBus.Serialization.SerializationExtensions<NServiceBus.JsonSerializer> config, System.Text.Encoding encoding) { }
+        [System.ObsoleteAttribute("Use `Encoding(this SerializationExtensions<JsonSerializer> config, Encoding encod" +
+            "ing)` instead. The member currently throws a NotImplementedException. Will be re" +
+            "moved in version 7.0.0.", true)]
+        public static void Encoding(this NServiceBus.SerializationExtentions<NServiceBus.JsonSerializer> config, System.Text.Encoding encoding) { }
     }
-    public class static LoadMessageHandlersExtentions
+    public class static LoadMessageHandlersExtensions
     {
         public static void ExecuteTheseHandlersFirst(this NServiceBus.EndpointConfiguration config, System.Collections.Generic.IEnumerable<System.Type> handlerTypes) { }
         public static void ExecuteTheseHandlersFirst(this NServiceBus.EndpointConfiguration config, params System.Type[] handlerTypes) { }
@@ -695,6 +703,8 @@ namespace NServiceBus
             "ntedException. Will be removed in version 7.0.0.", true)]
         public static void LoadMessageHandlers<T>(this NServiceBus.EndpointConfiguration config, NServiceBus.First<T> order) { }
     }
+    [System.ObsoleteAttribute("Use `LoadMessageHandlersExtensions` instead. Will be removed in version 7.0.0.", true)]
+    public class static LoadMessageHandlersExtentions { }
     public sealed class LogicalAddress
     {
         public LogicalAddress(NServiceBus.Routing.EndpointInstance endpointInstance, [JetBrains.Annotations.NotNullAttribute()] string qualifier) { }
@@ -778,32 +788,47 @@ namespace NServiceBus
     }
     public class static PersistenceConfig
     {
-        public static NServiceBus.PersistenceExtentions<T> UsePersistence<T>(this NServiceBus.EndpointConfiguration config)
+        public static NServiceBus.PersistenceExtensions<T> UsePersistence<T>(this NServiceBus.EndpointConfiguration config)
             where T : NServiceBus.Persistence.PersistenceDefinition { }
-        public static NServiceBus.PersistenceExtentions<T, S> UsePersistence<T, S>(this NServiceBus.EndpointConfiguration config)
+        public static NServiceBus.PersistenceExtensions<T, S> UsePersistence<T, S>(this NServiceBus.EndpointConfiguration config)
             where T : NServiceBus.Persistence.PersistenceDefinition
             where S : NServiceBus.Persistence.StorageType { }
-        public static NServiceBus.PersistenceExtentions UsePersistence(this NServiceBus.EndpointConfiguration config, System.Type definitionType) { }
+        public static NServiceBus.PersistenceExtensions UsePersistence(this NServiceBus.EndpointConfiguration config, System.Type definitionType) { }
     }
-    public class PersistenceExtentions : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
+    public class PersistenceExtensions : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
-        public PersistenceExtentions(System.Type definitionType, NServiceBus.Settings.SettingsHolder settings, System.Type storageType) { }
+        public PersistenceExtensions(System.Type definitionType, NServiceBus.Settings.SettingsHolder settings, System.Type storageType) { }
         [System.ObsoleteAttribute("Use `UsePersistence<T, S>()` instead. Will be removed in version 7.0.0.", true)]
-        public NServiceBus.PersistenceExtentions For(params NServiceBus.Persistence.Storage[] specificStorages) { }
+        public NServiceBus.PersistenceExtensions For(params NServiceBus.Persistence.Storage[] specificStorages) { }
     }
-    public class PersistenceExtentions<T> : NServiceBus.PersistenceExtentions
+    public class PersistenceExtensions<T> : NServiceBus.PersistenceExtensions
         where T : NServiceBus.Persistence.PersistenceDefinition
     {
-        public PersistenceExtentions(NServiceBus.Settings.SettingsHolder settings) { }
-        protected PersistenceExtentions(NServiceBus.Settings.SettingsHolder settings, System.Type storageType) { }
+        public PersistenceExtensions(NServiceBus.Settings.SettingsHolder settings) { }
+        protected PersistenceExtensions(NServiceBus.Settings.SettingsHolder settings, System.Type storageType) { }
         [System.ObsoleteAttribute("Use `UsePersistence<T, S>()` instead. Will be removed in version 7.0.0.", true)]
-        public NServiceBus.PersistenceExtentions<T> For(params NServiceBus.Persistence.Storage[] specificStorages) { }
+        public NServiceBus.PersistenceExtensions<T> For(params NServiceBus.Persistence.Storage[] specificStorages) { }
     }
-    public class PersistenceExtentions<T, S> : NServiceBus.PersistenceExtentions<T>
+    public class PersistenceExtensions<T, S> : NServiceBus.PersistenceExtensions<T>
         where T : NServiceBus.Persistence.PersistenceDefinition
         where S : NServiceBus.Persistence.StorageType
     {
-        public PersistenceExtentions(NServiceBus.Settings.SettingsHolder settings) { }
+        public PersistenceExtensions(NServiceBus.Settings.SettingsHolder settings) { }
+    }
+    [System.ObsoleteAttribute("Use `PersistenceExtensions` instead. Will be removed in version 7.0.0.", true)]
+    public class PersistenceExtentions
+    {
+        public PersistenceExtentions() { }
+    }
+    [System.ObsoleteAttribute("Use `PersistenceExtensions<T>` instead. Will be removed in version 7.0.0.", true)]
+    public class PersistenceExtentions<T>
+    {
+        public PersistenceExtentions() { }
+    }
+    [System.ObsoleteAttribute("Use `PersistenceExtensions<T, S>` instead. Will be removed in version 7.0.0.", true)]
+    public class PersistenceExtentions<T, S>
+    {
+        public PersistenceExtentions() { }
     }
     [System.ObsoleteAttribute("For performance reasons it is no longer possible to instrument the pipeline execu" +
         "tion. Will be removed in version 7.0.0.", true)]
@@ -913,10 +938,12 @@ namespace NServiceBus
     {
         public NServiceBus.ToSagaExpression<TSagaData, TMessage> ConfigureMapping<TMessage>(System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty) { }
     }
-    public class static ScaleOutExtentions
+    public class static ScaleOutExtensions
     {
         public static NServiceBus.Settings.ScaleOutSettings ScaleOut(this NServiceBus.EndpointConfiguration config) { }
     }
+    [System.ObsoleteAttribute("Use `ScaleOutExtensions` instead. Will be removed in version 7.0.0.", true)]
+    public class static ScaleOutExtentions { }
     [System.ObsoleteAttribute("Use extension methods provided on ISendOnlyBus. Will be removed in version 7.0.0." +
         "", true)]
     public class Schedule
@@ -948,9 +975,9 @@ namespace NServiceBus
     {
         public static void AddDeserializer<T>(this NServiceBus.EndpointConfiguration config)
             where T : NServiceBus.Serialization.SerializationDefinition, new () { }
-        public static NServiceBus.Serialization.SerializationExtentions<T> UseSerialization<T>(this NServiceBus.EndpointConfiguration config)
+        public static NServiceBus.Serialization.SerializationExtensions<T> UseSerialization<T>(this NServiceBus.EndpointConfiguration config)
             where T : NServiceBus.Serialization.SerializationDefinition, new () { }
-        public static NServiceBus.Serialization.SerializationExtentions<T> UseSerialization<T>(this NServiceBus.EndpointConfiguration config, T serializationDefinition)
+        public static NServiceBus.Serialization.SerializationExtensions<T> UseSerialization<T>(this NServiceBus.EndpointConfiguration config, T serializationDefinition)
             where T : NServiceBus.Serialization.SerializationDefinition { }
         [System.ObsoleteAttribute("To use a custom serializer derive from SerializationDefinition and provide a fact" +
             "ory method for creating the serializer instance. The member currently throws a N" +
@@ -962,16 +989,23 @@ namespace NServiceBus
         public static bool ShouldSkipSerialization(this NServiceBus.Pipeline.IOutgoingLogicalMessageContext context) { }
         public static void SkipSerialization(this NServiceBus.Pipeline.IOutgoingLogicalMessageContext context) { }
     }
-    public class static SettingsExtentions
+    [System.ObsoleteAttribute("Use `SerializationExtensions<T>` instead. Will be removed in version 7.0.0.", true)]
+    public class SerializationExtentions<T>
+    {
+        public SerializationExtentions() { }
+    }
+    public class static SettingsExtensions
     {
         public static NServiceBus.Routing.EndpointInstance EndpointInstanceName(this NServiceBus.Settings.ReadOnlySettings settings) { }
-        public static NServiceBus.Routing.EndpointName EndpointName(this NServiceBus.Settings.ReadOnlySettings settings) { }
+        public static string EndpointName(this NServiceBus.Settings.ReadOnlySettings settings) { }
         public static System.Collections.Generic.IList<System.Type> GetAvailableTypes(this NServiceBus.Settings.ReadOnlySettings settings) { }
         public static T GetConfigSection<T>(this NServiceBus.Settings.ReadOnlySettings settings)
             where T :  class, new () { }
         public static string InstanceSpecificQueue(this NServiceBus.Settings.ReadOnlySettings settings) { }
         public static string LocalAddress(this NServiceBus.Settings.ReadOnlySettings settings) { }
     }
+    [System.ObsoleteAttribute("Use `SettingsExtensions` instead. Will be removed in version 7.0.0.", true)]
+    public class static SettingsExtentions { }
     public class static SLAMonitoringConfig
     {
         public static void EnableSLAPerformanceCounter(this NServiceBus.EndpointConfiguration config, System.TimeSpan sla) { }
@@ -1067,12 +1101,12 @@ namespace NServiceBus
     }
     public sealed class UnicastRoutingTarget
     {
-        public NServiceBus.Routing.EndpointName Endpoint { get; }
+        public string Endpoint { get; }
         public NServiceBus.Routing.EndpointInstance Instance { get; }
         public string TransportAddress { get; }
         public override bool Equals(object obj) { }
         public override int GetHashCode() { }
-        public static NServiceBus.UnicastRoutingTarget ToAnonymousInstance(NServiceBus.Routing.EndpointName endpoint, string transportAddress) { }
+        public static NServiceBus.UnicastRoutingTarget ToAnonymousInstance(string endpoint, string transportAddress) { }
         public static NServiceBus.UnicastRoutingTarget ToEndpointInstance(NServiceBus.Routing.EndpointInstance instance) { }
         public static NServiceBus.UnicastRoutingTarget ToTransportAddress(string transportAddress) { }
     }
@@ -1090,9 +1124,9 @@ namespace NServiceBus
     }
     public class static UseDataBusExtensions
     {
-        public static NServiceBus.DataBus.DataBusExtentions<T> UseDataBus<T>(this NServiceBus.EndpointConfiguration config)
+        public static NServiceBus.DataBus.DataBusExtensions<T> UseDataBus<T>(this NServiceBus.EndpointConfiguration config)
             where T : NServiceBus.DataBus.DataBusDefinition, new () { }
-        public static NServiceBus.DataBus.DataBusExtentions UseDataBus(this NServiceBus.EndpointConfiguration config, System.Type dataBusType) { }
+        public static NServiceBus.DataBus.DataBusExtensions UseDataBus(this NServiceBus.EndpointConfiguration config, System.Type dataBusType) { }
     }
     public class static UseTransportExtensions
     {
@@ -1112,11 +1146,23 @@ namespace NServiceBus
         public string Value { get; set; }
         public void GetObjectData(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
     }
-    public class static XmlSerializationExtentions
+    public class static XmlSerializationExtensions
     {
-        public static NServiceBus.Serialization.SerializationExtentions<NServiceBus.XmlSerializer> DontWrapRawXml(this NServiceBus.Serialization.SerializationExtentions<NServiceBus.XmlSerializer> config) { }
-        public static NServiceBus.Serialization.SerializationExtentions<NServiceBus.XmlSerializer> Namespace(this NServiceBus.Serialization.SerializationExtentions<NServiceBus.XmlSerializer> config, string namespaceToUse) { }
-        public static NServiceBus.Serialization.SerializationExtentions<NServiceBus.XmlSerializer> SanitizeInput(this NServiceBus.Serialization.SerializationExtentions<NServiceBus.XmlSerializer> config) { }
+        public static NServiceBus.Serialization.SerializationExtensions<NServiceBus.XmlSerializer> DontWrapRawXml(this NServiceBus.Serialization.SerializationExtensions<NServiceBus.XmlSerializer> config) { }
+        [System.ObsoleteAttribute("Use `DontWrapRawXml(this SerializationExtensions<XmlSerializer> config)` instead." +
+            " The member currently throws a NotImplementedException. Will be removed in versi" +
+            "on 7.0.0.", true)]
+        public static NServiceBus.SerializationExtentions<NServiceBus.XmlSerializer> DontWrapRawXml(this NServiceBus.SerializationExtentions<NServiceBus.XmlSerializer> config) { }
+        public static NServiceBus.Serialization.SerializationExtensions<NServiceBus.XmlSerializer> Namespace(this NServiceBus.Serialization.SerializationExtensions<NServiceBus.XmlSerializer> config, string namespaceToUse) { }
+        [System.ObsoleteAttribute("Use `Namespace(this SerializationExtensions<XmlSerializer> config, string namespa" +
+            "ceToUse)` instead. The member currently throws a NotImplementedException. Will b" +
+            "e removed in version 7.0.0.", true)]
+        public static NServiceBus.SerializationExtentions<NServiceBus.XmlSerializer> Namespace(this NServiceBus.SerializationExtentions<NServiceBus.XmlSerializer> config, string namespaceToUse) { }
+        public static NServiceBus.Serialization.SerializationExtensions<NServiceBus.XmlSerializer> SanitizeInput(this NServiceBus.Serialization.SerializationExtensions<NServiceBus.XmlSerializer> config) { }
+        [System.ObsoleteAttribute("Use `SanitizeInput(this SerializationExtensions<XmlSerializer> config)` instead. " +
+            "The member currently throws a NotImplementedException. Will be removed in versio" +
+            "n 7.0.0.", true)]
+        public static NServiceBus.SerializationExtentions<NServiceBus.XmlSerializer> SanitizeInput(this NServiceBus.SerializationExtentions<NServiceBus.XmlSerializer> config) { }
     }
     public class XmlSerializer : NServiceBus.Serialization.SerializationDefinition
     {
@@ -1357,14 +1403,24 @@ namespace NServiceBus.DataBus
         protected DataBusDefinition() { }
         protected internal abstract System.Type ProvidedByFeature();
     }
-    public class DataBusExtentions : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
+    public class DataBusExtensions : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
-        public DataBusExtentions(NServiceBus.Settings.SettingsHolder settings) { }
+        public DataBusExtensions(NServiceBus.Settings.SettingsHolder settings) { }
     }
-    public class DataBusExtentions<T> : NServiceBus.DataBus.DataBusExtentions
+    public class DataBusExtensions<T> : NServiceBus.DataBus.DataBusExtensions
         where T : NServiceBus.DataBus.DataBusDefinition
     {
-        public DataBusExtentions(NServiceBus.Settings.SettingsHolder settings) { }
+        public DataBusExtensions(NServiceBus.Settings.SettingsHolder settings) { }
+    }
+    [System.ObsoleteAttribute("Use `DataBusExtensions` instead. Will be removed in version 7.0.0.", true)]
+    public class DataBusExtentions
+    {
+        public DataBusExtentions() { }
+    }
+    [System.ObsoleteAttribute("Use `DataBusExtensions<T>` instead. Will be removed in version 7.0.0.", true)]
+    public class DataBusExtentions<T>
+    {
+        public DataBusExtentions() { }
     }
     public interface IDataBus
     {
@@ -1629,7 +1685,7 @@ namespace NServiceBus.Features
     [System.ObsoleteAttribute("Use the ConfigureSerialization Feature class instead. Use `ConfigureSerialization" +
         "` instead. Will be removed in version 7.0.0.", true)]
     public class static SerializationFeatureHelper { }
-    public class static SettingsExtentions
+    public class static SettingsExtensions
     {
         public static NServiceBus.Settings.SettingsHolder EnableFeatureByDefault<T>(this NServiceBus.Settings.SettingsHolder settings)
             where T : NServiceBus.Features.Feature { }
@@ -2183,22 +2239,35 @@ namespace NServiceBus.Pipeline
     }
     public class PipelineSettings
     {
+        public NServiceBus.Pipeline.StepRegistrationSequence Register(System.Type behavior, string description) { }
         public NServiceBus.Pipeline.StepRegistrationSequence Register(string stepId, System.Type behavior, string description) { }
+        public NServiceBus.Pipeline.StepRegistrationSequence Register<T>(System.Func<NServiceBus.ObjectBuilder.IBuilder, T> factoryMethod, string description)
+            where T : NServiceBus.Pipeline.IBehavior { }
         public NServiceBus.Pipeline.StepRegistrationSequence Register<T>(string stepId, System.Func<NServiceBus.ObjectBuilder.IBuilder, T> factoryMethod, string description)
+            where T : NServiceBus.Pipeline.IBehavior { }
+        public NServiceBus.Pipeline.StepRegistrationSequence Register<T>(T behavior, string description)
             where T : NServiceBus.Pipeline.IBehavior { }
         public NServiceBus.Pipeline.StepRegistrationSequence Register<T>(string stepId, T behavior, string description)
             where T : NServiceBus.Pipeline.IBehavior { }
-        public NServiceBus.Pipeline.StepRegistrationSequence Register(NServiceBus.Pipeline.WellKnownStep wellKnownStep, System.Type behavior, string description) { }
         public void Register<TRegisterStep>()
             where TRegisterStep : NServiceBus.Pipeline.RegisterStep, new () { }
         public void Register(NServiceBus.Pipeline.RegisterStep registration) { }
+        [System.ObsoleteAttribute("Use `Register(string stepId, Type behavior, string description)` instead. The mem" +
+            "ber currently throws a NotImplementedException. Will be removed in version 7.0.0" +
+            ".", true)]
+        public NServiceBus.Pipeline.StepRegistrationSequence Register(NServiceBus.Pipeline.WellKnownStep wellKnownStep, System.Type behavior, string description) { }
         public void Remove(string stepId) { }
+        [System.ObsoleteAttribute("Use `Remove(string stepId)` instead. The member currently throws a NotImplemented" +
+            "Exception. Will be removed in version 7.0.0.", true)]
         public void Remove(NServiceBus.Pipeline.WellKnownStep wellKnownStep) { }
         public void Replace(string stepId, System.Type newBehavior, string description = null) { }
         public void Replace<T>(string stepId, T newBehavior, string description = null)
             where T : NServiceBus.Pipeline.IBehavior { }
         public void Replace<T>(string stepId, System.Func<NServiceBus.ObjectBuilder.IBuilder, T> factoryMethod, string description = null)
             where T : NServiceBus.Pipeline.IBehavior { }
+        [System.ObsoleteAttribute("Use `Replace(string stepId, Type newBehavior, string description)` instead. The m" +
+            "ember currently throws a NotImplementedException. Will be removed in version 7.0" +
+            ".0.", true)]
         public void Replace(NServiceBus.Pipeline.WellKnownStep wellKnownStep, System.Type newBehavior, string description = null) { }
     }
     public abstract class PipelineTerminator<T> : NServiceBus.Pipeline.StageConnector<T, NServiceBus.Pipeline.PipelineTerminator<T>.ITerminatingContext>, NServiceBus.IPipelineTerminator
@@ -2217,14 +2286,26 @@ namespace NServiceBus.Pipeline
         public System.Type BehaviorType { get; }
         public string Description { get; }
         public string StepId { get; }
-        public void InsertAfter(NServiceBus.Pipeline.WellKnownStep step) { }
         public void InsertAfter(string id) { }
-        public void InsertAfterIfExists(NServiceBus.Pipeline.WellKnownStep step) { }
+        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
+            " extension documentation for more information. The member currently throws a Not" +
+            "ImplementedException. Will be removed in version 7.0.0.", true)]
+        public void InsertAfter(NServiceBus.Pipeline.WellKnownStep step) { }
         public void InsertAfterIfExists(string id) { }
-        public void InsertBefore(NServiceBus.Pipeline.WellKnownStep step) { }
+        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
+            " extension documentation for more information. The member currently throws a Not" +
+            "ImplementedException. Will be removed in version 7.0.0.", true)]
+        public void InsertAfterIfExists(NServiceBus.Pipeline.WellKnownStep step) { }
         public void InsertBefore(string id) { }
-        public void InsertBeforeIfExists(NServiceBus.Pipeline.WellKnownStep step) { }
+        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
+            " extension documentation for more information. The member currently throws a Not" +
+            "ImplementedException. Will be removed in version 7.0.0.", true)]
+        public void InsertBefore(NServiceBus.Pipeline.WellKnownStep step) { }
         public void InsertBeforeIfExists(string id) { }
+        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
+            " extension documentation for more information. The member currently throws a Not" +
+            "ImplementedException. Will be removed in version 7.0.0.", true)]
+        public void InsertBeforeIfExists(NServiceBus.Pipeline.WellKnownStep step) { }
         public virtual bool IsEnabled(NServiceBus.Settings.ReadOnlySettings settings) { }
     }
     public abstract class StageConnector<TFromContext, TToContext> : NServiceBus.IStageConnector, NServiceBus.Pipeline.IBehavior, NServiceBus.Pipeline.IBehavior<TFromContext, TToContext>
@@ -2246,6 +2327,9 @@ namespace NServiceBus.Pipeline
     public class StepRegistrationSequence
     {
         public NServiceBus.Pipeline.StepRegistrationSequence Register(string stepId, System.Type behavior, string description) { }
+        [System.ObsoleteAttribute("Use `Register(string stepId, Type behavior, string description)` instead. The mem" +
+            "ber currently throws a NotImplementedException. Will be removed in version 7.0.0" +
+            ".", true)]
         public NServiceBus.Pipeline.StepRegistrationSequence Register(NServiceBus.Pipeline.WellKnownStep wellKnownStep, System.Type behavior, string description) { }
     }
     public class static TransportMessageContextExtensions
@@ -2254,29 +2338,79 @@ namespace NServiceBus.Pipeline
         public static bool TryGetIncomingPhysicalMessage(this NServiceBus.Pipeline.IOutgoingLogicalMessageContext context, out NServiceBus.Transports.IncomingMessage message) { }
         public static bool TryGetIncomingPhysicalMessage(this NServiceBus.Pipeline.IOutgoingPhysicalMessageContext context, out NServiceBus.Transports.IncomingMessage message) { }
     }
+    [System.ObsoleteAttribute("WellKnownSteps are obsolete. Use an appropriate pipeline stage for your behavior " +
+        "instead. Consult the pipeline extension documentation for more information. Will" +
+        " be removed in version 7.0.0.", true)]
     public class WellKnownStep
     {
+        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
+            " extension documentation for more information. Will be removed in version 7.0.0." +
+            "", true)]
         public static readonly NServiceBus.Pipeline.WellKnownStep AuditProcessedMessage;
         [System.ObsoleteAttribute("The child container creation is now an integral part of the pipeline invocation a" +
             "nd no longer a separate behavior. Will be removed in version 7.0.0.", true)]
         public static readonly NServiceBus.Pipeline.WellKnownStep CreateChildContainer;
-        [System.ObsoleteAttribute("The dispatch step is the terminating step in v6 so any dependency on it can safel" +
-            "y be removed. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
+            " extension documentation for more information. Will be removed in version 7.0.0." +
+            "", true)]
         public static readonly NServiceBus.Pipeline.WellKnownStep DispatchMessageToTransport;
+        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
+            " extension documentation for more information. Will be removed in version 7.0.0." +
+            "", true)]
         public static readonly NServiceBus.Pipeline.WellKnownStep EnforcePublishBestPractices;
+        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
+            " extension documentation for more information. Will be removed in version 7.0.0." +
+            "", true)]
         public static readonly NServiceBus.Pipeline.WellKnownStep EnforceReplyBestPractices;
+        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
+            " extension documentation for more information. Will be removed in version 7.0.0." +
+            "", true)]
         public static readonly NServiceBus.Pipeline.WellKnownStep EnforceSendBestPractices;
+        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
+            " extension documentation for more information. Will be removed in version 7.0.0." +
+            "", true)]
         public static readonly NServiceBus.Pipeline.WellKnownStep EnforceSubscribeBestPractices;
+        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
+            " extension documentation for more information. Will be removed in version 7.0.0." +
+            "", true)]
         public static readonly NServiceBus.Pipeline.WellKnownStep EnforceUnsubscribeBestPractices;
+        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
+            " extension documentation for more information. Will be removed in version 7.0.0." +
+            "", true)]
         public static readonly NServiceBus.Pipeline.WellKnownStep ExecuteUnitOfWork;
+        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
+            " extension documentation for more information. Will be removed in version 7.0.0." +
+            "", true)]
         public static NServiceBus.Pipeline.WellKnownStep HostInformation;
+        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
+            " extension documentation for more information. Will be removed in version 7.0.0." +
+            "", true)]
         public static readonly NServiceBus.Pipeline.WellKnownStep InvokeHandlers;
+        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
+            " extension documentation for more information. Will be removed in version 7.0.0." +
+            "", true)]
         public static readonly NServiceBus.Pipeline.WellKnownStep InvokeSaga;
+        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
+            " extension documentation for more information. Will be removed in version 7.0.0." +
+            "", true)]
         public static readonly NServiceBus.Pipeline.WellKnownStep MutateIncomingMessages;
+        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
+            " extension documentation for more information. Will be removed in version 7.0.0." +
+            "", true)]
         public static readonly NServiceBus.Pipeline.WellKnownStep MutateIncomingTransportMessage;
+        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
+            " extension documentation for more information. Will be removed in version 7.0.0." +
+            "", true)]
         public static readonly NServiceBus.Pipeline.WellKnownStep MutateOutgoingMessages;
+        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
+            " extension documentation for more information. Will be removed in version 7.0.0." +
+            "", true)]
         public static readonly NServiceBus.Pipeline.WellKnownStep MutateOutgoingTransportMessage;
+        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
+            " extension documentation for more information. Will be removed in version 7.0.0." +
+            "", true)]
         public static NServiceBus.Pipeline.WellKnownStep ProcessingStatistics;
+        public WellKnownStep() { }
     }
 }
 namespace NServiceBus.Pipeline.Contexts
@@ -2296,19 +2430,18 @@ namespace NServiceBus.Routing
     public class AllInstancesDistributionStrategy : NServiceBus.Routing.DistributionStrategy
     {
         public AllInstancesDistributionStrategy() { }
-        public override System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> SelectDestination(System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> allInstances) { }
+        public override System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> SelectDestination(System.Collections.Generic.IList<NServiceBus.UnicastRoutingTarget> allInstances) { }
     }
     public abstract class DistributionStrategy
     {
         protected DistributionStrategy() { }
-        public abstract System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> SelectDestination(System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> allInstances);
+        public abstract System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> SelectDestination(System.Collections.Generic.IList<NServiceBus.UnicastRoutingTarget> allInstances);
     }
     public sealed class EndpointInstance
     {
         public EndpointInstance(string endpoint, string discriminator = null, System.Collections.Generic.IReadOnlyDictionary<string, string> properties = null) { }
-        public EndpointInstance(NServiceBus.Routing.EndpointName endpoint, string discriminator = null, System.Collections.Generic.IReadOnlyDictionary<string, string> properties = null) { }
         public string Discriminator { get; }
-        public NServiceBus.Routing.EndpointName Endpoint { get; }
+        public string Endpoint { get; }
         public System.Collections.Generic.IReadOnlyDictionary<string, string> Properties { get; }
         public override bool Equals(object obj) { }
         public override int GetHashCode() { }
@@ -2318,19 +2451,13 @@ namespace NServiceBus.Routing
     public class EndpointInstances
     {
         public EndpointInstances() { }
-        public void Add(NServiceBus.Routing.EndpointName endpoint, params NServiceBus.Routing.EndpointInstance[] instances) { }
-        public void AddDynamic(System.Func<NServiceBus.Routing.EndpointName, System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<NServiceBus.Routing.EndpointInstance>>> dynamicRule) { }
-    }
-    public sealed class EndpointName
-    {
-        public EndpointName(string name) { }
-        public override bool Equals(object obj) { }
-        public override int GetHashCode() { }
-        public override string ToString() { }
+        public void Add(params NServiceBus.Routing.EndpointInstance[] instances) { }
+        public void Add(System.Collections.Generic.IEnumerable<NServiceBus.Routing.EndpointInstance> instances) { }
+        public void AddDynamic(System.Func<string, System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<NServiceBus.Routing.EndpointInstance>>> dynamicRule) { }
     }
     public interface IUnicastRoute
     {
-        System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget>> Resolve(System.Func<NServiceBus.Routing.EndpointName, System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<NServiceBus.Routing.EndpointInstance>>> instanceResolver);
+        System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget>> Resolve(System.Func<string, System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<NServiceBus.Routing.EndpointInstance>>> instanceResolver);
     }
     public class MulticastAddressTag : NServiceBus.Routing.AddressTag
     {
@@ -2350,8 +2477,7 @@ namespace NServiceBus.Routing
     public class SingleInstanceRoundRobinDistributionStrategy : NServiceBus.Routing.DistributionStrategy
     {
         public SingleInstanceRoundRobinDistributionStrategy() { }
-        [System.Runtime.CompilerServices.IteratorStateMachineAttribute(typeof(NServiceBus.Routing.SingleInstanceRoundRobinDistributionStrategy.<SelectDestination>d__0))]
-        public override System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> SelectDestination(System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> currentAllInstances) { }
+        public override System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> SelectDestination(System.Collections.Generic.IList<NServiceBus.UnicastRoutingTarget> currentAllInstances) { }
     }
     public class UnicastAddressTag : NServiceBus.Routing.AddressTag
     {
@@ -2360,9 +2486,9 @@ namespace NServiceBus.Routing
     }
     public class UnicastRoute : NServiceBus.Routing.IUnicastRoute
     {
-        public UnicastRoute(NServiceBus.Routing.EndpointName endpoint) { }
-        public UnicastRoute(NServiceBus.Routing.EndpointInstance instance) { }
-        public UnicastRoute(string physicalAddress) { }
+        public static NServiceBus.Routing.UnicastRoute CreateFromEndpointInstance(NServiceBus.Routing.EndpointInstance instance) { }
+        public static NServiceBus.Routing.UnicastRoute CreateFromEndpointName(string endpoint) { }
+        public static NServiceBus.Routing.UnicastRoute CreateFromPhysicalAddress(string physicalAddress) { }
     }
     public class UnicastRoutingStrategy : NServiceBus.Routing.RoutingStrategy
     {
@@ -2375,7 +2501,6 @@ namespace NServiceBus.Routing
         public void AddDynamic(System.Func<System.Collections.Generic.List<System.Type>, NServiceBus.Extensibility.ContextBag, System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<NServiceBus.Routing.IUnicastRoute>>> dynamicRule) { }
         public void AddDynamic(System.Func<System.Collections.Generic.List<System.Type>, NServiceBus.Extensibility.ContextBag, System.Collections.Generic.IEnumerable<NServiceBus.Routing.IUnicastRoute>> dynamicRule) { }
         public void RouteToAddress(System.Type messageType, string destinationAddress) { }
-        public void RouteToEndpoint(System.Type messageType, NServiceBus.Routing.EndpointName destination) { }
         public void RouteToEndpoint(System.Type messageType, string destination) { }
     }
 }
@@ -2390,9 +2515,9 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
 {
     public class PublisherAddress
     {
-        public PublisherAddress(NServiceBus.Routing.EndpointName endpoint) { }
-        public PublisherAddress(params NServiceBus.Routing.EndpointInstance[] instances) { }
-        public PublisherAddress(params string[] addresses) { }
+        public static NServiceBus.Routing.MessageDrivenSubscriptions.PublisherAddress CreateFromEndpointInstances(params NServiceBus.Routing.EndpointInstance[] instances) { }
+        public static NServiceBus.Routing.MessageDrivenSubscriptions.PublisherAddress CreateFromEndpointName(string endpoint) { }
+        public static NServiceBus.Routing.MessageDrivenSubscriptions.PublisherAddress CreateFromPhysicalAddresses(params string[] addresses) { }
     }
     public class Publishers
     {
@@ -2464,16 +2589,16 @@ namespace NServiceBus.Sagas
     }
     public class SagaFinderDefinition
     {
-        public SagaFinderDefinition(System.Type type, string messageType, System.Collections.Generic.Dictionary<string, object> properties) { }
-        public string MessageType { get; }
+        public System.Type MessageType { get; }
+        public string MessageTypeName { get; }
         public System.Collections.Generic.Dictionary<string, object> Properties { get; }
         public System.Type Type { get; }
     }
     public class SagaMessage
     {
-        public SagaMessage(string messageType, bool isAllowedToStart) { }
         public bool IsAllowedToStartSaga { get; }
-        public string MessageType { get; }
+        public System.Type MessageType { get; }
+        public string MessageTypeName { get; }
     }
     public class SagaMetadata
     {
@@ -2562,10 +2687,10 @@ namespace NServiceBus.Serialization
         protected SerializationDefinition() { }
         public abstract System.Func<NServiceBus.MessageInterfaces.IMessageMapper, NServiceBus.Serialization.IMessageSerializer> Configure(NServiceBus.Settings.ReadOnlySettings settings);
     }
-    public class SerializationExtentions<T> : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
+    public class SerializationExtensions<T> : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
         where T : NServiceBus.Serialization.SerializationDefinition
     {
-        public SerializationExtentions(NServiceBus.Settings.SettingsHolder settings) { }
+        public SerializationExtensions(NServiceBus.Settings.SettingsHolder settings) { }
     }
 }
 namespace NServiceBus.Serializers.Json
@@ -2681,7 +2806,7 @@ namespace NServiceBus.Settings
             "eiveOnly|TransportTransactionMode.SendsAtomicWithReceive);` instead. The member " +
             "currently throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
         public NServiceBus.Settings.TransactionSettings DisableDistributedTransactions() { }
-        [System.ObsoleteAttribute(@"DoNotWrapHandlersExecutionInATransactionScope() has been removed since transaction scopes are no longer used by non DTC transports delay the dispatch of all outgoing operations until handlers have been executed.\r\nIn Version 6 handlers will only be wrapped in a transactionscope if running the MSMQ or SQLServer transports in default mode. This means that performing storage operations against data sources also supporting transaction scopes \r\nwill escalate to a distributed transaction. Previous versions allowed opting out of this behavior using config.Transactions().DoNotWrapHandlersExecutionInATransactionScope(). In Version 6 it's recommended to use `EndpointConfiguration.UseTransport<MyTransport>().Transactions(TransportTransactionMode.ReceiveOnly)` to lean on native transport transaction and the new batched dispatch support to achieve the same level of consistency with better performance.\r\nSuppressing the ambient transaction created by the MSMQ and SQL Server transports can still be achieved by creating a custom pipeline behavior with a suppressed transaction scope. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute(@"DoNotWrapHandlersExecutionInATransactionScope() has been removed since transaction scopes are no longer used by non DTC transports delay the dispatch of all outgoing operations until handlers have been executed.\r\nIn Version 6 handlers will only be wrapped in a transactionscope if running the MSMQ or SQLServer transports in default mode. This means that performing storage operations against data sources also supporting transaction scopes\r\nwill escalate to a distributed transaction. Previous versions allowed opting out of this behavior using config.Transactions().DoNotWrapHandlersExecutionInATransactionScope(). In Version 6 it's recommended to use `EndpointConfiguration.UseTransport<MyTransport>().Transactions(TransportTransactionMode.ReceiveOnly)` to lean on native transport transaction and the new batched dispatch support to achieve the same level of consistency with better performance.\r\nSuppressing the ambient transaction created by the MSMQ and SQL Server transports can still be achieved by creating a custom pipeline behavior with a suppressed transaction scope. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
         public NServiceBus.Settings.TransactionSettings DoNotWrapHandlersExecutionInATransactionScope() { }
         [System.ObsoleteAttribute("Use `config.UseTransport<MyTransport>().Transactions(TransportTransactionMode.Rec" +
             "eiveOnly|TransportTransactionMode.SendsAtomicWithReceive);` instead. The member " +
@@ -3203,8 +3328,8 @@ namespace NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions
     }
     public class Subscriber
     {
-        public Subscriber(string transportAddress, NServiceBus.Routing.EndpointName endpoint) { }
-        public NServiceBus.Routing.EndpointName Endpoint { get; }
+        public Subscriber(string transportAddress, string endpoint) { }
+        public string Endpoint { get; }
         public string TransportAddress { get; }
     }
 }

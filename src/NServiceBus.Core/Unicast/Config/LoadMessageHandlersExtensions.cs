@@ -7,7 +7,7 @@ namespace NServiceBus
     /// <summary>
     /// Provides configuration options to tune handler ordering.
     /// </summary>
-    public static class LoadMessageHandlersExtentions
+    public static class LoadMessageHandlersExtensions
     {
         /// <summary>
         /// Loads all message handler assemblies in the runtime directory

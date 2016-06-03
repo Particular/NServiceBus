@@ -89,7 +89,7 @@
         {
             public Registration(Conventions conventions) : base("DataBusSend", typeof(DataBusSendBehavior), "Saves the payload into the shared location", b => new DataBusSendBehavior(b.Build<IDataBus>(), b.Build<IDataBusSerializer>(), conventions))
             {
-                InsertAfter(WellKnownStep.MutateOutgoingMessages);
+                InsertAfter("MutateOutgoingMessages");
                 InsertAfter("ApplyTimeToBeReceived");
             }
         }

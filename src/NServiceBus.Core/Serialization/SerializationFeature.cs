@@ -53,8 +53,8 @@
             }
 
             var logicalMessageFactory = new LogicalMessageFactory(messageMetadataRegistry, mapper);
-            context.Pipeline.Register("DeserializeLogicalMessagesConnector", new DeserializeLogicalMessagesConnector(resolver, logicalMessageFactory, messageMetadataRegistry), "Deserializes the physical message body into logical messages");
-            context.Pipeline.Register("SerializeMessageConnector", new SerializeMessageConnector(defaultSerializer, messageMetadataRegistry), "Converts a logical message into a physical message");
+            context.Pipeline.Register(new DeserializeLogicalMessagesConnector(resolver, logicalMessageFactory, messageMetadataRegistry), "Deserializes the physical message body into logical messages");
+            context.Pipeline.Register(new SerializeMessageConnector(defaultSerializer, messageMetadataRegistry), "Converts a logical message into a physical message");
 
             context.Container.ConfigureComponent(_ => mapper, DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent(_ => messageMetadataRegistry, DependencyLifecycle.SingleInstance);
@@ -82,7 +82,7 @@
                 return;
             }
             Logger.DebugFormat("Message definitions: \n {0}",
-                string.Concat(messageDefinitions.Select(md => md.ToString() + "\n")));
+                string.Concat(messageDefinitions.Select(md => md + "\n")));
         }
 
         static ILog Logger = LogManager.GetLogger<SerializationFeature>();

@@ -5,7 +5,7 @@ namespace NServiceBus.Pipeline
     /// <summary>
     /// Allows steps to be registered in order.
     /// </summary>
-    public class StepRegistrationSequence
+    public partial class StepRegistrationSequence
     {
         internal StepRegistrationSequence(Action<RegisterStep> addStep)
         {
@@ -27,21 +27,6 @@ namespace NServiceBus.Pipeline
 
             var step = RegisterStep.Create(stepId, behavior, description);
             addStep(step);
-            return this;
-        }
-
-
-        /// <summary>
-        /// <see cref="Register(string,System.Type,string)" />.
-        /// </summary>
-        /// <param name="wellKnownStep">The identifier of the step to add.</param>
-        /// <param name="behavior">The <see cref="Behavior{TContext}" /> to execute.</param>
-        /// <param name="description">The description of the behavior.</param>
-        public StepRegistrationSequence Register(WellKnownStep wellKnownStep, Type behavior, string description)
-        {
-            Guard.AgainstNull(nameof(wellKnownStep), wellKnownStep);
-
-            Register((string) wellKnownStep, behavior, description);
             return this;
         }
 

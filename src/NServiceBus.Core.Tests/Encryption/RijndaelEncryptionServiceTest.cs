@@ -28,20 +28,23 @@
         public void Should_encrypt_and_decrypt_for_expired_key()
         {
             var encryptionKey1 = Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6");
+            var encryptionIV = Encoding.ASCII.GetBytes("GaoKtfQo87igiaks");
             var service1 = new TestableRijndaelEncryptionService("encryptionKey1", encryptionKey1, new[]
             {
                 encryptionKey1
-            });
+            })
+            {
+                EncryptionIV = encryptionIV
+            };
             var encryptedValue = service1.Encrypt("string to encrypt", null);
             Assert.AreNotEqual("string to encrypt", encryptedValue.EncryptedBase64Value);
 
             var encryptionKey2 = Encoding.ASCII.GetBytes("vznkynwuvateefgduvsqjsufqfrrfcya");
-            var expiredKeys = new List<byte[]>
+            var service2 = new TestableRijndaelEncryptionService("encryptionKey2", encryptionKey2, new List<byte[]>
             {
                 encryptionKey2,
                 encryptionKey1
-            };
-            var service2 = new TestableRijndaelEncryptionService("encryptionKey1", encryptionKey2, expiredKeys);
+            });
 
             var decryptedValue = service2.Decrypt(encryptedValue, null);
             Assert.AreEqual("string to encrypt", decryptedValue);
@@ -194,6 +197,7 @@
 
             public bool OutgoingKeyIdentifierSet { get; private set; }
             public string IncomingKeyIdentifier { private get; set; }
+            public byte[] EncryptionIV { get; set; }
 
             protected override void AddKeyIdentifierHeader(IOutgoingLogicalMessageContext context)
             {
@@ -204,6 +208,18 @@
             {
                 keyIdentifier = IncomingKeyIdentifier;
                 return IncomingKeyIdentifier != null;
+            }
+
+            protected override void ConfigureIV(RijndaelManaged rijndael)
+            {
+                if (EncryptionIV != null)
+                {
+                    rijndael.IV = EncryptionIV;
+                }
+                else
+                {
+                    base.ConfigureIV(rijndael);
+                }
             }
         }
     }

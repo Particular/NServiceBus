@@ -13,6 +13,6 @@ namespace NServiceBus.Routing
         /// Resolves the destination, possibly resulting in multiple destination transport addresses.
         /// </summary>
         /// <param name="instanceResolver">A function that returns the collection of instances for a given endpoint.</param>
-        Task<IEnumerable<UnicastRoutingTarget>> Resolve(Func<EndpointName, Task<IEnumerable<EndpointInstance>>> instanceResolver);
+        Task<IEnumerable<UnicastRoutingTarget>> Resolve(Func<string, Task<IEnumerable<EndpointInstance>>> instanceResolver);
     }
 }

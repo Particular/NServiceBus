@@ -5,6 +5,7 @@
     using System.Transactions;
     using AcceptanceTesting;
     using EndpointTemplates;
+    using Logging;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
@@ -23,7 +24,7 @@
                 .Should(c =>
                 {
                     Assert.True(c.MessageDispatched, "Should dispatch the message immediately");
-                    Assert.True(c.Logs.Any(l => l.Level == "warn" && l.Message.Contains("We detected that you suppressed the ambient transaction")));
+                    Assert.True(c.Logs.Any(l => l.Level == LogLevel.Warn && l.Message.Contains("We detected that you suppressed the ambient transaction")));
                 })
                 .Run();
         }

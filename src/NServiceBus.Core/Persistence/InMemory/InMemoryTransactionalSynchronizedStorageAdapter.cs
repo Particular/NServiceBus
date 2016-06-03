@@ -35,33 +35,6 @@ namespace NServiceBus
             return EmptyTask;
         }
 
-        public bool TryAdapt(OutboxTransaction transaction, out CompletableSynchronizedStorageSession session)
-        {
-            var inMemOutboxTransaction = transaction as InMemoryOutboxTransaction;
-            if (inMemOutboxTransaction != null)
-            {
-                session = new InMemorySynchronizedStorageSession(inMemOutboxTransaction.Transaction);
-                return true;
-            }
-            session = null;
-            return false;
-        }
-
-        public bool TryAdapt(TransportTransaction transportTransaction, out CompletableSynchronizedStorageSession session)
-        {
-            Transaction ambientTransaction;
-
-            if (transportTransaction.TryGet(out ambientTransaction))
-            {
-                var transaction = new InMemoryTransaction();
-                session = new InMemorySynchronizedStorageSession(transaction);
-                ambientTransaction.EnlistVolatile(new EnlistmentNotification(transaction), EnlistmentOptions.None);
-                return true;
-            }
-            session = null;
-            return false;
-        }
-
         static readonly Task<CompletableSynchronizedStorageSession> EmptyTask = Task.FromResult<CompletableSynchronizedStorageSession>(null);
 
         class EnlistmentNotification : IEnlistmentNotification

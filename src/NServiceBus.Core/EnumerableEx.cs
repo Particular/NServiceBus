@@ -3,14 +3,13 @@ namespace NServiceBus
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.Linq;
     using Janitor;
 
     static class EnumerableEx
     {
         public static IEnumerable<T> Single<T>(T singleElement)
         {
-            return Enumerable.Repeat(singleElement, 1);
+            return new[] { singleElement };
         }
 
         public static IEnumerable<T> EnsureNonEmpty<T>(this IEnumerable<T> source, Func<string> exceptionMessage)

@@ -132,12 +132,14 @@
     <Compile Include="Faults\AddExceptionHeadersBehaviorTests.cs" />
     <Compile Include="Features\FeatureDifferingOnlyByNamespaceTests.cs" />
     <Compile Include="MessageMapper\MessageMapperTests.cs" />
+    <Compile Include="Msmq\MsmqMessagePumpTests.cs" />
     <Compile Include="Msmq\TimeToBeReceivedOverrideCheckerTest.cs" />
     <Compile Include="Msmq\MsmqExtensionsTests.cs" />
     <Compile Include="Msmq\MsmqHelpers.cs" />
     <Compile Include="Msmq\MsmqAddressTests.cs" />
     <Compile Include="Msmq\MsmqSubscriptionStorageQueueTests.cs" />
     <Compile Include="Persistence\InMemory\When_persisting_a_saga_with_InMemory_and_an_escalated_DTC_transaction.cs" />
+    <Compile Include="Persistence\PersistenceStartupTests.cs" />
     <Compile Include="Pipeline\HeaderOptionExtensionsTests.cs" />
     <Compile Include="Pipeline\Incoming\InvokeHandlerTerminatorTest.cs" />
     <Compile Include="Pipeline\MutateInstanceMessage\MutateIncomingMessageBehaviorTests.cs" />
@@ -167,6 +169,7 @@
     <Compile Include="Routing\Routers\UnicastPublishRouterConnectorTests.cs" />
     <Compile Include="Routing\RoutingOptionExtensionsTests.cs" />
     <Compile Include="Routing\RoutingToDispatchConnectorTests.cs" />
+    <Compile Include="Routing\SingleInstanceRoundRobinDistributionStrategyTests.cs" />
     <Compile Include="Routing\SubscriptionRouterTests.cs" />
     <Compile Include="Sagas\CustomFinderAdapterTests.cs" />
     <Compile Include="Sagas\InvokeSagaNotFoundBehaviorTests.cs" />
@@ -196,7 +199,7 @@
     <Compile Include="Msmq\MsmqMessageDispatcherTests.cs" />
     <Compile Include="Persistence\InMemory\SagaMetadataHelper.cs" />
     <Compile Include="Persistence\InMemory\When_persisting_a_saga_with_the_same_unique_property_as_a_completed_saga.cs" />
-    <Compile Include="Persistence\PersistenceExtentionsTests.cs" />
+    <Compile Include="Persistence\PersistenceExtensionsTests.cs" />
     <Compile Include="Persistence\PersistenceStorageMergerTests.cs" />
     <Compile Include="Pipeline\HandlerTransactionScopeWrapperBehaviorTests.cs" />
     <Compile Include="Pipeline\PipelineModelBuilderTests.cs" />
@@ -232,7 +235,6 @@
     <Compile Include="Persistence\InMemory\When_saga_not_found_return_default.cs" />
     <Compile Include="Persistence\InMemory\When_updating_a_saga_with_the_same_unique_property_as_another_saga.cs" />
     <Compile Include="Persistence\InMemory\When_updating_a_saga_with_the_same_unique_property_value.cs" />
-    <Compile Include="Pipeline\PipelineStepTests.cs" />
     <Compile Include="Pipeline\BehaviorRegistrationsCoordinatorTests.cs" />
     <Compile Include="Pipeline\BehaviorTypeCheckerTests.cs" />
     <Compile Include="GitFlowVersionTests.cs" />

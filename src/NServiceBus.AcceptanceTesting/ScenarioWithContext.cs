@@ -49,7 +49,7 @@ namespace NServiceBus.AcceptanceTesting
                 runDescriptor.Settings.Merge(settings);
             }
 
-            LogManager.UseFactory(new ContextAppender());
+            LogManager.UseFactory(new ContextAppenderFactory());
 
             var sw = new Stopwatch();
 

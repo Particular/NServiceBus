@@ -377,6 +377,10 @@ namespace NServiceBus.Hosting.Helpers
                 {
                     continue;
                 }
+                catch (FileLoadException)
+                {
+                    continue;
+                }
                 if (ReferencesNServiceBus(refAssembly, processed))
                 {
                     return true;

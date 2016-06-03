@@ -8,9 +8,9 @@ namespace NServiceBus
     using Settings;
 
     /// <summary>
-    /// Provides extentions to the settings holder.
+    /// Provides extensions to the settings holder.
     /// </summary>
-    public static class SettingsExtentions
+    public static class SettingsExtensions
     {
         /// <summary>
         /// Returns the requested config section using the current configuration source.
@@ -57,10 +57,10 @@ namespace NServiceBus
         /// <summary>
         /// Returns the name of this endpoint.
         /// </summary>
-        public static EndpointName EndpointName(this ReadOnlySettings settings)
+        public static string EndpointName(this ReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
-            return settings.Get<EndpointName>();
+            return settings.Get<string>("NServiceBus.Routing.EndpointName");
         }
 
         /// <summary>

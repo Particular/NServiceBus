@@ -7,7 +7,6 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using Extensibility;
     using Logging;
-    using Routing;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
     using MessageType = Unicast.Subscriptions.MessageType;
 
@@ -129,7 +128,7 @@ namespace NServiceBus
                 return null;
             }
             var endpointName = parts.Length > 1
-                ? new EndpointName(parts[1])
+                ? parts[1]
                 : null;
 
             return new Subscriber(parts[0], endpointName);
