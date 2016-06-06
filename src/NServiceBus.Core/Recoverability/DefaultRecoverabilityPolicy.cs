@@ -3,9 +3,9 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
 
-    class MainRecoverabilityPolicy : IRecoverabilityPolicy
+    class DefaultRecoverabilityPolicy : IRecoverabilityPolicy
     {
-        public MainRecoverabilityPolicy(SecondLevelRetryPolicy secondLevelRetryPolicy, int maxImmediateRetries)
+        public DefaultRecoverabilityPolicy(SecondLevelRetryPolicy secondLevelRetryPolicy, int maxImmediateRetries)
         {
             this.secondLevelRetryPolicy = secondLevelRetryPolicy;
             this.maxImmediateRetries = maxImmediateRetries;
@@ -40,8 +40,7 @@ namespace NServiceBus
                     {Headers.Retries, (numberOfDelayedRetryAttempts + 1).ToString()}
                 });
             }
-
-
+            
             return new MoveToErrorQueue();
         }
 

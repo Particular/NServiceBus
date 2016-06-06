@@ -24,18 +24,18 @@
             var inputQueueAddress = context.Settings.LocalAddress();
 
             var transportHasNativeDelayedDelivery = context.DoesTransportSupportConstraint<DelayedDeliveryConstraint>();
-            var timeoutManagerEnabled = true; //!IsTimeoutManagerDisabled(context);
+            var timeoutManagerEnabled = !IsTimeoutManagerDisabled(context);
             var timeoutManagerAddress = timeoutManagerEnabled
                 ? context.Settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress
                 : string.Empty;
 
             var errorQueueAddress = ErrorQueueSettings.GetConfiguredErrorQueue(context.Settings);
 
-            var recoverabilityPolicy = new MainRecoverabilityPolicy(new DefaultSecondLevelRetryPolicy(2, TimeSpan.FromSeconds(10)), 2);
+            var recoverabilityPolicy = new DefaultRecoverabilityPolicy(new DefaultSecondLevelRetryPolicy(2, TimeSpan.FromSeconds(10)), 2);
             var recoveryExecutor = new RecoveryActionExecutor(recoverabilityPolicy, transportHasNativeDelayedDelivery,
                 timeoutManagerEnabled, inputQueueAddress, timeoutManagerAddress, errorQueueAddress);
 
-            context.Container.RegisterSingleton(recoveryExecutor);
+            context.Container.ConfigureComponent(b => recoveryExecutor, DependencyLifecycle.SingleInstance);
         }
 
         static bool IsTimeoutManagerDisabled(FeatureConfigurationContext context)
