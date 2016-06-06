@@ -13,7 +13,6 @@ namespace NServiceBus.Features
     using NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions;
     using NServiceBus.Utils;
     using Pipeline;
-    using Pipeline.Contexts;
     using Transports;
     using Unicast.Messages;
     using Unicast.Routing;
@@ -59,7 +58,6 @@ namespace NServiceBus.Features
             ConfigureSubscriptionAuthorization(context);
 
             context.Container.ConfigureComponent<PipelineExecutor>(DependencyLifecycle.SingleInstance);
-            ConfigureBehaviors(context);
 
             var knownMessages = context.Settings.GetAvailableTypes()
                 .Where(context.Settings.Get<Conventions>().IsMessageType)
@@ -101,18 +99,6 @@ namespace NServiceBus.Features
                 CriticalError = b.Build<CriticalError>(),
                 Notifications = b.Build<BusNotifications>()
             }, DependencyLifecycle.InstancePerCall);
-        }
-
-        void ConfigureBehaviors(FeatureConfigurationContext context)
-        {
-            // ReSharper disable HeapView.SlowDelegateCreation
-            var behaviorTypes = context.Settings.GetAvailableTypes().Where(t => (typeof(IBehavior<IncomingContext>).IsAssignableFrom(t) || typeof(IBehavior<OutgoingContext>).IsAssignableFrom(t))
-                                                            && !(t.IsAbstract || t.IsInterface));
-            // ReSharper restore HeapView.SlowDelegateCreation
-            foreach (var behaviorType in behaviorTypes)
-            {
-                context.Container.ConfigureComponent(behaviorType, DependencyLifecycle.InstancePerCall);
-            }
         }
 
         void ConfigureSubscriptionAuthorization(FeatureConfigurationContext context)
@@ -157,17 +143,6 @@ namespace NServiceBus.Features
             if (unicastConfig == null)
             {
                 return;
-            }
-
-            if (!string.IsNullOrWhiteSpace(unicastConfig.ForwardReceivedMessagesTo))
-            {
-                var forwardAddress = Address.Parse(unicastConfig.ForwardReceivedMessagesTo);
-                context.Container.ConfigureProperty<ForwardBehavior>(b => b.ForwardReceivedMessagesTo, forwardAddress);
-            }
-
-            if (unicastConfig.TimeToBeReceivedOnForwardedMessages != TimeSpan.Zero)
-            {
-                context.Container.ConfigureProperty<ForwardBehavior>(b => b.TimeToBeReceivedOnForwardedMessages, unicastConfig.TimeToBeReceivedOnForwardedMessages);
             }
 
             var messageEndpointMappings = unicastConfig.MessageEndpointMappings.Cast<MessageEndpointMapping>()

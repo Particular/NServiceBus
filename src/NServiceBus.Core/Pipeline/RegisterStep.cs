@@ -194,6 +194,11 @@ namespace NServiceBus.Pipeline
                 : base(stepId, behavior, description)
             {
             }
+
+            public override string ToString()
+            {
+                return $"{StepId} - {Description}";
+            }
         }
     }
 }

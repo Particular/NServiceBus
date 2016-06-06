@@ -7,7 +7,12 @@ namespace NServiceBus
 
     class OutboxSendBehavior : IBehavior<OutgoingContext>
     {
-        public DispatchMessageToTransportBehavior DispatchMessageToTransportBehavior { get; set; }
+        private DispatchMessageToTransportBehavior dispatchMessageToTransportBehavior;
+
+        public OutboxSendBehavior(DispatchMessageToTransportBehavior dispatchMessageToTransportBehavior)
+        {
+            this.dispatchMessageToTransportBehavior = dispatchMessageToTransportBehavior;
+        }
 
         public void Invoke(OutgoingContext context, Action next)
         {
@@ -27,7 +32,7 @@ namespace NServiceBus
             }
             else
             {
-                DispatchMessageToTransportBehavior.InvokeNative(context.DeliveryOptions, context.OutgoingMessage);
+                dispatchMessageToTransportBehavior.InvokeNative(context.DeliveryOptions, context.OutgoingMessage);
 
                 next();
             }
