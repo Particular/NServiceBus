@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.Routing;
@@ -40,6 +41,7 @@
             var instances = new EndpointInstances();
             var sales = "Sales";
             instances.Add(new EndpointInstance(sales, "dup"), new EndpointInstance(sales, "dup"));
+            instances.AddDynamic(e => Task.FromResult(new List<EndpointInstance> { new EndpointInstance(sales, "dup") }.AsEnumerable()));
 
             var salesInstances = await instances.FindInstances(sales);
             Assert.AreEqual(1, salesInstances.Count());
@@ -54,6 +56,22 @@
             var singleInstance = salesInstancess.Single();
             Assert.IsNull(singleInstance.Discriminator);
             Assert.IsEmpty(singleInstance.Properties);
+        }
+
+        [Test]
+        public async Task Should_evaluate_dynamic_rules_on_each_call()
+        {
+            var instances = new EndpointInstances();
+            var endpointName = "endpointA";
+            instances.Add(new EndpointInstance(endpointName, "1"));
+            var invocationCounter = 0;
+            instances.AddDynamic(e => Task.FromResult(e == endpointName && invocationCounter++ == 0 ? new [] { new EndpointInstance(endpointName, "2") }.AsEnumerable() : Enumerable.Empty<EndpointInstance>()));
+
+            var result1 = await instances.FindInstances(endpointName);
+            var result2 = await instances.FindInstances(endpointName);
+
+            Assert.AreEqual(2, result1.Count());
+            Assert.AreEqual(1, result2.Count());
         }
     }
 }
