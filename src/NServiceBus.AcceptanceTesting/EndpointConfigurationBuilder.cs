@@ -56,18 +56,33 @@
             return EndpointSetup<T>(c => { });
         }
 
-        public EndpointConfigurationBuilder EndpointSetup<T>(Action<BusConfiguration> configurationBuilderCustomization = null) where T : IEndpointSetupTemplate, new()
+        public EndpointConfigurationBuilder EndpointSetup<T>(Action<BusConfiguration> configurationBuilderCustomization) where T : IEndpointSetupTemplate, new()
         {
             if (configurationBuilderCustomization == null)
             {
                 configurationBuilderCustomization = b => { };
             }
-            configuration.GetConfiguration = (settings, routingTable) =>
+
+            return EndpointSetup<T>((bc, esc) => configurationBuilderCustomization(bc));
+        }
+
+        public EndpointConfigurationBuilder EndpointSetup<T>(Action<BusConfiguration, RunDescriptor> configurationBuilderCustomization) where T : IEndpointSetupTemplate, new()
+        {
+            if (configurationBuilderCustomization == null)
+            {
+                configurationBuilderCustomization = (b, rd) => { };
+            }
+            configuration.GetConfiguration = (runDescriptor, routingTable) =>
+            {
+                var endpointSetupTemplate = new T();
+                var scenarioConfigSource = new ScenarioConfigSource(configuration, routingTable);
+                var endpointConfiguration = endpointSetupTemplate.GetConfiguration(runDescriptor, configuration, scenarioConfigSource, bc =>
                 {
-                    var endpointSetupTemplate = new T();
-                    var scenarioConfigSource = new ScenarioConfigSource(configuration, routingTable);
-                    return endpointSetupTemplate.GetConfiguration(settings, configuration, scenarioConfigSource, configurationBuilderCustomization);
-                };
+                    configurationBuilderCustomization(bc, runDescriptor);
+                });
+
+                return endpointConfiguration;
+            };
 
             return this;
         }
@@ -77,7 +92,7 @@
             return CreateScenario();
         }
 
-       
+
         readonly EndpointConfiguration configuration = new EndpointConfiguration();
 
         public EndpointConfigurationBuilder WithConfig<T>(Action<T> action) where T : new()
@@ -87,7 +102,7 @@
             action(config);
 
             configuration.UserDefinedConfigSections[typeof (T)] = config;
-            
+
             return this;
         }
 

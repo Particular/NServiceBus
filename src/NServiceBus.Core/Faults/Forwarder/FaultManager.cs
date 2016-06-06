@@ -87,7 +87,7 @@ namespace NServiceBus.Faults.Forwarder
                 return;
             }
 
-            SendToRetriesQueue(message, e, flrPart);
+            SendToRetriesQueue(message, e, defer, flrPart);
         }
 
         void SendToErrorQueue(TransportMessage message, Exception exception)
@@ -108,9 +108,25 @@ namespace NServiceBus.Faults.Forwarder
             busNotifications.Errors.InvokeMessageHasBeenSentToErrorQueue(message, exception);
         }
 
-        void SendToRetriesQueue(TransportMessage message, Exception e, string flrPart)
+        void SendToRetriesQueue(TransportMessage message, Exception e, TimeSpan defer, string flrPart)
         {
             message.TimeToBeReceived = TimeSpan.MaxValue;
+
+            DateTime retryMessageAt;
+
+            try
+            {
+                retryMessageAt = DateTime.UtcNow + defer;
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                Logger.WarnFormat("SLR RetryPolicy TimeSpan is too large: {0}. Retry will occur at DateTime.MaxValue",defer);
+                retryMessageAt = DateTime.MaxValue;
+            }
+
+            TransportMessageHeaderHelper.SetHeader(message, SecondLevelRetriesHeaders.RetriesRetryAt,
+                DateTimeExtensions.ToWireFormattedString(retryMessageAt));
+
             sender.Send(message, new SendOptions(RetriesQueue));
 
             var retryAttempt = TransportMessageHeaderHelper.GetNumberOfRetries(message) + 1;
@@ -147,7 +163,7 @@ namespace NServiceBus.Faults.Forwarder
             }
 
             // if the reply to address == ErrorQueue and RealErrorQueue is not null, the
-            // SecondLevelRetries sat is running and the error happened within that sat.            
+            // SecondLevelRetries sat is running and the error happened within that sat.
             return TransportMessageHeaderHelper.GetAddressOfFaultingEndpoint(message) == RetriesQueue;
         }
 
