@@ -125,7 +125,14 @@
     <Compile Include="Recoverability\Faults\MessageProcessingFailed.cs" />
     <Compile Include="Recoverability\Faults\MessageToBeRetried.cs" />
     <Compile Include="Recoverability\Faults\MessageFaulted.cs" />
-    <Compile Include="Recoverability\SecondLevelRetries\RecoverabilityPolicy.cs" />
+    <Compile Include="Recoverability\SecondLevelRetries\DelayedRetry.cs" />
+    <Compile Include="Recoverability\SecondLevelRetries\ImmediateRetry.cs" />
+    <Compile Include="Recoverability\SecondLevelRetries\IRecoverabilityPolicy.cs" />
+    <Compile Include="Recoverability\SecondLevelRetries\MainRecoverabilityPolicy.cs" />
+    <Compile Include="Recoverability\SecondLevelRetries\Recoverability.cs" />
+    <Compile Include="Recoverability\SecondLevelRetries\MoveToErrorQueue.cs" />
+    <Compile Include="Recoverability\SecondLevelRetries\RecoveryAction.cs" />
+    <Compile Include="Recoverability\SecondLevelRetries\RecoveryActionExecutor.cs" />
     <Compile Include="ReleaseDateAttribute.cs" />
     <Compile Include="Recoverability\ProcessingFailureInfo.cs" />
     <Compile Include="Routing\RoutingMappingSettings.cs" />

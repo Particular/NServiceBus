@@ -2,13 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using DelayedDelivery;
-    using DeliveryConstraints;
-    using Extensibility;
-    using Logging;
     using Pipeline;
-    using Routing;
     using Transports;
 
     class SecondLevelRetriesBehavior
@@ -16,10 +10,7 @@
         public SecondLevelRetriesBehavior(SecondLevelRetryPolicy retryPolicy, string localAddress, FailureInfoStorage failureInfoStorage, IDispatchMessages dispatcher)
         {
             this.retryPolicy = retryPolicy;
-            this.localAddress = localAddress;
-            this.failureInfoStorage = failureInfoStorage;
-            this.dispatcher = dispatcher;
-        }
+         }
 
         public bool Invoke(Exception exception, int numberOfSecondLevelAttempts, Dictionary<string,string> headers)
         {
@@ -57,26 +48,7 @@
             return true;
         }
 
-        static int GetNumberOfRetries(Dictionary<string, string> headers)
-        {
-            string value;
-            if (headers.TryGetValue(Headers.Retries, out value))
-            {
-                int i;
-                if (int.TryParse(value, out i))
-                {
-                    return i;
-                }
-            }
-            return 0;
-        }
-
-        FailureInfoStorage failureInfoStorage;
-        readonly IDispatchMessages dispatcher;
-        string localAddress;
         SecondLevelRetryPolicy retryPolicy;
-
-        static ILog Logger = LogManager.GetLogger<SecondLevelRetriesBehavior>();
 
         public class Registration : RegisterStep
         {

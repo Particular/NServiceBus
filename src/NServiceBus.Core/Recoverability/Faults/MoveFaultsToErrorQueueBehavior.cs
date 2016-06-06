@@ -7,7 +7,6 @@
     using Routing;
     using Transports;
 
-   
     class MoveFaultsToErrorQueueBehavior
     {
         public MoveFaultsToErrorQueueBehavior(CriticalError criticalError)
