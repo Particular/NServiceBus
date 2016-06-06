@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus
 {
-    using System;
     using Config;
     using DelayedDelivery;
     using DeliveryConstraints;
@@ -12,6 +11,7 @@
         {
             EnableByDefault();
             DependsOnOptionally<TimeoutManager>();
+            DependsOnOptionally<FirstLevelRetries>();
             Defaults(s =>
             {
                 var timeoutManagerAddressConfiguration = new TimeoutManagerAddressConfiguration(s.GetConfigSection<UnicastBusConfig>()?.TimeoutManagerAddress);
@@ -30,18 +30,38 @@
                 : string.Empty;
 
             var errorQueueAddress = ErrorQueueSettings.GetConfiguredErrorQueue(context.Settings);
+            var transportConfig = context.Settings.GetConfigSection<TransportConfig>();
+            var maxImmediateRetries = transportConfig?.MaxRetries ?? 5;
 
-            var recoverabilityPolicy = new DefaultRecoverabilityPolicy(new DefaultSecondLevelRetryPolicy(2, TimeSpan.FromSeconds(10)), 2);
-            var recoveryExecutor = new RecoveryActionExecutor(recoverabilityPolicy, transportHasNativeDelayedDelivery,
-                timeoutManagerEnabled, inputQueueAddress, timeoutManagerAddress, errorQueueAddress);
+            if (IsFLRDisabled(context))
+            {
+                maxImmediateRetries = 0;
+            }
 
-            context.Container.ConfigureComponent(b => recoveryExecutor, DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent(b =>
+            {
+                var recoverabilityPolicy = new DefaultRecoverabilityPolicy(b.Build<SecondLevelRetryPolicy>(), maxImmediateRetries);
+
+                return new RecoveryActionExecutor(recoverabilityPolicy, transportHasNativeDelayedDelivery,
+                    timeoutManagerEnabled, inputQueueAddress, timeoutManagerAddress, errorQueueAddress);
+
+            } , DependencyLifecycle.SingleInstance);
         }
 
         static bool IsTimeoutManagerDisabled(FeatureConfigurationContext context)
         {
             FeatureState timeoutMgrState;
             if (context.Settings.TryGet("NServiceBus.Features.TimeoutManager", out timeoutMgrState))
+            {
+                return timeoutMgrState == FeatureState.Deactivated || timeoutMgrState == FeatureState.Disabled;
+            }
+            return true;
+        }
+
+        static bool IsFLRDisabled(FeatureConfigurationContext context)
+        {
+            FeatureState timeoutMgrState;
+            if (context.Settings.TryGet("NServiceBus.Features.FirstLevelRetries", out timeoutMgrState))
             {
                 return timeoutMgrState == FeatureState.Deactivated || timeoutMgrState == FeatureState.Disabled;
             }

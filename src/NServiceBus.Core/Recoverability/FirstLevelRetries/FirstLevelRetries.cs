@@ -7,6 +7,7 @@ namespace NServiceBus.Features
     /// <summary>
     /// Used to configure Second Level Retries.
     /// </summary>
+    //todo: obsolete
     public class FirstLevelRetries : Feature
     {
         internal FirstLevelRetries()
@@ -31,8 +32,6 @@ namespace NServiceBus.Features
             var maxRetries = transportConfig?.MaxRetries ?? 5;
             var retryPolicy = new FirstLevelRetryPolicy(maxRetries);
             context.Container.RegisterSingleton(retryPolicy);
-            
-            //context.Pipeline.Register("FirstLevelRetries", b => new FirstLevelRetriesBehavior(retryPolicy), "Performs first level retries");
         }
 
         int GetMaxRetries(ReadOnlySettings settings)
