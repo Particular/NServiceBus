@@ -2453,6 +2453,7 @@ namespace NServiceBus.Routing
         public EndpointInstances() { }
         public void Add(params NServiceBus.Routing.EndpointInstance[] instances) { }
         public void Add(System.Collections.Generic.IEnumerable<NServiceBus.Routing.EndpointInstance> instances) { }
+        public void Add(NServiceBus.Routing.EndpointInstance instance) { }
         public void AddDynamic(System.Func<string, System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<NServiceBus.Routing.EndpointInstance>>> dynamicRule) { }
     }
     public interface IUnicastRoute
