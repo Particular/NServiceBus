@@ -70,23 +70,29 @@ namespace NServiceBus.Routing
 
             foreach (var instance in instances)
             {
-                if (instance == null)
-                {
-                    throw new ArgumentNullException(nameof(instances), "One of the elements of collection is null");
-                }
+                Add(instance);
+            }
+        }
 
-                HashSet<EndpointInstance> existingInstances;
-                if (staticRules.TryGetValue(instance.Endpoint, out existingInstances))
-                {
-                    existingInstances.Add(instance);
-                }
-                else
-                {
-                    staticRules.Add(instance.Endpoint, new HashSet<EndpointInstance>
+        /// <summary>
+        /// Registers provided endpoint instance.
+        /// </summary>
+        /// <param name="instance">The endpoint instance.</param>
+        public void Add(EndpointInstance instance)
+        {
+            Guard.AgainstNull(nameof(instance), instance);
+
+            HashSet<EndpointInstance> existingInstances;
+            if (staticRules.TryGetValue(instance.Endpoint, out existingInstances))
+            {
+                existingInstances.Add(instance);
+            }
+            else
+            {
+                staticRules.Add(instance.Endpoint, new HashSet<EndpointInstance>
                     {
                         instance
                     });
-                }
             }
         }
 
