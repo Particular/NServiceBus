@@ -5,9 +5,21 @@ namespace NServiceBus
     using Logging;
     using Settings;
 
-    static class ErrorQueueSettings
+    /// <summary>
+    /// Utility class used to find the configured error queue for an endpoint.
+    /// </summary>
+    public static class ErrorQueueSettings
     {
-        public static string GetConfiguredErrorQueue(ReadOnlySettings settings)
+        /// <summary>
+        /// Finds the configured error queue for an endpoint.
+        /// The error queue can be configured in code using 'EndpointConfiguration.SendFailedMessagesTo()', 
+        /// via the 'Error' attribute of the 'MessageForwardingInCaseOfFaultConfig' configuration section, 
+        /// or using the 'HKEY_LOCAL_MACHINE\SOFTWARE\ParticularSoftware\ServiceBus\ErrorQueue' registry key.
+        /// </summary>
+        /// <param name="settings">The configuration settings of this endpoint.</param>
+        /// <returns>The configured error queue of the endpoint.</returns>
+        /// <exception cref="Exception">When the configuration for the endpoint is invalid.</exception>
+        public static string GetConfiguredErrorQueue(this ReadOnlySettings settings)
         {
             string errorQueue;
 

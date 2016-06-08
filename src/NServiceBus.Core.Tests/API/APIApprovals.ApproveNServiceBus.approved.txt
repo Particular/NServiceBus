@@ -32,6 +32,10 @@ namespace NServiceBus
     {
         public AllAssemblies() { }
     }
+    public class static AuditConfigReader
+    {
+        public static string GetConfiguredAuditQueue(this NServiceBus.Settings.ReadOnlySettings settings) { }
+    }
     public class static AutoSubscribeSettingsExtensions
     {
         public static NServiceBus.AutomaticSubscriptions.Config.AutoSubscribeSettings AutoSubscribe(this NServiceBus.EndpointConfiguration config) { }
@@ -353,6 +357,10 @@ namespace NServiceBus
     public class static EndpointInstanceExtensions
     {
         public static NServiceBus.Routing.EndpointInstance AtMachine(this NServiceBus.Routing.EndpointInstance instance, string machineName) { }
+    }
+    public class static ErrorQueueSettings
+    {
+        public static string GetConfiguredErrorQueue(this NServiceBus.Settings.ReadOnlySettings settings) { }
     }
     [System.AttributeUsageAttribute(System.AttributeTargets.Class | System.AttributeTargets.Interface | System.AttributeTargets.All)]
     public sealed class ExpressAttribute : System.Attribute

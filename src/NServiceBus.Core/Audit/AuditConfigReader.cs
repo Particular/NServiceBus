@@ -6,9 +6,26 @@
     using Logging;
     using Settings;
 
-    class AuditConfigReader
+    /// <summary>
+    /// Utility class to find the configured audit queue for an endpoint.
+    /// </summary>
+    public static class AuditConfigReader
     {
-        public static bool GetConfiguredAuditQueue(ReadOnlySettings settings, out Result result)
+        /// <summary>
+        /// Finds the configured audit queue for an endpoint.
+        /// The audit queue can be configured using 'EndpointConfiguration.AuditProcessedMessagesTo()', 
+        /// via the 'QueueName' attribute of the 'Audit' config section
+        /// or by using the 'HKEY_LOCAL_MACHINE\SOFTWARE\ParticularSoftware\ServiceBus\AuditQueue' registry key.
+        /// </summary>
+        /// <param name="settings">The configuration settings for the endpoint.</param>
+        /// <returns>The configured audit queue for the endpoint or null if there is no configured audit queue.</returns>
+        public static string GetConfiguredAuditQueue(this ReadOnlySettings settings)
+        {
+            Result result;
+            return GetConfiguredAuditQueue(settings, out result) ? result.Address : default(string);
+        }
+
+        internal static bool GetConfiguredAuditQueue(ReadOnlySettings settings, out Result result)
         {
             if (settings.TryGet(out result))
             {
@@ -69,9 +86,9 @@
             return queue;
         }
 
-        static ILog Logger = LogManager.GetLogger<AuditConfigReader>();
+        static ILog Logger = LogManager.GetLogger(typeof(AuditConfigReader));
 
-        public class Result
+        internal class Result
         {
             public string Address;
             public TimeSpan? TimeToBeReceived;
