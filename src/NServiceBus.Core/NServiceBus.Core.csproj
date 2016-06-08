@@ -47,6 +47,9 @@
     <None Include="FodyWeavers.xml">
       <SubType>Designer</SubType>
     </None>
+    <EmbeddedResource Include="Routing\FileBasedDynamicRouting\endpoints.xsd">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <Reference Include="Autofac">
       <HintPath>..\packages\Autofac.3.5.2\lib\net40\Autofac.dll</HintPath>
     </Reference>

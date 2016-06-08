@@ -36,7 +36,7 @@
         }
 
         [Test]
-        public async Task If_file_does_not_exist_when_starting_up_it_fails()
+        public void If_file_does_not_exist_when_starting_up_it_fails()
         {
             var timer = new FakeTimer();
             var fileAccess = new FakeFileAccess(() =>
@@ -47,15 +47,9 @@
             var instances = new EndpointInstances();
             settings.Set<EndpointInstances>(instances);
             var table = new FileRoutingTable("unused", TimeSpan.Zero, timer, fileAccess, 3, settings);
-            try
-            {
-                await table.PerformStartup(null);
-                Assert.Fail("Expected exception saying file could not be loaded.");
-            }
-            catch (Exception ex)
-            {
-                Assert.AreEqual("Simulated", ex.Message);
-            }
+
+            var exception = Assert.ThrowsAsync<Exception>(async () => await table.PerformStartup(null));
+            Assert.That(exception.InnerException.Message, Does.Contain("Simulated"));
         }
 
         [Test]

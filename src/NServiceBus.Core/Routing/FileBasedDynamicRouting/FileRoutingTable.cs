@@ -20,6 +20,8 @@ namespace NServiceBus
             this.timer = timer;
             this.fileAccess = fileAccess;
             this.maxLoadAttempts = maxLoadAttempts;
+
+            errorMessage = $"An error occured while reading the endpoint instance mapping file at {filePath}. See the inner exception for more details.";
         }
 
         protected override async Task OnStart(IMessageSession session)
@@ -27,9 +29,16 @@ namespace NServiceBus
             var endpointInstances = settings.Get<EndpointInstances>();
             endpointInstances.AddDynamic(FindInstances);
 
-            await ReloadData().ConfigureAwait(false);
+            try
+            {
+                await ReloadData().ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(errorMessage, ex);
+            }
 
-            timer.Start(ReloadData, checkInterval, ex => log.Error("Error while reading routing table", ex));
+            timer.Start(ReloadData, checkInterval, ex => log.Error(errorMessage, ex));
         }
 
         async Task ReloadData()
@@ -39,7 +48,7 @@ namespace NServiceBus
 
             var newInstanceMap = instances
                 .GroupBy(i => i.Endpoint)
-                .ToDictionary(g => g.Key, g => Task.FromResult((IEnumerable<EndpointInstance>) new HashSet<EndpointInstance>(g)));
+                .ToDictionary(g => g.Key, g => Task.FromResult((IEnumerable<EndpointInstance>)new HashSet<EndpointInstance>(g)));
 
             instanceMap = newInstanceMap;
         }
@@ -61,7 +70,7 @@ namespace NServiceBus
                     {
                         if (log.IsDebugEnabled)
                         {
-                            log.Debug("Error while reading routing file", ex);
+                            log.Debug(errorMessage, ex);
                         }
                     }
                     else
@@ -87,6 +96,7 @@ namespace NServiceBus
         TimeSpan checkInterval;
         IRoutingFileAccess fileAccess;
         string filePath;
+        string errorMessage;
 
         Dictionary<string, Task<IEnumerable<EndpointInstance>>> instanceMap = new Dictionary<string, Task<IEnumerable<EndpointInstance>>>();
         int maxLoadAttempts;
