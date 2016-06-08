@@ -2,7 +2,9 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
+    using System.Security.Principal;
     using System.Threading.Tasks;
     using Config.ConfigurationSource;
     using Features;
@@ -28,7 +30,7 @@ namespace NServiceBus
             this.container.RegisterSingleton<ReadOnlySettings>(settings);
         }
 
-        public Task<IStartableEndpoint> Initialize()
+        public async Task<IStartableEndpoint> Initialize()
         {
             RegisterCriticalErrorHandler();
             var concreteTypes = settings.GetAvailableTypes()
@@ -50,12 +52,13 @@ namespace NServiceBus
             pipelineConfiguration.RegisterBehaviorsInContainer(settings, container);
 
             DisplayDiagnosticsForFeatures.Run(featureStats);
-            WireUpInstallers(concreteTypes);
 
             container.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
 
+            await RunInstallers(concreteTypes).ConfigureAwait(false);
+
             var startableEndpoint = new StartableEndpoint(settings, builder, featureActivator, pipelineConfiguration, new EventAggregator(settings.Get<NotificationSubscriptions>()), transportInfrastructure);
-            return Task.FromResult<IStartableEndpoint>(startableEndpoint);
+            return startableEndpoint;
         }
 
         static bool IsConcrete(Type x)
@@ -147,17 +150,31 @@ namespace NServiceBus
                 .IsAssignableFrom(type);
         }
 
-        void WireUpInstallers(IEnumerable<Type> concreteTypes)
+        async Task RunInstallers(IEnumerable<Type> concreteTypes)
         {
-            foreach (var installerType in concreteTypes.Where(IsINeedToInstallSomething))
+            if (Debugger.IsAttached || settings.GetOrDefault<bool>("Installers.Enable"))
             {
-                container.ConfigureComponent(installerType, DependencyLifecycle.InstancePerCall);
+                foreach (var installerType in concreteTypes.Where(t => IsINeedToInstallSomething(t)))
+                {
+                    container.ConfigureComponent(installerType, DependencyLifecycle.InstancePerCall);
+                }
+
+                var username = GetInstallationUserName();
+                foreach (var installer in builder.BuildAll<INeedToInstallSomething>())
+                {
+                    await installer.Install(username).ConfigureAwait(false);
+                }
             }
         }
 
-        static bool IsINeedToInstallSomething(Type t)
+        static bool IsINeedToInstallSomething(Type t) => typeof(INeedToInstallSomething).IsAssignableFrom(t);
+
+        string GetInstallationUserName()
         {
-            return typeof(INeedToInstallSomething).IsAssignableFrom(t);
+            string username;
+            return settings.TryGet("Installers.UserName", out username)
+                ? username
+                : WindowsIdentity.GetCurrent().Name;
         }
 
         IBuilder builder;

@@ -2,14 +2,12 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Linq;
     using System.Security.Principal;
     using System.Threading.Tasks;
     using Config;
     using ConsistencyGuarantees;
     using Features;
-    using Installation;
     using ObjectBuilder;
     using Pipeline;
     using Settings;
@@ -40,7 +38,6 @@ namespace NServiceBus
             await transportInfrastructure.Start().ConfigureAwait(false);
             var messageSession = CreateMessageSession(pipelineCache);
 
-            await RunInstallers().ConfigureAwait(false);
             var featureRunner = await StartFeatures(messageSession).ConfigureAwait(false);
 
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
@@ -83,26 +80,6 @@ namespace NServiceBus
             var featureRunner = new FeatureRunner(featureActivator);
             await featureRunner.Start(builder, session).ConfigureAwait(false);
             return featureRunner;
-        }
-
-        async Task RunInstallers()
-        {
-            if (Debugger.IsAttached || settings.GetOrDefault<bool>("Installers.Enable"))
-            {
-                var username = GetInstallationUserName();
-                foreach (var installer in builder.BuildAll<INeedToInstallSomething>())
-                {
-                    await installer.Install(username).ConfigureAwait(false);
-                }
-            }
-        }
-
-        string GetInstallationUserName()
-        {
-            string username;
-            return settings.TryGet("Installers.UserName", out username)
-                ? username
-                : WindowsIdentity.GetCurrent().Name;
         }
 
         [ObsoleteEx(Message = "Not needed anymore", RemoveInVersion = "7.0")]
