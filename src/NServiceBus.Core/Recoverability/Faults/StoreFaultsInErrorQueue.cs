@@ -20,7 +20,7 @@ namespace NServiceBus.Features
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var errorQueue = context.Settings.GetConfiguredErrorQueue();
+            var errorQueue = context.Settings.ErrorQueueAddress();
             context.Settings.Get<QueueBindings>().BindSending(errorQueue);
 
             var failureInfoStorage = new FailureInfoStorage(context.Settings.Get<int>(FailureInfoStorageCacheSizeKey));

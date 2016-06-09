@@ -124,7 +124,7 @@ namespace NServiceBus
         IEnumerable<TransportReceiver> BuildPipelines(IPipelineCache cache)
         {
             var purgeOnStartup = settings.GetOrDefault<bool>("Transport.PurgeOnStartup");
-            var errorQueue = settings.GetConfiguredErrorQueue();
+            var errorQueue = settings.ErrorQueueAddress();
             var dequeueLimitations = GeDequeueLimitationsForReceivePipeline();
             var requiredTransactionSupport = settings.GetRequiredTransactionModeForReceives();
 

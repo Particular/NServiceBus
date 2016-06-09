@@ -34,7 +34,7 @@ namespace NServiceBus
     }
     public class static AuditConfigReader
     {
-        public static string GetConfiguredAuditQueue(this NServiceBus.Settings.ReadOnlySettings settings) { }
+        public static bool TryGetAuditQueueAddress(this NServiceBus.Settings.ReadOnlySettings settings, out string address) { }
     }
     public class static AutoSubscribeSettingsExtensions
     {
@@ -360,7 +360,7 @@ namespace NServiceBus
     }
     public class static ErrorQueueSettings
     {
-        public static string GetConfiguredErrorQueue(this NServiceBus.Settings.ReadOnlySettings settings) { }
+        public static string ErrorQueueAddress(this NServiceBus.Settings.ReadOnlySettings settings) { }
     }
     [System.AttributeUsageAttribute(System.AttributeTargets.Class | System.AttributeTargets.Interface | System.AttributeTargets.All)]
     public sealed class ExpressAttribute : System.Attribute
