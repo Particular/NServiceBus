@@ -849,7 +849,7 @@ namespace NServiceBus
         public NServiceBus.Routing.UnicastRoutingTable Logical { get; }
         public NServiceBus.Routing.EndpointInstances Physical { get; }
         public NServiceBus.Routing.MessageDrivenSubscriptions.Publishers Publishers { get; }
-        public void SetMessageDistributionStrategy(NServiceBus.Routing.DistributionStrategy distributionStrategy, System.Func<System.Type, bool> typeMatchingRule) { }
+        public void SetMessageDistributionStrategy(string endpointName, NServiceBus.Routing.DistributionStrategy distributionStrategy) { }
     }
     public class static RoutingOptionExtensions
     {

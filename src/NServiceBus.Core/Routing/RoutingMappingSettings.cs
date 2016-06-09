@@ -1,6 +1,5 @@
 namespace NServiceBus
 {
-    using System;
     using Configuration.AdvanceExtensibility;
     using Routing;
     using Routing.MessageDrivenSubscriptions;
@@ -32,13 +31,13 @@ namespace NServiceBus
         public Publishers Publishers => GetOrCreate<Publishers>();
 
         /// <summary>
-        /// Sets a distribution strategy for a given subset of message types.
+        /// Sets a distribution strategy for a given endpoint.
         /// </summary>
+        /// <param name="endpointName">The name of the logical endpoint the given strategy should apply to.</param>
         /// <param name="distributionStrategy">The instance of a distribution strategy.</param>
-        /// <param name="typeMatchingRule">A predicate for determining the set of types.</param>
-        public void SetMessageDistributionStrategy(DistributionStrategy distributionStrategy, Func<Type, bool> typeMatchingRule)
+        public void SetMessageDistributionStrategy(string endpointName, DistributionStrategy distributionStrategy)
         {
-            GetOrCreate<DistributionPolicy>().SetDistributionStrategy(distributionStrategy, typeMatchingRule);
+            GetOrCreate<DistributionPolicy>().SetDistributionStrategy(endpointName, distributionStrategy);
         }
 
         T GetOrCreate<T>()

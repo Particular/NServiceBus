@@ -130,7 +130,9 @@
     <Compile Include="Recoverability\Faults\MessageFaulted.cs" />
     <Compile Include="ReleaseDateAttribute.cs" />
     <Compile Include="Recoverability\ProcessingFailureInfo.cs" />
+    <Compile Include="Routing\IDistributionPolicy.cs" />
     <Compile Include="Routing\RoutingMappingSettings.cs" />
+    <Compile Include="Routing\SpecificInstanceDistributionPolicy.cs" />
     <Compile Include="Routing\UnicastPublishRouter.cs" />
     <Compile Include="Routing\UnicastSendRouter.cs" />
     <Compile Include="Serialization\SerializationFeature.cs" />

@@ -28,7 +28,7 @@ namespace NServiceBus
             this.sharedQueue = sharedQueue;
             this.instanceSpecificQueue = instanceSpecificQueue;
             this.unicastRouter = unicastRouter;
-            this.distributionPolicy = distributionPolicy;
+            defaultDistributionPolicy = distributionPolicy;
         }
 
         public override async Task Invoke(IOutgoingSendContext context, Func<IOutgoingLogicalMessageContext, Task> stage)
@@ -46,19 +46,10 @@ namespace NServiceBus
             var explicitDestination = state.Option == RouteOption.ExplicitDestination ? state.ExplicitDestination : null;
             var destination = explicitDestination ?? thisInstance ?? thisEndpoint;
 
-            DistributionStrategy distributionStrategy;
-
-            if (state.Option == RouteOption.RouteToSpecificInstance)
-            {
-                distributionStrategy = new SpecificInstanceDistributionStrategy(state.SpecificInstance);
-            }
-            else
-            {
-                distributionStrategy = distributionPolicy.GetDistributionStrategy(messageType);
-            }
+            var distributionPolicy = state.Option == RouteOption.RouteToSpecificInstance ? new SpecificInstanceDistributionPolicy(state.SpecificInstance) : defaultDistributionPolicy;
 
             var routingStrategies = string.IsNullOrEmpty(destination)
-                ? await unicastRouter.Route(messageType, distributionStrategy, context.Extensions).ConfigureAwait(false)
+                ? await unicastRouter.Route(messageType, distributionPolicy, context.Extensions).ConfigureAwait(false)
                 : RouteToDestination(destination);
 
             context.Headers[Headers.MessageIntent] = MessageIntentEnum.Send.ToString();
@@ -83,30 +74,10 @@ namespace NServiceBus
             yield return new UnicastRoutingStrategy(physicalAddress);
         }
 
-        DistributionPolicy distributionPolicy;
+        IDistributionPolicy defaultDistributionPolicy;
         string instanceSpecificQueue;
         string sharedQueue;
         IUnicastRouter unicastRouter;
-
-        class SpecificInstanceDistributionStrategy : DistributionStrategy
-        {
-            public SpecificInstanceDistributionStrategy(string specificInstance)
-            {
-                this.specificInstance = specificInstance;
-            }
-
-            public override IEnumerable<UnicastRoutingTarget> SelectDestination(IList<UnicastRoutingTarget> allInstances)
-            {
-                var target = allInstances.FirstOrDefault(t => t.Instance != null && t.Instance.Discriminator == specificInstance);
-                if (target == null)
-                {
-                    throw new Exception($"Specified instance {specificInstance} has not been configured in the routing tables.");
-                }
-                yield return target;
-            }
-
-            string specificInstance;
-        }
 
         public class State
         {
