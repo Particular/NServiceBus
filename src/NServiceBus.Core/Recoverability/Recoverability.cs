@@ -30,12 +30,23 @@
 
             var transportTransactionMode = context.Settings.GetRequiredTransactionModeForReceives();
             var failureInfoStorage = new FailureInfoStorage(context.Settings.Get<int>(FailureInfoStorageCacheSizeKey));
+            var localAddress = context.Settings.LocalAddress();
 
-            context.Pipeline.Register(new MoveFaultsToErrorQueueBehavior.Registration(context.Settings.LocalAddress(), transportTransactionMode, failureInfoStorage));
+            var incomingStepSequence = context.Pipeline.Register("MoveFaultsToErrorQueue", b => new MoveFaultsToErrorQueueBehavior(
+                b.Build<CriticalError>(),
+                localAddress,
+                transportTransactionMode,
+                failureInfoStorage), "Moves failing messages to the configured error queue");  //context.Pipeline.Register(new MoveFaultsToErrorQueueBehavior.Registration(context.Settings.LocalAddress(), transportTransactionMode, failureInfoStorage));
+
             context.Pipeline.Register("AddExceptionHeaders", new AddExceptionHeadersBehavior(), "Adds the exception headers to the message");
             context.Pipeline.Register(new FaultToDispatchConnector(errorQueue), "Connector to dispatch faulted messages");
 
+            if (IsDelayedRetriesEnabled(context.Settings))
+            {
+                var retryPolicy = GetDelayedRetryPolicy(context.Settings);
 
+                incomingStepSequence.Register("SecondLevelRetries", b => new SecondLevelRetriesBehavior(retryPolicy, localAddress, failureInfoStorage), "Performs second level retries");
+            }
 
             if (IsImmediateRetriesEnabled(context.Settings))
             {
@@ -43,16 +54,7 @@
                 var maxRetries = transportConfig?.MaxRetries ?? 5;
                 var retryPolicy = new FirstLevelRetryPolicy(maxRetries);
 
-                context.Pipeline.Register("FirstLevelRetries", b => new FirstLevelRetriesBehavior(failureInfoStorage, retryPolicy), "Performs first level retries");
-            }
-
-            if (IsDelayedRetriesEnabled(context.Settings))
-            {
-                var retryPolicy = GetDelayedRetryPolicy(context.Settings);
-
-                context.Pipeline.Register<SecondLevelRetriesBehavior.Registration>();
-
-                context.Container.ConfigureComponent(b => new SecondLevelRetriesBehavior(retryPolicy, context.Settings.LocalAddress(), failureInfoStorage), DependencyLifecycle.InstancePerCall);
+                incomingStepSequence.Register("FirstLevelRetries", b => new FirstLevelRetriesBehavior(failureInfoStorage, retryPolicy), "Performs first level retries");
             }
 
             RaiseLegacyNotifications(context);

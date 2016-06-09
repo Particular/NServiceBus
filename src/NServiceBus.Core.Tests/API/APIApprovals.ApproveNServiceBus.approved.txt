@@ -2345,6 +2345,8 @@ namespace NServiceBus.Pipeline
     public class StepRegistrationSequence
     {
         public NServiceBus.Pipeline.StepRegistrationSequence Register(string stepId, System.Type behavior, string description) { }
+        public NServiceBus.Pipeline.StepRegistrationSequence Register<T>(string stepId, System.Func<NServiceBus.ObjectBuilder.IBuilder, T> factoryMethod, string description)
+            where T : NServiceBus.Pipeline.IBehavior { }
         [System.ObsoleteAttribute("Use `Register(string stepId, Type behavior, string description)` instead. The mem" +
             "ber currently throws a NotImplementedException. Will be removed in version 7.0.0" +
             ".", true)]
