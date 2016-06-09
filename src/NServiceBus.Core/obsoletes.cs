@@ -2318,6 +2318,24 @@ namespace NServiceBus.Features
     }
 }
 
+namespace NServiceBus.Features
+{
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        Message = "SecondLevelRetries is no longer a separate feature. Please use configureation.SecondLevelRetries().Disable() to delayed retries.")]
+    public class SecondLevelRetries : Feature
+    {
+        internal SecondLevelRetries()
+        {
+        }
+
+        protected internal override void Setup(FeatureConfigurationContext context)
+        {
+        }
+    }
+}
+
 
 
 

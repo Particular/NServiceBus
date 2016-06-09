@@ -39,7 +39,7 @@
             builder.EnableInstallers();
 
             builder.DisableFeature<TimeoutManager>();
-            builder.DisableFeature<SecondLevelRetries>();
+            builder.SecondLevelRetries().Disable();
             builder.DisableFirstLevelRetries();
 
             builder.RegisterComponents(r => { RegisterInheritanceHierarchyOfContextOnContainer(runDescriptor, r); });

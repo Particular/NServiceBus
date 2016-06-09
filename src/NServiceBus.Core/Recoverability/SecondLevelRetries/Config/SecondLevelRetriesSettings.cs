@@ -34,6 +34,14 @@ namespace NServiceBus.SecondLevelRetries.Config
             config.Settings.Set("SecondLevelRetries.RetryPolicy", customPolicy);
         }
 
+        /// <summary>
+        /// Disables second level retries.
+        /// </summary>
+        public void Disable()
+        {
+            config.Settings.Set(Recoverability.DelayedRetriesEnabled, false);
+        }
+
         EndpointConfiguration config;
     }
 }

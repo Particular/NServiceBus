@@ -36,11 +36,9 @@
         {
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServer>((configure, context) =>
+                EndpointSetup<DefaultServerWithSLROn>((configure, context) =>
                 {
                     var testContext = (Context) context.ScenarioContext;
-                    configure.DisableFirstLevelRetries();
-                    configure.EnableFeature<SecondLevelRetries>();
                     configure.EnableFeature<TimeoutManager>();
                     configure.RegisterComponents(c => c.ConfigureComponent<BodyMutator>(DependencyLifecycle.InstancePerCall));
                     configure.Notifications.Errors.MessageSentToErrorQueue += (sender, message) =>

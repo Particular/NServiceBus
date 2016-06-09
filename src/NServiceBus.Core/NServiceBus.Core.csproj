@@ -665,7 +665,6 @@
     <Compile Include="Transports\Msmq\MsmqUtilities.cs" />
     <Compile Include="Encryption\RijndaelEncryptionServiceConfig.cs" />
     <Compile Include="Recoverability\SecondLevelRetries\Config\SecondLevelRetriesConfig.cs" />
-    <Compile Include="Recoverability\SecondLevelRetries\SecondLevelRetries.cs" />
     <Compile Include="Transports\TransportConfig.cs" />
     <Compile Include="Unicast\UnicastBusConfig.cs" />
     <Compile Include="DataBus\DataBusFileBased.cs" />

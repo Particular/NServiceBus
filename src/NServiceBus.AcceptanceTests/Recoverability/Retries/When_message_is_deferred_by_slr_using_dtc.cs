@@ -45,10 +45,9 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(config =>
+                EndpointSetup<DefaultServerWithSLROn>(config =>
                 {
                     config.DisableFirstLevelRetries();
-                    config.EnableFeature<SecondLevelRetries>();
                     config.EnableFeature<TimeoutManager>();
                     config.SendFailedMessagesTo(ErrorQueueName);
                 })

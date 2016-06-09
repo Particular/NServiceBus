@@ -1647,7 +1647,6 @@ namespace NServiceBus.Features
         "7.0.0.", true)]
     public class FirstLevelRetries : NServiceBus.Features.Feature
     {
-        public FirstLevelRetries() { }
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class ForwardReceivedMessages : NServiceBus.Features.Feature
@@ -1694,6 +1693,9 @@ namespace NServiceBus.Features
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
+    [System.ObsoleteAttribute("SecondLevelRetries is no longer a separate feature. Please use configureation.Sec" +
+        "ondLevelRetries().Disable() to delayed retries. Will be removed in version 7.0.0" +
+        ".", true)]
     public class SecondLevelRetries : NServiceBus.Features.Feature
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
@@ -2682,6 +2684,7 @@ namespace NServiceBus.SecondLevelRetries.Config
             "7.0.0.", true)]
         public void CustomRetryPolicy(System.Func<NServiceBus.TransportMessage, System.TimeSpan> customPolicy) { }
         public void CustomRetryPolicy(System.Func<NServiceBus.Transports.IncomingMessage, System.TimeSpan> customPolicy) { }
+        public void Disable() { }
     }
 }
 namespace NServiceBus.Serialization

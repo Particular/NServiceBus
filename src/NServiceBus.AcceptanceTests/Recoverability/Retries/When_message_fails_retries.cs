@@ -6,7 +6,6 @@
     using AcceptanceTesting;
     using AcceptanceTesting.Support;
     using EndpointTemplates;
-    using Features;
     using NUnit.Framework;
 
     public class When_message_fails_retries : NServiceBusAcceptanceTest
@@ -48,7 +47,7 @@
                 {
                     var scenarioContext = (Context) context.ScenarioContext;
                     configure.DisableFirstLevelRetries();
-                    configure.DisableFeature<SecondLevelRetries>();
+                    configure.SecondLevelRetries().Disable();
                     configure.Notifications.Errors.MessageSentToErrorQueue += (sender, message) => scenarioContext.ForwardedToErrorQueue = true;
                 });
             }

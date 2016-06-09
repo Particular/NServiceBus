@@ -50,11 +50,10 @@
         {
             public SLREndpoint()
             {
-                EndpointSetup<DefaultServerWithFlrOn>((config, context) =>
+                EndpointSetup<DefaultServerWithFlrAndSlrOn>((config, context) =>
                 {
                     var testContext = (Context) context.ScenarioContext;
                     var notifications = config.Notifications;
-                    config.EnableFeature<SecondLevelRetries>();
                     config.EnableFeature<TimeoutManager>();
                     notifications.Errors.MessageSentToErrorQueue += (sender, message) =>
                     {

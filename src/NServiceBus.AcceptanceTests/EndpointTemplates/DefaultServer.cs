@@ -22,10 +22,16 @@
             this.typesToInclude = typesToInclude;
         }
 
-        protected virtual bool DisableFlr()
+        protected virtual bool DisableFLR()
         {
-            return false;
+            return true;
         }
+
+        protected virtual bool DisableSLR()
+        {
+            return true;
+        }
+
 
         public async Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, IConfigurationSource configSource, Action<EndpointConfiguration> configurationBuilderCustomization)
         {
@@ -42,9 +48,13 @@
             configuration.EnableInstallers();
 
             configuration.DisableFeature<TimeoutManager>();
-            configuration.DisableFeature<SecondLevelRetries>();
 
-            if (DisableFlr())
+            if (DisableSLR())
+            {
+                configuration.SecondLevelRetries().Disable();
+            }
+
+            if (DisableFLR())
             {
                 configuration.DisableFirstLevelRetries();
             }

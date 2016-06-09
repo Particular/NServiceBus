@@ -44,7 +44,7 @@
                 {
                     b.RegisterComponents(r => r.ConfigureComponent<CheckUnitOfWorkOutcome>(DependencyLifecycle.InstancePerCall));
                     b.DisableFeature<TimeoutManager>();
-                    b.DisableFeature<SecondLevelRetries>();
+                    b.SecondLevelRetries().Disable();
                     b.ExecuteTheseHandlersFirst(typeof(FirstHandler), typeof(SecondHandler));
                 })
                     .WithConfig<TransportConfig>(c => { c.MaxRetries = 0; });

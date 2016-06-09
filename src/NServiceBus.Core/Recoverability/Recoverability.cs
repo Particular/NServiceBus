@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using System;
     using Config;
     using ConsistencyGuarantees;
     using Features;
@@ -11,15 +12,16 @@
         public Recoverability()
         {
             EnableByDefault();
+            DependsOnOptionally<DelayedDeliveryFeature>();
 
             Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"),
                 "Message recoverability is only relevant for endpoints receiving messages.");
             Defaults(settings =>
             {
                 settings.SetDefault(ImmedidateRetriesEnabled, true);
+                settings.SetDefault(DelayedRetriesEnabled, true);
                 settings.SetDefault(FailureInfoStorageCacheSizeKey, 1000);
             });
-
         }
         protected internal override void Setup(FeatureConfigurationContext context)
         {
@@ -28,9 +30,6 @@
 
             var transportTransactionMode = context.Settings.GetRequiredTransactionModeForReceives();
             var failureInfoStorage = new FailureInfoStorage(context.Settings.Get<int>(FailureInfoStorageCacheSizeKey));
-
-            //todo: remove when SLR is merged
-            context.Container.RegisterSingleton(failureInfoStorage);
 
             context.Pipeline.Register(new MoveFaultsToErrorQueueBehavior.Registration(context.Settings.LocalAddress(), transportTransactionMode, failureInfoStorage));
             context.Pipeline.Register("AddExceptionHeaders", new AddExceptionHeadersBehavior(), "Adds the exception headers to the message");
@@ -47,7 +46,62 @@
                 context.Pipeline.Register("FirstLevelRetries", b => new FirstLevelRetriesBehavior(failureInfoStorage, retryPolicy), "Performs first level retries");
             }
 
+            if (IsDelayedRetriesEnabled(context.Settings))
+            {
+                var retryPolicy = GetDelayedRetryPolicy(context.Settings);
+
+                context.Pipeline.Register<SecondLevelRetriesBehavior.Registration>();
+
+                context.Container.ConfigureComponent(b => new SecondLevelRetriesBehavior(retryPolicy, context.Settings.LocalAddress(), failureInfoStorage), DependencyLifecycle.InstancePerCall);
+            }
+
             RaiseLegacyNotifications(context);
+        }
+
+        static SecondLevelRetryPolicy GetDelayedRetryPolicy(ReadOnlySettings settings)
+        {
+            var customRetryPolicy = settings.GetOrDefault<Func<IncomingMessage, TimeSpan>>("SecondLevelRetries.RetryPolicy");
+
+            if (customRetryPolicy != null)
+            {
+                return new CustomSecondLevelRetryPolicy(customRetryPolicy);
+            }
+
+            var retriesConfig = settings.GetConfigSection<SecondLevelRetriesConfig>();
+            if (retriesConfig != null)
+            {
+                return new DefaultSecondLevelRetryPolicy(retriesConfig.NumberOfRetries, retriesConfig.TimeIncrease);
+            }
+
+            return new DefaultSecondLevelRetryPolicy(DefaultSecondLevelRetryPolicy.DefaultNumberOfRetries, DefaultSecondLevelRetryPolicy.DefaultTimeIncrease);
+        }
+
+        bool IsDelayedRetriesEnabled(ReadOnlySettings settings)
+        {
+            if (!settings.Get<bool>(DelayedRetriesEnabled))
+            {
+                return false;
+            }
+
+            //Transactions must be enabled since SLR requires the transport to be able to rollback
+            if (settings.GetRequiredTransactionModeForReceives() == TransportTransactionMode.None)
+            {
+                return false;
+            }
+
+            var retriesConfig = settings.GetConfigSection<SecondLevelRetriesConfig>();
+
+            if (retriesConfig == null)
+            {
+                return true;
+            }
+
+            if (retriesConfig.NumberOfRetries == 0)
+            {
+                return false;
+            }
+
+            return retriesConfig.Enabled;
         }
 
         bool IsImmediateRetriesEnabled(ReadOnlySettings settings)
@@ -107,6 +161,8 @@
 
 
         public const string ImmedidateRetriesEnabled = "Recoverability.ImmediateRetries.Enabled";
+        public const string DelayedRetriesEnabled = "Recoverability.DelayedRetries.Enabled";
+
         const string FailureInfoStorageCacheSizeKey = "Recoverability.FailureInfoStorage.CacheSize";
     }
 }

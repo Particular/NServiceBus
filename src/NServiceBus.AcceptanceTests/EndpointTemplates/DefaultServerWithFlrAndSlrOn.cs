@@ -1,8 +1,13 @@
 ﻿namespace NServiceBus.AcceptanceTests.EndpointTemplates
 {
-    class DefaultServerWithFlrOn : DefaultServer
+    class DefaultServerWithFlrAndSlrOn : DefaultServer
     {
         protected override bool DisableFLR()
+        {
+            return false;
+        }
+
+        protected override bool DisableSLR()
         {
             return false;
         }

@@ -33,10 +33,9 @@
         {
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServer>((configure, context) =>
+                EndpointSetup<DefaultServerWithSLROn>((configure, context) =>
                 {
                     configure.DisableFirstLevelRetries();
-                    configure.EnableFeature<SecondLevelRetries>();
                     configure.EnableFeature<TimeoutManager>();
                 }).WithConfig<SecondLevelRetriesConfig>(c => c.TimeIncrease = TimeSpan.FromMilliseconds(1));
             }
