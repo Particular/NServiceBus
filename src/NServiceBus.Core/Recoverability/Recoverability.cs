@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using System.Linq;
     using Config;
     using DelayedDelivery;
     using DeliveryConstraints;
@@ -40,12 +41,16 @@
 
             context.Container.ConfigureComponent(b =>
             {
-                var recoverabilityPolicy = new DefaultRecoverabilityPolicy(b.Build<SecondLevelRetryPolicy>(), maxImmediateRetries);
+                var slrDisabled = b.BuildAll<SecondLevelRetryPolicy>().Any() == false;
+
+                var recoverabilityPolicy = new DefaultRecoverabilityPolicy(slrDisabled ? null : b.Build<SecondLevelRetryPolicy>(), maxImmediateRetries);
 
                 return new RecoveryActionExecutor(recoverabilityPolicy, transportHasNativeDelayedDelivery,
                     timeoutManagerEnabled, inputQueueAddress, timeoutManagerAddress, errorQueueAddress);
 
             } , DependencyLifecycle.SingleInstance);
+
+            WireLegacyNotifications(context);
         }
 
         static bool IsTimeoutManagerDisabled(FeatureConfigurationContext context)
@@ -66,6 +71,32 @@
                 return timeoutMgrState == FeatureState.Deactivated || timeoutMgrState == FeatureState.Disabled;
             }
             return true;
+        }
+
+        static void WireLegacyNotifications(FeatureConfigurationContext context)
+        {
+            var legacyNotifications = context.Settings.Get<Notifications>();
+            var notifications = context.Settings.Get<NotificationSubscriptions>();
+
+            notifications.Subscribe<MessageToBeRetried>(e =>
+            {
+                if (e.IsImmediateRetry)
+                {
+                    legacyNotifications.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(e.Attempt, e.Message, e.Exception);
+                }
+                else
+                {
+                    legacyNotifications.Errors.InvokeMessageHasBeenSentToSecondLevelRetries(e.Attempt, e.Message, e.Exception);
+                }
+
+                return TaskEx.CompletedTask;
+            });
+
+            notifications.Subscribe<MessageFaulted>(e =>
+            {
+                legacyNotifications.Errors.InvokeMessageHasBeenSentToErrorQueue(e.Message, e.Exception);
+                return TaskEx.CompletedTask;
+            });
         }
     }
 }

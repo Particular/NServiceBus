@@ -43,11 +43,6 @@
         /// <summary>
         /// 
         /// </summary>
-        public Dictionary<string, string> Metadata { get; set; }
-
-        /// <summary>
-        /// 
-        /// </summary>
         /// <param name="exception"></param>
         /// <param name="numberOfProcessingAttempts"></param>
         /// <param name="messageId"></param>
@@ -62,8 +57,6 @@
             Headers = headers;
             BodyStream = bodyStream;
             Context = context;
-
-            Metadata = new Dictionary<string, string>();
         }
     }
 }

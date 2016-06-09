@@ -33,7 +33,8 @@ namespace NServiceBus
 
             TimeSpan delay;
 
-            if (secondLevelRetryPolicy.TryGetDelay(headers, exception, numberOfDelayedRetryAttempts, out delay))
+            if (secondLevelRetryPolicy != null && 
+                secondLevelRetryPolicy.TryGetDelay(headers, exception, numberOfDelayedRetryAttempts, out delay))
             {
                 return new DelayedRetry(delay, new Dictionary<string, string>
                 {
@@ -46,7 +47,7 @@ namespace NServiceBus
 
         bool ShouldDoImmediateRetry(int numberOfImmediateRetries)
         {
-            return numberOfImmediateRetries < maxImmediateRetries;
+            return numberOfImmediateRetries <= maxImmediateRetries;
         }
 
         SecondLevelRetryPolicy secondLevelRetryPolicy;

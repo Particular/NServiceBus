@@ -87,7 +87,7 @@ namespace NServiceBus
         {
             var dispatcher = builder.Build<IDispatchMessages>();
 
-            return builder.Build<RecoveryActionExecutor>().RawInvoke(pushContext, dispatcher);
+            return builder.Build<RecoveryActionExecutor>().RawInvoke(pushContext, dispatcher, eventAggregator);
         }
 
         bool isMainReceiver;

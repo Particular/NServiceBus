@@ -1,6 +1,8 @@
 namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using DelayedDelivery;
     using Logging;
@@ -20,15 +22,11 @@ namespace NServiceBus
             this.errorQueueAddress = errorQueueAddress;
         }
 
-        public async Task<bool> RawInvoke(ErrorContext context, IDispatchMessages messageDispatcher)
+        public async Task<bool> RawInvoke(ErrorContext context, IDispatchMessages messageDispatcher, IEventAggregator eventAggregator)
         {
-            //This needs to be proper metadata handling
-            if (context.Headers.ContainsKey(Headers.Retries))
-            {
-                context.Metadata.Add(Headers.Retries, context.Headers[Headers.Retries]);
-            }
+            var recoverabilityMetadata = ExtractMetadata(context.Headers);
 
-            var action = recoverabilityPolicy.Invoke(context.Exception, context.Headers, context.NumberOfProcessingAttempts, context.Metadata);
+            var action = recoverabilityPolicy.Invoke(context.Exception, context.Headers, context.NumberOfProcessingAttempts, recoverabilityMetadata);
 
             if (action is ImmediateRetry)
             {
@@ -55,6 +53,9 @@ namespace NServiceBus
 
                 Logger.Error($"Moving message '{outgoingMessage.MessageId}' to the error queue because processing failed due to an exception:", context.Exception);
 
+                var incomingMessage = new IncomingMessage(context.MessageId, context.Headers, context.BodyStream);
+                await eventAggregator.Raise(new MessageFaulted(incomingMessage, context.Exception)).ConfigureAwait(false);
+
                 return false;
             }
 
@@ -67,13 +68,7 @@ namespace NServiceBus
 
             var delayWith = delayedRetry.Delay;
 
-            //todo: This needs to be a proper merging of dictionaries
-            string retryMetadata;
-            if (delayedRetry.Metadata.TryGetValue(Headers.Retries, out retryMetadata))
-            {
-                // check that SC removes this header?
-                outgoingMessage.Headers[Headers.Retries] = retryMetadata;
-            }
+            MergeMetadata(outgoingMessage.Headers, recoverabilityMetadata);
 
             if (nativeDeferralsSupported)
             {
@@ -102,6 +97,31 @@ namespace NServiceBus
             //await context.RaiseNotification(new MessageToBeRetried(firstLevelRetries, TimeSpan.Zero, context.Message, ex)).ConfigureAwait(false);
 
             return false;
+        }
+
+
+        static Dictionary<string, string> ExtractMetadata(Dictionary<string, string> headers)
+        {
+            return headers.Where(kv => kv.Key.StartsWith("$.Recoverability") || kv.Key == Headers.Retries).ToDictionary(kv => kv.Key, kv => kv.Value);
+        }
+
+        static void MergeMetadata(Dictionary<string, string> headers, Dictionary<string, string> metadata)
+        {
+            foreach (var metadataKeyValue in metadata)
+            {
+                var headersKey = metadataKeyValue.Key == Headers.Retries
+                    ? Headers.Retries
+                    : $"$.Recoverability.{metadataKeyValue.Key}";
+
+                if (headers.ContainsKey(headersKey))
+                {
+                    headers.Add(headersKey, metadataKeyValue.Value);
+                }
+                else
+                {
+                    headers[headersKey] = metadataKeyValue.Value;
+                }
+            }
         }
 
         IRecoverabilityPolicy recoverabilityPolicy;
