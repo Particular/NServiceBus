@@ -37,7 +37,7 @@
         {
             public UnawareSender()
             {
-                EndpointSetup<DefaultServer>(c => { c.UnicastRouting().RouteToEndpoint(typeof(MyMessage), GetReceiverEndpoint()); });
+                EndpointSetup<DefaultServer>(c => { c.Routing().RouteToEndpoint(typeof(MyMessage), GetReceiverEndpoint()); });
             }
         }
 
@@ -47,8 +47,8 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.UnicastRouting().RouteToEndpoint(typeof(MyMessage), GetReceiverEndpoint());
-                    c.UnicastRouting().Mapping.Physical.Add(new EndpointInstance(GetReceiverEndpoint(), "XYZ"));
+                    c.Routing().RouteToEndpoint(typeof(MyMessage), GetReceiverEndpoint());
+                    c.Routing().Mapping.Physical.Add(new EndpointInstance(GetReceiverEndpoint(), "XYZ"));
                 });
             }
         }

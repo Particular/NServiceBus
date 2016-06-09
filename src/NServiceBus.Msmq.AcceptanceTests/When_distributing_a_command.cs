@@ -73,8 +73,8 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.UseTransport<MsmqTransport>().DistributeMessagesUsingFileBasedEndpointInstanceMapping(filePath);
-                    c.UnicastRouting().RouteToEndpoint(typeof(RequestA), ReceiverAEndpoint);
-                    c.UnicastRouting().RouteToEndpoint(typeof(RequestB), ReceiverBEndpoint);
+                    c.Routing().RouteToEndpoint(typeof(RequestA), ReceiverAEndpoint);
+                    c.Routing().RouteToEndpoint(typeof(RequestB), ReceiverBEndpoint);
                 });
             }
 

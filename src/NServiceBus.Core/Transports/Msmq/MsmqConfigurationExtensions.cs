@@ -46,7 +46,7 @@ namespace NServiceBus
         /// </summary>
         public static FileRoutingTableSettings DistributeMessagesUsingFileBasedEndpointInstanceMapping(this TransportExtensions<MsmqTransport> config, string filePath)
         {
-            return config.UnicastRouting().Mapping.DistributeMessagesUsingFileBasedEndpointInstanceMapping(filePath);
+            return FileBasedRoutingConfigurationExtensions.EnableFileBasedRouting(config.Settings, filePath);
         }
     }
 }

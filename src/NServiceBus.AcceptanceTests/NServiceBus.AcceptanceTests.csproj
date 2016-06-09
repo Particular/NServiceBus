@@ -157,6 +157,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Routing\SubscriptionBehaviorExtensions.cs" />
+    <Compile Include="UnicastPubSubExtensions.cs" />
     <Compile Include="Routing\When_multi_subscribing_to_a_polymorphic_event_on_multicast_transports.cs" />
     <Compile Include="Routing\When_handler_exists_but_routing_information_is_missing.cs" />
     <Compile Include="Routing\When_publishing_to_scaled_out_subscribers_on_unicast_transports.cs" />
