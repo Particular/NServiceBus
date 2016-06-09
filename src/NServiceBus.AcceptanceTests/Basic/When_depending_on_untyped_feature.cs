@@ -20,7 +20,7 @@ namespace NServiceBus.AcceptanceTests.Basic
                 .Done(c => c.EndpointsStarted)
                 .Run();
 
-            Assert.That(context.UntypedDpendencyFeatureSetUp, Is.True);
+            Assert.That(context.UntypedDependencyFeatureSetUp, Is.True);
         }
 
         [Test]
@@ -35,12 +35,12 @@ namespace NServiceBus.AcceptanceTests.Basic
                 .Done(c => c.EndpointsStarted)
                 .Run();
 
-            Assert.That(context.UntypedDpendencyFeatureSetUp, Is.False);
+            Assert.That(context.UntypedDependencyFeatureSetUp, Is.False);
         }
 
         class Context : ScenarioContext
         {
-            public bool UntypedDpendencyFeatureSetUp { get; set; }
+            public bool UntypedDependencyFeatureSetUp { get; set; }
         }
 
         public class EndpointWithFeatures : EndpointConfigurationBuilder
@@ -62,7 +62,7 @@ namespace NServiceBus.AcceptanceTests.Basic
             protected override void Setup(FeatureConfigurationContext context)
             {
                 var testContext = (Context) context.Settings.Get<ScenarioContext>();
-                testContext.UntypedDpendencyFeatureSetUp = true;
+                testContext.UntypedDependencyFeatureSetUp = true;
             }
         }
 

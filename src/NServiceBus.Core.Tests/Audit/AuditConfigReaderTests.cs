@@ -6,7 +6,7 @@
     public class AuditConfigReaderTests
     {
         [Test]
-        public void ShouldUseExplictValueInSettingsIfPresent()
+        public void ShouldUseExplicitValueInSettingsIfPresent()
         {
             string address;
             var settingsHolder = new SettingsHolder();

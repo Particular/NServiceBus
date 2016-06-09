@@ -20,7 +20,7 @@
                 .Done(c => c.EndpointsStarted)
                 .Run();
 
-            Assert.That(context.TypedDpendencyFeatureSetUp, Is.True);
+            Assert.That(context.TypedDependencyFeatureSetUp, Is.True);
         }
 
         [Test]
@@ -35,13 +35,13 @@
                 .Done(c => c.EndpointsStarted)
                 .Run();
 
-            Assert.That(context.TypedDpendencyFeatureSetUp, Is.False);
+            Assert.That(context.TypedDependencyFeatureSetUp, Is.False);
         }
 
         class Context : ScenarioContext
         {
-            public bool TypedDpendencyFeatureSetUp { get; set; }
-            public bool UntypedDpendencyFeatureSetUp { get; set; }
+            public bool TypedDependencyFeatureSetUp { get; set; }
+            public bool UntypedDependencyFeatureSetUp { get; set; }
         }
 
         public class EndpointWithFeatures : EndpointConfigurationBuilder
@@ -62,7 +62,7 @@
             protected override void Setup(FeatureConfigurationContext context)
             {
                 var testContext = (Context) context.Settings.Get<ScenarioContext>();
-                testContext.TypedDpendencyFeatureSetUp = true;
+                testContext.TypedDependencyFeatureSetUp = true;
             }
         }
 
