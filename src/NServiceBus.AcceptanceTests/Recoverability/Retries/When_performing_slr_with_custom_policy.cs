@@ -35,12 +35,11 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>((config, context) =>
+                EndpointSetup<DefaultServerWithFlrOn>((config, context) =>
                 {
                     var testContext = context.ScenarioContext as Context;
 
                     config.EnableFeature<TimeoutManager>();
-                    config.EnableFeature<FirstLevelRetries>();
                     config.EnableFeature<SecondLevelRetries>();
                     config.Notifications.Errors.MessageSentToErrorQueue += (sender, message) => { testContext.MessageMovedToErrorQueue = true; };
                     config.SecondLevelRetries().CustomRetryPolicy(new CustomPolicy(testContext).GetDelay);

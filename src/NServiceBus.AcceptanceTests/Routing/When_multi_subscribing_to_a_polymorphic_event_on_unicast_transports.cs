@@ -51,7 +51,8 @@
         {
             public Publisher1()
             {
-                EndpointSetup<DefaultPublisher>(b =>
+                //FLR on since subscription storages can throw on concurrency violation and need to retry
+                EndpointSetup<DefaultPublisherWithFlrOn>(b =>
                 {
                     b.OnEndpointSubscribed<Context>((args, context) =>
                     {
@@ -61,7 +62,6 @@
                             context.Publisher1HasASubscriberForIMyEvent = true;
                         }
                     });
-                    b.EnableFeature<FirstLevelRetries>(); //Because subscription storages can throw on concurrency violation and need to retry
                 });
             }
         }
@@ -70,7 +70,8 @@
         {
             public Publisher2()
             {
-                EndpointSetup<DefaultPublisher>(b =>
+                //Because subscription storages can throw on concurrency violation and need to retry
+                EndpointSetup<DefaultPublisherWithFlrOn>(b =>
                 {
                     b.OnEndpointSubscribed<Context>((args, context) =>
                     {
@@ -81,7 +82,6 @@
                             context.Publisher2HasDetectedASubscriberForEvent2 = true;
                         }
                     });
-                    b.EnableFeature<FirstLevelRetries>(); //Because subscription storages can throw on concurrency violation and need to retry
                 });
             }
         }

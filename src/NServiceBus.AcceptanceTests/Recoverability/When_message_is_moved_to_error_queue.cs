@@ -89,7 +89,7 @@
 
                     config.UseTransport(context.GetTransportType())
                         .Transactions(testContext.TransactionMode);
-                    config.DisableFeature<FirstLevelRetries>();
+                    config.DisableFirstLevelRetries();
                     config.DisableFeature<SecondLevelRetries>();
                     config.Pipeline.Register(new RegisterThrowingBehavior());
                     config.SendFailedMessagesTo(ErrorSpyQueueName);
@@ -119,7 +119,7 @@
             {
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
-                    config.DisableFeature<FirstLevelRetries>();
+                    config.DisableFirstLevelRetries();
                     config.DisableFeature<SecondLevelRetries>();
                     config.SendFailedMessagesTo(ErrorSpyQueueName);
                 });

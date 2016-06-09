@@ -39,9 +39,8 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(c =>
+                EndpointSetup<DefaultServerWithFlrOn>(c =>
                 {
-                    c.EnableFeature<FirstLevelRetries>();
                     c.EnableFeature<TimeoutManager>();
                     c.ExecuteTheseHandlersFirst(typeof(CatchAllMessageHandler));
                 });

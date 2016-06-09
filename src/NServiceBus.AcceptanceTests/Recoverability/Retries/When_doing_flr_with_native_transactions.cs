@@ -5,7 +5,6 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
@@ -49,10 +48,9 @@
         {
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServer>((config, context) =>
+                EndpointSetup<DefaultServerWithFlrOn>((config, context) =>
                 {
                     var scenarioContext = (Context) context.ScenarioContext;
-                    config.EnableFeature<FirstLevelRetries>();
                     config.Notifications.Errors.MessageSentToErrorQueue += (sender, message) => scenarioContext.ForwardedToErrorQueue = true;
                     config.UseTransport(context.GetTransportType())
                         .Transactions(TransportTransactionMode.ReceiveOnly);

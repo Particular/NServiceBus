@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using NServiceBus.Config;
     using NUnit.Framework;
 
@@ -40,10 +39,9 @@
         {
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServer>((configure, context) =>
+                EndpointSetup<DefaultServerWithFlrOn>((configure, context) =>
                 {
                     var scenarioContext = (Context) context.ScenarioContext;
-                    configure.EnableFeature<FirstLevelRetries>();
                     configure.Notifications.Errors.MessageSentToErrorQueue += (sender, message) => scenarioContext.GaveUp = true;
                 })
                     .WithConfig<TransportConfig>(c => { c.MaxRetries = 0; });

@@ -129,6 +129,7 @@
     <Compile Include="Recoverability\Faults\MessageToBeRetried.cs" />
     <Compile Include="Recoverability\Faults\MessageFaulted.cs" />
     <Compile Include="Recoverability\Recoverability.cs" />
+    <Compile Include="Recoverability\RecoverabilityConfigExtensions.cs" />
     <Compile Include="ReleaseDateAttribute.cs" />
     <Compile Include="Recoverability\ProcessingFailureInfo.cs" />
     <Compile Include="Routing\RoutingMappingSettings.cs" />
@@ -443,7 +444,6 @@
     <Compile Include="Features\DisplayDiagnosticsForFeatures.cs" />
     <Compile Include="Features\ExposeSettings.cs" />
     <Compile Include="Features\PrerequisiteStatus.cs" />
-    <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetries.cs" />
     <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetryPolicy.cs" />
     <Compile Include="Pipeline\BehaviorInstance.cs" />
     <Compile Include="Pipeline\IPipeline.cs" />

@@ -87,12 +87,12 @@
 
         public class Registration : RegisterStep
         {
-            public Registration(string localAddress, TransportTransactionMode transportTransactionMode)
+            public Registration(string localAddress, TransportTransactionMode transportTransactionMode, FailureInfoStorage failureInfoStorage)
                 : base("MoveFaultsToErrorQueue", typeof(MoveFaultsToErrorQueueBehavior), "Moved failing messages to the configured error queue", b => new MoveFaultsToErrorQueueBehavior(
                     b.Build<CriticalError>(),
                     localAddress,
                     transportTransactionMode,
-                    b.Build<FailureInfoStorage>()))
+                    failureInfoStorage))
             {
                 InsertBeforeIfExists("FirstLevelRetries");
                 InsertBeforeIfExists("SecondLevelRetries");

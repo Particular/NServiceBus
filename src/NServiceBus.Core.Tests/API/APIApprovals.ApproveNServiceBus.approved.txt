@@ -848,6 +848,10 @@ namespace NServiceBus
     {
         public PublishOptions() { }
     }
+    public class static RecoverabilityConfigExtensions
+    {
+        public static void DisableFirstLevelRetries(this NServiceBus.EndpointConfiguration config) { }
+    }
     public class ReplyOptions : NServiceBus.Extensibility.ExtendableOptions
     {
         public ReplyOptions() { }
@@ -1638,8 +1642,12 @@ namespace NServiceBus.Features
         Active = 2,
         Deactivated = 3,
     }
+    [System.ObsoleteAttribute("FirstLevelRetries is no longer a separate feature. Please use configureation.Disa" +
+        "bleFirstLevelRetries() to disable immediate retries. Will be removed in version " +
+        "7.0.0.", true)]
     public class FirstLevelRetries : NServiceBus.Features.Feature
     {
+        public FirstLevelRetries() { }
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class ForwardReceivedMessages : NServiceBus.Features.Feature

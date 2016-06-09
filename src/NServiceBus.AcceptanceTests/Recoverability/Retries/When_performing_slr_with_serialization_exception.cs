@@ -39,7 +39,7 @@
                 EndpointSetup<DefaultServer>((configure, context) =>
                 {
                     var testContext = (Context) context.ScenarioContext;
-                    configure.DisableFeature<FirstLevelRetries>();
+                    configure.DisableFirstLevelRetries();
                     configure.EnableFeature<SecondLevelRetries>();
                     configure.EnableFeature<TimeoutManager>();
                     configure.RegisterComponents(c => c.ConfigureComponent<BodyMutator>(DependencyLifecycle.InstancePerCall));

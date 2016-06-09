@@ -22,6 +22,11 @@
             this.typesToInclude = typesToInclude;
         }
 
+        protected virtual bool DisableFlr()
+        {
+            return false;
+        }
+
         public async Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, IConfigurationSource configSource, Action<EndpointConfiguration> configurationBuilderCustomization)
         {
             var settings = runDescriptor.Settings;
@@ -38,7 +43,11 @@
 
             configuration.DisableFeature<TimeoutManager>();
             configuration.DisableFeature<SecondLevelRetries>();
-            configuration.DisableFeature<FirstLevelRetries>();
+
+            if (DisableFlr())
+            {
+                configuration.DisableFirstLevelRetries();
+            }
 
             await configuration.DefineTransport(settings, endpointConfiguration.EndpointName).ConfigureAwait(false);
 
@@ -48,7 +57,7 @@
             Type serializerType;
             if (settings.TryGet("Serializer", out serializerType))
             {
-                configuration.UseSerialization((SerializationDefinition) Activator.CreateInstance(serializerType));
+                configuration.UseSerialization((SerializationDefinition)Activator.CreateInstance(serializerType));
             }
             await configuration.DefinePersistence(settings, endpointConfiguration.EndpointName).ConfigureAwait(false);
 

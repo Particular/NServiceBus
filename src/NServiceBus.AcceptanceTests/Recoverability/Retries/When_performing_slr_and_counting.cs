@@ -41,7 +41,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
                 EndpointSetup<DefaultServer>((configure, context) =>
                 {
                     var scenarioContext = (Context) context.ScenarioContext;
-                    configure.DisableFeature<FirstLevelRetries>();
+                    configure.DisableFirstLevelRetries();
                     configure.EnableFeature<SecondLevelRetries>();
                     configure.EnableFeature<TimeoutManager>();
                     configure.Notifications.Errors.MessageSentToErrorQueue += (sender, message) => { scenarioContext.ForwardedToErrorQueue = true; };
