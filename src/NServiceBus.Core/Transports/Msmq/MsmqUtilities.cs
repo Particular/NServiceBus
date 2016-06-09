@@ -5,6 +5,7 @@ namespace NServiceBus
     using System.IO;
     using System.Linq;
     using System.Messaging;
+    using System.Runtime.Serialization;
     using System.Text;
     using System.Xml;
     using DeliveryConstraints;
@@ -47,22 +48,29 @@ namespace NServiceBus
 
         public static Dictionary<string, string> ExtractHeaders(Message msmqMessage)
         {
-            var headers = DeserializeMessageHeaders(msmqMessage);
-
-            //note: we can drop this line when we no longer support interop btw v3 + v4
-            if (msmqMessage.ResponseQueue != null)
+            try
             {
-                headers[Headers.ReplyToAddress] = GetIndependentAddressForQueue(msmqMessage.ResponseQueue).ToString();
-            }
+                var headers = DeserializeMessageHeaders(msmqMessage);
 
-            if (Enum.IsDefined(typeof(MessageIntentEnum), msmqMessage.AppSpecific))
+                //note: we can drop this line when we no longer support interop btw v3 + v4
+                if (msmqMessage.ResponseQueue != null)
+                {
+                    headers[Headers.ReplyToAddress] = GetIndependentAddressForQueue(msmqMessage.ResponseQueue).ToString();
+                }
+
+                if (Enum.IsDefined(typeof(MessageIntentEnum), msmqMessage.AppSpecific))
+                {
+                    headers[Headers.MessageIntent] = ((MessageIntentEnum)msmqMessage.AppSpecific).ToString();
+                }
+
+                headers[Headers.CorrelationId] = GetCorrelationId(msmqMessage, headers);
+
+                return headers;
+            }
+            catch (Exception ex)
             {
-                headers[Headers.MessageIntent] = ((MessageIntentEnum) msmqMessage.AppSpecific).ToString();
+                throw new SerializationException($"Failed to deserialize headers for message '{msmqMessage.Id}'", ex);
             }
-
-            headers[Headers.CorrelationId] = GetCorrelationId(msmqMessage, headers);
-
-            return headers;
         }
 
         static string GetCorrelationId(Message message, Dictionary<string, string> headers)
@@ -108,7 +116,7 @@ namespace NServiceBus
                 }
             }
 
-            foreach (var pair in (List<HeaderInfo>) o)
+            foreach (var pair in (List<HeaderInfo>)o)
             {
                 if (pair.Key != null)
                 {
@@ -171,7 +179,7 @@ namespace NServiceBus
                 Enum.TryParse(messageIntentString, true, out messageIntent);
             }
 
-            result.AppSpecific = (int) messageIntent;
+            result.AppSpecific = (int)messageIntent;
 
 
             return result;
