@@ -1,8 +1,7 @@
 namespace NServiceBus.Routing
 {
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Linq;
+    using System.Threading;
 
     /// <summary>
     /// Selects a single instance based on a round-robin scheme.
@@ -16,17 +15,12 @@ namespace NServiceBus.Routing
         {
             if (currentAllInstances.Count == 0)
             {
-                return Enumerable.Empty<UnicastRoutingTarget>();
+                yield break;
             }
-            var endpointName = currentAllInstances[0].Endpoint;
-            var index = indexes.AddOrUpdate(endpointName, e => 0L, (e, i) => i + 1L);
-
-            return new[]
-            {
-                currentAllInstances[(int) (index%currentAllInstances.Count)]
-            };
+            Interlocked.Increment(ref index);
+            yield return currentAllInstances[(int) (index%currentAllInstances.Count)];
         }
 
-        ConcurrentDictionary<string, long> indexes = new ConcurrentDictionary<string, long>();
+        long index;
     }
 }
