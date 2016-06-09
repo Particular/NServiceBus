@@ -16,7 +16,7 @@ namespace NServiceBus.Features
             EnableByDefault();
 
             DependsOn<DelayedDeliveryFeature>();
-            DependsOn<StoreFaultsInErrorQueue>();
+            DependsOn<Recoverability>();
 
             Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Send only endpoints can't use SLR since it requires receive capabilities");
 

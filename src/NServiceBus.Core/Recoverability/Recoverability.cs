@@ -1,23 +1,21 @@
-namespace NServiceBus.Features
+﻿namespace NServiceBus
 {
     using ConsistencyGuarantees;
+    using Features;
     using Transports;
 
-    class StoreFaultsInErrorQueue : Feature
+    class Recoverability : Feature
     {
-        public StoreFaultsInErrorQueue()
+        public Recoverability()
         {
             EnableByDefault();
 
-            Prerequisite(context =>
-            {
-                var b = !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly");
-                return b;
-            }, "Send only endpoints can't be used to forward received messages to the error queue as the endpoint requires receive capabilities");
+            Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"),
+                "Message recoverability is only relevant for endpoints receiving messages.");
 
             Defaults(settings => { settings.SetDefault(FailureInfoStorageCacheSizeKey, 1000); });
-        }
 
+        }
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             var errorQueue = context.Settings.ErrorQueueAddress();
@@ -32,6 +30,7 @@ namespace NServiceBus.Features
             context.Pipeline.Register(new FaultToDispatchConnector(errorQueue), "Connector to dispatch faulted messages");
 
             RaiseLegacyNotifications(context);
+
         }
 
         //note: will soon be removed since we're deprecating Notifications in favor of the new notifications
@@ -60,6 +59,7 @@ namespace NServiceBus.Features
                 return TaskEx.CompletedTask;
             });
         }
+
 
         const string FailureInfoStorageCacheSizeKey = "Recoverability.FailureInfoStorage.CacheSize";
     }
