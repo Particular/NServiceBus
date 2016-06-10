@@ -227,6 +227,7 @@
                 {
                     if (DateTime.UtcNow - startTime > maxTime)
                     {
+                        ThrowOnFailedMessages(runDescriptor, endpoints);
                         throw new ScenarioException(GenerateTestTimedOutMessage(maxTime));
                     }
 
@@ -238,6 +239,11 @@
                 await StopEndpoints(endpoints).ConfigureAwait(false);
             }
 
+            ThrowOnFailedMessages(runDescriptor, endpoints);
+        }
+
+        static void ThrowOnFailedMessages(RunDescriptor runDescriptor, List<EndpointRunner> endpoints)
+        {
             var unexpectedFailedMessages = runDescriptor.ScenarioContext.FailedMessages
                 .Where(kvp => endpoints.Single(e => e.Name() == kvp.Key).FailOnErrorMessage)
                 .SelectMany(kvp => kvp.Value)
