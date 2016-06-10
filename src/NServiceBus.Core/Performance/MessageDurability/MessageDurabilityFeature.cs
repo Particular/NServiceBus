@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using DeliveryConstraints;
 
     class MessageDurabilityFeature : Feature
     {
@@ -42,10 +43,15 @@
                 messageDurability[messageType] = isDurable;
             }
 
-            context.Pipeline.Register("DetermineMessageDurability", typeof(DetermineMessageDurabilityBehavior), "Adds the NonDurableDelivery constraint for messages that have requested to be delivered in non durable mode");
+            if (messageDurability.Values.Any(isDurable => !isDurable))
+            {
+                if (!context.DoesTransportSupportConstraint<NonDurableDelivery>())
+                {
+                    throw new Exception("The configured transport does not support non durable messages but you have configured some messages to be non durable (e.g. by using the [Express] attribute). Make the non durable messages durable or use a transport supporting non durable messages.");
+                }
 
-
-            context.Container.ConfigureComponent(b => new DetermineMessageDurabilityBehavior(messageDurability), DependencyLifecycle.SingleInstance);
+                context.Pipeline.Register(b => new DetermineMessageDurabilityBehavior(messageDurability), "Adds the NonDurableDelivery constraint for messages that have requested to be delivered in non durable mode");
+            }
         }
     }
 }
