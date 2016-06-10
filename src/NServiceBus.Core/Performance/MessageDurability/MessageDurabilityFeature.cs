@@ -22,7 +22,7 @@
 
             var defaultToDurableMessages = context.Settings.DurableMessagesEnabled();
 
-            var messageDurability = new Dictionary<Type, bool>();
+            var nonDurableMessages = new HashSet<Type>();
 
             Func<Type, bool> durabilityConvention;
 
@@ -33,24 +33,24 @@
 
             foreach (var messageType in knownMessages)
             {
-                var isDurable = defaultToDurableMessages;
-
-                if (durabilityConvention(messageType))
+                if (!defaultToDurableMessages)
                 {
-                    isDurable = false;
+                    nonDurableMessages.Add(messageType);
                 }
-
-                messageDurability[messageType] = isDurable;
+                else if(durabilityConvention(messageType))
+                {
+                    nonDurableMessages.Add(messageType);
+                }
             }
 
-            if (messageDurability.Values.Any(isDurable => !isDurable))
+            if (nonDurableMessages.Any())
             {
                 if (!context.DoesTransportSupportConstraint<NonDurableDelivery>())
                 {
                     throw new Exception("The configured transport does not support non durable messages but you have configured some messages to be non durable (e.g. by using the [Express] attribute). Make the non durable messages durable or use a transport supporting non durable messages.");
                 }
 
-                context.Pipeline.Register(b => new DetermineMessageDurabilityBehavior(messageDurability), "Adds the NonDurableDelivery constraint for messages that have requested to be delivered in non durable mode");
+                context.Pipeline.Register(b => new DetermineMessageDurabilityBehavior(nonDurableMessages), "Adds the NonDurableDelivery constraint for messages that have requested to be delivered in non durable mode");
             }
         }
     }
