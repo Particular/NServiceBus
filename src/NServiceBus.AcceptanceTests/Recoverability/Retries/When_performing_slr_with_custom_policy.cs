@@ -14,7 +14,7 @@
         public async Task Should_expose_headers_to_policy()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Endpoint>(b => 
+                .WithEndpoint<Endpoint>(b =>
                     b.When(bus => bus.SendLocal(new MessageToBeRetried()))
                      .DoNotFailOnErrorMessages())
                 .Done(c => c.MessageMovedToErrorQueue)
@@ -35,13 +35,14 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServerWithFlrAndSlrOn>((config, context) =>
+                EndpointSetup<DefaultServer>((config, context) =>
                 {
                     var testContext = context.ScenarioContext as Context;
 
                     config.EnableFeature<TimeoutManager>();
                     config.Notifications.Errors.MessageSentToErrorQueue += (sender, message) => { testContext.MessageMovedToErrorQueue = true; };
                     config.SecondLevelRetries().CustomRetryPolicy(new CustomPolicy(testContext).GetDelay);
+                    config.FirstLevelRetries().NumberOfRetries(1);
                 });
             }
 

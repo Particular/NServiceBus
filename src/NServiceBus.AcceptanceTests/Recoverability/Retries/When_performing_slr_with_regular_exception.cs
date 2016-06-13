@@ -35,7 +35,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
         {
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServerWithSLROn>((configure, context) =>
+                EndpointSetup<DefaultServer>((configure, context) =>
                 {
                     var scenarioContext = (Context) context.ScenarioContext;
                     configure.EnableFeature<TimeoutManager>();

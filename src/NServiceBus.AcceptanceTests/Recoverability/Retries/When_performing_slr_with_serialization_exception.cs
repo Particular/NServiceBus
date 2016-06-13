@@ -36,7 +36,7 @@
         {
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServerWithSLROn>((configure, context) =>
+                EndpointSetup<DefaultServer>((configure, context) =>
                 {
                     var testContext = (Context) context.ScenarioContext;
                     configure.EnableFeature<TimeoutManager>();

@@ -18,8 +18,11 @@
                 "Message recoverability is only relevant for endpoints receiving messages.");
             Defaults(settings =>
             {
-                settings.SetDefault(ImmedidateRetriesEnabled, true);
-                settings.SetDefault(DelayedRetriesEnabled, true);
+                settings.SetDefault(SlrNumberOfRetries, DefaultSecondLevelRetryPolicy.DefaultNumberOfRetries);
+                settings.SetDefault(SlrTimeIncrease, DefaultSecondLevelRetryPolicy.DefaultTimeIncrease);
+
+                settings.SetDefault(FlrNumberOfRetries, 5);
+
                 settings.SetDefault(FailureInfoStorageCacheSizeKey, 1000);
             });
         }
@@ -50,8 +53,7 @@
 
             if (IsImmediateRetriesEnabled(context.Settings))
             {
-                var transportConfig = context.Settings.GetConfigSection<TransportConfig>();
-                var maxRetries = transportConfig?.MaxRetries ?? 5;
+                var maxRetries = GetMaxRetries(context.Settings);
                 var retryPolicy = new FirstLevelRetryPolicy(maxRetries);
 
                 incomingStepSequence.Register("FirstLevelRetries", b => new FirstLevelRetriesBehavior(failureInfoStorage, retryPolicy), "Performs first level retries");
@@ -62,57 +64,55 @@
 
         static SecondLevelRetryPolicy GetDelayedRetryPolicy(ReadOnlySettings settings)
         {
-            var customRetryPolicy = settings.GetOrDefault<Func<IncomingMessage, TimeSpan>>("SecondLevelRetries.RetryPolicy");
-
-            if (customRetryPolicy != null)
+            Func<IncomingMessage, TimeSpan> customRetryPolicy;
+            if (settings.TryGet(SlrCustomPolicy, out customRetryPolicy))
             {
                 return new CustomSecondLevelRetryPolicy(customRetryPolicy);
             }
 
+            var numberOfRetries = settings.Get<int>(SlrNumberOfRetries);
+            var timeIncrease = settings.Get<TimeSpan>(SlrTimeIncrease);
+
             var retriesConfig = settings.GetConfigSection<SecondLevelRetriesConfig>();
             if (retriesConfig != null)
             {
-                return new DefaultSecondLevelRetryPolicy(retriesConfig.NumberOfRetries, retriesConfig.TimeIncrease);
+                numberOfRetries = retriesConfig.Enabled ? retriesConfig.NumberOfRetries : 0;
+                timeIncrease = retriesConfig.TimeIncrease;
             }
 
-            return new DefaultSecondLevelRetryPolicy(DefaultSecondLevelRetryPolicy.DefaultNumberOfRetries, DefaultSecondLevelRetryPolicy.DefaultTimeIncrease);
+            return new DefaultSecondLevelRetryPolicy(numberOfRetries, timeIncrease);
         }
 
         bool IsDelayedRetriesEnabled(ReadOnlySettings settings)
         {
-            if (!settings.Get<bool>(DelayedRetriesEnabled))
-            {
-                return false;
-            }
-
             //Transactions must be enabled since SLR requires the transport to be able to rollback
             if (settings.GetRequiredTransactionModeForReceives() == TransportTransactionMode.None)
             {
                 return false;
             }
 
-            var retriesConfig = settings.GetConfigSection<SecondLevelRetriesConfig>();
-
-            if (retriesConfig == null)
+            SecondLevelRetryPolicy customPolicy;
+            if (settings.TryGet(SlrCustomPolicy, out customPolicy))
             {
                 return true;
             }
 
-            if (retriesConfig.NumberOfRetries == 0)
+            var retriesConfig = settings.GetConfigSection<SecondLevelRetriesConfig>();
+            if (retriesConfig != null && retriesConfig.Enabled && retriesConfig.NumberOfRetries > 0)
             {
-                return false;
+                return true;
             }
 
-            return retriesConfig.Enabled;
+            if (settings.Get<int>(SlrNumberOfRetries) > 0)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         bool IsImmediateRetriesEnabled(ReadOnlySettings settings)
         {
-            if (!settings.Get<bool>(ImmedidateRetriesEnabled))
-            {
-                return false;
-            }
-
             //Transactions must be enabled since FLR requires the transport to be able to rollback
             if (settings.GetRequiredTransactionModeForReceives() == TransportTransactionMode.None)
             {
@@ -155,16 +155,16 @@
 
             if (retriesConfig == null)
             {
-                return 5;
+                return settings.Get<int>(FlrNumberOfRetries);
             }
 
             return retriesConfig.MaxRetries;
         }
 
-
-        public const string ImmedidateRetriesEnabled = "Recoverability.ImmediateRetries.Enabled";
-        public const string DelayedRetriesEnabled = "Recoverability.DelayedRetries.Enabled";
-
-        const string FailureInfoStorageCacheSizeKey = "Recoverability.FailureInfoStorage.CacheSize";
+        public const string SlrNumberOfRetries = "Recoverability.Slr.DefaultPolicy.Retries";
+        public const string SlrTimeIncrease = "Recoverability.Slr.DefaultPolicy.Timespan";
+        public const string SlrCustomPolicy = "Recoverability.Slr.CustomPolicy";
+        public const string FlrNumberOfRetries = "Recoverability.Flr.Retries";
+        public const string FailureInfoStorageCacheSizeKey = "Recoverability.FailureInfoStorage.CacheSize";
     }
 }

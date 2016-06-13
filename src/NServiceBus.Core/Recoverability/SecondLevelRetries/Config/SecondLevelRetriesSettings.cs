@@ -26,20 +26,38 @@ namespace NServiceBus.SecondLevelRetries.Config
         }
 
         /// <summary>
-        /// Register a custom retry policy.
+        /// Register a custom retry policy. Overrides <see cref="NumberOfRetries"/> and <see cref="TimeIncrease"/> configuration.
         /// </summary>
-        public void CustomRetryPolicy(Func<IncomingMessage, TimeSpan> customPolicy)
+        public SecondLevelRetriesSettings CustomRetryPolicy(Func<IncomingMessage, TimeSpan> customPolicy)
         {
             Guard.AgainstNull(nameof(customPolicy), customPolicy);
-            config.Settings.Set("SecondLevelRetries.RetryPolicy", customPolicy);
+            config.Settings.Set(Recoverability.SlrCustomPolicy, customPolicy);
+
+            return this;
         }
 
         /// <summary>
-        /// Disables second level retries.
+        /// Configures the amount of times a message should be retried with a delay after failing all first level retries.
         /// </summary>
-        public void Disable()
+        /// <param name="numberOfRetries">The number of times to delay a failed a message.</param>
+        public SecondLevelRetriesSettings NumberOfRetries(int numberOfRetries)
         {
-            config.Settings.Set(Recoverability.DelayedRetriesEnabled, false);
+            Guard.AgainstNegative(nameof(numberOfRetries), numberOfRetries);
+            config.Settings.Set(Recoverability.SlrNumberOfRetries, numberOfRetries);
+
+            return this;
+        }
+
+        /// <summary>
+        /// Configures the delay after which a message should be retried again after failing all first level retries. The delay is multiplied by the number of the second level retry attempt.
+        /// </summary>
+        /// <param name="timeIncrease">The timespan to increase the delay for each second level retry attempt.</param>
+        public SecondLevelRetriesSettings TimeIncrease(TimeSpan timeIncrease)
+        {
+            Guard.AgainstNegative(nameof(timeIncrease), timeIncrease);
+            config.Settings.Set(Recoverability.SlrTimeIncrease, timeIncrease);
+
+            return this;
         }
 
         EndpointConfiguration config;

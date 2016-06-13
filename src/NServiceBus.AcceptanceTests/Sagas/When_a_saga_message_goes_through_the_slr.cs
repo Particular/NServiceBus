@@ -37,7 +37,7 @@
         {
             public SagaMsgThruSlrEndpt()
             {
-                EndpointSetup<DefaultServerWithSLROn>(b =>
+                EndpointSetup<DefaultServer>(b =>
                 {
                     b.EnableFeature<TimeoutManager>();
                 }).WithConfig<SecondLevelRetriesConfig>(slr =>

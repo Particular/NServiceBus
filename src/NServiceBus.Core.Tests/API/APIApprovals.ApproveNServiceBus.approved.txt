@@ -403,6 +403,10 @@ namespace NServiceBus
     {
         public First() { }
     }
+    public class static FirstLevelRetriesConfigExtensions
+    {
+        public static NServiceBus.SecondLevelRetries.Config.FirstLevelRetriesSettings FirstLevelRetries(this NServiceBus.EndpointConfiguration config) { }
+    }
     public class static HeaderOptionExtensions
     {
         public static System.Collections.Generic.IReadOnlyDictionary<string, string> GetHeaders(this NServiceBus.Extensibility.ExtendableOptions options) { }
@@ -847,10 +851,6 @@ namespace NServiceBus
     public class PublishOptions : NServiceBus.Extensibility.ExtendableOptions
     {
         public PublishOptions() { }
-    }
-    public class static RecoverabilityConfigExtensions
-    {
-        public static void DisableFirstLevelRetries(this NServiceBus.EndpointConfiguration config) { }
     }
     public class ReplyOptions : NServiceBus.Extensibility.ExtendableOptions
     {
@@ -2679,14 +2679,19 @@ namespace NServiceBus.Satellites
 }
 namespace NServiceBus.SecondLevelRetries.Config
 {
+    public class FirstLevelRetriesSettings
+    {
+        public NServiceBus.SecondLevelRetries.Config.FirstLevelRetriesSettings NumberOfRetries(int numberOfRetries) { }
+    }
     public class SecondLevelRetriesSettings
     {
         [System.ObsoleteAttribute("Use `CustomRetryPolicy(Func<IncomingMessage, TimeSpan> customPolicy)` instead. Th" +
             "e member currently throws a NotImplementedException. Will be removed in version " +
             "7.0.0.", true)]
         public void CustomRetryPolicy(System.Func<NServiceBus.TransportMessage, System.TimeSpan> customPolicy) { }
-        public void CustomRetryPolicy(System.Func<NServiceBus.Transports.IncomingMessage, System.TimeSpan> customPolicy) { }
-        public void Disable() { }
+        public NServiceBus.SecondLevelRetries.Config.SecondLevelRetriesSettings CustomRetryPolicy(System.Func<NServiceBus.Transports.IncomingMessage, System.TimeSpan> customPolicy) { }
+        public NServiceBus.SecondLevelRetries.Config.SecondLevelRetriesSettings NumberOfRetries(int numberOfRetries) { }
+        public NServiceBus.SecondLevelRetries.Config.SecondLevelRetriesSettings TimeIncrease(System.TimeSpan timeIncrease) { }
     }
 }
 namespace NServiceBus.Serialization

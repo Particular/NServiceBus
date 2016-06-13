@@ -50,7 +50,7 @@
         {
             public SLREndpoint()
             {
-                EndpointSetup<DefaultServerWithFlrAndSlrOn>((config, context) =>
+                EndpointSetup<DefaultServer>((config, context) =>
                 {
                     var testContext = (Context) context.ScenarioContext;
                     var notifications = config.Notifications;

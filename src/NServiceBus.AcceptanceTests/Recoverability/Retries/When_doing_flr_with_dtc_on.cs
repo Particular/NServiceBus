@@ -52,9 +52,10 @@
         {
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServerWithFlrOn>((b, context) =>
+                EndpointSetup<DefaultServer>((b, context) =>
                 {
                     var scenarioContext = (Context) context.ScenarioContext;
+                    b.FirstLevelRetries().NumberOfRetries(5);
                     b.Notifications.Errors.MessageSentToErrorQueue += (sender, message) => scenarioContext.GaveUpOnRetries = true;
                 })
                     .WithConfig<TransportConfig>(c => c.MaxRetries = maxretries);

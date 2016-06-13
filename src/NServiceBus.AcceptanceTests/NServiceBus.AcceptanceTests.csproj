@@ -69,10 +69,6 @@
     <Compile Include="DelayedDelivery\TimeoutManager\When_timeout_dispatch_fails.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\When_timeout_dispatch_fails_on_timeout_data_removal.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\When_timeout_storage_fails.cs" />
-    <Compile Include="EndpointTemplates\DefaultPublisherWithFlrOn.cs" />
-    <Compile Include="EndpointTemplates\DefaultServerWithFlrAndSlrOn.cs" />
-    <Compile Include="EndpointTemplates\DefaultServerWithFlrOn.cs" />
-    <Compile Include="EndpointTemplates\DefaultServerWithSlrOn.cs" />
     <Compile Include="EndpointTemplates\EndpointCustomizationConfigurationExtensions.cs" />
     <Compile Include="EndpointTemplates\ServerWithNoDefaultPersistenceDefinitions.cs" />
     <Compile Include="FakeTransport\CriticalError\When_registering_custom_critical_error_handler.cs" />

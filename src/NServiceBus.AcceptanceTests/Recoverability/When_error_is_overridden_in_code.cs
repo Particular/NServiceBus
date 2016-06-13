@@ -29,7 +29,6 @@
             {
                 EndpointSetup<DefaultServer>(b =>
                 {
-                    b.SecondLevelRetries().Disable();
                     b.SendFailedMessagesTo("error_with_code_source");
                 })
                     .WithConfig<TransportConfig>(c => { c.MaxRetries = 0; });

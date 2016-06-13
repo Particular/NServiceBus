@@ -49,7 +49,7 @@
         {
             public SLREndpoint()
             {
-                EndpointSetup<DefaultServerWithSLROn>(config =>
+                EndpointSetup<DefaultServer>(config =>
                 {
                     config.EnableFeature<TimeoutManager>();
                 })

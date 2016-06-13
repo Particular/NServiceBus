@@ -46,8 +46,6 @@
                 EndpointSetup<DefaultServer>((configure, context) =>
                 {
                     var scenarioContext = (Context) context.ScenarioContext;
-                    configure.DisableFirstLevelRetries();
-                    configure.SecondLevelRetries().Disable();
                     configure.Notifications.Errors.MessageSentToErrorQueue += (sender, message) => scenarioContext.ForwardedToErrorQueue = true;
                 });
             }

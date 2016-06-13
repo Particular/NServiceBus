@@ -14,16 +14,18 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(currentUtcTimeProvider), currentUtcTimeProvider);
 
-            this.maxRetries = maxRetries;
+            MaxRetries = maxRetries;
             this.timeIncrease = timeIncrease;
             this.currentUtcTimeProvider = currentUtcTimeProvider;
         }
+
+        public int MaxRetries { get; }
 
         public override bool TryGetDelay(IncomingMessage message, Exception ex, int currentRetry, out TimeSpan delay)
         {
             delay = TimeSpan.MinValue;
 
-            if (currentRetry > maxRetries)
+            if (currentRetry > MaxRetries)
             {
                 return false;
             }
@@ -47,7 +49,6 @@ namespace NServiceBus
                 return false;
             }
 
-
             if (string.IsNullOrEmpty(timestampHeader))
             {
                 return false;
@@ -64,8 +65,8 @@ namespace NServiceBus
                 }
             }
                 // ReSharper disable once EmptyGeneralCatchClause
-                // this code won't usually throw but in case a user has decided to hack a message/headers and for some bizarre reason 
-                // they changed the date and that parse fails, we want to make sure that doesn't prevent the message from being 
+                // this code won't usually throw but in case a user has decided to hack a message/headers and for some bizarre reason
+                // they changed the date and that parse fails, we want to make sure that doesn't prevent the message from being
                 // forwarded to the error queue.
             catch (Exception)
             {
@@ -75,9 +76,7 @@ namespace NServiceBus
         }
 
         Func<DateTime> currentUtcTimeProvider;
-        int maxRetries;
         TimeSpan timeIncrease;
-
 
         public static int DefaultNumberOfRetries = 3;
         public static TimeSpan DefaultTimeIncrease = TimeSpan.FromSeconds(10);

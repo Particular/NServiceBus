@@ -37,7 +37,6 @@
             {
                 EndpointSetup<DefaultServer>(b =>
                 {
-                    b.SecondLevelRetries().Disable();
                     b.SendFailedMessagesTo("errorQueueForAcceptanceTest");
                 })
                     .WithConfig<TransportConfig>(c => { c.MaxRetries = 0; });

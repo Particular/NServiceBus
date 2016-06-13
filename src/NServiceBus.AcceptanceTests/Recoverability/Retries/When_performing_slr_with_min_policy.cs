@@ -34,10 +34,9 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
         {
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServerWithSLROn>((configure, context) =>
+                EndpointSetup<DefaultServer>((configure, context) =>
                 {
                     var scenarioContext = (Context) context.ScenarioContext;
-                    configure.DisableFirstLevelRetries();
                     configure.EnableFeature<TimeoutManager>();
                     configure.SecondLevelRetries().CustomRetryPolicy(RetryPolicy);
                     configure.Notifications.Errors.MessageSentToErrorQueue += (sender, message) => { scenarioContext.MessageSentToErrorQueue = true; };

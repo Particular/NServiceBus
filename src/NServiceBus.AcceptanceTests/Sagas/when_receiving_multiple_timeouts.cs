@@ -39,10 +39,11 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServerWithFlrOn>(c =>
+                EndpointSetup<DefaultServer>(c =>
                 {
                     c.EnableFeature<TimeoutManager>();
                     c.ExecuteTheseHandlersFirst(typeof(CatchAllMessageHandler));
+                    c.FirstLevelRetries().NumberOfRetries(5);
                 });
             }
 

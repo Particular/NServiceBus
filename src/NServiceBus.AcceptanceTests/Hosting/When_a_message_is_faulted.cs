@@ -37,7 +37,6 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.SecondLevelRetries().Disable();
                     c.SendFailedMessagesTo("errorQueueForAcceptanceTest");
                 });
             }
