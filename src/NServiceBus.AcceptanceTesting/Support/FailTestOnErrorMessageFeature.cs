@@ -61,9 +61,9 @@
             {
                 public Registration() : base("CaptureExceptionBehavior", typeof(CaptureExceptionBehavior), "Captures unhandled exceptions from processed messages for the AcceptanceTesting Framework")
                 {
-                    InsertAfter("MoveFaultsToErrorQueue");
-                    InsertBeforeIfExists("FirstLevelRetries");
-                    InsertBeforeIfExists("SecondLevelRetries");
+                    //InsertAfter("MoveFaultsToErrorQueue");
+                    //InsertBeforeIfExists("FirstLevelRetries");
+                    //InsertBeforeIfExists("SecondLevelRetries");
                 }
             }
         }

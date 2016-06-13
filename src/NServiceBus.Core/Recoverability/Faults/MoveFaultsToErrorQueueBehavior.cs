@@ -1,75 +1,38 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using System.Runtime.ExceptionServices;
     using System.Threading.Tasks;
+    using Extensibility;
     using Logging;
-    using Pipeline;
+    using Routing;
     using Transports;
 
-    class MoveFaultsToErrorQueueBehavior : ForkConnector<ITransportReceiveContext, IFaultContext>
+    class MoveFaultsToErrorQueueBehavior
     {
-        public MoveFaultsToErrorQueueBehavior(CriticalError criticalError, string localAddress, TransportTransactionMode transportTransactionMode, FailureInfoStorage failureInfoStorage)
+        public MoveFaultsToErrorQueueBehavior(CriticalError criticalError)
         {
             this.criticalError = criticalError;
-            this.localAddress = localAddress;
-            this.transportTransactionMode = transportTransactionMode;
-            this.failureInfoStorage = failureInfoStorage;
         }
 
-        bool RunningWithTransactions => transportTransactionMode != TransportTransactionMode.None;
-
-        public override async Task Invoke(ITransportReceiveContext context, Func<Task> next, Func<IFaultContext, Task> fork)
-        {
-            var message = context.Message;
-
-            var failureInfo = failureInfoStorage.GetFailureInfoForMessage(message.MessageId);
-
-            if (failureInfo.MoveToErrorQueue)
-            {
-                await MoveMessageToErrorQueue(context, fork, message, failureInfo.Exception).ConfigureAwait(false);
-
-                return;
-            }
-
-            try
-            {
-                await next().ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                if (RunningWithTransactions)
-                {
-                    failureInfoStorage.MarkForMovingToErrorQueue(message.MessageId, ExceptionDispatchInfo.Capture(ex));
-
-                    context.AbortReceiveOperation();
-                }
-                else
-                {
-                    await MoveMessageToErrorQueue(context, fork, message, ex).ConfigureAwait(false);
-                }
-            }
-        }
-
-        async Task MoveMessageToErrorQueue(ITransportReceiveContext context, Func<IFaultContext, Task> fork, IncomingMessage message, Exception exception)
+        public async Task Invoke(string errorQueue, IncomingMessage message, Exception exception, IDispatchMessages dispatcher, ContextBag context)
         {
             try
             {
                 Logger.Error($"Moving message '{message.MessageId}' to the error queue because processing failed due to an exception:", exception);
 
-                message.RevertToOriginalBodyIfNeeded();
-
                 message.Headers.Remove(Headers.Retries);
                 message.Headers.Remove(Headers.FLRetries);
 
                 var outgoingMessage = new OutgoingMessage(message.MessageId, message.Headers, message.Body);
-                var faultContext = this.CreateFaultContext(context, outgoingMessage, localAddress, exception);
+                var transportOperation = new TransportOperation(outgoingMessage, new UnicastAddressTag(errorQueue));
+                var transportOperations = new TransportOperations(transportOperation);
 
-                failureInfoStorage.ClearFailureInfoForMessage(message.MessageId);
+                //HINT: this holds and expension point that we need to preserve
+                //var faultContext = this.CreateFaultContext(context, outgoingMessage, localAddress, exception);
 
-                await fork(faultContext).ConfigureAwait(false);
+                await dispatcher.Dispatch(transportOperations, context).ConfigureAwait(false);
 
-                await context.RaiseNotification(new MessageFaulted(message, exception)).ConfigureAwait(false);
+                //await context.RaiseNotification(new MessageFaulted(message, exception)).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -80,23 +43,6 @@
         }
 
         CriticalError criticalError;
-        FailureInfoStorage failureInfoStorage;
-        string localAddress;
-        TransportTransactionMode transportTransactionMode;
         static ILog Logger = LogManager.GetLogger<MoveFaultsToErrorQueueBehavior>();
-
-        public class Registration : RegisterStep
-        {
-            public Registration(string localAddress, TransportTransactionMode transportTransactionMode)
-                : base("MoveFaultsToErrorQueue", typeof(MoveFaultsToErrorQueueBehavior), "Moved failing messages to the configured error queue", b => new MoveFaultsToErrorQueueBehavior(
-                    b.Build<CriticalError>(),
-                    localAddress,
-                    transportTransactionMode,
-                    b.Build<FailureInfoStorage>()))
-            {
-                InsertBeforeIfExists("FirstLevelRetries");
-                InsertBeforeIfExists("SecondLevelRetries");
-            }
-        }
     }
 }

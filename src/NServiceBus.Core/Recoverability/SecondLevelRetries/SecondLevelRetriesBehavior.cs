@@ -2,109 +2,53 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Runtime.ExceptionServices;
-    using System.Threading.Tasks;
-    using DelayedDelivery;
-    using DeliveryConstraints;
-    using Logging;
     using Pipeline;
     using Transports;
 
-    class SecondLevelRetriesBehavior : ForkConnector<ITransportReceiveContext, IRoutingContext>
+    class SecondLevelRetriesBehavior
     {
-        public SecondLevelRetriesBehavior(SecondLevelRetryPolicy retryPolicy, string localAddress, FailureInfoStorage failureInfoStorage)
+        public SecondLevelRetriesBehavior(SecondLevelRetryPolicy retryPolicy, string localAddress, FailureInfoStorage failureInfoStorage, IDispatchMessages dispatcher)
         {
             this.retryPolicy = retryPolicy;
-            this.localAddress = localAddress;
-            this.failureInfoStorage = failureInfoStorage;
-        }
+         }
 
-        public override async Task Invoke(ITransportReceiveContext context, Func<Task> next, Func<IRoutingContext, Task> fork)
+        public bool Invoke(Exception exception, int numberOfSecondLevelAttempts, Dictionary<string,string> headers)
         {
-            var failureInfo = failureInfoStorage.GetFailureInfoForMessage(context.Message.MessageId);
-
-            if (failureInfo.DeferForSecondLevelRetry)
+            if (exception is MessageDeserializationException)
             {
-                await DeferMessageForSecondLevelRetry(context, fork, context.Message, failureInfo).ConfigureAwait(false);
-
-                return;
+                headers.Remove(Headers.Retries); //???
+                return false;
             }
-
-            try
-            {
-                await next().ConfigureAwait(false);
-            }
-            catch (MessageDeserializationException)
-            {
-                context.Message.Headers.Remove(Headers.Retries);
-                throw; // no SLR for poison messages
-            }
-            catch (Exception ex)
-            {
-                failureInfoStorage.MarkForDeferralForSecondLevelRetry(context.Message.MessageId, ExceptionDispatchInfo.Capture(ex));
-
-                context.AbortReceiveOperation();
-            }
-        }
-
-        async Task DeferMessageForSecondLevelRetry(ITransportReceiveContext context, Func<IRoutingContext, Task> fork, IncomingMessage message, ProcessingFailureInfo failureInfo)
-        {
-            var currentRetry = GetNumberOfRetries(message.Headers) + 1;
-
-            message.Headers[Headers.FLRetries] = failureInfo.FLRetries.ToString();
 
             TimeSpan delay;
 
-            if (retryPolicy.TryGetDelay(message, failureInfo.Exception, currentRetry, out delay))
+            if (!retryPolicy.TryGetDelay(headers, exception, numberOfSecondLevelAttempts, out delay))
             {
-                message.RevertToOriginalBodyIfNeeded();
-                var messageToRetry = new OutgoingMessage(message.MessageId, message.Headers, message.Body);
-
-                messageToRetry.Headers[Headers.Retries] = currentRetry.ToString();
-                messageToRetry.Headers[Headers.RetriesTimestamp] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
-
-                var dispatchContext = this.CreateRoutingContext(messageToRetry, localAddress, context);
-
-                context.Extensions.Set(new List<DeliveryConstraint>
-                {
-                    new DelayDeliveryWith(delay)
-                });
-
-                Logger.Warn($"Second Level Retry will reschedule message '{message.MessageId}' after a delay of {delay} because of an exception:", failureInfo.Exception);
-
-                failureInfoStorage.ClearFailureInfoForMessage(message.MessageId);
-
-                await fork(dispatchContext).ConfigureAwait(false);
-
-                await context.RaiseNotification(new MessageToBeRetried(currentRetry, delay, context.Message, failureInfo.Exception)).ConfigureAwait(false);
-
-                return;
+                return false;
             }
 
-            Logger.WarnFormat("Giving up Second Level Retries for message '{0}'.", message.MessageId);
+            headers[Headers.Retries] = numberOfSecondLevelAttempts.ToString();
+            headers[Headers.RetriesTimestamp] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
 
-            failureInfo.ExceptionDispatchInfo.Throw();
+            //var operation = new TransportOperation(
+            //    new OutgoingMessage(failedMessage.MessageId, failedMessage.Headers, failedMessage.Body),
+            //    new UnicastAddressTag(localAddress));
+
+            ////Question: is this proper way to do it
+            //context.Set(new List<DeliveryConstraint>
+            //{
+            //    new DelayDeliveryWith(delay)
+            //});
+
+            //Logger.Warn($"Second Level Retry will reschedule message '{failedMessage.MessageId}' after a delay of {delay} because of an exception:", exception);
+
+            ////Question: this is wrong we should set the destination address to timeout manager storage queue
+            //await dispatcher.Dispatch(new TransportOperations(operation), context).ConfigureAwait(false);
+
+            return true;
         }
 
-        static int GetNumberOfRetries(Dictionary<string, string> headers)
-        {
-            string value;
-            if (headers.TryGetValue(Headers.Retries, out value))
-            {
-                int i;
-                if (int.TryParse(value, out i))
-                {
-                    return i;
-                }
-            }
-            return 0;
-        }
-
-        FailureInfoStorage failureInfoStorage;
-        string localAddress;
         SecondLevelRetryPolicy retryPolicy;
-
-        static ILog Logger = LogManager.GetLogger<SecondLevelRetriesBehavior>();
 
         public class Registration : RegisterStep
         {

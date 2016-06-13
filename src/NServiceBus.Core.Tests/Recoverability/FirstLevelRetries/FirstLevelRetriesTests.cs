@@ -17,33 +17,36 @@
         {
             var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(0));
 
-            Assert.That(async () => await behavior.Invoke(null, () => { throw new MessageDeserializationException("test"); }), Throws.InstanceOf<MessageDeserializationException>());
+            var shouldImmediatelyRetry = behavior.Invoke(new MessageDeserializationException(string.Empty), 1);
+
+            Assert.IsFalse(shouldImmediatelyRetry);
         }
 
         [Test]
-        public async Task ShouldPerformFLRIfThereAreRetriesLeftToDo()
+        public void ShouldPerformFLRIfThereAreRetriesLeftToDo()
         {
             var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1));
-            var context = CreateContext("someid");
 
-            await behavior.Invoke(context, () => { throw new Exception("test"); });
+            var shouldImmediatelyRetry = behavior.Invoke(new Exception(), 0);
 
-            Assert.True(context.ReceiveOperationAborted, "Should request the transport to abort");
+            Assert.True(shouldImmediatelyRetry);
         }
 
         [Test]
-        public void ShouldBubbleTheExceptionUpIfThereAreNoMoreRetriesLeft()
+        public void ShouldGiveUpIfThereAreNoMoreRetriesLeft()
         {
             var storage = GetFailureInfoStorage();
             var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(0), storage);
-            var context = CreateContext("someid");
 
-            Assert.That(async () => await behavior.Invoke(context, () => { throw new Exception("test"); }), Throws.InstanceOf<Exception>());
+            var shouldImmediatelyRetry = behavior.Invoke(new Exception(), 0);
+
+            Assert.True(shouldImmediatelyRetry);
 
             //should update the failure info storage to capture how many flr attempts where made
             Assert.AreEqual(0, storage.GetFailureInfoForMessage("someid").FLRetries);
         }
 
+        /* This should probably go to transport level test
         [Test]
         public void ShouldNotClearStorageAfterGivingUp()
         {
@@ -57,6 +60,7 @@
 
             Assert.AreEqual(1, storage.GetFailureInfoForMessage(messageId).FLRetries);
         }
+        
 
         [Test]
         public async Task ShouldRememberRetryCountBetweenRetries()
@@ -68,23 +72,6 @@
             await behavior.Invoke(CreateContext(messageId), () => { throw new Exception("test"); });
 
             Assert.AreEqual(1, storage.GetFailureInfoForMessage(messageId).FLRetries);
-        }
-
-        [Test]
-        public async Task ShouldRaiseNotificationsForFLR()
-        {
-            var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1));
-            var eventAggregator = new FakeEventAggregator();
-
-            var context = CreateContext("someid", eventAggregator);
-
-            await behavior.Invoke(context, () => { throw new Exception("test"); });
-
-            var failure = eventAggregator.GetNotification<MessageToBeRetried>();
-
-            Assert.AreEqual(0, failure.Attempt);
-            Assert.AreEqual("test", failure.Exception.Message);
-            Assert.AreEqual("someid", failure.Message.MessageId);
         }
 
         [Test]
@@ -100,12 +87,26 @@
 
             Assert.DoesNotThrowAsync(async () => await behavior.Invoke(CreateContext(messageId), () => { throw new Exception("test"); }));
         }
+        */
+
+        [Test]
+        public void ShouldRaiseNotificationsForFLR()
+        {
+            var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1));
+            var eventAggregator = new FakeEventAggregator();
+
+            behavior.Invoke(new Exception(), 0);
+
+            var failure = eventAggregator.GetNotification<MessageToBeRetried>();
+
+            Assert.AreEqual(0, failure.Attempt);
+            Assert.AreEqual("test", failure.Exception.Message);
+            Assert.AreEqual("someid", failure.Message.MessageId);
+        }
         
         static FirstLevelRetriesBehavior CreateFlrBehavior(FirstLevelRetryPolicy retryPolicy, FailureInfoStorage storage = null)
         {
-            var flrBehavior = new FirstLevelRetriesBehavior(
-                storage ?? GetFailureInfoStorage(),
-                retryPolicy);
+            var flrBehavior = new FirstLevelRetriesBehavior(retryPolicy);
 
             return flrBehavior;
         }

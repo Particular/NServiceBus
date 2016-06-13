@@ -1,10 +1,10 @@
 namespace NServiceBus.Features
 {
     using System;
+    using System.Collections.Generic;
     using Config;
     using ConsistencyGuarantees;
     using Settings;
-    using Transports;
 
     /// <summary>
     /// Used to configure Second Level Retries.
@@ -34,9 +34,9 @@ namespace NServiceBus.Features
 
             context.Container.RegisterSingleton(typeof(SecondLevelRetryPolicy), retryPolicy);
 
-            context.Pipeline.Register<SecondLevelRetriesBehavior.Registration>();
+            //context.Pipeline.Register<SecondLevelRetriesBehavior.Registration>();
 
-            context.Container.ConfigureComponent(b => new SecondLevelRetriesBehavior(retryPolicy, context.Settings.LocalAddress(), b.Build<FailureInfoStorage>()), DependencyLifecycle.InstancePerCall);
+            //context.Container.ConfigureComponent(b => new SecondLevelRetriesBehavior(retryPolicy, context.Settings.LocalAddress(), b.Build<FailureInfoStorage>()), DependencyLifecycle.InstancePerCall);
         }
 
         bool IsEnabledInConfig(FeatureConfigurationContext context)
@@ -58,7 +58,7 @@ namespace NServiceBus.Features
 
         static SecondLevelRetryPolicy GetRetryPolicy(ReadOnlySettings settings)
         {
-            var customRetryPolicy = settings.GetOrDefault<Func<IncomingMessage, TimeSpan>>("SecondLevelRetries.RetryPolicy");
+            var customRetryPolicy = settings.GetOrDefault<Func<Dictionary<string, string>, TimeSpan>>("SecondLevelRetries.RetryPolicy");
 
             if (customRetryPolicy != null)
             {

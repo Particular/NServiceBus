@@ -1,7 +1,7 @@
 namespace NServiceBus
 {
     using System;
-    using Transports;
+    using System.Collections.Generic;
 
     class DefaultSecondLevelRetryPolicy : SecondLevelRetryPolicy
     {
@@ -19,7 +19,7 @@ namespace NServiceBus
             this.currentUtcTimeProvider = currentUtcTimeProvider;
         }
 
-        public override bool TryGetDelay(IncomingMessage message, Exception ex, int currentRetry, out TimeSpan delay)
+        public override bool TryGetDelay(Dictionary<string, string> headers, Exception ex, int currentRetry, out TimeSpan delay)
         {
             delay = TimeSpan.MinValue;
 
@@ -28,7 +28,7 @@ namespace NServiceBus
                 return false;
             }
 
-            if (HasReachedMaxTime(message))
+            if (HasReachedMaxTime(headers))
             {
                 return false;
             }
@@ -38,11 +38,11 @@ namespace NServiceBus
             return true;
         }
 
-        private bool HasReachedMaxTime(IncomingMessage message)
+        bool HasReachedMaxTime(Dictionary<string, string> headers)
         {
             string timestampHeader;
 
-            if (!message.Headers.TryGetValue(Headers.RetriesTimestamp, out timestampHeader))
+            if (!headers.TryGetValue(Headers.RetriesTimestamp, out timestampHeader))
             {
                 return false;
             }

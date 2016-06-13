@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Messaging;
     using System.Threading;
     using System.Threading.Tasks;
@@ -11,7 +12,7 @@ namespace NServiceBus
 
     class ReceiveWithNoTransaction : ReceiveStrategy
     {
-        public override async Task ReceiveMessage(MessageQueue inputQueue, MessageQueue errorQueue, CancellationTokenSource cancellationTokenSource, Func<PushContext, Task> onMessage)
+        public override async Task ReceiveMessage(MessageQueue inputQueue, MessageQueue errorQueue, CancellationTokenSource cancellationTokenSource, Func<PushContext, Task> onMessage, Func<ErrorContext, Task<bool>> onError)
         {
             var message = inputQueue.Receive(TimeSpan.FromMilliseconds(10), MessageQueueTransactionType.None);
 
@@ -31,12 +32,32 @@ namespace NServiceBus
                 return;
             }
 
-            using (var bodyStream = message.BodyStream)
+            while (true)
             {
-                var pushContext = new PushContext(message.Id, headers, bodyStream, new TransportTransaction(), cancellationTokenSource, new ContextBag());
+                var attempts = 0;
+                try
+                {
+                    using (var bodyStream = message.BodyStream)
+                    {
+                        var pushContext = new PushContext(message.Id, headers, bodyStream, new TransportTransaction(), cancellationTokenSource, new ContextBag());
 
-                await onMessage(pushContext).ConfigureAwait(false);
+                        await onMessage(pushContext).ConfigureAwait(false);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    attempts++;
+                    message.BodyStream.Seek(0, SeekOrigin.Begin);
+
+                    var errorContext = new ErrorContext(ex, attempts, message.Id, headers, message.BodyStream, new ContextBag());
+                    var immediateRetry = await onError(errorContext).ConfigureAwait(false);
+                    if (!immediateRetry)
+                    {
+                        break;
+                    }
+                }
             }
+
         }
 
         static ILog Logger = LogManager.GetLogger<ReceiveWithNoTransaction>();

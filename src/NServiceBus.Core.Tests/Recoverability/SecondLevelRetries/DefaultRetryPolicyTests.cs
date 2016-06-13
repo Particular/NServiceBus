@@ -2,8 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
-    using NServiceBus.Transports;
     using NUnit.Framework;
 
     [TestFixture]
@@ -17,11 +15,11 @@
             var policy = new DefaultSecondLevelRetryPolicy(2, baseDelay);
             TimeSpan delay;
 
-            Assert.True(policy.TryGetDelay(new IncomingMessage("someid", new Dictionary<string, string>(), Stream.Null), new Exception(""), 1, out delay));
+            Assert.True(policy.TryGetDelay(new Dictionary<string, string>(), new Exception(""), 1, out delay));
             Assert.AreEqual(baseDelay, delay);
-            Assert.True(policy.TryGetDelay(new IncomingMessage("someid", new Dictionary<string, string>(), Stream.Null), new Exception(""), 2, out delay));
+            Assert.True(policy.TryGetDelay(new Dictionary<string, string>(), new Exception(""), 2, out delay));
             Assert.AreEqual(TimeSpan.FromSeconds(20), delay);
-            Assert.False(policy.TryGetDelay(new IncomingMessage("someid", new Dictionary<string, string>(), Stream.Null), new Exception(""), 3, out delay));
+            Assert.False(policy.TryGetDelay(new Dictionary<string, string>(), new Exception(""), 3, out delay));
         }
 
         [Test]
@@ -39,7 +37,7 @@
                 {Headers.RetriesTimestamp, DateTimeExtensions.ToWireFormattedString(moreThanADayAgo)}
             };
 
-            Assert.False(policy.TryGetDelay(new IncomingMessage("someid", headers, Stream.Null), new Exception(""), 1, out delay));
+            Assert.False(policy.TryGetDelay(headers, new Exception(""), 1, out delay));
         }
     }
 }

@@ -19,6 +19,8 @@ namespace NServiceBus
 
             this.settings = settings;
             this.connectionString = connectionString;
+
+            this.failureCache = new Dictionary<string, Tuple<Exception, int>>();
         }
 
         public override IEnumerable<Type> DeliveryConstraints { get; } = new[]
@@ -33,7 +35,7 @@ namespace NServiceBus
         {
             if (minimumConsistencyGuarantee == TransportTransactionMode.TransactionScope)
             {
-                return new ReceiveWithTransactionScope(transactionOptions);
+                return new ReceiveWithTransactionScope(transactionOptions, failureCache);
             }
 
             if (minimumConsistencyGuarantee == TransportTransactionMode.None)
@@ -139,5 +141,6 @@ namespace NServiceBus
 
         string connectionString;
         ReadOnlySettings settings;
+        Dictionary<string, Tuple<Exception, int>> failureCache;
     }
 }

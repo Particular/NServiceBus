@@ -11,7 +11,7 @@
         /// <summary>
         /// Initializes the <see cref="IPushMessages" />.
         /// </summary>
-        Task Init(Func<PushContext, Task> pipe, CriticalError criticalError, PushSettings settings);
+        Task Init(Func<PushContext, Task> pipe, Func<ErrorContext, Task<bool>> errorPipe, CriticalError criticalError, PushSettings settings);
 
         /// <summary>
         /// Starts pushing message/>.
