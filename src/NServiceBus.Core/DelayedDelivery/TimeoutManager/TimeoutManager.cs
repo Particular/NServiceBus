@@ -35,7 +35,7 @@
                 throw new Exception("The selected persistence doesn't have support for timeout storage. Select another persistence or disable the timeout manager feature using endpointConfiguration.DisableFeature<TimeoutManager>()");
             }
 
-            var errorQueueAddress = ErrorQueueSettings.GetConfiguredErrorQueue(context.Settings);
+            var errorQueueAddress = context.Settings.ErrorQueueAddress();
             var requiredTransactionSupport = context.Settings.GetRequiredTransactionModeForReceives();
 
             SetupStorageSatellite(context, errorQueueAddress, requiredTransactionSupport);

@@ -77,12 +77,10 @@
 
         TestableOutgoingReplyContext CreateContext(OutgoingLogicalMessage message)
         {
-            var context = new TestableOutgoingReplyContext()
+            return new TestableOutgoingReplyContext
             {
                 Message = message
             };
-            
-            return context;
         }
 
         class MyReply

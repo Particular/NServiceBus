@@ -12,9 +12,11 @@ results
 CommonAssemblyInfo.cs
 lib/sqlite/System.Data.SQLite.dll
 *.orig
+*.zip
 Samples/DataBus/storage
 packages
 PrecompiledWeb
+tempstorage
 core-only
 Release
 Artifacts

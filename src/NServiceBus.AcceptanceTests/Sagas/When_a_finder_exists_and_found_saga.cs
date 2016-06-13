@@ -41,13 +41,18 @@
                 // ReSharper disable once MemberCanBePrivate.Global
                 public Context Context { get; set; }
 
-                public Task<TestSaga08.SagaData08> FindBy(SomeOtherMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context)
+                public ISagaPersister SagaPersister { get; set; }
+
+                public async Task<TestSaga08.SagaData08> FindBy(SomeOtherMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context)
                 {
                     Context.FinderUsed = true;
-                    return Task.FromResult(new TestSaga08.SagaData08
+                    var sagaInstance = new TestSaga08.SagaData08
                     {
                         Property = "jfbsjdfbsdjh"
-                    });
+                    };
+                    //Make sure saga exists in the store. Persisters expect it there when they save saga instance after processing a message.
+                    await SagaPersister.Save(sagaInstance, SagaCorrelationProperty.None, storageSession, new ContextBag()).ConfigureAwait(false);
+                    return sagaInstance;
                 }
             }
 
