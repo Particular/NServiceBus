@@ -16,7 +16,7 @@
                 .Done(c => c.WasCalled)
                 .Run(TimeSpan.FromSeconds(10));
 
-            Assert.IsTrue(context.NonDurabilityHeader, "Message should be flagged as non durable");
+            Assert.IsTrue(context.NonDurabilityHeader, "Message should be flagged as non-durable");
         }
 
         public class Context : ScenarioContext
