@@ -12,7 +12,7 @@
             MoveToErrorQueue = moveToErrorQueue;
             DeferForSecondLevelRetry = deferForSecondLevelRetry;
         }
-        
+
         public int FLRetries { get; }
         public Exception Exception => ExceptionDispatchInfo.SourceException;
         public ExceptionDispatchInfo ExceptionDispatchInfo { get; }

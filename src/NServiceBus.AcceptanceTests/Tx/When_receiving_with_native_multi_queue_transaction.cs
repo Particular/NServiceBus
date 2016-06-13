@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
@@ -38,7 +37,7 @@
             {
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
-                    config.EnableFeature<FirstLevelRetries>();
+                    config.FirstLevelRetries().NumberOfRetries(1);
                     config.UseTransport(context.GetTransportType())
                         .Transactions(TransportTransactionMode.ReceiveOnly);
                 });

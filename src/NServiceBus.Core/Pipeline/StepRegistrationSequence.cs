@@ -1,6 +1,7 @@
 namespace NServiceBus.Pipeline
 {
     using System;
+    using ObjectBuilder;
 
     /// <summary>
     /// Allows steps to be registered in order.
@@ -26,6 +27,22 @@ namespace NServiceBus.Pipeline
             Guard.AgainstNullAndEmpty(nameof(description), description);
 
             var step = RegisterStep.Create(stepId, behavior, description);
+            addStep(step);
+            return this;
+        }
+
+        /// <summary>
+        /// Register a new step into the pipeline.
+        /// </summary>
+        /// <param name="stepId">The identifier of the new step to add.</param>
+        /// <param name="factoryMethod">A callback that creates the behavior instance.</param>
+        /// <param name="description">The description of the behavior.</param>
+        public StepRegistrationSequence Register<T>(string stepId, Func<IBuilder, T> factoryMethod, string description)
+            where T : IBehavior
+        {
+            BehaviorTypeChecker.ThrowIfInvalid(typeof(T), "behavior");
+
+            var step = RegisterStep.Create(stepId, typeof(T), description, b => factoryMethod(b));
             addStep(step);
             return this;
         }

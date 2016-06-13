@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using NServiceBus.Config;
     using NUnit.Framework;
 
@@ -30,7 +29,6 @@
             {
                 EndpointSetup<DefaultServer>(b =>
                 {
-                    b.DisableFeature<SecondLevelRetries>();
                     b.SendFailedMessagesTo("error_with_code_source");
                 })
                     .WithConfig<TransportConfig>(c => { c.MaxRetries = 0; });

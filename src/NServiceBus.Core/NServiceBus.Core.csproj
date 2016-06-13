@@ -128,6 +128,9 @@
     <Compile Include="Recoverability\Faults\MessageProcessingFailed.cs" />
     <Compile Include="Recoverability\Faults\MessageToBeRetried.cs" />
     <Compile Include="Recoverability\Faults\MessageFaulted.cs" />
+    <Compile Include="Recoverability\Recoverability.cs" />
+    <Compile Include="Recoverability\SecondLevelRetries\Config\FirstLevelRetriesConfigExtensions.cs" />
+    <Compile Include="Recoverability\SecondLevelRetries\Config\FirstLevelRetriesSettings.cs" />
     <Compile Include="ReleaseDateAttribute.cs" />
     <Compile Include="Recoverability\ProcessingFailureInfo.cs" />
     <Compile Include="Routing\IDistributionPolicy.cs" />
@@ -338,7 +341,6 @@
     <Compile Include="Pipeline\MutateTransportMessage\MutateIncomingTransportMessageContext.cs" />
     <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetry.cs" />
     <Compile Include="Recoverability\Faults\ErrorQueueSettings.cs" />
-    <Compile Include="Recoverability\Faults\StoreFaultsInErrorQueue.cs" />
     <Compile Include="Forwarding\IForwardingContext.cs" />
     <Compile Include="Forwarding\ForwardingToRoutingConnector.cs" />
     <Compile Include="Forwarding\InvokeForwardingPipelineBehavior.cs" />
@@ -445,7 +447,6 @@
     <Compile Include="Features\DisplayDiagnosticsForFeatures.cs" />
     <Compile Include="Features\ExposeSettings.cs" />
     <Compile Include="Features\PrerequisiteStatus.cs" />
-    <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetries.cs" />
     <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetryPolicy.cs" />
     <Compile Include="Pipeline\BehaviorInstance.cs" />
     <Compile Include="Pipeline\IPipeline.cs" />
@@ -667,7 +668,6 @@
     <Compile Include="Transports\Msmq\MsmqUtilities.cs" />
     <Compile Include="Encryption\RijndaelEncryptionServiceConfig.cs" />
     <Compile Include="Recoverability\SecondLevelRetries\Config\SecondLevelRetriesConfig.cs" />
-    <Compile Include="Recoverability\SecondLevelRetries\SecondLevelRetries.cs" />
     <Compile Include="Transports\TransportConfig.cs" />
     <Compile Include="Unicast\UnicastBusConfig.cs" />
     <Compile Include="DataBus\DataBusFileBased.cs" />

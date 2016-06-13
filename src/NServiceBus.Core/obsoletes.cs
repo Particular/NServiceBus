@@ -600,7 +600,8 @@ namespace NServiceBus.Timeout.Core
         [ObsoleteEx(
             Message = "Not used anymore",
             RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0")] public const string OriginalReplyToAddress = "NServiceBus.Timeout.ReplyToAddress";
+            TreatAsErrorFromVersion = "6.0")]
+        public const string OriginalReplyToAddress = "NServiceBus.Timeout.ReplyToAddress";
     }
 }
 
@@ -1681,7 +1682,8 @@ namespace NServiceBus
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            Message = "The WinIdName header is no longer attached to outgoing message to avoid passing security related information on the wire. Should you rely on the header being present you can add a message mutator that sets it.")] public const string WindowsIdentityName = "WinIdName";
+            Message = "The WinIdName header is no longer attached to outgoing message to avoid passing security related information on the wire. Should you rely on the header being present you can add a message mutator that sets it.")]
+        public const string WindowsIdentityName = "WinIdName";
     }
 }
 
@@ -2295,6 +2297,42 @@ namespace NServiceBus.DataBus
         ReplacementTypeOrMember = "DataBusExtensions")]
     public class DataBusExtentions
     {
+    }
+}
+
+namespace NServiceBus.Features
+{
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        Message = "FirstLevelRetries is no longer a separate feature. Please use configureation.DisableFirstLevelRetries() to disable immediate retries.")]
+    public class FirstLevelRetries : Feature
+    {
+        internal FirstLevelRetries()
+        {
+        }
+        protected internal override void Setup(FeatureConfigurationContext context)
+        {
+            throw new System.NotImplementedException();
+        }
+    }
+}
+
+namespace NServiceBus.Features
+{
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        Message = "SecondLevelRetries is no longer a separate feature. Please use configureation.SecondLevelRetries().Disable() to delayed retries.")]
+    public class SecondLevelRetries : Feature
+    {
+        internal SecondLevelRetries()
+        {
+        }
+
+        protected internal override void Setup(FeatureConfigurationContext context)
+        {
+        }
     }
 }
 

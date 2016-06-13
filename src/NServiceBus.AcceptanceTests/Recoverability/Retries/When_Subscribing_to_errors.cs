@@ -54,9 +54,7 @@
                 {
                     var testContext = (Context) context.ScenarioContext;
                     var notifications = config.Notifications;
-                    config.EnableFeature<SecondLevelRetries>();
                     config.EnableFeature<TimeoutManager>();
-                    config.EnableFeature<FirstLevelRetries>();
                     notifications.Errors.MessageSentToErrorQueue += (sender, message) =>
                     {
                         testContext.MessageSentToErrorException = message.Exception;

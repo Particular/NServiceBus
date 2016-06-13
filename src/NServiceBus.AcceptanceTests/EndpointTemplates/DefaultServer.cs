@@ -37,8 +37,6 @@
             configuration.EnableInstallers();
 
             configuration.DisableFeature<TimeoutManager>();
-            configuration.DisableFeature<SecondLevelRetries>();
-            configuration.DisableFeature<FirstLevelRetries>();
 
             await configuration.DefineTransport(settings, endpointConfiguration.EndpointName).ConfigureAwait(false);
 
@@ -48,7 +46,7 @@
             Type serializerType;
             if (settings.TryGet("Serializer", out serializerType))
             {
-                configuration.UseSerialization((SerializationDefinition) Activator.CreateInstance(serializerType));
+                configuration.UseSerialization((SerializationDefinition)Activator.CreateInstance(serializerType));
             }
             await configuration.DefinePersistence(settings, endpointConfiguration.EndpointName).ConfigureAwait(false);
 
