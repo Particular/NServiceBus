@@ -170,6 +170,7 @@
     <Compile Include="Routing\Routers\UnicastReplyRouterConnectorTests.cs" />
     <Compile Include="Routing\Routers\UnicastPublishRouterConnectorTests.cs" />
     <Compile Include="Routing\RoutingOptionExtensionsTests.cs" />
+    <Compile Include="Routing\RoutingPolicyTests.cs" />
     <Compile Include="Routing\RoutingToDispatchConnectorTests.cs" />
     <Compile Include="Routing\SingleInstanceRoundRobinDistributionStrategyTests.cs" />
     <Compile Include="Routing\SubscriptionRouterTests.cs" />

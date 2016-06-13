@@ -1,6 +1,6 @@
 namespace NServiceBus
 {
-    using System.Collections.Generic;
+    using System.Collections.Concurrent;
     using Routing;
 
     class DistributionPolicy : IDistributionPolicy
@@ -12,20 +12,12 @@ namespace NServiceBus
 
         public DistributionStrategy GetDistributionStrategy(string endpointName)
         {
-            //Following approch trades off absolute correctness for performance.
-            //There might be cases where two different strategies will be returned for a given endpoint but this is fine.
             DistributionStrategy configuredStrategy;
-            if (configuredStrategies.TryGetValue(endpointName, out configuredStrategy))
-            {
-                return configuredStrategy;
-            }
-            var newConfiguredStrategies = new Dictionary<string, DistributionStrategy>(configuredStrategies);
-            var defaultStrategy = new SingleInstanceRoundRobinDistributionStrategy();
-            newConfiguredStrategies[endpointName] = defaultStrategy;
-            configuredStrategies = newConfiguredStrategies;
-            return defaultStrategy;
+            return configuredStrategies.TryGetValue(endpointName, out configuredStrategy) 
+                ? configuredStrategy 
+                : configuredStrategies.AddOrUpdate(endpointName, new SingleInstanceRoundRobinDistributionStrategy(), (e, strategy) => strategy);
         }
 
-        Dictionary<string, DistributionStrategy> configuredStrategies = new Dictionary<string, DistributionStrategy>();
+        ConcurrentDictionary<string, DistributionStrategy> configuredStrategies = new ConcurrentDictionary<string, DistributionStrategy>();
     }
 }

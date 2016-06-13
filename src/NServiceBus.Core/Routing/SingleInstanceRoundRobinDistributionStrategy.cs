@@ -17,8 +17,9 @@ namespace NServiceBus.Routing
             {
                 yield break;
             }
+            var result = currentAllInstances[(int)(index % currentAllInstances.Count)];
             Interlocked.Increment(ref index);
-            yield return currentAllInstances[(int) (index%currentAllInstances.Count)];
+            yield return result;
         }
 
         long index;
