@@ -20,7 +20,7 @@ namespace NServiceBus
             this.physicalAddresses = physicalAddresses;
         }
 
-        public async Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, DistributionStrategy distributionStrategy, ContextBag contextBag)
+        public async Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, IDistributionPolicy distributionPolicy, ContextBag contextBag)
         {
             var typesToRoute = messageMetadataRegistry.GetMessageMetadata(messageType)
                 .MessageHierarchy
@@ -34,10 +34,7 @@ namespace NServiceBus
                 destinations.AddRange(await route.Resolve(InstanceResolver).ConfigureAwait(false));
             }
 
-            var destinationsByEndpoint = destinations
-                .GroupBy(d => d.Endpoint, d => d);
-
-            var selectedDestinations = SelectDestinationsForEachEndpoint(distributionStrategy, destinationsByEndpoint);
+            var selectedDestinations = SelectDestinationsForEachEndpoint(distributionPolicy, destinations);
 
             return selectedDestinations
                 .Select(destination => destination.Resolve(x => physicalAddresses.GetTransportAddress(new LogicalAddress(x))))
@@ -52,8 +49,11 @@ namespace NServiceBus
             return endpointInstances.FindInstances(endpoint);
         }
 
-        static IEnumerable<UnicastRoutingTarget> SelectDestinationsForEachEndpoint(DistributionStrategy distributionStrategy, IEnumerable<IGrouping<string, UnicastRoutingTarget>> destinationsByEndpoint)
+        static IEnumerable<UnicastRoutingTarget> SelectDestinationsForEachEndpoint(IDistributionPolicy distributationPolicy, List<UnicastRoutingTarget> destinations)
         {
+            var destinationsByEndpoint = destinations
+                .GroupBy(d => d.Endpoint, d => d);
+
             foreach (var group in destinationsByEndpoint)
             {
                 if (@group.Key == null) //Routing targets that do not specify endpoint name
@@ -67,7 +67,7 @@ namespace NServiceBus
                 else
                 {
                     //Use the distribution strategy to select subset of instances of a given endpoint
-                    foreach (var destination in distributionStrategy.SelectDestination(@group.ToArray()))
+                    foreach (var destination in distributationPolicy.GetDistributionStrategy(group.Key).SelectDestination(@group.ToArray()))
                     {
                         yield return destination;
                     }

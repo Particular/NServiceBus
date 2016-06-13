@@ -8,6 +8,6 @@ namespace NServiceBus
 
     interface IUnicastRouter
     {
-        Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, DistributionStrategy distributionStrategy, ContextBag contextBag);
+        Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, IDistributionPolicy distributionPolicy, ContextBag contextBag);
     }
 }

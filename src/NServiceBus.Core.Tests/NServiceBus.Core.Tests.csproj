@@ -158,6 +158,7 @@
     <Compile Include="Routing\ApplyReplyToAddressBehaviorTests.cs" />
     <Compile Include="Routing\BestPracticesOptionExtensionsTests.cs" />
     <Compile Include="Routing\DetermineRouteForPublishBehaviorTests.cs" />
+    <Compile Include="Routing\DistributionPolicyTests.cs" />
     <Compile Include="Routing\Routers\UnicastSendRouterConnectorTests.cs" />
     <Compile Include="Routing\EndpointInstanceTests.cs" />
     <Compile Include="Routing\EndpointInstancesTests.cs" />

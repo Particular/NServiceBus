@@ -39,7 +39,7 @@
                 {
                     c.UnicastRouting().RouteToEndpoint(typeof(Request), ReceiverEndpoint);
 
-                    c.UnicastRouting().Mapping.SetMessageDistributionStrategy(new AllInstancesDistributionStrategy(), t => t == typeof(Request));
+                    c.UnicastRouting().Mapping.SetMessageDistributionStrategy(ReceiverEndpoint, new AllInstancesDistributionStrategy());
                     c.UnicastRouting().Mapping.Physical.Add(
                         new EndpointInstance(ReceiverEndpoint, "1"),
                         new EndpointInstance(ReceiverEndpoint, "2"));
