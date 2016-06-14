@@ -19,7 +19,7 @@ namespace NServiceBus.SecondLevelRetries.Config
         public FirstLevelRetriesSettings NumberOfRetries(int numberOfRetries)
         {
             Guard.AgainstNegative(nameof(numberOfRetries), numberOfRetries);
-            config.Settings.Set(Recoverability.SlrNumberOfRetries, numberOfRetries);
+            config.Settings.Set(Recoverability.FlrNumberOfRetries, numberOfRetries);
 
             return this;
         }
