@@ -91,7 +91,7 @@
                 return false;
             }
 
-            SecondLevelRetryPolicy customPolicy;
+            Func<IncomingMessage, TimeSpan> customPolicy;
             if (settings.TryGet(SlrCustomPolicy, out customPolicy))
             {
                 return true;
