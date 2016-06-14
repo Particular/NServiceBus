@@ -40,7 +40,7 @@ namespace NServiceBus
 
         async Task<List<UnicastRoutingStrategy>> GetRoutingStrategies(IOutgoingPublishContext context, Type eventType)
         {
-            var addressLabels = await unicastRouter.Route(eventType, distributionPolicy, context.Extensions).ConfigureAwait(false);
+            var addressLabels = await unicastRouter.Route(eventType, distributionPolicy.GetDistributionStrategy, context.Extensions).ConfigureAwait(false);
             return addressLabels.ToList();
         }
 

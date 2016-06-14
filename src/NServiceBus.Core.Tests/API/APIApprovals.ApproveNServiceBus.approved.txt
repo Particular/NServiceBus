@@ -2440,6 +2440,12 @@ namespace NServiceBus.Routing
         public AllInstancesDistributionStrategy() { }
         public override System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> SelectDestination(System.Collections.Generic.IList<NServiceBus.UnicastRoutingTarget> allInstances) { }
     }
+    public class DistributionPolicy
+    {
+        public DistributionPolicy() { }
+        public NServiceBus.Routing.DistributionStrategy GetDistributionStrategy(string endpointName) { }
+        public void SetDistributionStrategy(string endpointName, NServiceBus.Routing.DistributionStrategy distributionStrategy) { }
+    }
     public abstract class DistributionStrategy
     {
         protected DistributionStrategy() { }
@@ -2467,6 +2473,10 @@ namespace NServiceBus.Routing
     public interface IUnicastRoute
     {
         System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget>> Resolve(System.Func<string, System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<NServiceBus.Routing.EndpointInstance>>> instanceResolver);
+    }
+    public interface IUnicastRouter
+    {
+        System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<NServiceBus.Routing.UnicastRoutingStrategy>> Route(System.Type messageType, System.Func<string, NServiceBus.Routing.DistributionStrategy> distributionPolicy, NServiceBus.Extensibility.ContextBag contextBag);
     }
     public class MulticastAddressTag : NServiceBus.Routing.AddressTag
     {
@@ -2498,6 +2508,12 @@ namespace NServiceBus.Routing
         public static NServiceBus.Routing.UnicastRoute CreateFromEndpointInstance(NServiceBus.Routing.EndpointInstance instance) { }
         public static NServiceBus.Routing.UnicastRoute CreateFromEndpointName(string endpoint) { }
         public static NServiceBus.Routing.UnicastRoute CreateFromPhysicalAddress(string physicalAddress) { }
+    }
+    public abstract class UnicastRouter : NServiceBus.Routing.IUnicastRouter
+    {
+        protected UnicastRouter(NServiceBus.Unicast.Messages.MessageMetadataRegistry messageMetadataRegistry, NServiceBus.Routing.EndpointInstances endpointInstances, NServiceBus.Transports.TransportAddresses physicalAddresses) { }
+        protected abstract System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<NServiceBus.Routing.IUnicastRoute>> GetDestinations(NServiceBus.Extensibility.ContextBag contextBag, System.Collections.Generic.List<System.Type> typesToRoute);
+        public async System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<NServiceBus.Routing.UnicastRoutingStrategy>> Route(System.Type messageType, System.Func<string, NServiceBus.Routing.DistributionStrategy> distributionPolicy, NServiceBus.Extensibility.ContextBag contextBag) { }
     }
     public class UnicastRoutingStrategy : NServiceBus.Routing.RoutingStrategy
     {

@@ -237,7 +237,7 @@
         {
             public IEnumerable<UnicastRoutingStrategy> FixedDestination { get; set; }
 
-            public Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, IDistributionPolicy distributionPolicy, ContextBag contextBag)
+            public Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, Func<string, DistributionStrategy> distributionPolicy, ContextBag contextBag)
             {
                 return Task.FromResult(FixedDestination);
             }

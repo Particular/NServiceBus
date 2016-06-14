@@ -10,7 +10,12 @@ namespace NServiceBus.Routing
     /// </summary>
     public class UnicastRoutingTable
     {
-        internal async Task<IEnumerable<IUnicastRoute>> GetDestinationsFor(List<Type> messageTypes, ContextBag contextBag)
+        /// <summary>
+        /// Returns destinations for a message associated with given set of message types.
+        /// </summary>
+        /// <param name="messageTypes">Message types.</param>
+        /// <param name="contextBag">Context.</param>
+        public async Task<IEnumerable<IUnicastRoute>> GetDestinationsFor(List<Type> messageTypes, ContextBag contextBag)
         {
             var routes = new List<IUnicastRoute>();
             foreach (var rule in asyncDynamicRules)

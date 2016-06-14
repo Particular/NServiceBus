@@ -25,7 +25,7 @@
 
         class Router : IUnicastRouter
         {
-            public Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, IDistributionPolicy distributionPolicy, ContextBag contextBag)
+            public Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, Func<string, DistributionStrategy> distributionPolicy, ContextBag contextBag)
             {
                 IEnumerable<UnicastRoutingStrategy> unicastRoutingStrategies = new List<UnicastRoutingStrategy>
                 {
