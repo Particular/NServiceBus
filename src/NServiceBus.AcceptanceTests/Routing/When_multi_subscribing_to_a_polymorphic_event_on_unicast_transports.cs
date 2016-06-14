@@ -51,7 +51,7 @@
         {
             public Publisher1()
             {
-                EndpointSetup<DefaultServer>(b =>
+                EndpointSetup<DefaultPublisher>(b =>
                 {
                     //FLR on since subscription storages can throw on concurrency violation and need to retry
                     b.FirstLevelRetries().NumberOfRetries(5);
@@ -71,7 +71,7 @@
         {
             public Publisher2()
             {
-                EndpointSetup<DefaultServer>(b =>
+                EndpointSetup<DefaultPublisher>(b =>
                 {
                     //FLR on since subscription storages can throw on concurrency violation and need to retry
                     b.FirstLevelRetries().NumberOfRetries(5);

@@ -37,6 +37,8 @@
             configuration.EnableInstallers();
 
             configuration.DisableFeature<TimeoutManager>();
+            configuration.SecondLevelRetries().NumberOfRetries(0);
+            configuration.FirstLevelRetries().NumberOfRetries(0);
 
             await configuration.DefineTransport(settings, endpointConfiguration.EndpointName).ConfigureAwait(false);
 
