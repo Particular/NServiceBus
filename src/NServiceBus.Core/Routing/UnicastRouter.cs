@@ -1,17 +1,26 @@
-namespace NServiceBus
+namespace NServiceBus.Routing
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using Extensibility;
-    using Routing;
     using Transports;
     using Unicast.Messages;
 
-    abstract class UnicastRouter : IUnicastRouter
+    /// <summary>
+    /// Implements routing behavior
+    ///  * Which logical endpoints should receive a given message,
+    ///  * How to map these logical endpoints to physical endpoint instances,
+    ///  * Which physical endpoint instances should receive the message,
+    ///  * How to map physical endpoint instances to transport-level addresses.
+    /// </summary>
+    public abstract class UnicastRouter : IUnicastRouter
     {
-        public UnicastRouter(MessageMetadataRegistry messageMetadataRegistry,
+        /// <summary>
+        /// Creates new instance of the router.
+        /// </summary>
+        protected UnicastRouter(MessageMetadataRegistry messageMetadataRegistry,
             EndpointInstances endpointInstances,
             TransportAddresses physicalAddresses)
         {
@@ -20,7 +29,13 @@ namespace NServiceBus
             this.physicalAddresses = physicalAddresses;
         }
 
-        public async Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, IDistributionPolicy distributionPolicy, ContextBag contextBag)
+        /// <summary>
+        /// Determines the destinations for a given message type.
+        /// </summary>
+        /// <param name="messageType">Type of message.</param>
+        /// <param name="distributionPolicy">Distribution policy.</param>
+        /// <param name="contextBag">Context.</param>
+        public async Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, Func<string, DistributionStrategy> distributionPolicy, ContextBag contextBag)
         {
             var typesToRoute = messageMetadataRegistry.GetMessageMetadata(messageType)
                 .MessageHierarchy
@@ -42,6 +57,11 @@ namespace NServiceBus
                 .Select(destination => new UnicastRoutingStrategy(destination));
         }
 
+        /// <summary>
+        /// Determines routes for a given message.
+        /// </summary>
+        /// <param name="contextBag">Context.</param>
+        /// <param name="typesToRoute">All message types associated with this message.</param>
         protected abstract Task<IEnumerable<IUnicastRoute>> GetDestinations(ContextBag contextBag, List<Type> typesToRoute);
 
         Task<IEnumerable<EndpointInstance>> InstanceResolver(string endpoint)
@@ -49,7 +69,7 @@ namespace NServiceBus
             return endpointInstances.FindInstances(endpoint);
         }
 
-        static IEnumerable<UnicastRoutingTarget> SelectDestinationsForEachEndpoint(IDistributionPolicy distributationPolicy, List<UnicastRoutingTarget> destinations)
+        static IEnumerable<UnicastRoutingTarget> SelectDestinationsForEachEndpoint(Func<string, DistributionStrategy> distributationPolicy, List<UnicastRoutingTarget> destinations)
         {
             var destinationsByEndpoint = destinations
                 .GroupBy(d => d.Endpoint, d => d);
@@ -67,7 +87,7 @@ namespace NServiceBus
                 else
                 {
                     //Use the distribution strategy to select subset of instances of a given endpoint
-                    foreach (var destination in distributationPolicy.GetDistributionStrategy(group.Key).SelectDestination(@group.ToArray()))
+                    foreach (var destination in distributationPolicy(group.Key).SelectDestination(@group.ToArray()))
                     {
                         yield return destination;
                     }

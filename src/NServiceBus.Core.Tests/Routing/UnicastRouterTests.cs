@@ -27,7 +27,7 @@
             endpointInstances.Add(new EndpointInstance(sales, null, null));
             transportAddresses.AddRule(i => i.ToString());
 
-            var routes = router.Route(typeof(Command), new DistributionPolicy(), new ContextBag()).Result.ToArray();
+            var routes = router.Route(typeof(Command), new DistributionPolicy().GetDistributionStrategy, new ContextBag()).Result.ToArray();
 
             Assert.AreEqual(1, routes.Length);
             var headers = new Dictionary<string, string>();
@@ -44,7 +44,7 @@
             endpointInstances.Add(new EndpointInstance(sales));
             transportAddresses.AddRule(i => i.ToString());
 
-            var routes = router.Route(typeof(Event), new DistributionPolicy(), new ContextBag()).Result.ToArray();
+            var routes = router.Route(typeof(Event), new DistributionPolicy().GetDistributionStrategy, new ContextBag()).Result.ToArray();
 
             Assert.AreEqual(1, routes.Length);
             Assert.AreEqual("Sales", ExtractDestination(routes[0]));
@@ -65,7 +65,7 @@
 
             transportAddresses.AddRule(i => i.ToString());
 
-            var routes = router.Route(typeof(Event), new DistributionPolicy(), new ContextBag()).Result.ToArray();
+            var routes = router.Route(typeof(Event), new DistributionPolicy().GetDistributionStrategy, new ContextBag()).Result.ToArray();
 
             Assert.AreEqual(2, routes.Length);
             Assert.AreEqual("Sales-1", ExtractDestination(routes[0]));
@@ -83,7 +83,7 @@
             endpointInstances.Add(new EndpointInstance(sales, "1"));
             transportAddresses.AddRule(i => i.ToString());
 
-            var routes = router.Route(typeof(Event), new DistributionPolicy(), new ContextBag()).Result.ToArray();
+            var routes = router.Route(typeof(Event), new DistributionPolicy().GetDistributionStrategy, new ContextBag()).Result.ToArray();
 
             Assert.AreEqual(1, routes.Length);
         }
@@ -106,7 +106,7 @@
             });
             transportAddresses.AddRule(i => i.ToString());
 
-            var routes = router.Route(typeof(Event), new DistributionPolicy(), new ContextBag()).Result.ToArray();
+            var routes = router.Route(typeof(Event), new DistributionPolicy().GetDistributionStrategy, new ContextBag()).Result.ToArray();
 
             Assert.AreEqual(1, routes.Length);
         }
@@ -114,7 +114,7 @@
         [Test]
         public void Should_return_empty_list_when_no_routes_found()
         {
-            var routes = router.Route(typeof(Event), new DistributionPolicy(), new ContextBag()).Result.ToArray();
+            var routes = router.Route(typeof(Event), new DistributionPolicy().GetDistributionStrategy, new ContextBag()).Result.ToArray();
 
             Assert.IsEmpty(routes);
         }

@@ -46,8 +46,15 @@ namespace NServiceBus
             var explicitDestination = state.Option == RouteOption.ExplicitDestination ? state.ExplicitDestination : null;
             var destination = explicitDestination ?? thisInstance ?? thisEndpoint;
 
-            var distributionPolicy = state.Option == RouteOption.RouteToSpecificInstance ? new SpecificInstanceDistributionPolicy(state.SpecificInstance) : defaultDistributionPolicy;
-
+            Func<string, DistributionStrategy> distributionPolicy;
+            if (state.Option == RouteOption.RouteToSpecificInstance)
+            {
+                distributionPolicy = _ => new SpecificInstanceDistributionStrategy(state.SpecificInstance);
+            }
+            else
+            {
+                distributionPolicy = e => defaultDistributionPolicy.GetDistributionStrategy(e);
+            }
             var routingStrategies = string.IsNullOrEmpty(destination)
                 ? await unicastRouter.Route(messageType, distributionPolicy, context.Extensions).ConfigureAwait(false)
                 : RouteToDestination(destination);
@@ -74,7 +81,7 @@ namespace NServiceBus
             yield return new UnicastRoutingStrategy(physicalAddress);
         }
 
-        IDistributionPolicy defaultDistributionPolicy;
+        DistributionPolicy defaultDistributionPolicy;
         string instanceSpecificQueue;
         string sharedQueue;
         IUnicastRouter unicastRouter;
@@ -98,6 +105,26 @@ namespace NServiceBus
             }
 
             RouteOption option;
+        }
+
+        class SpecificInstanceDistributionStrategy : DistributionStrategy
+        {
+            public SpecificInstanceDistributionStrategy(string specificInstance)
+            {
+                this.specificInstance = specificInstance;
+            }
+
+            public override IEnumerable<UnicastRoutingTarget> SelectDestination(IList<UnicastRoutingTarget> allInstances)
+            {
+                var target = allInstances.FirstOrDefault(t => t.Instance != null && t.Instance.Discriminator == specificInstance);
+                if (target == null)
+                {
+                    throw new Exception($"Specified instance {specificInstance} has not been configured in the routing tables.");
+                }
+                yield return target;
+            }
+
+            string specificInstance;
         }
     }
 }

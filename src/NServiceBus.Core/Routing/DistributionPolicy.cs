@@ -1,12 +1,11 @@
-namespace NServiceBus
+namespace NServiceBus.Routing
 {
     using System.Collections.Generic;
-    using Routing;
 
     /// <summary>
     /// Defines distribution strategies for endpoints.
     /// </summary>
-    public class DistributionPolicy : IDistributionPolicy
+    public class DistributionPolicy
     {
         /// <summary>
         /// Assigns a custom distribution strategy to a given endpoint.

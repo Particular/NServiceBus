@@ -1,13 +1,21 @@
-namespace NServiceBus
+namespace NServiceBus.Routing
 {
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Extensibility;
-    using Routing;
 
-    interface IUnicastRouter
+    /// <summary>
+    /// Represents a routing behavior.
+    /// </summary>
+    public interface IUnicastRouter
     {
-        Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, IDistributionPolicy distributionPolicy, ContextBag contextBag);
+        /// <summary>
+        /// Determines the destinations for a given message type.
+        /// </summary>
+        /// <param name="messageType">Type of message.</param>
+        /// <param name="distributionPolicy">Distribution policy.</param>
+        /// <param name="contextBag">Context.</param>
+        Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, Func<string, DistributionStrategy> distributionPolicy, ContextBag contextBag);
     }
 }
