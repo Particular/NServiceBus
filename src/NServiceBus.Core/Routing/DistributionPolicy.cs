@@ -10,13 +10,7 @@ namespace NServiceBus
             configuredStrategies[endpointName] = distributionStrategy;
         }
 
-        public DistributionStrategy GetDistributionStrategy(string endpointName)
-        {
-            DistributionStrategy configuredStrategy;
-            return configuredStrategies.TryGetValue(endpointName, out configuredStrategy) 
-                ? configuredStrategy 
-                : configuredStrategies.GetOrAdd(endpointName, key => new SingleInstanceRoundRobinDistributionStrategy());
-        }
+        public DistributionStrategy GetDistributionStrategy(string endpointName) => configuredStrategies.GetOrAdd(endpointName, key => new SingleInstanceRoundRobinDistributionStrategy());
 
         ConcurrentDictionary<string, DistributionStrategy> configuredStrategies = new ConcurrentDictionary<string, DistributionStrategy>();
     }
