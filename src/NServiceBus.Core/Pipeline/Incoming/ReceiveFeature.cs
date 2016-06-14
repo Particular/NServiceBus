@@ -21,7 +21,6 @@
             context.Pipeline.Register(typeof(LoadHandlersConnector), "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
 
             context.Pipeline.Register("ExecuteUnitOfWork", typeof(UnitOfWorkBehavior), "Executes the UoW");
-            context.Pipeline.Register("ExecuteUnitOfWork", typeof(UnitOfWorkBehavior), "Executes the UoW");
             context.Pipeline.Register("MutateIncomingTransportMessage", typeof(MutateIncomingTransportMessageBehavior), "Executes IMutateIncomingTransportMessages");
             context.Pipeline.Register("MutateIncomingMessages", typeof(MutateIncomingMessageBehavior), "Executes IMutateIncomingMessages");
             context.Pipeline.Register("InvokeHandlers", typeof(InvokeHandlerTerminator), "Calls the IHandleMessages<T>.Handle(T)");
