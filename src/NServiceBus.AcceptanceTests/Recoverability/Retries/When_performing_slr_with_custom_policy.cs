@@ -1,34 +1,41 @@
 ﻿namespace NServiceBus.AcceptanceTests.Recoverability.Retries
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
     using Transports;
+    using ErrorContext= System.Tuple<Transports.IncomingMessage, System.Exception, int>;
 
     public class When_performing_slr_with_custom_policy : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_expose_headers_to_policy()
+        public async Task Should_expose_error_context_to_policy()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Endpoint>(b => 
+                .WithEndpoint<Endpoint>(b =>
                     b.When(bus => bus.SendLocal(new MessageToBeRetried()))
                      .DoNotFailOnErrorMessages())
-                .Done(c => c.MessageMovedToErrorQueue)
+                .Done(c => c.FailedMessages.Any())
                 .Run();
 
-            Assert.That(context.FLRetriesHeaderAvailable, Is.True, "Could not find FLRetries header");
-            Assert.That(context.RetriesHeaderAvailable, Is.True, "Could not find Retries header");
+            Assert.That(context.HeaderValues.Count, Is.EqualTo(2), "because the custom policy should have been invoked twice");
+            Assert.That(context.HeaderValues[0].Item1, Is.Not.Null);
+            Assert.That(context.HeaderValues[0].Item2, Is.TypeOf<SimulatedException>());
+            Assert.That(context.HeaderValues[0].Item3, Is.EqualTo(1));
+            Assert.That(context.HeaderValues[1].Item1, Is.Not.Null);
+            Assert.That(context.HeaderValues[1].Item2, Is.TypeOf<SimulatedException>());
+            Assert.That(context.HeaderValues[1].Item3, Is.EqualTo(2));
         }
 
         class Context : ScenarioContext
         {
-            public bool FLRetriesHeaderAvailable { get; set; }
             public bool MessageMovedToErrorQueue { get; set; }
-            public bool RetriesHeaderAvailable { get; set; }
+            public List<ErrorContext> HeaderValues { get; set; } = new List<ErrorContext>();
         }
 
         class Endpoint : EndpointConfigurationBuilder
@@ -42,7 +49,6 @@
                     config.EnableFeature<TimeoutManager>();
                     config.EnableFeature<FirstLevelRetries>();
                     config.EnableFeature<SecondLevelRetries>();
-                    config.Notifications.Errors.MessageSentToErrorQueue += (sender, message) => { testContext.MessageMovedToErrorQueue = true; };
                     config.SecondLevelRetries().CustomRetryPolicy(new CustomPolicy(testContext).GetDelay);
                 });
             }
@@ -54,10 +60,9 @@
                     this.context = context;
                 }
 
-                public TimeSpan GetDelay(IncomingMessage msg)
+                public TimeSpan GetDelay(IncomingMessage msg, Exception exception, int retryAttempt)
                 {
-                    context.FLRetriesHeaderAvailable |= msg.Headers.ContainsKey(Headers.FLRetries);
-                    context.RetriesHeaderAvailable |= msg.Headers.ContainsKey(Headers.Retries);
+                    context.HeaderValues.Add(new ErrorContext(msg, exception, retryAttempt));
 
                     if (slrRetries++ == 1)
                     {

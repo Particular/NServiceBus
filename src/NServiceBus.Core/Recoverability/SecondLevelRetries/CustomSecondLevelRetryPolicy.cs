@@ -5,18 +5,18 @@ namespace NServiceBus
 
     class CustomSecondLevelRetryPolicy : SecondLevelRetryPolicy
     {
-        public CustomSecondLevelRetryPolicy(Func<IncomingMessage, TimeSpan> customRetryPolicy)
+        public CustomSecondLevelRetryPolicy(Func<IncomingMessage, Exception, int, TimeSpan> customRetryPolicy)
         {
             this.customRetryPolicy = customRetryPolicy;
         }
 
         public override bool TryGetDelay(IncomingMessage message, Exception ex, int currentRetry, out TimeSpan delay)
         {
-            delay = customRetryPolicy(message);
+            delay = customRetryPolicy(message, ex, currentRetry);
 
             return delay != TimeSpan.MinValue;
         }
 
-        Func<IncomingMessage, TimeSpan> customRetryPolicy;
+        Func<IncomingMessage, Exception, int, TimeSpan> customRetryPolicy;
     }
 }

@@ -58,7 +58,7 @@ namespace NServiceBus.Features
 
         static SecondLevelRetryPolicy GetRetryPolicy(ReadOnlySettings settings)
         {
-            var customRetryPolicy = settings.GetOrDefault<Func<IncomingMessage, TimeSpan>>("SecondLevelRetries.RetryPolicy");
+            var customRetryPolicy = settings.GetOrDefault<Func<IncomingMessage, Exception, int, TimeSpan>>("SecondLevelRetries.RetryPolicy");
 
             if (customRetryPolicy != null)
             {
