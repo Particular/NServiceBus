@@ -448,7 +448,6 @@
     <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetryPolicy.cs" />
     <Compile Include="Pipeline\BehaviorInstance.cs" />
     <Compile Include="Pipeline\IPipeline.cs" />
-    <Compile Include="Pipeline\StepRegistrationSequence.cs" />
     <Compile Include="Pipeline\PipelineCollection.cs" />
     <Compile Include="Recoverability\SecondLevelRetries\CustomSecondLevelRetryPolicy.cs" />
     <Compile Include="Recoverability\SecondLevelRetries\SecondLevelRetryPolicy.cs" />

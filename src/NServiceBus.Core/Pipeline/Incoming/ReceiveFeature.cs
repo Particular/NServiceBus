@@ -20,11 +20,11 @@
             context.Pipeline.Register(typeof(TransportReceiveToPhysicalMessageProcessingConnector), "Allows to abort processing the message");
             context.Pipeline.Register(typeof(LoadHandlersConnector), "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
 
-            context.Pipeline
-                .Register("ExecuteUnitOfWork", typeof(UnitOfWorkBehavior), "Executes the UoW")
-                .Register("MutateIncomingTransportMessage", typeof(MutateIncomingTransportMessageBehavior), "Executes IMutateIncomingTransportMessages")
-                .Register("MutateIncomingMessages", typeof(MutateIncomingMessageBehavior), "Executes IMutateIncomingMessages")
-                .Register("InvokeHandlers", typeof(InvokeHandlerTerminator), "Calls the IHandleMessages<T>.Handle(T)");
+            context.Pipeline.Register("ExecuteUnitOfWork", typeof(UnitOfWorkBehavior), "Executes the UoW");
+            context.Pipeline.Register("ExecuteUnitOfWork", typeof(UnitOfWorkBehavior), "Executes the UoW");
+            context.Pipeline.Register("MutateIncomingTransportMessage", typeof(MutateIncomingTransportMessageBehavior), "Executes IMutateIncomingTransportMessages");
+            context.Pipeline.Register("MutateIncomingMessages", typeof(MutateIncomingMessageBehavior), "Executes IMutateIncomingMessages");
+            context.Pipeline.Register("InvokeHandlers", typeof(InvokeHandlerTerminator), "Calls the IHandleMessages<T>.Handle(T)");
 
             context.Container.ConfigureComponent(b =>
             {

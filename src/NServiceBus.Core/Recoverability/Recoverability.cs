@@ -35,7 +35,7 @@
             var failureInfoStorage = new FailureInfoStorage(context.Settings.Get<int>(FailureInfoStorageCacheSizeKey));
             var localAddress = context.Settings.LocalAddress();
 
-            var incomingStepSequence = context.Pipeline.Register("MoveFaultsToErrorQueue", b => new MoveFaultsToErrorQueueBehavior(
+            context.Pipeline.Register("MoveFaultsToErrorQueue", b => new MoveFaultsToErrorQueueBehavior(
                 b.Build<CriticalError>(),
                 localAddress,
                 transportTransactionMode,
@@ -48,7 +48,7 @@
             {
                 var retryPolicy = GetDelayedRetryPolicy(context.Settings);
 
-                incomingStepSequence.Register("SecondLevelRetries", b => new SecondLevelRetriesBehavior(retryPolicy, localAddress, failureInfoStorage), "Performs second level retries");
+                context.Pipeline.Register("SecondLevelRetries", b => new SecondLevelRetriesBehavior(retryPolicy, localAddress, failureInfoStorage), "Performs second level retries");
             }
 
             if (IsImmediateRetriesEnabled(context.Settings))
@@ -56,7 +56,7 @@
                 var maxRetries = GetMaxRetries(context.Settings);
                 var retryPolicy = new FirstLevelRetryPolicy(maxRetries);
 
-                incomingStepSequence.Register("FirstLevelRetries", b => new FirstLevelRetriesBehavior(failureInfoStorage, retryPolicy), "Performs first level retries");
+                context.Pipeline.Register("FirstLevelRetries", b => new FirstLevelRetriesBehavior(failureInfoStorage, retryPolicy), "Performs first level retries");
             }
 
             RaiseLegacyNotifications(context);
