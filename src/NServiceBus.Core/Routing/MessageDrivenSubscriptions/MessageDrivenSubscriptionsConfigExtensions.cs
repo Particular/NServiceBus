@@ -2,7 +2,9 @@ namespace NServiceBus
 {
     using System;
     using Pipeline;
+    using Routing;
     using Settings;
+    using Transports;
 
     /// <summary>
     /// Provides extensions for configuring message driven subscriptions.
@@ -19,7 +21,7 @@ namespace NServiceBus
         /// </remarks>
         /// <param name="transportExtensions">The <see cref="TransportExtensions" /> to extend.</param>
         /// <param name="authorizer">The <see cref="Func{TI,TR}" /> to execute.</param>
-        public static void SubscriptionAuthorizer(this TransportExtensions transportExtensions, Func<IIncomingPhysicalMessageContext, bool> authorizer)
+        public static void SubscriptionAuthorizer<T>(this TransportExtensions<T> transportExtensions, Func<IIncomingPhysicalMessageContext, bool> authorizer) where T : TransportDefinition, IMessageDrivenSubscriptionTransport
         {
             Guard.AgainstNull(nameof(authorizer), authorizer);
             var settings = transportExtensions.Settings;
