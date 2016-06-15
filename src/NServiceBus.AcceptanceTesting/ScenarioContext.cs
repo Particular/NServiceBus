@@ -29,6 +29,8 @@
 
         internal LogLevel LogLevel { get; set; } = LogLevel.Info;
 
+        internal ConcurrentDictionary<string, int> UnfinishedFailedMessages = new ConcurrentDictionary<string, int>();
+
         public void SetLogLevel(LogLevel level)
         {
             LogLevel = level;

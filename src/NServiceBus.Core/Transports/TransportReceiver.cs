@@ -68,7 +68,7 @@ namespace NServiceBus
             using (var childBuilder = builder.CreateChildBuilder())
             {
                 var rootContext = new RootContext(childBuilder, pipelineCache, eventAggregator);
-                
+
                 var message = new IncomingMessage(pushContext.MessageId, pushContext.Headers, pushContext.BodyStream);
                 var context = new TransportReceiveContext(message, pushContext.TransportTransaction, pushContext.ReceiveCancellationTokenSource, rootContext);
 

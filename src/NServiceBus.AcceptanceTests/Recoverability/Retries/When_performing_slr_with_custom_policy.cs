@@ -14,7 +14,7 @@
         public async Task Should_expose_headers_to_policy()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Endpoint>(b => 
+                .WithEndpoint<Endpoint>(b =>
                     b.When(bus => bus.SendLocal(new MessageToBeRetried()))
                      .DoNotFailOnErrorMessages())
                 .Done(c => c.MessageMovedToErrorQueue)
