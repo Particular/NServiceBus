@@ -17,6 +17,11 @@
         }
 
         /// <summary>
+        /// Allows customizing advanced routing settings.
+        /// </summary>
+        public RoutingMappingSettings Mapping { get; }
+
+        /// <summary>
         /// Adds a static unicast route.
         /// </summary>
         /// <param name="messageType">Message type.</param>
@@ -25,11 +30,6 @@
         {
             GetOrCreate<UnicastRoutingTable>().RouteToEndpoint(messageType, destination);
         }
-
-        /// <summary>
-        /// Allows customizing advanced routing settings.
-        /// </summary>
-        public RoutingMappingSettings Mapping { get; }
 
         T GetOrCreate<T>()
             where T : new()

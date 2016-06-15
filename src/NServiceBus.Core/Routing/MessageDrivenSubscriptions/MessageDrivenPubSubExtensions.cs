@@ -12,7 +12,6 @@ namespace NServiceBus
     /// </summary>
     public static class MessageDrivenPubSubExtensions
     {
-
         /// <summary>
         /// Registers a publisherEndpoint endpoint for a given endpoint type.
         /// </summary>
